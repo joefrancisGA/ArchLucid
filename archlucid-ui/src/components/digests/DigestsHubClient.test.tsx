@@ -122,10 +122,17 @@ describe("DigestsHubClient", () => {
     });
   });
 
-  it("orients Get started with one related-surfaces line instead of four vocabulary rails", async () => {
+  it("orients Get started with one related-surfaces line after tab content instead of four vocabulary rails", async () => {
     render(<DigestsHubClient />);
 
-    expect(await screen.findByTestId("digests-related-surfaces")).toBeInTheDocument();
+    const browsePanel = await screen.findByTestId("digests-hub-panel");
+    const relatedSurfaces = await screen.findByTestId("digests-related-surfaces");
+
+    expect(
+      browsePanel.compareDocumentPosition(relatedSurfaces) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+
+    expect(relatedSurfaces).toBeInTheDocument();
     expect(screen.getByTestId("digests-related-surfaces-peer-notifications")).toBeInTheDocument();
     expect(screen.getByTestId("digests-related-surfaces-peer-teams")).toBeInTheDocument();
     expect(screen.getByTestId("digests-related-surfaces-peer-slack")).toBeInTheDocument();

@@ -108,6 +108,8 @@ import {
   TENANT_SETTINGS_SOURCES_INTRO,
 } from "@/lib/tenant-settings-evidence-copy";
 import {
+  SETTINGS_HUB_CLAIM_DISCIPLINE,
+  SETTINGS_HUB_CLAIM_DISCIPLINE_HEADING,
   SETTINGS_HUB_FOLLOW_UPS_TITLE,
   SETTINGS_HUB_ORIENTATION_SOURCES,
   SETTINGS_HUB_SOURCES_INTRO,
@@ -375,6 +377,8 @@ export function SettingsHubEvidenceOrientationStrip(
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="settings-hub"
+      claim={SETTINGS_HUB_CLAIM_DISCIPLINE}
+      claimHeading={SETTINGS_HUB_CLAIM_DISCIPLINE_HEADING}
       sourcesTitle={SETTINGS_HUB_FOLLOW_UPS_TITLE}
       sourcesIntro={SETTINGS_HUB_SOURCES_INTRO}
       sources={SETTINGS_HUB_ORIENTATION_SOURCES}

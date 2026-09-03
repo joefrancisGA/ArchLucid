@@ -91,7 +91,7 @@ public sealed class SignInMethodRemovalPolicyServiceTests
         new(
             identities,
             users,
-            new AuthSignInRoutingService(
+            AuthSignInRoutingServiceTestSupport.Create(
                 new InMemoryTenantSignInEmailDomainRepository(),
                 new InMemoryTenantSignInEmailDomainRecoveryAdminRepository(),
                 new InMemoryTenantIdentityProviderConfigurationRepository(),

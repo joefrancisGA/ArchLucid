@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  CORE_PILOT_HELP_CLOUD_ACTIONS,
+  CORE_PILOT_HELP_CLOUD_CONNECTIONS_GUIDE_LINK,
+  CORE_PILOT_HELP_CLOUD_CONNECTIONS_LINK,
   CORE_PILOT_HELP_DISCLOSURE,
   CORE_PILOT_HELP_DEPTH_GUIDES,
   CORE_PILOT_HELP_FIRST_VIEWPORT_JOB_CHROME_TEST_ID,
@@ -56,17 +57,12 @@ describe("core-pilot-help-guide-content sample CTA (TB-1332)", () => {
     expect(step2.href).toBe(CORE_PILOT_HELP_START_REVIEW_HREF);
     expect(step2.ctaLabel).toBe("Start a review to add evidence");
 
-    const evidenceOnlyCard = CORE_PILOT_HELP_CLOUD_ACTIONS.find((action) => action.title === "Evidence-only review");
-
-    expect(evidenceOnlyCard?.href).toBe(CORE_PILOT_HELP_START_REVIEW_HREF);
-    expect(evidenceOnlyCard?.ctaLabel).toBe("Start evidence-only review");
+    expect(CORE_PILOT_HELP_CLOUD_CONNECTIONS_LINK.href).toBe("/integrations/cloud-connections");
+    expect(CORE_PILOT_HELP_CLOUD_CONNECTIONS_LINK.label).toBe("Cloud connections");
+    expect(CORE_PILOT_HELP_CLOUD_CONNECTIONS_GUIDE_LINK.href).toContain("/help/cloud-connections");
 
     for (const step of CORE_PILOT_HELP_WORKFLOW_STEPS) {
       expect(step.href).toBe(CORE_PILOT_HELP_START_REVIEW_HREF);
-    }
-
-    for (const action of CORE_PILOT_HELP_CLOUD_ACTIONS) {
-      expect(action.href).not.toContain("/administration/extract-upload");
     }
 
     expect(CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.href).toBe(CORE_PILOT_HELP_START_REVIEW_HREF);

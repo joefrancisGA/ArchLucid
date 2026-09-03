@@ -12,7 +12,6 @@ import { OperatorErrorCallout } from "@/components/operator/OperatorShellMessage
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusTag } from "@/components/ui/status-tag";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OperatorErrorRecoveryActions } from "@/components/usability/OperatorErrorRecoveryActions";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
@@ -20,10 +19,16 @@ import { useFirstReviewGuideState } from "@/hooks/use-first-review-guide-state";
 import {
   BUYER_ONBOARDING_PAGE_LEAD,
   BUYER_ONBOARDING_PAGE_TITLE,
-  FIRST_REVIEW_GUIDE_CONTEXTUAL_HELP_TRIGGER_LABEL,
   FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_LAYOUT, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  FIRST_REVIEW_GUIDE_FIRST_VIEWPORT_ID,
+  FIRST_REVIEW_GUIDE_PRIMARY_CONTENT_ID,
+  FIRST_REVIEW_GUIDE_SKIP_LINK_LABEL,
+  FIRST_REVIEW_GUIDE_SKIP_TARGET_ID,
+} from "@/lib/first-review-guide-page-copy";
 import {
   FIRST_REVIEW_GUIDE_PATH,
   FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID,
@@ -164,14 +169,31 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
       className={OPERATOR_LAYOUT.sectionStack}
       data-testid="first-review-guide-page"
     >
+      <a
+        href={`#${FIRST_REVIEW_GUIDE_SKIP_TARGET_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {FIRST_REVIEW_GUIDE_SKIP_LINK_LABEL}
+      </a>
+
+      <OperatorPageHeader
+        navHref={FIRST_REVIEW_GUIDE_PATH}
+        title={BUYER_ONBOARDING_PAGE_TITLE}
+        headingLevel="h1"
+        subtitle={BUYER_ONBOARDING_PAGE_LEAD}
+      />
+
+      <div
+        id={FIRST_REVIEW_GUIDE_PRIMARY_CONTENT_ID}
+        data-testid={FIRST_REVIEW_GUIDE_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+      >
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] lg:items-start">
         <div className={OPERATOR_LAYOUT.sectionStack}>
-          <OperatorPageHeader
-            navHref={FIRST_REVIEW_GUIDE_PATH}
-            title={BUYER_ONBOARDING_PAGE_TITLE}
-            headingLevel="h1"
-            subtitle={BUYER_ONBOARDING_PAGE_LEAD}
-            actions={<PageContextualHelpButton triggerText={FIRST_REVIEW_GUIDE_CONTEXTUAL_HELP_TRIGGER_LABEL} />}
+          <div
+            id={FIRST_REVIEW_GUIDE_FIRST_VIEWPORT_ID}
+            data-testid={FIRST_REVIEW_GUIDE_FIRST_VIEWPORT_ID}
+            className={OPERATOR_LAYOUT.sectionStack}
           >
             {guide.isError ? (
               <FirstReviewGuideContextErrorCallout onRetry={guide.retry} />
@@ -236,7 +258,6 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
                 <FirstReviewGuideRequiredSetupPanel blockers={guide.requiredBlockers} />
               </>
             )}
-          </OperatorPageHeader>
 
           {guide.sealedReviewRecord === null ? <OnboardingSampleReviewShortcut /> : null}
 
@@ -267,6 +288,7 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
               progressPhase={guide.progress.phase}
             />
           </section>
+          </div>
         </div>
 
         <FirstReviewGuideSupportPanel
@@ -285,6 +307,7 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
       />
 
       <OnboardingOptionalSetupSection />
+      </div>
     </OperatorPageContainer>
   );
 }

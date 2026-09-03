@@ -148,7 +148,7 @@ public sealed class UserInvitationFlowServiceTests
     private static UserInvitationFlowService CreateSut(InMemoryUserInvitationRepository invitations) =>
         new(
             invitations,
-            new AuthSignInRoutingService(
+            AuthSignInRoutingServiceTestSupport.Create(
                 new InMemoryTenantSignInEmailDomainRepository(),
                 new InMemoryTenantSignInEmailDomainRecoveryAdminRepository(),
                 new InMemoryTenantIdentityProviderConfigurationRepository(),

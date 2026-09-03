@@ -62,7 +62,7 @@ export function ReviewsHubActiveFiltersStrip(
       {filterActive && searchActive ? (
         <Button
           type="button"
-          variant="ghost"
+          variant="outline"
           size="sm"
           className="h-auto px-2 py-1 text-al-text-primary"
           onClick={() => {

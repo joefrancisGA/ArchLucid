@@ -27,7 +27,15 @@ import {
 } from "@/lib/sponsor/sponsor-dashboard-route";
 import { resolveSponsorDashboardLatestFinalizedRunId } from "@/lib/resolve-sponsor-dashboard-latest-finalized-run";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  SPONSOR_DASHBOARD_FIRST_VIEWPORT_ID,
+  SPONSOR_DASHBOARD_PRIMARY_CONTENT_ID,
+  SPONSOR_DASHBOARD_SKIP_LINK_LABEL,
+  SPONSOR_DASHBOARD_SKIP_TARGET_ID,
+} from "@/lib/sponsor/sponsor-dashboard-page-copy";
 import { SponsorDashboardBaselineWarningBanner } from "./SponsorDashboardBaselineWarningBanner";
+import { ArchitectureSponsorDashboardClaimOrientationStrip } from "./ArchitectureSponsorDashboardClaimOrientationStrip";
 import { SponsorDashboardLatestFinalizedReviewStrip } from "./SponsorDashboardLatestFinalizedReviewStrip";
 import { SponsorDashboardPickReviewBeforeKpisStrip } from "./SponsorDashboardPickReviewBeforeKpisStrip";
 import { SponsorRoiDashboardNextReviewFooterClient } from "./SponsorRoiDashboardNextReviewFooterClient";
@@ -104,12 +112,32 @@ function SponsorRoiDashboardPortfolioSections({
 
   return (
     <div data-testid="sponsor-roi-dashboard-ready" data-ready={dashboardReady ? "true" : "false"}>
-    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack}>
+      <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack}>
+        <a
+          href={`#${SPONSOR_DASHBOARD_SKIP_TARGET_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {SPONSOR_DASHBOARD_SKIP_LINK_LABEL}
+        </a>
+
+        <div
+          id={SPONSOR_DASHBOARD_PRIMARY_CONTENT_ID}
+          data-testid="sponsor-dashboard-primary-content"
+          className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+        >
+          <SponsorDashboardPageHero dashboardEmpty={dashboardEmpty} />
+
+          <div
+            id={SPONSOR_DASHBOARD_FIRST_VIEWPORT_ID}
+            data-testid={SPONSOR_DASHBOARD_FIRST_VIEWPORT_ID}
+            className={cn(
+              "scroll-mt-24 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+              OPERATOR_LAYOUT.sectionStack,
+            )}
+          >
       {showSampleBanner ? <SponsorDashboardSampleWorkspaceBanner /> : null}
 
       {!dashboardEmpty ? <OperatorWelcomeOnboardingDeferred /> : null}
-
-      <SponsorDashboardPageHero dashboardEmpty={dashboardEmpty} />
 
       {!summaryLoading && !dashboardEmpty && !reviewPicked ? (
         <SponsorDashboardPickReviewBeforeKpisStrip
@@ -221,7 +249,13 @@ function SponsorRoiDashboardPortfolioSections({
       {reviewPicked ? (
         <SponsorRoiDashboardNextReviewFooterClient runId={selectedReviewId.trim()} />
       ) : null}
-    </OperatorPageContainer>
+          </div>
+
+          <div data-testid="architecture-sponsor-dashboard-orientation-bottom">
+            <ArchitectureSponsorDashboardClaimOrientationStrip />
+          </div>
+        </div>
+      </OperatorPageContainer>
     </div>
   );
 }

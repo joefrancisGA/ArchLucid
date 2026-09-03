@@ -185,14 +185,13 @@ public sealed class PolicyPackBeforeAfterDiffDemoTests : VerifyBase
         InMemoryPolicyPackChangeLogRepository changeLog = new();
         IArchLucidUnitOfWorkFactory uowFactory = ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory();
 
-        PolicyPackManagementService management = new(
+        PolicyPackManagementService management = PolicyPackManagementServiceComposer.Compose(
             packs,
             versions,
             assignments,
             changeLog,
             uowFactory,
-            new Mock<IPolicyPackResolverCacheInvalidator>().Object,
-            NullLogger<PolicyPackManagementService>.Instance);
+            new Mock<IPolicyPackResolverCacheInvalidator>().Object);
 
         List<AuditEvent> auditEvents = [];
 

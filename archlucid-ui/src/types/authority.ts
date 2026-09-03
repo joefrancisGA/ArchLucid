@@ -3,9 +3,13 @@ import type { CompareEffectiveGovernanceAtCommitSnapshot } from "@/lib/compare-e
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
 /**
- * Optional list enrichments not yet on OpenAPI `RunSummaryResponse` but returned by some endpoints.
+ * Intentional UI-only list enrichments merged onto OpenAPI `RunSummaryResponse` after fetch.
+ *
+ * Wave 9: **not** an OpenAPI alias — no `RunSummaryWireExtensions` schema exists. Keys are sporadic
+ * list/detail merges the shell treats as present after fetch; document new extensions here instead of
+ * widening `RunSummaryResponse` in hand-authored DTOs.
  */
-type RunSummaryWireExtensions = {
+export type RunSummaryWireExtensions = {
   /** Golden manifest id when list/summary already resolved it (avoids N× getRunDetail). */
   goldenManifestId?: string | null;
   /** Manifest rule-set version when list endpoints already resolved it (avoids N× getManifestSummary). */

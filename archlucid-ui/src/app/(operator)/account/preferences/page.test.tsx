@@ -3,6 +3,11 @@ import { describe, expect, it, vi } from "vitest";
 
 import { PREFERENCES_WHERE_TO_GO_NEXT_HEADING } from "@/lib/where-to-go-next-preference-copy";
 import { PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_HEADING } from "@/lib/sample-reviews-on-overview-preference-copy";
+import {
+  PREFERENCES_SETTINGS_FIRST_VIEWPORT_ID,
+  PREFERENCES_SETTINGS_SKIP_LINK_LABEL,
+  PREFERENCES_SETTINGS_SKIP_TARGET_ID,
+} from "@/lib/preferences-page-copy";
 
 vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
@@ -80,6 +85,12 @@ describe("PreferencesSettingsPage", () => {
     render(page);
 
     expect(screen.getByTestId("preferences-settings-page-title")).toHaveTextContent("Preferences");
+    expect(screen.getByRole("link", { name: PREFERENCES_SETTINGS_SKIP_LINK_LABEL })).toHaveAttribute(
+      "href",
+      `#${PREFERENCES_SETTINGS_SKIP_TARGET_ID}`,
+    );
+    expect(screen.getByTestId(PREFERENCES_SETTINGS_FIRST_VIEWPORT_ID)).toBeInTheDocument();
+    expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.getByTestId("preferences-appearance-card")).toBeInTheDocument();
     expect(screen.getByTestId("preferences-appearance-card")).toHaveTextContent(/Choose how ArchLucid appears/i);
     expect(screen.getByTestId("theme-preference-selector-stub")).toBeInTheDocument();
@@ -90,10 +101,18 @@ describe("PreferencesSettingsPage", () => {
     expect(screen.getByRole("heading", { name: "Appearance" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Time zone" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Cloud platforms shown" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: PREFERENCES_WHERE_TO_GO_NEXT_HEADING })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_HEADING })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Display on operator pages" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_HEADING, level: 3 })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: PREFERENCES_WHERE_TO_GO_NEXT_HEADING, level: 3 })).toBeInTheDocument();
     expect(screen.getByTestId("preferences-sample-reviews-on-overview-card")).toBeInTheDocument();
     expect(screen.getByTestId("preferences-follow-up-link-strips-card")).toHaveAttribute("id", "follow-up-link-strips");
     expect(screen.queryByRole("link", { name: "← Settings" })).not.toBeInTheDocument();
+
+    const firstViewport = screen.getByTestId(PREFERENCES_SETTINGS_FIRST_VIEWPORT_ID);
+    const orientationStrip = screen.getByTestId("preferences-settings-sources");
+
+    expect(
+      firstViewport.compareDocumentPosition(orientationStrip) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 });

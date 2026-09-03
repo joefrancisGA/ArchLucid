@@ -50,6 +50,12 @@ import {
   RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF,
   RECURRENCE_SCHEDULES_RISK_REGISTER_HREF,
 } from "@/lib/recurrence-schedules-copy";
+import {
+  RECURRENCE_SCHEDULES_FIRST_VIEWPORT_ID,
+  RECURRENCE_SCHEDULES_SKIP_LINK_LABEL,
+  RECURRENCE_SCHEDULES_SKIP_TARGET_ID,
+} from "@/lib/recurrence-schedules-page-copy";
+import { RECURRENCE_SCHEDULES_CLAIM_DISCIPLINE } from "@/lib/recurrence-schedules-evidence-copy";
 
 const sampleSchedule = {
   scheduleId: "11111111-1111-1111-1111-111111111111",
@@ -79,8 +85,16 @@ describe("RecurrenceSchedulesClient", () => {
     render(<RecurrenceSchedulesClient />);
 
     expect(await screen.findByTestId("recurrence-schedules-page")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: RECURRENCE_SCHEDULES_SKIP_LINK_LABEL })).toHaveAttribute(
+      "href",
+      `#${RECURRENCE_SCHEDULES_SKIP_TARGET_ID}`,
+    );
+    expect(screen.getByTestId(RECURRENCE_SCHEDULES_FIRST_VIEWPORT_ID)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Recurrence schedules" })).toBeInTheDocument();
     expect(screen.getByText(RECURRENCE_SCHEDULES_PAGE_SUBTITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("recurrence-schedules-claim-discipline")).toHaveTextContent(
+      RECURRENCE_SCHEDULES_CLAIM_DISCIPLINE,
+    );
     expect(screen.queryByText(GOVERNANCE_OVERVIEW_PAGE_LEAD)).not.toBeInTheDocument();
     expect(screen.queryByText(/Workspace governance status, pending approvals/i)).not.toBeInTheDocument();
   });
@@ -92,13 +106,16 @@ describe("RecurrenceSchedulesClient", () => {
     expect(screen.getByText(RECURRENCE_SCHEDULES_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("recurrence-schedules-create-action")).toBeInTheDocument();
 
+    const emptyState = await screen.findByTestId("recurrence-schedules-empty-state");
     const howItWorks = screen.getByTestId("recurrence-schedules-how-it-works");
+
+    expect(
+      emptyState.compareDocumentPosition(howItWorks) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
 
     expect(howItWorks).toBeInTheDocument();
     expect(howItWorks).not.toHaveAttribute("open");
     expect(screen.getByText(RECURRENCE_SCHEDULES_HOW_IT_WORKS_BODY)).toBeInTheDocument();
-
-    const emptyState = await screen.findByTestId("recurrence-schedules-empty-state");
 
     expect(emptyState).toHaveTextContent(RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION);
     // Supporting sentence is folded into How-it-works — not repeated in the empty card.

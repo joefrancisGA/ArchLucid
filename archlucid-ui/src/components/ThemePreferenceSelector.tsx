@@ -48,7 +48,7 @@ export function ThemePreferenceSelector(props: Props) {
   const { preference, mounted, accountSyncState, setAndPersist } = useUserAppearancePreference();
 
   if (!mounted) {
-    return <div aria-hidden="true" className="h-28 w-full" data-testid="theme-preference-loading" />;
+    return <div aria-hidden="true" className="h-20 w-full" data-testid="theme-preference-loading" />;
   }
 
   return (
@@ -65,7 +65,7 @@ export function ThemePreferenceSelector(props: Props) {
                 key={option.value}
                 htmlFor={inputId}
                 className={cn(
-                  "relative block cursor-pointer rounded-lg border p-3 transition-colors",
+                  "relative block cursor-pointer rounded-md border p-2 transition-colors",
                   "focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--al-accent-border-focus)]",
                   "forced-colors:border forced-colors:outline-offset-2",
                   selected
@@ -86,15 +86,14 @@ export function ThemePreferenceSelector(props: Props) {
                 />
                 {selected ? (
                   <span
-                    className="absolute right-3 top-3 inline-flex items-center gap-1 text-al-text-secondary dark:text-neutral-300"
+                    className="absolute right-2 top-2 inline-flex text-al-text-secondary dark:text-neutral-300"
                     aria-hidden="true"
                   >
                     <Check className="h-4 w-4" />
-                    <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>Selected</span>
                   </span>
                 ) : null}
                 <div
-                  className={cn("mb-3 h-10 w-full rounded-md", option.previewClassName)}
+                  className={cn("mb-2 h-6 w-full rounded-sm", option.previewClassName)}
                   aria-hidden="true"
                 />
                 <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{option.label}</p>

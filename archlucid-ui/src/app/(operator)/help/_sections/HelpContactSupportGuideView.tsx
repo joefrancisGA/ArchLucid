@@ -5,12 +5,10 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ContactSupportHelpEmailSection } from "@/components/help/ContactSupportHelpEmailSection";
 import { ContactSupportHelpEvidenceOrientationStrip } from "@/components/help/ContactSupportHelpEvidenceOrientationStrip";
 import { ContactSupportHelpOrientationStack } from "@/components/help/ContactSupportHelpOrientationStack";
-import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import {
-  CONTACT_SUPPORT_HELP_BREADCRUMB_TOPIC_TITLE,
   CONTACT_SUPPORT_HELP_GUIDE_HEADINGS,
   CONTACT_SUPPORT_HELP_OVERVIEW,
   CONTACT_SUPPORT_HELP_PAGE_TITLE,
@@ -22,10 +20,15 @@ import {
   CONTACT_SUPPORT_HELP_SUBTITLE,
   CONTACT_SUPPORT_HELP_ACTIONS_SECTION_TITLE,
 } from "@/lib/contact-support-help-guide-content";
-import { CONTACT_SUPPORT_HELP_CLAIM_HEADING_ID } from "@/lib/contact-support-help-evidence-copy";
 import {
+  CONTACT_SUPPORT_HELP_CLAIM_DISCIPLINE,
+  CONTACT_SUPPORT_HELP_CLAIM_HEADING_ID,
+} from "@/lib/contact-support-help-evidence-copy";
+import {
+  CONTACT_SUPPORT_HELP_FIRST_VIEWPORT_TEST_ID,
   CONTACT_SUPPORT_HELP_PRIMARY_CONTENT_ID,
   CONTACT_SUPPORT_HELP_SKIP_LINK_LABEL,
+  CONTACT_SUPPORT_HELP_SKIP_TARGET_ID,
 } from "@/lib/contact-support-help-page-copy";
 import {
   OPERATOR_LAYOUT,
@@ -33,6 +36,7 @@ import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { appendHelpClaimDisciplineTocHeadings } from "@/lib/help/help-markdown-headings";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -57,8 +61,12 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 /** Operator contact support orientation for `/help/contact-support`. */
 export function HelpContactSupportGuideView(props: HelpContactSupportGuideViewProps): React.ReactElement {
   const { entry } = props;
-  const headings = appendHelpClaimDisciplineTocHeadings(
-    CONTACT_SUPPORT_HELP_GUIDE_HEADINGS,
+  const headings = resolveGuideHeadingsForStrip(
+    "contact-support-help",
+    appendHelpClaimDisciplineTocHeadings(
+      CONTACT_SUPPORT_HELP_GUIDE_HEADINGS,
+      CONTACT_SUPPORT_HELP_CLAIM_HEADING_ID,
+    ),
     CONTACT_SUPPORT_HELP_CLAIM_HEADING_ID,
   );
   const contentGridClass = resolveHelpPageContentGridClass(headings.length);
@@ -69,10 +77,7 @@ export function HelpContactSupportGuideView(props: HelpContactSupportGuideViewPr
       className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-contact-support-guide"
     >
-      <a
-        href={`#${CONTACT_SUPPORT_HELP_PRIMARY_CONTENT_ID}`}
-        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
-      >
+      <a href={`#${CONTACT_SUPPORT_HELP_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
         {CONTACT_SUPPORT_HELP_SKIP_LINK_LABEL}
       </a>
 
@@ -82,9 +87,10 @@ export function HelpContactSupportGuideView(props: HelpContactSupportGuideViewPr
         title={CONTACT_SUPPORT_HELP_PAGE_TITLE}
         titleTestId="help-contact-support-page-title"
         subtitle={CONTACT_SUPPORT_HELP_SUBTITLE}
+        claimDiscipline={CONTACT_SUPPORT_HELP_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="contact-support-help-header-claim-discipline"
         navHref={CONTACT_SUPPORT_HELP_PATH}
         headingLevel="h1"
-        breadcrumb={<HelpTopicBreadcrumb topicTitle={CONTACT_SUPPORT_HELP_BREADCRUMB_TOPIC_TITLE} />}
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={<HelpContactSupportHeaderActions entry={entry} />}
       />
@@ -94,22 +100,24 @@ export function HelpContactSupportGuideView(props: HelpContactSupportGuideViewPr
         className={cn("scroll-mt-24 space-y-6", OPERATOR_LAYOUT.sectionStack)}
         data-testid="help-contact-support-primary-content"
       >
-        <ContactSupportHelpEvidenceOrientationStrip />
-
-        <p className={readingBodyClass} data-testid="help-contact-support-overview">
-          {CONTACT_SUPPORT_HELP_OVERVIEW}
-        </p>
-
-        <section
-          aria-labelledby="contact-support-actions"
-          className="space-y-3"
-          data-testid="help-contact-support-actions-section"
+        <div
+          className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+          data-testid={CONTACT_SUPPORT_HELP_FIRST_VIEWPORT_TEST_ID}
         >
-          <HelpSectionHeading id="contact-support-actions">
-            {CONTACT_SUPPORT_HELP_ACTIONS_SECTION_TITLE}
-          </HelpSectionHeading>
-          <ContactSupportHelpOrientationStack />
-        </section>
+          <section
+            aria-labelledby="contact-support-actions"
+            className="space-y-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-700"
+            data-testid="help-contact-support-actions-section"
+          >
+            <HelpSectionHeading id="contact-support-actions">
+              {CONTACT_SUPPORT_HELP_ACTIONS_SECTION_TITLE}
+            </HelpSectionHeading>
+            <p className={cn(readingBodyClass, "text-al-text-secondary")} data-testid="help-contact-support-overview">
+              {CONTACT_SUPPORT_HELP_OVERVIEW}
+            </p>
+            <ContactSupportHelpOrientationStack />
+          </section>
+        </div>
 
         <div className={contentGridClass}>
           <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")} data-testid="help-contact-support-primary">
@@ -173,6 +181,8 @@ export function HelpContactSupportGuideView(props: HelpContactSupportGuideViewPr
 
           <HelpTopicTableOfContents headings={headings} />
         </div>
+
+        <ContactSupportHelpEvidenceOrientationStrip />
       </div>
     </article>
   );

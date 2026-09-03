@@ -9133,39 +9133,79 @@ END;
 
 GO
 
-/* 342: Wave-4 robustness — pin theory-in-force policy pack ids on run create. */
+/* 342: Wave-4 robustness — pin theory-in-force policy pack ids on run create.
+   After ADR 0064 / migration 295, dbo.Runs is a synonym for dbo.Reviews. COL_LENGTH on the
+   synonym returns NULL, so ALTER TABLE dbo.Runs raises SQL 4909. DDL targets the physical
+   table (dbo.Reviews first, pre-295 dbo.Runs fallback) via sp_executesql. */
+DECLARE @policyPackPinRunTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
 
-IF COL_LENGTH(N'dbo.Runs', N'PinnedPolicyPackIdsJson') IS NULL
+DECLARE @policyPackPinRunSql NVARCHAR(MAX);
+
+IF @policyPackPinRunTable IS NOT NULL
+   AND COL_LENGTH(@policyPackPinRunTable, N'PinnedPolicyPackIdsJson') IS NULL
 BEGIN
-    ALTER TABLE dbo.Runs
-        ADD PinnedPolicyPackIdsJson NVARCHAR(MAX) NULL;
-END;
+    SET @policyPackPinRunSql = N'ALTER TABLE ' + @policyPackPinRunTable + N' ADD PinnedPolicyPackIdsJson NVARCHAR(MAX) NULL;';
+
+    EXEC sp_executesql @policyPackPinRunSql;
+END
+
+IF @policyPackPinRunTable IS NOT NULL
+   AND COL_LENGTH(@policyPackPinRunTable, N'PinnedPolicyPackIdsHashSha256') IS NULL
+BEGIN
+    SET @policyPackPinRunSql = N'ALTER TABLE ' + @policyPackPinRunTable + N' ADD PinnedPolicyPackIdsHashSha256 VARBINARY(32) NULL;';
+
+    EXEC sp_executesql @policyPackPinRunSql;
+END
 
 GO
 
-IF COL_LENGTH(N'dbo.Runs', N'PinnedPolicyPackIdsHashSha256') IS NULL
+/* 343: Wave-6 robustness — create-time evidence pins and focused-pilot scope on run headers.
+   After ADR 0064 / migration 295, dbo.Runs is a synonym for dbo.Reviews. COL_LENGTH on the
+   synonym returns NULL, so ALTER TABLE dbo.Runs raises SQL 4909. DDL targets the physical
+   table (dbo.Reviews first, pre-295 dbo.Runs fallback) via sp_executesql. */
+DECLARE @wave6PinRunTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
+
+DECLARE @wave6PinRunSql NVARCHAR(MAX);
+
+IF @wave6PinRunTable IS NOT NULL
+   AND COL_LENGTH(@wave6PinRunTable, N'PinnedEvidencePackagePinsJson') IS NULL
 BEGIN
-    ALTER TABLE dbo.Runs
-        ADD PinnedPolicyPackIdsHashSha256 VARBINARY(32) NULL;
-END;
+    SET @wave6PinRunSql = N'ALTER TABLE ' + @wave6PinRunTable + N' ADD PinnedEvidencePackagePinsJson NVARCHAR(MAX) NULL;';
 
-GO
+    EXEC sp_executesql @wave6PinRunSql;
+END
 
-/* 343: Wave-6 robustness — create-time evidence pins and focused-pilot scope on run headers. */
-
-IF COL_LENGTH(N'dbo.Runs', N'PinnedEvidencePackagePinsJson') IS NULL
+IF @wave6PinRunTable IS NOT NULL
+   AND COL_LENGTH(@wave6PinRunTable, N'PinnedEvidencePackagePinsHashSha256') IS NULL
 BEGIN
-    ALTER TABLE dbo.Runs
-        ADD PinnedEvidencePackagePinsJson NVARCHAR(MAX) NULL;
-END;
+    SET @wave6PinRunSql = N'ALTER TABLE ' + @wave6PinRunTable + N' ADD PinnedEvidencePackagePinsHashSha256 VARBINARY(32) NULL;';
 
-GO
+    EXEC sp_executesql @wave6PinRunSql;
+END
 
-IF COL_LENGTH(N'dbo.Runs', N'PinnedEvidencePackagePinsHashSha256') IS NULL
+IF @wave6PinRunTable IS NOT NULL
+   AND COL_LENGTH(@wave6PinRunTable, N'PinnedFocusedPilotModeEnabled') IS NULL
 BEGIN
-    ALTER TABLE dbo.Runs
-        ADD PinnedEvidencePackagePinsHashSha256 VARBINARY(32) NULL;
-END;
+    SET @wave6PinRunSql = N'ALTER TABLE ' + @wave6PinRunTable + N' ADD PinnedFocusedPilotModeEnabled BIT NULL;';
+
+    EXEC sp_executesql @wave6PinRunSql;
+END
+
+IF @wave6PinRunTable IS NOT NULL
+   AND COL_LENGTH(@wave6PinRunTable, N'PinnedFocusedPilotCloudProvider') IS NULL
+BEGIN
+    SET @wave6PinRunSql = N'ALTER TABLE ' + @wave6PinRunTable + N' ADD PinnedFocusedPilotCloudProvider INT NULL;';
+
+    EXEC sp_executesql @wave6PinRunSql;
+END
 
 GO
 

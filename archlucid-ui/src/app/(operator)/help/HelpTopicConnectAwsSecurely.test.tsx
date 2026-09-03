@@ -20,9 +20,11 @@ import {
   CONNECT_AWS_SECURELY_CONNECTION_STATUS_HREF,
   CONNECT_AWS_SECURELY_CONNECTION_STATUS_LINK_LABEL,
   CONNECT_AWS_SECURELY_CONFIGURE_ACTION,
+  CONNECT_AWS_SECURELY_DATA_HANDLING_HEADING,
   CONNECT_AWS_SECURELY_FORBIDDEN_POLICIES_BODY,
   CONNECT_AWS_SECURELY_PAGE_LEAD,
   CONNECT_AWS_SECURELY_PAGE_TITLE,
+  CONNECT_AWS_SECURELY_PERMISSIONS_NOT_REQUIRED_NOTE,
   CONNECT_AWS_SECURELY_SECURITY_HEADING,
   CONNECT_AWS_SECURELY_VERIFICATION_CHECKS,
   CONNECT_AWS_SECURELY_VERIFICATION_DOES_NOT_VERIFY,
@@ -53,7 +55,9 @@ describe("HelpConnectAwsSecurelyGuideView", () => {
 
     expect(screen.getAllByRole("heading", { level: 1, name: CONNECT_AWS_SECURELY_PAGE_TITLE })).toHaveLength(1);
     expect(screen.queryByRole("heading", { level: 2, name: CONNECT_AWS_SECURELY_PAGE_TITLE })).toBeNull();
-    expect(screen.getByText(CONNECT_AWS_SECURELY_PAGE_LEAD)).toBeInTheDocument();
+    expect(screen.getByTestId("help-connect-aws-securely-page-title").closest("header") ?? document.body).toHaveTextContent(
+      CONNECT_AWS_SECURELY_PAGE_LEAD,
+    );
 
     const toc = screen.getByTestId("help-topic-toc");
     expect(within(toc).getByRole("link", { name: CONNECT_AWS_SECURELY_SECURITY_HEADING })).toHaveAttribute(
@@ -84,7 +88,7 @@ describe("HelpConnectAwsSecurelyGuideView", () => {
     expect(screen.getByTestId("connect-aws-configure-action")).toBeInTheDocument();
   });
 
-  it("shows evidence orientation strip with claim discipline and Sources links", () => {
+  it("shows header claim discipline and sources-only orientation strip", () => {
     if (entry === undefined) {
       throw new Error("Expected cloud-connections-aws documentation entry.");
     }
@@ -92,9 +96,10 @@ describe("HelpConnectAwsSecurelyGuideView", () => {
     render(<HelpConnectAwsSecurelyGuideView entry={entry} />);
 
     expect(screen.getByTestId("connect-aws-securely-help-orientation")).toBeInTheDocument();
-    expect(screen.getByTestId("connect-aws-securely-help-claim-discipline")).toHaveTextContent(
+    expect(screen.getByTestId("connect-aws-securely-help-header-claim-discipline")).toHaveTextContent(
       CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE,
     );
+    expect(screen.queryByTestId("connect-aws-securely-help-claim-discipline")).toBeNull();
     expect(screen.getByTestId("connect-aws-securely-help-sources")).toBeInTheDocument();
 
     const sources = within(screen.getByTestId("connect-aws-securely-help-sources"));
@@ -184,16 +189,17 @@ describe("HelpConnectAwsSecurelyGuideView", () => {
     expect(screen.getByTestId("connect-aws-securely-trust-policy-copy")).toBeInTheDocument();
   });
 
-  it("shows separated data classifications", () => {
+  it("shows merged data-handling classifications", () => {
     if (entry === undefined) {
       throw new Error("Expected cloud-connections-aws documentation entry.");
     }
 
     render(<HelpConnectAwsSecurelyGuideView entry={entry} />);
 
-    expect(screen.getByRole("heading", { level: 2, name: "Information retained" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 2, name: "Credentials not retained" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 2, name: "Permissions not required" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: CONNECT_AWS_SECURELY_DATA_HANDLING_HEADING })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 3, name: "Information retained" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 3, name: "Credentials not retained" })).toBeInTheDocument();
+    expect(screen.getByText(CONNECT_AWS_SECURELY_PERMISSIONS_NOT_REQUIRED_NOTE)).toBeInTheDocument();
   });
 
   it("provides workflow navigation actions", () => {

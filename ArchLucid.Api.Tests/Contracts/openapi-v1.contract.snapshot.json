@@ -17360,6 +17360,12 @@
             },
             "type": "array"
           },
+          "createTimeEvidencePackagePinsHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "createTimePolicyPackPins": {
             "items": {
               "$ref": "#/components/schemas/PinnedPolicyPackRow"

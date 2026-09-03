@@ -105,6 +105,8 @@ import {
   WEBHOOKS_INTEGRATION_SOURCES_INTRO,
 } from "@/lib/webhooks-integration-evidence-copy";
 import {
+  ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE,
+  ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE_HEADING,
   ITSM_OAUTH_CALLBACK_FOLLOW_UPS_TITLE,
   ITSM_OAUTH_CALLBACK_SOURCES,
   ITSM_OAUTH_CALLBACK_SOURCES_INTRO,
@@ -348,6 +350,8 @@ export function ItsmOAuthCallbackEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="itsm-oauth-callback"
+      claim={ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE}
+      claimHeading={ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE_HEADING}
       sourcesTitle={ITSM_OAUTH_CALLBACK_FOLLOW_UPS_TITLE}
       sourcesIntro={ITSM_OAUTH_CALLBACK_SOURCES_INTRO}
       sources={ITSM_OAUTH_CALLBACK_SOURCES}
