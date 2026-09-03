@@ -2871,11 +2871,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 103
-- **bugs-found:** 255
+- **hunts:** 104
+- **bugs-found:** 258
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — seed hunt #541: decision-register padded `buyerConfidenceSource` 400 parity and out-of-range `minConfidence`/`maxConfidence` validation
+- **last-bug:** 2026-09-03 — decision-register pre-1970 date validation; legal-hold reason length/whitespace guards
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3352,6 +3352,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessHttpMapper.ValidateDecisionRegisterFilters` / `GovernanceStickinessController.GetDecisionRegister` — `minConfidence` below 0 or `maxConfidence` above 1 accepted without HTTP 400 (only inverted-range check existed) — **hit 2026-09-03 (#541):** `[0, 1]` bounds validation on both query params; regression in `GovernanceStickinessHttpMapperTests.ValidateDecisionRegisterFilters_rejects_out_of_range_confidence_bounds` and `GovernanceStickinessControllerTests.GetDecisionRegister_returns_bad_request_when_confidence_bounds_are_out_of_range`.
 
 2026-09-03 seed hunt #541: proved decision-register padded buyer-confidence label trim parity and confidence bound validation; broke two-dry-hunt streak.
+
+- [x] (proven) `GovernanceStickinessHttpMapper.ValidateDecisionRegisterFilters` / `GovernanceStickinessController.GetDecisionRegister` — `recordedAfterUtc` / `recordedBeforeUtc` before 1970-01-01 returned HTTP 200 instead of HTTP 400 — **hit 2026-09-03 (#549):** pre-1970 guard aligned with `GovernanceController.GetComplianceDriftTrend` and `TenantPilotValueReportController`; regression in `GovernanceStickinessHttpMapperTests.ValidateDecisionRegisterFilters_rejects_recorded_after_before_1970` and `GovernanceStickinessControllerTests.GetDecisionRegister_returns_bad_request_when_recorded_after_utc_before_1970`.
+- [x] (proven) `TenantErasureLegalHoldController.SetLegalHoldAsync` — `Reason` longer than `LegalHoldReason NVARCHAR(500)` reached SQL without HTTP 400 — **hit 2026-09-03 (#549):** controller max-length guard before `TrySetLegalHoldAsync`; regression in `TenantErasureLegalHoldControllerTests.SetLegalHoldAsync_returns_bad_request_when_reason_exceeds_max_length`.
+- [x] (proven) `TenantErasureLegalHoldController.SetLegalHoldAsync` — whitespace-only `Reason` persisted without HTTP 400 — **hit 2026-09-03 (#549):** reject empty/whitespace reason and trim before persist; regression in `TenantErasureLegalHoldControllerTests.SetLegalHoldAsync_returns_bad_request_when_reason_is_whitespace`.
+
+2026-09-03 seed hunt #549: proved decision-register pre-1970 date validation and legal-hold reason validation parity.
 
 ---
 

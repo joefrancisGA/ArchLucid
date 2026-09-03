@@ -86,4 +86,19 @@ public sealed class GovernanceStickinessHttpMapperTests
         validation.Should().NotBeNull();
         validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
     }
+
+    [Fact]
+    public void ValidateDecisionRegisterFilters_rejects_recorded_after_before_1970()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateDecisionRegisterFilters(
+            category: null,
+            recordedAfterUtc: new DateTimeOffset(1969, 12, 31, 23, 59, 59, TimeSpan.Zero),
+            recordedBeforeUtc: null,
+            minConfidence: null,
+            maxConfidence: null,
+            buyerConfidenceSource: null);
+
+        validation.Should().NotBeNull();
+        validation!.Message.Should().Contain("recordedAfterUtc");
+    }
 }

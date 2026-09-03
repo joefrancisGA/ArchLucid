@@ -74,6 +74,20 @@ public static class GovernanceStickinessHttpMapper
                 ProblemTypes.ValidationFailed);
         }
 
+        if (recordedAfterUtc is not null && recordedAfterUtc.Value.Year < 1970)
+        {
+            return new GovernanceHttpValidation(
+                "recordedAfterUtc must be on or after 1970-01-01.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (recordedBeforeUtc is not null && recordedBeforeUtc.Value.Year < 1970)
+        {
+            return new GovernanceHttpValidation(
+                "recordedBeforeUtc must be on or after 1970-01-01.",
+                ProblemTypes.ValidationFailed);
+        }
+
         if (minConfidence is not null && maxConfidence is not null && minConfidence > maxConfidence)
         {
             return new GovernanceHttpValidation(
