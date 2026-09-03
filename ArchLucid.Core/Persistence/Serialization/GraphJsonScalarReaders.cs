@@ -48,7 +48,7 @@ internal static class GraphJsonScalarReaders
                             || raw.Equals("disabled", StringComparison.OrdinalIgnoreCase))
                             return 0.0;
 
-                        if (double.TryParse(raw, out double parsed))
+                        if (double.TryParse(raw, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out double parsed))
                             return parsed;
                     }
                 }
