@@ -2875,11 +2875,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 114
-- **bugs-found:** 268
+- **hunts:** 115
+- **bugs-found:** 270
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — RecordDisposition trade-off acknowledgment forwarding
+- **last-bug:** 2026-09-03 — PromoteCatalogEntry optional version SemVer and max-length validation parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3400,6 +3400,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [ ] (candidate) `GovernanceStickinessController.RenewRiskException` / `RiskExceptionValidation.ValidateRenew` — overlong body `evidenceRef` may reach SQL `EvidenceRef NVARCHAR(500)` without HTTP 400 while create path enforces `EvidenceRefMaxLength` (hunt #552 parity).
 - [ ] (candidate) `PolicyPacksController.PromoteCatalogEntry` / `PolicyPackCatalogAdminService.TryPromoteFromSourcePackAsync` — optional body `version` lacks SemVer and `SnapshotVersion NVARCHAR(50)` max-length guard before catalog lookup (GetVersion/publish parity hunt #559).
+
+- [x] (proven) `GovernanceStickinessController.RenewRiskException` / `RiskExceptionValidation.ValidateRenew` — overlong body `evidenceRef` reached SQL `EvidenceRef NVARCHAR(500)` without HTTP 400 while create path enforced `EvidenceRefMaxLength` — **hit 2026-09-03 (#561):** validate optional `EvidenceRef` length in `ValidateRenew` when provided; regression in `RiskExceptionValidationTests.ValidateRenew_rejects_evidence_ref_over_max_length` and `GovernanceStickinessControllerTests.RenewRiskException_returns_bad_request_when_evidence_ref_exceeds_max_length`.
+- [x] (proven) `PolicyPacksController.PromoteCatalogEntry` / `PolicyPacksHttpMapper.ValidatePromoteCatalogEntry` — optional body `version` longer than `NVARCHAR(50)` or non-SemVer returned HTTP 404 version-not-found while publish/assign/GetVersion return HTTP 400 — **hit 2026-09-03 (#561):** reuse `ValidatePackVersion` when optional `Version` is supplied; regression in `PolicyPacksHttpMapperTests` and `PolicyPacksControllerListScopeTests.PromoteCatalogEntry_returns_bad_request_when_version_exceeds_max_length` / `PromoteCatalogEntry_returns_bad_request_when_version_is_not_semver`.
+
+2026-09-03 thorough hunt #561: proved renew waiver evidenceRef max-length validation parity and promote-catalog optional version SemVer/max-length validation parity.
 
 ---
 
