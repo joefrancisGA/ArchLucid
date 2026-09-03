@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
@@ -11,6 +11,8 @@ import {
 import { GovernanceFindingsQueueTableShell } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueTableShell";
 import { useGovernanceFindingsQueueBulkActions } from "@/app/(operator)/governance/findings/use-governance-findings-queue-bulk-actions";
 import { GovernanceFindingsQueueHeader } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueHeader";
+import { useGovernanceFindingsQueueMode } from "@/app/(operator)/governance/findings/use-governance-findings-queue-mode";
+import { useGovernanceFindingsQueueSynopsis } from "@/app/(operator)/governance/findings/use-governance-findings-queue-synopsis";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   applyFindingsSavedViewFilters,
@@ -18,66 +20,24 @@ import {
 import { useGovernanceFindingsFilter } from "@/components/governance/findings/use-governance-findings-filter";
 import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
 import type { FindingsSavedViewFilters } from "@/lib/operator/operator-saved-view-types";
-import { useGovernanceFindingsQuery } from "@/components/governance/findings/use-governance-findings-query";
-import { useAssignedToMeFindingsQuery } from "@/components/governance/findings/use-assigned-to-me-findings-query";
-import { useAssignedToMeFindingsCountQuery } from "@/hooks/use-assigned-to-me-findings-count-query";
 import { useRunDetailWorkspaceContextBundleQuery } from "@/hooks/use-run-detail-workspace-context-bundle-query";
-import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { hasGovernanceApprovalProvenance } from "@/lib/governance/governance-approval-provenance";
 import { resolveGovernanceAssignedToMeWorkspaceLabel } from "@/lib/governance/governance-assigned-to-me-empty-state";
-import {
-  resolveFindingsQueueTriageEmphasizedStepId,
-  resolveFindingsQueueTriageSteps,
-} from "@/lib/findings-queue-triage-checklist";
 import { useGovernanceFindingsQueueFacets } from "@/app/(operator)/governance/findings/use-governance-findings-queue-facets";
 import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
-import type { GovernanceJobId } from "@/lib/governance/governance-job-router";
 import {
-  patchGovernanceFindingsQueueFacets,
-  readGovernanceFindingsQueueFacets,
-} from "@/lib/governance/governance-findings-queue-facets-storage";
-import { secondaryViewFromGovernanceQueueRow } from "@/lib/canonical-object-home-registry";
-import { resolveWorkspaceScopeEmptyTeachingForHub } from "@/lib/workspace-scope-empty-teaching";
-import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
-import {
-  DEFAULT_FINDING_JOB_VIEW,
-  resolveEffectiveFindingJobView,
-} from "@/lib/findings/finding-job-view";
-import {
-  computeGovernanceFindingsRegisterSummary,
-  countAssignedToMeLoadedFindings,
-  deriveGovernanceFindingsActiveFiltersSummary,
-  deriveSponsorSynopsisCounts,
-  deriveSponsorSynopsisPackageTitle,
-  extractGovernanceFindingIds,
-  filterGovernanceFindingsDisplayedRows,
-  filterGovernanceFindingsScopedRows,
-  hasAssignedToMeCountMismatch,
-  resolveAssignedToMeOldestFindingTarget,
-  resolveContinueLastFindingTarget,
-  resolveFirstFindingTriageTarget,
-  resolveGovernanceFindingsFilterNoMatchPreset,
-  resolveGovernanceFindingsLoadFailedPreset,
-  resolveGovernanceFindingsNavHref,
-  resolveGovernanceFindingsPageSubtitle,
-  resolveGovernanceFindingsPageTitle,
-  resolveGovernanceFindingsSponsorHandoffHref,
   resolveScopedFindingLifecycleCompareHref,
 } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
 import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { parseGovernanceFindingsSearchQuery, governanceFindingsSearchHrefFromSearch } from "@/lib/governance/governance-findings-queue-search";
 import {
-  filterGovernanceFindingsHideGenericRows,
-  sortGovernanceFindingsRowsBySignal,
-} from "@/lib/governance/governance-findings-density-sort";
-import {
   governanceFindingsHideGenericHrefFromSearch,
   parseGovernanceFindingsHideGenericFromSearch,
 } from "@/lib/governance/governance-findings-hide-generic-url";
+import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 
 export type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
@@ -94,9 +54,8 @@ export type GovernanceFindingsQueueClientProps = {
 export default function GovernanceFindingsQueueClient({
   mode = "tenant",
 }: GovernanceFindingsQueueClientProps) {
-  const isAssignedToMe = mode === "assigned-to-me";
   const router = useRouter();
-  const pathname = usePathname() ?? (isAssignedToMe ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH : GOVERNANCE_FINDINGS_PATH);
+  const pathname = usePathname() ?? (mode === "assigned-to-me" ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH : GOVERNANCE_FINDINGS_PATH);
   const searchParams = useSearchParams();
   const [hideGenericLowDensity, setHideGenericLowDensity] = useState(() =>
     parseGovernanceFindingsHideGenericFromSearch(searchParams.get("hideGeneric")),
@@ -104,21 +63,31 @@ export default function GovernanceFindingsQueueClient({
   const { jobView, setJobView, nlFacets, setNlFacets, clearFacetFilters } =
     useGovernanceFindingsQueueFacets(mode);
   const { currentPrincipal } = useOperatorNavAuthority();
-  const scopeKey = useOperatorScopeQueryKey();
   const scopeRecord = useOperatorScopeRecord();
-  const assignedToMeWorkspaceLabel = useMemo(() => resolveGovernanceAssignedToMeWorkspaceLabel(), [scopeKey.workspaceId]);
-  const tenantQuery = useGovernanceFindingsQuery(!isAssignedToMe);
-  const assignedToMeQuery = useAssignedToMeFindingsQuery(isAssignedToMe);
-  const assignedToMeCountQuery = useAssignedToMeFindingsCountQuery({ enabled: isAssignedToMe });
-  const activeQuery = isAssignedToMe ? assignedToMeQuery : tenantQuery;
-  const { rows, loading, loadFailed, refresh } = activeQuery;
+  const assignedToMeWorkspaceLabel = resolveGovernanceAssignedToMeWorkspaceLabel();
+  const queueMode = useGovernanceFindingsQueueMode({ mode });
+  const {
+    isAssignedToMe,
+    buyerPolishedShell,
+    assignedToMeQuery,
+    assignedToMeCountQuery,
+    rows,
+    loading,
+    loadFailed,
+    refresh,
+    assignedToMeFetchBasis,
+    assignedToMeCheckedAt,
+    loadFailure,
+    pageTitle,
+    pageSubtitle,
+    navHref,
+    currentJobId,
+    loadFailedPreset,
+    assignedToMeCount,
+    assignedToMeLoadedFindingCount,
+    assignedToMeCountMismatch,
+  } = queueMode;
   const bulkActions = useGovernanceFindingsQueueBulkActions({ refresh });
-  const assignedToMeFetchBasis = isAssignedToMe ? assignedToMeQuery.fetchBasis : null;
-  const assignedToMeCheckedAt =
-    isAssignedToMe && assignedToMeQuery.dataUpdatedAt > 0
-      ? new Date(assignedToMeQuery.dataUpdatedAt)
-      : null;
-  const loadFailure = isAssignedToMe ? assignedToMeQuery.loadFailure : tenantQuery.loadFailure;
   const {
     registerFilter,
     setRegisterFilter,
@@ -134,74 +103,31 @@ export default function GovernanceFindingsQueueClient({
   const scopedRunContextQuery = useRunDetailWorkspaceContextBundleQuery(scopedRunId ?? "", {
     enabled: scopedRunId !== null && scopedRunId.length > 0,
   });
-  const scopedFindingLifecycleCompareHref = useMemo(
-    () =>
-      resolveScopedFindingLifecycleCompareHref(
-        scopedRunId,
-        scopedRunContextQuery.data?.priorCommittedRunId,
-      ),
-    [scopedRunContextQuery.data?.priorCommittedRunId, scopedRunId],
+  const scopedFindingLifecycleCompareHref = resolveScopedFindingLifecycleCompareHref(
+    scopedRunId,
+    scopedRunContextQuery.data?.priorCommittedRunId,
   );
 
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const urlHideGeneric = parseGovernanceFindingsHideGenericFromSearch(searchParams.get("hideGeneric"));
   const { isWorkingMode } = useWorkspaceMode();
-  const scopedRunFilterActive = scopedRunId !== null && scopedRunId.trim().length > 0;
-  const workspaceScopeTeaching =
-    !isAssignedToMe && !scopedRunFilterActive
-      ? resolveWorkspaceScopeEmptyTeachingForHub({
-          listEmpty: !loading && rows.length === 0 && !loadFailed,
-          scopeRecord,
-          objectPlural: "findings",
-        })
-      : null;
-  const findingsAdvancedFiltersAvailable = !loading && rows.length > 0 && !isAssignedToMe;
-  const filterBarVisible = !buyerPolishedShell && !loading && rows.length > 0;
-  const compactRegisterFilterVisible = buyerPolishedShell && !loading && !isAssignedToMe;
-  const advancedFiltersDisclosureVisible = buyerPolishedShell && findingsAdvancedFiltersAvailable;
-  const effectiveJobView = resolveEffectiveFindingJobView(
-    jobView,
-    filterBarVisible || advancedFiltersDisclosureVisible,
-  );
-  const jobViewFilterActive =
-    (filterBarVisible || advancedFiltersDisclosureVisible) && jobView !== DEFAULT_FINDING_JOB_VIEW;
-  const scopedRows = useMemo(
-    () => filterGovernanceFindingsScopedRows(rows, scopedRunId),
-    [rows, scopedRunId],
-  );
   const findingsSearchQuery = parseGovernanceFindingsSearchQuery(searchParams.get("q"));
-  const filteredRows = useMemo(
-    () =>
-      filterGovernanceFindingsDisplayedRows(
-        scopedRows,
-        registerFilter,
-        nlFacets,
-        effectiveJobView,
-        findingsSearchQuery,
-      ),
-    [scopedRows, registerFilter, effectiveJobView, nlFacets, findingsSearchQuery],
-  );
-  const densityFilteredRows = useMemo(
-    () =>
-      filterGovernanceFindingsHideGenericRows(
-        filteredRows,
-        isWorkingMode && hideGenericLowDensity,
-      ),
-    [filteredRows, hideGenericLowDensity, isWorkingMode],
-  );
-  const displayedRows = useMemo(
-    () => (isWorkingMode ? sortGovernanceFindingsRowsBySignal(densityFilteredRows) : densityFilteredRows),
-    [densityFilteredRows, isWorkingMode],
-  );
-  const registerSummary = useMemo(
-    () => computeGovernanceFindingsRegisterSummary(scopedRows),
-    [scopedRows],
-  );
-  const findingIds = useMemo(() => extractGovernanceFindingIds(displayedRows), [displayedRows]);
-  usePrefetchItsmFindingCorrelations(findingIds);
-  const pageTitle = resolveGovernanceFindingsPageTitle(isAssignedToMe, buyerPolishedShell);
-  const pageSubtitle = resolveGovernanceFindingsPageSubtitle(isAssignedToMe, buyerPolishedShell);
-  const navHref = resolveGovernanceFindingsNavHref(isAssignedToMe);
+  const synopsis = useGovernanceFindingsQueueSynopsis({
+    mode,
+    isAssignedToMe,
+    buyerPolishedShell,
+    rows,
+    loading,
+    loadFailed,
+    scopedRunId,
+    registerFilter,
+    nlFacets,
+    jobView,
+    findingsSearchQuery,
+    hideGenericLowDensity,
+    isWorkingMode,
+    scopeRecord,
+  });
+  usePrefetchItsmFindingCorrelations(synopsis.findingIds);
 
   useEffect(() => {
     setHideGenericLowDensity(urlHideGeneric);
@@ -238,91 +164,12 @@ export default function GovernanceFindingsQueueClient({
     [navHref, router, searchParams],
   );
 
-  const currentJobId: GovernanceJobId = isAssignedToMe ? "assigned-to-me-findings" : "triage-findings";
-  const loadFailedPreset = resolveGovernanceFindingsLoadFailedPreset(isAssignedToMe);
-  const filterNoMatchPreset = resolveGovernanceFindingsFilterNoMatchPreset(isAssignedToMe);
-  const secondaryViewPresentation =
-    displayedRows.length > 0 ? secondaryViewFromGovernanceQueueRow(displayedRows[0]) : null;
-  const firstFindingTriageTarget = useMemo(
-    () =>
-      resolveFirstFindingTriageTarget(
-        displayedRows,
-        isAssignedToMe,
-        scopedRunFilterActive ? scopedRunId : null,
-      ),
-    [displayedRows, isAssignedToMe, scopedRunFilterActive, scopedRunId],
-  );
-  const continueLastFinding = useMemo(
-    () =>
-      resolveContinueLastFindingTarget(
-        displayedRows,
-        scopedRunFilterActive ? scopedRunId : null,
-      ),
-    [displayedRows, scopedRunFilterActive, scopedRunId],
-  );
-  const findingsQueueTriageSteps = useMemo(
-    () =>
-      resolveFindingsQueueTriageSteps({
-        reviewPicked: scopedRunFilterActive,
-        findingOpened: continueLastFinding !== null,
-        dispositionRecorded: displayedRows.some(
-          (row) =>
-            row.recordKind === "finding" && (row.latestDisposition?.trim() ?? "").length > 0,
-        ),
-      }),
-    [continueLastFinding, displayedRows, scopedRunFilterActive],
-  );
-  const findingsQueueTriageEmphasizedStepId = useMemo(
-    () =>
-      resolveFindingsQueueTriageEmphasizedStepId({
-        reviewPicked: scopedRunFilterActive,
-        findingOpened: continueLastFinding !== null,
-        dispositionRecorded: displayedRows.some(
-          (row) =>
-            row.recordKind === "finding" && (row.latestDisposition?.trim() ?? "").length > 0,
-        ),
-      }),
-    [continueLastFinding, displayedRows, scopedRunFilterActive],
-  );
-  const assignedToMeOldestFindingTarget = useMemo(
-    () => resolveAssignedToMeOldestFindingTarget(rows, isAssignedToMe),
-    [isAssignedToMe, rows],
-  );
-  const sponsorSynopsisPackageTitle = deriveSponsorSynopsisPackageTitle(displayedRows, scopedRunId);
-  const sponsorSynopsisCounts = useMemo(
-    () => deriveSponsorSynopsisCounts(displayedRows),
-    [displayedRows],
-  );
-  const sponsorHandoffHref = resolveGovernanceFindingsSponsorHandoffHref(scopedRunId);
   const governanceApprovalProvenance = null;
   const showGovernanceApprovalBanner =
     buyerPolishedShell &&
     !loadFailed &&
     !isAssignedToMe &&
     hasGovernanceApprovalProvenance(governanceApprovalProvenance);
-  const assignedToMeCount = assignedToMeCountQuery.data ?? rows.length;
-  const assignedToMeLoadedFindingCount = useMemo(
-    () => countAssignedToMeLoadedFindings(rows),
-    [rows],
-  );
-  const assignedToMeCountMismatch = hasAssignedToMeCountMismatch({
-    isAssignedToMe,
-    loading,
-    loadFailed,
-    assignedToMeCountData: assignedToMeCountQuery.data,
-    assignedToMeLoadedFindingCount,
-  });
-  const activeFiltersSummary = useMemo(
-    () =>
-      deriveGovernanceFindingsActiveFiltersSummary(
-        registerFilter,
-        jobView,
-        nlFacets,
-        jobViewFilterActive,
-        findingsSearchQuery,
-      ),
-    [registerFilter, jobView, nlFacets, jobViewFilterActive, findingsSearchQuery],
-  );
 
   const onLoadFindingsSavedView = useCallback(
     (view: OperatorSavedView) => {
@@ -379,7 +226,7 @@ export default function GovernanceFindingsQueueClient({
             <PageContextualHelpButton />
           )
         }
-        registerSummary={registerSummary}
+        registerSummary={synopsis.registerSummary}
         scopedRunId={scopedRunId}
         loading={loading}
         currentJobId={currentJobId}
@@ -391,22 +238,22 @@ export default function GovernanceFindingsQueueClient({
         navHref={navHref}
         pageTitle={pageTitle}
         scopedRunId={scopedRunId}
-        scopedRunFilterActive={scopedRunFilterActive}
+        scopedRunFilterActive={synopsis.scopedRunFilterActive}
         scopedFindingLifecycleCompareHref={scopedFindingLifecycleCompareHref}
-        secondaryViewPresentation={secondaryViewPresentation}
-        findingsQueueTriageSteps={findingsQueueTriageSteps}
-        findingsQueueTriageEmphasizedStepId={findingsQueueTriageEmphasizedStepId}
+        secondaryViewPresentation={synopsis.secondaryViewPresentation}
+        findingsQueueTriageSteps={synopsis.findingsQueueTriageSteps}
+        findingsQueueTriageEmphasizedStepId={synopsis.findingsQueueTriageEmphasizedStepId}
         jobView={jobView}
-        jobViewFilterActive={jobViewFilterActive}
+        jobViewFilterActive={synopsis.jobViewFilterActive}
         onPickReviewForTriage={onPickReviewForTriage}
         onSetJobView={setJobView}
         assignedToMeCountMismatch={assignedToMeCountMismatch}
         assignedToMeCountData={assignedToMeCountQuery.data}
         assignedToMeLoadedFindingCount={assignedToMeLoadedFindingCount}
         scopeRecordProjectId={scopeRecord?.projectId}
-        filterBarVisible={filterBarVisible}
-        compactRegisterFilterVisible={compactRegisterFilterVisible}
-        advancedFiltersDisclosureVisible={advancedFiltersDisclosureVisible}
+        filterBarVisible={synopsis.filterBarVisible}
+        compactRegisterFilterVisible={synopsis.compactRegisterFilterVisible}
+        advancedFiltersDisclosureVisible={synopsis.advancedFiltersDisclosureVisible}
         registerFilter={registerFilter}
         onRegisterFilterChange={setRegisterFilter}
         onJobViewChange={setJobView}
@@ -415,9 +262,9 @@ export default function GovernanceFindingsQueueClient({
         onRemovePreset={removePreset}
         groupByResource={groupByResource}
         onToggleGroupByResource={toggleGroupByResource}
-        displayedRows={displayedRows}
-        scopedRows={scopedRows}
-        registerSummary={registerSummary}
+        displayedRows={synopsis.displayedRows}
+        scopedRows={synopsis.scopedRows}
+        registerSummary={synopsis.registerSummary}
         findingsSearchQuery={findingsSearchQuery}
         onNaturalLanguageFilterApply={setNlFacets}
         nlFacets={nlFacets}
@@ -425,19 +272,19 @@ export default function GovernanceFindingsQueueClient({
         onLoadFindingsSavedView={onLoadFindingsSavedView}
         loading={loading}
         rows={rows}
-        filterNoMatchPreset={filterNoMatchPreset}
-        activeFiltersSummary={activeFiltersSummary}
-        sponsorSynopsisPackageTitle={sponsorSynopsisPackageTitle}
-        sponsorSynopsisCounts={sponsorSynopsisCounts}
-        sponsorHandoffHref={sponsorHandoffHref}
+        filterNoMatchPreset={synopsis.filterNoMatchPreset}
+        activeFiltersSummary={synopsis.activeFiltersSummary}
+        sponsorSynopsisPackageTitle={synopsis.sponsorSynopsisPackageTitle}
+        sponsorSynopsisCounts={synopsis.sponsorSynopsisCounts}
+        sponsorHandoffHref={synopsis.sponsorHandoffHref}
         scopedRunContextTitle={
           scopedRunContextQuery.data?.recentProjectRuns.find((run) => run.runId === scopedRunId)?.displayName ??
           scopedRunContextQuery.data?.recentProjectRuns.find((run) => run.runId === scopedRunId)?.runId ??
           null
         }
-        continueLastFinding={continueLastFinding}
-        assignedToMeOldestFindingTarget={assignedToMeOldestFindingTarget}
-        firstFindingTriageTarget={firstFindingTriageTarget}
+        continueLastFinding={synopsis.continueLastFinding}
+        assignedToMeOldestFindingTarget={synopsis.assignedToMeOldestFindingTarget}
+        firstFindingTriageTarget={synopsis.firstFindingTriageTarget}
         hideGenericLowDensity={hideGenericLowDensity}
         onHideGenericLowDensityChange={onHideGenericLowDensityChange}
         showInsightDensityScore={isWorkingMode}
@@ -448,7 +295,7 @@ export default function GovernanceFindingsQueueClient({
         loadFailedPreset={loadFailedPreset}
         loadFailure={loadFailure}
         onRefresh={refresh}
-        workspaceScopeTeaching={workspaceScopeTeaching}
+        workspaceScopeTeaching={synopsis.workspaceScopeTeaching}
         currentPrincipalName={currentPrincipal.name ?? ""}
         currentPrincipalRole={currentPrincipal.primaryAppRole}
         assignedToMeCheckedAt={assignedToMeCheckedAt}
