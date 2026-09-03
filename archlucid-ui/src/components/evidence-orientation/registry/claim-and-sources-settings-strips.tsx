@@ -357,6 +357,7 @@ export function SsoWizardSettingsEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="sso-wizard-settings"
+      sourcesTestId="sso-wizard-settings-sources"
       sourcesTitle={SSO_WIZARD_FOLLOW_UPS_TITLE}
       sourcesIntro={SSO_WIZARD_SOURCES_INTRO}
       sources={SSO_WIZARD_SOURCES}

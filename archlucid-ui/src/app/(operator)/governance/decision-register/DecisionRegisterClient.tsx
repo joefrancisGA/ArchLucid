@@ -62,6 +62,10 @@ import {
   resolveDecisionRegisterDateRange,
 } from "./decision-register-date-range";
 import { parseDecisionRegisterDatePresetFromSearch } from "@/lib/governance/decision-register-date-range-url";
+import {
+  decisionRegisterCustomDateHrefFromSearch,
+  parseDecisionRegisterCustomDateFromSearch,
+} from "@/lib/governance/decision-register-custom-date-url";
 import { parseDecisionRegisterViewModeFromSearch } from "@/lib/governance/decision-register-view-url";
 import {
   decisionRegisterCategoryHrefFromSearch,
@@ -101,10 +105,18 @@ export default function DecisionRegisterClient() {
   const urlConfidenceBasis = parseDecisionRegisterConfidenceBasisFromSearch(searchParams.get("basis"));
   const urlMinConfidence = parseDecisionRegisterMinConfidenceFromSearch(searchParams.get("minConfidence"));
   const urlMaxConfidence = parseDecisionRegisterMaxConfidenceFromSearch(searchParams.get("maxConfidence"));
-  const initialDateRange = useMemo(
-    () => resolveDecisionRegisterDateRange(datePreset),
-    [datePreset],
-  );
+  const urlRecordedAfter = parseDecisionRegisterCustomDateFromSearch(searchParams.get("from"));
+  const urlRecordedBefore = parseDecisionRegisterCustomDateFromSearch(searchParams.get("to"));
+  const initialDateRange = useMemo(() => {
+    if (urlRecordedAfter.length > 0 || urlRecordedBefore.length > 0) {
+      return {
+        recordedAfter: urlRecordedAfter,
+        recordedBefore: urlRecordedBefore,
+      };
+    }
+
+    return resolveDecisionRegisterDateRange(datePreset);
+  }, [datePreset, urlRecordedAfter, urlRecordedBefore]);
   const projectId = useMemo(
     () => projectIdFromScopeHeaders(getEffectiveBrowserProxyScopeHeaders()),
     [],
@@ -166,10 +178,34 @@ export default function DecisionRegisterClient() {
   }, [category, router, searchParams]);
 
   useEffect(() => {
+    if (urlRecordedAfter.length > 0 || urlRecordedBefore.length > 0) {
+      setRecordedAfter(urlRecordedAfter);
+      setRecordedBefore(urlRecordedBefore);
+      return;
+    }
+
     const range = resolveDecisionRegisterDateRange(datePreset);
     setRecordedAfter(range.recordedAfter);
     setRecordedBefore(range.recordedBefore);
-  }, [datePreset]);
+  }, [datePreset, urlRecordedAfter, urlRecordedBefore]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const nextHref = decisionRegisterCustomDateHrefFromSearch(
+        searchParams.toString(),
+        recordedAfter,
+        recordedBefore,
+      );
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [recordedAfter, recordedBefore, router, searchParams]);
 
   const retryLoad = useCallback(() => {
     setReloadToken((value) => value + 1);
@@ -296,6 +332,8 @@ export default function DecisionRegisterClient() {
     params.delete("range");
     params.delete("category");
     params.delete("basis");
+    params.delete("from");
+    params.delete("to");
     const nextQuery = params.toString();
     router.replace(
       nextQuery.length === 0 ? GOVERNANCE_DECISION_REGISTER_PATH : `${GOVERNANCE_DECISION_REGISTER_PATH}?${nextQuery}`,
@@ -304,7 +342,7 @@ export default function DecisionRegisterClient() {
   }, [router, searchParams]);
 
   const clearCustomDatePreset = useCallback(() => {
-    // recordedAfter/recordedBefore aren't URL-bound; don't force ?range=all (it clears the typed dates via the datePreset effect).
+    // Custom dates sync via ?from= / ?to=; preset chips clear those params through decisionRegisterDatePresetHrefFromSearch.
   }, []);
 
   return (

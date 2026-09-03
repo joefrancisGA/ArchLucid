@@ -5,6 +5,7 @@ import { useCallback, useMemo } from "react";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { SealedReviewRecordSummary } from "@/lib/core-pilot-commit-context";
 import {

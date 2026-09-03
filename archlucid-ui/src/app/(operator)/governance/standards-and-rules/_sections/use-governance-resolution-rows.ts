@@ -15,6 +15,8 @@ import {
   parseStandardsRulesLinkedFindingsFromSearch,
   parseStandardsRulesEvidenceCoverageFromSearch,
   parseStandardsRulesEnforcementFromSearch,
+  parseStandardsRulesFrameworkFromSearch,
+  parseStandardsRulesPackFromSearch,
   standardsRulesClearSearchHrefFromSearch,
   standardsRulesSearchHrefFromSearch,
 } from "@/lib/governance/standards-rules-filters-url";
@@ -50,6 +52,8 @@ export function useGovernanceResolutionRows(model: GovernanceResolutionPageViewM
   const urlLinkedFindings = parseStandardsRulesLinkedFindingsFromSearch(searchParams.get("linkedFindings"));
   const urlEvidenceCoverage = parseStandardsRulesEvidenceCoverageFromSearch(searchParams.get("evidenceCoverage"));
   const urlEnforcement = parseStandardsRulesEnforcementFromSearch(searchParams.get("enforcement"));
+  const urlFramework = parseStandardsRulesFrameworkFromSearch(searchParams.get("framework"));
+  const urlPack = parseStandardsRulesPackFromSearch(searchParams.get("pack"));
   const [filters, setFiltersState] = useState({
     ...EMPTY_STANDARDS_RULES_FILTER_STATE,
     searchQuery: urlSearchQuery,
@@ -57,6 +61,8 @@ export function useGovernanceResolutionRows(model: GovernanceResolutionPageViewM
     linkedFindings: urlLinkedFindings,
     evidenceCoverage: urlEvidenceCoverage,
     enforcementMode: urlEnforcement,
+    standardFramework: urlFramework,
+    sourcePolicyPack: urlPack,
   });
   const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
 
@@ -68,9 +74,11 @@ export function useGovernanceResolutionRows(model: GovernanceResolutionPageViewM
       linkedFindings: urlLinkedFindings,
       evidenceCoverage: urlEvidenceCoverage,
       enforcementMode: urlEnforcement,
+      standardFramework: urlFramework,
+      sourcePolicyPack: urlPack,
     }));
     setSearchQuery(urlSearchQuery);
-  }, [urlEnforcement, urlEvidenceCoverage, urlLinkedFindings, urlSearchQuery, urlSeverity]);
+  }, [urlEnforcement, urlEvidenceCoverage, urlFramework, urlLinkedFindings, urlPack, urlSearchQuery, urlSeverity]);
 
   useEffect(() => {
     const handle = window.setTimeout(() => {

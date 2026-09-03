@@ -1,8 +1,10 @@
 import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
 import type {
+  PatternAdoptionSignal,
   PatternDomainFilter,
   PatternPlatformFilter,
   PatternRiskSignal,
+  PatternTimeRangeFilter,
   PatternTypeFilter,
 } from "@/lib/pattern-library-types";
 
@@ -11,6 +13,8 @@ export const PATTERN_LIBRARY_DOMAIN_PARAM = "domain";
 export const PATTERN_LIBRARY_PLATFORM_PARAM = "platform";
 export const PATTERN_LIBRARY_TYPE_PARAM = "type";
 export const PATTERN_LIBRARY_RISK_PARAM = "risk";
+export const PATTERN_LIBRARY_ADOPTION_PARAM = "adoption";
+export const PATTERN_LIBRARY_TIME_PARAM = "time";
 
 const PATTERN_DOMAIN_IDS = new Set<string>([
   "All domains",
@@ -45,6 +49,10 @@ const PATTERN_TYPE_IDS = new Set<string>([
 ]);
 
 const PATTERN_RISK_IDS = new Set<string>(["All risks", "Low", "Moderate", "High"]);
+
+const PATTERN_ADOPTION_IDS = new Set<string>(["All adoption", "Common", "Emerging", "Rare", "Declining"]);
+
+const PATTERN_TIME_IDS = new Set<string>(["All time", "Last 90 days", "Last 12 months"]);
 
 export function parsePatternLibrarySearchQuery(raw: string | null | undefined): string {
   if (raw === null || raw === undefined) {
@@ -203,6 +211,72 @@ export function patternLibraryRiskHrefFromSearch(
     params.delete(PATTERN_LIBRARY_RISK_PARAM);
   } else {
     params.set(PATTERN_LIBRARY_RISK_PARAM, risk);
+  }
+
+  const nextQuery = params.toString();
+
+  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+}
+
+export function parsePatternLibraryAdoptionFromSearch(
+  raw: string | null | undefined,
+): PatternAdoptionSignal | "All adoption" {
+  if (raw === null || raw === undefined) {
+    return "All adoption";
+  }
+
+  const trimmed = raw.trim();
+
+  if (!PATTERN_ADOPTION_IDS.has(trimmed)) {
+    return "All adoption";
+  }
+
+  return trimmed as PatternAdoptionSignal | "All adoption";
+}
+
+export function parsePatternLibraryTimeRangeFromSearch(raw: string | null | undefined): PatternTimeRangeFilter {
+  if (raw === null || raw === undefined) {
+    return "All time";
+  }
+
+  const trimmed = raw.trim();
+
+  if (!PATTERN_TIME_IDS.has(trimmed)) {
+    return "All time";
+  }
+
+  return trimmed as PatternTimeRangeFilter;
+}
+
+export function patternLibraryAdoptionHrefFromSearch(
+  currentSearch: string,
+  adoption: PatternAdoptionSignal | "All adoption",
+  pathname: string = PATTERN_LIBRARY_PATH,
+): string {
+  const params = new URLSearchParams(currentSearch);
+
+  if (adoption === "All adoption") {
+    params.delete(PATTERN_LIBRARY_ADOPTION_PARAM);
+  } else {
+    params.set(PATTERN_LIBRARY_ADOPTION_PARAM, adoption);
+  }
+
+  const nextQuery = params.toString();
+
+  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+}
+
+export function patternLibraryTimeRangeHrefFromSearch(
+  currentSearch: string,
+  timeRange: PatternTimeRangeFilter,
+  pathname: string = PATTERN_LIBRARY_PATH,
+): string {
+  const params = new URLSearchParams(currentSearch);
+
+  if (timeRange === "All time") {
+    params.delete(PATTERN_LIBRARY_TIME_PARAM);
+  } else {
+    params.set(PATTERN_LIBRARY_TIME_PARAM, timeRange);
   }
 
   const nextQuery = params.toString();

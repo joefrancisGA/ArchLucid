@@ -98,12 +98,28 @@ function operatorShellSections(
   return sections;
 }
 
+function workingModeEarlyPhaseSections(phase: OperatorHomeWorkspacePhase): OperatorHomeSectionDescriptor[] {
+  if (phase === "eval-empty") {
+    return [
+      { id: "unfinished", testId: "operator-home-unfinished-work" },
+      { id: "start-something", testId: "operator-home-start-something" },
+      { id: "recent-reviews", testId: "operator-home-recent-reviews" },
+    ];
+  }
+
+  return [
+    { id: "unfinished", testId: "operator-home-unfinished-work" },
+    { id: "recent-reviews", testId: "operator-home-recent-reviews" },
+    { id: "start-something", testId: "operator-home-start-something" },
+  ];
+}
+
 function workingModeOperatorShellSections(
   phase: OperatorHomeWorkspacePhase,
   metrics: OperatorHomeWorkspaceMetricsSnapshot,
 ): OperatorHomeSectionDescriptor[] {
   if (phase === "eval-empty" || phase === "eval-with-drafts") {
-    return earlyPhaseSections(phase);
+    return workingModeEarlyPhaseSections(phase);
   }
 
   return [

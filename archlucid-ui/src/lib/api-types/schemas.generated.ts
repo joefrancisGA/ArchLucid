@@ -1991,6 +1991,14 @@ export interface components {
             manifest?: components["schemas"]["GoldenManifest"];
             warnings?: string[];
         };
+        CommittedArtifactInventoryEntry: {
+            artifactName?: string;
+            /** Format: date-time */
+            capturedUtc?: string;
+            contentHashSha256?: string;
+            contentType?: string;
+            producer?: string;
+        };
         CommittedCoverageAssignmentSnapshot: {
             coverageType?: string;
             evaluationVersion?: string;
@@ -2035,6 +2043,19 @@ export interface components {
             generatedUtc?: string;
             policyReferences?: string[];
             reviewedQualityDimensions?: string[];
+        };
+        CompareInputFingerprints: {
+            baseArchitectureVersionContentHashSha256?: null | string;
+            baseEvidencePackagePinHashSha256?: null | string;
+            baseKnowledgeModelContentHashSha256?: null | string;
+            baseManifestHashSha256?: null | string;
+            basePolicyPackPinHashSha256?: null | string;
+            comparisonAlgorithmVersion?: string;
+            targetArchitectureVersionContentHashSha256?: null | string;
+            targetEvidencePackagePinHashSha256?: null | string;
+            targetKnowledgeModelContentHashSha256?: null | string;
+            targetManifestHashSha256?: null | string;
+            targetPolicyPackPinHashSha256?: null | string;
         };
         CompareQualityDeltaCounts: {
             /** Format: int32 */
@@ -2138,6 +2159,7 @@ export interface components {
             costChanges?: components["schemas"]["CostDelta"][];
             decisionChanges?: components["schemas"]["DecisionDelta"][];
             duplicateKeyConflicts?: components["schemas"]["ComparisonDuplicateKeyConflict"][];
+            inputFingerprints?: null | components["schemas"]["CompareInputFingerprints"];
             requirementChanges?: components["schemas"]["RequirementDelta"][];
             securityChanges?: components["schemas"]["SecurityDelta"][];
             summaryHighlights?: string[];
@@ -5025,6 +5047,7 @@ export interface components {
             /** Format: uuid */
             architectureVersionId?: null | string;
             assumptions?: string[];
+            committedArtifactInventory?: components["schemas"]["CommittedArtifactInventoryEntry"][];
             compliance?: components["schemas"]["ComplianceSection"];
             constraints?: components["schemas"]["ConstraintSection"];
             /** Format: uuid */
@@ -5851,6 +5874,10 @@ export interface components {
             provider: string;
         };
         PinnedPolicyPackRow: {
+            /** Format: int32 */
+            blockCommitMinimumSeverity?: null | number;
+            /** @default false */
+            blockCommitOnCritical: boolean;
             policyPackId: string;
             policyPackVersion: string;
         };

@@ -20,6 +20,7 @@ import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
 import { RunDetailExplanationSkeleton, RunDetailMidDeferredSkeleton } from "./RunDetailDeferredSkeleton";
 import { RunDetailExplanationDeferred } from "./RunDetailExplanationDeferred";
 import { RunDetailCreateHomeFindingsPanel } from "./RunDetailCreateHomeFindingsPanel";
+import { RunDetailOverviewTransparencyTrail } from "@/components/reviews/RunDetailOverviewTransparencyTrail";
 import type { RunDetailPageModel } from "./run-detail-page-model";
 import type { RunDetailPresentation } from "./run-detail-page-presentation";
 
@@ -92,6 +93,12 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
         requestAssumptionTexts={requestAssumptionTexts}
         {...reviewPackageDoThisNextEvidenceProps}
       />
+      {!m.manifestId ? (
+        <RunDetailOverviewTransparencyTrail
+          feasibilityVerdict={m.manifestSummary?.feasibilityVerdict ?? m.manifestSummaryForUi?.feasibilityVerdict ?? null}
+          runCompleted={m.resolvedDetail.run.completedUtc != null}
+        />
+      ) : null}
       <RunDetailWorkspaceDisclosureControls />
       <Suspense fallback={<RunDetailExplanationSkeleton />}>
         <RunDetailArchitectureCreatedWorkspaceDeferred

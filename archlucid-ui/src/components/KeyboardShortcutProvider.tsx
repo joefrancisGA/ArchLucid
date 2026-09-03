@@ -11,7 +11,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { KeyboardShortcutsHelpContent } from "@/components/KeyboardShortcutsHelpContent";
-import { useShortcutNavigation } from "@/hooks/useShortcutNavigation";
 
 export type KeyboardShortcutProviderProps = {
   children: ReactNode;
@@ -20,22 +19,18 @@ export type KeyboardShortcutProviderProps = {
 };
 
 /**
- * Global keyboard shortcuts; Shift+/ (? symbol, aka Shift+?) and F1 open either documentation search (parent shell)
- * or a shortcuts-only dialog when no handler is supplied.
+ * Deferred help overlay only — navigation shortcuts mount synchronously via
+ * {@link AppShellSyncKeyboardShortcutListener}.
  */
 export function KeyboardShortcutProvider({ children, onHelpRequested }: KeyboardShortcutProviderProps) {
   const [helpOpen, setHelpOpen] = useState(false);
-  const handler = onHelpRequested ?? (() => setHelpOpen(true));
-
-  useShortcutNavigation({
-    onHelpRequested: handler,
-  });
+  const showBuiltInHelpDialog = onHelpRequested === undefined;
 
   return (
     <>
       {children}
 
-      {onHelpRequested === undefined ? (
+      {showBuiltInHelpDialog ? (
         <Dialog open={helpOpen} onOpenChange={setHelpOpen}>
           <DialogContent className="max-h-[85vh] max-w-lg overflow-y-auto sm:max-w-xl">
             <DialogHeader>

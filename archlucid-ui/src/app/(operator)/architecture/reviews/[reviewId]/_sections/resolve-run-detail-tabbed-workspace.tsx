@@ -9,7 +9,9 @@ import { RunDetailActivityTabSectionNav } from "@/components/runs/RunDetailActiv
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
 import { ReviewInPipelineBanner } from "@/components/reviews/ReviewInPipelineBanner";
+import { ReviewDefensibilityStrip } from "@/components/reviews/ReviewDefensibilityStrip";
 import { reviewPipelineDiagnosticContextFromRunDetail } from "@/lib/review-pipeline-diagnostic-context";
+import { buildReviewDefensibilityStripProps } from "@/lib/reviews/build-review-defensibility-strip-props";
 import { composeRunDetailEvidenceTab } from "./RunDetailEvidenceTabComposition";
 import { composeRunDetailGovernanceTab } from "./RunDetailGovernanceTabComposition";
 import type { RunDetailPresentation } from "./run-detail-page-presentation";
@@ -53,6 +55,7 @@ import {
 
 export type RunDetailTabbedWorkspaceResolved = {
   readonly inPipelineBannerEl: React.JSX.Element | null;
+  readonly defensibilityStripEl: React.JSX.Element | null;
   readonly lifecycle: ReturnType<typeof resolveReviewWorkspaceLifecycle>;
   readonly tabActivityAt: ReturnType<typeof deriveReviewDetailTabActivityAt>;
   readonly tabCounts: {
@@ -198,8 +201,16 @@ export function resolveRunDetailTabbedWorkspace(
     />
   ) : null;
 
+  const defensibilityStripProps = buildReviewDefensibilityStripProps(
+    m.manifestSummaryForUi?.feasibilityVerdict ?? m.manifestSummary?.feasibilityVerdict,
+    m.showProgressTracker && m.resolvedDetail.run.completedUtc === null,
+  );
+  const defensibilityStripEl =
+    defensibilityStripProps !== null ? <ReviewDefensibilityStrip {...defensibilityStripProps} /> : null;
+
   return {
     inPipelineBannerEl,
+    defensibilityStripEl,
     lifecycle: resolveReviewWorkspaceLifecycle({
       manifestId: m.manifestId,
       showProgressTracker: m.showProgressTracker,

@@ -89,6 +89,7 @@ export default function GovernanceFindingsQueueClient({
   mode = "tenant",
 }: GovernanceFindingsQueueClientProps) {
   const [hideGenericLowDensity, setHideGenericLowDensity] = useState(false);
+  const [selectedFindingIds, setSelectedFindingIds] = useState<ReadonlySet<string>>(() => new Set());
   const { jobView, setJobView, nlFacets, setNlFacets, clearFacetFilters } =
     useGovernanceFindingsQueueFacets(mode);
   const isAssignedToMe = mode === "assigned-to-me";

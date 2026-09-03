@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 
 import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
 import {
@@ -15,6 +16,13 @@ import {
 } from "@/components/ui/enterprise-table";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
+import {
+  parseStandardsRulesSortAscFromSearch,
+  parseStandardsRulesSortKeyFromSearch,
+  standardsRulesSortHrefFromSearch,
+  type StandardsRulesSortKey,
+} from "@/lib/governance/standards-rules-sort-url";
+import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
 import type { StandardsRuleRow } from "@/lib/standards-rules-rows";
 import { standardsRuleHasEvidence } from "@/lib/standards-rules-rows";
 import { STANDARDS_RULES_TABLE_INTRO, STANDARDS_RULES_TABLE_TITLE } from "@/lib/standards-rules-page";
@@ -32,7 +40,7 @@ export type StandardsRulesTableProps = {
   readonly rows: readonly StandardsRuleRow[];
 };
 
-type SortKey = "ruleName" | "standardFramework" | "severity" | "enforcementMode";
+type SortKey = StandardsRulesSortKey;
 
 const SEVERITY_ORDER: Readonly<Record<string, number>> = {
   Critical: 0,
@@ -69,8 +77,21 @@ function sortDirectionFor(
 
 export function StandardsRulesTable(props: StandardsRulesTableProps) {
   const { rows } = props;
-  const [sortKey, setSortKey] = useState<SortKey>("ruleName");
-  const [sortAsc, setSortAsc] = useState(true);
+  const router = useRouter();
+  const pathname = usePathname() ?? GOVERNANCE_STANDARDS_AND_RULES_PATH;
+  const searchParams = useSearchParams();
+  const urlSortKey = parseStandardsRulesSortKeyFromSearch(searchParams.get("sort"));
+  const urlSortAsc = parseStandardsRulesSortAscFromSearch(searchParams.get("dir"));
+  const [sortKey, setSortKey] = useState<SortKey>(urlSortKey);
+  const [sortAsc, setSortAsc] = useState(urlSortAsc);
+
+  useEffect(() => {
+    setSortKey(urlSortKey);
+  }, [urlSortKey]);
+
+  useEffect(() => {
+    setSortAsc(urlSortAsc);
+  }, [urlSortAsc]);
 
   const sortedRows = useMemo(() => {
     const copy = [...rows];
@@ -81,13 +102,19 @@ export function StandardsRulesTable(props: StandardsRulesTableProps) {
   }, [rows, sortAsc, sortKey]);
 
   function onSort(nextKey: SortKey) {
+    const nextAsc = sortKey === nextKey ? !sortAsc : true;
+
     if (sortKey === nextKey) {
-      setSortAsc((value) => !value);
-      return;
+      setSortAsc(nextAsc);
+    } else {
+      setSortKey(nextKey);
+      setSortAsc(nextAsc);
     }
 
-    setSortKey(nextKey);
-    setSortAsc(true);
+    router.replace(
+      standardsRulesSortHrefFromSearch(searchParams.toString(), nextKey, nextAsc, pathname),
+      { scroll: false },
+    );
   }
 
   return (

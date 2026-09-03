@@ -16,19 +16,22 @@ import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { getRouteTitle } from "@/lib/route-titles";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 
-export type CommandPaletteAction = {
+export type CommandPaletteHrefAction = {
   id: string;
   label: string;
   href: string;
   searchValue: string;
 };
 
+/** @deprecated Use {@link CommandPaletteHrefAction}. */
+export type CommandPaletteAction = CommandPaletteHrefAction;
+
 /** "Open" + the destination's canonical name, lower-cased so the phrase stays sentence-case. */
 function openDestinationLabel(href: string): string {
   return `Open ${getRouteTitle(href).toLowerCase()}`;
 }
 
-export const COMMAND_PALETTE_ACTIONS: readonly CommandPaletteAction[] = [
+export const COMMAND_PALETTE_ACTIONS: readonly CommandPaletteHrefAction[] = [
   {
     id: "action-create-review",
     label: getRouteTitle("/architecture/reviews/new"),
