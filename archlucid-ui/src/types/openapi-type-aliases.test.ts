@@ -486,6 +486,98 @@ type _ExplanationWave13BarrelAliases = [
   >,
 ];
 
+/** Wave 14 — governance-stickiness register, disposition, and posture modules. */
+type _GovernanceStickinessWave14ModuleAliases = [
+  AssertExtends<
+    import("@/lib/api/governance-stickiness-register-types").ArchitectureRiskRegisterEntry,
+    import("@/lib/api/governance-stickiness-api-types").ArchitectureRiskRegisterEntry
+  >,
+  AssertExtends<
+    import("@/lib/api/governance-stickiness-disposition-types").FindingDispositionKind,
+    import("@/lib/api/governance-stickiness-api-types").FindingDispositionKind
+  >,
+  AssertExtends<
+    import("@/lib/api/governance-stickiness-posture-types").ArchitecturePostureSummary,
+    import("@/lib/api/governance-stickiness-api-types").ArchitecturePostureSummary
+  >,
+];
+
+/** Wave 14 — governance-stickiness barrel re-exports register, disposition, and posture slices. */
+type _GovernanceStickinessWave14BarrelAliases = [
+  AssertExtends<
+    import("@/lib/api/governance-stickiness-register-types").ArchitectureDecisionRegisterEntry,
+    import("@/lib/api/governance-stickiness-api-types").ArchitectureDecisionRegisterEntry
+  >,
+  AssertExtends<
+    import("@/lib/api/governance-stickiness-disposition-types").RiskExceptionRecord,
+    import("@/lib/api/governance-stickiness-api-types").RiskExceptionRecord
+  >,
+  AssertExtends<
+    import("@/lib/api/governance-stickiness-posture-types").ArchitectureReviewRecurrenceSchedule,
+    import("@/lib/api/governance-stickiness-api-types").ArchitectureReviewRecurrenceSchedule
+  >,
+  AssertExtends<
+    typeof import("@/lib/api/governance-stickiness-register-types").governanceStickinessBase,
+    typeof import("@/lib/api/governance-stickiness-api-types").governanceStickinessBase
+  >,
+];
+
+/** Wave 14 — health-dashboard ready, detailed, and version modules. */
+type _HealthDashboardWave14ModuleAliases = [
+  AssertExtends<
+    import("@/lib/health-dashboard-ready").HealthReadyResponse,
+    import("@/lib/health-dashboard-types").HealthReadyResponse
+  >,
+  AssertExtends<
+    import("@/lib/health-dashboard-detailed").HealthDetailedResponse,
+    import("@/lib/health-dashboard-types").HealthDetailedResponse
+  >,
+  AssertExtends<
+    import("@/lib/health-dashboard-version").VersionInfoResponse,
+    import("@/lib/health-dashboard-types").VersionInfoResponse
+  >,
+];
+
+/** Wave 14 — health-dashboard barrel re-exports ready, detailed, and version slices. */
+type _HealthDashboardWave14BarrelAliases = [
+  AssertExtends<
+    import("@/lib/health-dashboard-ready").findHealthReadyEntryByName,
+    typeof import("@/lib/health-dashboard-types").findHealthReadyEntryByName
+  >,
+  AssertExtends<
+    import("@/lib/health-dashboard-detailed").parseCircuitGatesFromHealthEntry,
+    typeof import("@/lib/health-dashboard-types").parseCircuitGatesFromHealthEntry
+  >,
+  AssertExtends<
+    import("@/lib/health-dashboard-ready").isAzureServiceBusHealthUnhealthy,
+    typeof import("@/lib/health-dashboard-types").isAzureServiceBusHealthUnhealthy
+  >,
+];
+
+/** Wave 14 — AI usage dashboard model-row vs aggregate modules. */
+type _AiUsageDashboardModelWave14ModuleAliases = [
+  AssertExtends<
+    import("@/lib/ai-usage-dashboard-model-row-types").AiUsageActivityRow,
+    import("@/lib/ai-usage-dashboard-model-types").AiUsageActivityRow
+  >,
+  AssertExtends<
+    import("@/lib/ai-usage-dashboard-model-aggregate-types").AiUsageDashboardDerived,
+    import("@/lib/ai-usage-dashboard-model-types").AiUsageDashboardDerived
+  >,
+];
+
+/** Wave 14 — AI usage dashboard model barrel re-exports row and aggregate slices. */
+type _AiUsageDashboardModelWave14BarrelAliases = [
+  AssertExtends<
+    import("@/lib/ai-usage-dashboard-model-row-types").AiUsageKpiSummary,
+    import("@/lib/ai-usage-dashboard-model-types").AiUsageKpiSummary
+  >,
+  AssertExtends<
+    import("@/lib/ai-usage-dashboard-model-aggregate-types").BuildAiUsageDashboardDerivedInput,
+    import("@/lib/ai-usage-dashboard-model-types").BuildAiUsageDashboardDerivedInput
+  >,
+];
+
 /** Wave 12 — authority run-detail trust-evidence module. */
 type _AuthorityRunDetailWave12TrustModuleAliases = [
   AssertExtends<
@@ -1216,6 +1308,12 @@ const _compileTimeAliasGuards: [
   _AgentForensicsWave13BarrelAliases,
   _ExplanationWave13ModuleAliases,
   _ExplanationWave13BarrelAliases,
+  _GovernanceStickinessWave14ModuleAliases,
+  _GovernanceStickinessWave14BarrelAliases,
+  _HealthDashboardWave14ModuleAliases,
+  _HealthDashboardWave14BarrelAliases,
+  _AiUsageDashboardModelWave14ModuleAliases,
+  _AiUsageDashboardModelWave14BarrelAliases,
   _AuthorityRunDetailWave12TrustModuleAliases,
   _AuthorityRunDetailWave12ProvenanceModuleAliases,
   _AuthorityRunDetailWave12BarrelAliases,
@@ -1271,6 +1369,12 @@ const _compileTimeAliasGuards: [
   [] as unknown as _AgentForensicsWave13BarrelAliases,
   [] as unknown as _ExplanationWave13ModuleAliases,
   [] as unknown as _ExplanationWave13BarrelAliases,
+  [] as unknown as _GovernanceStickinessWave14ModuleAliases,
+  [] as unknown as _GovernanceStickinessWave14BarrelAliases,
+  [] as unknown as _HealthDashboardWave14ModuleAliases,
+  [] as unknown as _HealthDashboardWave14BarrelAliases,
+  [] as unknown as _AiUsageDashboardModelWave14ModuleAliases,
+  [] as unknown as _AiUsageDashboardModelWave14BarrelAliases,
   [] as unknown as _AuthorityRunDetailWave12TrustModuleAliases,
   [] as unknown as _AuthorityRunDetailWave12ProvenanceModuleAliases,
   [] as unknown as _AuthorityRunDetailWave12BarrelAliases,

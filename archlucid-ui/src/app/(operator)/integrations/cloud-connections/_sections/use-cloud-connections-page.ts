@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { listAwsTier2Connections } from "@/lib/api/aws-cloud-connections-api";
@@ -16,6 +17,10 @@ import {
   type CloudProviderId,
 } from "@/lib/cloud-platform-scope-storage";
 import {
+  parseCloudConnectionsPlatformFromSearch,
+  type CloudConnectionsPlatformFilter,
+} from "@/lib/integrations/cloud-connections-platform-url";
+import {
   buildIntegrationZoneRecoveries,
   type IntegrationZoneLoadSlice,
 } from "@/lib/integration-zone-recovery";
@@ -23,9 +28,7 @@ import {
   resolveCloudConnectionsConnectSteps,
   resolveCloudConnectionsEmphasizedStepId,
 } from "@/lib/cloud-connections-connect-checklist";
-import {
-  resolveContinueLastCloudProvider,
-} from "@/lib/resolve-continue-last-cloud-provider";
+import { resolveContinueLastCloudProvider } from "@/lib/resolve-continue-last-cloud-provider";
 import { isCloudProviderSummaryConfigured } from "@/app/(operator)/integrations/cloud-connections/_sections/is-cloud-provider-summary-configured";
 
 function formatTimestamp(value: string | null | undefined): string {
@@ -67,7 +70,20 @@ const DEFAULT_PROVIDER_SUMMARY: ProviderSummaryState = {
 
 const CLOUD_PROVIDER_COUNT = CLOUD_PROVIDER_NEUTRAL_ORDER.length;
 
+export const CLOUD_PLATFORM_CHIP_OPTIONS: readonly {
+  readonly id: CloudConnectionsPlatformFilter;
+  readonly label: string;
+}[] = [
+  { id: "all", label: "All platforms" },
+  { id: "aws", label: "AWS" },
+  { id: "azure", label: "Azure" },
+  { id: "gcp", label: "GCP" },
+];
+
 export function useCloudConnectionsPage() {
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
+  const urlPlatform = parseCloudConnectionsPlatformFromSearch(searchParams.get("platform"));
   const [platformScope, setPlatformScope] = useState(() => resolveLandingCloudPlatformScope());
   const [isLoading, setIsLoading] = useState(true);
   const [successfulPullByProvider, setSuccessfulPullByProvider] = useState<Record<CloudProviderId, boolean>>({
@@ -242,7 +258,19 @@ export function useCloudConnectionsPage() {
     [],
   );
 
-  const visibleProviders = useMemo(() => visibleCloudProviders(platformScope), [platformScope]);
+  const preferenceScopedProviders = useMemo(() => visibleCloudProviders(platformScope), [platformScope]);
+
+  const visibleProviders = useMemo(() => {
+    if (urlPlatform === "all") {
+      return preferenceScopedProviders;
+    }
+
+    if (preferenceScopedProviders.includes(urlPlatform)) {
+      return [urlPlatform];
+    }
+
+    return [urlPlatform];
+  }, [preferenceScopedProviders, urlPlatform]);
 
   const hasSuccessfulPull = useMemo(
     () => CLOUD_PROVIDER_NEUTRAL_ORDER.some((provider) => successfulPullByProvider[provider]),
@@ -303,6 +331,8 @@ export function useCloudConnectionsPage() {
   const cloudConnectEmphasizedStepId = resolveCloudConnectionsEmphasizedStepId(cloudConnectChecklistInput);
 
   return {
+    currentSearch,
+    urlPlatform,
     isLoading,
     visibleProviders,
     providerSummaries,
@@ -313,6 +343,7 @@ export function useCloudConnectionsPage() {
     hasConfiguredProvider,
     hasSuccessfulPull,
     connectedProviderCount,
+    totalProviderCount: CLOUD_PROVIDER_COUNT,
     recommendedProviderId,
     continueLastProvider,
   };
