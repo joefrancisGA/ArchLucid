@@ -124,7 +124,7 @@
 
 ## Active items (remaining)
 
-**2026-09-03 pass 8 — suggestions only; do not treat this list as in-progress implementation.** Evidence from current line counts after PR **#1192** (pass-7 items 1–10). Same constraints as prior passes: keep HTTP routes, OpenAPI wire shapes, and tenant isolation unchanged unless a follow-up explicitly says otherwise.
+**2026-09-03 pass-8 — suggestions only; do not treat this list as in-progress implementation.** Evidence from current line counts after PR **#1192** (pass-7 items 1–10). Same constraints as prior passes: keep HTTP routes, OpenAPI wire shapes, and tenant isolation unchanged unless a follow-up explicitly says otherwise.
 
 1. **Split leftover `PolicyPacksController` CRUD vs catalog route families** — Pass-4 split `PolicyPackHttpFacade` partials; HTTP leftovers: `PolicyPacksController` **330** (create/publish/assign/archive/delete/duplicate/list/enabled) and `PolicyPacksController.Catalog` **337** (page-bundle, workspace-selection, catalog promote/demote, versions, explain, effective, rule-templates). Split Catalog into `Catalog.Read` / `Catalog.Mutate` (or versions vs catalog vs effective) partials; keep facade delegation; routes and auth stay equivalent. **Impact:** High (policy-pack buyer APIs) · **Effort:** Low–Medium · **Paths:** `ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs`, `PolicyPacksController.Catalog.cs`
 
