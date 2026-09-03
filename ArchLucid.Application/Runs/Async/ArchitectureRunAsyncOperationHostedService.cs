@@ -133,6 +133,20 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
 
         if (item.Kind == ArchitectureRunAsyncOperationKind.Execute)
         {
+            if (!Guid.TryParse(item.RunId, out Guid executeRunGuid))
+                throw new InvalidOperationException($"Execute work item run id '{item.RunId}' is not a valid GUID.");
+
+            IRunRepository runs = scope.ServiceProvider.GetRequiredService<IRunRepository>();
+            RunRecord? executeHeader = await runs.GetByIdAsync(item.Scope, executeRunGuid, cancellationToken);
+
+            if (executeHeader is null)
+            {
+                throw new InvalidOperationException(
+                    $"Execute blocked for run '{item.RunId}': run header was not found.");
+            }
+
+            ReplayRunScopeAssertionGuard.EnsureCallerScopeMatchesSourceOrThrow(item.Scope, executeHeader, item.RunId);
+
             await scope.ServiceProvider
                 .GetRequiredService<IArchitectureRunExecuteOrchestrator>()
                 .ExecuteRunAsync(item.RunId, cancellationToken);

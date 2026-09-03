@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Contracts.Persistence.Artifacts;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
@@ -42,6 +43,7 @@ public sealed class AuthorityCommitPersistenceStage(
     IAuditService auditService,
     IRunTelemetryRepository runTelemetryRepository,
     IAuthorityCommitFailureRecorder failureRecorder,
+    IArtifactBundleRepository artifactBundleRepository,
     IOptions<GenerateIacStubsOptions> generateIacStubsOptions,
     IOptions<RerankFindingsOptions> rerankFindingsOptions,
     ILogger<AuthorityCommitPersistenceStage> logger) : IAuthorityCommitPersistenceStage
@@ -82,6 +84,9 @@ public sealed class AuthorityCommitPersistenceStage(
     private readonly IAuthorityCommitFailureRecorder _failureRecorder =
         failureRecorder ?? throw new ArgumentNullException(nameof(failureRecorder));
 
+    private readonly IArtifactBundleRepository _artifactBundleRepository =
+        artifactBundleRepository ?? throw new ArgumentNullException(nameof(artifactBundleRepository));
+
     private readonly IOptions<GenerateIacStubsOptions> _generateIacStubsOptions =
         generateIacStubsOptions ?? throw new ArgumentNullException(nameof(generateIacStubsOptions));
 
@@ -106,6 +111,18 @@ public sealed class AuthorityCommitPersistenceStage(
         ManifestFinalizationResult finalization;
         try
         {
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            ArtifactBundle? preloadedArtifactBundle = null;
+
+            if (runRecord.ArtifactBundleId is Guid)
+            {
+                preloadedArtifactBundle = await _artifactBundleRepository.GetByManifestIdAsync(
+                    scope,
+                    materialization.ManifestModel.ManifestId,
+                    loadArtifactBodies: true,
+                    cancellationToken);
+            }
+
             finalization = await _manifestFinalizationService.FinalizeAsync(
                 new ManifestFinalizationRequest
                 {
@@ -124,6 +141,7 @@ public sealed class AuthorityCommitPersistenceStage(
                     PinnedFocusedPilotModeEnabled = runRecord.PinnedFocusedPilotModeEnabled,
                     PinnedFocusedPilotCloudProvider = runRecord.PinnedFocusedPilotCloudProvider,
                     PreloadedArchitectureRequest = request,
+                    PreloadedArtifactBundle = preloadedArtifactBundle,
                     SkipPersistingPipelineArtifacts = materialization.SkipPersistingPipelineArtifacts,
                     ReadyForCommitHandle = readyForCommitRun
                 },
@@ -238,7 +256,8 @@ public sealed class AuthorityCommitPersistenceStage(
         {
             Manifest = contract,
             DecisionTraces = [DecisionTraceRecordMapper.ToDto(trace)],
-            Warnings = persisted.Warnings.Count == 0 ? [] : [.. persisted.Warnings]
+            Warnings = persisted.Warnings.Count == 0 ? [] : [.. persisted.Warnings],
+            CommittedArtifactInventory = persisted.CommittedArtifactInventory,
         };
     }
 

@@ -1,6 +1,7 @@
-using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+
+using ArchLucid.Core.Explanation;
 
 namespace ArchLucid.Core.AzureExtractor;
 
@@ -133,14 +134,14 @@ public static class AzureExtractorManifestSchemaUpgrader
 
                 string? raw = jsonValue.GetValue<string>();
 
-                if (TryParseBooleanString(raw, out bool booleanSchema))
+                if (RunExplanationAggregateJsonReader.TryParseBooleanString(raw, out bool booleanSchema))
                 {
                     schemaVersion = booleanSchema ? 1 : 0;
 
                     return true;
                 }
 
-                if (TryParseWholeNumberString(raw, out schemaVersion))
+                if (RunExplanationAggregateJsonReader.TryParseWholeNumberString(raw, out schemaVersion))
                     return true;
 
                 break;
@@ -181,75 +182,6 @@ public static class AzureExtractorManifestSchemaUpgrader
         }
 
         schemaVersion = default;
-
-        return false;
-    }
-
-    private static bool TryParseWholeNumberString(string? raw, out int value)
-    {
-        if (string.IsNullOrWhiteSpace(raw))
-        {
-            value = default;
-
-            return false;
-        }
-
-        string trimmed = raw.Trim();
-
-        if (int.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
-        {
-            return true;
-        }
-
-        if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
-            && double.IsFinite(numeric)
-            && numeric >= 0
-            && numeric == Math.Floor(numeric))
-        {
-            value = (int)numeric;
-
-            return true;
-        }
-
-        value = default;
-
-        return false;
-    }
-
-    private static bool TryParseBooleanString(string? raw, out bool value)
-    {
-        if (string.IsNullOrWhiteSpace(raw))
-        {
-            value = default;
-
-            return false;
-        }
-
-        string trimmed = raw.Trim();
-
-        if (trimmed.Equals("true", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("1", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("yes", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("on", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("enabled", StringComparison.OrdinalIgnoreCase))
-        {
-            value = true;
-
-            return true;
-        }
-
-        if (trimmed.Equals("false", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("0", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("no", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("off", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("disabled", StringComparison.OrdinalIgnoreCase))
-        {
-            value = false;
-
-            return true;
-        }
-
-        value = default;
 
         return false;
     }

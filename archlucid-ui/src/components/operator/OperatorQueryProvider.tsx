@@ -3,6 +3,7 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useState, type ReactNode } from "react";
 
+import { WorkspaceModeSealDefaultEffect } from "@/components/workspace-mode/WorkspaceModeSealDefaultEffect";
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
 import { setupOperatorQueryClientPersistence } from "@/lib/query/operator-query-persist-client";
 
@@ -16,5 +17,10 @@ export function OperatorQueryProvider({ children }: OperatorQueryProviderProps) 
 
   useEffect(() => setupOperatorQueryClientPersistence(queryClient), [queryClient]);
 
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <WorkspaceModeSealDefaultEffect />
+      {children}
+    </QueryClientProvider>
+  );
 }

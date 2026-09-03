@@ -4,7 +4,6 @@ import {
   isReviewDetailTabId,
   type ReviewDetailTabId,
 } from "@/lib/review-detail-workspace-tabs";
-import { splitReviewWorkspaceTabsByStage } from "@/lib/usability/usability-consolidation";
 
 /**
  * Coarse package-detail lifecycle for tab density (TB-2189).
@@ -79,9 +78,8 @@ export function resolveReviewDetailVisibleTabs(
   input: ResolveReviewDetailVisibleTabsInput,
 ): ReviewDetailVisibleTabs {
   const stage = resolveReviewDetailTabLifecycleStage(input);
-  const split = splitReviewWorkspaceTabsByStage(stage, ALL_TABS);
-  const visibleTabIds = split.primaryTabIds;
-  const moreTabIds = split.moreTabIds;
+  const visibleTabIds = ALL_TABS;
+  const moreTabIds: readonly ReviewDetailTabId[] = [];
   const defaultTabId = defaultTabForStage(stage);
 
   return {

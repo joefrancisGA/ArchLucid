@@ -15,6 +15,7 @@ export type GovernanceFindingsQueueTableBodyProps = {
   readonly onToggleRow?: (findingId: string) => void;
   readonly isRowFocused?: (index: number) => boolean;
   readonly isRowNewSinceLastVisit?: (row: GovernanceFindingQueueRow) => boolean;
+  readonly showInsightDensityScore?: boolean;
   readonly onRowOpened?: (row: GovernanceFindingQueueRow) => void;
   readonly ariaRowCount?: number;
 };
@@ -29,6 +30,7 @@ export function GovernanceFindingsQueueTableBody(props: GovernanceFindingsQueueT
     onToggleRow,
     isRowFocused,
     isRowNewSinceLastVisit,
+    showInsightDensityScore = false,
     onRowOpened,
     ariaRowCount,
   } = props;
@@ -46,6 +48,7 @@ export function GovernanceFindingsQueueTableBody(props: GovernanceFindingsQueueT
           onToggleRow={onToggleRow}
           isFocused={isRowFocused?.(rowIndex)}
           showNewSinceLastVisit={isRowNewSinceLastVisit?.(row) ?? false}
+          showInsightDensityScore={showInsightDensityScore}
           onOpenRow={() => {
             onRowOpened?.(row);
           }}
