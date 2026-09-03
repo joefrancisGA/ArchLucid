@@ -3,7 +3,7 @@
 
 # Next refactorings
 
-**Last updated:** 2026-09-02.
+**Last updated:** 2026-09-03.
 
 **Where to start:** [START_HERE.md — What to open first](../START_HERE.md) (Mermaid + table).
 
