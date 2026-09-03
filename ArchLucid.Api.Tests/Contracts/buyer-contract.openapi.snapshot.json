@@ -17393,6 +17393,19 @@
               "string"
             ]
           },
+          "createTimeFocusedPilotCloudProvider": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "createTimeFocusedPilotModeEnabled": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
           "createTimeKnowledgeModelContentHashSha256": {
             "type": [
               "null",
@@ -26845,6 +26858,7 @@
             ]
           },
           "pinnedArchitectureVersionContentHashSha256": {
+            "description": "Read-only SHA-256 \u03BA artifact content hash pinned at run create (wave-9/10).",
             "format": "byte",
             "type": [
               "null",
@@ -26878,6 +26892,7 @@
             ]
           },
           "pinnedKnowledgeModelContentHashSha256": {
+            "description": "Read-only SHA-256 \u03BA model content hash pinned at run create (wave-10).",
             "format": "byte",
             "type": [
               "null",
@@ -32456,6 +32471,27 @@
           "AgentExecution"
         ],
         "type": "string"
+      },
+      "UserAttentionSummaryResponse": {
+        "properties": {
+          "alertsOpenCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "assignedToMeFindingsCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "awaitingApprovalCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "checkedAtUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
       },
       "UserInvitationListResponse": {
         "properties": {
@@ -39573,6 +39609,9 @@
     },
     {
       "name": "TrustCenterEvidencePack"
+    },
+    {
+      "name": "UserAttentionSummary"
     },
     {
       "name": "UserInvitationPublic"
