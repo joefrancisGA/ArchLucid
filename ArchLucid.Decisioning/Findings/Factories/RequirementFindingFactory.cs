@@ -18,7 +18,7 @@ public static class RequirementFindingFactory
         return new Finding
         {
             FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
-            FindingType = "RequirementFinding",
+            FindingType = FindingTypes.RequirementFinding,
             Category = "Requirement",
             EngineType = engineType,
             Severity = FindingSeverity.Info,
