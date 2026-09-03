@@ -23,9 +23,6 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 import { HelpComparisonReplayGuideView } from "@/app/(operator)/help/_sections/HelpComparisonReplayGuideView";
 import {
-  expectClaimDisciplineBandContent,
-} from "@/lib/claim-discipline-test-helpers";
-import {
   COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE,
   COMPARISON_REPLAY_HELP_SOURCES,
 } from "@/lib/comparison-replay-help-evidence-copy";
@@ -141,12 +138,10 @@ describe("HelpTopicComparisonReplay (CO)", () => {
 
     expect(screen.getByTestId("comparison-replay-help-orientation")).toBeInTheDocument();
     expect(screen.queryByTestId("help-comparison-replay-claim-discipline-strip")).toBeNull();
-    expectClaimDisciplineBandContent(
-      screen,
-      "comparison-replay-help",
-      "comparison-replay-help-claim-discipline",
-      COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    expect(screen.getByTestId("comparison-replay-help-header-claim-discipline")).toHaveTextContent(
+      COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE,
     );
+    expect(screen.queryByTestId("comparison-replay-help-claim-discipline")).toBeNull();
 
     const sources = screen.getByTestId("comparison-replay-help-sources");
 
