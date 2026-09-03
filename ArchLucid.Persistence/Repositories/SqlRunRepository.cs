@@ -14,6 +14,7 @@ namespace ArchLucid.Persistence.Repositories;
 /// </summary>
 /// <remarks>
 ///     Aggregate methods live in <c>SqlRunRepository.{Write|Query|List}.cs</c> partials.
+///     Query lookups are further split in <c>SqlRunRepository.Query.*.cs</c>.
 ///     The type remains one <see cref="IRunRepository" /> implementation and DI registration.
 /// </remarks>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]

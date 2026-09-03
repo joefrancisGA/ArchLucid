@@ -13,7 +13,7 @@ export const WORKSPACE_MODE_GUIDED_DESCRIPTION =
   "Teaching chrome on; live reviews and findings.";
 
 export const WORKSPACE_MODE_WORKING_DESCRIPTION =
-  "Teaching chrome off; live reviews and findings.";
+  "Split workbench, full shell density, longer idle timeout, and teaching chrome off.";
 
 export const WORKSPACE_MODE_PREFERENCE_HELPER =
   "You can switch back anytime. This does not change your packages, findings, or audit trail.";
@@ -25,6 +25,8 @@ export const WORKSPACE_MODE_GRADUATION_LEAD =
 
 export const WORKSPACE_MODE_GRADUATION_CHANGES = [
   "Overview leads with your work queue.",
+  "Architecture, findings, and evidence stay on screen in the workbench.",
+  "Full operator shell density without a deploy flag.",
   "Getting started moves out of the main navigation (still in Help).",
   "Teaching strips and tour prompts stay hidden.",
 ] as const;
@@ -37,6 +39,15 @@ export const WORKSPACE_MODE_GRADUATION_SWITCH_CTA = "Switch to Working";
 export const WORKSPACE_MODE_GRADUATION_KEEP_GUIDED_CTA = "Keep Guided";
 
 export const WORKSPACE_MODE_GRADUATION_REMIND_CTA = "Remind me after my next review";
+
+export const WORKSPACE_MODE_GUIDED_TEACHING_OFFER_TITLE = "Need teaching chrome again?";
+
+export const WORKSPACE_MODE_GUIDED_TEACHING_OFFER_LEAD =
+  "You are in Working mode. Guided mode restores teaching strips, tours, and first-session navigation hints.";
+
+export const WORKSPACE_MODE_GUIDED_TEACHING_OFFER_SWITCH_CTA = "Switch to Guided";
+
+export const WORKSPACE_MODE_GUIDED_TEACHING_OFFER_KEEP_WORKING_CTA = "Keep Working";
 
 export function workspaceModeLabel(mode: WorkspaceModeId): string {
   if (mode === "working") {

@@ -4,10 +4,12 @@ import { type Dispatch, type SetStateAction } from "react";
 import dynamic from "next/dynamic";
 
 import { ArchitectureDraftDetailLoadFailure } from "@/components/architecture/ArchitectureDraftDetailLoadFailure";
+import { ArchitectureDraftWorkspaceHeaderChrome } from "@/components/architecture/ArchitectureDraftWorkspaceHeaderChrome";
 import { ArchitectureDraftFormFields } from "@/components/architecture/ArchitectureDraftFormFields";
 import { ArchitectureDraftNextDraftFooter } from "@/components/architecture/ArchitectureDraftNextDraftFooter";
 import { ArchitectureDraftStartReviewGate } from "@/components/architecture/ArchitectureDraftStartReviewGate";
-import { ArchitectureDraftWorkspaceHeaderChrome } from "@/components/architecture/ArchitectureDraftWorkspaceHeaderChrome";
+import { DraftInvariantEnvelopePreview } from "@/components/architecture/DraftInvariantEnvelopePreview";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { ArchitectureDraftWorkspaceIntakeStack } from "@/components/architecture/ArchitectureDraftWorkspaceIntakeStack";
 import { ArchitectureDraftWorkspaceLoadingSkeleton } from "@/components/architecture/ArchitectureDraftWorkspaceLoadingSkeleton";
 import { ArchitectureDraftWorkspaceStartReviewFooter } from "@/components/architecture/ArchitectureDraftWorkspaceStartReviewFooter";
@@ -128,6 +130,7 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
     fields,
     actorSet,
     editorLocked,
+    handoffEditorLocked,
     blocksLlmExecution,
     effectiveArchitectureId,
     linkedReviewId,
@@ -139,6 +142,8 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
     refinementDraftId,
     exitPending,
   } = props;
+
+  const { isWorkingMode } = useWorkspaceMode();
 
   if (loading) {
     return (
@@ -193,6 +198,13 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
           />
         </CardContent>
       </Card>
+
+      {isWorkingMode && !handoffEditorLocked ? (
+        <DraftInvariantEnvelopePreview
+          baselineOutcome={fields.businessOutcome}
+          baselineIntent={fields.freeTextIntent}
+        />
+      ) : null}
 
       {refinementDraftId !== null && !editorLocked ? (
         <>

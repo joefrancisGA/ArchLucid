@@ -109,7 +109,8 @@ public sealed class AuthorityCommitIdempotencyHandler(
         {
             Manifest = contract,
             DecisionTraces = [traceDto],
-            Warnings = manifestModel.Warnings.Count == 0 ? [] : [.. manifestModel.Warnings]
+            Warnings = manifestModel.Warnings.Count == 0 ? [] : [.. manifestModel.Warnings],
+            CommittedArtifactInventory = manifestModel.CommittedArtifactInventory,
         };
     }
 }

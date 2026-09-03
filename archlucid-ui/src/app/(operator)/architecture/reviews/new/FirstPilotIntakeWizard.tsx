@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
+import { ExpertIntakePostureToggle, useExpertIntakePostureEnabled } from "@/components/reviews/ExpertIntakePostureToggle";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
@@ -18,6 +19,7 @@ export type { FirstPilotIntakeWizardProps };
 /** Single-screen first-pilot intake: review title, evidence upload, optional brief, advanced settings collapsed. */
 export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const wizard = useFirstPilotIntakeWizard(props);
+  const expertIntakePosture = useExpertIntakePostureEnabled();
 
   return (
     <div className="space-y-5" data-testid="first-pilot-intake-wizard">
@@ -28,7 +30,9 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
         />
       ) : null}
       {wizard.llmBudgetStatus !== null ? <LlmMonthlyBudgetExceededBanner status={wizard.llmBudgetStatus} /> : null}
-      {wizard.exampleTemplate !== null ? <ReviewIntakeExampleTemplateCallout template={wizard.exampleTemplate} /> : null}
+      {wizard.exampleTemplate !== null && !expertIntakePosture ? (
+        <ReviewIntakeExampleTemplateCallout template={wizard.exampleTemplate} />
+      ) : null}
       {wizard.incrementalRereview.priorRunId !== null ? (
         <p
           className={cn("m-0 rounded-md border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900/40", OPERATOR_TYPOGRAPHY.helper)}
@@ -44,6 +48,8 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
           ) : null}
         </p>
       ) : null}
+
+      <ExpertIntakePostureToggle />
 
       <FirstPilotIntakeFields wizard={wizard} />
     </div>

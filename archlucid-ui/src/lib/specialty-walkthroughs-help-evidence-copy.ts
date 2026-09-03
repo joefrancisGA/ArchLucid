@@ -6,6 +6,8 @@ export const SPECIALTY_WALKTHROUGHS_HELP_CANONICAL_PATH = "/help/specialty-walkt
 export const SPECIALTY_WALKTHROUGHS_HELP_CLAIM_DISCIPLINE =
   "This walkthrough catalog shows starter review templates — help orientation only, not live workspace evidence. Open Start review or Path chooser when you need live intake.";
 
+export const SPECIALTY_WALKTHROUGHS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
+
 export const SPECIALTY_WALKTHROUGHS_HELP_SOURCES_INTRO =
   "Use these follow-ups when template vocabulary turns into live intake, first-review guidance, or path selection.";
 

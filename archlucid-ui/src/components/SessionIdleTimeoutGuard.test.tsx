@@ -3,6 +3,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const pushMock = vi.hoisted(() => vi.fn());
 const refreshMock = vi.hoisted(() => vi.fn());
+const workspaceModeMock = vi.hoisted(() => ({
+  mode: "guided" as const,
+  mounted: true,
+  accountSyncState: "synced" as const,
+  isWorkingMode: false,
+  setAndPersist: vi.fn(),
+}));
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
@@ -15,14 +22,24 @@ vi.mock("next/navigation", async (importOriginal) => {
   };
 });
 
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => workspaceModeMock,
+}));
+
 import { SessionIdleTimeoutGuard } from "@/components/SessionIdleTimeoutGuard";
-import { SESSION_IDLE_TIMEOUT_MS } from "@/lib/auth/session-idle-timeout";
+import {
+  SESSION_IDLE_TIMEOUT_MS,
+  SESSION_IDLE_WORKING_TIMEOUT_MS,
+} from "@/lib/auth/session-idle-timeout";
 
 const IDLE_MS = SESSION_IDLE_TIMEOUT_MS;
 
 describe("SessionIdleTimeoutGuard", () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    workspaceModeMock.mode = "guided";
+    workspaceModeMock.isWorkingMode = false;
+    workspaceModeMock.mounted = true;
     Object.defineProperty(window, "location", {
       value: { pathname: "/architecture/reviews/123", search: "?tab=findings" },
       writable: true,
@@ -65,5 +82,20 @@ describe("SessionIdleTimeoutGuard", () => {
     vi.advanceTimersByTime(IDLE_MS - 1000);
 
     expect(pushMock).not.toHaveBeenCalled();
+  });
+
+  it("uses longer idle threshold in Working mode", () => {
+    workspaceModeMock.mode = "working";
+    workspaceModeMock.isWorkingMode = true;
+
+    render(<SessionIdleTimeoutGuard />);
+
+    vi.advanceTimersByTime(SESSION_IDLE_TIMEOUT_MS);
+
+    expect(pushMock).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(SESSION_IDLE_WORKING_TIMEOUT_MS - SESSION_IDLE_TIMEOUT_MS);
+
+    expect(pushMock).toHaveBeenCalledTimes(1);
   });
 });

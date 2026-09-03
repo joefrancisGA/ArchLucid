@@ -30,3 +30,12 @@ describe("marketing-isr-route-policy (TB-1484)", () => {
     expect(source).toContain('data-testid="compliance-journey-page"');
   });
 });
+
+describe("marketing showcase ISR segment config (Next 16 literal export)", () => {
+  it("route /showcase/[runId] exports inline ISR revalidate for Next.js segment config", () => {
+    const source = readFileSync(join(appRoot, "showcase", "[runId]", "page.tsx"), "utf8");
+
+    expect(source).toContain("export const revalidate = 300;");
+    expect(source).not.toMatch(/export const revalidate = [A-Z_]/);
+  });
+});

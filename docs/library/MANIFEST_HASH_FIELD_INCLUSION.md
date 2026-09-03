@@ -2,7 +2,7 @@
 
 # Manifest hash field inclusion (wave-2 suggestion 18)
 
-`ManifestHashService.HasherSchemaVersion` is **`v7`** (wave-12 binds package origin, architecture request id, structural execution mode, and pilot AOAI deployment snapshot; wave-11 binds focused-pilot mode + cloud provider; wave-10 binds κ content hash + KM content hash; wave-7 binds evidence pin hash digest; wave-6 bound create-time pin rows; wave-5 bound `ArchitectureVersionId`). The hash is a **content commitment** for structural manifest sections and committed governance — not the full findings envelope.
+`ManifestHashService.HasherSchemaVersion` is **`v9`** (wave-14 binds committed artifact inventory blob bytes; wave-13 introduced inventory rows; wave-12 binds package origin, architecture request id, structural execution mode, and pilot AOAI deployment snapshot; wave-11 binds focused-pilot mode + cloud provider; wave-10 binds κ content hash + KM content hash; wave-7 binds evidence pin hash digest; wave-6 bound create-time pin rows; wave-5 bound `ArchitectureVersionId`). The hash is a **content commitment** for structural manifest sections and committed governance — not the full findings envelope.
 
 ## Included in `h(M)`
 
@@ -19,10 +19,11 @@
 - Sorted assumptions and warnings
 - Policy, provenance, feasibility verdict
 - `EffectiveGovernanceAtCommit` and `ReviewStandardsAtCommit` descriptors
+- **`CommittedArtifactInventory`** (sorted artifact name, content type, content hash, producer, captured UTC)
 
 ## Explicitly excluded
 
-- `CreatedUtc` and other non-deterministic metadata
+- `CreatedUtc` and other non-deterministic metadata (including review snapshot `GeneratedUtc`)
 - LLM catalog **engine identity** (ADR 0065 D5′)
 - Finding mute flags, human-review notes, insight-density curation, and disposition/treatment fields on `Finding` rows unless a future hasher baseline deliberately adds them
 
