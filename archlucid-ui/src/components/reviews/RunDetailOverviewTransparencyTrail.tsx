@@ -1,6 +1,7 @@
 "use client";
 
 import { TransparencyTrailPanel } from "@/components/feasibility/TransparencyTrailPanel";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
 export type RunDetailOverviewTransparencyTrailProps = {
@@ -10,6 +11,7 @@ export type RunDetailOverviewTransparencyTrailProps = {
 
 /** Overview transparency trail with defect callout when a completed review omits the mandatory record. */
 export function RunDetailOverviewTransparencyTrail(props: RunDetailOverviewTransparencyTrailProps) {
+  const { isWorkingMode } = useWorkspaceMode();
   const trail = props.feasibilityVerdict?.transparencyTrail ?? null;
   const missingTrailDefect = props.runCompleted && trail === null;
 
@@ -17,6 +19,7 @@ export function RunDetailOverviewTransparencyTrail(props: RunDetailOverviewTrans
     <TransparencyTrailPanel
       trail={trail}
       missingTrailDefect={missingTrailDefect}
+      defaultExpanded={isWorkingMode}
     />
   );
 }

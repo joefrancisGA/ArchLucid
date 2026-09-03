@@ -91,6 +91,11 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
         finalizeAssumptionGateApplies={finalizeAssumptionGateApplies}
         quickDecisionFindings={quickDecisionFindings}
         requestAssumptionTexts={requestAssumptionTexts}
+        transparencyTrail={
+          m.manifestSummary?.feasibilityVerdict?.transparencyTrail ??
+          m.manifestSummaryForUi?.feasibilityVerdict?.transparencyTrail ??
+          null
+        }
         {...reviewPackageDoThisNextEvidenceProps}
       />
       {!m.manifestId ? (

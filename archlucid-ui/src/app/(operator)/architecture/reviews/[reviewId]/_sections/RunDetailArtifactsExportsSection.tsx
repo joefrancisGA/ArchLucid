@@ -32,7 +32,7 @@ import {
 } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { BUYER_MANIFEST_DELIVERABLES_HEADING } from "@/lib/buyer/buyer-polish-copy";
-import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import { buildCompareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
 import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
 import type { ArtifactDescriptor, ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
@@ -323,7 +323,7 @@ export function RunDetailArtifactsExportsSection(
                 <RunScopedAuditExportButton runId={runId} />
                 <Link
                   className={cn(buttonVariants({ variant: "outline", size: "sm" }), OPERATOR_LINK.nav)}
-                  href={comparePageHrefAdaptive(runId)}
+                  href={buildCompareTwoReviewsHref({ baseRunId: runId })}
                 >
                   Compare with another review
                 </Link>

@@ -6,6 +6,7 @@ import type { ReactElement } from "react";
 
 import { FindingAskInlinePanel } from "@/components/findings/FindingAskInlinePanel";
 import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
+import { FindingInsightDensityBand } from "@/components/findings/FindingInsightDensityBand";
 import { QuickDecisionFindingRationale } from "@/components/findings/QuickDecisionFindingRationale";
 import { QuickDecisionWorkspaceFindingSupportingDetails } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
 import type { QuickDecisionWorkspaceCardContext } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
@@ -33,6 +34,7 @@ import {
   markLastVisitedNow,
   reviewFindingWatermarkKey,
 } from "@/lib/usability/last-visited-watermark";
+import { useArchitectWorkspaceChrome } from "@/hooks/useArchitectWorkspaceChrome";
 import { cn } from "@/lib/utils";
 
 export type QuickDecisionWorkspacePrimaryFindingCardProps = {
@@ -60,6 +62,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
   const findingActivityAt = resolveFindingActivityAtUtc(finding.aiReasoning);
   const findingWatermarkKey = reviewFindingWatermarkKey(runId, finding.findingId);
   const showNewSinceLastVisit = isActivityNewSinceLastVisit(findingWatermarkKey, findingActivityAt);
+  const architectWorkspaceChrome = useArchitectWorkspaceChrome();
 
   return (
     <article
@@ -93,6 +96,12 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
             label={findingEnforcementTierLabel(finding.enforcementTier)}
             className={cn("shrink-0", FINDINGS_ROW_METADATA_TAG_SIZE)}
           />
+          {architectWorkspaceChrome ? (
+            <FindingInsightDensityBand
+              findingId={finding.findingId}
+              insightDensityScore={finding.insightDensityScore}
+            />
+          ) : null}
         </div>
         <h3 className={cn("m-0 text-xl font-bold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           {finding.title}

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buildInviteReviewerHref, INVITE_REVIEWER_PAGE_TITLE } from "@/lib/invite-reviewer-flow";
+import { buildCompareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 import { cn } from "@/lib/utils";
@@ -21,7 +22,9 @@ export function ReviewPackageAfterFinalizeNextStepsStrip(
   const runId = props.runId.trim();
   const priorRunId = props.priorRunId?.trim() ?? "";
   const compareHref =
-    priorRunId.length > 0 ? comparePageHrefAdaptive(priorRunId, runId) : comparePageHrefAdaptive("", runId);
+    priorRunId.length > 0
+      ? comparePageHrefAdaptive(priorRunId, runId)
+      : buildCompareTwoReviewsHref({ baseRunId: runId });
 
   return (
     <section

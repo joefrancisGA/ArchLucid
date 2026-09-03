@@ -36,4 +36,5 @@ type FeasibilityVerdictSchema = components["schemas"]["FeasibilityVerdict"];
 export type ManifestFeasibilityVerdict = Omit<FeasibilityVerdictSchema, "transparencyTrail"> &
   Required<Pick<FeasibilityVerdictSchema, "kind" | "summary">> & {
     transparencyTrail?: TransparencyTrail | null;
+    hardCitations?: FeasibilityVerdictSchema["hardCitations"];
   };

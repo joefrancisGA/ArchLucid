@@ -53,10 +53,10 @@ public static class UniversalIntakeAnswerProjector
 
             string? effectiveAnswer = ResolveEffectiveAnswer(request.IntakeQuestionAnswers, trail, questionKey);
 
-            if (string.IsNullOrWhiteSpace(effectiveAnswer))
+            if (!ShouldProjectAnswer(effectiveAnswer))
                 continue;
 
-            string line = BuildLabeledLine(questionKey, effectiveAnswer);
+            string line = BuildLabeledLine(questionKey, effectiveAnswer!);
 
             if (ConstraintLabels.ContainsKey(questionKey))
             {
@@ -89,6 +89,14 @@ public static class UniversalIntakeAnswerProjector
 
         if (Enum.TryParse(effectiveAnswer, ignoreCase: true, out CloudProvider provider))
             request.CloudProvider = provider;
+    }
+
+    private static bool ShouldProjectAnswer(string? effectiveAnswer)
+    {
+        if (string.IsNullOrWhiteSpace(effectiveAnswer))
+            return false;
+
+        return !ArchitectureDraftStructuredBrief.IsUnknownConfirmSentinel(effectiveAnswer);
     }
 
     private static string? ResolveEffectiveAnswer(

@@ -67,4 +67,43 @@ describe("resolve-client-commit-blocked-reason", () => {
 
     expect(cleared).toBeNull();
   });
+
+  it("blocks finalize when skipped MUST questions remain on the trail", () => {
+    const blocked = resolveClientAwareCommitBlockedReason({
+      serverCommitBlockedReason: null,
+      finalizeAssumptionGateApplies: true,
+      findings: [],
+      blockingFindingCount: 0,
+      acknowledgedAssumptionIds: new Set(),
+      requestAssumptionTexts: [],
+      transparencyTrail: {
+        asserted: [],
+        inferred: [],
+        skipped: [
+          { questionKey: "q1", tier: "Must" },
+          { questionKey: "q2", tier: "Must" },
+        ],
+      },
+    });
+
+    expect(blocked).toContain("2 required questions are unanswered");
+  });
+
+  it("does not apply the skipped MUST scorecard when the finalize gate is off", () => {
+    const skipped = resolveClientAwareCommitBlockedReason({
+      serverCommitBlockedReason: null,
+      finalizeAssumptionGateApplies: false,
+      findings: [],
+      blockingFindingCount: 0,
+      acknowledgedAssumptionIds: new Set(),
+      requestAssumptionTexts: [],
+      transparencyTrail: {
+        asserted: [],
+        inferred: [],
+        skipped: [{ questionKey: "q1", tier: "Must" }],
+      },
+    });
+
+    expect(skipped).toBeNull();
+  });
 });

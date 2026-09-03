@@ -14,6 +14,8 @@ import {
 import { RunDetailOverviewTransparencyTrail } from "@/components/reviews/RunDetailOverviewTransparencyTrail";
 import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
 import { Suspense } from "react";
+import { RunDetailInfeasibleDecisionLead } from "./RunDetailInfeasibleDecisionLead";
+import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
 export type RunDetailOverviewTabCompositionInput = {
   readonly model: RunDetailPageModel;
@@ -50,6 +52,9 @@ export function composeRunDetailOverviewTab(
     blockingApprovalCount === 0 ? (
       <RunDetailSponsorBottomLineDeferred content={executiveBottomLineContent} />
     ) : null;
+  const feasibilityVerdict: ManifestFeasibilityVerdict | null =
+    m.manifestSummary?.feasibilityVerdict ?? m.manifestSummaryForUi?.feasibilityVerdict ?? null;
+  const runCompleted = m.resolvedDetail.run.legacyRunStatus === "Completed" || Boolean(m.manifestId);
 
   return (
     <div key="review-detail-overview-panel" className="space-y-4">
@@ -62,6 +67,7 @@ export function composeRunDetailOverviewTab(
       {blockingApprovalCount > 0 ? (
         <RunDetailWorkspaceBlockingBannerDeferred blockingCount={blockingApprovalCount} />
       ) : null}
+      <RunDetailInfeasibleDecisionLead feasibilityVerdict={feasibilityVerdict} runId={m.resolvedDetail.run.runId} />
       <RunDetailWorkspaceSummaryStripDeferred
         outcomeHeading={m.manifestId ? "Governance decision" : "Review posture"}
         reviewOutcome={m.manifestId ? governanceOutcomeLine : reviewStatusSummary.reviewOutcome}
@@ -73,8 +79,8 @@ export function composeRunDetailOverviewTab(
       />
       {executiveBottomLineEl}
       <RunDetailOverviewTransparencyTrail
-        feasibilityVerdict={m.manifestSummary?.feasibilityVerdict ?? null}
-        runCompleted={m.resolvedDetail.run.legacyRunStatus === "Completed" || Boolean(m.manifestId)}
+        feasibilityVerdict={feasibilityVerdict}
+        runCompleted={runCompleted}
       />
       <RunDetailOverviewPanelClientDeferred
         runId={m.resolvedDetail.run.runId}

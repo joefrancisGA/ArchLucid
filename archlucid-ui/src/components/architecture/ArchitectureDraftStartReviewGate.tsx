@@ -1,6 +1,7 @@
 "use client";
 
 import type { ArchitectureDraftValidationResult } from "@/lib/architecture/architecture-draft-readiness";
+import type { ArchitectureDraftStructuredBriefState } from "@/lib/architecture/architecture-draft-structured-brief";
 import { GUIDED_INTAKE_ACTOR_SUGGESTIONS_READINESS_HINT } from "@/lib/guided-intake-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatArchitectureReviewReadinessMessage } from "@/lib/architecture/architecture-review-readiness-copy";
@@ -10,6 +11,7 @@ type ArchitectureDraftStartReviewGateProps = {
   readonly linkedReviewId: string | null;
   readonly briefFrozen: boolean;
   readonly reviewReadiness: ArchitectureDraftValidationResult;
+  readonly structuredBrief?: ArchitectureDraftStructuredBriefState;
   readonly needsPersistedDraftBeforeStart: boolean;
   readonly scopeGateOpen: boolean;
   readonly actorSuggestionsUnresolved: boolean;
@@ -30,7 +32,10 @@ export function ArchitectureDraftStartReviewGate(
           role="alert"
           data-testid="architecture-draft-review-readiness"
         >
-          {formatArchitectureReviewReadinessMessage(props.reviewReadiness.blockers)}
+          {formatArchitectureReviewReadinessMessage(
+            props.reviewReadiness.blockers,
+            props.structuredBrief,
+          )}
         </p>
       ) : null}
       {props.reviewReadiness.isValid &&

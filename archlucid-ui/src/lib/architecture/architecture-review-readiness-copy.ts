@@ -1,5 +1,10 @@
 import { GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS } from "@/lib/guided-intake-copy";
 
+import {
+  listUnconfirmedStructuredBriefFieldLabels,
+  type ArchitectureDraftStructuredBriefState,
+} from "./architecture-draft-structured-brief-state";
+
 const MIN_OUTCOME_CHARS = 10;
 
 /** Stable ids returned by validateArchitectureReviewReadiness — map to operator-facing copy at display time. */
@@ -26,12 +31,26 @@ export const ARCHITECTURE_REVIEW_READINESS_BLOCKER_MESSAGES: Readonly<
 
 export function formatArchitectureReviewReadinessMessage(
   blockers: readonly ArchitectureReviewReadinessBlockerId[],
+  structuredBrief?: ArchitectureDraftStructuredBriefState,
 ): string {
   if (blockers.length === 0) {
     return "";
   }
 
-  const labels = blockers.map((blockerId) => ARCHITECTURE_REVIEW_READINESS_BLOCKER_MESSAGES[blockerId]);
+  const labels = blockers.flatMap((blockerId) => {
+    if (blockerId === "structured-brief-placeholders" && structuredBrief !== undefined) {
+      const placeholderFields = listUnconfirmedStructuredBriefFieldLabels(structuredBrief);
+
+      if (placeholderFields.length > 0) {
+        return placeholderFields.map(
+          (fieldLabel) =>
+            `confirmed ${fieldLabel.toLowerCase()} instead of Unknown — confirm before review placeholders`,
+        );
+      }
+    }
+
+    return [ARCHITECTURE_REVIEW_READINESS_BLOCKER_MESSAGES[blockerId]];
+  });
 
   if (labels.length === 1) {
     return `Add ${labels[0]} before starting a review.`;
