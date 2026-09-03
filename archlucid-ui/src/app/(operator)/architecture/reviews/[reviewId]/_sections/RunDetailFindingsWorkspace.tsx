@@ -123,9 +123,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       ? filterReviewDetailFindingsHideGeneric(confidenceVisibleScoped, true)
       : confidenceVisibleScoped;
   const listFindings = architectWorkspaceChrome
-    ? sortReviewDetailFindingsBySignal(
-        sortFindingsForToolbar(densityFilteredFindings, toolbar.sort),
-      )
+    ? sortReviewDetailFindingsBySignal(densityFilteredFindings)
     : sortFindingsForToolbar(confidenceVisibleScoped, toolbar.sort);
   const { visibleFindings: confidenceGatedForCounts } = applyFindingsConfidenceVisibility(
     filterFindingsForToolbar(
