@@ -1,6 +1,7 @@
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Exports;
 using ArchLucid.Contracts.Findings;
@@ -46,6 +47,8 @@ public sealed class SponsorReviewPacketBuilder(
 
         if (!detail.IsCommitted || detail.HasBrokenManifestReference)
             return null;
+
+        AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());
 
         SponsorRoiSummaryResponse roiSummary =
             await _SponsorRoiSummaryService.BuildAsync(cancellationToken).ConfigureAwait(false);

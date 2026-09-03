@@ -80,6 +80,7 @@ describe("AlertRulesHubClient", () => {
     expect(screen.queryByTestId("alert-rules-last-refreshed")).toBeNull();
     expect(screen.queryByTestId("alert-rules-open-inbox-link")).toBeNull();
     expect(screen.getByTestId("alert-rules-hub-tab-rules")).toHaveTextContent(`${ALERT_RULES_TAB_LABEL} (0)`);
+    expect(screen.getByTestId("alert-rules-hub-orientation-bottom")).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: `${ALERT_RULES_TAB_LABEL} (0)` })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent("Help");
     expect(screen.queryByTestId("governance-setup-config-hubs-vocabulary")).toBeNull();

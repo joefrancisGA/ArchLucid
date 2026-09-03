@@ -16,10 +16,10 @@ describe("settings-hub-evidence-copy", () => {
     expect(SETTINGS_HUB_CANONICAL_PATH).toBe("/administration");
   });
 
-  it("renders operator Sources follow-ups without a self-href", () => {
+  it("renders operator Sources follow-ups without a self-href when header carries claim discipline", () => {
     render(<SettingsHubEvidenceOrientationStrip />);
 
-    expect(screen.queryByTestId("settings-hub-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("settings-hub-claim-discipline")).toBeNull();
     expect(screen.getByText(SETTINGS_HUB_SOURCES_INTRO)).toBeInTheDocument();
 
     const sources = screen.getByTestId("settings-hub-sources");

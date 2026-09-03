@@ -1,8 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState, useTransition } from "react";
-
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -10,50 +7,27 @@ import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectio
 import { PilotFeedbackRecommendationLearningVocabularyRail } from "@/components/PilotFeedbackRecommendationLearningVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { RefreshButton } from "@/components/ui/refresh-button";
-import {
-  EnterpriseTable,
-  EnterpriseTableBody,
-  EnterpriseTableCell,
-  EnterpriseTableHead,
-  EnterpriseTableHeaderCell,
-  EnterpriseTableHeadRow,
-  EnterpriseTableRow,
-} from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
 import { Textarea } from "@/components/ui/textarea";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { RecommendationLearningEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
-import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { INTERNAL_OPERATIONS_NAV_EYEBROW } from "@/lib/demo-readiness-evidence-copy";
 import { OPERATOR_LAYOUT, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import type { LearningProfile } from "@/types/recommendation-learning";
 import type {
   RecommendationLearningOperationalStatus,
-  RecommendationLearningPreview,
   RecommendationLearningProfileHistoryItem,
 } from "@/types/recommendation-learning-operational";
 import { RECOMMENDATION_LEARNING_CANONICAL_PATH } from "@/types/recommendation-learning-operational";
 
-import {
-  executeRecommendationLearningPreview,
-  executeRecommendationLearningRebuild,
-  executeRecommendationLearningRollback,
-  reloadPersistedRecommendationLearningProfileOnly,
-  reloadRecommendationLearningOpsBundle,
-} from "./load-recommendation-learning-ops-page-data";
 import { RecommendationLearningOpsPreviewPanel } from "./RecommendationLearningOpsPreviewPanel";
 import { RecommendationLearningOpsStatusPanel } from "./RecommendationLearningOpsStatusPanel";
+import { RecommendationLearningOpsVersionHistoryTableShell } from "./RecommendationLearningOpsVersionHistoryTableShell";
 import { RecommendationLearningWeightTable } from "./RecommendationLearningWeightTable";
-import {
-  deployEnvironmentStatusTagKind,
-  formatOperationalTimestamp,
-  isProductionDeployEnvironment,
-  profileVersionStatusTagKind,
-  resolveDeployEnvironmentLabel,
-} from "./recommendation-learning-ops-display";
+import { deployEnvironmentStatusTagKind } from "./recommendation-learning-ops-display";
+import { useRecommendationLearningOpsState } from "./use-recommendation-learning-ops-state";
 
 type Props = {
   readonly initialStatus: RecommendationLearningOperationalStatus | null;
@@ -63,144 +37,9 @@ type Props = {
 };
 
 export function RecommendationLearningOpsPageClient(props: Props) {
-  const router = useRouter();
-  const canMutate = useOperateCapability();
-  const [isRefreshing, startRefreshing] = useTransition();
-  const [status, setStatus] = useState(props.initialStatus);
-  const [profile, setProfile] = useState(props.initialProfile);
-  const [history, setHistory] = useState(props.initialHistory);
-  const [failure, setFailure] = useState<ApiLoadFailureState | null>(props.initialFailure);
-  const [preview, setPreview] = useState<RecommendationLearningPreview | null>(null);
-  const [busyAction, setBusyAction] = useState<string | null>(null);
-  const [isLoadingPersisted, setIsLoadingPersisted] = useState(false);
-  const [rollbackReason, setRollbackReason] = useState("");
-  const [rollbackProfileId, setRollbackProfileId] = useState<string | null>(null);
-  const [activateReason, setActivateReason] = useState("");
+  const model = useRecommendationLearningOpsState(props);
 
-  const environmentLabel = resolveDeployEnvironmentLabel();
-  const production = isProductionDeployEnvironment();
-
-  useEffect(() => {
-    setStatus(props.initialStatus);
-    setProfile(props.initialProfile);
-    setHistory(props.initialHistory);
-    setFailure(props.initialFailure);
-  }, [props.initialFailure, props.initialHistory, props.initialProfile, props.initialStatus]);
-
-  const refresh = useCallback(async () => {
-    startRefreshing(() => {
-      router.refresh();
-    });
-
-    try {
-      const bundle = await reloadRecommendationLearningOpsBundle();
-      setStatus(bundle.status);
-      setProfile(bundle.profile);
-      setHistory(bundle.history);
-      setFailure(null);
-    } catch (e: unknown) {
-      setFailure(toApiLoadFailure(e));
-    }
-  }, [router]);
-
-  const loadPersistedProfile = useCallback(async () => {
-    setIsLoadingPersisted(true);
-    setFailure(null);
-
-    try {
-      const persistedProfile = await reloadPersistedRecommendationLearningProfileOnly();
-      setProfile(persistedProfile);
-    } catch (e: unknown) {
-      setFailure(toApiLoadFailure(e));
-    } finally {
-      setIsLoadingPersisted(false);
-    }
-  }, []);
-
-  const runPreview = useCallback(async () => {
-    if (!canMutate) {
-      return null;
-    }
-
-    setBusyAction("preview");
-    setFailure(null);
-
-    try {
-      const result = await executeRecommendationLearningPreview();
-      setPreview(result);
-      return result;
-    } catch (e: unknown) {
-      setFailure(toApiLoadFailure(e));
-      return null;
-    } finally {
-      setBusyAction(null);
-    }
-  }, [canMutate]);
-
-  const runRebuild = useCallback(async () => {
-    if (!canMutate) {
-      return;
-    }
-
-    if (production && activateReason.trim().length < 8) {
-      setFailure({
-        message: "Enter an operational reason (minimum 8 characters) before rebuilding in production.",
-        problem: null,
-        correlationId: null,
-        httpStatus: 409,
-        retryAfterSeconds: null,
-      });
-      return;
-    }
-
-    setBusyAction("rebuild");
-    setFailure(null);
-
-    try {
-      await executeRecommendationLearningRebuild();
-      await refresh();
-      setPreview(null);
-    } catch (e: unknown) {
-      setFailure(toApiLoadFailure(e));
-    } finally {
-      setBusyAction(null);
-    }
-  }, [activateReason, canMutate, production, refresh]);
-
-  const runRollback = useCallback(async () => {
-    if (!canMutate || rollbackProfileId === null) {
-      return;
-    }
-
-    if (rollbackReason.trim().length < 8) {
-      setFailure({
-        message: "Enter an operational reason (minimum 8 characters) before rollback.",
-        problem: null,
-        correlationId: null,
-        httpStatus: 409,
-        retryAfterSeconds: null,
-      });
-      return;
-    }
-
-    setBusyAction("rollback");
-    setFailure(null);
-
-    try {
-      await executeRecommendationLearningRollback(rollbackProfileId, rollbackReason.trim());
-      setRollbackProfileId(null);
-      setRollbackReason("");
-      await refresh();
-    } catch (e: unknown) {
-      setFailure(toApiLoadFailure(e));
-    } finally {
-      setBusyAction(null);
-    }
-  }, [canMutate, refresh, rollbackProfileId, rollbackReason]);
-
-  const canBuild = (status?.eligibleOutcomeCount ?? 0) >= (status?.minimumRequiredOutcomes ?? 1);
-
-  if (status === null && failure !== null) {
+  if (model.status === null && model.failure !== null) {
     return (
       <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="recommendation-learning-ops-page">
         <OperatorPageHeader
@@ -218,17 +57,17 @@ export function RecommendationLearningOpsPageClient(props: Props) {
         />
         <RecommendationLearningEvidenceOrientationStrip />
         <OperatorSectionLoadFailure
-          message={failure.message}
+          message={model.failure.message}
           retryLabel="Refresh operational data"
-          retrying={isRefreshing}
+          retrying={model.isRefreshing}
           testId="recommendation-learning-ops-load-failure"
-          onRetry={() => void refresh()}
+          onRetry={() => void model.refresh()}
         />
       </OperatorPageContainer>
     );
   }
 
-  if (status === null) {
+  if (model.status === null) {
     return (
       <DemoWorkspaceCapabilityUnavailablePanel
         capability="Recommendation learning"
@@ -236,8 +75,6 @@ export function RecommendationLearningOpsPageClient(props: Props) {
       />
     );
   }
-
-  const weightDeltas = preview?.weightDeltas ?? [];
 
   return (
     <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="recommendation-learning-ops-page">
@@ -255,51 +92,51 @@ export function RecommendationLearningOpsPageClient(props: Props) {
         statusBadge={
           <StatusTag
             kind={deployEnvironmentStatusTagKind()}
-            label={environmentLabel}
+            label={model.environmentLabel}
             data-testid="recommendation-learning-environment-tag"
           />
         }
         actions={
           <div className="flex flex-wrap items-center justify-end gap-2">
             <RefreshButton
-              busy={isRefreshing}
-              disabled={isLoadingPersisted}
-              onClick={() => void refresh()}
+              busy={model.isRefreshing}
+              disabled={model.isLoadingPersisted}
+              onClick={() => void model.refresh()}
             />
             <Button
               type="button"
               variant="outline"
               size="sm"
-              disabled={busyAction !== null || isRefreshing || isLoadingPersisted}
-              onClick={() => void loadPersistedProfile()}
+              disabled={model.busyAction !== null || model.isRefreshing || model.isLoadingPersisted}
+              onClick={() => void model.loadPersistedProfile()}
             >
-              {isLoadingPersisted ? "Loading profile…" : "Load persisted profile"}
+              {model.isLoadingPersisted ? "Loading profile…" : "Load persisted profile"}
             </Button>
             <Button
               type="button"
               variant="outline"
               size="sm"
-              disabled={!canMutate || !canBuild || busyAction !== null}
-              onClick={() => void runPreview()}
+              disabled={!model.canMutate || !model.canBuild || model.busyAction !== null}
+              onClick={() => void model.runPreview()}
             >
-              {busyAction === "preview" ? "Previewing…" : "Preview rebuild"}
+              {model.busyAction === "preview" ? "Previewing…" : "Preview rebuild"}
             </Button>
             <Button
               type="button"
               variant="primary"
               size="sm"
-              disabled={!canMutate || !canBuild || busyAction !== null}
-              onClick={() => void runRebuild()}
+              disabled={!model.canMutate || !model.canBuild || model.busyAction !== null}
+              onClick={() => void model.runRebuild()}
             >
-              {busyAction === "rebuild" ? "Rebuilding…" : "Rebuild from historical outcomes"}
+              {model.busyAction === "rebuild" ? "Rebuilding…" : "Rebuild from historical outcomes"}
             </Button>
             <PageContextualHelpButton />
           </div>
         }
       >
         <p className={cn("m-0 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          Scope: {status.scopeLabel} · Model: {status.activeProfile?.algorithmVersion ?? "recommendation-ranking-v1"} ·
-          Feature schema: {status.activeProfile?.featureSchemaVersion ?? "outcome-stats-v1"}
+          Scope: {model.status.scopeLabel} · Model: {model.status.activeProfile?.algorithmVersion ?? "recommendation-ranking-v1"} ·
+          Feature schema: {model.status.activeProfile?.featureSchemaVersion ?? "outcome-stats-v1"}
         </p>
       </OperatorPageHeader>
 
@@ -316,50 +153,50 @@ export function RecommendationLearningOpsPageClient(props: Props) {
           refreshing eligibility counts.
         </p>
       </div>
-      {!canMutate ? (
+      {!model.canMutate ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="recommendation-learning-read-only-hint">
           Preview and rebuild require ExecuteAuthority. You can still inspect status and eligibility.
         </p>
       ) : null}
 
-      {failure ? (
+      {model.failure ? (
         <OperatorSectionLoadFailure
           message={
-            failure.correlationId
-              ? `${failure.message} (Correlation ID: ${failure.correlationId})`
-              : failure.message
+            model.failure.correlationId
+              ? `${model.failure.message} (Correlation ID: ${model.failure.correlationId})`
+              : model.failure.message
           }
           testId="recommendation-learning-ops-operation-failure"
         />
       ) : null}
 
       <RecommendationLearningOpsStatusPanel
-        status={status}
-        profile={profile}
-        canMutate={canMutate}
-        onRefresh={() => void refresh()}
-        onPreview={() => void runPreview()}
-        onRebuild={() => void runRebuild()}
-        previewPanel={preview ? <RecommendationLearningOpsPreviewPanel preview={preview} /> : null}
+        status={model.status}
+        profile={model.profile}
+        canMutate={model.canMutate}
+        onRefresh={() => void model.refresh()}
+        onPreview={() => void model.runPreview()}
+        onRebuild={() => void model.runRebuild()}
+        previewPanel={model.preview ? <RecommendationLearningOpsPreviewPanel preview={model.preview} /> : null}
       />
 
-      {preview && weightDeltas.length > 0 ? (
+      {model.preview && model.weightDeltas.length > 0 ? (
         <section className="rounded-lg border border-al-border/70 p-4">
           <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Before-and-after impact analysis</h2>
           <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            {weightDeltas.filter((row) => Math.abs(Number(row.absoluteDelta ?? 0)) > 0.001).length} weighted features change in the
+            {model.weightDeltas.filter((row) => Math.abs(Number(row.absoluteDelta ?? 0)) > 0.001).length} weighted features change in the
             preview. Largest upward movement:{" "}
-            {weightDeltas.reduce(
+            {model.weightDeltas.reduce(
               (best, row) =>
                 Number(row.absoluteDelta ?? 0) > Number(best.absoluteDelta ?? 0) ? row : best,
-              weightDeltas[0],
+              model.weightDeltas[0],
             ).feature}.
           </p>
-          <RecommendationLearningWeightTable deltas={weightDeltas} />
+          <RecommendationLearningWeightTable deltas={model.weightDeltas} />
         </section>
       ) : null}
 
-      {production ? (
+      {model.production ? (
         <section className="rounded-lg border border-al-border/70 p-4" data-testid="recommendation-learning-production-activation">
           <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Production activation</h2>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
@@ -369,76 +206,23 @@ export function RecommendationLearningOpsPageClient(props: Props) {
             <span className={OPERATOR_TYPOGRAPHY.body}>Operational reason (required for rebuild in production)</span>
             <Textarea
               className="min-h-20 bg-al-surface-raised font-mono text-al-text-primary placeholder:text-al-text-placeholder"
-              value={activateReason}
-              onChange={(event) => setActivateReason(event.target.value)}
+              value={model.activateReason}
+              onChange={(event) => model.setActivateReason(event.target.value)}
             />
           </label>
         </section>
       ) : null}
 
-      <section className="rounded-lg border border-al-border/70 p-4">
-        <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Version history</h2>
-        <EnterpriseTable ariaLabel="Recommendation learning profile version history">
-          <EnterpriseTableHead>
-            <EnterpriseTableHeadRow>
-              <EnterpriseTableHeaderCell>Version</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Built</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Outcomes</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Action</EnterpriseTableHeaderCell>
-            </EnterpriseTableHeadRow>
-          </EnterpriseTableHead>
-          <EnterpriseTableBody>
-            {history.map((item) => (
-              <EnterpriseTableRow key={item.profileId}>
-                <EnterpriseTableCell className="font-mono text-xs">{item.profileId}</EnterpriseTableCell>
-                <EnterpriseTableCell>{formatOperationalTimestamp(item.generatedUtc)}</EnterpriseTableCell>
-                <EnterpriseTableCell>{item.outcomeCount}</EnterpriseTableCell>
-                <EnterpriseTableCell>
-                  <StatusTag
-                    kind={profileVersionStatusTagKind(item.isActive === true)}
-                    label={item.isActive ? "Active" : "Historical"}
-                  />
-                </EnterpriseTableCell>
-                <EnterpriseTableCell>
-                  {!item.isActive ? (
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      disabled={!canMutate || busyAction !== null}
-                      onClick={() => setRollbackProfileId(item.profileId ?? null)}
-                    >
-                      Roll back to this version
-                    </Button>
-                  ) : (
-                    " — "
-                  )}
-                </EnterpriseTableCell>
-              </EnterpriseTableRow>
-            ))}
-          </EnterpriseTableBody>
-        </EnterpriseTable>
-        {rollbackProfileId ? (
-          <div className="mt-4 space-y-2 rounded border border-al-border/60 p-3">
-            <p className="m-0 font-mono text-sm">Rollback target: {rollbackProfileId}</p>
-            <Textarea
-              className="min-h-20 bg-al-surface-raised font-mono text-al-text-primary placeholder:text-al-text-placeholder"
-              placeholder="Operational reason (required)"
-              value={rollbackReason}
-              onChange={(event) => setRollbackReason(event.target.value)}
-            />
-            <div className="flex gap-2">
-              <Button type="button" disabled={busyAction !== null} onClick={() => void runRollback()}>
-                Confirm rollback
-              </Button>
-              <Button type="button" variant="outline" onClick={() => setRollbackProfileId(null)}>
-                Cancel
-              </Button>
-            </div>
-          </div>
-        ) : null}
-      </section>
+      <RecommendationLearningOpsVersionHistoryTableShell
+        history={model.history}
+        canMutate={model.canMutate}
+        busyAction={model.busyAction}
+        rollbackProfileId={model.rollbackProfileId}
+        setRollbackProfileId={model.setRollbackProfileId}
+        rollbackReason={model.rollbackReason}
+        setRollbackReason={model.setRollbackReason}
+        runRollback={model.runRollback}
+      />
     </OperatorPageContainer>
   );
 }

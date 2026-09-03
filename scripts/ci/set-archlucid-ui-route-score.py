@@ -10,10 +10,12 @@ from pathlib import Path
 from archlucid_ui_route_traffic_table import (
     DOC,
     SCORE_DIMENSIONS,
+    cap_ux_scores,
     deficit,
     ensure_owner_workbook,
     find_row,
     parse_rows,
+    parse_ux_score,
     set_score_dimension,
     sort_rows,
     split_document,
@@ -41,6 +43,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--batch",
         type=Path,
         help="Apply many rows at once from a file of 'ID score' lines ('#' comments ignored)",
+    )
+    parser.add_argument(
+        "--cap-ux-max",
+        type=int,
+        metavar="N",
+        help="Clamp every row whose UX score is above N down to N (0-100). Ignores ID/score.",
     )
     parser.add_argument(
         "--doc",
@@ -75,11 +83,14 @@ def parse_batch_file(path: Path) -> list[tuple[str, int]]:
 
 
 def collect_updates(args: argparse.Namespace) -> list[tuple[str, int]]:
+    if args.cap_ux_max is not None:
+        return []
+
     if args.batch is not None:
         return parse_batch_file(args.batch)
 
     if args.id is None or args.score is None:
-        raise ValueError("Provide both ID and score, or use --batch.")
+        raise ValueError("Provide both ID and score, use --batch, or use --cap-ux-max.")
 
     return [(args.id.strip().upper(), args.score)]
 
@@ -89,6 +100,14 @@ def validate_scores(updates: list[tuple[str, int]]) -> None:
 
     if out_of_range:
         raise ValueError(f"Score must be between 0 and 100: {', '.join(out_of_range)}")
+
+
+def validate_ux_cap(max_value: int | None) -> None:
+    if max_value is None:
+        return
+
+    if max_value < 0 or max_value > 100:
+        raise ValueError(f"--cap-ux-max must be between 0 and 100, got {max_value}")
 
 
 def format_row_report(row: dict[str, str], dimension: str, previous: str, rank: int, total: int) -> str:
@@ -119,12 +138,21 @@ def apply_updates(
     return previous_by_id, unknown
 
 
+def format_cap_report(row: dict[str, str], previous: str, max_value: int) -> str:
+    return (
+        f"Capped {row['id']} ({row['path']}): scores {previous} -> {row['score']}; "
+        f"ux={parse_ux_score(row)} (max {max_value}); "
+        f"weight={weight(row):g}; deficit={deficit(row):g}"
+    )
+
+
 def main() -> int:
     args = build_parser().parse_args()
 
     try:
         updates = collect_updates(args)
         validate_scores(updates)
+        validate_ux_cap(args.cap_ux_max)
     except (ValueError, OSError) as error:
         print(str(error), file=sys.stderr)
         return 1
@@ -136,6 +164,17 @@ def main() -> int:
     if not rows:
         print("No table rows found.", file=sys.stderr)
         return 1
+
+    if args.cap_ux_max is not None:
+        changed = cap_ux_scores(rows, args.cap_ux_max)
+        rows = sort_rows(rows)
+        write_table(doc_path, before, rows, after)
+        print(f"Capped {len(changed)} UX score(s) to {args.cap_ux_max} in {doc_path}")
+
+        for row, previous in changed:
+            print(format_cap_report(row, previous, args.cap_ux_max))
+
+        return 0
 
     previous_by_id, unknown = apply_updates(rows, updates, args.dimension)
 

@@ -9,7 +9,6 @@ import { TimeZonePreferencePanel } from "@/components/preferences/TimeZonePrefer
 import { WhereToGoNextPreferencePanel } from "@/components/preferences/WhereToGoNextPreferencePanel";
 import { ThemePreferenceSelector } from "@/components/ThemePreferenceSelector";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { PreferencesSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { ACCOUNT_PREFERENCES_PATH } from "@/lib/account-route-paths";
 import { PREFERENCES_CLOUD_PLATFORMS_HEADING } from "@/lib/cloud-platform-scope-copy";
@@ -24,7 +23,13 @@ import {
   PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_HEADING,
 } from "@/lib/sample-reviews-on-overview-preference-copy";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { PREFERENCES_HELP_TOPIC_LABEL } from "@/lib/preferences-settings-evidence-copy";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  PREFERENCES_SETTINGS_FIRST_VIEWPORT_ID,
+  PREFERENCES_SETTINGS_PRIMARY_CONTENT_ID,
+  PREFERENCES_SETTINGS_SKIP_LINK_LABEL,
+  PREFERENCES_SETTINGS_SKIP_TARGET_ID,
+} from "@/lib/preferences-page-copy";
 import {
   resolvePreferencesSaveEmphasizedStepId,
   resolvePreferencesSaveSteps,
@@ -35,7 +40,10 @@ import { useIanaTimeZonePreference } from "@/lib/use-iana-time-zone-preference";
 import { useUserPreferencesExplicitFlags } from "@/lib/use-user-preferences-explicit-flags";
 import { useSampleReviewsOnOverviewPreference } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
 import { useWhereToGoNextPreference } from "@/components/WhereToGoNextPreferenceProvider";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { WorkspaceModePreferencePanel } from "@/components/preferences/WorkspaceModePreferencePanel";
 import { cn } from "@/lib/utils";
+import { WORKSPACE_MODE_PREFERENCE_HEADING } from "@/lib/workspace-mode/workspace-mode-copy";
 
 export function PreferencesSettingsPageView() {
   const { mounted: appearanceMounted, accountSyncState: appearanceAccountSyncState } = useUserAppearancePreference();
@@ -59,6 +67,12 @@ export function PreferencesSettingsPageView() {
     setAndPersist: setTimeZoneAndPersist,
   } = useIanaTimeZonePreference();
   const explicitFlags = useUserPreferencesExplicitFlags();
+  const {
+    mode: workspaceMode,
+    mounted: workspaceModeMounted,
+    accountSyncState: workspaceModeAccountSyncState,
+    setAndPersist: setWorkspaceModeAndPersist,
+  } = useWorkspaceMode();
 
   const preferencesSaveSteps = resolvePreferencesSaveSteps({
     appearance: {
@@ -86,17 +100,39 @@ export function PreferencesSettingsPageView() {
       mounted: whereToGoNextMounted,
       accountSyncState: whereToGoNextAccountSyncState,
     },
+    workspaceMode: {
+      isExplicit: explicitFlags.workspaceModeIsExplicit,
+      mounted: workspaceModeMounted,
+      accountSyncState: workspaceModeAccountSyncState,
+    },
   });
   const preferencesSaveEmphasizedStepId = resolvePreferencesSaveEmphasizedStepId(preferencesSaveSteps);
 
   return (
     <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="preferences-settings-page">
+      <a
+        href={`#${PREFERENCES_SETTINGS_SKIP_TARGET_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {PREFERENCES_SETTINGS_SKIP_LINK_LABEL}
+      </a>
+
       <OperatorPageHeader
         navHref={ACCOUNT_PREFERENCES_PATH}
         title="Preferences"
         titleTestId="preferences-settings-page-title"
-        actions={<PageContextualHelpButton triggerText={PREFERENCES_HELP_TOPIC_LABEL} />}
       />
+
+      <div
+        id={PREFERENCES_SETTINGS_PRIMARY_CONTENT_ID}
+        data-testid={PREFERENCES_SETTINGS_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+      >
+        <div
+          id={PREFERENCES_SETTINGS_FIRST_VIEWPORT_ID}
+          data-testid={PREFERENCES_SETTINGS_FIRST_VIEWPORT_ID}
+          className={OPERATOR_LAYOUT.sectionStack}
+        >
       <PreferencesSaveChecklist
         title="Your preferences"
         description="Changes save to your account automatically."
@@ -104,6 +140,25 @@ export function PreferencesSettingsPageView() {
         emphasizedStepId={preferencesSaveEmphasizedStepId}
         testIdPrefix="preferences-save"
       />
+      <Card id="workspace-mode" data-testid="preferences-workspace-mode-card">
+        <CardHeader>
+          <CardTitle id="preferences-workspace-mode-heading" as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            {WORKSPACE_MODE_PREFERENCE_HEADING}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {workspaceModeMounted ? (
+            <WorkspaceModePreferencePanel
+              mode={workspaceMode}
+              onModeChange={setWorkspaceModeAndPersist}
+              accountSyncState={workspaceModeAccountSyncState}
+              labelledById="preferences-workspace-mode-heading"
+            />
+          ) : (
+            <div aria-hidden="true" className="h-24 w-full" data-testid="workspace-mode-preference-loading" />
+          )}
+        </CardContent>
+      </Card>
       <Card id="appearance" data-testid="preferences-appearance-card">
         <CardHeader>
           <CardTitle as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>Appearance</CardTitle>
@@ -208,7 +263,9 @@ export function PreferencesSettingsPageView() {
           </div>
         </CardContent>
       </Card>
+        </div>
       <PreferencesSettingsEvidenceOrientationStrip />
+      </div>
     </OperatorPageContainer>
   );
 }

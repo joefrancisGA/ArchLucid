@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
+import { computeFindingDispositionRevisitDueUtc } from "@/lib/findings/finding-disposition-revisit-window";
 import {
   GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE,
   GOVERNANCE_BULK_DISPOSITION_REASON_REQUIRED,
@@ -77,6 +78,7 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
           findingIds,
           disposition,
           rationale: trimmedReason,
+          revisitDueUtc: disposition === "Deferred" ? computeFindingDispositionRevisitDueUtc() : undefined,
         },
         { idempotencyKey },
       );
@@ -97,6 +99,7 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
             findingIds,
             disposition: "Deferred",
             rationale: undoRationale,
+            revisitDueUtc: computeFindingDispositionRevisitDueUtc(),
           },
           { idempotencyKey: createGovernanceMutationIdempotencyKey() },
         );

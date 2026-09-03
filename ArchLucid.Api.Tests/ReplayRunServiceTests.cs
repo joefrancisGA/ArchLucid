@@ -1,10 +1,10 @@
 using System.Data;
 
 using ArchLucid.Application.Agents;
+using ArchLucid.Application;
 using ArchLucid.Application.Authority;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
-using ArchLucid.Application;
 using ArchLucid.Application.Replay;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
@@ -139,7 +139,10 @@ public sealed class ReplayRunServiceTests
             Mock.Of<IAuthorityRunOrchestrator>(),
             prepareStage,
             cloneStage,
-            commitStage);
+            commitStage,
+            _authorityRunRepository.Object,
+            _scopeContextProvider.Object,
+            Mock.Of<IRunGovernanceScopePinService>());
         _sut = new ReplayRunService(prepareStage, executePreparedStage);
     }
 

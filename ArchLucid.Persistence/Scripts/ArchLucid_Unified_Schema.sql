@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 343_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 344_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -9205,4 +9205,26 @@ BEGIN
     SET @wave6PinRunSql = N'ALTER TABLE ' + @wave6PinRunTable + N' ADD PinnedFocusedPilotCloudProvider INT NULL;';
 
     EXEC sp_executesql @wave6PinRunSql;
+END
+
+GO
+
+/* 344: Wave-9 robustness — create-time architecture version content hash (κ) on run headers.
+   After ADR 0064 / migration 295, dbo.Runs is a synonym for dbo.Reviews. COL_LENGTH on the
+   synonym returns NULL, so ALTER TABLE dbo.Runs raises SQL 4909. DDL targets the physical
+   table (dbo.Reviews first, pre-295 dbo.Runs fallback) via sp_executesql. */
+DECLARE @runTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
+
+DECLARE @sql NVARCHAR(MAX);
+
+IF @runTable IS NOT NULL
+   AND COL_LENGTH(@runTable, N'PinnedArchitectureVersionContentHashSha256') IS NULL
+BEGIN
+    SET @sql = N'ALTER TABLE ' + @runTable + N' ADD PinnedArchitectureVersionContentHashSha256 VARBINARY(32) NULL;';
+
+    EXEC sp_executesql @sql;
 END

@@ -88,7 +88,7 @@ describe("HelpConnectAwsSecurelyGuideView", () => {
     expect(screen.getByTestId("connect-aws-configure-action")).toBeInTheDocument();
   });
 
-  it("shows evidence orientation strip with claim discipline and Sources links", () => {
+  it("shows header claim discipline and sources-only orientation strip", () => {
     if (entry === undefined) {
       throw new Error("Expected cloud-connections-aws documentation entry.");
     }
@@ -96,9 +96,10 @@ describe("HelpConnectAwsSecurelyGuideView", () => {
     render(<HelpConnectAwsSecurelyGuideView entry={entry} />);
 
     expect(screen.getByTestId("connect-aws-securely-help-orientation")).toBeInTheDocument();
-    expect(screen.getByTestId("connect-aws-securely-help-claim-discipline")).toHaveTextContent(
+    expect(screen.getByTestId("connect-aws-securely-help-header-claim-discipline")).toHaveTextContent(
       CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE,
     );
+    expect(screen.queryByTestId("connect-aws-securely-help-claim-discipline")).toBeNull();
     expect(screen.getByTestId("connect-aws-securely-help-sources")).toBeInTheDocument();
 
     const sources = within(screen.getByTestId("connect-aws-securely-help-sources"));

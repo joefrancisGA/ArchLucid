@@ -246,8 +246,99 @@ public sealed class SimpleTerraformDeclarationParserTests
         IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
 
         result.Should().ContainSingle();
-        result[0].Properties.Should().ContainKey("tf.site_config");
-        result[0].Properties.Should().NotContainKey("tf.public_network_access");
+        result[0].Properties["tf.public_network_access"].Should().Be("disabled");
+        result[0].Properties.Should().NotContainKey("tf.site_config");
+    }
+
+    [Fact]
+    public async Task ParseAsync_NestedSiteConfigIpSecurityRestrictionsArray_PreservesRulesForNetworkExpander()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "app.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_linux_web_app" "app" {
+                        site_config {
+                          ip_security_restrictions = [
+                            {
+                              name       = "AllowAll"
+                              ip_address = "0.0.0.0/0"
+                              action     = "Allow"
+                            }
+                          ]
+                        }
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.ip_security_restrictions"].Should().Contain("0.0.0.0/0");
+        result[0].Properties.Should().NotContainKey("tf.name");
+        result[0].Properties.Should().NotContainKey("tf.site_config");
+    }
+
+    [Fact]
+    public async Task ParseAsync_NestedSiteConfigWithClosingBraceInQuotedString_StillParsesTrailingScalars()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "app.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_linux_web_app" "app" {
+                        site_config {
+                          note = "has } char"
+                          public_network_access = "Disabled"
+                        }
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.note"].Should().Be("has } char");
+        result[0].Properties["tf.public_network_access"].Should().Be("disabled");
+        result[0].Properties.Should().NotContainKey("tf.site_config");
+    }
+
+    [Fact]
+    public async Task ParseAsync_NestedSiteConfigIpSecurityRestrictionsArray_ExpandsNetworkBaseline()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "app.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-hcl-appservice-nested-network",
+            Content = """
+                      resource "azurerm_linux_web_app" "app" {
+                        site_config {
+                          ip_security_restrictions = [
+                            {
+                              name       = "AllowAll"
+                              ip_address = "0.0.0.0/0"
+                              action     = "Allow"
+                            }
+                          ]
+                        }
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> parsed = await _sut.ParseAsync(declaration, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> expanded = AppServiceNetworkAccessSecurityBaselineExpander.Expand(parsed);
+
+        expanded.Should().HaveCountGreaterThan(1);
+
+        CanonicalObject? baseline = expanded.FirstOrDefault(o =>
+            o.ObjectType == "SecurityBaseline"
+            && o.Properties.TryGetValue("ruleKind", out string? kind)
+            && kind == "OpenPublicEndpoint");
+
+        baseline.Should().NotBeNull();
     }
 
     [Fact]
@@ -336,6 +427,85 @@ public sealed class SimpleTerraformDeclarationParserTests
         result.Should().ContainSingle();
         result[0].Properties["tf.ip_security_restrictions"].Should().Contain("0.0.0.0/0");
         result[0].Properties.Should().NotContainKey("tf.name");
+    }
+
+    [Fact]
+    public async Task ParseAsync_MultilineIpSecurityRestrictionsArray_PreservesRulesForNetworkExpander()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "app.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_linux_web_app" "app" {
+                        ip_security_restrictions =
+                        [
+                          {
+                            name       = "AllowAll"
+                            ip_address = "0.0.0.0/0"
+                            action     = "Allow"
+                          }
+                        ]
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.ip_security_restrictions"].Should().Contain("0.0.0.0/0");
+        result[0].Properties.Should().NotContainKey("tf.name");
+        result[0].Properties.Should().NotContainKey("tf.ip_address");
+    }
+
+    [Fact]
+    public async Task ParseAsync_IpSecurityRestrictionsArrayWithBracketInLineComment_PreservesRulesForNetworkExpander()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "app.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_linux_web_app" "app" {
+                        ip_security_restrictions = [ // legacy rule ]
+                        {
+                          name       = "AllowAll"
+                          ip_address = "0.0.0.0/0"
+                          action     = "Allow"
+                        }
+                        ]
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.ip_security_restrictions"].Should().Contain("0.0.0.0/0");
+        result[0].Properties.Should().NotContainKey("tf.name");
+        result[0].Properties.Should().NotContainKey("tf.ip_address");
+    }
+
+    [Fact]
+    public async Task ParseAsync_NestedSiteConfigWithClosingBraceInLineComment_StillParsesTrailingScalars()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "app.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_linux_web_app" "app" {
+                        site_config { // legacy block }
+                          public_network_access = "Disabled"
+                        }
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.public_network_access"].Should().Be("disabled");
     }
 
     [Fact]

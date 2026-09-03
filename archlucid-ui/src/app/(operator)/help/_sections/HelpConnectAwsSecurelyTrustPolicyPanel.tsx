@@ -20,12 +20,13 @@ import {
   AWS_TRUST_STARTER_FEDERATION_INTRO_TAIL,
 } from "@/lib/aws-cloud-connection-trust-policy-starter";
 import { CONNECTION_STATUS_CANONICAL_PATH } from "@/lib/connection-status-evidence-copy";
+import { ASSURANCE_STATUS_PUBLIC_PATH } from "@/lib/marketing-assurance-public-labels";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { showError } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
-const ASSURANCE_STATUS_PATH = "/assurance-status";
+const ASSURANCE_STATUS_PATH = ASSURANCE_STATUS_PUBLIC_PATH;
 
 /** Federation identifiers table and copyable IAM trust-policy template for AWS setup. */
 export function HelpConnectAwsSecurelyTrustPolicyPanel(): React.ReactElement {
@@ -102,7 +103,7 @@ export function HelpConnectAwsSecurelyTrustPolicyPanel(): React.ReactElement {
         </div>
       </div>
 
-      <details className="group space-y-3" open data-testid="connect-aws-securely-trust-policy-disclosure">
+      <details className="group space-y-3" data-testid="connect-aws-securely-trust-policy-disclosure">
         <summary className={cn("cursor-pointer list-none font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           <span className="inline-flex flex-wrap items-center justify-between gap-2">
             <span>{CONNECT_AWS_SECURELY_TRUST_POLICY_HEADING}</span>

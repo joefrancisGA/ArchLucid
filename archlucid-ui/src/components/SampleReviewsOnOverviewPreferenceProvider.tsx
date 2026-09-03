@@ -16,6 +16,8 @@ import {
   readSampleReviewsOnOverviewEnabledFromStorage,
   syncSampleReviewsOnOverviewEnabledFromServer,
 } from "@/lib/sample-reviews-on-overview-preference";
+import { WorkspaceModeContext } from "@/components/WorkspaceModeProvider";
+import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 
 export type SampleReviewsOnOverviewAccountSyncState = "idle" | "synced" | "local-only";
 
@@ -88,6 +90,15 @@ export function useSampleReviewsOnOverviewPreference(): SampleReviewsOnOverviewP
 /** When no provider is mounted (tests, marketing), sample reviews stay visible. */
 export function useSampleReviewsOnOverviewVisible(): boolean {
   const context = useContext(SampleReviewsOnOverviewPreferenceContext);
+  const workspaceModeContext = useContext(WorkspaceModeContext);
+
+  if (
+    workspaceModeContext !== null
+    && workspaceModeContext.mounted
+    && isWorkingWorkspaceMode(workspaceModeContext.mode)
+  ) {
+    return false;
+  }
 
   if (context === null) {
     return DEFAULT_SAMPLE_REVIEWS_ON_OVERVIEW_ENABLED;

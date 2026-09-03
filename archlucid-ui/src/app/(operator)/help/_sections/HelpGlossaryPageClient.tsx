@@ -39,6 +39,7 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   helpGlossaryCategoryHrefFromSearch,
   helpGlossaryClearSearchHrefFromSearch,
+  helpGlossaryResetFiltersHrefFromSearch,
   helpGlossarySearchHrefFromSearch,
   parseHelpGlossaryCategoryFilter,
   parseHelpGlossarySearchQuery,
@@ -183,7 +184,7 @@ export function HelpGlossaryPageClient(): React.ReactElement {
 
   const handleRelatedTermNavigate = useCallback((relatedId: string) => {
     setQuery("");
-    router.replace(helpGlossaryClearSearchHrefFromSearch(currentSearch), { scroll: false });
+    router.replace(helpGlossaryResetFiltersHrefFromSearch(currentSearch), { scroll: false });
 
     requestAnimationFrame(() => {
       const target = document.getElementById(`term-${relatedId}`);

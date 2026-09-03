@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { ARCHITECTURE_SPONSOR_DASHBOARD_CLAIM_DISCIPLINE } from "@/lib/architecture/architecture-sponsor-dashboard-evidence-copy";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import {
@@ -44,6 +45,9 @@ describe("SponsorDashboardPageHero", () => {
     render(<SponsorDashboardPageHero dashboardEmpty />);
 
     expect(screen.getByTestId("sponsor-dashboard-page-hero")).toHaveAttribute("data-dashboard-empty", "true");
+    expect(screen.getByTestId("architecture-sponsor-dashboard-claim-discipline")).toHaveTextContent(
+      ARCHITECTURE_SPONSOR_DASHBOARD_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.getByRole("heading", { level: 2, name: v.portfolioPageTitle })).toBeInTheDocument();
     expect(screen.getByText(executiveDashboardPageSubtitle())).toBeInTheDocument();
     expect(screen.getByText(SPONSOR_DASHBOARD_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();

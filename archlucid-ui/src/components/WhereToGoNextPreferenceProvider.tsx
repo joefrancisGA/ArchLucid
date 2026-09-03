@@ -16,6 +16,8 @@ import {
   readWhereToGoNextEnabledFromStorage,
   syncWhereToGoNextEnabledFromServer,
 } from "@/lib/where-to-go-next-preference";
+import { WorkspaceModeContext } from "@/components/WorkspaceModeProvider";
+import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 
 export type WhereToGoNextAccountSyncState = "idle" | "synced" | "local-only";
 
@@ -85,6 +87,15 @@ export function useWhereToGoNextPreference(): WhereToGoNextPreferenceContextValu
 /** When no provider is mounted (tests, marketing), follow-up strips stay visible. */
 export function useWhereToGoNextVisible(): boolean {
   const context = useContext(WhereToGoNextPreferenceContext);
+  const workspaceModeContext = useContext(WorkspaceModeContext);
+
+  if (
+    workspaceModeContext !== null
+    && workspaceModeContext.mounted
+    && isWorkingWorkspaceMode(workspaceModeContext.mode)
+  ) {
+    return false;
+  }
 
   if (context === null) {
     return DEFAULT_WHERE_TO_GO_NEXT_ENABLED;

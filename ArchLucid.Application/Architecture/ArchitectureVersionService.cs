@@ -64,7 +64,7 @@ public sealed class ArchitectureVersionService(
             ?? await CreateNextVersionAsync(scope, architectureId, request, artifactHash, intakeHash, cancellationToken)
                 .ConfigureAwait(false);
 
-        await PinRunVersionAsync(scope, runId, version.ArchitectureVersionId, cancellationToken).ConfigureAwait(false);
+        await PinRunVersionAsync(scope, runId, version.ArchitectureVersionId, artifactHash, cancellationToken).ConfigureAwait(false);
 
         return version;
     }
@@ -98,6 +98,7 @@ public sealed class ArchitectureVersionService(
         ScopeContext scope,
         Guid runId,
         Guid architectureVersionId,
+        byte[] artifactHash,
         CancellationToken cancellationToken)
     {
         Persistence.Models.RunRecord? header =
@@ -109,10 +110,19 @@ public sealed class ArchitectureVersionService(
                 $"Architecture version pin failed: run header '{runId:D}' was not found.");
         }
 
-        if (header.ArchitectureVersionId == architectureVersionId)
+        if (header.ArchitectureVersionId == architectureVersionId
+            && header.PinnedArchitectureVersionContentHashSha256 is { Length: > 0 } existing)
+        {
+            if (!existing.AsSpan().SequenceEqual(artifactHash))
+            {
+                throw new ConflictException(
+                    $"Architecture version pin failed for run '{runId:D}' and architecture version '{architectureVersionId:D}': existing pinned content hash does not match computed artifact hash.");
+
             return;
+        }
 
         header.ArchitectureVersionId = architectureVersionId;
+        header.PinnedArchitectureVersionContentHashSha256 = artifactHash;
         await _runRepository.UpdateAsync(header, cancellationToken).ConfigureAwait(false);
 
         if (_logger.IsEnabled(LogLevel.Debug))

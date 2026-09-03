@@ -104,6 +104,13 @@ public sealed class RunRecord
         set;
     }
 
+    /// <summary>SHA-256 κ artifact hash pinned at create (wave-9 suggestion 87).</summary>
+    public byte[]? PinnedArchitectureVersionContentHashSha256
+    {
+        get;
+        set;
+    }
+
     /// <summary>Pinned κ <see cref="ArchitectureKnowledgeModel.ModelId" /> for as-of-this-run reads.</summary>
     public string? KnowledgeModelId
     {

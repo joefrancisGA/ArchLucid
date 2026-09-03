@@ -30,7 +30,6 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
-import { ReviewsNewPageChrome } from "./ReviewsNewPageChrome";
 import {
   BUYER_REVIEWS_NEW_DETAILED_PAGE_SUBTITLE,
   BUYER_REVIEWS_NEW_GUIDED_INTAKE_PAGE_SUBTITLE,
@@ -38,8 +37,10 @@ import {
   reviewsNewPageSubtitle,
 } from "@/lib/reviews-new-page-copy";
 import {
+  REVIEWS_NEW_FIRST_VIEWPORT_ID,
   REVIEWS_NEW_PRIMARY_CONTENT_ID,
   REVIEWS_NEW_SKIP_LINK_LABEL,
+  REVIEWS_NEW_SKIP_TARGET_ID,
 } from "./reviews-new-page-surface-copy";
 import { ReviewsNewPageShell } from "./ReviewsNewPageShell";
 import {
@@ -66,14 +67,15 @@ describe("ReviewsNewPageChrome buyer-polished shell (REN)", () => {
 
     expect(screen.getByRole("link", { name: REVIEWS_NEW_SKIP_LINK_LABEL })).toHaveAttribute(
       "href",
-      `#${REVIEWS_NEW_PRIMARY_CONTENT_ID}`,
+      `#${REVIEWS_NEW_SKIP_TARGET_ID}`,
     );
+    expect(screen.getByTestId(REVIEWS_NEW_FIRST_VIEWPORT_ID)).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-primary-content")).toHaveAttribute(
       "id",
       REVIEWS_NEW_PRIMARY_CONTENT_ID,
     );
     expect(screen.queryByTestId("reviews-new-breadcrumb")).not.toBeInTheDocument();
-    expect(screen.getByTestId("reviews-new-orientation-top")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-new-orientation-bottom")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-settings-sources")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Related resources" })).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-page-subtitle")).toHaveTextContent(
@@ -84,12 +86,12 @@ describe("ReviewsNewPageChrome buyer-polished shell (REN)", () => {
     expect(reviewsNewPageSubtitle(true, "detailed")).toBe(BUYER_REVIEWS_NEW_DETAILED_PAGE_SUBTITLE);
 
     const primaryContent = screen.getByTestId("reviews-new-primary-content");
-    const orderedLandmarks = ["reviews-new-path-switcher", "reviews-new-orientation-top"]
+    const orderedLandmarks = ["reviews-new-path-switcher", "reviews-new-orientation-bottom"]
       .map((testId) => primaryContent.querySelector(`[data-testid="${testId}"]`))
       .filter((node): node is HTMLElement => node !== null)
       .map((node) => node.getAttribute("data-testid"));
 
-    expect(orderedLandmarks).toEqual(["reviews-new-path-switcher", "reviews-new-orientation-top"]);
+    expect(orderedLandmarks).toEqual(["reviews-new-path-switcher", "reviews-new-orientation-bottom"]);
   });
 });
 
@@ -106,7 +108,7 @@ describe("ReviewsNewPageChrome buyer-polished shell (ENE)", () => {
     expect(screen.getByTestId("reviews-new-page-subtitle")).toHaveTextContent(
       BUYER_REVIEWS_NEW_GUIDED_INTAKE_PAGE_SUBTITLE,
     );
-    expect(screen.queryByTestId("reviews-new-orientation-top")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-new-orientation-bottom")).not.toBeInTheDocument();
     expect(screen.queryByTestId("reviews-new-settings-sources")).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Related resources" })).not.toBeInTheDocument();
     expect(screen.queryByTestId("reviews-new-optional-cloud-hint")).not.toBeInTheDocument();
@@ -127,14 +129,15 @@ describe("ReviewsNewPageChrome buyer-polished shell (REQ)", () => {
 
     expect(screen.getByRole("link", { name: REVIEWS_NEW_SKIP_LINK_LABEL })).toHaveAttribute(
       "href",
-      `#${REVIEWS_NEW_PRIMARY_CONTENT_ID}`,
+      `#${REVIEWS_NEW_SKIP_TARGET_ID}`,
     );
+    expect(screen.getByTestId(REVIEWS_NEW_FIRST_VIEWPORT_ID)).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-primary-content")).toHaveAttribute(
       "id",
       REVIEWS_NEW_PRIMARY_CONTENT_ID,
     );
     expect(screen.queryByTestId("reviews-new-breadcrumb")).not.toBeInTheDocument();
-    expect(screen.getByTestId("reviews-new-orientation-top")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-new-orientation-bottom")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-settings-sources")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-page-subtitle")).toHaveTextContent(
       BUYER_REVIEWS_NEW_QUICK_REVIEW_PAGE_SUBTITLE,
@@ -149,14 +152,27 @@ describe("ReviewsNewPageChrome buyer-polished hub", () => {
   it("keeps contextual help and hub lead when no path tab is active", () => {
     searchParamsGet.mockImplementation(() => null);
 
-    render(<ReviewsNewPageChrome />);
+    render(
+      <ReviewsNewPageShell>
+        <div data-testid="reviews-new-path-switcher" />
+      </ReviewsNewPageShell>,
+    );
 
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-optional-cloud-hint")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-page-subtitle")).toHaveTextContent(
       reviewsNewPageSubtitle(true, null),
     );
+    expect(screen.getByTestId("reviews-new-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-new-orientation-bottom")).toBeInTheDocument();
     expect(screen.queryByText("Quick start")).not.toBeInTheDocument();
+
+    const firstViewport = screen.getByTestId(REVIEWS_NEW_FIRST_VIEWPORT_ID);
+    const pathSwitcher = screen.getByTestId("reviews-new-path-switcher");
+    const orientationBottom = screen.getByTestId("reviews-new-orientation-bottom");
+
+    expect(firstViewport).toContainElement(pathSwitcher);
+    expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("adds specimen preview links to the header hint row for returning tenants", () => {
@@ -166,7 +182,11 @@ describe("ReviewsNewPageChrome buyer-polished hub", () => {
     });
     searchParamsGet.mockImplementation(() => null);
 
-    render(<ReviewsNewPageChrome />);
+    render(
+      <ReviewsNewPageShell>
+        <div data-testid="reviews-new-path-switcher" />
+      </ReviewsNewPageShell>,
+    );
 
     expect(screen.getByRole("link", { name: REVIEWS_NEW_SPECIMEN_PREVIEW_PRIMARY_CTA })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: REVIEWS_NEW_SPECIMEN_PREVIEW_FINDINGS_LINK })).toBeInTheDocument();

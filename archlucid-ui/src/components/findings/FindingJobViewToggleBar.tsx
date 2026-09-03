@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 
-import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
+import { DESIGN_TOKENS } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import {
@@ -62,17 +63,21 @@ function JobViewToggleChip(props: {
   readonly active: boolean;
   readonly count: number;
   readonly href: string;
+  readonly onSelect: (jobView: FindingJobView) => void;
 }): React.JSX.Element {
   return (
-    <FilterChip
+    <Link
       href={props.href}
       scroll={false}
-      className={buyerFilterChipClass(props.active, false)}
+      className={cn(DESIGN_TOKENS.interactive.chip, DESIGN_TOKENS.accent.focusRing, buyerFilterChipClass(props.active, false))}
       aria-current={props.active ? "page" : undefined}
       data-testid={`finding-job-view-${props.option}`}
+      onClick={() => {
+        props.onSelect(props.option);
+      }}
     >
       {FINDING_JOB_VIEW_LABELS[props.option]} ({props.count})
-    </FilterChip>
+    </Link>
   );
 }
 
@@ -98,6 +103,7 @@ export function FindingJobViewToggleBar(props: FindingJobViewToggleBarProps): Re
           active={props.jobView === DEFAULT_FINDING_JOB_VIEW}
           count={primaryCount}
           href={reviewFindingsJobViewHrefFromSearch(currentSearch, pathname, DEFAULT_FINDING_JOB_VIEW)}
+          onSelect={props.onJobViewChange}
         />
         {showMoreJobViews ? (
           SECONDARY_JOB_VIEW_OPTIONS.map((option) => (
@@ -107,6 +113,7 @@ export function FindingJobViewToggleBar(props: FindingJobViewToggleBarProps): Re
               active={props.jobView === option}
               count={countForJobView(option, props.reviewFindings, props.governanceRows)}
               href={reviewFindingsJobViewHrefFromSearch(currentSearch, pathname, option)}
+              onSelect={props.onJobViewChange}
             />
           ))
         ) : (

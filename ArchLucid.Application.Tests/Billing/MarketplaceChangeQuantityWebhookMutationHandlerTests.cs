@@ -72,4 +72,31 @@ public sealed class MarketplaceChangeQuantityWebhookMutationHandlerTests
 
         ledger.Verify(l => l.ChangeQuantityAsync(tenantId, 15, raw, It.IsAny<CancellationToken>()), Times.Once);
     }
+
+    [SkippableFact]
+    public async Task Ga_enabled_missing_quantity_defers_without_ledger_mutation()
+    {
+        BillingOptions billing = new()
+        {
+            AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = true },
+        };
+
+        BillingOptionsTestMonitor<BillingOptions> monitor = new(billing);
+        Mock<IBillingLedger> ledger = new();
+        MarketplaceChangeQuantityWebhookMutationHandler sut = new(
+            monitor,
+            ledger.Object,
+            NullLogger<MarketplaceChangeQuantityWebhookMutationHandler>.Instance);
+
+        using JsonDocument doc = JsonDocument.Parse("""{"subscriptionId":"sub-qty-missing"}""");
+
+        MarketplaceWebhookMutationOutcome outcome =
+            await sut.HandleAsync(Guid.NewGuid(), doc.RootElement, "{}", CancellationToken.None);
+
+        outcome.Should().Be(MarketplaceWebhookMutationOutcome.DeferredGaDisabled);
+
+        ledger.Verify(
+            static l => l.ChangeQuantityAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }

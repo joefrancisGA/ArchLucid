@@ -26,8 +26,12 @@ describe("claim-discipline-policy", () => {
     expect(shouldOmitClaimDisciplineBand("pilot-outcomes")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("roi-summary")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("architecture-scorecard")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("alert-rules-hub")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("architecture-sponsor-dashboard")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("audit-trail")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("help-hub")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("help-api-contracts")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("help-api-keys")).toBe(true);
   });
 
   it("resolveClaimDisciplineForStrip returns undefined for omitted slugs", () => {
@@ -50,11 +54,14 @@ describe("claim-discipline-policy", () => {
     expect(resolveClaimDisciplineForStrip("help-decision-register", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-impact-preview", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-improvement-planning", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-integration-readiness", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-structured-brief", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-pilot-feedback", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-azure-boards", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-soc2-self-assessment", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-dpa-template", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-evidence-intake", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-prior-manifest-retrieval", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-caiq-sig-response", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-configuration-reference", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-first-value-20-minutes", "not a package.")).toBeUndefined();
@@ -62,6 +69,7 @@ describe("claim-discipline-policy", () => {
     expect(resolveClaimDisciplineForStrip("help-sponsor-report", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-engineering-troubleshooting", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-getting-started", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-glossary", "not a package.")).toBeUndefined();
   });
 
   it("expectsVisibleClaimDisciplineBand mirrors omit policy", () => {
@@ -69,11 +77,14 @@ describe("claim-discipline-policy", () => {
     expect(expectsVisibleClaimDisciplineBand("help-decision-register")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-impact-preview")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-improvement-planning")).toBe(false);
+    expect(expectsVisibleClaimDisciplineBand("help-integration-readiness")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-structured-brief")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-pilot-feedback")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-azure-boards")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-soc2-self-assessment")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-dpa-template")).toBe(false);
+    expect(expectsVisibleClaimDisciplineBand("help-evidence-intake")).toBe(false);
+    expect(expectsVisibleClaimDisciplineBand("help-prior-manifest-retrieval")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-caiq-sig-response")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-configuration-reference")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-first-value-20-minutes")).toBe(false);
@@ -81,6 +92,7 @@ describe("claim-discipline-policy", () => {
     expect(expectsVisibleClaimDisciplineBand("help-sponsor-report")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-engineering-troubleshooting")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-getting-started")).toBe(false);
+    expect(expectsVisibleClaimDisciplineBand("help-glossary")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-review-guide")).toBe(false);
   });
 

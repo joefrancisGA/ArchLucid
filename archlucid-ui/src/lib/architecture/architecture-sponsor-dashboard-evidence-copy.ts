@@ -9,6 +9,8 @@ export const SPONSOR_DASHBOARD_HELP_TOPIC_LABEL = "How the sponsor dashboard wor
 export const ARCHITECTURE_SPONSOR_DASHBOARD_CLAIM_DISCIPLINE =
   "Sponsor dashboard KPIs, trends, and sponsor exports summarize portfolio ROI and workspace health for the selected window — not a full audit export. Open Architecture reviews, Evidence trail, or Trust Center for export-ready records.";
 
+export const ARCHITECTURE_SPONSOR_DASHBOARD_FOLLOW_UPS_TITLE = "Where to go next";
+
 export const ARCHITECTURE_SPONSOR_DASHBOARD_SOURCES_INTRO =
   "Use these follow-ups when portfolio KPIs need architecture reviews, grounded Q&A, ROI methodology, or official assurance materials.";
 

@@ -5,6 +5,10 @@ import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 /** Layout tokens for the public `/trust` Trust Center page. */
 export const TRUST_CENTER_PUBLIC_LAYOUT = {
   page: "trust-center-public-page w-full",
+  firstViewportId: "trust-center-first-viewport",
+  skipTargetId: "trust-center-first-viewport",
+  skipLinkLabel: "Skip to diligence actions",
+  headerClaimDisciplineTestId: "trust-center-header-claim-discipline",
   skipLink:
     "sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-neutral-900 focus:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:focus:bg-neutral-950 dark:focus:text-neutral-50",
   metaRow: cn("mt-4 flex flex-wrap items-center gap-x-4 gap-y-1", MARKETING_TYPOGRAPHY.meta),
