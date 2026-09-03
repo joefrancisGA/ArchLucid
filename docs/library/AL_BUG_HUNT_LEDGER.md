@@ -1362,11 +1362,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 8
-- **bugs-found:** 8
+- **hunts:** 9
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — durable background job processor overwrote `Canceled` with `Succeeded` after late executor completion
+- **last-hunt:** 2026-09-03
+- **last-bug:** 2026-09-03 — durable background job processor overwrote `Canceled` with `Pending`/`Failed` on executor failure after cancel during run
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1381,8 +1381,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Stale-running watchdog never reclaims `MaxRetries=0` export jobs (`RetryCount < MaxRetries` is always false) and leaves reclaimed `Pending` rows without Azure queue notifications — **hit 2026-08-23:** `ResetStaleRunningJobsOlderThanAsync` now allows the zero-retry crash reclaim path, marks exhausted rows `Failed`, and `BackgroundJobStuckRunningWatchdogBackgroundWork` re-sends queue notifications for pending reclaims
 - [x] (proven) `IntegrationEventDlqRetryBackgroundWork.RunSinglePassAsync` read `DateTime.UtcNow` directly while `IntegrationEventDlqRetryPolicy` accepts an explicit UTC instant — **hit 2026-08-26:** rows with unexpired backoff were requeued when wall clock advanced past eligibility while tests and policy expected a frozen pass instant; fixed by resolving `TimeProvider` from DI scope (`IntegrationEventDlqRetryBackgroundWorkTests.RunSinglePassAsync_does_not_requeue_before_backoff_when_clock_is_injected`, `RunSinglePassAsync_requeues_after_backoff_when_clock_is_injected`).
 - [x] (proven) `BackgroundJobQueueProcessorHostedService` overwrote `Canceled` with `Succeeded` when cancel landed during executor run — **hit 2026-09-02:** durable processor called `MarkSucceededAsync` without re-reading row state after `ExecuteAsync`, unlike the in-memory queue cancel fix; fixed by skipping success/retry when `GetAsync` reports `Canceled` (`ProcessOneMessageAsync_does_not_mark_succeeded_when_job_canceled_during_execution`).
+- [x] (proven) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` overwrote `Canceled` with `Pending` or `Failed` when cancel landed during a failing executor run — **hit 2026-09-03:** failure path called `MarkPendingRetryAsync` / `MarkFailedTerminalAsync` from the pre-execution row snapshot without re-reading cancel state; fixed by checking `GetAsync` before any failure transition (`ProcessOneMessageAsync_does_not_mark_pending_retry_when_job_canceled_during_failed_execution`, `ProcessOneMessageAsync_does_not_mark_failed_terminal_when_job_canceled_during_failed_execution`).
 
 2026-09-02 seed hunt #423 (hit): promoted durable-processor cancel/success race from in-memory parity gap; proved with failing repro.
+
+2026-09-03 seed hunt #579 (hit): promoted cancel-on-failure parity gap from success-path fix #423; proved retry and terminal failure paths both overwrote `Canceled`.
 
 ---
 
