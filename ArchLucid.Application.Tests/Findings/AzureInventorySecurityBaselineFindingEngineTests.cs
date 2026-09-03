@@ -1,7 +1,9 @@
 using System.IO.Compression;
 using System.Text;
 
+using ArchLucid.Application;
 using ArchLucid.Application.Findings;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.Core.Configuration;
@@ -46,9 +48,10 @@ public sealed class AzureInventorySecurityBaselineFindingEngineTests
             ]
             """;
 
-        AzureInventorySecurityBaselineFindingEngine sut = CreateSut(CreatePackage(resourcesJson));
+        (AzureInventorySecurityBaselineFindingEngine sut, FindingAnalysisContext context) =
+            CreateSut(CreatePackage(resourcesJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].FindingType.Should().Be("AzureInventorySecurityBaseline");
@@ -90,26 +93,52 @@ public sealed class AzureInventorySecurityBaselineFindingEngineTests
             ],
         };
 
-        AzureInventorySecurityBaselineFindingEngine sut = CreateSut(CreatePackage(resourcesJson));
+        (AzureInventorySecurityBaselineFindingEngine sut, FindingAnalysisContext context) =
+            CreateSut(CreatePackage(resourcesJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, context, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].RelatedNodeIds.Should().ContainSingle().Which.Should().Be("topology-storage-1");
     }
 
     [Fact]
-    public async Task AnalyzeAsync_returns_empty_when_no_inventory_download()
+    public async Task AnalyzeAsync_throws_ConflictException_when_no_evidence_pin()
     {
-        AzureInventorySecurityBaselineFindingEngine sut = CreateSut(null);
+        (AzureInventorySecurityBaselineFindingEngine sut, FindingAnalysisContext? context) = CreateSutWithoutPin();
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
+        Func<Task> act = () => sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
 
-        findings.Should().BeEmpty();
+        await act.Should().ThrowAsync<ConflictException>();
     }
 
-    private static AzureInventorySecurityBaselineFindingEngine CreateSut(
-        AzureExtractorPackageDownloadRecord? package)
+    private static (AzureInventorySecurityBaselineFindingEngine Engine, FindingAnalysisContext Context) CreateSut(
+        AzureExtractorPackageDownloadRecord package)
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(static provider => provider.GetCurrentScope()).Returns(TestScope);
+
+        Mock<IAzureExtractorPackageRepository> packageRepository = new();
+        packageRepository
+            .Setup(static repository =>
+                repository.TryGetLatestCollectionTimestampUtcInScopeAsync(
+                    It.IsAny<ScopeContext>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DateTime.UtcNow);
+        EffectfulFindingEngineTestSupport.SetupAzurePinnedDownload(packageRepository, TestScope, package);
+
+        FindingAnalysisContext context = EffectfulFindingEngineTestSupport.CreateAzurePinnedContext(package.PackageId);
+
+        AzureInventorySecurityBaselineFindingEngine engine = new(
+            scopeProvider.Object,
+            packageRepository.Object,
+            TimeProvider.System,
+            Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 30 }));
+
+        return (engine, context);
+    }
+
+    private static (AzureInventorySecurityBaselineFindingEngine Engine, FindingAnalysisContext? Context) CreateSutWithoutPin()
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(static provider => provider.GetCurrentScope()).Returns(TestScope);
@@ -122,24 +151,20 @@ public sealed class AzureInventorySecurityBaselineFindingEngineTests
                     It.IsAny<CancellationToken>()))
             .ReturnsAsync(DateTime.UtcNow);
 
-        packageRepository
-            .Setup(static repository =>
-                repository.TryGetLatestDownloadInScopeAsync(
-                    It.IsAny<ScopeContext>(),
-                    It.IsAny<CancellationToken>()))
-            .ReturnsAsync(package);
-
-        return new AzureInventorySecurityBaselineFindingEngine(
+        AzureInventorySecurityBaselineFindingEngine engine = new(
             scopeProvider.Object,
             packageRepository.Object,
             TimeProvider.System,
             Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 30 }));
+
+        return (engine, null);
     }
 
     private static AzureExtractorPackageDownloadRecord CreatePackage(string resourcesJson)
     {
         return new AzureExtractorPackageDownloadRecord
         {
+            PackageId = Guid.NewGuid(),
             PackageBytes = BuildZip(("resources.json", resourcesJson)),
         };
     }
