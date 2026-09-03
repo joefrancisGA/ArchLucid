@@ -99,10 +99,9 @@ export function ReviewWorkbenchLayout(props: ReviewWorkbenchLayoutProps): React.
                   type="button"
                   className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-link underline-offset-2 hover:underline")}
                   data-testid={`review-workbench-focus-${column.id}`}
+                  aria-label={`Focus ${columnLabel(column.id)} column`}
                   onClick={() => props.onFocusColumn(column.id)}
                 >
-                  Focus
-                </button>
               </div>
               <div className="min-w-0 overflow-visible">{column.panel}</div>
             </div>
