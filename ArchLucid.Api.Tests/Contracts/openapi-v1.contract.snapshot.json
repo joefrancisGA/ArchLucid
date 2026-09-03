@@ -17393,6 +17393,19 @@
               "string"
             ]
           },
+          "createTimeFocusedPilotCloudProvider": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "createTimeFocusedPilotModeEnabled": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
           "createTimeKnowledgeModelContentHashSha256": {
             "type": [
               "null",
@@ -26845,6 +26858,7 @@
             ]
           },
           "pinnedArchitectureVersionContentHashSha256": {
+            "description": "Read-only SHA-256 \u03BA artifact content hash pinned at run create (wave-9/10).",
             "format": "byte",
             "type": [
               "null",
@@ -26878,6 +26892,7 @@
             ]
           },
           "pinnedKnowledgeModelContentHashSha256": {
+            "description": "Read-only SHA-256 \u03BA model content hash pinned at run create (wave-10).",
             "format": "byte",
             "type": [
               "null",
@@ -32456,6 +32471,27 @@
           "AgentExecution"
         ],
         "type": "string"
+      },
+      "UserAttentionSummaryResponse": {
+        "properties": {
+          "alertsOpenCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "assignedToMeFindingsCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "awaitingApprovalCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "checkedAtUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
       },
       "UserInvitationListResponse": {
         "properties": {
@@ -167306,6 +167342,146 @@
         "x-archlucid-audience": "operator"
       }
     },
+    "/v1/user/attention-summary": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserAttentionSummaryResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserAttentionSummaryResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserAttentionSummaryResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized."
+          },
+          "403": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden."
+          },
+          "404": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found."
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "UserAttentionSummary"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
     "/v1/user/preferences": {
       "get": {
         "responses": {
@@ -170488,6 +170664,9 @@
     },
     {
       "name": "TrustCenterEvidencePack"
+    },
+    {
+      "name": "UserAttentionSummary"
     },
     {
       "name": "UserInvitationPublic"
