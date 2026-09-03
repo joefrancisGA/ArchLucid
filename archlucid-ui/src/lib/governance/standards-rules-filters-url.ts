@@ -2,6 +2,11 @@ import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance
 
 export const STANDARDS_RULES_SEARCH_PARAM = "q";
 export const STANDARDS_RULES_SEVERITY_PARAM = "severity";
+export const STANDARDS_RULES_LINKED_FINDINGS_PARAM = "linkedFindings";
+
+export type StandardsRulesLinkedFindingsFilter = "all" | "linked" | "unlinked";
+
+const LINKED_FINDINGS_IDS = new Set<string>(["all", "linked", "unlinked"]);
 
 export function parseStandardsRulesSearchQuery(raw: string | null | undefined): string {
   if (raw === null || raw === undefined) {
@@ -9,6 +14,22 @@ export function parseStandardsRulesSearchQuery(raw: string | null | undefined): 
   }
 
   return raw;
+}
+
+export function parseStandardsRulesLinkedFindingsFromSearch(
+  raw: string | null | undefined,
+): StandardsRulesLinkedFindingsFilter {
+  if (raw === null || raw === undefined) {
+    return "all";
+  }
+
+  const trimmed = raw.trim();
+
+  if (!LINKED_FINDINGS_IDS.has(trimmed)) {
+    return "all";
+  }
+
+  return trimmed as StandardsRulesLinkedFindingsFilter;
 }
 
 export function parseStandardsRulesSeverityFromSearch(raw: string | null | undefined): string {
@@ -49,6 +70,24 @@ export function standardsRulesClearSearchHrefFromSearch(
   pathname: string = GOVERNANCE_STANDARDS_AND_RULES_PATH,
 ): string {
   return standardsRulesSearchHrefFromSearch(currentSearch, "", pathname);
+}
+
+export function standardsRulesLinkedFindingsHrefFromSearch(
+  currentSearch: string,
+  linkedFindings: StandardsRulesLinkedFindingsFilter,
+  pathname: string = GOVERNANCE_STANDARDS_AND_RULES_PATH,
+): string {
+  const params = new URLSearchParams(currentSearch);
+
+  if (linkedFindings === "all") {
+    params.delete(STANDARDS_RULES_LINKED_FINDINGS_PARAM);
+  } else {
+    params.set(STANDARDS_RULES_LINKED_FINDINGS_PARAM, linkedFindings);
+  }
+
+  const nextQuery = params.toString();
+
+  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
 }
 
 export function standardsRulesSeverityHrefFromSearch(
