@@ -6952,6 +6952,27 @@
         ],
         "type": "string"
       },
+      "CommitRunCommittedArtifactInventoryEntry": {
+        "properties": {
+          "artifactName": {
+            "type": "string"
+          },
+          "capturedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "contentHashSha256": {
+            "type": "string"
+          },
+          "contentType": {
+            "type": "string"
+          },
+          "producer": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "CommitRunRequest": {
         "properties": {
           "acknowledgedAssumptionIds": {
@@ -6977,6 +6998,12 @@
       },
       "CommitRunResponse": {
         "properties": {
+          "committedArtifactInventory": {
+            "items": {
+              "$ref": "#/components/schemas/CommitRunCommittedArtifactInventoryEntry"
+            },
+            "type": "array"
+          },
           "decisionTraces": {
             "type": "array"
           },
@@ -7172,8 +7199,15 @@
         "type": "object"
       },
       "CompareInputFingerprints": {
+        "description": "Wave-15 suggestion 145: compare input fingerprints including committed artifact inventory rows.",
         "properties": {
           "baseArchitectureVersionContentHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "baseCommittedArtifactInventoryHashSha256": {
             "type": [
               "null",
               "string"
@@ -7207,6 +7241,12 @@
             "type": "string"
           },
           "targetArchitectureVersionContentHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "targetCommittedArtifactInventoryHashSha256": {
             "type": [
               "null",
               "string"
@@ -7608,7 +7648,26 @@
               {
                 "$ref": "#/components/schemas/CompareInputFingerprints"
               }
-            ]
+            ],
+            "description": "Wave-13/14/15: create-time pin, manifest hash, and committed artifact inventory fingerprints for both compare inputs.",
+            "properties": {
+              "baseCommittedArtifactInventoryHashSha256": {
+                "type": "string"
+              },
+              "baseManifestHashSha256": {
+                "type": "string"
+              },
+              "comparisonAlgorithmVersion": {
+                "type": "string"
+              },
+              "targetCommittedArtifactInventoryHashSha256": {
+                "type": "string"
+              },
+              "targetManifestHashSha256": {
+                "type": "string"
+              }
+            },
+            "type": "object"
           },
           "requirementChanges": {
             "items": {
@@ -12612,6 +12671,13 @@
               "integer"
             ]
           },
+          "evidencePackageId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "findingId": {
             "type": "string"
           },
@@ -17467,6 +17533,12 @@
             },
             "type": "array"
           },
+          "committedDecisionReceiptHashSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "compliance": {
             "$ref": "#/components/schemas/ComplianceSection"
           },
@@ -17922,6 +17994,7 @@
             "type": "boolean"
           },
           "manifestHash": {
+            "description": "Read-only SHA-256 over canonical committed manifest hash (Hasher A).",
             "type": "string"
           },
           "manifestId": {
@@ -27887,6 +27960,14 @@
         },
         "type": "object"
       },
+      "SetProfessionalWorkbenchEnabledRequest": {
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "SetSampleReviewsOnOverviewVisibilityRequest": {
         "properties": {
           "enabled": {
@@ -32739,6 +32820,12 @@
             "type": "string"
           },
           "ianaTimeZoneIsExplicit": {
+            "type": "boolean"
+          },
+          "professionalWorkbenchEnabled": {
+            "type": "boolean"
+          },
+          "professionalWorkbenchEnabledIsExplicit": {
             "type": "boolean"
           },
           "sampleReviewsOnOverviewEnabled": {

@@ -94,7 +94,7 @@ public sealed class TrialScheduledLifecycleEmailScannerTests
             p => p.PublishAsync(
                 IntegrationEventTypes.TrialLifecycleEmailV1,
                 It.IsAny<ReadOnlyMemory<byte>>(),
-                It.Is<string?>(messageId => messageId is not null && messageId.Contains("MidTrialDay7", StringComparison.Ordinal)),
+                It.Is<string?>(messageId => messageId != null && messageId.Contains("MidTrialDay7", StringComparison.Ordinal)),
                 It.IsAny<IReadOnlyDictionary<string, object>?>(),
                 It.IsAny<CancellationToken>()),
             Times.Once,
