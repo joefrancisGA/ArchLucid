@@ -140,7 +140,7 @@ describe("PilotScorecardPageView buyer-polished shell", () => {
 
     expect(screen.getByRole("heading", { level: 1, name: REVIEW_SCORECARD_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(REVIEW_SCORECARD_PAGE_SUBTITLE)).toBeInTheDocument();
-    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.queryByRole("navigation", { name: "Related value reports" })).not.toBeInTheDocument();
 
     expect(screen.getByTestId("architecture-scorecard-claim-discipline").textContent).toContain(
