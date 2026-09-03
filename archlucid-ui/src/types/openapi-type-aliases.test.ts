@@ -247,6 +247,12 @@ export const UI_TYPE_OPENAPI_SCHEMA_KEYS = {
   FindingConfidenceLevel: "FindingConfidenceLevel",
   PilotScorecardJson: "PilotInProductScorecardResponse",
   PilotScorecardResponse: "PilotScorecardResponse",
+  PagedResponseOfConversationThread: "PagedResponseOfConversationThread",
+  PagedResponseOfDraftRequestSummaryResponse: "PagedResponseOfDraftRequestSummaryResponse",
+  CursorPagedResponseOfAlertRecord: "CursorPagedResponseOfAlertRecord",
+  CursorPagedResponseOfAuditEvent: "CursorPagedResponseOfAuditEvent",
+  CursorPagedResponseOfRunListItemResponse: "CursorPagedResponseOfRunListItemResponse",
+  CursorPagedResponseOfRunSummaryResponse: "CursorPagedResponseOfRunSummaryResponse",
 } as const satisfies Record<string, keyof components["schemas"]>;
 
 type AssertExtends<Base, Derived extends Base> = Derived;
@@ -878,6 +884,33 @@ type _AuthorityTrustEvidenceAliases = [
   >,
 ];
 
+type _PaginationWave9Aliases = [
+  AssertExtends<
+    components["schemas"]["PagedResponseOfConversationThread"],
+    import("@/types/pagination").PagedResponseOfConversationThread
+  >,
+  AssertExtends<
+    components["schemas"]["PagedResponseOfDraftRequestSummaryResponse"],
+    import("@/types/pagination").PagedResponseOfDraftRequestSummaryResponse
+  >,
+  AssertExtends<
+    components["schemas"]["CursorPagedResponseOfAlertRecord"],
+    import("@/types/pagination").CursorPagedResponseOfAlertRecord
+  >,
+  AssertExtends<
+    components["schemas"]["CursorPagedResponseOfAuditEvent"],
+    import("@/types/pagination").CursorPagedResponseOfAuditEvent
+  >,
+  AssertExtends<
+    components["schemas"]["CursorPagedResponseOfRunListItemResponse"],
+    import("@/types/pagination").CursorPagedResponseOfRunListItemResponse
+  >,
+  AssertExtends<
+    components["schemas"]["CursorPagedResponseOfRunSummaryResponse"],
+    import("@/types/pagination").CursorPagedResponseOfRunSummaryResponse
+  >,
+];
+
 const _compileTimeAliasGuards: [
   _AuthorityAliases,
   _OperateRhythmAliases,
@@ -915,6 +948,7 @@ const _compileTimeAliasGuards: [
   _ExplanationWave8Aliases,
   _PilotScorecardAliases,
   _AuthorityTrustEvidenceAliases,
+  _PaginationWave9Aliases,
 ] = [
   [] as unknown as _AuthorityAliases,
   [] as unknown as _OperateRhythmAliases,
@@ -952,6 +986,7 @@ const _compileTimeAliasGuards: [
   [] as unknown as _ExplanationWave8Aliases,
   [] as unknown as _PilotScorecardAliases,
   [] as unknown as _AuthorityTrustEvidenceAliases,
+  [] as unknown as _PaginationWave9Aliases,
 ];
 void _compileTimeAliasGuards;
 
@@ -965,6 +1000,6 @@ describe("openapi type alias schema keys", () => {
   });
 
   it("keeps the mapping table in sync with the number of guarded aliases", () => {
-    expect(Object.keys(UI_TYPE_OPENAPI_SCHEMA_KEYS)).toHaveLength(239);
+    expect(Object.keys(UI_TYPE_OPENAPI_SCHEMA_KEYS)).toHaveLength(245);
   });
 });
