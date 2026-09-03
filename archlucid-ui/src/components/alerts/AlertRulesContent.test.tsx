@@ -50,6 +50,14 @@ vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
 }));
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal as () => Promise<typeof import("next/navigation")>, {
+    useSearchParams: () => new URLSearchParams("runId=run-alerts-test"),
+  });
+});
+
 const sampleRule = {
   ruleId: "rule-1",
   tenantId: "tenant-1",
@@ -151,14 +159,14 @@ describe("AlertRulesContent", () => {
   });
 
   it("TB-1584: Conditions tab source avoids page-title h2 chrome", () => {
-    const source = readFileSync(join(process.cwd(), "src", "components", "alerts", "AlertRulesContent.tsx"), "utf8");
+    const source = readFileSync(join(process.cwd(), "src", "components", "alerts", "AlertRulesCreateForm.tsx"), "utf8");
 
     expect(source).toMatch(/<h2\b/);
     expect(source).not.toContain("OPERATOR_TYPOGRAPHY.pageTitle");
   });
 
   it("TB-1585: Conditions tab source avoids stacked tab-lead helper paragraph", () => {
-    const source = readFileSync(join(process.cwd(), "src", "components", "alerts", "AlertRulesContent.tsx"), "utf8");
+    const source = readFileSync(join(process.cwd(), "src", "components", "alerts", "AlertRulesCreateForm.tsx"), "utf8");
 
     expect(source).not.toContain("ALERT_RULES_CONDITIONS_FINDINGS_HELPER");
     expect(source).toContain("ALERT_RULES_RULE_TYPE_HELP");
@@ -200,7 +208,9 @@ describe("AlertRulesContent", () => {
   });
 
   it("TB-1586: create buttons source use primary variants without sm sizing", () => {
-    const source = readFileSync(join(process.cwd(), "src", "components", "alerts", "AlertRulesContent.tsx"), "utf8");
+    const hostSource = readFileSync(join(process.cwd(), "src", "components", "alerts", "AlertRulesContent.tsx"), "utf8");
+    const formSource = readFileSync(join(process.cwd(), "src", "components", "alerts", "AlertRulesCreateForm.tsx"), "utf8");
+    const source = `${hostSource}\n${formSource}`;
 
     for (const testId of ["alert-rules-create-action", "alert-rules-create-button"] as const) {
       const buttonBlock = source.match(new RegExp(`<Button[\\s\\S]*?data-testid="${testId}"[\\s\\S]*?>`))?.[0];
@@ -251,7 +261,7 @@ describe("AlertRulesContent", () => {
   });
 
   it("TB-1588: Conditions tab source avoids raw select elements", () => {
-    const source = readFileSync(join(process.cwd(), "src", "components", "alerts", "AlertRulesContent.tsx"), "utf8");
+    const source = readFileSync(join(process.cwd(), "src", "components", "alerts", "AlertRulesCreateForm.tsx"), "utf8");
 
     expect(source).toMatch(/from "@\/components\/ui\/select"/);
     expect(source).not.toMatch(/<select\b/);
