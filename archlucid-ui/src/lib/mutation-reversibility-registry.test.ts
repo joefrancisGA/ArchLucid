@@ -22,7 +22,7 @@ describe("mutation-reversibility-registry (TB-2148)", () => {
       "platform_bundled_policy_pack_deactivate",
     ]);
     expect(getMutationReversibilityEntry("governance_bulk_disposition").classification).toBe("reversible");
-    expect(getMutationReversibilityEntry("governance_quick_approve").classification).toBe("permanent");
+    expect(getMutationReversibilityEntry("governance_workflow_approve").classification).toBe("reversible_with_audit");
   });
 
   it("exposes confirmation detail for permanent mutations", () => {

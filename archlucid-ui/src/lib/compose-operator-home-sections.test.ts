@@ -66,7 +66,7 @@ describe("composeOperatorHomeSections (TB-2368)", () => {
       metrics: { ...emptyMetrics, hasReviews: true, reviewPackagesCommitted: 1 },
     });
 
-    const aboveFoldIds = sections.slice(0, 6).map((section) => section.id);
+    const aboveFoldIds = sections.slice(0, 5).map((section) => section.id);
 
     expect(aboveFoldIds).toEqual([
       "metrics-strip",
@@ -94,6 +94,28 @@ describe("composeOperatorHomeSections (TB-2368)", () => {
     });
 
     expect(evalEmpty.map((section) => section.id)).toEqual(["hero"]);
+  });
+
+  it("uses work queue spine for Working eval-empty (PT-10)", () => {
+    const evalEmpty = composeOperatorHomeSections({
+      phaseSignals: {
+        hasWorkspaceReviews: false,
+        hasOverviewReviewRows: false,
+        draftCount: 0,
+        hasCommittedManifest: false,
+        openFindingsCount: 0,
+        governanceWarningsCount: 0,
+      },
+      buyerPolishedShell: false,
+      workingMode: true,
+      metrics: emptyMetrics,
+    });
+
+    expect(evalEmpty.map((section) => section.id)).toEqual([
+      "unfinished",
+      "start-something",
+      "recent-reviews",
+    ]);
   });
 
   it("uses hero spine for operator shell eval-with-drafts (first-viewport budget)", () => {

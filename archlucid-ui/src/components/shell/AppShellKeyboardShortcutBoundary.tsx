@@ -5,7 +5,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import type { KeyboardShortcutProviderProps } from "@/components/KeyboardShortcutProvider";
 import { importDeferredChunkWithRetry } from "@/lib/import-deferred-chunk-with-retry";
 
-/** Loads keyboard shortcuts after first paint so hub routes avoid the dialog bundle on sync import. */
+/** Deferred Shift+? help dialog only — navigation chords mount sync in AppShellClient (PT-09). */
 export function AppShellKeyboardShortcutBoundary(
   props: KeyboardShortcutProviderProps,
 ): React.JSX.Element {

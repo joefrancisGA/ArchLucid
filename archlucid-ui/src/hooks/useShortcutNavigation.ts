@@ -3,7 +3,9 @@
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 
-import { SHORTCUTS } from "@/lib/shortcut-registry";
+import { SHORTCUTS, WORKING_MODE_NEW_REVIEW_ROUTE } from "@/lib/shortcut-registry";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 
 import { useKeyboardShortcuts, type KeyboardShortcutsMap } from "./useKeyboardShortcuts";
 
@@ -21,13 +23,16 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
 } {
   const router = useRouter();
   const onHelpRequested = options.onHelpRequested;
+  const { mode } = useWorkspaceMode();
+  const workingMode = isWorkingWorkspaceMode(mode);
 
   const map: KeyboardShortcutsMap = useMemo(() => {
     const next: KeyboardShortcutsMap = {};
 
     for (const entry of SHORTCUTS) {
       if (entry.route !== undefined && entry.route !== "") {
-        const route = entry.route;
+        const route =
+          workingMode && entry.key === "alt+n" ? WORKING_MODE_NEW_REVIEW_ROUTE : entry.route;
         next[entry.key] = {
           handler: () => {
             router.push(route);
@@ -45,7 +50,7 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
     }
 
     return next;
-  }, [router, onHelpRequested]);
+  }, [router, onHelpRequested, workingMode]);
 
   useKeyboardShortcuts(map);
 
