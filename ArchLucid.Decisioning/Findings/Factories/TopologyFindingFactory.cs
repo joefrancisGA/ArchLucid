@@ -19,7 +19,7 @@ public static class TopologyFindingFactory
         return new Finding
         {
             FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
-            FindingType = "TopologyGap",
+            FindingType = FindingTypes.TopologyGap,
             Category = "Topology",
             EngineType = engineType,
             Severity = severity,
