@@ -83,3 +83,17 @@ export function helpGlossaryClearSearchHrefFromSearch(
 ): string {
   return helpGlossarySearchHrefFromSearch(currentSearch, "", pathname);
 }
+
+export function helpGlossaryResetFiltersHrefFromSearch(
+  currentSearch: string,
+  pathname: string = HELP_GLOSSARY_PATH,
+): string {
+  const params = new URLSearchParams(currentSearch);
+
+  params.delete(HELP_GLOSSARY_SEARCH_PARAM);
+  params.delete(HELP_GLOSSARY_CATEGORY_PARAM);
+
+  const query = params.toString();
+
+  return query.length === 0 ? pathname : `${pathname}?${query}`;
+}

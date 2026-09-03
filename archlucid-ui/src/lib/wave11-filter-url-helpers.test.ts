@@ -23,6 +23,7 @@ import {
 } from "@/app/(operator)/architecture/reviews/buyer-package-scope-url";
 import {
   helpGlossaryCategoryHrefFromSearch,
+  helpGlossaryResetFiltersHrefFromSearch,
   parseHelpGlossaryCategoryFilter,
   parseHelpGlossarySearchQuery,
 } from "@/lib/help/help-glossary-filters";
@@ -103,6 +104,10 @@ describe("wave12 filter url helpers", () => {
     expect(parseHelpGlossaryCategoryFilter("evidence")).toBe("evidence");
     expect(parseHelpGlossarySearchQuery("run")).toBe("run");
     expect(helpGlossaryCategoryHrefFromSearch("q=run", "governance")).toBe("/help/glossary?q=run&category=governance");
+    expect(helpGlossaryResetFiltersHrefFromSearch("q=run&category=governance")).toBe("/help/glossary");
+    expect(helpGlossaryResetFiltersHrefFromSearch("tab=overview&q=run&category=governance")).toBe(
+      "/help/glossary?tab=overview",
+    );
   });
 
   it("graph scope mode param", () => {
