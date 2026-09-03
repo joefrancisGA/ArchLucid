@@ -1,12 +1,17 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { buildPilotValueReportQuery, getTenantPilotValueReportJson } from "@/lib/pilot-value-report-fetch";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { downloadBoardPackPdf, downloadValueReportDocx } from "@/lib/api";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { formatPilotOutcomesReportingPeriod } from "@/lib/pilot-outcomes-report-diagnostics";
+import {
+  parseSponsorReportPeriodFromSearch,
+  sponsorReportPeriodHrefFromSearch,
+} from "@/lib/insights/sponsor-report-period-url";
 import {
   type PilotOutcomesPeriodPresetId,
   resolvePilotOutcomesPeriodPreset,
@@ -51,9 +56,12 @@ function buildEmailPreview(
 }
 
 export function usePilotValueReportPilotPage(loaded: PilotValueReportPageServerLoad): PilotValueReportPilotPageViewModel {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const urlPeriodPreset = parseSponsorReportPeriodFromSearch(searchParams.get("range"));
   const [fromUtc, setFromUtc] = useState(loaded.initialFromUtc);
   const [toUtc, setToUtc] = useState(loaded.initialToUtc);
-  const [periodPreset, setPeriodPreset] = useState<PilotOutcomesPeriodPresetId>("last-30");
+  const [periodPreset, setPeriodPreset] = useState<PilotOutcomesPeriodPresetId>(urlPeriodPreset);
   const [data, setData] = useState<PilotValueReportJson | null>(loaded.data);
   const canMutate = useOperateCapability();
   const [busy, setBusy] = useState(false);
@@ -66,6 +74,19 @@ export function usePilotValueReportPilotPage(loaded: PilotValueReportPageServerL
   const [emailPreview, setEmailPreview] = useState<PilotOutcomesEmailPreview | null>(null);
 
   const includesSampleData = isNextPublicDemoMode();
+
+  useEffect(() => {
+    setPeriodPreset(urlPeriodPreset);
+
+    if (urlPeriodPreset === "custom") {
+      return;
+    }
+
+    const resolved = resolvePilotOutcomesPeriodPreset(urlPeriodPreset);
+
+    setFromUtc(resolved.fromUtc);
+    setToUtc(resolved.toUtc);
+  }, [urlPeriodPreset]);
 
   const load = useCallback(async () => {
     setBusy(true);
@@ -88,6 +109,7 @@ export function usePilotValueReportPilotPage(loaded: PilotValueReportPageServerL
   const applyPeriodPreset = useCallback(
     (presetId: PilotOutcomesPeriodPresetId) => {
       setPeriodPreset(presetId);
+      router.replace(sponsorReportPeriodHrefFromSearch(searchParams.toString(), presetId), { scroll: false });
 
       if (presetId === "custom") {
         return;
@@ -98,7 +120,7 @@ export function usePilotValueReportPilotPage(loaded: PilotValueReportPageServerL
       setFromUtc(resolved.fromUtc);
       setToUtc(resolved.toUtc);
     },
-    [],
+    [router, searchParams],
   );
 
   const downloadMarkdown = useCallback(

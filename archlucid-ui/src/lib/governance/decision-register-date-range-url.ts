@@ -1,6 +1,10 @@
 import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-route-paths";
 
 import {
+  DECISION_REGISTER_FROM_PARAM,
+  DECISION_REGISTER_TO_PARAM,
+} from "@/lib/governance/decision-register-custom-date-url";
+import {
   DEFAULT_DECISION_REGISTER_DATE_PRESET,
   type DecisionRegisterDatePreset,
 } from "@/app/(operator)/governance/decision-register/decision-register-date-range";
@@ -37,6 +41,9 @@ export function decisionRegisterDatePresetHrefFromSearch(
   } else {
     params.set(DECISION_REGISTER_DATE_RANGE_PARAM, preset);
   }
+
+  params.delete(DECISION_REGISTER_FROM_PARAM);
+  params.delete(DECISION_REGISTER_TO_PARAM);
 
   const nextQuery = params.toString();
 
