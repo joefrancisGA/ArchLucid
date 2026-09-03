@@ -8,6 +8,10 @@ import {
   writeGroupByResourcePreference,
 } from "@/lib/governance/governance-findings-group-by-resource-storage";
 import {
+  governanceFindingsGroupByHrefFromSearch,
+  parseGovernanceFindingsGroupByResourceFromSearch,
+} from "@/lib/governance/governance-findings-group-by-url";
+import {
   patchGovernanceFindingsQueueFacets,
   readGovernanceFindingsQueueFacets,
 } from "@/lib/governance/governance-findings-queue-facets-storage";
@@ -36,6 +40,16 @@ function initialRegisterFilterFromUrlOrStorage(
   return readGovernanceFindingsQueueFacets(mode).registerFilter;
 }
 
+function initialGroupByResourceFromUrlOrStorage(
+  rawGroupBy: string | null,
+): boolean {
+  if (rawGroupBy !== null && rawGroupBy.trim().length > 0) {
+    return parseGovernanceFindingsGroupByResourceFromSearch(rawGroupBy);
+  }
+
+  return readGroupByResourcePreference();
+}
+
 export type UseGovernanceFindingsFilterOptions = {
   readonly mode?: GovernanceFindingsQueueMode;
 };
@@ -44,7 +58,7 @@ export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilte
   const mode = options?.mode ?? "tenant";
   const searchParams = useSearchParams();
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
   const [registerFilter, setRegisterFilterState] = useState<RiskRegisterFilter>(() =>
     initialRegisterFilterFromUrlOrStorage(searchParams.get("filter"), mode),
   );
@@ -54,11 +68,9 @@ export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilte
   const [savedPresets, setSavedPresets] = useState<GovernanceFindingsFilterPreset[]>(() =>
     loadGovernanceFindingsFilterPresets(),
   );
-  const [groupByResource, setGroupByResource] = useState(false);
-
-  useEffect(() => {
-    setGroupByResource(readGroupByResourcePreference());
-  }, []);
+  const [groupByResource, setGroupByResource] = useState(() =>
+    initialGroupByResourceFromUrlOrStorage(searchParams.get("groupBy")),
+  );
 
   useEffect(() => {
     const rawFilter = searchParams.get("filter");
@@ -71,6 +83,14 @@ export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilte
     }
 
     setScopedRunId(scopedRunIdFromQuery(searchParams.get("runId")));
+
+    const rawGroupBy = searchParams.get("groupBy");
+
+    if (rawGroupBy !== null && rawGroupBy.trim().length > 0) {
+      setGroupByResource(parseGovernanceFindingsGroupByResourceFromSearch(rawGroupBy));
+    } else {
+      setGroupByResource(readGroupByResourcePreference());
+    }
   }, [mode, searchParams]);
 
   const setRegisterFilter = useCallback((next: RiskRegisterFilter): void => {
@@ -124,19 +144,18 @@ export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilte
   }, []);
 
   const toggleGroupByResource = useCallback((): void => {
-    setGroupByResource((current) => {
-      const next = !current;
+    const next = !groupByResource;
 
-      writeGroupByResourcePreference(next);
-
-      return next;
-    });
-  }, []);
+    setGroupByResource(next);
+    writeGroupByResourcePreference(next);
+    router.replace(governanceFindingsGroupByHrefFromSearch(searchParams.toString(), next, pathname), { scroll: false });
+  }, [groupByResource, pathname, router, searchParams]);
 
   const applyGroupByResource = useCallback((next: boolean): void => {
     setGroupByResource(next);
     writeGroupByResourcePreference(next);
-  }, []);
+    router.replace(governanceFindingsGroupByHrefFromSearch(searchParams.toString(), next, pathname), { scroll: false });
+  }, [pathname, router, searchParams]);
 
   return {
     registerFilter,

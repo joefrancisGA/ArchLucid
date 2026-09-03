@@ -248,4 +248,18 @@ public class ManifestDocument
         get;
         set;
     }
+
+    /// <summary>Wave-11 suggestion 106: focused pilot mode pinned at create, bound into h(M) v6.</summary>
+    public bool? CreateTimeFocusedPilotModeEnabled
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Wave-11 suggestion 106: focused pilot cloud provider pinned at create, bound into h(M) v6.</summary>
+    public int? CreateTimeFocusedPilotCloudProvider
+    {
+        get;
+        set;
+    }
 }

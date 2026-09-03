@@ -213,5 +213,23 @@ public sealed class AuthorityPipelineGraphStage(
             contextNode.Properties[ArchLucid.KnowledgeGraph.ContextGraphPropertyKeys.KnowledgeModelContentHashSha256Hex] =
                 knowledgeModelHashHex;
         }
+
+        string? focusedPilotMode = RunHeaderFocusedPilotPinFingerprint.FormatModeEnabled(
+            runHeader.PinnedFocusedPilotModeEnabled);
+
+        if (focusedPilotMode is not null)
+        {
+            contextNode.Properties[ArchLucid.KnowledgeGraph.ContextGraphPropertyKeys.FocusedPilotModeEnabled] =
+                focusedPilotMode;
+        }
+
+        string? focusedPilotCloudProvider = RunHeaderFocusedPilotPinFingerprint.FormatCloudProvider(
+            runHeader.PinnedFocusedPilotCloudProvider);
+
+        if (focusedPilotCloudProvider is not null)
+        {
+            contextNode.Properties[ArchLucid.KnowledgeGraph.ContextGraphPropertyKeys.FocusedPilotCloudProvider] =
+                focusedPilotCloudProvider;
+        }
     }
 }

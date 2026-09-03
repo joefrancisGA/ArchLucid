@@ -52,6 +52,7 @@ export default function SignedRecordsListClient() {
     searchQuery,
     setSearchQuery,
     integrityFilter,
+    setIntegrityFilter,
     page,
     cursor,
     hasMore,
@@ -189,6 +190,7 @@ export default function SignedRecordsListClient() {
           integrityFilter={integrityFilter}
           disabled={loading}
           onSearchQueryChange={setSearchQuery}
+          onIntegrityFilterChange={setIntegrityFilter}
         />
       ) : null}
 

@@ -158,5 +158,7 @@ describe("composeOperatorHomeSections (TB-2368)", () => {
 
     expect(sectionIds.indexOf("unfinished")).toBeLessThan(sectionIds.indexOf("start-something"));
     expect(sectionIds.indexOf("recent-reviews")).toBeLessThan(sectionIds.indexOf("start-something"));
+    expect(sectionIds).not.toContain("below-fold");
+    expect(sectionIds).not.toContain("sponsor-roi");
   });
 });

@@ -9,6 +9,7 @@ import {
 } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useOperatorShellAuditRunId } from "@/hooks/useOperatorShellAuditRunId";
 import { useEffectiveNavCommittedArchitectureReview } from "@/hooks/use-effective-nav-committed-architecture-review";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { usePatternLibraryNavVisible } from "@/hooks/use-pattern-library-nav-visible";
 import { useRoleNavDensityExpanded } from "@/hooks/use-role-nav-density-expanded";
 import { NAV_GROUPS } from "@/lib/nav-config";
@@ -55,6 +56,8 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
   const effectiveRoleNavDensityShowFullNav = roleNavDensityShowFullNav || ctoDemoNavExpandedEnv;
   const effectiveOperateUnlockPhase: OperateNavUnlockPhase = 0;
   const effectiveHasCommittedArchitectureReview = useEffectiveNavCommittedArchitectureReview();
+  const { isWorkingMode } = useWorkspaceMode();
+  const hideGettingStartedFromMainNav = isWorkingMode;
   const omitAdminClusters = demoUi && !buyerPolishedShell;
   const patternLibraryNavVisible = usePatternLibraryNavVisible();
 
@@ -64,6 +67,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
       callerAuthorityRank,
       "review-workflow",
       effectiveHasCommittedArchitectureReview,
+      hideGettingStartedFromMainNav,
     );
 
     const adminNavRows: NavGroupWithVisibleLinks[] =
@@ -74,6 +78,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
             callerAuthorityRank,
             "platform-admin",
             effectiveHasCommittedArchitectureReview,
+            hideGettingStartedFromMainNav,
           );
 
     // Internal Operations is already behind the `isShowSystemAdministrationNavEnabled()` feature
@@ -89,6 +94,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
             callerAuthorityRank,
             "system-admin",
             effectiveHasCommittedArchitectureReview,
+            hideGettingStartedFromMainNav,
           );
 
     const scopedRows = applyPatternLibraryNavGate(
@@ -142,5 +148,6 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
     omitAdminClusters,
     patternLibraryNavVisible,
     roleNavDensityPersona,
+    hideGettingStartedFromMainNav,
   ]);
 }

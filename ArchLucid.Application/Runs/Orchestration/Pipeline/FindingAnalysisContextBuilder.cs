@@ -73,6 +73,10 @@ public sealed class FindingAnalysisContextBuilder(
             await _runPolicyPackPinService
                 .VerifyPinIntegrityOrThrowAsync(header, scope, cancellationToken)
                 .ConfigureAwait(false);
+
+            await _runEvidencePackagePinService
+                .VerifyPinIntegrityOrThrowAsync(header, scope, cancellationToken)
+                .ConfigureAwait(false);
         }
 
         PriorReviewSnapshots? prior = await TryResolvePriorAsync(scope, header, request, cancellationToken)
@@ -149,7 +153,10 @@ public sealed class FindingAnalysisContextBuilder(
         foreach (PinnedPolicyPackRow row in pinnedRows)
         {
             if (!Guid.TryParse(row.PolicyPackId, out Guid packId))
-                continue;
+            {
+                throw new ConflictException(
+                    $"Finding analysis blocked: pinned policy pack id '{row.PolicyPackId}' is not a valid GUID.");
+            }
 
             PolicyPackVersion? version = await _policyPackVersionRepository
                 .GetByPackAndVersionAsync(packId, row.PolicyPackVersion, cancellationToken)
@@ -157,8 +164,13 @@ public sealed class FindingAnalysisContextBuilder(
 
             PolicyPackContentDocument? document = PolicyPackContentDocumentJson.TryDeserialize(version?.ContentJson);
 
-            if (document is not null)
-                contents.Add(document);
+            if (document is null)
+            {
+                throw new ConflictException(
+                    $"Finding analysis blocked: pinned policy pack '{row.PolicyPackId}' version '{row.PolicyPackVersion}' could not be hydrated.");
+            }
+
+            contents.Add(document);
         }
 
         return contents;
@@ -312,5 +324,9 @@ public sealed class FindingAnalysisContextBuilder(
                 RunHeaderPinFingerprint.ToHexOrNull(priorHeader.PinnedArchitectureVersionContentHashSha256),
             PriorPinnedKnowledgeModelContentHashSha256Hex =
                 RunHeaderPinFingerprint.ToHexOrNull(priorHeader.PinnedKnowledgeModelContentHashSha256),
+            PriorPinnedFocusedPilotModeEnabled =
+                RunHeaderFocusedPilotPinFingerprint.FormatModeEnabled(priorHeader.PinnedFocusedPilotModeEnabled),
+            PriorPinnedFocusedPilotCloudProvider =
+                RunHeaderFocusedPilotPinFingerprint.FormatCloudProvider(priorHeader.PinnedFocusedPilotCloudProvider),
         };
 }

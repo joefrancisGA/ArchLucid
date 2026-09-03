@@ -3,8 +3,7 @@ import type { OperatorScopeRecord } from "@/lib/operator/operator-scope-storage"
 
 export const AUTH_DOMAINS_PAGE_TITLE = "Sign-in domains" as const;
 
-export const AUTH_DOMAINS_PAGE_SUBTITLE =
-  "Verify email domain ownership, test routing, and enable SSO enforcement for this tenant." as const;
+export { AUTH_DOMAINS_PAGE_SUBTITLE_OPERATOR as AUTH_DOMAINS_PAGE_SUBTITLE } from "@/lib/auth-domains-settings-page-copy";
 
 export const AUTH_DOMAINS_AUTHENTICATION_HELP_CTA = "Open authentication help" as const;
 

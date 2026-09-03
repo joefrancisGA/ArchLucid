@@ -197,8 +197,10 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       onJobViewChange={toolbar.setJobView}
       ownerFilter={toolbar.ownerFilter}
       onOwnerFilterChange={toolbar.setOwnerFilter}
+      onClearOwnerFilter={toolbar.clearOwnerFilter}
       domainFilter={toolbar.domainFilter}
       onDomainFilterChange={toolbar.setDomainFilter}
+      onClearDomainFilter={toolbar.clearDomainFilter}
       searchQuery={toolbar.searchQuery}
       onSearchQueryChange={toolbar.setSearchQuery}
       sort={toolbar.sort}

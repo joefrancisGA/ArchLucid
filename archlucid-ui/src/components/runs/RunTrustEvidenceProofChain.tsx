@@ -17,6 +17,7 @@ import {
   resolveTrustEvidenceProductLink,
 } from "@/lib/trust-evidence-product-links";
 import { trustEvidenceStatusTag } from "@/lib/trust-evidence-status-tag";
+import { trustEvidenceFieldOrUnavailable } from "@/lib/trust-evidence-field-snapshot";
 import type { RunTrustEvidenceCard, RunTrustEvidenceRouteRef, TrustEvidenceFieldSnapshot } from "@/types/authority";
 
 import { StatusTag } from "@/components/ui/status-tag";
@@ -29,7 +30,7 @@ function linkByRel(links: readonly RunTrustEvidenceRouteRef[], rel: string): Run
 }
 
 function proofStepTone(field: TrustEvidenceFieldSnapshot): string {
-  const key = field.status.trim().toLowerCase();
+  const key = (field.status ?? "").trim().toLowerCase();
 
   if (key === "available") {
     return operatorSemanticSurface("ready");
@@ -50,8 +51,8 @@ function ProofChainStep(props: {
   readonly productLink?: { readonly href: string; readonly label: string } | null;
 }): ReactElement {
   const { index, label, field, productLink = null } = props;
-  const unavailable = field.status.trim().toLowerCase() !== "available";
-  const tag = trustEvidenceStatusTag(field.status);
+  const unavailable = (field.status ?? "").trim().toLowerCase() !== "available";
+  const tag = trustEvidenceStatusTag(field.status ?? "Unavailable");
 
   return (
     <li className={`rounded-lg border p-3 ${proofStepTone(field)}`} data-testid={`proof-chain-step-${index}`}>
@@ -73,7 +74,7 @@ function ProofChainStep(props: {
             {productLink.label}
           </Link>
         </p>
-      ) : unavailable && field.status.trim().toLowerCase() !== RECORDED_STATUS.toLowerCase() ? (
+      ) : unavailable && (field.status ?? "").trim().toLowerCase() !== RECORDED_STATUS.toLowerCase() ? (
         <p className={cn("m-0 mt-2 font-medium text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}>
           Supporting link unavailable — regenerate this evidence before sharing the package.
         </p>
@@ -116,15 +117,21 @@ export function RunTrustEvidenceProofChain(props: {
   readonly buyerPolishedShell: boolean;
 }): ReactElement {
   const { card, runId, buyerPolishedShell } = props;
-  const evidenceLink = linkByRel(card.links, "evidence");
-  const topFindingLink = linkByRel(card.links, "topFindingEvidenceChain");
-  const traceabilityLink = linkByRel(card.links, "traceabilityZip");
-  const tracesLink = linkByRel(card.links, "traces");
+  const links = card.links ?? [];
+  const goldenManifest = trustEvidenceFieldOrUnavailable(card.goldenManifest, "Golden manifest");
+  const artifactBundlePointer = trustEvidenceFieldOrUnavailable(card.artifactBundlePointer, "Artifact bundle");
+  const aiExplainability = trustEvidenceFieldOrUnavailable(card.aiExplainability, "AI explainability");
+  const auditTrail = trustEvidenceFieldOrUnavailable(card.auditTrail, "Audit trail");
+  const agentTraces = trustEvidenceFieldOrUnavailable(card.agentTraces, "Agent traces");
+  const evidenceLink = linkByRel(links, "evidence");
+  const topFindingLink = linkByRel(links, "topFindingEvidenceChain");
+  const traceabilityLink = linkByRel(links, "traceabilityZip");
+  const tracesLink = linkByRel(links, "traces");
   const manifestDetail = splitTrustEvidenceDetail(
-    trustEvidenceGoldenManifestFieldDetail(card.goldenManifest.detail),
+    trustEvidenceGoldenManifestFieldDetail(goldenManifest.detail),
   );
-  const bundleDetail = splitTrustEvidenceDetail(card.artifactBundlePointer.detail);
-  const auditField = card.auditTrail.status.trim().toLowerCase() === "available" ? card.auditTrail : card.agentTraces;
+  const bundleDetail = splitTrustEvidenceDetail(artifactBundlePointer.detail);
+  const auditField = (auditTrail.status ?? "").trim().toLowerCase() === "available" ? auditTrail : agentTraces;
   const topFindingId = card.topFinding?.findingId ?? null;
 
   return (
@@ -145,7 +152,7 @@ export function RunTrustEvidenceProofChain(props: {
         <ProofChainStep
           index={1}
           label="Evidence"
-          field={card.aiExplainability}
+          field={aiExplainability}
           productLink={evidenceLink !== null ? resolveTrustEvidenceProductLink(evidenceLink, runId, topFindingId) : null}
         />
         <ProofChainStep
@@ -160,8 +167,8 @@ export function RunTrustEvidenceProofChain(props: {
           index={3}
           label={trustEvidenceProofChainManifestStepLabel()}
           field={{
-            ...card.goldenManifest,
-            title: trustEvidenceGoldenManifestFieldTitle(card.goldenManifest.title, buyerPolishedShell),
+            ...goldenManifest,
+            title: trustEvidenceGoldenManifestFieldTitle(goldenManifest.title, buyerPolishedShell),
             detail: manifestDetail.display,
           }}
         />
@@ -169,8 +176,8 @@ export function RunTrustEvidenceProofChain(props: {
           index={4}
           label="Artifact"
           field={{
-            ...card.artifactBundlePointer,
-            title: trustEvidenceFieldTitleForDisplay(card.artifactBundlePointer.title),
+            ...artifactBundlePointer,
+            title: trustEvidenceFieldTitleForDisplay(artifactBundlePointer.title),
             detail: bundleDetail.display,
           }}
           productLink={

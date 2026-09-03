@@ -52,7 +52,7 @@ import {
   RunDetailArchitectureSponsorSharingPanelDeferred,
   RunDetailArtifactsExportsSectionDeferred,
   RunDetailCommitBlockingFindingsBannerDeferred,
-  RunDetailCompareToBaselineCta,
+  RunDetailCompareToBaselineCtaDeferred,
   RunDetailCtoDemoReviewRouteGuardDeferred,
   RunDetailExplanationConfidenceBannerDeferred,
   RunDetailFirstWeekRouteGuidanceDeferred,

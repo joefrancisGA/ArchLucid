@@ -21,6 +21,8 @@ public static class GraphSnapshotCommittedReuseResolver
     private const string EvidencePackagePinsHashSha256HexKey = "evidencePackagePinsHashSha256Hex";
     private const string ArchitectureVersionContentHashSha256HexKey = "architectureVersionContentHashSha256Hex";
     private const string KnowledgeModelContentHashSha256HexKey = "knowledgeModelContentHashSha256Hex";
+    private const string FocusedPilotModeEnabledKey = "focusedPilotModeEnabled";
+    private const string FocusedPilotCloudProviderKey = "focusedPilotCloudProvider";
 
     /// <summary>
     ///     Returns a committed graph when <paramref name="runGraphSnapshotId" /> loads successfully, or when the latest graph
@@ -163,7 +165,47 @@ public static class GraphSnapshotCommittedReuseResolver
             return false;
         }
 
+        if (!FocusedPilotPinMatchesHeader(graph, runHeader))
+        {
+            return false;
+        }
+
         return true;
+    }
+
+    private static bool FocusedPilotPinMatchesHeader(GraphSnapshot graph, RunRecord runHeader)
+    {
+        string? expectedMode = FormatFocusedPilotModeEnabled(runHeader.PinnedFocusedPilotModeEnabled);
+
+        if (expectedMode is not null
+            && !PinStringPropertyMatches(graph, FocusedPilotModeEnabledKey, expectedMode))
+        {
+            return false;
+        }
+
+        string? expectedProvider = FormatFocusedPilotCloudProvider(runHeader.PinnedFocusedPilotCloudProvider);
+
+        if (expectedProvider is not null
+            && !PinStringPropertyMatches(graph, FocusedPilotCloudProviderKey, expectedProvider))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static string? FormatFocusedPilotModeEnabled(bool? enabled) =>
+        enabled is null ? null : enabled.Value ? "true" : "false";
+
+    private static string? FormatFocusedPilotCloudProvider(int? cloudProvider) =>
+        cloudProvider?.ToString();
+
+    private static bool PinStringPropertyMatches(GraphSnapshot graph, string propertyKey, string expected)
+    {
+        string? stored = ReadContextProperty(graph, propertyKey);
+
+        return !string.IsNullOrEmpty(stored)
+               && string.Equals(stored, expected, StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool PinFingerprintMatchesHeader(
