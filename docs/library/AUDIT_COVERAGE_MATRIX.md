@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:402 -->
+<!-- audit-core-const-count:403 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -229,6 +229,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Agent output LLM faithfulness gate reject (TB-021 Phase B) | `AgentOutputEvaluationRecorder` (post-execute trace evaluation) | `AgentOutputLlmFaithfulnessRejected` | RunId when parseable | `{ runId, traceId, agentType, llmFaithfulnessScore, minScoreRejectBelow, gateOutcome, evaluationReason }` |
 | Coordinator run execute retry (`LegacyRunStatus` / contract status **Failed**) | `ArchitectureRunExecuteOrchestrator` | `AuditEventTypes.Run.RetryRequested` | RunId when `runId` parses as GUID | `{ runId, previousStatus: "Failed" }` — direct `IAuditService` before baseline `Architecture.RunStarted`; clarifies durable trail when operators re-invoke execute after a failed run |
 | Coordinator run selective re-execute requested (TB-938) | `RunsController` (`POST /v1/architecture/run/{runId}/execute/selective`) → `ArchitectureRunExecuteOrchestrator` (`ExecuteSelectiveRunAsync`) | `AuditEventTypes.Run.SelectiveExecuteRequested` | RunId when `runId` parses as GUID | `{ runId, includeDependents, taskIds[], agentTypes[] }` — durable trail before selective agent re-execute |
+| Authority lifecycle phase transition (wave-13 suggestion 128) | `AuthorityRunLifecycleTransitionAuditor` via `BaselineMutationAuditArchitectureDurableWriter`, `AuthorityCommitFailureRecorder` | `AuditEventTypes.Run.LifecycleTransition` | RunId | `{ runId, fromPhase, toPhase, reason, correlationId? }` — append-only authority lifecycle transition on commit success/failure hooks |
 | Async architecture run execute (202 + operation poll) | `RunsController` (`POST /v1/architecture/review/{runId}/execute/async`; TB-2075) | — | RunId | Returns `operationId` for `GET /v1/operations/{operationId}`; durable execute audit follows the async worker path (same class as sync `POST .../execute`) |
 | Async architecture run replay (202 + operation poll) | `RunsController` (`POST /v1/architecture/review/{runId}/replay/async`; TB-2075) | — | RunId | Returns `operationId` for unified operations poll; replay audit semantics match sync replay when the operation completes |
 | Agent trace blob persistence failed or timed out | `AgentExecutionTraceRecorder` | `AuditEventTypes.AgentTraceBlobPersistenceFailed` | RunId / task context when parseable | `{ traceId, runId, agentType, reason, failedBlobTypes? }` — emitted when inline blob writes after trace insert exhaust retries, time out, or throw unexpectedly; execute outcome elsewhere is unchanged. |
@@ -824,6 +825,7 @@ When adding a Core constant, add a row here and bump `audit-core-const-count`.
 | `Run.RetryRequested` | `Run.RetryRequested` | `ArchitectureRunExecuteOrchestrator` (`ExecuteRunAsync` when load maps to `ArchitectureRunStatus.Failed`; scoped tenant/workspace/project + `RunId`) |
 | `Run.SelectiveExecuteRequested` | `Run.SelectiveExecuteRequested` | `RunsController` (`POST /v1/architecture/run/{runId}/execute/selective`) → `ArchitectureRunExecuteOrchestrator` (`ExecuteSelectiveRunAsync`; scoped tenant/workspace/project + `RunId`; payload `includeDependents`, `taskIds`, `agentTypes`) |
 | `Run.IncrementalReReviewCompleted` | `Run.IncrementalReReviewCompleted` | `SelectiveExecuteIncrementalReReviewCoordinator`, `ClarificationAnswerReReviewCoordinator` (incremental re-review after selective execute or clarification apply) |
+| `Run.LifecycleTransition` | `Run.LifecycleTransition` | `AuthorityRunLifecycleTransitionAuditor` via `BaselineMutationAuditArchitectureDurableWriter`, `AuthorityCommitFailureRecorder` (authority lifecycle phase transition on commit hooks) |
 | `Operation.CancelRequested` | `Operation.CancelRequested` | `OperationsController` (`POST /v1/operations/{operationId}/cancel`; TB-2076 cooperative cancel) |
 
 When adding a `Run` constant, add a row here and bump `audit-core-const-count`.
