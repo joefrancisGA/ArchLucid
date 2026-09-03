@@ -68,6 +68,51 @@ public sealed class BicepArrayLiteralConverterTests
     }
 
     [Fact]
+    public async Task ParseAsync_InlineArrayObjectWithBlockCommentSequenceInsideSingleQuotedName_PreservesFullRuleName()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "app.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-tf-block-comment-in-single-quote",
+            Content = """
+                      resource "azurerm_linux_web_app" "api" {
+                        ip_security_restrictions = [{ name = 'Allow /* All', ip_address = '0.0.0.0/0', action = 'Allow' }]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> parsed = await _terraformParser.ParseAsync(declaration, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> expanded = AppServiceNetworkAccessSecurityBaselineExpander.Expand(parsed);
+
+        expanded.Should().HaveCountGreaterThan(1);
+        parsed[0].Properties["tf.ip_security_restrictions"].Should().Contain("allow /* all");
+        parsed[0].Properties["tf.ip_security_restrictions"].Should().Contain("0.0.0.0/0");
+    }
+
+    [Fact]
+    public async Task ParseAsync_InlineArrayObjectWithBlockCommentSequenceInsideDoubleQuotedName_PreservesFullRuleName()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "app.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-tf-block-comment-in-double-quote",
+            Content = """
+                      resource "azurerm_linux_web_app" "api" {
+                        ip_security_restrictions = [{ name = "Allow /* All", ip_address = "0.0.0.0/0", action = "Allow" }]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> parsed = await _terraformParser.ParseAsync(declaration, CancellationToken.None);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Properties["tf.ip_security_restrictions"].Should().Contain("allow /* all");
+        parsed[0].Properties["tf.ip_security_restrictions"].Should().Contain("0.0.0.0/0");
+    }
+
+    [Fact]
     public async Task ParseAsync_InlineArrayObjectWithFullLineHashComment_DoesNotParseCommentedAssignment()
     {
         InfrastructureDeclarationReference declaration = new()

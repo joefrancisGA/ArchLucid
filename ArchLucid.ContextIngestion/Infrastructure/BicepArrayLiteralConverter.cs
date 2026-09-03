@@ -186,7 +186,7 @@ internal static class BicepArrayLiteralConverter
 
         while (true)
         {
-            int start = line.IndexOf("/*", StringComparison.Ordinal);
+            int start = IndexOfBlockCommentStartOutsideQuotes(line);
 
             if (start < 0)
                 break;
@@ -204,5 +204,44 @@ internal static class BicepArrayLiteralConverter
         }
 
         return string.IsNullOrWhiteSpace(line) && inBlockComment;
+    }
+
+    private static int IndexOfBlockCommentStartOutsideQuotes(string line, int startIndex = 0)
+    {
+        if (string.IsNullOrEmpty(line))
+            return -1;
+
+        bool inDoubleQuotes = false;
+        bool inSingleQuotes = false;
+
+        for (int index = startIndex; index < line.Length - 1; index++)
+        {
+            if (inDoubleQuotes && line[index] == '\\' && index + 1 < line.Length)
+            {
+                index++;
+                continue;
+            }
+
+            char character = line[index];
+
+            if (character == '"' && !inSingleQuotes)
+                inDoubleQuotes = !inDoubleQuotes;
+
+            if (character == '\'' && !inDoubleQuotes)
+            {
+                if (inSingleQuotes && index + 1 < line.Length && line[index + 1] == '\'')
+                {
+                    index++;
+                    continue;
+                }
+
+                inSingleQuotes = !inSingleQuotes;
+            }
+
+            if (character == '/' && line[index + 1] == '*' && !inDoubleQuotes && !inSingleQuotes)
+                return index;
+        }
+
+        return -1;
     }
 }

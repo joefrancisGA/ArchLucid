@@ -2504,11 +2504,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 69
-- **bugs-found:** 131
+- **hunts:** 70
+- **bugs-found:** 132
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — HCL single-quoted `''` escape not honored in brace scanning or scalar unquote
+- **last-bug:** 2026-09-03 — `/*` inside quoted array-object scalars stripped as block comment
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2687,6 +2687,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `PlainTextDocumentTopologyHintExtractor.EnumerateHintNames` — tab-indented `TOP:` lines — extractor and `PlainTextContextDocumentParser` both use `TrimEntries` split; regression `EnumerateHintNames_TabIndentedTopLine_MatchesParser`.
 
 2026-09-03 thorough hunt #605: proved HCL `''` single-quote escape gap; disproved hash-comment mis-parse, tab-indent mismatch, and unescaped lone apostrophe (invalid HCL).
+
+- [x] (proven) `BicepArrayLiteralConverter.TryConsumeBlockComment` — `/*` inside quoted array-object scalars stripped as block comment — **hit 2026-09-03 (#634):** `name = 'Allow /* All'` in inline `ip_security_restrictions` array truncated at `/*`, dropped `ip_address`/`action`, and broke App Service network-rule expander; fixed with quote-aware `/*` detection honoring `''` escapes (`ParseAsync_InlineArrayObjectWithBlockCommentSequenceInsideSingleQuotedName_PreservesFullRuleName`, `ParseAsync_InlineArrayObjectWithBlockCommentSequenceInsideDoubleQuotedName_PreservesFullRuleName`).
+
+- [ ] (candidate) `BicepArrayLiteralConverter.TryParseToJsonElement` — primitive string `ip_security_restrictions` arrays silently dropped — `["0.0.0.0/0"]` yields no `tf.ip_security_restrictions`; may be invalid HCL vs parity gap; cheap-disproof before repro.
+
+2026-09-03 seed hunt #634: reseeded from `BicepArrayLiteralConverter`; proved quote-unaware block-comment strip in inline array-object scalars; seeded primitive-string array candidate.
 
 - [x] (proven) `PlainTextContextDocumentParser` required `REQ:`/`POL:`/`TOP:`/`SEC:` prefix without optional whitespace before colon — **hit 2026-09-02:** `REQ : Must scale` lines were skipped while `REQ: Must scale` parsed; fixed with `TryGetPrefixedBody` accepting optional whitespace before `:` (`PlainTextContextDocumentParserTests.ParseAsync_SpacedPrefixBeforeColon_ExtractsRequirement`).
 - [x] (proven) `BicepResourceBodyParser` treated `key: [` array headers as scalar assignments — **hit 2026-09-02:** `ipSecurityRestrictions: [` stored `tf.ipsecurityrestrictions = "["` and leaked inner object scalars (`tf.name`, `tf.ipaddress`) so App Service network-rule expander never ran; fixed with balanced-bracket extraction and `BicepArrayLiteralConverter` JSON serialization (`BicepInfrastructureDeclarationParserTests.ParseAsync_AppServiceIpSecurityRestrictionsArray_IsPreservedForNetworkExpander`, `ParseAsync_AppServiceIpSecurityRestrictionsArray_ExpandsNetworkBaseline`).
