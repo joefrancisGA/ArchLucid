@@ -23,7 +23,7 @@ internal static class ManifestDecisionReceiptHashCapturer
 
         FeasibilityVerdict? verdict = manifest.FeasibilityVerdict;
 
-        if (verdict is null || !DecisionReceiptComposer.IsExportableVerdict(verdict.Kind))
+        if (verdict is null)
             return;
 
         string manifestHashBeforeReceipt = manifestHashService.ComputeHash(manifest);

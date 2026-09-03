@@ -10,26 +10,30 @@ import {
   CLOUD_CONNECTIONS_PLATFORM_SCOPE_PREFERENCES_HREF,
   CLOUD_CONNECTIONS_PLATFORM_SCOPE_PREFERENCES_LINK_LABEL,
 } from "@/lib/cloud-platform-scope-copy";
-import {
-  CLOUD_PROVIDER_NEUTRAL_ORDER,
-  type CloudProviderId,
-} from "@/lib/cloud-platform-scope-storage";
+import { type CloudProviderId } from "@/lib/cloud-platform-scope-storage";
+import { cloudConnectionsPlatformHrefFromSearch } from "@/lib/integrations/cloud-connections-platform-url";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { writeCloudProviderLastViewedId } from "@/lib/resolve-continue-last-cloud-provider";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
+import { CloudFirstInventoryCoach } from "@/components/integrations/CloudFirstInventoryCoach";
+import { IntegrationZoneRecoveryCard } from "@/components/integrations/IntegrationZoneRecoveryCard";
 
 import { CloudConnectionsContinueLastViewedRow } from "./CloudConnectionsContinueLastViewedRow";
 import { CloudConnectionsHubVocabularyDisclosure } from "./CloudConnectionsHubVocabularyDisclosure";
 import { CloudProviderSummaryCard } from "./CloudProviderSummaryCard";
-import { CloudFirstInventoryCoach } from "@/components/integrations/CloudFirstInventoryCoach";
-import { IntegrationZoneRecoveryCard } from "@/components/integrations/IntegrationZoneRecoveryCard";
-import type { CloudConnectionsPageViewModel } from "./use-cloud-connections-page";
-
-const CLOUD_PROVIDER_COUNT = CLOUD_PROVIDER_NEUTRAL_ORDER.length;
+import {
+  CLOUD_PLATFORM_CHIP_OPTIONS,
+  type CloudConnectionsPageViewModel,
+} from "./use-cloud-connections-page";
 
 export type CloudConnectionsProviderListProps = CloudConnectionsPageViewModel;
 
 export function CloudConnectionsProviderList(props: CloudConnectionsProviderListProps) {
   const {
+    currentSearch,
+    urlPlatform,
     isLoading,
     visibleProviders,
     providerSummaries,
@@ -38,6 +42,7 @@ export function CloudConnectionsProviderList(props: CloudConnectionsProviderList
     hasConfiguredProvider,
     hasSuccessfulPull,
     connectedProviderCount,
+    totalProviderCount,
     recommendedProviderId,
     continueLastProvider,
   } = props;
@@ -63,7 +68,7 @@ export function CloudConnectionsProviderList(props: CloudConnectionsProviderList
           hasConnection={hasConfiguredProvider}
           hasSuccessfulPull={hasSuccessfulPull}
           connectedProviderCount={connectedProviderCount}
-          totalProviderCount={CLOUD_PROVIDER_COUNT}
+          totalProviderCount={totalProviderCount}
           recommendedProviderId={recommendedProviderId}
         />
       ) : null}
@@ -71,6 +76,25 @@ export function CloudConnectionsProviderList(props: CloudConnectionsProviderList
       {showConnectionContent && continueLastProvider !== null ? (
         <CloudConnectionsContinueLastViewedRow target={continueLastProvider} />
       ) : null}
+
+      <FilterChipGroup
+        aria-label="Filter cloud connections by platform"
+        className="flex flex-wrap gap-2"
+        data-testid="cloud-connections-platform-chips"
+      >
+        {CLOUD_PLATFORM_CHIP_OPTIONS.map((option) => (
+          <FilterChip
+            key={option.id}
+            href={cloudConnectionsPlatformHrefFromSearch(currentSearch, option.id)}
+            scroll={false}
+            className={buyerFilterChipClass(urlPlatform === option.id, false)}
+            aria-current={urlPlatform === option.id ? "page" : undefined}
+            data-testid={`cloud-connections-platform-${option.id}`}
+          >
+            {option.label}
+          </FilterChip>
+        ))}
+      </FilterChipGroup>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-2">
         {visibleProviders.map((providerId: CloudProviderId) => {

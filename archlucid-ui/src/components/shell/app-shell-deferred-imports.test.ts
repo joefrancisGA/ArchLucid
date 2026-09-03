@@ -23,7 +23,6 @@ const bannedStaticImports = [
   '@/components/AppInsightsTelemetryInit"',
   '@/components/ClientRuntimeDiagnostics"',
   '@/components/operator/OperatorRouteEnteredTelemetry"',
-  '@/components/SessionIdleTimeoutGuard"',
   '@/components/AuthPanel"',
   '@/components/SyncActiveRunFromPathname"',
   '@/components/DemoStrictNavigationGate"',
@@ -69,7 +68,10 @@ describe("operator shell deferred imports (TB-2118)", () => {
     expect(appShellSource).toContain("AppShellIdleOverlaysDeferred");
     expect(appShellSource).toContain("DevTestingShellShortcutsDeferred");
     expect(appShellSource).toContain("AppShellTelemetryBundleDeferred");
-    expect(appShellSource).toContain("SessionIdleTimeoutGuardDeferred");
+    expect(appShellSource).toContain("AppShellSyncSessionIdleGuard");
+    expect(appShellSource).toContain("AppShellSyncKeyboardShortcutListener");
+    expect(appShellSource).toContain("CommandPaletteWorkActionBridge");
+    expect(appShellSource).not.toContain("SessionIdleTimeoutGuardDeferred");
     expect(appShellSource).toContain("AuthPanelDeferred");
     expect(appShellSource).toContain("SyncActiveRunFromPathnameDeferred");
     expect(appShellSource).toContain("AppShellMainContentGateDeferred");

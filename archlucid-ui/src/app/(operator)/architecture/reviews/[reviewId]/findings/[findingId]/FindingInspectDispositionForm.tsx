@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useRef } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -112,6 +113,7 @@ export function FindingInspectDispositionForm(props: FindingInspectDispositionFo
     pendingDispositionKind,
     pendingDispositionBlockedReason,
   } = props;
+  const rationaleRef = useRef<HTMLTextAreaElement | null>(null);
 
   return (
     <>
@@ -175,6 +177,26 @@ export function FindingInspectDispositionForm(props: FindingInspectDispositionFo
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Current state: <span className="font-medium text-al-text-primary">{currentDisposition}</span>
         </p>
+        {currentDisposition !== "Open" ? (
+          <div className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40">
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              To amend this disposition, record a new rationale below. The original audit event stays on the evidence
+              trail.
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              className="mt-2"
+              data-testid="finding-disposition-amend"
+              onClick={() => {
+                rationaleRef.current?.focus();
+              }}
+            >
+              Amend disposition
+            </Button>
+          </div>
+        ) : null}
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {dispositionTransitionCopy(disposition)}
         </p>
@@ -200,6 +222,7 @@ export function FindingInspectDispositionForm(props: FindingInspectDispositionFo
             </span>
           ) : null}
           <textarea
+            ref={rationaleRef}
             className="min-h-20 rounded-md border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
             value={rationale}
             onChange={(event) => setRationale(event.target.value)}

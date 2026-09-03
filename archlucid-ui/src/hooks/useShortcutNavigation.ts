@@ -1,9 +1,12 @@
 "use client";
 
 import { useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
-import { SHORTCUTS } from "@/lib/shortcut-registry";
+import { SHORTCUTS, WORKING_MODE_NEW_REVIEW_ROUTE } from "@/lib/shortcut-registry";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
+import { buildCompareTwoReviewsHref, readReviewRunIdFromPathname } from "@/lib/compare-two-reviews-route";
 
 import { useKeyboardShortcuts, type KeyboardShortcutsMap } from "./useKeyboardShortcuts";
 
@@ -20,14 +23,24 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
   shortcuts: typeof SHORTCUTS;
 } {
   const router = useRouter();
+  const pathname = usePathname();
   const onHelpRequested = options.onHelpRequested;
+  const { mode } = useWorkspaceMode();
+  const workingMode = isWorkingWorkspaceMode(mode);
 
   const map: KeyboardShortcutsMap = useMemo(() => {
     const next: KeyboardShortcutsMap = {};
+    const reviewRunId = readReviewRunIdFromPathname(pathname ?? "");
 
     for (const entry of SHORTCUTS) {
       if (entry.route !== undefined && entry.route !== "") {
-        const route = entry.route;
+        let route =
+          workingMode && entry.key === "alt+n" ? WORKING_MODE_NEW_REVIEW_ROUTE : entry.route;
+
+        if (workingMode && entry.key === "alt+c" && reviewRunId !== null) {
+          route = buildCompareTwoReviewsHref({ baseRunId: reviewRunId });
+        }
+
         next[entry.key] = {
           handler: () => {
             router.push(route);
@@ -45,7 +58,7 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
     }
 
     return next;
-  }, [router, onHelpRequested]);
+  }, [onHelpRequested, pathname, router, workingMode]);
 
   useKeyboardShortcuts(map);
 

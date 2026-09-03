@@ -59,8 +59,8 @@ export function isBuyerSafeDemoMarketingChromeEnv(): boolean {
 
 /**
  * Operator shell chrome tuned for buyer walkthroughs: softer Jump control, friendly scope labels, fewer shortcut chips.
- * **Default:** buyer-polished for all authenticated production deploys (TB-643). Full-operator opt-in keeps buyer
- * vocabulary; engineering chrome is gated separately via {@link isOperatorExperienceFullShellEnv}.
+ * **Default:** false for production Working seats (PT-01). True for demo, static-showcase, and frictionless trial only.
+ * Dense architect chrome for Working mode is gated via {@link resolveArchitectWorkspaceChrome}.
  */
 export function isBuyerPolishedOperatorShellEnv(): boolean {
   if (isNextPublicDemoMode()) {
@@ -75,15 +75,27 @@ export function isBuyerPolishedOperatorShellEnv(): boolean {
     return true;
   }
 
-  return true;
+  return false;
 }
 
 /**
  * Buyer vocabulary replacements (run→review, manifest→signed package) on primary operator surfaces.
- * **Default:** active for all authenticated production deploys (TB-645); independent of full-operator chrome opt-in.
+ * **Default:** active for all authenticated production deploys (TB-645); independent of buyer-polished chrome.
  */
 export function isBuyerVocabularyPassActive(): boolean {
-  return isBuyerPolishedOperatorShellEnv();
+  if (isNextPublicDemoMode()) {
+    return true;
+  }
+
+  if (process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "true" || process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "1") {
+    return true;
+  }
+
+  if (typeof window !== "undefined" && readFrictionlessTrialSessionEnabled()) {
+    return true;
+  }
+
+  return true;
 }
 
 /**

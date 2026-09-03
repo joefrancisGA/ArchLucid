@@ -98,4 +98,18 @@ public sealed class UserPreferencesResponse
         get;
         set;
     }
+
+    /// <summary>When true, Working-mode review-detail uses the split workbench layout.</summary>
+    public bool ProfessionalWorkbenchEnabled
+    {
+        get;
+        set;
+    } = true;
+
+    /// <summary>True when the user has an explicit stored professional-workbench row.</summary>
+    public bool ProfessionalWorkbenchEnabledIsExplicit
+    {
+        get;
+        set;
+    }
 }

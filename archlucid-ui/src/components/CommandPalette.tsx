@@ -57,6 +57,8 @@ import { CommandPaletteDocumentationSearch } from "@/components/CommandPaletteDo
 import { CommandPaletteFindPageSearch } from "@/components/CommandPaletteFindPageSearch";
 import { CommandPaletteReviewActions } from "@/components/CommandPaletteReviewActions";
 import { RunIdQuickOpen } from "@/components/RunIdQuickOpen";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 
 /** Buyer-polished header search: route-aware label for the Ctrl+K command palette trigger. */
 function buyerPolishedCommandPaletteLabel(pathname: string): string {
@@ -118,6 +120,8 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   const roleNavDensityPersona = resolveRoleNavDensityPersona(currentPrincipal.roleClaimValues);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const patternLibraryNavVisible = usePatternLibraryNavVisible();
+  const { mode } = useWorkspaceMode();
+  const workingMode = isWorkingWorkspaceMode(mode);
 
   const visibleHrefs = useMemo(() => {
     const shellRows = applyPatternLibraryNavGate(
@@ -262,7 +266,14 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
           <CommandPaletteRecentViewsGroup onNavigate={navigate} />
           <CommandPaletteFindPageSearch visibleHrefs={visibleHrefs} onNavigate={navigate} />
           <CommandPaletteDocumentationSearch buyerPolishedShell={buyerPolishedShell} onNavigate={navigate} />
-          <CommandPaletteActions onNavigate={navigate} />
+          <CommandPaletteActions
+            pathname={pathname ?? "/"}
+            workingMode={workingMode}
+            onNavigate={navigate}
+            onClose={() => {
+              setOpen(false);
+            }}
+          />
           <CommandPaletteReviewActions runId={auditRunId} onNavigate={navigate} />
           <CommandPaletteDemoActions onNavigate={navigate} onClose={() => setOpen(false)} />
           <CommandPaletteCuratedTasks

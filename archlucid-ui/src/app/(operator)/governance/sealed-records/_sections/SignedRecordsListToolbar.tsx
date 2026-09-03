@@ -6,13 +6,6 @@ import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -22,7 +15,6 @@ import {
 import {
   signedRecordsListIntegrityHrefFromSearch,
 } from "@/lib/signed-records/signed-records-list-integrity-url";
-import { cn } from "@/lib/utils";
 
 import {
   SIGNED_RECORDS_LIST_FILTER_ALL_INTEGRITY,
@@ -31,6 +23,13 @@ import {
   SIGNED_RECORDS_LIST_SEARCH_PLACEHOLDER,
   SIGNED_RECORDS_LIST_TOOLBAR_ARIA_LABEL,
 } from "./signed-records-list-copy";
+
+const INTEGRITY_CHIP_OPTIONS: readonly { readonly id: SignedRecordsListIntegrityFilter; readonly label: string }[] = [
+  { id: "all", label: SIGNED_RECORDS_LIST_FILTER_ALL_INTEGRITY },
+  { id: "sealed", label: "Finalized" },
+  { id: "needs-attention", label: "Needs attention" },
+  { id: "unavailable", label: "Record unavailable" },
+];
 
 export type SignedRecordsListIntegrityFilter = "all" | "sealed" | "needs-attention" | "unavailable";
 
@@ -75,29 +74,24 @@ export function SignedRecordsListToolbar(props: SignedRecordsListToolbarProps): 
           onChange={(event) => props.onSearchQueryChange(event.target.value)}
         />
       </div>
-      <div className="min-w-[200px] space-y-1">
-        <Label htmlFor="signed-records-list-integrity-filter" className={OPERATOR_TYPOGRAPHY.label}>
-          {SIGNED_RECORDS_LIST_FILTER_INTEGRITY_LABEL}
-        </Label>
-        <Select
-          value={props.integrityFilter}
-          disabled={controlsDisabled}
-          onValueChange={(value) => props.onIntegrityFilterChange(value as SignedRecordsListIntegrityFilter)}
-        >
-          <SelectTrigger
-            id="signed-records-list-integrity-filter"
-            className={cn("w-full", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="signed-records-list-integrity-filter"
-          >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{SIGNED_RECORDS_LIST_FILTER_ALL_INTEGRITY}</SelectItem>
-            <SelectItem value="sealed">Finalized</SelectItem>
-            <SelectItem value="needs-attention">Needs attention</SelectItem>
-            <SelectItem value="unavailable">Record unavailable</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="space-y-1">
+        <Label className={OPERATOR_TYPOGRAPHY.label}>{SIGNED_RECORDS_LIST_FILTER_INTEGRITY_LABEL}</Label>
+        <FilterChipGroup aria-label="Filter sealed records by integrity" className="flex flex-wrap gap-2">
+          {INTEGRITY_CHIP_OPTIONS.map((option) => (
+            <FilterChip
+              key={option.id}
+              href={signedRecordsListIntegrityHrefFromSearch(currentSearch, option.id)}
+              scroll={false}
+              className={buyerFilterChipClass(props.integrityFilter === option.id, controlsDisabled)}
+              aria-current={props.integrityFilter === option.id ? "page" : undefined}
+              disabled={controlsDisabled}
+              data-testid={`signed-records-list-integrity-${option.id}`}
+              onClick={() => props.onIntegrityFilterChange(option.id)}
+            >
+              {option.label}
+            </FilterChip>
+          ))}
+        </FilterChipGroup>
       </div>
       <div className="space-y-1">
         <Label className={OPERATOR_TYPOGRAPHY.label}>Sealed date range</Label>

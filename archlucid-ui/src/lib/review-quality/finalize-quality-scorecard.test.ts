@@ -12,6 +12,7 @@ describe("finalize-quality-scorecard", () => {
       openCannotDetermineCount: 0,
       lowExtractionConfidenceCount: 0,
       unresolvedHighSeverityDispositionCount: 0,
+      skippedMustCount: 0,
     });
 
     expect(result.ready).toBe(true);
@@ -27,6 +28,7 @@ describe("finalize-quality-scorecard", () => {
       openCannotDetermineCount: 1,
       lowExtractionConfidenceCount: 0,
       unresolvedHighSeverityDispositionCount: 0,
+      skippedMustCount: 0,
     });
 
     expect(result.ready).toBe(false);
@@ -42,6 +44,7 @@ describe("finalize-quality-scorecard", () => {
       openCannotDetermineCount: 0,
       lowExtractionConfidenceCount: 0,
       unresolvedHighSeverityDispositionCount: 0,
+      skippedMustCount: 0,
     });
 
     expect(result.ready).toBe(false);
@@ -57,9 +60,41 @@ describe("finalize-quality-scorecard", () => {
       openCannotDetermineCount: 0,
       lowExtractionConfidenceCount: 0,
       unresolvedHighSeverityDispositionCount: 2,
+      skippedMustCount: 0,
     });
 
     expect(result.ready).toBe(false);
     expect(result.blockingReasons.some((reason) => reason.includes("decision-register"))).toBe(true);
+  });
+
+  it("blocks when skipped MUST questions remain in the transparency trail", () => {
+    const result = evaluateFinalizeQualityScorecard({
+      blockingFindingCount: 0,
+      unverifiedAssumptionCount: 0,
+      unacknowledgedExistentialAssumptionCount: 0,
+      uncoveredMandatoryRequirementCount: 0,
+      openCannotDetermineCount: 0,
+      lowExtractionConfidenceCount: 0,
+      unresolvedHighSeverityDispositionCount: 0,
+      skippedMustCount: 2,
+    });
+
+    expect(result.ready).toBe(false);
+    expect(result.blockingReasons.some((reason) => reason.includes("required"))).toBe(true);
+  });
+
+  it("does not block on SHOULD-only skips", () => {
+    const result = evaluateFinalizeQualityScorecard({
+      blockingFindingCount: 0,
+      unverifiedAssumptionCount: 0,
+      unacknowledgedExistentialAssumptionCount: 0,
+      uncoveredMandatoryRequirementCount: 0,
+      openCannotDetermineCount: 0,
+      lowExtractionConfidenceCount: 0,
+      unresolvedHighSeverityDispositionCount: 0,
+      skippedMustCount: 0,
+    });
+
+    expect(result.ready).toBe(true);
   });
 });

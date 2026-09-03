@@ -4,7 +4,9 @@ import { useCallback, useEffect, useState } from "react";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import {
+  persistProfessionalWorkbenchEnabled,
   readProfessionalWorkbenchEnabledFromStorage,
+  syncProfessionalWorkbenchFromServer,
   writeProfessionalWorkbenchEnabledToStorage,
 } from "@/lib/workspace-mode/professional-workbench-preference";
 
@@ -15,12 +17,17 @@ export function useProfessionalWorkbenchEnabled(): {
   readonly setEnabled: (enabled: boolean) => void;
 } {
   const { isWorkingMode, mounted: workspaceMounted } = useWorkspaceMode();
-  const [enabled, setEnabledState] = useState(false);
+  const [enabled, setEnabledState] = useState(() => readProfessionalWorkbenchEnabledFromStorage());
   const [preferenceMounted, setPreferenceMounted] = useState(false);
 
   useEffect(() => {
-    setEnabledState(readProfessionalWorkbenchEnabledFromStorage());
     setPreferenceMounted(true);
+
+    void syncProfessionalWorkbenchFromServer().then((synced) => {
+      if (synced !== null) {
+        setEnabledState(synced);
+      }
+    });
   }, []);
 
   useEffect(() => {
@@ -34,18 +41,19 @@ export function useProfessionalWorkbenchEnabled(): {
 
     const stored = readProfessionalWorkbenchEnabledFromStorage();
 
-    if (stored) {
-      setEnabledState(true);
-    }
+    setEnabledState(stored);
   }, [isWorkingMode, preferenceMounted, workspaceMounted]);
 
   const setEnabled = useCallback((next: boolean) => {
     writeProfessionalWorkbenchEnabledToStorage(next);
     setEnabledState(next);
+    void persistProfessionalWorkbenchEnabled(next);
   }, []);
 
+  const effectiveEnabled = isWorkingMode && (preferenceMounted ? enabled : readProfessionalWorkbenchEnabledFromStorage());
+
   return {
-    enabled: isWorkingMode && enabled,
+    enabled: effectiveEnabled,
     mounted: workspaceMounted && preferenceMounted,
     setEnabled,
   };

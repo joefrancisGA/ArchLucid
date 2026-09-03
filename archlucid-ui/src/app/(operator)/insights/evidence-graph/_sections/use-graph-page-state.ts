@@ -2,53 +2,20 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, startTransition } from "react";
 
-import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
-import { OPERATOR_GRAPH_PAGE_SUBTITLE } from "@/lib/buyer/buyer-polish-copy";
-import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
-import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import { OPERATOR_PAGE_CONTAINER } from "@/lib/design-tokens";
-import {
-  EVIDENCE_GRAPH_PAGE_SUBTITLE,
-  EVIDENCE_GRAPH_PAGE_TITLE,
-} from "@/lib/evidence-graph-page";
-import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/findings/finding-inspect-graph-evidence";
-import {
-  isStaticDemoPayloadFallbackActiveForRun,
-  isStaticDemoPayloadFallbackEnabled,
-  tryStaticDemoProvenanceGraph,
-} from "@/lib/operator/operator-static-demo";
-import {
-  isSampleGraphActive,
-  resolveGraphReviewPickerState,
-  shouldShowBuyerEvidenceGraphLoadButton,
-  shouldShowGraphIdleCard,
-  type AskRunListAvailability,
-} from "@/lib/graph-page-state";
-import { provenanceLinkageToGraphViewModel } from "@/lib/provenance-linkage-to-graph-vm";
 import { useGraphPageUrlState } from "@/app/(operator)/insights/evidence-graph/_sections/use-graph-page-url-state";
 import { useGraphPageFetch } from "@/app/(operator)/insights/evidence-graph/_sections/use-graph-page-fetch";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
-import type { GraphViewModel } from "@/types/graph";
+import { useGraphPageBuyerShell } from "@/app/(operator)/insights/evidence-graph/_sections/use-graph-page-buyer-shell";
+import { useGraphPageEffectiveGraph } from "@/app/(operator)/insights/evidence-graph/_sections/use-graph-page-effective-graph";
+import { useGraphPageSavedViews } from "@/app/(operator)/insights/evidence-graph/_sections/use-graph-page-saved-views";
 import {
-  applyProvenanceDemoPresentationIfEligible,
-  buildGraphSavedViewPayload,
   resolveEvidenceTrailPresentationView,
-  resolveGraphIdleEmptyPreset,
   type EvidenceTrailPresentationView,
   type GraphMode,
 } from "@/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers";
-import { useOperateCapability } from "@/hooks/use-operate-capability";
-import {
-  resolveGraphInspectEmphasizedStepId,
-  resolveGraphInspectSteps,
-} from "@/lib/graph-inspect-checklist";
-import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
-import type { GraphSavedViewFilters } from "@/lib/operator/operator-saved-view-types";
-import type { EmptyStateProps } from "@/components/EmptyState";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import type { AskRunListAvailability } from "@/lib/graph-page-state";
 
 export function useGraphPageState() {
-  const workspaceRun = useWorkspaceActiveRun();
   const [decisionId, setDecisionId] = useState("");
   const [nodeId, setNodeId] = useState("");
   const [depth, setDepth] = useState(1);
@@ -84,17 +51,6 @@ export function useGraphPageState() {
     setNodeId,
     setDecisionId,
   });
-  const canMutateEnterpriseShell = useOperateCapability();
-  const graphMainColumnMaxClass = buyerPolishedShell
-    ? OPERATOR_PAGE_CONTAINER.variant.dashboard
-    : OPERATOR_PAGE_CONTAINER.variant.workflow;
-  const defaultSelectedGraphNodeId =
-    urlGraphNodeId.length > 0
-      ? urlGraphNodeId
-      : buyerPolishedShell &&
-          canonicalizeDemoRunId(runId) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)
-        ? SHOWCASE_PHI_FINDING_GRAPH_NODE_ID
-        : undefined;
 
   const {
     graph,
@@ -114,6 +70,21 @@ export function useGraphPageState() {
     buyerPolishedShell,
     setTypeFilter,
     setGraphInteractiveReady,
+  });
+
+  const {
+    effectiveGraph,
+    sampleGraphActive,
+    demoUi,
+    defaultSelectedGraphNodeId,
+  } = useGraphPageEffectiveGraph({
+    runId,
+    mode,
+    graph,
+    buyerPolishedShell,
+    graphLoadRequested,
+    urlGraphNodeId,
+    setGraph,
   });
 
   const graphEndpointHint = useMemo((): string => {
@@ -161,34 +132,6 @@ export function useGraphPageState() {
   useLayoutEffect(() => {
     setGraph(null);
   }, [runId, setGraph]);
-
-  const seededProvenanceGraphVm = useMemo((): GraphViewModel | null => {
-    if (mode !== "provenance-full") {
-      return null;
-    }
-
-    const rid = runId.trim();
-
-    if (rid.length === 0) {
-      return null;
-    }
-
-    const prov = tryStaticDemoProvenanceGraph(rid);
-
-    if (prov === null) {
-      return null;
-    }
-
-    return applyProvenanceDemoPresentationIfEligible(provenanceLinkageToGraphViewModel(prov), mode, rid);
-  }, [mode, runId]);
-
-  const effectiveGraph = graph ?? seededProvenanceGraphVm;
-  const sampleGraphActive = isSampleGraphActive({
-    runId,
-    graph,
-    seededProvenanceGraphVm,
-  });
-  const reviewPickerState = resolveGraphReviewPickerState(reviewListAvailability, runId);
 
   const graphSurfaceKey = useMemo(() => {
     if (effectiveGraph === null) {
@@ -239,190 +182,55 @@ export function useGraphPageState() {
     void performRef.current();
   }, [runId, mode, graphLoadRequested, buyerPolishedShell]);
 
-  useEffect(() => {
-    if (buyerPolishedShell && !graphLoadRequested) {
-      return;
-    }
-
-    const rid = runId.trim();
-    const demo =
-      isBuyerPolishedOperatorShellEnv() ||
-      isNextPublicDemoMode() ||
-      isStaticDemoPayloadFallbackEnabled() ||
-      isStaticDemoPayloadFallbackActiveForRun(rid);
-
-    if (!demo || mode !== "provenance-full") {
-      return;
-    }
-
-    const prov = tryStaticDemoProvenanceGraph(rid);
-
-    if (prov === null) {
-      return;
-    }
-
-    setGraph(applyProvenanceDemoPresentationIfEligible(provenanceLinkageToGraphViewModel(prov), mode, rid));
-  }, [runId, mode, graphLoadRequested, buyerPolishedShell, setGraph]);
-
-  const demoUi =
-    isBuyerPolishedOperatorShellEnv() ||
-    isNextPublicDemoMode() ||
-    isStaticDemoPayloadFallbackEnabled() ||
-    isStaticDemoPayloadFallbackActiveForRun(runId.trim());
-
-  const buyerTraceWithoutGraph =
-    buyerPolishedShell &&
-    graphLoadRequested &&
-    presentationView === "trace" &&
-    effectiveGraph === null &&
-    runId.trim().length > 0 &&
-    !loading &&
-    loadFailure === null &&
-    malformedMessage === null;
-
-  const buyerGraphAwaitingSelection =
-    buyerPolishedShell && (runId.trim().length === 0 || !graphLoadRequested);
-
-  const showOperatorControls = buyerPolishedShell || demoUi || runId.trim().length > 0;
-
-  const showIdleCard = shouldShowGraphIdleCard({
+  const buyerShell = useGraphPageBuyerShell({
+    runId,
+    graphLoadRequested,
     effectiveGraph,
     loading,
     loadFailure,
     malformedMessage,
-    buyerGraphAwaitingSelection,
-    buyerTraceWithoutGraph,
     reviewsListLoadError,
+    reviewListAvailability,
+    demoUi,
+    mode,
+    setMode,
+    graphInteractiveReady,
+    presentationView,
   });
 
-  useEffect(() => {
-    if (!demoUi && !buyerPolishedShell) {
-      return;
-    }
-
-    setMode("provenance-full");
-  }, [buyerPolishedShell, demoUi]);
-
-  const graphIdlePreset = useMemo(
-    (): EmptyStateProps =>
-      resolveGraphIdleEmptyPreset({
-        buyerPolished: buyerPolishedShell,
-        demoUi,
-        showIdleCard,
-        awaitingSelection: reviewPickerState === "no-selection",
-      }),
-    [buyerPolishedShell, demoUi, reviewPickerState, showIdleCard],
-  );
-
-  const pageTitle = buyerPolishedShell ? EVIDENCE_GRAPH_PAGE_TITLE : BUYER_SURFACE_VOCABULARY.evidenceGraph;
-  const pageSubtitle = buyerPolishedShell ? EVIDENCE_GRAPH_PAGE_SUBTITLE : OPERATOR_GRAPH_PAGE_SUBTITLE;
-
-  const loadButtonLabel = buyerPolishedShell
-    ? loading
-      ? "Loading…"
-      : "Load evidence graph"
-    : loading
-      ? "Loading…"
-      : "Load graph";
-
-  const showLoadButton = buyerPolishedShell
-    ? shouldShowBuyerEvidenceGraphLoadButton({
-        reviewPickerState,
-        runId,
-        graphLoadRequested,
-        effectiveGraph,
-        loading,
-        loadFailure,
-      })
-    : !(demoUi && mode === "provenance-full") &&
-      (!demoUi || mode !== "provenance-full" || effectiveGraph === null);
-
-  const buyerEmptyWorkspaceFocus =
-    buyerPolishedShell && showIdleCard && reviewPickerState === "no-packages";
-
-  const showReviewPickerBeforeCanvas = runId.trim().length === 0;
-
-  const graphInspectSteps = useMemo(
-    () =>
-      resolveGraphInspectSteps({
-        reviewPicked: runId.trim().length > 0,
-        graphLoaded: effectiveGraph !== null,
-        inspectComplete: graphInteractiveReady,
-      }),
-    [effectiveGraph, graphInteractiveReady, runId],
-  );
-  const graphInspectEmphasizedStepId = useMemo(
-    () =>
-      resolveGraphInspectEmphasizedStepId({
-        reviewPicked: runId.trim().length > 0,
-        graphLoaded: effectiveGraph !== null,
-        inspectComplete: graphInteractiveReady,
-      }),
-    [effectiveGraph, graphInteractiveReady, runId],
-  );
-
-  const showSavedViews =
-    canMutateEnterpriseShell &&
-    !buyerPolishedShell &&
-    !demoUi &&
-    effectiveGraph !== null;
-
-  const showLoadFailureAlert =
-    !reviewsListLoadError &&
-    loadFailure !== null &&
-    effectiveGraph === null &&
-    (!buyerPolishedShell || graphLoadRequested);
-
-  const getGraphSavedViewPayload = useCallback(
-    () =>
-      buildGraphSavedViewPayload({
-        runId,
-        mode,
-        decisionId,
-        nodeId,
-        depth,
-        typeFilter,
-      }),
-    [decisionId, depth, mode, nodeId, runId, typeFilter],
-  );
-
-  const loadGraphSavedView = useCallback(
-    async (view: OperatorSavedView) => {
-      const filters = view.payload.filters as GraphSavedViewFilters;
-      const nextState = {
-        runId: filters.runId ?? runId,
-        mode: filters.mode ?? mode,
-        decisionId: filters.decisionId ?? decisionId,
-        nodeId: filters.nodeId ?? nodeId,
-        depth: filters.depth ?? depth,
-        typeFilter: filters.typeFilter ?? typeFilter,
-      };
-
-      setRunId(nextState.runId);
-      setMode(nextState.mode);
-      setDecisionId(nextState.decisionId);
-      setNodeId(nextState.nodeId);
-      setDepth(nextState.depth);
-      setTypeFilter(nextState.typeFilter);
-      await performGraphLoad(nextState);
-    },
-    [decisionId, depth, mode, nodeId, performGraphLoad, runId, typeFilter],
-  );
+  const savedViews = useGraphPageSavedViews({
+    runId,
+    mode,
+    decisionId,
+    nodeId,
+    depth,
+    typeFilter,
+    buyerPolishedShell,
+    demoUi,
+    effectiveGraph,
+    setRunId,
+    setMode,
+    setDecisionId,
+    setNodeId,
+    setDepth,
+    setTypeFilter,
+    performGraphLoad,
+  });
 
   return {
     buyerPolishedShell,
-    pageTitle,
-    pageSubtitle,
-    showOperatorControls,
-    showReviewPickerBeforeCanvas,
+    pageTitle: buyerShell.pageTitle,
+    pageSubtitle: buyerShell.pageSubtitle,
+    showOperatorControls: buyerShell.showOperatorControls,
+    showReviewPickerBeforeCanvas: buyerShell.showReviewPickerBeforeCanvas,
     runId,
     handleRunIdChange,
-    graphInspectSteps,
-    graphInspectEmphasizedStepId,
-    showIdleCard,
-    graphIdlePreset,
+    graphInspectSteps: buyerShell.graphInspectSteps,
+    graphInspectEmphasizedStepId: buyerShell.graphInspectEmphasizedStepId,
+    showIdleCard: buyerShell.showIdleCard,
+    graphIdlePreset: buyerShell.graphIdlePreset,
     architectureGraphNote,
-    graphMainColumnMaxClass,
+    graphMainColumnMaxClass: buyerShell.graphMainColumnMaxClass,
     effectiveGraph,
     demoUi,
     graphSurfaceKey,
@@ -438,7 +246,7 @@ export function useGraphPageState() {
     presentationView,
     setPresentationView,
     sampleGraphActive,
-    showLoadFailureAlert,
+    showLoadFailureAlert: buyerShell.showLoadFailureAlert,
     loadFailure,
     malformedMessage,
     performGraphLoad,
@@ -451,16 +259,16 @@ export function useGraphPageState() {
     setNodeId,
     depth,
     setDepth,
-    reviewPickerState,
+    reviewPickerState: buyerShell.reviewPickerState,
     reviewListAvailability,
     handleReviewsListAvailabilityChange,
-    loadButtonLabel,
-    showLoadButton,
-    buyerEmptyWorkspaceFocus,
-    buyerTraceWithoutGraph,
-    showSavedViews,
-    getGraphSavedViewPayload,
-    loadGraphSavedView,
+    loadButtonLabel: buyerShell.loadButtonLabel,
+    showLoadButton: buyerShell.showLoadButton,
+    buyerEmptyWorkspaceFocus: buyerShell.buyerEmptyWorkspaceFocus,
+    buyerTraceWithoutGraph: buyerShell.buyerTraceWithoutGraph,
+    showSavedViews: savedViews.showSavedViews,
+    getGraphSavedViewPayload: savedViews.getGraphSavedViewPayload,
+    loadGraphSavedView: savedViews.loadGraphSavedView,
   };
 }
 

@@ -12,6 +12,7 @@ import {
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { BUYER_RUN_DETAIL_MANIFEST_DECISIONS_LABEL } from "@/lib/buyer/buyer-polish-copy";
+import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS, isStreamlinedCorePilotPath } from "@/lib/vocabulary/core-pilot-path-vocabulary";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
@@ -39,9 +40,20 @@ export function RunDetailManifestSummarySection(
   const definitionLabelClass = cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.body);
   const definitionValueClass = cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body);
   const monoValueClass = cn("min-w-0 break-all font-mono", OPERATOR_TYPOGRAPHY.micro);
+  const feasibilityVerdict = manifestSummary.feasibilityVerdict ?? null;
+  const infeasibleLead =
+    feasibilityVerdict !== null && isExportableDecisionVerdict(feasibilityVerdict.kind);
+  const feasibilitySection =
+    feasibilityVerdict !== null ? (
+      <RunDetailFeasibilityVerdictSection
+        verdict={feasibilityVerdict}
+        runId={manifestSummary.runId}
+      />
+    ) : null;
 
   return (
     <section id="manifest-summary" className="scroll-mt-24 space-y-4">
+      {infeasibleLead ? feasibilitySection : null}
       <Card>
         <CardHeader>
           <RunDetailManifestSummaryHeading buyerPolishedShell={buyerPolishedShell} />
@@ -157,12 +169,7 @@ export function RunDetailManifestSummarySection(
         </CardContent>
       </Card>
 
-      {manifestSummary.feasibilityVerdict !== undefined && manifestSummary.feasibilityVerdict !== null ? (
-        <RunDetailFeasibilityVerdictSection
-          verdict={manifestSummary.feasibilityVerdict}
-          runId={manifestSummary.runId}
-        />
-      ) : null}
+      {!infeasibleLead ? feasibilitySection : null}
 
       <OperatorEvidenceLimitsFooter
         runId={manifestSummary.runId}

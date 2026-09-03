@@ -16,6 +16,8 @@ namespace ArchLucid.Contracts.Manifest;
 /// </remarks>
 public static class GoldenManifestFingerprint
 {
+    private static readonly IReadOnlyList<CommittedArtifactInventoryFingerprintRow> EmptyCommittedArtifactInventory = [];
+
     /// <summary>Uppercase hex SHA-256 over full contract JSON for <paramref name="manifest" />.</summary>
     public static string ComputeSha256Hex(GoldenManifest manifest)
     {
@@ -32,7 +34,7 @@ public static class GoldenManifestFingerprint
     ///     <c>Metadata.CreatedUtc</c>, and <c>Metadata.DecisionTraceIds</c>).
     /// </summary>
     public static string ComputeContentSha256Hex(GoldenManifest manifest) =>
-        ComputeContentSha256Hex(manifest, createTimePins: null);
+        ComputeContentSha256Hex(manifest, createTimePins: null, EmptyCommittedArtifactInventory);
 
     /// <summary>
     ///     Wave-9 suggestion 86: structural projection plus optional create-time pin commitment (Hasher A subset).
@@ -40,15 +42,15 @@ public static class GoldenManifestFingerprint
     public static string ComputeContentSha256Hex(
         GoldenManifest manifest,
         GoldenManifestCreateTimePinCommitment? createTimePins) =>
-        ComputeContentSha256Hex(manifest, createTimePins, committedArtifactInventory: null);
+        ComputeContentSha256Hex(manifest, createTimePins, EmptyCommittedArtifactInventory);
 
     /// <summary>
-    ///     Wave-14 suggestion 134: optional committed artifact inventory rows bound into Hasher B.
+    ///     Wave-14 suggestion 134 / wave-16 suggestion 153: committed artifact inventory rows bound into Hasher B.
     /// </summary>
     public static string ComputeContentSha256Hex(
         GoldenManifest manifest,
         GoldenManifestCreateTimePinCommitment? createTimePins,
-        IReadOnlyList<CommittedArtifactInventoryFingerprintRow>? committedArtifactInventory)
+        IReadOnlyList<CommittedArtifactInventoryFingerprintRow> committedArtifactInventory)
     {
         if (manifest is null)
             throw new ArgumentNullException(nameof(manifest));
@@ -133,19 +135,17 @@ public static class GoldenManifestFingerprint
             createTimeKnowledgeModelContentHashSha256 = createTimePins?.KnowledgeModelContentHashSha256Hex,
             createTimeFocusedPilotModeEnabled = createTimePins?.FocusedPilotModeEnabled,
             createTimeFocusedPilotCloudProvider = createTimePins?.FocusedPilotCloudProvider,
-            committedArtifactInventory = committedArtifactInventory is null
-                ? null
-                : committedArtifactInventory
-                    .OrderBy(row => row.ArtifactName, StringComparer.Ordinal)
-                    .Select(row => new
-                    {
-                        row.ArtifactName,
-                        row.ContentType,
-                        row.ContentHashSha256,
-                        row.Producer,
-                        row.CapturedUtc,
-                    })
-                    .ToArray(),
+            committedArtifactInventory = committedArtifactInventory
+                .OrderBy(row => row.ArtifactName, StringComparer.Ordinal)
+                .Select(row => new
+                {
+                    row.ArtifactName,
+                    row.ContentType,
+                    row.ContentHashSha256,
+                    row.Producer,
+                    row.CapturedUtc,
+                })
+                .ToArray(),
         };
 
         byte[] utf8 = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(canonical, ContractJson.Default));

@@ -189,6 +189,23 @@ public sealed class CompareRunsApplicationFacade(
                     RunId = baseRunId,
                 };
             }
+
+            try
+            {
+                RunComparePinFingerprintGuard.EnsureCommittedArtifactInventoryFingerprintsMatchOrThrow(
+                    CommittedArtifactInventoryCompareFingerprint.ComputeHashSha256(
+                        baseRun.GoldenManifest.CommittedArtifactInventory),
+                    CommittedArtifactInventoryCompareFingerprint.ComputeHashSha256(
+                        targetRun.GoldenManifest.CommittedArtifactInventory));
+            }
+            catch (ConflictException)
+            {
+                return new ManifestCompareLoadResult
+                {
+                    Outcome = ManifestCompareLoadOutcome.PinFingerprintMismatch,
+                    RunId = baseRunId,
+                };
+            }
         }
 
         ComparisonResult comparison = _comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);

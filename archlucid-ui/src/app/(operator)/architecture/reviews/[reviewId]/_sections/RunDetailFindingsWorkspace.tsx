@@ -29,10 +29,12 @@ import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/Canoni
 import { SimulatorModeAiOperationNotice } from "@/components/usability/SimulatorModeAiOperationNotice";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
+import { useArchitectWorkspaceChrome } from "@/hooks/useArchitectWorkspaceChrome";
 import {
-  buildWorkspaceCardRenderedFindings,
-  type QuickDecisionFinding,
-} from "@/lib/quick-decision-summary-derive";
+  filterReviewDetailFindingsHideGeneric,
+  INSIGHT_DENSITY_GENERIC_THRESHOLD,
+  sortReviewDetailFindingsBySignal,
+} from "@/lib/findings/review-detail-findings-density-sort";
 import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
 import {
   deriveRunDetailFindingsTriageCounts,
@@ -42,6 +44,10 @@ import {
   resolveFindingJobViewFromSearchParam,
   REVIEW_FINDINGS_JOB_VIEW_PARAM,
 } from "@/lib/findings/review-findings-job-view-url";
+import { buildWorkspaceCardRenderedFindings } from "@/lib/quick-decision-finding-merge-and-sort";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type RunDetailFindingsWorkspaceProps = {
   readonly runId: string;
@@ -89,6 +95,8 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
   }
   const [showLowConfidence, setShowLowConfidence] = useState(false);
   const [showAdvisory, setShowAdvisory] = useState(false);
+  const [hideGenericLowDensity, setHideGenericLowDensity] = useState(false);
+  const architectWorkspaceChrome = useArchitectWorkspaceChrome();
   const createHomeSurface = props.packageCommitted === false;
   const actorNodeCount = countActorNodesInGraphSnapshot(props.graphSnapshot);
   const showActorEnginesQuietHint =
@@ -110,7 +118,13 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
     toolbarScopedFindings,
     showLowConfidence,
   );
-  const listFindings = sortFindingsForToolbar(confidenceVisibleScoped, toolbar.sort);
+  const densityFilteredFindings =
+    architectWorkspaceChrome && hideGenericLowDensity
+      ? filterReviewDetailFindingsHideGeneric(confidenceVisibleScoped, true)
+      : confidenceVisibleScoped;
+  const listFindings = architectWorkspaceChrome
+    ? sortReviewDetailFindingsBySignal(densityFilteredFindings)
+    : sortFindingsForToolbar(confidenceVisibleScoped, toolbar.sort);
   const { visibleFindings: confidenceGatedForCounts } = applyFindingsConfidenceVisibility(
     filterFindingsForToolbar(
       props.findings,
@@ -250,6 +264,24 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
         requestAssumptionTexts={props.requestAssumptionTexts}
       />
       {!createHomeSurface ? <RootCauseClusterDispositionStrip findings={props.findings} /> : null}
+      {architectWorkspaceChrome ? (
+        <label
+          className={cn(
+            "flex items-center gap-2 text-al-text-secondary",
+            OPERATOR_TYPOGRAPHY.helper,
+          )}
+          data-testid="run-detail-findings-hide-generic-control"
+        >
+          <input
+            type="checkbox"
+            checked={hideGenericLowDensity}
+            onChange={(event) => {
+              setHideGenericLowDensity(event.target.checked);
+            }}
+          />
+          Hide generic findings (density score below {INSIGHT_DENSITY_GENERIC_THRESHOLD}) — advisory only
+        </label>
+      ) : null}
       {createHomeSurface ? (
         <>
           {findingsSummaryEl}

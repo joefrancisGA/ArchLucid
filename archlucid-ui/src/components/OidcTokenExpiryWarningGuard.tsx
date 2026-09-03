@@ -1,19 +1,51 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import { SESSION_TOKEN_EXPIRY_WARNING_MS } from "@/lib/auth/session-idle-timeout";
+import {
+  SESSION_IDLE_FOCUS_HEARTBEAT_MS,
+  SESSION_TOKEN_EXPIRY_WARNING_MS,
+  writeSharedSessionLastActivityAt,
+} from "@/lib/auth/session-idle-timeout";
+import { readPresenterModeFromWindowLocation } from "@/lib/review-detail-workspace-tabs";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { ensureAccessTokenFresh, getAccessTokenExpiresAtMs } from "@/lib/oidc/session";
 
+function isMeetingSafeSessionSurface(pathname: string): boolean {
+  if (pathname.includes("/print")) {
+    return true;
+  }
+
+  return readPresenterModeFromWindowLocation();
+}
+
 /** Warns before OIDC access-token expiry so long read sessions can refresh without a hard logout. */
 export function OidcTokenExpiryWarningGuard() {
+  const pathname = usePathname() ?? "";
+  const meetingSafe = isMeetingSafeSessionSurface(pathname);
   const [warningVisible, setWarningVisible] = useState(false);
   const [secondsRemaining, setSecondsRemaining] = useState(
     Math.ceil(SESSION_TOKEN_EXPIRY_WARNING_MS / 1000),
   );
   const warnedRef = useRef(false);
+
+  useEffect(() => {
+    if (!meetingSafe || typeof window === "undefined") {
+      return;
+    }
+
+    writeSharedSessionLastActivityAt();
+
+    const heartbeatId = window.setInterval(() => {
+      writeSharedSessionLastActivityAt();
+    }, SESSION_IDLE_FOCUS_HEARTBEAT_MS);
+
+    return () => {
+      window.clearInterval(heartbeatId);
+    };
+  }, [meetingSafe]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !isJwtAuthMode()) {
@@ -36,6 +68,10 @@ export function OidcTokenExpiryWarningGuard() {
         return;
       }
 
+      if (meetingSafe && remainingMs <= SESSION_TOKEN_EXPIRY_WARNING_MS * 2) {
+        void ensureAccessTokenFresh();
+      }
+
       if (remainingMs <= SESSION_TOKEN_EXPIRY_WARNING_MS) {
         setWarningVisible(true);
         setSecondsRemaining(Math.max(1, Math.ceil(remainingMs / 1000)));
@@ -53,7 +89,7 @@ export function OidcTokenExpiryWarningGuard() {
     return () => {
       window.clearInterval(intervalId);
     };
-  }, []);
+  }, [meetingSafe]);
 
   if (!warningVisible) {
     return null;

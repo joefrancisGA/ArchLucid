@@ -26,7 +26,7 @@ internal static class MultiRecipientEmailDispatch
     {
         bool recordedAny = false;
         bool skippedAllAsAlreadyRecorded = true;
-        List<string> distinctMailboxes = DistinctValidNormalizedMailboxes(normalizedMailboxes);
+        List<string> distinctMailboxes = DistinctValidNormalizedMailboxes(mailboxes);
 
         if (distinctMailboxes.Count == 0)
             return false;

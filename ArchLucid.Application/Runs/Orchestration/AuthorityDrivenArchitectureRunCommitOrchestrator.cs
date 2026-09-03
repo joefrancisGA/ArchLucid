@@ -2,7 +2,9 @@
 
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Orchestration.Commit;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Metadata;
@@ -36,6 +38,10 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     IAuthorityCommitPersistenceStage persistenceStage,
     IAuthorityCommitFailureRecorder failureRecorder,
     IGoldenManifestRepository goldenManifestRepository,
+    IFindingsSnapshotRepository findingsSnapshotRepository,
+    IDecisionTraceRepository decisionTraceRepository,
+    IArtifactBundleRepository artifactBundleRepository,
+    IAuthorityCommitProjectionBuilder projectionBuilder,
     ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator> logger) : IArchitectureRunCommitOrchestrator
 {
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
@@ -60,6 +66,18 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
     private readonly IGoldenManifestRepository _goldenManifestRepository =
         goldenManifestRepository ?? throw new ArgumentNullException(nameof(goldenManifestRepository));
+
+    private readonly IFindingsSnapshotRepository _findingsSnapshotRepository =
+        findingsSnapshotRepository ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
+
+    private readonly IDecisionTraceRepository _decisionTraceRepository =
+        decisionTraceRepository ?? throw new ArgumentNullException(nameof(decisionTraceRepository));
+
+    private readonly IArtifactBundleRepository _artifactBundleRepository =
+        artifactBundleRepository ?? throw new ArgumentNullException(nameof(artifactBundleRepository));
+
+    private readonly IAuthorityCommitProjectionBuilder _projectionBuilder =
+        projectionBuilder ?? throw new ArgumentNullException(nameof(projectionBuilder));
 
     private readonly ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -208,7 +226,34 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         {
             ManifestDocument? persistedManifest =
                 await _goldenManifestRepository.GetByIdAsync(scope, goldenManifestId, cancellationToken);
-            AuthorityCommitRecoveryVerifier.EnsureInventoryConsistentOrThrow(persistedManifest, runRecord, runId);
+
+            if (persistedManifest is null)
+            {
+                throw new ConflictException(
+                    $"Commit recovery blocked for run '{runId}': golden manifest id is set but the manifest row is missing.");
+            }
+
+            ArchitectureRequest recoveryRequest = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken) ??
+                                                  throw new InvalidOperationException(
+                                                      $"Request '{run.RequestId}' not found.");
+
+            ManifestCommittedArtifactInventoryMaterial recomputedMaterial =
+                await ManifestCommittedArtifactInventoryRecoveryMaterialBuilder.BuildAsync(
+                    scope,
+                    persistedManifest,
+                    runRecord,
+                    recoveryRequest,
+                    _findingsSnapshotRepository,
+                    _decisionTraceRepository,
+                    _artifactBundleRepository,
+                    _projectionBuilder,
+                    cancellationToken);
+
+            AuthorityCommitRecoveryVerifier.EnsureInventoryConsistentOrThrow(
+                persistedManifest,
+                runRecord,
+                runId,
+                recomputedMaterial);
         }
 
         CommitRunResult? idempotent = await _idempotencyHandler.TryReturnCommittedAsync(run, runId, cancellationToken);

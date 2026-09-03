@@ -417,6 +417,117 @@ describe("wave15 filter url helpers", () => {
   });
 });
 
+describe("wave18 filter url helpers", () => {
+  it("findings register filter, pattern adoption/time, and standards framework/pack params", async () => {
+    const {
+      parseGovernanceFindingsRegisterFilterFromSearch,
+      governanceFindingsRegisterFilterHrefFromSearch,
+    } = await import("@/lib/governance/governance-findings-register-filter-url");
+    const {
+      parsePatternLibraryAdoptionFromSearch,
+      patternLibraryAdoptionHrefFromSearch,
+      parsePatternLibraryTimeRangeFromSearch,
+      patternLibraryTimeRangeHrefFromSearch,
+    } = await import("@/lib/insights/pattern-library-filters-url");
+    const {
+      parseStandardsRulesFrameworkFromSearch,
+      standardsRulesFrameworkHrefFromSearch,
+      parseStandardsRulesPackFromSearch,
+      standardsRulesPackHrefFromSearch,
+    } = await import("@/lib/governance/standards-rules-filters-url");
+
+    expect(parseGovernanceFindingsRegisterFilterFromSearch("open")).toBe("open");
+    expect(governanceFindingsRegisterFilterHrefFromSearch("runId=r1", "stale")).toBe(
+      "/governance/findings?runId=r1&filter=stale",
+    );
+    expect(parsePatternLibraryAdoptionFromSearch("Common")).toBe("Common");
+    expect(patternLibraryAdoptionHrefFromSearch("q=vpc", "Emerging")).toBe(
+      "/insights/patterns?q=vpc&adoption=Emerging",
+    );
+    expect(parsePatternLibraryTimeRangeFromSearch("Last 90 days")).toBe("Last 90 days");
+    expect(patternLibraryTimeRangeHrefFromSearch("domain=SaaS", "Last 12 months")).toBe(
+      "/insights/patterns?domain=SaaS&time=Last+12+months",
+    );
+    expect(parseStandardsRulesFrameworkFromSearch("SOC 2")).toBe("SOC 2");
+    expect(standardsRulesFrameworkHrefFromSearch("q=vpc", "NIST")).toBe(
+      "/governance/standards-and-rules?q=vpc&framework=NIST",
+    );
+    expect(parseStandardsRulesPackFromSearch("baseline")).toBe("baseline");
+    expect(standardsRulesPackHrefFromSearch("severity=High", "baseline")).toBe(
+      "/governance/standards-and-rules?severity=High&pack=baseline",
+    );
+  });
+
+  it("standards sort, provenance edge search, and sealed integrity hrefs", async () => {
+    const {
+      parseStandardsRulesSortKeyFromSearch,
+      standardsRulesSortHrefFromSearch,
+    } = await import("@/lib/governance/standards-rules-sort-url");
+    const {
+      parseProvenanceTableEdgeSearchQueryFromSearch,
+      provenanceTableEdgeSearchHrefFromSearch,
+    } = await import("@/lib/provenance/provenance-workspace-filters-url");
+    const { signedRecordsListIntegrityHrefFromSearch } = await import(
+      "@/lib/signed-records/signed-records-list-integrity-url"
+    );
+
+    expect(parseStandardsRulesSortKeyFromSearch("severity")).toBe("severity");
+    expect(standardsRulesSortHrefFromSearch("q=vpc", "severity", false)).toBe(
+      "/governance/standards-and-rules?q=vpc&sort=severity&dir=desc",
+    );
+    expect(parseProvenanceTableEdgeSearchQueryFromSearch("depends-on")).toBe("depends-on");
+    expect(
+      provenanceTableEdgeSearchHrefFromSearch("q=node-1", "depends-on", "/architecture/reviews/r1/provenance"),
+    ).toBe("/architecture/reviews/r1/provenance?q=node-1&edgeQ=depends-on");
+    expect(signedRecordsListIntegrityHrefFromSearch("q=phi", "needs-attention")).toBe(
+      "/governance/sealed-records?q=phi&integrity=needs-attention",
+    );
+  });
+
+  it("sponsor report period, ai usage chips, engineering troubleshooting, and decision register dates", async () => {
+    const { parseSponsorReportPeriodFromSearch, sponsorReportPeriodHrefFromSearch } = await import(
+      "@/lib/insights/sponsor-report-period-url"
+    );
+    const { parseAiUsageTriggerFromSearch, aiUsageTriggerHrefFromSearch, parseAiUsageStatusFromSearch, aiUsageStatusHrefFromSearch } =
+      await import("@/lib/administration/ai-usage-dashboard-filter-url");
+    const {
+      parseHelpEngineeringTroubleshootingSearchQuery,
+      helpEngineeringTroubleshootingSearchHrefFromSearch,
+    } = await import("@/lib/help/help-engineering-troubleshooting-search-url");
+    const {
+      parseDecisionRegisterCustomDateFromSearch,
+      decisionRegisterCustomDateHrefFromSearch,
+    } = await import("@/lib/governance/decision-register-custom-date-url");
+    const { decisionRegisterDatePresetHrefFromSearch } = await import(
+      "@/lib/governance/decision-register-date-range-url"
+    );
+
+    expect(parseSponsorReportPeriodFromSearch("last-90")).toBe("last-90");
+    expect(sponsorReportPeriodHrefFromSearch("", "current-quarter")).toBe(
+      "/insights/sponsor-report?range=current-quarter",
+    );
+    expect(parseAiUsageTriggerFromSearch("manual")).toBe("manual");
+    expect(aiUsageTriggerHrefFromSearch("feature=chat", "scheduled", "/administration/ai-usage")).toBe(
+      "/administration/ai-usage?feature=chat&trigger=scheduled",
+    );
+    expect(parseAiUsageStatusFromSearch("budget_blocked")).toBe("budget_blocked");
+    expect(aiUsageStatusHrefFromSearch("", "completed", "/administration/ai-usage")).toBe(
+      "/administration/ai-usage?status=completed",
+    );
+    expect(parseHelpEngineeringTroubleshootingSearchQuery("503")).toBe("503");
+    expect(helpEngineeringTroubleshootingSearchHrefFromSearch("", "401")).toBe(
+      "/help/engineering-troubleshooting?q=401",
+    );
+    expect(parseDecisionRegisterCustomDateFromSearch("2026-04-10")).toBe("2026-04-10");
+    expect(decisionRegisterCustomDateHrefFromSearch("range=90", "2026-04-10", "2026-05-01")).toBe(
+      "/governance/decision-register?range=90&from=2026-04-10&to=2026-05-01",
+    );
+    expect(decisionRegisterDatePresetHrefFromSearch("from=2026-04-10&to=2026-05-01", "30")).toBe(
+      "/governance/decision-register?range=30",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

@@ -19,4 +19,4 @@ Companion to [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE14.md`](ARCHITECTURE_REVIEW_RO
 
 Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave15ArchitectureTests.cs`.
 
-**Hasher baseline note:** suggestions 142 and 150 bump production `h(M)` to **`v10`** (bundle-body inventory bytes + committed decision receipt hash binding). Owner re-lock via `tests/manifest-hash/hasher-baseline-v10.json`.
+**Successor:** [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE16.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE16.md) (suggestions 151–160; Hasher A **`v11`** for all-run receipt binding, skip-persist governance/review snapshots, persisted findings blob inventory bytes).

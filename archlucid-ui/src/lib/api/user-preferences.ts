@@ -28,6 +28,8 @@ export type UserPreferencesResponse = {
   workspaceModeIsExplicit: boolean;
   workspaceModeGraduationOffer: WorkspaceModeGraduationOfferState;
   workspaceModeGraduationOfferIsExplicit: boolean;
+  professionalWorkbenchEnabled: boolean;
+  professionalWorkbenchEnabledIsExplicit: boolean;
 };
 
 export type SetAppearancePreferenceRequest = {
@@ -58,6 +60,10 @@ export type SetWorkspaceModeGraduationOfferRequest = {
   state: WorkspaceModeGraduationOfferState;
 };
 
+export type SetProfessionalWorkbenchEnabledRequest = {
+  enabled: boolean;
+};
+
 const DEFAULT_CLOUD_PLATFORM_SCOPE_DTO: CloudPlatformScopeDto = {
   "evidence-only": true,
   azure: true,
@@ -86,6 +92,8 @@ function defaultUserPreferencesResponse(): UserPreferencesResponse {
     workspaceModeIsExplicit: false,
     workspaceModeGraduationOffer: "pending",
     workspaceModeGraduationOfferIsExplicit: false,
+    professionalWorkbenchEnabled: true,
+    professionalWorkbenchEnabledIsExplicit: false,
   };
 }
 
@@ -264,5 +272,17 @@ export async function setUserWorkspaceModeGraduationOffer(
   patchUserPreferencesCache({
     workspaceModeGraduationOffer: state,
     workspaceModeGraduationOfferIsExplicit: true,
+  });
+}
+
+export async function setUserProfessionalWorkbenchEnabled(enabled: boolean): Promise<void> {
+  await httpApi.apiPutJson<void>(
+    "/v1/user/preferences/professional-workbench",
+    { enabled } satisfies SetProfessionalWorkbenchEnabledRequest,
+  );
+
+  patchUserPreferencesCache({
+    professionalWorkbenchEnabled: enabled,
+    professionalWorkbenchEnabledIsExplicit: true,
   });
 }

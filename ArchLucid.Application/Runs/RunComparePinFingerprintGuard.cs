@@ -36,6 +36,32 @@ public static class RunComparePinFingerprintGuard
         EnsureFocusedPilotMatchOrThrow(left, right);
     }
 
+    /// <summary>Wave-16 suggestion 156: manifest compare requires matching committed artifact inventory fingerprints.</summary>
+    public static void EnsureCommittedArtifactInventoryFingerprintsMatchOrThrow(
+        string? leftInventoryHashSha256,
+        string? rightInventoryHashSha256)
+    {
+        EnsureOptionalHexMatchOrThrow(
+            leftInventoryHashSha256,
+            rightInventoryHashSha256,
+            "committed artifact inventory hash");
+    }
+
+    private static void EnsureOptionalHexMatchOrThrow(string? left, string? right, string label)
+    {
+        bool leftEmpty = string.IsNullOrWhiteSpace(left);
+        bool rightEmpty = string.IsNullOrWhiteSpace(right);
+
+        if (leftEmpty && rightEmpty)
+            return;
+
+        if (leftEmpty || rightEmpty || !string.Equals(left, right, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ConflictException(
+                $"Compare blocked: {label} differs between the selected runs.");
+        }
+    }
+
     private static void EnsureFocusedPilotMatchOrThrow(RunRecord left, RunRecord right)
     {
         if (left.PinnedFocusedPilotModeEnabled != right.PinnedFocusedPilotModeEnabled)

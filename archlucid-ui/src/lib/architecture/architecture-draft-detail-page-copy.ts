@@ -14,8 +14,26 @@ export const ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_SENTENCE =
   `${ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_LABEL}: ${ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_BODY}` as const;
 
 /** Buyer-polished draft detail lead — autosave behavior after refine guidance. */
+export const ARCHITECTURE_DRAFT_AUTOSAVE_LOCAL_ONLY_SENTENCE =
+  "Unsaved typing is kept on this browser until your first save.";
+
+/** After a server draft id exists, typing syncs to the signed-in account. */
+export const ARCHITECTURE_DRAFT_AUTOSAVE_ACCOUNT_SENTENCE =
+  "Saved to your account; changes sync where you sign in.";
+
+/**
+ * @deprecated Prefer {@link resolveArchitectureDraftAutosaveSentence} for readiness-aware autosave copy.
+ */
 export const ARCHITECTURE_DRAFT_DETAIL_AUTOSAVE_SENTENCE =
-  "Autosave keeps unsaved typing on this browser; saved drafts sync where you sign in." as const;
+  ARCHITECTURE_DRAFT_AUTOSAVE_LOCAL_ONLY_SENTENCE;
+
+export function resolveArchitectureDraftAutosaveSentence(hasServerDraftId: boolean): string {
+  if (hasServerDraftId) {
+    return ARCHITECTURE_DRAFT_AUTOSAVE_ACCOUNT_SENTENCE;
+  }
+
+  return ARCHITECTURE_DRAFT_AUTOSAVE_LOCAL_ONLY_SENTENCE;
+}
 
 /** Draft meets minimum review-readiness — further refinement is optional. */
 export const ARCHITECTURE_DRAFT_REFINE_OPTIONAL_BEFORE_REVIEW_SENTENCE =
@@ -39,8 +57,9 @@ export function resolveArchitectureDraftRefineGuidanceSentence(
 
 export function resolveArchitectureDraftDetailPageSubtitleBuyer(
   reviewReadinessValid: boolean,
+  hasServerDraftId = false,
 ): string {
-  return `${ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE} ${resolveArchitectureDraftRefineGuidanceSentence(reviewReadinessValid)} ${ARCHITECTURE_DRAFT_DETAIL_AUTOSAVE_SENTENCE}`;
+  return `${ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE} ${resolveArchitectureDraftRefineGuidanceSentence(reviewReadinessValid)} ${resolveArchitectureDraftAutosaveSentence(hasServerDraftId)}`;
 }
 
 /** @deprecated Prefer {@link resolveArchitectureDraftDetailPageSubtitleBuyer} for readiness-aware buyer copy. */
@@ -54,9 +73,10 @@ export const ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_OPERATOR =
 export function architectureDraftDetailPageSubtitle(
   buyerPolishedShell: boolean,
   reviewReadinessValid = false,
+  hasServerDraftId = false,
 ): string {
   if (buyerPolishedShell) {
-    return resolveArchitectureDraftDetailPageSubtitleBuyer(reviewReadinessValid);
+    return resolveArchitectureDraftDetailPageSubtitleBuyer(reviewReadinessValid, hasServerDraftId);
   }
 
   return ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_OPERATOR;
