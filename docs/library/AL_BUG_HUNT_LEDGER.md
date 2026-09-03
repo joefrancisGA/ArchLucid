@@ -2425,11 +2425,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 64
-- **bugs-found:** 125
+- **hunts:** 65
+- **bugs-found:** 126
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — escaped double-quotes in HCL/Bicep strings truncated balanced brace extraction
+- **last-bug:** 2026-09-03 — escaped double-quotes before inline HCL/Bicep comments truncated scalar values
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2584,6 +2584,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `InfrastructureDeclarationBraceBodyExtractor` — escaped `\"` inside double-quoted strings prematurely closed nested blocks — **hit 2026-09-03 (#538):** `note = "has \"} char"` truncated at the escaped quote and dropped `tf.public_network_access`; fixed with backslash-skip in quote-aware delimiter scanning plus shared `UnquoteInfrastructureScalar` for `\"`/`\\` unescape (`ParseAsync_NestedSiteConfigWithEscapedQuoteBeforeClosingBrace_StillParsesTrailingScalars` in simple-terraform and Bicep tests).
 
 2026-09-03 seed hunt #538: reseeded from context-ingestion brace extractor; proved escaped-quote delimiter depth gap beyond #534 comment-aware fix.
+
+- [x] (proven) `CanonicalInfrastructurePropertyBag` comment strippers — escaped `\"` before `#` / `//` / `/*` truncated scalar values — **hit 2026-09-03 (#585):** `note = "eastus\" # region"` stored `tf.note = eastus\` because `StripTrailingHclComment` toggled quote state on escaped quotes without backslash-skip (same class as #538 brace extractor); fixed with backslash-skip in `StripTrailingHclComment`, `StripTrailingSlashSlashComment`, and `StripTrailingBlockComment` (`ParseAsync_EscapedQuoteBeforeHash_DoesNotTruncateScalarValue`).
+
+2026-09-03 seed hunt #585: reseeded from context-ingestion comment strippers; proved escaped-quote comment-strip gap beyond #538 brace-extractor fix.
 
 - [x] (proven) `PlainTextContextDocumentParser` required `REQ:`/`POL:`/`TOP:`/`SEC:` prefix without optional whitespace before colon — **hit 2026-09-02:** `REQ : Must scale` lines were skipped while `REQ: Must scale` parsed; fixed with `TryGetPrefixedBody` accepting optional whitespace before `:` (`PlainTextContextDocumentParserTests.ParseAsync_SpacedPrefixBeforeColon_ExtractsRequirement`).
 - [x] (proven) `BicepResourceBodyParser` treated `key: [` array headers as scalar assignments — **hit 2026-09-02:** `ipSecurityRestrictions: [` stored `tf.ipsecurityrestrictions = "["` and leaked inner object scalars (`tf.name`, `tf.ipaddress`) so App Service network-rule expander never ran; fixed with balanced-bracket extraction and `BicepArrayLiteralConverter` JSON serialization (`BicepInfrastructureDeclarationParserTests.ParseAsync_AppServiceIpSecurityRestrictionsArray_IsPreservedForNetworkExpander`, `ParseAsync_AppServiceIpSecurityRestrictionsArray_ExpandsNetworkBaseline`).
