@@ -41,6 +41,7 @@ import { SEARCH_REVIEW_EVIDENCE_CLAIM_DISCIPLINE } from "@/lib/search-review-evi
 function buildModel(overrides: Partial<SearchPageViewModel> = {}): SearchPageViewModel {
   return {
     buyerShell: true,
+    confidence: null,
     failure: null,
     hasSearched: false,
     isDemo: false,
@@ -53,6 +54,7 @@ function buildModel(overrides: Partial<SearchPageViewModel> = {}): SearchPageVie
     runId: "",
     setQuery: vi.fn(),
     setRunId: vi.fn(),
+    totalResultCount: 0,
     ...overrides,
   };
 }

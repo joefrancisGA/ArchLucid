@@ -22,6 +22,10 @@ import {
   aiUsageDailyMetricHrefFromSearch,
   parseAiUsageDailyMetricFromSearch,
 } from "@/lib/administration/ai-usage-daily-metric-url";
+import {
+  aiUsageDailyRangeHrefFromSearch,
+  parseAiUsageDailyRangeFromSearch,
+} from "@/lib/administration/ai-usage-daily-range-url";
 import { AiUsageSectionState } from "./AiUsageSectionState";
 
 type Props = {
@@ -61,17 +65,26 @@ export function AiUsageDailyUsagePanel(props: Props) {
   const searchParams = useSearchParams();
   const currentSearch = searchParams.toString();
   const metric = parseAiUsageDailyMetricFromSearch(searchParams.get("metric"));
+  const range = parseAiUsageDailyRangeFromSearch(searchParams.get("range"));
   const hasUsage = hasLlmUsageInDailyBuckets(props.daily);
+
+  const dailyBuckets = useMemo(() => {
+    if (range === "30d") {
+      return props.daily;
+    }
+
+    return props.daily.slice(-7);
+  }, [props.daily, range]);
 
   const chart = useMemo(() => {
     if (!hasUsage) {
       return null;
     }
 
-    const values = props.daily.map((bucket) => dailyMetricValue(bucket, metric));
+    const values = dailyBuckets.map((bucket) => dailyMetricValue(bucket, metric));
     const maxValue = Math.max(...values, metric === "cost" ? 0.01 : 1);
     const barMaxPx = 120;
-    const accessibleSummary = dailyMetricAccessibleSummary(props.daily, metric, props.currency);
+    const accessibleSummary = dailyMetricAccessibleSummary(dailyBuckets, metric, props.currency);
 
     return (
       <>
@@ -83,7 +96,7 @@ export function AiUsageDailyUsagePanel(props: Props) {
           role="img"
           aria-label={accessibleSummary}
         >
-          {props.daily.map((point, index) => {
+          {dailyBuckets.map((point, index) => {
             const value = values[index] ?? 0;
             const barPx = value === 0 ? 0 : Math.max(2, (value / maxValue) * barMaxPx);
             const isSpike = value === maxValue && value > 0;
@@ -112,19 +125,41 @@ export function AiUsageDailyUsagePanel(props: Props) {
         </div>
       </>
     );
-  }, [hasUsage, metric, props.currency, props.daily]);
+  }, [dailyBuckets, hasUsage, metric, props.currency]);
+
+  const rangeOptions: readonly { readonly id: "7d" | "30d"; readonly label: string }[] = [
+    { id: "7d", label: "Last 7 days" },
+    { id: "30d", label: "Last 30 days" },
+  ];
 
   return (
     <Card data-testid="ai-usage-daily-usage-panel">
       <CardHeader className={OPERATOR_CARD.header}>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Daily AI usage (last 30 days)</CardTitle>
+            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>
+              Daily AI usage ({range === "7d" ? "last 7 days" : "last 30 days"})
+            </CardTitle>
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Rolling 30-day trend for this workspace. Hover or focus bars for daily totals.
+              Rolling {range === "7d" ? "7-day" : "30-day"} trend for this workspace. Hover or focus bars for daily totals.
             </p>
           </div>
-          <FilterChipGroup aria-label="Daily usage metric" className="flex flex-wrap gap-1">
+          <div className="flex flex-col items-end gap-2">
+            <FilterChipGroup aria-label="Daily usage date range" className="flex flex-wrap justify-end gap-1">
+              {rangeOptions.map((option) => (
+                <FilterChip
+                  key={option.id}
+                  href={aiUsageDailyRangeHrefFromSearch(currentSearch, option.id, pathname)}
+                  scroll={false}
+                  className={buyerFilterChipClass(range === option.id, false)}
+                  aria-current={range === option.id ? "page" : undefined}
+                  aria-label={`Daily usage range: ${option.label}`}
+                >
+                  {option.label}
+                </FilterChip>
+              ))}
+            </FilterChipGroup>
+            <FilterChipGroup aria-label="Daily usage metric" className="flex flex-wrap justify-end gap-1">
             {METRIC_OPTIONS.map((option) => (
               <FilterChip
                 key={option.id}
@@ -138,6 +173,7 @@ export function AiUsageDailyUsagePanel(props: Props) {
               </FilterChip>
             ))}
           </FilterChipGroup>
+          </div>
         </div>
       </CardHeader>
       <CardContent className={cn(OPERATOR_CARD.content, "space-y-3")}>

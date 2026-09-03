@@ -68,7 +68,11 @@ import {
   architecturesHubSearchHrefFromSearch,
   architecturesHubSortHrefFromSearch,
   countArchitecturesHubFilterMatches,
+  distinctArchitectureHubDomains,
+  distinctArchitectureHubOwners,
+  matchesArchitecturesHubDomainFilter,
   matchesArchitecturesHubFilter,
+  matchesArchitecturesHubOwnerFilter,
   matchesArchitecturesHubSearch,
   parseArchitecturesHubFilter,
   parseArchitecturesHubSearchQuery,
@@ -76,6 +80,12 @@ import {
   type ArchitectureHubFilterId,
   type ArchitectureHubSortId,
 } from "@/lib/architecture/architectures-hub-filters";
+import {
+  architecturesHubDomainHrefFromSearch,
+  architecturesHubOwnerHrefFromSearch,
+  parseArchitecturesHubDomainFromSearch,
+  parseArchitecturesHubOwnerFromSearch,
+} from "@/lib/architecture/architectures-hub-owner-domain-url";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -159,6 +169,8 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
   const urlSearchQuery = parseArchitecturesHubSearchQuery(searchParams.get("q"));
   const activeFilter = parseArchitecturesHubFilter(searchParams.get("filter"));
   const activeSort = parseArchitecturesHubSort(searchParams.get("sort"));
+  const activeOwner = parseArchitecturesHubOwnerFromSearch(searchParams.get("owner"));
+  const activeDomain = parseArchitecturesHubDomainFromSearch(searchParams.get("domain"));
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const isHydrated = useArchitectureDraftRegistryHydrated();
@@ -199,16 +211,21 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
     return counts;
   }, [entries]);
 
+  const ownerOptions = useMemo(() => distinctArchitectureHubOwners(entries), [entries]);
+  const domainOptions = useMemo(() => distinctArchitectureHubDomains(entries), [entries]);
+
   const filteredEntries = useMemo(() => {
     return entries
       .filter(
         (entry) =>
           matchesArchitecturesHubSearch(entry, searchQuery) &&
-          matchesArchitecturesHubFilter(entry, activeFilter),
+          matchesArchitecturesHubFilter(entry, activeFilter) &&
+          matchesArchitecturesHubOwnerFilter(entry, activeOwner) &&
+          matchesArchitecturesHubDomainFilter(entry, activeDomain),
       )
       .slice()
       .sort((left, right) => compareEntries(left, right, activeSort));
-  }, [activeFilter, activeSort, entries, searchQuery]);
+  }, [activeDomain, activeFilter, activeOwner, activeSort, entries, searchQuery]);
 
   const clearSearch = useCallback(() => {
     setSearchQuery("");
@@ -296,6 +313,52 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
             />
           ))}
         </FilterChipGroup>
+        {ownerOptions.length > 0 ? (
+          <FilterChipGroup aria-label="Filter architectures by owner" className="flex flex-wrap items-center gap-2">
+            <FilterChip
+              href={architecturesHubOwnerHrefFromSearch(currentSearch, "")}
+              scroll={false}
+              className={buyerFilterChipClass(activeOwner.length === 0, false)}
+              aria-current={activeOwner.length === 0 ? "page" : undefined}
+            >
+              All owners
+            </FilterChip>
+            {ownerOptions.map((owner) => (
+              <FilterChip
+                key={owner}
+                href={architecturesHubOwnerHrefFromSearch(currentSearch, owner)}
+                scroll={false}
+                className={buyerFilterChipClass(activeOwner === owner, false)}
+                aria-current={activeOwner === owner ? "page" : undefined}
+              >
+                {owner}
+              </FilterChip>
+            ))}
+          </FilterChipGroup>
+        ) : null}
+        {domainOptions.length > 0 ? (
+          <FilterChipGroup aria-label="Filter architectures by domain" className="flex flex-wrap items-center gap-2">
+            <FilterChip
+              href={architecturesHubDomainHrefFromSearch(currentSearch, "")}
+              scroll={false}
+              className={buyerFilterChipClass(activeDomain.length === 0, false)}
+              aria-current={activeDomain.length === 0 ? "page" : undefined}
+            >
+              All domains
+            </FilterChip>
+            {domainOptions.map((domain) => (
+              <FilterChip
+                key={domain}
+                href={architecturesHubDomainHrefFromSearch(currentSearch, domain)}
+                scroll={false}
+                className={buyerFilterChipClass(activeDomain === domain, false)}
+                aria-current={activeDomain === domain ? "page" : undefined}
+              >
+                {domain}
+              </FilterChip>
+            ))}
+          </FilterChipGroup>
+        ) : null}
         <FilterChipGroup aria-label="Sort architectures" className="flex flex-wrap items-center gap-2 lg:ml-auto">
           {SORT_OPTIONS.map((option) => (
             <FilterChip

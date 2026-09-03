@@ -1,11 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { apiGet } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import {
+  parseSearchReviewEvidenceConfidenceFromSearch,
+} from "@/lib/insights/search-review-evidence-confidence-url";
 import {
   parseSearchReviewEvidenceQueryFromSearch,
   searchReviewEvidenceQueryHrefFromSearch,
@@ -14,6 +17,9 @@ import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route"
 
 import { recordSearchRecentQuery, readSearchRecentQueries, clearSearchRecentQueries } from "@/lib/search-recent-queries";
 import type { RetrievalHit } from "./retrieval-hit";
+import {
+  retrievalHitRelevanceTier,
+} from "./retrieval-hit-display";
 import { SearchPageView } from "./SearchPageView";
 import type { SearchPageViewModel } from "./search-page-view-model";
 
@@ -30,6 +36,7 @@ export function SearchPageClient(props: SearchPageClientProps) {
   const searchParams = useSearchParams();
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
   const urlQuery = parseSearchReviewEvidenceQueryFromSearch(searchParams.get("q"));
+  const urlConfidence = parseSearchReviewEvidenceConfidenceFromSearch(searchParams.get("confidence"));
 
   const [query, setQueryState] = useState(urlQuery);
   const [results, setResults] = useState<RetrievalHit[]>([]);
@@ -124,8 +131,17 @@ export function SearchPageClient(props: SearchPageClientProps) {
     setQueryState(next);
   }, []);
 
+  const filteredResults = useMemo(() => {
+    if (urlConfidence === null) {
+      return results;
+    }
+
+    return results.filter((hit) => retrievalHitRelevanceTier(hit.score) === urlConfidence);
+  }, [results, urlConfidence]);
+
   const model: SearchPageViewModel = {
     buyerShell,
+    confidence: urlConfidence,
     failure,
     hasSearched,
     isDemo,
@@ -137,10 +153,11 @@ export function SearchPageClient(props: SearchPageClientProps) {
       clearSearchRecentQueries();
       setRecentQueries([]);
     },
-    results,
+    results: filteredResults,
     runId: scopedRunId,
     setQuery,
     setRunId,
+    totalResultCount: results.length,
   };
 
   return <SearchPageView model={model} />;

@@ -52,7 +52,8 @@ export default function SignedRecordsListClient() {
     searchQuery,
     setSearchQuery,
     integrityFilter,
-    setIntegrityFilter,
+    dateRangePreset,
+    onIntegrityFilterChange,
     page,
     cursor,
     hasMore,
@@ -188,9 +189,10 @@ export default function SignedRecordsListClient() {
         <SignedRecordsListToolbar
           searchQuery={searchQuery}
           integrityFilter={integrityFilter}
+          dateRangePreset={dateRangePreset}
           disabled={loading}
           onSearchQueryChange={setSearchQuery}
-          onIntegrityFilterChange={setIntegrityFilter}
+          onIntegrityFilterChange={onIntegrityFilterChange}
         />
       ) : null}
 
