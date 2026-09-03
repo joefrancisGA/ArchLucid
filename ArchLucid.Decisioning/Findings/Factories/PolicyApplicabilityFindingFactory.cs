@@ -17,7 +17,7 @@ public static class PolicyApplicabilityFindingFactory
         return new Finding
         {
             FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
-            FindingType = "PolicyApplicabilityFinding",
+            FindingType = FindingTypes.PolicyApplicabilityFinding,
             Category = "Policy",
             EngineType = engineType,
             Severity = FindingSeverity.Info,
