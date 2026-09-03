@@ -43,7 +43,7 @@ export function RealModeAiReadinessShellBanner(
     return null;
   }
 
-  if (!readiness.isSessionReal || readiness.isLoading || readiness.isReady) {
+  if (!readiness.isSessionReal || readiness.isReady) {
     return null;
   }
 
@@ -53,6 +53,7 @@ export function RealModeAiReadinessShellBanner(
     <div
       className={cn(OPERATOR_CALLOUT_WARN_CLASS, "mb-3 shadow-sm", props.className)}
       role="alert"
+      aria-busy={isChecking}
       data-testid="real-mode-ai-readiness-shell-banner"
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">

@@ -68,9 +68,14 @@ describe("RealModeAiReadinessShellBanner", () => {
   });
 
   it("shows a loading label and disables the button while the probe is running", () => {
+    readinessState.isLoading = true;
     readinessState.probeState = { status: "loading" };
+    readinessState.detail = "Validating live AI readiness for this session…";
 
     render(<RealModeAiReadinessShellBanner />);
+
+    expect(screen.getByTestId("real-mode-ai-readiness-shell-banner")).toBeInTheDocument();
+    expect(screen.getByTestId("real-mode-ai-readiness-shell-banner")).toHaveAttribute("aria-busy", "true");
 
     const button = screen.getByTestId("real-mode-ai-readiness-check-button");
 
@@ -78,16 +83,21 @@ describe("RealModeAiReadinessShellBanner", () => {
     expect(button).toBeDisabled();
   });
 
-  it("hides while readiness is loading or already ready", () => {
+  it("stays visible while a retry probe is in flight after a prior failure", () => {
     readinessState.isLoading = true;
+    readinessState.probeState = { status: "loading" };
+    readinessState.detail = "Validating live AI readiness for this session…";
 
-    const { rerender } = render(<RealModeAiReadinessShellBanner />);
+    render(<RealModeAiReadinessShellBanner />);
 
-    expect(screen.queryByTestId("real-mode-ai-readiness-shell-banner")).not.toBeInTheDocument();
+    expect(screen.getByTestId("real-mode-ai-readiness-shell-banner")).toBeInTheDocument();
+    expect(screen.getByText("Validating live AI readiness for this session…")).toBeInTheDocument();
+  });
 
-    readinessState.isLoading = false;
+  it("hides when live AI is already ready", () => {
     readinessState.isReady = true;
-    rerender(<RealModeAiReadinessShellBanner />);
+
+    render(<RealModeAiReadinessShellBanner />);
 
     expect(screen.queryByTestId("real-mode-ai-readiness-shell-banner")).not.toBeInTheDocument();
   });
