@@ -21,10 +21,8 @@ public static class PlainTextDocumentTopologyHintExtractor
 
         foreach (string line in lines)
         {
-            if (!line.StartsWith("TOP:", StringComparison.OrdinalIgnoreCase))
+            if (!PlainTextDocumentPrefixedLine.TryGetPrefixedBody(line, "TOP", out string text))
                 continue;
-
-            string text = line[4..].Trim();
 
             if (string.IsNullOrWhiteSpace(text))
                 continue;

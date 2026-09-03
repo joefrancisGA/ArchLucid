@@ -32,8 +32,10 @@ public static class AgentExecutionTraceLatestPerTaskSelector
     {
         ArgumentNullException.ThrowIfNull(trace);
 
-        if (!string.IsNullOrWhiteSpace(trace.TaskId))
-            return trace.TaskId;
+        string? taskId = trace.TaskId?.Trim();
+
+        if (!string.IsNullOrWhiteSpace(taskId))
+            return taskId;
 
         // Missing TaskId must not collapse unrelated agent traces into one retry chain, but retries for the
         // same agent type within a run should still prefer the highest AttemptIndex.

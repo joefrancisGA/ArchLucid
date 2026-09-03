@@ -89,31 +89,120 @@ internal static class BicepArrayLiteralConverter
         if (innerBody.Length >= 2 && innerBody[0] == '{' && innerBody[^1] == '}')
             innerBody = innerBody[1..^1];
 
+        bool inBlockComment = false;
+
         foreach (string rawLine in innerBody.Split('\n'))
         {
             string line = rawLine.Trim();
 
-            if (line.Length == 0 || line.StartsWith("//", StringComparison.Ordinal))
+            if (TryConsumeBlockComment(ref line, ref inBlockComment))
                 continue;
 
-            Match scalarMatch = ScalarAssignmentRegex.Match(line);
-
-            if (!scalarMatch.Success)
+            if (line.Length == 0 || line.StartsWith("//", StringComparison.Ordinal) || line.StartsWith('#'))
                 continue;
 
-            string key = scalarMatch.Groups["key"].Value;
-            string rawValue = scalarMatch.Groups["value"].Value.Trim();
-            rawValue = CanonicalInfrastructurePropertyBag.StripTrailingHclComment(rawValue);
-            rawValue = CanonicalInfrastructurePropertyBag.StripTrailingSlashSlashComment(rawValue);
-            rawValue = CanonicalInfrastructurePropertyBag.StripTrailingBlockComment(rawValue);
-            string scalarValue = CanonicalInfrastructurePropertyBag.UnquoteInfrastructureScalar(rawValue);
+            foreach (string segment in EnumerateCommaSeparatedAssignmentSegments(line))
+            {
+                Match scalarMatch = ScalarAssignmentRegex.Match(segment);
 
-            if (string.IsNullOrWhiteSpace(scalarValue))
-                continue;
+                if (!scalarMatch.Success)
+                    continue;
 
-            properties[key] = CanonicalInfrastructurePropertyBag.CanonicalizeScalarValue(scalarValue);
+                string key = scalarMatch.Groups["key"].Value;
+                string rawValue = scalarMatch.Groups["value"].Value.Trim();
+                rawValue = CanonicalInfrastructurePropertyBag.StripTrailingHclComment(rawValue);
+                rawValue = CanonicalInfrastructurePropertyBag.StripTrailingSlashSlashComment(rawValue);
+                rawValue = CanonicalInfrastructurePropertyBag.StripTrailingBlockComment(rawValue);
+                string scalarValue = CanonicalInfrastructurePropertyBag.UnquoteInfrastructureScalar(rawValue);
+
+                if (string.IsNullOrWhiteSpace(scalarValue))
+                    continue;
+
+                properties[key] = CanonicalInfrastructurePropertyBag.CanonicalizeScalarValue(scalarValue);
+            }
         }
 
         return properties;
+    }
+
+    private static IEnumerable<string> EnumerateCommaSeparatedAssignmentSegments(string line)
+    {
+        if (string.IsNullOrWhiteSpace(line))
+            yield break;
+
+        int segmentStart = 0;
+        bool inDoubleQuotes = false;
+        bool inSingleQuotes = false;
+
+        for (int index = 0; index < line.Length; index++)
+        {
+            char character = line[index];
+
+            if (inDoubleQuotes && character == '\\' && index + 1 < line.Length)
+            {
+                index++;
+                continue;
+            }
+
+            if (character == '"' && !inSingleQuotes)
+                inDoubleQuotes = !inDoubleQuotes;
+
+            if (character == '\'' && !inDoubleQuotes)
+                inSingleQuotes = !inSingleQuotes;
+
+            if (character != ',' || inDoubleQuotes || inSingleQuotes)
+                continue;
+
+            string segment = line[segmentStart..index].Trim();
+
+            if (segment.Length > 0)
+                yield return segment;
+
+            segmentStart = index + 1;
+        }
+
+        string trailingSegment = line[segmentStart..].Trim();
+
+        if (trailingSegment.Length > 0)
+            yield return trailingSegment;
+    }
+
+    private static bool TryConsumeBlockComment(ref string line, ref bool inBlockComment)
+    {
+        if (inBlockComment)
+        {
+            int end = line.IndexOf("*/", StringComparison.Ordinal);
+
+            if (end < 0)
+            {
+                line = string.Empty;
+
+                return true;
+            }
+
+            line = line[(end + 2)..].TrimStart();
+            inBlockComment = false;
+        }
+
+        while (true)
+        {
+            int start = line.IndexOf("/*", StringComparison.Ordinal);
+
+            if (start < 0)
+                break;
+
+            int end = line.IndexOf("*/", start + 2, StringComparison.Ordinal);
+
+            if (end < 0)
+            {
+                line = line[..start].TrimEnd();
+                inBlockComment = true;
+                break;
+            }
+
+            line = string.Concat(line.AsSpan(0, start), line.AsSpan(end + 2)).Trim();
+        }
+
+        return string.IsNullOrWhiteSpace(line) && inBlockComment;
     }
 }

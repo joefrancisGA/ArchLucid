@@ -52,7 +52,12 @@ public static class TeamsNotificationTriggerCatalog
     /// <summary>True when <paramref name="eventType" /> is one of the v1 catalog triggers.</summary>
     public static bool IsKnown(string eventType)
     {
-        return !string.IsNullOrWhiteSpace(eventType) && AllSet.Contains(eventType);
+        if (string.IsNullOrWhiteSpace(eventType))
+            return false;
+
+        string canonical = IntegrationEventTypes.MapToCanonical(eventType);
+
+        return AllSet.Contains(canonical);
     }
 
     /// <summary>
@@ -77,6 +82,7 @@ public static class TeamsNotificationTriggerCatalog
                 return All;
 
             string[] filtered = parsed
+                .Select(IntegrationEventTypes.MapToCanonical)
                 .Where(IsKnown)
                 .Distinct(StringComparer.Ordinal)
                 .ToArray();
