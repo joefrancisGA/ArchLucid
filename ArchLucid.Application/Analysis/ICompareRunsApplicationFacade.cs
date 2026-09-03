@@ -19,6 +19,11 @@ public interface ICompareRunsApplicationFacade
         Guid targetRunId,
         CancellationToken ct);
 
+    Task<VersionManifestCompareLoadResult> CompareManifestVersionsAsync(
+        string leftVersion,
+        string rightVersion,
+        CancellationToken ct);
+
     AgentResultDiffResult CompareAgentResults(
         string leftRunId,
         ArchitectureRunDetail leftDetail,
