@@ -23,7 +23,7 @@ export function RecommendationLearningOpsPreviewPanel(props: Props) {
             <li key={check.name} className="list-none rounded border border-al-border/50 px-3 py-2">
               <div className="flex items-center justify-between gap-2">
                 <span className="font-medium">{check.name}</span>
-                <StatusTag kind={validationCheckStatusTagKind(check.result)} label={check.result} />
+                <StatusTag kind={validationCheckStatusTagKind(check.result ?? "")} label={check.result ?? ""} />
               </div>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{check.detail}</p>
             </li>

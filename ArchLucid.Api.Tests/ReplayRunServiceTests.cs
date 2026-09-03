@@ -127,7 +127,6 @@ public sealed class ReplayRunServiceTests
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAuditService>(),
             UnitTestActor(),
-            Mock.Of<IAuthorityRunOrchestrator>(),
             Mock.Of<IArchitectureRunCommitOrchestrator>(),
             Mock.Of<ICommitRunIdempotencyCoordinator>(),
             cloneStage,

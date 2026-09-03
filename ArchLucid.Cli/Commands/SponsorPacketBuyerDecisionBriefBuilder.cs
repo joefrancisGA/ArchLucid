@@ -20,9 +20,9 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
         ArgumentNullException.ThrowIfNull(inputs);
         ArgumentException.ThrowIfNullOrWhiteSpace(inputs.RunId);
 
-        PackManifestSummary manifest = ParseManifest(inputs.PackManifestJson);
-        SponsorReport sponsor = ParseSponsorReport(inputs.SponsorReportJson);
-        LimitationsSummary limitations = ParseLimitations(inputs.LimitationsMd);
+        SponsorPacketBuyerDecisionBriefSections.PackManifestSummary manifest = ParseManifest(inputs.PackManifestJson);
+        SponsorPacketBuyerDecisionBriefSections.SponsorReport sponsor = ParseSponsorReport(inputs.SponsorReportJson);
+        SponsorPacketBuyerDecisionBriefSections.LimitationsSummary limitations = ParseLimitations(inputs.LimitationsMd);
         string? valueParagraph = ExtractFirstValueParagraph(inputs.FirstValueReportMd);
         string? executionProvenance = ExtractExecutionProvenanceLine(inputs.FirstValueReportMd);
         string disposition = SponsorPacketBuyerDecisionBriefSections.DeriveDisposition(manifest, limitations);

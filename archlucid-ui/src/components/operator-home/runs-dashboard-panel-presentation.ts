@@ -1,5 +1,6 @@
 import { OPERATOR_HOME_GOVERNANCE_WARNINGS_PARAM } from "@/lib/operator/operator-home-metric-hrefs";
 import type { RunsDashboardTabId } from "@/components/operator-home/runs-dashboard-load-phase";
+import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
 
 export const RUNS_DASHBOARD_PANEL_DEFAULT_PROJECT_ID = "default";
 
@@ -127,6 +128,42 @@ export function runsDashboardTabHrefFromSearch(
   tab: RunsDashboardTabId,
 ): string {
   return runsDashboardHomeHrefFromSearch(currentSearch, { tab, showArchived: false });
+}
+
+export function runsDashboardDisabledTabReason(
+  tabId: RunsDashboardTabId,
+  buyerPolishedShell: boolean,
+): string {
+  if (tabId === "attention") {
+    return buyerPolishedShell
+      ? "No reviews need attention in this workspace."
+      : RUNS_DASHBOARD_LABELS.noReviewsNeedAttention;
+  }
+
+  if (tabId === "approved") {
+    return "No approved reviews in this workspace.";
+  }
+
+  if (tabId === "outcomes") {
+    return "No review outcomes in this workspace.";
+  }
+
+  return "This filter is unavailable because there are no matching reviews.";
+}
+
+export function runsDashboardArchivedDisabledReason(
+  archivedFieldSupported: boolean,
+  archivedCount: number,
+): string {
+  if (!archivedFieldSupported) {
+    return "Archived reviews are not available in this workspace.";
+  }
+
+  if (archivedCount === 0) {
+    return "No archived reviews in this workspace.";
+  }
+
+  return "This filter is unavailable.";
 }
 
 const BUYER_STATUS_TAB_IDS: readonly RunsDashboardTabId[] = ["all", "approved", "attention", "outcomes"];

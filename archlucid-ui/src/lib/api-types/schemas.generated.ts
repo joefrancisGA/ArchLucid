@@ -5024,6 +5024,7 @@ export interface components {
             contextSnapshotId?: string;
             cost?: components["schemas"]["CostSection"];
             createTimeEvidencePackagePins?: components["schemas"]["PinnedEvidencePackageRow"][];
+            createTimeEvidencePackagePinsHashSha256?: null | string;
             createTimePolicyPackPins?: components["schemas"]["PinnedPolicyPackRow"][];
             /** Format: date-time */
             createdUtc?: string;

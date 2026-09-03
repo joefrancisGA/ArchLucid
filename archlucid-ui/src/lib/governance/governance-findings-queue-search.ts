@@ -1,6 +1,8 @@
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+import type { RiskRegisterFilter } from "@/lib/architecture/architecture-risk-register-page";
 
 export const GOVERNANCE_FINDINGS_SEARCH_PARAM = "q";
+export const GOVERNANCE_FINDINGS_REGISTER_FILTER_PARAM = "filter";
 
 /** Parses `?q=` from the findings queue URL. */
 export function parseGovernanceFindingsSearchQuery(raw: string | null | undefined): string {
@@ -23,6 +25,24 @@ export function governanceFindingsSearchHrefFromSearch(
     params.delete(GOVERNANCE_FINDINGS_SEARCH_PARAM);
   } else {
     params.set(GOVERNANCE_FINDINGS_SEARCH_PARAM, trimmed);
+  }
+
+  const nextQuery = params.toString();
+
+  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+}
+
+export function governanceFindingsRegisterFilterHrefFromSearch(
+  currentSearch: string,
+  filter: RiskRegisterFilter,
+  pathname: string,
+): string {
+  const params = new URLSearchParams(currentSearch);
+
+  if (filter === "all") {
+    params.delete(GOVERNANCE_FINDINGS_REGISTER_FILTER_PARAM);
+  } else {
+    params.set(GOVERNANCE_FINDINGS_REGISTER_FILTER_PARAM, filter);
   }
 
   const nextQuery = params.toString();

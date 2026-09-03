@@ -5,6 +5,7 @@ import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { MarketingTrustCenterBuyerBody } from "./MarketingTrustCenterBuyerBody";
 import { TRUST_ASSURANCE_CLASSIFICATIONS } from "@/lib/trust-center-buyer-content";
 import { TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF } from "@/lib/trust-center-public-assurance";
+import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
 
 describe("MarketingTrustCenterBuyerBody", () => {
   it("renders last-reviewed fallback without an invalid time dateTime attribute", () => {
@@ -27,6 +28,22 @@ describe("MarketingTrustCenterBuyerBody", () => {
 
   it("renders hero hierarchy with one primary diligence action and secondary links", () => {
     render(<MarketingTrustCenterBuyerBody lastReviewedUtc="2026-05-01" />);
+
+    const skipLink = screen.getByRole("link", { name: TRUST_CENTER_PUBLIC_LAYOUT.skipLinkLabel });
+    expect(skipLink).toHaveAttribute("href", `#${TRUST_CENTER_PUBLIC_LAYOUT.skipTargetId}`);
+
+    const firstViewport = screen.getByTestId(TRUST_CENTER_PUBLIC_LAYOUT.firstViewportId);
+    const hero = screen.getByTestId("trust-center-hero");
+    const glance = screen.getByTestId("trust-center-assurance-glance");
+    const downloads = screen.getByTestId("trust-center-public-downloads");
+    const orientationBottom = screen.getByTestId("trust-center-orientation-bottom");
+    const vocabulary = screen.getByTestId("trust-center-vocabulary-disclosure");
+
+    expect(firstViewport).toContainElement(hero);
+    expect(firstViewport).toContainElement(glance);
+    expect(firstViewport.compareDocumentPosition(downloads) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(orientationBottom).toContainElement(vocabulary);
+    expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     expect(screen.getByRole("heading", { level: 1, name: "Trust Center" })).toBeInTheDocument();
     expect(

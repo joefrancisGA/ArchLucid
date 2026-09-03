@@ -50,6 +50,8 @@ export function GovernanceFindingsQueueSearchField(
         onKeyDown={(event) => {
           if (event.key === "Escape" && searchQuery.trim().length > 0) {
             event.preventDefault();
+            const clearedHref = governanceFindingsSearchHrefFromSearch(searchParams.toString(), "", pathname);
+            router.replace(clearedHref, { scroll: false });
             setSearchQuery("");
           }
         }}

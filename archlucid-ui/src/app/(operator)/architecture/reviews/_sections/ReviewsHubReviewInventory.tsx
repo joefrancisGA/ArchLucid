@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useMemo, useSyncExternalStore } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { useArchivedReviewsClientCache } from "@/hooks/use-archived-reviews-client-cache";
 import { useFavoriteReviews } from "@/hooks/use-favorite-reviews";
@@ -82,15 +83,15 @@ function ReviewFilterChip(props: {
   readonly option: { id: ReviewFilterId; label: string };
   readonly selected: boolean;
   readonly count: number;
-  readonly onSelect: (id: ReviewFilterId) => void;
+  readonly href: string;
 }): React.JSX.Element {
   return (
     <FilterChip
+      href={props.href}
+      scroll={false}
       className={buyerFilterChipClass(props.selected, false)}
-      aria-pressed={props.selected}
-      aria-current={props.selected ? true : undefined}
+      aria-current={props.selected ? "page" : undefined}
       aria-label={`Filter reviews: ${props.option.label}${props.count > 0 ? ` (${props.count})` : ""}`}
-      onClick={() => props.onSelect(props.option.id)}
     >
       <span>{props.option.label}</span>
       {props.count > 0 ? (
@@ -110,20 +111,8 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
   const searchParams = useSearchParams();
   const router = useRouter();
   const searchQuery = parseReviewsHubInventorySearchQuery(searchParams.get("q"));
-  const urlFilter = parseReviewsHubInventoryFilter(searchParams.get("filter"));
-  const [activeFilter, setActiveFilter] = useState<ReviewFilterId>(urlFilter);
-
-  useEffect(() => {
-    setActiveFilter(urlFilter);
-  }, [urlFilter]);
-
-  const selectInventoryFilter = useCallback(
-    (filter: ReviewFilterId) => {
-      setActiveFilter(filter);
-      router.replace(reviewsHubInventoryHrefFromSearch(searchParams.toString(), filter), { scroll: false });
-    },
-    [router, searchParams],
-  );
+  const activeFilter = parseReviewsHubInventoryFilter(searchParams.get("filter"));
+  const currentSearch = searchParams.toString();
 
   const { isFavorite } = useFavoriteReviews();
   const { archivedRuns } = useArchivedReviewsClientCache();
@@ -183,18 +172,16 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
   );
 
   const clearInventoryFilters = useCallback(() => {
-    setActiveFilter("all");
-    router.replace(reviewsHubInventoryClearFiltersHrefFromSearch(searchParams.toString()), { scroll: false });
-  }, [router, searchParams]);
+    router.replace(reviewsHubInventoryClearFiltersHrefFromSearch(currentSearch), { scroll: false });
+  }, [currentSearch, router]);
 
   const clearInventorySearch = useCallback(() => {
-    router.replace(reviewsHubInventoryClearSearchHrefFromSearch(searchParams.toString()), { scroll: false });
-  }, [router, searchParams]);
+    router.replace(reviewsHubInventoryClearSearchHrefFromSearch(currentSearch), { scroll: false });
+  }, [currentSearch, router]);
 
   const clearInventoryFilter = useCallback(() => {
-    setActiveFilter("all");
-    router.replace(reviewsHubInventoryClearFilterHrefFromSearch(searchParams.toString()), { scroll: false });
-  }, [router, searchParams]);
+    router.replace(reviewsHubInventoryClearFilterHrefFromSearch(currentSearch), { scroll: false });
+  }, [currentSearch, router]);
 
   const inventoryFiltersActive = activeFilter !== "all" || searchQuery.trim().length > 0;
 
@@ -252,17 +239,17 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
             data-testid="reviews-hub-toolbar"
           >
             <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2" data-testid="reviews-hub-filters">
-              <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter reviews">
+              <FilterChipGroup aria-label="Filter reviews" className="flex flex-wrap gap-1.5">
                 {INVENTORY_FILTER_OPTIONS.map((option) => (
                   <ReviewFilterChip
                     key={option.id}
                     option={option}
                     selected={activeFilter === option.id}
                     count={filterCounts.get(option.id) ?? 0}
-                    onSelect={selectInventoryFilter}
+                    href={reviewsHubInventoryHrefFromSearch(currentSearch, option.id)}
                   />
                 ))}
-              </div>
+              </FilterChipGroup>
             </div>
           </div>
 

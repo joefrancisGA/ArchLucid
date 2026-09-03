@@ -3,7 +3,6 @@ namespace ArchLucid.Persistence.Advisory;
 
 public sealed class InMemoryRecommendationLearningProfileRepository : IRecommendationLearningProfileRepository
 {
-    private const int MaxEntries = 500;
     private readonly List<StoredProfile> _profiles = [];
     private readonly Lock _gate = new();
 
@@ -13,10 +12,7 @@ public sealed class InMemoryRecommendationLearningProfileRepository : IRecommend
         lock (_gate)
         {
             _profiles.Add(new StoredProfile(Guid.NewGuid(), profile));
-            if (_profiles.Count > MaxEntries)
-            {
-                _profiles.RemoveRange(0, _profiles.Count - MaxEntries);
-            }
+            RecommendationLearningProfileRepositoryCore.TrimInMemoryEntries(_profiles);
         }
 
         return Task.CompletedTask;
@@ -60,15 +56,16 @@ public sealed class InMemoryRecommendationLearningProfileRepository : IRecommend
         CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        int boundedTake = Math.Clamp(take, 1, 100);
+        int boundedTake = RecommendationLearningProfileRepositoryCore.ClampHistoryTake(take);
 
         lock (_gate)
         {
             List<RecommendationLearningProfileRecord> history = _profiles
-                .Where(x =>
-                    x.Profile.TenantId == tenantId &&
-                    x.Profile.WorkspaceId == workspaceId &&
-                    x.Profile.ProjectId == projectId)
+                .Where(x => RecommendationLearningProfileRepositoryCore.MatchesScope(
+                    x.Profile,
+                    tenantId,
+                    workspaceId,
+                    projectId))
                 .OrderByDescending(x => x.Profile.GeneratedUtc)
                 .Take(boundedTake)
                 .Select(ToRecord)
@@ -89,10 +86,12 @@ public sealed class InMemoryRecommendationLearningProfileRepository : IRecommend
         lock (_gate)
         {
             StoredProfile? match = _profiles.FirstOrDefault(x =>
-                x.ProfileId == profileId &&
-                x.Profile.TenantId == tenantId &&
-                x.Profile.WorkspaceId == workspaceId &&
-                x.Profile.ProjectId == projectId);
+                x.ProfileId == profileId
+                && RecommendationLearningProfileRepositoryCore.MatchesScope(
+                    x.Profile,
+                    tenantId,
+                    workspaceId,
+                    projectId));
 
             return Task.FromResult(match is null ? null : ToRecord(match));
         }
@@ -101,22 +100,17 @@ public sealed class InMemoryRecommendationLearningProfileRepository : IRecommend
     private StoredProfile? FindLatestForScope(Guid tenantId, Guid workspaceId, Guid projectId)
     {
         return _profiles
-            .Where(x =>
-                x.Profile.TenantId == tenantId &&
-                x.Profile.WorkspaceId == workspaceId &&
-                x.Profile.ProjectId == projectId)
+            .Where(x => RecommendationLearningProfileRepositoryCore.MatchesScope(
+                x.Profile,
+                tenantId,
+                workspaceId,
+                projectId))
             .OrderByDescending(x => x.Profile.GeneratedUtc)
             .FirstOrDefault();
     }
 
-    private static RecommendationLearningProfileRecord ToRecord(StoredProfile stored)
-    {
-        return new RecommendationLearningProfileRecord
-        {
-            ProfileId = stored.ProfileId,
-            Profile = stored.Profile,
-        };
-    }
+    private static RecommendationLearningProfileRecord ToRecord(StoredProfile stored) =>
+        RecommendationLearningProfileRepositoryCore.ToRecord(stored.ProfileId, stored.Profile);
 
     private sealed record StoredProfile(Guid ProfileId, RecommendationLearningProfile Profile);
 }

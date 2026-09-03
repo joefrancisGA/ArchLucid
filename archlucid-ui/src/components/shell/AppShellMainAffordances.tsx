@@ -21,6 +21,12 @@ import { isPersistentWorkspaceNextActionStripPath } from "@/lib/persistent-works
 export function AppShellMainAffordances() {
   const pathname = usePathname() ?? "/";
   const isOperatorHome = pathname === "/";
+  const isPreferencesSettingsPath = pathname === "/account/preferences";
+  const isHelpTopicPath = pathname === "/help" || pathname.startsWith("/help/");
+  const isArchitectureScorecardPath = pathname === "/insights/architecture-scorecard";
+  const isItsmOAuthCallbackPath = pathname === "/integrations/itsm/oauth/callback";
+  const hideShortcutCoaches =
+    isPreferencesSettingsPath || isHelpTopicPath || isArchitectureScorecardPath || isItsmOAuthCallbackPath;
   const showPersistentWorkspaceNextActionStrip = isPersistentWorkspaceNextActionStripPath(pathname);
   const staticDemoEnv = isExplicitStaticDemoMarketingBuild();
 
@@ -29,11 +35,11 @@ export function AppShellMainAffordances() {
       <BuyerGoldenJourneyLayerContextStrip />
       {showPersistentWorkspaceNextActionStrip ? <PersistentWorkspaceNextActionStrip /> : null}
       {isOperatorHome ? <CorePilotCompleteCelebrateStrip /> : null}
-      <GlobalSearchShortcutCoach />
+      {hideShortcutCoaches ? null : <GlobalSearchShortcutCoach />}
       <OperatorRecentViewsTracker />
       <ReviewsListReturnStateTracker />
       <FirstVisitHelpAutoOpen />
-      <KeyboardShortcutsDiscoverabilityCoach />
+      {hideShortcutCoaches ? null : <KeyboardShortcutsDiscoverabilityCoach />}
       {staticDemoEnv ? (
         <DemoVsLiveChromeBanner isStaticDemoEnv showWatermark className="mb-3" />
       ) : null}

@@ -3,9 +3,10 @@ import type { CompareEffectiveGovernanceAtCommitSnapshot } from "@/lib/compare-e
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
 /**
- * Optional list enrichments not yet on OpenAPI `RunSummaryResponse` but returned by some endpoints.
+ * Intentional UI-only list enrichments merged onto OpenAPI `RunSummaryResponse` after fetch.
+ * These keys are not part of the generated schema; keep them here rather than parallel DTO structs.
  */
-type RunSummaryWireExtensions = {
+export type RunSummaryWireExtensions = {
   /** Golden manifest id when list/summary already resolved it (avoids N× getRunDetail). */
   goldenManifestId?: string | null;
   /** Manifest rule-set version when list endpoints already resolved it (avoids N× getManifestSummary). */
@@ -176,37 +177,13 @@ export type RunDetailAgentResult = {
   };
 };
 
-export type TrustEvidenceFieldSnapshot = {
-  title: string;
-  status: string;
-  detail?: string | null;
-};
+export type TrustEvidenceFieldSnapshot = components["schemas"]["TrustEvidenceFieldSnapshot"];
 
-export type RunTrustEvidenceRouteRef = {
-  rel: string;
-  path: string;
-  label: string;
-};
+export type RunTrustEvidenceRouteRef = components["schemas"]["RunTrustEvidenceRouteRef"];
 
-export type RunTrustEvidenceTopFindingRow = {
-  findingId: string;
-  title?: string | null;
-  traceCompletenessLabel: string;
-  evidencePointersSummary: string;
-};
+export type RunTrustEvidenceTopFindingRow = components["schemas"]["RunTrustEvidenceTopFindingRow"];
 
-export type RunTrustEvidenceCard = {
-  selfAttestationNotice: string;
-  executionMode: TrustEvidenceFieldSnapshot;
-  goldenManifest: TrustEvidenceFieldSnapshot;
-  auditTrail: TrustEvidenceFieldSnapshot;
-  agentTraces: TrustEvidenceFieldSnapshot;
-  artifactBundlePointer: TrustEvidenceFieldSnapshot;
-  traceabilityExport: TrustEvidenceFieldSnapshot;
-  aiExplainability: TrustEvidenceFieldSnapshot;
-  topFinding?: RunTrustEvidenceTopFindingRow | null;
-  links: RunTrustEvidenceRouteRef[];
-};
+export type RunTrustEvidenceCard = components["schemas"]["RunTrustEvidenceCard"];
 
 /** Optional fields sporadically merged onto authority run detail JSON beside `RunDetailDto`. */
 type RunDetailOptionalWireExtras = {
@@ -243,24 +220,7 @@ type RunDetailOptionalWireExtras = {
   }[] | null;
 };
 
-export type RunRetrievalGroundingSummary = {
-  readonly traceCount?: number;
-  readonly agentsWithTraces?: readonly string[];
-  readonly expectedAgentsMissingTraces?: readonly string[];
-  readonly averageCitationCoverage?: number;
-  readonly totalRetrievedChunks?: number;
-  readonly totalGraphRagNeighborsAdded?: number;
-  readonly totalGraphRagSeedHits?: number;
-  readonly graphRagNeighborHitRate?: number;
-  readonly totalRetrievalTokensIn?: number;
-  readonly graphRagPilotFloorDisposition?: string;
-  readonly graphRagQualityPosture?: string | null;
-  readonly disposition?: string;
-  readonly operatorDetail?: string | null;
-  readonly topologyReferenceArchitectureExemplarCount?: number;
-  readonly topologyReferenceArchitectureExemplarDocumentIds?: readonly string[];
-  readonly topologyReferenceArchitectureExemplarMissing?: boolean;
-};
+export type RunRetrievalGroundingSummary = components["schemas"]["RunRetrievalGroundingSummaryDto"];
 
 type RunDetailDtoBase = components["schemas"]["RunDetailDto"];
 

@@ -385,7 +385,7 @@ public sealed class PostAuthBootstrapServiceTests
             invitations,
             new UserInvitationFlowService(
                 invitations,
-                new AuthSignInRoutingService(
+                AuthSignInRoutingServiceTestSupport.Create(
                     new InMemoryTenantSignInEmailDomainRepository(),
                     new InMemoryTenantSignInEmailDomainRecoveryAdminRepository(),
                     new InMemoryTenantIdentityProviderConfigurationRepository(),

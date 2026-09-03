@@ -9,8 +9,9 @@ import {
   ARCHITECTURE_SCORECARD_FOLLOW_UPS_TITLE,
 } from "@/lib/architecture/architecture-scorecard-evidence-copy";
 import {
-  ARCHITECTURE_SCORECARD_PRIMARY_CONTENT_ID,
+  ARCHITECTURE_SCORECARD_FIRST_VIEWPORT_ID,
   ARCHITECTURE_SCORECARD_SKIP_LINK_LABEL,
+  ARCHITECTURE_SCORECARD_SKIP_TARGET_ID,
 } from "@/lib/architecture/architecture-scorecard-page-copy";
 import {
   REVIEW_SCORECARD_PAGE_SUBTITLE,
@@ -131,18 +132,17 @@ describe("PilotScorecardPageView buyer-polished shell", () => {
     mockUseSearchParams.mockReturnValue(new URLSearchParams("runId=run-scorecard-test"));
   });
 
-  it("renders skip link, orientation above summary row, and hides vocabulary rail", () => {
+  it("renders skip link to first viewport and orientation after outcomes", () => {
     render(<PilotScorecardPageView model={buildModel()} />);
 
     const skipLink = screen.getByRole("link", { name: ARCHITECTURE_SCORECARD_SKIP_LINK_LABEL });
-    expect(skipLink).toHaveAttribute("href", `#${ARCHITECTURE_SCORECARD_PRIMARY_CONTENT_ID}`);
+    expect(skipLink).toHaveAttribute("href", `#${ARCHITECTURE_SCORECARD_SKIP_TARGET_ID}`);
 
     expect(screen.getByRole("heading", { level: 1, name: REVIEW_SCORECARD_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(REVIEW_SCORECARD_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.queryByRole("navigation", { name: "Related value reports" })).not.toBeInTheDocument();
 
-    // claim discipline folded into page header
     expect(screen.getByTestId("architecture-scorecard-claim-discipline").textContent).toContain(
       ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE.slice(0, 40),
     );
@@ -152,12 +152,15 @@ describe("PilotScorecardPageView buyer-polished shell", () => {
     expect(screen.queryByRole("heading", { name: "Sources" })).toBeNull();
     expect(screen.getByTestId("architecture-scorecard-sources")).toBeInTheDocument();
     expect(screen.queryByTestId("scorecard-roi-vocabulary")).toBeNull();
+    expect(screen.queryByTestId("architecture-scorecard-orientation-top")).toBeNull();
 
     const primaryContent = screen.getByTestId("architecture-scorecard-primary-content");
-    const orientation = screen.getByTestId("architecture-scorecard-orientation-top");
+    const firstViewport = screen.getByTestId(ARCHITECTURE_SCORECARD_FIRST_VIEWPORT_ID);
     const summaryRow = screen.getByTestId("review-scorecard-summary-row");
+    const orientation = screen.getByTestId("architecture-scorecard-orientation-bottom");
 
-    expect(primaryContent).toContainElement(orientation);
-    expect(orientation.compareDocumentPosition(summaryRow) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(primaryContent).toContainElement(firstViewport);
+    expect(firstViewport).toContainElement(summaryRow);
+    expect(summaryRow.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

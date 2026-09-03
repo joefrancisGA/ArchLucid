@@ -116,6 +116,9 @@ internal static class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<IAgentLoopInvokeStage, AgentLoopInvokeStage>();
         services.AddScoped<IAgentLoopPersistStage, AgentLoopPersistStage>();
         services.AddScoped<IArchitectureRunExecuteAgentLoopStage, ArchitectureRunExecuteAgentLoopStage>();
+        services.AddScoped<IArchitectureRunExecuteScopeResolveStage, ArchitectureRunExecuteScopeResolveStage>();
+        services.AddScoped<IArchitectureRunExecuteTelemetryStage, ArchitectureRunExecuteTelemetryStage>();
+        services.AddScoped<IArchitectureRunExecuteTailHooksStage, ArchitectureRunExecuteTailHooksStage>();
         services.AddScoped<IArchitectureRunExecuteFailureRecorder, ArchitectureRunExecuteFailureRecorder>();
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
         services.AddScoped<IArchitectureRunBatchCreateOrchestrator, ArchitectureRunBatchCreateOrchestrator>();

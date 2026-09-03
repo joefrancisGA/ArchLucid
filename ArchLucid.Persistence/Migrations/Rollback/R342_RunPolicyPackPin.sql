@@ -1,18 +1,30 @@
 /*
   R342: Rollback 342_RunPolicyPackPin.sql —
-  drop run policy pack pin columns.
+  drop run policy pack pin columns from the physical run/review table
+  (dbo.Reviews after ADR 0064, else dbo.Runs).
 */
 
-IF COL_LENGTH(N'dbo.Runs', N'PinnedPolicyPackIdsHashSha256') IS NOT NULL
-BEGIN
-    ALTER TABLE dbo.Runs
-        DROP COLUMN PinnedPolicyPackIdsHashSha256;
-END;
-GO
+DECLARE @runTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
 
-IF COL_LENGTH(N'dbo.Runs', N'PinnedPolicyPackIdsJson') IS NOT NULL
+DECLARE @sql NVARCHAR(MAX);
+
+IF @runTable IS NOT NULL
+   AND COL_LENGTH(@runTable, N'PinnedPolicyPackIdsHashSha256') IS NOT NULL
 BEGIN
-    ALTER TABLE dbo.Runs
-        DROP COLUMN PinnedPolicyPackIdsJson;
-END;
+    SET @sql = N'ALTER TABLE ' + @runTable + N' DROP COLUMN PinnedPolicyPackIdsHashSha256;';
+
+    EXEC sp_executesql @sql;
+END
+
+IF @runTable IS NOT NULL
+   AND COL_LENGTH(@runTable, N'PinnedPolicyPackIdsJson') IS NOT NULL
+BEGIN
+    SET @sql = N'ALTER TABLE ' + @runTable + N' DROP COLUMN PinnedPolicyPackIdsJson;';
+
+    EXEC sp_executesql @sql;
+END
 GO

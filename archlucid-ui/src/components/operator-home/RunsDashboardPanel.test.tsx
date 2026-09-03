@@ -385,7 +385,7 @@ describe("RunsDashboardPanel", () => {
     expect(screen.queryByLabelText(/Review status:/i)).toBeNull();
   });
 
-  it("filters to governance-warning runs when checkbox is checked", async () => {
+  it("filters to governance-warning runs when warnings chip is selected", async () => {
     listRuns.mockResolvedValue({
       items: [
         {
@@ -410,14 +410,11 @@ describe("RunsDashboardPanel", () => {
     });
     stubFetchForDashboard();
 
-    renderRunsDashboardPanel();
+    renderRunsDashboardPanel(<RunsDashboardPanel />, "warnings=1");
 
-    expect(await screen.findByRole("link", { name: "Clear" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Needs follow-up" })).toBeInTheDocument();
-
-    fireEvent.click(screen.getByTestId("runs-dashboard-governance-warnings-only"));
-
-    expect(screen.queryByRole("link", { name: "Clear" })).toBeNull();
+    await waitFor(() => {
+      expect(screen.queryByRole("link", { name: "Clear" })).toBeNull();
+    });
     expect(screen.getByRole("link", { name: "Needs follow-up" })).toBeInTheDocument();
   });
 
@@ -819,6 +816,9 @@ describe("RunsDashboardPanel", () => {
     expect(statusFilterChip("runs-dashboard-tab-attention")).toHaveAttribute("href", "/?tab=attention");
     expect(screen.queryByRole("link", { name: /open all reviews/i })).not.toBeNull();
     expect(screen.getByTestId("runs-dashboard-status-filters").querySelector("a")).not.toBeNull();
+
+    fireEvent.keyDown(screen.getByRole("group", { name: "Review views" }), { key: "ArrowRight" });
+    expect(statusFilterChip("runs-dashboard-tab-attention")).toHaveFocus();
 
     firstPaint.unmount();
     renderRunsDashboardPanel(<RunsDashboardPanel />, "tab=attention");

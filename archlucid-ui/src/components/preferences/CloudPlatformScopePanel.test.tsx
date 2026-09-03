@@ -19,9 +19,11 @@ describe("CloudPlatformScopePanel", () => {
 
     fireEvent.click(screen.getByTestId("cloud-platform-scope-gcp"));
     expect(onScopeChange).not.toHaveBeenCalled();
+    expect(screen.getByTestId("cloud-platform-scope-gcp")).toBeDisabled();
     expect(screen.getByTestId("cloud-platform-scope-empty-selection")).toHaveTextContent(
       PREFERENCES_CLOUD_PLATFORMS_EMPTY_SELECTION_MESSAGE,
     );
+    expect(screen.getByText("Google Cloud")).toBeInTheDocument();
     expect(screen.queryByTestId("cloud-platform-scope-show-all")).not.toBeInTheDocument();
   });
 });
