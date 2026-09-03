@@ -1881,11 +1881,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 133
-- **bugs-found:** 252
+- **hunts:** 134
+- **bugs-found:** 254
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — `produce` environment names misclassified as production-like; `Non-Government` retail tier rejected
+- **last-bug:** 2026-09-03 — `prodigy` / `prodigal` environment names misclassified as production-like
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1976,6 +1976,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `AzureRetailPricesCatalogClient.LooksLikeConsumptionUsd` — `Rsv` substring false-positive on observability meter names — `Observability` does not contain contiguous `Rsv`; cheap-disproof on hunt #648.
 
 2026-09-03 seed hunt #648: reseeded from `HostingEnvironmentNamePatterns` and `AzureRetailPricesSkuMatchers`; proved produce environment `prod` false positive and `Non-Government` retail tier rejection; disproved `Rsv` observability false positive.
+
+- [x] (proven) `HostingEnvironmentNamePatterns.EnvironmentNameImpliesProductionLike` — `prodigy` environment names misclassified as production-like — **hit 2026-09-03 (#649):** after #648 produce exclusion, unbounded `Contains("prod")` still matched `Prodigy` / `prodigy-dev` environment names; production-like config lint and bypass-auth guards applied incorrectly; fixed by excluding prodigy-like environment name prefixes (`EnvironmentNameImpliesProductionLike_rejects_prodigy_environment_names`).
+
+- [x] (proven) `HostingEnvironmentNamePatterns.EnvironmentNameImpliesProductionLike` — `prodigal` environment names misclassified as production-like — **hit 2026-09-03 (#649):** same unbounded `Contains("prod")` matched `Prodigal` / `prodigal-dev` environment names; fixed by excluding prodigal-like environment name prefixes (`EnvironmentNameImpliesProductionLike_rejects_prodigal_environment_names`).
+
+- [x] (invalid) `AzureRetailPricesCatalogClient.LooksLikeConsumptionUsd` — `Rsv` substring false-positive on `Cursive` meter names — `Cursive` contains `rsi` at the embedded substring, not contiguous `Rsv`; cheap-disproof on hunt #649.
+
+2026-09-03 seed hunt #649: reseeded from `HostingEnvironmentNamePatterns`; proved prodigy and prodigal environment `prod` false positives; disproved `Cursive`/`Rsv` meter-name false positive.
 
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
