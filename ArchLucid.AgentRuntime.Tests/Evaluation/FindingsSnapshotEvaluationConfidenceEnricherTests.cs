@@ -248,6 +248,85 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricherTests
         finding.EvaluationConfidenceScore.Should().BeGreaterThan(44);
     }
 
+    [Fact]
+    public async Task TryEnrichAsync_uses_resolved_tenant_pilot_strict_mode_for_schema_gate()
+    {
+        Guid runGuid = Guid.Parse("90909090-9090-9090-9090-909090909090");
+        const string runKey = "90909090909090909090909090909090";
+        const string taskId = "task-no-citations";
+
+        AgentOutputQualityGateOptions pilotStrictOptions = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0,
+            StructuralWarnBelow = 1,
+            SemanticWarnBelow = 1,
+            PilotStrictMinStructuralCompleteness = 0,
+            PilotStrictMinSemanticScore = 0,
+            PilotStrictMinEvidenceRefCount = 0,
+        };
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "trace-no-citations",
+            TaskId = taskId,
+            RunId = runKey,
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson = "{}",
+        };
+
+        Finding finding = new()
+        {
+            FindingId = "finding-pilot-strict",
+            FindingType = "AgentArchitectureFinding-Topology",
+            Category = "Security",
+            EngineType = AgentType.Topology.ToString(),
+            Severity = FindingSeverity.Error,
+            Title = "Topology finding without trace id uses tenant-resolved PilotStrict gate.",
+            Rationale = "Topology finding without trace id uses tenant-resolved PilotStrict gate.",
+            Trace = new ExplainabilityTrace
+            {
+                RulesApplied = ["agent-Topology"],
+                DecisionsTaken = ["Recorded architecture finding from Topology agent."],
+                Notes = ["evidence:ev-1"],
+                Citations = ["ev-1"],
+            },
+        };
+
+        FindingsSnapshot snapshot = new()
+        {
+            FindingsSnapshotId = Guid.NewGuid(),
+            RunId = runGuid,
+            Findings = [finding],
+        };
+
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("10101010-1010-1010-1010-101010101010"),
+            WorkspaceId = Guid.Parse("20202020-2020-2020-2020-202020202020"),
+            ProjectId = Guid.Parse("30303030-3030-3030-3030-303030303030"),
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(p => p.GetCurrentScope()).Returns(scope);
+
+        Mock<IAgentExecutionTraceRepository> traceRepository = new();
+        traceRepository
+            .Setup(r => r.GetByRunIdAsync(scope, runKey, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([trace]);
+
+        FindingsSnapshotEvaluationConfidenceEnricher sut =
+            CreateSut(traceRepository.Object, scopeProvider.Object, pilotStrictOptions);
+
+        await sut.TryEnrichAsync(snapshot, CancellationToken.None);
+
+        finding.EvaluationConfidenceScore.Should().NotBeNull();
+        finding.EvaluationConfidenceScore.Should().BeLessThan(35);
+    }
+
     private static Finding CreateTopologyFinding(string findingId, string traceId)
     {
         return new Finding
@@ -273,9 +352,15 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricherTests
 
     private static FindingsSnapshotEvaluationConfidenceEnricher CreateSut(
         IAgentExecutionTraceRepository traceRepository,
-        IScopeContextProvider scopeProvider)
+        IScopeContextProvider scopeProvider,
+        AgentOutputQualityGateOptions? resolvedGateOptions = null)
     {
-        AgentOutputQualityGateOptions gateOptions = new() { Enabled = true };
+        AgentOutputQualityGateOptions gateOptions = resolvedGateOptions ?? new() { Enabled = true };
+
+        Mock<IAgentOutputQualityGateOptionsResolver> gateOptionsResolver = new();
+        gateOptionsResolver
+            .Setup(r => r.Resolve(It.IsAny<CancellationToken>()))
+            .Returns(gateOptions);
 
         Mock<IOptionsMonitor<AgentExecutionReferenceEvaluationOptions>> referenceOptions = new();
         referenceOptions.Setup(o => o.CurrentValue).Returns(new AgentExecutionReferenceEvaluationOptions { Enabled = false });
@@ -297,7 +382,7 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricherTests
             new AgentOutputEvaluator(),
             semanticFacade,
             new AgentOutputQualityGate(Options.Create(gateOptions)),
-            Options.Create(gateOptions),
+            gateOptionsResolver.Object,
             referenceEvaluator,
             new AgentResultEvidenceFaithfulnessChecker(Options.Create(new AgentFaithfulnessOptions())),
             new NoOpLlmFaithfulnessEvaluator(),

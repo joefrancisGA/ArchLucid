@@ -24,7 +24,7 @@ public sealed class AgentEvaluationConfidencePipeline(
     IAgentOutputEvaluator structuralEvaluator,
     HeuristicOnlyAgentOutputSemanticEvaluator confidenceGateSemanticEvaluator,
     IAgentOutputQualityGate qualityGate,
-    IOptions<AgentOutputQualityGateOptions> gateOptions,
+    IAgentOutputQualityGateOptionsResolver gateOptionsResolver,
     AgentOutputReferenceCaseRunEvaluator referenceCaseRunEvaluator,
     IAgentResultEvidenceFaithfulnessChecker agentResultEvidenceFaithfulnessChecker,
     IAgentOutputFaithfulnessEvaluator llmFaithfulnessEvaluator,
@@ -52,8 +52,8 @@ public sealed class AgentEvaluationConfidencePipeline(
     private readonly IAgentOutputQualityGate _qualityGate =
         qualityGate ?? throw new ArgumentNullException(nameof(qualityGate));
 
-    private readonly IOptions<AgentOutputQualityGateOptions> _gateOptions =
-        gateOptions ?? throw new ArgumentNullException(nameof(gateOptions));
+    private readonly IAgentOutputQualityGateOptionsResolver _gateOptionsResolver =
+        gateOptionsResolver ?? throw new ArgumentNullException(nameof(gateOptionsResolver));
 
     private readonly AgentOutputReferenceCaseRunEvaluator _referenceCaseRunEvaluator =
         referenceCaseRunEvaluator ?? throw new ArgumentNullException(nameof(referenceCaseRunEvaluator));
@@ -105,7 +105,7 @@ public sealed class AgentEvaluationConfidencePipeline(
 
         bool schemaPassed = await AgentOutputTraceQualityEvaluator.ComputeQualityGateAcceptedForConfidenceAsync(
             trace,
-            _gateOptions.Value,
+            _gateOptionsResolver.Resolve(cancellationToken),
             _structuralEvaluator,
             _confidenceGateSemanticEvaluator,
             _qualityGate,
