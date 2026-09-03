@@ -1,9 +1,11 @@
 using System.Data;
 
 using ArchLucid.Application;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Workflow;
 using ArchLucid.Application.Governance.Workflow.Stages;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Persistence.Ports;
@@ -12,6 +14,7 @@ using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Governance;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.TestSupport;
 using ArchLucid.TestSupport.Governance;
@@ -321,6 +324,85 @@ public sealed class GovernanceWorkflowFacadeTests
         result.TargetEnvironment.Should().Be("test");
         approvalRepo.VerifyNoOtherCalls();
         manifests.VerifyAll();
+    }
+
+    [Fact]
+    public async Task SubmitApprovalRequestAsync_persists_forty_character_custom_environment_slugs()
+    {
+        string sourceSlug = "staging-" + new string('a', 32);
+        string targetSlug = "approved-" + new string('b', 31);
+
+        InMemoryGovernanceEnvironmentCatalogRepository catalogRepository = new();
+        GovernanceEnvironmentCatalogService catalogService = new(
+            new FixedScopeContextProvider(CallerScope),
+            catalogRepository);
+
+        await catalogService.ReplaceCatalogAsync(
+            new ReplaceGovernanceEnvironmentCatalogRequest
+            {
+                Environments =
+                [
+                    new GovernanceEnvironmentDefinition { Slug = sourceSlug, DisplayName = "Staging", SortOrder = 0, IsActive = true },
+                    new GovernanceEnvironmentDefinition { Slug = targetSlug, DisplayName = "Approved", SortOrder = 1, IsActive = true },
+                ],
+                Transitions =
+                [
+                    new GovernanceEnvironmentTransition { SourceSlug = sourceSlug, TargetSlug = targetSlug },
+                ],
+            },
+            CancellationToken.None);
+
+        GovernanceApprovalRequest? captured = null;
+
+        Mock<IGovernanceApprovalRequestRepository> approvalRepo = new();
+        approvalRepo
+            .Setup(r => r.CreateAsync(
+                It.IsAny<GovernanceApprovalRequest>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection>(),
+                It.IsAny<IDbTransaction>()))
+            .Callback<GovernanceApprovalRequest, CancellationToken, IDbConnection?, IDbTransaction?>(
+                (request, _, _, _) => captured = request)
+            .Returns(Task.CompletedTask);
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(GovernanceWorkflowTestComposition.CreateRunDetailWithManifest("run-1", "v1"));
+
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationOptions = new();
+        integrationOptions.Setup(m => m.CurrentValue).Returns(new IntegrationEventsOptions { TransactionalOutboxEnabled = false });
+
+        GovernanceWorkflowFacade sut = GovernanceWorkflowTestComposition.CreateFacade(
+            approvalRepo.Object,
+            Mock.Of<IGovernancePromotionRecordRepository>(),
+            Mock.Of<IGovernanceEnvironmentActivationRepository>(),
+            runDetail.Object,
+            Mock.Of<ArchLucid.Application.Common.IBaselineMutationAuditService>(),
+            Mock.Of<IAuditService>(),
+            new FixedScopeContextProvider(CallerScope),
+            Mock.Of<IIntegrationEventPublisher>(),
+            Mock.Of<IIntegrationEventOutboxRepository>(),
+            integrationOptions.Object,
+            Options.Create(new PreCommitGovernanceGateOptions()),
+            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+            environmentCatalogService: catalogService);
+
+        GovernanceApprovalRequest result = await sut.SubmitApprovalRequestAsync(
+            "run-1",
+            "v1",
+            sourceSlug,
+            targetSlug,
+            "alice",
+            null,
+            null,
+            dryRun: false);
+
+        result.SourceEnvironment.Should().Be(sourceSlug);
+        result.TargetEnvironment.Should().Be(targetSlug);
+        captured.Should().NotBeNull();
+        captured!.SourceEnvironment.Should().Be(sourceSlug);
+        captured.TargetEnvironment.Should().Be(targetSlug);
     }
 
     [Fact]
@@ -1685,5 +1767,10 @@ public sealed class GovernanceWorkflowFacadeTests
 
             return integrationOptions.Object;
         }
+    }
+
+    private sealed class FixedScopeContextProvider(ScopeContext scope) : IScopeContextProvider
+    {
+        public ScopeContext GetCurrentScope() => scope;
     }
 }

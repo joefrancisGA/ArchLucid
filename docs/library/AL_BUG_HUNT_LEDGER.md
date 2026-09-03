@@ -2871,11 +2871,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 108
-- **bugs-found:** 262
+- **hunts:** 109
+- **bugs-found:** 263
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — baseline review-cycle source note max-length validation
+- **last-bug:** 2026-09-03 — workflow environment slug SQL column width parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3369,9 +3369,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-03 thorough hunt #552: proved risk-exception ownerUserId/evidenceRef max-length validation before SQL insert.
 
 - [x] (proven) `TenantBaselineController.PutAsync` — `baselineReviewCycleSourceNote` validated to 500 chars but `BaselineReviewCycleSource NVARCHAR(256)` persists `baseline_settings:` prefix (+18 chars), so 239–500 char notes reached SQL without HTTP 400 — **hit 2026-09-03 (#553):** cap at `BaselineReviewCycleSourceMarkers.MaxOperatorSettingsNoteLength` (238); regression in `TenantBaselineControllerTests.PutAsync_returns_bad_request_when_review_cycle_source_note_exceeds_persisted_max_length`.
-- [ ] (candidate) `GovernanceEnvironmentCatalogController.Replace` / `GovernanceController.SubmitApprovalRequest` / `Promote` — custom catalog slugs validated to 64 chars but `dbo.GovernanceApprovalRequests.SourceEnvironment` / `TargetEnvironment` and promotion records remain `NVARCHAR(32)`, so 33–64 char slugs can pass validation then fail SQL on workflow persist.
+- [x] (proven) `GovernanceEnvironmentCatalogController.Replace` / `GovernanceController.SubmitApprovalRequest` / `Promote` — custom catalog slugs validated to 64 chars but `dbo.GovernanceApprovalRequests.SourceEnvironment` / `TargetEnvironment` and promotion records remained `NVARCHAR(32)`, so 33–64 char slugs passed validation then failed SQL on workflow persist — **hit 2026-09-03 (#554):** DbUp 344 widens workflow environment columns to `NVARCHAR(64)`; shared `GovernanceEnvironmentSlug.MaxLength`; regression in `GovernanceWorkflowFacadeTests.SubmitApprovalRequestAsync_persists_forty_character_custom_environment_slugs`, `CreateGovernanceApprovalRequestValidatorTests`, `GovernanceEnvironmentCatalogServiceTests`, and `SqlGovernanceApprovalRequestRepositoryFreshTenantPrimingSqlIntegrationTests.CreateAsync_persists_environment_slugs_up_to_sixty_four_characters`.
 
-2026-09-03 seed hunt #553: proved baseline review-cycle source note persisted max-length validation; seeded approval/promote environment slug column-width drift candidate.
+2026-09-03 thorough hunt #554: proved workflow environment slug SQL column width parity with custom catalog slugs.
 
 ---
 

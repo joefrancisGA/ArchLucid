@@ -3117,8 +3117,8 @@ BEGIN
         ApprovalRequestId    NVARCHAR(64)     NOT NULL CONSTRAINT PK_GovernanceApprovalRequests PRIMARY KEY,
         RunId                NVARCHAR(64)     NOT NULL,
         ManifestVersion      NVARCHAR(128)    NOT NULL,
-        SourceEnvironment    NVARCHAR(32)     NOT NULL,
-        TargetEnvironment    NVARCHAR(32)     NOT NULL,
+        SourceEnvironment    NVARCHAR(64)     NOT NULL, -- DbUp 344 widened from 32 to 64; greenfield starts wide
+        TargetEnvironment    NVARCHAR(64)     NOT NULL, -- DbUp 344
         Status               NVARCHAR(32)     NOT NULL,
         RequestedBy          NVARCHAR(200)    NOT NULL,
         ReviewedBy           NVARCHAR(200)    NULL,
@@ -3146,8 +3146,8 @@ BEGIN
         PromotionRecordId NVARCHAR(64)     NOT NULL CONSTRAINT PK_GovernancePromotionRecords PRIMARY KEY,
         RunId             NVARCHAR(64)     NOT NULL,
         ManifestVersion   NVARCHAR(128)    NOT NULL,
-        SourceEnvironment NVARCHAR(32)     NOT NULL,
-        TargetEnvironment NVARCHAR(32)     NOT NULL,
+        SourceEnvironment NVARCHAR(64)     NOT NULL, -- DbUp 344 widened from 32 to 64; greenfield starts wide
+        TargetEnvironment NVARCHAR(64)     NOT NULL, -- DbUp 344
         PromotedBy        NVARCHAR(200)    NOT NULL,
         PromotedUtc       DATETIME2        NOT NULL,
         ApprovalRequestId NVARCHAR(64)     NULL,
@@ -7001,6 +7001,46 @@ IF OBJECT_ID(N'dbo.GovernanceEnvironmentActivations', N'U') IS NOT NULL
 BEGIN
     ALTER TABLE dbo.GovernanceEnvironmentActivations
         ALTER COLUMN Environment NVARCHAR(64) NOT NULL;
+END;
+
+GO
+
+/* ---- DbUp 344 parity: widen workflow SourceEnvironment/TargetEnvironment (see Migrations/344_*.sql) ---- */
+
+IF OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NOT NULL
+   AND EXISTS (
+       SELECT 1
+       FROM sys.columns AS c
+       INNER JOIN sys.types AS t ON c.user_type_id = t.user_type_id
+       WHERE c.object_id = OBJECT_ID(N'dbo.GovernanceApprovalRequests')
+         AND c.name = N'SourceEnvironment'
+         AND t.name = N'nvarchar'
+         AND c.max_length > 0
+         AND c.max_length < 128)
+BEGIN
+    ALTER TABLE dbo.GovernanceApprovalRequests
+        ALTER COLUMN SourceEnvironment NVARCHAR(64) NOT NULL;
+
+    ALTER TABLE dbo.GovernanceApprovalRequests
+        ALTER COLUMN TargetEnvironment NVARCHAR(64) NOT NULL;
+END;
+
+IF OBJECT_ID(N'dbo.GovernancePromotionRecords', N'U') IS NOT NULL
+   AND EXISTS (
+       SELECT 1
+       FROM sys.columns AS c
+       INNER JOIN sys.types AS t ON c.user_type_id = t.user_type_id
+       WHERE c.object_id = OBJECT_ID(N'dbo.GovernancePromotionRecords')
+         AND c.name = N'SourceEnvironment'
+         AND t.name = N'nvarchar'
+         AND c.max_length > 0
+         AND c.max_length < 128)
+BEGIN
+    ALTER TABLE dbo.GovernancePromotionRecords
+        ALTER COLUMN SourceEnvironment NVARCHAR(64) NOT NULL;
+
+    ALTER TABLE dbo.GovernancePromotionRecords
+        ALTER COLUMN TargetEnvironment NVARCHAR(64) NOT NULL;
 END;
 
 GO
