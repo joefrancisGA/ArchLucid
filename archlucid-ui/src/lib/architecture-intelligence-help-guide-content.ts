@@ -28,6 +28,7 @@ export const ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_CARD_TITLE = "Start here"
 export const ARCHITECTURE_INTELLIGENCE_HELP_PRIMARY_ACTION = {
   label: "Open architecture intelligence",
   href: ARCHITECTURE_INTELLIGENCE_CANONICAL_PATH,
+  testId: "help-architecture-intelligence-open-workspace",
 } as const;
 
 export const ARCHITECTURE_INTELLIGENCE_HELP_REASONING_HREF =
@@ -77,11 +78,6 @@ export const ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_HEADING_ID =
 export const ARCHITECTURE_INTELLIGENCE_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "what-architecture-intelligence-does", title: "What architecture intelligence does" },
   { level: 2, id: "how-architecture-intelligence-works", title: ARCHITECTURE_INTELLIGENCE_HELP_TOPIC_LABEL },
-  {
-    level: 2,
-    id: ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_HEADING_ID,
-    title: ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE_HEADING,
-  },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];
 
