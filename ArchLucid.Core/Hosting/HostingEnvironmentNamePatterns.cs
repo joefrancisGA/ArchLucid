@@ -53,6 +53,20 @@ public static class HostingEnvironmentNamePatterns
             return true;
         }
 
+        if (string.Equals(trimmed, "prodigy", StringComparison.OrdinalIgnoreCase)
+            || trimmed.StartsWith("prodigy-", StringComparison.OrdinalIgnoreCase)
+            || trimmed.StartsWith("prodigy_", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        if (string.Equals(trimmed, "prodigal", StringComparison.OrdinalIgnoreCase)
+            || trimmed.StartsWith("prodigal-", StringComparison.OrdinalIgnoreCase)
+            || trimmed.StartsWith("prodigal_", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
         return false;
     }
 }
