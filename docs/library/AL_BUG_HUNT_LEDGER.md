@@ -1832,11 +1832,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 116
-- **bugs-found:** 228
+- **hunts:** 117
+- **bugs-found:** 229
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — Azure collapsed SKU letter-prefix collision and UOM ` h`/` mo` substring false-positives
+- **last-bug:** 2026-09-03 — `/mo` UOM substring false-positive on `1/moment` monthly meter detection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2223,6 +2223,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AzureRetailPricesCatalogClient.IsMonthlyMeter` — ` mo` substring false-positive on `1 moment` — **hit 2026-09-03 (#539):** bare `Contains(" mo")` matched non-monthly `1 moment` after #515 monthly synonym fix; fixed with boundary-aware `ContainsBoundedToken` (`LooksLikeConsumptionUsd_rejects_moment_unit_of_measure_false_positive`).
 
 2026-09-03 seed hunt #539: reseeded from ArchLucid.Core Azure retail SKU matchers; proved letter-prefix SKU collision (GCP #537 parity) and hourly/monthly UOM substring false-positives beyond #533 `/h` boundary fix.
+
+- [x] (proven) `AzureRetailPricesCatalogClient.IsMonthlyMeter` — `/mo` substring false-positive on `1/moment` — **hit 2026-09-03 (#586):** bare `Contains("/mo")` matched non-monthly `1/moment` after #539 ` mo` bounded-token fix (parity gap with #533 `/h` → `ContainsSlashHourToken`); fixed with boundary-aware `ContainsSlashMonthToken` (`LooksLikeConsumptionUsd_rejects_moment_slash_mo_unit_of_measure_false_positive`, `TryMonthlyUsdFromRow_rejects_moment_slash_mo_unit_of_measure_false_positive`).
+
+2026-09-03 seed hunt #586: reseeded from ArchLucid.Core Azure retail SKU matchers; proved `/mo` UOM substring false-positive beyond #539 bounded ` mo` token fix.
 
 - [x] (proven) `MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId` — backslash/pipe-delimited `enterprise` token not recognized — **hit 2026-09-02 (#532):** `contoso\enterprise\monthly` and `contoso|enterprise|annual` returned `Standard` because `IsPlanIdDelimiter` omitted `\` and `|` after #526 slash/colon fix; fixed by extending delimiters (`TierStorageCodeFromPlanId_maps_backslash_or_pipe_delimited_enterprise_token`).
 
