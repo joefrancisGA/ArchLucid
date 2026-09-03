@@ -1,3 +1,5 @@
+/** Pilot, onboarding, and operator-workflow help-topic traffic rows. */
+
 import {
   HELP_TOPIC_CATCHALL_TRAFFIC_NOTE,
   HELP_TOPIC_CATCHALL_TRAFFIC_PATH,
