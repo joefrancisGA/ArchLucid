@@ -1845,17 +1845,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 118
-- **bugs-found:** 230
+- **hunts:** 119
+- **bugs-found:** 232
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — Azure hourly UOM `Hour` and `/hr` substring false-positives
+- **last-bug:** 2026-09-03 — Teams legacy trigger aliases widened opt-in to full catalog; Azure manifest upgrader string/Pascal `schemaVersion`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
 
-- [x] (proven) URL allow-list policy accepts a credential-bearing redirect target — **hit 2026-08-18:** outbound HTTPS URL policies allowed `https://user:pass@host` because only scheme/host were validated; embedded userinfo now rejected.
+- [x] (proven) `TeamsNotificationTriggerCatalog.ParseOrDefault` — legacy `com.archiforge.*` vendor aliases treated as unknown and widened to full catalog — **hit 2026-09-03 (#595):** `IsKnown` / `ParseOrDefault` omitted `IntegrationEventTypes.MapToCanonical`, so a tenant opting into a single legacy alias received all 16 v1 triggers; fixed by canonicalizing before membership checks (`ParseOrDefault_maps_legacy_vendor_alias_to_single_catalog_trigger`, `IsKnown_returns_true_for_legacy_vendor_alias_of_catalog_trigger`).
+- [x] (proven) `AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson` — string `"0"` / PascalCase `SchemaVersion` not coerced — **hit 2026-09-03 (#595):** case-sensitive property lookup and `GetValue<int>()` threw or returned missing-version errors while sibling `AzureExtractorPackageZipValidator` already accepts string/boolean/numeric tokens; fixed with case-insensitive lookup and validator-parity coercion (`TryUpgradeManifestJson_upgrades_string_zero_schema_version`, `TryUpgradeManifestJson_upgrades_PascalCase_schema_version_property`).
+- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — PascalCase `"PipelineDeadLetter"` misses dead-letter detection while canonical constant is `pipelineDeadLetter`; cheap-disproof pending in Application tests.
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
 - [x] (valid-no-repro) Tenant scope model treats empty workspace as a wildcard — `ActivityScopeTags` rejects `Guid.Empty` workspace ids; no wildcard semantics in Core tenancy models.
 - [x] (valid-no-repro) Configuration default enables a production-unsafe integration flag — ITSM/native and quick-scan defaults are gated by environment validators and hosted-SaaS overrides.

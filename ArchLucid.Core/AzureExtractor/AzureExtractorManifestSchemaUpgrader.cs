@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -26,13 +27,17 @@ public static class AzureExtractorManifestSchemaUpgrader
                 return false;
             }
 
-            if (!manifest.TryGetPropertyValue("schemaVersion", out JsonNode? versionNode))
+            if (!TryGetPropertyCaseInsensitive(manifest, "schemaVersion", out JsonNode? versionNode))
             {
                 errorDetail = "Missing schemaVersion in manifest.json.";
                 return false;
             }
 
-            int schemaVersion = versionNode!.GetValue<int>();
+            if (!TryReadSchemaVersion(versionNode, out int schemaVersion))
+            {
+                errorDetail = "Missing or unsupported schemaVersion in manifest.json.";
+                return false;
+            }
 
             if (schemaVersion == CurrentSchemaVersion)
                 return true;
@@ -62,12 +67,154 @@ public static class AzureExtractorManifestSchemaUpgrader
 
     private static void UpgradeFromZero(JsonObject manifest)
     {
+        RemovePropertyCaseInsensitive(manifest, "schemaVersion");
         manifest["schemaVersion"] = CurrentSchemaVersion;
 
-        if (!manifest.ContainsKey("scriptVersion"))
+        if (!ContainsPropertyCaseInsensitive(manifest, "scriptVersion"))
             manifest["scriptVersion"] = "legacy-0.x";
 
-        if (!manifest.ContainsKey("switchesUsed"))
+        if (!ContainsPropertyCaseInsensitive(manifest, "switchesUsed"))
             manifest["switchesUsed"] = new JsonArray();
+    }
+
+    private static bool ContainsPropertyCaseInsensitive(JsonObject manifest, string propertyName)
+    {
+        return manifest.Any(property =>
+            string.Equals(property.Key, propertyName, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static void RemovePropertyCaseInsensitive(JsonObject manifest, string propertyName)
+    {
+        string[] keys = manifest
+            .Where(property => string.Equals(property.Key, propertyName, StringComparison.OrdinalIgnoreCase))
+            .Select(property => property.Key)
+            .ToArray();
+
+        foreach (string key in keys)
+        {
+            manifest.Remove(key);
+        }
+    }
+
+    private static bool TryGetPropertyCaseInsensitive(JsonObject manifest, string propertyName, out JsonNode? value)
+    {
+        foreach (KeyValuePair<string, JsonNode?> property in manifest)
+        {
+            if (!string.Equals(property.Key, propertyName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            value = property.Value;
+
+            return true;
+        }
+
+        value = null;
+
+        return false;
+    }
+
+    private static bool TryReadSchemaVersion(JsonNode? versionNode, out int schemaVersion)
+    {
+        if (versionNode is null)
+        {
+            schemaVersion = default;
+
+            return false;
+        }
+
+        switch (versionNode.GetValueKind())
+        {
+            case JsonValueKind.Number when TryReadWholeNumberSchemaVersion(versionNode, out schemaVersion):
+                return true;
+            case JsonValueKind.String:
+            {
+                if (versionNode is not JsonValue jsonValue)
+                    break;
+
+                string? raw = jsonValue.GetValue<string>();
+
+                if (TryParseBooleanString(raw, out bool booleanSchema))
+                {
+                    schemaVersion = booleanSchema ? 1 : 0;
+
+                    return true;
+                }
+
+                if (TryParseWholeNumberString(raw, out schemaVersion))
+                    return true;
+
+                break;
+            }
+            case JsonValueKind.True:
+                schemaVersion = 1;
+
+                return true;
+            case JsonValueKind.False:
+                schemaVersion = 0;
+
+                return true;
+        }
+
+        schemaVersion = default;
+
+        return false;
+    }
+
+    private static bool TryReadWholeNumberSchemaVersion(JsonNode versionNode, out int schemaVersion)
+    {
+        if (versionNode is JsonValue jsonValue)
+        {
+            if (jsonValue.TryGetValue<int>(out schemaVersion))
+            {
+                return true;
+            }
+
+            if (jsonValue.TryGetValue<double>(out double numeric)
+                && double.IsFinite(numeric)
+                && numeric >= 0
+                && numeric == Math.Floor(numeric))
+            {
+                schemaVersion = (int)numeric;
+
+                return true;
+            }
+        }
+
+        schemaVersion = default;
+
+        return false;
+    }
+
+    private static bool TryParseWholeNumberString(string? raw, out int value)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            value = default;
+
+            return false;
+        }
+
+        string trimmed = raw.Trim();
+
+        if (int.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+        {
+            return true;
+        }
+
+        value = default;
+
+        return false;
+    }
+
+    private static bool TryParseBooleanString(string? raw, out bool value)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            value = default;
+
+            return false;
+        }
+
+        return bool.TryParse(raw.Trim(), out value);
     }
 }
