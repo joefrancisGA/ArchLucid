@@ -2,6 +2,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Application.Runs.Orchestration.Commit;
@@ -83,5 +84,21 @@ public static class AuthorityCommitRecoveryVerifier
             persistedManifest,
             recomputedMaterial,
             runIdLabel);
+    }
+
+    /// <summary>Wave-18 suggestion 178: verify sealed decision receipt hash matches recomputed export receipt.</summary>
+    public static void EnsureDecisionReceiptHashConsistentOrThrow(
+        ManifestDocument persistedManifest,
+        Guid runId,
+        string manifestVersion,
+        string runIdLabel,
+        IManifestHashService manifestHashService)
+    {
+        ManifestDecisionReceiptExportBinder.EnsureSealedReceiptHashMatchesOrThrow(
+            runId,
+            persistedManifest,
+            manifestVersion,
+            runIdLabel,
+            manifestHashService);
     }
 }

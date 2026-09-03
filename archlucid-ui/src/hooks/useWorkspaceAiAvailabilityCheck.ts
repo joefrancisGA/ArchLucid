@@ -81,11 +81,7 @@ export function useWorkspaceAiAvailabilityCheck(input: {
           return;
         }
 
-        const finalMessage = timedOut
-          ? `${message} Press Check AI availability to retry.`
-          : message;
-
-        setState({ status: "error", message: finalMessage });
+        setState({ status: "error", message });
       } finally {
         window.clearTimeout(timeoutId);
 

@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import {
   resolveEvidenceTrailPresentationView,
   type EvidenceTrailPresentationView,
@@ -28,6 +28,7 @@ export function useGraphPageUrlState(options: {
   setDecisionId: (decisionId: string) => void;
 }): { urlRunId: string; urlGraphNodeId: string } {
   const { setRunId, setGraphLoadRequested, setPresentationView, setMode, setTypeFilter, setDepth, setNodeId, setDecisionId } = options;
+  const productionEvalChrome = useProductionEvalChrome();
   const searchParams = useSearchParams();
   const urlRunId = searchParams.get("runId")?.trim() ?? "";
   const urlGraphNodeId = searchParams.get("graphNodeId")?.trim() ?? "";
@@ -45,10 +46,8 @@ export function useGraphPageUrlState(options: {
   }, [urlRunId, setRunId, setGraphLoadRequested]);
 
   useEffect(() => {
-    setPresentationView(
-      resolveEvidenceTrailPresentationView(urlPresentation, isBuyerPolishedOperatorShellEnv()),
-    );
-  }, [urlPresentation, setPresentationView]);
+    setPresentationView(resolveEvidenceTrailPresentationView(urlPresentation, productionEvalChrome));
+  }, [productionEvalChrome, urlPresentation, setPresentationView]);
 
   useEffect(() => {
     setMode(parseGraphScopeModeFromSearch(urlGraphMode));

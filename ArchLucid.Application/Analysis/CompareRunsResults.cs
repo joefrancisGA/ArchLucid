@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Comparison;
 
 namespace ArchLucid.Application.Analysis;
@@ -45,4 +46,20 @@ public sealed record ManifestCompareLoadResult
     public ComparisonResult? Comparison { get; init; }
 
     public Guid? RunId { get; init; }
+
+    public string? VersionLabel { get; init; }
+}
+
+/// <summary>Version-string manifest compare load result for governance compare routes.</summary>
+public sealed record VersionManifestCompareLoadResult
+{
+    public required ManifestCompareLoadOutcome Outcome { get; init; }
+
+    public GoldenManifest? Left { get; init; }
+
+    public GoldenManifest? Right { get; init; }
+
+    public Guid? RunId { get; init; }
+
+    public string? VersionLabel { get; init; }
 }

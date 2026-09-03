@@ -75,6 +75,10 @@ export function useEvolutionReviewPage(
   const searchParams = useSearchParams();
   const isDemo = serverLoad.mode === "demo";
 
+  const urlComparisonScope = parseImpactPreviewComparisonScopeFromSearch(searchParams.get("scope"));
+  const urlCandidateId = parseImpactPreviewCandidateIdFromSearch(searchParams.get("candidateId"));
+  const urlBaselineId = parseImpactPreviewBaselineFromSearch(searchParams.get("baseline"));
+
   const [candidates, setCandidates] = useState<EvolutionCandidateChangeSetResponse[]>(
     serverLoad.mode === "live" ? serverLoad.candidates : [],
   );
@@ -82,9 +86,6 @@ export function useEvolutionReviewPage(
     serverLoad.mode === "live" ? serverLoad.selectedId : null,
   );
   const [selectedBaselineId, setSelectedBaselineId] = useState<string | null>(urlBaselineId);
-  const urlComparisonScope = parseImpactPreviewComparisonScopeFromSearch(searchParams.get("scope"));
-  const urlCandidateId = parseImpactPreviewCandidateIdFromSearch(searchParams.get("candidateId"));
-  const urlBaselineId = parseImpactPreviewBaselineFromSearch(searchParams.get("baseline"));
   const [comparisonScope, setComparisonScope] = useState<ImpactPreviewComparisonScope>(urlComparisonScope);
   const [detail, setDetail] = useState<EvolutionResultsResponse | null>(
     serverLoad.mode === "live" ? serverLoad.detail : null,

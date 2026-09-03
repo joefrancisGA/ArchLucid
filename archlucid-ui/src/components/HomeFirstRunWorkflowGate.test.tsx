@@ -32,6 +32,10 @@ vi.mock("@/components/operator/OperatorFirstRunWorkflowPanel", () => ({
   OperatorFirstRunWorkflowPanel: () => <div data-testid="first-run-panel-mock" />,
 }));
 
+vi.mock("@/hooks/useArchitectWorkspaceChrome", () => ({
+  useArchitectWorkspaceChrome: vi.fn(() => true),
+}));
+
 vi.mock("@/components/operator-home/SamplePackageShortcutsCard", () => ({
   SamplePackageShortcutsCard: () => <div data-testid="sample-package-shortcuts-card" />,
 }));
@@ -86,8 +90,10 @@ describe("HomeFirstRunWorkflowGate", () => {
   it("renders sample shortcuts immediately on curated rail without waiting for commit probe", async () => {
     const { isOperatorExperienceFullShellEnv } = await import("@/lib/demo-ui-env");
     const { fetchCorePilotCommitContext } = await import("@/lib/core-pilot-commit-context");
+    const { useArchitectWorkspaceChrome } = await import("@/hooks/useArchitectWorkspaceChrome");
 
     vi.mocked(isOperatorExperienceFullShellEnv).mockReturnValue(false);
+    vi.mocked(useArchitectWorkspaceChrome).mockReturnValue(false);
     vi.mocked(fetchCorePilotCommitContext).mockImplementation(() => new Promise(() => {}));
 
     renderWithOperatorQuery(<HomeFirstRunWorkflowGate />);

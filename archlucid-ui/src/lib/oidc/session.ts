@@ -248,7 +248,7 @@ export async function ensureAccessTokenFresh(): Promise<void> {
 
   if (!refreshInFlight) {
     const generationAtStart = refreshSessionGeneration;
-    let refreshPromise: Promise<void>;
+    let refreshPromise!: Promise<void>;
     refreshPromise = (async () => {
       try {
         const doc = await loadDiscoveryDocument(authority);

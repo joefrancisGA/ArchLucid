@@ -73,7 +73,7 @@ public sealed class ComparisonController(ICompareRunsApplicationFacade compareRu
                 ProblemTypes.Conflict),
             ManifestCompareLoadOutcome.CommittedArtifactInventoryMismatch => this.ConflictProblem(
                 "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.",
-                ProblemTypes.Conflict),
+                ProblemTypes.CommittedArtifactInventoryMismatch),
             _ => throw new InvalidOperationException($"Unexpected manifest compare outcome: {result.Outcome}."),
         };
     }

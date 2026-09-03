@@ -1,3 +1,5 @@
+"use client";
+
 import { InAppNavigationGuardDialog } from "@/components/navigation/InAppNavigationGuardDialog";
 import { useInAppNavigationGuard } from "@/hooks/use-in-app-navigation-guard";
 import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
@@ -43,8 +45,8 @@ export function LivelihoodDocumentGuardDialog(props: {
     <InAppNavigationGuardDialog
       open={props.open}
       message={props.message}
-      onConfirm={props.onConfirm}
-      onCancel={props.onCancel}
+      onConfirmLeave={props.onConfirm}
+      onCancelLeave={props.onCancel}
     />
   );
 }

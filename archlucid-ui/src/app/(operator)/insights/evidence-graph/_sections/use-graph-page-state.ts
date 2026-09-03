@@ -13,6 +13,7 @@ import {
   type GraphMode,
 } from "@/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import type { AskRunListAvailability } from "@/lib/graph-page-state";
 
 export function useGraphPageState() {
@@ -27,8 +28,9 @@ export function useGraphPageState() {
     });
   }, []);
   const [graphInteractiveReady, setGraphInteractiveReady] = useState(false);
+  const productionEvalChrome = useProductionEvalChrome();
   const [presentationView, setPresentationView] = useState<EvidenceTrailPresentationView>(() =>
-    resolveEvidenceTrailPresentationView(null, isBuyerPolishedOperatorShellEnv()),
+    resolveEvidenceTrailPresentationView(null, productionEvalChrome),
   );
   const [reviewsListLoadError, setReviewsListLoadError] = useState(false);
   const [reviewListAvailability, setReviewListAvailability] = useState<AskRunListAvailability>({
