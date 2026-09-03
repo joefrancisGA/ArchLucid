@@ -12,8 +12,12 @@ import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCal
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { IdentityProvidersSsoWizardVocabularyRail } from "@/components/IdentityProvidersSsoWizardVocabularyRail";
 import { SsoWizardScimVocabularyRail } from "@/components/SsoWizardScimVocabularyRail";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import {
+  PAGE_HELP_SHORT_TRIGGER_TEXT,
+  PageContextualHelpButton,
+} from "@/components/usability/PageContextualHelpButton";
 import { SsoWizardSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   SSO_WIZARD_BACK_LINK_LABEL,
   SSO_WIZARD_CANCEL_UNSAVED_CONFIRM,
@@ -21,7 +25,6 @@ import {
   SSO_WIZARD_CONFIGURATION_EFFECT_LINE_SUFFIX,
   SSO_WIZARD_EXISTING_CONFIG_LOADING,
   SSO_WIZARD_IDENTITY_PROVIDERS_HREF,
-  SSO_WIZARD_PAGE_INTRO,
   SSO_WIZARD_PAGE_TITLE,
   SSO_WIZARD_PLATFORM_CONFIGURATION_CHANGE_LINK_HREF,
   SSO_WIZARD_PLATFORM_CONFIGURATION_CHANGE_LINK_LABEL,
@@ -31,9 +34,15 @@ import {
   SSO_WIZARD_POST_SAVE_NEXT_ACTION_LINK_LABEL,
   SSO_WIZARD_POST_SAVE_NEXT_ACTION_PREFIX,
   SSO_WIZARD_RELATED_SURFACES_DISCLOSURE_TITLE,
+  ssoWizardPageSubtitle,
 } from "@/lib/sso-wizard-copy";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  SSO_WIZARD_SETTINGS_FIRST_VIEWPORT_TEST_ID,
+} from "@/lib/sso-wizard-settings-page-copy";
 import { SSO_WIZARD_CANONICAL_PATH } from "@/lib/sso-wizard-evidence-copy";
+
+import { SsoWizardBuyerChrome } from "./SsoWizardBuyerChrome";
 
 import { SsoWizardExistingConfigSummary } from "./SsoWizardExistingConfigSummary";
 import { SsoWizardStepper } from "./SsoWizardStepper";
@@ -75,34 +84,56 @@ export function SsoWizardPageChrome({
   setPendingCancelConfirm,
   leaveWizard,
 }: Props) {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
   return (
     <>
       <header className="space-y-3">
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-          <Link href={SSO_WIZARD_IDENTITY_PROVIDERS_HREF} className={OPERATOR_LINK.nav} data-testid="sso-wizard-back-link">
-            ← {SSO_WIZARD_BACK_LINK_LABEL}
-          </Link>
-        </p>
+        {!buyerPolishedShell ? (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            <Link href={SSO_WIZARD_IDENTITY_PROVIDERS_HREF} className={OPERATOR_LINK.nav} data-testid="sso-wizard-back-link">
+              ← {SSO_WIZARD_BACK_LINK_LABEL}
+            </Link>
+          </p>
+        ) : null}
 
         <OperatorPageHeader
           navHref={SSO_WIZARD_CANONICAL_PATH}
           title={SSO_WIZARD_PAGE_TITLE}
-          subtitle={SSO_WIZARD_PAGE_INTRO}
+          subtitle={ssoWizardPageSubtitle(buyerPolishedShell)}
           titleTestId="sso-wizard-page-title"
-          actions={<PageContextualHelpButton />}
+          actions={
+            buyerPolishedShell ? null : (
+              <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+            )
+          }
         />
-        <SsoWizardSettingsEvidenceOrientationStrip />
-        <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
-          {SSO_WIZARD_CONFIGURATION_EFFECT_LINE_PREFIX}{" "}
-          <Link
-            href={SSO_WIZARD_PLATFORM_CONFIGURATION_CHANGE_LINK_HREF}
-            className={OPERATOR_LINK.inline}
-            data-testid="sso-wizard-platform-change-link"
-          >
-            {SSO_WIZARD_PLATFORM_CONFIGURATION_CHANGE_LINK_LABEL}
-          </Link>
-          {SSO_WIZARD_CONFIGURATION_EFFECT_LINE_SUFFIX}
-        </p>
+
+        <div
+          id={buyerPolishedShell ? SSO_WIZARD_SETTINGS_FIRST_VIEWPORT_TEST_ID : undefined}
+          data-testid={buyerPolishedShell ? SSO_WIZARD_SETTINGS_FIRST_VIEWPORT_TEST_ID : undefined}
+          className={cn(
+            buyerPolishedShell
+              ? cn("scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800", OPERATOR_LAYOUT.sectionStack)
+              : "space-y-3",
+          )}
+        >
+          {buyerPolishedShell ? <SsoWizardBuyerChrome /> : null}
+
+          {!buyerPolishedShell ? <SsoWizardSettingsEvidenceOrientationStrip /> : null}
+
+          <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
+            {SSO_WIZARD_CONFIGURATION_EFFECT_LINE_PREFIX}{" "}
+            <Link
+              href={SSO_WIZARD_PLATFORM_CONFIGURATION_CHANGE_LINK_HREF}
+              className={OPERATOR_LINK.inline}
+              data-testid="sso-wizard-platform-change-link"
+            >
+              {SSO_WIZARD_PLATFORM_CONFIGURATION_CHANGE_LINK_LABEL}
+            </Link>
+            {SSO_WIZARD_CONFIGURATION_EFFECT_LINE_SUFFIX}
+          </p>
+        </div>
       </header>
 
       {existingConfigLoading ? (
@@ -179,18 +210,20 @@ export function SsoWizardPageChrome({
         </div>
       ) : null}
 
-      <details
-        className="rounded-lg border border-neutral-200 dark:border-neutral-800"
-        data-testid="sso-wizard-related-surfaces-disclosure"
-      >
-        <summary className={cn("cursor-pointer px-4 py-2", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          {SSO_WIZARD_RELATED_SURFACES_DISCLOSURE_TITLE}
-        </summary>
-        <div className="space-y-3 border-t border-neutral-200 px-4 py-3 dark:border-neutral-800">
-          <IdentityProvidersSsoWizardVocabularyRail currentSurfaceId="sso-wizard" />
-          <SsoWizardScimVocabularyRail currentSurfaceId="sso-wizard" />
-        </div>
-      </details>
+      {!buyerPolishedShell ? (
+        <details
+          className="rounded-lg border border-neutral-200 dark:border-neutral-800"
+          data-testid="sso-wizard-related-surfaces-disclosure"
+        >
+          <summary className={cn("cursor-pointer px-4 py-2", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            {SSO_WIZARD_RELATED_SURFACES_DISCLOSURE_TITLE}
+          </summary>
+          <div className="space-y-3 border-t border-neutral-200 px-4 py-3 dark:border-neutral-800">
+            <IdentityProvidersSsoWizardVocabularyRail currentSurfaceId="sso-wizard" />
+            <SsoWizardScimVocabularyRail currentSurfaceId="sso-wizard" />
+          </div>
+        </details>
+      ) : null}
 
       <ConfirmationDialog
         open={pendingCancelConfirm}

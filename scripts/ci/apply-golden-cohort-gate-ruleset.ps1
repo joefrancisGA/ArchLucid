@@ -13,6 +13,9 @@
   Run after at least one green golden-cohort-nightly workflow on the default branch so the
   check name appears in GitHub autocomplete. If push is blocked before the first green run,
   temporarily set ruleset enforcement to "evaluate" in GitHub Settings -> Rules -> Rulesets.
+
+  After ui-typecheck-on-push adds a new required job (for example jwt-bearer production build),
+  re-run this script so the ruleset JSON and live GitHub ruleset stay aligned.
 #>
 [CmdletBinding()]
 param(

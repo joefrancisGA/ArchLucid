@@ -1,6 +1,11 @@
 import type { HealthReadyResponse, VersionInfoResponse } from "@/lib/health-dashboard-types";
 import type { CriticalDependencyRow } from "@/lib/system-health-critical-dependencies";
 
+export type SystemHealthStatusTransition = {
+  readonly at: Date;
+  readonly message: string;
+};
+
 export type SystemHealthPageViewModel = {
   readonly loading: boolean;
   readonly liveOk: boolean;
@@ -11,6 +16,7 @@ export type SystemHealthPageViewModel = {
   readonly criticalDependencies: readonly CriticalDependencyRow[];
   readonly refresh: () => Promise<void>;
   readonly lastRefreshedAt: Date | null;
+  readonly statusTransitions: readonly SystemHealthStatusTransition[];
   readonly showDemoWorkspaceDashboard: boolean;
   readonly showTechnicalDetails: boolean;
 };

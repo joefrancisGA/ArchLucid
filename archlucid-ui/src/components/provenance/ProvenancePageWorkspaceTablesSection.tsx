@@ -43,7 +43,7 @@ export type ProvenancePageWorkspaceTablesSectionProps = {
   readonly nodeSearch: string;
   readonly setNodeSearch: Dispatch<SetStateAction<string>>;
   readonly nodeTypeFilter: string;
-  readonly setNodeTypeFilter: Dispatch<SetStateAction<string>>;
+  readonly setNodeTypeFilter: (value: string) => void;
   readonly edgeSearch: string;
   readonly setEdgeSearch: Dispatch<SetStateAction<string>>;
   readonly edgesExpanded: boolean;

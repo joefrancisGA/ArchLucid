@@ -7,6 +7,7 @@ import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-proven
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/reviews/demo-run/provenance",
+  useSearchParams: () => new URLSearchParams(),
   useRouter: () => ({
     push: vi.fn(),
     replace: vi.fn(),
@@ -181,7 +182,7 @@ describe("ProvenancePageWorkspace", () => {
   it("shows filter notice without removing table data", () => {
     render(<ProvenancePageWorkspace runId="demo-run" graph={graph} provenanceTraceId={null} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Findings (1)" }));
+    fireEvent.click(screen.getByRole("link", { name: "Findings (1)" }));
 
     expect(
       screen.getByText(/Filters hide graph elements for focus only/i),

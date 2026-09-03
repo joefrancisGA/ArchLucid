@@ -54,6 +54,7 @@ export type GovernanceFindingsQueueTableRowProps = {
   readonly isFocused?: boolean;
   readonly style?: CSSProperties;
   readonly showNewSinceLastVisit?: boolean;
+  readonly showInsightDensityScore?: boolean;
   readonly onOpenRow?: () => void;
 };
 
@@ -69,6 +70,7 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
     isFocused,
     style,
     showNewSinceLastVisit = false,
+    showInsightDensityScore = false,
     onOpenRow,
   } = props;
   const graphHref = governanceQueueGraphEvidenceHref(row);
@@ -204,7 +206,7 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
           onOpenRow={onOpenRow}
         />
       ) : (
-        <GovernanceFindingsQueueOperationalRowCells row={row} />
+        <GovernanceFindingsQueueOperationalRowCells row={row} showInsightDensityScore={showInsightDensityScore} />
       )}
       <EnterpriseTableCell>
         {buyerPolishedShell ? (

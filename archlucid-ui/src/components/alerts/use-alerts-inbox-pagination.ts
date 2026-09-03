@@ -63,6 +63,10 @@ export function useAlertsInboxPagination(initialModel: AlertsInboxPageModel | nu
     });
   }
 
+  const resetCursorStack = useCallback((): void => {
+    setCursorStack([""]);
+  }, []);
+
   return {
     status,
     cursor,
@@ -71,5 +75,6 @@ export function useAlertsInboxPagination(initialModel: AlertsInboxPageModel | nu
     changeStatusFilter,
     goNextPage,
     goPreviousPage,
+    resetCursorStack,
   };
 }
