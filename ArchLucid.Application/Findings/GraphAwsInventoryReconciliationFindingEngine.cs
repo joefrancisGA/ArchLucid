@@ -44,18 +44,16 @@ public sealed class GraphAwsInventoryReconciliationFindingEngine(
     {
         ArgumentNullException.ThrowIfNull(graphSnapshot);
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        DateTime? collectionUtc = await _packageRepository
-            .TryGetLatestCollectionTimestampUtcInScopeAsync(scope, CloudProvider.Aws, ct)
-            .ConfigureAwait(false);
-
-        if (InventoryCollectionFreshnessGate.ShouldSuppressInventoryFindings(
-                collectionUtc,
+        if (EffectfulFindingEngineCollectionFreshness.ShouldSuppressInventoryFindingsForCloud(
+                analysisContext,
+                CloudProvider.Aws,
                 _clock.GetUtcNow().UtcDateTime,
                 _freshnessOptions.StaleAfterDays))
         {
             return [];
         }
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         CloudInventoryExtractorPackageDownloadRecord? download =
             await EffectfulFindingEngineEvidenceLoader.TryResolveCloudDownloadAsync(
