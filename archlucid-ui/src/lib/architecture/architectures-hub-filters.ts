@@ -181,3 +181,71 @@ export function countArchitecturesHubFilterMatches(
 ): number {
   return entries.filter((entry) => matchesArchitecturesHubFilter(entry, filter)).length;
 }
+
+/** Derives an email-domain bucket from `ownerLabel` when present; otherwise returns empty. */
+export function architectureDraftOwnerDomainFromOwnerLabel(ownerLabel: string): string {
+  const trimmed = ownerLabel.trim();
+  const atIndex = trimmed.indexOf("@");
+
+  if (atIndex <= 0 || atIndex >= trimmed.length - 1) {
+    return "";
+  }
+
+  return trimmed.slice(atIndex + 1).toLowerCase();
+}
+
+export function matchesArchitecturesHubOwnerFilter(
+  entry: ArchitectureDraftRegistryEntry,
+  ownerFilter: string,
+): boolean {
+  const needle = ownerFilter.trim().toLowerCase();
+
+  if (needle.length === 0) {
+    return true;
+  }
+
+  return entry.ownerLabel.trim().toLowerCase() === needle;
+}
+
+export function matchesArchitecturesHubDomainFilter(
+  entry: ArchitectureDraftRegistryEntry,
+  domainFilter: string,
+): boolean {
+  const needle = domainFilter.trim().toLowerCase();
+
+  if (needle.length === 0) {
+    return true;
+  }
+
+  const domain = architectureDraftOwnerDomainFromOwnerLabel(entry.ownerLabel);
+
+  return domain.length > 0 && domain === needle;
+}
+
+export function distinctArchitectureHubOwners(entries: readonly ArchitectureDraftRegistryEntry[]): string[] {
+  const owners = new Set<string>();
+
+  for (const entry of entries) {
+    const owner = entry.ownerLabel.trim();
+
+    if (owner.length > 0) {
+      owners.add(owner);
+    }
+  }
+
+  return [...owners].sort((left, right) => left.localeCompare(right, undefined, { sensitivity: "base" }));
+}
+
+export function distinctArchitectureHubDomains(entries: readonly ArchitectureDraftRegistryEntry[]): string[] {
+  const domains = new Set<string>();
+
+  for (const entry of entries) {
+    const domain = architectureDraftOwnerDomainFromOwnerLabel(entry.ownerLabel);
+
+    if (domain.length > 0) {
+      domains.add(domain);
+    }
+  }
+
+  return [...domains].sort((left, right) => left.localeCompare(right, undefined, { sensitivity: "base" }));
+}

@@ -1,9 +1,12 @@
 "use client";
 
 import { memo, useState, type ReactElement } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { governanceFindingsGroupByHrefFromSearch } from "@/lib/governance/governance-findings-group-by-url";
 import { downloadArchitectureRiskRegisterCsv } from "@/lib/architecture/architecture-risk-register-csv";
 import {
   matchesRiskRegisterFilter,
@@ -12,6 +15,7 @@ import {
   type RiskRegisterFilter,
 } from "@/lib/architecture/architecture-risk-register-page";
 import { downloadGovernanceFindingsItsmJsonExport } from "@/lib/runs/run-findings-itsm-export";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -48,9 +52,12 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
     onSaveCurrentFilterAsPreset,
     onRemovePreset,
     groupByResource,
-    onToggleGroupByResource,
+    onToggleGroupByResource: _onToggleGroupByResource,
     displayedRows,
   } = props;
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
   const [pendingRemovePreset, setPendingRemovePreset] = useState<GovernanceFindingsFilterPreset | null>(null);
 
   const findingRows = displayedRows.filter((row) => row.recordKind === "finding");
@@ -130,15 +137,16 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
         >
           Export JSON (work items)
         </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant={groupByResource ? "default" : "outline"}
+        <FilterChip
+          href={governanceFindingsGroupByHrefFromSearch(currentSearch, !groupByResource, pathname)}
+          scroll={false}
+          className={buyerFilterChipClass(groupByResource, false)}
           aria-pressed={groupByResource}
-          onClick={onToggleGroupByResource}
+          aria-current={groupByResource ? "page" : undefined}
+          data-testid="governance-findings-group-by-resource"
         >
           Group by resource
-        </Button>
+        </FilterChip>
       </div>
 
       {props.onNaturalLanguageFilterApply !== undefined ? (

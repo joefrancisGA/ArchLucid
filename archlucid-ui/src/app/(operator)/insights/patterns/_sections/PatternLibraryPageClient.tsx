@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
@@ -29,6 +29,13 @@ import {
 import type { PatternLibraryFiltersState } from "@/lib/pattern-library-types";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { patternLibraryHref } from "@/lib/pattern-library-route";
+import {
+  parsePatternLibraryDomainFromSearch,
+  parsePatternLibraryPlatformFromSearch,
+  parsePatternLibrarySearchQuery,
+  patternLibraryClearSearchHrefFromSearch,
+  patternLibrarySearchHrefFromSearch,
+} from "@/lib/insights/pattern-library-filters-url";
 import {
   resolvePatternLibraryBrowseEmphasizedStepId,
   resolvePatternLibraryBrowseSteps,
@@ -62,11 +69,55 @@ function toPatternLibraryLoadFailure(error: Error): ApiLoadFailureState {
 export function PatternLibraryPageClient(): React.JSX.Element {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
   const scopedRunFilterActive = scopedRunId.length > 0;
+  const urlQuery = parsePatternLibrarySearchQuery(searchParams.get("q"));
+  const urlDomain = parsePatternLibraryDomainFromSearch(searchParams.get("domain"));
+  const urlPlatform = parsePatternLibraryPlatformFromSearch(searchParams.get("platform"));
 
   const queryClient = useQueryClient();
-  const [filters, setFilters] = useState<PatternLibraryFiltersState>(DEFAULT_PATTERN_LIBRARY_FILTERS);
+  const [filters, setFilters] = useState<PatternLibraryFiltersState>(() => ({
+    ...DEFAULT_PATTERN_LIBRARY_FILTERS,
+    query: urlQuery,
+    domain: urlDomain,
+    platform: urlPlatform,
+  }));
+  const [searchQuery, setSearchQuery] = useState(urlQuery);
+
+  useEffect(() => {
+    setFilters((current) => ({
+      ...current,
+      query: urlQuery,
+      domain: urlDomain,
+      platform: urlPlatform,
+    }));
+    setSearchQuery(urlQuery);
+  }, [urlDomain, urlPlatform, urlQuery]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const nextHref = patternLibrarySearchHrefFromSearch(searchParams.toString(), searchQuery);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [router, searchParams, searchQuery]);
+
+  const onFiltersChange = useCallback((next: PatternLibraryFiltersState): void => {
+    setFilters(next);
+    setSearchQuery(next.query);
+  }, []);
+
+  const clearSearch = useCallback(() => {
+    setSearchQuery("");
+    router.replace(patternLibraryClearSearchHrefFromSearch(currentSearch), { scroll: false });
+  }, [currentSearch, router]);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const {
     provenance,
@@ -195,7 +246,14 @@ export function PatternLibraryPageClient(): React.JSX.Element {
           {continueLastPattern !== null ? (
             <PatternLibraryContinueLastViewedRow record={continueLastPattern} scopedRunId={scopedRunId} />
           ) : null}
-          <PatternLibraryFiltersPanel filters={filters} onChange={setFilters} />
+          <PatternLibraryFiltersPanel
+            filters={filters}
+            currentSearch={currentSearch}
+            searchQuery={searchQuery}
+            onSearchQueryChange={setSearchQuery}
+            onClearSearch={clearSearch}
+            onChange={onFiltersChange}
+          />
 
           {filteredRecords.length === 0 ? (
             <EnterpriseCompactEmptyState

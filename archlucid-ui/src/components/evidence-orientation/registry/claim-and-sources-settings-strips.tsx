@@ -63,6 +63,11 @@ import {
   DIGESTS_SCHEDULE_SOURCES_INTRO,
 } from "@/lib/digests-schedule-evidence-copy";
 import {
+  DEVELOPER_SETTINGS_FOLLOW_UPS_TITLE,
+  DEVELOPER_SETTINGS_SOURCES,
+  DEVELOPER_SETTINGS_SOURCES_INTRO,
+} from "@/lib/developer-settings-evidence-copy";
+import {
   OPERATOR_BILLING_SETTINGS_FOLLOW_UPS_TITLE,
   OPERATOR_BILLING_SETTINGS_SOURCES,
   OPERATOR_BILLING_SETTINGS_SOURCES_INTRO,
@@ -161,6 +166,18 @@ export function DigestsScheduleEvidenceOrientationStrip(
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName}
       hubSecondary
+    />
+  );
+}
+
+export function DeveloperSettingsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="developer-settings"
+      sourcesTitle={DEVELOPER_SETTINGS_FOLLOW_UPS_TITLE}
+      sourcesIntro={DEVELOPER_SETTINGS_SOURCES_INTRO}
+      sources={DEVELOPER_SETTINGS_SOURCES}
+      sourcesHeadingId="where-to-go-next"
     />
   );
 }

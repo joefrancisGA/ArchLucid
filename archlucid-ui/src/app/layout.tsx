@@ -15,6 +15,7 @@ import { ColorModePreferenceProvider } from "@/components/ColorModePreferencePro
 import { SampleReviewsOnOverviewPreferenceProvider } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
 import { WhereToGoNextPreferenceProvider } from "@/components/WhereToGoNextPreferenceProvider";
 import { WorkspaceModeProvider } from "@/components/WorkspaceModeProvider";
+import { WorkspaceModeSealDefaultEffect } from "@/components/workspace-mode/WorkspaceModeSealDefaultEffect";
 
 import "./globals.css";
 
@@ -77,6 +78,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="min-h-screen font-sans">
         <ColorModePreferenceProvider>
           <WorkspaceModeProvider>
+            <WorkspaceModeSealDefaultEffect />
             <WhereToGoNextPreferenceProvider>
               <SampleReviewsOnOverviewPreferenceProvider>{children}</SampleReviewsOnOverviewPreferenceProvider>
             </WhereToGoNextPreferenceProvider>

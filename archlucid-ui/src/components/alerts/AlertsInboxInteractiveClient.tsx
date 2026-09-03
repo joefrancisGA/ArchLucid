@@ -100,6 +100,7 @@ export function AlertsInboxInteractiveClient({ initialModel = null }: AlertsInbo
           />
       <AlertsInboxControls
         status={controller.status}
+        severity={controller.severity}
         page={controller.page}
         loading={controller.loading}
         buyerPolishedShell={controller.buyerPolishedShell}

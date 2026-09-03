@@ -330,6 +330,7 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
             Manifest = manifest,
             Results = [],
             DecisionTraces = [],
+            AuthorityLifecyclePhase = AuthorityRunLifecyclePhase.Complete,
         };
     }
 

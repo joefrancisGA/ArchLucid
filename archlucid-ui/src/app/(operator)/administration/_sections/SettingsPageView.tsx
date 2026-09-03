@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { AdminPrerequisitesReadinessBoard } from "@/components/administration/AdminPrerequisitesReadinessBoard";
@@ -24,20 +25,51 @@ import { SettingsMasterDestinationCard } from "./SettingsMasterDestinationCard";
 import { SettingsMasterOverviewHeader } from "./SettingsMasterOverviewHeader";
 import { SettingsMasterSearchField } from "./SettingsMasterSearchField";
 import { SettingsMasterSectionNav } from "./SettingsMasterSectionNav";
-import {
-  SETTINGS_MASTER_FIRST_VIEWPORT_ID,
+import { SETTINGS_MASTER_FIRST_VIEWPORT_ID,
   SETTINGS_MASTER_PRIMARY_CONTENT_ID,
   SETTINGS_MASTER_SKIP_LINK_LABEL,
   SETTINGS_MASTER_SKIP_TARGET_ID,
 } from "./settings-master-page-copy";
+import {
+  parseSettingsMasterSearchQuery,
+  settingsMasterClearSearchHrefFromSearch,
+  settingsMasterSearchHrefFromSearch,
+} from "@/lib/administration/settings-master-search-url";
 
 export function SettingsPageView() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
+  const urlSearchQuery = parseSettingsMasterSearchQuery(searchParams.get("q"));
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const scope = useMemo(() => readOperatorScopeFromStorage(), []);
   const environmentLabel = isSelfHostedDeploymentEnv() ? "Self-hosted deployment" : "Managed SaaS";
+
+  useEffect(() => {
+    setSearchQuery(urlSearchQuery);
+  }, [urlSearchQuery]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const nextHref = settingsMasterSearchHrefFromSearch(searchParams.toString(), searchQuery);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [router, searchParams, searchQuery]);
+
+  const clearSearch = useCallback(() => {
+    setSearchQuery("");
+    router.replace(settingsMasterClearSearchHrefFromSearch(currentSearch), { scroll: false });
+  }, [currentSearch, router]);
 
   const visibleSections = useMemo(
     () =>
@@ -87,6 +119,7 @@ export function SettingsPageView() {
           <SettingsMasterSearchField
             value={searchQuery}
             onChange={setSearchQuery}
+            onClear={clearSearch}
             resultCount={visibleSections.length}
           />
 

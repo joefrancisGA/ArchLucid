@@ -25,7 +25,7 @@ export const WORKSPACE_MODE_GRADUATION_LEAD =
 
 export const WORKSPACE_MODE_GRADUATION_CHANGES = [
   "Overview leads with your work queue.",
-  "Getting started leaves the main navigation.",
+  "Getting started moves out of the main navigation (still in Help).",
   "Teaching strips and tour prompts stay hidden.",
 ] as const;
 
