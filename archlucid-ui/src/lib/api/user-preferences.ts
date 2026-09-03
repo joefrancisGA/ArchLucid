@@ -1,6 +1,8 @@
 import type { CloudPlatformScope } from "@/lib/cloud-platform-scope-storage";
 import * as httpApi from "@/lib/api/http";
 import type { ColorModePreference } from "@/lib/color-mode-preference";
+import type { WorkspaceModeId } from "@/lib/workspace-mode/workspace-mode";
+import type { WorkspaceModeGraduationOfferState } from "@/lib/workspace-mode/workspace-mode-preference";
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
@@ -22,6 +24,10 @@ export type UserPreferencesResponse = {
   sampleReviewsOnOverviewIsExplicit: boolean;
   ianaTimeZoneId: string;
   ianaTimeZoneIsExplicit: boolean;
+  workspaceMode: WorkspaceModeId;
+  workspaceModeIsExplicit: boolean;
+  workspaceModeGraduationOffer: WorkspaceModeGraduationOfferState;
+  workspaceModeGraduationOfferIsExplicit: boolean;
 };
 
 export type SetAppearancePreferenceRequest = {
@@ -42,6 +48,14 @@ export type SetSampleReviewsOnOverviewVisibilityRequest = {
 
 export type SetIanaTimeZonePreferenceRequest = {
   ianaTimeZoneId: string;
+};
+
+export type SetWorkspaceModeRequest = {
+  mode: WorkspaceModeId;
+};
+
+export type SetWorkspaceModeGraduationOfferRequest = {
+  state: WorkspaceModeGraduationOfferState;
 };
 
 const DEFAULT_CLOUD_PLATFORM_SCOPE_DTO: CloudPlatformScopeDto = {
@@ -68,6 +82,10 @@ function defaultUserPreferencesResponse(): UserPreferencesResponse {
     sampleReviewsOnOverviewIsExplicit: false,
     ianaTimeZoneId: DEFAULT_IANA_TIME_ZONE_ID,
     ianaTimeZoneIsExplicit: false,
+    workspaceMode: "guided",
+    workspaceModeIsExplicit: false,
+    workspaceModeGraduationOffer: "pending",
+    workspaceModeGraduationOfferIsExplicit: false,
   };
 }
 
@@ -220,5 +238,31 @@ export async function setUserIanaTimeZonePreference(ianaTimeZoneId: string): Pro
   patchUserPreferencesCache({
     ianaTimeZoneId,
     ianaTimeZoneIsExplicit: true,
+  });
+}
+
+export async function setUserWorkspaceMode(mode: WorkspaceModeId): Promise<void> {
+  await httpApi.apiPutJson<void>(
+    "/v1/user/preferences/workspace-mode",
+    { mode } satisfies SetWorkspaceModeRequest,
+  );
+
+  patchUserPreferencesCache({
+    workspaceMode: mode,
+    workspaceModeIsExplicit: true,
+  });
+}
+
+export async function setUserWorkspaceModeGraduationOffer(
+  state: WorkspaceModeGraduationOfferState,
+): Promise<void> {
+  await httpApi.apiPutJson<void>(
+    "/v1/user/preferences/workspace-mode-graduation-offer",
+    { state } satisfies SetWorkspaceModeGraduationOfferRequest,
+  );
+
+  patchUserPreferencesCache({
+    workspaceModeGraduationOffer: state,
+    workspaceModeGraduationOfferIsExplicit: true,
   });
 }

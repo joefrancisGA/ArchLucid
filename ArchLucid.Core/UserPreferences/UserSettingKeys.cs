@@ -17,4 +17,10 @@ public static class UserSettingKeys
 
     /// <summary>Personal IANA time zone id for date and time display (for example <c>UTC</c> or <c>America/New_York</c>).</summary>
     public const string IanaTimeZoneId = "IanaTimeZoneId";
+
+    /// <summary>Operator workspace mode: <c>guided</c> (default) or <c>working</c>.</summary>
+    public const string WorkspaceMode = "WorkspaceMode";
+
+    /// <summary>Post-seal Working-mode graduation offer: <c>pending</c>, <c>dismissed</c>, or <c>remind-next</c>.</summary>
+    public const string WorkspaceModeGraduationOffer = "WorkspaceModeGraduationOffer";
 }
