@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.GoldenCorpus;
@@ -19,51 +18,16 @@ internal static class GoldenCohortDriftCommand
 {
     public static async Task<int> RunAsync(string[] args)
     {
-        if (args is null)
-            throw new ArgumentNullException(nameof(args));
+        GoldenCohortDriftCommandOptions? options = GoldenCohortDriftCommandArgParser.Parse(args, out string? parseError);
 
-        bool strictReal = false;
-        bool structuralOnly = false;
-        string? cohortPath = null;
-
-        for (int i = 0; i < args.Length; i++)
+        if (options is null)
         {
-            string token = args[i];
-
-            if (string.Equals(token, "--strict-real", StringComparison.Ordinal))
-            {
-                strictReal = true;
-
-                continue;
-            }
-
-            if (string.Equals(token, "--structural-only", StringComparison.Ordinal))
-            {
-                structuralOnly = true;
-
-                continue;
-            }
-
-            if (string.Equals(token, "--cohort", StringComparison.Ordinal))
-            {
-                if (i + 1 >= args.Length)
-                {
-                    await Console.Error.WriteLineAsync("Missing value for --cohort.");
-
-                    return CliExitCode.UsageError;
-                }
-
-                cohortPath = args[++i].Trim();
-
-                continue;
-            }
-
-            await Console.Error.WriteLineAsync($"Unexpected argument: {token}");
+            await Console.Error.WriteLineAsync(parseError);
 
             return CliExitCode.UsageError;
         }
 
-        if (strictReal && !GoldenCohortDriftParser.IsRealLlmContext())
+        if (options.StrictReal && !GoldenCohortDriftParse.IsRealLlmContext())
         {
             await Console.Error.WriteLineAsync(
                 "Refusing --strict-real: set ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true and/or " +
@@ -73,9 +37,9 @@ internal static class GoldenCohortDriftCommand
         }
 
         string? repoRoot = CliRepositoryRootResolver.TryResolveRepositoryRoot();
-        string resolvedCohort = string.IsNullOrWhiteSpace(cohortPath)
+        string resolvedCohort = string.IsNullOrWhiteSpace(options.CohortPath)
             ? Path.Combine(repoRoot ?? Directory.GetCurrentDirectory(), "tests", "golden-cohort", "cohort.json")
-            : Path.GetFullPath(cohortPath);
+            : Path.GetFullPath(options.CohortPath);
 
         if (!File.Exists(resolvedCohort))
         {
@@ -100,7 +64,7 @@ internal static class GoldenCohortDriftCommand
                                                                                                         && parsedCap < cap)
             cap = parsedCap;
 
-        bool runStructural = strictReal || structuralOnly;
+        bool runStructural = options.StrictReal || options.StructuralOnly;
         List<GoldenCohortDriftStructuralFailure> structuralFailures = [];
 
         for (int index = 0; index < cap; index++)
@@ -135,7 +99,7 @@ internal static class GoldenCohortDriftCommand
                 return CliExitCode.OperationFailed;
             }
 
-            if (!structuralOnly)
+            if (!options.StructuralOnly)
             {
                 ArchLucidApiClient.GoldenManifestFingerprintResult? fingerprint =
                     await client.TryCommitAndFingerprintGoldenManifestAsync(runId);
@@ -149,13 +113,9 @@ internal static class GoldenCohortDriftCommand
                     return CliExitCode.OperationFailed;
                 }
 
-                string actualShaLower = fingerprint.Sha256HexUpper.ToLowerInvariant();
-                string expectedSha = item.ExpectedCommittedManifestSha256.Trim();
-
-                if (!string.Equals(actualShaLower, expectedSha, StringComparison.OrdinalIgnoreCase))
+                if (!GoldenCohortDriftCompare.TryCompareCommittedSha(item, fingerprint.Sha256HexUpper, out string? shaError))
                 {
-                    await Console.Error.WriteLineAsync(
-                        $"[{item.Id}] committed manifest SHA mismatch. expected={expectedSha} actual={actualShaLower}");
+                    await Console.Error.WriteLineAsync(shaError);
 
                     return CliExitCode.OperationFailed;
                 }
@@ -170,18 +130,12 @@ internal static class GoldenCohortDriftCommand
                 return CliExitCode.OperationFailed;
             }
 
-            if (strictReal)
+            if (options.StrictReal)
             {
                 if (getRun.Run.RealModeFellBackToSimulator is true)
                 {
-                    GoldenCohortDriftStructuralFailure fb = new()
-                    {
-                        CohortItemId = item.Id,
-                        RunId = runId,
-                        Code = "realModeFellBackToSimulator",
-                        Message =
-                            "Run recorded RealModeFellBackToSimulator=true; strict-real cannot validate real-LLM JSON shape."
-                    };
+                    GoldenCohortDriftStructuralFailure fb =
+                        GoldenCohortDriftStructuralCheck.RealModeFallbackFailure(item, runId);
                     structuralFailures.Add(fb);
                     await Console.Out.WriteLineAsync(
                         JsonSerializer.Serialize(new { success = false, failure = fb }, ContractJson.CamelCaseIgnoreNullIndented));
@@ -190,11 +144,12 @@ internal static class GoldenCohortDriftCommand
                 }
             }
 
-            List<AgentResult>? agentResults = GoldenCohortDriftParser.TryParseAgentResults(getRun.Results, item.Id, out string? parseError);
+            List<AgentResult>? agentResults =
+                GoldenCohortDriftParse.TryParseAgentResults(getRun.Results, item.Id, out string? agentParseError);
 
-            if (parseError is not null)
+            if (agentParseError is not null)
             {
-                await Console.Error.WriteLineAsync(parseError);
+                await Console.Error.WriteLineAsync(agentParseError);
 
                 return CliExitCode.OperationFailed;
             }
@@ -202,20 +157,12 @@ internal static class GoldenCohortDriftCommand
             if (agentResults is null)
                 return CliExitCode.OperationFailed;
 
-            if (!structuralOnly)
+            if (!options.StructuralOnly)
             {
-                if (!GoldenCohortDriftParser.CategoriesMatch(item, agentResults))
+                if (!GoldenCohortDriftCompare.CategoriesMatch(item, agentResults))
                 {
-                    SortedSet<string> actualCategories =
-                        GoldenCohortFindingCategoryAggregator.DistinctCategories(agentResults);
-                    SortedSet<string> expectedCategories = new(StringComparer.Ordinal);
-
-                    foreach (string c in item.ExpectedFindingCategories.Where(c => !string.IsNullOrWhiteSpace(c)))
-                        expectedCategories.Add(c.Trim());
-
                     await Console.Error.WriteLineAsync(
-                        $"[{item.Id}] finding category multiset mismatch. expected={string.Join(", ", expectedCategories)} " +
-                        $"actual={string.Join(", ", actualCategories)}");
+                        GoldenCohortDriftCompare.FormatCategoryMismatch(item, agentResults));
 
                     return CliExitCode.OperationFailed;
                 }
@@ -224,7 +171,8 @@ internal static class GoldenCohortDriftCommand
             if (!runStructural)
                 continue;
 
-            structuralFailures.AddRange(GoldenCohortDriftParser.ValidateStructuralResults(item, runId, getRun.Results));
+            structuralFailures.AddRange(
+                GoldenCohortDriftStructuralCheck.ValidateStructuralResults(item, runId, getRun.Results));
         }
 
         if (structuralFailures.Count > 0)
@@ -233,8 +181,8 @@ internal static class GoldenCohortDriftCommand
             {
                 success = false,
                 kind = "goldenCohortDrift",
-                strictReal,
-                structuralOnly,
+                strictReal = options.StrictReal,
+                structuralOnly = options.StructuralOnly,
                 structuralFailures
             };
             await Console.Out.WriteLineAsync(JsonSerializer.Serialize(report, ContractJson.CamelCaseIgnoreNullIndented));
@@ -245,9 +193,9 @@ internal static class GoldenCohortDriftCommand
         if (!CliExecutionContext.JsonOutput)
         {
             Console.WriteLine(
-                structuralOnly
+                options.StructuralOnly
                     ? "OK — golden-cohort structural validation passed (SHA comparison skipped)."
-                    : strictReal
+                    : options.StrictReal
                         ? "OK — golden-cohort drift passed (SHA, categories, structural validation)."
                         : "OK — golden-cohort drift passed (SHA, categories).");
         }
@@ -257,58 +205,13 @@ internal static class GoldenCohortDriftCommand
             {
                 success = true,
                 kind = "goldenCohortDrift",
-                strictReal,
-                structuralOnly,
+                strictReal = options.StrictReal,
+                structuralOnly = options.StructuralOnly,
                 cohortPath = resolvedCohort
             };
             Console.WriteLine(JsonSerializer.Serialize(ok, ContractJson.CamelCaseIgnoreNullIndented));
         }
 
         return CliExitCode.Success;
-    }
-
-    public sealed class GoldenCohortDriftStructuralFailure
-    {
-        public string? Code
-        {
-            get;
-            set;
-        }
-
-        public string? Message
-        {
-            get;
-            set;
-        }
-
-        public string? CohortItemId
-        {
-            get;
-            set;
-        }
-
-        public string? RunId
-        {
-            get;
-            set;
-        }
-
-        public string? AgentType
-        {
-            get;
-            set;
-        }
-
-        public string? ResultId
-        {
-            get;
-            set;
-        }
-
-        public RealLlmStructuralValidationResult? Validation
-        {
-            get;
-            set;
-        }
     }
 }

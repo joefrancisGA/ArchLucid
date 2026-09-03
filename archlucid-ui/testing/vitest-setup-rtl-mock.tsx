@@ -1,6 +1,10 @@
 import * as React from "react";
 import { vi } from "vitest";
 
+vi.mock("@/components/workspace-mode/WorkspaceModeSealDefaultEffect", () => ({
+  WorkspaceModeSealDefaultEffect: () => null,
+}));
+
 import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 

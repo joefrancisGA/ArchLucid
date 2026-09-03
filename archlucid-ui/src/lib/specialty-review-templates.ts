@@ -42,8 +42,6 @@ export const SPECIALTY_REVIEW_TEMPLATES_PAGE_SUBTITLE =
 export const SPECIALTY_REVIEW_TEMPLATES_INTRO =
   "Each template prefills focused questions, evidence guidance, and policy-pack recommendations. You can change or remove template guidance before starting the review.";
 
-export const SPECIALTY_REVIEW_TEMPLATES_INTRO_DISCLOSURE_TITLE = "How specialty templates work";
-
 export const SPECIALTY_REVIEW_TEMPLATES_OPTIONAL_NOTE =
   "Specialty templates are optional. You can also start with the standard architecture review.";
 

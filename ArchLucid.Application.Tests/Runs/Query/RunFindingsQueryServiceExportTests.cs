@@ -1,13 +1,16 @@
 using ArchLucid.Application;
+using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Application.Reporting;
 using ArchLucid.Application.Runs.Query;
+using ArchLucid.Application.Runs.Query.Stages;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Persistence.ApplicationPorts.Findings;
+using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
@@ -74,20 +77,35 @@ public sealed class RunFindingsQueryServiceExportTests
         });
 
         return new RunFindingsQueryService(
-            runDetailQueryService,
+            new RunFindingsListStage(
+                Mock.Of<IRunRepository>(),
+                Mock.Of<IFindingsSnapshotRepository>(),
+                new RunFindingExternalTrackingEnrichmentService(
+                    trackingRead.Object,
+                    UrlBuilder(new IntegrationsItsmOutboundOptions
+                    {
+                        Jira = new JiraItsmOutboundOptions { CloudBaseUrl = "https://example.atlassian.net" }
+                    })),
+                scopeProvider.Object),
+            new RunFindingsCsvExportStage(
+                runDetailQueryService,
+                Mock.Of<IRunRepository>(),
+                new RunFindingExternalTrackingEnrichmentService(
+                    trackingRead.Object,
+                    UrlBuilder(new IntegrationsItsmOutboundOptions
+                    {
+                        Jira = new JiraItsmOutboundOptions { CloudBaseUrl = "https://example.atlassian.net" }
+                    })),
+                scopeProvider.Object,
+                new ExportFormatterService()),
+            new RunFindingsInspectStage(
+                Mock.Of<IRunRepository>(),
+                Mock.Of<ArchLucid.Persistence.Interfaces.IFindingInspectReadRepository>(),
+                Mock.Of<IFindingTrustLabelMapper>(),
+                Mock.Of<IReasoningSummaryBuilder>(),
+                scopeProvider.Object),
             Mock.Of<IRunRepository>(),
-            Mock.Of<IFindingsSnapshotRepository>(),
-            new RunFindingExternalTrackingEnrichmentService(
-                trackingRead.Object,
-                UrlBuilder(new IntegrationsItsmOutboundOptions
-                {
-                    Jira = new JiraItsmOutboundOptions { CloudBaseUrl = "https://example.atlassian.net" }
-                })),
             Mock.Of<ArchLucid.Application.Explanation.IFindingEvidenceChainService>(),
-            Mock.Of<ArchLucid.Persistence.Interfaces.IFindingInspectReadRepository>(),
-            Mock.Of<IFindingTrustLabelMapper>(),
-            Mock.Of<IReasoningSummaryBuilder>(),
-            scopeProvider.Object,
-            new ExportFormatterService());
+            scopeProvider.Object);
     }
 }

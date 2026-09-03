@@ -13,12 +13,15 @@ import {
   IDENTITY_PROVIDERS_DIAGNOSTICS_OIDC_SECTION_ID,
   IDENTITY_PROVIDERS_DIAGNOSTICS_TECHNICAL_DESCRIPTION,
   IDENTITY_PROVIDERS_DIAGNOSTICS_TECHNICAL_TITLE,
+  IDENTITY_PROVIDERS_NAV_ROLE_MAPPING,
   IDENTITY_PROVIDERS_RECOMMENDED_NEXT_LABEL,
   IDENTITY_PROVIDERS_SUMMARY_AUTH_MODE_LABEL,
   IDENTITY_PROVIDERS_SUMMARY_SSO_LABEL,
+  identityProvidersDiagnosticsPageSubtitle,
 } from "@/lib/identity-providers-settings-copy";
 import type { IdentityProvidersOverviewModel } from "@/lib/identity-providers-settings-types";
 import { canViewIdentityProviderTechnicalDiagnostics } from "@/lib/resolve-identity-providers-overview";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { components } from "@/lib/openapi-schemas";
 
@@ -27,7 +30,17 @@ import { IdentityProviderHealthStrip } from "./IdentityProviderHealthStrip";
 import { IdentityProviderSetupChecklist } from "./IdentityProviderSetupChecklist";
 import { IdentityProvidersCatalogTable } from "./IdentityProvidersCatalogTable";
 import { IdentityProvidersDiagnosticsSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { IdentityProvidersDiagnosticsBreadcrumb } from "./IdentityProvidersDiagnosticsBreadcrumb";
+import { IdentityProvidersDiagnosticsBuyerChrome } from "./IdentityProvidersDiagnosticsBuyerChrome";
 import { IdentityProvidersSettingsShell } from "./IdentityProvidersSettingsShell";
+import {
+  DIAGNOSTICS_SETTINGS_PRIMARY_CONTENT_ID,
+  DIAGNOSTICS_SETTINGS_SKIP_LINK_LABEL,
+  IDENTITY_PROVIDERS_DIAGNOSTICS_CUSTOMER_TOOLS_INTRO,
+  IDENTITY_PROVIDERS_DIAGNOSTICS_CUSTOMER_TOOLS_ROLE_MAPPING_PREFIX,
+  IDENTITY_PROVIDERS_DIAGNOSTICS_CUSTOMER_TOOLS_ROLE_MAPPING_SUFFIX,
+  IDENTITY_PROVIDERS_DIAGNOSTICS_CUSTOMER_TOOLS_TITLE,
+} from "./diagnostics-settings-page-copy";
 import { OidcDiagnosticsStrip } from "./OidcDiagnosticsStrip";
 import { SamlOperationalHealthStrip } from "./SamlOperationalHealthStrip";
 import type { UseIdentityProvidersSettingsPageModel } from "./use-identity-providers-settings-page";
@@ -61,6 +74,7 @@ function bothIdentityProviderProbesNotApplicable(
 export function IdentityProvidersDiagnosticsPageView(
   props: IdentityProvidersDiagnosticsPageViewProps,
 ): React.JSX.Element {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const showTechnicalDetails = canViewIdentityProviderTechnicalDiagnostics(isArchLucidInternalOperatorShellEnv());
   const bundlePending = diagnosticsBundlePending(props.model);
   const showProtocolDetails =
@@ -99,15 +113,22 @@ export function IdentityProvidersDiagnosticsPageView(
   return (
     <IdentityProvidersSettingsShell
       pageTitle={IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_TITLE}
-      pageSubtitle={IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_SUBTITLE}
+      pageSubtitle={identityProvidersDiagnosticsPageSubtitle(buyerPolishedShell)}
       overview={props.model.overview}
       statusBadgeReady={props.model.dataLoaded}
       refreshing={props.model.refreshing}
       lastRefreshedAt={props.model.lastRefreshedAt}
       diagnosticsDataUnavailable={props.model.diagnosticsDataUnavailable}
+      headerBreadcrumb={buyerPolishedShell ? <IdentityProvidersDiagnosticsBreadcrumb /> : undefined}
+      primaryContentId={buyerPolishedShell ? DIAGNOSTICS_SETTINGS_PRIMARY_CONTENT_ID : undefined}
+      skipLinkLabel={buyerPolishedShell ? DIAGNOSTICS_SETTINGS_SKIP_LINK_LABEL : undefined}
       onRefresh={() => void props.model.refresh()}
     >
-      <IdentityProvidersDiagnosticsSettingsEvidenceOrientationStrip />
+      {buyerPolishedShell ? (
+        <IdentityProvidersDiagnosticsBuyerChrome />
+      ) : (
+        <IdentityProvidersDiagnosticsSettingsEvidenceOrientationStrip />
+      )}
       <div className="space-y-4" data-testid="identity-providers-diagnostics-primary-lead">
         {bundlePending ? (
           <p
@@ -202,21 +223,21 @@ export function IdentityProvidersDiagnosticsPageView(
           data-testid="identity-providers-diagnostics-customer-tools"
         >
           <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            Support tooling
+            {IDENTITY_PROVIDERS_DIAGNOSTICS_CUSTOMER_TOOLS_TITLE}
           </summary>
           <div className={cn("mt-4 space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             <p className="m-0">
-              Advanced configuration references and token test mapping are available in internal support environments.
+              {IDENTITY_PROVIDERS_DIAGNOSTICS_CUSTOMER_TOOLS_INTRO}
             </p>
             <p className="m-0">
-              To validate role mapping safely, open{" "}
+              {IDENTITY_PROVIDERS_DIAGNOSTICS_CUSTOMER_TOOLS_ROLE_MAPPING_PREFIX}{" "}
               <Link
                 href="/administration/identity-providers/role-mapping"
                 className={OPERATOR_LINK.inline}
               >
-                Role mapping
+                {IDENTITY_PROVIDERS_NAV_ROLE_MAPPING}
               </Link>{" "}
-              or contact your ArchLucid administrator.
+              {IDENTITY_PROVIDERS_DIAGNOSTICS_CUSTOMER_TOOLS_ROLE_MAPPING_SUFFIX}
             </p>
           </div>
         </details>

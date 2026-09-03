@@ -1,13 +1,11 @@
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
+import { TransparencyTrailPanel } from "@/components/feasibility/TransparencyTrailPanel";
 import { DecisionReceiptExportButton } from "@/components/draft-intake/DecisionReceiptExportButton";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { FeasibilityVerdictDriversPanel } from "@/components/feasibility/FeasibilityVerdictDriversPanel";
 import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
 import {
-  filterFeasibilityTransparencyTrailInferred,
-  filterFeasibilityTransparencyTrailSkipped,
   parseFeasibilityVerdictDrivers,
 } from "@/lib/feasibility-verdict-transparency-trail";
 import {
@@ -44,57 +42,6 @@ export function RunDetailFeasibilityVerdictSection(
   const tone = feasibilityVerdictTone(verdict.kind);
   const trail = verdict.transparencyTrail;
   const verdictDrivers = parseFeasibilityVerdictDrivers(trail);
-  const inferredTrailEntries =
-    trail != null ? filterFeasibilityTransparencyTrailInferred(trail) : [];
-  const skippedTrailEntries =
-    trail != null ? filterFeasibilityTransparencyTrailSkipped(trail) : [];
-
-  let transparencyTrailSection: ReactElement | null = null;
-
-  if (trail != null) {
-    transparencyTrailSection = (
-      <CollapsibleSection title="Transparency trail" defaultOpen={false}>
-        <div className={cn("space-y-4", OPERATOR_TYPOGRAPHY.body)}>
-          {trail.asserted.length > 0 ? (
-            <div>
-              <p className="m-0 font-medium">Asserted ({trail.asserted.length})</p>
-              <ul className="mt-1 list-disc pl-5">
-                {trail.asserted.map((entry) => (
-                  <li key={entry.key}>
-                    {entry.key}: {entry.value}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-          {inferredTrailEntries.length > 0 ? (
-            <div>
-              <p className="m-0 font-medium">Inferred ({inferredTrailEntries.length})</p>
-              <ul className="mt-1 list-disc pl-5">
-                {inferredTrailEntries.map((entry) => (
-                  <li key={entry.key}>
-                    {entry.key}: {entry.value} (confidence {entry.confidence})
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-          {skippedTrailEntries.length > 0 ? (
-            <div>
-              <p className="m-0 font-medium">Skipped ({skippedTrailEntries.length})</p>
-              <ul className="mt-1 list-disc pl-5">
-                {skippedTrailEntries.map((entry) => (
-                  <li key={entry.questionKey}>
-                    {entry.questionKey} ({entry.tier})
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-        </div>
-      </CollapsibleSection>
-    );
-  }
 
   return (
     <section id="feasibility-verdict" className="scroll-mt-24" data-testid="run-detail-feasibility-verdict">
@@ -141,7 +88,7 @@ export function RunDetailFeasibilityVerdictSection(
         ) : null}
       </div>
 
-      {transparencyTrailSection}
+      <TransparencyTrailPanel trail={trail} className="mt-4" />
     </section>
   );
 }

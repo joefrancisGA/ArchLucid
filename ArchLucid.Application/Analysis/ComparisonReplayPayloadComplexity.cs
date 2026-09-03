@@ -5,36 +5,10 @@ namespace ArchLucid.Application.Analysis;
 /// <summary>
 ///     Lightweight payload inspection for <see cref="ComparisonReplayCostEstimator"/> — no replay execution.
 /// </summary>
-internal static class ComparisonReplayPayloadComplexity
+internal static partial class ComparisonReplayPayloadComplexity
 {
     /// <summary>Caps heuristic bump from JSON inspection (format/replay-mode scoring is separate).</summary>
     private const int MaxPayloadBump = 18;
-
-    private static readonly string[] ManifestDiffListProperties =
-    [
-        "addedServices",
-        "removedServices",
-        "addedDatastores",
-        "removedDatastores",
-        "addedRequiredControls",
-        "removedRequiredControls",
-        "addedRelationships",
-        "removedRelationships"
-    ];
-
-    private static readonly string[] AgentDeltaListProperties =
-    [
-        "addedClaims",
-        "removedClaims",
-        "addedEvidenceRefs",
-        "removedEvidenceRefs",
-        "addedFindings",
-        "removedFindings",
-        "addedRequiredControls",
-        "removedRequiredControls",
-        "addedWarnings",
-        "removedWarnings"
-    ];
 
     /// <summary>Returns a non-negative score bump (typically 0–18) from structured comparison JSON.</summary>
     public static int ScorePayloadComplexity(string payloadJson, ICollection<string> factors)
@@ -122,74 +96,13 @@ internal static class ComparisonReplayPayloadComplexity
 
         if (root.TryGetProperty("manifestDiff", out JsonElement manifestDiff) &&
             manifestDiff.ValueKind == JsonValueKind.Object)
-        {
-            int structural = SumListLengths(manifestDiff, ManifestDiffListProperties);
-
-            if (structural > 60)
-            {
-                bump += 6;
-                factors.Add(
-                    $"Large manifest structural diff (~{structural} added/removed items and relationships) increases replay and formatting work.");
-            }
-            else if (structural > 30)
-            {
-                bump += 4;
-                factors.Add("Substantial manifest structural diff increases replay and formatting work.");
-            }
-            else if (structural > 12)
-            {
-                bump += 2;
-                factors.Add("Moderate manifest structural diff adds validation and narrative cost.");
-            }
-            else if (structural > 0)
-            {
-                bump += 1;
-                factors.Add("Manifest includes structural changes (services, datastores, controls, or relationships).");
-            }
-        }
+            bump += ScoreManifestDiff(manifestDiff, factors);
 
         if (root.TryGetProperty("agentResultDiff", out JsonElement agentResultDiff) &&
             agentResultDiff.ValueKind == JsonValueKind.Object &&
             agentResultDiff.TryGetProperty("agentDeltas", out JsonElement deltas) &&
             deltas.ValueKind == JsonValueKind.Array)
-        {
-            int agentTypes = deltas.GetArrayLength();
-            int perAgentSurface = 0;
-
-            foreach (JsonElement delta in deltas.EnumerateArray())
-            {
-                if (delta.ValueKind == JsonValueKind.Object)
-                    perAgentSurface += SumListLengths(delta, AgentDeltaListProperties);
-            }
-
-            int substantiveAgents = 0;
-
-            foreach (JsonElement delta in deltas.EnumerateArray())
-            {
-                if (delta.ValueKind != JsonValueKind.Object)
-                    continue;
-
-                if (SumListLengths(delta, AgentDeltaListProperties) > 0 || DeltaIndicatesPresenceChange(delta))
-                    substantiveAgents++;
-            }
-
-            if (agentTypes > 10 || substantiveAgents > 8 || perAgentSurface > 120)
-            {
-                bump += 4;
-                factors.Add(
-                    $"Heavy agent result surface ({agentTypes} agent type(s), ~{perAgentSurface} line-item deltas) increases regeneration and verify cost.");
-            }
-            else if (agentTypes > 5 || substantiveAgents > 4 || perAgentSurface > 50)
-            {
-                bump += 2;
-                factors.Add("Multiple agent types or substantive per-agent deltas increase comparison work.");
-            }
-            else if (agentTypes > 0 && (perAgentSurface > 0 || substantiveAgents > 0))
-            {
-                bump += 1;
-                factors.Add("Agent result deltas present — expect extra narrative and diff formatting.");
-            }
-        }
+            bump += ScoreAgentResultDiff(deltas, factors);
 
         if (root.TryGetProperty("exportDiffs", out JsonElement exportDiffs) && exportDiffs.ValueKind == JsonValueKind.Array)
         {
@@ -231,17 +144,6 @@ internal static class ComparisonReplayPayloadComplexity
         }
 
         return bump;
-    }
-
-    private static bool DeltaIndicatesPresenceChange(JsonElement delta)
-    {
-        if (delta.TryGetProperty("leftExists", out JsonElement left) &&
-            left.ValueKind is JsonValueKind.True or JsonValueKind.False &&
-            delta.TryGetProperty("rightExists", out JsonElement right) &&
-            right.ValueKind is JsonValueKind.True or JsonValueKind.False)
-            return left.GetBoolean() != right.GetBoolean();
-
-        return false;
     }
 
     private static int ScoreExportRecordDiffShape(JsonElement root, ICollection<string> factors)

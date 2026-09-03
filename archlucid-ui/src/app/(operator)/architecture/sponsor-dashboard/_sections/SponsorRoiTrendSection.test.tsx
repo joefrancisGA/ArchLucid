@@ -12,6 +12,19 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
   extendBuyerPolishedShellVitestMock(importOriginal),
 );
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/architecture/sponsor-dashboard",
+  useSearchParams: () => new URLSearchParams(),
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    refresh: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+}));
+
 import { SponsorRoiTrendSection } from "./SponsorRoiTrendSection";
 
 function renderWithQueryClient(ui: React.ReactElement) {
@@ -71,7 +84,7 @@ describe("SponsorRoiTrendSection", () => {
     });
 
     expect(screen.queryByText(/GET \/v1\/roi\/sponsor-report\/history/i)).not.toBeInTheDocument();
-    expect(screen.getByTestId("exec-roi-trend-window-help")).toHaveTextContent("Showing the selected time range.");
+    expect(screen.getByTestId("exec-roi-trend-range-quarter")).toBeInTheDocument();
   });
 
   it("shows mixed-mode footnote and simulator-only badge when history includes both modes", async () => {
@@ -96,7 +109,7 @@ describe("SponsorRoiTrendSection", () => {
 
     renderWithQueryClient(<SponsorRoiTrendSection defaultTimeRange="all" showTimeRangeSelector />);
 
-    expect(screen.getByTestId("exec-roi-trend-time-range")).toBeInTheDocument();
+    expect(screen.getByTestId("exec-roi-trend-range-quarter")).toBeInTheDocument();
     expect(screen.getByTestId("exec-roi-trend-loading-skeleton")).toBeInTheDocument();
     expect(screen.getByText("Loading ROI trend…")).toHaveClass("sr-only");
   });
