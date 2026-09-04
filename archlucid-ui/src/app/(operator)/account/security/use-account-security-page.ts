@@ -1,9 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ACCOUNT_SECURITY_DEMO_GATE_MESSAGE } from "@/lib/account-security-page-copy";
 import { ACCOUNT_SECURITY_PATH } from "@/lib/account-route-paths";
+import {
+  accountSecurityStepHrefFromSearch,
+  parseAccountSecurityChallengeIdFromSearch,
+  parseAccountSecurityStepFromSearch,
+  type AccountSecurityStepUrlValue,
+} from "@/lib/account/account-security-step-url";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   ACCOUNT_SECURITY_AUTH_REQUIRED_EMPTY_COMPACT,
@@ -63,6 +70,11 @@ function problemToFeedback(problem: SignInMethodsProblem): AccountSecurityCardFe
 export type AccountSecurityPageController = ReturnType<typeof useAccountSecurityPage>;
 
 export function useAccountSecurityPage() {
+  const router = useRouter();
+  const pathname = usePathname() ?? ACCOUNT_SECURITY_PATH;
+  const searchParams = useSearchParams();
+  const urlSecStep = parseAccountSecurityStepFromSearch(searchParams.get("secStep"));
+  const urlChallengeId = parseAccountSecurityChallengeIdFromSearch(searchParams.get("challengeId"));
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [methods, setMethods] = useState<SignInMethodSummary[]>([]);
   const [listLoaded, setListLoaded] = useState(false);
@@ -80,6 +92,34 @@ export function useAccountSecurityPage() {
   const [methodToRemove, setMethodToRemove] = useState<SignInMethodSummary | null>(null);
   const [nowMs, setNowMs] = useState(() => Date.now());
   const [resendCooldownUntilMs, setResendCooldownUntilMs] = useState(0);
+
+  const syncAccountSecurityStepToUrl = useCallback(
+    (step: AccountSecurityStepUrlValue | null, nextChallengeId: string | null) => {
+      router.replace(
+        accountSecurityStepHrefFromSearch(
+          searchParams.toString(),
+          { step, challengeId: nextChallengeId },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    if (urlChallengeId.length > 0) {
+      setChallengeId(urlChallengeId);
+    }
+
+    if (urlSecStep === "verify" && urlChallengeId.length > 0) {
+      return;
+    }
+
+    if (urlSecStep === "add-email") {
+      setEmailTouched(true);
+    }
+  }, [urlChallengeId, urlSecStep]);
 
   const frictionless = typeof window !== "undefined" && readFrictionlessTrialSessionEnabled();
   const isDemoSession = frictionless || gateProblem?.kind === "demo-session-blocked";
@@ -159,7 +199,8 @@ export function useAccountSecurityPage() {
     setVerificationCode("");
     setPendingProposal(null);
     setResendCooldownUntilMs(0);
-  }, []);
+    syncAccountSecurityStepToUrl("add-email", null);
+  }, [syncAccountSecurityStepToUrl]);
 
   const handleRequestEmailChallenge = useCallback(async () => {
     if (busy || blockedForAuth || !emailValid) {
@@ -174,6 +215,7 @@ export function useAccountSecurityPage() {
       const response = await requestEmailLinkChallenge(addEmail.trim());
       setChallengeId(response.challengeId);
       setResendCooldownUntilMs(Date.now() + 30_000);
+      syncAccountSecurityStepToUrl("verify", response.challengeId);
       setAddFeedback({
         tone: "success",
         message: `We sent a 6-digit code to ${addEmail.trim()}.`,
@@ -202,6 +244,7 @@ export function useAccountSecurityPage() {
     try {
       const proposal = await verifyEmailLinkChallenge(challengeId, verificationCode.trim());
       setPendingProposal(proposal);
+      syncAccountSecurityStepToUrl("verify", challengeId);
       setAddFeedback({
         tone: "info",
         message: "Review the link details and confirm to add this sign-in method.",
@@ -229,6 +272,7 @@ export function useAccountSecurityPage() {
       setEmailTouched(false);
       setVerificationCode("");
       setAddFeedback({ tone: "success", message: "Sign-in method added." });
+      syncAccountSecurityStepToUrl(null, null);
       await refreshMethods({ preserveListFeedback: true });
     } catch (error) {
       setAddFeedback(problemToFeedback(classifySignInMethodsUnknownFailure(error)));

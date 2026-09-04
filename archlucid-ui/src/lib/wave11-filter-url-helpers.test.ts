@@ -1346,6 +1346,134 @@ describe("wave26 filter url helpers", () => {
   });
 });
 
+describe("wave27 filter url helpers", () => {
+  it("runs list compare/inspector, governance bulk selection, and risk exceptions renew/revoke", async () => {
+    const {
+      parseRunsListCompareRunIdsFromSearch,
+      parseRunsListInspectorRunIdFromSearch,
+      runsListCompareInspectorHrefFromSearch,
+    } = await import("@/lib/runs/runs-list-compare-inspector-url");
+    const {
+      governanceFindingsBulkSelectionHrefFromSearch,
+      parseGovernanceFindingsBulkSelectionFromSearch,
+    } = await import("@/lib/governance/governance-findings-bulk-selection-url");
+    const {
+      parseRiskExceptionRenewIdFromSearch,
+      parseRiskExceptionRevokeIdFromSearch,
+      riskExceptionsRenewRevokeHrefFromSearch,
+    } = await import("@/lib/governance/risk-exceptions-renew-revoke-url");
+
+    expect(parseRunsListInspectorRunIdFromSearch("run-a")).toBe("run-a");
+    expect(parseRunsListCompareRunIdsFromSearch("run-a,run-b")).toEqual(["run-a", "run-b"]);
+    expect(
+      runsListCompareInspectorHrefFromSearch("q=phi", {
+        inspectorRunId: "run-a",
+        compareRunIds: ["run-b"],
+      }),
+    ).toBe("/architecture/reviews?q=phi&inspectorRunId=run-a&compareRuns=run-b");
+    expect(parseGovernanceFindingsBulkSelectionFromSearch("f1,f2")).toEqual(["f1", "f2"]);
+    expect(governanceFindingsBulkSelectionHrefFromSearch("severity=high", ["f1"])).toBe(
+      "/governance/findings?severity=high&bulkFindings=f1",
+    );
+    expect(parseRiskExceptionRenewIdFromSearch("exc-1")).toBe("exc-1");
+    expect(parseRiskExceptionRevokeIdFromSearch("exc-2")).toBe("exc-2");
+    expect(
+      riskExceptionsRenewRevokeHrefFromSearch("", { renewId: "exc-1", revokeId: "exc-2" }),
+    ).toBe("/governance/exceptions?renewId=exc-1&revokeId=exc-2");
+  });
+
+  it("alert tuning draft, finding inspect governance panel, and provenance edge focus", async () => {
+    const {
+      alertTuningFormDraftHrefFromSearch,
+      parseAlertTuningKindFromSearch,
+      parseAlertTuningRunSlugFromSearch,
+      parseAlertTuningThresholdsFromSearch,
+    } = await import("@/lib/alerts/alert-tuning-form-draft-url");
+    const {
+      findingInspectGovernancePanelHrefFromSearch,
+      parseFindingInspectGovernancePanelFromSearch,
+      parseFindingInspectWaiverConfirmOpenFromSearch,
+    } = await import("@/lib/findings/finding-inspect-governance-panel-url");
+    const {
+      parseProvenanceEdgeFocusFromSearch,
+      parseProvenanceEdgesExpandedFromSearch,
+      provenanceEdgeFocusHrefFromSearch,
+    } = await import("@/lib/provenance/provenance-edge-focus-url");
+
+    expect(parseAlertTuningKindFromSearch("Composite")).toBe("Composite");
+    expect(parseAlertTuningThresholdsFromSearch("0.8,0.9")).toBe("0.8,0.9");
+    expect(parseAlertTuningRunSlugFromSearch("run-slug")).toBe("run-slug");
+    expect(
+      alertTuningFormDraftHrefFromSearch("tab=test-alerts", {
+        ruleKind: "Simple",
+        candidateThresholds: "0.5",
+        runSlug: "run-slug",
+      }),
+    ).toBe("/governance/alert-rules?tab=test-alerts&tuneKind=Simple&tuneThresholds=0.5&tuneRunSlug=run-slug");
+    expect(parseFindingInspectGovernancePanelFromSearch("waiver")).toBe("waiver");
+    expect(parseFindingInspectWaiverConfirmOpenFromSearch("1")).toBe(true);
+    expect(
+      findingInspectGovernancePanelHrefFromSearch(
+        "",
+        { panel: "remediation", waiverConfirmOpen: true },
+        "/architecture/reviews/r1/findings/f1/inspect",
+      ),
+    ).toBe("/architecture/reviews/r1/findings/f1/inspect?govPanel=remediation&waiverConfirm=1");
+    expect(parseProvenanceEdgeFocusFromSearch("edge-1")).toBe("edge-1");
+    expect(parseProvenanceEdgesExpandedFromSearch("true")).toBe(true);
+    expect(
+      provenanceEdgeFocusHrefFromSearch(
+        "runId=r1",
+        { edgeId: "edge-1", edgesExpanded: true },
+        "/architecture/reviews/r1/provenance",
+      ),
+    ).toBe("/architecture/reviews/r1/provenance?runId=r1&provEdgeId=edge-1&edgesExpanded=1");
+  });
+
+  it("architecture intelligence context run, first review guide step, account security, and presenter mode", async () => {
+    const {
+      architectureIntelligenceContextRunHrefFromSearch,
+      parseArchitectureIntelligenceContextRunIdFromSearch,
+    } = await import("@/lib/architecture/architecture-intelligence-context-run-url");
+    const {
+      firstReviewGuideWalkthroughStepHrefFromSearch,
+      parseFirstReviewGuideWalkthroughStepFromSearch,
+    } = await import("@/lib/first-review-guide/first-review-guide-walkthrough-step-url");
+    const {
+      accountSecurityStepHrefFromSearch,
+      parseAccountSecurityChallengeIdFromSearch,
+      parseAccountSecurityStepFromSearch,
+    } = await import("@/lib/account/account-security-step-url");
+    const { parseReviewPresenterModeFromSearch, reviewPresenterModeHrefFromSearch } = await import(
+      "@/lib/reviews/review-presenter-mode-url"
+    );
+
+    expect(parseArchitectureIntelligenceContextRunIdFromSearch("run-ctx")).toBe("run-ctx");
+    expect(architectureIntelligenceContextRunHrefFromSearch("tier=Deep", "run-ctx")).toBe(
+      "/architecture/architecture-intelligence?tier=Deep&contextRunId=run-ctx",
+    );
+    expect(parseFirstReviewGuideWalkthroughStepFromSearch("3")).toBe(3);
+    expect(firstReviewGuideWalkthroughStepHrefFromSearch("", 3)).toBe(
+      "/architecture/first-review-guide?guideStep=3",
+    );
+    expect(firstReviewGuideWalkthroughStepHrefFromSearch("guideStep=3", 1)).toBe(
+      "/architecture/first-review-guide",
+    );
+    expect(parseAccountSecurityStepFromSearch("verify")).toBe("verify");
+    expect(parseAccountSecurityChallengeIdFromSearch("challenge-1")).toBe("challenge-1");
+    expect(
+      accountSecurityStepHrefFromSearch("", { step: "verify", challengeId: "challenge-1" }),
+    ).toBe("/account/security?secStep=verify&challengeId=challenge-1");
+    expect(parseReviewPresenterModeFromSearch("1")).toBe(true);
+    expect(
+      reviewPresenterModeHrefFromSearch("reviewTab=findings", true, "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?reviewTab=findings&presenter=1");
+    expect(
+      reviewPresenterModeHrefFromSearch("reviewTab=findings&presenter=1", false, "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?reviewTab=findings");
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

@@ -27,6 +27,11 @@ import {
   parseRunsListSortFromSearch,
   sortOrderFromRunsListSort,
 } from "@/lib/runs/runs-list-sort-url";
+import {
+  parseRunsListCompareRunIdsFromSearch,
+  parseRunsListInspectorRunIdFromSearch,
+  runsListCompareInspectorHrefFromSearch,
+} from "@/lib/runs/runs-list-compare-inspector-url";
 
 function totalPages(totalCount: number, pageSize: number): number {
   return Math.max(1, Math.ceil(totalCount / pageSize));
@@ -77,6 +82,9 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   const urlBuyerPackageScope = parseBuyerPackageScopeFilter(searchParams.get("scope"));
   const urlFilterText = parseRunsListSearchQuery(searchParams.get("q"));
   const urlSortOrder = sortOrderFromRunsListSort(parseRunsListSortFromSearch(searchParams.get("sort")));
+  const urlCompareRunsRaw = searchParams.get("compareRuns");
+  const urlInspectorRunId = parseRunsListInspectorRunIdFromSearch(searchParams.get("inspectorRunId"));
+  const urlCompareRunIds = parseRunsListCompareRunIdsFromSearch(urlCompareRunsRaw);
   const safeRuns = useMemo(() => {
     const filtered = runs.filter((run) => {
       if (typeof run.runId !== "string" || run.runId.trim().length === 0) {
@@ -100,8 +108,8 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   const [filterText, setFilterTextState] = useState(urlFilterText);
   const buyerPackageScope = urlBuyerPackageScope;
   const [sortOrder, setSortOrderState] = useState<SortOrder>(urlSortOrder);
-  const [selectedRun, setSelectedRun] = useState<RunSummary | null>(null);
-  const [compareSelection, setCompareSelection] = useState<string[]>([]);
+  const [selectedRun, setSelectedRunState] = useState<RunSummary | null>(null);
+  const [compareSelection, setCompareSelectionState] = useState<string[]>(() => [...urlCompareRunIds]);
   const [compareSelectionNotice, setCompareSelectionNotice] = useState<string | null>(null);
   const [paginationAnnouncement, setPaginationAnnouncement] = useState("");
   const mobileInspectorShellRef = useRef<HTMLDivElement>(null);
@@ -145,14 +153,62 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     setSortOrderState(order);
   }, []);
 
+  const syncCompareInspectorToUrl = useCallback(
+    (inspectorRunId: string | null, compareRunIds: readonly string[]) => {
+      router.replace(
+        runsListCompareInspectorHrefFromSearch(
+          searchParams.toString(),
+          { inspectorRunId, compareRunIds },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSelectedRun = useCallback(
+    (run: RunSummary | null) => {
+      setSelectedRunState(run);
+      syncCompareInspectorToUrl(run?.runId ?? null, compareSelection);
+    },
+    [compareSelection, syncCompareInspectorToUrl],
+  );
+
+  const setCompareSelection = useCallback(
+    (value: string[] | ((current: string[]) => string[])) => {
+      setCompareSelectionState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncCompareInspectorToUrl(selectedRun?.runId ?? null, next);
+
+        return next;
+      });
+    },
+    [selectedRun?.runId, syncCompareInspectorToUrl],
+  );
+
+  useEffect(() => {
+    setCompareSelectionState(parseRunsListCompareRunIdsFromSearch(urlCompareRunsRaw));
+  }, [urlCompareRunsRaw]);
+
   useEffect(() => {
     if (safeRuns.length === 0) {
-      setSelectedRun(null);
+      setSelectedRunState(null);
 
       return;
     }
 
-    setSelectedRun((current) => {
+    if (urlInspectorRunId.length > 0) {
+      const fromUrl = safeRuns.find((run) => run.runId === urlInspectorRunId) ?? null;
+
+      if (fromUrl !== null) {
+        setSelectedRunState(fromUrl);
+
+        return;
+      }
+    }
+
+    setSelectedRunState((current) => {
       if (current !== null && safeRuns.some((r) => r.runId === current.runId)) {
         return current;
       }
@@ -160,11 +216,11 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
       // Keep drawer closed on initial load; only auto-close if the selected run was removed.
       return null;
     });
-  }, [safeRuns]);
+  }, [safeRuns, urlInspectorRunId]);
 
   const closeInspector = useCallback(() => {
     setSelectedRun(null);
-  }, []);
+  }, [setSelectedRun]);
 
   useEffect(() => {
     if (selectedRun === null) {
@@ -255,7 +311,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     }
 
     setSelectedRun(run);
-  }, []);
+  }, [setSelectedRun]);
 
   const listNarrowingActive =
     filterText.trim().length > 0 || (buyerPolished === true && buyerPackageScope !== "all");
@@ -285,12 +341,12 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
 
       return [...current, runId];
     });
-  }, []);
+  }, [setCompareSelection]);
 
   const clearCompareSelection = useCallback(() => {
     setCompareSelection([]);
     setCompareSelectionNotice(null);
-  }, []);
+  }, [setCompareSelection]);
 
   const filterStatusLine = runsListPageFilterStatusLine(
     filteredSorted.length,
