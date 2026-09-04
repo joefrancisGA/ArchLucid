@@ -76,6 +76,76 @@ public sealed class TenantErasureLegalHoldControllerTests
     }
 
     [Fact]
+    public async Task SetLegalHoldAsync_returns_bad_request_when_until_utc_is_in_the_past_and_tenant_missing()
+    {
+        Mock<ITenantErasureCommandService> commands = new(MockBehavior.Strict);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantErasureLegalHoldController controller = CreateController(
+            commands.Object,
+            tenants.Object,
+            scopeProvider.Object,
+            new FixedTimeProvider(FixedNow));
+
+        TenantErasureLegalHoldRequest body = new()
+        {
+            UntilUtc = FixedNow.AddDays(-1),
+            Reason = "hold",
+        };
+
+        IActionResult action = await controller.SetLegalHoldAsync(body, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        commands.VerifyNoOtherCalls();
+        tenants.Verify(
+            t => t.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task SetLegalHoldAsync_returns_bad_request_when_reason_exceeds_max_length_and_tenant_missing()
+    {
+        Mock<ITenantErasureCommandService> commands = new(MockBehavior.Strict);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantErasureLegalHoldController controller = CreateController(
+            commands.Object,
+            tenants.Object,
+            scopeProvider.Object,
+            new FixedTimeProvider(FixedNow));
+
+        TenantErasureLegalHoldRequest body = new()
+        {
+            UntilUtc = FixedNow.AddDays(30),
+            Reason = new string('x', 501),
+        };
+
+        IActionResult action = await controller.SetLegalHoldAsync(body, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        commands.VerifyNoOtherCalls();
+        tenants.Verify(
+            t => t.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task SetLegalHoldAsync_returns_bad_request_when_until_utc_is_in_the_past()
     {
         Mock<ITenantErasureCommandService> commands = new(MockBehavior.Strict);
