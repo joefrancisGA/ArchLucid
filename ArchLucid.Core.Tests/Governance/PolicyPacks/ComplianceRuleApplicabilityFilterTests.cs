@@ -19,7 +19,7 @@ public sealed class ComplianceRuleApplicabilityFilterTests
         ];
 
         IReadOnlyList<ComplianceRule> filtered =
-            ComplianceRuleApplicabilityFilter.FilterRules(rules, null);
+            ComplianceRuleApplicabilityFilter.FilterRules(rules, context: null);
 
         filtered.Should().HaveCount(2);
     }
