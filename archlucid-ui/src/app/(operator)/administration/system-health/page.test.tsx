@@ -30,6 +30,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
 
 import SystemHealthPage from "./page";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
+import { SYSTEM_HEALTH_HEADER_CLAIM_DISCIPLINE_TEST_ID } from "@/lib/system-health-page-copy";
 
 function jsonResponse(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { "Content-Type": "application/json" } });
@@ -244,7 +245,8 @@ describe("SystemHealthPage", () => {
     expect(screen.getByTestId("system-health-demo-overall-badge")).toBeInTheDocument();
     expect(screen.getByText(/Ready for pilot review workflows/i)).toBeInTheDocument();
     expect(screen.getByTestId("system-health-demo-scope-note")).toBeInTheDocument();
-    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
+    expect(screen.getByTestId(SYSTEM_HEALTH_HEADER_CLAIM_DISCIPLINE_TEST_ID)).toBeInTheDocument();
     expect(screen.queryByTestId("system-health-demo-context-note")).toBeNull();
     expect(screen.queryByTestId("system-health-claim-discipline")).toBeNull();
     expect(screen.queryByText(/sample review shell/i)).toBeNull();

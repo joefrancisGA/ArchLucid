@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";
@@ -8,6 +8,10 @@ import { useAlertRoutingSubscriptionsQuery } from "@/components/alerts/use-alert
 import { useOptionalAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import {
+  alertRoutingDisableRouteHrefFromSearch,
+  parseAlertRoutingDisableRouteIdFromSearch,
+} from "@/lib/alerts/alert-routing-disable-route-url";
 import {
   alertRoutingPageLeadOperator,
   alertRoutingPageLeadOperatorEmpty,
@@ -31,8 +35,10 @@ import type { AlertRoutingSubscriptionDisableTarget } from "@/app/(operator)/int
 
 export function useAlertRoutingList() {
   const router = useRouter();
+  const pathname = usePathname() ?? GOVERNANCE_ALERT_RULES_PATH;
   const searchParams = useSearchParams();
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
+  const urlDisableRouteId = parseAlertRoutingDisableRouteIdFromSearch(searchParams.get("disableRouteId"));
   const scopedRunFilterActive = scopedRunId.length > 0;
 
   const onPickReviewForRouting = useCallback(
@@ -71,9 +77,57 @@ export function useAlertRoutingList() {
   const [mutationFailure, setMutationFailure] = useState<ApiLoadFailureState | null>(null);
   const listFailure = routingQuery.failure ?? mutationFailure;
   const [attemptsBySub, setAttemptsBySub] = useState<Record<string, AlertRoutingDeliveryAttempt[]>>({});
-  const [pendingDisable, setPendingDisable] = useState<AlertRoutingSubscriptionDisableTarget | null>(null);
+  const [pendingDisable, setPendingDisableState] = useState<AlertRoutingSubscriptionDisableTarget | null>(null);
   const [disableBusy, setDisableBusy] = useState(false);
   const [disableErrorMessage, setDisableErrorMessage] = useState<string | null>(null);
+
+  const syncDisableRouteToUrl = useCallback(
+    (routingSubscriptionId: string | null) => {
+      router.replace(
+        alertRoutingDisableRouteHrefFromSearch(searchParams.toString(), routingSubscriptionId, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPendingDisable = useCallback(
+    (value: AlertRoutingSubscriptionDisableTarget | null) => {
+      setPendingDisableState(value);
+      syncDisableRouteToUrl(value?.routingSubscriptionId ?? null);
+    },
+    [syncDisableRouteToUrl],
+  );
+
+  useEffect(() => {
+    if (urlDisableRouteId.length === 0) {
+      if (pendingDisable !== null) {
+        setPendingDisableState(null);
+      }
+
+      return;
+    }
+
+    if (items.length === 0) {
+      return;
+    }
+
+    const subscription = items.find((row) => row.routingSubscriptionId === urlDisableRouteId);
+
+    if (subscription === undefined) {
+      return;
+    }
+
+    if (pendingDisable?.routingSubscriptionId === urlDisableRouteId) {
+      return;
+    }
+
+    setPendingDisableState({
+      routingSubscriptionId: subscription.routingSubscriptionId,
+      subscriptionName: subscription.name,
+      channel: subscription.channelType === "SlackWebhook" ? "slack" : "webhook",
+    });
+  }, [items, pendingDisable?.routingSubscriptionId, urlDisableRouteId]);
 
   const pageLead = useMemo(() => {
     if (items.length === 0) {

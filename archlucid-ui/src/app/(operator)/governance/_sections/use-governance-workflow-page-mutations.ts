@@ -20,12 +20,21 @@ import {
   parseGovernanceApprovalIdFromSearch,
   parseGovernanceReviewModeFromSearch,
 } from "@/lib/governance/governance-approval-review-url";
+import {
+  governanceApprovalPromoteActivateHrefFromSearch,
+  parseGovernanceActivateIdFromSearch,
+  parseGovernancePromoteEnvFromSearch,
+  parseGovernancePromoteManifestFromSearch,
+} from "@/lib/governance/governance-approval-promote-activate-url";
 import type { GovernanceWorkflowPendingReview } from "./governance-workflow-helpers";
 
 export function useGovernanceWorkflowPageMutations() {
   const router = useRouter();
   const pathname = usePathname() ?? GOVERNANCE_APPROVAL_QUEUE_PATH;
   const searchParams = useSearchParams();
+  const urlPromoteManifest = parseGovernancePromoteManifestFromSearch(searchParams.get("promoteManifest"));
+  const urlPromoteEnv = parseGovernancePromoteEnvFromSearch(searchParams.get("promoteEnv"));
+  const urlActivateId = parseGovernanceActivateIdFromSearch(searchParams.get("activateId"));
   const canMutateWorkflow = useOperateCapability();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const versionSeedRunIdRef = useRef<string | null>(null);
@@ -97,6 +106,43 @@ export function useGovernanceWorkflowPageMutations() {
     [mutations, pathname, router, searchParams],
   );
 
+  const syncPromoteActivateToUrl = useCallback(
+    (
+      pendingPromote: { manifestId: string; targetEnv: string } | null,
+      pendingActivate: { activationId: string; env: string } | null,
+    ) => {
+      router.replace(
+        governanceApprovalPromoteActivateHrefFromSearch(
+          searchParams.toString(),
+          {
+            promoteManifestId: pendingPromote?.manifestId ?? null,
+            promoteTargetEnv: pendingPromote?.targetEnv ?? null,
+            activateId: pendingActivate?.activationId ?? null,
+          },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPendingPromote = useCallback(
+    (value: { manifestId: string; targetEnv: string } | null) => {
+      mutations.setPendingPromote(value);
+      syncPromoteActivateToUrl(value, mutations.pendingActivate);
+    },
+    [mutations, syncPromoteActivateToUrl],
+  );
+
+  const setPendingActivate = useCallback(
+    (value: { activationId: string; env: string } | null) => {
+      mutations.setPendingActivate(value);
+      syncPromoteActivateToUrl(mutations.pendingPromote, value);
+    },
+    [mutations, syncPromoteActivateToUrl],
+  );
+
   useEffect(() => {
     const approvalRequestId = parseGovernanceApprovalIdFromSearch(searchParams.get("approvalId"));
     const mode = parseGovernanceReviewModeFromSearch(searchParams.get("reviewMode"));
@@ -132,6 +178,67 @@ export function useGovernanceWorkflowPageMutations() {
       runId: row.runId,
     });
   }, [approvals, listsLoading, mutations, searchParams]);
+
+  useEffect(() => {
+    if (urlPromoteManifest.length === 0 || urlPromoteEnv.length === 0) {
+      if (mutations.pendingPromote !== null) {
+        setPendingPromote(null);
+      }
+
+      return;
+    }
+
+    if (listsLoading) {
+      return;
+    }
+
+    const row =
+      approvals.find(
+        (approval) =>
+          approval.manifestVersion === urlPromoteManifest && approval.targetEnvironment === urlPromoteEnv,
+      ) ?? null;
+
+    if (row === null) {
+      return;
+    }
+
+    if (
+      mutations.pendingPromote?.manifestId === urlPromoteManifest
+      && mutations.pendingPromote?.targetEnv === urlPromoteEnv
+    ) {
+      return;
+    }
+
+    mutations.pendingPromoteRequestRef.current = row;
+    setPendingPromote({ manifestId: urlPromoteManifest, targetEnv: urlPromoteEnv });
+  }, [approvals, listsLoading, mutations, setPendingPromote, urlPromoteEnv, urlPromoteManifest]);
+
+  useEffect(() => {
+    if (urlActivateId.length === 0) {
+      if (mutations.pendingActivate !== null) {
+        setPendingActivate(null);
+      }
+
+      return;
+    }
+
+    if (listsLoading) {
+      return;
+    }
+
+    const promotion = promotions.find((row) => row.promotionRecordId === urlActivateId) ?? null;
+
+    if (promotion === null) {
+      return;
+    }
+
+    if (mutations.pendingActivate?.activationId === urlActivateId) {
+      return;
+    }
+
+    mutations.pendingActivatePromotionRef.current = promotion;
+    setPendingActivate({ activationId: urlActivateId, env: promotion.targetEnvironment });
+  }, [listsLoading, mutations, promotions, setPendingActivate, urlActivateId]);
 
   useEffect(() => {
     const runId = submitRunIdTrimmed;
@@ -177,6 +284,30 @@ export function useGovernanceWorkflowPageMutations() {
     }
   }, [mutations, pathname, router, searchParams]);
 
+  const onConfirmPromote = useCallback(async () => {
+    await mutations.onConfirmPromote();
+
+    if (mutations.pendingPromote === null) {
+      syncPromoteActivateToUrl(null, mutations.pendingActivate);
+    }
+  }, [mutations, syncPromoteActivateToUrl]);
+
+  const onConfirmActivateFromPromotion = useCallback(async () => {
+    await mutations.onConfirmActivateFromPromotion();
+
+    if (mutations.pendingActivate === null) {
+      syncPromoteActivateToUrl(mutations.pendingPromote, null);
+    }
+  }, [mutations, syncPromoteActivateToUrl]);
+
+  const mutationsWithUrl = {
+    ...mutations,
+    setPendingPromote,
+    setPendingActivate,
+    onConfirmPromote,
+    onConfirmActivateFromPromotion,
+  };
+
   return {
     canMutateWorkflow,
     buyerPolishedShell,
@@ -204,7 +335,7 @@ export function useGovernanceWorkflowPageMutations() {
     listFailure,
     listsLoading,
     activeReviewDisplayTitle,
-    mutations,
+    mutations: mutationsWithUrl,
     submitBusy: mutations.submitBusy,
     submitApprovalComplete: mutations.submitApprovalComplete,
     reviewBusy: mutations.reviewBusy,
@@ -216,13 +347,15 @@ export function useGovernanceWorkflowPageMutations() {
     reviewComment: mutations.reviewComment,
     setReviewComment: mutations.setReviewComment,
     pendingPromote: mutations.pendingPromote,
-    setPendingPromote: mutations.setPendingPromote,
+    setPendingPromote,
     pendingPromoteRequestRef: mutations.pendingPromoteRequestRef,
     pendingActivate: mutations.pendingActivate,
-    setPendingActivate: mutations.setPendingActivate,
+    setPendingActivate,
     pendingActivatePromotionRef: mutations.pendingActivatePromotionRef,
     onSubmitApproval: mutations.onSubmitApproval,
     onConfirmReview,
+    onConfirmPromote,
+    onConfirmActivateFromPromotion,
     refreshIfActive: mutations.refreshIfActive,
     setMutationSuccessMessage: mutations.setMutationSuccessMessage,
     setMutationErrorMessage: mutations.setMutationErrorMessage,

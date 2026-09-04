@@ -5,6 +5,7 @@ import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/desi
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useReducer, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
@@ -29,6 +30,11 @@ import {
   parseStoredCorePilotWizardState,
   stringifyCorePilotWizardState,
 } from "@/lib/core-pilot-wizard-state";
+import {
+  corePilotWizardHrefFromSearch,
+  parseCorePilotWizardOpenFromSearch,
+  parseCorePilotWizardStepFromSearch,
+} from "@/lib/operator/core-pilot-wizard-url";
 
 type WizardBlueprintStep = {
   id: string;
@@ -167,10 +173,37 @@ function wizardHiddenForAutomation(): boolean {
 
 /** Modal Core Pilot navigator — dialog only; opens via `CORE_PILOT_WIZARD_OPEN_EVENT` or Help/Onboarding links. */
 export function CorePilotWizardLauncher() {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const urlWizardOpen = parseCorePilotWizardOpenFromSearch(searchParams.get("pilotWizard"));
+  const urlWizardStep = parseCorePilotWizardStepFromSearch(searchParams.get("pilotWizardStep"));
   const [hydrated, setHydrated] = useState(false);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogOpen, setDialogOpenState] = useState(urlWizardOpen);
   const [suppressFabOffer, setSuppressFabOffer] = useState(false);
   const [state, dispatch] = useReducer(corePilotWizardReducer, createInitialCorePilotWizardState());
+
+  const syncCorePilotWizardToUrl = useCallback(
+    (open: boolean, stepIndex: number) => {
+      router.replace(
+        corePilotWizardHrefFromSearch(
+          searchParams.toString(),
+          { open, stepIndex: open ? stepIndex : null },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setDialogOpen = useCallback(
+    (open: boolean) => {
+      setDialogOpenState(open);
+      syncCorePilotWizardToUrl(open, state.stepIndex);
+    },
+    [state.stepIndex, syncCorePilotWizardToUrl],
+  );
 
   /** Hydrate from localStorage once on mount. */
   useEffect(() => {
@@ -183,6 +216,18 @@ export function CorePilotWizardLauncher() {
 
     setHydrated(true);
   }, []);
+
+  useEffect(() => {
+    setDialogOpenState(urlWizardOpen);
+  }, [urlWizardOpen]);
+
+  useEffect(() => {
+    if (urlWizardStep === null || !urlWizardOpen) {
+      return;
+    }
+
+    dispatch({ type: "goto", stepIndex: urlWizardStep });
+  }, [urlWizardOpen, urlWizardStep]);
 
   /** Persist durable preferences + checkpoints. */
   useEffect(() => {
@@ -207,7 +252,7 @@ export function CorePilotWizardLauncher() {
     return () => {
       window.removeEventListener(CORE_PILOT_WIZARD_OPEN_EVENT, onWizardOpenRequested);
     };
-  }, []);
+  }, [setDialogOpen]);
 
   const handleDialogChange = useCallback((open: boolean) => {
     setDialogOpen(open);
@@ -215,7 +260,15 @@ export function CorePilotWizardLauncher() {
     if (!open) {
       dispatch({ type: "closePreserveProgress" });
     }
-  }, []);
+  }, [setDialogOpen]);
+
+  useEffect(() => {
+    if (!dialogOpen) {
+      return;
+    }
+
+    syncCorePilotWizardToUrl(true, state.stepIndex);
+  }, [dialogOpen, state.stepIndex, syncCorePilotWizardToUrl]);
 
   useEffect(() => {
     setSuppressFabOffer(false);

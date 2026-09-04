@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import { focusHelpDrawerRow } from "@/components/help/help-drawer-list-keyboard";
 import { useHelpPageSituation } from "@/components/help/help-page-situation-store";
@@ -57,6 +58,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
+  const { isWorkingMode } = useWorkspaceMode();
   const isAdmin = !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
 
   const [query, setQuery] = useState("");
@@ -76,8 +78,8 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
   const allTopics = useMemo(() => listHelpSearchPanelTopics(isAdmin), [isAdmin]);
   const collapseStartHere = useMemo(() => shouldCollapseHelpStartHereGroup(pathname), [pathname]);
   const recommendedTopics = useMemo(
-    () => recommendedHelpSearchPanelTopics(pathname, isAdmin, situation),
-    [isAdmin, pathname, situation],
+    () => recommendedHelpSearchPanelTopics(pathname, isAdmin, situation, isWorkingMode),
+    [isAdmin, isWorkingMode, pathname, situation],
   );
   const { doThisNow, moreRecommended } = useMemo(
     () => splitHelpSearchPanelDoThisNow(recommendedTopics),

@@ -19,19 +19,22 @@ import {
   GETTING_STARTED_HELP_DIAGRAM_SUMMARY,
   GETTING_STARTED_HELP_DIAGRAM_TITLE,
   GETTING_STARTED_HELP_GUIDE_HEADINGS,
-  GETTING_STARTED_HELP_NEXT_ACTION_CARDS,
   GETTING_STARTED_HELP_PIPELINE_DIAGRAM_DESCRIPTION,
   GETTING_STARTED_HELP_PIPELINE_TEXT_STAGES,
   GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS,
   GETTING_STARTED_HELP_PRIMARY_ACTIONS,
-  GETTING_STARTED_HELP_QUICK_START_COPY,
-  GETTING_STARTED_HELP_QUICK_START_TITLE,
   GETTING_STARTED_HELP_TECHNICAL_DETAILS_BODY,
   GETTING_STARTED_HELP_TECHNICAL_DETAILS_TITLE,
   GETTING_STARTED_HELP_TECHNICAL_TERMS,
   GETTING_STARTED_HELP_WORKFLOW_STEPS,
   gettingStartedHelpPageSubtitle,
+  resolveGettingStartedHelpNextActionCards,
+  resolveGettingStartedHelpPrimaryActions,
+  resolveGettingStartedHelpQuickStartCopy,
+  resolveGettingStartedHelpQuickStartTitle,
 } from "@/lib/getting-started-help-guide-content";
+import { HELP_EVALUATING_ARCHITECTURE_SECTION_TITLE } from "@/lib/help/help-workspace-mode-copy";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
 import {
@@ -134,6 +137,11 @@ function HowArchLucidWorksDiagram(): React.ReactElement {
 export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewProps): React.ReactElement {
   const { entry } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const { isWorkingMode } = useWorkspaceMode();
+  const quickStartTitle = resolveGettingStartedHelpQuickStartTitle(isWorkingMode);
+  const quickStartCopy = resolveGettingStartedHelpQuickStartCopy(isWorkingMode);
+  const primaryActions = resolveGettingStartedHelpPrimaryActions(isWorkingMode);
+  const nextActionCards = resolveGettingStartedHelpNextActionCards(isWorkingMode);
   const contentGridClass = resolveHelpPageContentGridClass(GETTING_STARTED_HELP_GUIDE_HEADINGS.length);
   const showSectionNav = GETTING_STARTED_HELP_GUIDE_HEADINGS.length >= HELP_PAGE_MIN_TOC_HEADINGS;
 
@@ -150,7 +158,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
         }
         showContextualHelp={!buyerPolishedShell}
       />
-      {buyerPolishedShell ? null : (
+      {buyerPolishedShell || isWorkingMode ? null : (
         <PilotGuideGettingStartedFirstReviewVocabularyRail currentSurfaceId="getting-started" />
       )}
       <GettingStartedHelpClaimDisciplineStrip />
@@ -171,32 +179,55 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
               id="getting-started-quick-start-heading"
               className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
             >
-              {GETTING_STARTED_HELP_QUICK_START_TITLE}
+              {quickStartTitle}
             </h2>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{GETTING_STARTED_HELP_QUICK_START_COPY}</p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{quickStartCopy}</p>
             <div className="flex flex-wrap gap-2">
-              <Button asChild size="sm" variant="primary">
-                <Link href={GETTING_STARTED_HELP_PRIMARY_ACTIONS.startReview.href}>
-                  {GETTING_STARTED_HELP_PRIMARY_ACTIONS.startReview.label}
-                </Link>
-              </Button>
-              <Button asChild size="sm" variant="outline">
-                <Link href={GETTING_STARTED_HELP_PRIMARY_ACTIONS.sampleReview.href}>
-                  {GETTING_STARTED_HELP_PRIMARY_ACTIONS.sampleReview.label}
-                </Link>
-              </Button>
-              <Button asChild size="sm" variant="outline">
-                <Link href={GETTING_STARTED_HELP_PRIMARY_ACTIONS.firstReviewGuide.href}>
-                  {GETTING_STARTED_HELP_PRIMARY_ACTIONS.firstReviewGuide.label}
-                </Link>
-              </Button>
+              {primaryActions.map((action) => (
+                <Button
+                  key={action.href}
+                  asChild
+                  size="sm"
+                  variant={action.title === "New review" || action.title === "Start review" ? "primary" : "outline"}
+                >
+                  <Link href={action.href}>{action.ctaLabel}</Link>
+                </Button>
+              ))}
             </div>
           </section>
+
+          {isWorkingMode ? (
+            <details
+              className={HELP_PAGE_LAYOUT.details}
+              data-testid="getting-started-evaluating-architecture-section"
+            >
+              <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                {HELP_EVALUATING_ARCHITECTURE_SECTION_TITLE}
+              </summary>
+              <div className={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-3")}>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                  Use these paths when you are assessing ArchLucid before adopting it for daily review work.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Button asChild size="sm" variant="outline">
+                    <Link href={GETTING_STARTED_HELP_PRIMARY_ACTIONS.sampleReview.href}>
+                      {GETTING_STARTED_HELP_PRIMARY_ACTIONS.sampleReview.label}
+                    </Link>
+                  </Button>
+                  <Button asChild size="sm" variant="outline">
+                    <Link href={GETTING_STARTED_HELP_PRIMARY_ACTIONS.firstReviewGuide.href}>
+                      {GETTING_STARTED_HELP_PRIMARY_ACTIONS.firstReviewGuide.label}
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </details>
+          ) : null}
 
           <section aria-labelledby="what-to-do-next" className="space-y-4">
             <HelpSectionHeading id="what-to-do-next">What to do next</HelpSectionHeading>
             <div className="grid gap-3 sm:grid-cols-2" data-testid="getting-started-next-action-cards">
-              {GETTING_STARTED_HELP_NEXT_ACTION_CARDS.map((action) => (
+              {nextActionCards.map((action) => (
                 <div
                   key={action.title}
                   className="flex h-full flex-col space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
