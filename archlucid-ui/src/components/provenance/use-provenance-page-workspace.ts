@@ -23,6 +23,11 @@ import {
   provenanceSelectedNodeHrefFromSearch,
 } from "@/lib/provenance/provenance-selected-node-url";
 import {
+  parseProvenanceEdgeFocusFromSearch,
+  parseProvenanceEdgesExpandedFromSearch,
+  provenanceEdgeFocusHrefFromSearch,
+} from "@/lib/provenance/provenance-edge-focus-url";
+import {
   PROVENANCE_SECTION_GRAPH_LABEL,
   PROVENANCE_SECTION_LINKAGE_POINTS_LABEL,
   PROVENANCE_SECTION_RELATIONSHIPS_LABEL,
@@ -74,6 +79,8 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
   const urlNodeTypeFilter = parseProvenanceTableNodeTypeFromSearch(searchParams.get("nodeType"));
   const urlEdgeSearch = parseProvenanceTableEdgeSearchQueryFromSearch(searchParams.get("edgeQ"));
   const urlSelectedNodeId = parseProvenanceSelectedNodeIdFromSearch(searchParams.get("provNodeId"));
+  const urlHighlightedEdgeId = parseProvenanceEdgeFocusFromSearch(searchParams.get("provEdgeId"));
+  const urlEdgesExpanded = parseProvenanceEdgesExpandedFromSearch(searchParams.get("edgesExpanded"));
   // OpenAPI may omit optional arrays; normalize before .length / .map so SSR/demo payloads cannot crash.
   const graph: ArchitectureRunProvenanceGraph = {
     ...props.graph,
@@ -89,12 +96,55 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
     () => (urlCategory === null ? new Set() : new Set([urlCategory])),
   );
   const [layoutSeed, setLayoutSeed] = useState(0);
-  const [edgesExpanded, setEdgesExpanded] = useState(() => graph.edges.length < SEARCH_THRESHOLD);
+  const [edgesExpanded, setEdgesExpandedState] = useState(
+    () => urlEdgesExpanded || graph.edges.length < SEARCH_THRESHOLD,
+  );
   const [nodeSearch, setNodeSearch] = useState(urlNodeSearch);
   const [nodeTypeFilter, setNodeTypeFilter] = useState(urlNodeTypeFilter);
   const [edgeSearch, setEdgeSearch] = useState(urlEdgeSearch);
 
   const nodeById = useMemo(() => new Map(graph.nodes.map((node) => [node.id, node])), [graph.nodes]);
+
+  const syncProvenanceEdgeToUrl = useCallback(
+    (edgeId: string | null, expanded: boolean) => {
+      router.replace(
+        provenanceEdgeFocusHrefFromSearch(
+          searchParams.toString(),
+          { edgeId, edgesExpanded: expanded },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setEdgesExpanded = useCallback(
+    (value: boolean) => {
+      setEdgesExpandedState(value);
+      syncProvenanceEdgeToUrl(highlightedEdgeId, value);
+    },
+    [highlightedEdgeId, syncProvenanceEdgeToUrl],
+  );
+
+  useEffect(() => {
+    setEdgesExpandedState(urlEdgesExpanded || graph.edges.length < SEARCH_THRESHOLD);
+  }, [graph.edges.length, urlEdgesExpanded]);
+
+  useEffect(() => {
+    if (urlHighlightedEdgeId.length === 0) {
+      return;
+    }
+
+    const edge = graph.edges.find((item) => item.id === urlHighlightedEdgeId);
+
+    if (edge === undefined) {
+      return;
+    }
+
+    setHighlightedEdgeId(urlHighlightedEdgeId);
+    setSelectedNodeId(edge.fromNodeId);
+  }, [graph.edges, urlHighlightedEdgeId]);
 
   useEffect(() => {
     setViewModeState(urlViewMode);
@@ -273,11 +323,12 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
       provenanceSelectedNodeHrefFromSearch(searchParams.toString(), nodeId, pathname),
       { scroll: false },
     );
+    syncProvenanceEdgeToUrl(null, edgesExpanded);
 
     if (nodeId !== null) {
       flashNodeRow(nodeId);
     }
-  }, [pathname, router, searchParams]);
+  }, [edgesExpanded, pathname, router, searchParams, syncProvenanceEdgeToUrl]);
 
   const onSelectEdge = useCallback((edgeId: string) => {
     setHighlightedEdgeId(edgeId);
@@ -285,8 +336,14 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
 
     if (edge !== undefined) {
       setSelectedNodeId(edge.fromNodeId);
+      router.replace(
+        provenanceSelectedNodeHrefFromSearch(searchParams.toString(), edge.fromNodeId, pathname),
+        { scroll: false },
+      );
     }
-  }, [graph.edges]);
+
+    syncProvenanceEdgeToUrl(edgeId, edgesExpanded);
+  }, [edgesExpanded, graph.edges, pathname, router, searchParams, syncProvenanceEdgeToUrl]);
 
   const toggleFilter = useCallback((filter: ProvenanceNodeFilterCategory) => {
     const count = filterCounts.get(filter) ?? 0;
@@ -330,6 +387,7 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
           provenanceSelectedNodeHrefFromSearch(searchParams.toString(), null, pathname),
           { scroll: false },
         );
+        syncProvenanceEdgeToUrl(null, edgesExpanded);
       }
     };
 
@@ -338,7 +396,7 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
     return () => {
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [pathname, router, searchParams]);
+  }, [edgesExpanded, pathname, router, searchParams, syncProvenanceEdgeToUrl]);
 
   const showGraph = viewMode === "graph";
   const showTimeline = viewMode === "timeline" || viewMode === "table";

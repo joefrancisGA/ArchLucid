@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useId, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useId, useRef, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 import { StatusTag } from "@/components/ui/status-tag";
@@ -10,12 +11,18 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FIRST_REVIEW_GUIDE_COMPLETED_MESSAGE, FIRST_REVIEW_GUIDE_NEXT_STEP_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { FIRST_REVIEW_GUIDE_STEP_COUNT } from "@/lib/first-review-guide-steps";
+import {
+  FIRST_REVIEW_GUIDE_PATH,
+  firstReviewGuideWalkthroughStepHrefFromSearch,
+  parseFirstReviewGuideWalkthroughStepFromSearch,
+} from "@/lib/first-review-guide/first-review-guide-walkthrough-step-url";
 import { OPERATOR_LINK, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type {
   FirstReviewGuideProgressPhase,
   FirstReviewGuideStepPresentation,
 } from "@/lib/first-review-guide-state";
 import { formatStepProgressCompleteLabel } from "@/lib/step-progress-label";
+import { scheduleScrollDeepLinkTargetIntoView } from "@/lib/scroll-deep-link-target-into-view";
 
 type FirstReviewGuideWalkthroughProps = {
   readonly steps: readonly FirstReviewGuideStepPresentation[];
@@ -63,19 +70,29 @@ function FirstReviewGuideWalkthroughLoadingSkeleton() {
 function FirstReviewGuideStepCard({
   step,
   totalSteps,
+  onFocusStep,
 }: {
   readonly step: FirstReviewGuideStepPresentation;
   readonly totalSteps: number;
+  readonly onFocusStep: (stepNumber: number) => void;
 }) {
+  const stepNumber = step.index + 1;
+  const stepElementId = `first-review-guide-step-${stepNumber}`;
+
   return (
     <li
+      id={stepElementId}
+      tabIndex={-1}
       className={cn(
         OPERATOR_SURFACE_CARD_CLASS,
         "border border-neutral-200 p-4 dark:border-neutral-800",
         step.isNextStep ? "border-l-4 border-l-neutral-700 dark:border-l-neutral-400" : null,
       )}
-      data-testid={step.isNextStep ? "first-review-guide-next-step" : `first-review-guide-step-${step.index + 1}`}
+      data-testid={step.isNextStep ? "first-review-guide-next-step" : stepElementId}
       aria-current={step.isNextStep ? "step" : undefined}
+      onFocus={() => {
+        onFocusStep(stepNumber);
+      }}
     >
       <div className="min-w-0 space-y-1">
         <span className="sr-only">
@@ -101,7 +118,13 @@ function FirstReviewGuideStepCard({
           {step.explanation}
         </p>
         {step.actionLabel !== null && step.actionHref !== null ? (
-          <Link href={step.actionHref} className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.body)}>
+          <Link
+            href={step.actionHref}
+            className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.body)}
+            onFocus={() => {
+              onFocusStep(stepNumber);
+            }}
+          >
             {step.actionLabel}
           </Link>
         ) : null}
@@ -117,8 +140,43 @@ export function FirstReviewGuideWalkthrough({
   announceProgress,
   progressPhase,
 }: FirstReviewGuideWalkthroughProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? FIRST_REVIEW_GUIDE_PATH;
+  const searchParams = useSearchParams();
+  const urlGuideStep = parseFirstReviewGuideWalkthroughStepFromSearch(searchParams.get("guideStep"));
+  const scrolledStepRef = useRef<number | null>(null);
   const ledgerPanelId = useId().replaceAll(":", "");
   const [ledgerExpanded, setLedgerExpanded] = useState(false);
+
+  const syncGuideStepToUrl = (stepNumber: number | null) => {
+    router.replace(
+      firstReviewGuideWalkthroughStepHrefFromSearch(searchParams.toString(), stepNumber, pathname),
+      { scroll: false },
+    );
+  };
+
+  const focusGuideStep = (stepNumber: number) => {
+    syncGuideStepToUrl(stepNumber);
+    scheduleScrollDeepLinkTargetIntoView(`first-review-guide-step-${stepNumber}`);
+  };
+
+  useEffect(() => {
+    if (urlGuideStep === null || isPending || isError) {
+      return;
+    }
+
+    if (scrolledStepRef.current === urlGuideStep) {
+      return;
+    }
+
+    scrolledStepRef.current = urlGuideStep;
+
+    if (progressPhase === "complete" && !ledgerExpanded) {
+      setLedgerExpanded(true);
+    }
+
+    scheduleScrollDeepLinkTargetIntoView(`first-review-guide-step-${urlGuideStep}`);
+  }, [isError, isPending, ledgerExpanded, progressPhase, urlGuideStep]);
 
   if (isPending) {
     return <FirstReviewGuideWalkthroughLoadingSkeleton />;
@@ -173,7 +231,12 @@ export function FirstReviewGuideWalkthrough({
               aria-label="First review walkthrough"
             >
               {steps.map((step) => (
-                <FirstReviewGuideStepCard key={step.title} step={step} totalSteps={totalSteps} />
+                <FirstReviewGuideStepCard
+                  key={step.title}
+                  step={step}
+                  totalSteps={totalSteps}
+                  onFocusStep={focusGuideStep}
+                />
               ))}
             </ol>
           ) : null}
@@ -195,7 +258,12 @@ export function FirstReviewGuideWalkthrough({
       aria-label="First review walkthrough"
     >
       {steps.map((step) => (
-        <FirstReviewGuideStepCard key={step.title} step={step} totalSteps={totalSteps} />
+        <FirstReviewGuideStepCard
+          key={step.title}
+          step={step}
+          totalSteps={totalSteps}
+          onFocusStep={focusGuideStep}
+        />
       ))}
       {announceProgress ? (
         <span className="sr-only" aria-live="polite" data-testid="first-review-guide-walkthrough-live">

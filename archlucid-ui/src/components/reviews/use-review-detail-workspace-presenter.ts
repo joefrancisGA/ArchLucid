@@ -1,42 +1,27 @@
 "use client";
 
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 
-import type { ReviewWorkbenchColumnId } from "@/components/reviews/ReviewWorkbenchLayout";
-import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
-import { writeReviewDetailTabToUrl } from "@/lib/review-detail-workspace-tabs";
-
-export type UseReviewDetailWorkspacePresenterInput = {
-  readonly activeTab: ReviewDetailTabId;
-  readonly initialFindingId: string | null;
-  readonly initialWorkbenchFocus: ReviewWorkbenchColumnId | null;
-};
+import { reviewPresenterModeHrefFromSearch } from "@/lib/reviews/review-presenter-mode-url";
 
 export type UseReviewDetailWorkspacePresenterResult = {
   readonly exitPresenter: () => void;
   readonly enterPresenter: () => void;
 };
 
-export function useReviewDetailWorkspacePresenter(
-  input: UseReviewDetailWorkspacePresenterInput,
-): UseReviewDetailWorkspacePresenterResult {
+export function useReviewDetailWorkspacePresenter(): UseReviewDetailWorkspacePresenterResult {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/architecture/reviews";
+  const searchParams = useSearchParams();
+
   const exitPresenter = useCallback(() => {
-    writeReviewDetailTabToUrl(input.activeTab, {
-      findingId: input.initialFindingId,
-      workbenchFocus: input.initialWorkbenchFocus,
-      presenter: null,
-    });
-    window.location.reload();
-  }, [input.activeTab, input.initialFindingId, input.initialWorkbenchFocus]);
+    router.replace(reviewPresenterModeHrefFromSearch(searchParams.toString(), false, pathname), { scroll: false });
+  }, [pathname, router, searchParams]);
 
   const enterPresenter = useCallback(() => {
-    writeReviewDetailTabToUrl(input.activeTab, {
-      findingId: input.initialFindingId,
-      workbenchFocus: input.initialWorkbenchFocus,
-      presenter: true,
-    });
-    window.location.reload();
-  }, [input.activeTab, input.initialFindingId, input.initialWorkbenchFocus]);
+    router.replace(reviewPresenterModeHrefFromSearch(searchParams.toString(), true, pathname), { scroll: false });
+  }, [pathname, router, searchParams]);
 
   return { exitPresenter, enterPresenter };
 }

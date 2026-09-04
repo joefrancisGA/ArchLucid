@@ -15,6 +15,10 @@ import {
   architectureIntelligenceTierHrefFromSearch,
   parseArchitectureIntelligenceTierFromSearch,
 } from "@/lib/architecture/architecture-intelligence-tier-url";
+import {
+  architectureIntelligenceContextRunHrefFromSearch,
+  parseArchitectureIntelligenceContextRunIdFromSearch,
+} from "@/lib/architecture/architecture-intelligence-context-run-url";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { useArchitectureIntelligenceSourceContextQuery } from "@/hooks/use-architecture-intelligence-source-context-query";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
@@ -85,6 +89,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
   const searchParams = useSearchParams();
   const inboundRunId = searchParams.get("runId")?.trim() ?? "";
   const inboundFrom = searchParams.get("from")?.trim() ?? "";
+  const urlContextRunId = parseArchitectureIntelligenceContextRunIdFromSearch(searchParams.get("contextRunId"));
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const scope = useOperatorScopeQueryKey();
   const scopeKey = `${scope.tenantId}:${scope.workspaceId}:${scope.projectId}`;
@@ -143,6 +148,30 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
       setReviewTier(fromUrl);
     }
   }, [searchParams]);
+
+  const setActiveRunIdWithUrl = useCallback(
+    (value: string | null) => {
+      const trimmed = value?.trim() ?? "";
+      setActiveRunId(trimmed.length > 0 ? trimmed : null);
+      router.replace(
+        architectureIntelligenceContextRunHrefFromSearch(
+          searchParams.toString(),
+          trimmed.length > 0 ? trimmed : null,
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    if (urlContextRunId.length === 0) {
+      return;
+    }
+
+    setActiveRunId(urlContextRunId);
+  }, [urlContextRunId]);
 
   const onInterviewAnswerChange = useCallback((questionId: string, value: string) => {
     setInterviewAnswers((previous) => ({ ...previous, [questionId]: value }));
@@ -348,7 +377,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
     interviewAnswers,
     onInterviewAnswerChange,
     activeRunId,
-    setActiveRunId,
+    setActiveRunId: setActiveRunIdWithUrl,
     hydratedSourceTexts,
     setHydratedSourceTexts,
     publishToProduct,

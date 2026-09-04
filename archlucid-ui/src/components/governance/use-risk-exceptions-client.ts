@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";
@@ -12,6 +12,11 @@ import {
   type RiskExceptionRecord,
 } from "@/lib/api/governance-stickiness-api";
 import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  parseRiskExceptionRenewIdFromSearch,
+  parseRiskExceptionRevokeIdFromSearch,
+  riskExceptionsRenewRevokeHrefFromSearch,
+} from "@/lib/governance/risk-exceptions-renew-revoke-url";
 import { resolveRiskExceptionsTriageFirstExpiring } from "@/lib/governance/resolve-risk-exceptions-triage-first-expiring";
 import {
   resolveContinueLastRiskException,
@@ -66,8 +71,11 @@ export type UseRiskExceptionsClientResult = {
 
 export function useRiskExceptionsClient(): UseRiskExceptionsClientResult {
   const router = useRouter();
+  const pathname = usePathname() ?? GOVERNANCE_EXCEPTIONS_PATH;
   const searchParams = useSearchParams();
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
+  const urlRenewId = parseRiskExceptionRenewIdFromSearch(searchParams.get("renewId"));
+  const urlRevokeId = parseRiskExceptionRevokeIdFromSearch(searchParams.get("revokeId"));
   const scopedRunFilterActive = scopedRunId.length > 0;
   const canMutate = useOperateCapability();
   const mutationDisabledHintId = "risk-exceptions-mutate-disabled-hint";
@@ -82,6 +90,68 @@ export function useRiskExceptionsClient(): UseRiskExceptionsClientResult {
   const [loading, setLoading] = useState(true);
   const [retryingLoad, setRetryingLoad] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
+
+  const syncRenewRevokeToUrl = useCallback(
+    (renewId: string | null, revokeId: string | null) => {
+      router.replace(
+        riskExceptionsRenewRevokeHrefFromSearch(
+          searchParams.toString(),
+          { renewId, revokeId },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setRenewingIdWithUrl = useCallback(
+    (value: React.SetStateAction<string | null>) => {
+      setRenewingId((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncRenewRevokeToUrl(next, pendingRevoke?.riskExceptionId ?? null);
+
+        return next;
+      });
+    },
+    [pendingRevoke?.riskExceptionId, syncRenewRevokeToUrl],
+  );
+
+  const setPendingRevokeWithUrl = useCallback(
+    (value: React.SetStateAction<RiskExceptionRecord | null>) => {
+      setPendingRevoke((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncRenewRevokeToUrl(renewingId, next?.riskExceptionId ?? null);
+
+        return next;
+      });
+    },
+    [renewingId, syncRenewRevokeToUrl],
+  );
+
+  useEffect(() => {
+    if (records.length === 0) {
+      return;
+    }
+
+    if (urlRenewId.length > 0) {
+      const exists = records.some((record) => record.riskExceptionId === urlRenewId);
+
+      if (exists) {
+        setRenewingId(urlRenewId);
+        setRenewExpiresAtUtc(defaultRiskExceptionExpiresAtUtc());
+        setRenewRationale("");
+      }
+    }
+
+    if (urlRevokeId.length > 0) {
+      const record = records.find((row) => row.riskExceptionId === urlRevokeId) ?? null;
+
+      if (record !== null) {
+        setPendingRevoke(record);
+      }
+    }
+  }, [records, urlRenewId, urlRevokeId]);
 
   const reload = useCallback(async (): Promise<void> => {
     const rows = await listRiskExceptions();
@@ -186,6 +256,7 @@ export function useRiskExceptionsClient(): UseRiskExceptionsClientResult {
         setRenewingId(null);
         setRenewRationale("");
         setRenewExpiresAtUtc(defaultRiskExceptionExpiresAtUtc());
+        syncRenewRevokeToUrl(null, pendingRevoke?.riskExceptionId ?? null);
         await reload();
       } catch (error: unknown) {
         setLoadError(error instanceof Error ? error.message : "Failed to renew risk exception.");
@@ -208,6 +279,8 @@ export function useRiskExceptionsClient(): UseRiskExceptionsClientResult {
 
       try {
         await revokeRiskException(record.riskExceptionId);
+        setPendingRevoke(null);
+        syncRenewRevokeToUrl(renewingId, null);
         await reload();
       } catch (error: unknown) {
         setLoadError(error instanceof Error ? error.message : "Failed to revoke risk exception.");
@@ -219,13 +292,13 @@ export function useRiskExceptionsClient(): UseRiskExceptionsClientResult {
   );
 
   const onTriageExtend = useCallback((riskExceptionId: string) => {
-    setRenewingId(riskExceptionId);
+    setRenewingIdWithUrl(riskExceptionId);
     setRenewExpiresAtUtc(defaultRiskExceptionExpiresAtUtc());
     setRenewRationale("");
     document
       .querySelector(`[data-risk-exception-id="${riskExceptionId}"]`)
       ?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, []);
+  }, [setRenewingIdWithUrl]);
 
   const onContinueLastOpen = useCallback((riskExceptionId: string) => {
     writeRiskExceptionLastViewedId(riskExceptionId);
@@ -235,10 +308,10 @@ export function useRiskExceptionsClient(): UseRiskExceptionsClientResult {
   }, []);
 
   const onStartRenew = useCallback((riskExceptionId: string) => {
-    setRenewingId(riskExceptionId);
+    setRenewingIdWithUrl(riskExceptionId);
     setRenewExpiresAtUtc(defaultRiskExceptionExpiresAtUtc());
     setRenewRationale("");
-  }, []);
+  }, [setRenewingIdWithUrl]);
 
   return {
     scopedRunId,
@@ -251,13 +324,13 @@ export function useRiskExceptionsClient(): UseRiskExceptionsClientResult {
     loadError,
     busyId,
     renewingId,
-    setRenewingId,
+    setRenewingId: setRenewingIdWithUrl,
     renewExpiresAtUtc,
     setRenewExpiresAtUtc,
     renewRationale,
     setRenewRationale,
     pendingRevoke,
-    setPendingRevoke,
+    setPendingRevoke: setPendingRevokeWithUrl,
     loading,
     retryingLoad,
     handleRetryLoad,
