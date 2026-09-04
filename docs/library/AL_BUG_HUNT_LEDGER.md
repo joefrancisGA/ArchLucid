@@ -1565,11 +1565,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 8
-- **bugs-found:** 13
+- **hunts:** 9
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — GCP Cloud Asset full URI reconciliation; HTML sponsor interpretation-notes fallback; manifest warnings materiality
+- **last-hunt:** 2026-09-04
+- **last-bug:** 2026-09-04 — PDF detailed appendices parity; DOCX interpretation-notes/warnings fallback
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1589,8 +1589,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) GCP Cloud Asset inventory `//*.googleapis.com/projects/...` names fail reconciliation against graph `projects/...` paths — **hit 2026-09-03:** `NormalizeGcpResourceId` lowercased full URIs without stripping the service prefix; fixed canonicalization in `GraphGcpInventoryReconciliationAnalyzer` (`GraphGcpInventoryReconciliationAnalyzerTests.Analyze_treats_cloud_asset_full_name_as_same_resource_as_projects_path`, `InventoryTopologyResourceNodeIndexTests.Resolve_returns_matching_gcp_topology_node_ids_for_cloud_asset_inventory_name`).
 - [x] (proven) HTML sponsor export omits Interpretation Notes when summary formatter stub omits `## Interpretation Notes` — **hit 2026-09-03:** markdown export already had fallback append; HTML executive path did not (`EndToEndReplayComparisonExportServiceSponsorAndRelationshipDiffTests.GenerateHtml_executive_profile_appends_interpretation_notes_when_summary_formatter_omits_them`).
 - [x] (proven) `ManifestChangedMaterially` ignored `ManifestDiffResult.Warnings` — **hit 2026-09-03:** warnings-only manifest diffs skipped synergy interpretation notes (`EndToEndReplayComparisonServiceRunDiffTests.BuildAsync_when_manifest_warnings_only_adds_material_manifest_interpretation_note`).
-- [ ] (candidate) PDF detailed profile may omit detailed appendices when summary formatter is minimal — compare `EndToEndReplayComparisonPdfExportFormatter` against markdown/HTML fallback paths.
-- [ ] (candidate) DOCX interpretation-notes fallback may diverge from markdown/HTML when summary formatter omits `## Interpretation Notes` — compare `EndToEndReplayComparisonDocxExportFormatter`.
+- [x] (proven) PDF detailed profile may omit detailed appendices when summary formatter is minimal — **hit 2026-09-04 (#664):** `EndToEndReplayComparisonPdfExportFormatter` emitted sponsor-style key counts for all non-short profiles instead of run/agent/manifest/export appendices; fixed with executive vs detailed branching aligned to markdown/HTML; regression in `EndToEndReplayComparisonPdfAndDocxParityTests.GeneratePdf_detailed_profile_includes_run_metadata_diff_section_not_only_key_counts`.
+- [x] (proven) DOCX interpretation-notes fallback may diverge from markdown/HTML when summary formatter omits `## Interpretation Notes` — **hit 2026-09-04 (#664):** `EndToEndReplayComparisonDocxExportFormatter` detailed path never appended interpretation notes or warnings when summary stub omitted those headings; fixed with markdown/HTML parity fallback; regressions in `EndToEndReplayComparisonPdfAndDocxParityTests.GenerateDocx_detailed_profile_appends_interpretation_notes_when_summary_formatter_omits_them` and `GenerateDocx_detailed_profile_appends_warnings_when_summary_formatter_omits_them`.
+- [x] (proven) PDF interpretation-notes fallback missing when summary formatter omits `## Interpretation Notes` — **hit 2026-09-04 (#664):** same gap as DOCX on PDF detailed path; fixed alongside detailed-appendices refactor; regression in `EndToEndReplayComparisonPdfAndDocxParityTests.GeneratePdf_detailed_profile_appends_interpretation_notes_when_summary_formatter_omits_them`.
+
+2026-09-04 thorough hunt #664: proved PDF detailed appendices parity and DOCX/PDF interpretation-notes/warnings fallback gaps.
 
 2026-09-03 seed hunt #547: proved GCP Cloud Asset URI normalization, HTML sponsor interpretation-notes fallback, and manifest-warnings materiality; reseeded PDF/DOCX export parity candidates.
 

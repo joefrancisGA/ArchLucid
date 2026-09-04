@@ -21,6 +21,7 @@ public static class EndToEndReplayComparisonDocxExportFormatter
         ArgumentNullException.ThrowIfNull(report);
         cancellationToken.ThrowIfCancellationRequested();
         string p = EndToEndComparisonExportProfile.Normalize(profile);
+        string summaryMarkdown = summaryFormatter.FormatMarkdown(report).Trim();
         using MemoryStream stream = new();
         using (WordprocessingDocument document = WordprocessingDocument.Create(stream, WordprocessingDocumentType.Document, true))
         {
@@ -36,19 +37,19 @@ public static class EndToEndReplayComparisonDocxExportFormatter
             if (EndToEndComparisonExportProfile.IsShort(p))
             {
                 AddHeading(body, "Summary", 2);
-                AddParagraph(body, summaryFormatter.FormatMarkdown(report).Trim());
+                AddParagraph(body, summaryMarkdown);
             }
             else if (EndToEndComparisonExportProfile.IsExecutive(p))
             {
                 AddHeading(body, "Summary", 2);
-                AddParagraph(body, summaryFormatter.FormatMarkdown(report).Trim());
+                AddParagraph(body, summaryMarkdown);
                 AddSpacer(body);
                 AppendSponsorReport(body, report);
             }
             else
             {
                 AddHeading(body, "Summary", 2);
-                AddParagraph(body, summaryFormatter.FormatMarkdown(report).Trim());
+                AddParagraph(body, summaryMarkdown);
                 AddSpacer(body);
                 AddHeading(body, "Run Metadata Diff", 2);
                 AddBullet(body, $"Request IDs Differ: {(report.RunDiff.RequestIdsDiffer ? "Yes" : "No")}");
@@ -107,6 +108,21 @@ public static class EndToEndReplayComparisonDocxExportFormatter
                 }
             }
 
+            if (!EndToEndComparisonExportProfile.IsShort(p))
+            {
+                if (!summaryMarkdown.Contains("## Interpretation Notes", StringComparison.Ordinal))
+                {
+                    AddHeading(body, "Interpretation Notes", 2);
+                    AppendListItems(body, report.InterpretationNotes);
+                }
+
+                if (!summaryMarkdown.Contains("## Warnings", StringComparison.Ordinal))
+                {
+                    AddHeading(body, "Warnings", 2);
+                    AppendListItems(body, report.Warnings);
+                }
+            }
+
             mainPart.Document.Save();
         }
 
@@ -159,6 +175,11 @@ public static class EndToEndReplayComparisonDocxExportFormatter
     private static void AddDiffSection(Body body, string title, IReadOnlyCollection<string> items)
     {
         AddParagraph(body, title, true);
+        AppendListItems(body, items);
+    }
+
+    private static void AppendListItems(Body body, IReadOnlyCollection<string> items)
+    {
         if (items.Count == 0)
         {
             AddBullet(body, "None");
