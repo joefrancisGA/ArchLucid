@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
   ARCHLUCID_REVIEWS_NEW_WIZARD_CONTINUE_EVENT,
@@ -18,6 +19,11 @@ import {
   upsertWizardIntakeDraft,
 } from "@/lib/api/wizard-intake-draft-api";
 import { getOrCreateWizardIdempotencyKey } from "@/lib/wizard-idempotency-key";
+import {
+  parseWizardSessionRestoreConfirmOpenFromSearch,
+  parseWizardSessionRestoreIdFromSearch,
+  wizardSessionRestoreConfirmHrefFromSearch,
+} from "@/lib/operator/wizard-session-restore-confirm-url";
 
 export type WizardSessionSaveState = "idle" | "saved" | "saving" | "unsaved";
 
@@ -46,6 +52,11 @@ export function useWizardSessionPersistence<TState>(
   args: UseWizardSessionPersistenceArgs<TState>,
 ): UseWizardSessionPersistenceResult<TState> {
   const enabled = args.enabled !== false;
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const wizardRestoreConfirmParam = searchParams.get("wizardRestoreConfirm");
+  const wizardRestoreIdParam = searchParams.get("wizardRestoreId");
   const [saveState, setSaveState] = useState<WizardSessionSaveState>("idle");
   const [lastSavedUtc, setLastSavedUtc] = useState<string | null>(null);
   const [pendingRestore, setPendingRestore] = useState<WizardSessionSnapshot<TState> | null>(null);
@@ -53,6 +64,24 @@ export function useWizardSessionPersistence<TState>(
   const restoreDecisionPendingRef = useRef(false);
   const persistedSnapshotRef = useRef<string | null>(null);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const syncWizardRestoreToUrl = useCallback(
+    (confirmOpen: boolean) => {
+      if (pathname.length === 0) {
+        return;
+      }
+
+      router.replace(
+        wizardSessionRestoreConfirmHrefFromSearch(
+          searchParams.toString(),
+          confirmOpen ? { confirmOpen: true, wizardId: args.wizardId } : { confirmOpen: false, wizardId: null },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [args.wizardId, pathname, router, searchParams],
+  );
 
   const clearSession = useCallback(() => {
     clearWizardSessionSnapshot(args.wizardId);
@@ -106,12 +135,13 @@ export function useWizardSessionPersistence<TState>(
 
       restoreDecisionPendingRef.current = true;
       setPendingRestore(snapshot);
+      syncWizardRestoreToUrl(true);
     })();
 
     return () => {
       canceled = true;
     };
-  }, [args.hasSaveableContent, args.wizardId, enabled]);
+  }, [args.hasSaveableContent, args.wizardId, enabled, syncWizardRestoreToUrl]);
 
   const acceptRestore = useCallback(() => {
     if (pendingRestore === null) {
@@ -121,10 +151,11 @@ export function useWizardSessionPersistence<TState>(
     args.onRestore(pendingRestore);
     restoreDecisionPendingRef.current = false;
     setPendingRestore(null);
+    syncWizardRestoreToUrl(false);
     persistedSnapshotRef.current = JSON.stringify(pendingRestore.state);
     setLastSavedUtc(pendingRestore.savedAtUtc);
     setSaveState("saved");
-  }, [args, pendingRestore]);
+  }, [args, pendingRestore, syncWizardRestoreToUrl]);
 
   const acceptRestoreRef = useRef(acceptRestore);
 
@@ -171,8 +202,25 @@ export function useWizardSessionPersistence<TState>(
   const dismissRestore = useCallback(() => {
     restoreDecisionPendingRef.current = false;
     setPendingRestore(null);
+    syncWizardRestoreToUrl(false);
     clearSession();
-  }, [clearSession]);
+  }, [clearSession, syncWizardRestoreToUrl]);
+
+  useEffect(() => {
+    const restoreOpen = parseWizardSessionRestoreConfirmOpenFromSearch(wizardRestoreConfirmParam);
+    const restoreId = parseWizardSessionRestoreIdFromSearch(wizardRestoreIdParam);
+
+    if (!restoreOpen || restoreId !== args.wizardId || pendingRestore !== null) {
+      return;
+    }
+
+    const localSnapshot = readWizardSessionSnapshot<TState>(args.wizardId);
+
+    if (localSnapshot !== null && args.hasSaveableContent(localSnapshot.state, localSnapshot.stepIndex)) {
+      restoreDecisionPendingRef.current = true;
+      setPendingRestore(localSnapshot);
+    }
+  }, [args.hasSaveableContent, args.wizardId, pendingRestore, wizardRestoreConfirmParam, wizardRestoreIdParam]);
 
   useEffect(() => {
     if (!enabled || restoreDecisionPendingRef.current) {

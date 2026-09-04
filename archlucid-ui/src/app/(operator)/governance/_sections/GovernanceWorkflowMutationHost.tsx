@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { GovernanceRecordCorrectionDialog } from "@/components/governance/GovernanceRecordCorrectionDialog";
+import { useGovernanceRecordCorrectionUrlSync } from "@/hooks/use-governance-record-correction-url-sync";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { ReversibleMutationSuccessCallout } from "@/components/operator/ReversibleMutationSuccessCallout";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
@@ -40,7 +41,9 @@ export function GovernanceWorkflowMutationHost(props: GovernanceWorkflowMutation
     activateBusyId,
     onConfirmActivateFromPromotion,
   } = mutations;
-  const [correctionDialogOpen, setCorrectionDialogOpen] = useState(false);
+  const { correctionDialogOpen, setCorrectionDialogOpen } = useGovernanceRecordCorrectionUrlSync({
+    correctionTarget: mutationCorrectionTarget,
+  });
   const [correctionRecorded, setCorrectionRecorded] = useState(false);
 
   const successMessage =

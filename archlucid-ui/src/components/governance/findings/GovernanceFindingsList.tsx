@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 
 import { GovernanceFindingsBulkActions } from "@/components/usability/GovernanceFindingsBulkActions";
 import { GovernanceRecordCorrectionDialog } from "@/components/governance/GovernanceRecordCorrectionDialog";
+import { useGovernanceRecordCorrectionUrlSync } from "@/hooks/use-governance-record-correction-url-sync";
 import { ReversibleMutationSuccessCallout } from "@/components/operator/ReversibleMutationSuccessCallout";
 import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
 import { GovernanceFindingTriagePanel } from "@/components/governance/findings/GovernanceFindingTriagePanel";
@@ -62,7 +63,10 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
   const [bulkDispositionUndoBusy, setBulkDispositionUndoBusy] = useState(false);
   const [bulkDispositionCorrectionTarget, setBulkDispositionCorrectionTarget] =
     useState<GovernanceMutationCorrectionTarget | null>(null);
-  const [bulkDispositionCorrectionDialogOpen, setBulkDispositionCorrectionDialogOpen] = useState(false);
+  const { correctionDialogOpen: bulkDispositionCorrectionDialogOpen, setCorrectionDialogOpen: setBulkDispositionCorrectionDialogOpen } =
+    useGovernanceRecordCorrectionUrlSync({
+      correctionTarget: bulkDispositionCorrectionTarget,
+    });
   const [bulkDispositionCorrectionRecorded, setBulkDispositionCorrectionRecorded] = useState(false);
   const searchParams = useSearchParams();
   const triage = useGovernanceFindingTriageWithCursor(displayedRows, searchParams);

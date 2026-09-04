@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type SetStateAction } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { ItsmOutboundTriadClarityStrip } from "@/components/itsm/ItsmOutboundTriadClarityStrip";
@@ -33,6 +34,11 @@ import {
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useItsmNativeCreateEnabled } from "@/lib/use-itsm-native-create-enabled";
 import { showSuccess } from "@/lib/toast";
+import {
+  itsmOutboundCreateIssuePanelsHrefFromSearch,
+  parseItsmOutboundCreateFindingIdFromSearch,
+  parseItsmOutboundCreateOpenFromSearch,
+} from "@/lib/itsm/itsm-outbound-create-issue-panels-url";
 
 export type ItsmOutboundProvider = "Jira" | "ServiceNow" | "Azure Boards";
 
@@ -54,12 +60,60 @@ export function ItsmOutboundCreateIssueDialog({
   prominent = false,
 }: ItsmOutboundCreateIssueDialogProps): React.JSX.Element | null {
   const nativeCreateEnabled = useItsmNativeCreateEnabled();
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const itsmCreateOpenParam = searchParams.get("itsmCreateOpen");
+  const itsmCreateFindingIdParam = searchParams.get("itsmCreateFindingId");
+  const [open, setOpenState] = useState(() => parseItsmOutboundCreateOpenFromSearch(itsmCreateOpenParam));
   const [provider, setProvider] = useState<ItsmOutboundProvider>("Jira");
   const [correlations, setCorrelations] = useState<ItsmFindingCorrelationListItem[]>([]);
   const [correlationsLoaded, setCorrelationsLoaded] = useState(false);
   const [busy, setBusy] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const syncItsmCreateToUrl = useCallback(
+    (nextOpen: boolean) => {
+      if (pathname.length === 0) {
+        return;
+      }
+
+      router.replace(
+        itsmOutboundCreateIssuePanelsHrefFromSearch(
+          searchParams.toString(),
+          nextOpen ? { open: true, findingId } : { open: false, findingId: null },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [findingId, pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncItsmCreateToUrl(next);
+
+        return next;
+      });
+    },
+    [syncItsmCreateToUrl],
+  );
+
+  useEffect(() => {
+    const urlOpen = parseItsmOutboundCreateOpenFromSearch(itsmCreateOpenParam);
+    const urlFindingId = parseItsmOutboundCreateFindingIdFromSearch(itsmCreateFindingIdParam);
+
+    if (!urlOpen || urlFindingId !== findingId) {
+      setOpenState(false);
+
+      return;
+    }
+
+    setOpenState(true);
+  }, [findingId, itsmCreateFindingIdParam, itsmCreateOpenParam]);
 
   const reloadCorrelations = useCallback(async (): Promise<void> => {
     const body = await listItsmFindingCorrelations(findingId);
