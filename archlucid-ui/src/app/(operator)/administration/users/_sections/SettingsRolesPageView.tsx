@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageHeading } from "@/components/PageHeading";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
@@ -18,11 +19,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { SettingsRolesSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
-import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE } from "@/lib/buyer/buyer-polish-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { usersDirectorySourceStatusTag } from "@/lib/vocabulary/scim-users-vocabulary";
 import {
@@ -70,6 +74,18 @@ import {
   visibleTabs,
 } from "./settings-roles-page-helpers";
 import { SettingsRolesUsersTab } from "./SettingsRolesUsersTab";
+import {
+  SETTINGS_ROLES_PAGE_SUBTITLE_OPERATOR,
+  SETTINGS_ROLES_SETTINGS_FIRST_VIEWPORT_TEST_ID,
+  SETTINGS_ROLES_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  SETTINGS_ROLES_SETTINGS_PRIMARY_CONTENT_ID,
+  SETTINGS_ROLES_SETTINGS_SKIP_LINK_LABEL,
+  SETTINGS_ROLES_SETTINGS_SKIP_TARGET_ID,
+  SETTINGS_ROLES_START_HERE_CARD_TITLE,
+  SETTINGS_ROLES_START_HERE_LEAD,
+  settingsRolesPageSubtitle,
+} from "./settings-roles-settings-page-copy";
+import { SETTINGS_ROLES_SETTINGS_CLAIM_DISCIPLINE } from "@/lib/settings-roles-settings-evidence-copy";
 
 type Props = {
   readonly model: SettingsRolesPageViewModel;
@@ -77,6 +93,7 @@ type Props = {
 
 export function SettingsRolesPageView(props: Props) {
   const m = props.model;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -215,7 +232,7 @@ export function SettingsRolesPageView(props: Props) {
     window.setTimeout(() => {
       inviteEmailInputRef.current?.focus();
     }, 0);
-  }, []);
+  }, [setInviteSectionOpen]);
 
   const onInviteSent = useCallback((invitation: AdminUserInvitationRow) => {
     setSeededInvitations((current) => {
@@ -295,34 +312,97 @@ export function SettingsRolesPageView(props: Props) {
 
   return (
     <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack} data-testid="settings-roles-page">
-      <PageHeading
-        navHref="/administration/users"
-        title={OPERATOR_NAV_LINK_LABELS.usersAndRoles}
-        description="Invite users, assign roles, and manage workspace access."
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              type="button"
-              size="sm"
-              data-testid="settings-roles-invite-primary-action"
-              onClick={openInviteSection}
+      <a
+        href={`#${SETTINGS_ROLES_SETTINGS_SKIP_TARGET_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {SETTINGS_ROLES_SETTINGS_SKIP_LINK_LABEL}
+      </a>
+
+      <div
+        id={SETTINGS_ROLES_SETTINGS_PRIMARY_CONTENT_ID}
+        data-testid={SETTINGS_ROLES_SETTINGS_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+      >
+        {buyerPolishedShell ? (
+          <OperatorPageHeader
+            navHref="/administration/users"
+            title={OPERATOR_NAV_LINK_LABELS.usersAndRoles}
+            titleTestId="settings-roles-page-title"
+            subtitle={settingsRolesPageSubtitle(buyerPolishedShell)}
+            claimDiscipline={SETTINGS_ROLES_SETTINGS_CLAIM_DISCIPLINE}
+            claimDisciplineTestId={SETTINGS_ROLES_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+            actions={
+              <Button
+                type="button"
+                size="sm"
+                data-testid="settings-roles-invite-primary-action"
+                onClick={openInviteSection}
+              >
+                Invite user
+              </Button>
+            }
+          />
+        ) : (
+          <PageHeading
+            navHref="/administration/users"
+            title={OPERATOR_NAV_LINK_LABELS.usersAndRoles}
+            description={SETTINGS_ROLES_PAGE_SUBTITLE_OPERATOR}
+            actions={
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  data-testid="settings-roles-invite-primary-action"
+                  onClick={openInviteSection}
+                >
+                  Invite user
+                </Button>
+                <PageContextualHelpButton />
+              </div>
+            }
+          />
+        )}
+
+        <div
+          id={SETTINGS_ROLES_SETTINGS_SKIP_TARGET_ID}
+          data-testid={SETTINGS_ROLES_SETTINGS_FIRST_VIEWPORT_TEST_ID}
+          className={cn(
+            "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            OPERATOR_LAYOUT.sectionStack,
+          )}
+        >
+          {buyerPolishedShell ? (
+            <section
+              className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+              data-testid="settings-roles-action-panel"
+              aria-labelledby="settings-roles-action-panel-heading"
             >
-              Invite user
-            </Button>
-            <PageContextualHelpButton />
-          </div>
-        }
-      />
-      {isApiKeysSettingsSurfaceEnabled() ? (
-        <ApiKeysUsersVocabularyRail currentSurfaceId="users" />
-      ) : null}
-      <ScimUsersVocabularyRail currentSurfaceId="users" />
-      {activeTab === "roles" || activeTab === "users" ? (
-        <CustomRolesUsersVocabularyRail
-          currentSurfaceId={activeTab === "roles" ? "custom-roles" : "users"}
-        />
-      ) : null}
-      <Tabs value={activeTab} onValueChange={onSelectTab} className={OPERATOR_LAYOUT.sectionStack}>
+              <h2
+                id="settings-roles-action-panel-heading"
+                className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+              >
+                {SETTINGS_ROLES_START_HERE_CARD_TITLE}
+              </h2>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                {SETTINGS_ROLES_START_HERE_LEAD}
+              </p>
+              <Button type="button" size="sm" data-testid="settings-roles-start-here-invite" onClick={openInviteSection}>
+                Invite user
+              </Button>
+            </section>
+          ) : null}
+
+          {!buyerPolishedShell && isApiKeysSettingsSurfaceEnabled() ? (
+            <ApiKeysUsersVocabularyRail currentSurfaceId="users" />
+          ) : null}
+          {!buyerPolishedShell ? <ScimUsersVocabularyRail currentSurfaceId="users" /> : null}
+          {!buyerPolishedShell && (activeTab === "roles" || activeTab === "users") ? (
+            <CustomRolesUsersVocabularyRail
+              currentSurfaceId={activeTab === "roles" ? "custom-roles" : "users"}
+            />
+          ) : null}
+          <Tabs value={activeTab} onValueChange={onSelectTab} className={OPERATOR_LAYOUT.sectionStack}>
         <TabsList aria-label={`${OPERATOR_NAV_LINK_LABELS.usersAndRoles} sections`} data-testid="settings-roles-tablist">
           {tabs.map((tab) => (
             <TabsTrigger key={tab.id} value={tab.id} data-testid={`settings-roles-tab-${tab.id}`}>
@@ -414,7 +494,15 @@ export function SettingsRolesPageView(props: Props) {
             </Card>
           </TabsContent>
         ) : null}
-      </Tabs>
+          </Tabs>
+        </div>
+
+        {buyerPolishedShell ? (
+          <div data-testid="settings-roles-orientation-bottom">
+            <SettingsRolesSettingsEvidenceOrientationStrip />
+          </div>
+        ) : null}
+      </div>
     </OperatorPageContainer>
   );
 }
