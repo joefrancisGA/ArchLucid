@@ -144,4 +144,39 @@ public sealed class FindingDispositionValidationTests
 
         tradeOffAct.Should().Throw<ArgumentException>().WithMessage("*Trade-off*");
     }
+
+    [Fact]
+    public void Validate_rejected_as_not_applicable_rejects_overlong_rationale()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "f1",
+            Disposition = Disposition.RejectedAsNotApplicable,
+            Rationale = new string('r', FindingDispositionValidation.MaximumRationaleLength + 1),
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request);
+
+        act.Should()
+            .Throw<ArgumentException>()
+            .WithMessage($"*exceed*{FindingDispositionValidation.MaximumRationaleLength}*");
+    }
+
+    [Fact]
+    public void Validate_accepted_rejects_overlong_trade_off_acknowledgment()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "f1",
+            Disposition = Disposition.Accepted,
+            Rationale = "We accept residual risk because rollback is documented.",
+            TradeOffAcknowledgment = new string('t', FindingDispositionValidation.MaximumRationaleLength + 1),
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request);
+
+        act.Should()
+            .Throw<ArgumentException>()
+            .WithMessage($"*exceed*{FindingDispositionValidation.MaximumRationaleLength}*");
+    }
 }

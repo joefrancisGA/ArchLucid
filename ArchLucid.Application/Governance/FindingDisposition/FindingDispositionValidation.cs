@@ -36,6 +36,13 @@ public static class FindingDispositionValidation
                 throw new ArgumentException(
                     "Rationale must be at least 10 characters for this disposition.",
                     nameof(request));
+
+            if (request.Rationale.Trim().Length > MaximumRationaleLength)
+            {
+                throw new ArgumentException(
+                    $"Rationale must not exceed {MaximumRationaleLength} characters.",
+                    nameof(request));
+            }
         }
 
         if (request.Disposition == Disposition.Accepted)
@@ -49,6 +56,13 @@ public static class FindingDispositionValidation
                 throw new ArgumentException(
                     "Trade-off acknowledgment must be at least 10 characters.",
                     nameof(request));
+
+            if (request.TradeOffAcknowledgment.Trim().Length > MaximumRationaleLength)
+            {
+                throw new ArgumentException(
+                    $"Trade-off acknowledgment must not exceed {MaximumRationaleLength} characters.",
+                    nameof(request));
+            }
         }
 
         if (request.Disposition == Disposition.Deferred && request.RevisitDueUtc is null)

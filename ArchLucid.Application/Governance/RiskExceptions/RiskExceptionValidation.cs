@@ -43,6 +43,13 @@ public static class RiskExceptionValidation
                 nameof(request));
         }
 
+        if (request.Rationale.Trim().Length > FindingDispositionValidation.MaximumRationaleLength)
+        {
+            throw new ArgumentException(
+                $"Rationale must not exceed {FindingDispositionValidation.MaximumRationaleLength} characters.",
+                nameof(request));
+        }
+
         if (string.IsNullOrWhiteSpace(request.EvidenceRef))
             throw new ArgumentException("Evidence reference is required.", nameof(request));
 
@@ -84,6 +91,14 @@ public static class RiskExceptionValidation
         {
             throw new ArgumentException(
                 $"Rationale must be at least {FindingDispositionValidation.MinimumRationaleLength} characters.",
+                nameof(request));
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.Rationale)
+            && request.Rationale.Trim().Length > FindingDispositionValidation.MaximumRationaleLength)
+        {
+            throw new ArgumentException(
+                $"Rationale must not exceed {FindingDispositionValidation.MaximumRationaleLength} characters.",
                 nameof(request));
         }
 

@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 138
-- **bugs-found:** 307
+- **hunts:** 139
+- **bugs-found:** 311
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — product-feedback findingRef max-length; mutation correction rationale max-length
+- **last-bug:** 2026-09-04 — disposition and waiver rationale max-length parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3820,6 +3820,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — `findingRef` between 65 and 512 chars returned HTTP 404 after inspect miss while `#565` only capped SQL at 512 and stickiness/inspect enforce 64-char finding ids — **hit 2026-09-04 (#679):** reject `findingRef` over `FindingIdMaxLength` before inspect; regression in `TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_returns_bad_request_when_finding_ref_exceeds_finding_id_max_length`.
 
 - [x] (proven) `GovernanceMutationCorrectionService.RecordAsync` / `GovernanceController.RecordGovernanceMutationCorrection` — correction `rationale` longer than 4000 chars returned HTTP 200 while approve/reject/batch review cap at `ReviewCommentMaxLength` (#675) — **hit 2026-09-04 (#679):** `FindingDispositionValidation.MaximumRationaleLength` guard; regression in `GovernanceMutationCorrectionServiceTests.RecordAsync_rejects_correction_when_rationale_exceeds_maximum_length`.
+
+2026-09-04 thorough hunt #679: cheap-disproved manifest summary services/datastores cap candidate; proved product-feedback findingRef inspect max-length and mutation-correction rationale max-length parity.
+
+- [x] (proven) `FindingDispositionValidation.Validate` / `GovernanceStickinessController.RecordDisposition` — disposition `rationale` longer than 4000 chars returned HTTP 200 while mutation correction enforces `MaximumRationaleLength` (#679 sibling) — **hit 2026-09-04 (#680):** max-length guard on waive/accept rationale paths; regression in `FindingDispositionValidationTests.Validate_rejected_as_not_applicable_rejects_overlong_rationale`.
+
+- [x] (proven) `FindingDispositionValidation.Validate` / `GovernanceStickinessController.RecordDisposition` — Accepted `tradeOffAcknowledgment` longer than 4000 chars returned HTTP 200 with concatenated notes — **hit 2026-09-04 (#680):** max-length guard on trade-off acknowledgment; regression in `FindingDispositionValidationTests.Validate_accepted_rejects_overlong_trade_off_acknowledgment`.
+
+- [x] (proven) `RiskExceptionValidation.Validate` / `GovernanceStickinessController.CreateRiskException` — waiver create `rationale` longer than 4000 chars returned HTTP 200 while min-length enforced (#658) — **hit 2026-09-04 (#680):** `MaximumRationaleLength` guard on create; regression in `RiskExceptionValidationTests.Validate_rejects_rationale_over_maximum_length`.
+
+- [x] (proven) `RiskExceptionValidation.ValidateRenew` / `GovernanceStickinessController.RenewRiskException` — optional renew `rationale` longer than 4000 chars returned HTTP 200 — **hit 2026-09-04 (#680):** max-length guard when rationale provided; regression in `RiskExceptionValidationTests.ValidateRenew_rejects_rationale_over_maximum_length`.
+
+- [x] (invalid) `GovernanceMutationCorrectionService.ValidateApprovalSubjectAsync` — approve correction on `Promoted` approval returns HTTP 409 — **cheap-disproof 2026-09-04 (#680):** guard requires lifecycle head `Approved`/`Rejected` so corrections attach only before promote/activate advances the workflow; extending to `Promoted`/`Activated` needs explicit product scope.
+
+2026-09-04 seed hunt #680: promoted and proved disposition and waiver rationale max-length parity; cheap-disproved promoted-approval correction lifecycle scope.
 
 2026-09-04 thorough hunt #679: cheap-disproved manifest summary services/datastores cap candidate; proved product-feedback findingRef inspect max-length and mutation-correction rationale max-length parity.
 
