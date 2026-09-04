@@ -6,7 +6,7 @@ import { useFormContext, useWatch } from "react-hook-form";
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
-import { ReviewAssuranceCoverageSection } from "@/components/wizard/ReviewAssuranceCoverageSection";
+import { WizardReviewAssuranceCoverageSection } from "@/components/wizard/WizardReviewAssuranceCoverageSection";
 import { WizardStepHeading } from "@/components/wizard/WizardStepHeading";
 import { WizardStickyFooter } from "@/components/wizard/WizardStickyFooter";
 import { WizardStepAdvanced } from "@/components/wizard/steps/WizardStepAdvanced";
@@ -116,7 +116,7 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
 
       {flow.stepIndex === 0 ? (
         <div className={OPERATOR_LAYOUT.sectionStack}>
-          <ReviewAssuranceCoverageSection
+          <WizardReviewAssuranceCoverageSection
             focusedPilotModeEnabled={focusedPilotModeEnabled}
             onFocusedPilotModeEnabledChange={setFocusedPilotModeEnabled}
           />
