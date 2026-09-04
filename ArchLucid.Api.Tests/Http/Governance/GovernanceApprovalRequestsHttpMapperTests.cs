@@ -1,6 +1,7 @@
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 
 using FluentAssertions;
 
@@ -22,6 +23,22 @@ public sealed class GovernanceApprovalRequestsHttpMapperTests
 
         validation.Should().NotBeNull();
         validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+    }
+
+    [Fact]
+    public void ValidateBatchReviewRequest_rejects_overlong_review_comment()
+    {
+        GovernanceHttpValidation? validation = GovernanceApprovalRequestsHttpMapper.ValidateBatchReviewRequest(
+            new GovernanceApprovalBatchReviewRequest
+            {
+                ApprovalRequestIds = ["req-1"],
+                Decision = "approve",
+                ReviewComment = new string('c', GovernanceRequestValidationRules.ReviewCommentMaxLength + 1),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain(GovernanceRequestValidationRules.ReviewCommentMaxLength.ToString());
     }
 
     [Fact]

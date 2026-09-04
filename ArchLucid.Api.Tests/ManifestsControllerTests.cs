@@ -1,6 +1,7 @@
 using ArchLucid.Application.Analysis;
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Models;
+using ArchLucid.Api.Validators;
 using ArchLucid.Application.Diagrams;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Exports;
@@ -238,6 +239,31 @@ public sealed class ManifestsControllerTests
 
         IActionResult action =
             await controller.CompareManifests("", RightVersion, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task CompareManifests_returns_bad_request_when_left_version_exceeds_max_length()
+    {
+        string overlongLeftVersion = new string('v', GovernanceRequestValidationRules.ManifestVersionMaxLength + 1);
+        ManifestsController controller = CreateController();
+
+        IActionResult action =
+            await controller.CompareManifests(overlongLeftVersion, RightVersion, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task GetManifest_returns_bad_request_when_manifest_version_exceeds_max_length()
+    {
+        string overlongVersion = new string('v', GovernanceRequestValidationRules.ManifestVersionMaxLength + 1);
+        ManifestsController controller = CreateController();
+
+        IActionResult action = await controller.GetManifest(overlongVersion, CancellationToken.None);
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);

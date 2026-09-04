@@ -33,8 +33,8 @@ public sealed class CreateGovernancePromotionRequestValidator : AbstractValidato
             .When(x => !string.IsNullOrEmpty(x.SourceEnvironment) && !string.IsNullOrEmpty(x.TargetEnvironment));
 
         RuleFor(x => x.PromotedBy)
-            .NotEmpty().WithMessage("PromotedBy is required.")
-            .MaximumLength(200).WithMessage("PromotedBy must not exceed 200 characters.");
+            .MaximumLength(200).WithMessage("PromotedBy must not exceed 200 characters.")
+            .When(x => x.PromotedBy is not null);
 
         RuleFor(x => x.Notes)
             .MaximumLength(4000).WithMessage("Notes must not exceed 4000 characters.")

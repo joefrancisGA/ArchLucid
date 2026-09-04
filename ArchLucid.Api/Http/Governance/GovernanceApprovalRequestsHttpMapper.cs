@@ -1,6 +1,7 @@
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 
@@ -61,6 +62,14 @@ public static class GovernanceApprovalRequestsHttpMapper
 
         if (!approve && !reject)
             return new GovernanceHttpValidation("Decision must be 'approve' or 'reject'.", ProblemTypes.ValidationFailed);
+
+        if (body.ReviewComment is not null
+            && body.ReviewComment.Length > GovernanceRequestValidationRules.ReviewCommentMaxLength)
+        {
+            return new GovernanceHttpValidation(
+                $"ReviewComment must not exceed {GovernanceRequestValidationRules.ReviewCommentMaxLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
 
         return null;
     }

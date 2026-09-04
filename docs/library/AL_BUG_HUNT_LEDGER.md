@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 133
-- **bugs-found:** 290
+- **hunts:** 134
+- **bugs-found:** 294
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — compliance drift trend scoped SQL query; mutation correction run-id binding
+- **last-bug:** 2026-09-04 — manifest compare max-length validation; batch review comment cap; approve/reject/promote actor-field validator parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3778,6 +3778,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `GovernanceResolutionController.Resolve` — GET resolution path logs `GovernanceResolutionExecuted` audit on every read — **cheap-disproof 2026-09-04 (#674):** intentional operator traceability; controller comment documents "Always logs `GovernanceResolutionExecuted`".
 
 - [x] (proven) `GovernanceMutationCorrectionService.ValidateFindingDispositionSubjectAsync` / keyboard disposition correction — trail row with `RunId = null` matched when body supplied `runId` via `(normalizedRunGuid is null || reviewEvent.RunId is null || …)` — **hit 2026-09-04 (#674):** require `reviewEvent.RunId == normalizedRunGuid`; regression in `GovernanceMutationCorrectionServiceTests.RecordAsync_rejects_keyboard_disposition_correction_when_trail_run_id_is_null`.
+
+- [x] (proven) `ManifestsController.CompareManifests` / compare summary/export routes — `leftVersion` / `rightVersion` longer than `NVARCHAR(128)` returned HTTP 404 `ManifestNotFound` instead of HTTP 400 — **hit 2026-09-04 (#675):** `BadRequestWhenManifestVersionInvalid` on compare query params (read-route parity); regression in `ManifestsControllerTests.CompareManifests_returns_bad_request_when_left_version_exceeds_max_length` and `GetManifest_returns_bad_request_when_manifest_version_exceeds_max_length`.
+
+- [x] (proven) `GovernanceController.BatchReviewApprovalRequests` / `GovernanceApprovalRequestsHttpMapper.ValidateBatchReviewRequest` — `ReviewComment` longer than 4000 chars accepted while single approve/reject validators cap at 4000 — **hit 2026-09-04 (#675):** shared `GovernanceRequestValidationRules.ReviewCommentMaxLength` guard in batch mapper; regression in `ValidateBatchReviewRequest_rejects_overlong_review_comment`.
+
+- [x] (proven) `GovernanceController.Approve` / `Reject` + `ApproveGovernanceRequestValidator` / `RejectGovernanceRequestValidator` — auto-validation required body `ReviewedBy` while controllers use `actorContext.GetActor()` only — **hit 2026-09-04 (#675):** make `ReviewedBy` optional with max-length when provided; regression in `ApproveGovernanceRequestValidatorTests` and `RejectGovernanceRequestValidatorTests`.
+
+- [x] (proven) `GovernanceController.Promote` + `CreateGovernancePromotionRequestValidator` — auto-validation required body `PromotedBy` while controller uses `actorContext.GetActor()` only — **hit 2026-09-04 (#675):** make `PromotedBy` optional with max-length when provided; regression in `CreateGovernancePromotionRequestValidatorTests.Validate_passes_when_promoted_by_omitted_because_controller_uses_actor_context`.
+
+2026-09-04 seed hunt #675: promoted and proved manifest compare max-length validation, batch review comment cap, and approve/reject/promote actor-field validator parity.
 
 2026-09-04 seed hunt #674: proved compliance drift scoped SQL query and mutation correction run-id binding; cheap-disproved resolution audit-on-read.
 
