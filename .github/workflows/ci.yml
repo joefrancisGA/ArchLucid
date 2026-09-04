@@ -86,7 +86,7 @@ jobs:
 
       # Pin CLI version (not only "latest") so release resolution + cache keys are stable and
       # transient "Error: other side closed" (HTTP/2 / connection reset while fetching assets) is less likely.
-      - uses: gacts/gitleaks@v1.3.2
+      - uses: gacts/gitleaks@v1.3.3
         with:
           version: "8.30.1"
           config-path: .gitleaks.toml
