@@ -26,6 +26,8 @@ public sealed class PublishPolicyPackVersionRequestValidator : AbstractValidator
             .WithMessage("Version must be SemVer 2 style (e.g. 1.0.0, 2.1.0-rc.1, optional leading 'v').");
 
         RuleFor(x => x.ContentJson)
+            .NotEmpty()
+            .WithMessage("ContentJson is required.")
             .Must(PolicyPackRequestValidationRules.BeValidJson)
             .WithMessage("ContentJson must be valid JSON.");
     }

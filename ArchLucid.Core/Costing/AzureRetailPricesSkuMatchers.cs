@@ -11,15 +11,13 @@ public sealed partial class AzureRetailPricesCatalogClient
 
         string type = row.Type ?? string.Empty;
 
-        if (!type.Contains("non-reservation", StringComparison.OrdinalIgnoreCase)
-            && !type.Contains("nonreservation", StringComparison.OrdinalIgnoreCase)
+        if (!IsNonReservationRetailType(type)
             && type.Contains("Reservation", StringComparison.OrdinalIgnoreCase))
             return false;
 
         string meterTier = row.MeterTier ?? string.Empty;
 
-        if (!meterTier.Contains("non-government", StringComparison.OrdinalIgnoreCase)
-            && !meterTier.Contains("nongovernment", StringComparison.OrdinalIgnoreCase)
+        if (!IsNonGovernmentMeterTier(meterTier)
             && meterTier.Contains("Government", StringComparison.OrdinalIgnoreCase))
             return false;
 
@@ -199,6 +197,52 @@ public sealed partial class AzureRetailPricesCatalogClient
 
             index = afterMo;
         }
+
+        return false;
+    }
+
+    private static bool IsNonReservationRetailType(string type)
+    {
+        if (type.Contains("non-reservation", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (type.Contains("nonreservation", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (type.Contains("non_reservation", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (type.Contains("non.reservation", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (type.Contains("non reservation", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (type.Contains("non.reservation", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
+    }
+
+    private static bool IsNonGovernmentMeterTier(string meterTier)
+    {
+        if (meterTier.Contains("non-government", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (meterTier.Contains("nongovernment", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (meterTier.Contains("non_government", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (meterTier.Contains("non.government", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (meterTier.Contains("non government", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (meterTier.Contains("non.government", StringComparison.OrdinalIgnoreCase))
+            return true;
 
         return false;
     }

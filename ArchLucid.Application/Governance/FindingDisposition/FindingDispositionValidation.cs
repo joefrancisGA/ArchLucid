@@ -21,6 +21,11 @@ public static class FindingDispositionValidation
         ArgumentNullException.ThrowIfNull(request);
         DateTimeOffset effectiveNowUtc = nowUtc ?? TimeProvider.System.GetUtcNow();
 
+        if (!Enum.IsDefined(request.Disposition))
+        {
+            throw new ArgumentException("Disposition is not a supported finding disposition.", nameof(request));
+        }
+
         if (string.IsNullOrWhiteSpace(request.FindingId))
             throw new ArgumentException("Finding id is required.", nameof(request));
 

@@ -189,6 +189,7 @@ public sealed class FirstValueReportPdfBuilderTests
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
+            FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 

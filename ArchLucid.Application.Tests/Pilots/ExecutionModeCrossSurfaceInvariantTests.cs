@@ -348,6 +348,7 @@ public sealed class ExecutionModeCrossSurfaceInvariantTests
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
             CreateSealedManifestAuthorityMock(),
             CreateSealedManifestHashMock(),
+            FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 

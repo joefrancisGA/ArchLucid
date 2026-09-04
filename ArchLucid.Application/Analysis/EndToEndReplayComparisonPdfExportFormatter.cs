@@ -22,6 +22,9 @@ public static class EndToEndReplayComparisonPdfExportFormatter
         string p = EndToEndComparisonExportProfile.Normalize(profile);
         string summaryMarkdown = summaryFormatter.FormatMarkdown(report).Trim();
 
+        if (report.CompareQualityDelta is not null)
+            summaryMarkdown = CompareQualityDeltaExportFormatter.RemoveMarkdownSection(summaryMarkdown);
+
         byte[] pdf = QuestPdfDocumentBytes.Generate(container =>
         {
             container.Page(page =>
@@ -37,6 +40,9 @@ public static class EndToEndReplayComparisonPdfExportFormatter
                     column.Item().PaddingBottom(10).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
                     column.Item().PaddingBottom(5).Text("Summary").Bold().FontSize(12);
                     column.Item().PaddingBottom(10).Text(summaryMarkdown);
+
+                    if (report.CompareQualityDelta is not null)
+                        AppendCompareQualityDelta(column, report.CompareQualityDelta);
 
                     if (!EndToEndComparisonExportProfile.IsShort(p))
                     {
@@ -71,17 +77,12 @@ public static class EndToEndReplayComparisonPdfExportFormatter
 
         if (report.AgentResultDiff is not null)
         {
-            int withChanges = report.AgentResultDiff.AgentDeltas.Count(d =>
-                d.AddedClaims.Count > 0 || d.RemovedClaims.Count > 0 || d.AddedFindings.Count > 0 || d.RemovedFindings.Count > 0 ||
-                d.AddedRequiredControls.Count > 0 || d.RemovedRequiredControls.Count > 0 || d.AddedWarnings.Count > 0 ||
-                d.RemovedWarnings.Count > 0);
-
+            int withChanges = AgentResultDeltaMateriality.CountWithMaterialChanges(report.AgentResultDiff.AgentDeltas);
             column.Item().Text($"Agent deltas: {withChanges} agent(s) with material changes");
         }
 
         if (report.ManifestDiff is not null)
-            column.Item().Text(
-                $"Manifest: +{report.ManifestDiff.AddedServices.Count} / -{report.ManifestDiff.RemovedServices.Count} services; +{report.ManifestDiff.AddedDatastores.Count} / -{report.ManifestDiff.RemovedDatastores.Count} datastores");
+            column.Item().Text($"Manifest: {ManifestDiffMateriality.FormatSponsorKeyCountsLine(report.ManifestDiff)}");
 
         column.Item().Text($"Export diffs: {report.ExportDiffs.Count}");
     }
@@ -120,6 +121,8 @@ public static class EndToEndReplayComparisonPdfExportFormatter
             AppendDiffSection(column, "Removed Required Controls", delta.RemovedRequiredControls);
             AppendDiffSection(column, "Added Warnings", delta.AddedWarnings);
             AppendDiffSection(column, "Removed Warnings", delta.RemovedWarnings);
+            AppendDiffSection(column, "Added Evidence References", delta.AddedEvidenceRefs);
+            AppendDiffSection(column, "Removed Evidence References", delta.RemovedEvidenceRefs);
         }
     }
 
@@ -135,6 +138,9 @@ public static class EndToEndReplayComparisonPdfExportFormatter
         AppendDiffSection(column, "Removed Datastores", report.ManifestDiff.RemovedDatastores);
         AppendDiffSection(column, "Added Required Controls", report.ManifestDiff.AddedRequiredControls);
         AppendDiffSection(column, "Removed Required Controls", report.ManifestDiff.RemovedRequiredControls);
+        AppendRelationshipDiffSection(column, "Added Relationships", report.ManifestDiff.AddedRelationships);
+        AppendRelationshipDiffSection(column, "Removed Relationships", report.ManifestDiff.RemovedRelationships);
+        AppendDiffSection(column, "Warnings", report.ManifestDiff.Warnings);
     }
 
     private static void AppendExportDiffs(ColumnDescriptor column, EndToEndReplayComparisonReport report)
@@ -179,5 +185,27 @@ public static class EndToEndReplayComparisonPdfExportFormatter
 
         foreach (string item in items)
             column.Item().Text($"• {item}");
+    }
+
+    private static void AppendRelationshipDiffSection(
+        ColumnDescriptor column,
+        string title,
+        IReadOnlyCollection<RelationshipDiffItem> relationships)
+    {
+        column.Item().PaddingTop(2).Text(title).Bold();
+
+        if (relationships.Count == 0)
+        {
+            column.Item().Text("None");
+            return;
+        }
+
+        foreach (RelationshipDiffItem relationship in relationships)
+            column.Item().Text($"• {relationship.ToDisplayLine()}");
+    }
+
+    private static void AppendCompareQualityDelta(ColumnDescriptor column, CompareQualityDeltaCounts delta)
+    {
+        AppendList(column, "Compare Quality Delta", CompareQualityDeltaExportFormatter.BuildPlainTextLines(delta));
     }
 }

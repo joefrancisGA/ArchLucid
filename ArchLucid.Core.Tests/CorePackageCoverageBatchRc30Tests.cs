@@ -19,6 +19,9 @@ public sealed class CorePackageCoverageBatchRc30Tests
     [InlineData("staging-prod", true)]
     [InlineData("non-production", false)]
     [InlineData("nonproduction", false)]
+    [InlineData("non_production", false)]
+    [InlineData("non.production", false)]
+    [InlineData("non production", false)]
     [InlineData("NON-PRODUCTION", false)]
     public void HostingEnvironmentNamePatterns_EnvironmentNameImpliesProductionLike_maps_expected(
         string? environmentName,

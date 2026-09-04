@@ -2688,6 +2688,77 @@ public sealed class InfrastructureDeclarationConnectorTests
     }
 
     [Fact]
+    public async Task DeltaAsync_BicepInlineHashCommentChange_ReportsUnchanged()
+    {
+        InfrastructureDeclarationConnector connector = new(
+            new InfrastructureDeclarationsPayloadExtractor(),
+            new InfrastructureDeclarationsPayloadNormalizer([new BicepInfrastructureDeclarationParser()]),
+            new SetDiffConnectorDeltaComputer());
+
+        const string contentWithComment = """
+                                          resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                                            properties: {
+                                              publicNetworkAccess: 'Enabled' # primary region
+                                            }
+                                          }
+                                          """;
+
+        const string contentWithoutComment = """
+                                             resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                                               properties: {
+                                                 publicNetworkAccess: 'Enabled'
+                                               }
+                                             }
+                                             """;
+
+        RawContextPayload firstRaw = new()
+        {
+            InfrastructureDeclarations =
+            [
+                new InfrastructureDeclarationReference
+                {
+                    DeclarationId = "decl-bicep-hash-comment",
+                    Name = "main.bicep",
+                    Format = "bicep",
+                    Content = contentWithComment,
+                }
+            ]
+        };
+
+        NormalizedContextBatch firstBatch = await connector.NormalizeAsync(firstRaw, CancellationToken.None);
+
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = "p",
+            CanonicalObjects = firstBatch.CanonicalObjects,
+        };
+
+        RawContextPayload secondRaw = new()
+        {
+            InfrastructureDeclarations =
+            [
+                new InfrastructureDeclarationReference
+                {
+                    DeclarationId = "decl-bicep-hash-comment",
+                    Name = "main.bicep",
+                    Format = "bicep",
+                    Content = contentWithoutComment,
+                }
+            ]
+        };
+
+        NormalizedContextBatch secondBatch = await connector.NormalizeAsync(secondRaw, CancellationToken.None);
+        ContextDelta delta = await connector.DeltaAsync(secondBatch, previous, CancellationToken.None);
+
+        delta.UnchangedCount.Should().Be(1);
+        delta.ModifiedCount.Should().Be(0);
+        delta.AddedCount.Should().Be(0);
+        delta.RemovedCount.Should().Be(0);
+    }
+
+    [Fact]
     public async Task DeltaAsync_SimpleTerraformInlineSlashSlashCommentChange_ReportsUnchanged()
     {
         InfrastructureDeclarationConnector connector = new(

@@ -63,6 +63,18 @@ describe("resolveGraphIdleEmptyPreset", () => {
     expect(preset.title).toBe("Select a review");
     expect(preset.description).toContain("Choose a completed review");
   });
+
+  it("Working graph idle uses one New review action without sample CTA (CD-02)", () => {
+    const preset = resolveGraphIdleEmptyPreset({
+      buyerPolished: false,
+      demoUi: false,
+      showIdleCard: true,
+      workingMode: true,
+    });
+
+    expect(preset.actions).toHaveLength(1);
+    expect(preset.actions?.[0]?.label).toBe("New review");
+  });
 });
 
 describe("resolveEvidenceTrailPresentationView", () => {

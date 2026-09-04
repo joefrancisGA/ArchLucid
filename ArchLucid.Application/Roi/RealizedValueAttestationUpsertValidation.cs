@@ -20,8 +20,13 @@ public static class RealizedValueAttestationUpsertValidation
 
     private static void ValidateNoteLength(string? value, string fieldName)
     {
-        if (string.IsNullOrWhiteSpace(value))
+        if (value is null)
             return;
+
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            throw new ArgumentException($"{fieldName} cannot be empty or whitespace.");
+        }
 
         if (value.Trim().Length > NoteMaxLength)
         {

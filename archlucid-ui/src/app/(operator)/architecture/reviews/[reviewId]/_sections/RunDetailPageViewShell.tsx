@@ -17,7 +17,6 @@ import {
   RunDetailCommitBlockingFindingsBannerDeferred,
   RunDetailCtoDemoReviewRouteGuardDeferred,
   RunDetailDemoMarketingChromeDeferred,
-  RunDetailFirstWeekRouteGuidanceDeferred,
   RunDetailGovernanceAlertsDeferred,
   RunDetailGovernanceCtaDeferred,
   RunDetailOutcomeCardsDeferred,
@@ -29,6 +28,7 @@ import {
   HelpPageSituationRegistrarDeferred,
   ReviewGenerationCreatedNoticeDeferred,
 } from "./run-detail-page-view-deferred-chunks";
+import { RunDetailFirstWeekRouteGuidanceMount } from "./RunDetailFirstWeekRouteGuidanceMount";
 import { RunDetailNextReviewFooterClient } from "./RunDetailNextReviewFooterClient";
 import { RunDetailPageViewCommitted } from "./RunDetailPageViewCommitted";
 import { RunDetailPageViewCreateHome } from "./RunDetailPageViewCreateHome";
@@ -358,7 +358,7 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
         ) : null}
 
         {blockingApprovalCount === 0 && !reviewPipelineIncomplete ? (
-          <RunDetailFirstWeekRouteGuidanceDeferred
+          <RunDetailFirstWeekRouteGuidanceMount
             variant={Boolean(m.manifestId) ? "review-detail-committed" : "review-detail-in-progress"}
             pagePrimaryOwnedElsewhere
           />

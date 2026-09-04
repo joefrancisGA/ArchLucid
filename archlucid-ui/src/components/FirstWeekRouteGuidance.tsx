@@ -75,7 +75,7 @@ export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
   }
 
   const evalChromeShell = useProductionEvalChrome();
-  const config = resolveFirstWeekRouteGuidanceForShell(props.variant, evalChromeShell);
+  const config = resolveFirstWeekRouteGuidanceForShell(props.variant, { evalChrome: evalChromeShell });
 
   if (props.variant === "onboarding") {
     return (

@@ -1,5 +1,6 @@
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Roi;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
@@ -9,6 +10,7 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
@@ -24,7 +26,8 @@ public sealed class SponsorReviewPacketBuilder(
     IScopeContextProvider scopeContextProvider,
     ITenantRepository tenantRepository,
     IAuthorityQueryService authorityQueryService,
-    IManifestHashService manifestHashService) : ISponsorReviewPacketBuilder
+    IManifestHashService manifestHashService,
+    IGraphSnapshotRepository graphSnapshotRepository) : ISponsorReviewPacketBuilder
 {
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
@@ -46,6 +49,9 @@ public sealed class SponsorReviewPacketBuilder(
 
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly IGraphSnapshotRepository _graphSnapshotRepository =
+        graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
 
     public async Task<string?> BuildMarkdownAsync(string runId, CancellationToken cancellationToken = default)
     {
@@ -91,6 +97,13 @@ public sealed class SponsorReviewPacketBuilder(
         string? activeTrialExportNotice = await ActiveTrialExportNoticeResolver
             .ResolveAsync(_scopeContextProvider, _tenantRepository, cancellationToken)
             .ConfigureAwait(false);
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        SponsorReviewCoverageHonestyContext coverageHonesty = await SponsorReviewCoverageHonestyMaterialLoader.LoadAsync(
+            detail,
+            _authorityQueryService,
+            _graphSnapshotRepository,
+            scope,
+            cancellationToken);
 
         return SponsorReviewPacketComposer.ComposeMarkdown(
             detail,
@@ -100,7 +113,8 @@ public sealed class SponsorReviewPacketBuilder(
             TimeProvider.System.UtcNowDateTime(),
             topDecisions,
             portfolioSignals,
-            activeTrialExportNotice);
+            activeTrialExportNotice,
+            coverageHonesty);
     }
 
     private static string BuildDeterministicSponsorReport(

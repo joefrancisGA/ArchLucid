@@ -59,6 +59,14 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
             AppendList(sb, "Removed Datastores", report.ManifestDiff.RemovedDatastores);
             AppendList(sb, "Added Required Controls", report.ManifestDiff.AddedRequiredControls);
             AppendList(sb, "Removed Required Controls", report.ManifestDiff.RemovedRequiredControls);
+            AppendList(
+                sb,
+                "Added Relationships",
+                report.ManifestDiff.AddedRelationships.Select(static relationship => relationship.ToDisplayLine()).ToList());
+            AppendList(
+                sb,
+                "Removed Relationships",
+                report.ManifestDiff.RemovedRelationships.Select(static relationship => relationship.ToDisplayLine()).ToList());
 
             if (report.ManifestDiff.Warnings.Count > 0)
 

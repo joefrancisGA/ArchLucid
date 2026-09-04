@@ -26,7 +26,7 @@ public sealed class RelationshipTypeJsonConverter : JsonConverter<RelationshipTy
         string? raw = reader.GetString();
 
         if (string.IsNullOrWhiteSpace(raw))
-            return RelationshipType.Calls;
+            throw new JsonException($"Unknown relationship type value '{raw}'.");
 
         if (Enum.TryParse(raw, ignoreCase: true, out RelationshipType parsed))
             return parsed;

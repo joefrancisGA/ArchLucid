@@ -26,9 +26,9 @@ public sealed class CreatePolicyPackRequest
     } = null!;
 
     /// <summary>JSON object matching <c>PolicyPackContentDocument</c> shape for version <c>1.0.0</c> draft.</summary>
-    public string InitialContentJson
+    public required string InitialContentJson
     {
         get;
         set;
-    } = "{}";
+    }
 }

@@ -85,6 +85,11 @@ public sealed partial class RunsController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
 
+        IActionResult? invalidRun = NotFoundWhenRunRouteIdInvalid(runId);
+
+        if (invalidRun is not null)
+            return invalidRun;
+
         SubmitResultResult result =
             await architectureApplicationService.SubmitAgentResultAsync(runId, request.Result, cancellationToken);
 
@@ -103,6 +108,14 @@ public sealed partial class RunsController(
 
     private static Guid? TryParseRunGuidForAudit(string runId) =>
         TryParseRunGuidForAudit(runId, out Guid g) ? g : null;
+
+    private IActionResult? NotFoundWhenRunRouteIdInvalid(string runId)
+    {
+        if (TryParseRunGuidForAudit(runId, out _))
+            return null;
+
+        return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+    }
 
     private IActionResult MapApplicationServiceFailure(string? error, ApplicationServiceFailureKind? kind,
         string defaultBadRequestDetail)

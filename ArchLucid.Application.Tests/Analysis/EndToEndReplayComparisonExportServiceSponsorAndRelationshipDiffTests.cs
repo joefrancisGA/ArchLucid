@@ -125,6 +125,307 @@ public sealed class EndToEndReplayComparisonExportServiceSponsorAndRelationshipD
     }
 
     [SkippableFact]
+    public void GenerateHtml_detailed_includes_relationship_subsections_when_populated()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Full summary");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = RelationshipDiffReport();
+
+        string html = sut.GenerateHtml(report, EndToEndComparisonExportProfile.Detailed);
+
+        html.Should().Contain("Added relationship: s1 -&gt; t1 (calls)");
+        html.Should().Contain("Removed relationship: s2 -&gt; t2 (reads)");
+    }
+
+    [SkippableFact]
+    public void GenerateHtml_detailed_includes_agent_confidence_and_required_control_diffs()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Full summary");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            AgentResultDiff = new AgentResultDiffResult
+            {
+                AgentDeltas =
+                [
+                    new AgentResultDelta
+                    {
+                        AgentType = ArchLucid.Contracts.Common.AgentType.Topology,
+                        LeftExists = true,
+                        RightExists = true,
+                        LeftConfidence = 0.42,
+                        RightConfidence = 0.88,
+                        AddedRequiredControls = ["encrypt-at-rest"],
+                        RemovedWarnings = ["stale inventory"],
+                    }
+                ]
+            }
+        };
+
+        string html = sut.GenerateHtml(report, EndToEndComparisonExportProfile.Detailed);
+
+        html.Should().Contain("Left Confidence: 0.42");
+        html.Should().Contain("Right Confidence: 0.88");
+        html.Should().Contain("Added required control: encrypt-at-rest");
+        html.Should().Contain("Removed warning: stale inventory");
+    }
+
+    [SkippableFact]
+    public void GenerateHtml_detailed_includes_export_request_flag_and_value_diffs()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Full summary");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            ExportDiffs =
+            [
+                new ExportRecordDiffResult
+                {
+                    LeftExportRecordId = "left-export",
+                    RightExportRecordId = "right-export",
+                    ChangedTopLevelFields = ["TemplateProfile"],
+                    RequestDiff = new ExportRecordRequestDiff
+                    {
+                        ChangedFlags = ["IncludeAppendix"],
+                        ChangedValues = ["Format: Pdf -> Docx"],
+                    },
+                }
+            ]
+        };
+
+        string html = sut.GenerateHtml(report, EndToEndComparisonExportProfile.Detailed);
+
+        html.Should().Contain("Changed request flag: IncludeAppendix");
+        html.Should().Contain("Changed request value: Format: Pdf -&gt; Docx");
+    }
+
+    [SkippableFact]
+    public void GenerateHtml_detailed_includes_agent_evidence_ref_diffs()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Full summary");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            AgentResultDiff = new AgentResultDiffResult
+            {
+                AgentDeltas =
+                [
+                    new AgentResultDelta
+                    {
+                        AgentType = ArchLucid.Contracts.Common.AgentType.Compliance,
+                        LeftExists = true,
+                        RightExists = true,
+                        AddedEvidenceRefs = ["policy-pack:encrypt-at-rest"],
+                        RemovedEvidenceRefs = ["policy-pack:legacy-baseline"],
+                    }
+                ]
+            }
+        };
+
+        string html = sut.GenerateHtml(report, EndToEndComparisonExportProfile.Detailed);
+
+        html.Should().Contain("Added evidence reference: policy-pack:encrypt-at-rest");
+        html.Should().Contain("Removed evidence reference: policy-pack:legacy-baseline");
+    }
+
+    [SkippableFact]
+    public void GenerateMarkdown_detailed_includes_agent_evidence_ref_diffs()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Full summary");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            AgentResultDiff = new AgentResultDiffResult
+            {
+                AgentDeltas =
+                [
+                    new AgentResultDelta
+                    {
+                        AgentType = ArchLucid.Contracts.Common.AgentType.Compliance,
+                        LeftExists = true,
+                        RightExists = true,
+                        AddedEvidenceRefs = ["policy-pack:encrypt-at-rest"],
+                    }
+                ]
+            }
+        };
+
+        string markdown = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Detailed);
+
+        markdown.Should().Contain("Added Evidence References");
+        markdown.Should().Contain("policy-pack:encrypt-at-rest");
+    }
+
+    [SkippableFact]
+    public void GenerateMarkdown_detailed_includes_manifest_warnings_when_populated()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Full summary");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            ManifestDiff = new ManifestDiffResult
+            {
+                Warnings = ["SystemName differs between compared manifests."],
+            }
+        };
+
+        string markdown = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Detailed);
+
+        markdown.Should().Contain("### Warnings");
+        markdown.Should().Contain("SystemName differs between compared manifests.");
+    }
+
+    [SkippableFact]
+    public void GenerateHtml_detailed_includes_manifest_warnings_when_populated()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Full summary");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            ManifestDiff = new ManifestDiffResult
+            {
+                Warnings = ["SystemName differs between compared manifests."],
+            }
+        };
+
+        string html = sut.GenerateHtml(report, EndToEndComparisonExportProfile.Detailed);
+
+        html.Should().Contain("Manifest warning: SystemName differs between compared manifests.");
+    }
+
+    [SkippableFact]
+    public void GenerateMarkdown_executive_profile_includes_relationship_counts_in_key_manifest_line()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Exec summary stub");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "L",
+            RightRunId = "R",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            ManifestDiff = new ManifestDiffResult
+            {
+                AddedRelationships =
+                [
+                    new RelationshipDiffItem { SourceId = "s1", TargetId = "t1", RelationshipType = "calls" }
+                ],
+            }
+        };
+
+        string md = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Sponsor);
+
+        md.Should().Contain("+1 / -0 relationships");
+    }
+
+    [SkippableFact]
+    public void GenerateMarkdown_executive_profile_includes_manifest_warning_count_in_key_manifest_line()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Exec summary stub");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "L",
+            RightRunId = "R",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            ManifestDiff = new ManifestDiffResult
+            {
+                Warnings = ["SystemName differs between compared manifests."],
+            }
+        };
+
+        string md = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Sponsor);
+
+        md.Should().Contain("1 manifest warning(s)");
+    }
+
+    [SkippableFact]
+    public void GenerateMarkdown_executive_profile_includes_required_control_counts_in_key_manifest_line()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Exec summary stub");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "L",
+            RightRunId = "R",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            ManifestDiff = new ManifestDiffResult
+            {
+                AddedRequiredControls = ["encrypt-at-rest"],
+            }
+        };
+
+        string md = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Sponsor);
+
+        md.Should().Contain("+1 / -0 required controls");
+    }
+
+    private static EndToEndReplayComparisonReport RelationshipDiffReport() => new()
+    {
+        LeftRunId = "a",
+        RightRunId = "b",
+        RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+        ManifestDiff = new ManifestDiffResult
+        {
+            AddedRelationships =
+            [
+                new RelationshipDiffItem { SourceId = "s1", TargetId = "t1", RelationshipType = "calls" }
+            ],
+            RemovedRelationships =
+            [
+                new RelationshipDiffItem { SourceId = "s2", TargetId = "t2", RelationshipType = "reads" }
+            ]
+        }
+    };
+
+    [SkippableFact]
     public async Task GeneratePdfAsync_throws_when_cancellation_requested_before_render()
     {
         Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();

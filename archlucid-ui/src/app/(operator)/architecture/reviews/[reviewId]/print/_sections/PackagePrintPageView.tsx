@@ -7,7 +7,7 @@ import { IntegrationConnectChecklist } from "@/components/integrations/Integrati
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PackagePrintButton } from "@/components/reviews/PackagePrintButton";
 import { StatusTag } from "@/components/ui/status-tag";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   resolvePackagePrintInspectEmphasizedStepId,
@@ -23,6 +23,7 @@ import {
   PACKAGE_PRINT_PAGE_TITLE,
   PACKAGE_PRINT_STATUS_HEADING,
   PACKAGE_PRINT_SYNOPSIS_HEADING,
+  PACKAGE_PRINT_COVERAGE_HONESTY_LINE,
   buildPackagePrintBackHref,
   buildPackagePrintPath,
   type PackagePrintPresentation,
@@ -42,7 +43,7 @@ export type PackagePrintPageViewProps = {
 export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JSX.Element {
   const { presentation, listScopedRunId = null } = props;
   const backHref = buildPackagePrintBackHref(presentation.runId);
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const scopedListRunId = (listScopedRunId ?? "").trim();
   const listScopedRunFilterActive = scopedListRunId.length > 0;
   const packagePrintInspectSteps = resolvePackagePrintInspectSteps({
@@ -177,6 +178,15 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
               {presentation.sponsorSynopsis}
             </p>
           </section>
+        ) : null}
+
+        {!buyerPolishedShell ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="package-print-coverage-honesty"
+          >
+            {PACKAGE_PRINT_COVERAGE_HONESTY_LINE}
+          </p>
         ) : null}
       </DocumentLayout>
 

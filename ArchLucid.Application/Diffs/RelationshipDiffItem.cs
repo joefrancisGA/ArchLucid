@@ -25,4 +25,6 @@ public sealed class RelationshipDiffItem
         get;
         set;
     }
+
+    public string ToDisplayLine() => $"{SourceId} -> {TargetId} ({RelationshipType})";
 }

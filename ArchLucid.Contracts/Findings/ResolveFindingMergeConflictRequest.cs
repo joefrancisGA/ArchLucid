@@ -9,9 +9,9 @@ public enum FindingMergeConflictResolutionAction
 
 public sealed class ResolveFindingMergeConflictRequest
 {
-    public FindingMergeConflictResolutionAction Action
+    public required FindingMergeConflictResolutionAction Action
     {
         get;
-        set;
-    } = FindingMergeConflictResolutionAction.AcceptPrimary;
+        init;
+    }
 }

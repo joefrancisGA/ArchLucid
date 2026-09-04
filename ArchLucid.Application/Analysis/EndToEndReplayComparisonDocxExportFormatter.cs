@@ -22,6 +22,10 @@ public static class EndToEndReplayComparisonDocxExportFormatter
         cancellationToken.ThrowIfCancellationRequested();
         string p = EndToEndComparisonExportProfile.Normalize(profile);
         string summaryMarkdown = summaryFormatter.FormatMarkdown(report).Trim();
+
+        if (report.CompareQualityDelta is not null)
+            summaryMarkdown = CompareQualityDeltaExportFormatter.RemoveMarkdownSection(summaryMarkdown);
+
         using MemoryStream stream = new();
         using (WordprocessingDocument document = WordprocessingDocument.Create(stream, WordprocessingDocumentType.Document, true))
         {
@@ -38,11 +42,13 @@ public static class EndToEndReplayComparisonDocxExportFormatter
             {
                 AddHeading(body, "Summary", 2);
                 AddParagraph(body, summaryMarkdown);
+                AppendCompareQualityDelta(body, report);
             }
             else if (EndToEndComparisonExportProfile.IsExecutive(p))
             {
                 AddHeading(body, "Summary", 2);
                 AddParagraph(body, summaryMarkdown);
+                AppendCompareQualityDelta(body, report);
                 AddSpacer(body);
                 AppendSponsorReport(body, report);
             }
@@ -50,6 +56,7 @@ public static class EndToEndReplayComparisonDocxExportFormatter
             {
                 AddHeading(body, "Summary", 2);
                 AddParagraph(body, summaryMarkdown);
+                AppendCompareQualityDelta(body, report);
                 AddSpacer(body);
                 AddHeading(body, "Run Metadata Diff", 2);
                 AddBullet(body, $"Request IDs Differ: {(report.RunDiff.RequestIdsDiffer ? "Yes" : "No")}");
@@ -77,6 +84,8 @@ public static class EndToEndReplayComparisonDocxExportFormatter
                         AddDiffSection(body, "Removed Required Controls", delta.RemovedRequiredControls);
                         AddDiffSection(body, "Added Warnings", delta.AddedWarnings);
                         AddDiffSection(body, "Removed Warnings", delta.RemovedWarnings);
+                        AddDiffSection(body, "Added Evidence References", delta.AddedEvidenceRefs);
+                        AddDiffSection(body, "Removed Evidence References", delta.RemovedEvidenceRefs);
                         AddSpacer(body);
                     }
                 }
@@ -90,6 +99,9 @@ public static class EndToEndReplayComparisonDocxExportFormatter
                     AddDiffSection(body, "Removed Datastores", report.ManifestDiff.RemovedDatastores);
                     AddDiffSection(body, "Added Required Controls", report.ManifestDiff.AddedRequiredControls);
                     AddDiffSection(body, "Removed Required Controls", report.ManifestDiff.RemovedRequiredControls);
+                    AddRelationshipDiffSection(body, "Added Relationships", report.ManifestDiff.AddedRelationships);
+                    AddRelationshipDiffSection(body, "Removed Relationships", report.ManifestDiff.RemovedRelationships);
+                    AddDiffSection(body, "Warnings", report.ManifestDiff.Warnings);
                     AddSpacer(body);
                 }
 
@@ -136,15 +148,12 @@ public static class EndToEndReplayComparisonDocxExportFormatter
             $"Run metadata: {report.RunDiff.ChangedFields.Count} changed field(s); Request IDs differ: {(report.RunDiff.RequestIdsDiffer ? "Yes" : "No")}");
         if (report.AgentResultDiff is not null)
         {
-            int withChanges = report.AgentResultDiff.AgentDeltas.Count(d =>
-                d.AddedClaims.Count > 0 || d.RemovedClaims.Count > 0 || d.AddedFindings.Count > 0 || d.RemovedFindings.Count > 0 ||
-                d.AddedRequiredControls.Count > 0 || d.RemovedRequiredControls.Count > 0 || d.AddedWarnings.Count > 0 || d.RemovedWarnings.Count > 0);
+            int withChanges = AgentResultDeltaMateriality.CountWithMaterialChanges(report.AgentResultDiff.AgentDeltas);
             AddBullet(body, $"Agent deltas: {withChanges} agent(s) with material changes");
         }
 
         if (report.ManifestDiff is not null)
-            AddBullet(body,
-                $"Manifest: +{report.ManifestDiff.AddedServices.Count} / -{report.ManifestDiff.RemovedServices.Count} services; +{report.ManifestDiff.AddedDatastores.Count} / -{report.ManifestDiff.RemovedDatastores.Count} datastores");
+            AddBullet(body, $"Manifest: {ManifestDiffMateriality.FormatSponsorKeyCountsLine(report.ManifestDiff)}");
         AddBullet(body, $"Export diffs: {report.ExportDiffs.Count}");
         AddSpacer(body);
     }
@@ -188,5 +197,30 @@ public static class EndToEndReplayComparisonDocxExportFormatter
 
         foreach (string item in items)
             AddBullet(body, item);
+    }
+
+    private static void AddRelationshipDiffSection(
+        Body body,
+        string title,
+        IReadOnlyCollection<RelationshipDiffItem> relationships)
+    {
+        AddParagraph(body, title, true);
+
+        if (relationships.Count == 0)
+        {
+            AddBullet(body, "None");
+            return;
+        }
+
+        foreach (RelationshipDiffItem relationship in relationships)
+            AddBullet(body, relationship.ToDisplayLine());
+    }
+
+    private static void AppendCompareQualityDelta(Body body, EndToEndReplayComparisonReport report)
+    {
+        if (report.CompareQualityDelta is null)
+            return;
+
+        AddDiffSection(body, "Compare Quality Delta", CompareQualityDeltaExportFormatter.BuildPlainTextLines(report.CompareQualityDelta));
     }
 }

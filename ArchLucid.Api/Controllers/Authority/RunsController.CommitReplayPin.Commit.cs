@@ -29,6 +29,11 @@ public sealed partial class RunsController
         [FromBody] CommitRunRequest? request,
         CancellationToken cancellationToken)
     {
+        IActionResult? invalidRun = NotFoundWhenRunRouteIdInvalid(runId);
+
+        if (invalidRun is not null)
+            return invalidRun;
+
         string user = actorContext.GetActor();
         string correlationId = HttpContext.TraceIdentifier;
         ScopeContext scope = scopeContextProvider.GetCurrentScope();

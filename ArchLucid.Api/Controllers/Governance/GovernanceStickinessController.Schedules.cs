@@ -30,7 +30,10 @@ public sealed partial class GovernanceStickinessController
             return bodyProblem;
 
         IActionResult? scheduleValidation =
-            GovernanceStickinessHttpMapper.ValidateCreateRecurrenceSchedule(request!).ToBadRequestProblemOrNull(this);
+            GovernanceStickinessHttpMapper.ValidateCreateRecurrenceSchedule(
+                    request!,
+                    _recurrenceNextRunCalculator.IsSupportedCronExpression)
+                .ToBadRequestProblemOrNull(this);
 
         if (scheduleValidation is not null)
             return scheduleValidation;
@@ -115,7 +118,9 @@ public sealed partial class GovernanceStickinessController
             return bodyProblem;
 
         IActionResult? scheduleValidation =
-            GovernanceStickinessHttpMapper.ValidateUpdateRecurrenceSchedule(request!)
+            GovernanceStickinessHttpMapper.ValidateUpdateRecurrenceSchedule(
+                    request!,
+                    _recurrenceNextRunCalculator.IsSupportedCronExpression)
                 .ToBadRequestProblemOrNull(this);
 
         if (scheduleValidation is not null)

@@ -2,7 +2,7 @@ namespace ArchLucid.Api.Models.Tenancy;
 
 public sealed class CorePilotChecklistPutRequest
 {
-    public int StepIndex
+    public required int StepIndex
     {
         get;
         set;

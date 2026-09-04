@@ -1,6 +1,22 @@
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
 
+/** Guided first-session deferral — Operate groups stay hidden until first commit. */
+export const GUIDED_OPERATE_SIDEBAR_DEFERRAL_NOTE =
+  "Graph, Compare, and heavy approval surfaces stay out of the sidebar until after your first committed package.";
+
+/** Guided onboarding deferral — finish the checklist before Operate exploration. */
+export const GUIDED_ONBOARDING_OPERATE_DEFERRAL_NOTE =
+  "Finish this path before exploring Operate analysis or approval lanes.";
+
+/** Guided committed-review deferral — sidebar unlock after first commit. */
+export const GUIDED_COMMITTED_OPERATE_UNLOCK_NOTE =
+  "Operate surfaces unlock in the sidebar after your first committed review when you need compare, graph, or digests.";
+
+/** Working seats already show Insights / Governance / Reports — no sidebar lock copy (CD-01). */
+export const WORKING_OPERATE_AVAILABLE_IN_SIDEBAR_NOTE =
+  "Insights, Compare, and Governance are already in the sidebar when you need them.";
+
 export const FIRST_WEEK_ROUTE_GUIDANCE_HOME_SUMMARY = "Recommended first session path";
 
 export const FIRST_WEEK_ROUTE_GUIDANCE_HOME_COLLAPSED_SUMMARY =
@@ -48,15 +64,14 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
     bridgeCopy:
       "Each architecture review is tracked as one review — the same object from capture through finalized review record and export. Start with briefs, diagrams, or IaC only (evidence-only); cloud inventory ZIP (AWS, Azure, or GCP) is optional when you need live architecture structure or cost grounding.",
     primaryAction: { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH },
-    operateDeferralNote:
-      "Graph, Compare, and heavy approval surfaces stay out of the sidebar until after your first committed package.",
+    operateDeferralNote: GUIDED_OPERATE_SIDEBAR_DEFERRAL_NOTE,
   },
   onboarding: {
     useWhen: "Follow this guided path to create and commit your first review.",
     bridgeCopy:
       "The checklist below walks one architecture review from capture to committed finalized review record.",
     primaryAction: { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH },
-    operateDeferralNote: "Finish this path before exploring Operate analysis or approval lanes.",
+    operateDeferralNote: GUIDED_ONBOARDING_OPERATE_DEFERRAL_NOTE,
   },
   "new-review": {
     useWhen: "You have enough context to start an architecture review.",
@@ -77,8 +92,33 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
     bridgeCopy:
       "This review is complete — use the exports section in Review when you need deliverables for sponsors or auditors.",
     // Primary CTA lives in ReviewPackageDoThisNextStrip above this callout.
-    operateDeferralNote: "Operate surfaces unlock in the sidebar after your first committed review when you need compare, graph, or digests.",
+    operateDeferralNote: GUIDED_COMMITTED_OPERATE_UNLOCK_NOTE,
   },
+};
+
+const WORKING_OPERATE_DEFERRAL_BY_VARIANT: Partial<Record<FirstWeekRouteGuidanceVariant, string>> = {
+  home: WORKING_OPERATE_AVAILABLE_IN_SIDEBAR_NOTE,
+  onboarding: "",
+  "review-detail-committed": WORKING_OPERATE_AVAILABLE_IN_SIDEBAR_NOTE,
+  "new-review": "",
+  "reviews-list": "",
+};
+
+function resolveWorkingOperateDeferralNote(
+  variant: FirstWeekRouteGuidanceVariant,
+  guidedNote: string,
+): string {
+  const workingNote = WORKING_OPERATE_DEFERRAL_BY_VARIANT[variant];
+
+  if (workingNote !== undefined) {
+    return workingNote;
+  }
+
+  return guidedNote;
+}
+
+export type ResolveFirstWeekRouteGuidanceForShellInput = {
+  readonly evalChrome: boolean;
 };
 
 export function resolveFirstWeekRouteGuidance(
@@ -89,11 +129,20 @@ export function resolveFirstWeekRouteGuidance(
 
 export function resolveFirstWeekRouteGuidanceForShell(
   variant: FirstWeekRouteGuidanceVariant,
-  buyerPolishedShell: boolean,
+  input: ResolveFirstWeekRouteGuidanceForShellInput,
 ): FirstWeekRouteGuidanceConfig {
-  if (buyerPolishedShell && variant === "review-detail-in-progress") {
+  if (input.evalChrome && variant === "review-detail-in-progress") {
     return BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE;
   }
 
-  return resolveFirstWeekRouteGuidance(variant);
+  const base = resolveFirstWeekRouteGuidance(variant);
+
+  if (input.evalChrome) {
+    return base;
+  }
+
+  return {
+    ...base,
+    operateDeferralNote: resolveWorkingOperateDeferralNote(variant, base.operateDeferralNote),
+  };
 }

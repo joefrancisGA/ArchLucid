@@ -9,8 +9,9 @@ public static class HostingEnvironmentNamePatterns
     /// <summary>
     ///     Treats names containing a production-like <c>prod</c> token (case-insensitive) as production-like so
     ///     misnamed hosts (for example <c>PreProduction</c>, <c>staging-prod</c>) cannot rely on Development-only
-    ///     behavior. Excludes <c>non-production</c> / <c>nonproduction</c>, <c>reproduction</c>, and embedded
-    ///     <c>prod</c> substrings inside unrelated words (for example <c>reproduce</c>, <c>product</c>).
+    ///     behavior. Excludes <c>non-production</c> / <c>nonproduction</c>, underscore/dot/space delimiter variants,
+    ///     common <c>non-prod</c> / <c>non.prod</c> shorthand, <c>reproduction</c>, and embedded <c>prod</c>
+    ///     substrings inside unrelated words (for example <c>reproduce</c>, <c>product</c>).
     /// </summary>
     public static bool EnvironmentNameImpliesProductionLike(string? environmentName)
     {
@@ -19,13 +20,42 @@ public static class HostingEnvironmentNamePatterns
 
         string trimmed = environmentName.Trim();
 
-        if (trimmed.Contains("non-production", StringComparison.OrdinalIgnoreCase))
-            return false;
-
-        if (trimmed.Contains("nonproduction", StringComparison.OrdinalIgnoreCase))
+        if (IsNonProductionLikeEnvironmentName(trimmed))
             return false;
 
         return ContainsProductionLikeProdReference(trimmed);
+    }
+
+    private static bool IsNonProductionLikeEnvironmentName(string trimmed)
+    {
+        if (trimmed.Contains("non-production", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (trimmed.Contains("nonproduction", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (trimmed.Contains("non_production", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (trimmed.Contains("non.production", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (trimmed.Contains("non production", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (trimmed.Contains("non-prod", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (trimmed.Contains("non.prod", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (trimmed.Contains("non_prod", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (trimmed.Contains("non prod", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
     }
 
     private static bool ContainsProductionLikeProdReference(string trimmed)

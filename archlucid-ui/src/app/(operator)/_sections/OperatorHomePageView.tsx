@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { OperatorHomeDeferredOnboarding } from "@/components/operator-home/OperatorHomeDeferredOnboarding";
+import { OperatorHomeContinueLastReviewPackageSection } from "@/components/operator-home/OperatorHomeContinueLastReviewPackageSection";
 import { OperatorHomeInFlightReviewsSection } from "@/components/operator-home/OperatorHomeInFlightReviewsSection";
 import { UnfinishedWorkRail } from "@/components/operator-home/UnfinishedWorkRail";
 import { OperatorHomeWorkspaceMetricsStrip } from "@/components/operator-home/OperatorHomeWorkspaceMetricsStrip";
@@ -147,7 +148,10 @@ function renderOperatorHomeSection(input: RenderOperatorHomeSectionInput): React
 
     case "in-flight":
       return (
-        <div key={input.section.id} data-testid={input.section.testId}>
+        <div key={input.section.id} data-testid={input.section.testId} className={OPERATOR_LAYOUT.sectionStack}>
+          {input.workingMode ? (
+            <OperatorHomeContinueLastReviewPackageSection runs={input.model.runsDashboard.items} />
+          ) : null}
           <OperatorHomeInFlightReviewsSection />
         </div>
       );

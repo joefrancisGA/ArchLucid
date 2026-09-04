@@ -151,6 +151,31 @@ public sealed class GovernanceMutationCorrectionsControllerTests
         mutationCorrections.VerifyNoOtherCalls();
     }
 
+    [Fact]
+    public async Task RecordGovernanceMutationCorrection_returns_bad_request_when_mutation_kind_is_unsupported_and_tenant_missing()
+    {
+        Mock<IGovernanceMutationCorrectionService> mutationCorrections = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            mutationCorrections.Object,
+            tenantRepository: TenantMissingRepository());
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.RecordGovernanceMutationCorrection(
+            new RecordGovernanceMutationCorrectionRequest
+            {
+                MutationKind = "not-a-supported-kind",
+                SubjectId = "apr-1",
+                RunId = Guid.NewGuid().ToString("D"),
+                Rationale = ValidRationale,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        mutationCorrections.VerifyNoOtherCalls();
+    }
+
     private static GovernanceController CreateController(
         IGovernanceMutationCorrectionService mutationCorrectionService,
         ITenantRepository? tenantRepository = null)
