@@ -1,5 +1,5 @@
 ---
-description: Rank private-beta priority top 10 plus at least 10 Cursor suggestions (read-only)
+description: Rank private-beta priority top 10 plus at least 15 Cursor suggestions (read-only)
 ---
 
 # Private-beta readiness top 10 (`/al-beta`)
@@ -46,7 +46,7 @@ Same standing exclusions as other assessment commands:
 ## Minimum output contract
 
 1. **Priority table — exactly 10 rows** ranked by private-beta impact (Human **or** Cursor). This is the blended “what matters most” view; it may include P0 Human gates (Gate 1, G-REAL-06, ruleset apply, …).
-2. **Cursor suggestions — at least 10 rows** in a **second** table, all **Owner = Cursor**, ranked by private-beta impact. Pull from red beta-critical CI, §17 Tier 1–2, the Cursor task pool below, and open P0/P1 `TECH_BACKLOG.md` rows. **Do not** duplicate a row that already appears in the priority table — each Cursor suggestion must be a distinct task. If fewer than ten distinct Cursor items qualify, extend into §17 Tier 2, open Vitest/CI parity, and beta-path TB rows until the count is ≥ 10 (mark lower-confidence rows in **Why now**).
+2. **Cursor suggestions — at least 15 rows** in a **second** table, all **Owner = Cursor**, ranked by private-beta impact. Pull from red beta-critical CI, §17 Tier 1–2, the Cursor task pool below, and open P0/P1 `TECH_BACKLOG.md` rows. **Do not** duplicate a row that already appears in the priority table — each Cursor suggestion must be a distinct task. If fewer than fifteen distinct Cursor items qualify, extend into §17 Tier 2, open Vitest/CI parity, beta-path TB rows, and recent merge regressions until the count is ≥ 15 (mark lower-confidence rows in **Why now**).
 3. Each row (both tables) must cite **why now** (weakness #, gate, or red CI job).
 4. Mark **Status**: `open` | `in-progress` | `shipped` | `blocked` with one-line evidence.
 
@@ -131,7 +131,7 @@ Score each candidate task on **private-beta impact** (not general V1.1 polish):
 
 ---
 
-## Cursor task pool (when filling the ≥10 Cursor suggestions table)
+## Cursor task pool (when filling the ≥15 Cursor suggestions table)
 
 Prefer these Cursor-actionable items (skip if `shipped`):
 
@@ -173,15 +173,15 @@ Lead with a one-paragraph **trunk snapshot** (last corset + private-beta job + O
 | … | … | … | … | … | … |
 | 10 | … | … | … | … | … |
 
-### Cursor suggestions (minimum 10)
+### Cursor suggestions (minimum 15)
 
-**Cursor suggestions:** N (minimum 10)
+**Cursor suggestions:** N (minimum 15)
 
 | Rank | Task | Maps to | Status | Why now |
 | ---: | --- | --- | --- | --- |
 | 1 | … | §17 / TB / CI job | open \| shipped \| blocked | … |
 | … | … | … | … | … |
-| 10 | … | … | … | … |
+| 15 | … | … | … | … |
 ```
 
 **Priority table — Owner column:** exactly `Human` or `Cursor`.
