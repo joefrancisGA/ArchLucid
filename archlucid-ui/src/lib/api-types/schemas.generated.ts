@@ -1913,6 +1913,12 @@ export interface components {
             timestampUtc?: null | string;
             userAgent?: null | string;
         };
+        CloneSnapshotDraftResponse: {
+            clone?: components["schemas"]["DraftRequestResponse"];
+            /** Format: uuid */
+            sourceDraftId?: string;
+            sourceSpawnedRunId?: null | string;
+        };
         ClosedLoopReasoningRequest: {
             continueFromExistingRun?: boolean;
             declaredPriorities?: string[];
@@ -8117,6 +8123,11 @@ export interface components {
         SetCloudPlatformScopeRequest: {
             scope?: components["schemas"]["CloudPlatformScopeDto"];
         };
+        SetFindingsVisibilityPreferencesRequest: {
+            hideGenericEnabled?: boolean;
+            showAdvisoryEnabled?: boolean;
+            showLowConfidenceEnabled?: boolean;
+        };
         SetIanaTimeZonePreferenceRequest: {
             ianaTimeZoneId?: null | string;
         };
@@ -9552,6 +9563,12 @@ export interface components {
             appearancePreferenceIsExplicit?: boolean;
             cloudPlatformScope?: components["schemas"]["CloudPlatformScopeDto"];
             cloudPlatformScopeIsExplicit?: boolean;
+            findingsHideGenericEnabled?: boolean;
+            findingsHideGenericEnabledIsExplicit?: boolean;
+            findingsShowAdvisoryEnabled?: boolean;
+            findingsShowAdvisoryEnabledIsExplicit?: boolean;
+            findingsShowLowConfidenceEnabled?: boolean;
+            findingsShowLowConfidenceEnabledIsExplicit?: boolean;
             ianaTimeZoneId?: string;
             ianaTimeZoneIsExplicit?: boolean;
             professionalWorkbenchEnabled?: boolean;
