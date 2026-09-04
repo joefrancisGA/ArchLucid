@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Findings;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;

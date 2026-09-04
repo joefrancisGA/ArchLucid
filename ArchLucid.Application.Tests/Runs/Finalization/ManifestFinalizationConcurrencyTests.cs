@@ -168,7 +168,8 @@ public sealed class ManifestFinalizationConcurrencyTests
         ScopeProjectId = scope.ProjectId,
         ProjectId = "proj",
         LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
-        FindingsSnapshotId = findingsId
+        FindingsSnapshotId = findingsId,
+        PinnedPolicyPackIdsJson = "[]"
     };
 
     private static ManifestFinalizationService CreateSut(

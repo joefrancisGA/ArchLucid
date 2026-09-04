@@ -96,6 +96,7 @@ public sealed class ArchitectureRunExecuteOrchestratorOwnershipTests
             ProjectId = "default",
             ArchitectureRequestId = "req-ownership",
             LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated),
+            PinnedPolicyPackIdsJson = "[]",
             CreatedUtc = TimeProvider.System.UtcNowDateTime(),
         };
 

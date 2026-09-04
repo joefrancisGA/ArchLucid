@@ -15,14 +15,7 @@ public sealed class ArchitectureReviewRobustnessWave10ArchitectureTests
     [Fact]
     public void Suggestion91_findings_and_commit_require_kappa_content_pin()
     {
-        string findings = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "Pipeline",
-                "FindingAnalysisContextBuilder.cs"));
+        string findings = ArchitectureSourceProbe.ReadFindingAnalysisContextBuilder();
 
         findings.Should().Contain("missing create-time architecture version content hash (κ) pin");
 
@@ -38,7 +31,7 @@ public sealed class ArchitectureReviewRobustnessWave10ArchitectureTests
         string hasher = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "ManifestHashService.cs"));
 
-        hasher.Should().Contain("HasherSchemaVersion = \"v5\"");
+        hasher.Should().Contain("HasherSchemaVersion = \"v12\"");
         hasher.Should().Contain("CreateTimeArchitectureVersionContentHashSha256");
 
         string binder = File.ReadAllText(
@@ -83,14 +76,7 @@ public sealed class ArchitectureReviewRobustnessWave10ArchitectureTests
 
         loader.Should().NotContain("TryGetLatestDownloadInScopeAsync");
 
-        string findings = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "Pipeline",
-                "FindingAnalysisContextBuilder.cs"));
+        string findings = ArchitectureSourceProbe.ReadFindingAnalysisContextBuilder();
 
         findings.Should().Contain("missing create-time policy pack pin JSON");
         findings.Should().NotContain("ListByScopeAsync");
@@ -173,14 +159,7 @@ public sealed class ArchitectureReviewRobustnessWave10ArchitectureTests
     [Fact]
     public void Suggestion100_findings_verify_policy_pack_json_byte_integrity()
     {
-        string findings = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "Pipeline",
-                "FindingAnalysisContextBuilder.cs"));
+        string findings = ArchitectureSourceProbe.ReadFindingAnalysisContextBuilder();
 
         findings.Should().Contain("VerifyPinIntegrityOrThrowAsync");
     }

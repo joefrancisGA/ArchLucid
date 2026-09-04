@@ -2,13 +2,15 @@ using System.Security.Cryptography;
 using System.Text;
 
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Findings.Serialization;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 
-namespace ArchLucid.Persistence.Findings;
+namespace ArchLucid.Core.Findings;
 
 /// <summary>
 ///     Shared findings snapshot repository rules for in-memory and SQL implementations.
+///     Lives in Core so Decisioning adapters do not take a Persistence assembly dependency.
 /// </summary>
 public static class FindingsSnapshotRepositoryCore
 {
@@ -216,6 +218,3 @@ public static class FindingsSnapshotRepositoryCore
             finding.Payload = null;
     }
 }
-
-/// <summary>Stable surrogate key for deterministic in-memory paging (differs from SQL <c>NewGuid()</c> row ids).</summary>
-public sealed record FindingKeysetEnvelope(int SortOrder, Guid RecordId, Finding Finding, int? PriorityRank);

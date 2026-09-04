@@ -98,7 +98,13 @@ public sealed class CommittedEffectiveGovernanceSnapshotCapturerTests
             RuleSetHash = "hash-abc"
         };
 
-        await sut.ApplyToManifestAsync(manifest, CancellationToken.None);
+        await sut.ApplyToManifestAsync(
+            manifest,
+            new CommittedEffectiveGovernanceSnapshotCaptureOptions
+            {
+                PreloadedScopePolicyPackAssignments = [assignment]
+            },
+            CancellationToken.None);
 
         manifest.EffectiveGovernanceAtCommit.Should().NotBeNull();
         manifest.EffectiveGovernanceAtCommit!.RuleSetId.Should().Be("enterprise-baseline");
@@ -162,7 +168,13 @@ public sealed class CommittedEffectiveGovernanceSnapshotCapturerTests
             RuleSetHash = "empty"
         };
 
-        await sut.ApplyToManifestAsync(manifest, CancellationToken.None);
+        await sut.ApplyToManifestAsync(
+            manifest,
+            new CommittedEffectiveGovernanceSnapshotCaptureOptions
+            {
+                PreloadedScopePolicyPackAssignments = Array.Empty<PolicyPackAssignment>()
+            },
+            CancellationToken.None);
 
         manifest.EffectiveGovernanceAtCommit.Should().NotBeNull();
         manifest.EffectiveGovernanceAtCommit!.HasEffectivePolicy.Should().BeFalse();

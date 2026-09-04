@@ -149,8 +149,8 @@ public static class RunHeaderPinnedPolicyPackAssignmentFactory
                     IsPinned = pinned.IsPinned,
                     ScopeLevel = pinned.ScopeLevel,
                     AssignedUtc = scopeAssignment.AssignedUtc,
-                    BlockCommitOnCritical = pinned.BlockCommitOnCritical,
-                    BlockCommitMinimumSeverity = pinned.BlockCommitMinimumSeverity,
+                    BlockCommitOnCritical = scopeAssignment.BlockCommitOnCritical,
+                    BlockCommitMinimumSeverity = scopeAssignment.BlockCommitMinimumSeverity,
                 });
         }
 

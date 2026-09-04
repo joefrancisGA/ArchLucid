@@ -60,8 +60,7 @@ public sealed class ArchitectureReviewRobustnessWave2ArchitectureTests
             .Should()
             .BeTrue();
 
-        string orchestrator = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "FindingsOrchestrator.cs"));
+        string orchestrator = ArchitectureSourceProbe.ReadFindingsPipeline();
 
         orchestrator.Should().Contain("FindingAnalysisContextGraphStamp.Stamp");
         orchestrator.Should().Contain("PolicyPackCategoryCoverageValidator");
@@ -135,14 +134,7 @@ public sealed class ArchitectureReviewRobustnessWave2ArchitectureTests
             .Should()
             .BeTrue();
 
-        string builder = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "Pipeline",
-                "FindingAnalysisContextBuilder.cs"));
+        string builder = ArchitectureSourceProbe.ReadFindingAnalysisContextBuilder();
 
         builder.Should().Contain("PriorReviewSnapshots");
     }

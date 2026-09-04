@@ -42,7 +42,7 @@ public sealed class ArchitectureReviewRobustnessWave9ArchitectureTests
                 "ArchLucid.Host.Composition",
                 "Startup",
                 "Modules",
-                "RunLifecycleOrchestrationCompositionRegistrar.cs"));
+                "RunLifecycleOrchestrationCompositionRegistrar.ExportsGovernance.cs"));
 
         registrar.Should().NotContain("EvidencePackagePinResolver");
         registrar.Should().Contain("RunEvidencePackagePinService");
@@ -101,9 +101,9 @@ public sealed class ArchitectureReviewRobustnessWave9ArchitectureTests
         fingerprint.Should().Contain("createTimePolicyPackPins");
 
         string cli = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Cli", "ArchLucidCliApiClient.Runs.cs"));
+            Path.Combine(RepoRoot, "ArchLucid.Cli", "ArchLucidCliApiClient.Runs.FingerprintSeed.cs"));
 
-        cli.Should().Contain("RunHeaderCreateTimePinCommitmentFactory.TryFromRunHeader");
+        cli.Should().Contain("RunHeaderCreateTimePinCommitmentFactory.TryFromPinJson");
     }
 
     [Fact]
@@ -118,14 +118,7 @@ public sealed class ArchitectureReviewRobustnessWave9ArchitectureTests
 
         migration.Should().Contain("PinnedArchitectureVersionContentHashSha256");
 
-        string findings = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "Pipeline",
-                "FindingAnalysisContextBuilder.cs"));
+        string findings = ArchitectureSourceProbe.ReadFindingAnalysisContextBuilder();
 
         findings.Should().Contain("PinnedArchitectureVersionContentHashSha256");
         findings.Should().Contain("ArchitectureVersionContentFingerprintVerifier");
