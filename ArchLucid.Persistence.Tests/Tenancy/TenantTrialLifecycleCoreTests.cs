@@ -73,6 +73,24 @@ public sealed class TenantTrialLifecycleCoreTests
     }
 
     [Fact]
+    public void IsTrialLifecycleAutomationCandidate_excludes_offboarded_tenants()
+    {
+        TenantRecord offboarded = new()
+        {
+            Id = TenantId,
+            Name = "Acme",
+            Slug = "acme",
+            Tier = TenantTier.Free,
+            CreatedUtc = DateTimeOffset.Parse("2026-01-01T00:00:00Z"),
+            TrialStatus = TrialLifecycleStatus.ExportOnly,
+            TrialExpiresUtc = DateTimeOffset.UtcNow.AddDays(7),
+            OffboardedUtc = DateTimeOffset.UtcNow.AddDays(-1),
+        };
+
+        TenantTrialLifecycleCore.IsTrialLifecycleAutomationCandidate(offboarded).Should().BeFalse();
+    }
+
+    [Fact]
     public void ComputeFirstManifestCommitOutcome_uses_trial_start_and_run_ratio()
     {
         DateTimeOffset created = DateTimeOffset.Parse("2026-01-01T00:00:00Z");

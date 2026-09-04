@@ -4127,11 +4127,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 4
-- **bugs-found:** 4
+- **hunts:** 5
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03
+- **last-hunt:** 2026-09-04
+- **last-bug:** 2026-09-04 — trial lifecycle scheduler hard-purged offboarded tenants bypassing erasure quarantine
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4145,8 +4145,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Catalog migration starts for erasure-quarantined tenant without scope freeze — `StartAsync` inserted migration record before suspend and ignored `TrySuspendAsync` `InErasureQuarantine`; migration returned `Applied` while writes stayed unfrozen (fixed 2026-09-02)
 - [x] (invalid) `TenantErasureCommandService.TryRestoreQuarantineAsync` leaves tenant suspended after offboard suspend — cheap-disproof 2026-09-03: `DapperTenantRepository.TryRestoreTenantErasureQuarantineAsync` and `InMemoryTenantRepository` `CopyTenant(clearErasureQuarantine: true)` clear `SuspendedUtc` on restore; application service delegates to repository
 - [x] (proven) `TenantCatalogMigrationOrchestrator.CompleteAsync` unsuspends admin-pre-suspended tenant — **hit 2026-09-03 (#576):** `StartAsync` treated `AlreadyInDesiredState` as success and `CompleteAsync` always called `TryUnsuspendAsync`; fixed by capturing `StartedUtc` before scope-freeze suspend and only unsuspending when `SuspendedUtc >= StartedUtc`; regression in `TenantCatalogMigrationOrchestratorTests`
-- [ ] (candidate) `TenantTrialIdentityHandoffStage.LinkEntraAsync` binds Entra directory before local identity link without rollback when `TryLinkLocalIdentityToEntraAsync` fails — returns Conflict but leaves `EntraTenantId` bound; retry semantics need operator confirmation before promotion
-- [ ] (candidate) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` hard-purges trial tenants on `Deleted` transition without checking erasure approval or legal hold — scheduler path may bypass `TenantDeletionService` guards; confirm whether trial purge is intentionally separate from erasure workflow
+- [x] (invalid) `TenantTrialIdentityHandoffStage.LinkEntraAsync` binds Entra directory before local identity link without rollback when `TryLinkLocalIdentityToEntraAsync` fails — **cheap-disproof 2026-09-04 (#709):** documented idempotent retry in `docs/runbooks/TRIAL_TO_PAID_IDENTITY_MIGRATION.md` §Security; regression in `TenantTrialIdentityHandoffStageTests.LinkEntraAsync_when_local_identity_link_fails_leaves_entra_bound_for_idempotent_retry`.
+- [x] (proven) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` hard-purged offboarded trial tenants on `Deleted` transition without honoring erasure quarantine — **hit 2026-09-04 (#709):** scheduler advanced `ExportOnly` tenants with `OffboardedUtc` set to `Deleted` and called `ITenantHardPurgeService` despite active legal hold; fixed by skipping automation when `OffboardedUtc` is set (`TryAdvanceTenantAsync_when_tenant_is_offboarded_does_not_advance_or_purge`, `IsTrialLifecycleAutomationCandidate_excludes_offboarded_tenants`).
+
+2026-09-04 thorough hunt #709: proved offboarded-trial purge bypass; cheap-disproved link-entra partial-bind rollback as documented idempotent retry.
 
 ---
 

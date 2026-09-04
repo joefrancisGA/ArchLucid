@@ -142,6 +142,7 @@ public sealed partial class DapperTenantRepository
                            WHERE TrialExpiresUtc IS NOT NULL
                              AND TrialStatus IS NOT NULL
                              AND TrialStatus <> @Converted
+                             AND OffboardedUtc IS NULL
                            ORDER BY CreatedUtc ASC;
                            """;
 

@@ -268,7 +268,8 @@ internal static class TenantTrialLifecycleCore
 
         return tenant.TrialExpiresUtc is not null
                && !string.IsNullOrWhiteSpace(tenant.TrialStatus)
-               && !string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal);
+               && !string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal)
+               && tenant.OffboardedUtc is null;
     }
 
     public static TrialFirstManifestCommitOutcome ComputeFirstManifestCommitOutcome(

@@ -38,6 +38,10 @@ public sealed class TrialLifecycleTransitionEngine(
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
         if (tenant is null)
             return false;
+
+        if (tenant.OffboardedUtc is not null)
+            return false;
+
         TrialLifecycleSchedulerOptions options = _lifecycleOptions.CurrentValue;
         if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Deleted, StringComparison.Ordinal))
         {
