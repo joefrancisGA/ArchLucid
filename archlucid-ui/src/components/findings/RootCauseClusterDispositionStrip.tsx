@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -23,6 +23,12 @@ import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import {
   DISPOSITION_RATIONALE_MIN_CHARS,
 } from "@/lib/review-quality/finding-governance-gates";
+import {
+  parseRootCauseClusterDispFromSearch,
+  parseRootCauseClusterKeyFromSearch,
+  rootCauseClusterDispositionFromUrlValue,
+  rootCauseClusterDispositionHrefFromSearch,
+} from "@/lib/findings/root-cause-cluster-disposition-url";
 
 type ClusterDisposition = Extract<FindingDispositionKind, "Accepted" | "RejectedAsNotApplicable">;
 
@@ -41,12 +47,75 @@ export function RootCauseClusterDispositionStrip(
 ): React.JSX.Element | null {
   const clusters = listOpenRootCauseClusters(props.findings);
   const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const urlClusterKey = parseRootCauseClusterKeyFromSearch(searchParams.get("clusterKey"));
+  const urlClusterDisp = parseRootCauseClusterDispFromSearch(searchParams.get("clusterDisp"));
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [inlineErrorMessage, setInlineErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [pendingClusterKey, setPendingClusterKey] = useState<string | null>(null);
-  const [pendingDisposition, setPendingDisposition] = useState<ClusterDisposition | null>(null);
+  const [pendingClusterKey, setPendingClusterKeyState] = useState<string | null>(null);
+  const [pendingDisposition, setPendingDispositionState] = useState<ClusterDisposition | null>(null);
+
+  const syncClusterDispositionToUrl = useCallback(
+    (clusterKey: string | null, disposition: ClusterDisposition | null) => {
+      router.replace(
+        rootCauseClusterDispositionHrefFromSearch(
+          searchParams.toString(),
+          { clusterKey, disposition },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPendingClusterDisposition = useCallback(
+    (clusterKey: string | null, disposition: ClusterDisposition | null) => {
+      setPendingClusterKeyState(clusterKey);
+      setPendingDispositionState(disposition);
+      syncClusterDispositionToUrl(clusterKey, disposition);
+    },
+    [syncClusterDispositionToUrl],
+  );
+
+  useEffect(() => {
+    if (urlClusterKey.length === 0 || urlClusterDisp === null) {
+      if (pendingClusterKey !== null || pendingDisposition !== null) {
+        setPendingClusterKeyState(null);
+        setPendingDispositionState(null);
+      }
+
+      return;
+    }
+
+    if (clusters.length === 0) {
+      return;
+    }
+
+    const cluster = clusters.find((row) => row.key === urlClusterKey);
+
+    if (cluster === undefined) {
+      return;
+    }
+
+    const disposition = rootCauseClusterDispositionFromUrlValue(urlClusterDisp);
+
+    if (pendingClusterKey === urlClusterKey && pendingDisposition === disposition) {
+      return;
+    }
+
+    setPendingClusterKeyState(urlClusterKey);
+    setPendingDispositionState(disposition);
+  }, [
+    clusters,
+    pendingClusterKey,
+    pendingDisposition,
+    urlClusterDisp,
+    urlClusterKey,
+  ]);
 
   if (clusters.length === 0) {
     return null;
@@ -63,8 +132,7 @@ export function RootCauseClusterDispositionStrip(
 
     setInlineErrorMessage(null);
     setSuccessMessage(null);
-    setPendingClusterKey(clusterKey);
-    setPendingDisposition(disposition);
+    setPendingClusterDisposition(clusterKey, disposition);
   }
 
   async function applyClusterDisposition(): Promise<void> {
@@ -95,8 +163,7 @@ export function RootCauseClusterDispositionStrip(
       }
 
       await awaitMinimumVisibleDuration(startedAtMs);
-      setPendingClusterKey(null);
-      setPendingDisposition(null);
+      setPendingClusterDisposition(null, null);
       setSuccessMessage(
         governanceBulkDispositionSuccessMessage(result.processedCount, pendingDisposition),
       );
@@ -206,8 +273,7 @@ export function RootCauseClusterDispositionStrip(
           // Dismissal clears the pending selection; an in-flight apply keeps it so the strip still
           // knows which cluster the mutation belongs to when it reports back.
           if (!open && !busy) {
-            setPendingClusterKey(null);
-            setPendingDisposition(null);
+            setPendingClusterDisposition(null, null);
           }
         }}
       />

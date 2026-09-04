@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { ArchitecturesHubListSkeleton } from "@/app/(operator)/architecture/architectures/_sections/ArchitecturesHubListSkeleton";
+import { ArchitectureDraftCloneSnapshotControl } from "@/components/architecture/ArchitectureDraftCloneSnapshotControl";
 import { ArchitectureDraftDeleteControl } from "@/components/architecture/ArchitectureDraftDeleteControl";
 import { ArchitectureDraftContinueLastRow } from "@/components/architecture/ArchitectureDraftContinueLastRow";
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
@@ -335,13 +336,25 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
                   </EnterpriseTableCell>
                   <EnterpriseTableCell>
                     <div className="flex flex-wrap gap-2">
-                      <ArchitectureDraftResumeControl
-                        architectureId={entry.architectureId}
-                        label="Continue editing"
-                        source="architectures-list"
-                        testId={`architecture-draft-continue-${entry.architectureId}`}
-                        ariaLabel={`Continue editing ${entry.displayName}`}
-                      />
+                      {entry.linkedReviewId !== null ? (
+                        <Button type="button" variant="primary" size="sm" asChild>
+                          <Link href={reviewDetailPath(entry.linkedReviewId)}>Continue in review</Link>
+                        </Button>
+                      ) : (
+                        <ArchitectureDraftResumeControl
+                          architectureId={entry.architectureId}
+                          label="Continue editing"
+                          source="architectures-list"
+                          testId={`architecture-draft-continue-${entry.architectureId}`}
+                          ariaLabel={`Continue editing ${entry.displayName}`}
+                        />
+                      )}
+                      {entry.linkedReviewId !== null ? (
+                        <ArchitectureDraftCloneSnapshotControl
+                          architectureId={entry.architectureId}
+                          testId={`architecture-draft-clone-snapshot-${entry.architectureId}`}
+                        />
+                      ) : null}
                       {entry.linkedReviewId === null && entry.customerStatus !== "archived" ? (
                         <Button type="button" variant="primary" size="sm" asChild>
                           <Link href={startReviewFromArchitectureHref(entry.architectureId)}>Start review</Link>

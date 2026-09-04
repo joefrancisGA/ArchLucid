@@ -17,6 +17,8 @@ import {
 import type { OperatorSavedViewPayload, OperatorSavedViewSurface } from "@/lib/operator/operator-saved-view-types";
 import {
   operatorSavedViewHrefFromSearch,
+  operatorSavedViewPanelsHrefFromSearch,
+  parseOperatorSavedViewDeleteConfirmOpenFromSearch,
   parseOperatorSavedViewIdFromSearch,
 } from "@/lib/operator/operator-saved-view-url";
 
@@ -153,6 +155,9 @@ export type OperatorSavedViewsBarProps = {
 /** Save, load, and delete controls for operator Audit and Graph saved views. */
 export function OperatorSavedViewsBar(props: OperatorSavedViewsBarProps) {
   const { surface, disabled = false, className, getCurrentPayload, onLoadView } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
   const {
     views,
     loading,
@@ -168,7 +173,33 @@ export function OperatorSavedViewsBar(props: OperatorSavedViewsBarProps) {
   const [saveName, setSaveName] = useState("");
   const [saveShared, setSaveShared] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
-  const [pendingDeleteConfirm, setPendingDeleteConfirm] = useState(false);
+  const [pendingDeleteConfirm, setPendingDeleteConfirmState] = useState(false);
+
+  const syncDeleteConfirmToUrl = useCallback(
+    (confirmOpen: boolean) => {
+      router.replace(
+        operatorSavedViewPanelsHrefFromSearch(
+          searchParams.toString(),
+          { viewId: selectedViewId.length > 0 ? selectedViewId : null, deleteConfirmOpen: confirmOpen },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams, selectedViewId],
+  );
+
+  const setPendingDeleteConfirm = useCallback(
+    (confirmOpen: boolean) => {
+      setPendingDeleteConfirmState(confirmOpen);
+      syncDeleteConfirmToUrl(confirmOpen);
+    },
+    [syncDeleteConfirmToUrl],
+  );
+
+  useEffect(() => {
+    setPendingDeleteConfirmState(parseOperatorSavedViewDeleteConfirmOpenFromSearch(searchParams.get("savedViewDeleteConfirm")));
+  }, [searchParams]);
 
   const myViews = views.filter((view) => view.isOwnedByCurrentUser !== false);
   const sharedViews = views.filter((view) => view.isShared === true && view.isOwnedByCurrentUser === false);

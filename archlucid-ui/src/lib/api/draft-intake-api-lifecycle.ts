@@ -7,6 +7,7 @@ import type {
   DraftRequestResponse,
   SubmitDraftResponse,
 } from "@/types/draft-intake";
+import type { CloneSnapshotDraftResponse } from "@/types/draft-intake-clone-snapshot";
 
 import { apiGet, apiPostJson } from "./http";
 
@@ -70,5 +71,13 @@ export async function branchDraftRequest(
   return apiPostJson<BranchDraftResponse>(
     `${DRAFT_BASE}/${encodeURIComponent(draftId)}/branch`,
     body,
+  );
+}
+
+/** Clone a run-spawned draft into a new editable architecture id (WA-10). */
+export async function cloneDraftSnapshot(draftId: string): Promise<CloneSnapshotDraftResponse> {
+  return apiPostJson<CloneSnapshotDraftResponse>(
+    `${DRAFT_BASE}/${encodeURIComponent(draftId)}/clone-snapshot`,
+    {},
   );
 }

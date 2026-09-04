@@ -1415,7 +1415,7 @@ describe("wave27 filter url helpers", () => {
     expect(
       findingInspectGovernancePanelHrefFromSearch(
         "",
-        { panel: "remediation", waiverConfirmOpen: true },
+        { panel: "remediation", waiverConfirmOpen: true, waiverRevokeConfirmOpen: false },
         "/architecture/reviews/r1/findings/f1/inspect",
       ),
     ).toBe("/architecture/reviews/r1/findings/f1/inspect?govPanel=remediation&waiverConfirm=1");
@@ -1751,6 +1751,232 @@ describe("wave29 filter url helpers", () => {
         "/architecture/reviews/r1",
       ),
     ).toBe("/architecture/reviews/r1?finalizeSuccess=1");
+  });
+});
+
+describe("wave30 filter url helpers", () => {
+  it("aws wizard, cloud disconnect, webhooks toggle, and review archive", async () => {
+    const {
+      awsConnectionWizardStepHrefFromSearch,
+      parseAwsConnectionWizardStepFromSearch,
+    } = await import("@/lib/integrations/aws-connection-wizard-step-url");
+    const {
+      cloudConnectionDisconnectHrefFromSearch,
+      parseCloudConnectionDisconnectIdFromSearch,
+    } = await import("@/lib/integrations/cloud-connection-disconnect-url");
+    const {
+      parseWebhookDisableIdFromSearch,
+      parseWebhookEnableIdFromSearch,
+      webhooksToggleConfirmHrefFromSearch,
+    } = await import("@/lib/integrations/webhooks-toggle-confirm-url");
+    const {
+      parseReviewArchiveConfirmOpenFromSearch,
+      parseReviewArchiveRunIdFromSearch,
+      reviewArchiveConfirmHrefFromSearch,
+    } = await import("@/lib/reviews/review-archive-confirm-url");
+
+    expect(parseAwsConnectionWizardStepFromSearch("1")).toBe(1);
+    expect(awsConnectionWizardStepHrefFromSearch("", 1)).toBe(
+      "/integrations/cloud-connections/aws?awsStep=1",
+    );
+    expect(parseCloudConnectionDisconnectIdFromSearch("conn-1")).toBe("conn-1");
+    expect(
+      cloudConnectionDisconnectHrefFromSearch("", "conn-1", "/integrations/cloud-connections/aws"),
+    ).toBe("/integrations/cloud-connections/aws?disconnectId=conn-1");
+    expect(parseWebhookDisableIdFromSearch("sub-1")).toBe("sub-1");
+    expect(parseWebhookEnableIdFromSearch("sub-2")).toBe("sub-2");
+    expect(
+      webhooksToggleConfirmHrefFromSearch("", {
+        disableRoutingSubscriptionId: "sub-1",
+        enableRoutingSubscriptionId: null,
+      }),
+    ).toBe("/integrations/webhooks?webhookDisableId=sub-1");
+    expect(
+      webhooksToggleConfirmHrefFromSearch("", {
+        disableRoutingSubscriptionId: null,
+        enableRoutingSubscriptionId: "sub-2",
+      }),
+    ).toBe("/integrations/webhooks?webhookEnableId=sub-2");
+    expect(parseReviewArchiveRunIdFromSearch("run-1")).toBe("run-1");
+    expect(parseReviewArchiveConfirmOpenFromSearch("1")).toBe(true);
+    expect(
+      reviewArchiveConfirmHrefFromSearch("", { runId: "run-1", confirmOpen: true }),
+    ).toBe("/architecture/reviews?archiveRunId=run-1&archiveConfirm=1");
+  });
+
+  it("draft delete, api keys, billing checkout, digest pause, recurrence disable, cluster disposition", async () => {
+    const {
+      architectureDraftDeleteConfirmHrefFromSearch,
+      parseArchitectureDraftDeleteConfirmOpenFromSearch,
+      parseArchitectureDraftDeleteIdFromSearch,
+    } = await import("@/lib/architecture/architecture-draft-delete-confirm-url");
+    const {
+      apiKeyActionConfirmHrefFromSearch,
+      parseApiKeyActionFromSearch,
+    } = await import("@/lib/administration/api-key-action-confirm-url");
+    const {
+      billingCheckoutConfirmHrefFromSearch,
+      parseBillingCheckoutConfirmOpenFromSearch,
+    } = await import("@/lib/administration/billing-checkout-confirm-url");
+    const {
+      digestSubscriptionsPanelsHrefFromSearch,
+      parseDigestSubscriptionsPauseIdFromSearch,
+    } = await import("@/lib/digests/digest-subscriptions-panels-url");
+    const {
+      parseRecurrenceSchedulesDisableIdFromSearch,
+      recurrenceSchedulesPanelsHrefFromSearch,
+    } = await import("@/lib/governance/recurrence-schedules-panels-url");
+    const {
+      parseRootCauseClusterDispFromSearch,
+      parseRootCauseClusterKeyFromSearch,
+      rootCauseClusterDispositionHrefFromSearch,
+      rootCauseClusterDispositionToUrlValue,
+    } = await import("@/lib/findings/root-cause-cluster-disposition-url");
+
+    expect(parseArchitectureDraftDeleteIdFromSearch("draft-1")).toBe("draft-1");
+    expect(parseArchitectureDraftDeleteConfirmOpenFromSearch("true")).toBe(true);
+    expect(
+      architectureDraftDeleteConfirmHrefFromSearch(
+        "",
+        { architectureId: "draft-1", confirmOpen: true },
+      ),
+    ).toBe("/architecture/architectures?draftDeleteId=draft-1&draftDeleteConfirm=1");
+    expect(parseApiKeyActionFromSearch("rotate_admin")).toBe("rotate_admin");
+    expect(apiKeyActionConfirmHrefFromSearch("", "issue_overlap")).toBe(
+      "/administration/api-keys?apiKeyAction=issue_overlap",
+    );
+    expect(parseBillingCheckoutConfirmOpenFromSearch("1")).toBe(true);
+    expect(billingCheckoutConfirmHrefFromSearch("plan=architect", true)).toBe(
+      "/administration/billing?plan=architect&checkoutConfirm=1",
+    );
+    expect(parseDigestSubscriptionsPauseIdFromSearch("sub-1")).toBe("sub-1");
+    expect(
+      digestSubscriptionsPanelsHrefFromSearch("tab=subscriptions", { pauseSubscriptionId: "sub-1" }),
+    ).toBe("/architecture/digests?tab=subscriptions&pauseSubId=sub-1");
+    expect(parseRecurrenceSchedulesDisableIdFromSearch("sched-1")).toBe("sched-1");
+    expect(
+      recurrenceSchedulesPanelsHrefFromSearch("", { disableScheduleId: "sched-1" }),
+    ).toBe("/governance/recurrence-schedules?disableScheduleId=sched-1");
+    expect(parseRootCauseClusterKeyFromSearch("cluster-a")).toBe("cluster-a");
+    expect(parseRootCauseClusterDispFromSearch("accepted")).toBe("accepted");
+    expect(rootCauseClusterDispositionToUrlValue("RejectedAsNotApplicable")).toBe("waived");
+    expect(
+      rootCauseClusterDispositionHrefFromSearch(
+        "reviewTab=findings",
+        { clusterKey: "cluster-a", disposition: "Accepted" },
+        "/architecture/reviews/r1",
+      ),
+    ).toBe("/architecture/reviews/r1?reviewTab=findings&clusterKey=cluster-a&clusterDisp=accepted");
+  });
+});
+
+describe("wave31 filter url helpers", () => {
+  it("slack disable, teams remove, composite create confirm, wallet and SAML save confirms", async () => {
+    const {
+      parseSlackDisableIdFromSearch,
+      slackDisableRouteHrefFromSearch,
+    } = await import("@/lib/integrations/slack-disable-route-url");
+    const {
+      parseTeamsRemoveConfirmOpenFromSearch,
+      teamsNotificationsRemoveConfirmHrefFromSearch,
+    } = await import("@/lib/integrations/teams-notifications-remove-confirm-url");
+    const {
+      compositeAlertRulesPanelsHrefFromSearch,
+      parseCompositeAlertRulesCreateConfirmOpenFromSearch,
+    } = await import("@/lib/alerts/composite-alert-rules-panels-url");
+    const {
+      billingWalletSaveConfirmHrefFromSearch,
+      parseBillingWalletSaveConfirmOpenFromSearch,
+    } = await import("@/lib/administration/billing-wallet-save-confirm-url");
+    const {
+      parseSamlSaveConfirmOpenFromSearch,
+      samlSaveConfirmHrefFromSearch,
+    } = await import("@/lib/administration/saml-save-confirm-url");
+
+    expect(parseSlackDisableIdFromSearch("sub-1")).toBe("sub-1");
+    expect(slackDisableRouteHrefFromSearch("", "sub-1")).toBe("/integrations/slack?slackDisableId=sub-1");
+    expect(parseTeamsRemoveConfirmOpenFromSearch("1")).toBe(true);
+    expect(teamsNotificationsRemoveConfirmHrefFromSearch("", true)).toBe(
+      "/integrations/teams?teamsRemoveConfirm=1",
+    );
+    expect(parseCompositeAlertRulesCreateConfirmOpenFromSearch("true")).toBe(true);
+    expect(
+      compositeAlertRulesPanelsHrefFromSearch("create=1", { showCreateConfirm: true }),
+    ).toBe("/governance/alert-rules?create=1&compositeCreateConfirm=1");
+    expect(parseBillingWalletSaveConfirmOpenFromSearch("1")).toBe(true);
+    expect(billingWalletSaveConfirmHrefFromSearch("", true)).toBe(
+      "/administration/billing?walletSaveConfirm=1",
+    );
+    expect(parseSamlSaveConfirmOpenFromSearch("1")).toBe(true);
+    expect(samlSaveConfirmHrefFromSearch("", true)).toBe(
+      "/administration/identity-providers/saml?samlSaveConfirm=1",
+    );
+  });
+
+  it("engine reset, model profile action, SSO cancel, saved view delete, waiver revoke confirms", async () => {
+    const {
+      modelGovernanceEngineResetConfirmHrefFromSearch,
+      parseModelGovernanceEngineResetConfirmOpenFromSearch,
+    } = await import("@/lib/administration/model-governance-engine-reset-confirm-url");
+    const {
+      modelGovernanceProfileActionConfirmHrefFromSearch,
+      parseModelGovernanceProfileActionFromSearch,
+      parseModelGovernanceProfileIdFromSearch,
+    } = await import("@/lib/administration/model-governance-profile-action-confirm-url");
+    const {
+      parseSsoWizardCancelConfirmOpenFromSearch,
+      ssoWizardHrefFromSearch,
+      SSO_WIZARD_PATH,
+    } = await import("@/lib/administration/sso-wizard-step-url");
+    const {
+      operatorSavedViewPanelsHrefFromSearch,
+      parseOperatorSavedViewDeleteConfirmOpenFromSearch,
+    } = await import("@/lib/operator/operator-saved-view-url");
+    const {
+      findingInspectGovernancePanelHrefFromSearch,
+      parseFindingInspectWaiverRevokeConfirmOpenFromSearch,
+    } = await import("@/lib/findings/finding-inspect-governance-panel-url");
+
+    expect(parseModelGovernanceEngineResetConfirmOpenFromSearch("1")).toBe(true);
+    expect(modelGovernanceEngineResetConfirmHrefFromSearch("", true)).toBe(
+      "/administration/model-governance?engineResetConfirm=1",
+    );
+    expect(parseModelGovernanceProfileActionFromSearch("select")).toBe("select");
+    expect(parseModelGovernanceProfileIdFromSearch("Balanced")).toBe("Balanced");
+    expect(
+      modelGovernanceProfileActionConfirmHrefFromSearch("", {
+        action: "select",
+        profileId: "Balanced",
+      }),
+    ).toBe("/administration/model-governance?modelProfileAction=select&modelProfileId=Balanced");
+    expect(
+      modelGovernanceProfileActionConfirmHrefFromSearch("", {
+        action: "clear",
+        profileId: null,
+      }),
+    ).toBe("/administration/model-governance?modelProfileAction=clear");
+    expect(parseSsoWizardCancelConfirmOpenFromSearch("1")).toBe(true);
+    expect(
+      ssoWizardHrefFromSearch("step=2", { stepIndex: 2, cancelConfirmOpen: true }, SSO_WIZARD_PATH),
+    ).toBe("/administration/identity/sso-wizard?step=2&ssoCancelConfirm=1");
+    expect(parseOperatorSavedViewDeleteConfirmOpenFromSearch("true")).toBe(true);
+    expect(
+      operatorSavedViewPanelsHrefFromSearch(
+        "viewId=v1",
+        { viewId: "v1", deleteConfirmOpen: true },
+        "/governance/audit",
+      ),
+    ).toBe("/governance/audit?viewId=v1&savedViewDeleteConfirm=1");
+    expect(parseFindingInspectWaiverRevokeConfirmOpenFromSearch("1")).toBe(true);
+    expect(
+      findingInspectGovernancePanelHrefFromSearch(
+        "govPanel=waiver",
+        { panel: "waiver", waiverConfirmOpen: false, waiverRevokeConfirmOpen: true },
+        "/architecture/reviews/r1/findings/f1/inspect",
+      ),
+    ).toBe(
+      "/architecture/reviews/r1/findings/f1/inspect?govPanel=waiver&waiverRevokeConfirm=1",
+    );
   });
 });
 

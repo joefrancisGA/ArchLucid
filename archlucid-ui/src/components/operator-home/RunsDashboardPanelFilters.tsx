@@ -60,7 +60,7 @@ export function RunsDashboardPanelFilters({
 
   return (
     <CardHeader className={OPERATOR_CARD.header}>
-      {buyerPolishedShell && hideHeading ? null : (
+      {buyerPolishedShell && hideHeading ? null : hideHeading ? null : (
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <CardTitle className={cn(OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>
             {buyerPolishedShell
@@ -103,7 +103,9 @@ export function RunsDashboardPanelFilters({
                   className="shrink-0"
                   disabled={statusTabCounts[id] === 0 && id !== "all"}
                 >
-                  {runsDashboardTabLabel(id, buyerPolishedShell, statusTabCounts[id])}
+                  {runsDashboardTabLabel(id, buyerPolishedShell, statusTabCounts[id], {
+                    homePreviewMode: hideHeading,
+                  })}
                 </TabsTrigger>
               ))}
             </TabsList>
@@ -145,7 +147,9 @@ export function RunsDashboardPanelFilters({
                 data-testid={`runs-dashboard-tab-${id}`}
                 className="shrink-0"
               >
-                {runsDashboardTabLabel(id, buyerPolishedShell, statusTabCounts[id])}
+                {runsDashboardTabLabel(id, buyerPolishedShell, statusTabCounts[id], {
+                  homePreviewMode: hideHeading,
+                })}
               </TabsTrigger>
             ))}
           </TabsList>

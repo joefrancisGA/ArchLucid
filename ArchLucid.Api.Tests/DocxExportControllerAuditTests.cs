@@ -12,6 +12,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
@@ -103,6 +104,7 @@ public sealed class DocxExportControllerAuditTests
             Mock.Of<IExplanationService>(),
             Mock.Of<IProvenanceSnapshotRepository>(),
             scope.Object,
+            Mock.Of<IManifestHashService>(),
             audit.Object,
             NullLogger<DocxExportController>.Instance) { ControllerContext = AnalysisReportsControllerAuditTests.CreateControllerContext() };
 

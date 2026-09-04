@@ -47,6 +47,14 @@ export const OPERATOR_NAV_GROUP_LABEL = `${OPERATOR_TYPE_SCALE.tab} uppercase tr
 export const OPERATOR_HOME_PRIMARY_SECTION_HEADING =
   "m-0 text-xl font-bold leading-7 tracking-tight text-al-text-primary";
 
+/** Home workspace inventory counter — number dominant, label muted (not link-styled). */
+export const OPERATOR_HOME_METRIC_COUNTER_VALUE =
+  "text-lg font-semibold tabular-nums leading-7 text-al-text-primary";
+
+/** Home workspace inventory counter label beside {@link OPERATOR_HOME_METRIC_COUNTER_VALUE}. */
+export const OPERATOR_HOME_METRIC_COUNTER_LABEL =
+  `${OPERATOR_TYPE_SCALE.helper} text-al-text-secondary`;
+
 /** Peer overview card h2 — matches {@link OPERATOR_TYPE_SCALE.cardTitle} and CardTitle chrome. */
 export const OPERATOR_HOME_CARD_SECTION_HEADING = `m-0 tracking-tight ${OPERATOR_TYPE_SCALE.cardTitle}`;
 

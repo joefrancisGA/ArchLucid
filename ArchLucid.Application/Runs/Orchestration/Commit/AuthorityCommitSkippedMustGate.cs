@@ -22,12 +22,10 @@ public static class AuthorityCommitSkippedMustGate
             return null;
         }
 
-        string noun = skippedMustCount == 1 ? "question is" : "questions are";
-
         return new PreCommitGateResult
         {
             Blocked = true,
-            Reason = $"{skippedMustCount} required {noun} unanswered.",
+            Reason = AuthorityCommitSkippedMustBlockedReason.Format(skippedMustCount),
         };
     }
 

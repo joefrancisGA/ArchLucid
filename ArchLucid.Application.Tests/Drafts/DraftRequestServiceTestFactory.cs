@@ -67,7 +67,9 @@ internal static class DraftRequestServiceTestFactory
             questionSelectionEngine,
             branchOptionsMonitor);
 
-        return new DraftRequestService(crudService, admissionService, branchingService);
+        DraftSnapshotCloningService snapshotCloningService = new(repository, crudService);
+
+        return new DraftRequestService(crudService, admissionService, branchingService, snapshotCloningService);
     }
 
     public static DraftRequestService CreateWithDefaults(

@@ -1,5 +1,6 @@
 export const FINDING_INSPECT_GOV_PANEL_PARAM = "govPanel";
 export const FINDING_INSPECT_WAIVER_CONFIRM_PARAM = "waiverConfirm";
+export const FINDING_INSPECT_WAIVER_REVOKE_CONFIRM_PARAM = "waiverRevokeConfirm";
 
 export const FINDING_INSPECT_GOV_PANEL_IDS = ["disposition", "waiver", "remediation"] as const;
 
@@ -10,6 +11,7 @@ const FINDING_INSPECT_GOV_PANEL_ID_SET = new Set<string>(FINDING_INSPECT_GOV_PAN
 export type FindingInspectGovernancePanelUrlState = {
   readonly panel: FindingInspectGovernancePanelId | null;
   readonly waiverConfirmOpen: boolean;
+  readonly waiverRevokeConfirmOpen: boolean;
 };
 
 export function parseFindingInspectGovernancePanelFromSearch(
@@ -38,6 +40,16 @@ export function parseFindingInspectWaiverConfirmOpenFromSearch(raw: string | nul
   return trimmed === "1" || trimmed === "true";
 }
 
+export function parseFindingInspectWaiverRevokeConfirmOpenFromSearch(raw: string | null | undefined): boolean {
+  if (raw === null || raw === undefined) {
+    return false;
+  }
+
+  const trimmed = raw.trim().toLowerCase();
+
+  return trimmed === "1" || trimmed === "true";
+}
+
 export function findingInspectGovernancePanelHrefFromSearch(
   currentSearch: string,
   state: FindingInspectGovernancePanelUrlState,
@@ -55,6 +67,12 @@ export function findingInspectGovernancePanelHrefFromSearch(
     params.delete(FINDING_INSPECT_WAIVER_CONFIRM_PARAM);
   } else {
     params.set(FINDING_INSPECT_WAIVER_CONFIRM_PARAM, "1");
+  }
+
+  if (!state.waiverRevokeConfirmOpen) {
+    params.delete(FINDING_INSPECT_WAIVER_REVOKE_CONFIRM_PARAM);
+  } else {
+    params.set(FINDING_INSPECT_WAIVER_REVOKE_CONFIRM_PARAM, "1");
   }
 
   const nextQuery = params.toString();

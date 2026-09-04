@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,11 @@ import type {
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 import { allowedEngineSetEndpoint } from "./use-model-governance-settings";
+import {
+  modelGovernanceEngineResetConfirmHrefFromSearch,
+  parseModelGovernanceEngineResetConfirmOpenFromSearch,
+} from "@/lib/administration/model-governance-engine-reset-confirm-url";
+import { MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH } from "@/lib/model-governance-settings-evidence-copy";
 
 export function AllowedEngineSetControls(props: {
   registryEntries: ModelAliasRegistryEntryResponse[];
@@ -28,11 +34,37 @@ export function AllowedEngineSetControls(props: {
   saving: boolean;
   onSaved: () => void;
 }) {
+  const router = useRouter();
+  const pathname = usePathname() ?? MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH;
+  const searchParams = useSearchParams();
+  const urlResetConfirm = parseModelGovernanceEngineResetConfirmOpenFromSearch(searchParams.get("engineResetConfirm"));
   const { registryEntries, allowedEngineSet, saving, onSaved } = props;
   const [allowedIds, setAllowedIds] = useState<string[]>(allowedEngineSet?.allowedAliasIds ?? []);
   const [defaultAliasId, setDefaultAliasId] = useState(allowedEngineSet?.defaultAliasId ?? "");
   const [error, setError] = useState<string | null>(null);
-  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
+  const [resetConfirmOpen, setResetConfirmOpenState] = useState(urlResetConfirm);
+
+  const syncResetConfirmToUrl = useCallback(
+    (confirmOpen: boolean) => {
+      router.replace(
+        modelGovernanceEngineResetConfirmHrefFromSearch(searchParams.toString(), confirmOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setResetConfirmOpen = useCallback(
+    (confirmOpen: boolean) => {
+      setResetConfirmOpenState(confirmOpen);
+      syncResetConfirmToUrl(confirmOpen);
+    },
+    [syncResetConfirmToUrl],
+  );
+
+  useEffect(() => {
+    setResetConfirmOpenState(parseModelGovernanceEngineResetConfirmOpenFromSearch(searchParams.get("engineResetConfirm")));
+  }, [searchParams]);
 
   useEffect(() => {
     setAllowedIds(allowedEngineSet?.allowedAliasIds ?? []);

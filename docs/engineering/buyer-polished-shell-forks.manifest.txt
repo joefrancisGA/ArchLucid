@@ -8,6 +8,8 @@ archlucid-ui/src/app/(operator)/administration/api-keys/_sections/ApiKeysSetting
 archlucid-ui/src/app/(operator)/administration/api-keys/_sections/ApiKeysSettingsRestrictedState.tsx
 archlucid-ui/src/app/(operator)/administration/auth-domains/AuthDomainsPageClient.tsx
 archlucid-ui/src/app/(operator)/administration/baseline/BaselineSettingsClient.tsx
+archlucid-ui/src/app/(operator)/administration/billing/OperatorBillingSettingsClient.tsx
+archlucid-ui/src/app/(operator)/administration/billing/OperatorBillingSettingsHeaderActions.tsx
 archlucid-ui/src/app/(operator)/administration/connection-status/AdministrationConnectionStatusPageClient.tsx
 archlucid-ui/src/app/(operator)/administration/developer/DeveloperSettingsPageClient.tsx
 archlucid-ui/src/app/(operator)/administration/extract-upload/_sections/ExtractUploadSettingsBuyerChrome.tsx
@@ -120,6 +122,9 @@ archlucid-ui/src/app/(operator)/help/_sections/HelpBillingAndPlansHeaderActions.
 archlucid-ui/src/app/(operator)/help/_sections/HelpCaiqSigResponseGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpCaiqSigResponseHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpCliUsageHeaderActions.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpCloudConnectionsGuideView.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpCloudConnectionsHeaderActions.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpCloudConnectionsProviderScopeSection.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpComparisonReplayHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpConnectAwsSecurelyHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpConnectAzureSecurelyGuideView.tsx
@@ -149,6 +154,10 @@ archlucid-ui/src/app/(operator)/help/_sections/HelpGovernanceApprovalHeaderActio
 archlucid-ui/src/app/(operator)/help/_sections/HelpImpactPreviewHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpImprovementPlanningHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpIntegrationReadinessHeaderActions.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpModelGovernanceGuideView.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpModelGovernanceHeaderActions.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpNotificationsGuideView.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpNotificationsHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpPathChooserGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpPilotFeedbackGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpPilotFeedbackHeaderActions.tsx
@@ -160,6 +169,8 @@ archlucid-ui/src/app/(operator)/help/_sections/HelpRecurrenceSchedulesGuideView.
 archlucid-ui/src/app/(operator)/help/_sections/HelpRepeatReviewLoopGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpReportAProblemGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpReportAProblemHeaderActions.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpRoiSummaryGuideView.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpRoiSummaryHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpScopeGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpScopeHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpSearchReviewEvidenceGuideView.tsx
@@ -185,6 +196,7 @@ archlucid-ui/src/app/(operator)/help/_sections/HelpWorkspaceSettingsGuideView.ts
 archlucid-ui/src/app/(operator)/insights/architecture-scorecard/_sections/ArchitectureScorecardBuyerChrome.tsx
 archlucid-ui/src/app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardPageView.tsx
 archlucid-ui/src/app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardPrimaryOutcomes.tsx
+archlucid-ui/src/app/(operator)/insights/ask-review-questions/_sections/AskPageHeaderActions.tsx
 archlucid-ui/src/app/(operator)/insights/ask-review-questions/_sections/use-ask-page.ts
 archlucid-ui/src/app/(operator)/insights/compare-two-reviews/_sections/CompareSuspenseFallback.tsx
 archlucid-ui/src/app/(operator)/insights/compare-two-reviews/_sections/use-compare-form-run-selection.ts

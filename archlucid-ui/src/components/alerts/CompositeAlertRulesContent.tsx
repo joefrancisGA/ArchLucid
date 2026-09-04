@@ -36,6 +36,7 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import {
   compositeAlertRulesPanelsHrefFromSearch,
+  parseCompositeAlertRulesCreateConfirmOpenFromSearch,
   parseCompositeAlertRulesCreatePanelFromSearch,
 } from "@/lib/alerts/composite-alert-rules-panels-url";
 import {
@@ -86,8 +87,11 @@ export function CompositeAlertRulesContent() {
   const [mutationFailure, setMutationFailure] = useState<ApiLoadFailureState | null>(null);
   const failure = compositeRulesQuery.failure ?? mutationFailure;
   const urlShowCreate = parseCompositeAlertRulesCreatePanelFromSearch(searchParams.get("create"));
+  const urlShowCreateConfirm = parseCompositeAlertRulesCreateConfirmOpenFromSearch(
+    searchParams.get("compositeCreateConfirm"),
+  );
   const [showCreatePanel, setShowCreatePanelState] = useState(urlShowCreate);
-  const [showCreateConfirmation, setShowCreateConfirmation] = useState(false);
+  const [showCreateConfirmation, setShowCreateConfirmationState] = useState(urlShowCreateConfirm);
   const [createBusy, setCreateBusy] = useState(false);
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [ruleSaved, setRuleSaved] = useState(false);
@@ -116,6 +120,28 @@ export function CompositeAlertRulesContent() {
     [router, searchParams],
   );
 
+  const syncCreateConfirmToUrl = useCallback(
+    (confirmOpen: boolean) => {
+      router.replace(
+        compositeAlertRulesPanelsHrefFromSearch(searchParams.toString(), { showCreateConfirm: confirmOpen }),
+        { scroll: false },
+      );
+    },
+    [router, searchParams],
+  );
+
+  const setShowCreateConfirmation = useCallback(
+    (next: boolean | ((prev: boolean) => boolean)) => {
+      setShowCreateConfirmationState((prev) => {
+        const resolved = typeof next === "function" ? next(prev) : next;
+        syncCreateConfirmToUrl(resolved);
+
+        return resolved;
+      });
+    },
+    [syncCreateConfirmToUrl],
+  );
+
   const setShowCreatePanel = useCallback(
     (next: boolean | ((prev: boolean) => boolean)) => {
       setShowCreatePanelState((prev) => {
@@ -130,6 +156,9 @@ export function CompositeAlertRulesContent() {
 
   useEffect(() => {
     setShowCreatePanelState(parseCompositeAlertRulesCreatePanelFromSearch(searchParams.get("create")));
+    setShowCreateConfirmationState(
+      parseCompositeAlertRulesCreateConfirmOpenFromSearch(searchParams.get("compositeCreateConfirm")),
+    );
   }, [searchParams]);
 
   const formInput = useMemo<CompositeAlertRuleFormInput>(

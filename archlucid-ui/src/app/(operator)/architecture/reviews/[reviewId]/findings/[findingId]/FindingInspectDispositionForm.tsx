@@ -4,8 +4,9 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useRef } from "react";
 
-import { Button } from "@/components/ui/button";
+import { FindingDispositionRecordCorrectionControl } from "@/components/governance/findings/FindingDispositionRecordCorrectionControl";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { Button } from "@/components/ui/button";
 import { DispositionExportBeforeAfterPreview } from "@/components/operator/DispositionExportBeforeAfterPreview";
 import { DispositionExportImpactNotice } from "@/components/operator/DispositionExportImpactNotice";
 import { type FindingDispositionKind } from "@/lib/api/governance-stickiness-api";
@@ -177,6 +178,11 @@ export function FindingInspectDispositionForm(props: FindingInspectDispositionFo
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Current state: <span className="font-medium text-al-text-primary">{currentDisposition}</span>
         </p>
+        <FindingDispositionRecordCorrectionControl
+          findingId={findingId}
+          runId={runId}
+          hasRecordedDisposition={currentDisposition !== "Open"}
+        />
         {currentDisposition !== "Open" ? (
           <div className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40">
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>

@@ -4,13 +4,15 @@ import Link from "next/link";
 import { useEffect, useMemo, useSyncExternalStore } from "react";
 
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
+import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { countUnlinkedArchitectureDraftRegistryEntries } from "@/lib/architecture/architecture-draft-registry";
 import { REVIEWS_HUB_UNFINISHED_WORK_HREF } from "@/lib/reviews-hub-unfinished-work-href";
 import {
-  OPERATOR_TYPOGRAPHY,
+  OPERATOR_HOME_PRIMARY_SECTION_HEADING,
   OPERATOR_LINK,
+  OPERATOR_TYPOGRAPHY,
   type EnterpriseStatusKind,
 } from "@/lib/design-tokens";
 import {
@@ -18,6 +20,7 @@ import {
   OPERATOR_HOME_YOUR_WORK_COLUMN_STATUS,
   OPERATOR_HOME_YOUR_WORK_COLUMN_TYPE,
   OPERATOR_HOME_YOUR_WORK_COLUMN_UPDATED,
+  OPERATOR_HOME_YOUR_WORK_CONTINUE_REVIEW_CTA,
   OPERATOR_HOME_YOUR_WORK_HEADING,
 } from "@/lib/buyer/buyer-polish-copy";
 import {
@@ -86,6 +89,16 @@ function statusTagKindForRailItem(kind: UnfinishedWorkRailItemKind): EnterpriseS
   }
 }
 
+function resolveContinueCtaLabel(item: UnfinishedWorkRailItem): string {
+  switch (item.kind) {
+    case "review-in-progress":
+    case "awaiting-disposition":
+      return OPERATOR_HOME_YOUR_WORK_CONTINUE_REVIEW_CTA;
+    default:
+      return item.actionLabel;
+  }
+}
+
 function UnfinishedWorkRailColumnHeaders(): React.JSX.Element {
   return (
     <li
@@ -111,44 +124,78 @@ function UnfinishedWorkRailColumnHeaders(): React.JSX.Element {
   );
 }
 
-function UnfinishedWorkRailRow(props: {
-  readonly item: UnfinishedWorkRailItem;
-  readonly emphasized?: boolean;
-}): React.JSX.Element {
+function UnfinishedWorkRailPrimaryCard(props: { readonly item: UnfinishedWorkRailItem }): React.JSX.Element {
   const { item } = props;
+  const continueLabel = resolveContinueCtaLabel(item);
+
+  return (
+    <article
+      className={cn(
+        "rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800",
+        "space-y-3",
+      )}
+      data-testid={`unfinished-work-rail-item-${item.kind}`}
+    >
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0 flex-1 space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href={item.href}
+              className={cn("min-w-0 break-words font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+              data-testid={`unfinished-work-rail-link-${item.id}`}
+            >
+              {item.title}
+            </Link>
+            <StatusTag kind={statusTagKindForRailItem(item.kind)} label={item.statusLabel} />
+          </div>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {item.workTypeLabel}
+            {item.activityLabel !== null ? ` · ${item.activityLabel}` : ""}
+          </p>
+        </div>
+        <Button asChild variant="primary" size="sm" className="h-8 shrink-0 self-start sm:self-center">
+          <Link href={item.href} data-testid={`unfinished-work-rail-continue-${item.id}`}>
+            {continueLabel}
+          </Link>
+        </Button>
+      </div>
+    </article>
+  );
+}
+
+function UnfinishedWorkRailRow(props: { readonly item: UnfinishedWorkRailItem }): React.JSX.Element {
+  const { item } = props;
+  const continueLabel = resolveContinueCtaLabel(item);
 
   return (
     <li
       className={cn(
         "border-b border-neutral-200 py-2 last:border-b-0 dark:border-neutral-800",
         "sm:col-span-full sm:grid sm:grid-cols-subgrid sm:items-center",
-        props.emphasized === true
-          ? "rounded-lg border border-neutral-200 bg-al-surface-raised px-3 dark:border-neutral-800"
-          : undefined,
       )}
       data-testid={`unfinished-work-rail-item-${item.kind}`}
     >
       <Link
         href={item.href}
-        className="contents no-underline"
+        className={cn("min-w-0 break-words font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
         data-testid={`unfinished-work-rail-link-${item.id}`}
       >
-        <span className={cn("min-w-0 break-words font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-          {item.title}
-        </span>
-        <span className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {item.workTypeLabel}
-        </span>
-        <span className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {item.activityLabel ?? "—"}
-        </span>
-        <div className="flex shrink-0 items-center gap-2 sm:justify-end">
-          <StatusTag kind={statusTagKindForRailItem(item.kind)} label={item.statusLabel} />
-          <span className={cn("font-medium text-al-link", OPERATOR_TYPOGRAPHY.helper)}>
-            {item.actionLabel} →
-          </span>
-        </div>
+        {item.title}
       </Link>
+      <span className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        {item.workTypeLabel}
+      </span>
+      <span className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        {item.activityLabel ?? "—"}
+      </span>
+      <div className="flex shrink-0 items-center gap-2 sm:justify-end">
+        <StatusTag kind={statusTagKindForRailItem(item.kind)} label={item.statusLabel} />
+        <Button asChild variant="outline" size="sm" className="h-7">
+          <Link href={item.href} data-testid={`unfinished-work-rail-continue-${item.id}`}>
+            {continueLabel}
+          </Link>
+        </Button>
+      </div>
     </li>
   );
 }
@@ -156,19 +203,29 @@ function UnfinishedWorkRailRow(props: {
 function UnfinishedWorkRailList(props: {
   readonly items: readonly UnfinishedWorkRailItem[];
 }): React.JSX.Element {
+  const [primaryItem, ...secondaryItems] = props.items;
+
+  if (primaryItem === undefined) {
+    return <ul className="m-0 list-none p-0" data-testid="unfinished-work-rail-list" />;
+  }
+
   return (
-    <ul
-      className={cn(
-        "m-0 mt-2 list-none space-y-2 p-0 sm:grid sm:gap-x-4",
-        UNFINISHED_WORK_RAIL_GRID_COLS,
-      )}
-      data-testid="unfinished-work-rail-list"
-    >
-      <UnfinishedWorkRailColumnHeaders />
-      {props.items.map((item, index) => (
-        <UnfinishedWorkRailRow key={item.id} item={item} emphasized={index === 0} />
-      ))}
-    </ul>
+    <div className="mt-2 space-y-3" data-testid="unfinished-work-rail-list">
+      <UnfinishedWorkRailPrimaryCard item={primaryItem} />
+      {secondaryItems.length > 0 ? (
+        <ul
+          className={cn(
+            "m-0 list-none space-y-2 p-0 sm:grid sm:gap-x-4",
+            UNFINISHED_WORK_RAIL_GRID_COLS,
+          )}
+        >
+          <UnfinishedWorkRailColumnHeaders />
+          {secondaryItems.map((item) => (
+            <UnfinishedWorkRailRow key={item.id} item={item} />
+          ))}
+        </ul>
+      ) : null}
+    </div>
   );
 }
 
@@ -236,9 +293,7 @@ export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.El
       data-attention-partition="unfinished-work"
       aria-label={UNFINISHED_WORK_RAIL_TITLE}
     >
-      <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-        {OPERATOR_HOME_YOUR_WORK_HEADING}
-      </h2>
+      <h2 className={OPERATOR_HOME_PRIMARY_SECTION_HEADING}>{OPERATOR_HOME_YOUR_WORK_HEADING}</h2>
       <UnfinishedWorkRailList items={items} />
       {railSummary.truncated ? (
         <p className="m-0">

@@ -31,7 +31,7 @@ describe("sponsor-review-coverage-honesty (WA-08)", () => {
     expect(applies).toBe(true);
   });
 
-  it("includes review package honesty in exported markdown", () => {
+  it("includes architecture package honesty in exported markdown", () => {
     const markdown = formatSponsorReviewCoverageHonestyMarkdown({
       runId: "run-abc",
       progressSummary: {
@@ -53,7 +53,7 @@ describe("sponsor-review-coverage-honesty (WA-08)", () => {
       graphSnapshot: { nodes: [{ nodeType: "Actor" }] },
     });
 
-    expect(markdown).toContain("Review package honesty");
+    expect(markdown).toContain("Architecture package honesty");
     expect(markdown).toContain("not** an all-clear");
     expect(markdown).toContain("data-residency");
   });

@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { AsyncActionButton } from "@/components/ui/AsyncActionButton";
 import { Button } from "@/components/ui/button";
@@ -36,6 +36,11 @@ import { clearFrictionlessTrialSessionForAuthenticatedOperator } from "@/lib/ope
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { OperatorBillingCheckoutConfirmDialog } from "./OperatorBillingCheckoutConfirmDialog";
+import {
+  billingCheckoutConfirmHrefFromSearch,
+  parseBillingCheckoutConfirmOpenFromSearch,
+} from "@/lib/administration/billing-checkout-confirm-url";
+import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
 
 function buildSalesLedPricingHref(tierId: MarketingPricingTierId): string {
   return `/pricing?source=operator-billing&tier=${encodeURIComponent(tierId)}#pricing-quote-request`;
@@ -90,18 +95,67 @@ type OperatorBillingPlansClientProps = {
 };
 
 export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? SETTINGS_BILLING_PATH;
   const searchParams = useSearchParams();
+  const urlCheckoutConfirm = parseBillingCheckoutConfirmOpenFromSearch(searchParams.get("checkoutConfirm"));
   const [pricing, setPricing] = useState<PricingDoc | null>(null);
   const [pricingError, setPricingError] = useState(false);
   const [checkoutPlanId, setCheckoutPlanId] = useState<MarketingPricingTierId | null>(null);
   const [checkoutSuccessMessage, setCheckoutSuccessMessage] = useState<string | null>(null);
   const [checkoutErrorMessage, setCheckoutErrorMessage] = useState<string | null>(null);
-  const [pendingCheckout, setPendingCheckout] = useState<PendingCheckout | null>(null);
+  const [pendingCheckout, setPendingCheckoutState] = useState<PendingCheckout | null>(null);
   const checkoutInFlightRef = useRef(false);
+
+  const syncCheckoutConfirmToUrl = useCallback(
+    (confirmOpen: boolean, tierId: MarketingPricingTierId | null) => {
+      const params = new URLSearchParams(searchParams.toString());
+
+      if (confirmOpen && tierId !== null) {
+        params.set("plan", tierId);
+      }
+
+      router.replace(
+        billingCheckoutConfirmHrefFromSearch(params.toString(), confirmOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPendingCheckout = useCallback(
+    (value: PendingCheckout | null) => {
+      setPendingCheckoutState(value);
+      syncCheckoutConfirmToUrl(value !== null, value?.tierId ?? null);
+    },
+    [syncCheckoutConfirmToUrl],
+  );
 
   const selectedPlanRaw = props.initialPlanId ?? searchParams.get("plan");
   const selectedPlanId =
     typeof selectedPlanRaw === "string" && isMarketingPricingTierId(selectedPlanRaw) ? selectedPlanRaw : null;
+
+  useEffect(() => {
+    if (!urlCheckoutConfirm || selectedPlanId === null || pricing === null) {
+      if (!urlCheckoutConfirm && pendingCheckout !== null) {
+        setPendingCheckoutState(null);
+      }
+
+      return;
+    }
+
+    const pkg = pricing.packages.find((row) => row.id === selectedPlanId);
+
+    if (pkg === undefined) {
+      return;
+    }
+
+    if (pendingCheckout?.tierId === selectedPlanId) {
+      return;
+    }
+
+    setPendingCheckoutState({ tierId: selectedPlanId, pkg });
+  }, [pendingCheckout?.tierId, pricing, selectedPlanId, urlCheckoutConfirm]);
 
   const loadPricing = useCallback(async () => {
     try {
@@ -167,13 +221,13 @@ export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProp
         setPendingCheckout(null);
       }
     },
-    [],
+    [setPendingCheckout],
   );
 
   const onRequestCheckout = useCallback((tierId: MarketingPricingTierId, pkg: PricingPackage) => {
     setCheckoutErrorMessage(null);
     setPendingCheckout({ tierId, pkg });
-  }, []);
+  }, [setPendingCheckout]);
 
   return (
     <div className="space-y-4">

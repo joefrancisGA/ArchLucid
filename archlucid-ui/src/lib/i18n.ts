@@ -61,6 +61,7 @@ export const RUNS_DASHBOARD_LABELS = {
   sectionHeading: ARCHITECTURE_REVIEW_LABELS.plural,
   tabRecent: "Recent",
   tabNeedsAttention: "Needs attention",
+  tabOpenFindings: "Open findings",
   tabMonitoredRisks: "Monitored risks",
   tabOutcomes: "Outcomes",
   latestInWorkspace: "Latest in workspace",
