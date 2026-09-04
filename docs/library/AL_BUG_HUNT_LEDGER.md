@@ -3348,11 +3348,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 205
-- **bugs-found:** 427
+- **hunts:** 206
+- **bugs-found:** 428
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — promote catalog whitespace version silent skip
+- **last-bug:** 2026-09-04 — coverage preview whitespace optional intake text silent pass
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4356,6 +4356,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyPacksController.PromoteCatalogEntry` / `PolicyPacksHttpMapper.ValidatePromoteCatalogEntry` — whitespace-only optional `version` skipped `ValidatePackVersion` and promoted with a blank version label instead of HTTP 400 — **hit 2026-09-04 (#788):** validate optional version whenever field is non-null (create recurrence #783 parity); regressions in `ValidatePromoteCatalogEntry_rejects_whitespace_only_optional_version` and `PromoteCatalogEntry_returns_bad_request_when_version_is_whitespace_only`.
 
 2026-09-04 seed hunt #788 (hit): proved promote-catalog whitespace optional version silent skip.
+
+- [x] (proven) `GovernanceCoverageController.PreviewCoverage` / `CoveragePreviewHttpMapper.ValidateFreeTextLength` — whitespace-only optional `descriptionText` / `securityIntakeAnswer` passed HTTP validation and flowed through `CoveragePreviewMapper.ToInput` unchanged instead of HTTP 400 — **hit 2026-09-04 (#789):** reject non-null whitespace-only optional free-text fields before tenant preflight (governance comment #784 / promote-catalog #788 parity); regressions in `CoveragePreviewHttpMapperTests` and `GovernanceCoverageControllerScopeTests.PreviewCoverage_returns_bad_request_when_description_text_is_whitespace_only_and_tenant_missing` / `..._security_intake_answer_is_whitespace_only_and_tenant_missing`.
+
+2026-09-04 seed hunt #789 (hit): proved coverage preview whitespace optional intake text silent pass.
 
 2026-09-04 seed hunt #787 (hit): proved disposition inapplicable optional string silent drop beyond whitespace-only cases.
 
