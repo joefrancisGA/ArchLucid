@@ -130,9 +130,13 @@ export function useRecurrenceSchedulesClient(): UseRecurrenceSchedulesClientResu
   const [pendingDisable, setPendingDisableState] = useState<ArchitectureReviewRecurrenceSchedule | null>(null);
 
   const setPendingDisable = useCallback(
-    (value: ArchitectureReviewRecurrenceSchedule | null) => {
-      setPendingDisableState(value);
-      syncPanelsToUrl({ disableScheduleId: value?.scheduleId ?? null });
+    (value: React.SetStateAction<ArchitectureReviewRecurrenceSchedule | null>) => {
+      setPendingDisableState((prev) => {
+        const next = typeof value === "function" ? value(prev) : value;
+        syncPanelsToUrl({ disableScheduleId: next?.scheduleId ?? null });
+
+        return next;
+      });
     },
     [syncPanelsToUrl],
   );

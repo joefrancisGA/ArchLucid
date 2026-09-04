@@ -109,22 +109,30 @@ export function useWebhooksSettingsMutations(
   );
 
   const setPendingDisable = useCallback(
-    (value: AlertRoutingSubscriptionDisableTarget | null) => {
-      setPendingDisableState(value);
-      syncToggleConfirmToUrl({
-        disableId: value?.routingSubscriptionId ?? null,
-        enableId: null,
+    (value: React.SetStateAction<AlertRoutingSubscriptionDisableTarget | null>) => {
+      setPendingDisableState((prev) => {
+        const next = typeof value === "function" ? value(prev) : value;
+        syncToggleConfirmToUrl({
+          disableId: next?.routingSubscriptionId ?? null,
+          enableId: null,
+        });
+
+        return next;
       });
     },
     [syncToggleConfirmToUrl],
   );
 
   const setPendingEnable = useCallback(
-    (value: WebhookEnableTarget | null) => {
-      setPendingEnableState(value);
-      syncToggleConfirmToUrl({
-        disableId: null,
-        enableId: value?.routingSubscriptionId ?? null,
+    (value: React.SetStateAction<WebhookEnableTarget | null>) => {
+      setPendingEnableState((prev) => {
+        const next = typeof value === "function" ? value(prev) : value;
+        syncToggleConfirmToUrl({
+          disableId: null,
+          enableId: next?.routingSubscriptionId ?? null,
+        });
+
+        return next;
       });
     },
     [syncToggleConfirmToUrl],

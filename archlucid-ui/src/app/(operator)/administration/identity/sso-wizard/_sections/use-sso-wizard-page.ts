@@ -175,9 +175,13 @@ export function useSsoWizardPage(): UseSsoWizardPageResult {
   );
 
   const setPendingCancelConfirm = useCallback(
-    (confirmOpen: boolean) => {
-      setPendingCancelConfirmState(confirmOpen);
-      syncCancelConfirmToUrl(confirmOpen);
+    (confirmOpen: React.SetStateAction<boolean>) => {
+      setPendingCancelConfirmState((prev) => {
+        const next = typeof confirmOpen === "function" ? confirmOpen(prev) : confirmOpen;
+        syncCancelConfirmToUrl(next);
+
+        return next;
+      });
     },
     [syncCancelConfirmToUrl],
   );
