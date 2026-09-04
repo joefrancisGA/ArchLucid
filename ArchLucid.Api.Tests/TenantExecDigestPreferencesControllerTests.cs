@@ -257,6 +257,58 @@ public sealed class TenantExecDigestPreferencesControllerTests
     }
 
     [Fact]
+    public async Task PostExecDigestPreferences_preserves_recipients_when_disable_only_body_omits_recipient_emails()
+    {
+        ExecDigestPreferencesResponse existing = new()
+        {
+            TenantId = Scope.TenantId,
+            IsConfigured = true,
+            EmailEnabled = true,
+            RecipientEmails = ["exec@contoso.test"],
+            IanaTimeZoneId = "UTC",
+            DayOfWeek = 1,
+            HourOfDay = 8,
+            UpdatedUtc = DateTimeOffset.Parse("2026-06-01T08:00:00Z"),
+        };
+
+        Mock<ITenantExecDigestPreferencesRepository> repository = new();
+        repository
+            .Setup(r => r.GetByTenantAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
+        repository
+            .Setup(r => r.UpsertAsync(
+                Scope.TenantId,
+                false,
+                It.Is<IReadOnlyList<string>>(emails => emails.SequenceEqual(new[] { "exec@contoso.test" })),
+                "UTC",
+                1,
+                8,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ExecDigestPreferencesResponse
+            {
+                TenantId = Scope.TenantId,
+                IsConfigured = true,
+                EmailEnabled = false,
+                RecipientEmails = ["exec@contoso.test"],
+            });
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantExecDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            repository.Object,
+            Mock.Of<IAuditService>());
+
+        ExecDigestPreferencesUpsertRequest body = new() { EmailEnabled = false };
+
+        IActionResult action = await controller.PostExecDigestPreferences(body, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        repository.VerifyAll();
+    }
+
+    [Fact]
     public async Task PostExecDigestPreferences_returns_bad_request_when_email_enabled_without_recipients()
     {
         Mock<IScopeContextProvider> scopeProvider = new();
