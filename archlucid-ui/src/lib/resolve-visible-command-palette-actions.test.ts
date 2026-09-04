@@ -25,6 +25,22 @@ describe("resolve-visible-command-palette-actions (PT-06)", () => {
     expect(lockedGuided.some((action) => action.href === "/architecture/reviews")).toBe(true);
   });
 
+  it("keeps Guided first-session rows when the sidebar escape hatch or first commit applies (CD-08)", () => {
+    const expandedGuided = resolveVisibleCommandPaletteHrefActions({
+      workingMode: false,
+      hasCommittedArchitectureReview: false,
+      showFullNav: true,
+    });
+    const committedGuided = resolveVisibleCommandPaletteHrefActions({
+      workingMode: false,
+      hasCommittedArchitectureReview: true,
+      showFullNav: false,
+    });
+
+    expect(expandedGuided.some((action) => action.href === "/insights/sponsor-report")).toBe(true);
+    expect(committedGuided.some((action) => action.href === "/insights/sponsor-report")).toBe(true);
+  });
+
   it("maps Working create action to a single New review draft-editor href (WA-02)", () => {
     const workingActions = resolveVisibleCommandPaletteHrefActions(true);
     const guidedActions = resolveVisibleCommandPaletteHrefActions(false);
