@@ -1,5 +1,6 @@
 using ArchLucid.Api.Models.Coverage;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
 
 namespace ArchLucid.Api.Http.Governance;
@@ -10,6 +11,13 @@ public static class CoveragePreviewHttpMapper
     public static GovernanceHttpValidation? Validate(CoveragePreviewRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
+
+        if (!Enum.IsDefined(request.CloudProvider))
+        {
+            return new GovernanceHttpValidation(
+                "cloudProvider is not valid.",
+                ProblemTypes.ValidationFailed);
+        }
 
         GovernanceHttpValidation? descriptionProblem =
             ValidateFreeTextLength(request.DescriptionText, "DescriptionText");
