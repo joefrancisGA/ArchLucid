@@ -52,7 +52,7 @@ export function formatOperatorHomeRecentReviewsOutcome(
   }
 
   if (pressureParts.length === 0) {
-    return `${packagePart} · no open finding pressure`;
+    return `${packagePart} · no open findings`;
   }
 
   return `${packagePart} · ${pressureParts.join(" · ")}`;
