@@ -955,6 +955,77 @@ describe("wave22 filter url helpers", () => {
   });
 });
 
+describe("wave23 filter url helpers", () => {
+  it("new run wizard step, pilot toggles, and connector intake tab", async () => {
+    const { newRunWizardStepHrefFromSearch, parseNewRunWizardStepFromSearch } = await import(
+      "@/lib/runs/new-run-wizard-step-url"
+    );
+    const {
+      newRunWizardPilotHrefFromSearch,
+      parseNewRunWizardAdvancedConfigFromSearch,
+      parseNewRunWizardPilotFromSearch,
+    } = await import("@/lib/runs/new-run-wizard-pilot-url");
+    const { connectorIntakeTabHrefFromSearch, parseConnectorIntakeTabFromSearch } = await import(
+      "@/lib/runs/connector-intake-tab-url"
+    );
+
+    expect(parseNewRunWizardStepFromSearch("2")).toBe(2);
+    expect(newRunWizardStepHrefFromSearch("mode=full", 2)).toBe("/architecture/reviews/new?mode=full&step=2");
+    expect(parseNewRunWizardPilotFromSearch("0")).toBe(false);
+    expect(parseNewRunWizardAdvancedConfigFromSearch("1")).toBe(true);
+    expect(
+      newRunWizardPilotHrefFromSearch("", { focusedPilotModeEnabled: false, advancedConfigurationOptIn: true }),
+    ).toBe("/architecture/reviews/new?pilot=0&advancedConfig=1");
+    expect(parseConnectorIntakeTabFromSearch("git")).toBe("git");
+    expect(connectorIntakeTabHrefFromSearch("step=2", "git")).toBe("/architecture/reviews/new?step=2&intake=git");
+  });
+
+  it("advisory scans run id, schedule advanced, and digest subscription panels", async () => {
+    const {
+      advisoryScansFilterHrefFromSearch,
+      parseAdvisoryScansRunIdFromSearch,
+    } = await import("@/lib/advisory/advisory-scans-filter-url");
+    const {
+      advisorySchedulesPanelsHrefFromSearch,
+      parseAdvisorySchedulesAdvancedOpenFromSearch,
+    } = await import("@/lib/advisory/advisory-schedules-panels-url");
+    const {
+      digestSubscriptionsPanelsHrefFromSearch,
+      parseDigestSubscriptionsCreatePanelFromSearch,
+      parseDigestSubscriptionsHistoryFromSearch,
+    } = await import("@/lib/digests/digest-subscriptions-panels-url");
+
+    expect(parseAdvisoryScansRunIdFromSearch("run-scan")).toBe("run-scan");
+    expect(advisoryScansFilterHrefFromSearch("tab=scans", { runId: "run-scan" })).toBe(
+      "/governance/advisory-scans?tab=scans&runId=run-scan",
+    );
+    expect(parseAdvisorySchedulesAdvancedOpenFromSearch("1")).toBe(true);
+    expect(advisorySchedulesPanelsHrefFromSearch("tab=schedules", { advancedOpen: true })).toBe(
+      "/governance/advisory-scans?tab=schedules&advanced=1",
+    );
+    expect(parseDigestSubscriptionsCreatePanelFromSearch("1")).toBe(true);
+    expect(parseDigestSubscriptionsHistoryFromSearch("sub-1")).toBe("sub-1");
+    expect(
+      digestSubscriptionsPanelsHrefFromSearch("tab=subscriptions", {
+        showCreatePanel: true,
+        historySubscriptionId: "sub-1",
+      }),
+    ).toBe("/architecture/digests?tab=subscriptions&create=1&history=sub-1");
+  });
+
+  it("digests browse preview collapse param", async () => {
+    const { digestsBrowsePreviewHrefFromSearch, parseDigestsBrowsePreviewOpenFromSearch } = await import(
+      "@/lib/digests/digests-browse-preview-url"
+    );
+
+    expect(parseDigestsBrowsePreviewOpenFromSearch("0")).toBe(false);
+    expect(parseDigestsBrowsePreviewOpenFromSearch(null)).toBe(true);
+    expect(digestsBrowsePreviewHrefFromSearch("tab=get-started", false)).toBe(
+      "/architecture/digests?tab=get-started&preview=0",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

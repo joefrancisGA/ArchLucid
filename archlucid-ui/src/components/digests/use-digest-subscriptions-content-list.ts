@@ -1,7 +1,8 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   DIGEST_SUBSCRIPTION_ATTEMPTS_TAKE,
@@ -18,6 +19,11 @@ import {
   resolveContinueLastDigestSubscription,
   writeDigestSubscriptionLastViewedId,
 } from "@/lib/resolve-continue-last-digest-subscription";
+import {
+  digestSubscriptionsPanelsHrefFromSearch,
+  parseDigestSubscriptionsHistoryFromSearch,
+} from "@/lib/digests/digest-subscriptions-panels-url";
+import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 
 const EMPTY_SUBSCRIPTIONS: DigestSubscription[] = [];
 
@@ -26,6 +32,10 @@ export type UseDigestSubscriptionsContentListArgs = {
 };
 
 export function useDigestSubscriptionsContentList(args: UseDigestSubscriptionsContentListArgs) {
+  const router = useRouter();
+  const pathname = usePathname() ?? DIGESTS_HUB_PATH;
+  const searchParams = useSearchParams();
+  const urlHistorySubscriptionId = parseDigestSubscriptionsHistoryFromSearch(searchParams.get("history"));
   const queryClient = useQueryClient();
   const scope = useOperatorScopeQueryKey();
   const subscriptionsQuery = useDigestSubscriptionsQuery();
@@ -36,10 +46,38 @@ export function useDigestSubscriptionsContentList(args: UseDigestSubscriptionsCo
   );
   const subscriptionIds = useMemo(() => items.map((item) => item.subscriptionId), [items]);
   const { attemptsBySub } = useDigestSubscriptionDeliveryAttemptsQueries(subscriptionIds, args.refreshToken);
-  const [historyOpenFor, setHistoryOpenFor] = useState<string | null>(null);
+  const [historyOpenFor, setHistoryOpenForState] = useState<string | null>(
+    urlHistorySubscriptionId.length > 0 ? urlHistorySubscriptionId : null,
+  );
   const [listFailure, setListFailure] = useState<ApiLoadFailureState | null>(null);
   const loading = subscriptionsQuery.isLoading;
   const queryFailure = subscriptionsQuery.isError ? toApiLoadFailure(subscriptionsQuery.error) : null;
+
+  const syncPanelsToUrl = useCallback(
+    (patch: { readonly historySubscriptionId?: string | null }) => {
+      router.replace(digestSubscriptionsPanelsHrefFromSearch(searchParams.toString(), patch, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setHistoryOpenFor = useCallback(
+    (value: string | null | ((prev: string | null) => string | null)) => {
+      setHistoryOpenForState((prev) => {
+        const next = typeof value === "function" ? value(prev) : value;
+        syncPanelsToUrl({ historySubscriptionId: next });
+
+        return next;
+      });
+    },
+    [syncPanelsToUrl],
+  );
+
+  useEffect(() => {
+    const historyId = parseDigestSubscriptionsHistoryFromSearch(searchParams.get("history"));
+    setHistoryOpenForState(historyId.length > 0 ? historyId : null);
+  }, [searchParams]);
 
   useEffect(() => {
     if (args.refreshToken === 0) {

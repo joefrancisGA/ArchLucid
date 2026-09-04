@@ -1,12 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useState, type RefObject } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { createDigestSubscription } from "@/lib/api";
 import type { DigestSubscription } from "@/types/digest-subscriptions";
+import {
+  digestSubscriptionsPanelsHrefFromSearch,
+  parseDigestSubscriptionsCreatePanelFromSearch,
+} from "@/lib/digests/digest-subscriptions-panels-url";
+import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import type { useDigestSubscriptionsContentList } from "@/components/digests/use-digest-subscriptions-content-list";
 
 export type UseDigestSubscriptionsContentCreateArgs = {
@@ -18,6 +24,10 @@ export type UseDigestSubscriptionsContentCreateArgs = {
 };
 
 export function useDigestSubscriptionsContentCreate(args: UseDigestSubscriptionsContentCreateArgs) {
+  const router = useRouter();
+  const pathname = usePathname() ?? DIGESTS_HUB_PATH;
+  const searchParams = useSearchParams();
+  const urlShowCreate = parseDigestSubscriptionsCreatePanelFromSearch(searchParams.get("create"));
   const canMutateSubscriptions: boolean = useOperateCapability();
   const [creating, setCreating] = useState<boolean>(false);
   const [createSuccess, setCreateSuccess] = useState<boolean>(false);
@@ -27,6 +37,16 @@ export function useDigestSubscriptionsContentCreate(args: UseDigestSubscriptions
   const [focusCreateToken, setFocusCreateToken] = useState<number>(0);
   const successTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const syncCreatePanelToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        digestSubscriptionsPanelsHrefFromSearch(searchParams.toString(), { showCreatePanel: open }, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
   useEffect(() => {
     return () => {
       if (successTimerRef.current !== null) {
@@ -34,6 +54,16 @@ export function useDigestSubscriptionsContentCreate(args: UseDigestSubscriptions
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (!urlShowCreate) {
+      return;
+    }
+
+    setPrefillFrom(null);
+    setFocusCreateToken((value) => value + 1);
+    args.formCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [args.formCardRef, urlShowCreate]);
 
   async function onCreate(input: {
     name: string;
@@ -83,6 +113,7 @@ export function useDigestSubscriptionsContentCreate(args: UseDigestSubscriptions
     setPrefillFrom(null);
     setFocusCreateToken((value) => value + 1);
     args.formCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    syncCreatePanelToUrl(true);
   }
 
   function onPrefillCreate(subscription: DigestSubscription): void {

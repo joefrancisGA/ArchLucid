@@ -32,6 +32,7 @@ import { buildAdvisoryHubHref } from "@/lib/advisory-hub-href";
 import {
   advisoryScansFilterHrefFromSearch,
   parseAdvisoryScansCompareToFromSearch,
+  parseAdvisoryScansRunIdFromSearch,
   parseAdvisoryScansSamplePreviewFromSearch,
 } from "@/lib/advisory/advisory-scans-filter-url";
 import { GOVERNANCE_ADVISORY_SCANS_PATH } from "@/lib/governance/governance-route-paths";
@@ -66,6 +67,7 @@ export function useAdvisoryScansContent(props: AdvisoryScansContentProps = {}) {
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const isAdminCaller = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const bootstrappedRunId = (props.initialRunId ?? "").trim();
+  const urlRunId = parseAdvisoryScansRunIdFromSearch(searchParams.get("runId"));
   const urlCompareTo = parseAdvisoryScansCompareToFromSearch(searchParams.get("compareTo"));
   const urlSamplePreview = parseAdvisoryScansSamplePreviewFromSearch(searchParams.get("sample"));
 
@@ -90,7 +92,7 @@ export function useAdvisoryScansContent(props: AdvisoryScansContentProps = {}) {
   const samplePreviewTriggerId = useId();
   const samplePreviewRegionRef = useRef<HTMLDivElement>(null);
 
-  const [runId, setRunId] = useState(bootstrappedRunId);
+  const [runId, setRunIdState] = useState(urlRunId.length > 0 ? urlRunId : bootstrappedRunId);
   const [compareToRunId, setCompareToRunIdState] = useState(urlCompareTo);
   const [planSummary, setPlanSummary] = useState<ImprovementPlan | null>(null);
   const [recommendations, setRecommendations] = useState<RecommendationRecord[]>([]);
@@ -112,10 +114,26 @@ export function useAdvisoryScansContent(props: AdvisoryScansContentProps = {}) {
   });
 
   const syncScansFiltersToUrl = useCallback(
-    (patch: { readonly compareToRunId?: string; readonly showSamplePreview?: boolean }) => {
+    (patch: {
+      readonly runId?: string;
+      readonly compareToRunId?: string;
+      readonly showSamplePreview?: boolean;
+    }) => {
       router.replace(advisoryScansFilterHrefFromSearch(searchParams.toString(), patch, pathname), { scroll: false });
     },
     [pathname, router, searchParams],
+  );
+
+  const setRunId = useCallback(
+    (next: string | ((prev: string) => string)) => {
+      setRunIdState((prev) => {
+        const resolved = typeof next === "function" ? next(prev) : next;
+        syncScansFiltersToUrl({ runId: resolved });
+
+        return resolved;
+      });
+    },
+    [syncScansFiltersToUrl],
   );
 
   const setCompareToRunId = useCallback(
@@ -131,6 +149,10 @@ export function useAdvisoryScansContent(props: AdvisoryScansContentProps = {}) {
   );
 
   useEffect(() => {
+    if (searchParams.has("runId")) {
+      setRunIdState(parseAdvisoryScansRunIdFromSearch(searchParams.get("runId")));
+    }
+
     setCompareToRunIdState(parseAdvisoryScansCompareToFromSearch(searchParams.get("compareTo")));
     setShowSamplePreviewState(parseAdvisoryScansSamplePreviewFromSearch(searchParams.get("sample")));
   }, [searchParams]);
@@ -204,7 +226,7 @@ export function useAdvisoryScansContent(props: AdvisoryScansContentProps = {}) {
     }
 
     setRunId(next);
-  }, [props.initialRunId]);
+  }, [props.initialRunId, setRunId]);
 
   useEffect(() => {
     if (bootstrapRecommendationsQuery.data === undefined) {

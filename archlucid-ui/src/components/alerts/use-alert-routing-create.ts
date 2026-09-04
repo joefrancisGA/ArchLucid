@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   EMPTY_ALERT_ROUTING_CRITERIA,
@@ -26,16 +27,23 @@ import {
   presentWebhookConnectionTestToasts,
 } from "@/lib/webhook-subscription-connection-test";
 import { writeAlertRoutingSubscriptionLastViewedId } from "@/lib/resolve-continue-last-alert-routing-subscription";
+import {
+  compositeAlertRulesPanelsHrefFromSearch,
+  parseCompositeAlertRulesCreatePanelFromSearch,
+} from "@/lib/alerts/composite-alert-rules-panels-url";
 import type { useAlertRoutingList } from "@/components/alerts/use-alert-routing-list";
 
 export type UseAlertRoutingCreateArgs = {
   readonly list: Pick<
     ReturnType<typeof useAlertRoutingList>,
-    "canEditRouting" | "canMutateRouting" | "items" | "listFailure" | "refreshRoutingTab"
+    "canEditRouting" | "canMutateRouting" | "items" | "listFailure" | "refreshRoutingTab" | "scopedRunFilterActive"
   >;
 };
 
 export function useAlertRoutingCreate(args: UseAlertRoutingCreateArgs) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const urlShowCreate = parseCompositeAlertRulesCreatePanelFromSearch(searchParams.get("create"));
   const formSectionRef = useRef<HTMLElement | null>(null);
   const [creating, setCreating] = useState(false);
   const [mutationFailure, setMutationFailure] = useState<ApiLoadFailureState | null>(null);
@@ -71,10 +79,29 @@ export function useAlertRoutingCreate(args: UseAlertRoutingCreateArgs) {
 
   const failure = args.list.listFailure ?? mutationFailure;
 
+  const syncCreatePanelToUrl = useCallback(
+    (showCreate: boolean) => {
+      router.replace(compositeAlertRulesPanelsHrefFromSearch(searchParams.toString(), { showCreatePanel: showCreate }), {
+        scroll: false,
+      });
+    },
+    [router, searchParams],
+  );
+
   function scrollToForm() {
     formSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     formSectionRef.current?.focus();
+    syncCreatePanelToUrl(true);
   }
+
+  useEffect(() => {
+    if (!urlShowCreate || !args.list.scopedRunFilterActive) {
+      return;
+    }
+
+    formSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    formSectionRef.current?.focus();
+  }, [args.list.scopedRunFilterActive, urlShowCreate]);
 
   function validateForm(): boolean {
     const nextErrors: AlertRoutingFieldErrors = {};
