@@ -112,7 +112,7 @@ public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade
         if (result.Outcome is ExportRecordLoadOutcome.LineageUnverified)
         {
             return this.ConflictProblem(
-                $"Export replay for '{result.MissingId}' is blocked until export lineage verification succeeds.",
+                $"Export replay for '{result.MissingId}' is blocked until export lineage and sealed-manifest verification succeeds.",
                 ProblemTypes.Conflict);
         }
 
