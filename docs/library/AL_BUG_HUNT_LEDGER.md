@@ -3036,11 +3036,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 15
-- **bugs-found:** 26
+- **hunts:** 16
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — padded TrialStatus bypassed trial lifecycle email gate and scheduled scanner
+- **last-bug:** 2026-09-04 — trial expired email suppressed when lifecycle advanced status before dispatch/scan
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -3095,6 +3095,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TrialLifecycleEmailDispatcher` / `TrialScheduledLifecycleEmailScanner` — padded `TrialStatus` bypasses active/converted gates — **hit 2026-09-04 (#660):** after Core #642 `TrialLifecycleStatus.EqualsStatus` trim parity elsewhere, notifications pipeline still used raw `string.Equals` so `" active "` skipped welcome/mid-trial/expiring mail and scheduled scans; fixed with `TrialLifecycleStatus.EqualsStatus` for Active/Converted gates; regressions in `DispatchAsync_sends_welcome_when_padded_active_trial_status` and `PublishDueAsync_publishes_mid_trial_for_padded_active_trial_status`.
 
 2026-09-04 seed hunt #660: reseeded from trial lifecycle TrialStatus parity after #623 casing fix; proved padded TrialStatus gate gap vs Core `EqualsStatus` trim parity.
+
+- [x] (proven) `TrialLifecycleEmailDispatcher.PassesTriggerGate` / `TrialScheduledLifecycleEmailScanner.PublishDueAsync` — `Expired` trigger required `TrialStatus == Active`, so lifecycle scheduler advancing `Active → Expired` before dispatch or scan permanently suppressed trial-ended mail — **hit 2026-09-04 (#754):** allow `Expired` trigger for Active or Expired tenants with past `TrialExpiresUtc`; scanner enqueues expired trigger for Expired tenants; regressions in `DispatchAsync_sends_expired_email_when_trial_status_already_expired` and `PublishDueAsync_publishes_expired_trigger_when_trial_status_already_expired`.
+- [ ] (candidate) `ExecDigestUnsubscribeController` / `SponsorDigestUnsubscribeController` — valid token when `TryDisableEmailAsync` returns false (missing prefs or already disabled) still returns HTTP 200 success copy; confirm intentional idempotent unsubscribe semantics vs surfacing not-found.
+- [ ] (candidate) `TrialLifecycleEmailDispatcher.DispatchAsync` / `CommitSponsorEmailNotifier` — admin mailbox resolved with trim-only instead of `IdentityEmailNormalizer` parity with digest subscriptions and remediation assignment.
+
+2026-09-04 seed hunt #754: reseeded notifications-pipeline after #660; proved trial expired-email race between lifecycle advancement and email dispatch/scan; seeded unsubscribe idempotency and admin-mailbox normalization candidates.
 
 ## Zone: artifact-synthesis
 

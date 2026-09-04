@@ -882,3 +882,4 @@
 {"at":"2026-09-04T17:05:06.6082454Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-04T17:16:31.7602967Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry"}
 {"at":"2026-09-04T17:21:44.6010248Z","zoneId":"context-ingestion","outcome":"dry"}
+{"at":"2026-09-04T17:30:13.5866943Z","zoneId":"notifications-pipeline","outcome":"hit"}
