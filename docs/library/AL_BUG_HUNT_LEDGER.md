@@ -1609,8 +1609,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 13
-- **bugs-found:** 24
+- **hunts:** 14
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
 - **last-bug:** 2026-09-04 — manifest warnings export parity; agent materiality confidence/evidence refs; sponsor relationship counts
@@ -1650,9 +1650,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) PDF/DOCX exports omit compare-quality-delta when summary formatter stub omits `## Compare Quality Delta` — **hit 2026-09-04 (#764):** HTML #763 stripped/re-appended via `CompareQualityDeltaExportFormatter` but PDF/DOCX embedded raw summary only; fixed with shared `RemoveMarkdownSection` + plain-text delta append; regressions in `GeneratePdf_default_profile_includes_compare_quality_delta_when_summary_formatter_omits_section` and `GenerateDocx_default_profile_includes_compare_quality_delta_when_summary_formatter_omits_section`.
 - [x] (proven) E2E detailed agent appendices omit evidence-ref deltas — **hit 2026-09-04 (#764):** markdown/HTML/PDF detailed exports listed claims/findings/controls/warnings but not `AddedEvidenceRefs` / `RemovedEvidenceRefs`; fixed across formatters; regressions in `GenerateMarkdown_detailed_includes_agent_evidence_ref_diffs`, `GenerateHtml_detailed_includes_agent_evidence_ref_diffs`, `GeneratePdf_detailed_includes_agent_evidence_ref_diffs`.
-- [ ] (candidate) E2E detailed manifest appendices omit `ManifestDiffResult.Warnings` while interpretation synergy notes may reference warnings-only diffs — verify export-body surfacing before hunt-ready promotion.
-- [ ] (candidate) `ReplayComparisonInterpretationDiffSlice.AgentOutputsChangedMaterially` ignores confidence-only and evidence-ref-only agent drift when manifest bodies are present — verify interpretation-note misclassification before promotion.
-- [ ] (candidate) Executive/sponsor `AppendSponsorReport` key counts omit relationship-only manifest deltas — low-impact profile gap; needs product decision before promotion.
+- [x] (proven) E2E detailed manifest appendices omit `ManifestDiffResult.Warnings` while interpretation synergy notes may reference warnings-only diffs — **hit 2026-09-04 (#765):** duplicate candidate row closed; see proven entry below.
+- [x] (proven) `ReplayComparisonInterpretationDiffSlice.AgentOutputsChangedMaterially` ignores confidence-only and evidence-ref-only agent drift when manifest bodies are present — **hit 2026-09-04 (#765):** duplicate candidate row closed; see proven entry below.
+- [x] (proven) Executive/sponsor `AppendSponsorReport` key counts omit relationship-only manifest deltas — **hit 2026-09-04 (#765):** duplicate candidate row closed; see proven entry below.
 
 2026-09-04 seed hunt #764: proved PDF/DOCX compare-quality-delta fallback and agent evidence-ref export parity; reseeded manifest-warnings export body and interpretation materiality candidates.
 
@@ -1661,6 +1661,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Executive/sponsor `AppendSponsorReport` key counts omit relationship-only manifest deltas — **hit 2026-09-04 (#765):** sponsor manifest line counted services/datastores only; fixed with relationship +/- counts across markdown/HTML/PDF/DOCX; regression in `GenerateMarkdown_executive_profile_includes_relationship_counts_in_key_manifest_line`.
 
 2026-09-04 thorough hunt #765: proved manifest-warnings export body gap, agent materiality interpretation misclassification, and sponsor relationship key-count parity.
+
+- [x] (proven) `MarkdownArchitectureAnalysisExportService.AppendDeterminismAndDiffs` omits manifest relationship diffs — **hit 2026-09-04 (#766):** architecture-analysis markdown export listed services/datastores/controls/warnings only; fixed with relationship `ToDisplayLine()` sections; `DocxArchitectureAnalysisExportService` aligned for relationships and manifest warnings; regression in `GenerateMarkdown_manifest_diff_includes_relationship_subsections_when_populated`.
+- [ ] (candidate) Executive/sponsor `AppendSponsorReport` key counts omit warnings-only and required-control-only manifest deltas — sponsor line still shows all-zero structural counts when only warnings or required controls changed; verify product expectation before promotion.
+- [ ] (candidate) `DeterminismCheckService.HasManifestDrift` may ignore warnings-only manifest drift — structural counts only; needs repro before promotion.
+
+2026-09-04 thorough hunt #766: proved architecture-analysis manifest relationship export gap; reseeded sponsor warnings/controls key-count and determinism warnings-only candidates.
 
 2026-09-04 seed hunt #764: proved PDF/DOCX compare-quality-delta fallback and agent evidence-ref export parity; reseeded manifest-warnings export body and interpretation materiality candidates.
 
