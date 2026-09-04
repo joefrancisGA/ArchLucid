@@ -21,6 +21,7 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<IAzureInventoryDiffNarrativeService, AzureInventoryDiffNarrativeService>();
         services.AddScoped<IAuditFrameworkImportService, AuditFrameworkImportService>();
         services.AddScoped<IAuditEvidenceSelectionService, AuditEvidenceSelectionService>();
+        services.AddScoped<IAuditControlEvaluationService, AuditControlEvaluationService>();
         services.AddScoped<IAuditEvidenceSelectorRegistry, AuditEvidenceSelectorRegistry>();
         services.AddScoped<InventoryAuditEvidenceSelector>();
         services.AddScoped<IdentityAuditEvidenceSelector>();

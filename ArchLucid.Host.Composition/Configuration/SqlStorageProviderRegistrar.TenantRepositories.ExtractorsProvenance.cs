@@ -43,6 +43,7 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<ICloudResourceIdentityDirectory, SqlCloudResourceIdentityDirectory>();
         services.AddScoped<IAuditFrameworkRepository, SqlAuditFrameworkRepository>();
         services.AddScoped<IAuditEvidenceRequirementRepository, SqlAuditEvidenceRequirementRepository>();
+        services.AddScoped<IAuditControlEvaluationRepository, SqlAuditControlEvaluationRepository>();
         services.AddScoped<ITenantBrandingProfileRepository, SqlTenantBrandingProfileRepository>();
     }
 }
