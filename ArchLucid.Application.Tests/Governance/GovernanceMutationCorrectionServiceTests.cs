@@ -158,6 +158,53 @@ public sealed class GovernanceMutationCorrectionServiceTests
         trail.VerifyNoOtherCalls();
     }
 
+    [Fact]
+    public async Task RecordAsync_rejects_keyboard_disposition_correction_when_trail_run_id_is_null()
+    {
+        const string runId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+        const string findingId = "finding-keyboard-1";
+
+        Mock<IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(r => r.ListByFindingAsync(Scope.TenantId, findingId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new FindingReviewEventRecord
+                {
+                    EventId = Guid.NewGuid(),
+                    TenantId = Scope.TenantId,
+                    WorkspaceId = Scope.WorkspaceId,
+                    ProjectId = Scope.ProjectId,
+                    FindingId = findingId,
+                    ReviewerUserId = "operator-1",
+                    Action = FindingReviewAction.RecordDisposition,
+                    OccurredAtUtc = DateTimeOffset.UtcNow,
+                    RunId = null,
+                    Disposition = ArchLucid.Contracts.Findings.FindingDisposition.Accepted,
+                },
+            ]);
+
+        GovernanceMutationCorrectionService sut = CreateSut(
+            new Mock<IGovernanceApprovalRequestRepository>().Object,
+            CreateScopedRunRepository(runId).Object,
+            new Mock<IAuditService>().Object,
+            trail.Object);
+
+        Func<Task> act = () => sut.RecordAsync(
+            new RecordGovernanceMutationCorrectionRequest
+            {
+                MutationKind = GovernanceMutationCorrectionKinds.KeyboardFindingDisposition,
+                SubjectId = findingId,
+                RunId = runId,
+                Rationale = "Wrong keyboard disposition.",
+            },
+            Scope,
+            "operator-1",
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<KeyNotFoundException>();
+    }
+
     private static GovernanceMutationCorrectionService CreateSut(
         IGovernanceApprovalRequestRepository approvalRepo,
         IRunRepository runRepository,

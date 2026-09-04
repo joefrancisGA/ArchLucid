@@ -185,9 +185,7 @@ public sealed class GovernanceMutationCorrectionService(
             && reviewEvent.ProjectId == scope.ProjectId
             && reviewEvent.Action == FindingReviewAction.RecordDisposition
             && reviewEvent.Disposition is not null
-            && (normalizedRunGuid is null
-                || reviewEvent.RunId is null
-                || reviewEvent.RunId == normalizedRunGuid));
+            && reviewEvent.RunId == normalizedRunGuid);
 
         if (!hasDispositionForRun)
             throw new KeyNotFoundException($"Finding '{findingId}' has no recorded disposition to correct.");

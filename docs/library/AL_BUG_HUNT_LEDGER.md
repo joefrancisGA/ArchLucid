@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 132
-- **bugs-found:** 288
+- **hunts:** 133
+- **bugs-found:** 290
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — pilot-value report unbounded default window keyset paging
+- **last-bug:** 2026-09-04 — compliance drift trend scoped SQL query; mutation correction run-id binding
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3772,6 +3772,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RiskExceptionValidation.Validate` / `GovernanceStickinessController.CreateRiskException` — sub-10-char waiver rationale accepted while disposition paths enforce `FindingDispositionValidation.MinimumRationaleLength` — **hit 2026-09-04 (#658):** bulk waive UI/API aligned in #565 but waiver create only required non-whitespace; fixed with `MinimumRationaleLength` check in `RiskExceptionValidation.Validate`; regression in `Validate_rejects_rationale_shorter_than_minimum_length` and `CreateRiskException_returns_bad_request_when_rationale_shorter_than_minimum_length`.
 
 - [x] (proven) `TenantPilotValueReportController.GetPilotValueReport` / `PilotValueReportService.CollectCommittedRunsAsync` — omitted `fromUtc` defaulted to tenant creation and walked unbounded keyset pages for old tenants — **hit 2026-09-04 (#672):** clamp default window to `DefaultReportWindowMaxDays` (90, LLM cost / ROI bundle parity) and add `RunSummaryMaxPages` safety cap in `CollectCommittedRunsAsync`; regression in `BuildAsync_null_from_clamps_default_window_to_max_days` and `BuildAsync_collect_committed_runs_stops_at_keyset_max_page_cap`.
+
+- [x] (proven) `ComplianceDriftTrendService.GetTrendAsync` / `GovernanceController.GetComplianceDriftTrend` — after #3200 in-memory scope filter, `GetByTenantInRangeAsync` still scanned entire tenant in SQL before filtering — **hit 2026-09-04 (#674):** `IPolicyPackChangeLogRepository.GetByScopeInRangeAsync` with workspace/project predicates; regression in `ComplianceDriftTrendServiceTests.GetTrendAsync_queries_change_log_by_scope_in_range_not_tenant_wide` and `PolicyPackChangeLogRepositoryContractTests.GetByScopeInRangeAsync_ReturnsAscending_ForScopeOnly_ExcludesEnds`.
+
+- [x] (invalid) `GovernanceResolutionController.Resolve` — GET resolution path logs `GovernanceResolutionExecuted` audit on every read — **cheap-disproof 2026-09-04 (#674):** intentional operator traceability; controller comment documents "Always logs `GovernanceResolutionExecuted`".
+
+- [x] (proven) `GovernanceMutationCorrectionService.ValidateFindingDispositionSubjectAsync` / keyboard disposition correction — trail row with `RunId = null` matched when body supplied `runId` via `(normalizedRunGuid is null || reviewEvent.RunId is null || …)` — **hit 2026-09-04 (#674):** require `reviewEvent.RunId == normalizedRunGuid`; regression in `GovernanceMutationCorrectionServiceTests.RecordAsync_rejects_keyboard_disposition_correction_when_trail_run_id_is_null`.
+
+2026-09-04 seed hunt #674: proved compliance drift scoped SQL query and mutation correction run-id binding; cheap-disproved resolution audit-on-read.
 
 2026-09-04 thorough hunt #672: proved pilot-value default window + keyset page cap; re-closed duplicate merge-conflict inspect-scope candidate.
 
