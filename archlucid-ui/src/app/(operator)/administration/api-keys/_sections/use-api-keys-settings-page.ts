@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { components } from "@/lib/api-types.generated";
@@ -35,12 +36,19 @@ import {
 } from "@/lib/resolve-continue-last-api-key-credential";
 
 import type { ApiKeyCredentialRowModel } from "./ApiKeyCredentialTable";
+import {
+  apiKeyActionConfirmHrefFromSearch,
+  apiKeyActionToPendingAction,
+  parseApiKeyActionFromSearch,
+  pendingActionToApiKeyAction,
+} from "@/lib/administration/api-key-action-confirm-url";
 
 type AdminApiKeySettingsResponse = components["schemas"]["AdminApiKeySettingsResponse"];
 type AdminApiKeyRotateResponse = components["schemas"]["AdminApiKeyRotateResponse"];
 type ApiKeySlotStatusDto = components["schemas"]["ApiKeySlotStatusDto"];
 
 const settingsPath = "/api/proxy/v1/admin/settings/api-keys";
+const API_KEYS_SETTINGS_PAGE_PATH = "/administration/api-keys";
 
 export type ApiKeysSettingsLoadState =
   | { status: "idle" }
@@ -114,14 +122,46 @@ function resolveSuccessBanner(
 }
 
 export function useApiKeysSettingsPage() {
+  const router = useRouter();
+  const pathname = usePathname() ?? API_KEYS_SETTINGS_PAGE_PATH;
+  const searchParams = useSearchParams();
+  const urlApiKeyAction = parseApiKeyActionFromSearch(searchParams.get("apiKeyAction"));
   const [state, setState] = useState<ApiKeysSettingsLoadState>({ status: "idle" });
   const [rotateReveal, setRotateReveal] = useState<AdminApiKeyRotateResponse | null>(null);
-  const [pendingAction, setPendingAction] = useState<ApiKeyPendingAction | null>(null);
+  const [pendingAction, setPendingActionState] = useState<ApiKeyPendingAction | null>(
+    urlApiKeyAction !== null ? apiKeyActionToPendingAction(urlApiKeyAction) : null,
+  );
   const [rotating, setRotating] = useState(false);
   const [auditEvents, setAuditEvents] = useState<readonly ApiKeyAuditEvent[]>([]);
   const [statusBanner, setStatusBanner] = useState<string | null>(null);
   const [secretAcknowledged, setSecretAcknowledged] = useState(false);
   const eventsSectionRef = useRef<HTMLElement | null>(null);
+
+  const syncApiKeyActionToUrl = useCallback(
+    (action: ApiKeyPendingAction | null) => {
+      router.replace(
+        apiKeyActionConfirmHrefFromSearch(
+          searchParams.toString(),
+          action === null ? null : pendingActionToApiKeyAction(action),
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPendingAction = useCallback(
+    (action: ApiKeyPendingAction | null) => {
+      setPendingActionState(action);
+      syncApiKeyActionToUrl(action);
+    },
+    [syncApiKeyActionToUrl],
+  );
+
+  useEffect(() => {
+    setPendingActionState(urlApiKeyAction !== null ? apiKeyActionToPendingAction(urlApiKeyAction) : null);
+  }, [urlApiKeyAction]);
 
   const load = useCallback(async () => {
     setState({ status: "loading" });
@@ -205,7 +245,7 @@ export function useApiKeysSettingsPage() {
         setPendingAction(null);
       }
     },
-    [load],
+    [load, setPendingAction],
   );
 
   const summary = useMemo(() => {

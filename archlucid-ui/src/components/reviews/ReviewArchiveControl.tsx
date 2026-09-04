@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -27,6 +27,11 @@ import { ARCHIVED_REVIEWS_CLIENT_CACHE_CHANGED_EVENT } from "@/hooks/use-archive
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunSummary } from "@/types/authority";
+import {
+  parseReviewArchiveConfirmOpenFromSearch,
+  parseReviewArchiveRunIdFromSearch,
+  reviewArchiveConfirmHrefFromSearch,
+} from "@/lib/reviews/review-archive-confirm-url";
 
 export type ReviewArchiveControlProps = {
   readonly run: Pick<RunSummary, "runId" | "hasGoldenManifest" | "isArchived" | "createdByUserId">;
@@ -44,11 +49,46 @@ export type ReviewArchiveControlProps = {
 /** Soft-archives an in-flight review with irreversibility warnings. */
 export function ReviewArchiveControl(props: ReviewArchiveControlProps): React.JSX.Element | null {
   const router = useRouter();
+  const pathname = usePathname() ?? REVIEWS_LIST_PATH;
+  const searchParams = useSearchParams();
+  const urlArchiveRunId = parseReviewArchiveRunIdFromSearch(searchParams.get("archiveRunId"));
+  const urlArchiveConfirm = parseReviewArchiveConfirmOpenFromSearch(searchParams.get("archiveConfirm"));
   const { callerAuthorityRank, currentPrincipal, isAuthorityLoading } = useOperatorNavAuthority();
   const policyQuery = useWorkOwnershipDeletePolicyQuery();
   const canExecute = !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority;
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmOpen, setConfirmOpenState] = useState(
+    urlArchiveConfirm && urlArchiveRunId === props.run.runId,
+  );
   const [busy, setBusy] = useState(false);
+
+  const syncArchiveConfirmToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        reviewArchiveConfirmHrefFromSearch(
+          searchParams.toString(),
+          {
+            runId: open ? props.run.runId : null,
+            confirmOpen: open,
+          },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, props.run.runId, router, searchParams],
+  );
+
+  const setConfirmOpen = useCallback(
+    (open: boolean) => {
+      setConfirmOpenState(open);
+      syncArchiveConfirmToUrl(open);
+    },
+    [syncArchiveConfirmToUrl],
+  );
+
+  useEffect(() => {
+    setConfirmOpenState(urlArchiveConfirm && urlArchiveRunId === props.run.runId);
+  }, [props.run.runId, urlArchiveConfirm, urlArchiveRunId]);
 
   const eligible = canArchiveReview(props.run, {
     callerAuthorityRank,
@@ -72,7 +112,7 @@ export function ReviewArchiveControl(props: ReviewArchiveControlProps): React.JS
     }
 
     router.refresh();
-  }, [props, router]);
+  }, [props, router, setConfirmOpen]);
 
   const handleConfirm = useCallback(async () => {
     setBusy(true);
