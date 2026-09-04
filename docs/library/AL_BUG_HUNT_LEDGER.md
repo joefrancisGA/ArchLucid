@@ -671,11 +671,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 3
-- **bugs-found:** 2
+- **hunts:** 4
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-02
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-09-04
+- **last-bug:** 2026-09-04 — undefined disposition enum bypassed application validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -689,6 +689,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `FindingDispositionValidation.Validate` for `NeedsEvidence` — `EvidenceRequestText` shorter than `MinimumRationaleLength` bypasses audit bar — only non-empty text is required; UI gates match; regression in `Validate_needs_evidence_accepts_single_character_evidence_request_text`.
 - [x] (valid-no-repro) `FindingDispositionService.ListHistoryAsync` with same-tenant finding id reused across projects — workspace/project equality filter hides foreign-project events; regression in `ListHistoryAsync_excludes_disposition_events_from_other_project`.
 - [x] (invalid) `FindingDispositionValidation.Validate` for `RejectedAsNotApplicable` — whitespace-padded rationale below 10 characters after trim — `Trim().Length` gate enforced; regression in `Validate_rejected_as_not_applicable_rejects_short_rationale`.
+- [x] (proven) `FindingDispositionValidation.Validate` — undefined `FindingDisposition` numeric cast (e.g. `(FindingDisposition)999`) passes validation — **hit 2026-09-04 (#750):** HTTP mapper already used `Enum.IsDefined`; application `Validate` skipped enum guard so non-HTTP callers could persist invalid disposition; fixed with `Enum.IsDefined` parity to `RunOperatorGovernanceDispositionValidation`; regression in `Validate_rejects_undefined_disposition_enum_value`.
+- [ ] (candidate) `FindingDispositionService.RecordAsync` — negative numeric disposition cast `(FindingDisposition)(-1)` — same `Enum.IsDefined` gate as undefined positive ordinals; cheap-disproof after #750 fix.
+- [ ] (candidate) `FindingDispositionValidation.Validate` for `Deferred` — `RevisitDueUtc` exactly at `DateTimeOffset.MaxValue` — upper-bound not validated; unlikely harm but worth one probe.
+
+2026-09-04 seed hunt #750: reseeded after closed hypothesis set; proved undefined disposition enum bypass; seeded negative-ordinal and max-revisit candidates.
 
 ---
 
