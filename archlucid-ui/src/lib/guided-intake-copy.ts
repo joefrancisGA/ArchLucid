@@ -138,7 +138,7 @@ export const GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_IN_PROGRESS_HINT =
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_VIEW_IN_PROGRESS_BUTTON = "View in-progress list";
 
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EDITOR_LOCKED_HINT =
-  'This draft is locked while a linked review is open. Choose "Edit draft anyway" above to suggest structured brief items.';
+  "This draft is locked while a linked review is open. Continue in the linked review for findings and exports, or start a new draft from this snapshot if you need a separate brief.";
 
 export function guidedIntakeStructuredBriefSuggestSuccess(addedCount: number): string {
   const label = addedCount === 1 ? "suggestion" : "suggestions";

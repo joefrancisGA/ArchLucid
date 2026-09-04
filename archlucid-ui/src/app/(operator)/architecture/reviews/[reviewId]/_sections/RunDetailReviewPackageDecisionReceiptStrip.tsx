@@ -1,6 +1,8 @@
 "use client";
 
 import { DecisionReceiptExportButton } from "@/components/draft-intake/DecisionReceiptExportButton";
+import { GovernanceRecordCorrectionInlineControl } from "@/components/governance/GovernanceRecordCorrectionInlineControl";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -14,6 +16,7 @@ export type RunDetailReviewPackageDecisionReceiptStripProps = {
 export function RunDetailReviewPackageDecisionReceiptStrip(
   props: RunDetailReviewPackageDecisionReceiptStripProps,
 ): React.JSX.Element | null {
+  const { isWorkingMode } = useWorkspaceMode();
   const verdict = props.feasibilityVerdict;
 
   if (verdict === null || verdict === undefined) {
@@ -35,6 +38,16 @@ export function RunDetailReviewPackageDecisionReceiptStrip(
           verdict,
         }}
       />
+      {isWorkingMode ? (
+        <GovernanceRecordCorrectionInlineControl
+          target={{
+            mutationKind: "governance_architecture_review_finalize",
+            subjectId: props.runId,
+            runId: props.runId,
+          }}
+          testId="review-finalize-record-correction"
+        />
+      ) : null}
     </div>
   );
 }

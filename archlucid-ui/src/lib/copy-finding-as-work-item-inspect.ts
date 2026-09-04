@@ -4,11 +4,46 @@ import {
   formatFindingTrustExportLine,
 } from "@/lib/findings/finding-trust-export";
 
+import { resolveFindingWorkItemCoverageHonestyFromInput } from "./copy-finding-as-work-item-coverage-honesty";
+
 import {
   na,
   type FindingWorkItemBuildInput,
   type WorkItemClipboardFormat,
 } from "./copy-finding-as-work-item-types";
+
+function coverageHonestyLineForExport(input: FindingWorkItemBuildInput): string | null {
+  if (input.includeCoverageHonesty === false) {
+    return null;
+  }
+
+  const resolved = resolveFindingWorkItemCoverageHonestyFromInput(input);
+
+  return resolved?.line ?? null;
+}
+
+function coverageHonestyJsonFields(
+  input: FindingWorkItemBuildInput,
+): { coverageHonesty?: string; coverageHonestyProvenanceKind?: FindingWorkItemBuildInput["coverageHonestyProvenanceKind"] } {
+  const line = coverageHonestyLineForExport(input);
+
+  if (line === null) {
+    return {};
+  }
+
+  const fields: {
+    coverageHonesty: string;
+    coverageHonestyProvenanceKind?: FindingWorkItemBuildInput["coverageHonestyProvenanceKind"];
+  } = {
+    coverageHonesty: line,
+  };
+
+  if (input.coverageHonestyProvenanceKind !== undefined && input.coverageHonestyProvenanceKind !== null) {
+    fields.coverageHonestyProvenanceKind = input.coverageHonestyProvenanceKind;
+  }
+
+  return fields;
+}
 
 function findingHeading(categoryLabel: string | null, title: string | null): string {
   const parts = [categoryLabel?.trim(), title?.trim()].filter((x) => x !== undefined && x !== null && x.length > 0);
@@ -57,6 +92,8 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
   const ruleLine = ruleSummary(input.decisionRuleName, input.decisionRuleId);
   const trustLine = formatFindingTrustExportLine(input);
   const trustJson = findingTrustExportJsonFields(input);
+  const coverageHonestyLine = coverageHonestyLineForExport(input);
+  const coverageHonestyJson = coverageHonestyJsonFields(input);
 
   const evidenceBlock =
     input.evidenceExcerpts.length > 0 ? input.evidenceExcerpts.map((e) => `- ${na(e)}`).join("\n") : "- Not available";
@@ -73,6 +110,7 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
         status: "Not available",
         ruleId: ruleLine,
         ...trustJson,
+        ...coverageHonestyJson,
         whatWasFlagged: whatFlagged,
         whyItMatters,
         evidence: input.evidenceExcerpts.length > 0 ? input.evidenceExcerpts : ["Not available"],
@@ -100,6 +138,10 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
 
     if (trustLine !== null) {
       lines.push(`*Trust label:* ${trustLine}`);
+    }
+
+    if (coverageHonestyLine !== null) {
+      lines.push(`*Coverage honesty:* ${coverageHonestyLine}`);
     }
 
     lines.push(
@@ -137,6 +179,10 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
 
     if (trustLine !== null) {
       descriptionLines.push(`Trust label: ${trustLine}`);
+    }
+
+    if (coverageHonestyLine !== null) {
+      descriptionLines.push(`Coverage honesty: ${coverageHonestyLine}`);
     }
 
     return [
@@ -178,6 +224,10 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
 
   if (trustLine !== null) {
     markdownLines.push("**Trust label:** " + trustLine);
+  }
+
+  if (coverageHonestyLine !== null) {
+    markdownLines.push("**Coverage honesty:** " + coverageHonestyLine);
   }
 
   markdownLines.push(

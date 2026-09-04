@@ -49,6 +49,11 @@ export const MUTATION_AMENDABLE_MOUNTED_CONTROL_SURFACES: readonly MutationAmend
       sourceRoot: "components/governance/findings/FindingKeyboardTriageHost.tsx",
       requiredSuccessMarkers: ["onRecordCorrection", "GovernanceRecordCorrectionDialog"],
     },
+    {
+      mutationId: "governance_architecture_review_finalize",
+      sourceRoot: "app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailReviewPackageDecisionReceiptStrip.tsx",
+      requiredSuccessMarkers: ["GovernanceRecordCorrectionInlineControl", "governance_architecture_review_finalize"],
+    },
   ];
 
 export function listAmendableRegistryMutationIds(): GovernanceMutationReversibilityId[] {

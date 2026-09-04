@@ -16,7 +16,8 @@ import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudge
 import { LlmUsageBandHint } from "@/components/llm/LlmUsageBandHint";
 import type { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
-import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import type { AzureExtractorDemoScenarioId } from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { LlmMonthlyDollarBudgetStatus } from "@/lib/llm-monthly-budget-status";
@@ -111,6 +112,8 @@ export type NewRunWizardStepBodyProps = {
 
 /** Wizard body JSX for the new-run guided flow (steps, mode toggles, footer). */
 export function NewRunWizardStepBody(props: NewRunWizardStepBodyProps) {
+  const evalChrome = useProductionEvalChrome();
+
   return (
     <>
       {props.followUpSourceRunId !== null ? (
@@ -293,7 +296,7 @@ export function NewRunWizardStepBody(props: NewRunWizardStepBodyProps) {
         {props.liveMessage}
       </div>
 
-      {isBuyerPolishedOperatorShellEnv() ? (
+      {evalChrome ? (
         <div className="mt-6" data-testid="new-run-wizard-llm-usage-band-footer">
           <LlmUsageBandHint />
         </div>

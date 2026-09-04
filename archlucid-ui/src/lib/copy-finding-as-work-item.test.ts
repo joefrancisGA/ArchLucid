@@ -79,6 +79,33 @@ describe("buildInspectFindingWorkItemBody", () => {
     expect(parsed.trustLabel).toBe("DeterministicRule");
     expect(parsed.trustLabelReason).toBe("Policy rule matched.");
   });
+
+  it("includes Working coverage honesty after severity in markdown exports (FD-07)", () => {
+    const withHonesty = {
+      ...inspectInput,
+      coverageHonestyLine:
+        "Typed-engine findings stay on the package regardless of insight-density score (typed-engine-protected).",
+      includeCoverageHonesty: true,
+    };
+
+    const text = buildInspectFindingWorkItemBody("markdown", withHonesty);
+
+    expect(text.indexOf("**Severity:**")).toBeLessThan(text.indexOf("**Coverage honesty:**"));
+    expect(text).toContain("typed-engine-protected");
+  });
+
+  it("omits coverage honesty when includeCoverageHonesty is false", () => {
+    const guidedPaste = {
+      ...inspectInput,
+      coverageHonestyLine:
+        "Typed-engine findings stay on the package regardless of insight-density score (typed-engine-protected).",
+      includeCoverageHonesty: false,
+    };
+
+    const text = buildInspectFindingWorkItemBody("markdown", guidedPaste);
+
+    expect(text).not.toContain("Coverage honesty");
+  });
 });
 
 describe("buildTraceRowWorkItemBody", () => {
