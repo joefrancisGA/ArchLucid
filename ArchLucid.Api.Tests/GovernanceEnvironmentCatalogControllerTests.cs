@@ -161,12 +161,40 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
         };
 
         IActionResult action = await controller.Replace(
-            new ReplaceGovernanceEnvironmentCatalogRequest(),
+            ValidReplaceRequest(),
             CancellationToken.None);
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         catalogService.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Replace_returns_bad_request_when_catalog_is_invalid_and_tenant_missing()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+
+        Mock<IGovernanceEnvironmentCatalogService> catalogService = new(MockBehavior.Strict);
+        Mock<IAuditService> auditService = new(MockBehavior.Strict);
+
+        GovernanceEnvironmentCatalogController controller = new(
+            scopeProvider.Object,
+            catalogService.Object,
+            auditService.Object,
+            TenantMissingRepository())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult action = await controller.Replace(
+            new ReplaceGovernanceEnvironmentCatalogRequest(),
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        catalogService.VerifyNoOtherCalls();
+        auditService.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -244,26 +272,17 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
         Mock<IGovernanceEnvironmentCatalogService> catalogService = new(MockBehavior.Strict);
         Mock<IAuditService> auditService = new(MockBehavior.Strict);
 
-        Mock<ITenantRepository> tenants = new();
-        tenants
-            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((TenantRecord?)null);
-
         GovernanceEnvironmentCatalogController controller = new(
             scopeProvider.Object,
             catalogService.Object,
             auditService.Object,
-            tenants.Object)
+            TenantMissingRepository())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
 
         IActionResult action = await controller.Replace(
-            new ReplaceGovernanceEnvironmentCatalogRequest
-            {
-                Environments = [new GovernanceEnvironmentDefinition { Slug = "draft", DisplayName = "Draft", SortOrder = 0, IsActive = true }],
-                Transitions = [],
-            },
+            ValidReplaceRequest(),
             CancellationToken.None);
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
@@ -340,4 +359,34 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    private static ReplaceGovernanceEnvironmentCatalogRequest ValidReplaceRequest() => new()
+    {
+        Environments =
+        [
+            new GovernanceEnvironmentDefinition
+            {
+                Slug = "draft",
+                DisplayName = "Draft",
+                SortOrder = 0,
+                IsActive = true,
+            },
+            new GovernanceEnvironmentDefinition
+            {
+                Slug = "approved",
+                DisplayName = "Approved",
+                SortOrder = 1,
+                IsActive = true,
+            },
+        ],
+        Transitions =
+        [
+            new GovernanceEnvironmentTransition { SourceSlug = "draft", TargetSlug = "approved" },
+        ],
+    };
+
+    private static ITenantRepository TenantMissingRepository() =>
+        Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
+            Scope.TenantId,
+            It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(null));
 }

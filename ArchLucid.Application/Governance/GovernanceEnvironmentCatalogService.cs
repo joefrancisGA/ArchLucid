@@ -97,7 +97,7 @@ public sealed class GovernanceEnvironmentCatalogService(
         return GovernanceEnvironmentTransitionRules.IsValidTransition(sourceSlug, targetSlug);
     }
 
-    internal static GovernanceEnvironmentCatalog NormalizeCatalog(GovernanceEnvironmentCatalog catalog)
+    public static GovernanceEnvironmentCatalog NormalizeCatalog(GovernanceEnvironmentCatalog catalog)
     {
         List<GovernanceEnvironmentDefinition> environments = catalog.Environments
             .Select(environment => new GovernanceEnvironmentDefinition
@@ -127,7 +127,7 @@ public sealed class GovernanceEnvironmentCatalogService(
         };
     }
 
-    internal static void ValidateCatalogOrThrow(GovernanceEnvironmentCatalog catalog)
+    public static void ValidateCatalogOrThrow(GovernanceEnvironmentCatalog catalog)
     {
         if (catalog.Environments.Count == 0)
             throw new ArgumentException("At least one environment definition is required.");
