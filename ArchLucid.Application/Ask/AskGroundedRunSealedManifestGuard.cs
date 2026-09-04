@@ -48,6 +48,8 @@ public static class AskGroundedRunSealedManifestGuard
         SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(baseManifest, baseRunIdLabel, manifestHashService);
         SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(targetManifest, targetRunIdLabel, manifestHashService);
 
+        EnsureCommittedArtifactInventoryBoundOrThrow(baseManifest, baseRunIdLabel);
+        EnsureCommittedArtifactInventoryBoundOrThrow(targetManifest, targetRunIdLabel);
         RunRecord? baseHeader = await runRepository.GetByIdAsync(scope, baseRunId, cancellationToken);
         RunRecord? targetHeader = await runRepository.GetByIdAsync(scope, targetRunId, cancellationToken);
 
