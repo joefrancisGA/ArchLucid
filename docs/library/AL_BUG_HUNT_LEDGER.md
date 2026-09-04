@@ -3348,11 +3348,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 197
-- **bugs-found:** 415
+- **hunts:** 198
+- **bugs-found:** 419
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — waiver expiry validation ordering; disposition whitespace rationale
+- **last-bug:** 2026-09-04 — disposition optional-field whitespace silent no-op
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4320,6 +4320,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.RecordDisposition` / `GovernanceStickinessHttpMapper.ValidateRecordDisposition` — whitespace-only optional `rationale` on `Remediated` passed HTTP validation and stored null notes (silent no-op) — **hit 2026-09-04 (#780):** reject empty/whitespace optional disposition text before persist (attestation note #779 parity); regressions in `ValidateRecordDisposition_rejects_whitespace_only_optional_rationale` and `RecordDisposition_returns_bad_request_when_remediated_rationale_is_whitespace_only`.
 
 2026-09-04 seed hunt #780 (hit): proved waiver expiry validation ordering and disposition optional-rationale whitespace no-op.
+
+- [x] (proven) `GovernanceStickinessController.RecordDisposition` / `GovernanceStickinessHttpMapper.ValidateRecordDisposition` — whitespace-only `evidenceRequestText` on non-`NeedsEvidence` dispositions passed HTTP validation and stored null notes (silent no-op) — **hit 2026-09-04 (#781):** reject non-null whitespace optional fields outside their disposition branch (optional-rationale #780 parity); regressions in `ValidateRecordDisposition_rejects_whitespace_only_optional_evidence_request_text` and `RecordDisposition_returns_bad_request_when_remediated_evidence_request_text_is_whitespace_only`.
+- [x] (proven) `GovernanceStickinessController.RecordDisposition` / `GovernanceStickinessHttpMapper.ValidateRecordDisposition` — whitespace-only `tradeOffAcknowledgment` on non-`Accepted` dispositions passed HTTP validation and was silently ignored — **hit 2026-09-04 (#781):** shared `ValidateOptionalDispositionFieldWhenNotApplicable` guard; regression in `ValidateRecordDisposition_rejects_whitespace_only_optional_trade_off_acknowledgment`.
+- [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` / `GovernanceStickinessHttpMapper.ValidateBulkDisposition` — whitespace-only `evidenceRequestText` on non-`NeedsEvidence` bulk dispositions passed HTTP validation and was silently dropped — **hit 2026-09-04 (#781):** same optional-field guard on bulk path; regression in `ValidateBulkDisposition_rejects_whitespace_only_optional_evidence_request_text`.
+- [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` / `GovernanceStickinessHttpMapper.ValidateBulkDisposition` — bulk `Accepted` with whitespace-only `tradeOffAcknowledgment` skipped validation and defaulted to shared `rationale` while single-item `Accepted` rejected whitespace — **hit 2026-09-04 (#781):** validate trade-off whenever field is non-null on bulk `Accepted`; regressions in `ValidateBulkDisposition_rejects_whitespace_only_trade_off_acknowledgment_on_accepted` and `RecordBulkDisposition_returns_bad_request_when_accepted_trade_off_is_whitespace_only`.
+
+2026-09-04 seed hunt #781 (hit): proved disposition optional-field whitespace silent no-op on single and bulk paths.
 
 2026-09-04 thorough hunt #778: proved digest disable-only recipient wipe; cheap-disproved promotion/activation environment omission candidates.
 
