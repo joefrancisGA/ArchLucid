@@ -12,6 +12,8 @@ export const SYSTEM_HEALTH_CLAIM_DISCIPLINE_HEADING = "What system health is not
 export const SYSTEM_HEALTH_CLAIM_DISCIPLINE =
   "This page reports live/ready checks and build identity for this workspace — not a full audit export.";
 
+export const SYSTEM_HEALTH_FOLLOW_UPS_TITLE = "Where to go next";
+
 export const SYSTEM_HEALTH_SOURCES_INTRO =
   "When a dependency needs follow-up, open connection status or troubleshooting. Digests and audit are separate operator surfaces.";
 

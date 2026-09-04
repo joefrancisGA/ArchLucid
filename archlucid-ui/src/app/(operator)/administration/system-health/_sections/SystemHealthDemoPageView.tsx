@@ -4,6 +4,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { SystemHealthEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { HealthStatusChip } from "@/components/health-dashboard/HealthStatusChip";
 import {
   HEALTH_DASHBOARD_PAGE_CLASS,
@@ -21,11 +22,20 @@ import {
   buildDemoOperationalChecks,
   type DemoOperationalCheck,
 } from "@/lib/demo-system-health-present";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { SYSTEM_HEALTH_CLAIM_DISCIPLINE } from "@/lib/system-health-evidence-copy";
-import { SYSTEM_HEALTH_DEMO_SCOPE_SUMMARY, systemHealthPageSubtitle } from "@/lib/system-health-page-copy";
+import {
+  SYSTEM_HEALTH_DEMO_SCOPE_SUMMARY,
+  SYSTEM_HEALTH_FIRST_VIEWPORT_TEST_ID,
+  SYSTEM_HEALTH_PRIMARY_CONTENT_ID,
+  SYSTEM_HEALTH_SKIP_LINK_LABEL,
+  SYSTEM_HEALTH_SKIP_TARGET_ID,
+  systemHealthPageSubtitle,
+} from "@/lib/system-health-page-copy";
 
 import { SystemHealthPageHeader } from "./SystemHealthPageHeader";
+
 type SystemHealthDemoPageViewProps = {
   readonly loading: boolean;
   readonly lastRefreshedAt: Date | null;
@@ -58,15 +68,8 @@ export function SystemHealthDemoPageView(props: SystemHealthDemoPageViewProps) {
   const summaryTiles = buildDemoHealthSummaryTiles();
   const operationalChecks = buildDemoOperationalChecks();
 
-  return (
-    <div className={cn(HEALTH_DASHBOARD_PAGE_CLASS, "space-y-4")} data-testid="system-health-demo-page">
-      <SystemHealthPageHeader
-        subtitle={systemHealthPageSubtitle(true)}
-        loading={props.loading}
-        lastRefreshedAt={props.lastRefreshedAt}
-        onRefresh={props.onRefresh}
-      />
-
+  const workspaceBody = (
+    <>
       <HealthOverallStatusHeader
         overallStatus={DEMO_SYSTEM_HEALTH_OVERALL_STATUS}
         title={DEMO_SYSTEM_HEALTH_OVERALL_TITLE}
@@ -101,7 +104,8 @@ export function SystemHealthDemoPageView(props: SystemHealthDemoPageViewProps) {
           ))}
         </ul>
       </details>
-{props.showTechnicalDetails ? (
+
+      {props.showTechnicalDetails ? (
         <CollapsibleSection title="Technical details" defaultOpen={false} sectionTestId="system-health-technical-details">
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             {SYSTEM_HEALTH_CLAIM_DISCIPLINE} Internal diagnostics, dependency probes, and deployment identity are available on the{" "}
@@ -112,6 +116,45 @@ export function SystemHealthDemoPageView(props: SystemHealthDemoPageViewProps) {
           </p>
         </CollapsibleSection>
       ) : null}
+    </>
+  );
+
+  return (
+    <div className={cn(HEALTH_DASHBOARD_PAGE_CLASS, "space-y-4")} data-testid="system-health-demo-page">
+      <a
+        href={`#${SYSTEM_HEALTH_SKIP_TARGET_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {SYSTEM_HEALTH_SKIP_LINK_LABEL}
+      </a>
+
+      <div
+        id={SYSTEM_HEALTH_PRIMARY_CONTENT_ID}
+        data-testid={SYSTEM_HEALTH_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+      >
+        <SystemHealthPageHeader
+          subtitle={systemHealthPageSubtitle(true)}
+          loading={props.loading}
+          lastRefreshedAt={props.lastRefreshedAt}
+          onRefresh={props.onRefresh}
+        />
+
+        <div
+          id={SYSTEM_HEALTH_SKIP_TARGET_ID}
+          data-testid={SYSTEM_HEALTH_FIRST_VIEWPORT_TEST_ID}
+          className={cn(
+            "scroll-mt-24 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            OPERATOR_LAYOUT.sectionStack,
+          )}
+        >
+          {workspaceBody}
+        </div>
+
+        <div data-testid="system-health-orientation-bottom">
+          <SystemHealthEvidenceOrientationStrip />
+        </div>
+      </div>
     </div>
   );
 }
