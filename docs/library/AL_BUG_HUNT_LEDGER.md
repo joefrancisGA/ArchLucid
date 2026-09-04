@@ -3348,11 +3348,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 192
-- **bugs-found:** 404
+- **hunts:** 193
+- **bugs-found:** 406
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — realized-value attestation partial PUT wiped notes
+- **last-bug:** 2026-09-04 — baseline hours-only PUT wiped source note; legal-hold omitted untilUtc
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4299,10 +4299,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-04 thorough hunt #774: proved cost-settings rate-field omission and baseline whitespace source-note data loss.
 
 - [x] (proven) `GovernanceStickinessController.UpsertRealizedValueAttestation` / `RealizedValueMetricsCalculator.SaveAttestationAsync` — partial PUT omitting attestation notes replaced the whole JSON blob and wiped sibling fields — **hit 2026-09-04 (#775):** merge omitted nullable fields from existing workspace attestation before upsert (cost-settings EA partial-PUT #759 parity); regression in `SaveAttestationAsync_preserves_existing_notes_when_partial_body_omits_them`.
-- [ ] (candidate) `TenantBaselineController.PutAsync` — hours-only PUT may call `FormatOperatorSettingsPersistence(null)` and collapse existing `baseline_settings:note` to marker-only — verify merge-on-write vs intentional replace before hunt-ready promotion.
-- [ ] (candidate) `TenantErasureLegalHoldController.SetLegalHoldAsync` / `TenantErasureLegalHoldRequest` — omitted `untilUtc` binds `default(DateTimeOffset)` and returns misleading future-date validation — `required DateTimeOffset` parity with checklist `stepIndex` omission shape.
+- [x] (proven) `TenantBaselineController.PutAsync` — hours-only PUT called `FormatOperatorSettingsPersistence(null)` and collapsed existing `baseline_settings:note` to marker-only — **hit 2026-09-04 (#776):** preserve `existing.BaselineReviewCycleSource` when `baselineReviewCycleSourceNote` is omitted on hours update (partial-PUT merge parity); regression in `PutAsync_preserves_review_cycle_source_note_when_hours_only_update_omits_note`.
+- [x] (proven) `TenantErasureLegalHoldController.SetLegalHoldAsync` / `TenantErasureLegalHoldRequest` — omitted `untilUtc` bound `default(DateTimeOffset)` and returned misleading future-date validation — **hit 2026-09-04 (#776):** `required DateTimeOffset UntilUtc` rejects omitted property at deserialization (checklist `stepIndex` omission parity); regression in `SetLegalHoldRequest_deserialization_rejects_missing_until_utc`.
 
-2026-09-04 seed hunt #775: reseeded baseline hours-only source-note wipe and legal-hold `untilUtc` omission candidates; proved realized-value attestation partial-PUT note wipe promoted from seed read.
+2026-09-04 thorough hunt #776: proved baseline hours-only source-note wipe and legal-hold `untilUtc` omission.
 
 2026-09-04 seed hunt #773: reseeded cost-settings rate-field omission and baseline whitespace source-note candidates; proved homepage `selectedRunId` omission clearing featured sample promoted from seed read.
 

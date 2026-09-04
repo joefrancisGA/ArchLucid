@@ -141,8 +141,10 @@ public sealed partial class TenantBaselineController
         if (touchReview)
         {
             decimal hours = body.BaselineReviewCycleHours!.Value;
-            string persistedSource =
-                BaselineReviewCycleSourceMarkers.FormatOperatorSettingsPersistence(body.BaselineReviewCycleSourceNote);
+            string persistedSource = body.BaselineReviewCycleSourceNote is not null
+                ? BaselineReviewCycleSourceMarkers.FormatOperatorSettingsPersistence(body.BaselineReviewCycleSourceNote)
+                : existing.BaselineReviewCycleSource
+                    ?? BaselineReviewCycleSourceMarkers.FormatOperatorSettingsPersistence(null);
 
             DateTimeOffset capturedUtc = TimeProvider.System.GetUtcNow();
             bool firstReviewCycleCapture = existing.BaselineReviewCycleCapturedUtc is null;

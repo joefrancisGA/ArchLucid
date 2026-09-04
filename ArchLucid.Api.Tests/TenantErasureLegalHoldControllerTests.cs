@@ -1,8 +1,10 @@
 using System.Security.Claims;
+using System.Text.Json;
 
 using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Serialization;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -30,6 +32,17 @@ public sealed class TenantErasureLegalHoldControllerTests
         WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
     };
+
+    [Theory]
+    [InlineData("{\"reason\":\"hold\"}", "missing untilUtc")]
+    public void SetLegalHoldRequest_deserialization_rejects_missing_until_utc(string payload, string because)
+    {
+        Action act = () => JsonSerializer.Deserialize<TenantErasureLegalHoldRequest>(
+            payload,
+            ArchLucidApiJsonSerializerOptions.Web);
+
+        act.Should().Throw<JsonException>(because);
+    }
 
     [Fact]
     public async Task SetLegalHoldAsync_returns_bad_request_when_body_null()
