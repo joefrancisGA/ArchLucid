@@ -182,7 +182,8 @@ public sealed class GovernanceStickinessControllerTests
                     audit.Object,
                     findingInspect?.Object ?? Mock.Of<IFindingInspectReadRepository>()),
                 scope.Object,
-                tenantRepository ?? TenantExistsRepository())
+                tenantRepository ?? TenantExistsRepository(),
+                nextRun.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
@@ -214,7 +215,8 @@ public sealed class GovernanceStickinessControllerTests
                     Mock.Of<IAuditService>(),
                     Mock.Of<IFindingInspectReadRepository>()),
                 scopeProvider,
-                tenantRepository ?? TenantExistsRepository())
+                tenantRepository ?? TenantExistsRepository(),
+                Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
@@ -253,7 +255,8 @@ public sealed class GovernanceStickinessControllerTests
         GovernanceStickinessController sut = new(
             facade.Object,
             scopeProvider.Object,
-            tenants.Object)
+            tenants.Object,
+            Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -1898,6 +1901,29 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task UpdateRecurrenceSchedule_returns_bad_request_when_cron_is_invalid_and_tenant_missing()
+    {
+        Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            recurrenceRepo: recurrenceRepo,
+            recurrenceCalculator: BuildRealRecurrenceCalculator(),
+            tenantRepository: TenantMissingRepository());
+
+        IActionResult action = await controller.UpdateRecurrenceSchedule(
+            Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+            new UpdateArchitectureReviewRecurrenceScheduleRequest
+            {
+                CronExpression = "not-a-real-cron",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        recurrenceRepo.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task UpdateRecurrenceSchedule_returns_bad_request_when_schedule_id_empty_and_tenant_missing()
     {
         Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new(MockBehavior.Strict);
@@ -3331,6 +3357,27 @@ public sealed class GovernanceStickinessControllerTests
         {
             SourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
             Name = "weekly review",
+        };
+
+        IActionResult action = await controller.CreateRecurrenceSchedule(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task CreateRecurrenceSchedule_returns_bad_request_when_cron_is_invalid_and_tenant_missing()
+    {
+        GovernanceStickinessController controller = BuildSut(
+            recurrenceCalculator: BuildRealRecurrenceCalculator(),
+            tenantRepository: TenantMissingRepository());
+
+        CreateArchitectureReviewRecurrenceScheduleRequest request = new()
+        {
+            SourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            Name = "weekly review",
+            CronExpression = "not-a-real-cron",
+            IsEnabled = true,
         };
 
         IActionResult action = await controller.CreateRecurrenceSchedule(request, CancellationToken.None);

@@ -137,7 +137,8 @@ public static class GovernanceStickinessHttpMapper
     }
 
     public static GovernanceHttpValidation? ValidateCreateRecurrenceSchedule(
-        CreateArchitectureReviewRecurrenceScheduleRequest request)
+        CreateArchitectureReviewRecurrenceScheduleRequest request,
+        Func<string, bool>? isSupportedCronExpression = null)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -171,11 +172,18 @@ public static class GovernanceStickinessHttpMapper
                 ProblemTypes.ValidationFailed);
         }
 
+        GovernanceHttpValidation? cronSyntaxValidation =
+            ValidateCronExpressionSyntax(cronExpression, isSupportedCronExpression);
+
+        if (cronSyntaxValidation is not null)
+            return cronSyntaxValidation;
+
         return null;
     }
 
     public static GovernanceHttpValidation? ValidateUpdateRecurrenceSchedule(
-        UpdateArchitectureReviewRecurrenceScheduleRequest request)
+        UpdateArchitectureReviewRecurrenceScheduleRequest request,
+        Func<string, bool>? isSupportedCronExpression = null)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -201,6 +209,29 @@ public static class GovernanceStickinessHttpMapper
                     $"cronExpression must not exceed {RecurrenceScheduleValidation.CronExpressionMaxLength} characters.",
                     ProblemTypes.ValidationFailed);
             }
+
+            GovernanceHttpValidation? cronSyntaxValidation =
+                ValidateCronExpressionSyntax(cronExpression, isSupportedCronExpression);
+
+            if (cronSyntaxValidation is not null)
+                return cronSyntaxValidation;
+        }
+
+        return null;
+    }
+
+    private static GovernanceHttpValidation? ValidateCronExpressionSyntax(
+        string cronExpression,
+        Func<string, bool>? isSupportedCronExpression)
+    {
+        if (isSupportedCronExpression is null)
+            return null;
+
+        if (!isSupportedCronExpression(cronExpression))
+        {
+            return new GovernanceHttpValidation(
+                RecurrenceScheduleCronValidation.InvalidCronMessage,
+                ProblemTypes.ValidationFailed);
         }
 
         return null;

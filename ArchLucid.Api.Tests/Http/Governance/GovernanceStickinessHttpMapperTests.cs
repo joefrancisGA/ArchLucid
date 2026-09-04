@@ -148,6 +148,23 @@ public sealed class GovernanceStickinessHttpMapperTests
     }
 
     [Fact]
+    public void ValidateCreateRecurrenceSchedule_rejects_invalid_cron_expression()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateCreateRecurrenceSchedule(
+            new CreateArchitectureReviewRecurrenceScheduleRequest
+            {
+                SourceRunId = Guid.NewGuid(),
+                CronExpression = "not-a-real-cron",
+                IsEnabled = true,
+            },
+            _ => false);
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Be(RecurrenceScheduleCronValidation.InvalidCronMessage);
+    }
+
+    [Fact]
     public void ValidateUpsertRealizedValueAttestation_rejects_negative_attested_incidents()
     {
         GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateUpsertRealizedValueAttestation(
