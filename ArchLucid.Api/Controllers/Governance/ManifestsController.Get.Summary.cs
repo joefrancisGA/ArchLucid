@@ -29,6 +29,21 @@ public sealed partial class ManifestsController
         if (manifestVersionProblem is not null)
             return manifestVersionProblem;
 
+        if (maxRelationships is < 1 or > ManifestSummaryLimits.MaxRelationships)
+        {
+            return this.BadRequestProblem(
+                $"maxRelationships must be between 1 and {ManifestSummaryLimits.MaxRelationships}.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (!string.Equals(format, FormatMarkdown, StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(format, FormatJson, StringComparison.OrdinalIgnoreCase))
+        {
+            return this.BadRequestProblem(
+                $"format must be '{FormatMarkdown}' or '{FormatJson}'.",
+                ProblemTypes.ValidationFailed);
+        }
+
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -39,14 +54,7 @@ public sealed partial class ManifestsController
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
-        if (maxRelationships is < 1 or > ManifestSummaryLimits.MaxRelationships)
-        {
-            return this.BadRequestProblem(
-                $"maxRelationships must be between 1 and {ManifestSummaryLimits.MaxRelationships}.",
-                ProblemTypes.ValidationFailed);
-        }
-
-        int? validatedMaxRelationships = maxRelationships;
+        int? validatedMaxRelationships = maxRelationships ?? ManifestSummaryLimits.MaxRelationships;
 
         string canonicalManifestVersion = manifest.Metadata.ManifestVersion;
 
@@ -100,11 +108,6 @@ public sealed partial class ManifestsController
                         }).ToList()
                     : []
             });
-
-        if (!string.Equals(format, FormatMarkdown, StringComparison.OrdinalIgnoreCase))
-            return this.BadRequestProblem(
-                $"format must be '{FormatMarkdown}' or '{FormatJson}'.",
-                ProblemTypes.ValidationFailed);
 
         ManifestSummaryOptions options = new()
         {

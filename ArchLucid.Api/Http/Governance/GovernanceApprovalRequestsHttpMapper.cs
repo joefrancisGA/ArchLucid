@@ -1,7 +1,9 @@
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance;
 
 namespace ArchLucid.Api.Http.Governance;
@@ -18,6 +20,114 @@ public static class GovernanceApprovalRequestsHttpMapper
     {
         if (string.IsNullOrWhiteSpace(approvalRequestId))
             return new GovernanceHttpValidation("approvalRequestId is required.", ProblemTypes.ValidationFailed);
+
+        if (approvalRequestId.Length > GovernanceRequestValidationRules.ApprovalRequestIdMaxLength)
+        {
+            return new GovernanceHttpValidation(
+                $"approvalRequestId must not exceed {GovernanceRequestValidationRules.ApprovalRequestIdMaxLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
+    public static GovernanceHttpValidation? ValidateManifestVersion(string? manifestVersion)
+    {
+        if (string.IsNullOrWhiteSpace(manifestVersion))
+        {
+            return new GovernanceHttpValidation(
+                "ManifestVersion is required.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (manifestVersion.Trim().Length > GovernanceRequestValidationRules.ManifestVersionMaxLength)
+        {
+            return new GovernanceHttpValidation(
+                $"ManifestVersion must not exceed {GovernanceRequestValidationRules.ManifestVersionMaxLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
+    public static GovernanceHttpValidation? ValidateGovernanceRunId(string? runId)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return new GovernanceHttpValidation("RunId is required.", ProblemTypes.ValidationFailed);
+
+        if (runId.Trim().Length > GovernanceRequestValidationRules.RunIdMaxLength)
+        {
+            return new GovernanceHttpValidation(
+                $"RunId must not exceed {GovernanceRequestValidationRules.RunIdMaxLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
+    public static GovernanceHttpValidation? ValidateGovernanceRouteRunId(string? runId)
+    {
+        GovernanceHttpValidation? runIdValidation = ValidateGovernanceRunId(runId);
+
+        if (runIdValidation is not null)
+            return runIdValidation;
+
+        if (!Guid.TryParse(runId!.Trim(), out Guid parsedRunId) || parsedRunId == Guid.Empty)
+            return new GovernanceHttpValidation("RunId is not valid.", ProblemTypes.ValidationFailed);
+
+        return null;
+    }
+
+    public static GovernanceHttpValidation? ValidateEnvironmentSlug(string? environment, string fieldName)
+    {
+        if (string.IsNullOrWhiteSpace(environment))
+            return new GovernanceHttpValidation($"{fieldName} is required.", ProblemTypes.ValidationFailed);
+
+        if (environment.Trim().Length > GovernanceEnvironmentSlug.MaxLength)
+        {
+            return new GovernanceHttpValidation(
+                $"{fieldName} must not exceed {GovernanceEnvironmentSlug.MaxLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
+    public static GovernanceHttpValidation? ValidateReviewComment(string? reviewComment) =>
+        ValidateOptionalGovernanceComment(reviewComment, "ReviewComment");
+
+    public static GovernanceHttpValidation? ValidateOptionalGovernanceComment(string? value, string fieldName)
+    {
+        if (value is not null && value.Length > GovernanceRequestValidationRules.ReviewCommentMaxLength)
+        {
+            return new GovernanceHttpValidation(
+                $"{fieldName} must not exceed {GovernanceRequestValidationRules.ReviewCommentMaxLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
+    public static GovernanceHttpValidation? ValidateOptionalApprovalRequestId(string? approvalRequestId)
+    {
+        if (approvalRequestId is null)
+            return null;
+
+        string normalizedApprovalRequestId = approvalRequestId.Trim();
+
+        if (normalizedApprovalRequestId.Length == 0)
+        {
+            return new GovernanceHttpValidation(
+                "approvalRequestId is required.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (normalizedApprovalRequestId.Length > GovernanceRequestValidationRules.ApprovalRequestIdMaxLength)
+        {
+            return new GovernanceHttpValidation(
+                $"approvalRequestId must not exceed {GovernanceRequestValidationRules.ApprovalRequestIdMaxLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
 
         return null;
     }
@@ -48,6 +158,21 @@ public static class GovernanceApprovalRequestsHttpMapper
                 ProblemTypes.ValidationFailed);
         }
 
+        foreach (string rawApprovalRequestId in body.ApprovalRequestIds)
+        {
+            if (string.IsNullOrWhiteSpace(rawApprovalRequestId))
+                continue;
+
+            string normalizedApprovalRequestId = rawApprovalRequestId.Trim();
+
+            if (normalizedApprovalRequestId.Length > GovernanceRequestValidationRules.ApprovalRequestIdMaxLength)
+            {
+                return new GovernanceHttpValidation(
+                    $"Each approvalRequestId must not exceed {GovernanceRequestValidationRules.ApprovalRequestIdMaxLength} characters.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
         if (body.Decision is null)
             return new GovernanceHttpValidation("Decision is required (approve or reject).", ProblemTypes.ValidationFailed);
 
@@ -61,6 +186,11 @@ public static class GovernanceApprovalRequestsHttpMapper
 
         if (!approve && !reject)
             return new GovernanceHttpValidation("Decision must be 'approve' or 'reject'.", ProblemTypes.ValidationFailed);
+
+        GovernanceHttpValidation? reviewCommentValidation = ValidateReviewComment(body.ReviewComment);
+
+        if (reviewCommentValidation is not null)
+            return reviewCommentValidation;
 
         return null;
     }

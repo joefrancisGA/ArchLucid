@@ -1,6 +1,7 @@
 using ArchLucid.Application.Analysis;
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Models;
+using ArchLucid.Api.Validators;
 using ArchLucid.Application.Diagrams;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Exports;
@@ -54,7 +55,8 @@ public sealed class ManifestsControllerTests
 
     private static ManifestsController CreateController(
         IUnifiedGoldenManifestReader? manifestReader = null,
-        IManifestDiffService? manifestDiffService = null)
+        IManifestDiffService? manifestDiffService = null,
+        ITenantRepository? tenantRepository = null)
     {
         GoldenManifest left = CreateManifest(LeftVersion);
         GoldenManifest right = CreateManifest(RightVersion, "payments-v2");
@@ -185,6 +187,8 @@ public sealed class ManifestsControllerTests
                 },
             ]);
 
+        ITenantRepository tenantRepo = tenantRepository ?? tenants.Object;
+
         Mock<ICompareRunsApplicationFacade> compareFacade = new();
         compareFacade
             .Setup(f => f.CompareManifestVersionsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -225,7 +229,7 @@ public sealed class ManifestsControllerTests
                 runs.Object,
                 authority.Object,
                 compareFacade.Object,
-                tenants.Object)
+                tenantRepo)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
@@ -238,6 +242,44 @@ public sealed class ManifestsControllerTests
 
         IActionResult action =
             await controller.CompareManifests("", RightVersion, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task CompareManifests_returns_bad_request_when_left_version_exceeds_max_length()
+    {
+        string overlongLeftVersion = new string('v', GovernanceRequestValidationRules.ManifestVersionMaxLength + 1);
+        ManifestsController controller = CreateController();
+
+        IActionResult action =
+            await controller.CompareManifests(overlongLeftVersion, RightVersion, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task CompareManifests_returns_bad_request_when_left_version_exceeds_max_length_and_tenant_missing()
+    {
+        string overlongLeftVersion = new string('v', GovernanceRequestValidationRules.ManifestVersionMaxLength + 1);
+        ManifestsController controller = CreateController(tenantRepository: TenantMissingRepository());
+
+        IActionResult action =
+            await controller.CompareManifests(overlongLeftVersion, RightVersion, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task GetManifest_returns_bad_request_when_manifest_version_exceeds_max_length()
+    {
+        string overlongVersion = new string('v', GovernanceRequestValidationRules.ManifestVersionMaxLength + 1);
+        ManifestsController controller = CreateController();
+
+        IActionResult action = await controller.GetManifest(overlongVersion, CancellationToken.None);
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
@@ -370,6 +412,44 @@ public sealed class ManifestsControllerTests
     }
 
     [Fact]
+    public async Task GetManifestSummary_returns_bad_request_when_max_relationships_is_zero_and_tenant_missing()
+    {
+        Mock<IUnifiedGoldenManifestReader> reader = new(MockBehavior.Strict);
+
+        ManifestsController controller = CreateController(
+            manifestReader: reader.Object,
+            tenantRepository: TenantMissingRepository());
+
+        IActionResult action = await controller.GetManifestSummary(
+            ManifestVersion,
+            maxRelationships: 0,
+            cancellationToken: CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        reader.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetManifestSummary_returns_bad_request_for_unknown_format_and_tenant_missing()
+    {
+        Mock<IUnifiedGoldenManifestReader> reader = new(MockBehavior.Strict);
+
+        ManifestsController controller = CreateController(
+            manifestReader: reader.Object,
+            tenantRepository: TenantMissingRepository());
+
+        IActionResult action = await controller.GetManifestSummary(
+            ManifestVersion,
+            format: "xml",
+            cancellationToken: CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        reader.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task GetManifestSummary_returns_json_payload_when_format_json()
     {
         ManifestsController controller = CreateController();
@@ -383,6 +463,39 @@ public sealed class ManifestsControllerTests
         ManifestSummaryJsonResponse body = ok.Value.Should().BeOfType<ManifestSummaryJsonResponse>().Subject;
         body.ManifestVersion.Should().Be(ManifestVersion);
         body.SystemName.Should().Be("payments");
+    }
+
+    [Fact]
+    public async Task GetManifestSummary_json_caps_relationships_at_default_max_when_query_param_omitted()
+    {
+        GoldenManifest manifest = CreateManifest(ManifestVersion);
+
+        for (int i = 0; i < ManifestSummaryLimits.MaxRelationships + 1; i++)
+        {
+            manifest.Relationships.Add(new ManifestRelationship
+            {
+                SourceId = $"svc-{i}",
+                TargetId = $"ds-{i}",
+                RelationshipType = RelationshipType.Calls,
+            });
+        }
+
+        Mock<IUnifiedGoldenManifestReader> reader = new();
+        reader
+            .Setup(r => r.GetByVersionAsync(ManifestVersion, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(manifest);
+
+        ManifestsController controller = CreateController(manifestReader: reader.Object);
+
+        IActionResult action = await controller.GetManifestSummary(
+            ManifestVersion,
+            format: "json",
+            cancellationToken: CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        ManifestSummaryJsonResponse body = ok.Value.Should().BeOfType<ManifestSummaryJsonResponse>().Subject;
+        body.RelationshipCount.Should().Be(ManifestSummaryLimits.MaxRelationships + 1);
+        body.Relationships.Should().HaveCount(ManifestSummaryLimits.MaxRelationships);
     }
 
     [Fact]
@@ -426,4 +539,9 @@ public sealed class ManifestsControllerTests
             ok.Value.Should().BeOfType<ArchLucid.Api.Models.ManifestExportContentResponse>().Subject;
         body.ManifestVersion.Should().Be(ManifestVersion);
     }
+
+    private static ITenantRepository TenantMissingRepository() =>
+        Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
+            CallerScope.TenantId,
+            It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(null));
 }

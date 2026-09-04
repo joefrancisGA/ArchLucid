@@ -32,6 +32,15 @@ public sealed class TenantTrialConversionStage(
         string actor,
         CancellationToken cancellationToken)
     {
+        if (!TryMapRequestTier(body?.TargetTier, out TenantTier? tier, out string? tierError))
+        {
+            return new TenantTrialConvertResult
+            {
+                Outcome = TenantTrialHttpOutcome.ValidationFailed,
+                Message = tierError,
+            };
+        }
+
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
@@ -56,15 +65,6 @@ public sealed class TenantTrialConversionStage(
         catch (BillingConversionBlockedException ex)
         {
             return new TenantTrialConvertResult { Outcome = TenantTrialHttpOutcome.Conflict, Message = ex.Message };
-        }
-
-        if (!TryMapRequestTier(body?.TargetTier, out TenantTier? tier, out string? tierError))
-        {
-            return new TenantTrialConvertResult
-            {
-                Outcome = TenantTrialHttpOutcome.ValidationFailed,
-                Message = tierError,
-            };
         }
 
         ArchLucidInstrumentation.RecordTrialConversion(

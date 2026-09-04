@@ -115,4 +115,38 @@ public sealed class PolicyPackCoverageProofEvaluatorTests
         proof.AssignmentCount.Should().Be(1);
         proof.UnprovenAssignmentCount.Should().Be(0);
     }
+
+    [Fact]
+    public void Evaluate_treats_pack_engine_type_as_proven_when_compliance_rule_keys_miss()
+    {
+        Guid packId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        ExecutedEffectiveGovernanceSnapshotDescriptor descriptor = new()
+        {
+            PackAssignments =
+            [
+                new CommittedGovernancePackAssignmentSnapshot
+                {
+                    PolicyPackId = packId,
+                    PolicyPackVersion = "1.0",
+                    ComplianceRuleKeys = ["listed-rule-only"],
+                },
+            ],
+        };
+
+        string scopeJson = ExecutedEffectiveGovernanceSnapshotJson.Serialize(descriptor);
+
+        List<Finding> findings =
+        [
+            new()
+            {
+                FindingId = "f-pack-engine",
+                PolicyRuleId = "unrelated-rule-key",
+                EngineType = $"policy-pack:{packId:D}",
+            },
+        ];
+
+        PolicyPackCoverageProofResult proof = PolicyPackCoverageProofEvaluator.Evaluate(scopeJson, findings);
+
+        proof.UnprovenAssignmentCount.Should().Be(0);
+    }
 }

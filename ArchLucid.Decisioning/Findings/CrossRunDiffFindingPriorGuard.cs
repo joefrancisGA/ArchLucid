@@ -1,4 +1,6 @@
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.KnowledgeGraph;
+using ArchLucid.KnowledgeGraph.Models;
 
 namespace ArchLucid.Decisioning.Findings;
 
@@ -35,5 +37,45 @@ public static partial class CrossRunDiffFindingPriorGuard
 
         throw new InvalidOperationException(
             $"Cross-run engine '{engineType}' requires prior graph snapshot '{priorGraphId:D}' but it could not be loaded.");
+    }
+
+    /// <summary>
+    ///     When a prior run is bound but neither Γ nor context metadata carries revision data, fail closed.
+    /// </summary>
+    public static void EnsurePriorRevisionResolvableOrThrow(
+        FindingAnalysisContext? analysisContext,
+        GraphSnapshot? priorGraph,
+        GraphSnapshot graphSnapshot,
+        string contextPriorPropertyKey,
+        string engineType)
+    {
+        ArgumentNullException.ThrowIfNull(graphSnapshot);
+        ArgumentException.ThrowIfNullOrWhiteSpace(contextPriorPropertyKey);
+
+        if (analysisContext?.Prior?.PriorRunId is not Guid priorRunId || priorRunId == Guid.Empty)
+            return;
+
+        if (priorGraph is not null)
+            return;
+
+        if (analysisContext.Prior.PriorGraphSnapshotId is Guid priorGraphId && priorGraphId != Guid.Empty)
+            return;
+
+        if (HasContextPriorMetadata(graphSnapshot, contextPriorPropertyKey))
+            return;
+
+        throw new InvalidOperationException(
+            $"Cross-run engine '{engineType}' requires prior revision data for run '{priorRunId:D}' but none was resolved from graph snapshot or context metadata '{contextPriorPropertyKey}'.");
+    }
+
+    private static bool HasContextPriorMetadata(GraphSnapshot graphSnapshot, string contextPriorPropertyKey)
+    {
+        GraphNode? contextNode = graphSnapshot.Nodes.FirstOrDefault(node =>
+            string.Equals(node.NodeType, GraphNodeTypes.ContextSnapshot, StringComparison.OrdinalIgnoreCase));
+
+        if (contextNode?.Properties.TryGetValue(contextPriorPropertyKey, out string? priorRaw) != true)
+            return false;
+
+        return !string.IsNullOrWhiteSpace(priorRaw);
     }
 }

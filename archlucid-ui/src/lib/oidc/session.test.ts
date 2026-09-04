@@ -2,10 +2,12 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import {
   clearOidcSession,
+  consumePkceState,
   consumePostSignInReturnUrl,
   getAccessTokenForApi,
   isLikelySignedIn,
   persistTokenResponse,
+  storePkceState,
   storePostSignInReturnUrl,
 } from "@/lib/oidc/session";
 import {
@@ -117,6 +119,30 @@ describe("persistTokenResponse", () => {
     expect(expiresAtMs).toBeGreaterThanOrEqual(expectedMin);
     expect(expiresAtMs).toBeLessThanOrEqual(expectedMax);
     expect(isLikelySignedIn()).toBe(true);
+  });
+});
+
+describe("consumePkceState", () => {
+  afterEach(() => {
+    sessionStorage.clear();
+  });
+
+  it("consumes the matching primary or google flow by callback state", () => {
+    storePkceState("primary-state", "primary-verifier", "primary-nonce", "primary");
+    storePkceState("google-state", "google-verifier", "google-nonce", "google");
+
+    expect(consumePkceState("google-state")).toEqual({
+      state: "google-state",
+      codeVerifier: "google-verifier",
+      nonce: "google-nonce",
+      flow: "google",
+    });
+    expect(consumePkceState("primary-state")).toEqual({
+      state: "primary-state",
+      codeVerifier: "primary-verifier",
+      nonce: "primary-nonce",
+      flow: "primary",
+    });
   });
 });
 

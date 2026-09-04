@@ -47,11 +47,6 @@ public sealed partial class GovernanceStickinessController
         if (findingIdProblem is not null)
             return findingIdProblem;
 
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
-
-        if (tenantProblem is not null)
-            return tenantProblem;
-
         IActionResult? runIdProblem = null;
 
         if (body.RunId.HasValue)
@@ -62,6 +57,17 @@ public sealed partial class GovernanceStickinessController
 
         if (runIdProblem is not null)
             return runIdProblem;
+
+        IActionResult? dispositionValidation =
+            GovernanceStickinessHttpMapper.ValidateRecordDisposition(body).ToBadRequestProblemOrNull(this);
+
+        if (dispositionValidation is not null)
+            return dispositionValidation;
+
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         RecordFindingDispositionRequest normalized = new()
         {
@@ -122,6 +128,12 @@ public sealed partial class GovernanceStickinessController
 
         if (findingIdsProblem is not null)
             return findingIdsProblem;
+
+        IActionResult? dispositionValidation =
+            GovernanceStickinessHttpMapper.ValidateBulkDisposition(request!).ToBadRequestProblemOrNull(this);
+
+        if (dispositionValidation is not null)
+            return dispositionValidation;
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
@@ -195,16 +207,16 @@ public sealed partial class GovernanceStickinessController
         if (findingIdProblem is not null)
             return findingIdProblem;
 
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
-
-        if (tenantProblem is not null)
-            return tenantProblem;
-
         IActionResult? runIdProblem =
             GovernanceStickinessControllerCore.ValidateRunId(runId).ToBadRequestProblemOrNull(this);
 
         if (runIdProblem is not null)
             return runIdProblem;
+
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         try
         {

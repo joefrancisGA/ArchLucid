@@ -4,6 +4,7 @@ using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Findings.Factories;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Persistence.Ports;
@@ -35,6 +36,12 @@ public sealed class RequirementCrossRunDiffFindingEngine(
         GraphSnapshot? priorGraph = await TryLoadPriorGraphAsync(analysisContext, ct).ConfigureAwait(false);
         CrossRunDiffFindingPriorGuard.EnsurePriorGraphLoadedOrThrow(analysisContext, priorGraph, EngineType);
         CrossRunDiffFindingPriorGuard.EnsurePriorGraphPinFingerprintsMatchOrThrow(analysisContext, priorGraph, EngineType);
+        CrossRunDiffFindingPriorGuard.EnsurePriorRevisionResolvableOrThrow(
+            analysisContext,
+            priorGraph,
+            graphSnapshot,
+            ContextGraphPropertyKeys.PriorRequirementNames,
+            EngineType);
         RequirementNameDiffResult diff = GraphSnapshotRequirementDiffAnalyzer.AnalyzeNameDelta(graphSnapshot, priorGraph);
         List<Finding> findings = [];
         List<string> scopeNodeIds = CrossRunDiffFindingGraphScope.CollectRequirementNodeIds(graphSnapshot);

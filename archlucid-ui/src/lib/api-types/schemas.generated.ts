@@ -775,6 +775,7 @@ export interface components {
         };
         AgentResultDiffResult: {
             agentDeltas?: components["schemas"]["AgentResultDelta"][];
+            inputFingerprints?: null | components["schemas"]["CompareInputFingerprints"];
             leftRunId?: string;
             rightRunId?: string;
             warnings?: string[];

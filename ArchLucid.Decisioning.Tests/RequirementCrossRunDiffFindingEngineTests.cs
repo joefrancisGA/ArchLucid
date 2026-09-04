@@ -65,12 +65,50 @@ public sealed class RequirementCrossRunDiffFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_when_prior_run_bound_without_revision_data_throws()
+    {
+        RequirementCrossRunDiffFindingEngine engine = CreateEngine();
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "context-1",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "context",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                },
+                new GraphNode
+                {
+                    NodeId = "req-1",
+                    NodeType = GraphNodeTypes.Requirement,
+                    Label = "availability",
+                    Properties = new()
+                }
+            ]
+        };
+
+        Func<Task> act = () => engine.AnalyzeAsync(graph, AnalysisContextWithPrior(), CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*requires prior revision data*");
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_WhenRequirementsRegressed_EmitsWarningGapFinding()
     {
         GraphSnapshot priorGraph = new()
         {
             Nodes =
             [
+                new GraphNode
+                {
+                    NodeId = "prior-context",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "prior-context",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                },
                 new GraphNode
                 {
                     NodeId = "req-prior-1",
@@ -132,6 +170,13 @@ public sealed class RequirementCrossRunDiffFindingEngineTests
         {
             Nodes =
             [
+                new GraphNode
+                {
+                    NodeId = "prior-context",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "prior-context",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                },
                 new GraphNode
                 {
                     NodeId = "req-prior-1",

@@ -31,16 +31,16 @@ public sealed partial class GovernanceStickinessController
         if (bodyProblem is not null)
             return bodyProblem;
 
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
-
-        if (tenantProblem is not null)
-            return tenantProblem;
-
         IActionResult? createValidation =
             GovernanceStickinessHttpMapper.ValidateCreateRiskException(request!).ToBadRequestProblemOrNull(this);
 
         if (createValidation is not null)
             return createValidation;
+
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         try
         {
@@ -104,17 +104,17 @@ public sealed partial class GovernanceStickinessController
     [MutatingAuditExcluded("Audit: IRiskExceptionService logs RiskExceptionRevoked via IAuditService.")]
     public async Task<IActionResult> RevokeRiskException(Guid riskExceptionId, CancellationToken cancellationToken = default)
     {
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
-
-        if (tenantProblem is not null)
-            return tenantProblem;
-
         IActionResult? routeValidation =
             GovernanceStickinessHttpMapper.ValidateRouteGuid(riskExceptionId, "riskExceptionId")
                 .ToBadRequestProblemOrNull(this);
 
         if (routeValidation is not null)
             return routeValidation;
+
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         try
         {
@@ -149,17 +149,23 @@ public sealed partial class GovernanceStickinessController
         if (bodyProblem is not null)
             return bodyProblem;
 
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
-
-        if (tenantProblem is not null)
-            return tenantProblem;
-
         IActionResult? routeValidation =
             GovernanceStickinessHttpMapper.ValidateRouteGuid(riskExceptionId, "riskExceptionId")
                 .ToBadRequestProblemOrNull(this);
 
         if (routeValidation is not null)
             return routeValidation;
+
+        IActionResult? renewValidation =
+            GovernanceStickinessHttpMapper.ValidateRenewRiskException(request!).ToBadRequestProblemOrNull(this);
+
+        if (renewValidation is not null)
+            return renewValidation;
+
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         try
         {

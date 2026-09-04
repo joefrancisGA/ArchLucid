@@ -1,6 +1,7 @@
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Governance;
@@ -1508,6 +1509,46 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task RecordDisposition_returns_bad_request_when_finding_id_exceeds_max_length()
+    {
+        GovernanceStickinessController controller = BuildSut();
+        SetIdempotencyKey(controller);
+        string overlongFindingId = new string('f', GovernanceRequestValidationRules.FindingIdMaxLength + 1);
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = overlongFindingId,
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "ok",
+        };
+
+        IActionResult action = await controller.RecordDisposition(overlongFindingId, request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task RecordBulkDisposition_returns_bad_request_when_finding_id_exceeds_max_length()
+    {
+        GovernanceStickinessController controller = BuildSut();
+        SetIdempotencyKey(controller);
+        string overlongFindingId = new string('f', GovernanceRequestValidationRules.FindingIdMaxLength + 1);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = [overlongFindingId],
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "bulk ok",
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task RecordDisposition_returns_bad_request_when_run_id_is_empty()
     {
         GovernanceStickinessController controller = BuildSut();
@@ -1672,6 +1713,368 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task CreateRiskException_returns_bad_request_when_finding_id_exceeds_max_length()
+    {
+        GovernanceStickinessController controller = BuildSut();
+        string overlongFindingId = new string('f', GovernanceRequestValidationRules.FindingIdMaxLength + 1);
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = overlongFindingId,
+            RunId = Guid.NewGuid(),
+            OwnerUserId = "owner@contoso.com",
+            Rationale = "accepted risk rationale",
+            EvidenceRef = "artifact://evidence/1",
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        IActionResult action = await controller.CreateRiskException(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task CreateRiskException_returns_bad_request_when_owner_user_id_exceeds_max_length_before_facade()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new(MockBehavior.Strict);
+        Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            findingInspect: findingInspect,
+            riskExceptions: riskExceptions);
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = "finding-1",
+            RunId = Guid.NewGuid(),
+            OwnerUserId = new string('o', RiskExceptionValidation.OwnerUserIdMaxLength + 1),
+            Rationale = "accepted risk rationale",
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        IActionResult action = await controller.CreateRiskException(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        findingInspect.VerifyNoOtherCalls();
+        riskExceptions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task CreateRiskException_returns_bad_request_when_rationale_exceeds_max_length_before_facade()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new(MockBehavior.Strict);
+        Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            findingInspect: findingInspect,
+            riskExceptions: riskExceptions);
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = "finding-1",
+            RunId = Guid.NewGuid(),
+            OwnerUserId = "owner@contoso.com",
+            Rationale = new string('r', FindingDispositionValidation.MaximumRationaleLength + 1),
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        IActionResult action = await controller.CreateRiskException(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        findingInspect.VerifyNoOtherCalls();
+        riskExceptions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task RenewRiskException_returns_bad_request_when_rationale_exceeds_max_length_before_facade()
+    {
+        Guid exceptionId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(riskExceptions: riskExceptions);
+
+        RenewRiskExceptionRequest request = new()
+        {
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+            Rationale = new string('r', FindingDispositionValidation.MaximumRationaleLength + 1),
+        };
+
+        IActionResult action = await controller.RenewRiskException(exceptionId, request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        riskExceptions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task RenewRiskException_returns_bad_request_when_evidence_ref_exceeds_max_length_before_facade()
+    {
+        Guid exceptionId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(riskExceptions: riskExceptions);
+
+        RenewRiskExceptionRequest request = new()
+        {
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+            EvidenceRef = new string('e', RiskExceptionValidation.EvidenceRefMaxLength + 1),
+        };
+
+        IActionResult action = await controller.RenewRiskException(exceptionId, request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        riskExceptions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task CreateRiskException_returns_bad_request_when_rationale_exceeds_max_length_and_tenant_missing()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new(MockBehavior.Strict);
+        Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            findingInspect: findingInspect,
+            riskExceptions: riskExceptions,
+            tenantRepository: TenantMissingRepository());
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = "finding-1",
+            RunId = Guid.NewGuid(),
+            OwnerUserId = "owner@contoso.com",
+            Rationale = new string('r', FindingDispositionValidation.MaximumRationaleLength + 1),
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        IActionResult action = await controller.CreateRiskException(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        findingInspect.VerifyNoOtherCalls();
+        riskExceptions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task UpdateRecurrenceSchedule_returns_bad_request_when_name_exceeds_max_length_and_tenant_missing()
+    {
+        Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            recurrenceRepo: recurrenceRepo,
+            tenantRepository: TenantMissingRepository());
+
+        IActionResult action = await controller.UpdateRecurrenceSchedule(
+            Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+            new UpdateArchitectureReviewRecurrenceScheduleRequest
+            {
+                Name = new string('n', RecurrenceScheduleValidation.NameMaxLength + 1),
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        recurrenceRepo.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task UpdateRecurrenceSchedule_returns_bad_request_when_schedule_id_empty_and_tenant_missing()
+    {
+        Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            recurrenceRepo: recurrenceRepo,
+            tenantRepository: TenantMissingRepository());
+
+        IActionResult action = await controller.UpdateRecurrenceSchedule(
+            Guid.Empty,
+            new UpdateArchitectureReviewRecurrenceScheduleRequest { Name = "updated" },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        recurrenceRepo.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task RecordDisposition_returns_bad_request_when_deferred_revisit_past_and_tenant_missing()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new(MockBehavior.Strict);
+        Mock<IFindingDispositionService> dispositions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            findingInspect: findingInspect,
+            dispositionService: dispositions,
+            tenantRepository: TenantMissingRepository());
+        SetIdempotencyKey(controller);
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            Disposition = FindingDisposition.Deferred,
+            RevisitDueUtc = DateTimeOffset.UtcNow.AddDays(-1),
+        };
+
+        IActionResult action = await controller.RecordDisposition("finding-1", request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        findingInspect.VerifyNoOtherCalls();
+        dispositions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task ResolveFindingMergeConflict_returns_bad_request_when_run_id_empty_and_tenant_missing()
+    {
+        GovernanceStickinessController controller = BuildSut(tenantRepository: TenantMissingRepository());
+
+        IActionResult action = await controller.ResolveFindingMergeConflict(
+            Guid.Empty,
+            "finding-1",
+            new ResolveFindingMergeConflictRequest
+            {
+                Action = FindingMergeConflictResolutionAction.AcceptPrimary,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task UpsertRealizedValueAttestation_returns_bad_request_when_attested_incidents_negative_and_tenant_missing()
+    {
+        Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            recurrenceRepo: recurrenceRepo,
+            tenantRepository: TenantMissingRepository());
+
+        IActionResult action = await controller.UpsertRealizedValueAttestation(
+            new UpsertRealizedValueAttestationRequest
+            {
+                AttestedIncidentsAvoided = -3,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        recurrenceRepo.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task RecordBulkDisposition_returns_bad_request_when_deferred_without_revisit_and_tenant_missing()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new(MockBehavior.Strict);
+        Mock<IFindingDispositionService> dispositions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            findingInspect: findingInspect,
+            dispositionService: dispositions,
+            tenantRepository: TenantMissingRepository());
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = ["finding-1"],
+            Disposition = FindingDisposition.Deferred,
+            Rationale = "defer until next quarter",
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        findingInspect.VerifyNoOtherCalls();
+        dispositions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task RecordBulkDisposition_returns_bad_request_when_rationale_exceeds_max_length_and_tenant_missing()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new(MockBehavior.Strict);
+        Mock<IFindingDispositionService> dispositions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            findingInspect: findingInspect,
+            dispositionService: dispositions,
+            tenantRepository: TenantMissingRepository());
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = ["finding-1"],
+            Disposition = FindingDisposition.Accepted,
+            Rationale = new string('r', FindingDispositionValidation.MaximumRationaleLength + 1),
+            TradeOffAcknowledgment = "accepted after architecture board review",
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        findingInspect.VerifyNoOtherCalls();
+        dispositions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task RecordDisposition_returns_bad_request_when_rationale_exceeds_max_length_before_finding_inspect()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new(MockBehavior.Strict);
+        Mock<IFindingDispositionService> dispositions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            findingInspect: findingInspect,
+            dispositionService: dispositions);
+        SetIdempotencyKey(controller);
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            Disposition = FindingDisposition.Accepted,
+            Rationale = new string('r', FindingDispositionValidation.MaximumRationaleLength + 1),
+            TradeOffAcknowledgment = "accepted after architecture board review",
+        };
+
+        IActionResult action = await controller.RecordDisposition("finding-1", request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        findingInspect.VerifyNoOtherCalls();
+        dispositions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task RecordBulkDisposition_returns_bad_request_when_rationale_exceeds_max_length_before_finding_inspect()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new(MockBehavior.Strict);
+        Mock<IFindingDispositionService> dispositions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            findingInspect: findingInspect,
+            dispositionService: dispositions);
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = ["finding-1"],
+            Disposition = FindingDisposition.Accepted,
+            Rationale = new string('r', FindingDispositionValidation.MaximumRationaleLength + 1),
+            TradeOffAcknowledgment = "accepted after architecture board review",
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        findingInspect.VerifyNoOtherCalls();
+        dispositions.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -2883,15 +3286,7 @@ public sealed class GovernanceStickinessControllerTests
     {
         Guid sourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
 
-        Mock<IRunRepository> runs = new();
-        runs
-            .Setup(r => r.GetByIdAsync(Scope, sourceRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunRecord
-            {
-                RunId = sourceRunId,
-                ArchitectureId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
-            });
+        Mock<IRunRepository> runs = new(MockBehavior.Strict);
 
         GovernanceStickinessController controller = BuildSut(runRepository: runs);
 
@@ -2907,6 +3302,7 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        runs.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -3203,6 +3599,22 @@ public sealed class GovernanceStickinessControllerTests
         body.IsValid.Should().BeFalse();
         body.NextRunUtc.Should().BeEmpty();
         body.ValidationError.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public void PreviewRecurrenceScheduleRuns_returns_bad_request_when_cron_expression_exceeds_max_length()
+    {
+        GovernanceStickinessController controller = BuildSut(recurrenceCalculator: BuildRealRecurrenceCalculator());
+        string overlongCron = new string('0', RecurrenceScheduleValidation.CronExpressionMaxLength + 1);
+
+        IActionResult action = controller.PreviewRecurrenceScheduleRuns(new PreviewRecurrenceScheduleRunsRequest
+        {
+            CronExpression = overlongCron,
+            Count = 3,
+        });
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
 
     [Fact]

@@ -385,6 +385,80 @@ public sealed class ItsmInboundWebhookSyncServiceTests
     }
 
     [Fact]
+    public async Task ServiceNow_inbound_uses_incident_state_when_state_is_unmapped_but_incident_state_resolves()
+    {
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        correlations
+            .Setup(c => c.TryGetByExternalKeyAsync("ServiceNow", ServiceNowSysId1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ItsmFindingCorrelationRecord { TenantId = TenantA, WorkspaceId = WorkspaceA, ProjectId = ProjectA, FindingId = "f-sn5" });
+        correlations
+            .Setup(c => c.FindingRecordExistsAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        correlations
+            .Setup(c => c.UpdateHumanReviewStatusForFindingAsync(
+                TenantA,
+                "f-sn5",
+                nameof(FindingHumanReviewStatus.Approved),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+        ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(correlations, new IntegrationsItsmInboundOptions());
+
+        const string json = $$"""{"sys_id":"{{ServiceNowSysId1}}","state":"4","incident_state":"6"}""";
+        using JsonDocument doc = JsonDocument.Parse(json);
+        ItsmInboundWebhookProcessResult r =
+            await sut.TryProcessServiceNowIncidentUpdateAsync(doc.RootElement, CancellationToken.None, Encoding.UTF8.GetByteCount(json));
+
+        r.Accepted.Should().BeTrue();
+        correlations.Verify(
+            c => c.UpdateHumanReviewStatusForFindingAsync(
+                TenantA,
+                "f-sn5",
+                nameof(FindingHumanReviewStatus.Approved),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task ServiceNow_inbound_json_whole_number_float_state_parses_as_builtin_choice_list()
+    {
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        correlations
+            .Setup(c => c.TryGetByExternalKeyAsync("ServiceNow", ServiceNowSysId2, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ItsmFindingCorrelationRecord { TenantId = TenantA, WorkspaceId = WorkspaceA, ProjectId = ProjectA, FindingId = "f-sn6" });
+        correlations
+            .Setup(c => c.FindingRecordExistsAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        correlations
+            .Setup(c => c.UpdateHumanReviewStatusForFindingAsync(
+                TenantA,
+                "f-sn6",
+                nameof(FindingHumanReviewStatus.Approved),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+        ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(correlations, new IntegrationsItsmInboundOptions());
+
+        const string json = $$"""{"sys_id":"{{ServiceNowSysId2}}","state":6.0}""";
+        using JsonDocument doc = JsonDocument.Parse(json);
+        ItsmInboundWebhookProcessResult r =
+            await sut.TryProcessServiceNowIncidentUpdateAsync(doc.RootElement, CancellationToken.None, Encoding.UTF8.GetByteCount(json));
+
+        r.Accepted.Should().BeTrue();
+        correlations.Verify(
+            c => c.UpdateHumanReviewStatusForFindingAsync(
+                TenantA,
+                "f-sn6",
+                nameof(FindingHumanReviewStatus.Approved),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task Jira_invalid_issue_key_format_is_rejected_with_audit()
     {
         Mock<IItsmFindingCorrelationRepository> correlations = new();

@@ -65,6 +65,29 @@ describe("proxy route anonymous marketing paths", () => {
     expect(headers.get("authorization")).toBeNull();
   });
 
+  it("does not attach server bearer for marketing why-archlucid pack PDF download", async () => {
+    fetchMock.mockResolvedValue(
+      new Response("pdf-bytes", {
+        status: 200,
+        headers: { "Content-Type": "application/pdf" },
+      }),
+    );
+
+    const req = new NextRequest(
+      "http://localhost/api/proxy/v1/marketing/why-archlucid-pack.pdf",
+    );
+
+    await GET(req, {
+      params: Promise.resolve({
+        path: ["v1", "marketing", "why-archlucid-pack.pdf"],
+      }),
+    });
+
+    const init = fetchMock.mock.calls[0]![1] as RequestInit;
+    const headers = init.headers as Headers;
+    expect(headers.get("authorization")).toBeNull();
+  });
+
   it("does not attach server bearer for trust-center evidence pack download", async () => {
     fetchMock.mockResolvedValue(
       new Response("zip-bytes", {
