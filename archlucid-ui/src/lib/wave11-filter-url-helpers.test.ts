@@ -746,6 +746,117 @@ describe("wave20 filter url helpers", () => {
   });
 });
 
+describe("wave21 filter url helpers", () => {
+  it("replay validation mode, comparison replay cost, and graph presentation params", async () => {
+    const { parseReplayValidationModeFromSearch, replayValidationModeHrefFromSearch } = await import(
+      "@/lib/replay/replay-validation-mode-url"
+    );
+    const {
+      comparisonReplayCostHrefFromSearch,
+      parseComparisonRecordIdFromSearch,
+      parseComparisonReplayModeFromSearch,
+      parseComparisonReplayPersistFromSearch,
+      parseComparisonFormatFromSearch,
+    } = await import("@/lib/compare/comparison-replay-cost-url");
+    const { graphPresentationViewHrefFromSearch, parseGraphPresentationViewFromSearch } = await import(
+      "@/lib/insights/graph-presentation-view-url"
+    );
+
+    expect(parseReplayValidationModeFromSearch("RebuildManifest")).toBe("RebuildManifest");
+    expect(replayValidationModeHrefFromSearch("runId=r1", "RebuildArtifacts")).toBe(
+      "/internal/validate-route?runId=r1&mode=RebuildArtifacts",
+    );
+    expect(parseComparisonRecordIdFromSearch("cmp-1")).toBe("cmp-1");
+    expect(parseComparisonReplayModeFromSearch("ReconstructOnly")).toBe("ReconstructOnly");
+    expect(parseComparisonReplayPersistFromSearch("1")).toBe(true);
+    expect(parseComparisonFormatFromSearch("pdf")).toBe("pdf");
+    expect(
+      comparisonReplayCostHrefFromSearch("", {
+        comparisonRecordId: "cmp-1",
+        replayMode: "RebuildManifest",
+        persistReplay: true,
+        format: "pdf",
+      }),
+    ).toBe("/insights/compare-two-reviews?comparisonRecordId=cmp-1&replayMode=RebuildManifest&persist=1&comparisonFormat=pdf");
+    expect(parseGraphPresentationViewFromSearch("trace")).toBe("trace");
+    expect(graphPresentationViewHrefFromSearch("runId=r1", "graph")).toBe(
+      "/insights/evidence-graph?runId=r1&presentation=graph",
+    );
+  });
+
+  it("sealed records pagination/custom dates, alerts cursor, and integration dlq filters", async () => {
+    const {
+      parseSignedRecordsListCursorFromSearch,
+      signedRecordsListCursorHrefFromSearch,
+    } = await import("@/lib/signed-records/signed-records-list-pagination-url");
+    const {
+      parseSignedRecordsListCustomDateFromSearch,
+      signedRecordsListCustomDateHrefFromSearch,
+    } = await import("@/lib/signed-records/signed-records-list-custom-date-url");
+    const { alertsInboxCursorHrefFromSearch, parseAlertsInboxCursorFromSearch } = await import(
+      "@/lib/governance/alerts-inbox-cursor-url"
+    );
+    const {
+      integrationEventsDlqEventTypeHrefFromSearch,
+      integrationEventsDlqTenantHrefFromSearch,
+      parseIntegrationEventsDlqEventTypeFromSearch,
+      parseIntegrationEventsDlqTenantFromSearch,
+    } = await import("@/lib/internal/integration-events-dlq-filter-url");
+
+    expect(parseSignedRecordsListCursorFromSearch("cur-2")).toBe("cur-2");
+    expect(signedRecordsListCursorHrefFromSearch("q=phi", "cur-2")).toBe(
+      "/governance/sealed-records?q=phi&cursor=cur-2",
+    );
+    expect(parseSignedRecordsListCustomDateFromSearch("2026-04-10")).toBe("2026-04-10");
+    expect(signedRecordsListCustomDateHrefFromSearch("range=7d", "2026-04-10", "2026-05-01")).toBe(
+      "/governance/sealed-records?from=2026-04-10&to=2026-05-01",
+    );
+    expect(parseAlertsInboxCursorFromSearch("cur-alerts")).toBe("cur-alerts");
+    expect(alertsInboxCursorHrefFromSearch("status=Open", "cur-alerts")).toBe(
+      "/governance/alerts?status=Open&cursor=cur-alerts",
+    );
+    expect(parseIntegrationEventsDlqEventTypeFromSearch("ticketing")).toBe("ticketing");
+    expect(integrationEventsDlqEventTypeHrefFromSearch("", "ticketing")).toBe(
+      "/internal/failed-integration-messages?eventType=ticketing",
+    );
+    expect(parseIntegrationEventsDlqTenantFromSearch("tenant-1")).toBe("tenant-1");
+    expect(integrationEventsDlqTenantHrefFromSearch("eventType=ticketing", "tenant-1")).toBe(
+      "/internal/failed-integration-messages?eventType=ticketing&tenant=tenant-1",
+    );
+  });
+
+  it("audit run id, advisory schedule panels, and recurrence schedule panels", async () => {
+    const { auditTrailRunIdHrefFromSearch, parseAuditTrailRunIdFromSearch } = await import(
+      "@/lib/governance/audit-trail-run-id-url"
+    );
+    const {
+      advisorySchedulesPanelsHrefFromSearch,
+      parseAdvisorySchedulesCreatePanelFromSearch,
+      parseAdvisorySchedulesHistoryFromSearch,
+    } = await import("@/lib/advisory/advisory-schedules-panels-url");
+    const {
+      parseRecurrenceSchedulesCreatePanelFromSearch,
+      parseRecurrenceSchedulesEditIdFromSearch,
+      recurrenceSchedulesPanelsHrefFromSearch,
+    } = await import("@/lib/governance/recurrence-schedules-panels-url");
+
+    expect(parseAuditTrailRunIdFromSearch("run-abc")).toBe("run-abc");
+    expect(auditTrailRunIdHrefFromSearch("action=Create", "run-abc")).toBe(
+      "/governance/audit?action=Create&runId=run-abc",
+    );
+    expect(parseAdvisorySchedulesCreatePanelFromSearch("1")).toBe(true);
+    expect(parseAdvisorySchedulesHistoryFromSearch("sched-9")).toBe("sched-9");
+    expect(advisorySchedulesPanelsHrefFromSearch("tab=schedules", { showCreatePanel: true })).toBe(
+      "/governance/advisory-scans?tab=schedules&create=1",
+    );
+    expect(parseRecurrenceSchedulesCreatePanelFromSearch("1")).toBe(true);
+    expect(parseRecurrenceSchedulesEditIdFromSearch("rec-3")).toBe("rec-3");
+    expect(recurrenceSchedulesPanelsHrefFromSearch("", { editingId: "rec-3" })).toBe(
+      "/governance/recurrence-schedules?edit=rec-3",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

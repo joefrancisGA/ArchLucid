@@ -13,6 +13,13 @@ import {
   type SignedRecordsListDateRangePreset,
 } from "@/lib/signed-records/signed-records-list-date-range-url";
 import {
+  parseSignedRecordsListCustomDateFromSearch,
+  signedRecordsListCustomDateHrefFromSearch,
+} from "@/lib/signed-records/signed-records-list-custom-date-url";
+import {
+  signedRecordsListClearCursorHrefFromSearch,
+} from "@/lib/signed-records/signed-records-list-pagination-url";
+import {
   parseSignedRecordsListIntegrityFilter,
   signedRecordsListIntegrityHrefFromSearch,
 } from "@/lib/signed-records/signed-records-list-integrity-url";
@@ -45,12 +52,16 @@ export function useSignedRecordsListFilters(options: {
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
   const scopedRunFilterActive = scopedRunId.length > 0;
   const urlDateRange = parseSignedRecordsListDateRangeFromSearch(searchParams.get("range"));
+  const urlFromUtc = parseSignedRecordsListCustomDateFromSearch(searchParams.get("from"));
+  const urlToUtc = parseSignedRecordsListCustomDateFromSearch(searchParams.get("to"));
   const urlIntegrity = parseSignedRecordsListIntegrityFilter(searchParams.get("integrity"));
   const urlSearchQuery = parseSignedRecordsListSearchQuery(searchParams.get("q"));
 
   const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
   const [integrityFilter, setIntegrityFilter] = useState<SignedRecordsListIntegrityFilter>(urlIntegrity);
   const [dateRangePreset, setDateRangePreset] = useState<SignedRecordsListDateRangePreset | null>(urlDateRange);
+  const [fromUtc, setFromUtc] = useState(urlDateRange === null ? urlFromUtc : "");
+  const [toUtc, setToUtc] = useState(urlDateRange === null ? urlToUtc : "");
   const scopeRecord = useOperatorScopeRecord();
 
   useEffect(() => {
@@ -62,15 +73,48 @@ export function useSignedRecordsListFilters(options: {
   }, [urlDateRange]);
 
   useEffect(() => {
+    if (urlDateRange !== null) {
+      return;
+    }
+
+    setFromUtc(urlFromUtc);
+    setToUtc(urlToUtc);
+  }, [urlDateRange, urlFromUtc, urlToUtc]);
+
+  useEffect(() => {
+    if (urlDateRange !== null) {
+      return;
+    }
+
+    const handle = window.setTimeout(() => {
+      let nextHref = signedRecordsListCustomDateHrefFromSearch(searchParams.toString(), fromUtc, toUtc);
+      nextHref = signedRecordsListClearCursorHrefFromSearch(
+        nextHref.includes("?") ? nextHref.split("?")[1] ?? "" : "",
+      );
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [fromUtc, router, searchParams, toUtc, urlDateRange]);
+
+  useEffect(() => {
     setSearchQuery(urlSearchQuery);
   }, [urlSearchQuery]);
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
       const nextHref = signedRecordsListSearchHrefFromSearch(searchParams.toString(), searchQuery);
+      const withCursorCleared = signedRecordsListClearCursorHrefFromSearch(
+        nextHref.includes("?") ? nextHref.split("?")[1] ?? "" : "",
+      );
 
-      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
-        router.replace(nextHref, { scroll: false });
+      if (`${window.location.pathname}${window.location.search}` !== withCursorCleared) {
+        router.replace(withCursorCleared, { scroll: false });
       }
     }, 250);
 
@@ -82,19 +126,25 @@ export function useSignedRecordsListFilters(options: {
   const clearLocalFilters = useCallback(() => {
     setSearchQuery("");
     setIntegrityFilter("all");
+    setFromUtc("");
+    setToUtc("");
   }, []);
 
   const clearFilters = useCallback(() => {
     setSearchQuery("");
     setIntegrityFilter("all");
     setDateRangePreset(null);
+    setFromUtc("");
+    setToUtc("");
     router.replace(
-      signedRecordsListSearchHrefFromSearch(
-        signedRecordsListDateRangeHrefFromSearch(
-          signedRecordsListIntegrityHrefFromSearch(searchParams.toString(), "all"),
-          null,
+      signedRecordsListClearCursorHrefFromSearch(
+        signedRecordsListSearchHrefFromSearch(
+          signedRecordsListDateRangeHrefFromSearch(
+            signedRecordsListIntegrityHrefFromSearch(searchParams.toString(), "all"),
+            null,
+          ),
+          "",
         ),
-        "",
       ),
       { scroll: false },
     );
@@ -118,7 +168,12 @@ export function useSignedRecordsListFilters(options: {
   const onIntegrityFilterChange = useCallback(
     (value: SignedRecordsListIntegrityFilter) => {
       setIntegrityFilter(value);
-      router.replace(signedRecordsListIntegrityHrefFromSearch(searchParams.toString(), value), { scroll: false });
+      router.replace(
+        signedRecordsListClearCursorHrefFromSearch(
+          signedRecordsListIntegrityHrefFromSearch(searchParams.toString(), value),
+        ),
+        { scroll: false },
+      );
     },
     [router, searchParams],
   );
@@ -126,10 +181,31 @@ export function useSignedRecordsListFilters(options: {
   const onDateRangePresetChange = useCallback(
     (value: SignedRecordsListDateRangePreset | null) => {
       setDateRangePreset(value);
-      router.replace(signedRecordsListDateRangeHrefFromSearch(searchParams.toString(), value), { scroll: false });
+
+      if (value !== null) {
+        setFromUtc("");
+        setToUtc("");
+      }
+
+      router.replace(
+        signedRecordsListClearCursorHrefFromSearch(
+          signedRecordsListDateRangeHrefFromSearch(searchParams.toString(), value),
+        ),
+        { scroll: false },
+      );
     },
     [router, searchParams],
   );
+
+  const onCustomFromUtcChange = useCallback((value: string) => {
+    setFromUtc(value);
+    setDateRangePreset(null);
+  }, []);
+
+  const onCustomToUtcChange = useCallback((value: string) => {
+    setToUtc(value);
+    setDateRangePreset(null);
+  }, []);
 
   const filteredRows = useMemo(
     () =>
@@ -139,12 +215,18 @@ export function useSignedRecordsListFilters(options: {
         integrityFilter,
         scopedRunFilterActive ? scopedRunId : null,
         dateRangePreset,
+        fromUtc,
+        toUtc,
       ),
-    [dateRangePreset, integrityFilter, rows, scopedRunFilterActive, scopedRunId, searchQuery],
+    [dateRangePreset, fromUtc, integrityFilter, rows, scopedRunFilterActive, scopedRunId, searchQuery, toUtc],
   );
   const continueLastViewedRow = useMemo(() => resolveContinueLastSignedRecordsListRow(rows), [rows]);
   const filtersActive =
-    searchQuery.trim().length > 0 || integrityFilter !== "all" || dateRangePreset !== null;
+    searchQuery.trim().length > 0 ||
+    integrityFilter !== "all" ||
+    dateRangePreset !== null ||
+    fromUtc.trim().length > 0 ||
+    toUtc.trim().length > 0;
   const showFilterNoMatch = !loading && hasRows && filtersActive && filteredRows.length === 0;
   const showcaseSampleAvailable = areSpineStaticDemoPayloadsAvailable();
   const workspaceScopeTeaching = resolveWorkspaceScopeEmptyTeachingForHub({
@@ -176,8 +258,12 @@ export function useSignedRecordsListFilters(options: {
     integrityFilter,
     setIntegrityFilter: setIntegrityFilter as Dispatch<SetStateAction<SignedRecordsListIntegrityFilter>>,
     dateRangePreset,
+    fromUtc,
+    toUtc,
     onIntegrityFilterChange,
     onDateRangePresetChange,
+    onCustomFromUtcChange,
+    onCustomToUtcChange,
     onPickReviewForFiltering,
     clearFilters,
     clearLocalFilters,
