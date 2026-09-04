@@ -55,6 +55,14 @@ const BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE: FirstWeekRouteGuidanceConfig = {
   operateDeferralNote: "Skip graph and approval dashboards until after commit unless your pilot explicitly needs them.",
 };
 
+/** Working seats — babysitting one tab is not the job (FD-12). */
+const WORKING_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE: FirstWeekRouteGuidanceConfig = {
+  useWhen: BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE.useWhen,
+  bridgeCopy:
+    "Analysis may still be running. Check Activity for named stages, open other in-flight packages from the strip when needed, and return here to finalize when the review is ready.",
+  operateDeferralNote: WORKING_OPERATE_AVAILABLE_IN_SIDEBAR_NOTE,
+};
+
 export const FIRST_WEEK_ROUTE_GUIDANCE_REVIEW_DETAIL_COMMITTED_COLLAPSED_SUMMARY =
   "When to use a finalized review and where exports live.";
 
@@ -131,8 +139,12 @@ export function resolveFirstWeekRouteGuidanceForShell(
   variant: FirstWeekRouteGuidanceVariant,
   input: ResolveFirstWeekRouteGuidanceForShellInput,
 ): FirstWeekRouteGuidanceConfig {
-  if (input.evalChrome && variant === "review-detail-in-progress") {
-    return BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE;
+  if (variant === "review-detail-in-progress") {
+    if (input.evalChrome) {
+      return BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE;
+    }
+
+    return WORKING_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE;
   }
 
   const base = resolveFirstWeekRouteGuidance(variant);

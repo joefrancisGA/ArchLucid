@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 
+import { RunDetailPresenterElicitationBridge } from "@/components/reviews/RunDetailPresenterElicitationBridge";
 import { resolveReviewWorkspaceLifecycle } from "@/lib/resolve-review-workspace-lifecycle";
 import {
-  ReviewDetailWorkspaceDeferred,
   RunDetailExplanationSkeleton,
   RunDetailTabbedSectionNavDeferred,
 } from "./RunDetailTabbedWorkspaceDeferredImports";
@@ -20,8 +20,9 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
 
   return (
     <Suspense fallback={<RunDetailExplanationSkeleton />}>
-      <ReviewDetailWorkspaceDeferred
+      <RunDetailPresenterElicitationBridge
         runId={model.resolvedDetail.run.runId}
+        architectureRequestId={model.resolvedDetail.run.architectureRequestId}
         defensibilityStrip={resolved.defensibilityStripEl}
         tabSectionNav={
           <RunDetailTabbedSectionNavDeferred

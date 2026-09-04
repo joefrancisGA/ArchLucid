@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type ReactElement } from "react";
+import { useCallback, useState, type ReactElement, type SetStateAction } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { GuidedModeSwitchToWorkingDialog } from "@/components/workspace-mode/GuidedModeSwitchToWorkingDialog";
@@ -14,6 +15,10 @@ import {
   WORKSPACE_MODE_SWITCHED_TO_WORKING_TOAST,
 } from "@/lib/workspace-mode/workspace-mode-copy";
 import { cn } from "@/lib/utils";
+import {
+  parseWorkspaceModeSwitchConfirmOpenFromSearch,
+  workspaceModeSwitchConfirmHrefFromSearch,
+} from "@/lib/operator/workspace-mode-switch-confirm-url";
 
 export type GuidedModeTopBarChipProps = {
   readonly className?: string;
@@ -22,7 +27,39 @@ export type GuidedModeTopBarChipProps = {
 /** Persistent Guided-mode indicator in the operator shell top bar. */
 export function GuidedModeTopBarChip(props: GuidedModeTopBarChipProps): ReactElement | null {
   const { mode, mounted, setAndPersist } = useWorkspaceMode();
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const workspaceSwitchConfirmParam = searchParams.get("workspaceSwitchConfirm");
+  const [dialogOpen, setDialogOpenState] = useState(() =>
+    parseWorkspaceModeSwitchConfirmOpenFromSearch(workspaceSwitchConfirmParam),
+  );
+
+  const syncWorkspaceSwitchConfirmToUrl = useCallback(
+    (confirmOpen: boolean) => {
+      if (pathname.length === 0) {
+        return;
+      }
+
+      router.replace(
+        workspaceModeSwitchConfirmHrefFromSearch(searchParams.toString(), confirmOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setDialogOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setDialogOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncWorkspaceSwitchConfirmToUrl(next);
+
+        return next;
+      });
+    },
+    [syncWorkspaceSwitchConfirmToUrl],
+  );
 
   if (!mounted || !isGuidedWorkspaceMode(mode)) {
     return null;

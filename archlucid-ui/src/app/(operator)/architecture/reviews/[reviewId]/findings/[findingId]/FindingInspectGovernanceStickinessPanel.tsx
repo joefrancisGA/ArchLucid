@@ -71,6 +71,12 @@ export function FindingInspectGovernanceStickinessPanel(
   }, [stickiness.setPendingRevokeWaiverConfirm, urlWaiverRevokeConfirm]);
 
   useEffect(() => {
+    if (urlWaiverConfirm) {
+      stickiness.setPendingWaiverCreateConfirm(true);
+    }
+  }, [stickiness.setPendingWaiverCreateConfirm, urlWaiverConfirm]);
+
+  useEffect(() => {
     if (urlDispConfirm !== null) {
       stickiness.setPendingDispositionConfirm(urlDispConfirm);
     }
@@ -95,6 +101,11 @@ export function FindingInspectGovernanceStickinessPanel(
   const setPendingRevokeWaiverConfirmWithUrl = (open: boolean) => {
     stickiness.setPendingRevokeWaiverConfirm(open);
     syncGovernancePanelToUrl(urlGovPanel, urlWaiverConfirm, urlDispConfirm, open);
+  };
+
+  const setPendingWaiverCreateConfirmWithUrl = (open: boolean) => {
+    stickiness.setPendingWaiverCreateConfirm(open);
+    syncGovernancePanelToUrl(urlGovPanel, open, urlDispConfirm, urlWaiverRevokeConfirm);
   };
 
   const setPendingDispositionConfirmWithUrl = (
@@ -155,6 +166,8 @@ export function FindingInspectGovernanceStickinessPanel(
         setPendingDispositionConfirm={setPendingDispositionConfirmWithUrl}
         pendingRevokeWaiverConfirm={stickiness.pendingRevokeWaiverConfirm}
         setPendingRevokeWaiverConfirm={setPendingRevokeWaiverConfirmWithUrl}
+        pendingWaiverCreateConfirm={stickiness.pendingWaiverCreateConfirm}
+        setPendingWaiverCreateConfirm={setPendingWaiverCreateConfirmWithUrl}
         applyChangePreviewOverride={stickiness.applyChangePreviewOverride}
         setApplyChangePreviewOverride={stickiness.setApplyChangePreviewOverride}
         tradeOffAcknowledgment={stickiness.tradeOffAcknowledgment}

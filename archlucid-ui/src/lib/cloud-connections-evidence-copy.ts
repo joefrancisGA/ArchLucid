@@ -18,7 +18,8 @@ export const CLOUD_CONNECTIONS_CANONICAL_PATH = "/integrations/cloud-connections
 
 export const CLOUD_CONNECTIONS_HELP_TOPIC_LABEL = "How cloud connections work" as const;
 
-
+export const CLOUD_CONNECTIONS_CLAIM_DISCIPLINE =
+  "This cloud connections hub configures optional read-only inventory connectors — connector setup only, not a sealed review record or audit export by itself.";
 
 export const CLOUD_CONNECTIONS_FOLLOW_UPS_TITLE = HUB_SECONDARY_FOLLOW_UPS_TITLES.cloudConnections;
 

@@ -2,7 +2,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useCallback, useState, type ChangeEvent, type ReactElement } from "react";
+import { useCallback, useState, type ChangeEvent, type ReactElement, type SetStateAction } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Loader2 } from "lucide-react";
 
@@ -24,6 +25,10 @@ import {
 } from "@/lib/current-principal";
 import { recordFirstExportOpenedOnce } from "@/lib/first-tenant-funnel-telemetry";
 import { showError } from "@/lib/toast";
+import {
+  parseReviewConsultingExportOpenFromSearch,
+  reviewConsultingExportPanelsHrefFromSearch,
+} from "@/lib/reviews/review-consulting-export-panels-url";
 
 export type ReviewBoardWhitelabelConsultingExportButtonProps = {
   runId: string;
@@ -64,7 +69,13 @@ export function ReviewBoardWhitelabelConsultingExportButton(
 ): ReactElement | null {
   const { runId } = props;
   const { currentPrincipal } = useOperatorNavAuthority();
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? `/architecture/reviews/${runId}`;
+  const searchParams = useSearchParams();
+  const consultingExportOpenParam = searchParams.get("consultingExportOpen");
+  const [open, setOpenState] = useState(() =>
+    parseReviewConsultingExportOpenFromSearch(consultingExportOpenParam),
+  );
   const [busy, setBusy] = useState(false);
   const [firmDisplayName, setFirmDisplayName] = useState("");
   const [engagementTitle, setEngagementTitle] = useState("");
@@ -76,15 +87,37 @@ export function ReviewBoardWhitelabelConsultingExportButton(
     setLogoFile(null);
   }, []);
 
+  const syncConsultingExportToUrl = useCallback(
+    (exportOpen: boolean) => {
+      router.replace(
+        reviewConsultingExportPanelsHrefFromSearch(searchParams.toString(), exportOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncConsultingExportToUrl(next);
+
+        if (!next) {
+          resetForm();
+        }
+
+        return next;
+      });
+    },
+    [resetForm, syncConsultingExportToUrl],
+  );
+
   const onOpenChange = useCallback(
     (next: boolean) => {
       setOpen(next);
-
-      if (!next) {
-        resetForm();
-      }
     },
-    [resetForm],
+    [setOpen],
   );
 
   if (!principalHasPermission(currentPrincipal, CONSULTING_DOCX_EXPORT_PERMISSION)) {

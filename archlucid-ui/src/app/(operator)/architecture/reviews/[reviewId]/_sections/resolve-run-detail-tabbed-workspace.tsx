@@ -8,6 +8,7 @@ import { resolveReviewWorkspaceLifecycle } from "@/lib/resolve-review-workspace-
 import { RunDetailActivityTabSectionNav } from "@/components/runs/RunDetailActivityTabSectionNav";
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import { ReviewInPipelineBanner } from "@/components/reviews/ReviewInPipelineBanner";
+import { RunDetailInFlightDeskChrome } from "@/components/reviews/RunDetailInFlightDeskChrome";
 import { ReviewDefensibilityStrip } from "@/components/reviews/ReviewDefensibilityStrip";
 import { reviewPipelineDiagnosticContextFromRunDetail } from "@/lib/review-pipeline-diagnostic-context";
 import { buildReviewDefensibilityStripProps } from "@/lib/reviews/build-review-defensibility-strip-props";
@@ -149,10 +150,15 @@ export function resolveRunDetailTabbedWorkspace(
     ) : null;
 
   const inPipelineBannerEl = m.showProgressTracker ? (
-    <ReviewInPipelineBanner
+    <RunDetailInFlightDeskChrome
       runId={m.resolvedDetail.run.runId}
-      initialSummary={m.progressForPipelineUi}
-      diagnosticContext={reviewPipelineDiagnosticContextFromRunDetail(m.resolvedDetail.run)}
+      pipelineBanner={
+        <ReviewInPipelineBanner
+          runId={m.resolvedDetail.run.runId}
+          initialSummary={m.progressForPipelineUi}
+          diagnosticContext={reviewPipelineDiagnosticContextFromRunDetail(m.resolvedDetail.run)}
+        />
+      }
     />
   ) : null;
 
