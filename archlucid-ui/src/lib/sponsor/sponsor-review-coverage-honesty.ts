@@ -46,7 +46,7 @@ export function formatSponsorReviewCoverageHonestyMarkdown(
   const reviewHref = `/architecture/reviews/${encodeURIComponent(inputs.runId.trim())}`;
   const verdict = inputs.manifestSummary?.feasibilityVerdict;
 
-  lines.push("## Review package honesty");
+  lines.push("## Architecture package honesty");
   lines.push("");
   lines.push(
     `> Sponsor KPIs for review \`${inputs.runId.trim()}\` are **not** an all-clear bill of health. Open the [architecture package](${reviewHref}) before steering or procurement use.`,

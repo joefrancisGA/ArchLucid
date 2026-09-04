@@ -53,7 +53,7 @@ describe("sponsor-review-coverage-honesty (WA-08)", () => {
       graphSnapshot: { nodes: [{ nodeType: "Actor" }] },
     });
 
-    expect(markdown).toContain("Review package honesty");
+    expect(markdown).toContain("Architecture package honesty");
     expect(markdown).toContain("not** an all-clear");
     expect(markdown).toContain("data-residency");
   });
