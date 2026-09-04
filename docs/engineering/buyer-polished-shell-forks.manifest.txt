@@ -107,6 +107,8 @@ archlucid-ui/src/app/(operator)/help/_sections/HelpApiContractsHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpApiKeysHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpArchitectureDraftsGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpArchitectureIntelligenceHeaderActions.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpArchitectureScorecardGuideView.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpArchitectureScorecardHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpAuditTrailGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpAzureBoardsGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpAzureBoardsHeaderActions.tsx
