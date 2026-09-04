@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 153
-- **bugs-found:** 362
+- **hunts:** 154
+- **bugs-found:** 364
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — update-recurrence HTTP validation, deferred revisit-due guards, merge-conflict run-id ordering
+- **last-bug:** 2026-09-04 — attestation upsert HTTP validation and product-feedback fail-fast ordering
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3948,6 +3948,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessHttpMapper.ValidateRecordDisposition` / `ValidateBulkDisposition` — deferred disposition without `revisitDueUtc` or with past `revisitDueUtc` reached tenant/facade without HTTP mapper guards (#566 application-layer sibling) — **hit 2026-09-04 (#694):** deferred revisit-due validation before tenant/facade; regression in `GovernanceStickinessHttpMapperTests` and `RecordDisposition_returns_bad_request_when_deferred_revisit_past_and_tenant_missing`.
 
 - [x] (proven) `GovernanceStickinessController.ResolveFindingMergeConflict` — route `runId` validation ran after tenant preflight so ghost tenant + `Guid.Empty` returned HTTP 404 instead of 400 (#693 ordering sibling) — **hit 2026-09-04 (#694):** run-id validation before tenant lookup; regression in `ResolveFindingMergeConflict_returns_bad_request_when_run_id_empty_and_tenant_missing`.
+
+2026-09-04 seed hunt #694: promoted and proved update-recurrence HTTP mapper, deferred revisit-due HTTP guards, and merge-conflict run-id fail-fast ordering.
+
+- [x] (proven) `GovernanceStickinessHttpMapper.ValidateUpsertRealizedValueAttestation` / `GovernanceStickinessController.UpsertRealizedValueAttestation` — negative `attestedIncidentsAvoided` or overlong attestation notes reached tenant preflight without HTTP mapper guards (#693 waiver ordering sibling) — **hit 2026-09-04 (#695):** attestation upsert HTTP validation before tenant/facade; regression in `GovernanceStickinessHttpMapperTests` and `UpsertRealizedValueAttestation_returns_bad_request_when_attested_incidents_negative_and_tenant_missing`.
+
+- [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — tenant preflight ran before `runId`, `findingRef`, and `comment` validation so ghost tenant + invalid body returned HTTP 404 instead of 400 (#693 ordering sibling) — **hit 2026-09-04 (#695):** shared `ProductFeedbackHttpMapper` fail-fast validation before scope preflight; regression in `PostProductFeedbackAsync_returns_bad_request_when_run_id_is_empty_and_tenant_missing`.
+
+2026-09-04 seed hunt #695: promoted and proved attestation upsert HTTP mapper and product-feedback validation ordering.
 
 2026-09-04 seed hunt #694: promoted and proved update-recurrence HTTP mapper, deferred revisit-due HTTP guards, and merge-conflict run-id fail-fast ordering.
 
