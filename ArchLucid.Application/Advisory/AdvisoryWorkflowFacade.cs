@@ -3,6 +3,7 @@ using ArchLucid.Contracts.Advisory.Workflow;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Advisory;
 

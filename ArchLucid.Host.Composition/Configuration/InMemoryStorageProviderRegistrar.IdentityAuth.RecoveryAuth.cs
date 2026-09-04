@@ -1,8 +1,10 @@
 using ArchLucid.Core.Admin;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.Persistence.ApplicationPorts.Interfaces;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Admin;
+using ArchLucid.Persistence.Diagnostics;
 using ArchLucid.Persistence.Identity;
 using ArchLucid.Persistence.Tenancy;
 using Microsoft.Extensions.DependencyInjection;

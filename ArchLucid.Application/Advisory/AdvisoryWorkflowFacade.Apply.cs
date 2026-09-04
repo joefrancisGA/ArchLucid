@@ -1,3 +1,4 @@
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.Advisory.Workflow;
 using ArchLucid.Core.Scoping;
 

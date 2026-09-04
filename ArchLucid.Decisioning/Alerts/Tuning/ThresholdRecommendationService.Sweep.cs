@@ -8,16 +8,16 @@ namespace ArchLucid.Decisioning.Alerts.Tuning;
 public sealed partial class ThresholdRecommendationService
 {
     /// <inheritdoc />
-    public async Task<ThresholdRecommendationResult> RecommendAsync(
+    public async Task<ArchLucid.Contracts.Alerts.Tuning.ThresholdRecommendationResult> RecommendAsync(
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
-        ThresholdRecommendationRequest request,
+        ArchLucid.Contracts.Alerts.Tuning.ThresholdRecommendationRequest request,
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        ThresholdRecommendationResult result = new() { EvaluatedUtc = TimeProvider.System.UtcNowDateTime(), RuleKind = request.RuleKind, TunedMetricType = request.TunedMetricType };
+        ArchLucid.Contracts.Alerts.Tuning.ThresholdRecommendationResult result = new() { EvaluatedUtc = TimeProvider.System.UtcNowDateTime(), RuleKind = request.RuleKind, TunedMetricType = request.TunedMetricType };
 
         string slug = string.IsNullOrWhiteSpace(request.RunProjectSlug)
             ? DefaultProjectSlug

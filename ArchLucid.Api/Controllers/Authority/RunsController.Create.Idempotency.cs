@@ -1,7 +1,9 @@
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Query;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 

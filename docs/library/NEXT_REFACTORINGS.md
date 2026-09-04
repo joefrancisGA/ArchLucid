@@ -221,10 +221,20 @@
 | Split leftover type composites (wave 19 type modules) | Done (2026-09-04 pass-18) — `recommendation-learning-operational-{profile-metadata,operational-status,preview-validation}`; `advisory-{improvement-plan,recommendation-record,action-result}`; `agent-forensics-scores-{semantic,evaluation-summary,retrieval-grounding}`; `openapi-type-aliases.test.ts` wave-19 guards |
 | Split leftover Host.Composition `InMemoryStorageProviderRegistrar.GovernanceFindings` and `InMemoryValueReportJobQueue` | Done (2026-09-04 pass-18) — `InMemoryStorageProviderRegistrar.GovernanceFindings.{FindingsInspect,AdvisoryLearning,PolicyAlertsGovernance}`; `InMemoryValueReportJobQueue.{Enqueue,RunJob,DistributedState}` |
 | Split `DeclarationPremiseConflictFindingEngine` and `ImprovementSignalAnalyzer` | Done (2026-09-04 pass-18) — `DeclarationPremiseConflictFindingEngine.{IntentResolve,ConflictClassify,Emit}`; `ImprovementSignalAnalyzer.{SignalCollect,RankFilter,Compose}` |
+| Split leftover `RunsController.Create`, `AlertSimulationController`, and `AnalysisReportsController.ConsultingDocx` route families | Done (2026-09-04 pass-19) — `RunsController.Create.{Sync,Idempotency,Batch}`; `AlertSimulationController.{Simulate,CompareCandidates,ScopeStamp}`; `AnalysisReportsController.ConsultingDocx.{ResolveProfile,Download,AsyncRecommend}` |
+| Decompose leftover `RegistrationApplicationService.Register` and `AdvisoryWorkflowFacade` into stages/partials | Done (2026-09-04 pass-19) — `RegistrationApplicationService.Register.{ValidateAbuse,PersistBootstrap,FailureMap}`; `AdvisoryWorkflowFacade.{Improvements,Recommendations,Apply}` |
+| Extend leftover persistence (`DapperValueReportMetricsReader` + `FindingRelationalWriter` + `DapperProductLearningPilotSignalRepository`) | Done (2026-09-04 pass-19) — `DapperValueReportMetricsReader.{ScopeSql,ReadQuery,RowMap}`; `FindingRelationalWriter.{Record,Children,PropertyRows}`; `DapperProductLearningPilotSignalRepository.{InsertList,Aggregates,Opportunities}` |
+| Split leftover `ArchLucidInstrumentation.Caches` and `QuickScanSafetyOptionsValidator` | Done (2026-09-04 pass-19) — `ArchLucidInstrumentation.Caches.{DemoPreview,LlmCompletion,HotPathExplanation}`; `QuickScanSafetyOptionsValidator.{FeatureConcurrency,IdentityBudget,ProductionAnonymous}` |
+| Split leftover CLI `ReferenceEvidenceCommand` and `PilotProofPacketCommand` | Done (2026-09-04 pass-19) — `ReferenceEvidenceCommand.{Parse,TenantZip,RunBundle}`; `PilotProofPacketCommand.{Connect,WriteFolder,RoiLink}` |
+| Continue UI mega-client split (alert tuning leftover, advisory schedules, governance workflow approvals) | Done (2026-09-04 pass-19) — `AlertTuningForm-{simple,composite,recommend}`; `use-advisory-schedules-page-{list,create,run-history}`; `GovernanceWorkflowApprovals{Empty,Queue,Mutations}` |
+| Split leftover UI API catalogs (`http-verbs-mutate-post`, `draft-intake-api`, `architecture-request-draft-async-api`) | Done (2026-09-04 pass-19) — `http-verbs-mutate-post-{json,accepted,put}`; `draft-intake-api-{crud,questions,lifecycle}`; `architecture-request-draft-async-api-{accept,poll,resume}` |
+| Split leftover type composites (wave 20 type modules) | Done (2026-09-04 pass-19) — `copy-finding-as-work-item-{types,trace-row,inspect}`; `architecture-draft-structured-brief-suggestions-{source-text,apply,extract}`; `adr-from-run-{slices,mappers,markdown}`; `openapi-type-aliases.test.ts` wave-20 guards |
+| Split leftover Host.Composition `InMemoryStorageProviderRegistrar.IdentityAuth` and `RunLifecycleOrchestrationCompositionRegistrar.ExportsGovernance` | Done (2026-09-04 pass-19) — `InMemoryStorageProviderRegistrar.IdentityAuth.{ScimIdentity,RecoveryAuth,DigestPrefs}`; `RunLifecycleOrchestrationCompositionRegistrar.ExportsGovernance.{RunDetailQuery,GovernanceNotifications,ReviewExports}` |
+| Split leftover `ThresholdRecommendationService` and `ExplainabilityTraceCompletenessAnalyzer` | Done (2026-09-04 pass-19) — `ThresholdRecommendationService.{Sweep,CloneRules,Rank}`; `ExplainabilityTraceCompletenessAnalyzer.{Finding,Snapshot,MissingTrace}` |
 
 ## Active items (remaining)
 
-_None — pass-18 items 1–10 shipped in PR **#1420**._
+_None — pass-19 items 1–10 shipped in this PR._
 
 ## Completed (2026-08-24 pass)
 

@@ -4,7 +4,7 @@ namespace ArchLucid.Decisioning.Alerts.Tuning;
 
 public sealed partial class ThresholdRecommendationService
 {
-    private static void RankRecommendedCandidate(ThresholdRecommendationResult result)
+    private static void RankRecommendedCandidate(ArchLucid.Contracts.Alerts.Tuning.ThresholdRecommendationResult result)
     {
         result.RecommendedCandidate = result.Candidates
             .OrderByDescending(x => x.ScoreBreakdown.FinalScore)
