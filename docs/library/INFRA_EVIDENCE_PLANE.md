@@ -1,4 +1,4 @@
-> **Scope:** Engineering contract for the infrastructure-evidence plane: one Azure collection feeding architecture, drift, security remediation, ARC-AMPE audit evidence, diagrams, and tenant branding of those artifacts. Internal only.
+> **Scope:** Engineering contract for the infrastructure-evidence plane: one Azure collection feeding architecture, drift, security remediation, ARC-AMPE audit evidence, diagrams, and tenant branding of those artifacts. **Contributor-reference** — internal only.
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Prompts:** [`../architecture/INFRA_EVIDENCE_COMPOSER_PROMPTS.md`](../architecture/INFRA_EVIDENCE_COMPOSER_PROMPTS.md)
 
 # Infrastructure-evidence plane
