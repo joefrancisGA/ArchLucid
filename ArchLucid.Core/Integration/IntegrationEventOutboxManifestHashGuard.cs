@@ -25,20 +25,34 @@ public static class IntegrationEventOutboxManifestHashGuard
                 $"Integration outbox publish blocked for '{eventType}': payload is empty.");
         }
 
-        using JsonDocument document = JsonDocument.Parse(payloadUtf8);
-        JsonElement root = document.RootElement;
-
-        if (string.Equals(eventType, IntegrationEventTypes.AdvisoryScanCompletedV1, StringComparison.Ordinal)
-            && !TryReadRunId(root, out Guid runId))
+        JsonDocument document;
+        try
         {
-            return;
+            document = JsonDocument.Parse(payloadUtf8);
         }
-
-        if (!TryReadManifestHash(root, out string? manifestHash)
-            || string.IsNullOrWhiteSpace(manifestHash))
+        catch (JsonException ex)
         {
             throw new InvalidOperationException(
-                $"Integration outbox publish blocked for '{eventType}': manifestHash is required on run-scoped architecture payloads.");
+                $"Integration outbox publish blocked for '{eventType}': payload is not valid JSON.",
+                ex);
+        }
+
+        using (document)
+        {
+            JsonElement root = document.RootElement;
+
+            if (string.Equals(eventType, IntegrationEventTypes.AdvisoryScanCompletedV1, StringComparison.Ordinal)
+                && !TryReadRunId(root, out Guid runId))
+            {
+                return;
+            }
+
+            if (!TryReadManifestHash(root, out string? manifestHash)
+                || string.IsNullOrWhiteSpace(manifestHash))
+            {
+                throw new InvalidOperationException(
+                    $"Integration outbox publish blocked for '{eventType}': manifestHash is required on run-scoped architecture payloads.");
+            }
         }
     }
 
