@@ -4033,11 +4033,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 13
-- **bugs-found:** 20
+- **hunts:** 14
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — OPERATOR_HOME_RUNS_STALE survived tenant switch and consumed on wrong scope
+- **last-hunt:** 2026-09-04
+- **last-bug:** 2026-09-04 — archived runs inflated attention committed counts; userAttentionSummary cache survived scope switch
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4071,6 +4071,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `markOperatorHomeRunsSnapshotStale` — `OPERATOR_HOME_RUNS_STALE` session flag not cleared on `notifyOperatorScopeChanged` — **hit 2026-09-03 (#544):** lifecycle stale marker from tenant A consumed on tenant B Overview after switch, dropping refresh signal when returning to A; fixed via `clearOperatorHomeRunsSnapshotStale` on scope change (`operator-scope-storage.test.ts`).
 - [x] (invalid) `parseOperatorScopeQueryKey` — scope ids containing `:` break three-part split parsing — **cheap-disproof 2026-09-03:** operator scope ids are UUIDs (hyphen-separated); colon delimiter is safe for `tenant:workspace:project` keys.
 - [x] (invalid) `deriveOperatorHomeWorkspaceMetrics` — paginated slice with `totalCount > items.length` shows zero KPI aggregates — **cheap-disproof 2026-09-02:** intentional partial-page guard (`operator-home-workspace-metrics.test.ts`); zeroed aggregates avoid overstating workspace-wide totals.
+
+- [x] (proven) `deriveAttentionSurfaceCounts` — archived committed/in-progress runs inflated `run-work-queue-committed` / `run-work-queue-in-progress` attention surface counts while Reviews hub excludes archived inventory — **hit 2026-09-04 (#666):** `partitionRunsIntoWorkQueueSections` counted archived rows; sibling `deriveOperatorHomeWorkspaceMetrics` already skips `isArchived`; fixed by filtering active runs before partition (`derive-attention-surface-counts.test.ts`).
+- [x] (proven) `userAttentionSummary` TanStack cache survived tenant switch — **hit 2026-09-04 (#666):** scope-agnostic `operatorQueryKeys.userAttentionSummary` omitted from `OPERATOR_SHELL_STATUS_SCOPE_AGNOSTIC_QUERY_KEYS`; attention badges could show prior-tenant counts after scope change; fixed via scope-change cache clear (`operator-scope-storage.test.ts`).
+- [ ] (candidate) `writeOperatorShellStableCache` — `alertsInboxSummary` persisted without `isStable*` gate unlike trial/catalog/budget snapshots; hydrate may seed stale open-count badges before shell-status refetch.
+- [ ] (candidate) `invalidateOperatorHomeRunsCaches` — lifecycle invalidation omits `userAttentionSummary`; post-commit attention badges may stay stale until 30s `staleTime` expires.
+- [ ] (candidate) `corePilotCommitContext` — scope-agnostic TanStack key cleared on lifecycle invalidation but not `notifyOperatorScopeChanged`; tenant switch may show prior tenant commit context until refetch.
+
+2026-09-04 seed hunt #666: proved archived-run attention surface inflation and userAttentionSummary scope-cache leak; reseeded stable-cache alerts, lifecycle invalidation, and corePilotCommitContext candidates.
 
 2026-09-03 thorough hunt #544: proved OPERATOR_HOME_RUNS_STALE leaked across tenant switch; cheap-disproved homepage flag omission, empty project scope match, and colon-in-UUID scope parsing.
 
