@@ -3,10 +3,11 @@
 > **Paste-ready files:** [`.cursor/prompts/all-day-desk-00-index.md`](../../.cursor/prompts/all-day-desk-00-index.md) (**AD-01–12**)
 > **Shipped predecessors:** LI-01–15 (`master` #1397), LD-01–15 (#1421 / #1439), RS-01–15 (#1457), WA-01–24 (#1496)
 > **Wave 5:** [`CAREER_DESK_COMPOSER_PROMPTS.md`](CAREER_DESK_COMPOSER_PROMPTS.md) (**CD-01–15**) — run first if still open; do not fork.
+> **Wave 7 leftovers:** [`FOUNDING_DESK_COMPOSER_PROMPTS.md`](FOUNDING_DESK_COMPOSER_PROMPTS.md) (**FD-01–13**) — do not fork AD.
 
 # All-day-desk Composer prompts (AD-01–AD-12)
 
-**Created:** 2026-09-04 · **Status:** ready to run **after CD-01–15** (or in parallel except AD-01 vs CD-10 on finding inspect) · **Do not re-run LI, LD, RS, WA, or CD.**
+**Created:** 2026-09-04 · **Status:** ready to run **after CD-01–15** (or in parallel except AD-01 vs CD-10 on finding inspect) · **Do not re-run LI, LD, RS, WA, or CD.** Wave 7: [`FOUNDING_DESK_COMPOSER_PROMPTS.md`](FOUNDING_DESK_COMPOSER_PROMPTS.md) (**FD-01–13**).
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record. **CD-01–15** owns eval-first teaching, stamp/print honesty, and remaining amend mounts.
 
@@ -71,3 +72,4 @@ See [`.cursor/prompts/all-day-desk-00-index.md`](../../.cursor/prompts/all-day-d
 - **LD-01–15** — shipped #1421 / #1439
 - **LI-01–15** — shipped #1397
 - **PT-01–20** / **WD-01–12** / **DD-01–10** — owners; AD files name leftovers only
+- **FD-01–13** — wave 7 founding leftovers; do not implement from AD files

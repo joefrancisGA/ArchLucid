@@ -24,6 +24,7 @@ This set is **wave 3** — leftovers from the same livelihood diagnosis that **L
 | **WA-01–24** | Wave 4 chrome + career edges | **Shipped** #1496 — do not re-run |
 | **CD-01–15** | Wave 5 unique leftovers | [`career-desk-00-index.md`](career-desk-00-index.md) |
 | **AD-01–12** | Wave 6 all-day desk leftovers | [`all-day-desk-00-index.md`](all-day-desk-00-index.md) |
+| **FD-01–13** | Wave 7 founding leftovers | [`founding-desk-00-index.md`](founding-desk-00-index.md) |
 
 If an RS row lists an LD/LI/PT/WD owner, **do not fork** that file. Implement only the leftover in *What to build*.
 
@@ -82,3 +83,4 @@ Summarize: files changed, tests run, residual risk, Working vs Guided behavior. 
 **Wave 4 (shipped #1496 — do not re-run):** [`working-architect-00-index.md`](working-architect-00-index.md) (**WA-01–24**). Do not fork RS.
 **Wave 5:** [`career-desk-00-index.md`](career-desk-00-index.md) (**CD-01–15**). Do not fork WA.
 **Wave 6:** [`all-day-desk-00-index.md`](all-day-desk-00-index.md) (**AD-01–12**).
+**Wave 7:** [`founding-desk-00-index.md`](founding-desk-00-index.md) (**FD-01–13**).
