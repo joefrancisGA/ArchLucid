@@ -28,8 +28,11 @@ export type RunsDashboardPanelFiltersProps = {
   readonly archivedCount: number;
   readonly archivedFilterDisabled: boolean;
   readonly showArchived: boolean;
-  readonly onSelectDashboardTab: (next: RunsDashboardTabId) => void;
-  readonly onToggleShowArchived: () => void;
+  readonly onSelectDashboardTab: (
+    next: RunsDashboardTabId,
+    options?: { readonly preserveShowArchived?: boolean },
+  ) => void;
+  readonly onShowArchivedChange: (value: boolean) => void;
   readonly openAllReviewsHref: string;
 };
 
@@ -45,7 +48,7 @@ export function RunsDashboardPanelFilters({
   archivedFilterDisabled,
   showArchived,
   onSelectDashboardTab,
-  onToggleShowArchived,
+  onShowArchivedChange,
   openAllReviewsHref,
 }: RunsDashboardPanelFiltersProps) {
   return (
@@ -109,8 +112,13 @@ export function RunsDashboardPanelFilters({
                     return;
                   }
 
-                  onSelectDashboardTab("all");
-                  onToggleShowArchived();
+                  const next = !showArchived;
+
+                  if (next && tab !== "all") {
+                    onSelectDashboardTab("all", { preserveShowArchived: true });
+                  }
+
+                  onShowArchivedChange(next);
                 }}
               >
                 Archived {archivedCount}
@@ -121,7 +129,7 @@ export function RunsDashboardPanelFilters({
           <TabsList
             aria-label="Review views"
             data-testid="runs-dashboard-status-filters"
-            className="-mb-px overflow-x-auto"
+            className="-mb-px"
           >
             {statusTabIds.map((id) => (
               <TabsTrigger
