@@ -2688,11 +2688,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 78
-- **bugs-found:** 142
+- **hunts:** 79
+- **bugs-found:** 143
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — Bicep nested block ignored HCL `=` block headers
+- **last-bug:** 2026-09-04 — inline `#` before same-line array bracket dropped `ipSecurityRestrictions`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2920,11 +2920,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-04 seed hunt #743: reseeded Bicep body parser after #742 comment-probe fixes; proved HCL `=` assignment parity gap; cheap-disproved spanning block-comment, dual empty-object, and `${}` line candidates.
 
 - [x] (proven) `BicepResourceBodyParser.NestedBlockStartRegex` — HCL `=` nested block headers silently parsed as scalar `{` — **hit 2026-09-04 (#746):** `networkAcls = { defaultAction: 'Deny' }` stored `tf.networkacls = '{'` and leaked `tf.defaultaction` while scalar/array `#743` parity accepted `=`; fixed by allowing `(?::|=)` in nested-block regex; regression in `ParseAsync_HclEqualsNestedBlockHeader_PreservesNetworkAclsBlock`.
-- [ ] (candidate) `BicepResourceBodyParser.TryConsumeArrayAssignment` — inline `#` comment between `=` and `[` on same-line array header not skipped (multiline probe already skips `#`; inline `ArrayAssignmentRegex` requires immediate `[`).
-- [ ] (candidate) `SimpleTerraformResourceBlockParser.NestedBlockStartRegex` — Bicep-style `block: {` colon headers in HCL bodies (invalid HCL; likely no customer payload).
-- [ ] (candidate) `BicepResourceBodyParser` — `${...}` interpolation inside nested block bodies may leak partial scalars when closing brace balance is malformed.
+- [x] (proven) `BicepResourceBodyParser.TryConsumeArrayAssignment` — inline `#` comment between `=` and `[` on same-line array header not skipped — **hit 2026-09-04 (#748):** `ipSecurityRestrictions = # legacy rules [...]` missed `ArrayAssignmentRegex` and stored no `tf.ipsecurityrestrictions`; fixed by allowing `(?:#[^[]*)?` before `[` in Bicep/terraform array assignment regexes; regressions in `ParseAsync_InlineHashCommentBeforeArrayBracket_PreservesIpSecurityRestrictions` (Bicep + simple-terraform).
+- [x] (invalid) `SimpleTerraformResourceBlockParser.NestedBlockStartRegex` — Bicep-style `block: {` colon headers in HCL bodies — invalid HCL; `NestedBlockStartRegex` requires `{` immediately after block name and customer payloads use `block {` only.
+- [x] (valid-no-repro) `BicepResourceBodyParser` — `${...}` interpolation inside nested block bodies may leak partial scalars when closing brace balance is malformed — scalar assignments containing `${` are skipped (`ParseBodyIntoProperties` lines 114–118); malformed references do not emit partial `tf.*` scalars.
 
-2026-09-04 seed hunt #746: reseeded after #743 `=` scalar/array fix; proved nested-block `=` header gap; seeded inline-hash-before-bracket, HCL colon-nested-block, and malformed-interpolation candidates.
+2026-09-04 thorough hunt #748: proved inline-hash-before-bracket array header gap; cheap-disproved HCL colon-nested-block and malformed-interpolation candidates.
 
 - [x] (proven) `PlainTextContextDocumentParser` required `REQ:`/`POL:`/`TOP:`/`SEC:` prefix without optional whitespace before colon — **hit 2026-09-02:** `REQ : Must scale` lines were skipped while `REQ: Must scale` parsed; fixed with `TryGetPrefixedBody` accepting optional whitespace before `:` (`PlainTextContextDocumentParserTests.ParseAsync_SpacedPrefixBeforeColon_ExtractsRequirement`).
 - [x] (proven) `BicepResourceBodyParser` treated `key: [` array headers as scalar assignments — **hit 2026-09-02:** `ipSecurityRestrictions: [` stored `tf.ipsecurityrestrictions = "["` and leaked inner object scalars (`tf.name`, `tf.ipaddress`) so App Service network-rule expander never ran; fixed with balanced-bracket extraction and `BicepArrayLiteralConverter` JSON serialization (`BicepInfrastructureDeclarationParserTests.ParseAsync_AppServiceIpSecurityRestrictionsArray_IsPreservedForNetworkExpander`, `ParseAsync_AppServiceIpSecurityRestrictionsArray_ExpandsNetworkBaseline`).

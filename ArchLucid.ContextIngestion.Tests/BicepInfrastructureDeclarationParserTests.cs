@@ -197,6 +197,31 @@ public sealed class BicepInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_InlineHashCommentBeforeArrayBracket_PreservesIpSecurityRestrictions()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "main.bicep",
+            Format = "bicep",
+            Content = """
+                      resource app 'Microsoft.Web/sites@2022-03-01' = {
+                        properties: {
+                          siteConfig: {
+                            ipSecurityRestrictions = # legacy rules [{ name: 'AllowAll', ipAddress: '0.0.0.0/0', action: 'Allow' }]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.ipsecurityrestrictions"].Should().Contain("0.0.0.0/0");
+        result[0].Properties.Should().NotContainKey("tf.name");
+    }
+
+    [Fact]
     public async Task ParseAsync_InlineSlashSlashComment_DoesNotChangeTfPublicNetworkAccess()
     {
         InfrastructureDeclarationReference declaration = new()
