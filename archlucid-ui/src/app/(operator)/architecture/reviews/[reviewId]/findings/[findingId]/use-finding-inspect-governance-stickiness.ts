@@ -140,6 +140,8 @@ export function useFindingInspectGovernanceStickiness(
     setPendingDispositionConfirm: dispositions.setPendingDispositionConfirm,
     pendingRevokeWaiverConfirm: waivers.pendingRevokeWaiverConfirm,
     setPendingRevokeWaiverConfirm: waivers.setPendingRevokeWaiverConfirm,
+    pendingWaiverCreateConfirm: waivers.pendingWaiverCreateConfirm,
+    setPendingWaiverCreateConfirm: waivers.setPendingWaiverCreateConfirm,
     applyChangePreviewOverride: dispositions.applyChangePreviewOverride,
     setApplyChangePreviewOverride: dispositions.setApplyChangePreviewOverride,
     tradeOffAcknowledgment: dispositions.tradeOffAcknowledgment,

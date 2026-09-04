@@ -39,6 +39,14 @@ vi.mock("@/lib/architecture/architecture-draft-registry-finalize-sync", () => ({
   syncArchitectureDraftRegistryForFinalizedReview: vi.fn(),
 }));
 
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => ({ isWorkingMode: true, mode: "working" }),
+}));
+
+vi.mock("@/components/governance/GovernanceRecordCorrectionDialog", () => ({
+  GovernanceRecordCorrectionDialog: () => null,
+}));
+
 vi.mock("@/lib/api", () => ({
   commitArchitectureRun: vi.fn(),
   getRunSummary: vi.fn(),
@@ -114,6 +122,7 @@ describe("CommitRunButton", () => {
     });
 
     expect(await screen.findByText(/decisions are now searchable in Ask/i)).toBeInTheDocument();
+    expect(screen.getByTestId("commit-run-finalize-record-correction")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /ask memory guide/i })).toHaveAttribute(
       "href",
       "/help/prior-manifest-retrieval",

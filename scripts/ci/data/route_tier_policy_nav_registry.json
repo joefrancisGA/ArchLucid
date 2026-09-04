@@ -1452,6 +1452,16 @@
       "nav_operator_href": "/governance/policy-packs"
     },
     {
+      "controller_file": "InfraEvidence/InfraEvidenceInventoryController.cs",
+      "class_name": "InfraEvidenceInventoryController",
+      "route_template": "v{version:apiVersion}/infra-evidence/azure-inventory",
+      "normalized_prefix": "/v1/infra-evidence/azure-inventory",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Integrations/AzureBoardsIntegrationsController.cs",
       "class_name": "AzureBoardsIntegrationsController",
       "route_template": "v{version:apiVersion}/integrations/azure-boards",

@@ -163,6 +163,43 @@ public sealed class GovernanceMutationCorrectionServiceTests
         trail.VerifyNoOtherCalls();
     }
 
+    [Fact]
+    public async Task RecordAsync_appends_correction_for_architecture_review_finalize_without_mutating_sealed_manifest()
+    {
+        const string runId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+        List<AuditEvent> auditEvents = [];
+
+        Mock<IRunRepository> runs = CreateScopedRunRepository(runId);
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((evt, _) => auditEvents.Add(evt))
+            .Returns(Task.CompletedTask);
+
+        GovernanceMutationCorrectionService sut = CreateSut(
+            new Mock<IGovernanceApprovalRequestRepository>().Object,
+            runs.Object,
+            auditService.Object);
+
+        GovernanceMutationCorrectionRecordedDto result = await sut.RecordAsync(
+            new RecordGovernanceMutationCorrectionRequest
+            {
+                MutationKind = GovernanceMutationCorrectionKinds.ArchitectureReviewFinalize,
+                SubjectId = runId,
+                RunId = runId,
+                Rationale = "Finalized the wrong review package in the meeting.",
+            },
+            Scope,
+            "operator-1",
+            CancellationToken.None);
+
+        result.MutationKind.Should().Be(GovernanceMutationCorrectionKinds.ArchitectureReviewFinalize);
+        result.SubjectId.Should().Be(runId);
+        auditEvents.Should().ContainSingle();
+        auditEvents[0].EventType.Should().Be(AuditEventTypes.GovernanceMutationCorrectionRecorded);
+        auditEvents[0].DataJson.Should().Contain(runId);
+    }
+
     private static GovernanceMutationCorrectionService CreateSut(
         IGovernanceApprovalRequestRepository approvalRepo,
         IRunRepository runRepository,

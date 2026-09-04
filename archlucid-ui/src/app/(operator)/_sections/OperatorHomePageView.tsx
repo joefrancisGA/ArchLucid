@@ -12,7 +12,7 @@ import { OperatorAttentionKindStrip } from "@/components/operator/OperatorAttent
 import {
   OperatorHomeRunsPanel,
 } from "@/components/operator-home/OperatorHomeDeferredPanels";
-import { OperatorHomeWorkspaceActivityProvider } from "@/components/operator-home/operator-home-workspace-activity-context";
+import { WorkspaceModeGuidedWorkingOfferHost } from "@/components/workspace-mode/WorkspaceModeGuidedWorkingOfferHost";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorHomeBuyerChrome } from "@/components/operator-home/OperatorHomeBuyerChrome";
 import {
@@ -251,6 +251,7 @@ function OperatorHomePageBody(props: {
       initialHasOverviewReviewRows={overviewPhaseSignals.hasOverviewReviewRows}
       initialOpenFindingsCount={workspaceMetrics.openFindings}
     >
+      <WorkspaceModeGuidedWorkingOfferHost />
       {sections.map((section) =>
         renderOperatorHomeSection({
           section,

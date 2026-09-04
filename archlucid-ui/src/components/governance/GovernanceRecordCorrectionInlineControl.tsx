@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { GovernanceRecordCorrectionDialog } from "@/components/governance/GovernanceRecordCorrectionDialog";
+import { useGovernanceRecordCorrectionUrlSync } from "@/hooks/use-governance-record-correction-url-sync";
 import { GOVERNANCE_MUTATION_CORRECTION_SUCCESS_MESSAGE } from "@/lib/governance/governance-mutation-correction-api";
 import type { GovernanceMutationCorrectionTarget } from "@/lib/governance/governance-mutation-correction-api";
 import { MUTATION_AMEND_ACTION_LABEL } from "@/lib/mutation-reversibility-registry";
@@ -18,7 +19,9 @@ export type GovernanceRecordCorrectionInlineControlProps = {
 export function GovernanceRecordCorrectionInlineControl(
   props: GovernanceRecordCorrectionInlineControlProps,
 ): React.JSX.Element {
-  const [open, setOpen] = useState(false);
+  const { correctionDialogOpen, setCorrectionDialogOpen } = useGovernanceRecordCorrectionUrlSync({
+    correctionTarget: props.target,
+  });
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   return (
@@ -33,13 +36,13 @@ export function GovernanceRecordCorrectionInlineControl(
         size="sm"
         variant="outline"
         data-testid={props.testId ?? "governance-record-correction"}
-        onClick={() => setOpen(true)}
+        onClick={() => setCorrectionDialogOpen(true)}
       >
         {MUTATION_AMEND_ACTION_LABEL}
       </Button>
       <GovernanceRecordCorrectionDialog
-        open={open}
-        onOpenChange={setOpen}
+        open={correctionDialogOpen}
+        onOpenChange={setCorrectionDialogOpen}
         target={props.target}
         onRecorded={() => {
           setSuccessMessage(GOVERNANCE_MUTATION_CORRECTION_SUCCESS_MESSAGE);

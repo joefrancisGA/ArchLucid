@@ -43,6 +43,7 @@ export function useFindingInspectGovernanceStickinessWaivers({
   const [waiverExpiresAtUtc, setWaiverExpiresAtUtc] = useState(defaultRiskExceptionExpiresAtUtc());
   const [waiverEvidenceRef, setWaiverEvidenceRef] = useState("");
   const [waiverOwnerError, setWaiverOwnerError] = useState<string | null>(null);
+  const [pendingWaiverCreateConfirm, setPendingWaiverCreateConfirm] = useState(false);
   const [pendingRevokeWaiverConfirm, setPendingRevokeWaiverConfirm] = useState(false);
   const [waiverBaseline, setWaiverBaseline] = useState<FindingInspectWaiverBaseline>(
     EMPTY_FINDING_INSPECT_WAIVER_BASELINE,
@@ -128,6 +129,8 @@ export function useFindingInspectGovernanceStickinessWaivers({
     setWaiverEvidenceRef,
     waiverOwnerError,
     setWaiverOwnerError,
+    pendingWaiverCreateConfirm,
+    setPendingWaiverCreateConfirm,
     pendingRevokeWaiverConfirm,
     setPendingRevokeWaiverConfirm,
     submitWaiver,
