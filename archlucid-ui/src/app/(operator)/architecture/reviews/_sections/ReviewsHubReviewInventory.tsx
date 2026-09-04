@@ -14,6 +14,7 @@ import { useFavoriteReviews } from "@/hooks/use-favorite-reviews";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useShellInFlightOperations } from "@/hooks/use-shell-in-flight-operations";
 import { collectInFlightReviewRunIds, mapInFlightOperationsToDeskRows } from "@/lib/operations/map-in-flight-desk-rows";
+import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
 import { showcaseSampleReviewPackageHref } from "@/lib/showcase-sample-review-registry";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
@@ -206,6 +207,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
   const inventoryFiltersActive = activeFilter !== "all" || searchQuery.trim().length > 0;
 
   const sampleHref = showcaseSampleReviewPackageHref();
+  const showSampleExploreCta = !isLiveOperatorShellRecoveryContext();
   const scopeRecord = useSyncExternalStore(
     subscribeOperatorScopeRecord,
     readOperatorScopeFromStorage,
@@ -242,11 +244,15 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
                   href: "/architecture/reviews/new",
                   variant: "outline",
                 },
-                {
-                  label: REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL,
-                  href: sampleHref,
-                  variant: "outline",
-                },
+                ...(showSampleExploreCta
+                  ? [
+                      {
+                        label: REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL,
+                        href: sampleHref,
+                        variant: "outline" as const,
+                      },
+                    ]
+                  : []),
               ]}
             />
           )}

@@ -9,6 +9,21 @@ const useArchitectureDraftRegistryEntries = vi.fn();
 const readOperatorScopeFromStorage = vi.fn();
 const useSearchParams = vi.fn();
 const useRouter = vi.fn();
+const workspaceModeMock = vi.hoisted(() => ({ isWorkingMode: false }));
+const inFlightOperationsMock = vi.hoisted(() => [] as readonly unknown[]);
+const liveShellRecoveryMock = vi.hoisted(() => ({ value: false }));
+
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => workspaceModeMock,
+}));
+
+vi.mock("@/hooks/use-shell-in-flight-operations", () => ({
+  useShellInFlightOperations: () => inFlightOperationsMock,
+}));
+
+vi.mock("@/lib/live-operator-shell-recovery", () => ({
+  isLiveOperatorShellRecoveryContext: () => liveShellRecoveryMock.value,
+}));
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => useSearchParams(),
@@ -98,6 +113,9 @@ beforeEach(() => {
   useSearchParams.mockReturnValue(new URLSearchParams());
   useRouter.mockReset();
   useRouter.mockReturnValue({ replace: vi.fn() });
+  workspaceModeMock.isWorkingMode = false;
+  inFlightOperationsMock.length = 0;
+  liveShellRecoveryMock.value = false;
 });
 
 describe("ReviewsHubReviewInventory", () => {
@@ -416,5 +434,61 @@ describe("ReviewsHubReviewInventory", () => {
     expect(screen.queryByTestId("reviews-hub-search")).toBeNull();
     expect(screen.getByTestId("reviews-hub-inventory-empty")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-inventory-empty-clear")).toBeInTheDocument();
+  });
+
+  it("omits the sample explore CTA on live tenants", () => {
+    liveShellRecoveryMock.value = true;
+
+    render(<ReviewsHubReviewInventory runs={[]} summary={emptySummary()} />);
+
+    expect(screen.getByRole("link", { name: "Start an architecture review" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Explore the sample review" })).toBeNull();
+  });
+
+  it("shows the in-flight analysis desk above the table in Working mode", () => {
+    workspaceModeMock.isWorkingMode = true;
+    inFlightOperationsMock.push({
+      operationId: "run:in-flight-1",
+      title: "Payments review",
+      href: "/architecture/reviews/in-flight-1",
+      startedAtMs: 1_700_000_000_000,
+      stepLabel: "Queued",
+      state: "Running",
+      runId: "in-flight-1",
+      architectureId: null,
+      retainUntilConsumed: false,
+      terminalToastShown: false,
+    });
+
+    render(
+      <ReviewsHubReviewInventory
+        runs={[
+          {
+            runId: "finalized-1",
+            projectId: "default",
+            createdUtc: "2026-01-10T12:00:00.000Z",
+            hasGoldenManifest: true,
+          } satisfies RunSummary,
+          {
+            runId: "in-flight-1",
+            projectId: "default",
+            createdUtc: "2026-01-15T12:00:00.000Z",
+            hasFindingsSnapshot: true,
+            findingCount: 1,
+          } satisfies RunSummary,
+        ]}
+        summary={emptySummary()}
+      />,
+    );
+
+    expect(screen.getByTestId("reviews-hub-in-flight-analysis")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-hub-in-flight-open-run:in-flight-1")).toHaveAttribute(
+      "href",
+      expect.stringContaining("reviewTab=activity"),
+    );
+
+    const rows = screen.getAllByTestId(/^reviews-hub-row-/);
+
+    expect(rows[0]).toHaveAttribute("data-testid", "reviews-hub-row-in-flight-1");
   });
 });
