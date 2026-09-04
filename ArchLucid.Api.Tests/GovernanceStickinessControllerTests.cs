@@ -1716,6 +1716,28 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task CreateRiskException_returns_bad_request_when_finding_id_exceeds_max_length()
+    {
+        GovernanceStickinessController controller = BuildSut();
+        string overlongFindingId = new string('f', GovernanceRequestValidationRules.FindingIdMaxLength + 1);
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = overlongFindingId,
+            RunId = Guid.NewGuid(),
+            OwnerUserId = "owner@contoso.com",
+            Rationale = "accepted risk rationale",
+            EvidenceRef = "artifact://evidence/1",
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        IActionResult action = await controller.CreateRiskException(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task CreateRiskException_returns_bad_request_when_run_id_is_empty()
     {
         GovernanceStickinessController controller = BuildSut();

@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Application;
+using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
@@ -71,10 +72,28 @@ public sealed class GovernanceMutationCorrectionService(
         if (subjectId.Length == 0)
             throw new ArgumentException("Subject id is required.", nameof(request));
 
+        if (mutationKind is GovernanceMutationCorrectionKinds.BulkDisposition
+            or GovernanceMutationCorrectionKinds.KeyboardFindingDisposition)
+        {
+            if (subjectId.Length > FindingDispositionValidation.MaxFindingIdLength)
+            {
+                throw new ArgumentException(
+                    $"Subject id must not exceed {FindingDispositionValidation.MaxFindingIdLength} characters.",
+                    nameof(request));
+            }
+        }
+
         string rationale = request.Rationale?.Trim() ?? string.Empty;
 
         if (rationale.Length == 0)
             throw new ArgumentException("Rationale is required to record a correction.", nameof(request));
+
+        if (rationale.Length < FindingDispositionValidation.MinimumRationaleLength)
+        {
+            throw new ArgumentException(
+                $"Rationale must be at least {FindingDispositionValidation.MinimumRationaleLength} characters.",
+                nameof(request));
+        }
 
         string normalizedRunId = await GovernanceRunScope.RequireScopedRunIdAsync(
             _scopeContextProvider,

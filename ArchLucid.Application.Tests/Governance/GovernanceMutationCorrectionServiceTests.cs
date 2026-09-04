@@ -1,5 +1,6 @@
 using ArchLucid.Application;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
@@ -337,6 +338,70 @@ public sealed class GovernanceMutationCorrectionServiceTests
             CancellationToken.None);
 
         await act.Should().ThrowAsync<ConflictException>();
+    }
+
+    [Fact]
+    public async Task RecordAsync_rejects_disposition_correction_when_subject_id_exceeds_max_finding_id_length()
+    {
+        const string runId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+        string overlongFindingId = new string('f', FindingDispositionValidation.MaxFindingIdLength + 1);
+
+        GovernanceMutationCorrectionService sut = CreateSut(
+            new Mock<IGovernanceApprovalRequestRepository>().Object,
+            CreateScopedRunRepository(runId).Object,
+            new Mock<IAuditService>().Object);
+
+        Func<Task> act = () => sut.RecordAsync(
+            new RecordGovernanceMutationCorrectionRequest
+            {
+                MutationKind = GovernanceMutationCorrectionKinds.KeyboardFindingDisposition,
+                SubjectId = overlongFindingId,
+                RunId = runId,
+                Rationale = "Keyboard disposition applied to wrong finding.",
+            },
+            Scope,
+            "operator-1",
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage($"*exceed*{FindingDispositionValidation.MaxFindingIdLength}*");
+    }
+
+    [Fact]
+    public async Task RecordAsync_rejects_correction_when_rationale_is_shorter_than_minimum_length()
+    {
+        const string runId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+        const string approvalRequestId = "apr-correction-1";
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        approvals
+            .Setup(r => r.GetByIdAsync(approvalRequestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest
+            {
+                ApprovalRequestId = approvalRequestId,
+                RunId = runId,
+                Status = GovernanceApprovalStatus.Approved,
+            });
+
+        GovernanceMutationCorrectionService sut = CreateSut(
+            approvals.Object,
+            CreateScopedRunRepository(runId).Object,
+            new Mock<IAuditService>().Object);
+
+        Func<Task> act = () => sut.RecordAsync(
+            new RecordGovernanceMutationCorrectionRequest
+            {
+                MutationKind = GovernanceMutationCorrectionKinds.QuickApprove,
+                SubjectId = approvalRequestId,
+                RunId = runId,
+                Rationale = "too short",
+            },
+            Scope,
+            "operator-1",
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage($"*at least {FindingDispositionValidation.MinimumRationaleLength}*");
     }
 
     private static GovernanceMutationCorrectionService CreateSut(

@@ -10,6 +10,9 @@ public static class FindingDispositionValidation
     /// <summary>Matches <c>DISPOSITION_RATIONALE_MIN_CHARS</c> in the operator UI.</summary>
     public const int MinimumRationaleLength = 10;
 
+    /// <summary>Matches inspect and stickiness route finding-id contract.</summary>
+    public const int MaxFindingIdLength = 64;
+
     public static void Validate(RecordFindingDispositionRequest request, DateTimeOffset? nowUtc = null)
     {
         ArgumentNullException.ThrowIfNull(request);

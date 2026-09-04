@@ -1,5 +1,6 @@
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Manifest;
 
@@ -37,6 +38,26 @@ public sealed class GovernanceStickinessHttpMapperTests
 
         validation.Should().NotBeNull();
         validation!.Message.Should().Contain("runId");
+    }
+
+    [Fact]
+    public void ValidateCreateRiskException_rejects_overlong_finding_id()
+    {
+        string overlongFindingId = new string('f', GovernanceRequestValidationRules.FindingIdMaxLength + 1);
+
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateCreateRiskException(
+            new CreateRiskExceptionRequest
+            {
+                RunId = Guid.NewGuid(),
+                FindingId = overlongFindingId,
+                OwnerUserId = "owner",
+                Rationale = "accepted risk rationale",
+                ExpiresAtUtc = DateTime.UtcNow.AddDays(30),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain(GovernanceRequestValidationRules.FindingIdMaxLength.ToString());
     }
 
     [Fact]
