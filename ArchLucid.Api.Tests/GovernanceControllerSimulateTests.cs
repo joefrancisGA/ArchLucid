@@ -124,6 +124,29 @@ public sealed class GovernanceControllerSimulateTests
     }
 
     [Fact]
+    public async Task Simulate_returns_bad_request_when_block_commit_minimum_severity_out_of_range_and_tenant_missing()
+    {
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            policyPackHttpFacade: httpFacade.Object,
+            tenantRepository: TenantMissingRepository());
+
+        IActionResult action = await sut.Simulate(
+            new PolicyPackSimulateRequest
+            {
+                RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D"),
+                Content = new(),
+                BlockCommitMinimumSeverity = 99,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        httpFacade.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task DryRunProposedPolicyPack_returns_bad_request_when_target_run_id_is_not_a_guid()
     {
         Mock<IPolicyPackGovernanceDryRunService> dryRun = new(MockBehavior.Strict);

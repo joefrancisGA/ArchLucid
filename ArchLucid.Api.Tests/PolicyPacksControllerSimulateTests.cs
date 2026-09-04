@@ -3,6 +3,7 @@ using ArchLucid.Api.Models;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Governance.PolicyPacks;
 
 using FluentAssertions;
 
@@ -69,6 +70,28 @@ public sealed class PolicyPacksControllerSimulateTests
             {
                 RunId = overlongRunId,
                 Content = new(),
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        httpFacade.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Simulate_returns_bad_request_when_block_commit_minimum_severity_out_of_range_and_tenant_missing()
+    {
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        PolicyPacksControllerTestSupport.SetupScopeNotFoundDefaults(httpFacade);
+
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(httpFacade);
+
+        IActionResult action = await sut.Simulate(
+            new PolicyPackSimulateRequest
+            {
+                RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D"),
+                Content = new(),
+                BlockCommitMinimumSeverity = 99,
             },
             CancellationToken.None);
 

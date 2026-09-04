@@ -48,6 +48,12 @@ public sealed partial class PolicyPacksController
         if (request.Content is null)
             return this.BadRequestProblem("content is required.", ProblemTypes.ValidationFailed);
 
+        IActionResult? validationProblem =
+            PolicyPackSimulateHttpMapper.Validate(request).ToBadRequestProblemOrNull(this);
+
+        if (validationProblem is not null)
+            return validationProblem;
+
         PolicyPackHttpResult<PolicyPackGovernanceDryRunResult> result = await _httpFacade.SimulateAsync(
             request.Content,
             request.RunId,

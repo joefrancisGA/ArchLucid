@@ -267,6 +267,26 @@ public sealed class GovernancePreviewControllerUnitTests
     }
 
     [Fact]
+    public async Task CompareEnvironments_returns_validation_failed_when_source_equals_target_and_tenant_missing()
+    {
+        Mock<IGovernancePreviewService> preview = new(MockBehavior.Strict);
+
+        GovernancePreviewController controller = CreateController(preview.Object, tenantExists: false);
+
+        IActionResult action = await controller.CompareEnvironments(
+            new CreateGovernanceEnvironmentComparisonRequest
+            {
+                SourceEnvironment = "dev",
+                TargetEnvironment = "dev",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        preview.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task CompareEnvironments_returns_not_found_when_tenant_missing()
     {
         Mock<IGovernancePreviewService> preview = new(MockBehavior.Strict);

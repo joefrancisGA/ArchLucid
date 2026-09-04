@@ -142,6 +142,12 @@ public sealed class GovernancePreviewController(
         if (targetEnvironmentProblem is not null)
             return targetEnvironmentProblem;
 
+        IActionResult? comparisonValidationProblem =
+            GovernanceEnvironmentComparisonHttpMapper.Validate(body).ToBadRequestProblemOrNull(this);
+
+        if (comparisonValidationProblem is not null)
+            return comparisonValidationProblem;
+
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
