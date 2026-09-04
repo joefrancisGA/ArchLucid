@@ -4,6 +4,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application;
 using ArchLucid.Application.Governance.Preview;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.Preview;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -64,6 +65,28 @@ public sealed class GovernancePreviewControllerUnitTests
                 RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D"),
                 ManifestVersion = overlongManifestVersion,
                 Environment = "dev",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        preview.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Preview_returns_bad_request_when_environment_exceeds_max_length()
+    {
+        string overlongEnvironment = new string('e', GovernanceEnvironmentSlug.MaxLength + 1);
+        Mock<IGovernancePreviewService> preview = new(MockBehavior.Strict);
+
+        GovernancePreviewController controller = CreateController(preview.Object, tenantExists: true);
+
+        IActionResult action = await controller.Preview(
+            new CreateGovernancePreviewRequest
+            {
+                RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D"),
+                ManifestVersion = "v1",
+                Environment = overlongEnvironment,
             },
             CancellationToken.None);
 
@@ -147,6 +170,27 @@ public sealed class GovernancePreviewControllerUnitTests
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        preview.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task CompareEnvironments_returns_bad_request_when_source_environment_exceeds_max_length()
+    {
+        string overlongEnvironment = new string('e', GovernanceEnvironmentSlug.MaxLength + 1);
+        Mock<IGovernancePreviewService> preview = new(MockBehavior.Strict);
+
+        GovernancePreviewController controller = CreateController(preview.Object, tenantExists: true);
+
+        IActionResult action = await controller.CompareEnvironments(
+            new CreateGovernanceEnvironmentComparisonRequest
+            {
+                SourceEnvironment = overlongEnvironment,
+                TargetEnvironment = "test",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         preview.VerifyNoOtherCalls();
     }
 

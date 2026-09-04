@@ -156,6 +156,13 @@ public sealed partial class GovernanceController
         if (manifestVersionProblem is not null)
             return manifestVersionProblem;
 
+        IActionResult? environmentProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateEnvironmentSlug(request.Environment, "Environment")
+                .ToBadRequestProblemOrNull(this);
+
+        if (environmentProblem is not null)
+            return environmentProblem;
+
         (IActionResult? idempotencyError, _) = ReadGovernanceIdempotencyKey(true);
 
         if (idempotencyError is not null)

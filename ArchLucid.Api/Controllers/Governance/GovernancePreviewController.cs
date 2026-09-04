@@ -70,6 +70,13 @@ public sealed class GovernancePreviewController(
         if (manifestVersionProblem is not null)
             return manifestVersionProblem;
 
+        IActionResult? environmentProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateEnvironmentSlug(body.Environment, "Environment")
+                .ToBadRequestProblemOrNull(this);
+
+        if (environmentProblem is not null)
+            return environmentProblem;
+
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -118,6 +125,20 @@ public sealed class GovernancePreviewController(
     {
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? sourceEnvironmentProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateEnvironmentSlug(body.SourceEnvironment, "SourceEnvironment")
+                .ToBadRequestProblemOrNull(this);
+
+        if (sourceEnvironmentProblem is not null)
+            return sourceEnvironmentProblem;
+
+        IActionResult? targetEnvironmentProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateEnvironmentSlug(body.TargetEnvironment, "TargetEnvironment")
+                .ToBadRequestProblemOrNull(this);
+
+        if (targetEnvironmentProblem is not null)
+            return targetEnvironmentProblem;
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 

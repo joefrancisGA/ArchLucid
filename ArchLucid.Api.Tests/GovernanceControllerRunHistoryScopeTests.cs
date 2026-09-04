@@ -1645,6 +1645,30 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     }
 
     [Fact]
+    public async Task Activate_returns_bad_request_when_environment_exceeds_max_length()
+    {
+        string overlongEnvironment = new string('e', GovernanceEnvironmentSlug.MaxLength + 1);
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(workflowFacade: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        sut.ControllerContext.HttpContext.Request.Headers["Idempotency-Key"] = "activate-environment-length";
+
+        IActionResult result = await sut.Activate(
+            new CreateGovernanceActivationRequest
+            {
+                RunId = Guid.NewGuid().ToString("D"),
+                ManifestVersion = "1",
+                Environment = overlongEnvironment,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task Activate_returns_bad_request_when_manifest_version_exceeds_max_length()
     {
         string overlongManifestVersion = new string('v', GovernanceRequestValidationRules.ManifestVersionMaxLength + 1);
