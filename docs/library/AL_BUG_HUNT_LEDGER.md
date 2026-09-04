@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 164
-- **bugs-found:** 374
+- **hunts:** 165
+- **bugs-found:** 375
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — trial convert target tier validation ordering before tenant lookup
+- **last-bug:** 2026-09-04 — link-entra entraOid length validation ordering before tenant lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3996,6 +3996,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantTrialController.ConvertTrialAsync` / `TenantTrialConversionStage.ConvertTrialAsync` — tenant lookup ran before `TryMapRequestTier` so ghost tenant + unrecognized `targetTier` returned HTTP 404 instead of 400 (#704 environment catalog ordering sibling; prior row closed valid-no-repro for tier semantics only) — **hit 2026-09-04 (#705):** validate target tier before tenant repository lookup; regression in `TenantTrialControllerTests.ConvertTrialAsync_returns_bad_request_when_target_tier_unrecognized_and_tenant_missing`.
 
 2026-09-04 seed hunt #705: promoted and proved trial convert target-tier validation ordering before tenant lookup.
+
+- [x] (proven) `TenantTrialController.LinkEntraAsync` / `TenantTrialFacade.LinkEntraAsync` — tenant lookup ran before `EntraOid` max-length validation in `TenantTrialAbuseGuard` so ghost tenant + overlong `entraOid` returned HTTP 404 instead of 400 (#705 convert tier ordering sibling) — **hit 2026-09-04 (#706):** shared `TrialEntraOidValidation.TryValidateLength` before tenant repository lookup; regression in `TenantTrialControllerTests.LinkEntraAsync_returns_bad_request_when_entra_oid_exceeds_max_length_and_tenant_missing`.
+
+2026-09-04 seed hunt #706: promoted and proved link-entra entraOid max-length validation ordering before tenant lookup.
 
 2026-09-04 seed hunt #695: promoted and proved attestation upsert HTTP mapper and product-feedback validation ordering.
 
