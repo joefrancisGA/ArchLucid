@@ -1,3 +1,7 @@
+import {
+  deriveRunsDashboardTabCounts,
+  type RunsDashboardTabCounts,
+} from "@/components/operator-home/runs-dashboard-helpers";
 import { OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME } from "@/lib/buyer/buyer-polish-copy";
 import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
@@ -76,3 +80,27 @@ export function filterTenantOverviewRuns(items: readonly RunSummary[]): RunSumma
 
 /** Featured recent-review rows on Overview (full list lives on Architecture packages). */
 export const OPERATOR_HOME_RECENT_FEATURED_LIMIT = 2;
+
+export type DeriveHomePreviewTabCountsInput = {
+  readonly previewItems: readonly RunSummary[];
+  /** When the buyer proof card already names the showcase sample, omit that row from tab counts. */
+  readonly excludeShowcaseRunId?: string | undefined;
+};
+
+/**
+ * Tab counts for the home recent-reviews preview — uses deduped preview rows and caps the
+ * Recent tab at the featured limit so "(N)" matches what renders below.
+ */
+export function deriveHomePreviewTabCounts(input: DeriveHomePreviewTabCountsInput): RunsDashboardTabCounts {
+  const listItems =
+    input.excludeShowcaseRunId !== undefined
+      ? input.previewItems.filter((run) => run.runId !== input.excludeShowcaseRunId)
+      : input.previewItems;
+  const baseCounts = deriveRunsDashboardTabCounts(listItems);
+  const featuredVisibleCount = Math.min(listItems.length, OPERATOR_HOME_RECENT_FEATURED_LIMIT);
+
+  return {
+    ...baseCounts,
+    all: featuredVisibleCount,
+  };
+}

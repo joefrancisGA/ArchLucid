@@ -44,6 +44,10 @@ describe("runsDashboardTabLabel (TB-667)", () => {
     expect(runsDashboardTabLabel("outcomes", false)).toBe("Outcomes");
   });
 
+  it("renames the attention tab on home preview to avoid clashing with approval chips", () => {
+    expect(runsDashboardTabLabel("attention", false, 0, { homePreviewMode: true })).toBe("Open findings (0)");
+  });
+
   it("uses buyer-polished vocabulary in buyer shell", () => {
     expect(runsDashboardTabLabel("all", true)).toBe("All");
     expect(runsDashboardTabLabel("approved", true)).toBe("Approved");

@@ -103,7 +103,9 @@ export function RunsDashboardPanelFilters({
                   className="shrink-0"
                   disabled={statusTabCounts[id] === 0 && id !== "all"}
                 >
-                  {runsDashboardTabLabel(id, buyerPolishedShell, statusTabCounts[id])}
+                  {runsDashboardTabLabel(id, buyerPolishedShell, statusTabCounts[id], {
+                    homePreviewMode: hideHeading,
+                  })}
                 </TabsTrigger>
               ))}
             </TabsList>
@@ -145,7 +147,9 @@ export function RunsDashboardPanelFilters({
                 data-testid={`runs-dashboard-tab-${id}`}
                 className="shrink-0"
               >
-                {runsDashboardTabLabel(id, buyerPolishedShell, statusTabCounts[id])}
+                {runsDashboardTabLabel(id, buyerPolishedShell, statusTabCounts[id], {
+                  homePreviewMode: hideHeading,
+                })}
               </TabsTrigger>
             ))}
           </TabsList>

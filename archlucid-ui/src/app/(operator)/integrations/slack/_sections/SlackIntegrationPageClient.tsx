@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
 
@@ -46,6 +47,11 @@ import {
   AlertRoutingSubscriptionDisableDialog,
   type AlertRoutingSubscriptionDisableTarget,
 } from "@/app/(operator)/integrations/_sections/AlertRoutingSubscriptionDisableDialog";
+import { INTEGRATIONS_SLACK_PATH } from "@/lib/integrations-nav-paths";
+import {
+  parseSlackDisableIdFromSearch,
+  slackDisableRouteHrefFromSearch,
+} from "@/lib/integrations/slack-disable-route-url";
 
 const SLACK_CHANNEL_TYPE = "SlackWebhook";
 
@@ -53,6 +59,10 @@ const SAVE_FAILURE_MESSAGE = "We could not save this destination. Check the fiel
 
 /** Slack alert routing — incoming webhook destinations for governance alerts in this workspace scope. */
 export function SlackIntegrationPageClient(): React.ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? INTEGRATIONS_SLACK_PATH;
+  const searchParams = useSearchParams();
+  const urlDisableId = parseSlackDisableIdFromSearch(searchParams.get("slackDisableId"));
   const canMutate = useOperateCapability();
   const [items, setItems] = useState<AlertRoutingSubscription[]>([]);
   const [loading, setLoading] = useState(false);
@@ -63,9 +73,27 @@ export function SlackIntegrationPageClient(): React.ReactElement {
   const [formTestFeedback, setFormTestFeedback] = useState<SlackIntegrationTestFeedback | null>(null);
   const [rowTestFeedback, setRowTestFeedback] = useState<Record<string, SlackIntegrationTestFeedback>>({});
   const [mutationSuccessMessage, setMutationSuccessMessage] = useState<string | null>(null);
-  const [pendingDisable, setPendingDisable] = useState<AlertRoutingSubscriptionDisableTarget | null>(null);
+  const [pendingDisable, setPendingDisableState] = useState<AlertRoutingSubscriptionDisableTarget | null>(null);
   const [disableBusy, setDisableBusy] = useState(false);
   const [disableErrorMessage, setDisableErrorMessage] = useState<string | null>(null);
+
+  const syncDisableConfirmToUrl = useCallback(
+    (routingSubscriptionId: string | null) => {
+      router.replace(
+        slackDisableRouteHrefFromSearch(searchParams.toString(), routingSubscriptionId, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPendingDisable = useCallback(
+    (value: AlertRoutingSubscriptionDisableTarget | null) => {
+      setPendingDisableState(value);
+      syncDisableConfirmToUrl(value?.routingSubscriptionId ?? null);
+    },
+    [syncDisableConfirmToUrl],
+  );
 
   const form = useForm<SlackIntegrationFormValues>({
     resolver: zodResolver(slackIntegrationFormSchema),
@@ -79,6 +107,36 @@ export function SlackIntegrationPageClient(): React.ReactElement {
     () => items.filter((row) => row.channelType === SLACK_CHANNEL_TYPE),
     [items],
   );
+
+  useEffect(() => {
+    if (urlDisableId.length === 0) {
+      if (pendingDisable !== null) {
+        setPendingDisableState(null);
+      }
+
+      return;
+    }
+
+    if (slackRows.length === 0) {
+      return;
+    }
+
+    const subscription = slackRows.find((row) => row.routingSubscriptionId === urlDisableId);
+
+    if (subscription === undefined) {
+      return;
+    }
+
+    if (pendingDisable?.routingSubscriptionId === urlDisableId) {
+      return;
+    }
+
+    setPendingDisableState({
+      routingSubscriptionId: subscription.routingSubscriptionId,
+      subscriptionName: subscription.name,
+      channel: "slack",
+    });
+  }, [pendingDisable?.routingSubscriptionId, slackRows, urlDisableId]);
 
   const activeDestinationCount = useMemo(
     () => slackRows.filter((row) => row.isEnabled === true).length,

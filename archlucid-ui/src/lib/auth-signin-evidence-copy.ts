@@ -1,5 +1,7 @@
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
+export const AUTH_SIGNIN_FOLLOW_UPS_TITLE = "Where to go next";
+
 export const AUTH_SIGNIN_CLAIM_DISCIPLINE =
   "Sign-in is authentication only — not a full audit export. After you enter a workspace, open Assurance status or a finalized review when you need live evidence.";
 

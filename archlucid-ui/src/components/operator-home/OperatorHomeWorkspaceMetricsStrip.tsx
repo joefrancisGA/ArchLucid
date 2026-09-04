@@ -81,6 +81,7 @@ export function OperatorHomeWorkspaceMetricsStrip(
   const warningsCount = metrics.governanceWarnings;
   const findingsLabel = `Open finding${findingsCount === 1 ? "" : "s"}`;
   const warningsLabel = `Warning${warningsCount === 1 ? "" : "s"}`;
+  const showActiveReviewsMetric = activeReviews !== 1;
   const setupLabel = readiness.phase === "loading"
     ? "Setup …"
     : `Setup ${readiness.readyCount}/${readiness.totalCount}`;
@@ -106,13 +107,15 @@ export function OperatorHomeWorkspaceMetricsStrip(
         )}
         role="list"
       >
-        <MetricCounter
-          count={activeReviews}
-          label={`Active review${activeReviews === 1 ? "" : "s"}`}
-          href={OPERATOR_HOME_ARCHITECTURE_PACKAGES_HREF}
-          ariaLabel={`${activeReviews} active review${activeReviews === 1 ? "" : "s"}`}
-          testId="operator-home-metric-active-reviews"
-        />
+        {showActiveReviewsMetric ? (
+          <MetricCounter
+            count={activeReviews}
+            label={`Active review${activeReviews === 1 ? "" : "s"}`}
+            href={OPERATOR_HOME_ARCHITECTURE_PACKAGES_HREF}
+            ariaLabel={`${activeReviews} active review${activeReviews === 1 ? "" : "s"}`}
+            testId="operator-home-metric-active-reviews"
+          />
+        ) : null}
         <MetricCounter
           count={findingsCount}
           label={findingsLabel}
