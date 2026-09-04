@@ -2684,11 +2684,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 75
-- **bugs-found:** 138
+- **hunts:** 76
+- **bugs-found:** 140
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — Bicep multiline array `#` probe and inline `#` scalar comment parity gaps
+- **last-bug:** 2026-09-04 — multiline array probe skipped `#`/`//` but not `/* */` before `[`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2901,6 +2901,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `BicepArrayLiteralConverter.TryParsePrimitiveStrings` — boolean `list(bool)` arrays silently dropped — `service_endpoints = [true, false]` already emits canonicalized `tf.service_endpoints`; regression in `ParseAsync_BooleanPrimitiveArray_PreservesTfProperty`
 
 2026-09-04 seed hunt #741: reseeded from Bicep/terraform parser parity; proved multiline-array `#` probe and inline `#` scalar gaps; cheap-disproved POL spaced-prefix and boolean primitive-array candidates.
+
+- [x] (proven) `BicepResourceBodyParser` / `SimpleTerraformResourceBlockParser.TryConsumeMultilineArrayAssignment` — `/* */` block-comment lines before `[` not skipped during multiline array probe — **hit 2026-09-04 (#742):** probe skipped `#`/`//` after #741 but not block comments, so `ipSecurityRestrictions:` + `/* legacy */` + `[...]` dropped `tf.ipsecurityrestrictions` and leaked inner rule scalars (#527/`#` parity gap); fixed with `InfrastructureDeclarationLineCommentScanner.TryConsumeBlockComment` in probe loop; regressions in `ParseAsync_MultilineIpSecurityRestrictionsArrayWithBlockCommentBeforeBracket_PreservesRulesForNetworkExpander` (Bicep and simple-terraform)
+- [x] (valid-no-repro) `BicepResourceBodyParser` — inline `#` after `[` on same-line array header — `ipSecurityRestrictions: [ # legacy` already preserves rules via comment-aware `ExtractBalancedBracketBody`; regression candidate deferred (same-line `#` after `[` passes existing bracket extractor)
+- [x] (valid-no-repro) `PlainTextDocumentPrefixedLine` — `SEC :` spaced-prefix parity — shared `TryGetPrefixedBody` already accepts optional whitespace before `:`; regression in `ParseAsync_SpacedSecPrefixBeforeColon_ExtractsSecurityBaseline` (added this hunt)
+
+2026-09-04 seed hunt #742: reseeded multiline-array probe after #741 `#` fix; proved block-comment before `[` gap in Bicep and simple-terraform; cheap-disproved inline-`#`-after-`[` and `SEC :` prefix candidates.
 
 - [x] (proven) `PlainTextContextDocumentParser` required `REQ:`/`POL:`/`TOP:`/`SEC:` prefix without optional whitespace before colon — **hit 2026-09-02:** `REQ : Must scale` lines were skipped while `REQ: Must scale` parsed; fixed with `TryGetPrefixedBody` accepting optional whitespace before `:` (`PlainTextContextDocumentParserTests.ParseAsync_SpacedPrefixBeforeColon_ExtractsRequirement`).
 - [x] (proven) `BicepResourceBodyParser` treated `key: [` array headers as scalar assignments — **hit 2026-09-02:** `ipSecurityRestrictions: [` stored `tf.ipsecurityrestrictions = "["` and leaked inner object scalars (`tf.name`, `tf.ipaddress`) so App Service network-rule expander never ran; fixed with balanced-bracket extraction and `BicepArrayLiteralConverter` JSON serialization (`BicepInfrastructureDeclarationParserTests.ParseAsync_AppServiceIpSecurityRestrictionsArray_IsPreservedForNetworkExpander`, `ParseAsync_AppServiceIpSecurityRestrictionsArray_ExpandsNetworkBaseline`).

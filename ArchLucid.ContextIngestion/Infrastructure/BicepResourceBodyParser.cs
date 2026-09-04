@@ -156,10 +156,17 @@ internal static class BicepResourceBodyParser
         Dictionary<string, string> properties)
     {
         int probeIndex = lineIndex + 1;
+        bool inBlockComment = false;
 
         while (probeIndex < lines.Length)
         {
             string probeLine = lines[probeIndex].Trim();
+
+            if (InfrastructureDeclarationLineCommentScanner.TryConsumeBlockComment(ref probeLine, ref inBlockComment))
+            {
+                probeIndex++;
+                continue;
+            }
 
             if (probeLine.Length == 0
                 || probeLine.StartsWith("//", StringComparison.Ordinal)
