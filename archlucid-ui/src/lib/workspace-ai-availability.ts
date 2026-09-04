@@ -3,7 +3,7 @@ import { apiGet } from "@/lib/api";
 export const WORKSPACE_AI_AVAILABILITY_PATH = "/v1/diagnostics/workspace-ai-availability";
 
 /** Client-side budget aligned with proxy upstream probe timeout + network margin. */
-export const WORKSPACE_AI_AVAILABILITY_FETCH_TIMEOUT_MS = 12_000;
+export const WORKSPACE_AI_AVAILABILITY_FETCH_TIMEOUT_MS = 20_000;
 
 export type WorkspaceAiAvailabilityCheckRow = {
   readonly name: string;
