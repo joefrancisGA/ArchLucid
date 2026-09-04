@@ -3189,11 +3189,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 171
-- **bugs-found:** 381
+- **hunts:** 172
+- **bugs-found:** 382
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — Promote same-environment validation ordering before tenant preflight
+- **last-bug:** 2026-09-04 — SubmitApprovalRequest same-environment validation ordering before tenant preflight
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4062,7 +4062,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `GovernanceController.Promote` / `CreateGovernancePromotionRequestValidator` — tenant preflight ran before same-environment guard, so ghost tenant + `sourceEnvironment == targetEnvironment` returned HTTP 404 instead of 400 (#721 compare-environments sibling) — **hit 2026-09-04 (#722):** `GovernancePromotionHttpMapper.Validate` before `RequireTenantAndWorkspaceOrNotFoundAsync`; regression in `GovernanceControllerRunHistoryScopeTests.Promote_returns_validation_failed_when_source_equals_target_and_tenant_missing`.
 
-- [ ] (candidate) `GovernanceController.SubmitApprovalRequest` / `CreateGovernanceApprovalRequestValidator` — same-environment guard may run after tenant preflight (#722 promote sibling; validator exists, controller uses partial slug checks only).
+- [x] (proven) `GovernanceController.SubmitApprovalRequest` / `CreateGovernanceApprovalRequestValidator` — tenant preflight ran before same-environment guard, so ghost tenant + `sourceEnvironment == targetEnvironment` returned HTTP 404 instead of 400 (#722 promote sibling) — **hit 2026-09-04 (#723):** `GovernanceApprovalRequestHttpMapper.Validate` before `RequireTenantAndWorkspaceOrNotFoundAsync`; regression in `GovernanceControllerRunHistoryScopeTests.SubmitApprovalRequest_returns_validation_failed_when_source_equals_target_and_tenant_missing`.
+
+2026-09-04 thorough hunt #723 (hit): proved SubmitApprovalRequest same-environment validation ordering before tenant preflight.
 
 2026-09-04 seed hunt #722 (hit): proved Promote same-environment validation ordering before tenant preflight; seeded SubmitApprovalRequest same-environment ordering candidate.
 

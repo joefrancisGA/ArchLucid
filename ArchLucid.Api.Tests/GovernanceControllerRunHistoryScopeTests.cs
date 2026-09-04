@@ -774,6 +774,61 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     }
 
     [Fact]
+    public async Task SubmitApprovalRequest_returns_validation_failed_when_source_equals_target()
+    {
+        Guid runId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(workflowFacade: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.SubmitApprovalRequest(
+            new CreateGovernanceApprovalRequest
+            {
+                RunId = runId.ToString("D"),
+                ManifestVersion = "1",
+                SourceEnvironment = "dev",
+                TargetEnvironment = "dev",
+            },
+            dryRun: true,
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task SubmitApprovalRequest_returns_validation_failed_when_source_equals_target_and_tenant_missing()
+    {
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            tenantRepository: TenantMissingRepository(),
+            workflowFacade: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.SubmitApprovalRequest(
+            new CreateGovernanceApprovalRequest
+            {
+                RunId = Guid.NewGuid().ToString("D"),
+                ManifestVersion = "1",
+                SourceEnvironment = "dev",
+                TargetEnvironment = "dev",
+            },
+            dryRun: true,
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task BatchReviewApprovalRequests_returns_validation_failed_per_item_when_approval_request_id_is_duplicated()
     {
         const string approvalRequestId = "apr-batch-duplicate";
