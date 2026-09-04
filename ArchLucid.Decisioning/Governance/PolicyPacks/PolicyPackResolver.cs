@@ -59,7 +59,7 @@ public sealed class PolicyPackResolver(
 
             if (focusedPilotMode && !FocusedPilotModePolicyPacks.IsPackAllowedInFocusedReview(
                     pack.Name,
-                    assignment.IsPinned,
+                    PolicyPackAssignmentOrganizationRequired.IsOrganizationRequired(assignment),
                     PlatformOverlayPolicyPacks.IsOverlayDisplayName(
                         pack.Name,
                         PilotModeGovernanceScope.ActiveCloudProvider)))

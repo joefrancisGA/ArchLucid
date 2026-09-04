@@ -92,10 +92,44 @@ public sealed class PolicyPackWorkspaceSelectionService(
         if (isEnabled && !await _platformAvailability.IsGloballyActiveAsync(pack, ct))
             return false;
 
+        if (!isEnabled && PolicyPackAssignmentOrganizationRequired.IsOrganizationRequired(assignment))
+            return false;
+
         if (assignment.IsEnabled == isEnabled)
             return true;
 
         assignment.IsEnabled = isEnabled;
+        await _assignmentRepository.UpdateAsync(assignment, ct);
+        await _resolverCacheInvalidator.InvalidateTenantAsync(scope.TenantId, ct);
+
+        return true;
+    }
+
+    public async Task<bool> TrySetAssignmentOrganizationRequiredAsync(
+        ScopeContext scope,
+        Guid assignmentId,
+        bool isOrganizationRequired,
+        CancellationToken ct)
+    {
+        PolicyPackAssignment? assignment =
+            await _assignmentRepository.GetByTenantAndAssignmentIdAsync(scope.TenantId, assignmentId, ct);
+
+        if (!PolicyPackAssignmentScope.IsVisibleInScope(assignment, scope))
+            return false;
+
+        PolicyPack? pack = await _packRepository.GetByIdAsync(assignment!.PolicyPackId, ct);
+
+        if (pack is null || pack.TenantId != scope.TenantId)
+            return false;
+
+        if (assignment.IsOrganizationRequired == isOrganizationRequired)
+            return true;
+
+        assignment.IsOrganizationRequired = isOrganizationRequired;
+
+        if (isOrganizationRequired)
+            assignment.IsEnabled = true;
+
         await _assignmentRepository.UpdateAsync(assignment, ct);
         await _resolverCacheInvalidator.InvalidateTenantAsync(scope.TenantId, ct);
 

@@ -45,13 +45,15 @@ public sealed class DapperPolicyPackAssignmentRepository(
                            INSERT INTO dbo.PolicyPackAssignments
                            (
                                AssignmentId, TenantId, WorkspaceId, ProjectId,
-                               PolicyPackId, PolicyPackVersion, IsEnabled, ScopeLevel, IsPinned, AssignedUtc, ArchivedUtc,
+                               PolicyPackId, PolicyPackVersion, IsEnabled, ScopeLevel, IsPinned, IsOrganizationRequired,
+                               AssignedUtc, ArchivedUtc,
                                BlockCommitOnCritical, BlockCommitMinimumSeverity
                            )
                            VALUES
                            (
                                @AssignmentId, @TenantId, @WorkspaceId, @ProjectId,
-                               @PolicyPackId, @PolicyPackVersion, @IsEnabled, @ScopeLevel, @IsPinned, @AssignedUtc, @ArchivedUtc,
+                               @PolicyPackId, @PolicyPackVersion, @IsEnabled, @ScopeLevel, @IsPinned, @IsOrganizationRequired,
+                               @AssignedUtc, @ArchivedUtc,
                                @BlockCommitOnCritical, @BlockCommitMinimumSeverity
                            );
                            """;
@@ -64,14 +66,15 @@ public sealed class DapperPolicyPackAssignmentRepository(
     }
 
     /// <inheritdoc />
-    /// <remarks>Currently only toggles <c>IsEnabled</c>; other columns require future migration if editable.</remarks>
+    /// <remarks>Updates mutable assignment flags (<c>IsEnabled</c>, <c>IsOrganizationRequired</c>).</remarks>
     public async Task UpdateAsync(PolicyPackAssignment assignment, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(assignment);
 
         const string sql = """
                            UPDATE dbo.PolicyPackAssignments
-                           SET IsEnabled = @IsEnabled
+                           SET IsEnabled = @IsEnabled,
+                               IsOrganizationRequired = @IsOrganizationRequired
                            WHERE AssignmentId = @AssignmentId;
                            """;
 
@@ -94,7 +97,8 @@ public sealed class DapperPolicyPackAssignmentRepository(
         const string sql = """
                            SELECT TOP 200
                                AssignmentId, TenantId, WorkspaceId, ProjectId,
-                               PolicyPackId, PolicyPackVersion, IsEnabled, ScopeLevel, IsPinned, AssignedUtc, ArchivedUtc,
+                               PolicyPackId, PolicyPackVersion, IsEnabled, ScopeLevel, IsPinned, IsOrganizationRequired,
+                               AssignedUtc, ArchivedUtc,
                                BlockCommitOnCritical, BlockCommitMinimumSeverity
                            FROM dbo.PolicyPackAssignments WITH (NOLOCK)
                            WHERE TenantId = @TenantId
@@ -124,7 +128,8 @@ public sealed class DapperPolicyPackAssignmentRepository(
         const string sql = """
                            SELECT TOP 1
                                AssignmentId, TenantId, WorkspaceId, ProjectId,
-                               PolicyPackId, PolicyPackVersion, IsEnabled, ScopeLevel, IsPinned, AssignedUtc, ArchivedUtc,
+                               PolicyPackId, PolicyPackVersion, IsEnabled, ScopeLevel, IsPinned, IsOrganizationRequired,
+                               AssignedUtc, ArchivedUtc,
                                BlockCommitOnCritical, BlockCommitMinimumSeverity
                            FROM dbo.PolicyPackAssignments
                            WHERE TenantId = @TenantId

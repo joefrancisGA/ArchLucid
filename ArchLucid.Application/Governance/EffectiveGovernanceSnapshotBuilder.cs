@@ -118,7 +118,7 @@ public sealed class EffectiveGovernanceSnapshotBuilder
 
             if (focusedPilotMode && !FocusedPilotModePolicyPacks.IsPackAllowedInFocusedReview(
                     pack.Name,
-                    assignment.IsPinned,
+                    PolicyPackAssignmentOrganizationRequired.IsOrganizationRequired(assignment),
                     PlatformOverlayPolicyPacks.IsOverlayDisplayName(pack.Name, request.CloudProvider)))
             {
                 coverageRows.Add(
@@ -138,7 +138,7 @@ public sealed class EffectiveGovernanceSnapshotBuilder
                     BuildCoverageSnapshot(
                         assignment,
                         pack,
-                        ResolveCoverageType(pack),
+                        ResolveCoverageType(pack, assignment),
                         CoverageSelectionState.RecommendedButExcluded,
                         exclusionReason: DisabledAssignmentExclusionReason));
 
@@ -166,8 +166,8 @@ public sealed class EffectiveGovernanceSnapshotBuilder
                 BuildCoverageSnapshot(
                     assignment,
                     pack,
-                    ResolveCoverageType(pack),
-                    ResolveSelectedState(pack),
+                    ResolveCoverageType(pack, assignment),
+                    ResolveSelectedState(pack, assignment),
                     exclusionReason: null));
         }
 
@@ -246,8 +246,11 @@ public sealed class EffectiveGovernanceSnapshotBuilder
             EvaluationVersion = ExecuteScopeEvaluationVersion
         };
 
-    private static CoverageType ResolveCoverageType(PolicyPack pack)
+    private static CoverageType ResolveCoverageType(PolicyPack pack, PolicyPackAssignment assignment)
     {
+        if (PolicyPackAssignmentOrganizationRequired.IsOrganizationRequired(assignment))
+            return CoverageType.OrganizationRequired;
+
         if (pack.QualityDimension.HasValue)
             return CoverageType.ProviderNeutralBaseline;
 
@@ -263,10 +266,15 @@ public sealed class EffectiveGovernanceSnapshotBuilder
         return CoverageType.AdditionalOptional;
     }
 
-    private static CoverageSelectionState ResolveSelectedState(PolicyPack pack) =>
-        pack.QualityDimension.HasValue
+    private static CoverageSelectionState ResolveSelectedState(PolicyPack pack, PolicyPackAssignment assignment)
+    {
+        if (PolicyPackAssignmentOrganizationRequired.IsOrganizationRequired(assignment))
+            return CoverageSelectionState.RequiredAndLocked;
+
+        return pack.QualityDimension.HasValue
             ? CoverageSelectionState.AlwaysActive
             : CoverageSelectionState.OptionalAndSelected;
+    }
 
     private static bool AppliesToScope(
         PolicyPackAssignment assignment,

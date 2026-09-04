@@ -73,6 +73,23 @@ internal static class CuratedComplianceRuleMapper
             Severity = severity,
             Priority = priority,
             Description = description.ToString(),
+            Applicability = MapApplicability(entry.ApplicabilityConditions),
         };
+    }
+
+    private static ComplianceRuleApplicabilityConditions? MapApplicability(CuratedRulesApplicabilityConditions? source)
+    {
+        if (source is null)
+            return null;
+
+        List<string> cloudProviders = source.CloudProvider?
+            .Where(static provider => !string.IsNullOrWhiteSpace(provider))
+            .Select(static provider => provider.Trim())
+            .ToList() ?? [];
+
+        if (cloudProviders.Count == 0)
+            return null;
+
+        return new ComplianceRuleApplicabilityConditions { CloudProviders = cloudProviders };
     }
 }

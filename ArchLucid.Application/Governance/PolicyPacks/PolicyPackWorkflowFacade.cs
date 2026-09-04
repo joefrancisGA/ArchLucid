@@ -221,6 +221,34 @@ public sealed partial class PolicyPackWorkflowFacade(
         return true;
     }
 
+    /// <inheritdoc />
+    public async Task<bool> TrySetAssignmentOrganizationRequiredAsync(
+        Guid assignmentId,
+        bool isOrganizationRequired,
+        CancellationToken ct)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        bool ok = await _workspaceSelectionService.TrySetAssignmentOrganizationRequiredAsync(
+            scope,
+            assignmentId,
+            isOrganizationRequired,
+            ct);
+
+        if (!ok)
+            return false;
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.PolicyPackAssignmentOrganizationRequiredChanged,
+                DataJson = JsonSerializer.Serialize(new { assignmentId, isOrganizationRequired }),
+            },
+            ct);
+
+        return true;
+    }
+
     private async Task<IReadOnlyList<PolicyPack>> ListVisiblePacksInScopeAsync(ScopeContext scope, CancellationToken ct)
     {
         IReadOnlyList<PolicyPack> packs = await _packRepository.ListByScopeAsync(
