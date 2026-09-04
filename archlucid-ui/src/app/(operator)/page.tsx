@@ -28,13 +28,6 @@ export default function HomePage() {
       <Suspense fallback={<OperatorHomePageSuspenseFallback />}>
         <OperatorHomeRunsDashboardAsync buyerPolishedShell={evalChromeShell} />
       </Suspense>
-
-  return (
-    <>
-      <CtoDemoSponsorLandingRedirectDeferred />
-      <Suspense fallback={<OperatorHomePageSuspenseFallback />}>
-        <OperatorHomeRunsDashboardAsync buyerPolishedShell={buyerPolishedShell} />
-      </Suspense>
     </>
   );
 }
