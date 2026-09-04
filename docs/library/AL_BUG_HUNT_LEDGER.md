@@ -3348,11 +3348,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 200
-- **bugs-found:** 422
+- **hunts:** 201
+- **bugs-found:** 423
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — create recurrence whitespace silent default
+- **last-bug:** 2026-09-04 — governance optional comment whitespace no-op
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4334,6 +4334,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `GovernanceStickinessController.CreateRecurrenceSchedule` / `GovernanceStickinessHttpMapper.ValidateCreateRecurrenceSchedule` — whitespace-only `name` passed HTTP validation and silently defaulted to `"Recurring architecture review"` instead of HTTP 400 — **hit 2026-09-04 (#783):** reject empty/whitespace create fields (update recurrence #779 parity); regressions in `ValidateCreateRecurrenceSchedule_rejects_whitespace_only_name` and `CreateRecurrenceSchedule_returns_bad_request_when_name_is_whitespace_only`.
 - [x] (proven) `GovernanceStickinessController.CreateRecurrenceSchedule` / `GovernanceStickinessHttpMapper.ValidateCreateRecurrenceSchedule` — whitespace-only `cronExpression` passed HTTP validation and silently defaulted to `"0 8 * * 1"` instead of HTTP 400 — **hit 2026-09-04 (#783):** same create-path whitespace guard (update cron #779 parity); regressions in `ValidateCreateRecurrenceSchedule_rejects_whitespace_only_cron_expression` and `CreateRecurrenceSchedule_returns_bad_request_when_cron_expression_is_whitespace_only`.
+
+2026-09-04 seed hunt #783 (hit): proved create recurrence whitespace silent default on name and cronExpression.
+
+- [x] (proven) `GovernanceController.Approve` / `Reject` / `BatchReviewApprovalRequests` / `SubmitApprovalRequest` / `Promote` / `GovernanceApprovalRequestsHttpMapper.ValidateOptionalGovernanceComment` — whitespace-only optional `reviewComment`, `requestComment`, or `notes` passed HTTP validation and persisted as whitespace text — **hit 2026-09-04 (#784):** reject empty/whitespace optional governance comments when explicitly provided (disposition optional-field #781 parity); regressions in `ValidateReviewComment_rejects_whitespace_only_comment`, `ValidateOptionalGovernanceComment_rejects_whitespace_only_notes`, `ValidateBatchReviewRequest_rejects_whitespace_only_review_comment`, and `Approve_returns_bad_request_when_review_comment_is_whitespace_only`.
+
+2026-09-04 seed hunt #784 (hit): proved governance optional comment whitespace silent no-op on approve/reject/batch/submit/promote paths.
 
 2026-09-04 seed hunt #783 (hit): proved create recurrence whitespace silent default on name and cronExpression.
 
