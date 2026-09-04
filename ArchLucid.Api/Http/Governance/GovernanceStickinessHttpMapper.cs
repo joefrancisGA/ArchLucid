@@ -173,6 +173,38 @@ public static class GovernanceStickinessHttpMapper
         return null;
     }
 
+    public static GovernanceHttpValidation? ValidateUpdateRecurrenceSchedule(
+        UpdateArchitectureReviewRecurrenceScheduleRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (request.Name is not null)
+        {
+            string name = request.Name.Trim();
+
+            if (name.Length > RecurrenceScheduleValidation.NameMaxLength)
+            {
+                return new GovernanceHttpValidation(
+                    $"name must not exceed {RecurrenceScheduleValidation.NameMaxLength} characters.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
+        if (request.CronExpression is not null)
+        {
+            string cronExpression = request.CronExpression.Trim();
+
+            if (cronExpression.Length > RecurrenceScheduleValidation.CronExpressionMaxLength)
+            {
+                return new GovernanceHttpValidation(
+                    $"cronExpression must not exceed {RecurrenceScheduleValidation.CronExpressionMaxLength} characters.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
+        return null;
+    }
+
     public static GovernanceHttpValidation? ValidateRecordDisposition(RecordFindingDispositionRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -222,6 +254,12 @@ public static class GovernanceStickinessHttpMapper
                 return evidenceValidation;
         }
 
+        GovernanceHttpValidation? revisitValidation =
+            ValidateDeferredRevisitDueUtc(request.Disposition, request.RevisitDueUtc);
+
+        if (revisitValidation is not null)
+            return revisitValidation;
+
         return null;
     }
 
@@ -259,6 +297,38 @@ public static class GovernanceStickinessHttpMapper
 
             if (evidenceValidation is not null)
                 return evidenceValidation;
+        }
+
+        GovernanceHttpValidation? revisitValidation =
+            ValidateDeferredRevisitDueUtc(request.Disposition, request.RevisitDueUtc);
+
+        if (revisitValidation is not null)
+            return revisitValidation;
+
+        return null;
+    }
+
+    private static GovernanceHttpValidation? ValidateDeferredRevisitDueUtc(
+        FindingDisposition disposition,
+        DateTimeOffset? revisitDueUtc)
+    {
+        if (disposition != FindingDisposition.Deferred)
+            return null;
+
+        if (revisitDueUtc is null)
+        {
+            return new GovernanceHttpValidation(
+                "Revisit due date is required when deferring.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        DateTimeOffset effectiveNowUtc = TimeProvider.System.GetUtcNow();
+
+        if (revisitDueUtc <= effectiveNowUtc)
+        {
+            return new GovernanceHttpValidation(
+                "Revisit due date must be in the future when deferring.",
+                ProblemTypes.ValidationFailed);
         }
 
         return null;

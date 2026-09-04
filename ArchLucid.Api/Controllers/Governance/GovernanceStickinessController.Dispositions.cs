@@ -207,16 +207,16 @@ public sealed partial class GovernanceStickinessController
         if (findingIdProblem is not null)
             return findingIdProblem;
 
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
-
-        if (tenantProblem is not null)
-            return tenantProblem;
-
         IActionResult? runIdProblem =
             GovernanceStickinessControllerCore.ValidateRunId(runId).ToBadRequestProblemOrNull(this);
 
         if (runIdProblem is not null)
             return runIdProblem;
+
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         try
         {

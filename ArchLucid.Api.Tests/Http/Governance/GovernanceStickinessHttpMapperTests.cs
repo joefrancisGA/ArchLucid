@@ -119,6 +119,81 @@ public sealed class GovernanceStickinessHttpMapperTests
     }
 
     [Fact]
+    public void ValidateUpdateRecurrenceSchedule_rejects_overlong_name()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateUpdateRecurrenceSchedule(
+            new UpdateArchitectureReviewRecurrenceScheduleRequest
+            {
+                Name = new string('n', RecurrenceScheduleValidation.NameMaxLength + 1),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain(RecurrenceScheduleValidation.NameMaxLength.ToString());
+    }
+
+    [Fact]
+    public void ValidateUpdateRecurrenceSchedule_rejects_overlong_cron_expression()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateUpdateRecurrenceSchedule(
+            new UpdateArchitectureReviewRecurrenceScheduleRequest
+            {
+                CronExpression = new string('0', RecurrenceScheduleValidation.CronExpressionMaxLength + 1),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain(RecurrenceScheduleValidation.CronExpressionMaxLength.ToString());
+    }
+
+    [Fact]
+    public void ValidateRecordDisposition_rejects_deferred_without_revisit_due()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRecordDisposition(
+            new RecordFindingDispositionRequest
+            {
+                FindingId = "finding-1",
+                Disposition = FindingDisposition.Deferred,
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("Revisit due date is required");
+    }
+
+    [Fact]
+    public void ValidateRecordDisposition_rejects_deferred_with_past_revisit_due()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRecordDisposition(
+            new RecordFindingDispositionRequest
+            {
+                FindingId = "finding-1",
+                Disposition = FindingDisposition.Deferred,
+                RevisitDueUtc = DateTimeOffset.UtcNow.AddDays(-1),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("future");
+    }
+
+    [Fact]
+    public void ValidateBulkDisposition_rejects_deferred_without_revisit_due()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateBulkDisposition(
+            new RecordBulkFindingDispositionRequest
+            {
+                FindingIds = ["finding-1"],
+                Disposition = FindingDisposition.Deferred,
+                Rationale = "defer until next quarter",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("Revisit due date is required");
+    }
+
+    [Fact]
     public void ValidateRecordDisposition_rejects_overlong_rationale()
     {
         GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRecordDisposition(
