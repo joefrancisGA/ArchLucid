@@ -24,7 +24,7 @@ public static partial class AzureExtractorPackageZipValidator
                 return "Missing or unsupported schemaVersion in manifest.json (required value: 1).";
             }
 
-            if (schemaVersion != SupportedSchemaVersion)
+            if (!AzureExtractorZipSchema.IsSupported(schemaVersion))
             {
                 return FormatUnsupportedSchemaVersionError(schemaVersion);
             }
@@ -45,7 +45,7 @@ public static partial class AzureExtractorPackageZipValidator
                 $"manifest.json schemaVersion {schemaVersion} is below the required V1 GA minimum ({SupportedSchemaVersion}). Re-pack with Get-ArchLucidAzurePackage.ps1.";
         }
 
-        return $"Unsupported manifest schemaVersion: {schemaVersion}. Required schemaVersion: {SupportedSchemaVersion}.";
+        return $"Unsupported manifest schemaVersion: {schemaVersion}. Supported schema versions: {AzureExtractorZipSchema.MinimumSupportedVersion}–{AzureExtractorZipSchema.CurrentVersion}.";
     }
 
     private static bool TryReadSchemaVersion(JsonElement element, out int schemaVersion)

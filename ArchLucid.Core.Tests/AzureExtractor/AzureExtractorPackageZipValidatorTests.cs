@@ -49,7 +49,7 @@ public sealed class AzureExtractorPackageZipValidatorTests
         result.IsValid.Should().BeFalse();
         result.IsSchemaRejection.Should().BeTrue();
         result.ErrorDetail.Should().Contain("schemaVersion");
-        result.ErrorDetail.Should().Contain("Required schemaVersion: 1");
+        result.ErrorDetail.Should().Contain("Supported schema versions: 1–2");
     }
 
     [Fact]

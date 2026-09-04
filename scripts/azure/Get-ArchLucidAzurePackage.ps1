@@ -434,8 +434,8 @@ if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
     }
 }
 
-$scriptVersion = "0.3.3"
-$schemaVersion = 1
+$scriptVersion = "0.4.0"
+$schemaVersion = 2
 $collectionTimestamp = (Get-Date).ToUniversalTime().ToString("o")
 $azProfile = Get-Module Az.Resources
 $azModuleVersion = if ($azProfile) { $azProfile.Version.ToString() } else { "unknown" }
@@ -474,6 +474,12 @@ try
         scope = $scopeDescriptor
         switchesUsed = $switchesUsed
         azModuleVersion = $azModuleVersion
+        completenessScore = 1.0
+        warnings = @($telemetry.warnings | ForEach-Object { $_.message })
+        errors = @()
+        resourceCount = @($resources).Count
+        captureMethod = "CustomerScript"
+        collectorVersion = $scriptVersion
     }
 
     if ($IncludeCost)
@@ -631,6 +637,13 @@ try
 
     $policyPath = Join-Path $staging "policy.json"
     Write-Utf8NoBom $policyPath ($policyData | ConvertTo-Json -Depth 10)
+
+  # Schema v2 optional inventory siblings (empty arrays when not yet collected per resource type).
+  Write-Utf8NoBom (Join-Path $staging "role-assignments.json") "[]"
+  Write-Utf8NoBom (Join-Path $staging "diagnostic-settings.json") "[]"
+  Write-Utf8NoBom (Join-Path $staging "network-associations.json") "[]"
+  Write-Utf8NoBom (Join-Path $staging "policy-assignments.json") "[]"
+  Write-Utf8NoBom (Join-Path $staging "defender-summary.json") "[]"
 
     $retailReadmeTail = ""
 

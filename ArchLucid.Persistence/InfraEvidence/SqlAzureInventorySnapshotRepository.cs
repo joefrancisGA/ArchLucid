@@ -7,7 +7,7 @@ using Dapper;
 
 namespace ArchLucid.Persistence.InfraEvidence;
 
-public sealed class SqlAzureInventorySnapshotRepository(ISqlConnectionFactory connectionFactory)
+public sealed partial class SqlAzureInventorySnapshotRepository(ISqlConnectionFactory connectionFactory)
     : IAzureInventorySnapshotRepository
 {
     public async Task InsertHeaderAsync(AzureInventorySnapshotRecord record, CancellationToken cancellationToken = default)

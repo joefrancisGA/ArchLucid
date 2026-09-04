@@ -1,3 +1,5 @@
+using ArchLucid.Core.AzureExtractor;
+
 using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
@@ -9,7 +11,7 @@ namespace ArchLucid.Integrations.AzureExtractor;
 /// </summary>
 public static class HostedAzureExtractorZipBuilder
 {
-    private const int SchemaVersion = 1;
+    private const int SchemaVersion = AzureExtractorZipSchema.Version2;
 
     private const string HostedScriptVersion = "hosted-1.0.0";
 
@@ -41,7 +43,13 @@ public static class HostedAzureExtractorZipBuilder
             ["subscriptionId"] = subscriptionId.Trim(),
             ["scope"] = scope,
             ["switchesUsed"] = switchesUsed,
-            ["azModuleVersion"] = "hosted-extractor"
+            ["azModuleVersion"] = "hosted-extractor",
+            ["completenessScore"] = 1.0,
+            ["warnings"] = Array.Empty<string>(),
+            ["errors"] = Array.Empty<string>(),
+            ["resourceCount"] = resources.Count,
+            ["captureMethod"] = "HostedReader",
+            ["collectorVersion"] = HostedScriptVersion,
         };
 
         if (includeCostRequested)
@@ -84,8 +92,13 @@ public static class HostedAzureExtractorZipBuilder
 
         using (ZipArchive archive = new(zipStream, ZipArchiveMode.Create, leaveOpen: true))
         {
-            AddUtf8Entry(archive, "manifest.json", JsonSerializer.Serialize(manifest, SerializerOptions));
-            AddUtf8Entry(archive, "resources.json", JsonSerializer.Serialize(resourceRows, SerializerOptions));
+            AddUtf8Entry(archive, AzureExtractorPackageZipEntryNames.Manifest, JsonSerializer.Serialize(manifest, SerializerOptions));
+            AddUtf8Entry(archive, AzureExtractorPackageZipEntryNames.Resources, JsonSerializer.Serialize(resourceRows, SerializerOptions));
+            AddUtf8Entry(archive, AzureExtractorPackageZipEntryNames.RoleAssignments, "[]");
+            AddUtf8Entry(archive, AzureExtractorPackageZipEntryNames.DiagnosticSettings, "[]");
+            AddUtf8Entry(archive, AzureExtractorPackageZipEntryNames.NetworkAssociations, "[]");
+            AddUtf8Entry(archive, AzureExtractorPackageZipEntryNames.PolicyAssignments, "[]");
+            AddUtf8Entry(archive, AzureExtractorPackageZipEntryNames.DefenderSummary, "[]");
             AddUtf8Entry(archive, "policy-compliance.json", JsonSerializer.Serialize(policyCompliance, SerializerOptions));
             AddUtf8Entry(archive, "README.txt", readme);
         }
