@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 160
-- **bugs-found:** 370
+- **hunts:** 161
+- **bugs-found:** 371
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — mutation-correction body runId GUID validation ordering before tenant lookup
+- **last-bug:** 2026-09-04 — manifest summary query validation ordering before tenant lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3980,6 +3980,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.RecordGovernanceMutationCorrection` / `GovernanceMutationCorrectionsHttpMapper.ValidateRecordMutationCorrection` — tenant preflight ran before body `runId` GUID/empty-GUID validation so ghost tenant + malformed or empty run id returned HTTP 404 instead of 400 (#700 submit/promote/activate ordering sibling; `ValidateGovernanceRunId` only checked whitespace/length) — **hit 2026-09-04 (#701):** `ValidateGovernanceRouteRunId` in mutation-correction HTTP mapper before tenant lookup; regression in `GovernanceMutationCorrectionsControllerTests.RecordGovernanceMutationCorrection_returns_bad_request_when_run_id_is_empty_guid_and_tenant_missing`, `RecordGovernanceMutationCorrection_returns_bad_request_when_run_id_is_not_valid_and_tenant_missing`, and `GovernanceMutationCorrectionsHttpMapperTests`.
 
 2026-09-04 seed hunt #701: promoted and proved mutation-correction body runId GUID validation ordering before tenant lookup.
+
+- [x] (proven) `ManifestsController.GetManifestSummary` — tenant preflight ran before `maxRelationships` and `format` query validation so ghost tenant + out-of-range `maxRelationships` or unknown `format` returned HTTP 404 instead of 400 (#675 manifest-version ordering sibling; validation ran only after scoped manifest load) — **hit 2026-09-04 (#702):** validate summary query params before tenant lookup; regression in `ManifestsControllerTests.GetManifestSummary_returns_bad_request_when_max_relationships_is_zero_and_tenant_missing` and `GetManifestSummary_returns_bad_request_for_unknown_format_and_tenant_missing`.
+
+2026-09-04 seed hunt #702: promoted and proved manifest summary query validation ordering before tenant lookup.
 
 2026-09-04 seed hunt #695: promoted and proved attestation upsert HTTP mapper and product-feedback validation ordering.
 
