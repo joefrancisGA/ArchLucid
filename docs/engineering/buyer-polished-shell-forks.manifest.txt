@@ -228,6 +228,8 @@ archlucid-ui/src/app/(operator)/insights/sponsor-report/_sections/PilotValueRepo
 archlucid-ui/src/app/(operator)/insights/sponsor-report/_sections/PilotValueReportPageView.tsx
 archlucid-ui/src/app/(operator)/integrations/azure-boards/_sections/AzureBoardsIntegrationPageClient.tsx
 archlucid-ui/src/app/(operator)/integrations/azure-boards/_sections/AzureBoardsIntegrationPageHeader.tsx
+archlucid-ui/src/app/(operator)/integrations/cloud-connections/_sections/CloudConnectionsPageShell.tsx
+archlucid-ui/src/app/(operator)/integrations/cloud-connections/_sections/CloudConnectionsProviderList.tsx
 archlucid-ui/src/app/(operator)/integrations/itsm/oauth/callback/ItsmAtlassianOAuthCallbackBuyerChrome.tsx
 archlucid-ui/src/app/(operator)/integrations/itsm/oauth/callback/ItsmAtlassianOAuthCallbackHeaderActions.tsx
 archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx
