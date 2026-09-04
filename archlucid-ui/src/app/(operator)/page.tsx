@@ -20,7 +20,14 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  const buyerPolishedShell = resolveProductionEvalChromeForServer();
+  const evalChromeShell = resolveProductionEvalChromeForServer();
+
+  return (
+    <>
+      <CtoDemoSponsorLandingRedirectDeferred />
+      <Suspense fallback={<OperatorHomePageSuspenseFallback />}>
+        <OperatorHomeRunsDashboardAsync buyerPolishedShell={evalChromeShell} />
+      </Suspense>
 
   return (
     <>
