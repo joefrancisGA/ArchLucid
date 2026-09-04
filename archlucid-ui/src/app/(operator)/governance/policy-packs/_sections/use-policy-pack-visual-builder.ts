@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { usePolicyPackRuleTemplatesQuery } from "@/hooks/use-policy-pack-rule-templates-query";
@@ -7,6 +8,11 @@ import { simulatePolicyPackAgainstRun } from "@/lib/api";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { components } from "@/lib/openapi-schemas";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  parsePolicyPackGeneratorTemplateFromSearch,
+  policyPackGeneratorTemplateHrefFromSearch,
+} from "@/lib/policy/policy-pack-generator-template-url";
 import {
   canAddNestedGroup,
   createEmptyVisualBuilderState,
@@ -51,15 +57,19 @@ function updateGroupChildren(
 }
 
 export function usePolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? GOVERNANCE_POLICY_PACKS_PATH;
+  const searchParams = useSearchParams();
   const { canMutatePacks, policyContentJson, onPolicyContentJsonSync, selectedPackId } = props;
   const scopedReviewId = (props.scopedReviewId ?? "").trim();
   const scopedReviewFilterActive = scopedReviewId.length > 0;
   const requiresReviewPick = props.onPickReview !== undefined;
   const validateClearScopeHref = buildPolicyPacksHrefWithReviewId("");
+  const urlTemplateId = parsePolicyPackGeneratorTemplateFromSearch(searchParams.get("generatorTemplate"));
   const [builderState, setBuilderState] = useState<VisualBuilderState>(() => createEmptyVisualBuilderState());
   const [jsonPreview, setJsonPreview] = useState<string>(policyContentJson);
   const [roundTripWarning, setRoundTripWarning] = useState<string | null>(null);
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
+  const [selectedTemplateId, setSelectedTemplateIdState] = useState<string>(urlTemplateId);
   const effectiveSimulateRunId = scopedReviewFilterActive ? scopedReviewId : "";
   const templatesQuery = usePolicyPackRuleTemplatesQuery();
   const templates = templatesQuery.data ?? [];
@@ -73,6 +83,28 @@ export function usePolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) 
   const [simulateResult, setSimulateResult] = useState<
     components["schemas"]["PolicyPackGovernanceDryRunResult"] | null
   >(null);
+
+  const syncTemplateToUrl = useCallback(
+    (templateId: string) => {
+      router.replace(
+        policyPackGeneratorTemplateHrefFromSearch(searchParams.toString(), templateId, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSelectedTemplateId = useCallback(
+    (templateId: string) => {
+      setSelectedTemplateIdState(templateId);
+      syncTemplateToUrl(templateId);
+    },
+    [syncTemplateToUrl],
+  );
+
+  useEffect(() => {
+    setSelectedTemplateIdState(parsePolicyPackGeneratorTemplateFromSearch(searchParams.get("generatorTemplate")));
+  }, [searchParams]);
 
   useEffect(() => {
     const parsed = tryParseVisualBuilderFromContentJson(policyContentJson);
