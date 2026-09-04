@@ -166,6 +166,8 @@ archlucid-ui/src/app/(operator)/help/_sections/HelpRecurrenceSchedulesGuideView.
 archlucid-ui/src/app/(operator)/help/_sections/HelpRepeatReviewLoopGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpReportAProblemGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpReportAProblemHeaderActions.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpRoiSummaryGuideView.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpRoiSummaryHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpScopeGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpScopeHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpSearchReviewEvidenceGuideView.tsx
