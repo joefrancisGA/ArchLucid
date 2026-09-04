@@ -925,13 +925,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
+- **last-hunt:** 2026-09-04
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -940,6 +940,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) ARM resource id is stored in the wrong Terraform attribute (name vs id) — zone file is static apply-order text only; no ARM id parsing.
 - [x] (invalid) Module-wrapped resource is skipped so evidence omits a live ARM id — no Terraform module parsing in this zone.
 - [x] (invalid) Parser treats a comment containing `resource_id` as a real binding — no HCL parser in this zone.
+- [x] (valid-no-repro) `DefaultApplyOrderRoots` leaf order drifts from `infra/apply-saas.ps1` `$multiRootSequence` — CI guard covers pilot/apply only; regression in `DefaultApplyOrderRoots_leaf_sequence_matches_apply_saas_ps1_multiRootSequence` (2026-09-04).
+- [x] (valid-no-repro) Composition roots in evidence diverge from `$hostedCompositionRoots` — same apply-saas source; `DefaultApplyOrderRoots_composition_roots_match_apply_saas_ps1_hostedCompositionRoots` (2026-09-04).
+- [x] (invalid) `DocumentationRelativePath` cites missing stack-order doc — `DocumentationRelativePath_points_to_existing_reference_doc` confirms `docs/library/REFERENCE_SAAS_STACK_ORDER.md` on disk (2026-09-04).
+- [x] (invalid) Optional infra roots (`terraform-otel-collector`, `terraform-customer-onboarding`, etc.) must appear in deployment evidence — evidence lists canonical hosted SaaS apply order per `REFERENCE_SAAS_STACK_ORDER.md`, not every `infra/terraform*` directory.
+
+2026-09-04 seed hunt #734: seeded four drift/doc-scope candidates; cheap-disproved all; added apply-saas.ps1 sync regression tests. No hunt-ready rows; seed-only.
 
 ---
 

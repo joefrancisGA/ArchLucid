@@ -862,3 +862,4 @@
 {"at":"2026-09-04T14:40:28.2748428Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry"}
 {"at":"2026-09-04T14:46:13.7227682Z","zoneId":"artifact-synthesis","outcome":"hit"}
 {"at":"2026-09-04T14:52:07.0778097Z","zoneId":"host-composition","outcome":"seed-only"}
+{"at":"2026-09-04T14:57:29.0240809Z","zoneId":"cli-terraform-evidence","outcome":"seed-only"}
