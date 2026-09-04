@@ -22,6 +22,7 @@ archlucid-ui/src/app/(operator)/administration/identity-providers/_sections/Iden
 archlucid-ui/src/app/(operator)/administration/identity-providers/_sections/IdentityProvidersRoleMappingBuyerChrome.tsx
 archlucid-ui/src/app/(operator)/administration/identity-providers/_sections/IdentityProvidersRoleMappingPageView.tsx
 archlucid-ui/src/app/(operator)/administration/identity-providers/_sections/IdentityProvidersSettingsPageHeader.tsx
+archlucid-ui/src/app/(operator)/administration/identity-providers/_sections/IdentityProvidersSettingsPageView.tsx
 archlucid-ui/src/app/(operator)/administration/identity-providers/_sections/IdentityProvidersSettingsShell.tsx
 archlucid-ui/src/app/(operator)/administration/identity/sso-wizard/_sections/SsoWizardBuyerChrome.tsx
 archlucid-ui/src/app/(operator)/administration/identity/sso-wizard/_sections/SsoWizardPageChrome.tsx

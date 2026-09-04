@@ -25,6 +25,7 @@ import {
   IDENTITY_PROVIDERS_PAGE_TITLE,
   identityProvidersTenantScopeLine,
 } from "@/lib/identity-providers-settings-copy";
+import { IDENTITY_PROVIDERS_SETTINGS_CLAIM_DISCIPLINE } from "@/lib/identity-providers-settings-evidence-copy";
 import type { IdentityProviderCustomerStatus } from "@/lib/identity-providers-settings-types";
 import {
   operatorFreshnessMetadataWithClockLabel,
@@ -36,6 +37,8 @@ export type IdentityProvidersSettingsPageHeaderProps = {
   readonly pageTitle?: string;
   readonly subtitle: string;
   readonly breadcrumb?: React.ReactNode;
+  readonly claimDiscipline?: string;
+  readonly claimDisciplineTestId?: string;
   readonly refreshing: boolean;
   readonly lastRefreshedAt: Date | null;
   readonly diagnosticsDataUnavailable?: boolean;
@@ -51,7 +54,7 @@ export function IdentityProvidersSettingsPageHeader(
   const pageTitle = props.pageTitle ?? IDENTITY_PROVIDERS_PAGE_TITLE;
   const onOverviewPage = pageTitle === IDENTITY_PROVIDERS_PAGE_TITLE;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const showContextualHelp = !(buyerPolishedShell && !onOverviewPage);
+  const showContextualHelp = !buyerPolishedShell;
   const onDiagnosticsPage = pathname.startsWith(IDENTITY_PROVIDERS_DIAGNOSTICS_LINK_HREF);
   const onOidcPage = pathname.startsWith("/administration/identity-providers/oidc");
   const onSamlPage = pathname.startsWith("/administration/identity-providers/saml");
@@ -83,6 +86,8 @@ export function IdentityProvidersSettingsPageHeader(
       title={pageTitle}
       titleTestId="identity-providers-page-title"
       subtitle={props.subtitle}
+      claimDiscipline={props.claimDiscipline}
+      claimDisciplineTestId={props.claimDisciplineTestId}
       breadcrumb={props.breadcrumb}
       statusBadge={
         statusPresentation !== null ? (
