@@ -3,16 +3,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState, type ReactElement } from "react";
-
-import {
-  DIGEST_SUBSCRIPTION_ATTEMPTS_TAKE,
-  useDigestSubscriptionDeliveryAttemptsQueries,
-} from "@/hooks/use-digest-subscription-delivery-attempts-query";
-import { useDigestSubscriptionsQuery } from "@/hooks/use-digest-subscriptions-query";
-import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
+import { useRef, type ReactElement } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -23,12 +15,10 @@ import { DigestSubscriptionList } from "@/components/digests/DigestSubscriptionL
 import { DigestSubscriptionsContinueLastViewedRow } from "@/components/digests/DigestSubscriptionsContinueLastViewedRow";
 import { DigestSubscriptionsPickReviewBeforeCreatingStrip } from "@/components/digests/DigestSubscriptionsPickReviewBeforeCreatingStrip";
 import { DigestSubscriptionsReadinessPanel } from "@/components/digests/DigestSubscriptionsReadinessPanel";
+import { useDigestSubscriptionsContentCreate } from "@/components/digests/use-digest-subscriptions-content-create";
+import { useDigestSubscriptionsContentList } from "@/components/digests/use-digest-subscriptions-content-list";
+import { useDigestSubscriptionsContentToggle } from "@/components/digests/use-digest-subscriptions-content-toggle";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
-import { useOperateCapability } from "@/hooks/use-operate-capability";
-import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { createDigestSubscription, listSubscriptionDeliveryAttempts, toggleDigestSubscription } from "@/lib/api";
-import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { DIGESTS_BROWSE_RECIPIENTS_HELPER } from "@/lib/digests-browse-copy";
 import { digestsHubScopedHref } from "@/lib/digests-route-paths";
 import {
@@ -45,14 +35,7 @@ import {
   resolveDigestSubscriptionsWorkflowEmphasizedStepId,
   resolveDigestSubscriptionsWorkflowSteps,
 } from "@/lib/digest-subscriptions-workflow-checklist";
-import type { DigestSubscription } from "@/types/digest-subscriptions";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
-import {
-  resolveContinueLastDigestSubscription,
-  writeDigestSubscriptionLastViewedId,
-} from "@/lib/resolve-continue-last-digest-subscription";
-
-const EMPTY_SUBSCRIPTIONS: DigestSubscription[] = [];
 
 export type DigestSubscriptionsContentProps = {
   readonly healthSnap: WeeklyDigestHealthDto | null;
@@ -65,46 +48,27 @@ export type DigestSubscriptionsContentProps = {
  * Subscriptions tab: customer-goal delivery workflow for architecture digests (TB-926).
  */
 export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProps): ReactElement {
-  const canMutateSubscriptions: boolean = useOperateCapability();
   const refreshToken = props.refreshToken ?? 0;
-  const queryClient = useQueryClient();
-  const scope = useOperatorScopeQueryKey();
-  const subscriptionsQuery = useDigestSubscriptionsQuery();
-  const items = subscriptionsQuery.data ?? EMPTY_SUBSCRIPTIONS;
-  const continueLastSubscription = useMemo(
-    () => resolveContinueLastDigestSubscription(items),
-    [items],
-  );
-  const subscriptionIds = useMemo(() => items.map((item) => item.subscriptionId), [items]);
-  const { attemptsBySub } = useDigestSubscriptionDeliveryAttemptsQueries(subscriptionIds, refreshToken);
-  const [historyOpenFor, setHistoryOpenFor] = useState<string | null>(null);
-  const [mutating, setMutating] = useState<boolean>(false);
-  const [creating, setCreating] = useState<boolean>(false);
-  const [createSuccess, setCreateSuccess] = useState<boolean>(false);
-  const [mutationFailure, setMutationFailure] = useState<ApiLoadFailureState | null>(null);
-  const [prefillFrom, setPrefillFrom] = useState<DigestSubscription | null>(null);
-  const [formResetKey, setFormResetKey] = useState<number>(0);
-  const [focusCreateToken, setFocusCreateToken] = useState<number>(0);
-  const [pendingPause, setPendingPause] = useState<{
-    subscriptionId: string;
-    subscriptionName: string;
-  } | null>(null);
-  const loading = subscriptionsQuery.isLoading || mutating;
-  const failure =
-    mutationFailure ??
-    (subscriptionsQuery.isError ? toApiLoadFailure(subscriptionsQuery.error) : null);
-
   const formCardRef = useRef<HTMLDivElement | null>(null);
+  const list = useDigestSubscriptionsContentList({ refreshToken });
+  const create = useDigestSubscriptionsContentCreate({ list, formCardRef });
+  const toggle = useDigestSubscriptionsContentToggle({ list });
+
   const scopedRunId = (props.scopedRunId ?? "").trim();
   const scopedRunFilterActive = scopedRunId.length > 0;
   const requiresReviewPick = props.onPickReview !== undefined;
   const createFormVisible = scopedRunFilterActive || !requiresReviewPick;
   const subscriptionsClearScopeHref = digestsHubScopedHref("subscriptions", null);
-  const successTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const loading = list.loading || toggle.mutating;
+  const failure =
+    toggle.mutationFailure ??
+    create.mutationFailure ??
+    list.listFailure ??
+    list.queryFailure;
   const subscriptionWorkflowInput = {
     reviewPicked: scopedRunFilterActive,
-    destinationConfigured: items.length > 0,
-    subscriptionEnabled: items.some((item) => item.isEnabled),
+    destinationConfigured: list.items.length > 0,
+    subscriptionEnabled: list.items.some((item) => item.isEnabled),
   };
   const subscriptionWorkflowSteps =
     scopedRunFilterActive && createFormVisible
@@ -113,161 +77,6 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
   const subscriptionWorkflowEmphasizedStepId = resolveDigestSubscriptionsWorkflowEmphasizedStepId(
     subscriptionWorkflowInput,
   );
-
-  useEffect(() => {
-    if (refreshToken === 0) {
-      return;
-    }
-
-    void subscriptionsQuery.refetch();
-  }, [refreshToken, subscriptionsQuery.refetch]);
-
-  useEffect(() => {
-    return () => {
-      if (successTimerRef.current !== null) {
-        clearTimeout(successTimerRef.current);
-      }
-    };
-  }, []);
-
-  function rememberSubscription(subscriptionId: string): void {
-    writeDigestSubscriptionLastViewedId(subscriptionId);
-  }
-
-  function openSubscription(subscriptionId: string): void {
-    rememberSubscription(subscriptionId);
-    document
-      .querySelector(`[data-digest-subscription-id="${subscriptionId}"]`)
-      ?.scrollIntoView({ behavior: "smooth", block: "center" });
-
-    if (historyOpenFor !== subscriptionId) {
-      void onViewHistory(subscriptionId);
-    }
-  }
-
-  async function onCreate(input: {
-    name: string;
-    channelType: string;
-    destination: string;
-    digestType: string;
-    isEnabled: boolean;
-  }): Promise<void> {
-    if (!canMutateSubscriptions || creating) {
-      return;
-    }
-
-    setCreating(true);
-    setCreateSuccess(false);
-    setMutationFailure(null);
-
-    try {
-      await createDigestSubscription({
-        name: input.name,
-        channelType: input.channelType,
-        destination: input.destination,
-        isEnabled: input.isEnabled,
-        metadataJson: JSON.stringify({ digestType: input.digestType }),
-      });
-      setCreateSuccess(true);
-
-      if (successTimerRef.current !== null) {
-        clearTimeout(successTimerRef.current);
-      }
-
-      successTimerRef.current = setTimeout(() => {
-        setCreateSuccess(false);
-      }, 4000);
-
-      await subscriptionsQuery.refetch();
-      setMutationFailure(null);
-      setPrefillFrom(null);
-      setFormResetKey((value) => value + 1);
-    } catch (error) {
-      setMutationFailure(toApiLoadFailure(error));
-    } finally {
-      setCreating(false);
-    }
-  }
-
-  async function onToggle(
-    subscriptionId: string,
-    isEnabled: boolean,
-    subscriptionName: string,
-  ): Promise<void> {
-    rememberSubscription(subscriptionId);
-
-    if (!canMutateSubscriptions) {
-      return;
-    }
-
-    if (isEnabled) {
-      setPendingPause({ subscriptionId, subscriptionName });
-
-      return;
-    }
-
-    await executeToggle(subscriptionId);
-  }
-
-  async function executeToggle(subscriptionId: string): Promise<void> {
-    setMutationFailure(null);
-    setMutating(true);
-
-    try {
-      await toggleDigestSubscription(subscriptionId);
-      await subscriptionsQuery.refetch();
-      setMutationFailure(null);
-    } catch (error) {
-      setMutationFailure(toApiLoadFailure(error));
-      throw error;
-    } finally {
-      setMutating(false);
-    }
-  }
-
-  async function confirmPause(): Promise<void> {
-    if (pendingPause === null || mutating) {
-      return;
-    }
-
-    try {
-      await executeToggle(pendingPause.subscriptionId);
-      setPendingPause(null);
-    } catch {
-      // Failure is already on mutationFailure for the page alert.
-    }
-  }
-
-  async function onViewHistory(subscriptionId: string): Promise<void> {
-    rememberSubscription(subscriptionId);
-    setMutationFailure(null);
-
-    try {
-      await queryClient.fetchQuery({
-        queryKey: operatorQueryKeys.digestSubscriptionDeliveryAttempts(
-          scope,
-          subscriptionId,
-          refreshToken,
-        ),
-        queryFn: () => listSubscriptionDeliveryAttempts(subscriptionId, DIGEST_SUBSCRIPTION_ATTEMPTS_TAKE),
-      });
-      setHistoryOpenFor((current) => (current === subscriptionId ? null : subscriptionId));
-    } catch (error) {
-      setMutationFailure(toApiLoadFailure(error));
-    }
-  }
-
-  function focusCreateForm(): void {
-    setPrefillFrom(null);
-    setFocusCreateToken((value) => value + 1);
-    formCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
-  function onPrefillCreate(subscription: DigestSubscription): void {
-    rememberSubscription(subscription.subscriptionId);
-    setPrefillFrom(subscription);
-    formCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
 
   return (
     <div className={cn(operatorPageContainerClass("dashboard"), "space-y-4")} data-testid="digest-subscriptions-content">
@@ -348,46 +157,46 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
 
       <DigestSubscriptionsReadinessPanel
         healthSnap={props.healthSnap}
-        subscriptions={items}
-        onAddDeliveryDestination={focusCreateForm}
+        subscriptions={list.items}
+        onAddDeliveryDestination={create.focusCreateForm}
       />
 
       <div ref={formCardRef} className="grid gap-4">
         {createFormVisible ? (
           <DigestSubscriptionCreateForm
-            key={`digest-create-${formResetKey}`}
-            existingSubscriptions={items}
-            prefillFrom={prefillFrom}
-            canMutate={canMutateSubscriptions}
-            collapsedByDefault={items.length > 0}
-            creating={creating}
-            createSuccess={createSuccess}
-            focusRequestToken={focusCreateToken}
-            onCreate={onCreate}
+            key={`digest-create-${create.formResetKey}`}
+            existingSubscriptions={list.items}
+            prefillFrom={create.prefillFrom}
+            canMutate={create.canMutateSubscriptions}
+            collapsedByDefault={list.items.length > 0}
+            creating={create.creating}
+            createSuccess={create.createSuccess}
+            focusRequestToken={create.focusCreateToken}
+            onCreate={create.onCreate}
           />
         ) : null}
 
-        {continueLastSubscription !== null ? (
+        {list.continueLastSubscription !== null ? (
           <DigestSubscriptionsContinueLastViewedRow
-            target={continueLastSubscription}
-            onOpen={openSubscription}
+            target={list.continueLastSubscription}
+            onOpen={list.openSubscription}
           />
         ) : null}
 
         <DigestSubscriptionList
-          items={items}
-          attemptsBySub={attemptsBySub}
-          historyOpenFor={historyOpenFor}
+          items={list.items}
+          attemptsBySub={list.attemptsBySub}
+          historyOpenFor={list.historyOpenFor}
           loading={loading}
-          canMutate={canMutateSubscriptions}
-          canRevealDestinations={canMutateSubscriptions}
-          onRefresh={() => void subscriptionsQuery.refetch()}
+          canMutate={toggle.canMutateSubscriptions}
+          canRevealDestinations={toggle.canMutateSubscriptions}
+          onRefresh={() => void list.subscriptionsQuery.refetch()}
           onToggle={(subscriptionId, isEnabled, subscriptionName) =>
-            void onToggle(subscriptionId, isEnabled, subscriptionName)
+            void toggle.onToggle(subscriptionId, isEnabled, subscriptionName)
           }
-          onViewHistory={(subscriptionId) => void onViewHistory(subscriptionId)}
-          onPrefillCreate={onPrefillCreate}
-          onFocusCreateForm={focusCreateForm}
+          onViewHistory={(subscriptionId) => void list.onViewHistory(subscriptionId)}
+          onPrefillCreate={create.onPrefillCreate}
+          onFocusCreateForm={create.focusCreateForm}
         />
       </div>
 
@@ -403,19 +212,19 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
       ) : null}
 
       <ConfirmationDialog
-        open={pendingPause !== null}
+        open={toggle.pendingPause !== null}
         onOpenChange={(open) => {
-          if (!open && !mutating) {
-            setPendingPause(null);
+          if (!open && !toggle.mutating) {
+            toggle.setPendingPause(null);
           }
         }}
-        title={resolveDigestSubscriptionPauseDialogTitle(pendingPause?.subscriptionName ?? "")}
+        title={resolveDigestSubscriptionPauseDialogTitle(toggle.pendingPause?.subscriptionName ?? "")}
         description={DIGEST_SUBSCRIPTION_PAUSE_DIALOG_DESCRIPTION}
         confirmLabel="Pause delivery"
         variant="destructive"
-        busy={mutating}
+        busy={toggle.mutating}
         onConfirm={() => {
-          void confirmPause();
+          void toggle.confirmPause();
         }}
       />
     </div>

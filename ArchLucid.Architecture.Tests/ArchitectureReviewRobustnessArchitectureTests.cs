@@ -59,8 +59,7 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
     [Fact]
     public void Suggestion4_findings_orchestrator_uses_confluent_merge()
     {
-        string path = Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "Findings", "FindingsMergeAndGateStage.cs");
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadFindingsPipeline();
 
         source.Should().Contain("FindingSnapshotConfluentMerger.Merge");
         source.Should().NotContain("GroupBy(static f => f.FindingType");
@@ -69,8 +68,7 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
     [Fact]
     public void Suggestion5_partial_engine_failure_surfaces_generation_status_and_commit_classifier()
     {
-        string emitStage = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "Findings", "FindingsSnapshotEmitStage.cs"));
+        string emitStage = ArchitectureSourceProbe.ReadFindingsPipeline();
 
         emitStage.Should().Contain("FindingsSnapshotGenerationStatus.PartiallyComplete");
 
@@ -94,14 +92,7 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
     [Fact]
     public void Suggestion6_authority_complete_runs_reject_execute()
     {
-        string path = Path.Combine(
-            RepoRoot,
-            "ArchLucid.Application",
-            "Runs",
-            "Orchestration",
-            "ArchitectureRunExecuteOrchestrator.cs");
-
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadExecuteOrchestratorPipeline();
 
         source.Should().Contain("ThrowIfAuthorityPipelineCompleteAsync");
 

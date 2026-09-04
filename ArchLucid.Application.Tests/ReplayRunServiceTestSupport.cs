@@ -207,6 +207,24 @@ internal static class ReplayRunServiceTestSupport
         return tasks;
     }
 
+    internal static RunRecord CreateSourceHeader(Guid runId, ScopeContext scope) => new()
+    {
+        RunId = runId,
+        TenantId = scope.TenantId,
+        WorkspaceId = scope.WorkspaceId,
+        ScopeProjectId = scope.ProjectId,
+        ProjectId = string.Empty,
+        PinnedPolicyPackIdsJson = "[]",
+        LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+    };
+
+    internal static void StubAuthorityRunHeader(Mock<IRunRepository> authorityRuns)
+    {
+        authorityRuns
+            .Setup(x => x.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScopeContext scope, Guid id, CancellationToken _) => CreateSourceHeader(id, scope));
+    }
+
     internal static void StubRunDetailForOriginalAndPreparedReplay(
         Mock<IRunDetailQueryService> detail,
         string originalRunId,

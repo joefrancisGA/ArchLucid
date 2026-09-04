@@ -41,6 +41,8 @@ public sealed partial class GovernanceStickinessFacade
             throw new RunNotFoundException(request.SourceRunId.ToString("D"));
         }
 
+        RecurrenceScheduleValidation.ValidateCommittedSourceRunOrThrow(sourceRun);
+
         if (!_recurrenceNextRunCalculator.IsSupportedCronExpression(cronExpression))
             throw new ArgumentException(RecurrenceScheduleCronValidation.InvalidCronMessage);
 

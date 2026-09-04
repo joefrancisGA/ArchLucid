@@ -101,6 +101,33 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("renders fetched entries whose category is not listed in CATEGORY_ORDER", async () => {
+    const data = [
+      {
+        title: "Compliance guide",
+        summary: "Regulatory compliance overview.",
+        category: "Compliance",
+        url: "/help/compliance",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Compliance guide" })).toBeInTheDocument();
+
+    vi.unstubAllGlobals();
+  });
+
   it("loads index and filters by title or summary", async () => {
     const data = [
       {

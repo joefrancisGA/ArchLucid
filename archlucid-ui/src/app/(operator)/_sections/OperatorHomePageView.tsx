@@ -40,16 +40,13 @@ import {
   PilotCommandCenterCardDeferred,
 } from "./operator-home-page-view-deferred-chunks";
 import { OperatorHomePageHeader } from "./OperatorHomePageHeader";
-import { WorkspaceModeGraduationOfferHost } from "@/components/workspace-mode/WorkspaceModeGraduationOfferHost";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import {
   OPERATOR_HOME_PRIMARY_CONTENT_ID,
   OPERATOR_HOME_SKIP_LINK_LABEL,
 } from "./operator-home-page-surface-copy";
 import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
-import {
-  operatorHomePageSubtitle,
-} from "@/lib/operator/operator-home-page-copy";
+import { operatorHomePageSubtitle } from "@/lib/operator/operator-home-page-copy";
 import { cn } from "@/lib/utils";
 
 type OperatorHomePageViewProps = {
@@ -64,10 +61,15 @@ function HomeSectionHeading(props: { readonly id?: string; readonly children: st
   );
 }
 
-function OperatorHomePageChrome(props: { readonly buyerPolishedShell: boolean }): React.JSX.Element {
+function OperatorHomePageChrome(props: {
+  readonly buyerPolishedShell: boolean;
+  readonly workingMode: boolean;
+}): React.JSX.Element {
   return (
     <>
-      <OperatorHomePageHeader subtitle={operatorHomePageSubtitle(props.buyerPolishedShell) ?? ""} />
+      <OperatorHomePageHeader
+        subtitle={operatorHomePageSubtitle(props.buyerPolishedShell, props.workingMode) ?? ""}
+      />
 </>
   );
 }
@@ -112,7 +114,10 @@ function renderOperatorHomeSection(input: RenderOperatorHomeSectionInput): React
     case "metrics-strip":
       return (
         <div key={input.section.id} data-testid={input.section.testId}>
-          <OperatorHomeWorkspaceMetricsStrip runsDashboard={input.model.runsDashboard} />
+          <OperatorHomeWorkspaceMetricsStrip
+            runsDashboard={input.model.runsDashboard}
+            workingMode={input.workingMode}
+          />
         </div>
       );
 
@@ -128,6 +133,7 @@ function renderOperatorHomeSection(input: RenderOperatorHomeSectionInput): React
         <div key={input.section.id} data-testid={input.section.testId}>
           <OperatorHomeCompactStartingActionsSection
             hasCommittedManifest={input.workspaceMetrics.reviewPackagesCommitted > 0}
+            hasActiveDeskWork={input.workspaceMetrics.reviewPackagesActive > 0}
             workingMode={input.workingMode}
           />
         </div>
@@ -235,7 +241,6 @@ function OperatorHomePageBody(props: {
       initialHasOverviewReviewRows={overviewPhaseSignals.hasOverviewReviewRows}
       initialOpenFindingsCount={workspaceMetrics.openFindings}
     >
-      <WorkspaceModeGraduationOfferHost />
       {sections.map((section) =>
         renderOperatorHomeSection({
           section,
@@ -268,7 +273,7 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
           </a>
         ) : null}
         <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.majorSectionGap}>
-          <OperatorHomePageChrome buyerPolishedShell={buyerPolishedShell} />
+          <OperatorHomePageChrome buyerPolishedShell={buyerPolishedShell} workingMode={isWorkingMode} />
           {buyerPolishedShell ? (
             <div
               id={OPERATOR_HOME_PRIMARY_CONTENT_ID}

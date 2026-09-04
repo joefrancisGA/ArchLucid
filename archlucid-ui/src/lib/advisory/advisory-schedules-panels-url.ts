@@ -2,6 +2,17 @@ import { GOVERNANCE_ADVISORY_SCANS_PATH } from "@/lib/governance/governance-rout
 
 export const ADVISORY_SCHEDULES_CREATE_PARAM = "create";
 export const ADVISORY_SCHEDULES_HISTORY_PARAM = "history";
+export const ADVISORY_SCHEDULES_ADVANCED_PARAM = "advanced";
+
+export function parseAdvisorySchedulesAdvancedOpenFromSearch(raw: string | null | undefined): boolean {
+  if (raw === null || raw === undefined) {
+    return false;
+  }
+
+  const trimmed = raw.trim().toLowerCase();
+
+  return trimmed === "1" || trimmed === "true";
+}
 
 export function parseAdvisorySchedulesCreatePanelFromSearch(raw: string | null | undefined): boolean {
   if (raw === null || raw === undefined) {
@@ -26,6 +37,7 @@ export function advisorySchedulesPanelsHrefFromSearch(
   patch: {
     readonly showCreatePanel?: boolean;
     readonly historyScheduleId?: string | null;
+    readonly advancedOpen?: boolean;
   },
   pathname: string = GOVERNANCE_ADVISORY_SCANS_PATH,
 ): string {
@@ -46,6 +58,14 @@ export function advisorySchedulesPanelsHrefFromSearch(
       params.delete(ADVISORY_SCHEDULES_HISTORY_PARAM);
     } else {
       params.set(ADVISORY_SCHEDULES_HISTORY_PARAM, trimmed);
+    }
+  }
+
+  if (patch.advancedOpen !== undefined) {
+    if (!patch.advancedOpen) {
+      params.delete(ADVISORY_SCHEDULES_ADVANCED_PARAM);
+    } else {
+      params.set(ADVISORY_SCHEDULES_ADVANCED_PARAM, "1");
     }
   }
 

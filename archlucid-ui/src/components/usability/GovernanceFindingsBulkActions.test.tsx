@@ -89,8 +89,11 @@ describe("GovernanceFindingsBulkActions", () => {
 
     await waitFor(() => {
       expect(onDispositionSucceeded).toHaveBeenCalledWith(
-        "Marked 2 finding(s) as accepted.",
-        expect.any(Function),
+        expect.objectContaining({
+          message: "Marked 2 finding(s) as accepted.",
+          correctionFindingIds: ["f1", "f2"],
+          undo: expect.any(Function),
+        }),
       );
     });
 

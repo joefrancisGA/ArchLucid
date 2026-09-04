@@ -43,4 +43,35 @@ describe("derive-attention-surface-counts (TB-2369)", () => {
     expect(counts["governance-awaiting-nav-badge"]).toBe(1);
     expect(counts["alerts-nav"]).toBe(3);
   });
+
+  it("excludes archived runs from committed and in-progress work-queue surface counts", () => {
+    const runs = [
+      {
+        runId: "active-committed",
+        projectId: "default",
+        hasFindingsSnapshot: true,
+        hasGoldenManifest: true,
+      },
+      {
+        runId: "archived-committed",
+        projectId: "default",
+        hasFindingsSnapshot: true,
+        hasGoldenManifest: true,
+        isArchived: true,
+      },
+      {
+        runId: "archived-in-progress",
+        projectId: "default",
+        hasFindingsSnapshot: false,
+        hasGoldenManifest: false,
+        isArchived: true,
+      },
+    ] as RunSummary[];
+
+    const counts = deriveAttentionSurfaceCounts({ runs });
+
+    expect(counts["run-work-queue-committed"]).toBe(1);
+    expect(counts["run-work-queue-in-progress"]).toBeUndefined();
+    expect(counts["run-work-queue-needs-attention"]).toBe(0);
+  });
 });

@@ -1,5 +1,6 @@
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Governance;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Manifest;
@@ -102,10 +103,71 @@ public sealed class GovernanceMutationCorrectionServiceTests
         await act.Should().ThrowAsync<ArgumentException>();
     }
 
+    [Fact]
+    public async Task RecordAsync_appends_correction_for_keyboard_finding_disposition_without_mutating_trail()
+    {
+        const string runId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+        const string findingId = "finding-keyboard-1";
+        List<AuditEvent> auditEvents = [];
+
+        Mock<IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(r => r.ListByFindingAsync(Scope.TenantId, findingId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new FindingReviewEventRecord
+                {
+                    EventId = Guid.NewGuid(),
+                    TenantId = Scope.TenantId,
+                    WorkspaceId = Scope.WorkspaceId,
+                    ProjectId = Scope.ProjectId,
+                    FindingId = findingId,
+                    ReviewerUserId = "operator-1",
+                    Action = FindingReviewAction.RecordDisposition,
+                    OccurredAtUtc = DateTimeOffset.UtcNow,
+                    RunId = Guid.Parse(runId),
+                    Disposition = ArchLucid.Contracts.Findings.FindingDisposition.Accepted,
+                },
+            ]);
+
+        Mock<IRunRepository> runs = CreateScopedRunRepository(runId);
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((evt, _) => auditEvents.Add(evt))
+            .Returns(Task.CompletedTask);
+
+        GovernanceMutationCorrectionService sut = CreateSut(
+            new Mock<IGovernanceApprovalRequestRepository>().Object,
+            runs.Object,
+            auditService.Object,
+            trail.Object);
+
+        GovernanceMutationCorrectionRecordedDto result = await sut.RecordAsync(
+            new RecordGovernanceMutationCorrectionRequest
+            {
+                MutationKind = GovernanceMutationCorrectionKinds.KeyboardFindingDisposition,
+                SubjectId = findingId,
+                RunId = runId,
+                Rationale = "Accepted the wrong finding via keyboard shortcut.",
+            },
+            Scope,
+            "operator-1",
+            CancellationToken.None);
+
+        result.MutationKind.Should().Be(GovernanceMutationCorrectionKinds.KeyboardFindingDisposition);
+        result.SubjectId.Should().Be(findingId);
+        auditEvents.Should().ContainSingle();
+        auditEvents[0].EventType.Should().Be(AuditEventTypes.GovernanceMutationCorrectionRecorded);
+        trail.Verify(r => r.ListByFindingAsync(Scope.TenantId, findingId, It.IsAny<CancellationToken>()), Times.Once);
+        trail.VerifyNoOtherCalls();
+    }
+
     private static GovernanceMutationCorrectionService CreateSut(
         IGovernanceApprovalRequestRepository approvalRepo,
         IRunRepository runRepository,
-        IAuditService auditService)
+        IAuditService auditService,
+        IFindingReviewTrailRepository? findingReviewTrailRepository = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(p => p.GetCurrentScope()).Returns(Scope);
@@ -114,6 +176,7 @@ public sealed class GovernanceMutationCorrectionServiceTests
             approvalRepo,
             new Mock<IGovernancePromotionRecordRepository>().Object,
             new Mock<IGovernanceEnvironmentActivationRepository>().Object,
+            findingReviewTrailRepository ?? new Mock<IFindingReviewTrailRepository>().Object,
             scopeProvider.Object,
             runRepository,
             CreateAuthorityQueryService(runRepository).Object,

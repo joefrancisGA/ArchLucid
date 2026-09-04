@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useArchitectureDigestsBrowseQuery } from "@/hooks/use-architecture-digests-browse-query";
 import { useDigestDeliveryAttemptsBatchQuery } from "@/hooks/use-digest-delivery-attempts-batch-query";
@@ -20,6 +21,16 @@ import { getArchitectureDigest, listDigestDeliveryAttempts } from "@/lib/api";
 import type { ArchitectureDigest } from "@/types/advisory-scheduling";
 import type { DigestDeliveryAttempt } from "@/types/digest-subscriptions";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
+import {
+  digestsBrowsePreviewHrefFromSearch,
+  parseDigestsBrowsePreviewOpenFromSearch,
+} from "@/lib/digests/digests-browse-preview-url";
+import {
+  digestsBrowseDigestHrefFromSearch,
+  parseDigestsBrowseDigestIdFromSearch,
+  DIGESTS_BROWSE_DIGEST_PARAM,
+} from "@/lib/digests/digests-browse-digest-url";
+import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 
 const EMPTY_DIGESTS: ArchitectureDigest[] = [];
 
@@ -52,6 +63,10 @@ export function useDigestsBrowseContent(
   options: UseDigestsBrowseContentOptions = {},
 ): UseDigestsBrowseContentResult {
   const { refreshToken = 0, onLoaded, healthSnap = null } = options;
+  const router = useRouter();
+  const pathname = usePathname() ?? DIGESTS_HUB_PATH;
+  const searchParams = useSearchParams();
+  const urlPreviewOpen = parseDigestsBrowsePreviewOpenFromSearch(searchParams.get("preview"));
   const digestsQuery = useArchitectureDigestsBrowseQuery(40);
   const digests = digestsQuery.data ?? EMPTY_DIGESTS;
   const digestIds = useMemo(() => digests.map((digest) => digest.digestId), [digests]);
@@ -62,16 +77,42 @@ export function useDigestsBrowseContent(
   const [selected, setSelected] = useState<ArchitectureDigest | null>(null);
   const [deliveryAttempts, setDeliveryAttempts] = useState<DigestDeliveryAttempt[]>([]);
   const [detailFailure, setDetailFailure] = useState<ApiLoadFailureState | null>(null);
-  const [previewOpen, setPreviewOpen] = useState(true);
+  const [previewOpen, setPreviewOpenState] = useState(urlPreviewOpen);
   const detailPanelRef = useRef<HTMLElement | null>(null);
   const loading = digestsQuery.isLoading;
   const failure =
     detailFailure ??
     (digestsQuery.isError ? toApiLoadFailure(digestsQuery.error) : null);
 
+  const syncPreviewToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(digestsBrowsePreviewHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPreviewOpen = useCallback(
+    (value: boolean | ((prev: boolean) => boolean)) => {
+      setPreviewOpenState((prev) => {
+        const resolved = typeof value === "function" ? value(prev) : value;
+        syncPreviewToUrl(resolved);
+
+        return resolved;
+      });
+    },
+    [syncPreviewToUrl],
+  );
+
+  useEffect(() => {
+    setPreviewOpenState(parseDigestsBrowsePreviewOpenFromSearch(searchParams.get("preview")));
+  }, [searchParams]);
+
   const selectDigest = useCallback(async (digestId: string): Promise<void> => {
     setDetailFailure(null);
     writeDigestBrowseLastViewedId(digestId);
+    router.replace(digestsBrowseDigestHrefFromSearch(searchParams.toString(), digestId, pathname), { scroll: false });
 
     try {
       const full = await getArchitectureDigest(digestId);
@@ -82,7 +123,7 @@ export function useDigestsBrowseContent(
     } catch (e) {
       setDetailFailure(toApiLoadFailure(e));
     }
-  }, []);
+  }, [pathname, router, searchParams, setPreviewOpen]);
 
   useEffect(() => {
     if (!digestsQuery.isFetched) {
@@ -114,6 +155,22 @@ export function useDigestsBrowseContent(
       return;
     }
 
+    const digestIdFromQuery = parseDigestsBrowseDigestIdFromSearch(searchParams.get(DIGESTS_BROWSE_DIGEST_PARAM));
+
+    if (digestIdFromQuery.length > 0) {
+      const matchFromQuery: ArchitectureDigest | undefined = digests.find(
+        (digest) => digest.digestId === digestIdFromQuery,
+      );
+
+      if (matchFromQuery !== undefined) {
+        void selectDigest(matchFromQuery.digestId).then(() => {
+          detailPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+
+        return;
+      }
+    }
+
     function selectFromHash(): void {
       const hashDigestId: string | null = digestIdFromLocationHash(window.location.hash);
 
@@ -138,7 +195,7 @@ export function useDigestsBrowseContent(
     window.addEventListener("hashchange", selectFromHash);
 
     return () => window.removeEventListener("hashchange", selectFromHash);
-  }, [digests, selectDigest]);
+  }, [digests, searchParams, selectDigest]);
 
   const setupChecklist: readonly DigestSetupChecklistItem[] | null =
     healthSnap !== null ? buildDigestSetupChecklistItems(healthSnap, digests.length > 0) : null;

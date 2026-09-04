@@ -103,9 +103,9 @@ public sealed class TrialLifecycleEmailDispatcher(
     private static bool PassesTriggerGate(TrialLifecycleEmailTrigger trigger, TenantRecord tenant, DateTimeOffset utcNow)
     {
         if (trigger is TrialLifecycleEmailTrigger.Converted)
-            return string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.OrdinalIgnoreCase);
+            return TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Converted);
 
-        if (!string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.OrdinalIgnoreCase))
+        if (!TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Active))
             return false;
         if (trigger is TrialLifecycleEmailTrigger.TrialProvisioned)
             return true;

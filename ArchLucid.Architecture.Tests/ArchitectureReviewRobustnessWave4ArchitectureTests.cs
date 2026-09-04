@@ -97,14 +97,7 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
     [Fact]
     public void Suggestion35_prior_from_version_lattice()
     {
-        string builder = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "Pipeline",
-                "FindingAnalysisContextBuilder.cs"));
+        string builder = ArchitectureSourceProbe.ReadFindingAnalysisContextBuilder();
 
         builder.Should().Contain("GetByArchitectureIdAndVersionNumberAsync");
         builder.Should().Contain("GetLatestCommittedRunIdByArchitectureVersionIdAsync");

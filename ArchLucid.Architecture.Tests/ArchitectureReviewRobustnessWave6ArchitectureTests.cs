@@ -155,14 +155,7 @@ public sealed class ArchitectureReviewRobustnessWave6ArchitectureTests
     [Fact]
     public void Suggestion60_legacy_string_array_pack_pin_removed()
     {
-        string builder = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "Pipeline",
-                "FindingAnalysisContextBuilder.cs"));
+        string builder = ArchitectureSourceProbe.ReadFindingAnalysisContextBuilder();
 
         builder.Should().Contain("RunHeaderPinDeserializer.TryDeserializePolicyPackRows");
         builder.Should().NotContain("Deserialize<string[]>");

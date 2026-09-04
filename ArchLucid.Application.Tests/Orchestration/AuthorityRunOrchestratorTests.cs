@@ -1231,6 +1231,7 @@ public sealed class AuthorityRunOrchestratorTests
             tenantConcurrencyGate,
             new RunStateTransitionService(),
             new EmptyAgentModelAliasRegistryStub(),
+            Mock.Of<IRunCreatePinOrchestrator>(),
             logger);
     }
 

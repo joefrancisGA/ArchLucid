@@ -52,9 +52,9 @@ public sealed class ArchitectureReviewRobustnessWave13ArchitectureTests
         receipt.Should().Contain("ManifestVersion");
 
         string service = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "DecisionReceiptService.cs"));
+            Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "Finalization", "ManifestDecisionReceiptExportBinder.cs"));
 
-        service.Should().Contain("manifestSummary!.ManifestHash");
+        service.Should().Contain("manifest.ManifestHash");
     }
 
     [Fact]
@@ -143,7 +143,7 @@ public sealed class ArchitectureReviewRobustnessWave13ArchitectureTests
         string hasher = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "ManifestHashService.cs"));
 
-        hasher.Should().Contain("HasherSchemaVersion = \"v8\"");
+        hasher.Should().Contain("HasherSchemaVersion = \"v12\"");
         hasher.Should().Contain("CommittedArtifactInventory");
     }
 

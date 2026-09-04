@@ -425,14 +425,47 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         if (semanticModelSemanticInvocation.GetSymbolInfo(invocationExpressionSyntaxSemantic,
                    cancellationTokenSemantic)
                .Symbol
-               is not IMethodSymbol calleeSemantic)
+           is not IMethodSymbol calleeSemantic)
             return false;
 
         if (!string.Equals(calleeSemantic.Name, "LogAsync", StringComparison.Ordinal))
             return false;
 
-        return SymbolEqualityComparer.Default.Equals(
-            calleeSemantic.ContainingType?.OriginalDefinition,
-            auditInterfaceDeclaredTypeSymbolScopedSemantic.OriginalDefinition);
+        if (SymbolEqualityComparer.Default.Equals(
+                calleeSemantic.ContainingType?.OriginalDefinition,
+                auditInterfaceDeclaredTypeSymbolScopedSemantic.OriginalDefinition))
+            return true;
+
+        INamedTypeSymbol? containingType = calleeSemantic.ContainingType;
+
+        if (containingType is null)
+            return false;
+
+        foreach (INamedTypeSymbol iface in containingType.AllInterfaces)
+        {
+            if (!SymbolEqualityComparer.Default.Equals(
+                    iface.OriginalDefinition,
+                    auditInterfaceDeclaredTypeSymbolScopedSemantic.OriginalDefinition))
+            {
+                continue;
+            }
+
+            foreach (ISymbol member in iface.GetMembers(calleeSemantic.Name))
+            {
+                if (member is not IMethodSymbol interfaceMethod)
+                    continue;
+
+                IMethodSymbol? implementation =
+                    containingType.FindImplementationForInterfaceMember(interfaceMethod) as IMethodSymbol;
+
+                if (implementation is not null &&
+                    SymbolEqualityComparer.Default.Equals(implementation, calleeSemantic))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

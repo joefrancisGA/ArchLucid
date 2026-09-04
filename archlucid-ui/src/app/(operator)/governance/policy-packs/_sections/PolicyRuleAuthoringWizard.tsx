@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
@@ -34,6 +35,12 @@ import {
   tryParseContentDocument,
   usePolicyRuleAuthoringSimulate,
 } from "./use-policy-rule-authoring-simulate";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  parsePolicyPackAuthoringInputModeFromSearch,
+  policyPackAuthoringInputModeHrefFromSearch,
+  type PolicyPackAuthoringInputMode,
+} from "@/lib/policy/policy-pack-authoring-input-mode-url";
 
 export type PolicyRuleAuthoringWizardProps = {
   readonly canMutatePacks: boolean;
@@ -60,15 +67,24 @@ export type PolicyRuleAuthoringWizardProps = {
 
 function resolveInitialInputMode(
   initialInputMode: PolicyRuleAuthoringWizardProps["initialInputMode"],
+  urlInputMode: PolicyPackAuthoringInputMode,
 ): AuthoringInputMode {
-  if (initialInputMode === "visual" || initialInputMode === "ai") {
+  if (initialInputMode === "visual" || initialInputMode === "ai" || initialInputMode === "json") {
     return initialInputMode;
+  }
+
+  if (urlInputMode === "visual" || urlInputMode === "ai" || urlInputMode === "json") {
+    return urlInputMode;
   }
 
   return "guided";
 }
 
 export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? GOVERNANCE_POLICY_PACKS_PATH;
+  const searchParams = useSearchParams();
+  const urlInputMode = parsePolicyPackAuthoringInputModeFromSearch(searchParams.get("inputMode"));
   const {
     canMutatePacks,
     loading,
@@ -93,8 +109,12 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
   } = props;
 
   const skipHydrationRef = useRef(false);
-  const [inputMode, setInputMode] = useState<AuthoringInputMode>(() => resolveInitialInputMode(initialInputMode));
-  const [rawJsonAccordionOpen, setRawJsonAccordionOpen] = useState(initialInputMode === "json");
+  const [inputMode, setInputModeState] = useState<AuthoringInputMode>(() =>
+    resolveInitialInputMode(initialInputMode, urlInputMode),
+  );
+  const [rawJsonAccordionOpen, setRawJsonAccordionOpen] = useState(
+    resolveInitialInputMode(initialInputMode, urlInputMode) === "json",
+  );
   const [guidedFields, setGuidedFields] = useState<GuidedPolicyFields>(() => ({
     complianceRuleKeysText: "",
     alertRuleIdsText: "",
@@ -104,10 +124,29 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
   const [curatedDoc, setCuratedDoc] = useState<CuratedRulesDocument>(() => createEmptyCuratedRulesDocument({}));
   const [authoringErrors, setAuthoringErrors] = useState<string[]>([]);
 
+  const syncInputModeToUrl = useCallback(
+    (mode: AuthoringInputMode) => {
+      router.replace(policyPackAuthoringInputModeHrefFromSearch(searchParams.toString(), mode, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setInputMode = useCallback(
+    (mode: AuthoringInputMode) => {
+      setInputModeState(mode);
+      syncInputModeToUrl(mode);
+    },
+    [syncInputModeToUrl],
+  );
+
   useEffect(() => {
-    setInputMode(resolveInitialInputMode(initialInputMode));
-    setRawJsonAccordionOpen(initialInputMode === "json");
-  }, [initialInputMode]);
+    const nextMode = parsePolicyPackAuthoringInputModeFromSearch(searchParams.get("inputMode"));
+    const resolved = resolveInitialInputMode(initialInputMode, nextMode);
+    setInputModeState(resolved);
+    setRawJsonAccordionOpen(resolved === "json");
+  }, [initialInputMode, searchParams]);
 
   useEffect(() => {
     if (skipHydrationRef.current) {
