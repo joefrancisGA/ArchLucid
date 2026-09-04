@@ -108,6 +108,10 @@ export function FindingInspectGovernanceStickinessPanel(
     <div className={cn(OPERATOR_LAYOUT.sectionStack, "rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950/40", OPERATOR_TYPOGRAPHY.body)}>
       <FindingInspectStickinessSummary
         recentDispositionActors={stickiness.recentDispositionActors}
+        dispositionHistoryAsOfUtc={stickiness.dispositionHistoryAsOfUtc}
+        onRefreshDispositionHistory={() => {
+          void stickiness.refreshDispositionHistory();
+        }}
         mutationDisabledHintId={stickiness.mutationDisabledHintId}
         mutationDisabledReason={stickiness.mutationDisabledReason}
         sponsorSynopsisPackageTitle={stickiness.sponsorSynopsisPackageTitle}
@@ -168,8 +172,11 @@ export function FindingInspectGovernanceStickinessPanel(
         pendingDispositionBlockedReason={stickiness.pendingDispositionBlockedReason}
         remediationLastSavedUtc={stickiness.remediationLastSavedUtc}
         remediationInlineSaveError={stickiness.remediationInlineSaveError}
+        remediationBaseline={stickiness.remediationBaseline}
         dispositionLastSavedUtc={stickiness.dispositionLastSavedUtc}
         dispositionInlineSaveError={stickiness.dispositionInlineSaveError}
+        dispositionBaseline={stickiness.dispositionBaseline}
+        waiverBaseline={stickiness.waiverBaseline}
       />
     </div>
   );

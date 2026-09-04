@@ -13,7 +13,9 @@ The shell exposes **fast navigation** and **page actions** via the keyboard. Des
 | **Input guard** | Shortcuts do not fire while focus is in `<input>`, `<textarea>`, `<select>`, or `contenteditable` (see [`useKeyboardShortcuts`](../src/hooks/useKeyboardShortcuts.ts)). |
 | **Progressive discoverability** | Help overlay (**Shift+?**), nav `title` + `aria-keyshortcuts`, command palette (**Ctrl+K**), and footer hint text—operators learn without reading this doc first. |
 
-Global shortcuts apply from the main content region wrapped by [`KeyboardShortcutProvider`](../src/components/KeyboardShortcutProvider.tsx) in [`layout.tsx`](../src/app/layout.tsx). The header/nav sit outside that wrapper, so **focus the page body** (e.g. Tab to main or click content) before Alt shortcuts if the nav stole focus.
+Global shortcuts register on `window` via [`AppShellSyncKeyboardShortcutListener`](../src/components/shell/AppShellSyncKeyboardShortcutListener.tsx) in [`AppShellClient`](../src/components/AppShellClient.tsx). Alt+letter navigation works from anywhere in the shell, including when focus is on the header or sidebar — you do **not** need to Tab into main content first.
+
+The deferred **Shift+?** help overlay still mounts from [`KeyboardShortcutProvider`](../src/components/KeyboardShortcutProvider.tsx) in [`layout.tsx`](../src/app/layout.tsx); that wrapper does not gate Alt navigation.
 
 ## Command palette (Ctrl+K)
 

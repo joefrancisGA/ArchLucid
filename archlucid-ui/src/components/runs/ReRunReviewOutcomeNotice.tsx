@@ -73,12 +73,33 @@ export function ReRunReviewOutcomeNotice(props: ReRunReviewOutcomeNoticeProps): 
       aria-busy="true"
     >
       <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{runningHeadline}</p>
+      {runningProgress?.queueStatusLine !== undefined ? (
+        <p
+          className={cn("m-0 mt-2 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="re-run-review-queue-status"
+        >
+          {runningProgress.queueStatusLine}
+        </p>
+      ) : null}
+      {runningProgress?.statusRefreshHint !== undefined ? (
+        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {runningProgress.statusRefreshHint}
+        </p>
+      ) : null}
       {runningDetail !== null && runningDetail.length > 0 ? (
         <p
           className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="re-run-review-outcome-detail"
         >
           {runningDetail}
+        </p>
+      ) : null}
+      {runningProgress?.homePageHint !== undefined ? (
+        <p
+          className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="re-run-review-home-page-status-hint"
+        >
+          {runningProgress.homePageHint}
         </p>
       ) : null}
     </div>

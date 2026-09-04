@@ -33,7 +33,7 @@ describe("long-operation-wait-copy", () => {
     });
     expect(after10.level).toBe("after10s");
     expect(after10.detail).toMatch(/still in progress/i);
-    expect(after10.detail).toMatch(/no percent/i);
+    expect(after10.detail).not.toMatch(/Named stages only/i);
 
     const after30 = buildLongOperationWaitCopy({
       operationLabel: "Generating sponsor report",

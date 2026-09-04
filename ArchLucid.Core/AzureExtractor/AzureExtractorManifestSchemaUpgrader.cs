@@ -40,24 +40,32 @@ public static class AzureExtractorManifestSchemaUpgrader
                 return false;
             }
 
-            if (schemaVersion == CurrentSchemaVersion)
-                return true;
-
-            if (schemaVersion == 0)
+            while (schemaVersion < CurrentSchemaVersion)
             {
-                UpgradeFromZero(manifest);
-                manifestJson = manifest.ToJsonString();
-                return true;
+                if (schemaVersion == 0)
+                {
+                    UpgradeFromZero(manifest);
+                }
+                else if (schemaVersion == 1)
+                {
+                    UpgradeFromOneToTwo(manifest);
+                }
+                else
+                {
+                    errorDetail = $"Unsupported legacy manifest schemaVersion: {schemaVersion}.";
+                    return false;
+                }
+
+                if (!TryGetPropertyCaseInsensitive(manifest, "schemaVersion", out versionNode)
+                    || !TryReadSchemaVersion(versionNode, out schemaVersion))
+                {
+                    errorDetail = "Upgraded manifest is missing schemaVersion.";
+                    return false;
+                }
             }
 
-            if (schemaVersion > CurrentSchemaVersion)
-            {
-                errorDetail = $"Unsupported manifest schemaVersion: {schemaVersion}.";
-                return false;
-            }
-
-            errorDetail = $"Unsupported legacy manifest schemaVersion: {schemaVersion}.";
-            return false;
+            manifestJson = manifest.ToJsonString();
+            return true;
         }
         catch (JsonException)
         {
@@ -66,10 +74,34 @@ public static class AzureExtractorManifestSchemaUpgrader
         }
     }
 
+    private static void UpgradeFromOneToTwo(JsonObject manifest)
+    {
+        RemovePropertyCaseInsensitive(manifest, "schemaVersion");
+        manifest["schemaVersion"] = 2;
+
+        if (!ContainsPropertyCaseInsensitive(manifest, "completenessScore"))
+            manifest["completenessScore"] = 1.0;
+
+        if (!ContainsPropertyCaseInsensitive(manifest, "warnings"))
+            manifest["warnings"] = new JsonArray();
+
+        if (!ContainsPropertyCaseInsensitive(manifest, "errors"))
+            manifest["errors"] = new JsonArray();
+
+        if (!ContainsPropertyCaseInsensitive(manifest, "resourceCount"))
+            manifest["resourceCount"] = 0;
+
+        if (!ContainsPropertyCaseInsensitive(manifest, "captureMethod"))
+            manifest["captureMethod"] = "CustomerScript";
+
+        if (!ContainsPropertyCaseInsensitive(manifest, "collectorVersion"))
+            manifest["collectorVersion"] = manifest["scriptVersion"]?.GetValue<string>() ?? "unknown";
+    }
+
     private static void UpgradeFromZero(JsonObject manifest)
     {
         RemovePropertyCaseInsensitive(manifest, "schemaVersion");
-        manifest["schemaVersion"] = CurrentSchemaVersion;
+        manifest["schemaVersion"] = AzureExtractorZipSchema.Version1;
 
         if (!ContainsPropertyCaseInsensitive(manifest, "scriptVersion"))
             manifest["scriptVersion"] = "legacy-0.x";

@@ -5390,6 +5390,9 @@
             "type": "string"
           }
         },
+        "required": [
+          "isPinned"
+        ],
         "type": "object"
       },
       "AsyncAuthorityPipelineFeatureState": {
@@ -8462,7 +8465,8 @@
           }
         },
         "required": [
-          "isCompleted"
+          "isCompleted",
+          "stepIndex"
         ],
         "type": "object"
       },
@@ -9020,6 +9024,9 @@
             "type": "string"
           }
         },
+        "required": [
+          "initialContentJson"
+        ],
         "type": "object"
       },
       "CreateRiskExceptionRequest": {
@@ -11916,6 +11923,9 @@
             ]
           }
         },
+        "required": [
+          "emailEnabled"
+        ],
         "type": "object"
       },
       "ExecDigestSponsorDeepLinkHighlightedRunDto": {
@@ -22722,6 +22732,9 @@
             "type": "string"
           }
         },
+        "required": [
+          "contentJson"
+        ],
         "type": "object"
       },
       "QualityGateDefinitionSnapshotDto": {
@@ -24720,6 +24733,9 @@
             "$ref": "#/components/schemas/FindingMergeConflictResolutionAction"
           }
         },
+        "required": [
+          "action"
+        ],
         "type": "object"
       },
       "ResolvedArchitectureDecision": {
@@ -28054,6 +28070,9 @@
             "type": "boolean"
           }
         },
+        "required": [
+          "isEnabled"
+        ],
         "type": "object"
       },
       "SetProfessionalWorkbenchEnabledRequest": {
@@ -28509,6 +28528,9 @@
             ]
           }
         },
+        "required": [
+          "emailEnabled"
+        ],
         "type": "object"
       },
       "SponsorEvidenceGovernanceOutcomes": {
@@ -30350,6 +30372,10 @@
             ]
           }
         },
+        "required": [
+          "architectHourlyRateUsd",
+          "averageIncidentCostUsd"
+        ],
         "type": "object"
       },
       "TenantErasureLegalHoldRequest": {
@@ -30365,6 +30391,9 @@
             "type": "string"
           }
         },
+        "required": [
+          "untilUtc"
+        ],
         "type": "object"
       },
       "TenantErasureOffboardAcceptedResponse": {
@@ -30553,6 +30582,9 @@
             ]
           }
         },
+        "required": [
+          "selectedRunId"
+        ],
         "type": "object"
       },
       "TenantIdentityProtocol": {

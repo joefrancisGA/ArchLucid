@@ -12,6 +12,10 @@ import type { AuditEvent } from "@/lib/api";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-review-title";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  AUDIT_EVENTS_EVENT_STICKY_CLASS,
+  AUDIT_EVENTS_WHEN_STICKY_CLASS,
+} from "@/lib/governance/governance-queue-sticky-identity";
 
 import { formatUtc, tryFormatDataJson } from "./audit-page-helpers";
 
@@ -27,10 +31,12 @@ export function AuditEventOperatorTableRow(props: AuditEventOperatorTableRowProp
 
   return (
     <EnterpriseTableRow style={style}>
-      <EnterpriseTableCell className="whitespace-nowrap tabular-nums">
+      <EnterpriseTableCell className={AUDIT_EVENTS_WHEN_STICKY_CLASS}>
         <time dateTime={ev.occurredUtc}>{formatUtc(ev.occurredUtc)}</time>
       </EnterpriseTableCell>
-      <EnterpriseTableCell>{pipelineEventTypeFriendlyLabel(ev.eventType)}</EnterpriseTableCell>
+      <EnterpriseTableCell className={AUDIT_EVENTS_EVENT_STICKY_CLASS}>
+        {pipelineEventTypeFriendlyLabel(ev.eventType)}
+      </EnterpriseTableCell>
       <EnterpriseTableCell>
         <span className="font-medium text-al-text-primary">{ev.actorUserName}</span>
         <span className={cn("mt-0.5 block font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>

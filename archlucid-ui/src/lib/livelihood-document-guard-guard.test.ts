@@ -16,7 +16,9 @@ describe("livelihood-document-guard inventory (RS-07)", () => {
     expect(surfaceIds).toContain("policy-pack-authoring");
     expect(surfaceIds).toContain("sso-wizard");
     expect(surfaceIds).toContain("alert-rules-create");
-    expect(LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_SURFACES).toContain("integrations/azure-boards-connection");
+    expect(surfaceIds).toContain("finding-inspect-disposition");
+    expect(surfaceIds).toContain("integrations/azure-boards-connection");
+    expect(LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_SURFACES).toEqual([]);
   });
 
   it("keeps guarded document roots wired to useLivelihoodDocumentGuards", () => {

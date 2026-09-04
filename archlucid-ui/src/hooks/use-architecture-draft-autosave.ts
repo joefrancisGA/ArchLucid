@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
 import type { ScopeUnderstandingBullet } from "@/lib/architecture/architecture-scope-understanding-check";
@@ -13,6 +13,7 @@ import {
 } from "@/hooks/architecture-draft-autosave-shared";
 import { useArchitectureDraftAutosaveHydrate } from "@/hooks/use-architecture-draft-autosave-hydrate";
 import { useArchitectureDraftAutosavePersist } from "@/hooks/use-architecture-draft-autosave-persist";
+import { readArchitectureNewDraftRecovery } from "@/lib/architecture/architecture-new-draft-recovery";
 
 export type { ArchitectureDraftSaveState } from "@/hooks/architecture-draft-autosave-shared";
 
@@ -32,6 +33,7 @@ export function useArchitectureDraftAutosave(
   const scopeGateOpenRef = useRef(args.scopeGateOpen === true);
   const scopeBulletsRef = useRef<readonly ScopeUnderstandingBullet[]>(args.scopeBullets ?? []);
   const autosaveBlockedRef = useRef(false);
+  const recoveryHydratedRef = useRef(false);
 
   fieldsRef.current = args.fields;
   actorSetRef.current = args.actorSet;
@@ -51,6 +53,29 @@ export function useArchitectureDraftAutosave(
     setConflictMessage,
     setHasPersistedDraft,
   });
+
+  useEffect(() => {
+    if (!deferCreateUntilFirstSave || recoveryHydratedRef.current) {
+      return;
+    }
+
+    if (hydrate.resolvedArchitectureIdRef.current !== null) {
+      return;
+    }
+
+    const recovery = readArchitectureNewDraftRecovery();
+
+    if (recovery === null) {
+      return;
+    }
+
+    recoveryHydratedRef.current = true;
+    args.onNewDraftRecoveryHydrated?.({
+      fields: recovery.fields,
+      actorSet: recovery.actorSet,
+    });
+    setSaveState("offline");
+  }, [args, deferCreateUntilFirstSave, hydrate.resolvedArchitectureIdRef]);
 
   const markDirty = useCallback(() => {
     if (!enabled) {
