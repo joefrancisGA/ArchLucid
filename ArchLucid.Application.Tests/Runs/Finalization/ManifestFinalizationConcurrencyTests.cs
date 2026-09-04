@@ -3,6 +3,7 @@ using System.Data;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance.PolicyPacks;
@@ -247,6 +248,12 @@ public sealed class ManifestFinalizationConcurrencyTests
             RuleSetId = "rs",
             RuleSetVersion = "1",
             RuleSetHash = "rh",
+            FeasibilityVerdict = new FeasibilityVerdict
+            {
+                Kind = FeasibilityVerdictKind.Feasible,
+                Summary = "Test manifest is feasible.",
+                TransparencyTrail = new TransparencyTrail(),
+            },
         };
 
         return new ManifestFinalizationRequest
