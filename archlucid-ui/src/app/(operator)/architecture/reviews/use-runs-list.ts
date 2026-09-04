@@ -188,7 +188,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   );
 
   useEffect(() => {
-    setCompareSelectionState(parseRunsListCompareRunIdsFromSearch(urlCompareRunsRaw));
+    setCompareSelectionState([...parseRunsListCompareRunIdsFromSearch(urlCompareRunsRaw)]);
   }, [urlCompareRunsRaw]);
 
   useEffect(() => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type SetStateAction } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import type { ProvenanceSection } from "@/components/provenance/ProvenanceSectionNav";
@@ -120,9 +120,13 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
   );
 
   const setEdgesExpanded = useCallback(
-    (value: boolean) => {
-      setEdgesExpandedState(value);
-      syncProvenanceEdgeToUrl(highlightedEdgeId, value);
+    (value: SetStateAction<boolean>) => {
+      setEdgesExpandedState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncProvenanceEdgeToUrl(highlightedEdgeId, next);
+
+        return next;
+      });
     },
     [highlightedEdgeId, syncProvenanceEdgeToUrl],
   );
