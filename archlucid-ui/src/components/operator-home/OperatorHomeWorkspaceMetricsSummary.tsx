@@ -129,7 +129,12 @@ export function OperatorHomeWorkspaceMetricsSummary(props: OperatorHomeWorkspace
           />
           <MetricItem
             label="Review warnings"
-            value={<OperatorHomeGovernanceWarningsMetricLink label={String(metrics.governanceWarnings)} />}
+            value={
+              <OperatorHomeGovernanceWarningsMetricLink
+                count={metrics.governanceWarnings}
+                label={`Warning${metrics.governanceWarnings === 1 ? "" : "s"}`}
+              />
+            }
           />
           <MetricItem
             label="Setup readiness"
@@ -171,7 +176,12 @@ export function OperatorHomeWorkspaceMetricsSummary(props: OperatorHomeWorkspace
         />
         <MetricItem
           label="Review warnings"
-          value={<OperatorHomeGovernanceWarningsMetricLink label={String(metrics.governanceWarnings)} />}
+          value={
+            <OperatorHomeGovernanceWarningsMetricLink
+              count={metrics.governanceWarnings}
+              label={`Warning${metrics.governanceWarnings === 1 ? "" : "s"}`}
+            />
+          }
         />
         <MetricItem
           label="Setup readiness"
