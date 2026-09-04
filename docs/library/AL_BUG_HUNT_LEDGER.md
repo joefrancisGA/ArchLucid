@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 162
-- **bugs-found:** 372
+- **hunts:** 163
+- **bugs-found:** 373
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — posture empty projectId validation ordering before tenant lookup
+- **last-bug:** 2026-09-04 — environment catalog replace validation ordering before tenant lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3988,6 +3988,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernancePostureController.GetPosture` — tenant preflight ran before empty `projectId` query validation so ghost tenant + `projectId=00000000-0000-0000-0000-000000000000` returned HTTP 404 instead of 400 (#702 manifest summary query ordering sibling; stickiness register reads already validate projectId before tenant) — **hit 2026-09-04 (#703):** validate `projectId` before `TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync`; regression in `GovernancePostureControllerTests.GetPosture_returns_bad_request_when_project_id_is_empty_guid_and_tenant_missing`.
 
 2026-09-04 seed hunt #703: promoted and proved posture empty projectId validation ordering before tenant lookup.
+
+- [x] (proven) `GovernanceEnvironmentCatalogController.Replace` — tenant preflight ran before catalog body validation so ghost tenant + empty environments/transitions returned HTTP 404 instead of 400 (#703 posture projectId ordering sibling; `ReplaceCatalogAsync` validated only after `TenantWorkspaceScopePreflight`) — **hit 2026-09-04 (#704):** `GovernanceEnvironmentCatalogService.ValidateCatalogOrThrow` before tenant lookup; regression in `GovernanceEnvironmentCatalogControllerTests.Replace_returns_bad_request_when_catalog_is_invalid_and_tenant_missing`.
+
+2026-09-04 seed hunt #704: promoted and proved environment catalog replace validation ordering before tenant lookup.
 
 2026-09-04 seed hunt #695: promoted and proved attestation upsert HTTP mapper and product-feedback validation ordering.
 
