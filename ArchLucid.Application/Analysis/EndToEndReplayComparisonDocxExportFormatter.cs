@@ -22,6 +22,10 @@ public static class EndToEndReplayComparisonDocxExportFormatter
         cancellationToken.ThrowIfCancellationRequested();
         string p = EndToEndComparisonExportProfile.Normalize(profile);
         string summaryMarkdown = summaryFormatter.FormatMarkdown(report).Trim();
+
+        if (report.CompareQualityDelta is not null)
+            summaryMarkdown = CompareQualityDeltaExportFormatter.RemoveMarkdownSection(summaryMarkdown);
+
         using MemoryStream stream = new();
         using (WordprocessingDocument document = WordprocessingDocument.Create(stream, WordprocessingDocumentType.Document, true))
         {
@@ -38,11 +42,13 @@ public static class EndToEndReplayComparisonDocxExportFormatter
             {
                 AddHeading(body, "Summary", 2);
                 AddParagraph(body, summaryMarkdown);
+                AppendCompareQualityDelta(body, report);
             }
             else if (EndToEndComparisonExportProfile.IsExecutive(p))
             {
                 AddHeading(body, "Summary", 2);
                 AddParagraph(body, summaryMarkdown);
+                AppendCompareQualityDelta(body, report);
                 AddSpacer(body);
                 AppendSponsorReport(body, report);
             }
@@ -50,6 +56,7 @@ public static class EndToEndReplayComparisonDocxExportFormatter
             {
                 AddHeading(body, "Summary", 2);
                 AddParagraph(body, summaryMarkdown);
+                AppendCompareQualityDelta(body, report);
                 AddSpacer(body);
                 AddHeading(body, "Run Metadata Diff", 2);
                 AddBullet(body, $"Request IDs Differ: {(report.RunDiff.RequestIdsDiffer ? "Yes" : "No")}");
@@ -77,6 +84,8 @@ public static class EndToEndReplayComparisonDocxExportFormatter
                         AddDiffSection(body, "Removed Required Controls", delta.RemovedRequiredControls);
                         AddDiffSection(body, "Added Warnings", delta.AddedWarnings);
                         AddDiffSection(body, "Removed Warnings", delta.RemovedWarnings);
+                        AddDiffSection(body, "Added Evidence References", delta.AddedEvidenceRefs);
+                        AddDiffSection(body, "Removed Evidence References", delta.RemovedEvidenceRefs);
                         AddSpacer(body);
                     }
                 }
@@ -207,5 +216,13 @@ public static class EndToEndReplayComparisonDocxExportFormatter
 
         foreach (RelationshipDiffItem relationship in relationships)
             AddBullet(body, relationship.ToDisplayLine());
+    }
+
+    private static void AppendCompareQualityDelta(Body body, EndToEndReplayComparisonReport report)
+    {
+        if (report.CompareQualityDelta is null)
+            return;
+
+        AddDiffSection(body, "Compare Quality Delta", CompareQualityDeltaExportFormatter.BuildPlainTextLines(report.CompareQualityDelta));
     }
 }

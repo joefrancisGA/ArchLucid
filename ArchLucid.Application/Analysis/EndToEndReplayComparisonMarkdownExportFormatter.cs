@@ -127,6 +127,8 @@ public static class EndToEndReplayComparisonMarkdownExportFormatter
             AppendList(sb, "Removed Required Controls", delta.RemovedRequiredControls);
             AppendList(sb, "Added Warnings", delta.AddedWarnings);
             AppendList(sb, "Removed Warnings", delta.RemovedWarnings);
+            AppendList(sb, "Added Evidence References", delta.AddedEvidenceRefs);
+            AppendList(sb, "Removed Evidence References", delta.RemovedEvidenceRefs);
         }
     }
 

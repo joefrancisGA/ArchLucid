@@ -22,6 +22,9 @@ public static class EndToEndReplayComparisonPdfExportFormatter
         string p = EndToEndComparisonExportProfile.Normalize(profile);
         string summaryMarkdown = summaryFormatter.FormatMarkdown(report).Trim();
 
+        if (report.CompareQualityDelta is not null)
+            summaryMarkdown = CompareQualityDeltaExportFormatter.RemoveMarkdownSection(summaryMarkdown);
+
         byte[] pdf = QuestPdfDocumentBytes.Generate(container =>
         {
             container.Page(page =>
@@ -37,6 +40,9 @@ public static class EndToEndReplayComparisonPdfExportFormatter
                     column.Item().PaddingBottom(10).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
                     column.Item().PaddingBottom(5).Text("Summary").Bold().FontSize(12);
                     column.Item().PaddingBottom(10).Text(summaryMarkdown);
+
+                    if (report.CompareQualityDelta is not null)
+                        AppendCompareQualityDelta(column, report.CompareQualityDelta);
 
                     if (!EndToEndComparisonExportProfile.IsShort(p))
                     {
@@ -120,6 +126,8 @@ public static class EndToEndReplayComparisonPdfExportFormatter
             AppendDiffSection(column, "Removed Required Controls", delta.RemovedRequiredControls);
             AppendDiffSection(column, "Added Warnings", delta.AddedWarnings);
             AppendDiffSection(column, "Removed Warnings", delta.RemovedWarnings);
+            AppendDiffSection(column, "Added Evidence References", delta.AddedEvidenceRefs);
+            AppendDiffSection(column, "Removed Evidence References", delta.RemovedEvidenceRefs);
         }
     }
 
@@ -198,5 +206,10 @@ public static class EndToEndReplayComparisonPdfExportFormatter
 
         foreach (RelationshipDiffItem relationship in relationships)
             column.Item().Text($"• {relationship.ToDisplayLine()}");
+    }
+
+    private static void AppendCompareQualityDelta(ColumnDescriptor column, CompareQualityDeltaCounts delta)
+    {
+        AppendList(column, "Compare Quality Delta", CompareQualityDeltaExportFormatter.BuildPlainTextLines(delta));
     }
 }

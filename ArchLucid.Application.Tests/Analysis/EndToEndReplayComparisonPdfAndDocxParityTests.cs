@@ -182,6 +182,40 @@ public sealed class EndToEndReplayComparisonPdfAndDocxParityTests
         text.Should().Contain("s2 -> t2 (reads)");
     }
 
+    [SkippableFact]
+    public async Task GeneratePdf_detailed_includes_agent_evidence_ref_diffs()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Full summary");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            AgentResultDiff = new AgentResultDiffResult
+            {
+                AgentDeltas =
+                [
+                    new AgentResultDelta
+                    {
+                        AgentType = ArchLucid.Contracts.Common.AgentType.Compliance,
+                        LeftExists = true,
+                        RightExists = true,
+                        AddedEvidenceRefs = ["policy-pack:encrypt-at-rest"],
+                    }
+                ]
+            }
+        };
+
+        byte[] pdf = await sut.GeneratePdfAsync(report, CancellationToken.None, EndToEndComparisonExportProfile.Detailed);
+        string text = ExtractPdfText(pdf);
+
+        text.Should().Contain("policy-pack:encrypt-at-rest");
+    }
+
     private static string ExtractDocxBodyText(byte[] docxBytes)
     {
         using MemoryStream ms = new(docxBytes);

@@ -1609,11 +1609,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 11
-- **bugs-found:** 19
+- **hunts:** 12
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — HTML compare-quality-delta rendered as raw markdown pipe text
+- **last-bug:** 2026-09-04 — PDF/DOCX compare-quality-delta fallback; E2E agent evidence-ref export parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1647,6 +1647,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `GraphGcpInventoryReconciliationAnalyzer.CollectInventoryResourceIds` only reads inventory `name` — **invalid 2026-09-04 (#763):** hosted GCP extractor `GcpInventoryZipPackager` always emits Cloud Asset `name`; rows with only `gcpResourceId` are not in the production corpus (`Analyze_ignores_inventory_rows_without_cloud_asset_name_field` documents intentional asymmetry vs graph-side multi-key lookup).
 
 2026-09-04 thorough hunt #763: proved HTML compare-quality-delta structured rendering gap; cheap-disproved drift numeric representation and GCP inventory alternate-key candidates.
+
+- [x] (proven) PDF/DOCX exports omit compare-quality-delta when summary formatter stub omits `## Compare Quality Delta` — **hit 2026-09-04 (#764):** HTML #763 stripped/re-appended via `CompareQualityDeltaExportFormatter` but PDF/DOCX embedded raw summary only; fixed with shared `RemoveMarkdownSection` + plain-text delta append; regressions in `GeneratePdf_default_profile_includes_compare_quality_delta_when_summary_formatter_omits_section` and `GenerateDocx_default_profile_includes_compare_quality_delta_when_summary_formatter_omits_section`.
+- [x] (proven) E2E detailed agent appendices omit evidence-ref deltas — **hit 2026-09-04 (#764):** markdown/HTML/PDF detailed exports listed claims/findings/controls/warnings but not `AddedEvidenceRefs` / `RemovedEvidenceRefs`; fixed across formatters; regressions in `GenerateMarkdown_detailed_includes_agent_evidence_ref_diffs`, `GenerateHtml_detailed_includes_agent_evidence_ref_diffs`, `GeneratePdf_detailed_includes_agent_evidence_ref_diffs`.
+- [ ] (candidate) E2E detailed manifest appendices omit `ManifestDiffResult.Warnings` while interpretation synergy notes may reference warnings-only diffs — verify export-body surfacing before hunt-ready promotion.
+- [ ] (candidate) `ReplayComparisonInterpretationDiffSlice.AgentOutputsChangedMaterially` ignores confidence-only and evidence-ref-only agent drift when manifest bodies are present — verify interpretation-note misclassification before promotion.
+- [ ] (candidate) Executive/sponsor `AppendSponsorReport` key counts omit relationship-only manifest deltas — low-impact profile gap; needs product decision before promotion.
+
+2026-09-04 seed hunt #764: proved PDF/DOCX compare-quality-delta fallback and agent evidence-ref export parity; reseeded manifest-warnings export body and interpretation materiality candidates.
 
 2026-09-03 seed hunt #547: proved GCP Cloud Asset URI normalization, HTML sponsor interpretation-notes fallback, and manifest-warnings materiality; reseeded PDF/DOCX export parity candidates.
 

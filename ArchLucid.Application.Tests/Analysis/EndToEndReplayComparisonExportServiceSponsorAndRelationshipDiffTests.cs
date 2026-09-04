@@ -214,6 +214,75 @@ public sealed class EndToEndReplayComparisonExportServiceSponsorAndRelationshipD
         html.Should().Contain("Changed request value: Format: Pdf -&gt; Docx");
     }
 
+    [SkippableFact]
+    public void GenerateHtml_detailed_includes_agent_evidence_ref_diffs()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Full summary");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            AgentResultDiff = new AgentResultDiffResult
+            {
+                AgentDeltas =
+                [
+                    new AgentResultDelta
+                    {
+                        AgentType = ArchLucid.Contracts.Common.AgentType.Compliance,
+                        LeftExists = true,
+                        RightExists = true,
+                        AddedEvidenceRefs = ["policy-pack:encrypt-at-rest"],
+                        RemovedEvidenceRefs = ["policy-pack:legacy-baseline"],
+                    }
+                ]
+            }
+        };
+
+        string html = sut.GenerateHtml(report, EndToEndComparisonExportProfile.Detailed);
+
+        html.Should().Contain("Added evidence reference: policy-pack:encrypt-at-rest");
+        html.Should().Contain("Removed evidence reference: policy-pack:legacy-baseline");
+    }
+
+    [SkippableFact]
+    public void GenerateMarkdown_detailed_includes_agent_evidence_ref_diffs()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Full summary");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            AgentResultDiff = new AgentResultDiffResult
+            {
+                AgentDeltas =
+                [
+                    new AgentResultDelta
+                    {
+                        AgentType = ArchLucid.Contracts.Common.AgentType.Compliance,
+                        LeftExists = true,
+                        RightExists = true,
+                        AddedEvidenceRefs = ["policy-pack:encrypt-at-rest"],
+                    }
+                ]
+            }
+        };
+
+        string markdown = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Detailed);
+
+        markdown.Should().Contain("Added Evidence References");
+        markdown.Should().Contain("policy-pack:encrypt-at-rest");
+    }
+
     private static EndToEndReplayComparisonReport RelationshipDiffReport() => new()
     {
         LeftRunId = "a",

@@ -48,8 +48,11 @@ public static class EndToEndReplayComparisonHtmlExportFormatter
 
         sb.AppendLine("<hr/>");
         string summaryMarkdown = summaryFormatter.FormatMarkdown(report).Trim();
-        string summaryMarkdownForHtml = RemoveCompareQualityDeltaMarkdownSection(summaryMarkdown);
-        string summaryHtml = MarkdownToSimpleHtml(summaryMarkdownForHtml);
+
+        if (report.CompareQualityDelta is not null)
+            summaryMarkdown = CompareQualityDeltaExportFormatter.RemoveMarkdownSection(summaryMarkdown);
+
+        string summaryHtml = MarkdownToSimpleHtml(summaryMarkdown);
         sb.AppendLine(summaryHtml);
         sb.AppendLine();
 
@@ -82,22 +85,6 @@ public static class EndToEndReplayComparisonHtmlExportFormatter
 
         sb.AppendLine("</body></html>");
         return sb.ToString();
-    }
-
-    private static string RemoveCompareQualityDeltaMarkdownSection(string markdown)
-    {
-        const string heading = "## Compare Quality Delta";
-        int start = markdown.IndexOf(heading, StringComparison.Ordinal);
-
-        if (start < 0)
-            return markdown;
-
-        int nextSection = markdown.IndexOf("\n## ", start + heading.Length, StringComparison.Ordinal);
-
-        if (nextSection < 0)
-            return markdown[..start].TrimEnd();
-
-        return (markdown[..start] + markdown[nextSection..]).Trim();
     }
 
     private static string EscapeHtml(string text)
@@ -187,6 +174,10 @@ public static class EndToEndReplayComparisonHtmlExportFormatter
                 sb.AppendLine("<li>Added warning: " + EscapeHtml(w) + "</li>");
             foreach (string w in delta.RemovedWarnings)
                 sb.AppendLine("<li>Removed warning: " + EscapeHtml(w) + "</li>");
+            foreach (string e in delta.AddedEvidenceRefs)
+                sb.AppendLine("<li>Added evidence reference: " + EscapeHtml(e) + "</li>");
+            foreach (string e in delta.RemovedEvidenceRefs)
+                sb.AppendLine("<li>Removed evidence reference: " + EscapeHtml(e) + "</li>");
             sb.AppendLine("</ul>");
         }
     }
