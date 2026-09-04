@@ -1,7 +1,7 @@
 <!-- Career-desk Composer prompts — paste one prompt per session.
      Origin: 2026-09-04 owner diagnosis that ArchLucid is a working-architect
      tool (all-day use; livelihoods may depend on the sealed record), not a
-     casual evaluator. Wave 5 after WA-01–24 shipped (#1496).
+     casual evaluator. Wave 5 after WA-01–24 shipped (#1496). Wave 6: all-day-desk-00-index.md (AD-01–12).
      Do not implement from this index. -->
 
 # Career-desk mitigations — Composer prompt set (CD-01–CD-15)
@@ -32,6 +32,7 @@ Do **not** merge draft+review in the database, collapse desktop review tabs, aut
 | **RS-01–15** | Wave 3 unique leftovers | **Shipped** #1457 |
 | **WA-01–24** | Wave 4 chrome + career edges | **Shipped** #1496 — do not re-run |
 | **CD-01–15** | **This set** — wave 5 unique leftovers | Run these |
+| **AD-01–12** | Wave 6 all-day desk leftovers | [`all-day-desk-00-index.md`](all-day-desk-00-index.md) |
 
 If a CD row lists a WA/LD/RS/LI owner, **do not fork** that file. Implement only the leftover in *What to build*.
 
