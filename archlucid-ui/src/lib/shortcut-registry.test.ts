@@ -100,4 +100,14 @@ describe("shortcut-registry", () => {
     expect(resolveShortcutDescription(altN!, true).toLowerCase()).not.toContain("wizard");
     expect(resolveShortcutDescription(altN!, false)).toBe(GUIDED_ALT_N_SHORTCUT_DESCRIPTION);
   });
+
+  it("RS-08: on-review Working shortcuts describe package-scoped Ask and graph", () => {
+    const altA = SHORTCUTS.find((entry) => entry.key === "alt+a");
+    const altY = SHORTCUTS.find((entry) => entry.key === "alt+y");
+
+    expect(altA).toBeDefined();
+    expect(altY).toBeDefined();
+    expect(resolveShortcutDescription(altA!, true, true)).toContain("scoped to this review");
+    expect(resolveShortcutDescription(altY!, true, true)).toContain("scoped to this review");
+  });
 });

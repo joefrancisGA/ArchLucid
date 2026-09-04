@@ -48,10 +48,14 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
             finding.PolicyRuleId = policyRuleId.GetString();
         }
 
-        if (TryGetPropertyIgnoreCase(root, "enforcementTier", out JsonElement enforcementTier) &&
-            TryReadEnforcementTier(enforcementTier, out FindingEnforcementTier tier))
+        if (TryGetPropertyIgnoreCase(root, "enforcementTier", out JsonElement enforcementTier)
+            && TryReadEnforcementTier(enforcementTier, out FindingEnforcementTier tier))
         {
             finding.EnforcementTier = tier;
+        }
+        else
+        {
+            throw new JsonException("enforcementTier is required.");
         }
 
         finding.Message = ReadMessage(root);
@@ -76,6 +80,11 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
     public override void Write(Utf8JsonWriter writer, ArchitectureFinding value, JsonSerializerOptions options)
     {
         ArgumentNullException.ThrowIfNull(value);
+
+        if (!Enum.IsDefined(value.EnforcementTier))
+        {
+            throw new JsonException("enforcementTier must be a valid tier when writing architecture findings.");
+        }
 
         writer.WriteStartObject();
         writer.WriteString("findingId", value.FindingId);

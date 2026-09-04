@@ -10,6 +10,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import {
   ALERTS_PAGE_SHORTCUTS,
   FINDINGS_PAGE_SHORTCUTS,
+  REVIEW_DETAIL_PAGE_SHORTCUTS,
   SHELL_COMMAND_SHORTCUTS,
   SHORTCUTS,
   resolveShortcutDescription,
@@ -122,6 +123,7 @@ export function KeyboardShortcutsTabContent(): React.ReactElement {
   const [moreOpen, setMoreOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [findingsOpen, setFindingsOpen] = useState(false);
+  const [reviewDetailOpen, setReviewDetailOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
 
   return (
@@ -168,6 +170,20 @@ export function KeyboardShortcutsTabContent(): React.ReactElement {
           </CollapsibleTrigger>
           <CollapsibleContent className="pt-2">
             <ShortcutTable entries={FINDINGS_PAGE_SHORTCUTS} caption="Findings page" />
+          </CollapsibleContent>
+        </Collapsible>
+      ) : null}
+      {REVIEW_DETAIL_PAGE_SHORTCUTS.length > 0 ? (
+        <Collapsible open={reviewDetailOpen} onOpenChange={setReviewDetailOpen}>
+          <CollapsibleTrigger
+            type="button"
+            className={cn("w-full rounded-md border border-dashed border-neutral-200 py-1.5 text-left font-semibold text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600", OPERATOR_TYPOGRAPHY.helper)}
+            aria-expanded={reviewDetailOpen}
+          >
+            {reviewDetailOpen ? "Hide" : "Show"} review page shortcuts
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-2">
+            <ShortcutTable entries={REVIEW_DETAIL_PAGE_SHORTCUTS} caption="Review page" />
           </CollapsibleContent>
         </Collapsible>
       ) : null}

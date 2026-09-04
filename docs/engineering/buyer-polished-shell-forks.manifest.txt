@@ -61,6 +61,7 @@ archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/findings/[findin
 archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/_sections/FindingDetailWayfinding.tsx
 archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/_sections/finding-detail-route-display.ts
 archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/_sections/load-finding-detail-page-model.ts
+archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/use-finding-inspect-governance-stickiness-dispositions.ts
 archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/use-finding-inspect-governance-stickiness.ts
 archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/print/_sections/PackagePrintBuyerChrome.tsx
 archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/print/_sections/PackagePrintPageView.tsx
@@ -76,7 +77,7 @@ archlucid-ui/src/app/(operator)/architecture/sponsor-dashboard/_sections/Sponsor
 archlucid-ui/src/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiDashboardPageView.tsx
 archlucid-ui/src/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiSummarySection.tsx
 archlucid-ui/src/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiTrendSection.tsx
-archlucid-ui/src/app/(operator)/governance/_sections/use-governance-workflow-page.ts
+archlucid-ui/src/app/(operator)/governance/_sections/use-governance-workflow-page-mutations.ts
 archlucid-ui/src/app/(operator)/governance/alert-rules/AlertRulesHubClient.tsx
 archlucid-ui/src/app/(operator)/governance/alerts/AlertsHubBuyerChrome.tsx
 archlucid-ui/src/app/(operator)/governance/alerts/AlertsHubChrome.tsx
@@ -90,7 +91,6 @@ archlucid-ui/src/app/(operator)/governance/decision-register/use-decision-regist
 archlucid-ui/src/app/(operator)/governance/exceptions/_sections/RiskExceptionsBuyerChrome.tsx
 archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsAssignedToMeBuyerChrome.tsx
 archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsAssignedToMeChrome.tsx
-archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx
 archlucid-ui/src/app/(operator)/governance/findings/use-governance-findings-queue-mode.ts
 archlucid-ui/src/app/(operator)/governance/policy-packs/[id]/PolicyPackDetailBuyerChrome.tsx
 archlucid-ui/src/app/(operator)/governance/policy-packs/_sections/PolicyPacksBuyerChrome.tsx
@@ -110,8 +110,14 @@ archlucid-ui/src/app/(operator)/help/_sections/HelpArchitectureIntelligenceHeade
 archlucid-ui/src/app/(operator)/help/_sections/HelpAuditTrailGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpAzurePermissionsHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpBillingAndPlansGuideView.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpBillingAndPlansHeaderActions.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpCaiqSigResponseGuideView.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpCaiqSigResponseHeaderActions.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpCliUsageHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpComparisonReplayHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpConnectAwsSecurelyHeaderActions.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpConnectAzureSecurelyGuideView.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpConnectAzureSecurelyHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpConnectGcpSecurelyHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpConnectionStatusHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpContactSupportHeaderActions.tsx
@@ -125,6 +131,8 @@ archlucid-ui/src/app/(operator)/help/_sections/HelpEvidenceGraphHeaderActions.ts
 archlucid-ui/src/app/(operator)/help/_sections/HelpEvidenceIntakeGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpEvidenceIntakeHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpEvidenceTrailHeaderActions.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpFindingsGuideView.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpFindingsHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpGettingStartedGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpGlossaryHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpGlossaryPageView.tsx
@@ -141,6 +149,8 @@ archlucid-ui/src/app/(operator)/help/_sections/HelpPriorManifestRetrievalHeaderA
 archlucid-ui/src/app/(operator)/help/_sections/HelpRecurrenceSchedulesGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpRepeatReviewLoopGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpSearchReviewEvidenceGuideView.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpSecurityTrustGuideView.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpSecurityTrustHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpServiceNowIntegrationHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpSpecialtyWalkthroughHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpSponsorDashboardGuideView.tsx
@@ -209,9 +219,9 @@ archlucid-ui/src/components/ScopeSwitcher.tsx
 archlucid-ui/src/components/ScopeSwitcherTenantContextFooter.tsx
 archlucid-ui/src/components/TeamExpansionNudge.tsx
 archlucid-ui/src/components/WelcomeBanner.tsx
-archlucid-ui/src/components/advisory/use-advisory-schedules-page.ts
-archlucid-ui/src/components/alerts/AlertRulesContent.tsx
-archlucid-ui/src/components/alerts/use-alert-routing-content.ts
+archlucid-ui/src/components/advisory/use-advisory-schedules-page-list.ts
+archlucid-ui/src/components/alerts/use-alert-routing-list.ts
+archlucid-ui/src/components/alerts/use-alert-rules-content-list.tsx
 archlucid-ui/src/components/alerts/use-alert-rules-content-state.tsx
 archlucid-ui/src/components/alerts/use-alerts-inbox-controller.ts
 archlucid-ui/src/components/architecture-intelligence/ArchitectureIntelligenceRunSummary.tsx
@@ -304,7 +314,7 @@ archlucid-ui/src/hooks/useAskReviewAvailability.ts
 archlucid-ui/src/hooks/useOperatorShellNavRows.ts
 archlucid-ui/src/lib/active-tenant-context-display.ts
 archlucid-ui/src/lib/api-error-toast.tsx
-archlucid-ui/src/lib/buyer/buyer-cto-demo-readiness-checks.ts
+archlucid-ui/src/lib/buyer/buyer-cto-demo-readiness-check-evaluators.ts
 archlucid-ui/src/lib/buyer/buyer-demo-content-gating.ts
 archlucid-ui/src/lib/buyer/buyer-demo-package-card-meta.ts
 archlucid-ui/src/lib/buyer/buyer-golden-manifest-summary-highlights.ts

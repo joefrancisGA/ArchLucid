@@ -124,9 +124,27 @@ export function findShortcutByKey(combo: string): ShortcutEntry | undefined {
 }
 
 /** Help overlay and keyboard map descriptions — Working Alt+N is the draft editor, not the wizard. */
-export function resolveShortcutDescription(entry: ShortcutEntry, workingMode: boolean): string {
+export function resolveShortcutDescription(
+  entry: ShortcutEntry,
+  workingMode: boolean,
+  onReviewPage = false,
+): string {
   if (normalizeCombo(entry.key) === "alt+n") {
     return workingMode ? WORKING_ALT_N_SHORTCUT_DESCRIPTION : GUIDED_ALT_N_SHORTCUT_DESCRIPTION;
+  }
+
+  if (normalizeCombo(entry.key) === "alt+c" && workingMode) {
+    return onReviewPage
+      ? "Compare two reviews — uses this review as the base run"
+      : "Compare two reviews — on a review page, uses that review as the base run";
+  }
+
+  if (normalizeCombo(entry.key) === "alt+a" && workingMode && onReviewPage) {
+    return "Ask review questions — scoped to this review";
+  }
+
+  if (normalizeCombo(entry.key) === "alt+y" && workingMode && onReviewPage) {
+    return "Open evidence graph — scoped to this review";
   }
 
   return entry.description;
@@ -158,7 +176,7 @@ export const SHELL_COMMAND_SHORTCUTS: PageShortcutEntry[] = [
     key: "ctrl+k",
     label: "Command palette",
     description:
-      "Open the command palette to jump to any page, review, or task, including save-draft / finding / alert work actions when those surfaces are open (Cmd+K on Mac; works while the header search box has focus)",
+      "Open the command palette to jump to any page, review, or task, including save changes, finalize review, compare-this-review, and finding / alert work actions when those surfaces are open (Cmd+K on Mac; works while the header search box has focus)",
   },
 ];
 
@@ -221,6 +239,20 @@ export const FINDINGS_PAGE_SHORTCUTS: PageShortcutEntry[] = [
     key: "alt+k",
     label: "Previous finding",
     description: "Move focus to the previous finding card or row (Findings queues); stays on the first",
+  },
+];
+
+export const REVIEW_DETAIL_PAGE_SHORTCUTS: PageShortcutEntry[] = [
+  {
+    key: "alt+c",
+    label: "Compare this review",
+    description:
+      "In Working mode on a review page, opens Compare with this review as the base run (unscoped elsewhere)",
+  },
+  {
+    key: "ctrl+shift+s",
+    label: "Save architecture draft",
+    description: "Save the architecture draft from the review workbench when a draft editor is open",
   },
 ];
 

@@ -20,3 +20,5 @@ Companion to [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE19.md`](ARCHITECTURE_REVIEW_RO
 Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave20ArchitectureTests.cs`.
 
 **Hasher baseline note:** wave 20 does not bump Hasher A schema version; export gates, compare fingerprints, and finding read-path sync remain on the existing **`v12`** baseline (`tests/manifest-hash/hasher-baseline-v12.json`).
+
+Next: [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE21.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE21.md) (suggestions 201–210).

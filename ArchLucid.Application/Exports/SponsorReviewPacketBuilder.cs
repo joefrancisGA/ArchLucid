@@ -2,6 +2,7 @@ using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Exports;
 using ArchLucid.Contracts.Findings;
@@ -10,6 +11,8 @@ using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Exports;
 
@@ -19,7 +22,9 @@ public sealed class SponsorReviewPacketBuilder(
     ISponsorRoiSummaryService SponsorRoiSummaryService,
     IArchitectureDecisionRegisterService decisionRegisterService,
     IScopeContextProvider scopeContextProvider,
-    ITenantRepository tenantRepository) : ISponsorReviewPacketBuilder
+    ITenantRepository tenantRepository,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : ISponsorReviewPacketBuilder
 {
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
@@ -36,6 +41,12 @@ public sealed class SponsorReviewPacketBuilder(
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
     public async Task<string?> BuildMarkdownAsync(string runId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
@@ -49,6 +60,17 @@ public sealed class SponsorReviewPacketBuilder(
             return null;
 
         AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());
+
+        if (Guid.TryParse(runId.Trim(), out Guid runGuid))
+        {
+            await ManifestDecisionReceiptExportBinder.EnsureSealedExportReceiptVerifiedOrThrowAsync(
+                runGuid,
+                runId.Trim(),
+                _authorityQueryService,
+                _manifestHashService,
+                _scopeContextProvider.GetCurrentScope(),
+                cancellationToken);
+        }
 
         SponsorRoiSummaryResponse roiSummary =
             await _SponsorRoiSummaryService.BuildAsync(cancellationToken).ConfigureAwait(false);

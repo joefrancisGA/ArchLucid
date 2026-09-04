@@ -20,45 +20,14 @@ public sealed partial class ArchitectureReviewExportService
             return;
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        RunDetailDto? compareDetail =
-            await _authorityQueryService.GetRunDetailForManifestCompareAsync(scope, runGuid, cancellationToken);
 
-        if (compareDetail?.GoldenManifest is null)
-            return;
-
-        DecisionReceiptRunBuildOutcome? readinessOutcome =
-            ManifestDecisionReceiptExportBinder.TryGetSealedReceiptReadinessOutcome(
-                compareDetail.GoldenManifest,
-                compareDetail.GoldenManifest.FeasibilityVerdict,
-                compareDetail.GoldenManifest.Metadata?.Version);
-
-        if (readinessOutcome == DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete)
-        {
-            throw new ConflictException(
-                $"Review-board export blocked for run '{runId}': sealed decision receipt fields are incomplete.");
-        }
-
-        if (readinessOutcome is not null)
-            return;
-
-        DecisionReceiptRunBuildResult buildResult = ManifestDecisionReceiptExportBinder.BuildVerifiedExportReceipt(
+        await ManifestDecisionReceiptExportBinder.EnsureSealedExportReceiptVerifiedOrThrowAsync(
             runGuid,
-            compareDetail.GoldenManifest,
-            compareDetail.GoldenManifest.FeasibilityVerdict!,
-            compareDetail.GoldenManifest.Metadata!.Version!.Trim(),
-            _manifestHashService);
-
-        if (buildResult.Outcome == DecisionReceiptRunBuildOutcome.SealedHashMismatch)
-        {
-            throw new ConflictException(
-                $"Review-board export blocked for run '{runId}': sealed decision receipt hash verification failed.");
-        }
-
-        if (buildResult.Outcome != DecisionReceiptRunBuildOutcome.Success)
-        {
-            throw new ConflictException(
-                $"Review-board export blocked for run '{runId}': sealed decision receipt could not be verified.");
-        }
+            runId,
+            _authorityQueryService,
+            _manifestHashService,
+            scope,
+            cancellationToken);
     }
 
     private async Task<string?> ResolveActiveTrialExportNoticeAsync(CancellationToken cancellationToken)

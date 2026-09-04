@@ -6,19 +6,19 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { ReRunReviewOutcomeNotice } from "@/components/runs/ReRunReviewOutcomeNotice";
 import { Button } from "@/components/ui/button";
+import { useReRunReviewInFlightProgress } from "@/hooks/use-re-run-review-in-flight-progress";
 import { executeArchitectureRunAsync } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import type { ButtonProps } from "@/components/ui/button";
 import { awaitMinimumVisibleDuration } from "@/lib/await-minimum-visible-duration";
+import { findInFlightOperationForRun } from "@/lib/operations/find-in-flight-operation-for-run";
 import {
   getInFlightOperations,
   subscribeInFlightOperations,
 } from "@/lib/operations/in-flight-operations-store";
 import { isTerminalOperationState } from "@/lib/operations/operation-state";
-import { reviewPipelineOperationId } from "@/lib/operations/review-pipeline-in-flight";
 import {
-  formatReRunReviewStartedHeadline,
   formatReRunReviewTerminalHeadline,
   RE_RUN_REVIEW_MIN_BUSY_MS,
   resolveReRunReviewAttemptNumber,
@@ -77,9 +77,15 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
     getInFlightOperations,
     getInFlightOperations,
   );
-  const trackedOperation = operations.find(
-    (row) => row.runId === runId || row.operationId === reviewPipelineOperationId(runId),
-  );
+  const trackedOperation = findInFlightOperationForRun(operations, runId);
+  const running = outcome?.phase === "running" && outcome.finishedAtMs === undefined;
+
+  const { progressCopy } = useReRunReviewInFlightProgress({
+    runId,
+    attemptNumber: outcome?.attemptNumber ?? 1,
+    active: running,
+    startedAtMs: outcome?.startedAtMs ?? Date.now(),
+  });
 
   useEffect(() => {
     const previous = previousServerRetryCountRef.current ?? 0;
@@ -100,11 +106,9 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
         return;
       }
 
-      const latest = getInFlightOperations().find(
-        (row) => row.runId === runId || row.operationId === reviewPipelineOperationId(runId),
-      );
+      const latest = findInFlightOperationForRun(getInFlightOperations(), runId);
 
-      if (latest === undefined || !isTerminalOperationState(latest.state)) {
+      if (latest === null || !isTerminalOperationState(latest.state)) {
         return;
       }
 
@@ -133,7 +137,7 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
   useEffect(() => {
     const active = activeAttemptRef.current;
 
-    if (active === null || trackedOperation === undefined) {
+    if (active === null || trackedOperation === null) {
       return;
     }
 
@@ -185,9 +189,11 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
       await executeArchitectureRunAsync(runId);
       await awaitMinimumVisibleDuration(clickStartedAtMs, RE_RUN_REVIEW_MIN_BUSY_MS);
 
+      const latest = findInFlightOperationForRun(getInFlightOperations(), runId);
+
       setOutcome({
         ...nextOutcome,
-        stepLabel: trackedOperation?.stepLabel ?? "Queued",
+        stepLabel: latest?.stepLabel ?? "Queued",
       });
       router.refresh();
     } catch (e: unknown) {
@@ -216,7 +222,7 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
     outcome === null
       ? null
       : outcome.phase === "running" && outcome.finishedAtMs === undefined
-        ? formatReRunReviewStartedHeadline(outcome.attemptNumber, outcome.stepLabel)
+        ? (progressCopy?.headline ?? `Re-run started — attempt ${outcome.attemptNumber} · ${outcome.stepLabel}`)
         : formatReRunReviewTerminalHeadline({
             attemptNumber: outcome.attemptNumber,
             startedAtMs: outcome.startedAtMs,
@@ -236,15 +242,19 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
         type="button"
         variant={variant}
         size={size}
-        disabled={busy}
-        aria-busy={busy}
+        disabled={busy || running}
+        aria-busy={busy || running}
         onClick={() => void onReRunReview()}
         data-testid={dataTestId}
       >
         {busy ? busyLabel : idleLabel}
       </Button>
       {outcome !== null && outcomeHeadline !== null ? (
-        <ReRunReviewOutcomeNotice phase={outcome.phase} headline={outcomeHeadline} />
+        <ReRunReviewOutcomeNotice
+          phase={outcome.phase}
+          headline={outcomeHeadline}
+          runningProgress={running ? progressCopy : null}
+        />
       ) : null}
       {error !== null ? (
         <div className="mt-2">

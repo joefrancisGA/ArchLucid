@@ -373,7 +373,7 @@
     {
       "nav_href": "/governance/sealed-records",
       "nav_required_authority": "ReadAuthority",
-      "nav_source_file": "operate-governance-nav-group-builder.ts",
+      "nav_source_file": "pilot-nav-group-builder.ts",
       "controller_primary_get_policy_strictest": null,
       "controller_primary_get_policy_loosest": null,
       "controller_files": [],

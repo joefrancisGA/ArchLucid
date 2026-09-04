@@ -4,10 +4,12 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Application.Governance.Workflow;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -81,6 +83,8 @@ internal static class GovernanceControllerTestFactory
             findingReviewTrailRepository ?? Mock.Of<IFindingReviewTrailRepository>(),
             scope,
             runs,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
             auditService ?? Mock.Of<IAuditService>(),
             NullLogger<GovernanceMutationCorrectionService>.Instance);
 

@@ -19,6 +19,7 @@ import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import type { AskRunListAvailability } from "@/lib/graph-page-state";
 import { graphPresentationViewHrefFromSearch } from "@/lib/insights/graph-presentation-view-url";
 import { graphRunIdHrefFromSearch } from "@/lib/insights/graph-run-id-url";
+import { graphLoadRequestedHrefFromSearch } from "@/lib/insights/graph-load-requested-url";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 
 export function useGraphPageState() {
@@ -52,10 +53,10 @@ export function useGraphPageState() {
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [runId, setRunId] = useState("");
-  const [graphLoadRequested, setGraphLoadRequested] = useState(false);
+  const [graphLoadRequested, setGraphLoadRequestedState] = useState(false);
   const { urlRunId, urlGraphNodeId } = useGraphPageUrlState({
     setRunId,
-    setGraphLoadRequested,
+    setGraphLoadRequested: setGraphLoadRequestedState,
     setPresentationView,
     setMode,
     setTypeFilter,
@@ -63,6 +64,16 @@ export function useGraphPageState() {
     setNodeId,
     setDecisionId,
   });
+
+  const setGraphLoadRequested = useCallback(
+    (requested: boolean) => {
+      setGraphLoadRequestedState(requested);
+      router.replace(graphLoadRequestedHrefFromSearch(searchParams.toString(), requested, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
 
   const {
     graph,
@@ -148,7 +159,7 @@ export function useGraphPageState() {
         setGraph(null);
       }
     },
-    [setGraph],
+    [setGraph, setGraphLoadRequested],
   );
 
   useEffect(() => {
@@ -305,6 +316,7 @@ export function useGraphPageState() {
     showSavedViews: savedViews.showSavedViews,
     getGraphSavedViewPayload: savedViews.getGraphSavedViewPayload,
     loadGraphSavedView: savedViews.loadGraphSavedView,
+    workingMode,
   };
 }
 

@@ -95,6 +95,10 @@ describe("WorkspaceAiAvailabilityPanel", () => {
     expect(fetchWorkspaceAiAvailabilityMock).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId("review-package-workspace-ai-vendor-error")).toHaveTextContent("HTTP 401");
     expect(screen.getByTestId("review-package-workspace-ai-model")).toHaveTextContent("gpt-4o");
+    expect(screen.getByTestId("review-package-workspace-ai-model-provenance")).toHaveTextContent(
+      "managed platform",
+    );
+    expect(screen.queryByText("probeDeploymentName:")).not.toBeInTheDocument();
   });
 
   it("shows a simple OK message and collapses probe details when availability succeeds", async () => {
@@ -136,6 +140,10 @@ describe("WorkspaceAiAvailabilityPanel", () => {
     });
 
     expect(screen.getByTestId("review-package-workspace-ai-model")).toHaveTextContent("gpt-4o");
+    expect(screen.getByTestId("review-package-workspace-ai-model-provenance")).toHaveTextContent(
+      "managed platform",
+    );
+    expect(screen.getByText("Probed deployment:")).toBeInTheDocument();
   });
 
   it("re-checks availability when the button is clicked again", async () => {

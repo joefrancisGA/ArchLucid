@@ -67,7 +67,6 @@ export const RUNS_DASHBOARD_LABELS = {
   reviewsNeedingAttention: "Reviews needing attention",
   packagingPreFinalPosture: "Reviews nearing finalization",
   reviewOutcomes: "Review outcomes",
-  recentSummary: "Showing the latest architecture reviews for this workspace.",
   attentionSummary: "Reviews with findings awaiting a finalized review record.",
   attentionSummaryBuyer:
     "Architecture reviews still moving toward a finalized review record before sponsor sign-off.",

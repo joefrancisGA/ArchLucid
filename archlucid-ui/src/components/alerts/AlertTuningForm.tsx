@@ -3,9 +3,6 @@
 import { cn } from "@/lib/utils";
 import type { Dispatch, SetStateAction } from "react";
 
-import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
-import { IntegrationConnectChecklist, type IntegrationConnectChecklistStep } from "@/components/integrations/IntegrationConnectChecklist";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -13,33 +10,15 @@ import {
   ALERT_SIMULATION_PROJECT_SLUG_PLACEHOLDER,
   ALERT_TOOLING_FORM_SELECT_CLASS,
 } from "@/lib/alert-simulation-form";
-import { alertTuningRecommendButtonTitle } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-const SIMPLE_RULE_TYPES = [
-  { value: "CriticalRecommendationCount", label: "Critical / high recommendation count" },
-  { value: "NewComplianceGapCount", label: "New compliance gap count" },
-  { value: "CostIncreasePercent", label: "Cost increase %" },
-  { value: "DeferredHighPriorityRecommendationAgeDays", label: "Deferred high-priority age (days)" },
-  { value: "RejectedSecurityRecommendation", label: "Rejected security recommendation" },
-  { value: "AcceptanceRateDrop", label: "Acceptance rate below %" },
-];
-
-const COMPOSITE_METRICS = [
-  { value: "CriticalRecommendationCount", label: "Critical/high recommendation count" },
-  { value: "NewComplianceGapCount", label: "New compliance gap count" },
-  { value: "CostIncreasePercent", label: "Cost increase %" },
-  { value: "DeferredHighPriorityRecommendationCount", label: "Deferred high-priority count" },
-  { value: "RejectedSecurityRecommendationCount", label: "Rejected security recommendations" },
-  { value: "AcceptanceRatePercent", label: "Acceptance rate %" },
-];
-
-const COND_OPS = [
-  { value: "GreaterThanOrEqual", label: "≥" },
-  { value: "GreaterThan", label: ">" },
-  { value: "LessThanOrEqual", label: "≤" },
-  { value: "LessThan", label: "<" },
-];
+import { AlertTuningFormComposite } from "@/components/alerts/AlertTuningForm-composite";
+import {
+  AlertTuningFormRecommendChecklist,
+  AlertTuningFormRecommendSubmit,
+} from "@/components/alerts/AlertTuningForm-recommend";
+import { AlertTuningFormSimple } from "@/components/alerts/AlertTuningForm-simple";
+import type { IntegrationConnectChecklistStep } from "@/components/integrations/IntegrationConnectChecklist";
 
 const SEVERITIES = ["Info", "Warning", "High", "Critical"];
 
@@ -140,11 +119,9 @@ export function AlertTuningForm(props: AlertTuningFormProps) {
 
   return (
     <>
-      <IntegrationConnectChecklist
-        title="Recommend checklist"
-        steps={recommendSteps}
-        emphasizedStepId={recommendEmphasizedStepId}
-        testIdPrefix="alert-tuning-recommend"
+      <AlertTuningFormRecommendChecklist
+        recommendSteps={recommendSteps}
+        recommendEmphasizedStepId={recommendEmphasizedStepId}
       />
       <div className="mb-6 mt-4 grid max-w-3xl gap-3">
         <div>
@@ -171,172 +148,32 @@ export function AlertTuningForm(props: AlertTuningFormProps) {
         </div>
 
         {ruleKind === "Simple" ? (
-          <div>
-            <Label htmlFor="alert-tuning-simple-rule-type">Rule type (simple)</Label>
-            <select
-              id="alert-tuning-simple-rule-type"
-              value={ruleType}
-              onChange={(e) => setRuleType(e.target.value)}
-              className={ALERT_TOOLING_FORM_SELECT_CLASS}
-            >
-              {SIMPLE_RULE_TYPES.map((r) => (
-                <option key={r.value} value={r.value}>
-                  {r.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          <AlertTuningFormSimple ruleType={ruleType} setRuleType={setRuleType} />
         ) : (
-          <>
-            <div>
-              <Label htmlFor="alert-tuning-composite-metric">Metric to tune (must match a condition below)</Label>
-              <select
-                id="alert-tuning-composite-metric"
-                value={tunedMetricComposite}
-                onChange={(e) => setTunedMetricComposite(e.target.value)}
-                className={ALERT_TOOLING_FORM_SELECT_CLASS}
-              >
-                {COMPOSITE_METRICS.map((m) => (
-                  <option key={m.value} value={m.value}>
-                    {m.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <Label htmlFor="alert-tuning-composite-join">Join</Label>
-              <select
-                id="alert-tuning-composite-join"
-                value={cJoin}
-                onChange={(e) => setCJoin(e.target.value)}
-                className={ALERT_TOOLING_FORM_SELECT_CLASS}
-              >
-                <option value="And">All (AND)</option>
-                <option value="Or">Any (OR)</option>
-              </select>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label htmlFor="alert-tuning-composite-suppression-window">Suppression window (min)</Label>
-                <Input
-                  id="alert-tuning-composite-suppression-window"
-                  type="number"
-                  value={cSuppression}
-                  onChange={(e) => setCSuppression(Number(e.target.value))}
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <Label htmlFor="alert-tuning-composite-cooldown">Cooldown (min)</Label>
-                <Input
-                  id="alert-tuning-composite-cooldown"
-                  type="number"
-                  value={cCooldown}
-                  onChange={(e) => setCCooldown(Number(e.target.value))}
-                  className="mt-1"
-                />
-              </div>
-            </div>
-            <div>
-              <Label htmlFor="alert-tuning-composite-dedupe-scope">Dedupe scope</Label>
-              <select
-                id="alert-tuning-composite-dedupe-scope"
-                value={cDedupe}
-                onChange={(e) => setCDedupe(e.target.value)}
-                className={ALERT_TOOLING_FORM_SELECT_CLASS}
-              >
-                <option value="RuleOnly">Rule only</option>
-                <option value="RuleAndRun">Rule + review</option>
-                <option value="RuleAndComparison">Rule + review + comparison</option>
-              </select>
-            </div>
-            <p className="m-0 font-semibold">Condition 1</p>
-            <div className="grid grid-cols-3 gap-2">
-              <div>
-                <Label htmlFor="alert-tuning-composite-c1-metric">Metric</Label>
-                <select
-                  id="alert-tuning-composite-c1-metric"
-                  value={cM1}
-                  onChange={(e) => setCM1(e.target.value)}
-                  className={ALERT_TOOLING_FORM_SELECT_CLASS}
-                >
-                  {COMPOSITE_METRICS.map((m) => (
-                    <option key={m.value} value={m.value}>
-                      {m.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <Label htmlFor="alert-tuning-composite-c1-operator">Operator</Label>
-                <select
-                  id="alert-tuning-composite-c1-operator"
-                  value={cO1}
-                  onChange={(e) => setCO1(e.target.value)}
-                  className={ALERT_TOOLING_FORM_SELECT_CLASS}
-                >
-                  {COND_OPS.map((o) => (
-                    <option key={o.value} value={o.value}>
-                      {o.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <Label htmlFor="alert-tuning-composite-c1-threshold">Threshold</Label>
-                <Input
-                  id="alert-tuning-composite-c1-threshold"
-                  type="number"
-                  value={cV1}
-                  onChange={(e) => setCV1(Number(e.target.value))}
-                  className="mt-1"
-                />
-              </div>
-            </div>
-            <p className="m-0 font-semibold">Condition 2</p>
-            <div className="grid grid-cols-3 gap-2">
-              <div>
-                <Label htmlFor="alert-tuning-composite-c2-metric">Metric</Label>
-                <select
-                  id="alert-tuning-composite-c2-metric"
-                  value={cM2}
-                  onChange={(e) => setCM2(e.target.value)}
-                  className={ALERT_TOOLING_FORM_SELECT_CLASS}
-                >
-                  {COMPOSITE_METRICS.map((m) => (
-                    <option key={m.value} value={m.value}>
-                      {m.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <Label htmlFor="alert-tuning-composite-c2-operator">Operator</Label>
-                <select
-                  id="alert-tuning-composite-c2-operator"
-                  value={cO2}
-                  onChange={(e) => setCO2(e.target.value)}
-                  className={ALERT_TOOLING_FORM_SELECT_CLASS}
-                >
-                  {COND_OPS.map((o) => (
-                    <option key={o.value} value={o.value}>
-                      {o.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <Label htmlFor="alert-tuning-composite-c2-threshold">Threshold</Label>
-                <Input
-                  id="alert-tuning-composite-c2-threshold"
-                  type="number"
-                  value={cV2}
-                  onChange={(e) => setCV2(Number(e.target.value))}
-                  className="mt-1"
-                />
-              </div>
-            </div>
-          </>
+          <AlertTuningFormComposite
+            tunedMetricComposite={tunedMetricComposite}
+            setTunedMetricComposite={setTunedMetricComposite}
+            cJoin={cJoin}
+            setCJoin={setCJoin}
+            cSuppression={cSuppression}
+            setCSuppression={setCSuppression}
+            cCooldown={cCooldown}
+            setCCooldown={setCCooldown}
+            cDedupe={cDedupe}
+            setCDedupe={setCDedupe}
+            cM1={cM1}
+            setCM1={setCM1}
+            cO1={cO1}
+            setCO1={setCO1}
+            cV1={cV1}
+            setCV1={setCV1}
+            cM2={cM2}
+            setCM2={setCM2}
+            cO2={cO2}
+            setCO2={setCO2}
+            cV2={cV2}
+            setCV2={setCV2}
+          />
         )}
 
         <div>
@@ -419,20 +256,7 @@ export function AlertTuningForm(props: AlertTuningFormProps) {
           </div>
         </div>
 
-        <div className="inline-flex items-center gap-1">
-          <Button
-            type="button"
-            variant="primary"
-            size="sm"
-            data-testid="alert-tuning-recommend-submit"
-            onClick={() => void onRecommend()}
-            disabled={loading}
-            className="max-w-[240px]"
-          >
-            {loading ? "Running…" : "Recommend threshold"}
-          </Button>
-          <FieldHelpTooltip label="Recommend threshold" hint={alertTuningRecommendButtonTitle} />
-        </div>
+        <AlertTuningFormRecommendSubmit loading={loading} onRecommend={onRecommend} />
       </div>
     </>
   );

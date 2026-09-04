@@ -14,6 +14,8 @@ export type TrackedInFlightOperation = {
   readonly startedAtMs: number;
   readonly stepLabel: string;
   readonly state: OperationState;
+  /** Last server liveness from GET /v1/operations/{id} (TB-2074). */
+  readonly heartbeatUtc: string | null;
   readonly runId: string | null;
   /** Architecture draft id for Suggest from overview rows (`new` until deferred create). */
   readonly architectureId: string | null;
@@ -100,6 +102,7 @@ export type TrackInFlightOperationInput = {
   readonly architectureId?: string | null;
   readonly retainUntilConsumed?: boolean;
   readonly startedAtMs?: number;
+  readonly heartbeatUtc?: string | null;
 };
 
 /** Registers or refreshes an in-flight operation (idempotent on operationId). */
@@ -119,6 +122,7 @@ export function trackInFlightOperation(input: TrackInFlightOperationInput): void
     startedAtMs: input.startedAtMs ?? Date.now(),
     stepLabel: input.stepLabel ?? "Queued",
     state: input.state ?? "Pending",
+    heartbeatUtc: input.heartbeatUtc ?? existing?.heartbeatUtc ?? null,
     runId: input.runId ?? null,
     architectureId: input.architectureId ?? existing?.architectureId ?? null,
     retainUntilConsumed: input.retainUntilConsumed ?? existing?.retainUntilConsumed ?? false,
@@ -146,6 +150,7 @@ export function trackInFlightOperation(input: TrackInFlightOperationInput): void
 export type PatchInFlightOperationInput = {
   readonly stepLabel?: string;
   readonly state?: OperationState;
+  readonly heartbeatUtc?: string | null;
   readonly runId?: string | null;
   readonly href?: string;
   readonly architectureId?: string | null;
@@ -170,6 +175,7 @@ export function patchInFlightOperation(
       ...previous,
       stepLabel: patch.stepLabel ?? previous.stepLabel,
       state: patch.state ?? previous.state,
+      heartbeatUtc: patch.heartbeatUtc !== undefined ? patch.heartbeatUtc : previous.heartbeatUtc,
       runId: patch.runId !== undefined ? patch.runId : previous.runId,
       href: patch.href ?? previous.href,
       architectureId:

@@ -35,6 +35,10 @@ import {
   parseSettingsRolesMemberRoleFromSearch,
   parseSettingsRolesMemberStatusFromSearch,
 } from "@/lib/administration/settings-roles-member-filters-url";
+import {
+  parseSettingsUsersInviteOpenFromSearch,
+  settingsUsersInviteHrefFromSearch,
+} from "@/lib/administration/settings-users-invite-url";
 
 import type { AdminUserInvitationRow } from "@/lib/admin-user-invitations";
 
@@ -85,13 +89,29 @@ export function SettingsRolesPageView(props: Props) {
   const urlTab = settingsUsersTabFromLocation(pathname, searchParams.get("tab"), canManageApiKeys);
   const activeMemberRole = parseSettingsRolesMemberRoleFromSearch(searchParams.get("role"));
   const activeMemberStatus = parseSettingsRolesMemberStatusFromSearch(searchParams.get("status"));
+  const urlInviteOpen = parseSettingsUsersInviteOpenFromSearch(searchParams.get("invite"));
   const currentSearch = searchParams.toString();
   const [activeTab, setActiveTab] = useState<SettingsUsersTabId>(urlTab);
   const [invitationsRefreshKey, setInvitationsRefreshKey] = useState(0);
   const [seededInvitations, setSeededInvitations] = useState<AdminUserInvitationRow[]>([]);
   const [pendingInvitationCount, setPendingInvitationCount] = useState<number | null>(null);
   const [pendingInvitationsResolved, setPendingInvitationsResolved] = useState(false);
-  const [inviteSectionOpen, setInviteSectionOpen] = useState(false);
+  const [inviteSectionOpen, setInviteSectionOpenState] = useState(urlInviteOpen);
+
+  const syncInviteSectionToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(settingsUsersInviteHrefFromSearch(currentSearch, open, hubPathname), { scroll: false });
+    },
+    [currentSearch, hubPathname, router],
+  );
+
+  const setInviteSectionOpen = useCallback(
+    (open: boolean) => {
+      setInviteSectionOpenState(open);
+      syncInviteSectionToUrl(open);
+    },
+    [syncInviteSectionToUrl],
+  );
   const roleAssignmentCounts = useMemo(() => assignmentCountsByRoleName(m.sortedRows), [m.sortedRows]);
   const assignmentCountsReliable =
     !m.loading
@@ -139,6 +159,10 @@ export function SettingsRolesPageView(props: Props) {
   useEffect(() => {
     setActiveTab(urlTab);
   }, [urlTab]);
+
+  useEffect(() => {
+    setInviteSectionOpenState(parseSettingsUsersInviteOpenFromSearch(searchParams.get("invite")));
+  }, [searchParams]);
 
   useEffect(() => {
     const onPop = () => {

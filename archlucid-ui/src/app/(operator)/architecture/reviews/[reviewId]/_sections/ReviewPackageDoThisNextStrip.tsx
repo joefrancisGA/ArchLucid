@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { CommitRunButton } from "@/components/CommitRunButton";
-import { FinalizeSkippedMustStrip } from "@/components/reviews/FinalizeSkippedMustStrip";
 import { ReRunReviewButton } from "@/components/runs/ReRunReviewButton";
 import {
   OperatorErrorCallout,
@@ -281,9 +280,6 @@ export function ReviewPackageDoThisNextStrip(
         </div>
 
         <div className="flex shrink-0 flex-col items-stretch gap-2 sm:items-end" data-testid="review-package-do-this-next-action" data-review-package-do-this-next-kind={next.kind}>
-          {next.kind === "finalize-package" && !hasGoldenManifest ? (
-            <FinalizeSkippedMustStrip transparencyTrail={transparencyTrail} />
-          ) : null}
           {next.kind === "finalize-package" ? (
             <CommitRunButton
               runId={runId}

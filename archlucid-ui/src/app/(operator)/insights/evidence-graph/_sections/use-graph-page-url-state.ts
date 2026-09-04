@@ -12,6 +12,7 @@ import {
 import { parseGraphScopeModeFromSearch } from "@/lib/insights/graph-scope-mode-url";
 import { parseGraphNodeTypeFromSearch } from "@/lib/insights/graph-node-type-url";
 import { parseGraphNeighborhoodDepthFromSearch } from "@/lib/insights/graph-neighborhood-depth-url";
+import { parseGraphLoadRequestedFromSearch } from "@/lib/insights/graph-load-requested-url";
 import { parseGraphDecisionIdFromSearch,
   parseGraphNodeIdFromSearch,
 } from "@/lib/insights/graph-node-decision-id-url";
@@ -40,6 +41,13 @@ export function useGraphPageUrlState(options: {
   const urlDepth = searchParams.get("depth");
   const urlNodeId = searchParams.get("nodeId");
   const urlDecisionId = searchParams.get("decisionId");
+  const urlLoadRequested = searchParams.get("load");
+
+  useEffect(() => {
+    if (parseGraphLoadRequestedFromSearch(urlLoadRequested)) {
+      setGraphLoadRequested(true);
+    }
+  }, [setGraphLoadRequested, urlLoadRequested]);
 
   useEffect(() => {
     if (urlRunId.length === 0) return;

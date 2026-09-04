@@ -17,9 +17,7 @@ class TestTraceabilityBatch5CE(unittest.TestCase):
         )
         provenance_populator = manifest_builders_dir / "ProvenanceManifestSectionPopulator.cs"
         requirements_populator = manifest_builders_dir / "RequirementsManifestSectionPopulator.cs"
-        analyzer = (
-            REPO_ROOT / "ArchLucid.Decisioning" / "Findings" / "ExplainabilityTraceCompletenessAnalyzer.cs"
-        )
+        analyzer_dir = REPO_ROOT / "ArchLucid.Decisioning" / "Findings"
         instrumentation_root = REPO_ROOT / "ArchLucid.Core" / "Diagnostics" / "ArchLucidInstrumentation.cs"
         instrumentation_runs = (
             REPO_ROOT / "ArchLucid.Core" / "Diagnostics" / "ArchLucidInstrumentation.Runs.cs"
@@ -47,7 +45,10 @@ class TestTraceabilityBatch5CE(unittest.TestCase):
         )
         self.assertIn("EvaluationConfidenceEnrichmentSkipped = true", null_enricher.read_text(encoding="utf-8"))
 
-        analyzer_text = analyzer.read_text(encoding="utf-8")
+        analyzer_text = "".join(
+            path.read_text(encoding="utf-8")
+            for path in sorted(analyzer_dir.glob("ExplainabilityTraceCompletenessAnalyzer*.cs"))
+        )
         self.assertIn("ListHasMeaningfulAlternativePaths", analyzer_text)
         self.assertIn("RuleBasedDeterministicSinglePathNote", analyzer_text)
 

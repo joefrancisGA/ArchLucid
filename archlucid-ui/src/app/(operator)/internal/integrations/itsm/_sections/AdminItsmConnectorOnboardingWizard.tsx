@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,6 +37,10 @@ import {
   resolveItsmOnboardingWizardInitialStep,
   type ItsmOnboardingWizardStep,
 } from "@/lib/itsm/itsm-native-create-readiness";
+import {
+  itsmOnboardingWizardStepHrefFromSearch,
+  parseItsmOnboardingWizardStepFromSearch,
+} from "@/lib/itsm/itsm-onboarding-wizard-step-url";
 
 type Props = {
   readonly initialSettings: TenantItsmOutboundSettingsResponse | null;
@@ -53,9 +58,38 @@ const STEPS: readonly { id: ItsmOnboardingWizardStep; label: string }[] = [
 ];
 
 export function AdminItsmConnectorOnboardingWizard(props: Props): React.ReactElement {
-  const [step, setStep] = useState<ItsmOnboardingWizardStep>(() =>
-    resolveItsmOnboardingWizardInitialStep(props.initialHealth, props.initialSettings),
+  const router = useRouter();
+  const pathname = usePathname() ?? "/internal/integrations/itsm";
+  const searchParams = useSearchParams();
+  const urlStep = parseItsmOnboardingWizardStepFromSearch(searchParams.get("itsmStep"));
+  const [step, setStepState] = useState<ItsmOnboardingWizardStep>(() =>
+    urlStep ?? resolveItsmOnboardingWizardInitialStep(props.initialHealth, props.initialSettings),
   );
+
+  const syncStepToUrl = useCallback(
+    (nextStep: ItsmOnboardingWizardStep) => {
+      router.replace(itsmOnboardingWizardStepHrefFromSearch(searchParams.toString(), nextStep, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setStep = useCallback(
+    (nextStep: ItsmOnboardingWizardStep) => {
+      setStepState(nextStep);
+      syncStepToUrl(nextStep);
+    },
+    [syncStepToUrl],
+  );
+
+  useEffect(() => {
+    const fromUrl = parseItsmOnboardingWizardStepFromSearch(searchParams.get("itsmStep"));
+
+    if (fromUrl !== null) {
+      setStepState(fromUrl);
+    }
+  }, [searchParams]);
   const [settings, setSettings] = useState<TenantItsmOutboundSettingsResponse | null>(props.initialSettings);
   const [health, setHealth] = useState<ItsmIntegrationHealthResponse | null>(props.initialHealth);
   const [jiraProjectKey, setJiraProjectKey] = useState(props.initialSettings?.jiraProjectKeyOverride ?? "");

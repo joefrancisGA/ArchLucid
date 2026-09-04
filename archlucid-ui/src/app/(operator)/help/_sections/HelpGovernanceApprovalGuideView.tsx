@@ -1,16 +1,28 @@
 import Link from "next/link";
 
-import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
-import { GovernanceApprovalHelpClaimDisciplineStrip } from "@/components/help/GovernanceApprovalHelpClaimDisciplineStrip";
-import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
-import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { HelpGovernanceApprovalHeaderActions } from "@/app/(operator)/help/_sections/HelpGovernanceApprovalHeaderActions";
 import { HelpGovernanceApprovalRoleGuide } from "@/app/(operator)/help/_sections/HelpGovernanceApprovalRoleGuide";
+import { HelpGovernanceApprovalSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpGovernanceApprovalSourcesOrientationStrip";
 import { HelpGovernanceApprovalTechnicalReference } from "@/app/(operator)/help/_sections/HelpGovernanceApprovalTechnicalReference";
+import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
+import { GovernanceApprovalHelpClaimDisciplineStrip } from "@/components/help/GovernanceApprovalHelpClaimDisciplineStrip";
+import { GovernanceApprovalHelpEvidenceOrientationStrip } from "@/components/help/GovernanceApprovalHelpEvidenceOrientationStrip";
+import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
 import { StatusTag } from "@/components/StatusTag";
 import { Button } from "@/components/ui/button";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  DESIGN_TOKENS,
+  OPERATOR_BODY_INLINE_LINK_CLASS,
+  OPERATOR_LAYOUT,
+  OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import {
   GOVERNANCE_APPROVAL_HELP_ACTION_CARD_TITLE,
   GOVERNANCE_APPROVAL_HELP_COMMON_ACTIONS,
@@ -29,18 +41,21 @@ import {
   GOVERNANCE_APPROVAL_HELP_TROUBLESHOOTING,
   GOVERNANCE_APPROVAL_HELP_WORKFLOW_STEPS,
 } from "@/lib/governance/governance-approval-help-guide-content";
-import { GovernanceApprovalHelpEvidenceOrientationStrip } from "@/components/help/GovernanceApprovalHelpEvidenceOrientationStrip";
-import { cn } from "@/lib/utils";
-import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import {
-  DESIGN_TOKENS,
-  OPERATOR_BODY_INLINE_LINK_CLASS,
-  OPERATOR_LAYOUT,
-  OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
-  OPERATOR_TYPOGRAPHY,
-} from "@/lib/design-tokens";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+  GOVERNANCE_APPROVAL_HELP_CANONICAL_PATH,
+  GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE,
+  GOVERNANCE_APPROVAL_HELP_CLAIM_HEADING_ID,
+} from "@/lib/governance/governance-approval-help-evidence-copy";
+import {
+  GOVERNANCE_APPROVAL_HELP_FIRST_VIEWPORT_TEST_ID,
+  GOVERNANCE_APPROVAL_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  GOVERNANCE_APPROVAL_HELP_PRIMARY_CONTENT_ID,
+  GOVERNANCE_APPROVAL_HELP_SKIP_LINK_LABEL,
+  GOVERNANCE_APPROVAL_HELP_SKIP_TARGET_ID,
+} from "@/lib/governance/governance-approval-help-page-copy";
+import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { cn } from "@/lib/utils";
 
 type HelpGovernanceApprovalGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -189,182 +204,239 @@ function TroubleshootingList(): React.ReactElement {
   );
 }
 
+function GovernanceApprovalActionPanel(): React.ReactElement {
+  return (
+    <section
+      className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+      data-testid="help-governance-approval-action-panel"
+      aria-labelledby="help-governance-approval-action-panel-heading"
+    >
+      <h2
+        id="help-governance-approval-action-panel-heading"
+        className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+      >
+        {GOVERNANCE_APPROVAL_HELP_ACTION_CARD_TITLE}
+      </h2>
+      <div className="flex flex-wrap items-center gap-2">
+        <Button asChild size="sm" variant="primary">
+          <Link href={GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openWorkflow.href}>
+            {GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openWorkflow.label}
+          </Link>
+        </Button>
+        <Button asChild size="sm" variant="outline">
+          <Link href={GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openDashboard.href}>
+            {GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openDashboard.label}
+          </Link>
+        </Button>
+        <Link
+          href={GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openFindings.href}
+          className={OPERATOR_BODY_INLINE_LINK_CLASS}
+        >
+          {GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openFindings.label}
+        </Link>
+      </div>
+    </section>
+  );
+}
+
 /** Buyer-safe governance approval orientation for `/help/governance-approval`. */
 export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGuideViewProps): React.ReactElement {
   void props.entry;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "help-governance-approval",
+    GOVERNANCE_APPROVAL_HELP_GUIDE_HEADINGS,
+    GOVERNANCE_APPROVAL_HELP_CLAIM_HEADING_ID,
+  );
+  const tocHeadings = buyerPolishedShell
+    ? guideHeadings.filter((heading) => heading.id !== "where-to-go-next" && heading.id !== "technical-reference")
+    : guideHeadings;
+  const contentGridClass = resolveHelpPageContentGridClass(tocHeadings.length);
 
   return (
     <article
       className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-governance-approval-guide"
     >
+      {buyerPolishedShell ? (
+        <a href={`#${GOVERNANCE_APPROVAL_HELP_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+          {GOVERNANCE_APPROVAL_HELP_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
       <HelpTopicHashScroll />
-      <header className={HELP_PAGE_LAYOUT.articleHeader}>
-        <HelpTopicTitleRow title={GOVERNANCE_APPROVAL_HELP_PAGE_TITLE} actions={<PageContextualHelpButton />} />
-        <p className={cn("m-0 max-w-[42rem]", OPERATOR_TYPOGRAPHY.helper)}>{GOVERNANCE_APPROVAL_HELP_PAGE_SUBTITLE}</p>
-      </header>
 
-      <GovernanceApprovalHelpClaimDisciplineStrip />
+      <div
+        id={GOVERNANCE_APPROVAL_HELP_PRIMARY_CONTENT_ID}
+        data-testid={GOVERNANCE_APPROVAL_HELP_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24 space-y-6", OPERATOR_LAYOUT.sectionStack)}
+      >
+        <HelpTopicGuidePageHeader
+          title={GOVERNANCE_APPROVAL_HELP_PAGE_TITLE}
+          titleTestId="help-governance-approval-page-title"
+          subtitle={GOVERNANCE_APPROVAL_HELP_PAGE_SUBTITLE}
+          navHref={GOVERNANCE_APPROVAL_HELP_CANONICAL_PATH}
+          headingLevel="h1"
+          claimDiscipline={buyerPolishedShell ? GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE : undefined}
+          claimDisciplineTestId={
+            buyerPolishedShell ? GOVERNANCE_APPROVAL_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID : undefined
+          }
+          actions={<HelpGovernanceApprovalHeaderActions />}
+        />
 
-      <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <section
-          className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
-          data-testid="help-governance-approval-action-panel"
-          aria-labelledby="help-governance-approval-action-panel-heading"
-        >
-          <h2
-            id="help-governance-approval-action-panel-heading"
-            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+        {!buyerPolishedShell ? <GovernanceApprovalHelpClaimDisciplineStrip /> : null}
+
+        {buyerPolishedShell ? (
+          <div
+            id={GOVERNANCE_APPROVAL_HELP_SKIP_TARGET_ID}
+            data-testid={GOVERNANCE_APPROVAL_HELP_FIRST_VIEWPORT_TEST_ID}
+            className={cn(
+              "scroll-mt-24 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+              OPERATOR_LAYOUT.sectionStack,
+            )}
           >
-            {GOVERNANCE_APPROVAL_HELP_ACTION_CARD_TITLE}
-          </h2>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button asChild size="sm" variant="primary">
-              <Link href={GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openWorkflow.href}>
-                {GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openWorkflow.label}
-              </Link>
-            </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link href={GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openDashboard.href}>
-                {GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openDashboard.label}
-              </Link>
-            </Button>
-            <Link
-              href={GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openFindings.href}
-              className={OPERATOR_BODY_INLINE_LINK_CLASS}
-            >
-              {GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openFindings.label}
-            </Link>
+            <GovernanceApprovalActionPanel />
           </div>
-        </section>
-      </div>
+        ) : (
+          <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
+            <GovernanceApprovalActionPanel />
+          </div>
+        )}
 
-      <div className={HELP_PAGE_LAYOUT.contentGrid}>
-        <div
-          className={cn("min-w-0 space-y-8", "max-w-[42rem] lg:max-w-none")}
-          data-testid="help-governance-approval-primary"
-        >
-          <GovernanceApprovalHelpEvidenceOrientationStrip />
-
-          <section aria-labelledby="overview" className="space-y-3">
-            <HelpSectionHeading id="overview">Overview</HelpSectionHeading>
-            <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)} data-testid="help-governance-approval-overview">
-              {GOVERNANCE_APPROVAL_HELP_OVERVIEW}
-            </p>
-            <RoleEntryCards />
-          </section>
-
-          <section
-            aria-labelledby="governance-workflow"
-            className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+        <div className={contentGridClass}>
+          <div
+            className={cn("min-w-0 space-y-8", "max-w-[42rem] lg:max-w-none")}
+            data-testid="help-governance-approval-primary"
           >
-            <HelpSectionHeading id="governance-workflow">Governance approval workflow</HelpSectionHeading>
-            <GovernanceWorkflowStepper />
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{GOVERNANCE_APPROVAL_HELP_DIAGRAM_SUMMARY}</p>
-            <div
-              className={cn(
-                "space-y-3 rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800",
-                OPERATOR_TYPOGRAPHY.body,
-              )}
-              data-testid="help-governance-approval-state-diagram"
+            {!buyerPolishedShell ? <GovernanceApprovalHelpEvidenceOrientationStrip /> : null}
+
+            <section aria-labelledby="overview" className="space-y-3">
+              <HelpSectionHeading id="overview">Overview</HelpSectionHeading>
+              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)} data-testid="help-governance-approval-overview">
+                {GOVERNANCE_APPROVAL_HELP_OVERVIEW}
+              </p>
+              <RoleEntryCards />
+            </section>
+
+            <section
+              aria-labelledby="governance-workflow"
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
             >
-              <MermaidDiagram
-                source={GOVERNANCE_APPROVAL_HELP_DIAGRAM_SOURCE}
-                accessibleName="Governance approval state diagram"
-              />
-            </div>
-          </section>
+              <HelpSectionHeading id="governance-workflow">Governance approval workflow</HelpSectionHeading>
+              <GovernanceWorkflowStepper />
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{GOVERNANCE_APPROVAL_HELP_DIAGRAM_SUMMARY}</p>
+              <div
+                className={cn(
+                  "space-y-3 rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800",
+                  OPERATOR_TYPOGRAPHY.body,
+                )}
+                data-testid="help-governance-approval-state-diagram"
+              >
+                <MermaidDiagram
+                  source={GOVERNANCE_APPROVAL_HELP_DIAGRAM_SOURCE}
+                  accessibleName="Governance approval state diagram"
+                />
+              </div>
+            </section>
 
-          <section
-            aria-labelledby="role-guides"
-            className="space-y-4 border-t border-neutral-200 pt-6 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="role-guides">Role guides</HelpSectionHeading>
-            <HelpGovernanceApprovalRoleGuide />
-          </section>
+            <section
+              aria-labelledby="role-guides"
+              className="space-y-4 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="role-guides">Role guides</HelpSectionHeading>
+              <HelpGovernanceApprovalRoleGuide />
+            </section>
 
-          <section
-            aria-labelledby="statuses"
-            className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="statuses">Statuses</HelpSectionHeading>
-            <StatusTable />
-          </section>
+            <section
+              aria-labelledby="statuses"
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="statuses">Statuses</HelpSectionHeading>
+              <StatusTable />
+            </section>
 
-          <section
-            aria-labelledby="prerequisites"
-            className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="prerequisites">Prerequisites</HelpSectionHeading>
-            <ul className={HELP_PAGE_LAYOUT.bulletList} data-testid="help-governance-approval-prerequisites">
-              {GOVERNANCE_APPROVAL_HELP_PREREQUISITES.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </section>
+            <section
+              aria-labelledby="prerequisites"
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="prerequisites">Prerequisites</HelpSectionHeading>
+              <ul className={HELP_PAGE_LAYOUT.bulletList} data-testid="help-governance-approval-prerequisites">
+                {GOVERNANCE_APPROVAL_HELP_PREREQUISITES.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </section>
 
-          <section
-            aria-labelledby="decision-outcomes"
-            className="space-y-4 border-t border-neutral-200 pt-6 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="decision-outcomes">Decision outcomes</HelpSectionHeading>
-            <div className="grid gap-3 lg:grid-cols-3" data-testid="help-governance-approval-decision-outcomes">
-              {GOVERNANCE_APPROVAL_HELP_DECISION_OUTCOMES.map((outcome) => (
-                <div
-                  key={outcome.outcome}
-                  className="rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
-                >
-                  <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{outcome.outcome}</h3>
-                  <ul className="m-0 mt-2 list-disc space-y-1.5 pl-5">
-                    {outcome.bullets.map((bullet) => (
-                      <li key={bullet} className={OPERATOR_TYPOGRAPHY.body}>
-                        {bullet}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section
-            aria-labelledby="common-actions"
-            className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="common-actions">Common actions</HelpSectionHeading>
-            <div className="grid gap-3 sm:grid-cols-2" data-testid="help-governance-approval-common-actions">
-              {GOVERNANCE_APPROVAL_HELP_COMMON_ACTIONS.map((action) => (
-                <div
-                  key={action.href}
-                  className="rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
-                >
-                  <Link
-                    href={action.href}
-                    className={OPERATOR_BODY_INLINE_LINK_CLASS}
+            <section
+              aria-labelledby="decision-outcomes"
+              className="space-y-4 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="decision-outcomes">Decision outcomes</HelpSectionHeading>
+              <div className="grid gap-3 lg:grid-cols-3" data-testid="help-governance-approval-decision-outcomes">
+                {GOVERNANCE_APPROVAL_HELP_DECISION_OUTCOMES.map((outcome) => (
+                  <div
+                    key={outcome.outcome}
+                    className="rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
                   >
-                    {action.label}
-                  </Link>
-                  <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>{action.description}</p>
-                </div>
-              ))}
-            </div>
-          </section>
+                    <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{outcome.outcome}</h3>
+                    <ul className="m-0 mt-2 list-disc space-y-1.5 pl-5">
+                      {outcome.bullets.map((bullet) => (
+                        <li key={bullet} className={OPERATOR_TYPOGRAPHY.body}>
+                          {bullet}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </section>
 
-          <section
-            aria-labelledby="troubleshooting"
-            className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="troubleshooting">Troubleshooting</HelpSectionHeading>
-            <TroubleshootingList />
-          </section>
+            <section
+              aria-labelledby="common-actions"
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="common-actions">Common actions</HelpSectionHeading>
+              <div className="grid gap-3 sm:grid-cols-2" data-testid="help-governance-approval-common-actions">
+                {GOVERNANCE_APPROVAL_HELP_COMMON_ACTIONS.map((action) => (
+                  <div
+                    key={action.href}
+                    className="rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
+                  >
+                    <Link
+                      href={action.href}
+                      className={OPERATOR_BODY_INLINE_LINK_CLASS}
+                    >
+                      {action.label}
+                    </Link>
+                    <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>{action.description}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section
+              aria-labelledby="troubleshooting"
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="troubleshooting">Troubleshooting</HelpSectionHeading>
+              <TroubleshootingList />
+            </section>
+          </div>
+
+          <HelpTopicTableOfContents headings={tocHeadings} enableScrollSpy />
         </div>
 
-        <HelpTopicTableOfContents headings={GOVERNANCE_APPROVAL_HELP_GUIDE_HEADINGS} enableScrollSpy />
-      </div>
+        {!buyerPolishedShell ? (
+          <section className="border-t border-neutral-200 pt-6 dark:border-neutral-800">
+            <HelpGovernanceApprovalTechnicalReference />
+          </section>
+        ) : null}
 
-      <section className="border-t border-neutral-200 pt-6 dark:border-neutral-800">
-        <HelpGovernanceApprovalTechnicalReference />
-      </section>
+        {buyerPolishedShell ? (
+          <div data-testid="help-governance-approval-orientation-bottom">
+            <HelpGovernanceApprovalSourcesOrientationStrip />
+          </div>
+        ) : null}
+      </div>
     </article>
   );
 }

@@ -39,6 +39,7 @@ import {
 } from "./RunDetailWorkspaceShell";
 import type { RunDetailPresentation } from "./run-detail-page-presentation";
 import type { RunDetailPageModel } from "./run-detail-page-model";
+import { analysisStagesCompleteOnSummary } from "./pipeline-complete-on-summary";
 
 export type RunDetailPageViewChrome = {
   readonly sampleReviewPackageSummaryEl: React.JSX.Element | null;
@@ -312,6 +313,8 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
                         m.manifestSummary?.feasibilityVerdict?.transparencyTrail ??
                         null
                       }
+                      graphSnapshot={m.resolvedDetail.run.graphSnapshot}
+                      analysisStagesComplete={analysisStagesCompleteOnSummary(m.progressForPipelineUi)}
                       {...chrome.reviewPackageDoThisNextEvidenceProps}
                     />
 

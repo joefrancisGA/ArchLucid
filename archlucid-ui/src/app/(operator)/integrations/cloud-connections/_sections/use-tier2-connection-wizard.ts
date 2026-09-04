@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState, type SetStateAction } from "react";
 
 import {
   configureTier2Connection,
@@ -29,6 +30,10 @@ import { showError, showSuccess } from "@/lib/toast";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
+import {
+  parseTier2ConnectionWizardStepFromSearch,
+  tier2ConnectionWizardStepHrefFromSearch,
+} from "@/lib/integrations/tier2-connection-wizard-step-url";
 
 import {
   hasTier2FieldValidationErrors,
@@ -86,13 +91,23 @@ export function useTier2ConnectionWizard({
   skipSecurityStep = false,
   initialConnection = null,
 }: Pick<Tier2ConnectionWizardProps, "onSaved" | "skipSecurityStep" | "initialConnection">) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/integrations/cloud-connections/azure";
+  const searchParams = useSearchParams();
+  const urlStepIndex = parseTier2ConnectionWizardStepFromSearch(searchParams.get("step"));
   const wizardSteps = skipSecurityStep ? TIER2_CONNECTION_DETAIL_WIZARD_STEPS : TIER2_CONNECTION_WIZARD_STEPS;
   const securityStepOffset = skipSecurityStep ? 1 : 0;
   const canMutate = useOperateCapability();
   const canRunValidation = useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority;
   const { data: trialPayload } = useTenantTrialStatusQuery();
   const isEditing = initialConnection !== null;
-  const [step, setStep] = useState(() => (isEditing && skipSecurityStep ? 1 : 0));
+  const [step, setStepState] = useState(() => {
+    if (urlStepIndex !== null) {
+      return Math.min(urlStepIndex, wizardSteps.length - 1);
+    }
+
+    return isEditing && skipSecurityStep ? 1 : 0;
+  });
   const [tenantId, setTenantId] = useState("");
   const [clientId, setClientId] = useState("");
   const [subscriptionIds, setSubscriptionIds] = useState("");
@@ -106,6 +121,38 @@ export function useTier2ConnectionWizard({
   const [workspaceBindingLabel, setWorkspaceBindingLabel] = useState(() => readWorkspaceBindingLabel());
   const [verifiedTopics, setVerifiedTopics] = useState<CloudSecurityPreflightVerificationState>({});
   const federationConfig = useMemo(() => readAzureHostedFederationConfig(), []);
+
+  const syncStepToUrl = useCallback(
+    (nextStep: number) => {
+      router.replace(tier2ConnectionWizardStepHrefFromSearch(searchParams.toString(), nextStep, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setStep = useCallback(
+    (value: SetStateAction<number>) => {
+      setStepState((current) => {
+        const resolved = typeof value === "function" ? value(current) : value;
+        syncStepToUrl(resolved);
+
+        return resolved;
+      });
+    },
+    [syncStepToUrl],
+  );
+
+  useEffect(() => {
+    const nextStep = parseTier2ConnectionWizardStepFromSearch(searchParams.get("step"));
+
+    if (nextStep === null) {
+      return;
+    }
+
+    setStepState(Math.min(nextStep, wizardSteps.length - 1));
+  }, [searchParams, wizardSteps.length]);
+
   const federationConfigComplete = useMemo(
     () => isAzureHostedFederationConfigComplete(federationConfig),
     [federationConfig],

@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,10 @@ import {
   type OperatorSavedView,
 } from "@/lib/api/operator-saved-views";
 import type { OperatorSavedViewPayload, OperatorSavedViewSurface } from "@/lib/operator/operator-saved-view-types";
+import {
+  operatorSavedViewHrefFromSearch,
+  parseOperatorSavedViewIdFromSearch,
+} from "@/lib/operator/operator-saved-view-url";
 
 type UseOperatorSavedViewsOptions = {
   surface: OperatorSavedViewSurface;
@@ -23,12 +28,39 @@ type UseOperatorSavedViewsOptions = {
 /** Loads, creates, and deletes tenant/user-scoped operator saved views for one surface. */
 export function useOperatorSavedViews(options: UseOperatorSavedViewsOptions) {
   const { surface, enabled = true } = options;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
   const [views, setViews] = useState<OperatorSavedView[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
-  const [selectedViewId, setSelectedViewId] = useState("");
+  const [selectedViewId, setSelectedViewIdState] = useState(
+    () => parseOperatorSavedViewIdFromSearch(searchParams.get("viewId")),
+  );
+
+  const syncSelectedViewToUrl = useCallback(
+    (viewId: string) => {
+      router.replace(
+        operatorSavedViewHrefFromSearch(searchParams.toString(), viewId.length > 0 ? viewId : null, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSelectedViewId = useCallback(
+    (viewId: string) => {
+      setSelectedViewIdState(viewId);
+      syncSelectedViewToUrl(viewId);
+    },
+    [syncSelectedViewToUrl],
+  );
+
+  useEffect(() => {
+    setSelectedViewIdState(parseOperatorSavedViewIdFromSearch(searchParams.get("viewId")));
+  }, [searchParams]);
 
   const refresh = useCallback(async () => {
     if (!enabled) {

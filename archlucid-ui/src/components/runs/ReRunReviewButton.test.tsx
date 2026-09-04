@@ -42,6 +42,35 @@ describe("ReRunReviewButton", () => {
       expect(screen.getByTestId("re-run-review-outcome")).toHaveTextContent(
         "Re-run started — attempt 3 · Queued",
       );
+      expect(screen.getByTestId("re-run-review-outcome-detail")).toHaveTextContent(
+        "Re-running architecture review started",
+      );
+    });
+  });
+
+  it("updates the running detail when the shell operation advances", async () => {
+    render(<ReRunReviewButton runId="run-abc" />);
+
+    fireEvent.click(screen.getByTestId("re-run-review-button"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("re-run-review-outcome")).toBeInTheDocument();
+    });
+
+    trackInFlightOperation({
+      operationId: "run:run-abc",
+      title: "Architecture review analysis",
+      href: "/architecture/reviews/run-abc",
+      runId: "run-abc",
+      stepLabel: "Compliance agent running",
+      state: "Running",
+      heartbeatUtc: new Date().toISOString(),
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("re-run-review-outcome")).toHaveTextContent(
+        "Re-run started — attempt 1 · Compliance agent running",
+      );
     });
   });
 

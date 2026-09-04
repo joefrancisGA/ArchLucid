@@ -273,7 +273,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
   const toolbarEl = (
     <div className="space-y-3" data-testid="run-detail-findings-toolbar-hero">
       {architectWorkspaceChrome && showActorEnginesQuietHint ? (
-        <ActorDependentFindingsQuietEnginesHint show={true} />
+        <ActorDependentFindingsQuietEnginesHint show={true} runId={props.runId} />
       ) : null}
       <RunDetailFindingsToolbar
       findings={confidenceGatedForCounts}

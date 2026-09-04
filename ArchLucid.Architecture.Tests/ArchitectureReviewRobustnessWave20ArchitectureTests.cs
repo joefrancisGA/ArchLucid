@@ -78,7 +78,17 @@ public sealed class ArchitectureReviewRobustnessWave20ArchitectureTests
             Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "ArchitectureReviewExportService.Hydrate.cs"));
 
         service.Should().Contain("EnsureSealedDecisionReceiptVerifiedOrThrowAsync");
-        service.Should().Contain("BuildVerifiedExportReceipt");
+        service.Should().Contain("EnsureSealedExportReceiptVerifiedOrThrowAsync");
+
+        string binder = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Runs",
+                "Finalization",
+                "ManifestDecisionReceiptExportBinder.cs"));
+
+        binder.Should().Contain("BuildVerifiedExportReceipt");
     }
 
     [Fact]

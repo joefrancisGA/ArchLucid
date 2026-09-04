@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
 import {
-  ARCHITECTURE_DRAFT_HANDOFF_ACKNOWLEDGE_LABEL,
   ARCHITECTURE_DRAFT_HANDOFF_BANNER_LEAD,
   ARCHITECTURE_DRAFT_HANDOFF_CANONICAL_REVIEW_LABEL,
   buildArchitectureDraftHandoffBannerTitle,
@@ -16,8 +15,6 @@ import { cn } from "@/lib/utils";
 type ArchitectureDraftHandoffBannerProps = {
   readonly linkedReviewId: string;
   readonly linkedReviewTitle: string;
-  readonly editorLocked: boolean;
-  readonly onAcknowledgeEditAnyway: () => void;
 };
 
 export function ArchitectureDraftHandoffBanner(
@@ -36,17 +33,6 @@ export function ArchitectureDraftHandoffBanner(
         <Button type="button" variant="primary" size="sm" asChild data-testid="architecture-draft-continue-review">
           <Link href={reviewDetailPath(props.linkedReviewId)}>Continue in review</Link>
         </Button>
-        {props.editorLocked ? (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={props.onAcknowledgeEditAnyway}
-            data-testid="architecture-draft-acknowledge-edit"
-          >
-            {ARCHITECTURE_DRAFT_HANDOFF_ACKNOWLEDGE_LABEL}
-          </Button>
-        ) : null}
       </div>
     </div>
   );

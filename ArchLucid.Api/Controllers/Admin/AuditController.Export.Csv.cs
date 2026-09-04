@@ -65,6 +65,12 @@ public sealed partial class AuditController
             Take = exportMaxRows
         };
 
+        IActionResult? rowCapProblem =
+            await EnsureAuditExportWithinRowCapOrConflictAsync(scope, filter, exportMaxRows, ct);
+
+        if (rowCapProblem is not null)
+            return rowCapProblem;
+
         DateTime nameFrom = effectiveFrom ?? TimeProvider.System.GetUtcNow().UtcDateTime;
         DateTime nameTo = effectiveTo ?? nameFrom;
         string attachmentName = exportFormatter.BuildAuditExportCsvFileName(nameFrom, nameTo);

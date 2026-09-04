@@ -14,9 +14,6 @@ import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
 import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
 import { useInAppNavigationGuard } from "@/hooks/use-in-app-navigation-guard";
 import { InAppNavigationGuardDialog } from "@/components/navigation/InAppNavigationGuardDialog";
-import {
-  acknowledgeArchitectureDraftHandoff,
-} from "@/lib/architecture/architecture-draft-handoff-gate";
 import { architectureDraftDisplayName } from "@/lib/architecture/architecture-draft-status";
 import { type ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
 import { architectureDraftDetailPageSubtitle } from "@/lib/architecture/architecture-draft-detail-page-copy";
@@ -75,8 +72,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     setFields,
     actorSet,
     setActorSet,
-    handoffAcknowledged,
-    setHandoffAcknowledged,
     resolvedDraftId,
     setResolvedDraftId,
     linkedReviewId,
@@ -265,21 +260,11 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     loading,
     draft,
     linkedReviewId,
-    handoffAcknowledged,
     saveState,
     effectiveArchitectureId,
     applyLoadedDraftToForm,
     acceptServerBaselineRef,
   });
-
-  const handleAcknowledgeHandoff = useCallback(() => {
-    if (linkedReviewId === null) {
-      return;
-    }
-
-    acknowledgeArchitectureDraftHandoff(effectiveArchitectureId, linkedReviewId);
-    setHandoffAcknowledged(true);
-  }, [effectiveArchitectureId, linkedReviewId, setHandoffAcknowledged]);
 
   const handleScopeConfirmed = useCallback(
     async (bullets: ScopeUnderstandingBullet[]) => {
@@ -384,7 +369,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       reviewStartProgress={reviewStartProgress}
       canStartReview={canStartReview}
       handleStartReview={handleStartReview}
-      handleAcknowledgeHandoff={handleAcknowledgeHandoff}
       saveDraft={saveDraft}
       setExitPending={setExitPending}
       hasPersistedDraft={hasPersistedDraft}
