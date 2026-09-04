@@ -1,12 +1,18 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { recommendAlertThreshold } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import { resolveAlertSimulationRunProjectSlug } from "@/lib/alert-simulation-form";
+import {
+  alertTuningFormDraftHrefFromSearch,
+  parseAlertTuningKindFromSearch,
+  parseAlertTuningRunSlugFromSearch,
+  parseAlertTuningThresholdsFromSearch,
+} from "@/lib/alerts/alert-tuning-form-draft-url";
 import {
   resolveAlertTuningRecommendEmphasizedStepId,
   resolveAlertTuningRecommendSteps,
@@ -19,20 +25,26 @@ import type { ThresholdRecommendationResult } from "@/types/alert-tuning";
 
 export function useAlertTuningFormState() {
   const router = useRouter();
+  const pathname = usePathname() ?? GOVERNANCE_ALERT_RULES_PATH;
   const searchParams = useSearchParams();
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
   const scopedRunFilterActive = scopedRunId.length > 0;
+  const urlTuneKind = parseAlertTuningKindFromSearch(searchParams.get("tuneKind"));
+  const urlTuneThresholds = parseAlertTuningThresholdsFromSearch(searchParams.get("tuneThresholds"));
+  const urlTuneRunSlug = parseAlertTuningRunSlugFromSearch(searchParams.get("tuneRunSlug"));
 
-  const [ruleKind, setRuleKind] = useState<"Simple" | "Composite">("Simple");
+  const [ruleKind, setRuleKindState] = useState<"Simple" | "Composite">(urlTuneKind ?? "Simple");
   const [ruleType, setRuleType] = useState("CostIncreasePercent");
   const [tunedMetricComposite, setTunedMetricComposite] = useState("CostIncreasePercent");
   const [severity, setSeverity] = useState("Warning");
   const [name, setName] = useState("Tuning candidate");
-  const [candidateThresholdsStr, setCandidateThresholdsStr] = useState("5,10,15,20,25");
+  const [candidateThresholdsStr, setCandidateThresholdsStrState] = useState(
+    urlTuneThresholds.length > 0 ? urlTuneThresholds : "5,10,15,20,25",
+  );
   const [recentRunCount, setRecentRunCount] = useState(10);
   const [targetMin, setTargetMin] = useState(1);
   const [targetMax, setTargetMax] = useState(5);
-  const [runSlug, setRunSlug] = useState("");
+  const [runSlug, setRunSlugState] = useState(urlTuneRunSlug);
 
   const [cJoin, setCJoin] = useState("And");
   const [cSuppression, setCSuppression] = useState(1440);
@@ -48,6 +60,60 @@ export function useAlertTuningFormState() {
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [result, setResult] = useState<ThresholdRecommendationResult | null>(null);
+
+  const syncTuningDraftToUrl = useCallback(
+    (nextKind: "Simple" | "Composite", nextThresholds: string, nextRunSlug: string) => {
+      router.replace(
+        alertTuningFormDraftHrefFromSearch(
+          searchParams.toString(),
+          {
+            ruleKind: nextKind,
+            candidateThresholds: nextThresholds,
+            runSlug: nextRunSlug,
+          },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setRuleKind = useCallback(
+    (value: "Simple" | "Composite") => {
+      setRuleKindState(value);
+      syncTuningDraftToUrl(value, candidateThresholdsStr, runSlug);
+    },
+    [candidateThresholdsStr, runSlug, syncTuningDraftToUrl],
+  );
+
+  const setCandidateThresholdsStr = useCallback(
+    (value: string) => {
+      setCandidateThresholdsStrState(value);
+      syncTuningDraftToUrl(ruleKind, value, runSlug);
+    },
+    [ruleKind, runSlug, syncTuningDraftToUrl],
+  );
+
+  const setRunSlug = useCallback(
+    (value: string) => {
+      setRunSlugState(value);
+      syncTuningDraftToUrl(ruleKind, candidateThresholdsStr, value);
+    },
+    [candidateThresholdsStr, ruleKind, syncTuningDraftToUrl],
+  );
+
+  useEffect(() => {
+    if (urlTuneKind !== null) {
+      setRuleKindState(urlTuneKind);
+    }
+
+    if (urlTuneThresholds.length > 0) {
+      setCandidateThresholdsStrState(urlTuneThresholds);
+    }
+
+    setRunSlugState(urlTuneRunSlug);
+  }, [urlTuneKind, urlTuneRunSlug, urlTuneThresholds]);
 
   const onPickReview = useCallback(
     (reviewId: string) => {

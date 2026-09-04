@@ -1,5 +1,6 @@
 import type { CloudPlatformScope } from "@/lib/cloud-platform-scope-storage";
 import type { ColorModePreference } from "@/lib/color-mode-preference";
+import { DEFAULT_LOADED_HOURLY_USD } from "@/lib/roi-assumptions";
 import type { WorkspaceModeId } from "@/lib/workspace-mode/workspace-mode";
 import type { WorkspaceModeGraduationOfferState } from "@/lib/workspace-mode/workspace-mode-preference";
 
@@ -27,6 +28,14 @@ export type UserPreferencesResponse = {
   workspaceModeGraduationOfferIsExplicit: boolean;
   professionalWorkbenchEnabled: boolean;
   professionalWorkbenchEnabledIsExplicit: boolean;
+  roiLoadedHourlyCostUsd: number;
+  roiLoadedHourlyCostUsdIsExplicit: boolean;
+  findingsHideGenericEnabled: boolean;
+  findingsHideGenericEnabledIsExplicit: boolean;
+  findingsShowLowConfidenceEnabled: boolean;
+  findingsShowLowConfidenceEnabledIsExplicit: boolean;
+  findingsShowAdvisoryEnabled: boolean;
+  findingsShowAdvisoryEnabledIsExplicit: boolean;
 };
 
 export type SetAppearancePreferenceRequest = {
@@ -61,6 +70,22 @@ export type SetProfessionalWorkbenchEnabledRequest = {
   enabled: boolean;
 };
 
+export type SetRoiLoadedHourlyCostUsdRequest = {
+  hourlyCostUsd: number;
+};
+
+export type SetFindingsVisibilityPreferencesRequest = {
+  hideGenericEnabled: boolean;
+  showLowConfidenceEnabled: boolean;
+  showAdvisoryEnabled: boolean;
+};
+
+export type FindingsVisibilityPreferences = {
+  readonly hideGenericEnabled: boolean;
+  readonly showLowConfidenceEnabled: boolean;
+  readonly showAdvisoryEnabled: boolean;
+};
+
 export const DEFAULT_CLOUD_PLATFORM_SCOPE_DTO: CloudPlatformScopeDto = {
   "evidence-only": true,
   azure: true,
@@ -91,6 +116,14 @@ export function defaultUserPreferencesResponse(): UserPreferencesResponse {
     workspaceModeGraduationOfferIsExplicit: false,
     professionalWorkbenchEnabled: true,
     professionalWorkbenchEnabledIsExplicit: false,
+    roiLoadedHourlyCostUsd: DEFAULT_LOADED_HOURLY_USD,
+    roiLoadedHourlyCostUsdIsExplicit: false,
+    findingsHideGenericEnabled: false,
+    findingsHideGenericEnabledIsExplicit: false,
+    findingsShowLowConfidenceEnabled: false,
+    findingsShowLowConfidenceEnabledIsExplicit: false,
+    findingsShowAdvisoryEnabled: false,
+    findingsShowAdvisoryEnabledIsExplicit: false,
   };
 }
 

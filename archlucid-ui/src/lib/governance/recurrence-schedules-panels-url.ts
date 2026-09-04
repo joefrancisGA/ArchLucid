@@ -2,6 +2,7 @@ import { GOVERNANCE_RECURRENCE_SCHEDULES_PATH } from "@/lib/governance/recurrenc
 
 export const RECURRENCE_SCHEDULES_CREATE_PARAM = "create";
 export const RECURRENCE_SCHEDULES_EDIT_PARAM = "edit";
+export const RECURRENCE_SCHEDULES_DISABLE_PARAM = "disableScheduleId";
 
 export function parseRecurrenceSchedulesCreatePanelFromSearch(raw: string | null | undefined): boolean {
   if (raw === null || raw === undefined) {
@@ -21,11 +22,20 @@ export function parseRecurrenceSchedulesEditIdFromSearch(raw: string | null | un
   return raw.trim();
 }
 
+export function parseRecurrenceSchedulesDisableIdFromSearch(raw: string | null | undefined): string {
+  if (raw === null || raw === undefined) {
+    return "";
+  }
+
+  return raw.trim();
+}
+
 export function recurrenceSchedulesPanelsHrefFromSearch(
   currentSearch: string,
   patch: {
     readonly showCreatePanel?: boolean;
     readonly editingId?: string | null;
+    readonly disableScheduleId?: string | null;
   },
   pathname: string = GOVERNANCE_RECURRENCE_SCHEDULES_PATH,
 ): string {
@@ -48,6 +58,16 @@ export function recurrenceSchedulesPanelsHrefFromSearch(
     } else {
       params.set(RECURRENCE_SCHEDULES_EDIT_PARAM, trimmed);
       params.delete(RECURRENCE_SCHEDULES_CREATE_PARAM);
+    }
+  }
+
+  if (patch.disableScheduleId !== undefined) {
+    const trimmed = (patch.disableScheduleId ?? "").trim();
+
+    if (trimmed.length === 0) {
+      params.delete(RECURRENCE_SCHEDULES_DISABLE_PARAM);
+    } else {
+      params.set(RECURRENCE_SCHEDULES_DISABLE_PARAM, trimmed);
     }
   }
 

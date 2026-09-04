@@ -3,19 +3,29 @@ using System.Text.Json;
 
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Audit;
-using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Audit;
 
 namespace ArchLucid.Application.Traceability;
 
 /// <inheritdoc/>
-public sealed class TraceabilityBundleBuilder(IRunDetailQueryService runDetailQueryService, IAuditRepository auditRepository) : ITraceabilityBundleBuilder
+public sealed class TraceabilityBundleBuilder(
+    IRunDetailQueryService runDetailQueryService,
+    IAuditRepository auditRepository,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : ITraceabilityBundleBuilder
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
     private readonly IAuditRepository _auditRepository = auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     /// <inheritdoc/>
     public async Task<Byte[]?> BuildAsync(string runId, ScopeContext scope, long maxZipBytes, CancellationToken cancellationToken)
@@ -40,6 +50,18 @@ public sealed class TraceabilityBundleBuilder(IRunDetailQueryService runDetailQu
             AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId);
 
         Guid runGuid = Guid.TryParseExact(runId, "N", out Guid g1) ? g1 : Guid.TryParse(runId, out Guid g2) ? g2 : Guid.Empty;
+
+        if (detail.IsCommitted && !detail.HasBrokenManifestReference && runGuid != Guid.Empty)
+        {
+            await TraceabilityBundleSealedReceiptGuard.EnsureVerifiedOrThrowAsync(
+                runGuid,
+                runId.Trim(),
+                _authorityQueryService,
+                _manifestHashService,
+                scope,
+                cancellationToken);
+        }
+
         IReadOnlyList<AuditEvent> audits = runGuid == Guid.Empty
             ? []
             : await _auditRepository.GetFilteredAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, new AuditEventFilter { RunId = runGuid, Take = 1000, IncludeDataJson = true },

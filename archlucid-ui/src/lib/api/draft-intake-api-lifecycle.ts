@@ -7,6 +7,7 @@ import type {
   DraftRequestResponse,
   SubmitDraftResponse,
 } from "@/types/draft-intake";
+import type { CloneSnapshotDraftResponse } from "@/types/draft-intake-clone-snapshot";
 
 import { apiGet, apiPostJson } from "./http";
 
@@ -19,8 +20,19 @@ export async function admitDraftRequest(draftId: string): Promise<DraftAdmission
   );
 }
 
-export async function submitDraftRequest(draftId: string): Promise<SubmitDraftResponse> {
-  return apiPostJson<SubmitDraftResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/submit`, {});
+export async function submitDraftRequest(
+  draftId: string,
+  expectedUpdatedUtc?: string | null,
+): Promise<SubmitDraftResponse> {
+  const body =
+    expectedUpdatedUtc === undefined || expectedUpdatedUtc === null
+      ? {}
+      : { expectedUpdatedUtc };
+
+  return apiPostJson<SubmitDraftResponse>(
+    `${DRAFT_BASE}/${encodeURIComponent(draftId)}/submit`,
+    body,
+  );
 }
 
 /** Return an admitted draft to drafting so the architecture brief can be edited again. */
@@ -59,5 +71,13 @@ export async function branchDraftRequest(
   return apiPostJson<BranchDraftResponse>(
     `${DRAFT_BASE}/${encodeURIComponent(draftId)}/branch`,
     body,
+  );
+}
+
+/** Clone a run-spawned draft into a new editable architecture id (WA-10). */
+export async function cloneDraftSnapshot(draftId: string): Promise<CloneSnapshotDraftResponse> {
+  return apiPostJson<CloneSnapshotDraftResponse>(
+    `${DRAFT_BASE}/${encodeURIComponent(draftId)}/clone-snapshot`,
+    {},
   );
 }

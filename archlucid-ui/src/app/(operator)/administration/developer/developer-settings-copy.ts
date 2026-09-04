@@ -13,9 +13,9 @@ export const INTERNAL_DEVELOPER_TOOLS_INTRO =
 
 export const INTERNAL_DEVELOPER_TOOLS_CATALOG_DESCRIPTION = INTERNAL_DEVELOPER_TOOLS_INTRO;
 
-/** Catalog + page honesty for ReadAuthority gate and internal-shell discovery (TB-1899). */
+/** Catalog + page honesty for workspace reader gate and internal-shell discovery (TB-1899). */
 export const INTERNAL_DEVELOPER_TOOLS_ACCESS_NOTE =
-  "ReadAuthority workspace readers can open this page. The Administration hub lists it only when the internal shell is enabled; customer shells redirect to Preferences." as const;
+  "Workspace readers can open this page. The Administration hub lists it only when the internal shell is enabled; customer shells redirect to Preferences." as const;
 
 export const INTERNAL_DEVELOPER_TOOLS_CATALOG_GATE_NOTE =
-  "Internal shell only — ReadAuthority; not linked from customer settings navigation." as const;
+  "Internal shell only — workspace readers; not linked from customer settings navigation." as const;

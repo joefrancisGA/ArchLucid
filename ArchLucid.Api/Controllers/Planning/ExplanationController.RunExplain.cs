@@ -1,9 +1,12 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
+using ArchLucid.Application;
 using ArchLucid.Application.Explanation.Models;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Explanation;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Contracts.Findings;
@@ -23,6 +26,7 @@ public sealed partial class ExplanationController
     [HttpGet("runs/{runId:guid}/explain")]
     [ProducesResponseType(typeof(ExplanationResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ExplainRun(Guid runId, CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
@@ -31,6 +35,18 @@ public sealed partial class ExplanationController
             return this.NotFoundProblem(
                 $"Run '{runId}' was not found or has no committed manifest in the current scope.",
                 ProblemTypes.RunNotFound);
+
+        try
+        {
+            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                detail.GoldenManifest,
+                runId.ToString("D"),
+                manifestHashService);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         DecisionProvenanceGraph? graph = null;
         ArchLucid.Contracts.Persistence.Data.DecisionProvenanceSnapshot? snapshot =
@@ -69,9 +85,29 @@ public sealed partial class ExplanationController
     [HttpGet("runs/{runId:guid}/aggregate")]
     [ProducesResponseType(typeof(RunExplanationSummary), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> AggregateRunExplanation(Guid runId, CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? detail = await query.GetRunDetailAsync(scope, runId, ct);
+
+        if (detail?.GoldenManifest is null)
+            return this.NotFoundProblem(
+                $"Run '{runId}' was not found or has no committed manifest in the current scope.",
+                ProblemTypes.RunNotFound);
+
+        try
+        {
+            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                detail.GoldenManifest,
+                runId.ToString("D"),
+                manifestHashService);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+
         RunExplanationSummary? summary = await runExplanationSummary.GetSummaryAsync(scope, runId, ct);
         if (summary is null)
             return this.NotFoundProblem(

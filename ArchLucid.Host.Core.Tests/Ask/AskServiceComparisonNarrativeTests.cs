@@ -239,8 +239,9 @@ public sealed class AskServiceComparisonNarrativeTests
         return (sut, llm, scope);
     }
 
-    private static ManifestDocument CreateManifest(Guid runId) =>
-        new()
+    private static ManifestDocument CreateManifest(Guid runId)
+    {
+        ManifestDocument manifest = new()
         {
             RunId = runId,
             TenantId = Guid.NewGuid(),
@@ -248,6 +249,11 @@ public sealed class AskServiceComparisonNarrativeTests
             ProjectId = Guid.NewGuid(),
             ManifestId = Guid.NewGuid(),
         };
+
+        AskSealedManifestTestSupport.ApplySealedManifestDefaults(manifest);
+
+        return manifest;
+    }
 
     private static RunDetailDto CreateRunDetail(Guid runId, ManifestDocument manifest) =>
         new()

@@ -32,7 +32,7 @@ export function FindingDetailActions({ presentation }: Props) {
   return (
     <>
       {inspectPayload !== null && !buyerPolishedShell ? (
-        <FindingAskInlinePanel findingId={decodedFindingId} />
+        <FindingAskInlinePanel findingId={decodedFindingId} runId={runId} />
       ) : null}
 
       {inspectPayload !== null && !buyerPolishedShell ? (

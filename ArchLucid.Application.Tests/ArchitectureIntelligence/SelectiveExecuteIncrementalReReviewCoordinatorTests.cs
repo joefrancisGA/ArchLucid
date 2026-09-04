@@ -1,4 +1,5 @@
 using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.ArchitectureIntelligence;
@@ -216,7 +217,8 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinatorTests
             new IncrementalReReviewService(),
             new AsyncSpecialistReviewServiceAdapter(new SpecialistReviewService()),
             stageOutcomesRepository ?? Mock.Of<IRunStageOutcomesRepository>(),
-            auditService ?? Mock.Of<IAuditService>());
+            auditService ?? Mock.Of<IAuditService>(),
+            Mock.Of<IReRunExecuteSealedManifestPinGate>());
     }
 
     private sealed class AsyncSpecialistReviewServiceAdapter(SpecialistReviewService inner) : IAsyncSpecialistReviewService

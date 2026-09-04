@@ -121,7 +121,7 @@ public sealed class DraftRequestRerunSystemNameCollisionTests
 
         _collisionGuard.Invocations.Clear();
 
-        await _service.SubmitAsync(_scope, draftId, CancellationToken.None);
+        await _service.SubmitAsync(_scope, draftId, null, CancellationToken.None);
 
         _collisionGuard.Verify(
             g => g.EnsureAvailableAsync(

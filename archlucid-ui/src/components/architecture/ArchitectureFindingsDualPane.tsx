@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,11 @@ import {
   type ArchitectureFindingsDualPaneDiagramNode,
   type ArchitectureFindingsDualPaneFindingRef,
 } from "@/lib/architecture/architecture-findings-dual-pane";
+import {
+  architectureDiagramFindingHrefFromSearch,
+  parseArchitectureDiagramFindingIdFromSearch,
+} from "@/lib/architecture/architecture-findings-dual-pane-url";
+import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
 import {
   severityBadgeLabel,
   severityKindFromNumericValue,
@@ -47,6 +53,10 @@ function toFindingRef(finding: QuickDecisionFinding): ArchitectureFindingsDualPa
  * Provenance ("why is this here?") remains TB-2180 on the diagram panel.
  */
 export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPaneProps): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? reviewDetailPath(props.runId);
+  const searchParams = useSearchParams();
+  const urlFindingId = parseArchitectureDiagramFindingIdFromSearch(searchParams.get("diagramFindingId"));
   const diagramNodes = props.diagramNodes ?? [];
   const [selectedFindingId, setSelectedFindingId] = useState<string | null>(null);
   const findingItemRefs = useRef<Map<string, HTMLLIElement>>(new Map());
@@ -70,6 +80,28 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
   }, [diagramNodes, selectedFinding]);
 
   const onHighlightedNodeIdChange = props.onHighlightedNodeIdChange;
+
+  useEffect(() => {
+    if (urlFindingId.length === 0) {
+      return;
+    }
+
+    const exists = visibleFindings.some((finding) => finding.findingId === urlFindingId);
+
+    if (!exists) {
+      return;
+    }
+
+    setSelectedFindingId(urlFindingId);
+  }, [urlFindingId, visibleFindings]);
+
+  const selectFindingWithUrl = (findingId: string | null): void => {
+    setSelectedFindingId(findingId);
+    router.replace(
+      architectureDiagramFindingHrefFromSearch(searchParams.toString(), findingId, pathname),
+      { scroll: false },
+    );
+  };
 
   useEffect(() => {
     const nodeId = selectionSync?.matchedNodeId ?? null;
@@ -176,7 +208,7 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
                       aria-pressed={active}
                       data-testid={`architecture-findings-dual-pane-finding-${finding.findingId}`}
                       onClick={() => {
-                        setSelectedFindingId(finding.findingId);
+                        selectFindingWithUrl(finding.findingId);
                       }}
                     >
                       <div className="flex flex-wrap items-center gap-2">

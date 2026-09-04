@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useCallback, useMemo, useState, type FormEvent, type ReactElement } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactElement } from "react";
 
 import { BaselineFieldMessage } from "@/components/forms/BaselineFieldMessage";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
@@ -43,6 +43,8 @@ type PilotBaselineSessionState = {
 export type PilotBaselineWizardProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialStepIndex?: number | null;
+  onStepIndexChange?: (stepIndex: number) => void;
   onSaved?: () => void;
 };
 
@@ -80,9 +82,15 @@ function parsePeopleOrNull(raw: string): number | null {
 
 /** Guided capture for PILOT_ROI_MODEL §3 anchors — persists via `PUT /v1/tenant/baseline`. */
 
-export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaselineWizardProps): ReactElement {
+export function PilotBaselineWizard({
+  open,
+  onOpenChange,
+  initialStepIndex = null,
+  onStepIndexChange,
+  onSaved,
+}: PilotBaselineWizardProps): ReactElement {
   const demoMode = isNextPublicDemoMode();
-  const [stepIndex, setStepIndex] = useState(0);
+  const [stepIndex, setStepIndexState] = useState(initialStepIndex ?? 0);
   const [saving, setSaving] = useState(false);
   const [reviewHours, setReviewHours] = useState("");
   const [reviewNote, setReviewNote] = useState("");
@@ -105,13 +113,20 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
     () => validatePilotBaselineManualStep(manualPrep, people),
     [manualPrep, people],
   );
+  const applyStepIndex = useCallback(
+    (value: number) => {
+      setStepIndexState(value);
+      onStepIndexChange?.(value);
+    },
+    [onStepIndexChange],
+  );
   const handleSessionRestore = useCallback((snapshot: { stepIndex: number; state: PilotBaselineSessionState }) => {
-    setStepIndex(snapshot.stepIndex);
+    applyStepIndex(snapshot.stepIndex);
     setReviewHours(snapshot.state.reviewHours);
     setReviewNote(snapshot.state.reviewNote);
     setManualPrep(snapshot.state.manualPrep);
     setPeople(snapshot.state.people);
-  }, []);
+  }, [applyStepIndex]);
   const wizardSession = useWizardSessionPersistence({
     wizardId: WIZARD_SESSION_IDS.pilotBaseline,
     stepIndex,
@@ -125,16 +140,22 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
     onRestore: handleSessionRestore,
   });
 
+  useEffect(() => {
+    if (initialStepIndex !== null && open) {
+      setStepIndexState(initialStepIndex);
+    }
+  }, [initialStepIndex, open]);
+
   const pct = Math.round(((stepIndex + 1) / STEP_COUNT) * 100);
 
   const resetTransientFields = useCallback(() => {
-    setStepIndex(0);
+    applyStepIndex(0);
     setSaving(false);
     setReviewHours("");
     setReviewNote("");
     setManualPrep("");
     setPeople("");
-  }, []);
+  }, [applyStepIndex]);
 
   const handleDialogChange = useCallback(
     (nextOpen: boolean) => {
@@ -375,7 +396,9 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
               variant="outline"
               type="button"
               disabled={stepIndex === 0 || saving || demoMode}
-              onClick={() => setStepIndex((s) => Math.max(0, s - 1))}
+              onClick={() => {
+                applyStepIndex(Math.max(0, stepIndex - 1));
+              }}
             >
               Back
             </Button>
@@ -386,7 +409,9 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
                 variant="primary"
                 disabled={demoMode || !reviewStepValidation.valid}
                 data-testid="pilot-baseline-wizard-continue"
-                onClick={() => setStepIndex(1)}
+                onClick={() => {
+                  applyStepIndex(1);
+                }}
               >
                 Next
               </Button>

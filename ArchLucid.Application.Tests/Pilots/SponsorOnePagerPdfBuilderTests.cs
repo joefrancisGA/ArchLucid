@@ -6,7 +6,9 @@ using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -51,7 +53,7 @@ public sealed class SponsorOnePagerPdfBuilderTests
             NullLogger<PilotScorecardBuilder>.Instance);
         Mock<IPilotRunDeltaComputer> deltas = new();
         FirstValueReportBuilder markdown = CreateMarkdownBuilder(query.Object, deltas.Object);
-        SponsorOnePagerPdfBuilder sut = new(query.Object, scorecard, deltas.Object, markdown, site.Object);
+        SponsorOnePagerPdfBuilder sut = CreateSponsorOnePagerPdfBuilder(query.Object, scorecard, deltas.Object, markdown, site.Object, scope.Object);
 
         byte[]? pdf = await sut.BuildPdfAsync("missing", "http://localhost:5000");
 
@@ -103,7 +105,7 @@ public sealed class SponsorOnePagerPdfBuilderTests
         site.Setup(s => s.CurrentValue).Returns(new PublicSiteOptions { BaseUrl = "https://ui.example" });
 
         FirstValueReportBuilder markdown = CreateMarkdownBuilder(query.Object, deltas.Object);
-        SponsorOnePagerPdfBuilder sut = new(query.Object, scorecard, deltas.Object, markdown, site.Object);
+        SponsorOnePagerPdfBuilder sut = CreateSponsorOnePagerPdfBuilder(query.Object, scorecard, deltas.Object, markdown, site.Object, scope.Object);
 
         byte[]? pdf = await sut.BuildPdfAsync("r-pdf-1", "http://localhost:5000");
 
@@ -159,7 +161,7 @@ public sealed class SponsorOnePagerPdfBuilderTests
         site.Setup(s => s.CurrentValue).Returns(new PublicSiteOptions { BaseUrl = "https://ui.example" });
 
         FirstValueReportBuilder markdown = CreateMarkdownBuilder(query.Object, deltas.Object, pilotBaselines.Object);
-        SponsorOnePagerPdfBuilder sut = new(query.Object, scorecard, deltas.Object, markdown, site.Object);
+        SponsorOnePagerPdfBuilder sut = CreateSponsorOnePagerPdfBuilder(query.Object, scorecard, deltas.Object, markdown, site.Object, scope.Object);
 
         Func<Task> act = () => sut.BuildPdfAsync("r-pdf-incomplete", "http://localhost:5000");
 
@@ -203,12 +205,39 @@ public sealed class SponsorOnePagerPdfBuilderTests
         siteDemo.Setup(s => s.CurrentValue).Returns(new PublicSiteOptions { BaseUrl = "https://ui.example" });
 
         FirstValueReportBuilder markdown = CreateMarkdownBuilder(query.Object, deltas.Object);
-        SponsorOnePagerPdfBuilder sut = new(query.Object, scorecard, deltas.Object, markdown, siteDemo.Object);
+        SponsorOnePagerPdfBuilder sut = CreateSponsorOnePagerPdfBuilder(query.Object, scorecard, deltas.Object, markdown, siteDemo.Object);
 
         Func<Task> act = () => sut.BuildPdfAsync("r-pdf-demo", "http://localhost:5000");
 
         await act.Should().ThrowAsync<SponsorFirstValuePdfBlockedException>()
             .WithMessage("*demo*");
+    }
+
+    private static SponsorOnePagerPdfBuilder CreateSponsorOnePagerPdfBuilder(
+        IRunDetailQueryService query,
+        PilotScorecardBuilder scorecard,
+        IPilotRunDeltaComputer deltas,
+        IFirstValueReportBuilder markdown,
+        IOptionsMonitor<PublicSiteOptions> site,
+        IScopeContextProvider? scopeContextProvider = null)
+    {
+        IScopeContextProvider scope = scopeContextProvider ?? Mock.Of<IScopeContextProvider>(provider =>
+            provider.GetCurrentScope() == new ScopeContext
+            {
+                TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            });
+
+        return new SponsorOnePagerPdfBuilder(
+            query,
+            scorecard,
+            deltas,
+            markdown,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
+            scope,
+            site);
     }
 
     private static FirstValueReportBuilder CreateMarkdownBuilder(
@@ -284,6 +313,8 @@ public sealed class SponsorOnePagerPdfBuilderTests
             baselineRepo,
             FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 

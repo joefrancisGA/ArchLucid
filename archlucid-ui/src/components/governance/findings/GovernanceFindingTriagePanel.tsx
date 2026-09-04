@@ -8,6 +8,7 @@ import type { ReactElement } from "react";
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import { GovernanceFindingDetailPane } from "@/components/governance/findings/GovernanceFindingDetailPane";
 import { FindingDispositionRestoreButton } from "@/components/governance/findings/FindingDispositionRestoreButton";
+import { FindingDispositionRecordCorrectionControl } from "@/components/governance/findings/FindingDispositionRecordCorrectionControl";
 import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -120,6 +121,15 @@ export function GovernanceFindingTriagePanel(props: GovernanceFindingTriagePanel
           />
 
           <FindingDispositionRestoreButton findingId={row.findingId} runId={row.runId} />
+
+          {row.latestDisposition !== null && row.latestDisposition !== undefined && row.latestDisposition.trim().length > 0 ? (
+            <FindingDispositionRecordCorrectionControl
+              findingId={row.findingId}
+              runId={row.runId}
+              hasRecordedDisposition={true}
+              testId="governance-finding-triage-record-correction"
+            />
+          ) : null}
 
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
             <Link className={OPERATOR_LINK.inline} href={inspectHref} data-testid="governance-finding-triage-open-full">

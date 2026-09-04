@@ -33,6 +33,10 @@ import {
   parseOperationalErrorsStatusFromSearch,
   parseOperationalErrorsTenantFromSearch,
 } from "@/lib/internal/operational-errors-filter-url";
+import {
+  operationalErrorsDetailHrefFromSearch,
+  parseOperationalErrorsDetailIdFromSearch,
+} from "@/lib/internal/operational-errors-detail-url";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { DESIGN_TOKENS } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -68,13 +72,39 @@ export function OperationalErrorsPageClient() {
   const urlStatus = parseOperationalErrorsStatusFromSearch(searchParams.get("status"));
   const urlTenant = parseOperationalErrorsTenantFromSearch(searchParams.get("tenant"));
   const urlCorrelation = parseOperationalErrorsCorrelationFromSearch(searchParams.get("correlation"));
+  const urlErrorId = parseOperationalErrorsDetailIdFromSearch(searchParams.get("errorId"));
 
   const [state, setState] = useState<LoadState>({ status: "idle" });
   const [categoryFilter, setCategoryFilter] = useState(urlCategory);
   const [statusFilter, setStatusFilter] = useState(urlStatus);
   const [tenantFilter, setTenantFilter] = useState(urlTenant);
   const [correlationFilter, setCorrelationFilter] = useState(urlCorrelation);
-  const [selectedRow, setSelectedRow] = useState<OperationalErrorRow | null>(null);
+  const [selectedRow, setSelectedRowState] = useState<OperationalErrorRow | null>(null);
+
+  const setSelectedRow = useCallback(
+    (row: OperationalErrorRow | null) => {
+      setSelectedRowState(row);
+      router.replace(
+        operationalErrorsDetailHrefFromSearch(currentSearch, row?.id ?? null, pathname),
+        { scroll: false },
+      );
+    },
+    [currentSearch, pathname, router],
+  );
+
+  useEffect(() => {
+    if (state.status !== "ready" || urlErrorId.length === 0) {
+      return;
+    }
+
+    const row = state.rows.find((candidate) => candidate.id === urlErrorId) ?? null;
+
+    if (row === null) {
+      return;
+    }
+
+    setSelectedRowState((current) => (current?.id === row.id ? current : row));
+  }, [state, urlErrorId]);
 
   useEffect(() => {
     setCategoryFilter(urlCategory);

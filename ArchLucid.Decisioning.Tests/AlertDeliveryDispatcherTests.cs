@@ -1,7 +1,11 @@
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Alerts.Delivery;
 using ArchLucid.Persistence.Alerts;
+using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -160,7 +164,40 @@ public sealed class AlertDeliveryDispatcherTests
         IAlertRoutingSubscriptionRepository subscriptionRepository,
         IAlertDeliveryAttemptRepository attemptRepository,
         IAuditService auditService) =>
-        new(channels, subscriptionRepository, attemptRepository, auditService);
+        new(
+            channels,
+            subscriptionRepository,
+            attemptRepository,
+            auditService,
+            CreateSealedManifestAuthorityMock(),
+            CreateSealedManifestHashMock());
+
+    private static IAuthorityQueryService CreateSealedManifestAuthorityMock()
+    {
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailForManifestCompareAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken _) =>
+                new RunDetailDto
+                {
+                    Run = new RunRecord { RunId = runId },
+                    GoldenManifest = new ManifestDocument
+                    {
+                        RunId = runId,
+                        ManifestHash = "sealed-hash",
+                    },
+                });
+
+        return authority.Object;
+    }
+
+    private static IManifestHashService CreateSealedManifestHashMock()
+    {
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash.Setup(m => m.ComputeHash(It.IsAny<ManifestDocument>())).Returns("sealed-hash");
+
+        return manifestHash.Object;
+    }
 
     private static AlertRecord CreateAlert(
         string severity,

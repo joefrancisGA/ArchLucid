@@ -3,6 +3,8 @@ import {
   type FindingWorkItemJsonDocument,
 } from "@/lib/copy-finding-as-work-item";
 import { severityBadgeLabel, type QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { findingWorkItemSealedManifestCopyBlockedReason } from "@/lib/findings/finding-work-item-sealed-manifest-guard";
+import { showError } from "@/lib/toast";
 
 /** Bulk JSON export envelope for external ticketing scripts (UI-only seam until V1.1 connectors). */
 export type RunFindingsItsmJsonExportDocument = {
@@ -53,7 +55,23 @@ export const PRE_FINALIZE_FINDINGS_EXPORT_MARKER =
 
 export type RunFindingsExportOptions = {
   readonly packageCommitted?: boolean;
+  readonly manifestVersion?: string | null;
 };
+
+function ensureRunFindingsExportAllowed(runId: string, options?: RunFindingsExportOptions): boolean {
+  const blockedReason = findingWorkItemSealedManifestCopyBlockedReason({
+    runId,
+    manifestVersion: options?.manifestVersion,
+  });
+
+  if (blockedReason !== null) {
+    showError(blockedReason);
+
+    return false;
+  }
+
+  return true;
+}
 
 function resolveExportRecordStatus(options?: RunFindingsExportOptions): string {
   if (options?.packageCommitted === false) {
@@ -145,6 +163,10 @@ export function downloadRunFindingsItsmJsonExport(
   siteOrigin: string,
   options?: RunFindingsExportOptions,
 ): void {
+  if (!ensureRunFindingsExportAllowed(runId, options)) {
+    return;
+  }
+
   const document = buildRunFindingsItsmJsonExportDocument(runId, findings, siteOrigin, options);
   const json = JSON.stringify(document, null, 2);
   triggerJsonDownload(json, `architecture-run-${runId}-findings-work-items.json`);
@@ -160,6 +182,7 @@ export type GovernanceFindingWorkItemExportRow = {
   policyRuleId?: string | null;
   trustLabel?: string | null;
   trustLabelReason?: string | null;
+  manifestVersion?: string | null;
   recordKind: "finding" | "decision";
 };
 
@@ -198,6 +221,16 @@ export function downloadGovernanceFindingsItsmJsonExport(
   rows: readonly GovernanceFindingWorkItemExportRow[],
   siteOrigin: string,
 ): void {
+  for (const row of rows) {
+    if (row.recordKind !== "finding") {
+      continue;
+    }
+
+    if (!ensureRunFindingsExportAllowed(row.runId, { manifestVersion: row.manifestVersion })) {
+      return;
+    }
+  }
+
   const document = buildGovernanceFindingsItsmJsonExportDocument(rows, siteOrigin);
   const json = JSON.stringify(document, null, 2);
   triggerJsonDownload(json, "architecture-risk-register-work-items.json");

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME } from "@/lib/buyer/buyer-polish-copy";
 import {
+  deriveHomePreviewTabCounts,
   filterTenantOverviewRuns,
   formatOperatorHomeRecentReviewsOutcome,
   isExampleOnlyOverviewRunList,
@@ -62,6 +63,25 @@ describe("formatOperatorHomeRecentReviewsOutcome", () => {
 
   it("keeps the featured recent-review limit small", () => {
     expect(OPERATOR_HOME_RECENT_FEATURED_LIMIT).toBe(2);
+  });
+});
+
+describe("deriveHomePreviewTabCounts", () => {
+  it("caps the Recent tab at the featured limit and excludes showcase rows", () => {
+    const items: RunSummary[] = [
+      { runId: "run-1", projectId: "default" },
+      { runId: "run-2", projectId: "default" },
+      { runId: "run-3", projectId: "default" },
+      { runId: "showcase", projectId: "default" },
+    ];
+
+    const counts = deriveHomePreviewTabCounts({
+      previewItems: items,
+      excludeShowcaseRunId: "showcase",
+    });
+
+    expect(counts.all).toBe(2);
+    expect(counts.approved).toBe(0);
   });
 });
 

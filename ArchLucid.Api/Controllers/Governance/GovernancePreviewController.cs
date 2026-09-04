@@ -114,6 +114,11 @@ public sealed class GovernancePreviewController(
             logger.LogWarning(ex, "Preview failed: validation error.");
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
+        catch (ConflictException ex)
+        {
+            logger.LogWarning(ex, "Preview blocked: sealed manifest verification failed.");
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
         catch (InvalidOperationException ex)
         {
             logger.LogWarning(ex, "Preview failed: invalid operation.");
@@ -174,6 +179,11 @@ public sealed class GovernancePreviewController(
         {
             logger.LogWarning(ex, "CompareEnvironments failed: validation error.");
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+        catch (ConflictException ex)
+        {
+            logger.LogWarning(ex, "CompareEnvironments blocked: sealed manifest verification failed.");
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
     }
 

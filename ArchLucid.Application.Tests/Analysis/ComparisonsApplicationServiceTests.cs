@@ -123,6 +123,7 @@ public sealed class ComparisonsApplicationServiceTests
             new Mock<IRunExportRecordRepository>().Object,
             comparisonRecords ?? new Mock<IComparisonRecordRepository>().Object,
             new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
             new Mock<IComparisonReplayCostEstimator>().Object,
             new Mock<IDriftReportFormatter>().Object,
             new DriftReportDocxExport());

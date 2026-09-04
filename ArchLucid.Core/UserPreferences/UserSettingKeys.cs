@@ -26,4 +26,16 @@ public static class UserSettingKeys
 
     /// <summary>Whether Working-mode review-detail uses the split workbench layout: <c>true</c> or <c>false</c>.</summary>
     public const string ProfessionalWorkbenchEnabled = "ProfessionalWorkbenchEnabled";
+
+    /// <summary>Personal loaded hourly cost (USD) for ROI desk assumptions.</summary>
+    public const string RoiLoadedHourlyCostUsd = "RoiLoadedHourlyCostUsd";
+
+    /// <summary>Whether findings lists hide generic low-density rows: <c>true</c> or <c>false</c>.</summary>
+    public const string FindingsHideGenericEnabled = "FindingsHideGenericEnabled";
+
+    /// <summary>Whether findings lists show low-confidence rows: <c>true</c> or <c>false</c>.</summary>
+    public const string FindingsShowLowConfidenceEnabled = "FindingsShowLowConfidenceEnabled";
+
+    /// <summary>Whether findings lists show advisory rows: <c>true</c> or <c>false</c>.</summary>
+    public const string FindingsShowAdvisoryEnabled = "FindingsShowAdvisoryEnabled";
 }

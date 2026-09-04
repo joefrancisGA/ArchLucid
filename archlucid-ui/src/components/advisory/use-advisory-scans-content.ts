@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type SetStateAction } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useAdvisoryRecommendationsQuery } from "@/hooks/use-advisory-recommendations-query";
@@ -35,6 +35,13 @@ import {
   parseAdvisoryScansRunIdFromSearch,
   parseAdvisoryScansSamplePreviewFromSearch,
 } from "@/lib/advisory/advisory-scans-filter-url";
+import {
+  advisoryScansDispositionConfirmHrefFromSearch,
+  advisoryScansDispositionToUrlAction,
+  advisoryScansUrlActionToDisposition,
+  parseAdvisoryScansDispActionFromSearch,
+  parseAdvisoryScansDispRecIdFromSearch,
+} from "@/lib/advisory/advisory-scans-disposition-confirm-url";
 import { GOVERNANCE_ADVISORY_SCANS_PATH } from "@/lib/governance/governance-route-paths";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
@@ -70,6 +77,8 @@ export function useAdvisoryScansContent(props: AdvisoryScansContentProps = {}) {
   const urlRunId = parseAdvisoryScansRunIdFromSearch(searchParams.get("runId"));
   const urlCompareTo = parseAdvisoryScansCompareToFromSearch(searchParams.get("compareTo"));
   const urlSamplePreview = parseAdvisoryScansSamplePreviewFromSearch(searchParams.get("sample"));
+  const dispRecIdParam = searchParams.get("dispRecId");
+  const dispActionParam = searchParams.get("dispAction");
 
   const onPickReview = useCallback(
     (reviewId: string) => {
@@ -99,10 +108,72 @@ export function useAdvisoryScansContent(props: AdvisoryScansContentProps = {}) {
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [showSamplePreview, setShowSamplePreviewState] = useState(urlSamplePreview);
-  const [pendingDisposition, setPendingDisposition] = useState<{
+  const [pendingDisposition, setPendingDispositionState] = useState<{
     readonly recommendationId: string;
     readonly action: string;
   } | null>(null);
+  const syncDispositionConfirmToUrl = useCallback(
+    (state: { readonly recommendationId: string; readonly action: string } | null) => {
+      const urlAction = state === null ? null : advisoryScansDispositionToUrlAction(state.action);
+
+      router.replace(
+        advisoryScansDispositionConfirmHrefFromSearch(
+          searchParams.toString(),
+          state === null || urlAction === null
+            ? { recommendationId: null, action: null }
+            : { recommendationId: state.recommendationId, action: urlAction },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPendingDisposition = useCallback(
+    (value: SetStateAction<{ readonly recommendationId: string; readonly action: string } | null>) => {
+      setPendingDispositionState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncDispositionConfirmToUrl(next);
+
+        return next;
+      });
+    },
+    [syncDispositionConfirmToUrl],
+  );
+
+  useEffect(() => {
+    const recommendationId = parseAdvisoryScansDispRecIdFromSearch(dispRecIdParam);
+    const action = parseAdvisoryScansDispActionFromSearch(dispActionParam);
+
+    if (recommendationId.length === 0 || action === null) {
+      setPendingDispositionState(null);
+
+      return;
+    }
+
+    if (recommendations.length === 0) {
+      return;
+    }
+
+    const recommendation = recommendations.find((row) => row.recommendationId === recommendationId);
+
+    if (recommendation === undefined) {
+      return;
+    }
+
+    const apiAction = advisoryScansUrlActionToDisposition(action);
+
+    if (
+      pendingDisposition?.recommendationId === recommendationId
+      && pendingDisposition.action === apiAction
+    ) {
+      return;
+    }
+
+    setPendingDispositionState({ recommendationId, action: apiAction });
+  }, [dispActionParam, dispRecIdParam, pendingDisposition?.action, pendingDisposition?.recommendationId, recommendations]);
+
   const [dispositionBusy, setDispositionBusy] = useState(false);
   const [dispositionError, setDispositionError] = useState<string | null>(null);
   const [lastImproveLoopEvidence, setLastImproveLoopEvidence] =

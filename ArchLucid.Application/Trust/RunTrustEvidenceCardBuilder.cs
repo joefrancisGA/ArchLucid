@@ -9,9 +9,12 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Trust;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Explanation;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Trust;
 
@@ -21,7 +24,9 @@ public sealed partial class RunTrustEvidenceCardBuilder(
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IFindingEvidenceChainService findingEvidenceChainService,
     IRunExplanationSummaryService runExplanationSummaryService,
-    IScopeContextProvider scopeContextProvider) : IRunTrustEvidenceCardBuilder
+    IScopeContextProvider scopeContextProvider,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : IRunTrustEvidenceCardBuilder
 {
     private const string SelfNotice = "This card summarizes operational evidence ArchLucid stores for this review (audit events, trace metadata, " + "exports). It is not a SOC 2 report, independent penetration test, or legal attestation—see your trust center " + "for assurance boundaries.";
 
@@ -38,6 +43,12 @@ public sealed partial class RunTrustEvidenceCardBuilder(
 
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
     /// <inheritdoc/>
     public async Task<RunTrustEvidenceCard?> BuildAsync(ArchitectureRunDetail detail, string? hostAgentExecutionMode, CancellationToken cancellationToken)
     {
@@ -45,6 +56,16 @@ public sealed partial class RunTrustEvidenceCardBuilder(
 
         if (!detail.IsCommitted)
             return null;
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        await RunTrustEvidenceSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+            detail,
+            scope,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken);
+
         ArchitectureRun run = detail.Run;
         string runId = run.RunId;
         bool isDemo = ContosoRetailDemoIdentifiers.IsDemoRunId(runId) || ContosoRetailDemoIdentifiers.IsDemoRequestId(run.RequestId);

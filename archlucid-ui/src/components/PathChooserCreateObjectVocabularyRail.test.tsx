@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PathChooserCreateObjectVocabularyRail } from "@/components/PathChooserCreateObjectVocabularyRail";
 import {
@@ -14,8 +14,26 @@ import {
   PATH_CHOOSER_CREATE_OBJECT_WHY_THREE,
   buildPathChooserCreateObjectVocabularyRailLinks,
 } from "@/lib/vocabulary/path-chooser-create-object-vocabulary";
+import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
+
+const workspaceModeMock = vi.hoisted(() => ({
+  isWorkingMode: false,
+}));
+
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => ({
+    mode: workspaceModeMock.isWorkingMode ? "working" : "guided",
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: workspaceModeMock.isWorkingMode,
+    setAndPersist: vi.fn(),
+  }),
+}));
 
 describe("PathChooserCreateObjectVocabularyRail (TB-2260)", () => {
+  beforeEach(() => {
+    workspaceModeMock.isWorkingMode = false;
+  });
   it("renders compact strip on path-chooser with inline peer links to drafts and Start a review", () => {
     render(
       <PathChooserCreateObjectVocabularyRail currentSurfaceId="path-chooser" />,
@@ -96,5 +114,18 @@ describe("PathChooserCreateObjectVocabularyRail (TB-2260)", () => {
     expect(
       screen.getByTestId("path-chooser-create-object-vocabulary-current"),
     ).toHaveTextContent(PATH_CHOOSER_CREATE_OBJECT_PATH_CHOOSER_LINK.label);
+  });
+
+  it("uses the draft editor href for Working-mode Start review peers (WA-02)", () => {
+    workspaceModeMock.isWorkingMode = true;
+
+    render(<PathChooserCreateObjectVocabularyRail currentSurfaceId="path-chooser" />);
+
+    const reviewsPeer = screen.getByTestId(
+      "path-chooser-create-object-vocabulary-peer-reviews-new",
+    );
+
+    expect(reviewsPeer).toHaveTextContent("New review");
+    expect(reviewsPeer).toHaveAttribute("href", ARCHITECTURES_NEW_PATH);
   });
 });

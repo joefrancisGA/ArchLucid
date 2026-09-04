@@ -1,7 +1,8 @@
 ﻿using ArchLucid.Api.Mapping;
-using ArchLucid.Api.Models;
 
 using FluentAssertions;
+
+using ApiReplayComparisonRequest = ArchLucid.Api.Models.ReplayComparisonRequest;
 
 namespace ArchLucid.Api.Tests;
 
@@ -14,7 +15,7 @@ public sealed class ReplayComparisonRequestMapperTests
     [SkippableFact]
     public void ToApplicationForReplayEndpoint_prefers_query_format_when_body_is_blank()
     {
-        ReplayComparisonRequest request = new()
+        ApiReplayComparisonRequest request = new()
         {
             Format = "", ReplayMode = "verify", Profile = "detailed", PersistReplay = true
         };
@@ -32,7 +33,7 @@ public sealed class ReplayComparisonRequestMapperTests
     [SkippableFact]
     public void ToApplicationForReplayEndpoint_keeps_body_format_when_present()
     {
-        ReplayComparisonRequest request = new() { Format = "docx" };
+        ApiReplayComparisonRequest request = new() { Format = "docx" };
 
         Application.Analysis.ReplayComparisonRequest mapped =
             ReplayComparisonRequestMapper.ToApplicationForReplayEndpoint("cmp-2", request, "html");

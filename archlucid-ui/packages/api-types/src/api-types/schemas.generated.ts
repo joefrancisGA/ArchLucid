@@ -775,6 +775,7 @@ export interface components {
         };
         AgentResultDiffResult: {
             agentDeltas?: components["schemas"]["AgentResultDelta"][];
+            inputFingerprints?: null | components["schemas"]["CompareInputFingerprints"];
             leftRunId?: string;
             rightRunId?: string;
             warnings?: string[];
@@ -4190,6 +4191,16 @@ export interface components {
             runId?: string;
             status?: string;
         };
+        GovernanceMutationCorrectionRecordedDto: {
+            correctionId?: string;
+            mutationKind?: string;
+            rationale?: string;
+            /** Format: date-time */
+            recordedAtUtc?: string;
+            recordedByUserId?: string;
+            runId?: string;
+            subjectId?: string;
+        };
         GovernancePreviewResult: {
             currentManifestVersion?: null | string;
             currentRunId?: null | string;
@@ -6995,6 +7006,12 @@ export interface components {
             runId?: null | string;
             tradeOffAcknowledgment?: null | string;
         };
+        RecordGovernanceMutationCorrectionRequest: {
+            mutationKind?: string;
+            rationale?: string;
+            runId?: string;
+            subjectId?: string;
+        };
         RecordRunOperatorGovernanceDispositionRequest: {
             decision?: components["schemas"]["RunOperatorGovernanceDecision"];
             rationale?: null | string;
@@ -8112,6 +8129,10 @@ export interface components {
         SetProfessionalWorkbenchEnabledRequest: {
             enabled?: boolean;
         };
+        SetRoiLoadedHourlyCostUsdRequest: {
+            /** Format: double */
+            hourlyCostUsd?: number | string;
+        };
         SetSampleReviewsOnOverviewVisibilityRequest: {
             enabled?: boolean;
         };
@@ -8490,6 +8511,10 @@ export interface components {
         };
         SubmitAgentResultResponse: {
             resultId?: string;
+        };
+        SubmitDraftPostRequest: {
+            /** Format: date-time */
+            expectedUpdatedUtc?: null | string;
         };
         SubmitDraftResponse: {
             /** Format: uuid */
@@ -9531,6 +9556,9 @@ export interface components {
             ianaTimeZoneIsExplicit?: boolean;
             professionalWorkbenchEnabled?: boolean;
             professionalWorkbenchEnabledIsExplicit?: boolean;
+            /** Format: double */
+            roiLoadedHourlyCostUsd?: number | string;
+            roiLoadedHourlyCostUsdIsExplicit?: boolean;
             sampleReviewsOnOverviewEnabled?: boolean;
             sampleReviewsOnOverviewIsExplicit?: boolean;
             whereToGoNextEnabled?: boolean;

@@ -188,6 +188,77 @@ export type GettingStartedActionCard = {
 
 const sampleReviewHref = buildGoldenSponsorPackageWalkthroughHref();
 
+export const GETTING_STARTED_HELP_WORKING_QUICK_START_TITLE = "Use ArchLucid as your review desk" as const;
+
+export const GETTING_STARTED_HELP_WORKING_QUICK_START_COPY =
+  "Resume a draft, open an architecture package, inspect sealed records, or start a new review from the draft editor." as const;
+
+export function resolveGettingStartedHelpQuickStartTitle(workingMode: boolean): string {
+  return workingMode ? GETTING_STARTED_HELP_WORKING_QUICK_START_TITLE : GETTING_STARTED_HELP_QUICK_START_TITLE;
+}
+
+export function resolveGettingStartedHelpQuickStartCopy(workingMode: boolean): string {
+  return workingMode ? GETTING_STARTED_HELP_WORKING_QUICK_START_COPY : GETTING_STARTED_HELP_QUICK_START_COPY;
+}
+
+export function resolveGettingStartedHelpPrimaryActions(workingMode: boolean): readonly GettingStartedActionCard[] {
+  if (!workingMode) {
+    return [
+      {
+        title: "Start review",
+        description: GETTING_STARTED_HELP_QUICK_START_COPY,
+        href: GETTING_STARTED_HELP_PRIMARY_ACTIONS.startReview.href,
+        ctaLabel: GETTING_STARTED_HELP_PRIMARY_ACTIONS.startReview.label,
+      },
+      {
+        title: GETTING_STARTED_HELP_PRIMARY_ACTIONS.sampleReview.label,
+        description: "Walk through a labeled sample from sealed review record to sponsor-ready exports.",
+        href: GETTING_STARTED_HELP_PRIMARY_ACTIONS.sampleReview.href,
+        ctaLabel: GETTING_STARTED_HELP_PRIMARY_ACTIONS.sampleReview.label,
+      },
+      {
+        title: "First review guide",
+        description: "Step through the guided first-review workflow.",
+        href: GETTING_STARTED_HELP_PRIMARY_ACTIONS.firstReviewGuide.href,
+        ctaLabel: GETTING_STARTED_HELP_PRIMARY_ACTIONS.firstReviewGuide.label,
+      },
+    ];
+  }
+
+  return [
+    {
+      title: "New review",
+      description: "Open the draft editor and start a new architecture review.",
+      href: "/architecture/architectures/new",
+      ctaLabel: "New review",
+    },
+    {
+      title: "Resume drafts",
+      description: "Open saved architecture drafts before filing evidence for review.",
+      href: "/architecture/architectures",
+      ctaLabel: "Open drafts",
+    },
+    {
+      title: "Open packages",
+      description: "Resume in-progress or finalized architecture reviews in this workspace.",
+      href: "/architecture/reviews",
+      ctaLabel: "Open reviews",
+    },
+  ];
+}
+
+export function resolveGettingStartedHelpNextActionCards(
+  workingMode: boolean,
+): readonly GettingStartedActionCard[] {
+  if (!workingMode) {
+    return GETTING_STARTED_HELP_NEXT_ACTION_CARDS;
+  }
+
+  return GETTING_STARTED_HELP_NEXT_ACTION_CARDS.filter(
+    (card) => !card.href.includes("/see-it") && !card.title.toLowerCase().includes("first review"),
+  );
+}
+
 export const GETTING_STARTED_HELP_PRIMARY_ACTIONS = {
   startReview: { href: "/architecture/reviews/new", label: BUYER_START_ARCHITECTURE_REVIEW_CTA },
   sampleReview: { href: sampleReviewHref, label: GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA },

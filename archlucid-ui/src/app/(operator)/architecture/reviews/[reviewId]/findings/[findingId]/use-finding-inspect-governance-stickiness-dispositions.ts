@@ -89,6 +89,8 @@ export function useFindingInspectGovernanceStickinessDispositions({
   const [applyChangePreviewOverride, setApplyChangePreviewOverride] = useState(false);
   const [tradeOffAcknowledgment, setTradeOffAcknowledgment] = useState("");
   const [showIncrementalRereviewLink, setShowIncrementalRereviewLink] = useState(false);
+  const [dispositionLastSavedUtc, setDispositionLastSavedUtc] = useState<string | null>(null);
+  const [dispositionInlineSaveError, setDispositionInlineSaveError] = useState<string | null>(null);
 
   const reload = useCallback(async (): Promise<FindingDispositionEvent[]> => {
     const [dispositions, waivers] = await Promise.all([
@@ -134,6 +136,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
     setBusyAction("disposition");
     setErrorMessage(null);
     setStatusMessage(null);
+    setDispositionInlineSaveError(null);
 
     try {
       const saved = await recordFindingDisposition(findingId, {
@@ -154,9 +157,12 @@ export function useFindingInspectGovernanceStickinessDispositions({
       const refreshed = await reload();
       const concurrentNotice = resolveDispositionConcurrentUpdateNotice(saved, refreshed);
 
+      setDispositionLastSavedUtc(new Date().toISOString());
       setStatusMessage(concurrentNotice ?? "Disposition recorded.");
     } catch (error: unknown) {
-      setErrorMessage(resolveMutationError(error));
+      const message = resolveMutationError(error);
+      setDispositionInlineSaveError(message);
+      setErrorMessage(message);
     } finally {
       setBusyAction(null);
     }
@@ -170,6 +176,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
     setBusyAction("mark-remediated");
     setErrorMessage(null);
     setStatusMessage(null);
+    setDispositionInlineSaveError(null);
 
     try {
       const saved = await recordFindingDisposition(findingId, {
@@ -181,10 +188,13 @@ export function useFindingInspectGovernanceStickinessDispositions({
       const refreshed = await reload();
       const concurrentNotice = resolveDispositionConcurrentUpdateNotice(saved, refreshed);
 
+      setDispositionLastSavedUtc(new Date().toISOString());
       setStatusMessage(concurrentNotice ?? "Finding marked as remediated.");
       setShowIncrementalRereviewLink(true);
     } catch (error: unknown) {
-      setErrorMessage(resolveMutationError(error));
+      const message = resolveMutationError(error);
+      setDispositionInlineSaveError(message);
+      setErrorMessage(message);
     } finally {
       setBusyAction(null);
     }
@@ -277,5 +287,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
     sponsorSynopsisPackageTitle,
     recentDispositionActors,
     pendingDispositionBlockedReason,
+    dispositionLastSavedUtc,
+    dispositionInlineSaveError,
   };
 }

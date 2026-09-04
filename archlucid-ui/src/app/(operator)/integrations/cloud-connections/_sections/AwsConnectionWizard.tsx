@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
@@ -20,6 +21,10 @@ import {
   AWS_CONNECTION_SAVE_FAILED_ERROR,
 } from "@/lib/aws-cloud-connection-copy";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import {
+  awsConnectionWizardStepHrefFromSearch,
+  parseAwsConnectionWizardStepFromSearch,
+} from "@/lib/integrations/aws-connection-wizard-step-url";
 
 import {
   fieldErrorMessage,
@@ -40,7 +45,11 @@ type Props = {
 
 export function AwsConnectionWizard(props: Props): React.ReactElement {
   const { canMutate, refreshConnections, setFormError, setActionMessage } = useAwsConnectionData();
-  const [step, setStep] = useState(0);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/integrations/cloud-connections/aws";
+  const searchParams = useSearchParams();
+  const urlStep = parseAwsConnectionWizardStepFromSearch(searchParams.get("awsStep"));
+  const [step, setStepState] = useState(urlStep ?? 0);
   const [accountId, setAccountId] = useState("");
   const [region, setRegion] = useState("us-east-1");
   const [roleArn, setRoleArn] = useState("");
@@ -58,6 +67,27 @@ export function AwsConnectionWizard(props: Props): React.ReactElement {
   );
 
   const fieldsValid = !hasAwsConnectionFieldErrors(fieldErrors);
+
+  const setStep = useCallback(
+    (next: number | ((current: number) => number)) => {
+      setStepState((current) => {
+        const resolved = typeof next === "function" ? next(current) : next;
+
+        router.replace(awsConnectionWizardStepHrefFromSearch(searchParams.toString(), resolved, pathname), {
+          scroll: false,
+        });
+
+        return resolved;
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    if (urlStep !== null) {
+      setStepState(urlStep);
+    }
+  }, [urlStep]);
 
   const completedSteps = useMemo(() => {
     const done: number[] = [];
@@ -89,11 +119,11 @@ export function AwsConnectionWizard(props: Props): React.ReactElement {
     }
 
     setStep((current) => Math.min(current + 1, AWS_CONNECTION_DETAIL_WIZARD_STEPS.length - 1));
-  }, [fieldsValid, step, touchAllFields]);
+  }, [fieldsValid, setStep, step, touchAllFields]);
 
   const handleBack = useCallback(() => {
     setStep((current) => Math.max(current - 1, 0));
-  }, []);
+  }, [setStep]);
 
   const handleSave = useCallback(async () => {
     if (!canMutate || !fieldsValid) {

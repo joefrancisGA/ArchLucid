@@ -16,5 +16,9 @@ public interface IDraftAdmissionService
         Guid draftId,
         CancellationToken cancellationToken);
 
-    Task<SubmitDraftResponse?> SubmitAsync(ScopeContext scope, Guid draftId, CancellationToken cancellationToken);
+    Task<SubmitDraftResponse?> SubmitAsync(
+        ScopeContext scope,
+        Guid draftId,
+        DateTime? expectedUpdatedUtc,
+        CancellationToken cancellationToken);
 }

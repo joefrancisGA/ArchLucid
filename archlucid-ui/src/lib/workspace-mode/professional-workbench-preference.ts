@@ -29,7 +29,8 @@ export function hasExplicitProfessionalWorkbenchTabOnlyInStorage(): boolean {
 /** Working mode defaults to the split workbench; Guided keeps tab-only layout. */
 export function readProfessionalWorkbenchEnabledFromStorage(): boolean {
   if (typeof window === "undefined") {
-    return false;
+    // RS-13: default Working to workbench before client hydration; explicit Tab-only applies after storage read.
+    return true;
   }
 
   try {

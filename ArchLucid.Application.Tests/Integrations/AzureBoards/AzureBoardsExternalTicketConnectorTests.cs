@@ -10,7 +10,9 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integrations.Itsm;
 using ArchLucid.Core.Persistence.ApplicationPorts.Integrations;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Integrations;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -20,6 +22,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 
 using static ArchLucid.Application.Tests.Integrations.Itsm.Outbound.ItsmOutboundConnectorTestFixture;
+using static ArchLucid.Application.Tests.Integrations.Itsm.Outbound.ItsmOutboundSealedManifestTestSupport;
 
 namespace ArchLucid.Application.Tests.Integrations.AzureBoards;
 
@@ -74,7 +77,9 @@ public sealed class AzureBoardsExternalTicketConnectorTests
             settingsRepository,
             CredentialResolver(outbound),
             PublicSiteMonitor("https://app.example").Object,
-            new AzureBoardsOutboundIssueClient(new HttpClient(handler), NullLogger<AzureBoardsOutboundIssueClient>.Instance));
+            new AzureBoardsOutboundIssueClient(new HttpClient(handler), NullLogger<AzureBoardsOutboundIssueClient>.Instance),
+            CreateAuthorityQueryService(Scope(), Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd")),
+            CreateManifestHashService());
 
         ItsmOutboundIssueCreationResult result = await sut.TryCreateForFindingAsync(
             new ExternalTicketCreateContext(
@@ -107,14 +112,18 @@ public sealed class AzureBoardsExternalTicketConnectorTests
         ITenantAzureBoardsOutboundSettingsRepository settingsRepository,
         IItsmTenantConnectorCredentialResolver credentialResolver,
         IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
-        AzureBoardsOutboundIssueClient client) =>
+        AzureBoardsOutboundIssueClient client,
+        IAuthorityQueryService? authorityQueryService = null,
+        IManifestHashService? manifestHashService = null) =>
         new(
             correlations,
             credentialResolver,
             publicSiteOptions,
             settingsRepository,
             client,
-            HttpAuthenticator());
+            HttpAuthenticator(),
+            authorityQueryService ?? CreateAuthorityQueryService(Scope(), Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd")),
+            manifestHashService ?? CreateManifestHashService());
 
     private sealed class StubHandler(Func<HttpRequestMessage, HttpResponseMessage> responder) : HttpMessageHandler
     {

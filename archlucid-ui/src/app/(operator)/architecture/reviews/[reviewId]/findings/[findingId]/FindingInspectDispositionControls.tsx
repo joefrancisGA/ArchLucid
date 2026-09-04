@@ -48,6 +48,10 @@ export function FindingInspectDispositionControls(props: FindingInspectDispositi
         mutationDisabledReason={viewModel.mutationDisabledReason}
         pendingDispositionKind={viewModel.pendingDispositionKind}
         pendingDispositionBlockedReason={viewModel.pendingDispositionBlockedReason}
+        remediationLastSavedUtc={viewModel.remediationLastSavedUtc}
+        remediationInlineSaveError={viewModel.remediationInlineSaveError}
+        dispositionLastSavedUtc={viewModel.dispositionLastSavedUtc}
+        dispositionInlineSaveError={viewModel.dispositionInlineSaveError}
       />
       <FindingInspectWaiverPanel
         canMutate={viewModel.canMutate}

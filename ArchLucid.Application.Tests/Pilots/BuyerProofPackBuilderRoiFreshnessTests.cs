@@ -93,7 +93,9 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
             valueReport,
             scopeProvider.Object,
             pilotBaselines.Object,
-            collectionResolver);
+            collectionResolver,
+            Mock.Of<ArchLucid.Persistence.Queries.IAuthorityQueryService>(),
+            Mock.Of<ArchLucid.Core.Manifest.IManifestHashService>());
 
         BuyerProofPackBuildResult? result =
             await sut.TryBuildZipAsync(RunId.ToString(), "http://localhost:5000");
@@ -247,6 +249,8 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
             pilotBaselines.Object,
             FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 

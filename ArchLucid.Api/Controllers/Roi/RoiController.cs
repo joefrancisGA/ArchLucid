@@ -4,6 +4,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Http;
+using ArchLucid.Application;
 using ArchLucid.Application.Http;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
@@ -120,9 +121,18 @@ public sealed class RoiController(
 
         string? traceId = Activity.Current?.TraceId.ToString();
 
-        SponsorRoiBoardPackExportResult export = await _boardPackExporter
-            .ExportAsync(parsedFormat, traceId, generateNarrative, cancellationToken)
-            .ConfigureAwait(false);
+        SponsorRoiBoardPackExportResult export;
+
+        try
+        {
+            export = await _boardPackExporter
+                .ExportAsync(parsedFormat, traceId, generateNarrative, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 

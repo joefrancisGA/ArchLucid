@@ -213,7 +213,7 @@ export function useAlertSimulation(): AlertSimulationModel {
   const [cmpRecent, setCmpRecent] = useState(10);
   const [cmpSlug, setCmpSlugState] = useState(urlSlug);
 
-  const syncScopeToUrlRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const syncScopeToUrlRef = useRef<number | null>(null);
 
   const syncScopeToUrl = useCallback(
     (scope: { runId: string; compareRunId: string; projectSlug: string }) => {

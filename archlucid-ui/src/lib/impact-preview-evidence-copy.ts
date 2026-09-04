@@ -20,7 +20,7 @@ export const IMPACT_PREVIEW_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Architecture reviews", href: IMPACT_PREVIEW_REVIEWS_HREF },
   { label: "Planning", href: IMPACT_PREVIEW_PLANNING_HREF },
   { label: "Compare two reviews", href: "/insights/compare-two-reviews" },
-  { label: "Evidence trail", href: "/insights/evidence-graph" },
+  { label: "Evidence graph", href: "/insights/evidence-graph" },
   { label: "Advisory scans", href: IMPACT_PREVIEW_ADVISORY_HREF },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;

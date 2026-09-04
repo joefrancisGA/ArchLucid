@@ -9,8 +9,11 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Pilots;
 using ArchLucid.Persistence.Tenancy;
@@ -166,7 +169,15 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
         Mock<IOptionsMonitor<PublicSiteOptions>> site = new();
         site.Setup(s => s.CurrentValue).Returns(new PublicSiteOptions { BaseUrl = "https://ui.example" });
 
-        SponsorOnePagerPdfBuilder pdfBuilder = new(query.Object, scorecard, deltas.Object, markdownBuilder, site.Object);
+        SponsorOnePagerPdfBuilder pdfBuilder = new(
+            query.Object,
+            scorecard,
+            deltas.Object,
+            markdownBuilder,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
+            scope.Object,
+            site.Object);
         byte[]? pdf = await pdfBuilder.BuildPdfAsync("r1", "http://localhost:5000");
 
         pdf.Should().NotBeNull();
@@ -441,6 +452,8 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
             pilotBaselines.Object,
             FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 }

@@ -1190,6 +1190,9 @@ public sealed class ItsmInboundWebhookSyncServiceTests
             support,
             inboundOptions,
             dispositionSync,
+            Mock.Of<ArchLucid.Persistence.Interfaces.IFindingInspectReadRepository>(),
+            Mock.Of<ArchLucid.Persistence.Queries.IAuthorityQueryService>(),
+            Mock.Of<ArchLucid.Core.Manifest.IManifestHashService>(),
             pipelineLogger ?? NullLogger<ItsmInboundWebhookProcessPipeline>.Instance);
         ItsmInboundJiraWebhookProcessor jiraProcessor = new(
             pipeline,

@@ -4,6 +4,7 @@ import type { JSX } from "react";
 
 import Link from "next/link";
 
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 import {
   buildPathChooserCreateObjectVocabulary,
@@ -33,7 +34,8 @@ export function PathChooserCreateObjectVocabularyRail(
   props: PathChooserCreateObjectVocabularyRailProps,
 ): JSX.Element {
   const variant = props.variant ?? "compact";
-  const model = props.model ?? buildPathChooserCreateObjectVocabulary();
+  const { isWorkingMode } = useWorkspaceMode();
+  const model = props.model ?? buildPathChooserCreateObjectVocabulary(isWorkingMode);
   const currentLink = resolvePathChooserCreateObjectLink(props.currentSurfaceId);
 
   if (variant === "compact") {
@@ -47,7 +49,7 @@ export function PathChooserCreateObjectVocabularyRail(
         compactLinkPlacement="inline"
         heading={model.heading}
         whyTwo={model.whyThree}
-        links={buildPathChooserCreateObjectVocabularyRailLinks(props.currentSurfaceId)}
+        links={buildPathChooserCreateObjectVocabularyRailLinks(props.currentSurfaceId, isWorkingMode)}
       />
     );
   }

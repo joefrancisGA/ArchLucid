@@ -1,11 +1,13 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type SetStateAction } from "react";
 
 import {
+  parseSsoWizardCancelConfirmOpenFromSearch,
   parseSsoWizardStepFromSearch,
   SSO_WIZARD_PATH,
+  ssoWizardHrefFromSearch,
   ssoWizardStepHrefFromSearch,
 } from "@/lib/administration/sso-wizard-step-url";
 
@@ -123,11 +125,12 @@ export function useSsoWizardPage(): UseSsoWizardPageResult {
   const pathname = usePathname() ?? SSO_WIZARD_PATH;
   const searchParams = useSearchParams();
   const urlStepIndex = parseSsoWizardStepFromSearch(searchParams.get("step"));
+  const urlCancelConfirm = parseSsoWizardCancelConfirmOpenFromSearch(searchParams.get("ssoCancelConfirm"));
   const [state, setState] = useState<SsoWizardState>(() => createDefaultSsoWizardState());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [pendingCancelConfirm, setPendingCancelConfirm] = useState(false);
+  const [pendingCancelConfirm, setPendingCancelConfirmState] = useState(urlCancelConfirm);
   const [existingConfigSummary, setExistingConfigSummary] = useState<SsoWizardExistingConfigSummaryModel | null>(
     null,
   );
@@ -160,6 +163,32 @@ export function useSsoWizardPage(): UseSsoWizardPageResult {
     },
     [pathname, router, searchParams],
   );
+
+  const syncCancelConfirmToUrl = useCallback(
+    (cancelConfirmOpen: boolean) => {
+      router.replace(
+        ssoWizardHrefFromSearch(searchParams.toString(), { stepIndex: step, cancelConfirmOpen }, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams, step],
+  );
+
+  const setPendingCancelConfirm = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setPendingCancelConfirmState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncCancelConfirmToUrl(next);
+
+        return next;
+      });
+    },
+    [syncCancelConfirmToUrl],
+  );
+
+  useEffect(() => {
+    setPendingCancelConfirmState(parseSsoWizardCancelConfirmOpenFromSearch(searchParams.get("ssoCancelConfirm")));
+  }, [searchParams]);
 
   useEffect(() => {
     syncStepToUrl(step);

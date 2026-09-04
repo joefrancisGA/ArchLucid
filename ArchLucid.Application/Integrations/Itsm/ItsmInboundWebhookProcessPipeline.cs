@@ -4,7 +4,11 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Integrations;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -16,6 +20,9 @@ public sealed class ItsmInboundWebhookProcessPipeline(
     ItsmInboundWebhookSyncSupport support,
     IOptionsMonitor<IntegrationsItsmInboundOptions> inboundOptions,
     ItsmInboundDispositionSync dispositionSync,
+    IFindingInspectReadRepository findingInspectReadRepository,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     ILogger<ItsmInboundWebhookProcessPipeline> logger)
 {
     private readonly ItsmInboundWebhookSyncSupport _support =
@@ -26,6 +33,15 @@ public sealed class ItsmInboundWebhookProcessPipeline(
 
     private readonly ItsmInboundDispositionSync _dispositionSync =
         dispositionSync ?? throw new ArgumentNullException(nameof(dispositionSync));
+
+    private readonly IFindingInspectReadRepository _findingInspectReadRepository =
+        findingInspectReadRepository ?? throw new ArgumentNullException(nameof(findingInspectReadRepository));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private readonly ILogger<ItsmInboundWebhookProcessPipeline> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -181,6 +197,53 @@ public sealed class ItsmInboundWebhookProcessPipeline(
             FindingDisposition? mappedDisposition =
                 statusMapper.TryMapToDisposition(effectivePayload.StatusValue, options);
 
+            ScopeContext correlationScope = new()
+            {
+                TenantId = row.TenantId,
+                WorkspaceId = row.WorkspaceId,
+                ProjectId = row.ProjectId,
+            };
+
+            FindingInspectResponse? inspect = await _findingInspectReadRepository
+                .GetInspectAsync(correlationScope, row.FindingId, ct, FindingInspectReadOptions.MetadataOnly)
+                .ConfigureAwait(false);
+
+            if (inspect is null)
+            {
+                return new ItsmInboundWebhookProcessResult(
+                    true,
+                    ItsmInboundWebhookSyncSupport.RejectedAudit(
+                        descriptor.RejectedAuditEventType,
+                        descriptor.WebhookActorId,
+                        row.TenantId,
+                        row.WorkspaceId,
+                        row.ProjectId,
+                        "finding_not_found",
+                        CreateFindingNotFoundPayload(descriptor.ProviderName, effectivePayload, row.FindingId)));
+            }
+
+            try
+            {
+                await ItsmInboundSealedManifestHashGuard.EnsureFindingRunSealedManifestHashOrThrowAsync(
+                    inspect.RunId,
+                    correlationScope,
+                    _authorityQueryService,
+                    _manifestHashService,
+                    ct).ConfigureAwait(false);
+            }
+            catch (ConflictException ex)
+            {
+                return new ItsmInboundWebhookProcessResult(
+                    true,
+                    ItsmInboundWebhookSyncSupport.RejectedAudit(
+                        descriptor.RejectedAuditEventType,
+                        descriptor.WebhookActorId,
+                        row.TenantId,
+                        row.WorkspaceId,
+                        row.ProjectId,
+                        "sealed_manifest_unverified",
+                        new { findingId = row.FindingId, status = CreateStatusPayload(descriptor.ProviderName, effectivePayload), detail = ex.Message }));
+            }
             ItsmInboundDispositionSyncResult dispositionResult =
                 await _dispositionSync
                     .TryRecordFromWebhookAsync(row, mappedDisposition, effectivePayload.StatusValue, descriptor.WebhookActorId, ct)

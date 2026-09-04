@@ -4,6 +4,7 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
 using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Runs;
 using ArchLucid.ArtifactSynthesis.Docx;
@@ -15,6 +16,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Explanation;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Models;
@@ -55,6 +57,7 @@ public sealed class DocxExportController(
     IExplanationService explanationService,
     IProvenanceSnapshotRepository provenanceSnapshotRepository,
     IScopeContextProvider scopeProvider,
+    IManifestHashService manifestHashService,
     IAuditService auditService,
     ILogger<DocxExportController> logger)
     : ControllerBase
@@ -111,6 +114,21 @@ public sealed class DocxExportController(
         try
         {
             AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(architectureDetail, runId.ToString("N"));
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+
+        try
+        {
+            await ConsultingDocxExportSealedReceiptGuard.EnsureVerifiedOrThrowAsync(
+                runId,
+                runId.ToString("N"),
+                authorityQueryService,
+                manifestHashService,
+                scope,
+                ct);
         }
         catch (ConflictException ex)
         {

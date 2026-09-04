@@ -10,6 +10,10 @@ export const CLOUD_CONNECTIONS_HELP_PAGE_SUBTITLE =
 export const CLOUD_CONNECTIONS_HELP_PAGE_INTRO =
   "Cloud connectors are optional and read-only. Pick a tier below when you need provider inventory in a review — or skip connectors entirely and attach other evidence.";
 
+export const CLOUD_CONNECTIONS_HELP_START_HERE_CARD_TITLE = "Start with an evidence-only review" as const;
+
+export const CLOUD_CONNECTIONS_HELP_START_HERE_HELPER = CLOUD_CONNECTIONS_HELP_PAGE_INTRO;
+
 /** Header claim-discipline strip — procurement must not treat connector setup as assurance evidence. */
 export const CLOUD_CONNECTIONS_HELP_CLAIM_DISCIPLINE =
   "This guide explains optional read-only cloud connectors and how to pick an evidence tier for architecture reviews — not where procurement goes for finalized review record citations.";

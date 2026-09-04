@@ -33,7 +33,8 @@ public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
         Guid? comparedToRunId,
         ImprovementPlan plan,
         IReadOnlyList<AlertRecord>? evaluatedAlerts = null,
-        string? decisionNeededMarkdown = null)
+        string? decisionNeededMarkdown = null,
+        string? sealedManifestHash = null)
     {
         ArgumentNullException.ThrowIfNull(plan);
 
@@ -123,7 +124,8 @@ public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
                 recommendationCount = plan.Recommendations.Count,
                 topRecommendationCount = top.Count,
                 evaluatedAlertCount = alerts.Count,
-                highOrCriticalAlertCount = highCritical
+                highOrCriticalAlertCount = highCritical,
+                manifestHash = string.IsNullOrWhiteSpace(sealedManifestHash) ? null : sealedManifestHash
             })
         };
     }

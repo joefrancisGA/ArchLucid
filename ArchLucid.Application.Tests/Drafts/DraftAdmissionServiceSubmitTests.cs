@@ -90,7 +90,7 @@ public sealed class DraftAdmissionServiceSubmitTests
         Guid draftId = admitted.DraftId;
 
         Func<Task> firstSubmit = async () =>
-            await _service.SubmitAsync(_scope, draftId, CancellationToken.None);
+            await _service.SubmitAsync(_scope, draftId, null, CancellationToken.None);
 
         await firstSubmit.Should().ThrowAsync<InvalidOperationException>();
 
@@ -98,7 +98,7 @@ public sealed class DraftAdmissionServiceSubmitTests
         afterFailure.Should().NotBeNull();
         afterFailure!.Status.Should().Be(DraftRequestStatus.Admitted);
 
-        SubmitDraftResponse? secondSubmit = await _service.SubmitAsync(_scope, draftId, CancellationToken.None);
+        SubmitDraftResponse? secondSubmit = await _service.SubmitAsync(_scope, draftId, null, CancellationToken.None);
 
         secondSubmit.Should().NotBeNull();
         secondSubmit!.Status.Should().Be(DraftRequestStatus.RunSpawned);
@@ -135,8 +135,8 @@ public sealed class DraftAdmissionServiceSubmitTests
         DraftRequestResponse admitted = await CreateAdmittedWithMustAnswersAsync();
         Guid draftId = admitted.DraftId;
 
-        SubmitDraftResponse? first = await _service.SubmitAsync(_scope, draftId, CancellationToken.None);
-        SubmitDraftResponse? second = await _service.SubmitAsync(_scope, draftId, CancellationToken.None);
+        SubmitDraftResponse? first = await _service.SubmitAsync(_scope, draftId, null, CancellationToken.None);
+        SubmitDraftResponse? second = await _service.SubmitAsync(_scope, draftId, null, CancellationToken.None);
 
         first.Should().NotBeNull();
         second.Should().NotBeNull();
@@ -169,7 +169,7 @@ public sealed class DraftAdmissionServiceSubmitTests
             spawnedRunId: null,
             CancellationToken.None);
 
-        Func<Task> act = async () => await _service.SubmitAsync(_scope, draftId, CancellationToken.None);
+        Func<Task> act = async () => await _service.SubmitAsync(_scope, draftId, null, CancellationToken.None);
 
         await act.Should().ThrowAsync<ConflictException>()
             .WithMessage($"*{draftId}*");
@@ -201,7 +201,7 @@ public sealed class DraftAdmissionServiceSubmitTests
             spawnedRunId: legacyRunId,
             CancellationToken.None);
 
-        SubmitDraftResponse? submit = await _service.SubmitAsync(_scope, draftId, CancellationToken.None);
+        SubmitDraftResponse? submit = await _service.SubmitAsync(_scope, draftId, null, CancellationToken.None);
 
         submit.Should().NotBeNull();
         submit!.Status.Should().Be(DraftRequestStatus.RunSpawned);
@@ -244,7 +244,7 @@ public sealed class DraftAdmissionServiceSubmitTests
         DraftRequestResponse admitted = await CreateAdmittedWithMustAnswersAsync(
             ArchitectureWorkflowIntent.CreateArchitecture);
 
-        SubmitDraftResponse? submit = await _service.SubmitAsync(_scope, admitted.DraftId, CancellationToken.None);
+        SubmitDraftResponse? submit = await _service.SubmitAsync(_scope, admitted.DraftId, null, CancellationToken.None);
 
         submit.Should().NotBeNull();
         submit!.RunId.Should().Be("synth-run-1");

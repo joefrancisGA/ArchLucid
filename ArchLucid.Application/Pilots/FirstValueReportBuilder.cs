@@ -2,6 +2,7 @@ using System.Text;
 
 using ArchLucid.Application.Roi;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Manifest;
@@ -12,7 +13,9 @@ using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Pilots;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Tenancy;
 
 using Microsoft.Extensions.Configuration;
@@ -45,6 +48,8 @@ public sealed class FirstValueReportBuilder(
     IPilotBaselineRepository pilotBaselineRepository,
     RoiCostEvidenceCollectionResolver roiCostEvidenceCollectionResolver,
     IOptions<RoiCostEvidenceFreshnessOptions> roiCostEvidenceFreshnessOptions,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     ILogger<FirstValueReportBuilder> logger) : IFirstValueReportBuilder
 {
     private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions = publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
@@ -71,6 +76,10 @@ public sealed class FirstValueReportBuilder(
     private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
     private readonly IScopeContextProvider _scopeProvider = scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
     private readonly ValueReportBuilder _valueReportBuilder = valueReportBuilder ?? throw new ArgumentNullException(nameof(valueReportBuilder));
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     /// <summary>
     ///     Returns Markdown, or <see langword="null"/> when the run does not exist.
@@ -102,7 +111,20 @@ public sealed class FirstValueReportBuilder(
         }
 
         if (detail.IsCommitted && !detail.HasBrokenManifestReference)
+        {
             AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId);
+
+            if (Guid.TryParse(runId.Trim(), out Guid runGuid))
+            {
+                await ManifestDecisionReceiptExportBinder.EnsureSealedExportReceiptVerifiedOrThrowAsync(
+                    runGuid,
+                    runId.Trim(),
+                    _authorityQueryService,
+                    _manifestHashService,
+                    _scopeProvider.GetCurrentScope(),
+                    cancellationToken);
+            }
+        }
 
         PilotRunDeltas deltas = await _deltaComputer.ComputeAsync(detail, cancellationToken);
         ScopeContext scope = _scopeProvider.GetCurrentScope();

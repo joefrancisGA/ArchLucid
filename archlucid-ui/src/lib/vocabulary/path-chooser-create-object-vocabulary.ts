@@ -15,9 +15,13 @@
 
 import {
   ARCHITECTURES_LIST_PATH,
+  ARCHITECTURES_NEW_PATH,
   REVIEWS_NEW_PATH,
 } from "@/lib/architecture/architecture-routes";
-import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import {
+  START_REVIEW_LABEL,
+  WORKING_NEW_REVIEW_LABEL,
+} from "@/lib/architecture/architecture-workflow-labels";
 import { PATH_CHOOSER_HELP_PATH } from "@/lib/path-chooser-help-route";
 import type { VocabularyRailLink } from "@/components/vocabulary/vocabulary-rail-types";
 
@@ -60,6 +64,9 @@ export const PATH_CHOOSER_CREATE_OBJECT_DRAFTS_COMPACT_ANCHOR = "drafts" as cons
 /** Inline compact-line anchor for the Start review hub. */
 export const PATH_CHOOSER_CREATE_OBJECT_REVIEWS_NEW_COMPACT_ANCHOR = "Start review" as const;
 
+/** Working-mode compact anchor — same lifecycle, draft editor entry. */
+export const PATH_CHOOSER_CREATE_OBJECT_WORKING_NEW_REVIEW_COMPACT_ANCHOR = "New review" as const;
+
 /** Short tooltip shown when hovering the Path chooser inline link. */
 export const PATH_CHOOSER_CREATE_OBJECT_PATH_CHOOSER_TOOLTIP =
   "Pick which product area to open next — evaluation, pilot recovery, procurement, sponsor output, or engineering support." as const;
@@ -85,6 +92,21 @@ export const PATH_CHOOSER_CREATE_OBJECT_REVIEWS_NEW_LINK: PathChooserCreateObjec
   whenToUse: "Create a new architecture review that becomes an architecture package.",
 };
 
+export const PATH_CHOOSER_CREATE_OBJECT_WORKING_NEW_REVIEW_LINK: PathChooserCreateObjectLink = {
+  id: "reviews-new",
+  label: WORKING_NEW_REVIEW_LABEL,
+  href: ARCHITECTURES_NEW_PATH,
+  whenToUse: "Open the draft editor and start a new architecture review.",
+};
+
+function resolveReviewsNewLink(workingMode: boolean): PathChooserCreateObjectLink {
+  if (workingMode) {
+    return PATH_CHOOSER_CREATE_OBJECT_WORKING_NEW_REVIEW_LINK;
+  }
+
+  return PATH_CHOOSER_CREATE_OBJECT_REVIEWS_NEW_LINK;
+}
+
 const ALL_LINKS: readonly PathChooserCreateObjectLink[] = [
   PATH_CHOOSER_CREATE_OBJECT_PATH_CHOOSER_LINK,
   PATH_CHOOSER_CREATE_OBJECT_DRAFTS_LINK,
@@ -92,14 +114,18 @@ const ALL_LINKS: readonly PathChooserCreateObjectLink[] = [
 ];
 
 /** Full triad vocabulary model (heading, why-three, and deep links). */
-export function buildPathChooserCreateObjectVocabulary(): PathChooserCreateObjectVocabularyModel {
+export function buildPathChooserCreateObjectVocabulary(
+  workingMode = false,
+): PathChooserCreateObjectVocabularyModel {
+  const reviewsNewLink = resolveReviewsNewLink(workingMode);
+
   return {
     heading: PATH_CHOOSER_CREATE_OBJECT_HEADING,
     whyThree: PATH_CHOOSER_CREATE_OBJECT_WHY_THREE,
     compactLine: PATH_CHOOSER_CREATE_OBJECT_COMPACT_LINE,
     pathChooserLink: PATH_CHOOSER_CREATE_OBJECT_PATH_CHOOSER_LINK,
     draftsLink: PATH_CHOOSER_CREATE_OBJECT_DRAFTS_LINK,
-    reviewsNewLink: PATH_CHOOSER_CREATE_OBJECT_REVIEWS_NEW_LINK,
+    reviewsNewLink,
   };
 }
 
@@ -119,12 +145,20 @@ export function resolvePathChooserCreateObjectLink(
 /** Peer deep-links for the surfaces you are not currently on. */
 export function resolvePathChooserCreateObjectPeerLinks(
   currentSurfaceId: PathChooserCreateObjectSurfaceId,
+  workingMode = false,
 ): readonly PathChooserCreateObjectLink[] {
-  return ALL_LINKS.filter((link) => link.id !== currentSurfaceId);
+  const reviewsNewLink = resolveReviewsNewLink(workingMode);
+
+  return [
+    PATH_CHOOSER_CREATE_OBJECT_PATH_CHOOSER_LINK,
+    PATH_CHOOSER_CREATE_OBJECT_DRAFTS_LINK,
+    reviewsNewLink,
+  ].filter((link) => link.id !== currentSurfaceId);
 }
 
 function resolvePathChooserCreateObjectCompactAnchor(
   surfaceId: PathChooserCreateObjectSurfaceId,
+  workingMode: boolean,
 ): string | undefined {
   switch (surfaceId) {
     case "path-chooser":
@@ -132,7 +166,9 @@ function resolvePathChooserCreateObjectCompactAnchor(
     case "architecture-drafts":
       return PATH_CHOOSER_CREATE_OBJECT_DRAFTS_COMPACT_ANCHOR;
     case "reviews-new":
-      return PATH_CHOOSER_CREATE_OBJECT_REVIEWS_NEW_COMPACT_ANCHOR;
+      return workingMode
+        ? PATH_CHOOSER_CREATE_OBJECT_WORKING_NEW_REVIEW_COMPACT_ANCHOR
+        : PATH_CHOOSER_CREATE_OBJECT_REVIEWS_NEW_COMPACT_ANCHOR;
     default: {
       const exhaustive: never = surfaceId;
       throw new Error(`Unhandled path-chooser create-object surface: ${String(exhaustive)}`);
@@ -143,12 +179,13 @@ function resolvePathChooserCreateObjectCompactAnchor(
 /** Compact {@link VocabularyRail} peer links with inline anchors and a path-chooser tooltip. */
 export function buildPathChooserCreateObjectVocabularyRailLinks(
   currentSurfaceId: PathChooserCreateObjectSurfaceId,
+  workingMode = false,
 ): readonly VocabularyRailLink[] {
-  return resolvePathChooserCreateObjectPeerLinks(currentSurfaceId).map((peer) => ({
+  return resolvePathChooserCreateObjectPeerLinks(currentSurfaceId, workingMode).map((peer) => ({
     href: peer.href,
     label: peer.label,
     testIdSuffix: `peer-${peer.id}`,
-    compactLineAnchor: resolvePathChooserCreateObjectCompactAnchor(peer.id),
+    compactLineAnchor: resolvePathChooserCreateObjectCompactAnchor(peer.id, workingMode),
     tooltip:
       peer.id === "path-chooser" ? PATH_CHOOSER_CREATE_OBJECT_PATH_CHOOSER_TOOLTIP : undefined,
     tooltipTitle:

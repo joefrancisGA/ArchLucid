@@ -1,6 +1,7 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models.Pilots;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Tenancy;
@@ -59,6 +60,16 @@ public sealed class PilotsBoardPackController(BoardPackPdfBuilder boardPackPdfBu
         catch (ArgumentOutOfRangeException ex)
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+        catch (ConflictException ex)
+        {
+            string problemType = ex.Message.Contains("hash verification failed", StringComparison.OrdinalIgnoreCase)
+                ? ProblemTypes.DecisionReceiptSealedHashMismatch
+                : ex.Message.Contains("fields are incomplete", StringComparison.OrdinalIgnoreCase)
+                    ? ProblemTypes.DecisionReceiptSealedIncomplete
+                    : ProblemTypes.Conflict;
+
+            return this.ConflictProblem(ex.Message, problemType);
         }
     }
 }

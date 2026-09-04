@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 
-import { AuthFlowShell } from "@/components/auth/AuthFlowShell";
 import { SessionExpiredView } from "@/app/(operator)/auth/signin/SessionExpiredView";
+import { SignInBuyerChrome } from "@/app/(operator)/auth/signin/SignInBuyerChrome";
 import { SignInFlowClient } from "@/app/(operator)/auth/signin/SignInFlowClient";
 
 export function SignInClient() {
@@ -19,7 +19,7 @@ export function SignInClient() {
 
   if (showsSessionMessage && !sessionAcknowledged) {
     return (
-      <AuthFlowShell>
+      <SignInBuyerChrome showFooterPasswordlessExplanation={false} showFooterHelpLink={false}>
         <SessionExpiredView
           reason={reason}
           onSignIn={() => {
@@ -27,7 +27,7 @@ export function SignInClient() {
           }}
           returnUrl={returnUrl}
         />
-      </AuthFlowShell>
+      </SignInBuyerChrome>
     );
   }
 

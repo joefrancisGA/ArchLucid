@@ -88,7 +88,7 @@ export function composeRunDetailOverviewTab(
       <RunDetailSealDeskCoverageStrip
         runId={m.resolvedDetail.run.runId}
         analysisStagesComplete={analysisStagesCompleteOnSummary(m.progressForPipelineUi)}
-        graphSnapshot={m.resolvedDetail.run.graphSnapshot}
+        graphSnapshot={m.resolvedDetail.graphSnapshot}
         transparencyTrail={feasibilityVerdict?.transparencyTrail ?? null}
       />
       <RunDetailOverviewPanelClientDeferred

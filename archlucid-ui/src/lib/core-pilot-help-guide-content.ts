@@ -10,6 +10,19 @@ export const CORE_PILOT_HELP_SUMMARY_TITLE = "First review path";
 export const CORE_PILOT_HELP_SUMMARY_COPY =
   "Start with evidence, run the review, finalize the architecture review, then share export-ready outputs.";
 
+export const CORE_PILOT_HELP_WORKING_DESK_SUMMARY_TITLE = "Your review desk" as const;
+
+export const CORE_PILOT_HELP_WORKING_DESK_SUMMARY_COPY =
+  "Resume drafts, open packages, inspect sealed records, and ask questions across finalized evidence — use the evaluator walkthrough only when you are assessing ArchLucid." as const;
+
+export function resolveCorePilotHelpSummaryTitle(workingMode: boolean): string {
+  return workingMode ? CORE_PILOT_HELP_WORKING_DESK_SUMMARY_TITLE : CORE_PILOT_HELP_SUMMARY_TITLE;
+}
+
+export function resolveCorePilotHelpSummaryCopy(workingMode: boolean): string {
+  return workingMode ? CORE_PILOT_HELP_WORKING_DESK_SUMMARY_COPY : CORE_PILOT_HELP_SUMMARY_COPY;
+}
+
 export type CorePilotHelpWorkflowStep = {
   readonly stepNumber: number;
   readonly title: string;

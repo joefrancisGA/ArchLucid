@@ -1,4 +1,7 @@
+"use client";
+
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { CompareSampleComparisonAction } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareSampleComparisonAction";
 import {
   buildCompareInsufficientFinalizedEmpty,
@@ -13,10 +16,15 @@ export type CompareInsufficientFinalizedEmptyStateProps = {
 /** Compare page when fewer than two finalized reviews exist in the workspace. */
 export function CompareInsufficientFinalizedEmptyState(props: CompareInsufficientFinalizedEmptyStateProps) {
   const { finalizedCount, onLoadSampleComparison } = props;
+  const { isWorkingMode } = useWorkspaceMode();
   const preset =
     finalizedCount === 0
-      ? buildInsightsFinalizedReviewPrerequisiteEmpty({ jobId: "compare", finalizedCount: 0 })
-      : buildCompareInsufficientFinalizedEmpty();
+      ? buildInsightsFinalizedReviewPrerequisiteEmpty({
+          jobId: "compare",
+          finalizedCount: 0,
+          workingMode: isWorkingMode,
+        })
+      : buildCompareInsufficientFinalizedEmpty(isWorkingMode);
 
   return (
     <EnterpriseCompactEmptyState

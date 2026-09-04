@@ -77,6 +77,7 @@ vi.mock("./SettingsRolesMatrixSection", () => ({
 
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SETTINGS_USERS_USERS_TAB_PATH } from "@/lib/settings-admin-route-paths";
+import { SETTINGS_USERS_HELP_TOPIC_LABEL } from "@/lib/settings-users-evidence-copy";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 import { resolveNavLinkForPathname } from "@/lib/resolve-nav-link-for-pathname";
 import { ROUTE_TITLES } from "@/lib/route-static-titles";
@@ -137,12 +138,8 @@ describe("SettingsRolesPageView (SSU P0)", () => {
 
   it("registers contextual help for users hub paths (TB-1215)", () => {
     expect(pageHelpTopicForPathname("/administration/users")?.slug).toBe("users-and-roles");
-    expect(pageHelpTopicForPathname("/administration/users")?.label).toBe(
-      `${OPERATOR_NAV_LINK_LABELS.usersAndRoles} help`,
-    );
-    expect(pageHelpTopicForPathname("/administration/settings/users")?.label).toBe(
-      `${OPERATOR_NAV_LINK_LABELS.usersAndRoles} help`,
-    );
+    expect(pageHelpTopicForPathname("/administration/users")?.label).toBe(SETTINGS_USERS_HELP_TOPIC_LABEL);
+    expect(pageHelpTopicForPathname("/administration/settings/users")?.label).toBe(SETTINGS_USERS_HELP_TOPIC_LABEL);
   });
 
   it("uses invite-first empty composition without stacked empty cards (TB-1214, TB-1937, TB-1939)", () => {

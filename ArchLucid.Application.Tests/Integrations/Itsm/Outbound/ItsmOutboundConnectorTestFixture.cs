@@ -4,11 +4,14 @@ using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Application.Integrations.Itsm.OAuth;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Secrets;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Integrations;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using ArchLucid.TestSupport.Http;
 
@@ -158,7 +161,11 @@ internal static class ItsmOutboundConnectorTestFixture
                 outboundOptions,
                 publicSiteOptions,
                 jiraClient,
-                serviceNowClient));
+                serviceNowClient),
+            ItsmOutboundSealedManifestTestSupport.CreateAuthorityQueryService(
+                Scope(),
+                Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd")),
+            ItsmOutboundSealedManifestTestSupport.CreateManifestHashService());
 
     public static ItsmExternalTicketUrlBuilder UrlBuilder(
         IItsmFindingCorrelationRepository correlations,

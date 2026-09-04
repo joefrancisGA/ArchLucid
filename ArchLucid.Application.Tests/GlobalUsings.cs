@@ -5,3 +5,6 @@ global using ArchLucid.Contracts.Findings;
 global using ArchLucid.Application.Governance;
 global using ArchLucid.Application.Architecture;
 global using ArchLucid.Contracts.Governance;
+global using ArchLucid.Core.Scoping;
+global using ArchLucid.Persistence.Queries;
+global using IManifestHashService = ArchLucid.Core.Manifest.IManifestHashService;

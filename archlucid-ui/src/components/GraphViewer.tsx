@@ -39,6 +39,10 @@ import {
 import { applyGraphSelectionFocus } from "@/lib/graph-selection-highlight";
 import { parseGraphPathOnlyFromSearch, graphPathOnlyHrefFromSearch } from "@/lib/insights/graph-path-only-url";
 import { graphNodeFocusHrefFromSearch } from "@/lib/insights/graph-node-focus-url";
+import {
+  graphEdgeFocusHrefFromSearch,
+  parseGraphEdgeFocusFromSearch,
+} from "@/lib/insights/graph-edge-focus-url";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { useInpOffloadTask } from "@/lib/workers/inp-offload-client";
 
@@ -75,9 +79,12 @@ export function GraphViewer({
   const searchParams = useSearchParams();
   const currentSearch = searchParams.toString();
   const urlPathOnly = parseGraphPathOnlyFromSearch(searchParams.get("pathOnly"));
+  const urlGraphEdgeId = parseGraphEdgeFocusFromSearch(searchParams.get("graphEdgeId"));
 
-  const syncGraphNodeFocusToUrl = (graphNodeId: string | null): void => {
-    router.replace(graphNodeFocusHrefFromSearch(currentSearch, graphNodeId, pathname), { scroll: false });
+  const syncGraphSelectionToUrl = (graphNodeId: string | null, graphEdgeId: string | null): void => {
+    const afterNode = graphNodeFocusHrefFromSearch(currentSearch, graphNodeId, pathname);
+    const nextSearch = afterNode.includes("?") ? afterNode.slice(afterNode.indexOf("?") + 1) : "";
+    router.replace(graphEdgeFocusHrefFromSearch(nextSearch, graphEdgeId, pathname), { scroll: false });
   };
 
   const deferredTypeFilter = useDeferredValue(typeFilter);
@@ -161,6 +168,21 @@ export function GraphViewer({
   useEffect(() => {
     setShowPathOnly(urlPathOnly);
   }, [urlPathOnly]);
+
+  useEffect(() => {
+    if (urlGraphEdgeId.length === 0) {
+      return;
+    }
+
+    const edge = filtered.edges.find((item) => item.id === urlGraphEdgeId);
+
+    if (edge === undefined) {
+      return;
+    }
+
+    setSelectedEdge(edge);
+    setSelectedNode(null);
+  }, [filtered.edges, urlGraphEdgeId]);
 
   useEffect(() => {
     if (!urlPathOnly || selectedNode === null) {
@@ -303,7 +325,7 @@ export function GraphViewer({
                 setSelectedNode(null);
                 setExplainStatusLine("");
                 setExplainAggregateHref(null);
-                syncGraphNodeFocusToUrl(null);
+                syncGraphSelectionToUrl(null, rawEdge.id ?? null);
               }
             }}
             onNodeClick={(_, node) => {
@@ -312,7 +334,7 @@ export function GraphViewer({
               setExplainAggregateHref(null);
               const nextNode = (node.data.raw as GraphNodeVm) ?? null;
               setSelectedNode(nextNode);
-              syncGraphNodeFocusToUrl(nextNode?.id ?? null);
+              syncGraphSelectionToUrl(nextNode?.id ?? null, null);
             }}
           >
             <GraphFitViewSync

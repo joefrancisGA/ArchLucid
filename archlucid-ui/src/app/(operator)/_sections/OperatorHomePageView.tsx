@@ -15,8 +15,8 @@ import { OperatorHomeWorkspaceActivityProvider } from "@/components/operator-hom
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorHomeBuyerChrome } from "@/components/operator-home/OperatorHomeBuyerChrome";
 import {
-  OPERATOR_HOME_PRIMARY_SECTION_HEADING,
   OPERATOR_LAYOUT,
+  OPERATOR_HOME_SECTION_HEADING,
   OPERATOR_LINK,
 } from "@/lib/design-tokens";
 import { BUYER_RUNS_DASHBOARD_OPEN_ALL_REVIEWS_CTA } from "@/lib/buyer/buyer-polish-copy";
@@ -40,6 +40,7 @@ import {
   PilotCommandCenterCardDeferred,
 } from "./operator-home-page-view-deferred-chunks";
 import { OperatorHomePageHeader } from "./OperatorHomePageHeader";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import {
   OPERATOR_HOME_PRIMARY_CONTENT_ID,
@@ -55,7 +56,7 @@ type OperatorHomePageViewProps = {
 
 function HomeSectionHeading(props: { readonly id?: string; readonly children: string }) {
   return (
-    <h2 id={props.id} className={OPERATOR_HOME_PRIMARY_SECTION_HEADING}>
+    <h2 id={props.id} className={OPERATOR_HOME_SECTION_HEADING}>
       {props.children}
     </h2>
   );
@@ -85,15 +86,13 @@ function HomeRecentReviewsSection(props: { readonly model: OperatorHomePageViewM
     >
       <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
         <HomeSectionHeading id="operator-home-reviews-heading">{OPERATOR_HOME_RECENT_REVIEWS_HEADING}</HomeSectionHeading>
-        {props.model.buyerPolishedShell ? (
-          <Link
-            href={openAllReviewsHref}
-            className={cn("inline-block shrink-0 font-semibold", OPERATOR_LINK.nav)}
-            data-testid="runs-dashboard-open-all-reviews"
-          >
-            {BUYER_RUNS_DASHBOARD_OPEN_ALL_REVIEWS_CTA}
-          </Link>
-        ) : null}
+        <Link
+          href={openAllReviewsHref}
+          className={cn("inline-block shrink-0 font-semibold", OPERATOR_LINK.nav)}
+          data-testid="runs-dashboard-open-all-reviews"
+        >
+          {BUYER_RUNS_DASHBOARD_OPEN_ALL_REVIEWS_CTA}
+        </Link>
       </div>
       {/* Outcome line renders inside the runs panel from live list rows (avoids empty vs sample mismatch). */}
       <OperatorHomeRunsPanel hideHeading initialModel={props.model.runsDashboard} />
@@ -124,7 +123,14 @@ function renderOperatorHomeSection(input: RenderOperatorHomeSectionInput): React
     case "attention-taxonomy":
       return (
         <div key={input.section.id} data-testid={input.section.testId}>
-          <OperatorAttentionKindStrip variant="compact" />
+          <OperatorAttentionKindStrip
+            variant="compact"
+            suppressKinds={
+              input.section.suppressAttentionKinds !== undefined
+                ? input.section.suppressAttentionKinds
+                : undefined
+            }
+          />
         </div>
       );
 
@@ -257,14 +263,14 @@ function OperatorHomePageBody(props: {
 
 /** Landing page: hero CTA, workspace activity, and collapsed advanced guidance. */
 export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
-  const buyerPolishedShell = model.buyerPolishedShell;
+  const evalChromeShell = useProductionEvalChrome();
   const { isWorkingMode } = useWorkspaceMode();
 
   return (
     <OperatorHomeGateDeferred>
       <OperatorHomeRefreshProvider>
         {isWorkingMode ? null : <OperatorHomeDeferredOnboarding />}
-        {buyerPolishedShell ? (
+        {evalChromeShell ? (
           <a
             href={`#${OPERATOR_HOME_PRIMARY_CONTENT_ID}`}
             className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
@@ -273,17 +279,17 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
           </a>
         ) : null}
         <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.majorSectionGap}>
-          <OperatorHomePageChrome buyerPolishedShell={buyerPolishedShell} workingMode={isWorkingMode} />
-          {buyerPolishedShell ? (
+          <OperatorHomePageChrome buyerPolishedShell={evalChromeShell} workingMode={isWorkingMode} />
+          {evalChromeShell ? (
             <div
               id={OPERATOR_HOME_PRIMARY_CONTENT_ID}
               className="scroll-mt-24 space-y-4"
               data-testid="operator-home-primary-content"
             >
-              <OperatorHomePageBody model={model} buyerPolishedShell workingMode={isWorkingMode} />
+              <OperatorHomePageBody model={model} buyerPolishedShell={evalChromeShell} workingMode={isWorkingMode} />
             </div>
           ) : (
-            <OperatorHomePageBody model={model} buyerPolishedShell={false} workingMode={isWorkingMode} />
+            <OperatorHomePageBody model={model} buyerPolishedShell={evalChromeShell} workingMode={isWorkingMode} />
           )}
         </OperatorPageContainer>
       </OperatorHomeRefreshProvider>

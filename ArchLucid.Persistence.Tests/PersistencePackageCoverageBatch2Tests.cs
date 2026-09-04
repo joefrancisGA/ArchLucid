@@ -10,6 +10,10 @@ using ArchLucid.Core.Integration;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Alerts;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Coordination.Compliance;
 using ArchLucid.Persistence.Data.Infrastructure;
@@ -194,7 +198,28 @@ public sealed class PersistencePackageCoverageBatch2Tests
         channel.Setup(c => c.SendAsync(It.IsAny<AlertDeliveryPayload>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         Mock<IAuditService> audit = new();
         audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-        AlertDeliveryDispatcher sut = new([channel.Object], subscriptions.Object, attempts.Object, audit.Object);
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailForManifestCompareAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken _) =>
+                new RunDetailDto
+                {
+                    Run = new RunRecord { RunId = runId },
+                    GoldenManifest = new ManifestDocument
+                    {
+                        RunId = runId,
+                        ManifestHash = "sealed-hash",
+                    },
+                });
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash.Setup(m => m.ComputeHash(It.IsAny<ManifestDocument>())).Returns("sealed-hash");
+        AlertDeliveryDispatcher sut = new(
+            [channel.Object],
+            subscriptions.Object,
+            attempts.Object,
+            audit.Object,
+            authority.Object,
+            manifestHash.Object);
 
         await sut.DeliverAsync(alert, CancellationToken.None);
 

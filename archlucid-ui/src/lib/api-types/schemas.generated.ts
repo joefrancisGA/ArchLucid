@@ -775,6 +775,7 @@ export interface components {
         };
         AgentResultDiffResult: {
             agentDeltas?: components["schemas"]["AgentResultDelta"][];
+            inputFingerprints?: null | components["schemas"]["CompareInputFingerprints"];
             leftRunId?: string;
             rightRunId?: string;
             warnings?: string[];
@@ -1911,6 +1912,12 @@ export interface components {
             stack?: null | string;
             timestampUtc?: null | string;
             userAgent?: null | string;
+        };
+        CloneSnapshotDraftResponse: {
+            clone?: components["schemas"]["DraftRequestResponse"];
+            /** Format: uuid */
+            sourceDraftId?: string;
+            sourceSpawnedRunId?: null | string;
         };
         ClosedLoopReasoningRequest: {
             continueFromExistingRun?: boolean;
@@ -8116,6 +8123,11 @@ export interface components {
         SetCloudPlatformScopeRequest: {
             scope?: components["schemas"]["CloudPlatformScopeDto"];
         };
+        SetFindingsVisibilityPreferencesRequest: {
+            hideGenericEnabled?: boolean;
+            showAdvisoryEnabled?: boolean;
+            showLowConfidenceEnabled?: boolean;
+        };
         SetIanaTimeZonePreferenceRequest: {
             ianaTimeZoneId?: null | string;
         };
@@ -8127,6 +8139,10 @@ export interface components {
         };
         SetProfessionalWorkbenchEnabledRequest: {
             enabled?: boolean;
+        };
+        SetRoiLoadedHourlyCostUsdRequest: {
+            /** Format: double */
+            hourlyCostUsd?: number | string;
         };
         SetSampleReviewsOnOverviewVisibilityRequest: {
             enabled?: boolean;
@@ -8506,6 +8522,10 @@ export interface components {
         };
         SubmitAgentResultResponse: {
             resultId?: string;
+        };
+        SubmitDraftPostRequest: {
+            /** Format: date-time */
+            expectedUpdatedUtc?: null | string;
         };
         SubmitDraftResponse: {
             /** Format: uuid */
@@ -9543,10 +9563,19 @@ export interface components {
             appearancePreferenceIsExplicit?: boolean;
             cloudPlatformScope?: components["schemas"]["CloudPlatformScopeDto"];
             cloudPlatformScopeIsExplicit?: boolean;
+            findingsHideGenericEnabled?: boolean;
+            findingsHideGenericEnabledIsExplicit?: boolean;
+            findingsShowAdvisoryEnabled?: boolean;
+            findingsShowAdvisoryEnabledIsExplicit?: boolean;
+            findingsShowLowConfidenceEnabled?: boolean;
+            findingsShowLowConfidenceEnabledIsExplicit?: boolean;
             ianaTimeZoneId?: string;
             ianaTimeZoneIsExplicit?: boolean;
             professionalWorkbenchEnabled?: boolean;
             professionalWorkbenchEnabledIsExplicit?: boolean;
+            /** Format: double */
+            roiLoadedHourlyCostUsd?: number | string;
+            roiLoadedHourlyCostUsdIsExplicit?: boolean;
             sampleReviewsOnOverviewEnabled?: boolean;
             sampleReviewsOnOverviewIsExplicit?: boolean;
             whereToGoNextEnabled?: boolean;

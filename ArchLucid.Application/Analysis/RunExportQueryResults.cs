@@ -6,6 +6,7 @@ public enum ExportRecordLoadOutcome
 {
     Success,
     RunNotFound,
+    LineageUnverified,
     ExportRecordNotFound,
     LeftIdRequired,
     RightIdRequired,

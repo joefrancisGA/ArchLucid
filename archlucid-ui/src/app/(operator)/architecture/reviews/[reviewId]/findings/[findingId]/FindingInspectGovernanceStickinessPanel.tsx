@@ -1,8 +1,22 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef } from "react";
 
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  findingInspectDispositionConfirmHrefFromSearch,
+  parseFindingInspectDispositionConfirmFromSearch,
+  type FindingInspectDispositionConfirmUrlValue,
+} from "@/lib/findings/finding-inspect-disposition-confirm-url";
+import {
+  findingInspectGovernancePanelHrefFromSearch,
+  parseFindingInspectGovernancePanelFromSearch,
+  parseFindingInspectWaiverConfirmOpenFromSearch,
+  parseFindingInspectWaiverRevokeConfirmOpenFromSearch,
+  type FindingInspectGovernancePanelId,
+} from "@/lib/findings/finding-inspect-governance-panel-url";
 
 import { FindingInspectDispositionControls } from "./FindingInspectDispositionControls";
 import { FindingInspectStickinessSummary } from "./FindingInspectStickinessSummary";
@@ -17,7 +31,78 @@ export type { FindingInspectGovernanceStickinessPanelProps };
 export function FindingInspectGovernanceStickinessPanel(
   props: FindingInspectGovernanceStickinessPanelProps,
 ) {
+  const router = useRouter();
+  const pathname = usePathname() ?? `/architecture/reviews/${props.runId}/findings/${props.findingId}/inspect`;
+  const searchParams = useSearchParams();
+  const urlGovPanel = parseFindingInspectGovernancePanelFromSearch(searchParams.get("govPanel"));
+  const urlWaiverConfirm = parseFindingInspectWaiverConfirmOpenFromSearch(searchParams.get("waiverConfirm"));
+  const urlWaiverRevokeConfirm = parseFindingInspectWaiverRevokeConfirmOpenFromSearch(
+    searchParams.get("waiverRevokeConfirm"),
+  );
+  const urlDispConfirm = parseFindingInspectDispositionConfirmFromSearch(searchParams.get("dispConfirm"));
   const stickiness = useFindingInspectGovernanceStickiness(props);
+  const scrolledPanelRef = useRef<FindingInspectGovernancePanelId | null>(null);
+
+  const syncGovernancePanelToUrl = (
+    panel: FindingInspectGovernancePanelId | null,
+    waiverConfirmOpen: boolean,
+    dispConfirm: FindingInspectDispositionConfirmUrlValue | null = urlDispConfirm,
+    waiverRevokeConfirmOpen: boolean = urlWaiverRevokeConfirm,
+  ): void => {
+    const panelHref = findingInspectGovernancePanelHrefFromSearch(
+      searchParams.toString(),
+      { panel, waiverConfirmOpen, waiverRevokeConfirmOpen },
+      pathname,
+    );
+    const questionIndex = panelHref.indexOf("?");
+    const panelPath = questionIndex >= 0 ? panelHref.slice(0, questionIndex) : panelHref;
+    const panelSearch = questionIndex >= 0 ? panelHref.slice(questionIndex + 1) : "";
+
+    router.replace(
+      findingInspectDispositionConfirmHrefFromSearch(panelSearch, dispConfirm, panelPath),
+      { scroll: false },
+    );
+  };
+
+  useEffect(() => {
+    if (urlWaiverRevokeConfirm) {
+      stickiness.setPendingRevokeWaiverConfirm(true);
+    }
+  }, [stickiness.setPendingRevokeWaiverConfirm, urlWaiverRevokeConfirm]);
+
+  useEffect(() => {
+    if (urlDispConfirm !== null) {
+      stickiness.setPendingDispositionConfirm(urlDispConfirm);
+    }
+  }, [stickiness.setPendingDispositionConfirm, urlDispConfirm]);
+
+  useEffect(() => {
+    if (urlGovPanel === null || scrolledPanelRef.current === urlGovPanel) {
+      return;
+    }
+
+    scrolledPanelRef.current = urlGovPanel;
+    const targetId =
+      urlGovPanel === "waiver"
+        ? "finding-inspect-waiver-panel"
+        : urlGovPanel === "remediation"
+          ? "finding-inspect-remediation-panel"
+          : "finding-inspect-disposition-panel";
+
+    document.getElementById(targetId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [urlGovPanel]);
+
+  const setPendingRevokeWaiverConfirmWithUrl = (open: boolean) => {
+    stickiness.setPendingRevokeWaiverConfirm(open);
+    syncGovernancePanelToUrl(urlGovPanel, urlWaiverConfirm, urlDispConfirm, open);
+  };
+
+  const setPendingDispositionConfirmWithUrl = (
+    confirm: FindingInspectDispositionConfirmUrlValue | null,
+  ) => {
+    stickiness.setPendingDispositionConfirm(confirm);
+    syncGovernancePanelToUrl(urlGovPanel, urlWaiverConfirm, confirm, urlWaiverRevokeConfirm);
+  };
 
   return (
     <div className={cn(OPERATOR_LAYOUT.sectionStack, "rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950/40", OPERATOR_TYPOGRAPHY.body)}>
@@ -63,9 +148,9 @@ export function FindingInspectGovernanceStickinessPanel(
         setWaiverOwnerError={stickiness.setWaiverOwnerError}
         busyAction={stickiness.busyAction}
         pendingDispositionConfirm={stickiness.pendingDispositionConfirm}
-        setPendingDispositionConfirm={stickiness.setPendingDispositionConfirm}
+        setPendingDispositionConfirm={setPendingDispositionConfirmWithUrl}
         pendingRevokeWaiverConfirm={stickiness.pendingRevokeWaiverConfirm}
-        setPendingRevokeWaiverConfirm={stickiness.setPendingRevokeWaiverConfirm}
+        setPendingRevokeWaiverConfirm={setPendingRevokeWaiverConfirmWithUrl}
         applyChangePreviewOverride={stickiness.applyChangePreviewOverride}
         setApplyChangePreviewOverride={stickiness.setApplyChangePreviewOverride}
         tradeOffAcknowledgment={stickiness.tradeOffAcknowledgment}
@@ -81,6 +166,10 @@ export function FindingInspectGovernanceStickinessPanel(
         mutationDisabledReason={stickiness.mutationDisabledReason}
         pendingDispositionKind={stickiness.pendingDispositionKind}
         pendingDispositionBlockedReason={stickiness.pendingDispositionBlockedReason}
+        remediationLastSavedUtc={stickiness.remediationLastSavedUtc}
+        remediationInlineSaveError={stickiness.remediationInlineSaveError}
+        dispositionLastSavedUtc={stickiness.dispositionLastSavedUtc}
+        dispositionInlineSaveError={stickiness.dispositionInlineSaveError}
       />
     </div>
   );

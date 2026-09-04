@@ -313,7 +313,12 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
                         m.manifestSummary?.feasibilityVerdict?.transparencyTrail ??
                         null
                       }
-                      graphSnapshot={m.resolvedDetail.run.graphSnapshot}
+                      feasibilityVerdict={
+                        m.manifestSummaryForUi?.feasibilityVerdict ??
+                        m.manifestSummary?.feasibilityVerdict ??
+                        null
+                      }
+                      graphSnapshot={m.resolvedDetail.graphSnapshot}
                       analysisStagesComplete={analysisStagesCompleteOnSummary(m.progressForPipelineUi)}
                       {...chrome.reviewPackageDoThisNextEvidenceProps}
                     />

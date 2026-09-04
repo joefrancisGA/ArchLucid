@@ -2,6 +2,7 @@
 import type { RefObject } from "react";
 
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
+import { AskRunCoverageHonestyStrip } from "@/components/ask/AskRunCoverageHonestyStrip";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Card, CardContent } from "@/components/ui/card";
@@ -148,6 +149,7 @@ export function AskMainPanel(props: AskMainPanelProps) {
             buyerPolishedShell={buyerPolishedShell}
             clearScopeHref={clearScopeHref}
           />
+          {reviewPicked ? <AskRunCoverageHonestyStrip runId={runId} /> : null}
           {hideCompareChrome ? null : (
             <div className="space-y-2">
               <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>

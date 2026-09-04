@@ -5,7 +5,7 @@
 
 # Repeat-seat mitigations — Composer prompt set (RS-01–RS-15)
 
-ArchLucid sells a **seat for a repeat professional** (`docs/ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md` R13; ADR 0052). **LI-01–15 shipped** (#1397). **LD-01–15** is the 2026-09-04 residual wave still to run (desk identity, live never-sample, honesty on queues, every seal path, amend mounts, empty desk, sealed-record nav, palette first keydown, keyboard Finalize, ops leakage, in-flight hub, remaining dirty editors, meeting elicitation, Insights graph list-first, teaching inventory).
+ArchLucid sells a **seat for a repeat professional** (`docs/ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md` R13; ADR 0052). **LI-01–15 shipped** (#1397). **LD-01–15 shipped** (#1421 / #1439). This set **shipped** as **RS-01–15** on `master` (#1457). Do not re-run. Wave 4 predicted leftovers: [`working-architect-00-index.md`](working-architect-00-index.md) (**WA-01–24**).
 
 This set is **wave 3** — leftovers from the same livelihood diagnosis that **LD does not cover** (spawn as two objects, quiet-engine wizard CTA, infeasible pending empty, document-while-running, demo/paying ops inversion, dirty-guard CI inventory, print *opener* keepalive, account-scoped ROI prefs, concurrency as a desk event). Do **not** re-run LI, PT, WD, or LD from this index.
 
@@ -19,8 +19,10 @@ This set is **wave 3** — leftovers from the same livelihood diagnosis that **L
 |-----|------|--------|
 | **DD / PT / WD** | Earlier waves | Do not re-run / do not fork |
 | **LI-01–15** | 2026-09-03 residuals | **Shipped** #1397 |
-| **LD-01–15** | 2026-09-04 residuals | **Run first** if unstarted — [`livelihood-desk-00-index.md`](livelihood-desk-00-index.md) |
-| **RS-01–15** | **This set** — wave 3 unique leftovers | Run after LD, or only the rows whose LD owner already shipped |
+| **LD-01–15** | 2026-09-04 residuals | **Shipped** #1421 / #1439 |
+| **RS-01–15** | **This set** — wave 3 unique leftovers | **Shipped** #1457 — do not re-run |
+| **WA-01–24** | Wave 4 chrome + career edges | **Shipped** #1496 — do not re-run |
+| **CD-01–15** | Wave 5 unique leftovers | [`career-desk-00-index.md`](career-desk-00-index.md) |
 
 If an RS row lists an LD/LI/PT/WD owner, **do not fork** that file. Implement only the leftover in *What to build*.
 
@@ -75,3 +77,6 @@ Prefer **04 → 01 → 02** first (one object after spawn, quiet-engines stay on
 ## After each prompt
 
 Summarize: files changed, tests run, residual risk, Working vs Guided behavior. Do not mark LI or LD as undone.
+
+**Wave 4 (shipped #1496 — do not re-run):** [`working-architect-00-index.md`](working-architect-00-index.md) (**WA-01–24**). Do not fork RS.
+**Wave 5:** [`career-desk-00-index.md`](career-desk-00-index.md) (**CD-01–15**). Do not fork WA.

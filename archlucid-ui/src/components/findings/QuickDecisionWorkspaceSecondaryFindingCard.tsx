@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { ReactElement } from "react";
 
+import { FindingListDispositionRowActions } from "@/components/governance/findings/FindingListDispositionRowActions";
 import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { QuickDecisionFindingRationale } from "@/components/findings/QuickDecisionFindingRationale";
 import { FindingInsightDensityBand } from "@/components/findings/FindingInsightDensityBand";
@@ -48,6 +49,8 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
       <details
         className="group rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
         data-workspace-disclosure
+        data-finding-id={finding.findingId}
+        tabIndex={0}
       >
         <summary
           className={cn(
@@ -102,6 +105,9 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
               </Link>
             </Button>
           </div>
+          {architectWorkspaceChrome ? (
+            <FindingListDispositionRowActions findingId={finding.findingId} compact />
+          ) : null}
           <QuickDecisionWorkspaceFindingSupportingDetails context={props.context} finding={finding} />
         </div>
       </details>

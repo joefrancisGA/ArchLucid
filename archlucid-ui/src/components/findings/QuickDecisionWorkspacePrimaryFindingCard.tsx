@@ -4,6 +4,7 @@ import Link from "next/link";
 import { MessageCircle } from "lucide-react";
 import type { ReactElement } from "react";
 
+import { FindingListDispositionRowActions } from "@/components/governance/findings/FindingListDispositionRowActions";
 import { FindingAskInlinePanel } from "@/components/findings/FindingAskInlinePanel";
 import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
 import { FindingInsightDensityBand } from "@/components/findings/FindingInsightDensityBand";
@@ -215,6 +216,9 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
           </Button>
         ) : null}
       </div>
+      {architectWorkspaceChrome ? (
+        <FindingListDispositionRowActions findingId={finding.findingId} />
+      ) : null}
       {props.askPanelOpen ? (
         <div className="mt-3">
           <FindingAskInlinePanel findingId={finding.findingId} defaultOpen />

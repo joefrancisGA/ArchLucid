@@ -10,7 +10,7 @@ export function GraphStaticFallback() {
       className="flex min-h-[320px] w-full flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-neutral-300 bg-gradient-to-b from-neutral-50/90 to-white px-4 py-6 dark:border-neutral-700 dark:from-neutral-900/35 dark:to-neutral-950/80"
       data-testid="graph-static-fallback"
       role="img"
-      aria-label="Evidence trail: context, primary finding, decisions, and finalized signed package"
+      aria-label="Evidence graph: context, primary finding, decisions, and finalized signed package"
     >
       <svg
         viewBox="0 0 440 200"
@@ -87,7 +87,7 @@ export function GraphStaticFallback() {
         </text>
       </svg>
       <p className={cn("m-0 max-w-md text-center leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-        Evidence trail — the interactive graph appears once the viewer has loaded.
+        Evidence graph — the interactive graph appears once the viewer has loaded.
       </p>
     </div>
   );

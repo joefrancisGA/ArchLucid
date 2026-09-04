@@ -2,12 +2,16 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -47,11 +51,22 @@ public sealed partial class AnalysisReportsController(
     IConsultingDocxExportProfileSelector consultingDocxExportProfileSelector,
     IRunExportAuditService runExportAuditService,
     IRunExportRecordRepository runExportRecordRepository,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
+    IScopeContextProvider scopeContextProvider,
     IBackgroundJobQueue jobs,
     IAuditService auditService,
     ILogger<AnalysisReportsController> logger)
     : ControllerBase
 {
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
     /// <summary>
     ///     Loads the canonical run detail for <paramref name="runId" />.
     ///     Returns a non-null <see cref="RunDetailLookup.Error" /> (404 problem) when the run is not found.

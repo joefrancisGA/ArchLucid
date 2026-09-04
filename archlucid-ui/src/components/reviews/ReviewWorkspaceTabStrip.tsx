@@ -227,7 +227,7 @@ export function ReviewWorkspaceTabStrip(props: ReviewWorkspaceTabStripProps): Re
             aria-label="Review workspace sections"
             data-testid={REVIEW_DETAIL_WORKSPACE_TABS_TEST_ID}
             className={cn(
-              tabsVariant === "line" ? "overflow-y-hidden" : undefined,
+              tabsVariant === "line" ? "h-auto flex-wrap overflow-y-hidden" : "flex-wrap",
               "-mx-1 overflow-x-auto px-1",
             )}
           >

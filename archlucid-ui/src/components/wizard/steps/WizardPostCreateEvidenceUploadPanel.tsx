@@ -52,7 +52,7 @@ export function WizardPostCreateEvidenceUploadPanel(props: WizardPostCreateEvide
   if (uploadState === "uploading") {
     return (
       <AzureExtractorUploadProgressBar
-        label="Uploading evidence package to this review…"
+        label="Uploading architecture package to this review…"
         percent={uploadProgressPercent}
         testId="wizard-evidence-upload-uploading"
       />

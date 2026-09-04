@@ -88,6 +88,12 @@ public sealed class EvidenceAddedIncrementalReReviewCoordinator(
         if (model is null)
             return;
 
+        IReRunExecuteSealedManifestPinGate reRunExecuteSealedManifestPinGate =
+            asyncScope.ServiceProvider.GetRequiredService<IReRunExecuteSealedManifestPinGate>();
+
+        await reRunExecuteSealedManifestPinGate.EnsureReadyAsync(runId.ToString("N"), cancellationToken)
+            .ConfigureAwait(false);
+
         ReReviewScope reReviewScope = new()
         {
             AffectedElementIds = model.Elements.Select(static element => element.ElementId).ToList(),

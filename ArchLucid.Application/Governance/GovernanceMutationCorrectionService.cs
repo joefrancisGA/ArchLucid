@@ -133,6 +133,7 @@ public sealed class GovernanceMutationCorrectionService(
                 normalizedRunId,
                 _manifestHashService);
         }
+
         await ValidateSubjectAsync(mutationKind, subjectId, normalizedRunId, scope, cancellationToken);
 
         Guid correctionId = Guid.NewGuid();

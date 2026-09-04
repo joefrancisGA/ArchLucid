@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Core.Ask;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -53,6 +54,7 @@ public sealed class AskController(
     [ProducesResponseType(typeof(AskResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Ask([FromBody] AskRequest? request, CancellationToken ct = default)
     {
         IActionResult? validation = ValidateAskRequest(request);
@@ -65,6 +67,11 @@ public sealed class AskController(
             ScopeContext scope = scopeProvider.GetCurrentScope();
             AskResponse result = await ask.AskAsync(request!, scope, ct);
             return Ok(result);
+        }
+        catch (ConflictException ex)
+        {
+            logger.LogWarning(ex, "Ask failed: sealed manifest or inventory guard rejected the request.");
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {
@@ -126,6 +133,15 @@ public sealed class AskController(
 
             string donePayload = JsonSerializer.Serialize(result, StreamSerializerOptions);
             await SseEventWriter.WriteAsync(Response.Body, "done", donePayload, ct);
+        }
+        catch (ConflictException ex)
+        {
+            logger.LogWarning(ex, "Ask stream failed: sealed manifest or inventory guard rejected the request.");
+            await SseEventWriter.WriteAsync(
+                Response.Body,
+                "error",
+                JsonSerializer.Serialize(new { detail = ex.Message }, StreamSerializerOptions),
+                ct);
         }
         catch (InvalidOperationException ex)
         {

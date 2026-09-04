@@ -15,6 +15,7 @@ import { compareRunHeadingLabel } from "@/lib/compare-run-display";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { CompareQualityDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareQualityDeltaPanel";
+import { CompareProvenanceDeltaBand } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareProvenanceDeltaBand";
 import { deriveCompareQualityDeltaFromGolden } from "@/lib/review-quality/compare-quality-delta";
 import type { CompareResultsPanelViewModel } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-results-panel";
 
@@ -50,6 +51,7 @@ export function CompareResultsPanelVerdictChrome({
     verdictSummary,
     findingCorrelationState,
     newFindingTrustLanes,
+    result,
   } = viewModel;
 
   return (
@@ -78,6 +80,16 @@ export function CompareResultsPanelVerdictChrome({
           golden={golden}
           baselinePickedSummary={leftPickedSummary}
           updatedPickedSummary={rightPickedSummary}
+        />
+      ) : null}
+
+      {golden !== null ? (
+        <CompareProvenanceDeltaBand
+          baselineRunId={golden.baseRunId}
+          targetRunId={golden.targetRunId}
+          baselinePickedSummary={leftPickedSummary}
+          targetPickedSummary={rightPickedSummary}
+          manifestDiffs={result?.manifestComparison?.diffs}
         />
       ) : null}
 

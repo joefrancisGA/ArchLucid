@@ -66,11 +66,7 @@ const ReviewDetailWorkspaceTabContext = createContext<ReviewDetailWorkspaceTabCo
 export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.JSX.Element {
   const { isWorkingMode } = useWorkspaceMode();
   const tabs = useReviewDetailWorkspaceTabs(props);
-  const presenter = useReviewDetailWorkspacePresenter({
-    activeTab: tabs.activeTab,
-    initialFindingId: tabs.initialFindingId,
-    initialWorkbenchFocus: tabs.initialWorkbenchFocus,
-  });
+  const presenter = useReviewDetailWorkspacePresenter();
   const selection = useReviewDetailWorkspaceSelection({
     activeTab: tabs.activeTab,
     initialFindingId: tabs.initialFindingId,

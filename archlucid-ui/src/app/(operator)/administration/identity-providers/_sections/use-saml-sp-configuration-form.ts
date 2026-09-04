@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
   activateTenantSamlIdentityProvider,
@@ -24,6 +25,11 @@ import {
   resolveSamlSpFetchMetadataDisabledReason,
   resolveSamlSpSaveDisabledReason,
 } from "@/lib/saml-sp-configuration-disabled-cta";
+import { IDENTITY_PROVIDERS_SAML_CANONICAL_PATH } from "@/lib/identity-providers-saml-evidence-copy";
+import {
+  parseSamlSaveConfirmOpenFromSearch,
+  samlSaveConfirmHrefFromSearch,
+} from "@/lib/administration/saml-save-confirm-url";
 
 function serializeSamlSpConfigurationValues(values: SamlSpConfigurationFormValues): string {
   return JSON.stringify({
@@ -62,6 +68,10 @@ export type UseSamlSpConfigurationFormOptions = {
 };
 
 export function useSamlSpConfigurationForm(options: UseSamlSpConfigurationFormOptions = {}) {
+  const router = useRouter();
+  const pathname = usePathname() ?? IDENTITY_PROVIDERS_SAML_CANONICAL_PATH;
+  const searchParams = useSearchParams();
+  const urlSaveConfirm = parseSamlSaveConfirmOpenFromSearch(searchParams.get("samlSaveConfirm"));
   const [values, setValues] = useState<SamlSpConfigurationFormValues>(() => createDefaultSamlSpConfigurationFormValues());
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -69,7 +79,7 @@ export function useSamlSpConfigurationForm(options: UseSamlSpConfigurationFormOp
   const [savedUtc, setSavedUtc] = useState<string | null>(null);
   const [discoveredClaimNames, setDiscoveredClaimNames] = useState<string[]>([]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [saveConfirmOpen, setSaveConfirmOpen] = useState(false);
+  const [saveConfirmOpen, setSaveConfirmOpenState] = useState(urlSaveConfirm);
   const [savedSnapshot, setSavedSnapshot] = useState<string | null>(null);
   const [touchedFields, setTouchedFields] = useState({
     issuerUri: false,
@@ -80,6 +90,27 @@ export function useSamlSpConfigurationForm(options: UseSamlSpConfigurationFormOp
   const validationErrors = useMemo(() => resolveSamlSpConfigurationValidationErrors(values), [values]);
   const fieldErrors = useMemo(() => resolveSamlSpConfigurationFieldErrors(values), [values]);
   const hasUnsavedEdits = hasUnsavedConfigurationEdits(savedSnapshot, values, touchedFields);
+
+  const syncSaveConfirmToUrl = useCallback(
+    (confirmOpen: boolean) => {
+      router.replace(samlSaveConfirmHrefFromSearch(searchParams.toString(), confirmOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSaveConfirmOpen = useCallback(
+    (confirmOpen: boolean) => {
+      setSaveConfirmOpenState(confirmOpen);
+      syncSaveConfirmToUrl(confirmOpen);
+    },
+    [syncSaveConfirmToUrl],
+  );
+
+  useEffect(() => {
+    setSaveConfirmOpenState(parseSamlSaveConfirmOpenFromSearch(searchParams.get("samlSaveConfirm")));
+  }, [searchParams]);
 
   const loadConfiguration = useCallback(async () => {
     setLoading(true);
