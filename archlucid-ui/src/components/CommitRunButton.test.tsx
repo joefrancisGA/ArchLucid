@@ -110,6 +110,7 @@ describe("CommitRunButton", () => {
     await waitFor(() => {
       expect(mockSyncDraftRegistry).toHaveBeenCalledWith("run-1");
       expect(mockInvalidateHomeRuns).toHaveBeenCalled();
+      expect(mockInvalidateTrialStatus).toHaveBeenCalled();
     });
 
     expect(await screen.findByText(/decisions are now searchable in Ask/i)).toBeInTheDocument();
