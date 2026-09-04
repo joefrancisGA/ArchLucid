@@ -2,7 +2,8 @@
      Origin: owner diagnosis that ArchLucid is a working-architect tool (all-day use;
      livelihoods may depend on it), not a casual evaluator product.
      Created: 2026-09-03. Fifteen prompts. Do not implement from this index.
-     Successor leftovers (2026-09-04): livelihood-desk-00-index.md (LD-01–15), then repeat-seat-00-index.md (RS-01–15). -->
+     Successor leftovers (2026-09-04): livelihood-desk-00-index.md (LD-01–15) shipped, repeat-seat-00-index.md (RS-01–15) shipped #1457.
+     Wave 4: working-architect-00-index.md (WA-01–24). -->
 
 # Livelihood-instrument mitigations — Composer prompt set (LI-01–LI-15)
 

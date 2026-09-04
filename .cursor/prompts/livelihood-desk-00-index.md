@@ -31,8 +31,9 @@ This set is the **2026-09-04 residual 15** — the same five diagnosis classes, 
 | **PT-01–20** | Overlay residuals | Do not fork; LD names leftover only |
 | **WD-01–12** | Structural 12 | Do not fork; LD names leftover only |
 | **LI-01–15** | 2026-09-03 run-now residuals | **Shipped** #1397 — do not re-run |
-| **LD-01–15** | **This set** — 2026-09-04 leftovers after LI | Run these first |
-| **RS-01–15** | Wave 3 unique leftovers (spawn lock, wizard CTA, pending-infeasible empty, …) | [`repeat-seat-00-index.md`](repeat-seat-00-index.md) after LD |
+| **LD-01–15** | **This set** — 2026-09-04 leftovers after LI | **Shipped** #1421 / #1439 — do not re-run |
+| **RS-01–15** | Wave 3 unique leftovers | **Shipped** #1457 — do not re-run |
+| **WA-01–24** | Wave 4 predicted leftovers (chrome CI, one-lifecycle nav, Ask/sponsor honesty, new-version, …) | [`working-architect-00-index.md`](working-architect-00-index.md) |
 
 ## Run order
 
@@ -89,4 +90,6 @@ Prefer **01 → 02 → 03** first (identity, never-sample, honesty beyond review
 
 Summarize: files changed, tests run, residual risk, Working vs Guided behavior. Do not mark LI-01–15 as undone.
 
-**Wave 3 (do not implement from this paragraph):** unique leftovers after this set live in [`repeat-seat-00-index.md`](repeat-seat-00-index.md) (**RS-01–15**). Run LD first. RS names the LD owner and forbids a fork.
+**Wave 3:** [`repeat-seat-00-index.md`](repeat-seat-00-index.md) (**RS-01–15**) — **shipped** `master` #1457. Do not re-run.
+
+**Wave 4 (predicted leftovers after LD+RS):** [`working-architect-00-index.md`](working-architect-00-index.md) (**WA-01–24**). Do not implement from this file. WA names the LD/RS owner and forbids a fork.

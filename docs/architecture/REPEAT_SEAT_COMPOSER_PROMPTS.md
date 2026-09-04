@@ -1,14 +1,14 @@
 > **Scope:** Copy-paste Composer prompts that close **repeat-seat wave-3 leftovers** after LD-01–15. Internal engineering only — not buyer-facing copy.
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Founding contract:** [`ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) R13 · **UI standard:** [`../library/UI_DESIGN_SYSTEM.md`](../library/UI_DESIGN_SYSTEM.md)
 > **Paste-ready files:** [`.cursor/prompts/repeat-seat-00-index.md`](../../.cursor/prompts/repeat-seat-00-index.md) (**RS-01–15**)
-> **Run first:** [`LIVELIHOOD_DESK_COMPOSER_PROMPTS.md`](LIVELIHOOD_DESK_COMPOSER_PROMPTS.md) (**LD-01–15**)
+> **Run first (historical):** [`LIVELIHOOD_DESK_COMPOSER_PROMPTS.md`](LIVELIHOOD_DESK_COMPOSER_PROMPTS.md) (**LD-01–15**, shipped). **Wave 4:** [`WORKING_ARCHITECT_COMPOSER_PROMPTS.md`](WORKING_ARCHITECT_COMPOSER_PROMPTS.md)
 > **Shipped predecessor:** [`.cursor/prompts/livelihood-instrument-00-index.md`](../../.cursor/prompts/livelihood-instrument-00-index.md) (**LI-01–15**, `master` #1397)
 
 # Repeat-seat Composer prompts (RS-01–RS-15)
 
-**Created:** 2026-09-04 · **Status:** ready to run **after LD-01–15** · **Do not re-run LI-01–15 or fork LD-01–15.**
+**Created:** 2026-09-04 · **Status:** **shipped** `master` #1457 · **Do not re-run.** Wave 4: [`WORKING_ARCHITECT_COMPOSER_PROMPTS.md`](WORKING_ARCHITECT_COMPOSER_PROMPTS.md) (**WA-01–24**).
 
-ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record. **LD-01–15** is the current residual wave (desk identity, live never-sample, honesty on queues, every seal path, amend mounts, empty Overview, sealed-record nav, palette first keydown, keyboard Finalize, ops leakage, in-flight hub, remaining dirty editors, meeting elicitation, Insights graph list-first, teaching inventory).
+ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record. **LD-01–15 shipped** (#1421 / #1439). **RS-01–15 shipped** (#1457). Do not re-run this set.
 
 This set is **wave 3** — leftovers from the same diagnosis that LD does not own (quiet-engine **wizard** CTA, coverage next to Finalize, infeasible *pending* empty, spawn as two objects, findings-all-clear while analysis runs, demo/paying ops inversion, dirty-guard **CI inventory**, on-review keyboard context, print **opener** keepalive, account-scoped ROI prefs, concurrency as a desk event, Unknown sentinel as graph nodes, workbench first-paint flash, merge-conflict on the list, Working empty **presets**).
 
