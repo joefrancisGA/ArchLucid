@@ -14,6 +14,17 @@ describe("resolve-visible-command-palette-actions (PT-06)", () => {
     expect(guidedActions.some((action) => action.id === "action-finish-setup")).toBe(true);
   });
 
+  it("maps Working create action to a single New review draft-editor href (WA-02)", () => {
+    const workingActions = resolveVisibleCommandPaletteHrefActions(true);
+    const guidedActions = resolveVisibleCommandPaletteHrefActions(false);
+    const workingCreate = workingActions.find((action) => action.id === "action-create-review");
+    const guidedCreate = guidedActions.find((action) => action.id === "action-create-review");
+
+    expect(workingCreate?.label).toBe("New review");
+    expect(workingCreate?.href).toBe("/architecture/architectures/new");
+    expect(guidedCreate?.href).toBe("/architecture/reviews/new");
+  });
+
   it("exposes save draft handler on architecture draft routes", () => {
     const draftActions = resolveVisibleCommandPaletteHandlerActions("/architecture/architectures/new");
     const homeActions = resolveVisibleCommandPaletteHandlerActions("/");

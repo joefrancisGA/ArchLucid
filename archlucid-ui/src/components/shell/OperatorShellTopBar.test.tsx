@@ -306,6 +306,25 @@ describe("OperatorShellTopBar", () => {
     expect(screen.queryByTestId("guided-mode-top-bar-chip")).not.toBeInTheDocument();
   });
 
+  it("omits AI budget pill in Working mode without internal operator shell env (WA-03)", async () => {
+    fullShellMock.value = false;
+    workspaceModeMock.mode = "working";
+    workspaceModeMock.isWorkingMode = true;
+    navAuthMock.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
+
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
+      </TooltipProvider>,
+    );
+
+    await waitFor(() => {
+      expect(fetchBudgetStatus).not.toHaveBeenCalled();
+    });
+
+    expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
+  });
+
   it("keeps the more menu only for the eval authority theme toggle", async () => {
     authorityThemeEvalMock.value = true;
 

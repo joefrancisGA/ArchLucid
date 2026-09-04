@@ -14,6 +14,7 @@ import {
 } from "@/lib/vocabulary/path-chooser-create-object-vocabulary";
 import {
   ARCHITECTURES_LIST_PATH,
+  ARCHITECTURES_NEW_PATH,
   REVIEWS_NEW_PATH,
 } from "@/lib/architecture/architecture-routes";
 import { PATH_CHOOSER_HELP_PATH } from "@/lib/path-chooser-help-route";
@@ -77,5 +78,21 @@ describe("path-chooser-create-object-vocabulary (TB-2260)", () => {
     expect(links[1]?.testIdSuffix).toBe("peer-architecture-drafts");
     expect(links[1]?.compactLineAnchor).toBe("drafts");
     expect(links[1]?.tooltip).toBeUndefined();
+  });
+
+  it("points Working-mode Start review peer at the draft editor (WA-02)", () => {
+    const model = buildPathChooserCreateObjectVocabulary(true);
+    const peers = resolvePathChooserCreateObjectPeerLinks("architecture-drafts", true);
+    const reviewsPeer = peers.find((peer) => peer.id === "reviews-new");
+
+    expect(model.reviewsNewLink.href).toBe(ARCHITECTURES_NEW_PATH);
+    expect(model.reviewsNewLink.label).toBe("New review");
+    expect(reviewsPeer?.href).toBe(ARCHITECTURES_NEW_PATH);
+    expect(reviewsPeer?.label).toBe("New review");
+
+    const guidedModel = buildPathChooserCreateObjectVocabulary(false);
+
+    expect(guidedModel.reviewsNewLink.href).toBe(REVIEWS_NEW_PATH);
+    expect(guidedModel.reviewsNewLink.label).toBe("Start review");
   });
 });
