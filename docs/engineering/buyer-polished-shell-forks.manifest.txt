@@ -124,7 +124,7 @@ archlucid-ui/src/app/(operator)/help/_sections/HelpCaiqSigResponseHeaderActions.
 archlucid-ui/src/app/(operator)/help/_sections/HelpCliUsageHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpCloudConnectionsGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpCloudConnectionsHeaderActions.tsx
-archlucid-ui/src/app/(operator)/help/_sections/HelpCloudConnectionsSourcesOrientationStrip.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpCloudConnectionsProviderScopeSection.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpComparisonReplayHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpConnectAwsSecurelyHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpConnectAzureSecurelyGuideView.tsx
