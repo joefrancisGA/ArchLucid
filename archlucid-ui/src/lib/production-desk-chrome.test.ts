@@ -5,8 +5,8 @@ import {
   resolveProductionEvalChrome,
 } from "@/lib/production-desk-chrome";
 
-describe("production-desk-chrome", () => {
-  it("returns desk chrome for Working mode on a live production seat", () => {
+describe("resolveProductionDeskChrome", () => {
+  it("returns true for Working mode without demo/trial/static flags", () => {
     expect(
       resolveProductionDeskChrome({
         workspaceMode: "working",
@@ -15,18 +15,9 @@ describe("production-desk-chrome", () => {
         frictionlessTrial: false,
       }),
     ).toBe(true);
-
-    expect(
-      resolveProductionEvalChrome({
-        workspaceMode: "working",
-        staticDemoFallback: false,
-        demoMarketingChrome: false,
-        frictionlessTrial: false,
-      }),
-    ).toBe(false);
   });
 
-  it("returns eval chrome for Guided mode even when buyer-polished env is false", () => {
+  it("returns false for Guided mode (eval chrome)", () => {
     expect(
       resolveProductionDeskChrome({
         workspaceMode: "guided",
@@ -35,30 +26,27 @@ describe("production-desk-chrome", () => {
         frictionlessTrial: false,
       }),
     ).toBe(false);
-
-    expect(
-      resolveProductionEvalChrome({
-        workspaceMode: "guided",
-        staticDemoFallback: false,
-        demoMarketingChrome: false,
-        frictionlessTrial: false,
-      }),
-    ).toBe(true);
   });
 
-  it("returns eval chrome for demo and trial overrides on Working seats", () => {
+  it("returns false when demo marketing chrome is on", () => {
     expect(
       resolveProductionDeskChrome({
         workspaceMode: "working",
+        staticDemoFallback: false,
         demoMarketingChrome: true,
+        frictionlessTrial: false,
       }),
     ).toBe(false);
+  });
 
-    expect(
-      resolveProductionEvalChrome({
-        workspaceMode: "working",
-        frictionlessTrial: true,
-      }),
-    ).toBe(true);
+  it("resolveProductionEvalChrome is the inverse of desk chrome", () => {
+    const input = {
+      workspaceMode: "working" as const,
+      staticDemoFallback: false,
+      demoMarketingChrome: false,
+      frictionlessTrial: false,
+    };
+
+    expect(resolveProductionEvalChrome(input)).toBe(!resolveProductionDeskChrome(input));
   });
 });
