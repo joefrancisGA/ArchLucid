@@ -1948,6 +1948,54 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task UpsertRealizedValueAttestation_returns_bad_request_when_attested_incidents_negative_and_tenant_missing()
+    {
+        Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            recurrenceRepo: recurrenceRepo,
+            tenantRepository: TenantMissingRepository());
+
+        IActionResult action = await controller.UpsertRealizedValueAttestation(
+            new UpsertRealizedValueAttestationRequest
+            {
+                AttestedIncidentsAvoided = -3,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        recurrenceRepo.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task RecordBulkDisposition_returns_bad_request_when_deferred_without_revisit_and_tenant_missing()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new(MockBehavior.Strict);
+        Mock<IFindingDispositionService> dispositions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            findingInspect: findingInspect,
+            dispositionService: dispositions,
+            tenantRepository: TenantMissingRepository());
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = ["finding-1"],
+            Disposition = FindingDisposition.Deferred,
+            Rationale = "defer until next quarter",
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        findingInspect.VerifyNoOtherCalls();
+        dispositions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task RecordDisposition_returns_bad_request_when_rationale_exceeds_max_length_before_finding_inspect()
     {
         Mock<IFindingInspectReadRepository> findingInspect = new(MockBehavior.Strict);

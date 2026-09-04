@@ -42,6 +42,13 @@ public sealed partial class GovernanceStickinessController
         if (bodyProblem is not null)
             return bodyProblem;
 
+        IActionResult? attestationValidation =
+            GovernanceStickinessHttpMapper.ValidateUpsertRealizedValueAttestation(request!)
+                .ToBadRequestProblemOrNull(this);
+
+        if (attestationValidation is not null)
+            return attestationValidation;
+
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)

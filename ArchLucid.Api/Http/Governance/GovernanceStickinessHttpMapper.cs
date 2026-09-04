@@ -2,6 +2,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.FindingDisposition;
+using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Manifest;
@@ -205,6 +206,37 @@ public static class GovernanceStickinessHttpMapper
         return null;
     }
 
+    public static GovernanceHttpValidation? ValidateUpsertRealizedValueAttestation(
+        UpsertRealizedValueAttestationRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (request.AttestedIncidentsAvoided is < 0)
+        {
+            return new GovernanceHttpValidation(
+                "AttestedIncidentsAvoided must be non-negative.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        GovernanceHttpValidation? revenueImpactValidation =
+            ValidateOptionalAttestationNoteLength(
+                request.AttestedRevenueOrRetentionImpact,
+                nameof(request.AttestedRevenueOrRetentionImpact));
+
+        if (revenueImpactValidation is not null)
+            return revenueImpactValidation;
+
+        GovernanceHttpValidation? reviewerNoteValidation =
+            ValidateOptionalAttestationNoteLength(
+                request.AttestedReviewerTimeSavedNote,
+                nameof(request.AttestedReviewerTimeSavedNote));
+
+        if (reviewerNoteValidation is not null)
+            return reviewerNoteValidation;
+
+        return null;
+    }
+
     public static GovernanceHttpValidation? ValidateRecordDisposition(RecordFindingDispositionRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -328,6 +360,21 @@ public static class GovernanceStickinessHttpMapper
         {
             return new GovernanceHttpValidation(
                 "Revisit due date must be in the future when deferring.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
+    private static GovernanceHttpValidation? ValidateOptionalAttestationNoteLength(string? value, string fieldName)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        if (value.Trim().Length > RealizedValueAttestationUpsertValidation.NoteMaxLength)
+        {
+            return new GovernanceHttpValidation(
+                $"{fieldName} must be at most {RealizedValueAttestationUpsertValidation.NoteMaxLength} characters.",
                 ProblemTypes.ValidationFailed);
         }
 

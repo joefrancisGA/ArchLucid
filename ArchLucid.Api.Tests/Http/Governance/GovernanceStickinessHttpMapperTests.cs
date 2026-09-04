@@ -3,6 +3,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.FindingDisposition;
+using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Manifest;
@@ -144,6 +145,34 @@ public sealed class GovernanceStickinessHttpMapperTests
         validation.Should().NotBeNull();
         validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
         validation.Message.Should().Contain(RecurrenceScheduleValidation.CronExpressionMaxLength.ToString());
+    }
+
+    [Fact]
+    public void ValidateUpsertRealizedValueAttestation_rejects_negative_attested_incidents()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateUpsertRealizedValueAttestation(
+            new UpsertRealizedValueAttestationRequest
+            {
+                AttestedIncidentsAvoided = -1,
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("non-negative");
+    }
+
+    [Fact]
+    public void ValidateUpsertRealizedValueAttestation_rejects_overlong_reviewer_note()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateUpsertRealizedValueAttestation(
+            new UpsertRealizedValueAttestationRequest
+            {
+                AttestedReviewerTimeSavedNote = new string('n', RealizedValueAttestationUpsertValidation.NoteMaxLength + 1),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain(RealizedValueAttestationUpsertValidation.NoteMaxLength.ToString());
     }
 
     [Fact]

@@ -472,6 +472,39 @@ public sealed class TenantCustomerSuccessControllerTests
             Times.Never);
     }
 
+    [SkippableFact]
+    public async Task PostProductFeedbackAsync_returns_bad_request_when_run_id_is_empty_and_tenant_missing()
+    {
+        Mock<ITenantCustomerSuccessRepository> repo = new(MockBehavior.Strict);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(t => t.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        TenantCustomerSuccessController sut = BuildSut(
+            repo.Object,
+            scopeProvider.Object,
+            tenantRepository: tenants.Object);
+
+        ProductFeedbackRequest request = new()
+        {
+            RunId = Guid.Empty,
+            Score = 1,
+        };
+
+        IActionResult result = await sut.PostProductFeedbackAsync(request, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        repo.VerifyNoOtherCalls();
+        tenants.Verify(
+            t => t.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     [Fact]
     public async Task GetStickinessSnapshotAsync_merges_funnel_and_signals()
     {
