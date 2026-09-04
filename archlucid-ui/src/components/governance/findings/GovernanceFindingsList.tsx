@@ -4,6 +4,7 @@ import { memo, useState, type ReactElement } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { GovernanceFindingsBulkActions } from "@/components/usability/GovernanceFindingsBulkActions";
+import { GovernanceRecordCorrectionDialog } from "@/components/governance/GovernanceRecordCorrectionDialog";
 import { ReversibleMutationSuccessCallout } from "@/components/operator/ReversibleMutationSuccessCallout";
 import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
 import { GovernanceFindingTriagePanel } from "@/components/governance/findings/GovernanceFindingTriagePanel";
@@ -16,6 +17,10 @@ import {
 } from "@/lib/usability/last-visited-watermark";
 import { BUYER_GOVERNANCE_FINDINGS_RISKS_SECTION_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE } from "@/lib/governance/governance-mutation-outcome-copy";
+import {
+  GOVERNANCE_MUTATION_CORRECTION_SUCCESS_MESSAGE,
+  type GovernanceMutationCorrectionTarget,
+} from "@/lib/governance/governance-mutation-correction-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -54,6 +59,10 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
   const [bulkDispositionSuccessMessage, setBulkDispositionSuccessMessage] = useState<string | null>(null);
   const [bulkDispositionUndo, setBulkDispositionUndo] = useState<(() => Promise<void>) | null>(null);
   const [bulkDispositionUndoBusy, setBulkDispositionUndoBusy] = useState(false);
+  const [bulkDispositionCorrectionTarget, setBulkDispositionCorrectionTarget] =
+    useState<GovernanceMutationCorrectionTarget | null>(null);
+  const [bulkDispositionCorrectionDialogOpen, setBulkDispositionCorrectionDialogOpen] = useState(false);
+  const [bulkDispositionCorrectionRecorded, setBulkDispositionCorrectionRecorded] = useState(false);
   const searchParams = useSearchParams();
   const triage = useGovernanceFindingTriageWithCursor(displayedRows, searchParams);
 
@@ -88,6 +97,40 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
     );
 
     return match?.runId ?? null;
+  }
+
+  function resolveBulkDispositionCorrectionTarget(
+    findingIds: readonly string[],
+  ): GovernanceMutationCorrectionTarget | null {
+    const firstFindingId = findingIds[0];
+
+    if (firstFindingId === undefined) {
+      return null;
+    }
+
+    const runId = resolveFindingRunId(firstFindingId);
+
+    if (runId === null || runId.trim().length === 0) {
+      return null;
+    }
+
+    return {
+      mutationKind: "governance_bulk_disposition",
+      subjectId: firstFindingId,
+      runId: runId.trim(),
+    };
+  }
+
+  function resolveBulkDispositionSuccessMessage(): string {
+    if (bulkDispositionSuccessMessage === null) {
+      return "";
+    }
+
+    if (!bulkDispositionCorrectionRecorded) {
+      return bulkDispositionSuccessMessage;
+    }
+
+    return `${bulkDispositionSuccessMessage} ${GOVERNANCE_MUTATION_CORRECTION_SUCCESS_MESSAGE}`;
   }
 
   if (buyerPolishedShell) {
@@ -178,7 +221,7 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
       />
       {bulkDispositionSuccessMessage !== null ? (
         <ReversibleMutationSuccessCallout
-          message={bulkDispositionSuccessMessage}
+          message={resolveBulkDispositionSuccessMessage()}
           mutationId="governance_bulk_disposition"
           testId="governance-bulk-disposition-success-callout"
           className="mb-2"
@@ -186,6 +229,8 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
           onDismiss={() => {
             setBulkDispositionSuccessMessage(null);
             setBulkDispositionUndo(null);
+            setBulkDispositionCorrectionTarget(null);
+            setBulkDispositionCorrectionRecorded(false);
           }}
           onUndo={
             bulkDispositionUndo !== null
@@ -196,6 +241,8 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
                     await bulkDispositionUndo();
                     setBulkDispositionSuccessMessage(null);
                     setBulkDispositionUndo(null);
+                    setBulkDispositionCorrectionTarget(null);
+                    setBulkDispositionCorrectionRecorded(false);
                   } catch (undoError) {
                     setBulkDispositionSuccessMessage(
                       undoError instanceof Error
@@ -209,16 +256,36 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
                 }
               : undefined
           }
+          onRecordCorrection={
+            bulkDispositionCorrectionTarget !== null
+              ? () => {
+                  setBulkDispositionCorrectionDialogOpen(true);
+                }
+              : undefined
+          }
         />
       ) : null}
+
+      <GovernanceRecordCorrectionDialog
+        open={bulkDispositionCorrectionDialogOpen}
+        onOpenChange={setBulkDispositionCorrectionDialogOpen}
+        target={bulkDispositionCorrectionTarget}
+        onRecorded={() => {
+          setBulkDispositionCorrectionRecorded(true);
+        }}
+      />
 
       {selectedFindingIds.size > 0 ? (
         <div className="mb-2">
           <GovernanceFindingsBulkActions
             selectedFindingIds={Array.from(selectedFindingIds)}
-            onDispositionSucceeded={(message, undo) => {
-              setBulkDispositionSuccessMessage(message);
-              setBulkDispositionUndo(undo ?? null);
+            onDispositionSucceeded={(payload) => {
+              setBulkDispositionSuccessMessage(payload.message);
+              setBulkDispositionUndo(payload.undo ?? null);
+              setBulkDispositionCorrectionRecorded(false);
+              setBulkDispositionCorrectionTarget(
+                resolveBulkDispositionCorrectionTarget(payload.correctionFindingIds),
+              );
             }}
             onApplied={handleBulkApplied}
           />

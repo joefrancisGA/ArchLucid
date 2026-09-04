@@ -8,6 +8,7 @@ const recordBulkFindingDisposition = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ refresh: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
@@ -67,10 +68,12 @@ describe("GovernanceFindingsList bulk disposition (TB-2114)", () => {
     fireEvent.click(screen.getByRole("button", { name: "Apply disposition" }));
 
     await waitFor(() => {
-      // ReversibleMutationSuccessCallout still exposes this durable success test id.
       expect(screen.getByTestId("governance-bulk-disposition-success-callout")).toHaveTextContent(
         "Marked 1 finding(s) as accepted.",
       );
+      expect(
+        screen.getByTestId("governance-bulk-disposition-success-callout-record-correction"),
+      ).toBeInTheDocument();
     });
 
     expect(screen.queryByTestId("governance-findings-bulk-actions")).not.toBeInTheDocument();
