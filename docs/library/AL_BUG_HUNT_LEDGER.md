@@ -1609,11 +1609,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 10
-- **bugs-found:** 18
+- **hunts:** 11
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — HTML/PDF/DOCX detailed export parity gaps (relationships, agent confidence, export request diffs)
+- **last-bug:** 2026-09-04 — HTML compare-quality-delta rendered as raw markdown pipe text
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1642,11 +1642,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) HTML/PDF/DOCX detailed manifest appendices omit relationship diffs while markdown detailed export renders them — **hit 2026-09-04 (#762):** `EndToEndReplayComparisonHtmlExportFormatter`, `EndToEndReplayComparisonPdfExportFormatter`, and `EndToEndReplayComparisonDocxExportFormatter` listed services/datastores/required-controls only; fixed with relationship sections and `RelationshipDiffItem.ToDisplayLine()`; regressions in `GenerateHtml_detailed_includes_relationship_subsections_when_populated`, `GeneratePdf_detailed_includes_relationship_subsections_when_populated`, `GenerateDocx_detailed_includes_relationship_subsections_when_populated`.
 - [x] (proven) `EndToEndReplayComparisonHtmlExportFormatter.AppendAgentResultDiff` omits confidence and required-control/warning deltas — **hit 2026-09-04 (#762):** detailed HTML showed claims/findings only while markdown/PDF/DOCX include confidence and control/warning lists; fixed with markdown parity; regression in `GenerateHtml_detailed_includes_agent_confidence_and_required_control_diffs`.
 - [x] (proven) `EndToEndReplayComparisonHtmlExportFormatter.AppendExportDiffs` omits `RequestDiff.ChangedFlags` / `ChangedValues` — **hit 2026-09-04 (#762):** HTML listed only top-level fields and warnings; fixed with markdown parity; regression in `GenerateHtml_detailed_includes_export_request_flag_and_value_diffs`.
-- [ ] (candidate) `EndToEndReplayComparisonHtmlExportFormatter.MarkdownToSimpleHtml` leaves compare-quality-delta markdown tables as raw pipe text while `CompareQualityDeltaExportFormatter.AppendHtml` is unused — verify structured HTML rendering before hunt-ready promotion.
-- [ ] (candidate) `ComparisonDriftAnalyzer.CompareElement` may false-positive on JSON numbers that differ only in representation (`1` vs `1.0`) because scalar compare uses `JsonElement.ToString()` — cheap-disproof with numeric fixture before promotion.
-- [ ] (candidate) `GraphGcpInventoryReconciliationAnalyzer.CollectInventoryResourceIds` only reads inventory `name`; rows keyed by alternate property fields may be silently dropped — needs corpus fixture before promotion.
+- [x] (proven) `EndToEndReplayComparisonHtmlExportFormatter.MarkdownToSimpleHtml` leaves compare-quality-delta markdown tables as raw pipe text while `CompareQualityDeltaExportFormatter.AppendHtml` is unused — **hit 2026-09-04 (#763):** summary markdown table became `<p>| Metric | Before | After |</p>`; fixed by stripping the markdown section and appending structured HTML via `AppendHtml`; regression in `CompareQualityDeltaExportTests.GenerateHtml_default_profile_includes_compare_quality_delta_section`.
+- [x] (invalid) `ComparisonDriftAnalyzer.CompareElement` may false-positive on JSON numbers that differ only in representation (`1` vs `1.0`) — **invalid 2026-09-04 (#763):** `Analyze_EquivalentIntegerAndDoubleScalars_DoesNotReportDrift` shows `SerializeToElement` normalizes equivalent scalars before `ToString()` compare.
+- [x] (invalid) `GraphGcpInventoryReconciliationAnalyzer.CollectInventoryResourceIds` only reads inventory `name` — **invalid 2026-09-04 (#763):** hosted GCP extractor `GcpInventoryZipPackager` always emits Cloud Asset `name`; rows with only `gcpResourceId` are not in the production corpus (`Analyze_ignores_inventory_rows_without_cloud_asset_name_field` documents intentional asymmetry vs graph-side multi-key lookup).
 
-2026-09-04 seed hunt #762: proved HTML/PDF/DOCX detailed export parity gaps; reseeded compare-quality-delta HTML rendering and drift-analyzer numeric candidates.
+2026-09-04 thorough hunt #763: proved HTML compare-quality-delta structured rendering gap; cheap-disproved drift numeric representation and GCP inventory alternate-key candidates.
 
 2026-09-03 seed hunt #547: proved GCP Cloud Asset URI normalization, HTML sponsor interpretation-notes fallback, and manifest-warnings materiality; reseeded PDF/DOCX export parity candidates.
 
