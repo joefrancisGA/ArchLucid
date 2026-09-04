@@ -153,6 +153,23 @@ public sealed class GovernanceStickinessHttpMapperTests
     }
 
     [Fact]
+    public void ValidateRecordDisposition_rejects_optional_evidence_request_text_on_non_needs_evidence_disposition()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRecordDisposition(
+            new RecordFindingDispositionRequest
+            {
+                FindingId = "finding-1",
+                Disposition = FindingDisposition.Remediated,
+                EvidenceRequestText = "please provide staging evidence logs",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("evidenceRequestText");
+        validation.Message.Should().Contain("not applicable");
+    }
+
+    [Fact]
     public void ValidateRecordDisposition_rejects_whitespace_only_optional_evidence_request_text()
     {
         GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRecordDisposition(
@@ -182,6 +199,24 @@ public sealed class GovernanceStickinessHttpMapperTests
         validation.Should().NotBeNull();
         validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
         validation.Message.Should().Contain("revisitDueUtc");
+    }
+
+    [Fact]
+    public void ValidateRecordDisposition_rejects_optional_trade_off_acknowledgment_on_non_accepted_disposition()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRecordDisposition(
+            new RecordFindingDispositionRequest
+            {
+                FindingId = "finding-1",
+                Disposition = FindingDisposition.Deferred,
+                RevisitDueUtc = DateTimeOffset.UtcNow.AddDays(30),
+                TradeOffAcknowledgment = "accepting latency trade-off for lower cost",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("tradeOffAcknowledgment");
+        validation.Message.Should().Contain("not applicable");
     }
 
     [Fact]
@@ -485,6 +520,24 @@ public sealed class GovernanceStickinessHttpMapperTests
     }
 
     [Fact]
+    public void ValidateBulkDisposition_rejects_optional_evidence_request_text_on_non_needs_evidence_disposition()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateBulkDisposition(
+            new RecordBulkFindingDispositionRequest
+            {
+                FindingIds = ["finding-1"],
+                Disposition = FindingDisposition.Remediated,
+                Rationale = "bulk remediated with enough chars",
+                EvidenceRequestText = "please provide staging evidence logs",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("evidenceRequestText");
+        validation.Message.Should().Contain("not applicable");
+    }
+
+    [Fact]
     public void ValidateBulkDisposition_rejects_whitespace_only_optional_evidence_request_text()
     {
         GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateBulkDisposition(
@@ -533,6 +586,24 @@ public sealed class GovernanceStickinessHttpMapperTests
         validation.Should().NotBeNull();
         validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
         validation.Message.Should().Contain("revisitDueUtc");
+    }
+
+    [Fact]
+    public void ValidateBulkDisposition_rejects_optional_trade_off_acknowledgment_on_non_accepted_disposition()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateBulkDisposition(
+            new RecordBulkFindingDispositionRequest
+            {
+                FindingIds = ["finding-1"],
+                Disposition = FindingDisposition.Remediated,
+                Rationale = "bulk remediated with enough chars",
+                TradeOffAcknowledgment = "accepting latency trade-off for lower cost",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("tradeOffAcknowledgment");
+        validation.Message.Should().Contain("not applicable");
     }
 
     [Fact]

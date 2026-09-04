@@ -590,7 +590,16 @@ public static class GovernanceStickinessHttpMapper
         if (value is null || fieldApplies)
             return null;
 
-        return ValidateOptionalDispositionTextMaxLength(value, fieldName);
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return new GovernanceHttpValidation(
+                $"{fieldName} cannot be empty or whitespace.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return new GovernanceHttpValidation(
+            $"{fieldName} is not applicable for this disposition.",
+            ProblemTypes.ValidationFailed);
     }
 
     private static GovernanceHttpValidation? ValidateOptionalDispositionDateWhenNotApplicable(
