@@ -872,3 +872,4 @@
 {"at":"2026-09-04T15:50:54.1226405Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-04T15:56:06.8294869Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-04T16:00:54.1497628Z","zoneId":"context-ingestion","outcome":"hit"}
+{"at":"2026-09-04T16:13:06.4898161Z","zoneId":"api-authority-admin-controllers","outcome":"hit"}
