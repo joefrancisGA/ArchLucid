@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 131
-- **bugs-found:** 287
+- **hunts:** 132
+- **bugs-found:** 288
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — waiver create accepted sub-10-char rationale
+- **last-bug:** 2026-09-04 — pilot-value report unbounded default window keyset paging
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3767,15 +3767,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `RiskExceptionService.RevokeAsync` / `GovernanceStickinessController.RevokeRiskException` — past-expiry `Status=Active` waivers revoked without `MarkExpiredAsync` sweep — **hit 2026-09-03 (#656):** create #573 and renew #574 call `MarkExpiredAsync` before lifecycle guards; revoke checked stale `Active` rows past `ExpiresAtUtc` and returned HTTP 204 instead of HTTP 409; fixed with sweep + re-read before revoke (create/renew parity); regression in `RevokeAsync_marks_expired_before_revoke_when_waiver_is_past_expiry`.
 
-- [ ] (candidate) `GovernanceStickinessFacade.TryResolveFindingMergeConflictAsync` — resolve path skips `RequireFindingInspectInScopeAsync` used by disposition/waiver mutations; snapshot-only membership may resolve conflicts on finding ids that disposition would 404.
-
-- [x] (invalid) `GovernanceStickinessFacade.TryResolveFindingMergeConflictAsync` — resolve path skips inspect-scope gate — **cheap-disproof 2026-09-04 (#658):** intentional snapshot-scoped resolution on in-scope run via `FindingMergeConflictResolutionService` + scoped `IFindingsSnapshotRepository`; merge conflicts exist only on run snapshots; `TryResolveFindingMergeConflictAsync_returns_false_when_conflict_not_on_run_snapshot` documents `VerifyNoOtherCalls` on inspect repo.
+- [x] (invalid) `GovernanceStickinessFacade.TryResolveFindingMergeConflictAsync` — resolve path skips `RequireFindingInspectInScopeAsync` used by disposition/waiver mutations — **cheap-disproof 2026-09-04 (#658, #672):** intentional snapshot-scoped resolution on in-scope run via `FindingMergeConflictResolutionService` + scoped `IFindingsSnapshotRepository`; merge conflicts exist only on run snapshots; `TryResolveFindingMergeConflictAsync_returns_false_when_conflict_not_on_run_snapshot` documents `VerifyNoOtherCalls` on inspect repo.
 
 - [x] (proven) `RiskExceptionValidation.Validate` / `GovernanceStickinessController.CreateRiskException` — sub-10-char waiver rationale accepted while disposition paths enforce `FindingDispositionValidation.MinimumRationaleLength` — **hit 2026-09-04 (#658):** bulk waive UI/API aligned in #565 but waiver create only required non-whitespace; fixed with `MinimumRationaleLength` check in `RiskExceptionValidation.Validate`; regression in `Validate_rejects_rationale_shorter_than_minimum_length` and `CreateRiskException_returns_bad_request_when_rationale_shorter_than_minimum_length`.
 
-- [ ] (candidate) `TenantPilotValueReportController.GetPilotValueReport` / `PilotValueReportService.CollectCommittedRunsAsync` — wide default date window walks unbounded keyset pages without max-span cap (drift-trend / LLM cost reporting cap parity).
+- [x] (proven) `TenantPilotValueReportController.GetPilotValueReport` / `PilotValueReportService.CollectCommittedRunsAsync` — omitted `fromUtc` defaulted to tenant creation and walked unbounded keyset pages for old tenants — **hit 2026-09-04 (#672):** clamp default window to `DefaultReportWindowMaxDays` (90, LLM cost / ROI bundle parity) and add `RunSummaryMaxPages` safety cap in `CollectCommittedRunsAsync`; regression in `BuildAsync_null_from_clamps_default_window_to_max_days` and `BuildAsync_collect_committed_runs_stops_at_keyset_max_page_cap`.
 
-2026-09-04 thorough hunt #658: proved waiver create rationale min-length parity; cheap-disproved merge-conflict inspect-scope gap; pilot-value paging cap remains candidate.
+2026-09-04 thorough hunt #672: proved pilot-value default window + keyset page cap; re-closed duplicate merge-conflict inspect-scope candidate.
+
+2026-09-04 thorough hunt #658: proved waiver create rationale min-length parity; cheap-disproved merge-conflict inspect-scope gap; pilot-value paging cap seeded for #672.
 
 - [x] (proven) `GovernanceStickinessController.CreateRecurrenceSchedule` / `GovernanceStickinessFacade.CreateRecurrenceScheduleAsync` — `ReadyForCommit` in-scope `sourceRunId` with manifest persisted recurring schedule — **hit 2026-09-03 (#657):** contract requires committed source run; create path only checked scope + existence; `RecurrenceScheduleValidation.ValidateCommittedSourceRunOrThrow` enforces `LegacyRunStatus = Committed` (featured-sample / stickiness funnel parity); regression in `CreateRecurrenceScheduleAsync_throws_when_source_run_is_not_committed` and controller/validation tests.
 
