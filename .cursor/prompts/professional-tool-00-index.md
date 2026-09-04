@@ -5,7 +5,8 @@
      Fifteen-prompt residual set: livelihood-instrument-00-index.md (LI-01–15).
      Successor leftovers (2026-09-04): livelihood-desk-00-index.md (LD-01–15) shipped.
      Wave 3: repeat-seat-00-index.md (RS-01–15) shipped #1457.
-     Wave 4: working-architect-00-index.md (WA-01–24). -->
+     Wave 4: working-architect-00-index.md (WA-01–24) shipped #1496.
+     Wave 5: career-desk-00-index.md (CD-01–15). -->
 
 # Professional-tool mitigations — Composer prompt set
 
@@ -21,7 +22,8 @@ ArchLucid sells a **seat for a repeat professional**. Production UX still treats
 
 **Wave 3 (shipped):** [`repeat-seat-00-index.md`](repeat-seat-00-index.md) (**RS-01–15**, `master` #1457). Do not re-run.
 
-**Wave 4 (predicted leftovers after LD+RS):** [`working-architect-00-index.md`](working-architect-00-index.md) (**WA-01–24**). Do not fork LD/RS.
+**Wave 4 (shipped #1496):** [`.cursor/prompts/working-architect-00-index.md`](working-architect-00-index.md) (**WA-01–24**). Do not re-run.
+**Wave 5:** [`.cursor/prompts/career-desk-00-index.md`](career-desk-00-index.md) (**CD-01–15**). Do not fork WA.
 
 **Do not treat this set as a V1 assessment scorecard.** Do not add GTM cohort work (**M-90**, **M-44**, **M-91**, **M-92**) or closed assurance programs (**TB-645** vocabulary must stay; **TB-135** / **TB-136** stay closed).
 

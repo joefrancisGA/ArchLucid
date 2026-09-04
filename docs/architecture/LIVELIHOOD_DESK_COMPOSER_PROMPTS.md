@@ -5,7 +5,7 @@
 
 # Livelihood-desk Composer prompts (LD-01–LD-15)
 
-**Created:** 2026-09-04 · **Status:** **shipped** `master` #1421 / #1439 · **Do not re-run.** Wave 4: [`WORKING_ARCHITECT_COMPOSER_PROMPTS.md`](WORKING_ARCHITECT_COMPOSER_PROMPTS.md) (**WA-01–24**).
+**Created:** 2026-09-04 · **Status:** **shipped** `master` #1421 / #1439 · **Do not re-run.** Wave 4 shipped #1496. Wave 5: [`CAREER_DESK_COMPOSER_PROMPTS.md`](CAREER_DESK_COMPOSER_PROMPTS.md) (**CD-01–15**).
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record. **LI-01–15** closed the first residual wave (finding honesty on review-detail, infeasible as package, trail at Finalize, skipped-MUST UI gate, Record correction API, Working start/keyboard/in-flight/workbench/ops/compare, draft truth, several dirty guards, presenter keepalive, finding-graph outline).
 
@@ -71,4 +71,5 @@ See [`.cursor/prompts/livelihood-desk-00-index.md`](../../.cursor/prompts/liveli
 
 **Wave 3 after this set (shipped):** [`REPEAT_SEAT_COMPOSER_PROMPTS.md`](REPEAT_SEAT_COMPOSER_PROMPTS.md) (**RS-01–15**, `master` #1457). Do not re-run.
 
-**Wave 4 (predicted leftovers):** [`WORKING_ARCHITECT_COMPOSER_PROMPTS.md`](WORKING_ARCHITECT_COMPOSER_PROMPTS.md) (**WA-01–24**). Do not fork LD; WA implements only leftovers LD/RS do not own.
+**Wave 4 (shipped #1496):** [`WORKING_ARCHITECT_COMPOSER_PROMPTS.md`](WORKING_ARCHITECT_COMPOSER_PROMPTS.md) (**WA-01–24**). Do not re-run.
+**Wave 5:** [`CAREER_DESK_COMPOSER_PROMPTS.md`](CAREER_DESK_COMPOSER_PROMPTS.md) (**CD-01–15**). Do not fork WA.

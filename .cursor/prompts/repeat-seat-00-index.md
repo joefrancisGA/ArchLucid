@@ -21,7 +21,8 @@ This set is **wave 3** — leftovers from the same livelihood diagnosis that **L
 | **LI-01–15** | 2026-09-03 residuals | **Shipped** #1397 |
 | **LD-01–15** | 2026-09-04 residuals | **Shipped** #1421 / #1439 |
 | **RS-01–15** | **This set** — wave 3 unique leftovers | **Shipped** #1457 — do not re-run |
-| **WA-01–24** | Wave 4 predicted leftovers | [`working-architect-00-index.md`](working-architect-00-index.md) |
+| **WA-01–24** | Wave 4 chrome + career edges | **Shipped** #1496 — do not re-run |
+| **CD-01–15** | Wave 5 unique leftovers | [`career-desk-00-index.md`](career-desk-00-index.md) |
 
 If an RS row lists an LD/LI/PT/WD owner, **do not fork** that file. Implement only the leftover in *What to build*.
 
@@ -77,4 +78,5 @@ Prefer **04 → 01 → 02** first (one object after spawn, quiet-engines stay on
 
 Summarize: files changed, tests run, residual risk, Working vs Guided behavior. Do not mark LI or LD as undone.
 
-**Wave 4 (do not implement from this paragraph):** [`working-architect-00-index.md`](working-architect-00-index.md) (**WA-01–24**). Do not fork RS; WA implements only leftovers RS does not own.
+**Wave 4 (shipped #1496 — do not re-run):** [`working-architect-00-index.md`](working-architect-00-index.md) (**WA-01–24**). Do not fork RS.
+**Wave 5:** [`career-desk-00-index.md`](career-desk-00-index.md) (**CD-01–15**). Do not fork WA.

@@ -33,7 +33,8 @@ This set is the **2026-09-04 residual 15** — the same five diagnosis classes, 
 | **LI-01–15** | 2026-09-03 run-now residuals | **Shipped** #1397 — do not re-run |
 | **LD-01–15** | **This set** — 2026-09-04 leftovers after LI | **Shipped** #1421 / #1439 — do not re-run |
 | **RS-01–15** | Wave 3 unique leftovers | **Shipped** #1457 — do not re-run |
-| **WA-01–24** | Wave 4 predicted leftovers (chrome CI, one-lifecycle nav, Ask/sponsor honesty, new-version, …) | [`working-architect-00-index.md`](working-architect-00-index.md) |
+| **WA-01–24** | Wave 4 chrome + career edges | **Shipped** #1496 — do not re-run |
+| **CD-01–15** | Wave 5 unique leftovers | [`career-desk-00-index.md`](career-desk-00-index.md) |
 
 ## Run order
 

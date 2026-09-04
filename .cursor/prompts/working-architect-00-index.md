@@ -8,7 +8,7 @@
 
 ArchLucid sells a **seat for a repeat professional** (`docs/ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md` R4 / R13; ADR 0052). People will sit in it much of the day; livelihoods may depend on the sealed record.
 
-**LI, LD, and RS shipped** on `master`. This set is **wave 4** — predicted leftovers those waves do not own: chrome-resolver **CI**, one-lifecycle **nav**, engineer chrome, help-as-desk, Ask/sponsor/Compare honesty, new-version from snapshot, correction after undo, seal-reason copy, receipt at stamp, remaining seat prefs, workspace restore, autosave last-saved, Finalize keepalive, list disposition, package-scoped search, what-if this invariant, presenter-quiet alerts, Activity honesty, evidence names, eight-hour zoom.
+**LI, LD, RS, and this set shipped** on `master` (#1496). Do not re-run. Wave 5 unique leftovers: [`career-desk-00-index.md`](career-desk-00-index.md) (**CD-01–15**).
 
 This is **iterative**. These 24 will not perfect the working-architect paradigm. They close the next predicted residuals without rewriting the product spine.
 
@@ -30,7 +30,8 @@ The leftover is the **chrome-decision spine** (eval vs desk) plus a few **edges*
 | **LI-01–15** | 2026-09-03 residuals | **Shipped** #1397 |
 | **LD-01–15** | 2026-09-04 desk residuals | **Shipped** #1421 / #1439 — do not re-run |
 | **RS-01–15** | Wave 3 unique leftovers | **Shipped** #1457 — do not re-run |
-| **WA-01–24** | **This set** — wave 4 predicted leftovers | Run these |
+| **WA-01–24** | **This set** — wave 4 predicted leftovers | **Shipped** #1496 — do not re-run |
+| **CD-01–15** | Wave 5 unique leftovers | [`career-desk-00-index.md`](career-desk-00-index.md) |
 
 If a WA row lists an LD/RS/LI/PT/WD owner, **do not fork** that file. Implement only the leftover in *What to build*.
 
@@ -104,3 +105,5 @@ Prefer **01** first (so later chrome work has one switch). **10** after confirmi
 ## After each prompt
 
 Summarize: files changed, tests run, residual risk, Working vs Guided behavior, whether the **product spine** (create → execute → seal) still works without that prompt. Do not mark LI, LD, or RS as undone.
+
+**Wave 5 (do not implement from this paragraph):** [`career-desk-00-index.md`](career-desk-00-index.md) (**CD-01–15**). Do not fork WA; CD implements only leftovers WA does not own.
