@@ -6,7 +6,10 @@
      Created: 2026-09-03.
      Successor leftovers (2026-09-04): livelihood-desk-00-index.md (LD-01–15) shipped.
      Wave 3: repeat-seat-00-index.md (RS-01–15) shipped #1457.
-     Wave 4: working-architect-00-index.md (WA-01–24). -->
+     Wave 4: working-architect-00-index.md (WA-01–24) shipped #1496.
+     Wave 5: career-desk-00-index.md (CD-01–15).
+     Wave 6: all-day-desk-00-index.md (AD-01–12).
+     Wave 7: founding-desk-00-index.md (FD-01–13). -->
 
 # Working-desk mitigations — Composer prompt set (WD-01–WD-12)
 
