@@ -2600,11 +2600,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 73
-- **bugs-found:** 135
+- **hunts:** 74
+- **bugs-found:** 136
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — whitespace-only primitive `list(string)` array literals silently dropped
+- **last-hunt:** 2026-09-04
+- **last-bug:** 2026-09-04 — empty object elements in array literals silently dropped `tf.*` property
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2805,6 +2805,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `BicepArrayLiteralConverter.TryParsePrimitiveStrings` — trailing-comma primitive `list(string)` arrays silently dropped — `address_prefixes = ["10.0.1.0/24",]` already preserves `tf.address_prefixes` via comma-segment parser (cheap-disproof hunt #655).
 
 2026-09-03 seed hunt #655: reseeded from `BicepArrayLiteralConverter` after #652 empty-array fix; proved whitespace-only primitive array gap; disproved single-quoted and trailing-comma candidates.
+
+- [x] (proven) `BicepArrayLiteralConverter.TryParseToJsonElement` — empty object elements in array literals silently dropped `tf.*` property — **hit 2026-09-04 (#656):** `ip_security_restrictions = [{}]` skipped zero-property object bodies, fell through to primitive parsing (`inner.Contains('{')`), and emitted no `tf.ip_security_restrictions` (#652 empty-array parity gap for object arrays); fixed by always appending parsed object bodies even when property bag is empty (`ParseAsync_EmptyObjectInIpSecurityRestrictionsArray_PreservesTfProperty`).
+- [x] (valid-no-repro) `BicepArrayLiteralConverter.TryParsePrimitiveStrings` — unquoted numeric primitive `list(number)` arrays silently dropped — `service_endpoints = [10, 20]` already preserves `tf.service_endpoints` via primitive fallback; regression `ParseAsync_NumericPrimitiveAddressPrefixesArray_PreservesTfProperty` (cheap-disproof hunt #656).
+
+2026-09-04 seed hunt #656: reseeded from `BicepArrayLiteralConverter` after #655 whitespace-only primitive fix; proved empty object array gap; disproved unquoted numeric primitive-array candidate.
 
 - [x] (proven) `PlainTextContextDocumentParser` required `REQ:`/`POL:`/`TOP:`/`SEC:` prefix without optional whitespace before colon — **hit 2026-09-02:** `REQ : Must scale` lines were skipped while `REQ: Must scale` parsed; fixed with `TryGetPrefixedBody` accepting optional whitespace before `:` (`PlainTextContextDocumentParserTests.ParseAsync_SpacedPrefixBeforeColon_ExtractsRequirement`).
 - [x] (proven) `BicepResourceBodyParser` treated `key: [` array headers as scalar assignments — **hit 2026-09-02:** `ipSecurityRestrictions: [` stored `tf.ipsecurityrestrictions = "["` and leaked inner object scalars (`tf.name`, `tf.ipaddress`) so App Service network-rule expander never ran; fixed with balanced-bracket extraction and `BicepArrayLiteralConverter` JSON serialization (`BicepInfrastructureDeclarationParserTests.ParseAsync_AppServiceIpSecurityRestrictionsArray_IsPreservedForNetworkExpander`, `ParseAsync_AppServiceIpSecurityRestrictionsArray_ExpandsNetworkBaseline`).
