@@ -5,6 +5,10 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useWorkOwnershipDeletePolicyQuery } from "@/hooks/use-work-ownership-delete-policy-query";
 import {
+  LivelihoodDocumentGuardDialog,
+  useLivelihoodDocumentGuards,
+} from "@/hooks/use-livelihood-document-guards";
+import {
   type TenantWorkOwnershipDeletePolicyResponse,
   updateTenantWorkOwnershipDeletePolicy,
 } from "@/lib/tenant-work-ownership-delete-policy-client";
@@ -59,15 +63,20 @@ export function TenantWorkOwnershipDeletePolicyCard(): React.JSX.Element {
     },
   });
 
+  const savedPolicy = policyQuery.data;
+  const dirty =
+    savedPolicy !== undefined
+    && draft !== null
+    && draft.allowCreatorDeleteOwnedWork !== savedPolicy.allowCreatorDeleteOwnedWork;
+  const documentGuards = useLivelihoodDocumentGuards({ when: dirty });
+
   if (policyQuery.isError) {
     return <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Work ownership delete policy is unavailable.</p>;
   }
 
-  if (policyQuery.isLoading || draft === null || policyQuery.data === undefined) {
+  if (policyQuery.isLoading || draft === null || savedPolicy === undefined) {
     return <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Loading work ownership delete policy…</p>;
   }
-  const savedPolicy = policyQuery.data;
-  const dirty = draft.allowCreatorDeleteOwnedWork !== savedPolicy.allowCreatorDeleteOwnedWork;
 
   return (
     <div className="space-y-4" data-testid="tenant-work-ownership-delete-policy-card">
@@ -90,6 +99,12 @@ export function TenantWorkOwnershipDeletePolicyCard(): React.JSX.Element {
           Save policy
         </Button>
       </div>
+      <LivelihoodDocumentGuardDialog
+        open={documentGuards.dialogOpen}
+        message={documentGuards.dialogMessage}
+        onConfirmLeave={documentGuards.confirmLeave}
+        onCancelLeave={documentGuards.cancelLeave}
+      />
     </div>
   );
 }
