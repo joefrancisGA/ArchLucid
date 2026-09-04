@@ -23,7 +23,11 @@ export { resolveReviewMetadataAbsentReasons } from "./review-metadata";
 export type { ReviewMetadataAbsentReasons, ReviewRecordMetadataContext } from "./review-metadata";
 export { deriveLastEvaluatedLabel } from "./review-metadata";
 export { deriveFinalizedAtUtc } from "./review-metadata";
-export { deriveRunDetailWorkspaceStatus } from "./workspace-status";
+export {
+  deriveDecisionSnapshotSuppressedReason,
+  deriveRunDetailWorkspaceStatus,
+  isReviewPipelineIncomplete,
+} from "./workspace-status";
 export { deriveBlockingApprovalCount } from "./workspace-actions";
 export { deriveRecommendedWorkspaceActions } from "./workspace-actions";
 export { deriveBlockingFindingHref } from "./workspace-actions";

@@ -4,6 +4,7 @@ import {
   countFindingsBySeverity,
   deriveArchitectureSystemName,
   deriveBlockingApprovalCount,
+  deriveDecisionSnapshotSuppressedReason,
   deriveEvidenceCoverageSummary,
   deriveSponsorBottomLineContent,
   deriveFinalizedAtUtc,
@@ -12,6 +13,7 @@ import {
   deriveReviewHeaderPresentation,
   deriveReviewStatusSummary,
   deriveRunDetailWorkspaceStatus,
+  isReviewPipelineIncomplete,
   derivePackageVersionLabel,
   deriveSignedReviewRecordIdLabel,
   deriveReviewRecordMetadataContext,
@@ -118,6 +120,8 @@ describe("run-detail-workspace-derive", () => {
       kind: "execution-failed",
       statusTagKind: "needs-attention",
     });
+    expect(isReviewPipelineIncomplete(failed)).toBe(true);
+    expect(deriveDecisionSnapshotSuppressedReason(failed)).toMatch(/re-run the review/i);
   });
 
   it("prefers unresolved issue count for blocking approval count", () => {

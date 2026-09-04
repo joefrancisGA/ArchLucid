@@ -25,4 +25,24 @@ describe("RunDetailWorkspaceSummaryStrip", () => {
     expect(screen.queryByText(/Confirm evidence and remediation ownership/)).toBeNull();
     expect(screen.queryByRole("link", { name: "Open findings" })).toBeNull();
   });
+
+  it("suppresses metrics when the pipeline has not produced assessable outcomes", () => {
+    render(
+      <RunDetailWorkspaceSummaryStrip
+        outcomeHeading="Review posture"
+        reviewOutcome="Not assessed"
+        highestUnresolvedSeverity={null}
+        findingsSummaryLine="None open"
+        evidenceCoverageLine="No open findings"
+        primaryConcern={null}
+        suppressedReason="Unavailable until the review completes. Resolve the execution failure and re-run the review."
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-workspace-summary-suppressed")).toHaveTextContent(
+      "Resolve the execution failure and re-run the review.",
+    );
+    expect(screen.queryByText("Not assessed")).not.toBeInTheDocument();
+    expect(screen.queryByText("No unresolved findings")).not.toBeInTheDocument();
+  });
 });
