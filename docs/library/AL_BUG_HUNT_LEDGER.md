@@ -1885,11 +1885,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 138
-- **bugs-found:** 258
+- **hunts:** 139
+- **bugs-found:** 259
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — mixed-delimiter `reproduction` environment names misclassified as production-like (#653 regression)
+- **last-hunt:** 2026-09-04
+- **last-bug:** 2026-09-04 — dot-delimiter `reproduction` environment names misclassified as production-like
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2004,6 +2004,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `HostingEnvironmentNamePatterns.EnvironmentNameImpliesProductionLike` — mixed-delimiter `reproduction` environment names misclassified as production-like — **hit 2026-09-03 (#654):** #653 embedded-token check only matched homogeneous `-reproduction-` / `_reproduction_` pairs; `my-reproduction_bug` and `my_reproduction-bug` still hit the `production` substring scan; fixed with mixed `-reproduction_` / `_reproduction-` embedded tokens (`EnvironmentNameImpliesProductionLike_rejects_mixed_delimiter_reproduction_environment_names`).
 
 2026-09-03 seed hunt #654: reseeded from `HostingEnvironmentNamePatterns` after #653 homogeneous embedded reproduction fix; proved mixed-delimiter reproduction environment gap.
+
+- [x] (proven) `HostingEnvironmentNamePatterns.EnvironmentNameImpliesProductionLike` — dot-delimiter `reproduction` environment names misclassified as production-like — **hit 2026-09-04 (#655):** #654 mixed-delimiter fix only covered `-`/`_` pairs; `my.reproduction.bug`, `reproduction.bug`, and `bug.reproduction` still hit the `production` substring scan; fixed with `.` prefix/suffix parity and delimiter-combination embedded reproduction tokens (`EnvironmentNameImpliesProductionLike_rejects_dot_delimiter_reproduction_environment_names`).
+
+2026-09-04 seed hunt #655: reseeded from `HostingEnvironmentNamePatterns` after #654 mixed-delimiter reproduction fix; proved dot-delimiter reproduction environment gap.
 
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
