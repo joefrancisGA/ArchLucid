@@ -3189,11 +3189,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 168
-- **bugs-found:** 376
-- **consecutive-dry-hunts:** 1
+- **hunts:** 169
+- **bugs-found:** 378
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — link-entra localEmail length validation ordering before tenant lookup
+- **last-bug:** 2026-09-04 — proposed policy-pack dry-run and simulate-bulk severity validation ordering before tenant preflight
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4037,6 +4037,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `TenantCostSettingsController.PutAsync` — ghost tenant + invalid `eaDiscountPercentage` may return HTTP 404 instead of HTTP 400 (#718 ordering sibling; `TryResolveEaDiscountMultiplier` runs before `GetByIdAsync` — needs cheap-disproof) — **cheap-disproof 2026-09-04 (#719):** EA discount validation runs before `GetByIdAsync`; regression in `TenantCostSettingsControllerTests.PutAsync_returns_bad_request_when_ea_discount_invalid_and_tenant_missing`.
 
 - [x] (invalid) `TenantBaselineController.PutAsync` — ghost tenant + invalid `manualPrepHoursPerReview` may return HTTP 404 instead of HTTP 400 (#718 ordering sibling; numeric guards run before tenant lookup — needs cheap-disproof) — **cheap-disproof 2026-09-04 (#719):** manual-prep guard runs before `GetByIdAsync`; regression in `TenantBaselineControllerTests.PutAsync_returns_bad_request_when_manual_prep_hours_invalid_and_tenant_missing`.
+
+2026-09-04 thorough hunt #719 (dry): cheap-disproved three #718 validation-ordering siblings; no new hunt-ready repro.
+
+- [x] (invalid) `TenantBaselineController.PutAsync` — ghost tenant + `peoplePerReview` only may return HTTP 404 instead of HTTP 400 (#718 cross-field ordering sibling) — **cheap-disproof 2026-09-04 (#720):** cross-field prep guard requires `existing.BaselineManualPrepHoursPerReview`; ghost-tenant 404 is correct when validation depends on tenant state.
+
+- [x] (invalid) `TenantBaselineController.PutAsync` — ghost tenant + `baselineReviewCycleSourceNote` without captured hours may return HTTP 404 instead of HTTP 400 (#718 ordering sibling) — **cheap-disproof 2026-09-04 (#720):** prerequisite-hours rule requires `existing.BaselineReviewCycleHours`; tenant-dependent validation.
+
+- [x] (invalid) `TenantWorkspacesController.DeleteProjectAsync` — ghost tenant + default-project delete may return HTTP 404 instead of HTTP 400 (#697 ordering sibling) — **cheap-disproof 2026-09-04 (#720):** default-project guard requires workspace row from tenant lookup; tenant-dependent business rule.
+
+- [x] (proven) `GovernanceController.DryRunProposedPolicyPack` / `PolicyPackGovernanceDryRunRequestValidator` — tenant preflight ran before FluentValidation body rules so ghost tenant + out-of-range `blockCommitMinimumSeverity` returned HTTP 404 instead of 400 (#691 run-id ordering sibling) — **hit 2026-09-04 (#720):** `PolicyPackGovernanceDryRunHttpMapper.Validate` before `RequireTenantAndWorkspaceOrNotFoundAsync`; regression in `GovernanceControllerSimulateTests.DryRunProposedPolicyPack_returns_bad_request_when_block_commit_minimum_severity_out_of_range_and_tenant_missing`.
+
+- [x] (proven) `PolicyPacksController.SimulateBulk` / `PolicyPackSimulateBulkRequestValidator` — `EnsureScopeAsync` ran before `blockCommitMinimumSeverity` bounds so ghost tenant + severity 99 returned HTTP 404 instead of 400 (single-simulate validator parity) — **hit 2026-09-04 (#720):** `PolicyPackSimulateBulkHttpMapper.Validate` before `_httpFacade.SimulateBulkAsync`; regression in `PolicyPacksControllerSimulateBulkScopeTests.SimulateBulk_returns_bad_request_when_block_commit_minimum_severity_out_of_range_and_tenant_missing`.
+
+- [x] (invalid) `GovernanceController.DryRunProposedPolicyPack` — ghost tenant + empty/malformed `policyPackContentJson` or XOR target violation may still return HTTP 404 — **cheap-disproof 2026-09-04 (#720):** `PolicyPackGovernanceDryRunHttpMapper` runs full `PolicyPackGovernanceDryRunRequestValidator` before tenant preflight (same hit as severity ordering).
+
+2026-09-04 seed hunt #720 (hit): proved proposed dry-run and simulate-bulk severity validation ordering; cheap-disproved three tenant-dependent cross-field ordering siblings.
 
 2026-09-04 thorough hunt #719 (dry): cheap-disproved three #718 validation-ordering siblings; no new hunt-ready repro.
 
