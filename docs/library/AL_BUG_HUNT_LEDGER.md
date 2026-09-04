@@ -1609,11 +1609,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 16
-- **bugs-found:** 28
+- **hunts:** 17
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — architecture-analysis DOCX agent evidence-ref/warning diff parity
+- **last-bug:** 2026-09-04 — consulting DOCX Appendix C manifest diff count parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1669,9 +1669,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-04 thorough hunt #767: proved sponsor warnings/controls key-count parity and determinism warnings-only manifest drift detection.
 
 - [x] (proven) `DocxArchitectureAnalysisExportService` agent diff omits evidence-ref and warning deltas — **hit 2026-09-04 (#768):** standard architecture-analysis DOCX listed claims/findings/controls only while markdown and E2E DOCX include evidence refs and warnings; fixed with markdown parity sections; regression in `GenerateDocxAsync_agent_result_diff_includes_evidence_refs_and_warnings`.
-- [ ] (candidate) `GraphGcpInventoryReconciliationAnalyzer.CollectInventoryResourceIds` reads only Cloud Asset `name` while graph side indexes `gcpResourceId` — inventory rows with `gcpResourceId` but no `name` are ignored; may false-report graph-only resources if upstream dumps omit `name`.
-- [ ] (candidate) `ComparisonsApplicationService.IsComparisonRecordInScopeAsync` OR-gates left/right run and export anchors — artifact replay may serve stored comparison when only one endpoint is in scope; needs integration repro before promotion.
-- [ ] (candidate) `ConsultingDocxSupplementalSections` Appendix C manifest diff lists services/controls counts only — datastore and relationship deltas omitted from consulting appendix summary.
+- [x] (invalid) `GraphGcpInventoryReconciliationAnalyzer.CollectInventoryResourceIds` reads only Cloud Asset `name` while graph side indexes `gcpResourceId` — **invalid 2026-09-04 (#769):** duplicate of #763; hosted GCP extractor always emits Cloud Asset `name`; `Analyze_ignores_inventory_rows_without_cloud_asset_name_field` documents intentional asymmetry.
+- [x] (invalid) `ComparisonsApplicationService.IsComparisonRecordInScopeAsync` OR-gates left/right run and export anchors — **invalid 2026-09-04 (#769):** artifact replay is documented to not require both source runs; OR anchor gate enables stored-payload replay when one endpoint is deleted or out of scope; regression guard in `TryGetScopedRecordAsync_returns_record_when_only_left_run_anchor_is_in_scope`.
+- [x] (proven) `ConsultingDocxSupplementalSections` Appendix C manifest diff lists services/controls counts only — **hit 2026-09-04 (#769):** Appendix C omitted datastore, relationship, and warning counts; fixed with full manifest diff count bullets; regression in `AddAppendices_includes_datastore_relationship_and_warning_manifest_counts`.
+
+2026-09-04 thorough hunt #769: proved consulting Appendix C manifest-count parity; cheap-disproved GCP inventory alternate-key and comparison scope OR-gate candidates.
 
 2026-09-04 seed hunt #768: reseeded GCP inventory key asymmetry, comparison scope OR-gate, and consulting appendix manifest-count candidates; proved architecture-analysis DOCX agent evidence-ref/warning diff gap promoted from seed read.
 
