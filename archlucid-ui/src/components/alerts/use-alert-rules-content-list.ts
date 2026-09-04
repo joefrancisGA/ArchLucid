@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";
@@ -25,9 +25,14 @@ import {
   resolveContinueLastAlertRule,
   writeAlertRuleLastViewedId,
 } from "@/lib/resolve-continue-last-alert-rule";
+import {
+  alertRulesSimulateRuleHrefFromSearch,
+  parseAlertRulesSimulateRuleIdFromSearch,
+} from "@/lib/alerts/alert-rules-simulate-rule-url";
 
 export function useAlertRulesContentList() {
   const router = useRouter();
+  const pathname = usePathname() ?? GOVERNANCE_ALERT_RULES_PATH;
   const searchParams = useSearchParams();
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
   const scopedRunFilterActive = scopedRunId.length > 0;
@@ -65,7 +70,51 @@ export function useAlertRulesContentList() {
   const routingSubscriptions = routingQuery.items;
   const loading = rulesQuery.loading;
   const listFailure = rulesQuery.failure;
-  const [simulateForRule, setSimulateForRule] = useState<AlertRule | null>(null);
+  const [simulateForRule, setSimulateForRuleState] = useState<AlertRule | null>(null);
+
+  const syncSimulateRuleToUrl = useCallback(
+    (rule: AlertRule | null) => {
+      router.replace(
+        alertRulesSimulateRuleHrefFromSearch(
+          searchParams.toString(),
+          rule?.ruleId ?? null,
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSimulateForRule = useCallback(
+    (rule: AlertRule | null) => {
+      setSimulateForRuleState(rule);
+      syncSimulateRuleToUrl(rule);
+    },
+    [syncSimulateRuleToUrl],
+  );
+
+  useEffect(() => {
+    const simulateRuleId = parseAlertRulesSimulateRuleIdFromSearch(searchParams.get("simulateRule"));
+
+    if (simulateRuleId.length === 0) {
+      setSimulateForRuleState(null);
+
+      return;
+    }
+
+    if (loading) {
+      return;
+    }
+
+    const match = items.find((rule) => rule.ruleId === simulateRuleId);
+
+    if (match === undefined) {
+      return;
+    }
+
+    setSimulateForRuleState((current) => (current?.ruleId === match.ruleId ? current : match));
+  }, [items, loading, searchParams]);
 
   function rememberRule(ruleId: string): void {
     writeAlertRuleLastViewedId(ruleId);
