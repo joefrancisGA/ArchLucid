@@ -46,4 +46,5 @@ public static class DigestDeliveryManifestHashGuard
             throw new InvalidOperationException(
                 $"Digest delivery blocked for digest '{digest.DigestId:D}': manifestHash metadata is required when RunId is set.");
         }
+    }
 }
