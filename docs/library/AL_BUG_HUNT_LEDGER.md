@@ -3092,11 +3092,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 11
-- **bugs-found:** 19
+- **hunts:** 12
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — rephrase QuestionPrompt max length; export/interactive graph whitespace 404 parity; custom role update Unicode guard
+- **last-hunt:** 2026-09-04
+- **last-bug:** 2026-09-04 — knowledge-model clarification answer max length; provenance-node whitespace 404 parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3119,8 +3119,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GetInteractiveGraphSnapshot` / `RunGraphQueryService.GetInteractiveGraphSnapshotAsync` — whitespace `runId` returned 400 while sibling reads returned 404 — **hit 2026-09-03 (#546):** rely on `AuthorityRunIdentifier.TryParse`; regression in `RunGraphQueryServiceTests` and `RunQueryControllerTests`.
 - [x] (proven) `RunsExportController.Export` / `ArchitectureExportController.ExportRunSummary` — whitespace `runId` returned 400 while export paths map invalid ids to 404 — **hit 2026-09-03 (#546):** `AuthorityRunIdentifier.TryParse` NotFound parity; regression in `RunsExportControllerTests` and `ArchitectureExportControllerTests`.
 - [x] (proven) `CustomRolesAdminController.UpdateAsync` — omitted `IsValidUnicodeText` surrogate guard present on `CreateAsync` — **hit 2026-09-03 (#546):** reject lone surrogates before service call; regression in `CustomRolesAdminControllerTests`.
-- [ ] (candidate) `ReviewClarificationQuestionsController.ApplyKnowledgeModelClarificationAnswers` — megabyte answer values reach persistence without per-answer max-length guard.
-- [ ] (candidate) `RunQueryController.GetProvenanceNodeExplanation` — whitespace `runId` still returns 400 while sibling provenance reads return 404.
+- [x] (proven) `ReviewClarificationQuestionsController.ApplyKnowledgeModelClarificationAnswers` — megabyte answer values reach persistence without per-answer max-length guard — **hit 2026-09-04 (#661):** over-limit answer values reached `ApplyAnswersAsync` while sibling `RephraseClarificationAnswers` enforced `DraftIntakeValidation.MaximumFreeTextIntentLength`; fixed with per-answer guard; regression in `ApplyKnowledgeModelClarificationAnswers_returns_bad_request_when_answer_exceeds_max_length`.
+- [x] (proven) `RunQueryController.GetProvenanceNodeExplanation` — whitespace `runId` still returns 400 while sibling provenance reads return 404 — **hit 2026-09-04 (#661):** removed whitespace `runId` pre-check; rely on `AuthorityRunExistsInScopeAsync` / `AuthorityRunIdentifier.TryParse`; regression in `GetProvenanceNodeExplanation_returns_not_found_for_whitespace_run_id_like_GetArchitectureRunProvenance`.
+
+2026-09-04 thorough hunt #661: proved knowledge-model clarification answer max-length gap and provenance-node whitespace 404 parity.
 
 2026-09-03 seed hunt #546: proved rephrase `QuestionPrompt` max length, interactive-graph and export whitespace 404 parity, and custom-role update Unicode guard; seeded knowledge-model clarification answer length and provenance-node whitespace candidates.
 
