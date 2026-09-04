@@ -31,6 +31,7 @@ import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribing
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
 import { useArchitectWorkspaceChrome } from "@/hooks/useArchitectWorkspaceChrome";
 import { useReviewFindingsVisibilityState } from "@/hooks/use-review-findings-visibility-state";
+import { isFindingMergeConflictReviewFinding } from "@/lib/review-quality/finding-quality-signals";
 import {
   filterReviewDetailFindingsHideGeneric,
   INSIGHT_DENSITY_GENERIC_THRESHOLD,
@@ -251,9 +252,20 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
   );
 
   return (
+    <FindingKeyboardTriageHost
+      resolveRunId={(findingId) => (findingId.trim().length > 0 ? props.runId : null)}
+      resolveDispositionBlockedReason={(findingId) => {
+        const finding = props.findings.find((row) => row.findingId === findingId);
+
+        if (finding !== undefined && isFindingMergeConflictReviewFinding(finding)) {
+          return "Resolve the merge conflict on inspect before disposing from the list.";
+        }
+
+        return null;
+      }}
+    >
     <div className="space-y-4" data-testid="run-detail-findings-workspace">
       <SimulatorModeAiOperationNotice testId="run-detail-findings-simulator-notice" />
-      <FindingKeyboardTriageHost resolveRunId={(findingId) => (findingId.trim().length > 0 ? props.runId : null)} />
       <FindingMergeConflictListCue runId={props.runId} findings={props.findings} />
       {createHomeSurface ? <ArchitectureCreatedFindingsEvidenceOrientationStrip /> : null}
       {findingsSecondaryViewPresentation !== null ? (
@@ -311,5 +323,6 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
         </>
       )}
     </div>
+    </FindingKeyboardTriageHost>
   );
 }

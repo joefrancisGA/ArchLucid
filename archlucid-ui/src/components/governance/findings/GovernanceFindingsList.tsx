@@ -29,6 +29,7 @@ import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-fi
 import { GovernanceFindingsQueueDesktopTable } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueDesktopTable";
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import { FindingKeyboardTriageHost } from "@/components/governance/findings/FindingKeyboardTriageHost";
+import { FindingListDispositionRowActions } from "@/components/governance/findings/FindingListDispositionRowActions";
 import { GovernanceFindingRow } from "@/components/governance/findings/GovernanceFindingRow";
 
 export type GovernanceFindingsListProps = {
@@ -135,8 +136,8 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
 
   if (buyerPolishedShell) {
     return (
+      <FindingKeyboardTriageHost resolveRunId={resolveFindingRunId} onApplied={handleBulkApplied}>
       <div className="space-y-4">
-        <FindingKeyboardTriageHost resolveRunId={resolveFindingRunId} onApplied={handleBulkApplied} />
         <GovernanceFindingTriagePanel
           open={triage.open}
           row={triage.activeRow}
@@ -200,12 +201,13 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
           </section>
         ) : null}
       </div>
+      </FindingKeyboardTriageHost>
     );
   }
 
   return (
+    <FindingKeyboardTriageHost resolveRunId={resolveFindingRunId} onApplied={handleBulkApplied}>
     <>
-      <FindingKeyboardTriageHost resolveRunId={resolveFindingRunId} onApplied={handleBulkApplied} />
       <GovernanceFindingTriagePanel
         open={triage.open}
         row={triage.activeRow}
@@ -327,6 +329,7 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
         ))}
       </div>
     </>
+    </FindingKeyboardTriageHost>
   );
 }
 

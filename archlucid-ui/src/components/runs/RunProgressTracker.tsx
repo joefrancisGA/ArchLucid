@@ -174,7 +174,6 @@ export function RunProgressTracker({
         pipelineJobLabel={tracker.pipelineJobLabel}
         completedStages={tracker.completedStages}
         totalProgressStages={tracker.totalProgressStages}
-        progressValue={tracker.progressValue}
         ctx={tracker.ctx}
         graph={tracker.graph}
         findings={tracker.findings}

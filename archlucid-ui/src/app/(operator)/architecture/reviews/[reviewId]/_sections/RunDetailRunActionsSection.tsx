@@ -7,6 +7,7 @@ import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { GenerateSponsorValueReportButton } from "@/components/GenerateSponsorValueReportButton";
 import { ShareReviewPackageButton } from "@/components/ShareReviewPackageButton";
 import { ReviewArchiveControl } from "@/components/reviews/ReviewArchiveControl";
+import { ReviewPackageWhatIfControl } from "@/components/reviews/ReviewPackageWhatIfControl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { getTraceabilityBundleDownloadUrl } from "@/lib/api";
@@ -24,11 +25,14 @@ type RunDetailRunActionsSectionProps = {
   readonly hasCommitBlockingFailures: boolean;
   readonly operatorGovernanceDecision?: string | null;
   readonly isArchived?: boolean;
+  readonly pipelineInFlight?: boolean;
 };
 
 export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProps): ReactElement {
   const { runId, systemName, manifestId, hasCommitBlockingFailures, operatorGovernanceDecision = null } = props;
   const evalChromeShell = useProductionEvalChrome();
+  const packageCommitted =
+    manifestId !== null && manifestId !== undefined && manifestId.trim().length > 0;
 
   return (
     <section id="run-actions" className="scroll-mt-24">
@@ -55,7 +59,12 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
           <ShareReviewPackageButton
             runId={runId}
             systemName={systemName}
-            committed={manifestId !== null && manifestId !== undefined && manifestId.trim().length > 0}
+            committed={packageCommitted}
+          />
+          <ReviewPackageWhatIfControl
+            runId={runId}
+            packageCommitted={packageCommitted}
+            pipelineInFlight={props.pipelineInFlight === true}
           />
           <div className="flex flex-wrap gap-3">
             <Button variant="secondary" size="sm" asChild>
