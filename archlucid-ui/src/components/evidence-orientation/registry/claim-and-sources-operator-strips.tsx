@@ -22,6 +22,11 @@ import {
   CONNECTION_STATUS_SOURCES_INTRO,
 } from "@/lib/connection-status-evidence-copy";
 import {
+  SYSTEM_HEALTH_FOLLOW_UPS_TITLE,
+  SYSTEM_HEALTH_SOURCES,
+  SYSTEM_HEALTH_SOURCES_INTRO,
+} from "@/lib/system-health-evidence-copy";
+import {
   ADMIN_CONFIGURATION_FOLLOW_UPS_TITLE,
   ADMIN_CONFIGURATION_SOURCES,
   ADMIN_CONFIGURATION_SOURCES_INTRO,
@@ -145,6 +150,18 @@ export function ConnectionStatusEvidenceOrientationStrip(): React.JSX.Element {
       sources={CONNECTION_STATUS_SOURCES}
       sourcesHeadingId="where-to-go-next"
       headingClassName={sectionHeadingClass}
+    />
+  );
+}
+
+export function SystemHealthEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="system-health"
+      sourcesTitle={SYSTEM_HEALTH_FOLLOW_UPS_TITLE}
+      sourcesIntro={SYSTEM_HEALTH_SOURCES_INTRO}
+      sources={SYSTEM_HEALTH_SOURCES}
+      sourcesHeadingId="where-to-go-next"
     />
   );
 }
