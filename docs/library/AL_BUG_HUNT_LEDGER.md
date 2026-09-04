@@ -1929,9 +1929,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 143
+- **hunts:** 144
 - **bugs-found:** 272
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-04
 - **last-bug:** 2026-09-04 — `HasManagedIdentityConstraint` unmanaged-identity false positive
 - **related-pd-tb:** none
@@ -2064,8 +2064,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `HostingEnvironmentNamePatterns.EnvironmentNameImpliesProductionLike` — `non-prod` shorthand variants misclassified as production-like — **hit 2026-09-04 (#736):** #735 full-word `non_production` exclusions missed common `non-prod` / `non.prod` / `non_prod` / `non prod` shorthand; standalone `prod` token still matched; fixed with non-prod shorthand exclusions (`EnvironmentNameImpliesProductionLike_rejects_non_prod_shorthand_variants`).
 - [x] (proven) `AzureRetailPricesCatalogClient.LooksLikeConsumptionUsd` — underscore `Non_Reservation` / `Non_Government` delimiter gaps — **hit 2026-09-04 (#736):** #647 hyphen-only `non-reservation` / `non-government` exclusions missed underscore variants; valid consumption SKUs rejected from cost estimates; fixed with delimiter-variant helpers (`LooksLikeConsumptionUsd_accepts_non_reservation_underscore_type_with_hourly_unit`, `LooksLikeConsumptionUsd_accepts_non_government_underscore_meter_tier_with_hourly_unit`).
 - [x] (proven) `AgentModelExecutionProfileParser.TryParse` — `high_assurance` underscore alias rejected — **hit 2026-09-04 (#736):** hyphen/space aliases accepted since #223 but underscore form fell through to Balanced default; fixed with `high_assurance` parity (`TryParse_accepts_high_assurance_display_labels`).
-- [ ] (candidate) `FocusedPilotModePolicyPacks.IsAllowedPackDisplayName` — lowercase/mixed-case baseline pack display names rejected — `AllowedDisplayNames` uses `StringComparer.Ordinal` while `ReferencesIncludeFocusedPilotToken` is case-insensitive; needs repro from real request path.
-- [ ] (candidate) `PlatformOverlayPolicyPacks.IsOverlayDisplayName` — lowercase overlay display names rejected — Ordinal `HashSet` lookup; catalog may always emit canonical casing.
+- [x] (invalid) `FocusedPilotModePolicyPacks.IsAllowedPackDisplayName` — lowercase/mixed-case baseline pack display names rejected — duplicate of #737 proven row; `OrdinalIgnoreCase` allow-list already shipped.
+- [x] (invalid) `PlatformOverlayPolicyPacks.IsOverlayDisplayName` — lowercase overlay display names rejected — duplicate of #737 proven row; overlay sets already `OrdinalIgnoreCase`.
 
 2026-09-04 seed hunt #736: reseeded #735 parity surfaces; proved SQL/encryption classifier gaps, non-prod environment shorthand, retail SKU delimiter variants, and high-assurance underscore alias; seeded focused-pilot and overlay display-name casing candidates.
 
@@ -2073,6 +2073,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PlatformOverlayPolicyPacks.IsOverlayDisplayName` — lowercase overlay display names rejected — **hit 2026-09-04 (#737):** Ordinal overlay `HashSet` lookup missed lowercase WAF/CIS display names so focused-review overlay bypass (`isPlatformOverlayForRunCloud`) failed; fixed with `OrdinalIgnoreCase` on overlay name sets (`IsOverlayDisplayName_matches_case_insensitive_overlay_display_names`).
 
 2026-09-04 thorough hunt #737: promoted and proved both #736 casing candidates; focused-pilot baseline and platform overlay display-name gates now case-insensitive.
+
+- [x] (proven) `RequestConstraintClassifier.HasManagedIdentityConstraint` — `unmanaged identity` / `non-managed identity` false positives — **hit 2026-09-04 (#738):** #735 negation parity missed `un-` prefix on `managed identity` phrase; unmanaged constraints incorrectly added managed-identity policy refs; fixed with `ContainsAffirmativePhrase` + `un-` negation prefix (`HasManagedIdentityConstraint_does_not_false_positive_on_unmanaged_identity_phrasing`, `HasManagedIdentityConstraint_does_not_false_positive_on_non_managed_identity_phrasing`).
+- [x] (proven) `IntegrationWebhookPayloadSamples.ResolveEventType` — uppercase canonical `com.archlucid.*` constants rejected — **hit 2026-09-04 (#738):** `KnownEventTypes` used `StringComparer.Ordinal` while Teams trigger catalog is case-insensitive; `COM.ARCHLUCID.AUTHORITY.RUN.COMPLETED` threw on CLI simulate-webhook; fixed with case-insensitive known-type resolution returning canonical casing (`ResolveEventType_accepts_uppercase_canonical_event_type`).
+- [x] (proven) `AzureRetailPricesCatalogClient.LooksLikeConsumptionUsd` — dot-delimiter `Non.Reservation` / `Non.Government` gaps — **hit 2026-09-04 (#738):** #736 underscore parity missed dot variants; valid consumption SKUs rejected; fixed with `non.reservation` / `non.government` exclusions (`LooksLikeConsumptionUsd_accepts_non_reservation_dot_type_with_hourly_unit`, `LooksLikeConsumptionUsd_accepts_non_government_dot_meter_tier_with_hourly_unit`).
+- [x] (valid-no-repro) `Permissions.IsKnown` — padded permission strings rejected when callers bypass `ValidateAndNormalize` — `IsKnown` is exact-match only; sole caller `ValidateAndNormalize` trims before lookup and `CustomRoleService` routes through `ValidateAndNormalize` exclusively; padded direct `IsKnown` behavior is intentional (`IsKnown_returns_false_for_padded_permission_without_trim`, `ValidateAndNormalize_trims_before_IsKnown_lookup`).
+
+2026-09-04 thorough hunt #739: cheap-disproved `Permissions.IsKnown` trim candidate; no bypass path in repo; dry.
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
 - [x] (valid-no-repro) Tenant scope model treats empty workspace as a wildcard — `ActivityScopeTags` rejects `Guid.Empty` workspace ids; no wildcard semantics in Core tenancy models.
