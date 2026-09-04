@@ -1537,11 +1537,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 9
-- **bugs-found:** 15
+- **hunts:** 10
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — AL0003 false-positive when `LogAsync` invoked on concrete `IAuditService` implementation
+- **last-bug:** 2026-09-04 — AL0003 missed tracked HTTP verbs on implemented interface methods
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1572,7 +1572,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) AL0003 false-positive when `LogAsync` called on concrete `IAuditService` implementation — **hit 2026-09-04:** `InvocationMatchesAuditInterfaceSemantic` required callee `ContainingType` to equal `IAuditService`, so audited actions injecting `SqlAuditService` (or other concrete type) still reported AL0003; fixed by recognizing interface implementation via `FindImplementationForInterfaceMember`; regression in `AL0003_is_absent_when_LogAsync_is_called_on_concrete_audit_service`
 - [x] (valid-no-repro) ARCH001 value-tuple parameters with banned element types — `IdentifierName` walk already flags tuple element types; regression in `Reports_value_tuple_element_with_banned_type_in_inner_layer_assembly`
 
----
+- [x] (proven) AL0003 missed tracked HTTP verbs declared on implemented interface methods — **hit 2026-09-04 (#770):** `MethodSpecifiesTrackedVerb` read only derived and override-chain attributes, so `[HttpPost]` on `IMutatingApi.Post` let controller implementations skip audit enforcement; fixed by walking `ExplicitInterfaceImplementations` and `FindImplementationForInterfaceMember`; regression in `AL0003_reports_when_HttpPost_is_declared_on_implemented_interface`.
+- [ ] (candidate) AL0003 may miss `[MutatingAuditExcluded]` declared on implemented interface types — exclusion walk covers containing/base types only, not interface attributes; needs repro before promotion.
+- [ ] (candidate) AL0001 may miss `[Authorize]` on interface explicit implementation when action name differs from interface member — mirror AL0003 interface attribute inheritance gap shape; needs repro before promotion.
+
+2026-09-04 seed hunt #770: proved AL0003 interface HTTP-verb inheritance gap; reseeded interface-level audit-exclusion and AL0001 explicit-impl authorize candidates.
 
 ## Zone: agent-runtime-safety
 
