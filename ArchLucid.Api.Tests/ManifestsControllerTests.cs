@@ -499,6 +499,67 @@ public sealed class ManifestsControllerTests
     }
 
     [Fact]
+    public async Task GetManifestDiagramV2_returns_bad_request_for_unknown_layout()
+    {
+        ManifestsController controller = CreateController();
+
+        IActionResult action = await controller.GetManifestDiagramV2(
+            ManifestVersion,
+            layout: "bogus",
+            cancellationToken: CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task GetManifestDiagramV2_returns_bad_request_for_unknown_relationship_labels()
+    {
+        ManifestsController controller = CreateController();
+
+        IActionResult action = await controller.GetManifestDiagramV2(
+            ManifestVersion,
+            relationshipLabels: "verbose",
+            cancellationToken: CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task GetManifestDiagramV2_returns_bad_request_for_unknown_group_by()
+    {
+        ManifestsController controller = CreateController();
+
+        IActionResult action = await controller.GetManifestDiagramV2(
+            ManifestVersion,
+            groupBy: "region",
+            cancellationToken: CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task GetManifestDiagramV2_returns_bad_request_for_unknown_layout_and_tenant_missing()
+    {
+        Mock<IUnifiedGoldenManifestReader> reader = new(MockBehavior.Strict);
+
+        ManifestsController controller = CreateController(
+            manifestReader: reader.Object,
+            tenantRepository: TenantMissingRepository());
+
+        IActionResult action = await controller.GetManifestDiagramV2(
+            ManifestVersion,
+            layout: "bogus",
+            cancellationToken: CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        reader.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task GetManifestDiagramV2_returns_mermaid_content()
     {
         ManifestsController controller = CreateController();

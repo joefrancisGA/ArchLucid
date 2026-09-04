@@ -509,6 +509,43 @@ public sealed class GovernanceControllerSimulateTests
     }
 
     [Fact]
+    public async Task DryRunPolicyPack_clamps_page_size_zero_before_tenant_preflight_is_not_a_validation_error()
+    {
+        Guid policyPackId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        string runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D");
+
+        Mock<IPolicyPackDryRunService> dryRun = new();
+        dryRun
+            .Setup(s => s.EvaluateAsync(
+                policyPackId,
+                It.IsAny<IReadOnlyDictionary<string, string>>(),
+                It.IsAny<IReadOnlyList<string>>(),
+                0,
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackDryRunResponse
+            {
+                PolicyPackId = policyPackId,
+                PageSize = IPolicyPackDryRunService.DefaultPageSize,
+            });
+
+        GovernanceController sut = CreateController(
+            dryRunService: dryRun.Object,
+            tenantRepository: TenantMissingRepository());
+
+        IActionResult action = await sut.DryRunPolicyPack(
+            policyPackId,
+            new PolicyPackDryRunRequest { EvaluateAgainstRunIds = [runId] },
+            pageSize: 0,
+            page: null,
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        dryRun.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task DraftPolicyPackRule_returns_not_found_when_tenant_missing()
     {
         Mock<IPolicyPackDraftService> draft = new(MockBehavior.Strict);
