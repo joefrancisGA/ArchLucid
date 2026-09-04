@@ -3296,9 +3296,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 188
+- **hunts:** 189
 - **bugs-found:** 400
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-04
 - **last-bug:** 2026-09-04 — cost-settings PUT omitted EA fields reset stored discount multiplier
 - **related-pd-tb:** none
@@ -4236,7 +4236,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyPacksController.Assign` / `AssignPolicyPackRequest` — omitted `isPinned` bound as `false` instead of HTTP 400 — **hit 2026-09-04 (#759):** `required bool IsPinned` (assignment `isEnabled` #757 parity); regression in `AssignPolicyPackRequest_deserialization_rejects_missing_is_pinned`.
 - [x] (proven) `CorePilotTeamChecklistController.PutAsync` / `CorePilotChecklistPutRequest` — omitted `stepIndex` bound as `0` instead of HTTP 400 — **hit 2026-09-04 (#759):** `required int StepIndex` (`isCompleted` #343 parity); regression in `PutRequest_deserialization_rejects_missing_or_null_step_index`.
 - [x] (proven) `TenantCostSettingsController.PutAsync` — partial PUT omitting EA fields reset stored `EaDiscountMultiplier` to `1.0` — **hit 2026-09-04 (#759):** preserve existing multiplier when both EA fields omitted; regression in `PutAsync_preserves_ea_discount_multiplier_when_ea_fields_omitted`.
-- [ ] (candidate) `TenantExecDigestPreferencesController` / `TenantSponsorDigestPreferencesController` — omitted `ianaTimeZoneId` coalesces to `"UTC"` on full upsert and may reset timezone when caller only updates recipients (schedule-default #758 invalid sibling; cheap-disproof before promote).
+- [x] (invalid) `TenantExecDigestPreferencesController` / `TenantSponsorDigestPreferencesController` — omitted `ianaTimeZoneId` coalesces to `"UTC"` on full upsert and may reset timezone when caller only updates recipients — **cheap-disproof 2026-09-04 (#760):** defaults match `ExecDigestPreferencesResponse.Unconfigured` / `SponsorDigestPreferencesResponse.Unconfigured` timezone field; intentional partial-upsert semantics (schedule-default #758 sibling); regressions in `PostExecDigestPreferences_applies_default_timezone_when_iana_time_zone_omitted` and `PostSponsorDigestPreferences_applies_default_timezone_when_iana_time_zone_omitted`.
+
+2026-09-04 thorough hunt #760 (dry): cheap-disproved digest timezone omission candidate; no new hunt-ready repro in zone.
 
 2026-09-04 seed hunt #759 (hit): proved policy-pack create `initialContentJson`, assign `isPinned`, checklist `stepIndex` omission, and cost-settings EA discount wipe on partial PUT; seeded digest timezone omission candidate.
 
