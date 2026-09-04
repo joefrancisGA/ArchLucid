@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 147
-- **bugs-found:** 335
+- **hunts:** 148
+- **bugs-found:** 338
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — governance workflow body field max-length controller guards
+- **last-bug:** 2026-09-04 — activate/preview environment slug max-length validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3894,6 +3894,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.SubmitApprovalRequest` / `Promote` — overlong `sourceEnvironment` / `targetEnvironment` reached transition validation without controller-level slug cap (#554 catalog sibling) — **hit 2026-09-04 (#688):** shared `ValidateEnvironmentSlug` before workflow; regression in `GovernanceControllerRunHistoryScopeTests` environment max-length tests.
 
 2026-09-04 seed hunt #688: promoted and proved preview manifest-version, workflow run-id, and environment-slug max-length controller guards.
+
+- [x] (proven) `GovernanceController.Activate` — overlong body `environment` reached activation workflow without controller-level slug cap (#688 submit/promote sibling) — **hit 2026-09-04 (#689):** shared `ValidateEnvironmentSlug` before activate workflow; regression in `GovernanceControllerRunHistoryScopeTests.Activate_returns_bad_request_when_environment_exceeds_max_length`.
+
+- [x] (proven) `GovernancePreviewController.Preview` — overlong body `environment` reached preview service without controller-level slug cap (#688 submit/promote sibling) — **hit 2026-09-04 (#689):** shared `ValidateEnvironmentSlug` before preview; regression in `GovernancePreviewControllerUnitTests.Preview_returns_bad_request_when_environment_exceeds_max_length`.
+
+- [x] (proven) `GovernancePreviewController.CompareEnvironments` — overlong `sourceEnvironment` reached compare service without controller-level slug cap (#688 submit/promote sibling) — **hit 2026-09-04 (#689):** shared `ValidateEnvironmentSlug` before compare-environments; regression in `GovernancePreviewControllerUnitTests.CompareEnvironments_returns_bad_request_when_source_environment_exceeds_max_length`.
+
+2026-09-04 seed hunt #689: promoted and proved activate/preview environment-slug max-length controller guards.
 
 2026-09-04 seed hunt #685: promoted and proved recurrence preview cron max-length parity and single approve/reject review-comment cap parity with batch review.
 
