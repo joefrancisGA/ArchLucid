@@ -18,6 +18,11 @@ public interface IAzureInventorySnapshotRepository
         Guid snapshotId,
         CancellationToken cancellationToken = default);
 
+    Task<AzureInventorySnapshotDetailReadModel?> TryGetSnapshotDetailAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default);
+
     Task MaterializeSnapshotAsync(
         ScopeContext scope,
         Guid snapshotId,

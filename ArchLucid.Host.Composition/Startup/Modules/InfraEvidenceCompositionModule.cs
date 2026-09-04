@@ -12,6 +12,9 @@ public static class InfraEvidenceCompositionModule
     {
         services.AddScoped<IAzureInventorySnapshotHeaderService, AzureInventorySnapshotHeaderService>();
         services.AddScoped<IAzureInventorySnapshotMaterializer, AzureInventorySnapshotMaterializer>();
+        services.AddScoped<IAzureInventoryDiffService, AzureInventoryDiffService>();
+        services.AddScoped<IAdvisoryTerraformRepresentationService, AdvisoryTerraformRepresentationService>();
         services.AddScoped<IAuditFrameworkImportService, AuditFrameworkImportService>();
+        services.AddScoped<IAzureInventoryDiffConsumer, NoOpAzureInventoryDiffConsumer>();
     }
 }

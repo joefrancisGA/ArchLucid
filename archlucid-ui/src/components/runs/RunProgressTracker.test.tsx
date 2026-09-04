@@ -259,9 +259,7 @@ describe("RunProgressTracker", () => {
 
     expect(mockGetRunSummary).toHaveBeenCalled();
     expect(screen.getAllByText("Complete").length).toBe(1);
-    expect(screen.getByTestId("run-progress-current-stage")).toHaveTextContent(
-      /Currently: Mapping the architecture/i,
-    );
+    expect(screen.getByTestId("run-progress-queue-status")).toHaveTextContent("Queue status: graph");
 
     allowFullSummary = true;
 
@@ -390,9 +388,7 @@ describe("RunProgressTracker", () => {
     });
 
     expect(mockGetRunStageTimeline).toHaveBeenCalled();
-    expect(screen.getByTestId("run-progress-current-stage")).toHaveTextContent(
-      /Currently: Analyzing security and cost/i,
-    );
+    expect(screen.getByTestId("run-progress-queue-status")).toHaveTextContent("Queue status: findings");
   });
 
   it("shows background-safety and duration estimate when workspace samples exist", async () => {

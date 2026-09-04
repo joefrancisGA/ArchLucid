@@ -4,6 +4,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { CLOUD_TARGET_QUESTION_KEY } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
+import { mapNormalizedCloudProvider } from "@/lib/coverage-preview";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
 import { useInferredUniversalIntakeAnswers } from "@/hooks/use-inferred-universal-intake-answers";
@@ -383,6 +384,9 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
     showBinaryDocumentReadAfterUploadHelper,
     showLimitedEvidenceAcknowledgment,
     policyPackCloudMismatch,
+    coveragePreviewCloudProvider: mapNormalizedCloudProvider(cloudTargetForMismatch),
+    coveragePreviewDescriptionText: resolvedBrief,
+    coveragePreviewSecurityIntakeAnswer: l0Answers["l0.pillar.security"]?.trim() ?? "",
     startBlocker,
     systemNameAvailability,
     clientValidationMessage,
