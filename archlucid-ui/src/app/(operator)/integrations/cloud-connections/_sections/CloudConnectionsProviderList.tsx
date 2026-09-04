@@ -14,6 +14,7 @@ import { type CloudProviderId } from "@/lib/cloud-platform-scope-storage";
 import { cloudConnectionsPlatformHrefFromSearch } from "@/lib/integrations/cloud-connections-platform-url";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { writeCloudProviderLastViewedId } from "@/lib/resolve-continue-last-cloud-provider";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
@@ -31,6 +32,7 @@ import {
 export type CloudConnectionsProviderListProps = CloudConnectionsPageViewModel;
 
 export function CloudConnectionsProviderList(props: CloudConnectionsProviderListProps) {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const {
     currentSearch,
     urlPlatform,
@@ -133,7 +135,7 @@ export function CloudConnectionsProviderList(props: CloudConnectionsProviderList
 
       <CloudPlatformScopePreferencesNotice />
 
-      <CloudConnectionsHubVocabularyDisclosure />
+      {!buyerPolishedShell ? <CloudConnectionsHubVocabularyDisclosure /> : null}
     </section>
   );
 }
