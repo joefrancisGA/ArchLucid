@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
@@ -20,6 +21,10 @@ import {
   GCP_CONNECTION_SERVICE_ACCOUNT_LABEL,
 } from "@/lib/gcp-cloud-connection-copy";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import {
+  gcpConnectionWizardStepHrefFromSearch,
+  parseGcpConnectionWizardStepFromSearch,
+} from "@/lib/integrations/gcp-connection-wizard-step-url";
 
 import {
   fieldErrorMessage,
@@ -41,7 +46,11 @@ type Props = {
 
 export function GcpConnectionWizard(props: Props): React.ReactElement {
   const { canMutate, refreshConnections, setFormError, setActionMessage } = useGcpConnectionData();
-  const [step, setStep] = useState(0);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/integrations/cloud-connections/gcp";
+  const searchParams = useSearchParams();
+  const urlStep = parseGcpConnectionWizardStepFromSearch(searchParams.get("gcpStep"));
+  const [step, setStepState] = useState(urlStep ?? 0);
   const [projectId, setProjectId] = useState("");
   const [workloadIdentityPoolProvider, setWorkloadIdentityPoolProvider] = useState("");
   const [serviceAccountEmail, setServiceAccountEmail] = useState("");
@@ -59,6 +68,27 @@ export function GcpConnectionWizard(props: Props): React.ReactElement {
   );
 
   const fieldsValid = !hasGcpConnectionFieldErrors(fieldErrors);
+
+  const setStep = useCallback(
+    (next: number | ((current: number) => number)) => {
+      setStepState((current) => {
+        const resolved = typeof next === "function" ? next(current) : next;
+
+        router.replace(gcpConnectionWizardStepHrefFromSearch(searchParams.toString(), resolved, pathname), {
+          scroll: false,
+        });
+
+        return resolved;
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    if (urlStep !== null) {
+      setStepState(urlStep);
+    }
+  }, [urlStep]);
 
   const completedSteps = useMemo(() => {
     const done: number[] = [];
@@ -94,11 +124,11 @@ export function GcpConnectionWizard(props: Props): React.ReactElement {
     }
 
     setStep((current) => Math.min(current + 1, GCP_CONNECTION_DETAIL_WIZARD_STEPS.length - 1));
-  }, [fieldsValid, step, touchAllFields]);
+  }, [fieldsValid, setStep, step, touchAllFields]);
 
   const handleBack = useCallback(() => {
     setStep((current) => Math.max(current - 1, 0));
-  }, []);
+  }, [setStep]);
 
   const handleSave = useCallback(async () => {
     if (!canMutate || !fieldsValid) {

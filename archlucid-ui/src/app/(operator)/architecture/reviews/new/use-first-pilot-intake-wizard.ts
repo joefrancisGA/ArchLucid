@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { CLOUD_TARGET_QUESTION_KEY } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
@@ -23,6 +23,7 @@ import { deriveEvidencePresenceFromFileNames } from "@/lib/evidence-gap-forecast
 import { evidenceFilesIncludeBinaryArchitectureDocument } from "@/lib/evidence-readable-text";
 import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-policy-packs";
 import { readIncrementalRereviewFromSearch } from "@/lib/review-quality/incremental-rereview-handoff";
+import { parseScopeGateOpenFromSearch, scopeGateHrefFromSearch } from "@/lib/architecture/scope-gate-url";
 import { evaluatePolicyPackCloudMismatch } from "@/lib/review-quality/review-intake-quality-gates";
 import { priorPackageInheritedTitle, readPriorRunIdFromSearch } from "@/lib/second-review-prior-package";
 import { readActiveTenantContext } from "@/lib/active-tenant-context-display";
@@ -61,7 +62,10 @@ export type FirstPilotIntakeWizardProps = {
 
 export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const { onRunCreatedNavigate } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/architecture/reviews/new";
   const searchParams = useSearchParams();
+  const urlScopeGateOpen = parseScopeGateOpenFromSearch(searchParams.get("scopeGate"));
   const { status: llmBudgetStatus, blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
   const { isSimulator } = useAgentExecutionMode();
   const exampleTemplatePrefillAppliedRef = useRef(false);
@@ -103,8 +107,26 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
     blocksLlmRephrase: blocksLlmExecution,
     isSimulator,
   });
-  const [scopeGateOpen, setScopeGateOpen] = useState(false);
+  const [scopeGateOpen, setScopeGateOpenState] = useState(urlScopeGateOpen);
   const [scopeBullets, setScopeBullets] = useState<ScopeUnderstandingBullet[]>([]);
+
+  const setScopeGateOpen = useCallback(
+    (next: boolean | ((open: boolean) => boolean)) => {
+      setScopeGateOpenState((current) => {
+        const resolved = typeof next === "function" ? next(current) : next;
+
+        router.replace(scopeGateHrefFromSearch(searchParams.toString(), resolved, pathname), { scroll: false });
+
+        return resolved;
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    setScopeGateOpenState(urlScopeGateOpen);
+  }, [urlScopeGateOpen]);
+
   const [writeDestination, setWriteDestination] = useState(() =>
     formatFirstPilotIntakeWriteDestination(readActiveTenantContext()),
   );

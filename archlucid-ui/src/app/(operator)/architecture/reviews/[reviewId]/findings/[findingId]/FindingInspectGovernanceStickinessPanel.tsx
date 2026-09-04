@@ -6,6 +6,11 @@ import { useEffect, useRef } from "react";
 
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  findingInspectDispositionConfirmHrefFromSearch,
+  parseFindingInspectDispositionConfirmFromSearch,
+  type FindingInspectDispositionConfirmUrlValue,
+} from "@/lib/findings/finding-inspect-disposition-confirm-url";
+import {
   findingInspectGovernancePanelHrefFromSearch,
   parseFindingInspectGovernancePanelFromSearch,
   parseFindingInspectWaiverConfirmOpenFromSearch,
@@ -30,19 +35,26 @@ export function FindingInspectGovernanceStickinessPanel(
   const searchParams = useSearchParams();
   const urlGovPanel = parseFindingInspectGovernancePanelFromSearch(searchParams.get("govPanel"));
   const urlWaiverConfirm = parseFindingInspectWaiverConfirmOpenFromSearch(searchParams.get("waiverConfirm"));
+  const urlDispConfirm = parseFindingInspectDispositionConfirmFromSearch(searchParams.get("dispConfirm"));
   const stickiness = useFindingInspectGovernanceStickiness(props);
   const scrolledPanelRef = useRef<FindingInspectGovernancePanelId | null>(null);
 
   const syncGovernancePanelToUrl = (
     panel: FindingInspectGovernancePanelId | null,
     waiverConfirmOpen: boolean,
+    dispConfirm: FindingInspectDispositionConfirmUrlValue | null = urlDispConfirm,
   ): void => {
+    const panelHref = findingInspectGovernancePanelHrefFromSearch(
+      searchParams.toString(),
+      { panel, waiverConfirmOpen },
+      pathname,
+    );
+    const questionIndex = panelHref.indexOf("?");
+    const panelPath = questionIndex >= 0 ? panelHref.slice(0, questionIndex) : panelHref;
+    const panelSearch = questionIndex >= 0 ? panelHref.slice(questionIndex + 1) : "";
+
     router.replace(
-      findingInspectGovernancePanelHrefFromSearch(
-        searchParams.toString(),
-        { panel, waiverConfirmOpen },
-        pathname,
-      ),
+      findingInspectDispositionConfirmHrefFromSearch(panelSearch, dispConfirm, panelPath),
       { scroll: false },
     );
   };
@@ -52,6 +64,12 @@ export function FindingInspectGovernanceStickinessPanel(
       stickiness.setPendingRevokeWaiverConfirm(true);
     }
   }, [stickiness.setPendingRevokeWaiverConfirm, urlWaiverConfirm]);
+
+  useEffect(() => {
+    if (urlDispConfirm !== null) {
+      stickiness.setPendingDispositionConfirm(urlDispConfirm);
+    }
+  }, [stickiness.setPendingDispositionConfirm, urlDispConfirm]);
 
   useEffect(() => {
     if (urlGovPanel === null || scrolledPanelRef.current === urlGovPanel) {
@@ -72,6 +90,13 @@ export function FindingInspectGovernanceStickinessPanel(
   const setPendingRevokeWaiverConfirmWithUrl = (open: boolean) => {
     stickiness.setPendingRevokeWaiverConfirm(open);
     syncGovernancePanelToUrl(urlGovPanel, open);
+  };
+
+  const setPendingDispositionConfirmWithUrl = (
+    confirm: FindingInspectDispositionConfirmUrlValue | null,
+  ) => {
+    stickiness.setPendingDispositionConfirm(confirm);
+    syncGovernancePanelToUrl(urlGovPanel, urlWaiverConfirm, confirm);
   };
 
   return (
@@ -118,7 +143,7 @@ export function FindingInspectGovernanceStickinessPanel(
         setWaiverOwnerError={stickiness.setWaiverOwnerError}
         busyAction={stickiness.busyAction}
         pendingDispositionConfirm={stickiness.pendingDispositionConfirm}
-        setPendingDispositionConfirm={stickiness.setPendingDispositionConfirm}
+        setPendingDispositionConfirm={setPendingDispositionConfirmWithUrl}
         pendingRevokeWaiverConfirm={stickiness.pendingRevokeWaiverConfirm}
         setPendingRevokeWaiverConfirm={setPendingRevokeWaiverConfirmWithUrl}
         applyChangePreviewOverride={stickiness.applyChangePreviewOverride}

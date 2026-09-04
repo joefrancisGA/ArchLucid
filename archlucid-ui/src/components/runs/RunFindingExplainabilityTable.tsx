@@ -4,7 +4,8 @@ import { cn } from "@/lib/utils";
 import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { CopyTraceRowWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { AiOutputGovernanceLabel } from "@/components/AiOutputGovernanceLabel";
@@ -26,6 +27,11 @@ import {
 } from "@/lib/findings/finding-source-evidence-links";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  parseRunFindingsExplainIdFromSearch,
+  parseRunFindingsReasonIdFromSearch,
+  runFindingsExplainabilityHrefFromSearch,
+} from "@/lib/runs/run-findings-explainability-url";
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
 import type { FindingWireSnapshot } from "@/lib/quick-decision-summary-derive";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
@@ -100,13 +106,110 @@ export function RunFindingExplainabilityTable({
   rows,
   findingWireSnapshots = null,
 }: RunFindingExplainabilityTableProps) {
-  const [open, setOpen] = useState(false);
-  const [activeFindingId, setActiveFindingId] = useState<string | null>(null);
-  const [reasoningOpen, setReasoningOpen] = useState(false);
-  const [reasoningFindingId, setReasoningFindingId] = useState<string | null>(null);
+  const router = useRouter();
+  const pathname = usePathname() ?? `/architecture/reviews/${encodeURIComponent(runId)}`;
+  const searchParams = useSearchParams();
+  const urlExplainId = parseRunFindingsExplainIdFromSearch(searchParams.get("explainId"));
+  const urlReasonId = parseRunFindingsReasonIdFromSearch(searchParams.get("reasonId"));
+  const [open, setOpenState] = useState(urlExplainId.length > 0);
+  const [activeFindingId, setActiveFindingIdState] = useState<string | null>(
+    urlExplainId.length > 0 ? urlExplainId : null,
+  );
+  const [reasoningOpen, setReasoningOpenState] = useState(urlReasonId.length > 0);
+  const [reasoningFindingId, setReasoningFindingIdState] = useState<string | null>(
+    urlReasonId.length > 0 ? urlReasonId : null,
+  );
   const [reasoningTitle, setReasoningTitle] = useState("");
   const [confidenceSortReversed, setConfidenceSortReversed] = useState(false);
   const parentRef = useRef<HTMLDivElement>(null);
+
+  const syncExplainabilityToUrl = useCallback(
+    (state: { readonly explainFindingId: string | null; readonly reasoningFindingId: string | null }) => {
+      router.replace(
+        runFindingsExplainabilityHrefFromSearch(searchParams.toString(), state, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (next: boolean) => {
+      setOpenState(next);
+
+      if (!next) {
+        setActiveFindingIdState(null);
+      }
+
+      syncExplainabilityToUrl({
+        explainFindingId: next ? activeFindingId : null,
+        reasoningFindingId: reasoningOpen ? reasoningFindingId : null,
+      });
+    },
+    [activeFindingId, reasoningFindingId, reasoningOpen, syncExplainabilityToUrl],
+  );
+
+  const setActiveFindingId = useCallback(
+    (findingId: string | null) => {
+      setActiveFindingIdState(findingId);
+      syncExplainabilityToUrl({
+        explainFindingId: findingId,
+        reasoningFindingId: reasoningOpen ? reasoningFindingId : null,
+      });
+    },
+    [reasoningFindingId, reasoningOpen, syncExplainabilityToUrl],
+  );
+
+  const setReasoningOpen = useCallback(
+    (next: boolean) => {
+      setReasoningOpenState(next);
+
+      if (!next) {
+        setReasoningFindingIdState(null);
+        setReasoningTitle("");
+      }
+
+      syncExplainabilityToUrl({
+        explainFindingId: open ? activeFindingId : null,
+        reasoningFindingId: next ? reasoningFindingId : null,
+      });
+    },
+    [activeFindingId, open, reasoningFindingId, syncExplainabilityToUrl],
+  );
+
+  const setReasoningFindingId = useCallback(
+    (findingId: string | null) => {
+      setReasoningFindingIdState(findingId);
+      syncExplainabilityToUrl({
+        explainFindingId: open ? activeFindingId : null,
+        reasoningFindingId: findingId,
+      });
+    },
+    [activeFindingId, open, syncExplainabilityToUrl],
+  );
+
+  useEffect(() => {
+    if (urlExplainId.length > 0) {
+      setOpenState(true);
+      setActiveFindingIdState(urlExplainId);
+    }
+
+    if (urlReasonId.length > 0) {
+      setReasoningOpenState(true);
+      setReasoningFindingIdState(urlReasonId);
+      const matched = rows.find((row) => row.findingId === urlReasonId);
+      const title =
+        matched?.findingTitle !== null &&
+        matched?.findingTitle !== undefined &&
+        matched.findingTitle.trim().length > 0
+          ? matched.findingTitle.trim()
+          : "";
+
+      if (title.length > 0) {
+        setReasoningTitle(title);
+      }
+    }
+  }, [rows, urlExplainId, urlReasonId]);
 
   const sortedRows = useMemo(() => {
     const copy = [...rows];

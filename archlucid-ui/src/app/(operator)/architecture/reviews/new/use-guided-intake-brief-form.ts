@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
   mergeScopeBulletsIntoBrief,
@@ -17,6 +18,7 @@ import {
 } from "@/lib/guided-intake-copy";
 import type { ReviewIntakeExampleTemplate } from "@/lib/operator/operator-home-example-request";
 import type { ActorSet } from "@/types/draft-intake";
+import { parseScopeGateOpenFromSearch, scopeGateHrefFromSearch } from "@/lib/architecture/scope-gate-url";
 
 import { MIN_INTENT_CHARS, MIN_OUTCOME_CHARS } from "./guided-intake-steps";
 
@@ -35,18 +37,39 @@ type GuidedIntakeBriefFormOptions = {
 export type GuidedIntakeBriefForm = ReturnType<typeof useGuidedIntakeBriefForm>;
 
 export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/architecture/reviews/new";
+  const searchParams = useSearchParams();
+  const urlScopeGateOpen = parseScopeGateOpenFromSearch(searchParams.get("scopeGate"));
   const [freeTextIntent, setFreeTextIntent] = useState("");
   const [businessOutcome, setBusinessOutcome] = useState("");
   const [systemName, setSystemName] = useState("");
   const [actorSet, setActorSet] = useState<ActorSet>(() => ({ actors: [] }));
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
   const [scopeBullets, setScopeBullets] = useState<ScopeUnderstandingBullet[]>([]);
-  const [scopeGateOpen, setScopeGateOpen] = useState(false);
+  const [scopeGateOpen, setScopeGateOpenState] = useState(urlScopeGateOpen);
   const [evidenceFiles, setEvidenceFiles] = useState<File[]>([]);
   const [priorAttachedFileNames, setPriorAttachedFileNames] = useState<readonly string[]>([]);
   const exampleTemplatePrefillAppliedRef = useRef(false);
 
   const { exampleTemplate, isCreateArchitectureFlow } = options;
+
+  const setScopeGateOpen = useCallback(
+    (next: boolean | ((open: boolean) => boolean)) => {
+      setScopeGateOpenState((current) => {
+        const resolved = typeof next === "function" ? next(current) : next;
+
+        router.replace(scopeGateHrefFromSearch(searchParams.toString(), resolved, pathname), { scroll: false });
+
+        return resolved;
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    setScopeGateOpenState(urlScopeGateOpen);
+  }, [urlScopeGateOpen]);
 
   useEffect(() => {
     if (exampleTemplate === null || exampleTemplatePrefillAppliedRef.current) {

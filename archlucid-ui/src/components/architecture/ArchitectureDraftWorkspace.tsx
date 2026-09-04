@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
@@ -25,6 +26,7 @@ import {
 } from "@/lib/architecture/architecture-creation-session";
 import { retargetAdvisoryDraftInFlightArchitecture } from "@/lib/operations/advisory-draft-in-flight";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { parseScopeGateOpenFromSearch, scopeGateHrefFromSearch } from "@/lib/architecture/scope-gate-url";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { reopenDraftRequest } from "@/lib/api/draft-intake-api";
 import {
@@ -52,6 +54,10 @@ type ArchitectureDraftWorkspaceProps = {
 
 /** Long-lived architecture draft editor — save and resume without starting a review. */
 export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProps): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? `/architecture/architectures/${encodeURIComponent(props.architectureId)}`;
+  const searchParams = useSearchParams();
+  const urlScopeGateOpen = parseScopeGateOpenFromSearch(searchParams.get("scopeGate"));
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const draftRegistryEntries = useArchitectureDraftRegistryEntries();
   const acceptServerBaselineRef = useRef<
@@ -86,8 +92,26 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const [exitPending, setExitPending] = useState(false);
   const [unlockBusy, setUnlockBusy] = useState(false);
   const [unlockError, setUnlockError] = useState<string | null>(null);
-  const [scopeGateOpen, setScopeGateOpen] = useState(false);
+  const [scopeGateOpen, setScopeGateOpenState] = useState(urlScopeGateOpen);
   const [scopeBullets, setScopeBullets] = useState<ScopeUnderstandingBullet[]>([]);
+
+  const setScopeGateOpen = useCallback(
+    (next: boolean | ((open: boolean) => boolean)) => {
+      setScopeGateOpenState((current) => {
+        const resolved = typeof next === "function" ? next(current) : next;
+
+        router.replace(scopeGateHrefFromSearch(searchParams.toString(), resolved, pathname), { scroll: false });
+
+        return resolved;
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    setScopeGateOpenState(urlScopeGateOpen);
+  }, [urlScopeGateOpen]);
+
   const isDetailDraft = !isNewDraft;
   const linkedReviewSummaryQuery = useRunSummaryQuery(linkedReviewId ?? "", {
     enabled: linkedReviewId !== null,
