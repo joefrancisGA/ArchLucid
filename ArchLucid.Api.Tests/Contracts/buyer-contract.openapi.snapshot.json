@@ -14768,6 +14768,33 @@
         },
         "type": "object"
       },
+      "GovernanceMutationCorrectionRecordedDto": {
+        "properties": {
+          "correctionId": {
+            "type": "string"
+          },
+          "mutationKind": {
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "recordedAtUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "recordedByUserId": {
+            "type": "string"
+          },
+          "runId": {
+            "type": "string"
+          },
+          "subjectId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "GovernancePreviewResult": {
         "properties": {
           "currentManifestVersion": {
@@ -23911,6 +23938,23 @@
           "disposition",
           "findingId"
         ],
+        "type": "object"
+      },
+      "RecordGovernanceMutationCorrectionRequest": {
+        "properties": {
+          "mutationKind": {
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "runId": {
+            "type": "string"
+          },
+          "subjectId": {
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "RecordRunOperatorGovernanceDispositionRequest": {

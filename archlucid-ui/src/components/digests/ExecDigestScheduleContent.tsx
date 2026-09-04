@@ -9,6 +9,10 @@ import { ExecDigestPickReviewBeforeSchedulingStrip } from "@/components/digests/
 import { ExecDigestScheduleForm } from "@/components/digests/ExecDigestScheduleForm";
 import { ExecDigestSchedulePreviewPanel } from "@/components/digests/ExecDigestSchedulePreviewPanel";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import {
+  LivelihoodDocumentGuardDialog,
+  useLivelihoodDocumentGuards,
+} from "@/hooks/use-livelihood-document-guards";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { DIGESTS_SCHEDULE_TAB_RESPONSIBILITY, EXEC_DIGEST_PRODUCT_INTRO, EXEC_DIGEST_READ_ONLY, EXEC_DIGEST_SAMPLE_BLOCKED } from "@/lib/exec-digest-schedule-page-model";
 import { digestsHubScopedHref } from "@/lib/digests-route-paths";
@@ -31,6 +35,7 @@ const SELECT_CLASS = cn(
 export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps = {}): ReactElement {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const schedule = useExecDigestSchedule(props);
+  const documentGuards = useLivelihoodDocumentGuards({ when: schedule.unsavedChanges });
 
   const scopedRunId = (props.scopedRunId ?? "").trim();
   const scopedRunFilterActive = scopedRunId.length > 0;
@@ -252,6 +257,12 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
           testIdPrefix="exec-digest-schedule"
         />
       ) : null}
+      <LivelihoodDocumentGuardDialog
+        open={documentGuards.dialogOpen}
+        message={documentGuards.dialogMessage}
+        onConfirmLeave={documentGuards.confirmLeave}
+        onCancelLeave={documentGuards.cancelLeave}
+      />
     </div>
   );
 }

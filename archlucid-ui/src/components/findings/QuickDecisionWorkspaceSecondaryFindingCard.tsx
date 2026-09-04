@@ -5,6 +5,7 @@ import type { ReactElement } from "react";
 
 import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { QuickDecisionFindingRationale } from "@/components/findings/QuickDecisionFindingRationale";
+import { FindingInsightDensityBand } from "@/components/findings/FindingInsightDensityBand";
 import { QuickDecisionWorkspaceFindingSupportingDetails } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
 import type { QuickDecisionWorkspaceCardContext } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ import {
   severityKindFromNumericValue,
 } from "@/lib/quick-decision-summary-derive";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { useArchitectWorkspaceChrome } from "@/hooks/useArchitectWorkspaceChrome";
 import { cn } from "@/lib/utils";
 
 export type QuickDecisionWorkspaceSecondaryFindingCardProps = {
@@ -36,6 +38,7 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
   const finding = props.finding;
   const badgeLabel = severityBadgeLabel(finding.severityValue);
   const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
+  const architectWorkspaceChrome = useArchitectWorkspaceChrome();
 
   return (
     <li
@@ -69,6 +72,12 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
             ) : (
               <StatusTag kind="neutral" label="Open" className={FINDINGS_ROW_METADATA_TAG_SIZE} />
             )}
+            {architectWorkspaceChrome ? (
+              <FindingInsightDensityBand
+                findingId={finding.findingId}
+                insightDensityScore={finding.insightDensityScore}
+              />
+            ) : null}
             <span className="min-w-0 flex-1 font-semibold text-al-text-primary">{finding.title}</span>
           </div>
         </summary>

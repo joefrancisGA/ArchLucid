@@ -4,15 +4,19 @@ import {
 } from "@/lib/findings/finding-job-view";
 import { humanReviewStatusDisplay, type QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
+import type { TransparencyTrail } from "@/types/feasibility-verdict";
+
 import {
   deriveOpenUnverifiedAssumptionTextsForReview,
   parseUnverifiedAssumptions,
 } from "./assumption-and-severity";
+import { countSkippedMustQuestions } from "./count-skipped-must-questions";
 import type { FinalizeQualityScorecardInput } from "./finalize-quality-scorecard";
 
 export type DeriveFinalizeQualityScorecardOptions = {
   readonly acknowledgedAssumptionIds?: ReadonlySet<string>;
   readonly requestAssumptionTexts?: readonly string[];
+  readonly transparencyTrail?: TransparencyTrail | null;
 };
 
 const FINALIZE_RESOLVED_DISPOSITIONS = new Set([
@@ -105,7 +109,7 @@ export function deriveFinalizeQualityScorecardInput(
     openCannotDetermineCount,
     lowExtractionConfidenceCount,
     unresolvedHighSeverityDispositionCount,
-    skippedMustCount: 0,
+    skippedMustCount: countSkippedMustQuestions(options?.transparencyTrail),
   };
 }
 

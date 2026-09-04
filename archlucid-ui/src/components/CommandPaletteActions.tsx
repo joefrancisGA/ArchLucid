@@ -1,5 +1,6 @@
 import {
   dispatchCommandPaletteHandlerAction,
+  isCommandPaletteReversibleUndoAvailable,
   type CommandPaletteHandlerAction,
 } from "@/lib/command-palette-handler-actions";
 import type { CommandPaletteHrefAction } from "@/lib/command-palette-actions";
@@ -22,7 +23,9 @@ export function CommandPaletteActions({
 }) {
   const hrefActions: readonly CommandPaletteHrefAction[] = resolveVisibleCommandPaletteHrefActions(workingMode);
   const handlerActions: readonly CommandPaletteHandlerAction[] =
-    resolveVisibleCommandPaletteHandlerActions(pathname);
+    resolveVisibleCommandPaletteHandlerActions(pathname, {
+      reversibleUndoAvailable: isCommandPaletteReversibleUndoAvailable(),
+    });
 
   if (hrefActions.length === 0 && handlerActions.length === 0) {
     return null;

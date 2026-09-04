@@ -72,6 +72,12 @@ public static partial class AuditEventTypes
     public const string GovernanceEnvironmentActivated = "GovernanceEnvironmentActivated";
 
     /// <summary>
+    ///     Operator recorded a correction for a prior governance mutation without mutating the original row (
+    ///     <c>POST /v1/governance/mutation-corrections</c>).
+    /// </summary>
+    public const string GovernanceMutationCorrectionRecorded = "GovernanceMutationCorrectionRecorded";
+
+    /// <summary>
     ///     Emitted when an operator runs a governance policy-pack dry-run / what-if evaluation
     ///     (<c>POST /v1/governance/policy-packs/{id}/dry-run</c>). No real commit happens — the
     ///     payload captures the proposed thresholds (always passed through the LLM-prompt redaction

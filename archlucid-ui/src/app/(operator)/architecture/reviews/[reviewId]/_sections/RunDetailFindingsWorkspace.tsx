@@ -35,6 +35,7 @@ import {
   INSIGHT_DENSITY_GENERIC_THRESHOLD,
   sortReviewDetailFindingsBySignal,
 } from "@/lib/findings/review-detail-findings-density-sort";
+import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
 import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
 import {
   deriveRunDetailFindingsTriageCounts,
@@ -199,7 +200,11 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
     />
   );
   const toolbarEl = (
-    <RunDetailFindingsToolbar
+    <div className="space-y-3" data-testid="run-detail-findings-toolbar-hero">
+      {architectWorkspaceChrome && showActorEnginesQuietHint ? (
+        <ActorDependentFindingsQuietEnginesHint show={true} />
+      ) : null}
+      <RunDetailFindingsToolbar
       findings={confidenceGatedForCounts}
       renderedFindingCount={listFindings.length}
       toolbarFilteredCount={toolbarScopedFindings.length}
@@ -236,12 +241,12 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
         />
       }
     />
+    </div>
   );
 
   return (
     <div className="space-y-4" data-testid="run-detail-findings-workspace">
       <SimulatorModeAiOperationNotice testId="run-detail-findings-simulator-notice" />
-      <ActorDependentFindingsQuietEnginesHint show={showActorEnginesQuietHint} />
       <FindingKeyboardTriageHost resolveRunId={(findingId) => (findingId.trim().length > 0 ? props.runId : null)} />
       {createHomeSurface ? <ArchitectureCreatedFindingsEvidenceOrientationStrip /> : null}
       {findingsSecondaryViewPresentation !== null ? (
@@ -265,22 +270,27 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       />
       {!createHomeSurface ? <RootCauseClusterDispositionStrip findings={props.findings} /> : null}
       {architectWorkspaceChrome ? (
-        <label
-          className={cn(
-            "flex items-center gap-2 text-al-text-secondary",
-            OPERATOR_TYPOGRAPHY.helper,
-          )}
-          data-testid="run-detail-findings-hide-generic-control"
-        >
-          <input
-            type="checkbox"
-            checked={hideGenericLowDensity}
-            onChange={(event) => {
-              setHideGenericLowDensity(event.target.checked);
-            }}
-          />
-          Hide generic findings (density score below {INSIGHT_DENSITY_GENERIC_THRESHOLD}) — advisory only
-        </label>
+        <div className="space-y-2" data-testid="run-detail-findings-density-desk-controls">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE}
+          </p>
+          <label
+            className={cn(
+              "flex items-center gap-2 text-al-text-secondary",
+              OPERATOR_TYPOGRAPHY.helper,
+            )}
+            data-testid="run-detail-findings-hide-generic-control"
+          >
+            <input
+              type="checkbox"
+              checked={hideGenericLowDensity}
+              onChange={(event) => {
+                setHideGenericLowDensity(event.target.checked);
+              }}
+            />
+            Hide generic findings (density score below {INSIGHT_DENSITY_GENERIC_THRESHOLD}) — advisory only
+          </label>
+        </div>
       ) : null}
       {createHomeSurface ? (
         <>

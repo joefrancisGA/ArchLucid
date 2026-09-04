@@ -6,6 +6,7 @@ import {
 import {
   COMMAND_PALETTE_HANDLER_ACTIONS,
   type CommandPaletteHandlerAction,
+  type CommandPaletteHandlerAvailabilityContext,
 } from "@/lib/command-palette-handler-actions";
 
 export type VisibleCommandPaletteAction = CommandPaletteHrefAction | CommandPaletteHandlerAction;
@@ -33,6 +34,7 @@ export function resolveVisibleCommandPaletteHrefActions(
 
 export function resolveVisibleCommandPaletteHandlerActions(
   pathname: string,
+  context?: CommandPaletteHandlerAvailabilityContext,
 ): readonly CommandPaletteHandlerAction[] {
-  return COMMAND_PALETTE_HANDLER_ACTIONS.filter((action) => action.isAvailable(pathname));
+  return COMMAND_PALETTE_HANDLER_ACTIONS.filter((action) => action.isAvailable(pathname, context));
 }

@@ -3,12 +3,25 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
+import { readWorkspaceModeFromStorage } from "@/lib/workspace-mode/workspace-mode-preference";
 import {
   persistProfessionalWorkbenchEnabled,
   readProfessionalWorkbenchEnabledFromStorage,
   syncProfessionalWorkbenchFromServer,
   writeProfessionalWorkbenchEnabledToStorage,
 } from "@/lib/workspace-mode/professional-workbench-preference";
+
+function resolveWorkingModeForWorkbench(
+  workspaceMounted: boolean,
+  isWorkingMode: boolean,
+): boolean {
+  if (workspaceMounted) {
+    return isWorkingMode;
+  }
+
+  return isWorkingWorkspaceMode(readWorkspaceModeFromStorage());
+}
 
 /** True when Working mode split workbench (architecture + findings + evidence) should render. */
 export function useProfessionalWorkbenchEnabled(): {
@@ -18,11 +31,8 @@ export function useProfessionalWorkbenchEnabled(): {
 } {
   const { isWorkingMode, mounted: workspaceMounted } = useWorkspaceMode();
   const [enabled, setEnabledState] = useState(() => readProfessionalWorkbenchEnabledFromStorage());
-  const [preferenceMounted, setPreferenceMounted] = useState(false);
 
   useEffect(() => {
-    setPreferenceMounted(true);
-
     void syncProfessionalWorkbenchFromServer().then((synced) => {
       if (synced !== null) {
         setEnabledState(synced);
@@ -31,18 +41,12 @@ export function useProfessionalWorkbenchEnabled(): {
   }, []);
 
   useEffect(() => {
-    if (!workspaceMounted || !isWorkingMode) {
+    if (!workspaceMounted) {
       return;
     }
 
-    if (!preferenceMounted) {
-      return;
-    }
-
-    const stored = readProfessionalWorkbenchEnabledFromStorage();
-
-    setEnabledState(stored);
-  }, [isWorkingMode, preferenceMounted, workspaceMounted]);
+    setEnabledState(readProfessionalWorkbenchEnabledFromStorage());
+  }, [isWorkingMode, workspaceMounted]);
 
   const setEnabled = useCallback((next: boolean) => {
     writeProfessionalWorkbenchEnabledToStorage(next);
@@ -50,11 +54,11 @@ export function useProfessionalWorkbenchEnabled(): {
     void persistProfessionalWorkbenchEnabled(next);
   }, []);
 
-  const effectiveEnabled = isWorkingMode && (preferenceMounted ? enabled : readProfessionalWorkbenchEnabledFromStorage());
+  const workingMode = resolveWorkingModeForWorkbench(workspaceMounted, isWorkingMode);
 
   return {
-    enabled: effectiveEnabled,
-    mounted: workspaceMounted && preferenceMounted,
+    enabled: workingMode && enabled,
+    mounted: true,
     setEnabled,
   };
 }

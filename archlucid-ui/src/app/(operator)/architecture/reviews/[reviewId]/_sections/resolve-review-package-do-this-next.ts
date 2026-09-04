@@ -2,7 +2,7 @@ import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs
 import { resolveClarificationsFindingsLoopNext } from "@/lib/review-clarifications-findings-loop";
 import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
 import { buildInviteReviewerHref, INVITE_REVIEWER_PAGE_TITLE } from "@/lib/invite-reviewer-flow";
-import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import { buildCompareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 import { secondReviewFromPriorHref } from "@/lib/second-review-prior-package";
 import { SPONSOR_BRIEFING_EXPORT_LABEL } from "@/lib/usability/canonical-product-terms";
@@ -164,7 +164,7 @@ function buildPostFinalizeQuickLinks(
   const runId = input.runId.trim();
   const compareWithPriorHref = input.compareWithPriorHref?.trim() ?? "";
   const compareHref =
-    compareWithPriorHref.length > 0 ? compareWithPriorHref : comparePageHrefAdaptive("", runId);
+    compareWithPriorHref.length > 0 ? compareWithPriorHref : buildCompareTwoReviewsHref({ baseRunId: runId });
 
   return [
     { label: INVITE_REVIEWER_PAGE_TITLE, href: buildInviteReviewerHref(runId) },

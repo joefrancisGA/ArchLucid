@@ -1,26 +1,49 @@
 import { fireEvent, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { routerPush } = vi.hoisted(() => ({
+const { routerPush, mockPathname, mockWorkspaceMode } = vi.hoisted(() => ({
   routerPush: vi.fn(),
+  mockPathname: vi.fn(() => "/"),
+  mockWorkspaceMode: vi.fn(() => ({
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  })),
 }));
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-  useRouter: () => ({ push: routerPush }),
-  redirect: vi.fn(),
+    useRouter: () => ({ push: routerPush }),
+    usePathname: () => mockPathname(),
+    redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
   };
 });
+
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => mockWorkspaceMode(),
+}));
+
+import { WORKING_MODE_NEW_REVIEW_ROUTE } from "@/lib/shortcut-registry";
 
 import { useShortcutNavigation } from "./useShortcutNavigation";
 
 describe("useShortcutNavigation", () => {
   beforeEach(() => {
     routerPush.mockClear();
+    mockPathname.mockReturnValue("/");
+    mockWorkspaceMode.mockReturnValue({
+      mode: "guided",
+      mounted: true,
+      accountSyncState: "synced",
+      isWorkingMode: false,
+      setAndPersist: vi.fn(),
+    });
   });
 
   it("returns SHORTCUTS for display", () => {
@@ -35,7 +58,32 @@ describe("useShortcutNavigation", () => {
 
     fireEvent.keyDown(window, { key: "n", altKey: true });
 
-    expect(routerPush).toHaveBeenCalledWith("/architecture/reviews/new");
+    expect(routerPush).toHaveBeenCalledWith(WORKING_MODE_NEW_REVIEW_ROUTE);
+  });
+
+  it("opens unscoped Compare from Overview with Alt+C", () => {
+    renderHook(() => useShortcutNavigation());
+
+    fireEvent.keyDown(window, { key: "c", altKey: true });
+
+    expect(routerPush).toHaveBeenCalledWith("/insights/compare-two-reviews");
+  });
+
+  it("prefills Compare base review when Alt+C is pressed on review-detail in Working mode", () => {
+    mockPathname.mockReturnValue("/architecture/reviews/run-abc");
+    mockWorkspaceMode.mockReturnValue({
+      mode: "working",
+      mounted: true,
+      accountSyncState: "synced",
+      isWorkingMode: true,
+      setAndPersist: vi.fn(),
+    });
+
+    renderHook(() => useShortcutNavigation());
+
+    fireEvent.keyDown(window, { key: "c", altKey: true });
+
+    expect(routerPush).toHaveBeenCalledWith("/insights/compare-two-reviews?priorRunId=run-abc");
   });
 
   it("invokes onHelpRequested for Shift+?", () => {

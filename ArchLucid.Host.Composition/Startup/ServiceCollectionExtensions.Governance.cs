@@ -129,6 +129,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IGovernanceWorkflowService, GovernanceWorkflowService>();
         services.AddScoped<IGovernanceApprovalRequestsFacade, GovernanceApprovalRequestsFacade>();
         services.AddScoped<IGovernancePromotionsActivationsFacade, GovernancePromotionsActivationsFacade>();
+        services.AddScoped<IGovernanceMutationCorrectionService, GovernanceMutationCorrectionService>();
         services.AddScoped<IGovernanceInsightsFacade, GovernanceInsightsFacade>();
         services.AddScoped<ArchLucid.Application.Governance.Stickiness.IGovernanceStickinessFacade,
             ArchLucid.Application.Governance.Stickiness.GovernanceStickinessFacade>();

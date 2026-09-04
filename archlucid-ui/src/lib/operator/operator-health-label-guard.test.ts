@@ -30,7 +30,12 @@ describe("operator health label guard (TB-650)", () => {
 
   it("keeps operator health label constants free of Azure infra jargon", () => {
     for (const labels of OPERATOR_HEALTH_LABEL_OBJECTS) {
-      const text = JSON.stringify(labels).toLowerCase();
+      const disclosureFree = { ...labels };
+      if ("technicalProbeDisclosure" in disclosureFree) {
+        delete (disclosureFree as { technicalProbeDisclosure?: string }).technicalProbeDisclosure;
+      }
+
+      const text = JSON.stringify(disclosureFree).toLowerCase();
 
       for (const pattern of OPERATOR_HEALTH_LABEL_BANNED_PATTERNS) {
         expect(text, `health labels should not contain "${pattern}"`).not.toContain(pattern);

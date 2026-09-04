@@ -15,10 +15,12 @@ import { resolvePersistentWorkspaceNextAction } from "@/lib/persistent-workspace
 import { useCorePilotCommitPresentationContext } from "@/lib/use-core-pilot-commit-presentation-context";
 import { useCorePilotDerivedStepStatus } from "@/lib/use-core-pilot-derived-step-status";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { useTeachingChromeVisible } from "@/lib/workspace-mode/use-teaching-chrome-visible";
 import { cn } from "@/lib/utils";
 
 /** Cross-page strip: one highlighted next action while first-review steps remain. */
 export function PersistentWorkspaceNextActionStrip(): React.JSX.Element | null {
+  const teachingChromeVisible = useTeachingChromeVisible();
   const [hydrated, setHydrated] = useState(false);
   const commitPresentationContext = useCorePilotCommitPresentationContext();
   const { progress, nextStepIndex, statuses, isPending } = useCorePilotDerivedStepStatus();
@@ -27,7 +29,7 @@ export function PersistentWorkspaceNextActionStrip(): React.JSX.Element | null {
     setHydrated(true);
   }, []);
 
-  if (!hydrated || isPending) {
+  if (!teachingChromeVisible || !hydrated || isPending) {
     return null;
   }
 

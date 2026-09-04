@@ -39,6 +39,7 @@ vi.mock("@/components/WorkspaceActiveRunContext", () => ({
 
 import { ExecDigestScheduleContent } from "@/components/digests/ExecDigestScheduleContent";
 import { getExecDigestPreferences, saveExecDigestPreferences } from "@/lib/api";
+import { DIGESTS_SCHEDULE_TAB_RESPONSIBILITY } from "@/lib/exec-digest-schedule-page-model";
 
 const baseHealth = {
   enabledAdvisoryScheduleCount: 1,
@@ -371,7 +372,7 @@ describe("ExecDigestScheduleContent", () => {
     render(<ExecDigestScheduleContent />);
 
     expect(await screen.findByTestId("exec-digest-schedule-heading")).toBeInTheDocument();
-    expect(screen.queryByText(/Architecture digests generated from advisory scans/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(DIGESTS_SCHEDULE_TAB_RESPONSIBILITY)).not.toBeInTheDocument();
   });
 
   it("blocks save, enable, and test email actions in sample mode", async () => {

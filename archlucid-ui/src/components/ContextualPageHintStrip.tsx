@@ -9,10 +9,12 @@ import { useCallback, useEffect, useState } from "react";
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { DismissControl } from "@/components/usability/DismissControl";
 import { pageContextualHintForPathname, pageHintDismissStorageKey } from "@/lib/page-contextual-hints";
+import { useTeachingChromeVisible } from "@/lib/workspace-mode/use-teaching-chrome-visible";
 
 /** Dismissible per-route hint strip — complements the Help drawer contextual copy. */
 export function ContextualPageHintStrip(): React.JSX.Element | null {
   const pathname = usePathname() ?? "/";
+  const teachingChromeVisible = useTeachingChromeVisible();
   const hint = pageContextualHintForPathname(pathname);
   const [visible, setVisible] = useState(false);
 
@@ -47,7 +49,7 @@ export function ContextualPageHintStrip(): React.JSX.Element | null {
     setVisible(false);
   }, [hint]);
 
-  if (hint === null || !visible) {
+  if (!teachingChromeVisible || hint === null || !visible) {
     return null;
   }
 

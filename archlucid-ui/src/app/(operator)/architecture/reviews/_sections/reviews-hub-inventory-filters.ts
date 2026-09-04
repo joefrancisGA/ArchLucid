@@ -230,23 +230,72 @@ export function sortRunsForInventory(
   runs: readonly RunSummary[],
   isFavorite: (runId: string) => boolean,
 ): RunSummary[] {
-  return [...runs].sort((left, right) => {
-    const leftPinned = isFavorite(left.runId) ? 0 : 1;
-    const rightPinned = isFavorite(right.runId) ? 0 : 1;
+  return [...runs].sort((left, right) => compareRunsForInventory(left, right, isFavorite));
+}
 
-    if (leftPinned !== rightPinned) {
-      return leftPinned - rightPinned;
-    }
+function isMidExecuteInventoryRun(run: RunSummary): boolean {
+  if (run.hasGoldenManifest === true) {
+    return false;
+  }
 
-    const leftUpdated = new Date(left.createdUtc).getTime();
-    const rightUpdated = new Date(right.createdUtc).getTime();
+  if (run.hasFindingsSnapshot === true) {
+    return false;
+  }
 
-    if (!Number.isNaN(leftUpdated) && !Number.isNaN(rightUpdated) && leftUpdated !== rightUpdated) {
-      return rightUpdated - leftUpdated;
-    }
+  return true;
+}
 
-    return left.runId.localeCompare(right.runId);
-  });
+function inventoryRunTier(run: RunSummary, inFlightRunIds: ReadonlySet<string>): number {
+  const runId = run.runId?.trim() ?? "";
+
+  if (runId.length > 0 && inFlightRunIds.has(runId)) {
+    return 0;
+  }
+
+  if (isMidExecuteInventoryRun(run)) {
+    return 1;
+  }
+
+  return 2;
+}
+
+function compareRunsForInventory(
+  left: RunSummary,
+  right: RunSummary,
+  isFavorite: (runId: string) => boolean,
+  inFlightRunIds: ReadonlySet<string> = new Set(),
+): number {
+  const leftTier = inventoryRunTier(left, inFlightRunIds);
+  const rightTier = inventoryRunTier(right, inFlightRunIds);
+
+  if (leftTier !== rightTier) {
+    return leftTier - rightTier;
+  }
+
+  const leftPinned = isFavorite(left.runId) ? 0 : 1;
+  const rightPinned = isFavorite(right.runId) ? 0 : 1;
+
+  if (leftPinned !== rightPinned) {
+    return leftPinned - rightPinned;
+  }
+
+  const leftUpdated = new Date(left.createdUtc).getTime();
+  const rightUpdated = new Date(right.createdUtc).getTime();
+
+  if (!Number.isNaN(leftUpdated) && !Number.isNaN(rightUpdated) && leftUpdated !== rightUpdated) {
+    return rightUpdated - leftUpdated;
+  }
+
+  return left.runId.localeCompare(right.runId);
+}
+
+/** Working reviews hub: in-flight / mid-execute packages above completed samples (LI-08). */
+export function sortRunsForWorkingReviewsHubInventory(
+  runs: readonly RunSummary[],
+  isFavorite: (runId: string) => boolean,
+  inFlightRunIds: ReadonlySet<string>,
+): RunSummary[] {
+  return [...runs].sort((left, right) => compareRunsForInventory(left, right, isFavorite, inFlightRunIds));
 }
 
 export function reviewsHubInventoryFilterEmptyReason(filter: ReviewFilterId): string {
