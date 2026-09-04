@@ -40,7 +40,7 @@ const Progress = React.forwardRef<React.ElementRef<typeof ProgressPrimitive.Root
     >
       <ProgressPrimitive.Indicator
         className={cn(
-          "h-full w-full flex-1 bg-neutral-900 transition-all dark:bg-neutral-50",
+          "h-full w-full flex-1 bg-neutral-900 transition-all motion-reduce:transition-none dark:bg-neutral-50",
           indicatorClassName,
         )}
         style={{ transform: `translateX(-${PROGRESS_MAX - (clampedValue ?? 0)}%)` }}

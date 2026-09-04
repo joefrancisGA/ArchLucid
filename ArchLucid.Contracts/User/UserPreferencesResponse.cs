@@ -126,4 +126,46 @@ public sealed class UserPreferencesResponse
         get;
         set;
     }
+
+    /// <summary>When true, findings lists hide generic low-density rows.</summary>
+    public bool FindingsHideGenericEnabled
+    {
+        get;
+        set;
+    }
+
+    /// <summary>True when the user has an explicit stored hide-generic findings visibility row.</summary>
+    public bool FindingsHideGenericEnabledIsExplicit
+    {
+        get;
+        set;
+    }
+
+    /// <summary>When true, findings lists show low-confidence rows.</summary>
+    public bool FindingsShowLowConfidenceEnabled
+    {
+        get;
+        set;
+    }
+
+    /// <summary>True when the user has an explicit stored show-low-confidence findings visibility row.</summary>
+    public bool FindingsShowLowConfidenceEnabledIsExplicit
+    {
+        get;
+        set;
+    }
+
+    /// <summary>When true, findings lists show advisory rows.</summary>
+    public bool FindingsShowAdvisoryEnabled
+    {
+        get;
+        set;
+    }
+
+    /// <summary>True when the user has an explicit stored show-advisory findings visibility row.</summary>
+    public bool FindingsShowAdvisoryEnabledIsExplicit
+    {
+        get;
+        set;
+    }
 }

@@ -7,8 +7,14 @@ import {
 import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
 import { Input } from "@/components/ui/input";
 import { GlobalSearchGlobalResultsPanel } from "@/components/GlobalSearchGlobalResultsPanel";
+import { GlobalSearchPackageResultsPanel } from "@/components/GlobalSearchPackageResultsPanel";
 import { GlobalSearchQuickActionsPanel } from "@/components/GlobalSearchQuickActionsPanel";
 import { GlobalSearchReviewDetailSectionsPanel } from "@/components/GlobalSearchReviewDetailSectionsPanel";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import type { ReviewPackageSearchScope } from "@/lib/review-detail-package-search-scope";
+import { cn } from "@/lib/utils";
 import type { GlobalSearchBarController } from "@/components/use-global-search-bar";
 
 type GlobalSearchBarShellProps = {
@@ -27,8 +33,10 @@ export function GlobalSearchBarShell(props: GlobalSearchBarShellProps) {
     searchAriaLabel,
     quickActionsPanelOpen,
     reviewDetailPanelOpen,
+    packageResultsPanelOpen,
     globalResultsPanelOpen,
     resultsPanelOpen,
+    packageSearchScope,
     closePanel,
     handleQueryChange,
     handleInputFocus,
@@ -71,11 +79,34 @@ export function GlobalSearchBarShell(props: GlobalSearchBarShellProps) {
         className="h-8 border-neutral-300 bg-white text-al-text-primary placeholder:text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900 dark:placeholder:text-neutral-400"
       />
 
+      {packageSearchScope.packageScopeAvailable ? (
+        <FilterChipGroup
+          className={cn("mt-1.5 flex flex-wrap gap-1", OPERATOR_TYPOGRAPHY.helper)}
+          aria-label="Search scope"
+          data-testid="global-search-package-scope-toggle"
+        >
+          {(["package", "workspace"] as const).map((scope: ReviewPackageSearchScope) => (
+            <FilterChip
+              key={scope}
+              aria-pressed={packageSearchScope.searchScope === scope}
+              onClick={() => {
+                packageSearchScope.setSearchScope(scope);
+              }}
+              data-testid={`global-search-scope-${scope}`}
+            >
+              {packageSearchScope.scopeLabels[scope]}
+            </FilterChip>
+          ))}
+        </FilterChipGroup>
+      ) : null}
+
       {quickActionsPanelOpen ? (
         <GlobalSearchQuickActionsPanel inputId={inputId} onClose={closePanel} />
       ) : null}
 
       {reviewDetailPanelOpen ? <GlobalSearchReviewDetailSectionsPanel controller={controller} /> : null}
+
+      {packageResultsPanelOpen ? <GlobalSearchPackageResultsPanel controller={controller} /> : null}
 
       {globalResultsPanelOpen ? <GlobalSearchGlobalResultsPanel controller={controller} /> : null}
     </div>

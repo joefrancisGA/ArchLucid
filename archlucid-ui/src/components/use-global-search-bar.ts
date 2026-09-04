@@ -7,6 +7,7 @@ import { palettePressUsesPaletteModifier } from "@/components/CommandPalette";
 import { dispatchOpenCommandPalette } from "@/lib/shortcut-registry";
 import { useGlobalSearchMode, useGlobalSearchRouteLocalQuerySync } from "@/components/use-global-search-mode";
 import { useGlobalSearchResults } from "@/components/use-global-search-results";
+import { useReviewPackageSearchScope } from "@/hooks/use-review-package-search-scope";
 
 export const OPEN_GLOBAL_SEARCH_EVENT = "archlucid-open-global-search";
 export const FOCUS_GLOBAL_SEARCH_EVENT = "archlucid-focus-global-search";
@@ -24,12 +25,26 @@ export function useGlobalSearchBar() {
   const {
     routeLocalSearchMode,
     routeLocalSearchQuery,
-    searchPlaceholder,
-    searchAriaLabel,
+    searchPlaceholder: routeSearchPlaceholder,
+    searchAriaLabel: routeSearchAriaLabel,
     replaceRouteLocalSearchQuery,
   } = useGlobalSearchMode();
 
-  const searchResults = useGlobalSearchResults(query, routeLocalSearchMode);
+  const packageSearchScope = useReviewPackageSearchScope();
+
+  const searchResults = useGlobalSearchResults(query, routeLocalSearchMode, {
+    packageRunId: packageSearchScope.packageRunId,
+    searchScope: packageSearchScope.searchScope,
+  });
+
+  const searchPlaceholder =
+    packageSearchScope.packageScopeAvailable
+      ? packageSearchScope.searchPlaceholder
+      : routeSearchPlaceholder;
+  const searchAriaLabel =
+    packageSearchScope.packageScopeAvailable
+      ? packageSearchScope.searchAriaLabel
+      : routeSearchAriaLabel;
 
   useGlobalSearchRouteLocalQuerySync(
     routeLocalSearchMode,
@@ -90,11 +105,22 @@ export function useGlobalSearchBar() {
   }, []);
 
   const showQuickActions = open && searchResults.trimmedQuery.length < 2 && routeLocalSearchMode === null;
+  const packageResultsPanelOpen =
+    open &&
+    routeLocalSearchMode === "review-detail" &&
+    packageSearchScope.searchScope === "package" &&
+    searchResults.trimmedQuery.length >= 2;
   const reviewDetailPanelOpen =
-    open && routeLocalSearchMode === "review-detail" && searchResults.trimmedQuery.length > 0;
+    open &&
+    routeLocalSearchMode === "review-detail" &&
+    searchResults.trimmedQuery.length > 0 &&
+    searchResults.trimmedQuery.length < 2;
   const globalResultsPanelOpen =
-    open && searchResults.trimmedQuery.length >= 2 && routeLocalSearchMode === null;
-  const resultsPanelOpen = globalResultsPanelOpen || reviewDetailPanelOpen;
+    open &&
+    searchResults.trimmedQuery.length >= 2 &&
+    (routeLocalSearchMode === null ||
+      (routeLocalSearchMode === "review-detail" && packageSearchScope.searchScope === "workspace"));
+  const resultsPanelOpen = globalResultsPanelOpen || reviewDetailPanelOpen || packageResultsPanelOpen;
   const quickActionsPanelOpen = showQuickActions;
 
   const handleQueryChange = useCallback(
@@ -152,9 +178,11 @@ export function useGlobalSearchBar() {
     searchPlaceholder,
     searchAriaLabel,
     routeLocalSearchMode,
+    packageSearchScope,
     searchResults,
     quickActionsPanelOpen,
     reviewDetailPanelOpen,
+    packageResultsPanelOpen,
     globalResultsPanelOpen,
     resultsPanelOpen,
     closePanel,

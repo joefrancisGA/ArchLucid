@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
@@ -33,10 +33,7 @@ import {
 } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
 import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { parseGovernanceFindingsSearchQuery, governanceFindingsSearchHrefFromSearch } from "@/lib/governance/governance-findings-queue-search";
-import {
-  governanceFindingsHideGenericHrefFromSearch,
-  parseGovernanceFindingsHideGenericFromSearch,
-} from "@/lib/governance/governance-findings-hide-generic-url";
+import { useGovernanceFindingsHideGenericState } from "@/hooks/use-governance-findings-hide-generic-state";
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 
@@ -57,9 +54,7 @@ export default function GovernanceFindingsQueueClient({
   const router = useRouter();
   const pathname = usePathname() ?? (mode === "assigned-to-me" ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH : GOVERNANCE_FINDINGS_PATH);
   const searchParams = useSearchParams();
-  const [hideGenericLowDensity, setHideGenericLowDensity] = useState(() =>
-    parseGovernanceFindingsHideGenericFromSearch(searchParams.get("hideGeneric")),
-  );
+  const { hideGenericLowDensity, setHideGenericLowDensity } = useGovernanceFindingsHideGenericState();
   const { jobView, setJobView, nlFacets, setNlFacets, clearFacetFilters } =
     useGovernanceFindingsQueueFacets(mode);
   const { currentPrincipal } = useOperatorNavAuthority();
@@ -108,7 +103,6 @@ export default function GovernanceFindingsQueueClient({
     scopedRunContextQuery.data?.priorCommittedRunId,
   );
 
-  const urlHideGeneric = parseGovernanceFindingsHideGenericFromSearch(searchParams.get("hideGeneric"));
   const { isWorkingMode } = useWorkspaceMode();
   const findingsSearchQuery = parseGovernanceFindingsSearchQuery(searchParams.get("q"));
   const synopsis = useGovernanceFindingsQueueSynopsis({
@@ -128,20 +122,6 @@ export default function GovernanceFindingsQueueClient({
     scopeRecord,
   });
   usePrefetchItsmFindingCorrelations(synopsis.findingIds);
-
-  useEffect(() => {
-    setHideGenericLowDensity(urlHideGeneric);
-  }, [urlHideGeneric]);
-
-  const onHideGenericLowDensityChange = useCallback(
-    (next: boolean) => {
-      setHideGenericLowDensity(next);
-      router.replace(governanceFindingsHideGenericHrefFromSearch(searchParams.toString(), next, pathname), {
-        scroll: false,
-      });
-    },
-    [pathname, router, searchParams],
-  );
 
   const clearAllFilters = useCallback((): void => {
     setRegisterFilter("all");
@@ -286,7 +266,7 @@ export default function GovernanceFindingsQueueClient({
         assignedToMeOldestFindingTarget={synopsis.assignedToMeOldestFindingTarget}
         firstFindingTriageTarget={synopsis.firstFindingTriageTarget}
         hideGenericLowDensity={hideGenericLowDensity}
-        onHideGenericLowDensityChange={onHideGenericLowDensityChange}
+        onHideGenericLowDensityChange={setHideGenericLowDensity}
         showInsightDensityScore={isWorkingMode}
         selectedFindingIds={bulkActions.selectedFindingIds}
         onSelectionChange={bulkActions.onSelectionChange}

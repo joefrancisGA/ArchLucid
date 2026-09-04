@@ -85,7 +85,7 @@ export function ProvenancePageWorkspaceHeader({
         </div>
         {reviewTitle.length > 0 ? (
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-            Evidence trail for{" "}
+            Evidence provenance for{" "}
             <span className="font-medium text-neutral-900 dark:text-neutral-100">{reviewTitle}</span>
           </p>
         ) : null}

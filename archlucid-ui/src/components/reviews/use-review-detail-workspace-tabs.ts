@@ -213,7 +213,11 @@ export function useReviewDetailWorkspaceTabs(
     && WORKBENCH_TAB_IDS.every(
       (tabId) => resolved.visibleTabIds.includes(tabId) || resolved.moreTabIds.includes(tabId),
     );
-  const workbenchFocusColumn: ReviewWorkbenchColumnId | null = isWorkbenchTab(activeTab) ? activeTab : null;
+  const workbenchFocusFromUrl = resolveReviewWorkbenchFocusColumn(
+    searchParams.get(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM),
+  );
+  const workbenchFocusColumn: ReviewWorkbenchColumnId | null =
+    workbenchFocusFromUrl ?? (isWorkbenchTab(activeTab) ? activeTab : null);
 
   useReviewWorkbenchShortcuts({
     enabled: workbenchVisible,

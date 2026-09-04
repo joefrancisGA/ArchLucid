@@ -158,5 +158,9 @@ export function useFindingInspectGovernanceStickiness(
     sponsorSynopsisPackageTitle: dispositions.sponsorSynopsisPackageTitle,
     recentDispositionActors: dispositions.recentDispositionActors,
     pendingDispositionBlockedReason: dispositions.pendingDispositionBlockedReason,
+    remediationLastSavedUtc: remediation.remediationLastSavedUtc,
+    remediationInlineSaveError: remediation.remediationInlineSaveError,
+    dispositionLastSavedUtc: dispositions.dispositionLastSavedUtc,
+    dispositionInlineSaveError: dispositions.dispositionInlineSaveError,
   };
 }

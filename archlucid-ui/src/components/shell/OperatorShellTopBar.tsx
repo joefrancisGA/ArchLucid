@@ -19,6 +19,7 @@ import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuth
 import { GuidedModeTopBarChip } from "@/components/workspace-mode/GuidedModeTopBarChip";
 import { SimulatorModeTopBarChip } from "@/components/usability/SimulatorModeTopBarChip";
 import { useSearchShortcut } from "@/hooks/useSearchShortcut";
+import { useReviewPresenterChromeActive } from "@/hooks/use-review-presenter-chrome-active";
 import { Button } from "@/components/ui/button";
 import { ToolbarHelpTooltip } from "@/components/ToolbarHelpTooltip";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
@@ -46,8 +47,11 @@ type OperatorShellTopBarProps = {
 export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.Element {
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const showEngineerOperatorChrome = isOperatorExperienceFullShellEnv();
+  const presenterQuiet = useReviewPresenterChromeActive();
   const showLlmBudgetPill =
-    showEngineerOperatorChrome && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
+    showEngineerOperatorChrome &&
+    !presenterQuiet &&
+    callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const showAuthorityThemeToggle = isUiAuthorityThemeEvalEnabledEnv();
   const showMoreMenu = showAuthorityThemeToggle;
 

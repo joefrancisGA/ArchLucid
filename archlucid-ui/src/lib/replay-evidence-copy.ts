@@ -19,7 +19,7 @@ export const REPLAY_SOURCES_INTRO =
 export const REPLAY_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Compare two reviews", href: "/insights/compare-two-reviews" },
-  { label: "Evidence trail", href: "/insights/evidence-graph" },
+  { label: "Evidence graph", href: "/insights/evidence-graph" },
   { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
   { label: "Compare and replay help", href: inAppHelpHref("comparison-replay") },
 ] as const;

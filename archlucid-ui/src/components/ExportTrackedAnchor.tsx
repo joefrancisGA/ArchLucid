@@ -2,6 +2,7 @@
 
 import type { AnchorHTMLAttributes, ReactNode } from "react";
 
+import { pulseOidcSessionKeepalive } from "@/hooks/use-oidc-session-keepalive";
 import { recordFirstExportOpenedOnce } from "@/lib/first-tenant-funnel-telemetry";
 
 /**
@@ -17,6 +18,7 @@ export function ExportTrackedAnchor({
     <a
       {...props}
       onClick={(e) => {
+        void pulseOidcSessionKeepalive();
         recordFirstExportOpenedOnce();
         onClick?.(e);
       }}

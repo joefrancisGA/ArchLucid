@@ -53,8 +53,25 @@ vi.mock("@/components/usability/SetupHealthShellBanner", () => ({
 
 import { AppShellStatusBanners } from "@/components/shell/AppShellStatusBanners";
 
+vi.mock("@/hooks/use-review-presenter-chrome-active", () => ({
+  useReviewPresenterChromeActive: vi.fn(() => false),
+}));
+
+import { useReviewPresenterChromeActive } from "@/hooks/use-review-presenter-chrome-active";
+
+const mockUseReviewPresenterChromeActive = vi.mocked(useReviewPresenterChromeActive);
+
 describe("AppShellStatusBanners", () => {
+  it("renders nothing in presenter mode (WA-21)", () => {
+    mockUseReviewPresenterChromeActive.mockReturnValue(true);
+
+    const { container } = render(<AppShellStatusBanners variant="full" />);
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
   it("includes offline reconnect and tenant migration banners for minimal and full variants", () => {
+    mockUseReviewPresenterChromeActive.mockReturnValue(false);
     const { rerender } = render(<AppShellStatusBanners variant="minimal" />);
 
     expect(screen.getByTestId("operator-offline-reconnect")).toBeInTheDocument();

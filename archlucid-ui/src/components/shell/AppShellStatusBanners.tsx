@@ -14,6 +14,7 @@ import { TrialUsageUpgradeNudge } from "@/components/trial/TrialUsageUpgradeNudg
 import { PersistentTrialStatusStrip } from "@/components/usability/PersistentTrialStatusStrip";
 import { SetupHealthShellBanner } from "@/components/usability/SetupHealthShellBanner";
 import { RealModeAiReadinessShellBanner } from "@/components/usability/RealModeAiReadinessShellBanner";
+import { useReviewPresenterChromeActive } from "@/hooks/use-review-presenter-chrome-active";
 
 type AppShellStatusBannersProps = {
   readonly variant: "minimal" | "full";
@@ -21,6 +22,12 @@ type AppShellStatusBannersProps = {
 
 /** Operator shell readiness, budget, and trial banners loaded outside the AppShell critical path. */
 export function AppShellStatusBanners({ variant }: AppShellStatusBannersProps) {
+  const presenterQuiet = useReviewPresenterChromeActive();
+
+  if (presenterQuiet) {
+    return null;
+  }
+
   return (
     <>
       <OperatorOfflineReconnectBanner />
