@@ -843,3 +843,4 @@
 {"at":"2026-09-04T07:15:38.1429379Z","zoneId":"knowledge-graph-provenance","outcome":"hit"}
 {"at":"2026-09-04T07:21:09.3787892Z","zoneId":"ui-operator-routes","outcome":"hit"}
 {"at":"2026-09-04T07:29:07.9112248Z","zoneId":"application-governance-policy","outcome":"hit"}
+{"at":"2026-09-04T07:45:51.5067603Z","zoneId":"ui-oidc","outcome":"hit"}
