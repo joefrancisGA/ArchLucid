@@ -102,7 +102,11 @@ export function formatRunsDashboardTabLabelWithCount(label: string, count: numbe
   return `${label} (${safeCount})`;
 }
 
-function resolveRunsDashboardTabBaseLabel(tabId: RunsDashboardTabId, buyerPolishedShell: boolean): string {
+function resolveRunsDashboardTabBaseLabel(
+  tabId: RunsDashboardTabId,
+  buyerPolishedShell: boolean,
+  homePreviewMode: boolean,
+): string {
   if (buyerPolishedShell) {
     if (tabId === "all") {
       return BUYER_RUNS_DASHBOARD_FILTER_ALL;
@@ -128,6 +132,11 @@ function resolveRunsDashboardTabBaseLabel(tabId: RunsDashboardTabId, buyerPolish
   }
 
   if (tabId === "attention") {
+    // Home preview only — distinct from the "Awaiting approval" attention chip above.
+    if (homePreviewMode) {
+      return RUNS_DASHBOARD_LABELS.tabOpenFindings;
+    }
+
     return RUNS_DASHBOARD_LABELS.tabNeedsAttention;
   }
 
@@ -138,8 +147,13 @@ export function runsDashboardTabLabel(
   tabId: RunsDashboardTabId,
   buyerPolishedShell: boolean,
   count?: number,
+  options?: { readonly homePreviewMode?: boolean },
 ): string {
-  const baseLabel = resolveRunsDashboardTabBaseLabel(tabId, buyerPolishedShell);
+  const baseLabel = resolveRunsDashboardTabBaseLabel(
+    tabId,
+    buyerPolishedShell,
+    options?.homePreviewMode === true,
+  );
 
   if (count === undefined) {
     return baseLabel;

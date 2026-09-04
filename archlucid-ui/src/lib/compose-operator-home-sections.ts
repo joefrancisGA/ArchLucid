@@ -1,3 +1,4 @@
+import type { OperatorAttentionKindId } from "@/lib/operator/operator-attention-taxonomy";
 import type { OperatorHomeWorkspaceMetricsSnapshot } from "@/lib/operator/operator-home-workspace-metrics";
 import {
   resolveOperatorHomeWorkspacePhase,
@@ -22,6 +23,8 @@ export type OperatorHomeSectionId =
 export type OperatorHomeSectionDescriptor = {
   readonly id: OperatorHomeSectionId;
   readonly testId: string;
+  /** When set on attention-taxonomy, hides chips already surfaced elsewhere on home. */
+  readonly suppressAttentionKinds?: readonly OperatorAttentionKindId[];
 };
 
 export type ComposeOperatorHomeSectionsInput = {
@@ -33,6 +36,18 @@ export type ComposeOperatorHomeSectionsInput = {
 
 function shouldShowHomeMetricsStrip(metrics: OperatorHomeWorkspaceMetricsSnapshot): boolean {
   return metrics.reviewPackagesCommitted > 0;
+}
+
+function attentionTaxonomySection(
+  suppressAttentionKinds?: readonly OperatorAttentionKindId[],
+): OperatorHomeSectionDescriptor {
+  return {
+    id: "attention-taxonomy",
+    testId: "operator-home-attention-taxonomy",
+    ...(suppressAttentionKinds !== undefined && suppressAttentionKinds.length > 0
+      ? { suppressAttentionKinds }
+      : {}),
+  };
 }
 
 function metricsStripSection(): OperatorHomeSectionDescriptor {
@@ -62,7 +77,7 @@ function buyerPolishedSections(
 
   const sections: OperatorHomeSectionDescriptor[] = [
     ...(shouldShowHomeMetricsStrip(metrics) ? [metricsStripSection()] : []),
-    { id: "attention-taxonomy", testId: "operator-home-attention-taxonomy" },
+    attentionTaxonomySection(["unfinished-work"]),
     { id: "unfinished", testId: "operator-home-unfinished-work" },
     { id: "start-something", testId: "operator-home-start-something" },
     { id: "recent-reviews", testId: "operator-home-recent-reviews" },
@@ -88,7 +103,7 @@ function operatorShellSections(
 
   const sections: OperatorHomeSectionDescriptor[] = [
     ...(shouldShowHomeMetricsStrip(metrics) ? [metricsStripSection()] : []),
-    { id: "attention-taxonomy", testId: "operator-home-attention-taxonomy" },
+    attentionTaxonomySection(["unfinished-work"]),
     { id: "unfinished", testId: "operator-home-unfinished-work" },
     { id: "start-something", testId: "operator-home-start-something" },
     { id: "recent-reviews", testId: "operator-home-recent-reviews" },
@@ -127,7 +142,7 @@ function workingModeOperatorShellSections(
 
   return [
     ...(shouldShowHomeMetricsStrip(metrics) ? [metricsStripSection()] : []),
-    { id: "attention-taxonomy", testId: "operator-home-attention-taxonomy" },
+    attentionTaxonomySection(["unfinished-work"]),
     { id: "in-flight", testId: "operator-home-in-flight-analysis" },
     { id: "unfinished", testId: "operator-home-unfinished-work" },
     { id: "recent-reviews", testId: "operator-home-recent-reviews" },

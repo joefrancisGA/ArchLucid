@@ -52,9 +52,28 @@ describe("OperatorHomeWorkspaceMetricsStrip", () => {
       totalCount: 3,
     });
 
-    render(<OperatorHomeWorkspaceMetricsStrip runsDashboard={buildRunsDashboard()} />);
+    const runsDashboard = buildRunsDashboard();
+    runsDashboard.items = [
+      {
+        runId: "run-committed",
+        displayTitle: "Finalized platform",
+        customerStatus: "approved",
+        hasGoldenManifest: true,
+        updatedAtUtc: "2026-01-10T12:00:00.000Z",
+      },
+      ...runsDashboard.items,
+      {
+        runId: "run-2",
+        displayTitle: "Payments platform",
+        customerStatus: "in_progress",
+        updatedAtUtc: "2026-01-14T12:00:00.000Z",
+      },
+    ] as OperatorHomeRunsDashboardModel["items"];
+    runsDashboard.totalCount = 3;
 
-    const activeReviewLink = screen.getByRole("link", { name: /1 Active review/ });
+    render(<OperatorHomeWorkspaceMetricsStrip runsDashboard={runsDashboard} />);
+
+    const activeReviewLink = screen.getByRole("link", { name: /2 Active reviews/ });
     expect(activeReviewLink.className).toMatch(/underline/);
     expect(activeReviewLink.className).not.toMatch(/no-underline/);
 
@@ -64,6 +83,32 @@ describe("OperatorHomeWorkspaceMetricsStrip", () => {
     expect(row?.className).not.toMatch(/border-y/);
   });
 
+  it("hides the active-review metric when a single in-progress review is surfaced in Your work", () => {
+    useFinishSetupReadinessContext.mockReturnValue({
+      phase: "ready",
+      readyCount: 2,
+      totalCount: 3,
+    });
+
+    const runsDashboard = buildRunsDashboard();
+    runsDashboard.items = [
+      {
+        runId: "run-committed",
+        displayTitle: "Finalized platform",
+        customerStatus: "approved",
+        hasGoldenManifest: true,
+        updatedAtUtc: "2026-01-10T12:00:00.000Z",
+      },
+      ...runsDashboard.items,
+    ] as OperatorHomeRunsDashboardModel["items"];
+    runsDashboard.totalCount = 2;
+
+    render(<OperatorHomeWorkspaceMetricsStrip runsDashboard={runsDashboard} />);
+
+    expect(screen.queryByRole("link", { name: /1 Active review/ })).toBeNull();
+    expect(screen.getByRole("link", { name: /0 Open findings/ })).toBeInTheDocument();
+  });
+
   it("hides setup readiness in Working mode", () => {
     useFinishSetupReadinessContext.mockReturnValue({
       phase: "ready",
@@ -71,9 +116,28 @@ describe("OperatorHomeWorkspaceMetricsStrip", () => {
       totalCount: 3,
     });
 
-    render(<OperatorHomeWorkspaceMetricsStrip runsDashboard={buildRunsDashboard()} workingMode />);
+    const runsDashboard = buildRunsDashboard();
+    runsDashboard.items = [
+      {
+        runId: "run-committed",
+        displayTitle: "Finalized platform",
+        customerStatus: "approved",
+        hasGoldenManifest: true,
+        updatedAtUtc: "2026-01-10T12:00:00.000Z",
+      },
+      ...runsDashboard.items,
+      {
+        runId: "run-2",
+        displayTitle: "Payments platform",
+        customerStatus: "in_progress",
+        updatedAtUtc: "2026-01-14T12:00:00.000Z",
+      },
+    ] as OperatorHomeRunsDashboardModel["items"];
+    runsDashboard.totalCount = 3;
+
+    render(<OperatorHomeWorkspaceMetricsStrip runsDashboard={runsDashboard} workingMode />);
 
     expect(screen.queryByRole("link", { name: /Setup 2\/3/ })).toBeNull();
-    expect(screen.getByRole("link", { name: /1 Active review/ })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /2 Active reviews/ })).toBeInTheDocument();
   });
 });

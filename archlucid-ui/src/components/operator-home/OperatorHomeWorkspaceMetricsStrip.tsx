@@ -68,6 +68,7 @@ export function OperatorHomeWorkspaceMetricsStrip(
   const activeReviews = metrics.reviewPackagesActive;
   const findingsLabel = `${metrics.openFindings} Open finding${metrics.openFindings === 1 ? "" : "s"}`;
   const warningsLabel = `${metrics.governanceWarnings} Warning${metrics.governanceWarnings === 1 ? "" : "s"}`;
+  const showActiveReviewsMetric = activeReviews !== 1;
   const setupLabel = readiness.phase === "loading"
     ? "Setup …"
     : `Setup ${readiness.readyCount}/${readiness.totalCount}`;
@@ -92,10 +93,12 @@ export function OperatorHomeWorkspaceMetricsStrip(
           "text-al-text-secondary",
         )}
       >
-        <MetricTile
-          label={`${activeReviews} Active review${activeReviews === 1 ? "" : "s"}`}
-          href={OPERATOR_HOME_ARCHITECTURE_PACKAGES_HREF}
-        />
+        {showActiveReviewsMetric ? (
+          <MetricTile
+            label={`${activeReviews} Active review${activeReviews === 1 ? "" : "s"}`}
+            href={OPERATOR_HOME_ARCHITECTURE_PACKAGES_HREF}
+          />
+        ) : null}
         <MetricTile label={findingsLabel} href={OPERATOR_HOME_OPEN_FINDINGS_HREF} />
         <div className="min-w-0">
           <OperatorHomeGovernanceWarningsMetricLink label={warningsLabel} />

@@ -52,7 +52,7 @@ describe("OperatorAttentionKindStrip (TB-2353)", () => {
     expect(screen.getByTestId("operator-attention-kind-chip-awaiting-approval")).toHaveTextContent("3");
   });
 
-  it("omits helper text in compact hub layout", () => {
+  it("shows compact helper on home hub layout", () => {
     usePathname.mockReturnValue("/");
     useSearchParams.mockReturnValue(new URLSearchParams());
 
@@ -60,7 +60,19 @@ describe("OperatorAttentionKindStrip (TB-2353)", () => {
 
     expect(screen.getByTestId("operator-attention-kind-strip")).toHaveAttribute("data-variant", "compact");
     expect(screen.queryByText(OPERATOR_ATTENTION_KIND_STRIP_HELPER)).not.toBeInTheDocument();
+    expect(screen.getByText(/Each chip opens its queue/)).toBeInTheDocument();
     expect(screen.getByTestId("operator-attention-kind-chips")).toBeInTheDocument();
+  });
+
+  it("shows compact helper and can suppress kinds already on the page", () => {
+    usePathname.mockReturnValue("/");
+    useSearchParams.mockReturnValue(new URLSearchParams());
+
+    render(<OperatorAttentionKindStrip variant="compact" suppressKinds={["unfinished-work"]} />);
+
+    expect(screen.getByText(/Each chip opens its queue/)).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-attention-kind-chip-unfinished-work")).not.toBeInTheDocument();
+    expect(screen.getByTestId("operator-attention-kind-chip-awaiting-approval")).toBeInTheDocument();
   });
 
   it("marks the matching destination chip as selected", () => {

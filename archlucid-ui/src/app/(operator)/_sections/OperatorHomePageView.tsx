@@ -125,7 +125,14 @@ function renderOperatorHomeSection(input: RenderOperatorHomeSectionInput): React
     case "attention-taxonomy":
       return (
         <div key={input.section.id} data-testid={input.section.testId}>
-          <OperatorAttentionKindStrip variant="compact" />
+          <OperatorAttentionKindStrip
+            variant="compact"
+            suppressKinds={
+              input.section.suppressAttentionKinds !== undefined
+                ? input.section.suppressAttentionKinds
+                : undefined
+            }
+          />
         </div>
       );
 
