@@ -9,8 +9,8 @@ public sealed class ApproveGovernanceRequestValidator : AbstractValidator<Approv
     public ApproveGovernanceRequestValidator()
     {
         RuleFor(x => x.ReviewedBy)
-            .NotEmpty().WithMessage("ReviewedBy is required.")
-            .MaximumLength(200).WithMessage("ReviewedBy must not exceed 200 characters.");
+            .MaximumLength(200).WithMessage("ReviewedBy must not exceed 200 characters.")
+            .When(x => x.ReviewedBy is not null);
 
         RuleFor(x => x.ReviewComment)
             .MaximumLength(4000).WithMessage("ReviewComment must not exceed 4000 characters.")

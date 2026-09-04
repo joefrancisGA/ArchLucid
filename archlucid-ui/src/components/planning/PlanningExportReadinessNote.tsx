@@ -1,16 +1,16 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import {
-  buildLearningPlanningReportFileUrl,
-  buildLearningPlanningReportJsonUrl,
-} from "@/lib/learning-planning-report-urls";
+  downloadLearningPlanningReportJson,
+  downloadLearningPlanningReportMarkdown,
+  openLearningPlanningReportJsonInNewTab,
+} from "@/lib/learning-planning-report-download";
 import {
   IMPROVEMENT_PLANNING_DOWNLOAD_REPORT_CTA,
   IMPROVEMENT_PLANNING_EXPORT_DATA_CTA,
@@ -38,15 +38,23 @@ export function PlanningExportReadinessNote() {
       <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>{IMPROVEMENT_PLANNING_EXPORT_SECTION_TITLE}</h3>
       <p className="mt-2">{IMPROVEMENT_PLANNING_EXPORT_SECTION_DESCRIPTION}</p>
       <div className="mt-3 flex flex-wrap gap-2">
-        <Button asChild variant="outline" size="sm">
-          <a id="planning-export-report" href={buildLearningPlanningReportFileUrl("markdown")}>
-            {IMPROVEMENT_PLANNING_DOWNLOAD_REPORT_CTA}
-          </a>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          id="planning-export-report"
+          onClick={() => void downloadLearningPlanningReportMarkdown()}
+        >
+          {IMPROVEMENT_PLANNING_DOWNLOAD_REPORT_CTA}
         </Button>
-        <Button asChild variant="outline" size="sm">
-          <a id="planning-export-data" href={buildLearningPlanningReportFileUrl("json")}>
-            {IMPROVEMENT_PLANNING_EXPORT_DATA_CTA}
-          </a>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          id="planning-export-data"
+          onClick={() => void downloadLearningPlanningReportJson()}
+        >
+          {IMPROVEMENT_PLANNING_EXPORT_DATA_CTA}
         </Button>
       </div>
 
@@ -61,14 +69,13 @@ export function PlanningExportReadinessNote() {
               Open the raw JSON document in a new tab for debugging or integration checks.
             </p>
             <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.helper)}>
-              <Link
-                href={buildLearningPlanningReportJsonUrl()}
+              <button
+                type="button"
                 className={OPERATOR_LINK.inline}
-                target="_blank"
-                rel="noreferrer"
+                onClick={() => void openLearningPlanningReportJsonInNewTab()}
               >
                 Open JSON in browser
-              </Link>
+              </button>
               {" · "}
               <span>
                 API routes: <code>GET /v1/learning/report</code>, <code>GET /v1/learning/report/file</code>

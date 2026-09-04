@@ -29,6 +29,12 @@ public sealed partial class GovernanceStickinessController
         if (bodyProblem is not null)
             return bodyProblem;
 
+        IActionResult? scheduleValidation =
+            GovernanceStickinessHttpMapper.ValidateCreateRecurrenceSchedule(request!).ToBadRequestProblemOrNull(this);
+
+        if (scheduleValidation is not null)
+            return scheduleValidation;
+
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -108,16 +114,23 @@ public sealed partial class GovernanceStickinessController
         if (bodyProblem is not null)
             return bodyProblem;
 
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+        IActionResult? scheduleValidation =
+            GovernanceStickinessHttpMapper.ValidateUpdateRecurrenceSchedule(request!)
+                .ToBadRequestProblemOrNull(this);
 
-        if (tenantProblem is not null)
-            return tenantProblem;
+        if (scheduleValidation is not null)
+            return scheduleValidation;
 
         IActionResult? scheduleIdProblem =
             GovernanceStickinessControllerCore.ValidateScheduleId(scheduleId).ToBadRequestProblemOrNull(this);
 
         if (scheduleIdProblem is not null)
             return scheduleIdProblem;
+
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         try
         {

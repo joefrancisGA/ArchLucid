@@ -118,17 +118,15 @@ public sealed partial class ManifestsController
         string rightVersion,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(leftVersion))
-            return new LoadedManifestPair
-            {
-                Error = this.BadRequestProblem("leftVersion is required.", ProblemTypes.ValidationFailed)
-            };
+        IActionResult? leftVersionProblem = BadRequestWhenManifestVersionInvalid(leftVersion, "leftVersion");
 
-        if (string.IsNullOrWhiteSpace(rightVersion))
-            return new LoadedManifestPair
-            {
-                Error = this.BadRequestProblem("rightVersion is required.", ProblemTypes.ValidationFailed)
-            };
+        if (leftVersionProblem is not null)
+            return new LoadedManifestPair { Error = leftVersionProblem };
+
+        IActionResult? rightVersionProblem = BadRequestWhenManifestVersionInvalid(rightVersion, "rightVersion");
+
+        if (rightVersionProblem is not null)
+            return new LoadedManifestPair { Error = rightVersionProblem };
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 

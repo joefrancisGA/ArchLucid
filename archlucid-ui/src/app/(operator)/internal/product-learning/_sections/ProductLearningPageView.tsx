@@ -21,11 +21,12 @@ import {
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ProductLearningEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
-import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 import {
-  buildProductLearningReportFileUrl,
-  buildProductLearningReportJsonUrl,
-} from "@/lib/product-learning-report-urls";
+  downloadProductLearningReportJson,
+  downloadProductLearningReportMarkdown,
+  openProductLearningReportJsonInNewTab,
+} from "@/lib/product-learning-report-download";
+import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 import { BUYER_TERMINOLOGY, PILOT_FEEDBACK_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import {
   OPERATOR_KPI_CARD_TITLE,
@@ -112,30 +113,29 @@ export function ProductLearningPageView(props: Props) {
             {PILOT_FEEDBACK_VOCABULARY.exportSectionLead} Uses the same scope and time range as the dashboard above.
           </p>
           <p className={cn("mt-2.5", OPERATOR_TYPOGRAPHY.body)}>
-            <a
-              href={buildProductLearningReportFileUrl("markdown", sinceIsoForRange(m.range))}
-              download
+            <button
+              type="button"
               className={OPERATOR_LINK.inline}
+              onClick={() => void downloadProductLearningReportMarkdown(sinceIsoForRange(m.range))}
             >
               Download Markdown
-            </a>
+            </button>
             {" · "}
-            <a
-              href={buildProductLearningReportFileUrl("json", sinceIsoForRange(m.range))}
-              download
+            <button
+              type="button"
               className={OPERATOR_LINK.inline}
+              onClick={() => void downloadProductLearningReportJson(sinceIsoForRange(m.range))}
             >
               Download JSON
-            </a>
+            </button>
             {" · "}
-            <a
-              href={buildProductLearningReportJsonUrl(sinceIsoForRange(m.range))}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
               className={OPERATOR_LINK.inline}
+              onClick={() => void openProductLearningReportJsonInNewTab(sinceIsoForRange(m.range))}
             >
               Open JSON in new tab
-            </a>
+            </button>
           </p>
         </section>
       ) : null}

@@ -33,12 +33,14 @@ public sealed class ComplianceDriftTrendService(
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-        IReadOnlyList<PolicyPackChangeLogEntry> entries =
-            await _changeLogRepository.GetByTenantInRangeAsync(tenantId, fromUtc, toUtc, cancellationToken);
-
-        IReadOnlyList<PolicyPackChangeLogEntry> scopedEntries = entries
-            .Where(entry => entry.WorkspaceId == scope.WorkspaceId && entry.ProjectId == scope.ProjectId)
-            .ToList();
+        IReadOnlyList<PolicyPackChangeLogEntry> scopedEntries =
+            await _changeLogRepository.GetByScopeInRangeAsync(
+                tenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                fromUtc,
+                toUtc,
+                cancellationToken);
 
         IReadOnlyDictionary<DateTime, ComplianceDriftFindingsBucketCounts> findingsBuckets =
             await _findingsTrendReader.GetBucketCountsAsync(

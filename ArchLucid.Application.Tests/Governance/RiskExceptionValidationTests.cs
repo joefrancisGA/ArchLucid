@@ -1,4 +1,5 @@
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Contracts.Governance;
 
 using FluentAssertions;
@@ -142,5 +143,79 @@ public sealed class RiskExceptionValidationTests
         Action act = () => RiskExceptionValidation.ValidateRenew(request, now);
 
         act.Should().Throw<ArgumentException>().WithMessage($"*at most {RiskExceptionValidation.EvidenceRefMaxLength}*");
+    }
+
+    [Fact]
+    public void ValidateRenew_rejects_rationale_shorter_than_minimum_length()
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        RenewRiskExceptionRequest request = new()
+        {
+            ExpiresAtUtc = now.AddDays(30),
+            Rationale = new string('r', FindingDispositionValidation.MinimumRationaleLength - 1),
+        };
+
+        Action act = () => RiskExceptionValidation.ValidateRenew(request, now);
+
+        act.Should()
+            .Throw<ArgumentException>()
+            .WithMessage($"*at least {FindingDispositionValidation.MinimumRationaleLength}*");
+    }
+
+    [Fact]
+    public void Validate_rejects_rationale_over_maximum_length()
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = "finding-1",
+            OwnerUserId = "owner-1",
+            Rationale = new string('r', FindingDispositionValidation.MaximumRationaleLength + 1),
+            EvidenceRef = "artifact://evidence/1",
+            ExpiresAtUtc = RiskExceptionValidation.DefaultExpiresAtUtc(now),
+        };
+
+        Action act = () => RiskExceptionValidation.Validate(request, now);
+
+        act.Should()
+            .Throw<ArgumentException>()
+            .WithMessage($"*exceed*{FindingDispositionValidation.MaximumRationaleLength}*");
+    }
+
+    [Fact]
+    public void ValidateRenew_rejects_rationale_over_maximum_length()
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        RenewRiskExceptionRequest request = new()
+        {
+            ExpiresAtUtc = now.AddDays(30),
+            Rationale = new string('r', FindingDispositionValidation.MaximumRationaleLength + 1),
+        };
+
+        Action act = () => RiskExceptionValidation.ValidateRenew(request, now);
+
+        act.Should()
+            .Throw<ArgumentException>()
+            .WithMessage($"*exceed*{FindingDispositionValidation.MaximumRationaleLength}*");
+    }
+
+    [Fact]
+    public void Validate_rejects_overlong_finding_id()
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = new string('f', FindingDispositionValidation.MaxFindingIdLength + 1),
+            OwnerUserId = "owner-1",
+            Rationale = "Temporary acceptance for pilot.",
+            EvidenceRef = "artifact://evidence/1",
+            ExpiresAtUtc = RiskExceptionValidation.DefaultExpiresAtUtc(now),
+        };
+
+        Action act = () => RiskExceptionValidation.Validate(request, now);
+
+        act.Should()
+            .Throw<ArgumentException>()
+            .WithMessage($"*exceed*{FindingDispositionValidation.MaxFindingIdLength}*");
     }
 }

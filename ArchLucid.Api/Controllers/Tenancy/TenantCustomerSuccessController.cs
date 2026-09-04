@@ -49,8 +49,4 @@ public sealed partial class TenantCustomerSuccessController(
 
     private readonly IFindingInspectReadRepository _findingInspectReadRepository =
         findingInspectReadRepository ?? throw new ArgumentNullException(nameof(findingInspectReadRepository));
-
-    private const int ProductFeedbackCommentMaxLength = 2000;
-
-    private const int ProductFeedbackFindingRefMaxLength = 512;
 }

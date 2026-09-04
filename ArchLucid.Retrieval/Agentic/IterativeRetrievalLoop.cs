@@ -94,9 +94,11 @@ public sealed class IterativeRetrievalLoop(
             ? JsonSerializer.Serialize(decisions, JsonOptions)
             : null;
 
+        int finalTopK = Math.Clamp(query.TopK, 1, RetrievalQuery.MaxTopK);
+
         IReadOnlyList<RetrievalHit> cappedHits = merged
             .OrderByDescending(static hit => hit.Score)
-            .Take(query.TopK)
+            .Take(finalTopK)
             .ToList();
 
         return (

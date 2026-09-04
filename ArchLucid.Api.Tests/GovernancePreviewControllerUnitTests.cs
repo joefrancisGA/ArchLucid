@@ -1,8 +1,10 @@
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 using ArchLucid.Application;
 using ArchLucid.Application.Governance.Preview;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.Preview;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -41,6 +43,72 @@ public sealed class GovernancePreviewControllerUnitTests
                 RunId = Guid.Empty.ToString("D"),
                 ManifestVersion = "v1",
                 Environment = "dev",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        preview.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Preview_returns_bad_request_when_manifest_version_exceeds_max_length()
+    {
+        string overlongManifestVersion = new string('v', GovernanceRequestValidationRules.ManifestVersionMaxLength + 1);
+        Mock<IGovernancePreviewService> preview = new(MockBehavior.Strict);
+
+        GovernancePreviewController controller = CreateController(preview.Object, tenantExists: true);
+
+        IActionResult action = await controller.Preview(
+            new CreateGovernancePreviewRequest
+            {
+                RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D"),
+                ManifestVersion = overlongManifestVersion,
+                Environment = "dev",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        preview.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Preview_returns_bad_request_when_run_id_exceeds_max_length()
+    {
+        string overlongRunId = new string('r', GovernanceRequestValidationRules.RunIdMaxLength + 1);
+        Mock<IGovernancePreviewService> preview = new(MockBehavior.Strict);
+
+        GovernancePreviewController controller = CreateController(preview.Object, tenantExists: true);
+
+        IActionResult action = await controller.Preview(
+            new CreateGovernancePreviewRequest
+            {
+                RunId = overlongRunId,
+                ManifestVersion = "v1",
+                Environment = "dev",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        preview.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Preview_returns_bad_request_when_environment_exceeds_max_length()
+    {
+        string overlongEnvironment = new string('e', GovernanceEnvironmentSlug.MaxLength + 1);
+        Mock<IGovernancePreviewService> preview = new(MockBehavior.Strict);
+
+        GovernancePreviewController controller = CreateController(preview.Object, tenantExists: true);
+
+        IActionResult action = await controller.Preview(
+            new CreateGovernancePreviewRequest
+            {
+                RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D"),
+                ManifestVersion = "v1",
+                Environment = overlongEnvironment,
             },
             CancellationToken.None);
 
@@ -128,6 +196,69 @@ public sealed class GovernancePreviewControllerUnitTests
     }
 
     [Fact]
+    public async Task Preview_returns_bad_request_when_environment_is_unrecognized_and_tenant_missing()
+    {
+        Mock<IGovernancePreviewService> preview = new(MockBehavior.Strict);
+
+        GovernancePreviewController controller = CreateController(preview.Object, tenantExists: false);
+
+        IActionResult action = await controller.Preview(
+            new CreateGovernancePreviewRequest
+            {
+                RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D"),
+                ManifestVersion = "v1",
+                Environment = "staging",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        preview.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task CompareEnvironments_returns_bad_request_when_source_environment_exceeds_max_length()
+    {
+        string overlongEnvironment = new string('e', GovernanceEnvironmentSlug.MaxLength + 1);
+        Mock<IGovernancePreviewService> preview = new(MockBehavior.Strict);
+
+        GovernancePreviewController controller = CreateController(preview.Object, tenantExists: true);
+
+        IActionResult action = await controller.CompareEnvironments(
+            new CreateGovernanceEnvironmentComparisonRequest
+            {
+                SourceEnvironment = overlongEnvironment,
+                TargetEnvironment = "test",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        preview.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task CompareEnvironments_returns_bad_request_when_target_environment_exceeds_max_length()
+    {
+        string overlongEnvironment = new string('e', GovernanceEnvironmentSlug.MaxLength + 1);
+        Mock<IGovernancePreviewService> preview = new(MockBehavior.Strict);
+
+        GovernancePreviewController controller = CreateController(preview.Object, tenantExists: true);
+
+        IActionResult action = await controller.CompareEnvironments(
+            new CreateGovernanceEnvironmentComparisonRequest
+            {
+                SourceEnvironment = "dev",
+                TargetEnvironment = overlongEnvironment,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        preview.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task CompareEnvironments_returns_validation_failed_when_source_equals_target()
     {
         Mock<IGovernancePreviewService> preview = new();
@@ -154,6 +285,26 @@ public sealed class GovernancePreviewControllerUnitTests
         Microsoft.AspNetCore.Mvc.ProblemDetails problem =
             badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+    }
+
+    [Fact]
+    public async Task CompareEnvironments_returns_validation_failed_when_source_equals_target_and_tenant_missing()
+    {
+        Mock<IGovernancePreviewService> preview = new(MockBehavior.Strict);
+
+        GovernancePreviewController controller = CreateController(preview.Object, tenantExists: false);
+
+        IActionResult action = await controller.CompareEnvironments(
+            new CreateGovernanceEnvironmentComparisonRequest
+            {
+                SourceEnvironment = "dev",
+                TargetEnvironment = "dev",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        preview.VerifyNoOtherCalls();
     }
 
     [Fact]
