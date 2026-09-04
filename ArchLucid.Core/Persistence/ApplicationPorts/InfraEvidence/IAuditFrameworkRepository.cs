@@ -42,6 +42,7 @@ public interface IAuditFrameworkRepository
         AuditFrameworkRecord framework,
         IReadOnlyList<AuditControlRecord> controls,
         IReadOnlyDictionary<Guid, IReadOnlyDictionary<string, string>> metadataByControlId,
+        IReadOnlyList<AuditEvidenceRequirementRecord> requirements,
         CancellationToken cancellationToken = default);
 
     Task<AuditFrameworkRecord?> TryGetByIdAsync(

@@ -101,6 +101,81 @@ public sealed class AuditFrameworkCatalogControlDocument
         get;
         init;
     } = new Dictionary<string, string>();
+
+    public IReadOnlyList<AuditFrameworkCatalogEvidenceRequirementDocument> EvidenceRequirements
+    {
+        get;
+        init;
+    } = [];
+}
+
+public sealed class AuditFrameworkCatalogEvidenceRequirementDocument
+{
+    public string Name
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string? Description
+    {
+        get;
+        init;
+    }
+
+    public string EvidenceType
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string? RequiredAzureScopes
+    {
+        get;
+        init;
+    }
+
+    public string? RequiredResourceTypes
+    {
+        get;
+        init;
+    }
+
+    public string? CollectionMethod
+    {
+        get;
+        init;
+    }
+
+    public string? Frequency
+    {
+        get;
+        init;
+    }
+
+    public string? EvaluationMethod
+    {
+        get;
+        init;
+    }
+
+    public bool ManualEvidenceAllowed
+    {
+        get;
+        init;
+    }
+
+    public string? RequiredFreshness
+    {
+        get;
+        init;
+    }
+
+    public string? AutomationClass
+    {
+        get;
+        init;
+    }
 }
 
 public interface IAuditFrameworkImportService
@@ -228,6 +303,54 @@ public sealed class AuditFrameworkImportService(IAuditFrameworkRepository reposi
             })
             .ToList();
 
-        return await repository.ImportAsync(tenantId, framework, controls, metadataByControlId, cancellationToken);
+        List<AuditEvidenceRequirementRecord> requirements = document.Controls
+            .SelectMany(controlDoc =>
+            {
+                Guid controlId = controlNumberToId[controlDoc.ControlNumber];
+
+                return controlDoc.EvidenceRequirements.Select(requirementDoc => new AuditEvidenceRequirementRecord
+                {
+                    RequirementId = Guid.NewGuid(),
+                    ControlId = controlId,
+                    FrameworkId = frameworkId,
+                    TenantId = tenantId,
+                    Name = requirementDoc.Name,
+                    Description = requirementDoc.Description,
+                    EvidenceType = requirementDoc.EvidenceType,
+                    RequiredAzureScopes = requirementDoc.RequiredAzureScopes,
+                    RequiredResourceTypes = requirementDoc.RequiredResourceTypes,
+                    CollectionMethod = requirementDoc.CollectionMethod,
+                    Frequency = requirementDoc.Frequency,
+                    EvaluationMethod = requirementDoc.EvaluationMethod,
+                    ManualEvidenceAllowed = requirementDoc.ManualEvidenceAllowed,
+                    RequiredFreshness = requirementDoc.RequiredFreshness,
+                    AutomationClass = ParseAutomationClass(requirementDoc.AutomationClass),
+                });
+            })
+            .ToList();
+
+        return await repository.ImportAsync(
+            tenantId,
+            framework,
+            controls,
+            metadataByControlId,
+            requirements,
+            cancellationToken);
+    }
+
+    private static AuditEvidenceAutomationClass ParseAutomationClass(string? automationClass)
+    {
+        if (string.IsNullOrWhiteSpace(automationClass))
+            return AuditEvidenceAutomationClass.FullyAutomatable;
+
+        return automationClass.Trim().ToLowerInvariant() switch
+        {
+            "fullyautomatable" or "fully-automatable" => AuditEvidenceAutomationClass.FullyAutomatable,
+            "partiallyautomatable" or "partially-automatable" => AuditEvidenceAutomationClass.PartiallyAutomatable,
+            "manual" => AuditEvidenceAutomationClass.Manual,
+            "notapplicable" or "not-applicable" => AuditEvidenceAutomationClass.NotApplicable,
+            "unsupported" => AuditEvidenceAutomationClass.Unsupported,
+            _ => AuditEvidenceAutomationClass.FullyAutomatable,
+        };
     }
 }

@@ -17,6 +17,7 @@ public sealed class SqlAuditFrameworkRepository(ISqlConnectionFactory connection
         AuditFrameworkRecord framework,
         IReadOnlyList<AuditControlRecord> controls,
         IReadOnlyDictionary<Guid, IReadOnlyDictionary<string, string>> metadataByControlId,
+        IReadOnlyList<AuditEvidenceRequirementRecord> requirements,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(framework);
@@ -146,6 +147,54 @@ public sealed class SqlAuditFrameworkRepository(ISqlConnectionFactory connection
                                 control.TenantId,
                                 MetadataKey = pair.Key,
                                 MetadataValue = pair.Value,
+                            },
+                            transaction: tx,
+                            commandTimeout: DapperCommandTimeoutSeconds.Report,
+                            cancellationToken: cancellationToken));
+                }
+            }
+
+            if (requirements.Count > 0)
+            {
+                const string insertRequirement = """
+                                                 INSERT INTO dbo.AuditEvidenceRequirements
+                                                 (
+                                                     RequirementId, ControlId, FrameworkId, TenantId, Name, Description,
+                                                     EvidenceType, RequiredAzureScopes, RequiredResourceTypes, CollectionMethod,
+                                                     Frequency, EvaluationMethod, ManualEvidenceAllowed, RequiredFreshness,
+                                                     AutomationClass
+                                                 )
+                                                 VALUES
+                                                 (
+                                                     @RequirementId, @ControlId, @FrameworkId, @TenantId, @Name, @Description,
+                                                     @EvidenceType, @RequiredAzureScopes, @RequiredResourceTypes, @CollectionMethod,
+                                                     @Frequency, @EvaluationMethod, @ManualEvidenceAllowed, @RequiredFreshness,
+                                                     @AutomationClass
+                                                 );
+                                                 """;
+
+                foreach (AuditEvidenceRequirementRecord requirement in requirements)
+                {
+                    await sqlConn.ExecuteAsync(
+                        new CommandDefinition(
+                            insertRequirement,
+                            new
+                            {
+                                requirement.RequirementId,
+                                requirement.ControlId,
+                                requirement.FrameworkId,
+                                requirement.TenantId,
+                                requirement.Name,
+                                requirement.Description,
+                                requirement.EvidenceType,
+                                requirement.RequiredAzureScopes,
+                                requirement.RequiredResourceTypes,
+                                requirement.CollectionMethod,
+                                requirement.Frequency,
+                                requirement.EvaluationMethod,
+                                requirement.ManualEvidenceAllowed,
+                                requirement.RequiredFreshness,
+                                AutomationClass = (int)requirement.AutomationClass,
                             },
                             transaction: tx,
                             commandTimeout: DapperCommandTimeoutSeconds.Report,

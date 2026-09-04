@@ -70,6 +70,7 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<IAdvisoryTerraformRepresentationRepository, NoOpAdvisoryTerraformRepresentationRepository>();
         services.AddSingleton<ICloudResourceIdentityDirectory, NoOpCloudResourceIdentityDirectory>();
         services.AddSingleton<IAuditFrameworkRepository, NoOpAuditFrameworkRepository>();
+        services.AddSingleton<IAuditEvidenceRequirementRepository, NoOpAuditEvidenceRequirementRepository>();
         services.AddSingleton<ITenantBrandingProfileRepository, InMemoryTenantBrandingProfileRepository>();
     }
 }

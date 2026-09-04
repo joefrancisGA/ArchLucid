@@ -89,6 +89,19 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                     new { scope.TenantId, SnapshotId = snapshotId },
                     cancellationToken: cancellationToken));
 
+        const string diagnosticsSql = """
+                                      SELECT TargetAzureResourceId, DiagnosticName, WorkspaceResourceId
+                                      FROM dbo.AzureInventoryDiagnosticConfigurations
+                                      WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
+                                      """;
+
+        IEnumerable<AzureInventoryDiagnosticConfigurationReadModel> diagnostics =
+            await conn.QueryAsync<AzureInventoryDiagnosticConfigurationReadModel>(
+                new CommandDefinition(
+                    diagnosticsSql,
+                    new { scope.TenantId, SnapshotId = snapshotId },
+                    cancellationToken: cancellationToken));
+
         return new AzureInventorySnapshotDetailReadModel
         {
             Header = header,
@@ -105,6 +118,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                 })
                 .ToList(),
             RoleAssignments = roleAssignments.ToList(),
+            Diagnostics = diagnostics.ToList(),
         };
     }
 

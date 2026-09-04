@@ -40,6 +40,12 @@ public sealed class AzureInventorySnapshotDetailReadModel
         get;
         init;
     } = [];
+
+    public IReadOnlyList<AzureInventoryDiagnosticConfigurationReadModel> Diagnostics
+    {
+        get;
+        init;
+    } = [];
 }
 
 public sealed class AzureInventoryResourcePropertyReadModel
@@ -136,4 +142,25 @@ public sealed class AzureInventoryRoleAssignmentReadModel
         get;
         init;
     } = string.Empty;
+}
+
+public sealed class AzureInventoryDiagnosticConfigurationReadModel
+{
+    public string TargetAzureResourceId
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string DiagnosticName
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string? WorkspaceResourceId
+    {
+        get;
+        init;
+    }
 }
