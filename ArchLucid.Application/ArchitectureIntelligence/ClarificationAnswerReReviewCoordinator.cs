@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
@@ -28,7 +29,8 @@ public sealed class ClarificationAnswerReReviewCoordinator(
     IAsyncSpecialistReviewService specialistReviewService,
     IAuthorityFindingsSnapshotUpdater? authorityFindingsSnapshotUpdater,
     IRunStageOutcomesRepository runStageOutcomesRepository,
-    IAuditService auditService) : IClarificationAnswerReReviewCoordinator
+    IAuditService auditService,
+    IReRunExecuteSealedManifestPinGate reRunExecuteSealedManifestPinGate) : IClarificationAnswerReReviewCoordinator
 {
     private const string StageName = "clarification-re-review";
 
@@ -49,6 +51,9 @@ public sealed class ClarificationAnswerReReviewCoordinator(
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IReRunExecuteSealedManifestPinGate _reRunExecuteSealedManifestPinGate =
+        reRunExecuteSealedManifestPinGate ?? throw new ArgumentNullException(nameof(reRunExecuteSealedManifestPinGate));
 
     public async Task<IncrementalReReviewResult?> TryRunAfterApplyAsync(
         ScopeContext scope,
@@ -71,6 +76,9 @@ public sealed class ClarificationAnswerReReviewCoordinator(
 
         if (model is null)
             return null;
+
+        await _reRunExecuteSealedManifestPinGate.EnsureReadyAsync(runId.ToString("N"), cancellationToken)
+            .ConfigureAwait(false);
 
         List<string> affectedElementIds = ClarificationAnswerAffectedElementResolver.Resolve(answers);
 

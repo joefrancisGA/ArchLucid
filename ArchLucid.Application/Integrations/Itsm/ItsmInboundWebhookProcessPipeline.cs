@@ -222,13 +222,28 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                         CreateFindingNotFoundPayload(descriptor.ProviderName, effectivePayload, row.FindingId)));
             }
 
-            await ItsmInboundSealedManifestHashGuard.EnsureFindingRunSealedManifestHashOrThrowAsync(
-                inspect.RunId,
-                correlationScope,
-                _authorityQueryService,
-                _manifestHashService,
-                ct).ConfigureAwait(false);
-
+            try
+            {
+                await ItsmInboundSealedManifestHashGuard.EnsureFindingRunSealedManifestHashOrThrowAsync(
+                    inspect.RunId,
+                    correlationScope,
+                    _authorityQueryService,
+                    _manifestHashService,
+                    ct).ConfigureAwait(false);
+            }
+            catch (ConflictException ex)
+            {
+                return new ItsmInboundWebhookProcessResult(
+                    true,
+                    ItsmInboundWebhookSyncSupport.RejectedAudit(
+                        descriptor.RejectedAuditEventType,
+                        descriptor.WebhookActorId,
+                        row.TenantId,
+                        row.WorkspaceId,
+                        row.ProjectId,
+                        "sealed_manifest_unverified",
+                        new { findingId = row.FindingId, status = CreateStatusPayload(descriptor.ProviderName, effectivePayload), detail = ex.Message }));
+            }
             ItsmInboundDispositionSyncResult dispositionResult =
                 await _dispositionSync
                     .TryRecordFromWebhookAsync(row, mappedDisposition, effectivePayload.StatusValue, descriptor.WebhookActorId, ct)

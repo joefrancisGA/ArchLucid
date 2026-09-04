@@ -5,6 +5,8 @@ using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
 
@@ -64,6 +66,8 @@ public sealed class ExportsControllerReplayExportAuditTests
             Mock.Of<IExportRecordDiffSummaryFormatter>(),
             audit.Object,
             Mock.Of<IRunExportLineageVerifier>(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
             Mock.Of<IScopeContextProvider>());
 
         ExportsController sut = new(facade);

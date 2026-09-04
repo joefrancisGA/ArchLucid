@@ -2,12 +2,16 @@ using System.Globalization;
 
 using ArchLucid.Application.Rendering;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Options;
 
@@ -31,12 +35,21 @@ public sealed class SponsorOnePagerPdfBuilder(
     PilotScorecardBuilder scorecardBuilder,
     IPilotRunDeltaComputer deltaComputer,
     IFirstValueReportBuilder firstValueReportBuilder,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
+    IScopeContextProvider scopeContextProvider,
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions)
 {
     private const string IllustrationOnlyPerPageHeader = "ILLUSTRATION ONLY — not a commitment";
     private readonly IPilotRunDeltaComputer _deltaComputer = deltaComputer ?? throw new ArgumentNullException(nameof(deltaComputer));
     private readonly IFirstValueReportBuilder _firstValueReportBuilder =
         firstValueReportBuilder ?? throw new ArgumentNullException(nameof(firstValueReportBuilder));
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
     private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions = publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
     private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
     private readonly PilotScorecardBuilder _scorecardBuilder = scorecardBuilder ?? throw new ArgumentNullException(nameof(scorecardBuilder));
@@ -53,7 +66,20 @@ public sealed class SponsorOnePagerPdfBuilder(
             return null;
 
         if (detail.IsCommitted && !detail.HasBrokenManifestReference)
+        {
             AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId);
+
+            if (Guid.TryParse(runId.Trim(), out Guid runGuid))
+            {
+                await ManifestDecisionReceiptExportBinder.EnsureSealedExportReceiptVerifiedOrThrowAsync(
+                    runGuid,
+                    runId.Trim(),
+                    _authorityQueryService,
+                    _manifestHashService,
+                    _scopeContextProvider.GetCurrentScope(),
+                    cancellationToken);
+            }
+        }
 
         string footer = string.IsNullOrWhiteSpace(baseUrlForFooter) ? "http://localhost:5000" : baseUrlForFooter.Trim().TrimEnd('/');
         FirstValueReportBuildResult? sponsorGate = await _firstValueReportBuilder.BuildReportAsync(runId, footer, cancellationToken);

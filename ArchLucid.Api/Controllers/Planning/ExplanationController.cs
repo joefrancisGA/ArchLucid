@@ -4,6 +4,7 @@ using ArchLucid.Application.Explanation.Models;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Explanation;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Findings;
@@ -41,6 +42,7 @@ public sealed partial class ExplanationController(
     IProvenanceSnapshotRepository provenanceRepo,
     IScopeContextProvider scopeProvider,
     IHolisticCriticService holisticCriticService,
+    IManifestHashService manifestHashService,
     ILogger<ExplanationController> logger)
     : ControllerBase
 {
