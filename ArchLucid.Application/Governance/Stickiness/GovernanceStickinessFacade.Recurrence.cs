@@ -43,6 +43,13 @@ public sealed partial class GovernanceStickinessFacade
 
         RecurrenceScheduleValidation.ValidateCommittedSourceRunOrThrow(sourceRun);
 
+        await RecurrenceScheduleCreateSealedManifestHashGuard.EnsureSourceRunSealedManifestHashOrThrowAsync(
+            request.SourceRunId,
+            scope,
+            _authorityQueryService,
+            _manifestHashService,
+            ct);
+
         if (!_recurrenceNextRunCalculator.IsSupportedCronExpression(cronExpression))
             throw new ArgumentException(RecurrenceScheduleCronValidation.InvalidCronMessage);
 

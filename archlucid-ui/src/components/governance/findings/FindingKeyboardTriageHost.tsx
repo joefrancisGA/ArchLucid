@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState, type ReactElement } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState, type ReactElement, type SetStateAction } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { GovernanceRecordCorrectionDialog } from "@/components/governance/GovernanceRecordCorrectionDialog";
@@ -44,6 +44,13 @@ import {
   governanceKeyboardFindingDispositionSuccessMessage,
 } from "@/lib/governance/governance-mutation-outcome-copy";
 import {
+  findingKeyboardTriageConfirmHrefFromSearch,
+  findingKeyboardTriageDispositionToUrlAction,
+  findingKeyboardTriageUrlActionToDisposition,
+  parseFindingKeyboardTriageActionFromSearch,
+  parseFindingKeyboardTriageFindingIdFromSearch,
+} from "@/lib/governance/finding-keyboard-triage-confirm-url";
+import {
   FindingKeyboardTriageProvider,
   type FindingKeyboardTriageContextValue,
 } from "@/components/governance/findings/FindingKeyboardTriageContext";
@@ -76,8 +83,12 @@ const CONFIRM_LABELS: Record<FindingCardShortcutDisposition, string> = {
 export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps): ReactElement | null {
   const canMutate = useOperateCapability();
   const router = useRouter();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const kbDispFindingIdParam = searchParams.get("kbDispFindingId");
+  const kbDispActionParam = searchParams.get("kbDispAction");
   const workbenchSelection = useReviewWorkbenchSelection();
-  const [pending, setPending] = useState<PendingKeyboardDisposition | null>(null);
+  const [pending, setPendingState] = useState<PendingKeyboardDisposition | null>(null);
   const [rationale, setRationale] = useState("");
   const [busy, setBusy] = useState(false);
   const [inlineErrorMessage, setInlineErrorMessage] = useState<string | null>(null);
@@ -87,6 +98,77 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
   const [correctionTarget, setCorrectionTarget] = useState<GovernanceMutationCorrectionTarget | null>(null);
   const [correctionDialogOpen, setCorrectionDialogOpen] = useState(false);
   const [correctionRecorded, setCorrectionRecorded] = useState(false);
+
+  const syncKeyboardTriageConfirmToUrl = useCallback(
+    (state: PendingKeyboardDisposition | null) => {
+      if (pathname.length === 0) {
+        return;
+      }
+
+      router.replace(
+        findingKeyboardTriageConfirmHrefFromSearch(
+          searchParams.toString(),
+          state === null
+            ? { findingId: null, action: null }
+            : {
+                findingId: state.findingId,
+                action: findingKeyboardTriageDispositionToUrlAction(state.disposition),
+              },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPending = useCallback(
+    (value: SetStateAction<PendingKeyboardDisposition | null>) => {
+      setPendingState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncKeyboardTriageConfirmToUrl(next);
+
+        return next;
+      });
+    },
+    [syncKeyboardTriageConfirmToUrl],
+  );
+
+  useEffect(() => {
+    const findingId = parseFindingKeyboardTriageFindingIdFromSearch(kbDispFindingIdParam);
+    const action = parseFindingKeyboardTriageActionFromSearch(kbDispActionParam);
+
+    if (findingId.length === 0 || action === null) {
+      setPendingState(null);
+
+      return;
+    }
+
+    const blockedReason = props.resolveDispositionBlockedReason?.(findingId) ?? null;
+
+    if (blockedReason !== null && blockedReason.trim().length > 0) {
+      return;
+    }
+
+    const runId = props.resolveRunId(findingId);
+
+    if (runId === null || runId.trim().length === 0) {
+      return;
+    }
+
+    const disposition = findingKeyboardTriageUrlActionToDisposition(action);
+
+    if (
+      pending?.findingId === findingId
+      && pending.disposition === disposition
+    ) {
+      return;
+    }
+
+    setPendingState({ findingId, runId: runId.trim(), disposition });
+    setRationale("");
+    setInlineErrorMessage(null);
+  }, [kbDispActionParam, kbDispFindingIdParam, pending?.disposition, pending?.findingId, props]);
 
   const onAction = useCallback(
     (findingId: string, disposition: FindingCardShortcutDisposition) => {
@@ -108,7 +190,7 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
       setRationale("");
       setPending({ findingId, runId: runId.trim(), disposition });
     },
-    [props],
+    [props, setPending],
   );
 
   const triageContextValue: FindingKeyboardTriageContextValue = {

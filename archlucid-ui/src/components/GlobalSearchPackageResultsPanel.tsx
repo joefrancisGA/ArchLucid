@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { retrievalHitRelevanceLabel } from "@/app/(operator)/insights/search-review-evidence/_sections/retrieval-hit-display";
+import { retrievalHitRelevanceLabel, retrievalHitRelevanceTier } from "@/app/(operator)/insights/search-review-evidence/_sections/retrieval-hit-display";
 import type { GlobalSearchBarController } from "@/components/use-global-search-bar";
 
 type GlobalSearchPackageResultsPanelProps = {
@@ -50,7 +50,7 @@ export function GlobalSearchPackageResultsPanel(props: GlobalSearchPackageResult
                     {hit.text}
                   </p>
                   <p className={cn("m-0 mt-1 text-neutral-500", OPERATOR_TYPOGRAPHY.micro)}>
-                    {retrievalHitRelevanceLabel(hit.score)} · {hit.sourceType}
+                    {retrievalHitRelevanceLabel(retrievalHitRelevanceTier(hit.score))} · {hit.sourceType}
                   </p>
                   {hit.findingId ? (
                     <Link

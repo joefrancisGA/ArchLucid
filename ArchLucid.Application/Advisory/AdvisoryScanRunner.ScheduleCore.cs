@@ -76,6 +76,11 @@ public sealed partial class AdvisoryScanRunner
 
             if (previousDetail?.GoldenManifest is not null)
             {
+                AdvisoryScanCompareToSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrow(
+                    previousDetail.GoldenManifest,
+                    compareTo.RunId,
+                    manifestHashService);
+
                 comparisonResult = comparisonService.Compare(previousDetail.GoldenManifest, latestDetail.GoldenManifest);
                 comparedToRunId = compareTo.RunId;
                 plan = await improvementAdvisorService.GeneratePlanAsync(latestDetail.GoldenManifest, findings, comparisonResult, ct);

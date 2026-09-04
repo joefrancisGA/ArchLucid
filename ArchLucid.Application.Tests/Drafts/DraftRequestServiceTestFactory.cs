@@ -12,8 +12,11 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Decisioning.Feasibility;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Options;
 
@@ -67,7 +70,12 @@ internal static class DraftRequestServiceTestFactory
             questionSelectionEngine,
             branchOptionsMonitor);
 
-        DraftSnapshotCloningService snapshotCloningService = new(repository, crudService);
+        DraftSnapshotCloningService snapshotCloningService = new(
+            repository,
+            crudService,
+            Mock.Of<IScopeContextProvider>(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>());
 
         return new DraftRequestService(crudService, admissionService, branchingService, snapshotCloningService);
     }

@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState, type SetStateAction } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -43,6 +44,10 @@ import {
   assessArchitectureSponsorReadiness,
   type SponsorReadinessStatus,
 } from "@/lib/architecture/architecture-sponsor-readiness";
+import {
+  architectureSponsorShareConfirmHrefFromSearch,
+  parseArchitectureSponsorShareConfirmOpenFromSearch,
+} from "@/lib/architecture/architecture-sponsor-share-confirm-url";
 import { buildArchitectureSponsorShareMarkdown } from "@/lib/architecture/architecture-sponsor-preliminary-draft";
 import { writeWorkItemBodyToClipboard } from "@/lib/copy-finding-as-work-item";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
@@ -84,11 +89,47 @@ export function ArchitectureSponsorSharingPanel(
   props: ArchitectureSponsorSharingPanelProps,
 ): React.JSX.Element {
   const canShare = useOperateCapability();
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const sponsorShareConfirmParam = searchParams.get("sponsorShareConfirm");
   const resolveReadinessVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
   const preliminarySubmitVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogOpen, setDialogOpenState] = useState(
+    () => parseArchitectureSponsorShareConfirmOpenFromSearch(sponsorShareConfirmParam),
+  );
   const [overrideConfirmed, setOverrideConfirmed] = useState(false);
   const [busy, setBusy] = useState(false);
+
+  const syncSponsorShareToUrl = useCallback(
+    (open: boolean) => {
+      if (pathname.length === 0) {
+        return;
+      }
+
+      router.replace(
+        architectureSponsorShareConfirmHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setDialogOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setDialogOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncSponsorShareToUrl(next);
+
+        return next;
+      });
+    },
+    [syncSponsorShareToUrl],
+  );
+
+  useEffect(() => {
+    setDialogOpenState(parseArchitectureSponsorShareConfirmOpenFromSearch(sponsorShareConfirmParam));
+  }, [sponsorShareConfirmParam]);
 
   const assessment = useMemo(
     () =>

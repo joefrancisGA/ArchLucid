@@ -1,8 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState, type SetStateAction } from "react";
 
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import {
+  parseSettingsRolesMatrixConfirmKindFromSearch,
+  parseSettingsRolesMatrixConfirmRoleNameFromSearch,
+  settingsRolesMatrixConfirmHrefFromSearch,
+  type SettingsRolesMatrixConfirmKind,
+} from "@/lib/administration/settings-roles-matrix-confirm-url";
+import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
 import { roleDisplayLabel } from "@/lib/role-display-labels";
 import { showError, showSuccess } from "@/lib/toast";
 
@@ -62,16 +70,50 @@ async function fetchRoles(): Promise<CustomRoleDto[]> {
 }
 
 export function useSettingsRolesMatrix() {
+  const router = useRouter();
+  const pathname = usePathname() ?? SETTINGS_USERS_PATH;
+  const searchParams = useSearchParams();
+  const rolesMatrixConfirmKindParam = searchParams.get("rolesMatrixConfirm");
+  const rolesMatrixConfirmRoleNameParam = searchParams.get("rolesMatrixRoleName");
   const [matrix, setMatrix] = useState<RoleMatrixState>(EMPTY_MATRIX_STATE);
   const [loading, setLoading] = useState(true);
   const [savingRoleId, setSavingRoleId] = useState<string | null>(null);
   const [newRoleName, setNewRoleName] = useState("");
   const [startFromRole, setStartFromRole] = useState<CustomRoleStartFromValue>("Operator");
   const [collapsedGroups, setCollapsedGroups] = useState<ReadonlySet<string>>(() => new Set());
-  const [pendingHighRisk, setPendingHighRisk] = useState<PendingHighRiskAction | null>(null);
+  const [pendingHighRisk, setPendingHighRiskState] = useState<PendingHighRiskAction | null>(null);
   const [loadFailure, setLoadFailure] = useState<CustomRoleFailureCopy | null>(null);
   const newRoleNameRef = useRef<HTMLInputElement | null>(null);
   const roles = matrix.roles;
+
+  const syncRolesMatrixConfirmToUrl = useCallback(
+    (state: { kind: SettingsRolesMatrixConfirmKind | null; roleName: string | null }) => {
+      router.replace(
+        settingsRolesMatrixConfirmHrefFromSearch(searchParams.toString(), state, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPendingHighRisk = useCallback(
+    (value: SetStateAction<PendingHighRiskAction | null>) => {
+      setPendingHighRiskState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncRolesMatrixConfirmToUrl(
+          next === null
+            ? { kind: null, roleName: null }
+            : {
+                kind: next.kind,
+                roleName: next.kind === "save" ? next.role.name : next.name,
+              },
+        );
+
+        return next;
+      });
+    },
+    [syncRolesMatrixConfirmToUrl],
+  );
 
   const permissionLabelsById = useMemo(() => {
     const labels = new Map<string, string>();
@@ -118,6 +160,49 @@ export function useSettingsRolesMatrix() {
   const columns = useMemo(() => sortMatrixRoles(roles), [roles]);
   const unsavedRoleNames = useMemo(() => dirtyRoleDisplayNames(roles, matrix.baseline), [matrix.baseline, roles]);
   const hasUnsavedEdits = unsavedRoleNames.length > 0;
+
+  useEffect(() => {
+    const kind = parseSettingsRolesMatrixConfirmKindFromSearch(rolesMatrixConfirmKindParam);
+    const roleName = parseSettingsRolesMatrixConfirmRoleNameFromSearch(rolesMatrixConfirmRoleNameParam);
+
+    if (kind === null || roleName.length === 0) {
+      setPendingHighRiskState(null);
+
+      return;
+    }
+
+    if (loading || roles.length === 0) {
+      return;
+    }
+
+    if (kind === "save") {
+      const role = roles.find((candidate) => candidate.name === roleName);
+
+      if (role === undefined) {
+        return;
+      }
+
+      if (pendingHighRisk?.kind === "save" && pendingHighRisk.role.name === roleName) {
+        return;
+      }
+
+      setPendingHighRiskState({ kind: "save", role });
+
+      return;
+    }
+
+    if (pendingHighRisk?.kind === "create" && pendingHighRisk.name === roleName) {
+      return;
+    }
+
+    const startFrom = findSystemRoleByName(roles, startFromRole);
+    const permissions =
+      startFromRole === "Empty" || startFrom === null
+        ? []
+        : matrixPermissionList(startFrom.permissions);
+
+    setPendingHighRiskState({ kind: "create", name: roleName, permissions });
+  }, [loading, pendingHighRisk, roles, rolesMatrixConfirmKindParam, rolesMatrixConfirmRoleNameParam, startFromRole]);
 
   useEffect(() => {
     if (!hasUnsavedEdits)

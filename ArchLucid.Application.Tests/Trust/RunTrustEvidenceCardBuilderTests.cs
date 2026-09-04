@@ -12,9 +12,12 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Trust;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -141,18 +144,17 @@ public sealed class RunTrustEvidenceCardBuilderTests
     }
 
     [Fact]
-    public async Task BuildAsync_when_run_id_not_guid_marks_audit_missing()
+    public async Task BuildAsync_when_run_id_not_guid_throws_conflict()
     {
         ArchitectureRunDetail detail = BuildCommittedDetail(Guid.NewGuid());
         detail.Run.RunId = "not-a-guid";
 
         RunTrustEvidenceCardBuilder sut = CreateSut(out _, out _);
 
-        RunTrustEvidenceCard? card = await sut.BuildAsync(detail, "Real", CancellationToken.None);
+        Func<Task<RunTrustEvidenceCard?>> act = () => sut.BuildAsync(detail, "Real", CancellationToken.None);
 
-        card.Should().NotBeNull();
-        card!.AuditTrail.Status.Should().Be(TrustEvidenceStatusValue.Missing);
-        card.AuditTrail.Detail.Should().Contain("not a GUID");
+        await act.Should().ThrowAsync<ConflictException>()
+            .WithMessage("*run id is not a valid GUID*");
     }
 
     [Fact]
@@ -324,7 +326,36 @@ public sealed class RunTrustEvidenceCardBuilderTests
             traces.Object,
             evidence.Object,
             explanation.Object,
-            scope.Object);
+            scope.Object,
+            CreateSealedManifestAuthorityMock(sc).Object,
+            CreateSealedManifestHashMock());
+    }
+
+    private static Mock<IAuthorityQueryService> CreateSealedManifestAuthorityMock(ScopeContext scope)
+    {
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailForManifestCompareAsync(scope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken _) =>
+                new RunDetailDto
+                {
+                    Run = new ArchLucid.Persistence.Models.RunRecord { RunId = runId },
+                    GoldenManifest = new ManifestDocument
+                    {
+                        RunId = runId,
+                        ManifestHash = "sealed-hash",
+                    },
+                });
+
+        return authority;
+    }
+
+    private static IManifestHashService CreateSealedManifestHashMock()
+    {
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash.Setup(m => m.ComputeHash(It.IsAny<ManifestDocument>())).Returns("sealed-hash");
+
+        return manifestHash.Object;
     }
 
     private static ArchitectureRunDetail BuildCommittedDetail(Guid runGuid)

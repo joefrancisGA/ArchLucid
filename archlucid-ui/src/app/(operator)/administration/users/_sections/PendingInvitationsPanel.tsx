@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState, type SetStateAction } from "react";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
@@ -29,6 +30,11 @@ import { SETTINGS_ROLES_PENDING_INVITATIONS_LOAD_FAILED_COMPACT } from "@/lib/en
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { formatRelativeTime } from "@/lib/relative-time";
+import {
+  parseSettingsUsersRevokeInviteIdFromSearch,
+  settingsUsersInviteRevokeHrefFromSearch,
+} from "@/lib/administration/settings-users-invite-revoke-url";
+import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
 import { showError, showSuccess } from "@/lib/toast";
 
 import { adminUserInvitationStatusKind } from "./admin-user-invitation-status";
@@ -75,6 +81,10 @@ export function PendingInvitationsPanel({
   onCountChange,
   suppressEmptyPresentation = false,
 }: Props) {
+  const router = useRouter();
+  const pathname = usePathname() ?? SETTINGS_USERS_PATH;
+  const searchParams = useSearchParams();
+  const revokeInviteIdParam = searchParams.get("revokeInviteId");
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<AdminUserInvitationRow[]>([]);
   const [loadFailed, setLoadFailed] = useState(false);
@@ -82,8 +92,56 @@ export function PendingInvitationsPanel({
   const [revokingId, setRevokingId] = useState<string | null>(null);
   const [copiedReferenceId, setCopiedReferenceId] = useState<string | null>(null);
   const [copiedAcceptLinkId, setCopiedAcceptLinkId] = useState<string | null>(null);
-  const [pendingRevoke, setPendingRevoke] = useState<AdminUserInvitationRow | null>(null);
+  const [pendingRevoke, setPendingRevokeState] = useState<AdminUserInvitationRow | null>(null);
   const [revokeBusy, setRevokeBusy] = useState(false);
+
+  const syncRevokeInviteToUrl = useCallback(
+    (invitationId: string | null) => {
+      router.replace(
+        settingsUsersInviteRevokeHrefFromSearch(searchParams.toString(), invitationId, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPendingRevoke = useCallback(
+    (value: SetStateAction<AdminUserInvitationRow | null>) => {
+      setPendingRevokeState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncRevokeInviteToUrl(next?.id ?? null);
+
+        return next;
+      });
+    },
+    [syncRevokeInviteToUrl],
+  );
+
+  useEffect(() => {
+    const revokeInviteId = parseSettingsUsersRevokeInviteIdFromSearch(revokeInviteIdParam);
+
+    if (revokeInviteId.length === 0) {
+      setPendingRevokeState(null);
+
+      return;
+    }
+
+    if (rows.length === 0) {
+      return;
+    }
+
+    const invitation = rows.find((row) => row.id === revokeInviteId);
+
+    if (invitation === undefined) {
+      return;
+    }
+
+    if (pendingRevoke?.id === revokeInviteId) {
+      return;
+    }
+
+    setPendingRevokeState(invitation);
+  }, [pendingRevoke?.id, revokeInviteIdParam, rows]);
 
   const load = useCallback(async () => {
     setLoading(true);

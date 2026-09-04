@@ -1,4 +1,5 @@
 using ArchLucid.Application.Explanation;
+using ArchLucid.Application.Tests.Exports;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Runs;
@@ -12,11 +13,15 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Services;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Pilots;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Tenancy;
 using ArchLucid.Persistence.Value;
 
@@ -36,6 +41,11 @@ namespace ArchLucid.Application.Tests.Pilots;
 [Trait("Suite", "Core")]
 public sealed class ExecutionModeCrossSurfaceInvariantTests
 {
+    private static readonly Guid TestRunGuid = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    private static readonly string TestRunId = TestRunGuid.ToString("N");
+
+    private static readonly ManifestHashService SealedManifestHashService = new();
+
     public static TheoryData<StructuralExecutionMode, string> PersistedModeLabels =>
         new()
         {
@@ -63,7 +73,7 @@ public sealed class ExecutionModeCrossSurfaceInvariantTests
         ArchitectureRunDetail detail = BuildCommittedDetail(mode, realModeFellBack: mode == StructuralExecutionMode.Fallback);
 
         Mock<IRunDetailQueryService> query = new();
-        query.Setup(q => q.GetRunDetailAsync("r1", It.IsAny<CancellationToken>()))
+        query.Setup(q => q.GetRunDetailAsync(TestRunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
 
         PilotRunDeltas computed = BuildDeltas(detail);
@@ -72,7 +82,7 @@ public sealed class ExecutionModeCrossSurfaceInvariantTests
         deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
 
         FirstValueReportBuilder markdownBuilder = CreateFirstValueSut(query.Object, deltas.Object);
-        string? markdown = await markdownBuilder.BuildMarkdownAsync("r1", "http://localhost:5000");
+        string? markdown = await markdownBuilder.BuildMarkdownAsync(TestRunId, "http://localhost:5000");
 
         markdown.Should().NotBeNullOrWhiteSpace();
         markdown.Should().Contain(expectedLabel);
@@ -131,7 +141,7 @@ public sealed class ExecutionModeCrossSurfaceInvariantTests
         ArchitectureRunDetail detail = BuildCommittedDetail(StructuralExecutionMode.Simulator, realModeFellBack: false);
 
         Mock<IRunDetailQueryService> query = new();
-        query.Setup(q => q.GetRunDetailAsync("r1", It.IsAny<CancellationToken>()))
+        query.Setup(q => q.GetRunDetailAsync(TestRunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
 
         PilotRunDeltas computed = BuildDeltas(detail);
@@ -140,7 +150,7 @@ public sealed class ExecutionModeCrossSurfaceInvariantTests
         deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
 
         FirstValueReportBuilder markdownBuilder = CreateFirstValueSut(query.Object, deltas.Object);
-        string? markdown = await markdownBuilder.BuildMarkdownAsync("r1", "http://localhost:5000");
+        string? markdown = await markdownBuilder.BuildMarkdownAsync(TestRunId, "http://localhost:5000");
 
         markdown.Should().NotBeNullOrWhiteSpace();
         markdown.Should().Contain("| Execution mode | **Simulator**");
@@ -154,7 +164,7 @@ public sealed class ExecutionModeCrossSurfaceInvariantTests
     {
         ArchitectureRunDetail detail = BuildCommittedDetail(StructuralExecutionMode.Simulator, realModeFellBack: false);
         Mock<IRunDetailQueryService> query = new();
-        query.Setup(q => q.GetRunDetailAsync("r1", It.IsAny<CancellationToken>()))
+        query.Setup(q => q.GetRunDetailAsync(TestRunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
 
         PilotRunDeltas computed = BuildDeltas(detail);
@@ -163,7 +173,7 @@ public sealed class ExecutionModeCrossSurfaceInvariantTests
         deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
 
         FirstValueReportBuilder markdownBuilder = CreateFirstValueSut(query.Object, deltas.Object);
-        string? markdown = await markdownBuilder.BuildMarkdownAsync("r1", "http://localhost:5000");
+        string? markdown = await markdownBuilder.BuildMarkdownAsync(TestRunId, "http://localhost:5000");
 
         markdown.Should().NotBeNullOrWhiteSpace();
         markdown.Should().Contain(SponsorDecisionDeltaNoveltyResolver.DecisionDeltaSectionHeading);
@@ -212,7 +222,7 @@ public sealed class ExecutionModeCrossSurfaceInvariantTests
     {
         GoldenManifest manifest = new()
         {
-            RunId = "r1",
+            RunId = TestRunId,
             SystemName = "test-system",
             Metadata = new ManifestMetadata
             {
@@ -223,7 +233,7 @@ public sealed class ExecutionModeCrossSurfaceInvariantTests
 
         ArchitectureRun run = new()
         {
-            RunId = "r1",
+            RunId = TestRunId,
             RequestId = "req1",
             Status = ArchitectureRunStatus.Committed,
             CreatedUtc = new DateTime(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc),
@@ -336,11 +346,17 @@ public sealed class ExecutionModeCrossSurfaceInvariantTests
             pilotBaselines.Object,
             FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>(),
+            CreateSealedManifestAuthorityMock(),
+            CreateSealedManifestHashMock(),
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
+
+    private static IAuthorityQueryService CreateSealedManifestAuthorityMock() =>
+        SealedExportReceiptTestSupport.CreateAuthorityQueryService(TestRunGuid, SealedManifestHashService);
+
+    private static IManifestHashService CreateSealedManifestHashMock() =>
+        SealedManifestHashService;
 
     private static RunTrustEvidenceCardBuilder CreateTrustSut()
     {
@@ -374,6 +390,8 @@ public sealed class ExecutionModeCrossSurfaceInvariantTests
             traces.Object,
             evidence.Object,
             explanation.Object,
-            scope.Object);
+            scope.Object,
+            CreateSealedManifestAuthorityMock(),
+            CreateSealedManifestHashMock());
     }
 }

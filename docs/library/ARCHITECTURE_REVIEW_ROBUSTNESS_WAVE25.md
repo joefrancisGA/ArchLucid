@@ -2,7 +2,7 @@
 
 # Architecture create/review robustness — wave 25
 
-Companion to [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE24.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE24.md) (suggestions 231–240).
+Companion to [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE24.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE24.md) (suggestions 231–240). Successor: [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE26.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE26.md) (251–280 subset).
 
 | # | Control | Primary wiring |
 |---|---------|----------------|

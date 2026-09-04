@@ -10,7 +10,9 @@ const defaultDeferredRevisitDueUtc = vi.fn(() => "2026-10-03T00:00:00.000Z");
 const refresh = vi.fn();
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ refresh }),
+  useRouter: () => ({ refresh, replace: vi.fn() }),
+  usePathname: () => "/governance/findings",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/lib/api/governance-stickiness-api", () => ({

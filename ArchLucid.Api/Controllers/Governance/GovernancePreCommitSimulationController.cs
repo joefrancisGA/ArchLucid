@@ -5,13 +5,16 @@ using ArchLucid.Api.Http;
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Models;
 
 using Asp.Versioning;
@@ -37,8 +40,16 @@ public sealed class GovernancePreCommitSimulationController(
     IAuditService auditService,
     IRunRepository runRepository,
     IScopeContextProvider scopeContextProvider,
-    ITenantRepository tenantRepository) : ControllerBase
+    ITenantRepository tenantRepository,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : ControllerBase
 {
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
@@ -96,6 +107,20 @@ public sealed class GovernancePreCommitSimulationController(
             return this.NotFoundProblem(
                 $"Run '{runIdNormalized}' was not found.",
                 ProblemTypes.RunNotFound);
+        }
+
+        try
+        {
+            await PreCommitSimulationSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                runGuid,
+                scope,
+                _authorityQueryService,
+                _manifestHashService,
+                cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
 
         PreFinalizeChecklistResult checklist =
@@ -157,6 +182,20 @@ public sealed class GovernancePreCommitSimulationController(
             return this.NotFoundProblem(
                 $"Run '{runIdNormalized}' was not found.",
                 ProblemTypes.RunNotFound);
+        }
+
+        try
+        {
+            await PreCommitSimulationSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                runGuid,
+                scope,
+                _authorityQueryService,
+                _manifestHashService,
+                cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
 
         PreCommitGateResult outcome = await gate.SimulateSyntheticFindingsAsync(
