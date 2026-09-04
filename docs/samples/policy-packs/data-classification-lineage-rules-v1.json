@@ -4,7 +4,7 @@
   "pack": {
     "name": "Data Classification & Lineage",
     "description": "Classification tiers and cross-boundary data-flow documentation themes.",
-    "version": "1.1.0",
+    "version": "1.0.0",
     "category": "Data Governance",
     "isDefault": true,
     "suggestedPackType": "PlatformDefault",
@@ -13,11 +13,11 @@
   "rules": [
     {
       "id": "data-class-001",
-      "title": "Data classification taxonomy documented",
-      "description": "Organization classification levels (public, internal, confidential, restricted) must be defined and referenced in architecture.",
-      "severity": "Critical",
+      "title": "Data Classification & Lineage \u2014 control theme 1",
+      "description": "Architecture manifest and Azure extractor evidence should support: data classification & lineage \u2014 control theme 1. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
       "priority": "P0",
-      "remediationGuidance": "Publish taxonomy in governance.PolicyConstraints and governance.ComplianceTags for reviewer alignment.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -28,17 +28,17 @@
       "frameworkMappings": [
         {
           "framework": "Data governance",
-          "theme": "Data governance \u2014 Classification taxonomy"
+          "theme": "Classification"
         }
       ]
     },
     {
       "id": "data-class-002",
-      "title": "Classification applied to every datastore",
-      "description": "Each datastore must carry a classification tag \u2014 unclassified production datastores block governance assessment.",
-      "severity": "Critical",
+      "title": "Data Classification & Lineage \u2014 control theme 2",
+      "description": "Architecture manifest and Azure extractor evidence should support: data classification & lineage \u2014 control theme 2. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
       "priority": "P0",
-      "remediationGuidance": "Tag datastores[].Tags with classification tier; cross-check datastores[] inventory in manifest.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -49,17 +49,17 @@
       "frameworkMappings": [
         {
           "framework": "Data governance",
-          "theme": "Data governance \u2014 Datastore classification"
+          "theme": "Lineage"
         }
       ]
     },
     {
       "id": "data-class-003",
-      "title": "Classification propagated to services",
-      "description": "Services processing classified data must document highest data tier handled \u2014 not understate sensitivity.",
+      "title": "Data Classification & Lineage \u2014 control theme 3",
+      "description": "Architecture manifest and Azure extractor evidence should support: data classification & lineage \u2014 control theme 3. Thematic mapping only \u2014 not certification.",
       "severity": "High",
-      "priority": "P0",
-      "remediationGuidance": "Tag max-classification on services[].Tags; align with ReadsFrom/WritesTo edges to datastores.",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -70,17 +70,17 @@
       "frameworkMappings": [
         {
           "framework": "Data governance",
-          "theme": "Data governance \u2014 Service classification"
+          "theme": "Retention"
         }
       ]
     },
     {
       "id": "data-class-004",
-      "title": "Data owner assigned per domain",
-      "description": "Each major data domain must name a business data owner accountable for classification and access decisions.",
-      "severity": "High",
-      "priority": "P0",
-      "remediationGuidance": "Record data-owner tags in governance.ComplianceTags and metadata.ChangeDescription.",
+      "title": "Data Classification & Lineage \u2014 control theme 4",
+      "description": "Architecture manifest and Azure extractor evidence should support: data classification & lineage \u2014 control theme 4. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -91,17 +91,17 @@
       "frameworkMappings": [
         {
           "framework": "Data governance",
-          "theme": "Data governance \u2014 Data ownership"
+          "theme": "Classification"
         }
       ]
     },
     {
       "id": "data-class-005",
-      "title": "Lineage map for critical data flows",
-      "description": "Tier-1 data elements must document source-to-consumer lineage across services, ETL, and analytics.",
-      "severity": "High",
-      "priority": "P0",
-      "remediationGuidance": "Draw lineage in metadata.ChangeDescription; enumerate flows on relationships[].relationshipType.",
+      "title": "Data Classification & Lineage \u2014 control theme 5",
+      "description": "Architecture manifest and Azure extractor evidence should support: data classification & lineage \u2014 control theme 5. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -112,17 +112,17 @@
       "frameworkMappings": [
         {
           "framework": "Data governance",
-          "theme": "Data governance \u2014 Data lineage"
+          "theme": "Lineage"
         }
       ]
     },
     {
       "id": "data-class-006",
-      "title": "Cross-boundary transfer documented",
-      "description": "Data crossing security zones, tenants, or regions must document legal, contractual, and technical controls.",
-      "severity": "Critical",
+      "title": "Data Classification & Lineage \u2014 control theme 6",
+      "description": "Architecture manifest and Azure extractor evidence should support: data classification & lineage \u2014 control theme 6. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
       "priority": "P1",
-      "remediationGuidance": "Document cross-boundary transfers on relationships[] and governance.PolicyConstraints.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -133,17 +133,17 @@
       "frameworkMappings": [
         {
           "framework": "Data governance",
-          "theme": "Data governance \u2014 Cross-boundary transfer"
+          "theme": "Retention"
         }
       ]
     },
     {
       "id": "data-class-007",
-      "title": "Retention period per classification tier",
-      "description": "Retention and disposal schedules must align to classification \u2014 not indefinite storage by default.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Capture retention in governance.PolicyConstraints and datastores[].Tags.",
+      "title": "Data Classification & Lineage \u2014 control theme 7",
+      "description": "Architecture manifest and Azure extractor evidence should support: data classification & lineage \u2014 control theme 7. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -154,17 +154,17 @@
       "frameworkMappings": [
         {
           "framework": "Data governance",
-          "theme": "Data governance \u2014 Retention schedule"
+          "theme": "Classification"
         }
       ]
     },
     {
       "id": "data-class-008",
-      "title": "Legal hold and litigation hold themes",
-      "description": "Systems subject to hold must document suspension of deletion without undermining broader retention policy.",
+      "title": "Data Classification & Lineage \u2014 control theme 8",
+      "description": "Architecture manifest and Azure extractor evidence should support: data classification & lineage \u2014 control theme 8. Thematic mapping only \u2014 not certification.",
       "severity": "Medium",
-      "priority": "P1",
-      "remediationGuidance": "Note legal-hold capability in governance.ComplianceTags and metadata.ChangeDescription.",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -175,17 +175,17 @@
       "frameworkMappings": [
         {
           "framework": "Data governance",
-          "theme": "Data governance \u2014 Legal hold"
+          "theme": "Lineage"
         }
       ]
     },
     {
       "id": "data-class-009",
-      "title": "Data minimization at collection",
-      "description": "Ingestion points must document field-level collection rationale \u2014 avoid hoarding unneeded attributes.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Describe minimization in services[].Purpose and governance.PolicyConstraints.",
+      "title": "Data Classification & Lineage \u2014 control theme 9",
+      "description": "Architecture manifest and Azure extractor evidence should support: data classification & lineage \u2014 control theme 9. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -196,272 +196,17 @@
       "frameworkMappings": [
         {
           "framework": "Data governance",
-          "theme": "Data governance \u2014 Data minimization"
+          "theme": "Retention"
         }
       ]
     },
     {
       "id": "data-class-010",
-      "title": "Pseudonymization and tokenization paths",
-      "description": "Analytics and lower environments should document pseudonymization before secondary use of sensitive data.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Tag pseudonymization approach on datastores[].Tags and downstream services[].Tags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Data governance",
-          "theme": "Data governance \u2014 Pseudonymization"
-        }
-      ]
-    },
-    {
-      "id": "data-class-011",
-      "title": "Master data management boundaries",
-      "description": "Golden records and MDM hubs must be identified so duplicate or conflicting lineage is avoided.",
-      "severity": "Medium",
-      "priority": "P1",
-      "remediationGuidance": "Identify MDM systems in services[].ServiceName and metadata.ChangeDescription.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Data governance",
-          "theme": "Data governance \u2014 Master data"
-        }
-      ]
-    },
-    {
-      "id": "data-class-012",
-      "title": "Metadata catalog integration",
-      "description": "Architecture should reference Purview, Collibra, or equivalent catalog for automated lineage where deployed.",
-      "severity": "Medium",
-      "priority": "P1",
-      "remediationGuidance": "Tag catalog integration in services[].Tags and governance.ComplianceTags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Data governance",
-          "theme": "Data governance \u2014 Metadata catalog"
-        }
-      ]
-    },
-    {
-      "id": "data-class-013",
-      "title": "Schema evolution and breaking change control",
-      "description": "Shared datasets must document schema versioning and consumer notification for breaking changes.",
-      "severity": "Medium",
-      "priority": "P1",
-      "remediationGuidance": "Describe schema governance in governance.RequiredControls and metadata.ChangeDescription.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Data governance",
-          "theme": "Data governance \u2014 Schema governance"
-        }
-      ]
-    },
-    {
-      "id": "data-class-014",
-      "title": "Data quality rules for critical attributes",
-      "description": "Key business attributes must document validation, completeness, and quality monitoring expectations.",
-      "severity": "Medium",
-      "priority": "P1",
-      "remediationGuidance": "List data quality rules in governance.RequiredControls and services[].Tags for ETL/validation services.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Data governance",
-          "theme": "Data governance \u2014 Data quality"
-        }
-      ]
-    },
-    {
-      "id": "data-class-015",
-      "title": "Sensitive data discovery and tagging",
-      "description": "Platforms should document how new sensitive columns are discovered and classified (Purview scans, DLP).",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Record discovery tooling in governance.RequiredControls; align with azureExtractor Purview references if present.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Data governance",
-          "theme": "Data governance \u2014 Sensitive data discovery"
-        }
-      ]
-    },
-    {
-      "id": "data-class-016",
-      "title": "Access controls aligned to classification",
-      "description": "Higher classifications must document stricter access (MFA, PIM, ABAC) proportional to sensitivity.",
-      "severity": "Critical",
-      "priority": "P1",
-      "remediationGuidance": "Map access tier to classification in governance.PolicyConstraints and governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Data governance",
-          "theme": "Data governance \u2014 Classification-based access"
-        }
-      ]
-    },
-    {
-      "id": "data-class-017",
-      "title": "Encryption requirements by classification",
-      "description": "Confidential and restricted tiers must document encryption at rest and in transit with key custody.",
-      "severity": "Critical",
-      "priority": "P2",
-      "remediationGuidance": "Align encryption tags on datastores[].Tags with classification tier in governance.PolicyConstraints.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Data governance",
-          "theme": "Data governance \u2014 Encryption by class"
-        }
-      ]
-    },
-    {
-      "id": "data-class-018",
-      "title": "Masking and redaction for lower environments",
-      "description": "Non-production must document masking rules preventing full-fidelity sensitive data in dev/test.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Tag environment data handling on datastores[].Tags and services[].Tags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Data governance",
-          "theme": "Data governance \u2014 Non-prod masking"
-        }
-      ]
-    },
-    {
-      "id": "data-class-019",
-      "title": "Third-party data sharing register",
-      "description": "Outbound sharing with partners must enumerate datasets, classification, purpose, and agreement status.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "List recipients on external WritesTo edges and governance.ComplianceTags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Data governance",
-          "theme": "Data governance \u2014 Third-party sharing"
-        }
-      ]
-    },
-    {
-      "id": "data-class-020",
-      "title": "Data residency and sovereignty constraints",
-      "description": "Region placement for classified data must document residency requirements and prohibited jurisdictions.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Capture residency in governance.PolicyConstraints and services[].Tags with region metadata.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Data governance",
-          "theme": "Data governance \u2014 Data residency"
-        }
-      ]
-    },
-    {
-      "id": "data-class-021",
-      "title": "Archive and tiering strategy",
-      "description": "Cold/archive tiers must document retrieval latency, cost, and classification-appropriate controls.",
+      "title": "Data Classification & Lineage \u2014 control theme 10",
+      "description": "Architecture manifest and Azure extractor evidence should support: data classification & lineage \u2014 control theme 10. Thematic mapping only \u2014 not certification.",
       "severity": "Medium",
       "priority": "P2",
-      "remediationGuidance": "Describe tiering in datastores[].Tags and metadata.ChangeDescription.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -472,154 +217,7 @@
       "frameworkMappings": [
         {
           "framework": "Data governance",
-          "theme": "Data governance \u2014 Archive tiering"
-        }
-      ]
-    },
-    {
-      "id": "data-class-022",
-      "title": "Secure deletion and crypto-shredding",
-      "description": "Disposal of restricted data must document secure wipe or crypto-shredding when keys are destroyed.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Note disposal method in governance.RequiredControls and datastores[].Tags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Data governance",
-          "theme": "Data governance \u2014 Secure disposal"
-        }
-      ]
-    },
-    {
-      "id": "data-class-023",
-      "title": "BI and analytics lineage to source",
-      "description": "Dashboards and ML features must trace back to authoritative sources \u2014 not undocumented copies.",
-      "severity": "Medium",
-      "priority": "P2",
-      "remediationGuidance": "Document analytics lineage in metadata.ChangeDescription and relationships[] to warehouse/lake.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Data governance",
-          "theme": "Data governance \u2014 Analytics lineage"
-        }
-      ]
-    },
-    {
-      "id": "data-class-024",
-      "title": "Event streaming lineage (Kafka, Event Hubs)",
-      "description": "Stream processors must document topic schemas, retention, and downstream consumers for auditability.",
-      "severity": "Medium",
-      "priority": "P2",
-      "remediationGuidance": "Map streaming edges on relationships[]; tag topics in services[].Tags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Data governance",
-          "theme": "Data governance \u2014 Streaming lineage"
-        }
-      ]
-    },
-    {
-      "id": "data-class-025",
-      "title": "API payload classification",
-      "description": "Public APIs must document maximum classification of fields returned and filtering for scoped tokens.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Describe API data scope in services[].Purpose and governance.PolicyConstraints.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Data governance",
-          "theme": "Data governance \u2014 API data scope"
-        }
-      ]
-    },
-    {
-      "id": "data-class-026",
-      "title": "Data steward escalation path",
-      "description": "Classification disputes and reclassification requests must have documented steward workflow.",
-      "severity": "Low",
-      "priority": "P2",
-      "remediationGuidance": "Record steward contacts in governance.ComplianceTags and metadata.ChangeDescription.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Data governance",
-          "theme": "Data governance \u2014 Stewardship workflow"
-        }
-      ]
-    },
-    {
-      "id": "data-class-027",
-      "title": "Periodic classification recertification",
-      "description": "Classifications must be reviewed on schedule \u2014 stale labels undermine access and retention controls.",
-      "severity": "Medium",
-      "priority": "P2",
-      "remediationGuidance": "Add recertification cadence to governance.ComplianceTags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Data governance",
-          "theme": "Data governance \u2014 Classification review"
-        }
-      ]
-    },
-    {
-      "id": "data-class-028",
-      "title": "Lineage evidence for regulatory inquiry",
-      "description": "Architecture must support exporting lineage and classification evidence for audit \u2014 not tribal knowledge only.",
-      "severity": "Medium",
-      "priority": "P2",
-      "remediationGuidance": "Ensure catalog/lineage tooling referenced in governance.RequiredControls and metadata.ChangeDescription.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Data governance",
-          "theme": "Data governance \u2014 Audit-ready lineage"
+          "theme": "Classification"
         }
       ]
     }

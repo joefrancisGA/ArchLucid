@@ -41,10 +41,6 @@
     "aws-paas-security.json",
     "gcp-paas-security.json",
     "aws-data-layer-security.json",
-    "gcp-data-layer-security.json",
-    "reliability-and-resilience.json",
-    "performance-and-scalability.json",
-    "operational-excellence.json",
-    "sustainability-and-resource-efficiency.json"
+    "gcp-data-layer-security.json"
   ]
 }

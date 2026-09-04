@@ -494,7 +494,7 @@
     {
       "id": "cis-gcp-016",
       "title": "Activity log retention meets policy minimum",
-      "description": "Cloud Audit Logs and log sinks must be retained for the period required by security and compliance policies — not left at default only.",
+      "description": "Cloud Audit Logs and log sinks must be retained for the period required by security and compliance policies \u2014 not left at default only.",
       "severity": "Medium",
       "priority": "P1",
       "remediationGuidance": "Document retention in governance.PolicyConstraints and governance.ComplianceTags.",
@@ -679,7 +679,7 @@
       "frameworkMappings": [
         {
           "framework": "CIS GCP Foundations Benchmark",
-          "theme": "CIS 2.1 — Security Command Center services enabled"
+          "theme": "CIS 2.1 \u2014 Security Command Center services enabled"
         }
       ]
     },
@@ -897,7 +897,7 @@
       "frameworkMappings": [
         {
           "framework": "CIS GCP Foundations Benchmark",
-          "theme": "CIS 2.3 — Org policies on critical assets"
+          "theme": "CIS 2.3 \u2014 Org policies on critical assets"
         }
       ]
     }

@@ -48,9 +48,9 @@
     "templateId": "security-architecture-baseline-v1",
     "pack.displayName": "Security Architecture Baseline",
     "pack.category": "Security",
-    "pack.version": "1.1.1",
+    "pack.version": "1.0.0",
     "pack.isDefault": "true",
-    "pack.description": "Starter security posture checks for cloud architecture reviews \u2014 identity, network, encryption, logging, and secure SDLC. Grounded in Azure, AWS, and GCP inventory ZIP manifests plus architecture manifest governance fields. Aligned to CIS and OWASP themes. Not an exhaustive compliance assessment.",
+    "pack.description": "Starter security posture for cloud architecture reviews. CIS / OWASP themes only; not attestation.",
     "frameworkMappingDisclaimer": "CIS and OWASP references are thematic alignment only.",
     "curatedRulesArtifact": "docs/samples/policy-packs/security-architecture-baseline-rules-v1.json"
   }

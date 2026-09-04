@@ -62,6 +62,16 @@ public class PolicyPackAssignment
         set;
     }
 
+    /// <summary>
+    ///     When true, the pack is required by the organization for coverage and cannot be disabled at workspace scope.
+    ///     Distinct from <see cref="IsPinned" />, which only affects merge precedence.
+    /// </summary>
+    public bool IsOrganizationRequired
+    {
+        get;
+        set;
+    }
+
     public DateTime AssignedUtc
     {
         get;

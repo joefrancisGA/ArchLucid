@@ -24,11 +24,10 @@
     "templateId": "gcp-architecture-framework-v1",
     "pack.displayName": "Google Cloud Architecture Framework",
     "pack.category": "Architecture",
-    "pack.version": "1.1.0",
+    "pack.version": "1.0.0",
     "pack.isDefault": "true",
     "pack.description": "Architecture framework themes grounded in GCP inventory ZIP and Terraform google_* evidence.",
     "frameworkMappingDisclaimer": "GCP framework references are thematic mapping only.",
-    "curatedRulesArtifact": "docs/samples/policy-packs/gcp-architecture-framework-rules-v1.json",
-    "overlayTrimNeutralBaseline": "2026-08-23"
+    "curatedRulesArtifact": "docs/samples/policy-packs/gcp-architecture-framework-rules-v1.json"
   }
 }

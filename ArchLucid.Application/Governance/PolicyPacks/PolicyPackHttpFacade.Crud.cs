@@ -148,6 +148,23 @@ public sealed partial class PolicyPackHttpFacade
     }
 
     /// <inheritdoc />
+    public async Task<PolicyPackHttpResult<bool>> SetAssignmentOrganizationRequiredAsync(
+        Guid assignmentId,
+        bool isOrganizationRequired,
+        CancellationToken ct)
+    {
+        if (!await EnsureScopeAsync(ct).ConfigureAwait(false))
+            return PolicyPackHttpResult<bool>.ScopeNotFound();
+
+        bool ok = await _workflow.TrySetAssignmentOrganizationRequiredAsync(assignmentId, isOrganizationRequired, ct)
+            .ConfigureAwait(false);
+
+        return ok
+            ? PolicyPackHttpResult<bool>.Success(true)
+            : new PolicyPackHttpResult<bool> { Outcome = PolicyPackHttpOutcome.ResourceNotFound };
+    }
+
+    /// <inheritdoc />
     public async Task<PolicyPackHttpResult<IReadOnlyList<PolicyPackVersion>>> ListVersionsAsync(
         Guid policyPackId,
         CancellationToken ct)
