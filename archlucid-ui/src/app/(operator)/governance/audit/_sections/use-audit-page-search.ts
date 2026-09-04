@@ -19,6 +19,10 @@ import {
   parseAuditTrailSearchQueryFromSearch,
 } from "@/lib/governance/audit-trail-filters-url";
 import {
+  auditTrailRunIdHrefFromSearch,
+  parseAuditTrailRunIdFromSearch,
+} from "@/lib/governance/audit-trail-run-id-url";
+import {
   auditTrailCustomDateHrefFromSearch,
   parseAuditTrailCustomDateFromSearch,
 } from "@/lib/governance/audit-trail-custom-date-url";
@@ -97,7 +101,7 @@ export function useAuditPageSearch(
   const [toUtc, setToUtc] = useState<string>(urlDatePreset === null ? urlToUtc : "");
   const [correlationId, setCorrelationId] = useState<string>(urlSearchQuery);
   const [actorUserId, setActorUserId] = useState<string>(urlActor);
-  const [runId, setRunId] = useState<string>(() => searchParams.get("runId")?.trim() ?? "");
+  const [runId, setRunId] = useState<string>(() => parseAuditTrailRunIdFromSearch(searchParams.get("runId")));
   const [loadingTypes, setLoadingTypes] = useState(serverLoad.typesLoadFailure !== null);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
 
@@ -116,6 +120,28 @@ export function useAuditPageSearch(
   useEffect(() => {
     setCorrelationId(urlSearchQuery);
   }, [urlSearchQuery]);
+
+  useEffect(() => {
+    setRunId(parseAuditTrailRunIdFromSearch(searchParams.get("runId")));
+  }, [searchParams]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const nextHref = auditTrailRunIdHrefFromSearch(
+        searchParams.toString(),
+        runId,
+        pathname ?? GOVERNANCE_AUDIT_PATH,
+      );
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [pathname, router, runId, searchParams]);
 
   useEffect(() => {
     if (urlDatePreset !== null) {
