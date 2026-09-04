@@ -1651,11 +1651,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 7
-- **bugs-found:** 10
+- **hunts:** 8
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — `PilotValueReportService` counted operator-muted findings in severity totals
+- **last-hunt:** 2026-09-04
+- **last-bug:** 2026-09-04 — `SponsorOnePagerPdfBuilder` bypassed `SponsorFirstValuePdfGate` on incomplete sponsor proof
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1676,7 +1676,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `PilotProofPackageCompletenessMapper` committed timestamp Present contradicts buyer-safe gate soft gap when `CompletedUtc` resolves manifest timestamp — gate soft gap still surfaces in `PilotBuyerSafeEvidenceGateEvaluator`; `CommittedManifestTimestampResolved` fallback to `ManifestCommittedUtc` is intentional (`Build_WhenManifestCreatedUtcDefaultButDeltasCarryCompletedUtc_ResolvesCommittedTimestamp`).
 - [x] (invalid) `SponsorEvidencePackService` explainability trace completeness vs `PilotRunDeltaComputer` delta counts diverge on sparse agent + snapshot runs — **closed 2026-08-26** proven fix loads snapshot when `FindingsSnapshotId` is set; pack and deltas share the same snapshot source.
 - [x] (invalid) `PilotProofPackageCompletenessMapper.FindingsBySeverityPresent` hard-coded true — zero-finding runs still show Present in proof contract — intentional: empty severity breakdown is attested evidence, not missing data (`Build_ZeroTotalFindings_StillMarksFindingsEvidencePresent`).
-- [ ] (hunt-ready) `SponsorOnePagerPdfBuilder.BuildPdfAsync` with committed run and incomplete sponsor proof (non-demo) — bypasses `SponsorFirstValuePdfGate` / circulation watermarks that `FirstValueReportPdfBuilder` enforces; may return distributable PDF when first-value PDF export would block or watermark.
+- [x] (proven) `SponsorOnePagerPdfBuilder.BuildPdfAsync` with committed run and incomplete sponsor proof (non-demo) — bypassed `SponsorFirstValuePdfGate` / circulation watermarks that `FirstValueReportPdfBuilder` enforces; returned distributable PDF when first-value PDF export would block — **hit 2026-09-04 (#667):** omitted `IFirstValueReportBuilder` + `SponsorFirstValuePdfGate.EnsureCanGenerate`; fixed with gate parity before QuestPDF render; regressions in `SponsorOnePagerPdfBuilderTests` and `SponsorArtifactCrossSurfaceConsistencyTests`.
+
+2026-09-04 thorough hunt #667: proved sponsor-one-pager PDF gate bypass on incomplete ROI baselines and demo tenants.
 
 2026-09-03 seed hunt #591: proved muted-finding parity gap in `PilotValueReportService`; cheap-disproved PDF section-drop candidate; seeded sponsor-one-pager PDF gate parity row.
 
