@@ -97,6 +97,15 @@ public sealed class TenantTrialFacade(
             };
         }
 
+        if (hasEmail && !TrialLocalEmailValidation.TryValidateLength(body.LocalEmail, out string? localEmailError))
+        {
+            return new TenantTrialLinkEntraResult
+            {
+                Outcome = TenantTrialHttpOutcome.ValidationFailed,
+                Message = localEmailError,
+            };
+        }
+
         if (hasOid && !TrialEntraOidValidation.TryValidateLength(body.EntraOid, out string? entraOidError))
         {
             return new TenantTrialLinkEntraResult
