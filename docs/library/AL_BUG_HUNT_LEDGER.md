@@ -3288,9 +3288,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 181
+- **hunts:** 182
 - **bugs-found:** 391
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-04
 - **last-bug:** 2026-09-04 — recurrence schedule invalid cron syntax validated before tenant preflight
 - **related-pd-tb:** none
@@ -4206,10 +4206,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-04 seed hunt #731 (dry): cheap-disproved four #730 validation-ordering siblings; no new hunt-ready repro in zone.
 
 - [x] (proven) `GovernanceStickinessController.CreateRecurrenceSchedule` / `UpdateRecurrenceSchedule` / `GovernanceStickinessHttpMapper` — tenant preflight ran before cron syntax validation, so ghost tenant + invalid `cronExpression` returned HTTP 404 instead of 400 (#731 disposition ordering sibling) — **hit 2026-09-04 (#751):** `ValidateCreateRecurrenceSchedule` / `ValidateUpdateRecurrenceSchedule` call `IsSupportedCronExpression` before `RequireTenantAndWorkspaceOrNotFoundAsync`; regressions in `CreateRecurrenceSchedule_returns_bad_request_when_cron_is_invalid_and_tenant_missing`, `UpdateRecurrenceSchedule_returns_bad_request_when_cron_is_invalid_and_tenant_missing`, and `ValidateCreateRecurrenceSchedule_rejects_invalid_cron_expression`.
-- [ ] (candidate) `GovernanceStickinessController.PreviewRecurrenceScheduleRuns` — invalid cron with no tenant context already returns 400; create/update parity now covered by #751.
-- [ ] (candidate) `PolicyPacksHttpMapper.ValidatePromoteCatalogEntry` — ghost tenant + invalid semver `version` may return 404 instead of 400; cheap-disproof after promote catalog mapper ordering.
+- [x] (invalid) `GovernanceStickinessController.PreviewRecurrenceScheduleRuns` — invalid cron with no tenant context already returns 400; create/update parity now covered by #751 — **cheap-disproof 2026-09-04 (#752):** endpoint has no tenant preflight; overlong cron returns HTTP 400; unsupported cron returns HTTP 200 `{ isValid: false }` by design (ledger #559).
+- [x] (invalid) `PolicyPacksHttpMapper.ValidatePromoteCatalogEntry` — ghost tenant + invalid semver `version` may return 404 instead of 400 — **cheap-disproof 2026-09-04 (#752):** `ValidatePromoteCatalogEntry` runs before facade scope mapping; regression in `PromoteCatalogEntry_returns_bad_request_when_version_is_not_semver_and_tenant_missing`.
 
-2026-09-04 seed hunt #751: reseeded after #731 dry hunt; proved recurrence schedule cron syntax validation ordering before tenant preflight; seeded preview/create parity and promote-catalog semver candidates.
+2026-09-04 thorough hunt #752 (dry): cheap-disproved two #751 candidates; repaired stale `RecordDisposition` / `RecordBulkDisposition` tenant-missing regressions that used sub-minimum rationale after HTTP mapper min-length guards; no new hunt-ready repro in zone.
 
 2026-09-04 thorough hunt #723 (hit): proved SubmitApprovalRequest same-environment validation ordering before tenant preflight.
 

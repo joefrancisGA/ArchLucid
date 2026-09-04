@@ -565,8 +565,8 @@ public sealed class GovernanceStickinessControllerTests
             new RecordFindingDispositionRequest
             {
                 FindingId = "finding-1",
-                Disposition = FindingDisposition.Accepted,
-                Rationale = "ok",
+                Disposition = FindingDisposition.Deferred,
+                RevisitDueUtc = DateTimeOffset.UtcNow.AddDays(7),
             },
             CancellationToken.None);
 
@@ -585,7 +585,7 @@ public sealed class GovernanceStickinessControllerTests
             {
                 FindingIds = ["finding-1"],
                 Disposition = FindingDisposition.Accepted,
-                Rationale = "bulk",
+                Rationale = "bulk rationale",
             },
             CancellationToken.None);
 
