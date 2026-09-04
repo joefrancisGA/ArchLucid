@@ -1512,6 +1512,31 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     }
 
     [Fact]
+    public async Task SubmitApprovalRequest_returns_bad_request_when_manifest_version_exceeds_max_length()
+    {
+        string overlongManifestVersion = new string('v', GovernanceRequestValidationRules.ManifestVersionMaxLength + 1);
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(workflowFacade: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.SubmitApprovalRequest(
+            new CreateGovernanceApprovalRequest
+            {
+                RunId = Guid.NewGuid().ToString("D"),
+                ManifestVersion = overlongManifestVersion,
+                SourceEnvironment = "dev",
+                TargetEnvironment = "test",
+            },
+            dryRun: true,
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task SubmitApprovalRequest_returns_not_found_when_run_is_out_of_scope()
     {
         Guid foreignRunId = Guid.Parse("33333333-3333-3333-3333-333333333333");
@@ -1542,6 +1567,30 @@ public sealed class GovernanceControllerRunHistoryScopeTests
 
         ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Activate_returns_bad_request_when_manifest_version_exceeds_max_length()
+    {
+        string overlongManifestVersion = new string('v', GovernanceRequestValidationRules.ManifestVersionMaxLength + 1);
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(workflowFacade: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        sut.ControllerContext.HttpContext.Request.Headers["Idempotency-Key"] = "activate-manifest-version-length";
+
+        IActionResult result = await sut.Activate(
+            new CreateGovernanceActivationRequest
+            {
+                RunId = Guid.NewGuid().ToString("D"),
+                ManifestVersion = overlongManifestVersion,
+                Environment = "test",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         workflow.VerifyNoOtherCalls();
     }
 
@@ -1764,6 +1813,40 @@ public sealed class GovernanceControllerRunHistoryScopeTests
                 SourceEnvironment = "dev",
                 TargetEnvironment = "test",
                 Notes = new string('n', GovernanceRequestValidationRules.ReviewCommentMaxLength + 1),
+            },
+            dryRun: true,
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Promote_returns_bad_request_when_manifest_version_exceeds_max_length()
+    {
+        Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111112");
+        string overlongManifestVersion = new string('v', GovernanceRequestValidationRules.ManifestVersionMaxLength + 1);
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            runRepository: runs.Object,
+            workflowFacade: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.Promote(
+            new CreateGovernancePromotionRequest
+            {
+                RunId = runId.ToString("D"),
+                ManifestVersion = overlongManifestVersion,
+                SourceEnvironment = "dev",
+                TargetEnvironment = "test",
             },
             dryRun: true,
             CancellationToken.None);

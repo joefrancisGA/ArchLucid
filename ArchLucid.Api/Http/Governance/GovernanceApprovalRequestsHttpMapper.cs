@@ -30,6 +30,25 @@ public static class GovernanceApprovalRequestsHttpMapper
         return null;
     }
 
+    public static GovernanceHttpValidation? ValidateManifestVersion(string? manifestVersion)
+    {
+        if (string.IsNullOrWhiteSpace(manifestVersion))
+        {
+            return new GovernanceHttpValidation(
+                "ManifestVersion is required.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (manifestVersion.Trim().Length > GovernanceRequestValidationRules.ManifestVersionMaxLength)
+        {
+            return new GovernanceHttpValidation(
+                $"ManifestVersion must not exceed {GovernanceRequestValidationRules.ManifestVersionMaxLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
     public static GovernanceHttpValidation? ValidateReviewComment(string? reviewComment) =>
         ValidateOptionalGovernanceComment(reviewComment, "ReviewComment");
 

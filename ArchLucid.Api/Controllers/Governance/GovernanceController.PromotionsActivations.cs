@@ -28,6 +28,13 @@ public sealed partial class GovernanceController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        IActionResult? manifestVersionProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateManifestVersion(request.ManifestVersion)
+                .ToBadRequestProblemOrNull(this);
+
+        if (manifestVersionProblem is not null)
+            return manifestVersionProblem;
+
         IActionResult? notesProblem =
             GovernanceApprovalRequestsHttpMapper.ValidateOptionalGovernanceComment(request.Notes, "Notes")
                 .ToBadRequestProblemOrNull(this);
@@ -113,6 +120,13 @@ public sealed partial class GovernanceController
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? manifestVersionProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateManifestVersion(request.ManifestVersion)
+                .ToBadRequestProblemOrNull(this);
+
+        if (manifestVersionProblem is not null)
+            return manifestVersionProblem;
 
         (IActionResult? idempotencyError, _) = ReadGovernanceIdempotencyKey(true);
 
