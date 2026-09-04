@@ -186,6 +186,30 @@ public sealed class PolicyPacksControllerSimulateBulkScopeTests
     }
 
     [Fact]
+    public async Task SimulateBulk_returns_bad_request_when_block_commit_minimum_severity_out_of_range_and_tenant_missing()
+    {
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+
+        PolicyPacksController sut = CreateController(httpFacade, tenantExists: false);
+
+        string runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D");
+        PolicyPackSimulateBulkRequest request = new()
+        {
+            RunIds = [runId],
+            BlockCommitMinimumSeverity = 99,
+        };
+
+        IActionResult result = await sut.SimulateBulk(
+            Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            request,
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        httpFacade.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task SimulateBulk_returns_not_found_when_pack_belongs_to_another_tenant()
     {
         Guid foreignPackId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

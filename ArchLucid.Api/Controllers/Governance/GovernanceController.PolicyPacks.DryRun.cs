@@ -55,6 +55,12 @@ public sealed partial class GovernanceController
             return this.BadRequestProblem("targetManifestId is not valid.", ProblemTypes.ValidationFailed);
         }
 
+        IActionResult? validationProblem =
+            PolicyPackGovernanceDryRunHttpMapper.Validate(request).ToBadRequestProblemOrNull(this);
+
+        if (validationProblem is not null)
+            return validationProblem;
+
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)

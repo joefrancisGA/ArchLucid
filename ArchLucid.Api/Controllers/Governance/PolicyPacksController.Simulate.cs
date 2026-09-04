@@ -126,6 +126,12 @@ public sealed partial class PolicyPacksController
         if (routeIdProblem is not null)
             return routeIdProblem;
 
+        IActionResult? validationProblem =
+            PolicyPackSimulateBulkHttpMapper.Validate(request).ToBadRequestProblemOrNull(this);
+
+        if (validationProblem is not null)
+            return validationProblem;
+
         PolicyPackHttpResult<PolicyPackSimulateBulkSummary> result = await _httpFacade.SimulateBulkAsync(
             policyPackId,
             runIds,
