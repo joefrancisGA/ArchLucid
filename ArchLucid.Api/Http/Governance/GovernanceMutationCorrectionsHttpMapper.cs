@@ -24,7 +24,7 @@ public static class GovernanceMutationCorrectionsHttpMapper
         }
 
         GovernanceHttpValidation? runIdValidation =
-            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRunId(request.RunId);
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRouteRunId(request.RunId);
 
         if (runIdValidation is not null)
             return runIdValidation;

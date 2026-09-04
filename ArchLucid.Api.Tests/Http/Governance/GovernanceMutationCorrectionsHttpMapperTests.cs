@@ -67,4 +67,38 @@ public sealed class GovernanceMutationCorrectionsHttpMapperTests
         validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
         validation.Message.Should().Contain(FindingDispositionValidation.MaximumRationaleLength.ToString());
     }
+
+    [Fact]
+    public void ValidateRecordMutationCorrection_rejects_empty_guid_run_id()
+    {
+        GovernanceHttpValidation? validation = GovernanceMutationCorrectionsHttpMapper.ValidateRecordMutationCorrection(
+            new RecordGovernanceMutationCorrectionRequest
+            {
+                MutationKind = GovernanceMutationCorrectionKinds.QuickApprove,
+                SubjectId = "apr-1",
+                RunId = Guid.Empty.ToString("D"),
+                Rationale = new string('x', FindingDispositionValidation.MinimumRationaleLength),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Be("RunId is not valid.");
+    }
+
+    [Fact]
+    public void ValidateRecordMutationCorrection_rejects_non_guid_run_id()
+    {
+        GovernanceHttpValidation? validation = GovernanceMutationCorrectionsHttpMapper.ValidateRecordMutationCorrection(
+            new RecordGovernanceMutationCorrectionRequest
+            {
+                MutationKind = GovernanceMutationCorrectionKinds.QuickApprove,
+                SubjectId = "apr-1",
+                RunId = "not-a-guid",
+                Rationale = new string('x', FindingDispositionValidation.MinimumRationaleLength),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Be("RunId is not valid.");
+    }
 }
