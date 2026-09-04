@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { HelpAdvisoryScansSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpAdvisoryScansSourcesOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { AdvisoryScansHelpClaimDisciplineStrip } from "@/components/help/AdvisoryScansHelpClaimDisciplineStrip";
 import { AdvisoryScansHelpEvidenceOrientationStrip } from "@/components/help/AdvisoryScansHelpEvidenceOrientationStrip";
@@ -50,8 +51,16 @@ import {
 } from "@/lib/advisory-scans-help-guide-content";
 import {
   ADVISORY_SCANS_HELP_CANONICAL_PATH,
+  ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE,
   ADVISORY_SCANS_HELP_TOPIC_LABEL,
 } from "@/lib/advisory-scans-help-evidence-copy";
+import {
+  ADVISORY_SCANS_HELP_FIRST_VIEWPORT_TEST_ID,
+  ADVISORY_SCANS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  ADVISORY_SCANS_HELP_PRIMARY_CONTENT_ID,
+  ADVISORY_SCANS_HELP_SKIP_LINK_LABEL,
+  ADVISORY_SCANS_HELP_SKIP_TARGET_ID,
+} from "@/lib/advisory-scans-help-page-copy";
 import {
   DESIGN_TOKENS,
   OPERATOR_BODY_INLINE_LINK_CLASS,
@@ -60,6 +69,7 @@ import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT, HELP_PAGE_MIN_TOC_HEADINGS, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
@@ -155,9 +165,31 @@ function AdvisoryScansTroubleshootingList(): React.ReactElement {
   );
 }
 
+function AdvisoryScansStartHereActionPanel(): React.ReactElement {
+  return (
+    <section
+      className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+      data-testid="help-advisory-scans-action-panel"
+      aria-labelledby={ADVISORY_SCANS_HELP_START_HERE_HEADING_ID}
+    >
+      <h2
+        id={ADVISORY_SCANS_HELP_START_HERE_HEADING_ID}
+        className={cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+      >
+        {ADVISORY_SCANS_HELP_START_HERE_CARD_TITLE}
+      </h2>
+      <Button asChild size="sm" variant="primary" data-testid="help-advisory-scans-start-here-primary-cta">
+        <Link href={ADVISORY_SCANS_HELP_PRIMARY_ACTION.href}>{ADVISORY_SCANS_HELP_PRIMARY_ACTION.label}</Link>
+      </Button>
+      <AdvisoryScansStartHereScopeNote />
+    </section>
+  );
+}
+
 /** Advisory scans orientation for `/help/advisory-scans`. */
 export function HelpAdvisoryScansGuideView(props: HelpAdvisoryScansGuideViewProps): React.ReactElement {
   const { entry } = props;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const showSectionNav = ADVISORY_SCANS_HELP_GUIDE_HEADINGS.length >= HELP_PAGE_MIN_TOC_HEADINGS;
   const contentGridClass = resolveHelpPageContentGridClass(ADVISORY_SCANS_HELP_GUIDE_HEADINGS.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
@@ -167,48 +199,71 @@ export function HelpAdvisoryScansGuideView(props: HelpAdvisoryScansGuideViewProp
       className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-advisory-scans-guide"
     >
-      <HelpTopicHashScroll />
-
-      <HelpTopicGuidePageHeader
-        eyebrow={ADVISORY_SCANS_HELP_PAGE_EYEBROW}
-        title={ADVISORY_SCANS_HELP_PAGE_TITLE}
-        titleTestId="help-advisory-scans-page-title"
-        subtitle={ADVISORY_SCANS_HELP_PAGE_SUBTITLE}
-        navHref={ADVISORY_SCANS_HELP_CANONICAL_PATH}
-        headingLevel="h1"
-        metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
-      />
-
-      <AdvisoryScansHelpClaimDisciplineStrip />
-
-      {showSectionNav ? (
-        <HelpTopicTableOfContents headings={ADVISORY_SCANS_HELP_GUIDE_HEADINGS} placement="header-inline" />
+      {buyerPolishedShell ? (
+        <a href={`#${ADVISORY_SCANS_HELP_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+          {ADVISORY_SCANS_HELP_SKIP_LINK_LABEL}
+        </a>
       ) : null}
 
-      <div className={contentGridClass}>
-        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
-          <AdvisoryScansHelpEvidenceOrientationStrip />
+      <HelpTopicHashScroll />
 
-          <p className={readingBodyClass} data-testid="help-advisory-scans-overview">
-            {ADVISORY_SCANS_HELP_OVERVIEW}
-          </p>
+      <div
+        id={buyerPolishedShell ? ADVISORY_SCANS_HELP_PRIMARY_CONTENT_ID : undefined}
+        data-testid={buyerPolishedShell ? ADVISORY_SCANS_HELP_PRIMARY_CONTENT_ID : undefined}
+        className={cn(buyerPolishedShell && "scroll-mt-24 space-y-6", buyerPolishedShell && OPERATOR_LAYOUT.sectionStack)}
+      >
+        {buyerPolishedShell ? (
+          <HelpTopicGuidePageHeader
+            eyebrow={ADVISORY_SCANS_HELP_PAGE_EYEBROW}
+            title={ADVISORY_SCANS_HELP_PAGE_TITLE}
+            titleTestId="help-advisory-scans-page-title"
+            subtitle={ADVISORY_SCANS_HELP_PAGE_SUBTITLE}
+            navHref={ADVISORY_SCANS_HELP_CANONICAL_PATH}
+            headingLevel="h1"
+            claimDiscipline={ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE}
+            claimDisciplineTestId={ADVISORY_SCANS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+            metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
+          />
+        ) : (
+          <HelpTopicGuidePageHeader
+            eyebrow={ADVISORY_SCANS_HELP_PAGE_EYEBROW}
+            title={ADVISORY_SCANS_HELP_PAGE_TITLE}
+            titleTestId="help-advisory-scans-page-title"
+            subtitle={ADVISORY_SCANS_HELP_PAGE_SUBTITLE}
+            navHref={ADVISORY_SCANS_HELP_CANONICAL_PATH}
+            headingLevel="h1"
+            metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
+          />
+        )}
 
-          <section
-            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
-            data-testid="help-advisory-scans-action-panel"
-            aria-labelledby={ADVISORY_SCANS_HELP_START_HERE_HEADING_ID}
+        {buyerPolishedShell ? null : <AdvisoryScansHelpClaimDisciplineStrip />}
+
+        {!buyerPolishedShell && showSectionNav ? (
+          <HelpTopicTableOfContents headings={ADVISORY_SCANS_HELP_GUIDE_HEADINGS} placement="header-inline" />
+        ) : null}
+
+        {buyerPolishedShell ? (
+          <div
+            id={ADVISORY_SCANS_HELP_SKIP_TARGET_ID}
+            data-testid={ADVISORY_SCANS_HELP_FIRST_VIEWPORT_TEST_ID}
+            className={cn(
+              "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+              OPERATOR_LAYOUT.sectionStack,
+            )}
           >
-            <h2
-              id={ADVISORY_SCANS_HELP_START_HERE_HEADING_ID}
-              className={cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
-            >
-              {ADVISORY_SCANS_HELP_START_HERE_CARD_TITLE}
-            </h2>
-            <Button asChild size="sm" variant="primary" data-testid="help-advisory-scans-start-here-primary-cta">
-              <Link href={ADVISORY_SCANS_HELP_PRIMARY_ACTION.href}>{ADVISORY_SCANS_HELP_PRIMARY_ACTION.label}</Link>
-            </Button>
-            <AdvisoryScansStartHereScopeNote />
-          </section>
+            <AdvisoryScansStartHereActionPanel />
+          </div>
+        ) : null}
+
+        <div className={contentGridClass}>
+          <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+            {buyerPolishedShell ? null : <AdvisoryScansHelpEvidenceOrientationStrip />}
+
+            <p className={readingBodyClass} data-testid="help-advisory-scans-overview">
+              {ADVISORY_SCANS_HELP_OVERVIEW}
+            </p>
+
+            {buyerPolishedShell ? null : <AdvisoryScansStartHereActionPanel />}
 
           <section
             aria-labelledby={ADVISORY_SCANS_HELP_BEFORE_YOU_START_HEADING_ID}
@@ -351,6 +406,13 @@ export function HelpAdvisoryScansGuideView(props: HelpAdvisoryScansGuideViewProp
             enableScrollSpy
             placement="sidebar"
           />
+        ) : null}
+        </div>
+
+        {buyerPolishedShell ? (
+          <div data-testid="help-advisory-scans-orientation-bottom">
+            <HelpAdvisoryScansSourcesOrientationStrip />
+          </div>
         ) : null}
       </div>
     </article>
