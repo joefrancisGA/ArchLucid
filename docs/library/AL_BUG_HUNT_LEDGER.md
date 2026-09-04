@@ -903,8 +903,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 5
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — `--json draft new` still prompted for `--system-name` when omitted, writing human labels to stdout
+- **last-hunt:** 2026-09-04
+- **last-bug:** 2026-09-04 — MUST-question skip/answer scope validation parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -922,9 +922,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RunCoreAsync` writes JSON `ok: true` before `ExecuteRunAsync` when `--json` and auto-execute are enabled — **hit 2026-08-24:** submit success emitted success JSON then execute failure still returned `OperationFailed`, leaving `"ok":true` on stdout; fixed by deferring success JSON until execute succeeds and emitting `WriteFailureLine` on execute failure; regressions in `RunCoreAsync_json_output_does_not_emit_ok_true_when_execute_fails` / `RunCoreAsync_json_output_emits_ok_true_after_execute_succeeds`.
 - [x] (proven) `--json draft new` still writes human progress lines to stdout — **hit 2026-08-25:** after create/admit the command printed `DraftId:` and `Draft admitted. Resolving MUST questions…` alongside JSON; guarded with `!CliExecutionContext.JsonOutput`; regression in `RunCoreAsync_json_output_suppresses_human_progress_lines`.
 - [x] (proven) `--json draft new` still prompts for `--system-name` / `--business-outcome` / `--text` when omitted — **hit 2026-09-03 (#592):** `PromptRequiredAsync` wrote interactive labels to stdout in JSON mode; fixed by requiring all three flags before intake (`RunCoreAsync_json_output_missing_system_name_returns_usage_error_without_prompting`).
-- [ ] (hunt-ready) `ResolveMustQuestionsAsync` skip/answer paths omit `CliScopeResponseValidator` after `SkipDraftQuestionAsync` / `AnswerDraftQuestionAsync` return a draft body — cross-tenant drift may continue through MUST resolution when configured scope headers are set.
+- [x] (proven) `ResolveMustQuestionsAsync` skip/answer paths omit `CliScopeResponseValidator` after `SkipDraftQuestionAsync` / `AnswerDraftQuestionAsync` return a draft body — **hit 2026-09-04 (#772):** create/patch/admit validated scope but MUST-question skip/answer continued with cross-tenant drift; fixed by validating returned draft bodies in `DraftNewCommandMustQuestionLoop`; regression in `RunCoreAsync_draft_scope_mismatch_after_skip_must_question_returns_operation_failed`.
 
-2026-09-03 seed hunt #592: proved JSON-mode interactive prompt leak; seeded MUST-question scope-validation parity row.
+2026-09-04 thorough hunt #772: proved MUST-question skip/answer scope-validation parity gap.
 
 ---
 
