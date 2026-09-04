@@ -7,6 +7,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
 
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
+import { AskRunCoverageHonestyStrip } from "@/components/ask/AskRunCoverageHonestyStrip";
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
@@ -194,6 +195,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
           </DialogHeader>
 
           <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-4">
+            <AskRunCoverageHonestyStrip runId={runId} />
             {turns.length > 0 ? (
               <ol className="m-0 list-none space-y-4 p-0">
                 {turns.map((turn, index) => (

@@ -16,7 +16,7 @@ import { API_KEYS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/api-keys-ro
 import { AZURE_BOARDS_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/azure-boards-integration-rows";
 import { BASELINE_SETTINGS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/baseline-settings-rows";
 import { CLOUD_CONNECTIONS_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/cloud-connections-integration-rows";
-import { ARCHITECTURE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/architecture-rows";
+import { ARCHITECTURE_CONTEXTUAL_HELP_ROWS, resolveArchitectureContextualHelpEntry } from "@/lib/contextual-help/architecture-rows";
 import { ARCHITECTURE_DRAFTS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/architecture-drafts-rows";
 import { APPROVAL_LINEAGE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/approval-lineage-rows";
 import { APPROVAL_QUEUE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/approval-queue-rows";
@@ -182,8 +182,12 @@ function normalizePathname(pathname: string): string {
 }
 
 /** Resolve short-form contextual help for an architect pathname, or `null` when not migrated yet. */
-export function contextualHelpForPathname(pathname: string): PageContextualHelpEntry | null {
+export function contextualHelpForPathname(
+  pathname: string,
+  options?: { readonly workingMode?: boolean },
+): PageContextualHelpEntry | null {
   const path = normalizePathname(pathname);
+  const workingMode = options?.workingMode === true;
   const parameterized = PARAMETERIZED_ROUTE_MATCHERS.find((matcher) => matcher.matches(path));
 
   if (parameterized !== undefined) {
@@ -194,5 +198,15 @@ export function contextualHelpForPathname(pathname: string): PageContextualHelpE
     (candidate) => path === candidate.prefix || path.startsWith(`${candidate.prefix}/`),
   );
 
-  return row?.entry ?? null;
+  if (row === undefined) {
+    return null;
+  }
+
+  const architectureOverride = resolveArchitectureContextualHelpEntry(row.prefix, workingMode);
+
+  if (architectureOverride !== null && ARCHITECTURE_CONTEXTUAL_HELP_ROWS.some((r) => r.prefix === row.prefix)) {
+    return architectureOverride;
+  }
+
+  return row.entry;
 }

@@ -36,6 +36,14 @@ describe("help-search-panel-catalog", () => {
     ]);
   });
 
+  it("filters onboarding topics on home in Working mode (WA-04)", () => {
+    expect(recommendedHelpSearchPanelTopicIds("/", null, true)).toEqual([
+      "getting-started-help",
+      "how-archlucid-works",
+      "product-faq",
+    ]);
+  });
+
   it("recommends next-step actions on core-pilot instead of first-review relaunches (TB-1044)", () => {
     expect(recommendedHelpSearchPanelTopicIds("/help/first-architecture-review")).toEqual([
       "create-first-review",

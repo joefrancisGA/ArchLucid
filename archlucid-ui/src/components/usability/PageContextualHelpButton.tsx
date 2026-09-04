@@ -8,6 +8,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { pageHelpTopicForPathname, pathnameIsInAppHelpTopic } from "@/lib/usability/page-help-topic-map";
 import { PAGE_CONTEXTUAL_HELP_TRIGGER_CLASSNAME } from "@/components/usability/page-contextual-help-trigger";
 import { PageScopedContextualHelpPanel } from "@/components/usability/PageScopedContextualHelpPanel";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 
 /**
  * Short visible trigger text for headers whose title already names the help topic.
@@ -25,6 +26,7 @@ export type PageContextualHelpButtonProps = {
 /** Contextual help for the current route — non-modal right drawer with Category-1 answers and a full-help link. */
 export function PageContextualHelpButton(props: PageContextualHelpButtonProps = {}) {
   const pathname = usePathname() ?? "/";
+  const { isWorkingMode } = useWorkspaceMode();
 
   if (pathnameIsInAppHelpTopic(pathname)) {
     return null;
@@ -36,7 +38,7 @@ export function PageContextualHelpButton(props: PageContextualHelpButtonProps = 
     return null;
   }
 
-  const contextualEntry = contextualHelpForPathname(pathname);
+  const contextualEntry = contextualHelpForPathname(pathname, { workingMode: isWorkingMode });
   const learnMoreHref =
     topic.slug != null && topic.slug.length > 0
       ? inAppHelpHref(topic.slug, topic.hashFragment)

@@ -15,11 +15,13 @@ import {
   parseHelpPanelTabFromSearch,
 } from "@/lib/help/help-panel-overlay-url";
 import { resolveOperatorHelpRequestForPathname } from "@/lib/usability/resolve-operator-help-request";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 
 export function useAppShellState() {
   const pathname = usePathname() ?? "/";
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { isWorkingMode } = useWorkspaceMode();
   const urlHelpOpen = parseHelpPanelOpenFromSearch(searchParams.get("help"));
   const urlHelpTab = parseHelpPanelTabFromSearch(searchParams.get("helpTab"));
   const [helpGuidesOpen, setHelpGuidesOpenState] = useState(urlHelpOpen);
@@ -56,7 +58,7 @@ export function useAppShellState() {
   }, [searchParams]);
 
   const openHelpSearch = useCallback(() => {
-    const request = resolveOperatorHelpRequestForPathname(pathname ?? "/");
+    const request = resolveOperatorHelpRequestForPathname(pathname ?? "/", { workingMode: isWorkingMode });
 
     if (request.kind === "navigate") {
       router.push(request.href);
@@ -64,7 +66,7 @@ export function useAppShellState() {
     }
 
     setHelpDocSearchOpen(true);
-  }, [pathname, router]);
+  }, [isWorkingMode, pathname, router]);
 
   const openHelpGuidesPanel = useCallback((initialTab: HelpTabId = "guides") => {
     setHelpGuidesInitialTab(initialTab);
