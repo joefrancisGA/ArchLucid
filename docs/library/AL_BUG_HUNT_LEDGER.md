@@ -1578,6 +1578,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-04 seed hunt #770: proved AL0003 interface HTTP-verb inheritance gap; reseeded interface-level audit-exclusion and AL0001 explicit-impl authorize candidates.
 
+---
+
 ## Zone: agent-runtime-safety
 
 - **id:** agent-runtime-safety
