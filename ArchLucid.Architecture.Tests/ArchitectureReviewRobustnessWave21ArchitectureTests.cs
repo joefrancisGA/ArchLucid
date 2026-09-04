@@ -109,11 +109,14 @@ public sealed class ArchitectureReviewRobustnessWave21ArchitectureTests
     [Fact]
     public void Suggestion207_ui_blob_download_rejects_json_problem_as_zip()
     {
+        string guard = File.ReadAllText(
+            Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger-guard.ts"));
         string trigger = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger.ts"));
 
+        guard.Should().Contain("assertBinaryDownloadContentType");
+        guard.Should().Contain("application/problem+json");
         trigger.Should().Contain("assertBinaryDownloadContentType");
-        trigger.Should().Contain("application/problem+json");
     }
 
     [Fact]
