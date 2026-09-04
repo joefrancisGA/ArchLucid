@@ -13,7 +13,6 @@ import {
 } from "@/lib/account/account-security-step-url";
 import {
   accountSecurityRemoveLinkHrefFromSearch,
-  parseAccountSecurityLinkProposalFromSearch,
   parseAccountSecurityRemoveMethodFromSearch,
 } from "@/lib/account/account-security-remove-link-url";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -81,7 +80,6 @@ export function useAccountSecurityPage() {
   const urlSecStep = parseAccountSecurityStepFromSearch(searchParams.get("secStep"));
   const urlChallengeId = parseAccountSecurityChallengeIdFromSearch(searchParams.get("challengeId"));
   const urlRemoveMethod = parseAccountSecurityRemoveMethodFromSearch(searchParams.get("removeMethod"));
-  const urlLinkProposal = parseAccountSecurityLinkProposalFromSearch(searchParams.get("linkProposal"));
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [methods, setMethods] = useState<SignInMethodSummary[]>([]);
   const [listLoaded, setListLoaded] = useState(false);
