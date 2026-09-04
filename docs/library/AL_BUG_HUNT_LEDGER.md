@@ -4054,6 +4054,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-04 seed hunt #720 (hit): proved proposed dry-run and simulate-bulk severity validation ordering; cheap-disproved three tenant-dependent cross-field ordering siblings.
 
+- [ ] (hunt-ready) `PolicyPacksController.Simulate` / `GovernanceController.Simulate` / `PolicyPackSimulateRequestValidator` — `IPolicyPackHttpFacade.SimulateAsync` calls `EnsureScopeAsync` (tenant 404) before `PolicyPackSimulateRequestValidator` `blockCommitMinimumSeverity` 0–3 bounds, so ghost tenant + severity 99 returns HTTP 404 instead of 400 (#720 simulate-bulk sibling; validator exists but is not wired in either controller).
+
+- [ ] (hunt-ready) `GovernancePreviewController.CompareEnvironments` / `GovernancePreviewService.CompareEnvironmentsAsync` — `RequireTenantAndWorkspaceOrNotFoundAsync` (line 145) runs after slug max-length checks but before service `SourceEnvironment and TargetEnvironment must be different` guard (line 95 in service), so ghost tenant + `sourceEnvironment == targetEnvironment` returns HTTP 404 instead of 400 (existing test covers 400 only when `tenantExists: true`).
+
+- [x] (invalid) `GovernanceController.DryRunPolicyPack` — ghost tenant + null `proposedThresholds` may return HTTP 404 instead of HTTP 400 (#720 proposed dry-run ordering sibling) — **cheap-disproof 2026-09-04 (#721):** `proposedThresholds` null guard (lines 156–163) runs before `RequireTenantAndWorkspaceOrNotFoundAsync` (line 165); regression in `GovernanceControllerSimulateTests.DryRunPolicyPack_returns_bad_request_when_proposed_thresholds_is_null`.
+
+2026-09-04 seed hunt #721 (seed-only): seeded single-simulate severity ordering and compare-environments same-slug ordering; cheap-disproved DryRunPolicyPack proposedThresholds null path (validation already precedes tenant).
+
 2026-09-04 thorough hunt #719 (dry): cheap-disproved three #718 validation-ordering siblings; no new hunt-ready repro.
 
 2026-09-04 seed hunt #718 (hit): proved link-entra localEmail max-length validation ordering before tenant lookup; seeded checklist stepIndex, cost-settings EA discount, and baseline PUT ordering candidates.
