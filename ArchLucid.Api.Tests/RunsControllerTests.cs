@@ -8,6 +8,7 @@ using ArchLucid.Application.Operations;
 using ArchLucid.Application.Planning;
 using ArchLucid.Application.Planning.AdvisoryDraft;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Async;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Runs.Query;
 using ArchLucid.Contracts.Drafts;
@@ -424,12 +425,77 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task SubmitAgentResult_returns_not_found_for_whitespace_run_id_like_PinRun()
+    {
+        Mock<IArchitectureApplicationService> app = new();
+        RunsController controller = CreateController(architectureApplicationService: app.Object);
+
+        IActionResult action = await controller.SubmitAgentResult(
+            "   ",
+            new SubmitAgentResultRequest { Result = new AgentResult { AgentType = AgentType.Topology } },
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        app.Verify(
+            s => s.SubmitAgentResultAsync(It.IsAny<string>(), It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ExecuteRunAsync_returns_not_found_for_whitespace_run_id_like_ExecuteRun()
+    {
+        Mock<IArchitectureRunAsyncOperationAcceptor> acceptor = new();
+        RunsController controller = CreateController();
+
+        IActionResult action = await controller.ExecuteRunAsync("   ", acceptor.Object, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        acceptor.Verify(
+            s => s.AcceptExecuteAsync(
+                It.IsAny<string>(),
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ReplayRunAsync_returns_not_found_for_whitespace_run_id_like_ReplayRun()
+    {
+        Mock<IArchitectureRunAsyncOperationAcceptor> acceptor = new();
+        RunsController controller = CreateController();
+
+        IActionResult action = await controller.ReplayRunAsync(
+            "   ",
+            new ReplayRunRequest(),
+            acceptor.Object,
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        acceptor.Verify(
+            s => s.AcceptReplayAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<bool>(),
+                It.IsAny<string?>(),
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task SubmitAgentResult_returns_bad_request_when_body_null()
     {
         RunsController controller = CreateController();
 
         IActionResult action = await controller.SubmitAgentResult(
-            "run-1",
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
             null,
             CancellationToken.None);
 
@@ -440,9 +506,10 @@ public sealed class RunsControllerTests
     [Fact]
     public async Task SubmitAgentResult_returns_ok_when_application_service_succeeds()
     {
+        const string runId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
         Mock<IArchitectureApplicationService> app = new();
         app
-            .Setup(s => s.SubmitAgentResultAsync("run-1", It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()))
+            .Setup(s => s.SubmitAgentResultAsync(runId, It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new SubmitResultResult(true, "result-1", null));
 
         RunsController controller = CreateController(architectureApplicationService: app.Object);
@@ -452,7 +519,7 @@ public sealed class RunsControllerTests
             Result = new AgentResult { AgentType = AgentType.Topology }
         };
 
-        IActionResult action = await controller.SubmitAgentResult("run-1", body, CancellationToken.None);
+        IActionResult action = await controller.SubmitAgentResult(runId, body, CancellationToken.None);
 
         OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
         ok.Value.Should().NotBeNull();

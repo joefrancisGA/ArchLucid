@@ -3208,11 +3208,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 13
-- **bugs-found:** 22
+- **hunts:** 14
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — execute/commit/replay whitespace runId 404 parity
+- **last-bug:** 2026-09-04 — async execute/replay and submit-result whitespace runId 404 parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3238,9 +3238,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ReviewClarificationQuestionsController.ApplyKnowledgeModelClarificationAnswers` — megabyte answer values reach persistence without per-answer max-length guard — **hit 2026-09-04 (#661):** over-limit answer values reached `ApplyAnswersAsync` while sibling `RephraseClarificationAnswers` enforced `DraftIntakeValidation.MaximumFreeTextIntentLength`; fixed with per-answer guard; regression in `ApplyKnowledgeModelClarificationAnswers_returns_bad_request_when_answer_exceeds_max_length`.
 - [x] (proven) `RunQueryController.GetProvenanceNodeExplanation` — whitespace `runId` still returns 400 while sibling provenance reads return 404 — **hit 2026-09-04 (#661):** removed whitespace `runId` pre-check; rely on `AuthorityRunExistsInScopeAsync` / `AuthorityRunIdentifier.TryParse`; regression in `GetProvenanceNodeExplanation_returns_not_found_for_whitespace_run_id_like_GetArchitectureRunProvenance`.
 - [x] (proven) `RunsController.ExecuteRun` / `ExecuteRunSelective` / `CommitRun` / `ReplayRun` — whitespace or non-GUID `runId` returned 400/`ArgumentException`/NRE while sibling `PinRun` returned 404 — **hit 2026-09-04 (#744):** `NotFoundWhenRunRouteIdInvalid` preflight on mutating authority routes; regression in `RunsControllerTests.ExecuteRun_returns_not_found_for_whitespace_run_id_like_PinRun` and sibling commit/replay/selective tests.
-- [ ] (invalid) `PostFindingFeedback` whitespace `findingId` → 400 — required-field validation on finding route param, not run-id read parity; whitespace is semantically empty finding id.
-- [ ] (invalid) `GetProvenanceNodeExplanation` whitespace `nodeId` → 400 — node id required-field guard before run scope check; distinct from run-id parity fixes.
-- [ ] (invalid) `ConfluencePublishingAdminController` body `RunId` whitespace → 400 — explicit required publish field, not `{runId}` route parity pattern.
+- [x] (invalid) `PostFindingFeedback` whitespace `findingId` → 400 — required-field validation on finding route param, not run-id read parity; whitespace is semantically empty finding id.
+- [x] (invalid) `GetProvenanceNodeExplanation` whitespace `nodeId` → 400 — node id required-field guard before run scope check; distinct from run-id parity fixes.
+- [x] (invalid) `ConfluencePublishingAdminController` body `RunId` whitespace → 400 — explicit required publish field, not `{runId}` route parity pattern.
+- [x] (proven) `RunsController.ExecuteRunAsync` / `ReplayRunAsync` — whitespace `runId` returned 400 via `AuthorityRunProblemLadder` (`ParseRunId` `ArgumentException`) while sync `ExecuteRun`/`ReplayRun` returned 404 — **hit 2026-09-04 (#745):** `NotFoundWhenRunRouteIdInvalid` preflight; regression in `ExecuteRunAsync_returns_not_found_for_whitespace_run_id_like_ExecuteRun` and `ReplayRunAsync_returns_not_found_for_whitespace_run_id_like_ReplayRun`.
+- [x] (proven) `RunsController.SubmitAgentResult` — whitespace `runId` returned 400 (`RunId is required`) while sibling `PinRun` returned 404 — **hit 2026-09-04 (#745):** `NotFoundWhenRunRouteIdInvalid` preflight; regression in `SubmitAgentResult_returns_not_found_for_whitespace_run_id_like_PinRun`.
+- [ ] (candidate) `ExportsController.GetRunExportHistory` — whitespace `runId` may throw from `GetRunDetailAsync` `ThrowIfNullOrWhiteSpace` instead of mapping to 404 like export siblings.
+
+2026-09-04 thorough hunt #745: closed three stale invalid hypotheses from #744; proved async execute/replay ladder 400 parity and submit-result whitespace 404 gap; seeded export-history candidate.
 
 2026-09-04 seed hunt #744: proved execute/commit/replay whitespace 404 parity gap; cheap-disproved finding-feedback, provenance-node, and Confluence publish body candidates.
 

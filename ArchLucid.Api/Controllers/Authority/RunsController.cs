@@ -85,6 +85,11 @@ public sealed partial class RunsController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
 
+        IActionResult? invalidRun = NotFoundWhenRunRouteIdInvalid(runId);
+
+        if (invalidRun is not null)
+            return invalidRun;
+
         SubmitResultResult result =
             await architectureApplicationService.SubmitAgentResultAsync(runId, request.Result, cancellationToken);
 
