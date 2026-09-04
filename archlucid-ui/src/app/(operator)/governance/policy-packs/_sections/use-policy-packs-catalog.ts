@@ -1,12 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type SetStateAction } from "react";
 
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { createPolicyPack, getPolicyPackCatalogEntry, listPolicyPackCatalog } from "@/lib/api";
 import { showSuccess } from "@/lib/toast";
 import type { PolicyPack, PolicyPackCatalogListItem } from "@/types/policy-packs";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  parsePolicyPackCatalogEntryFromSearch,
+  policyPackCatalogEntryHrefFromSearch,
+  POLICY_PACK_CATALOG_ENTRY_PARAM,
+} from "@/lib/policy/policy-pack-catalog-entry-url";
 
 import type { PolicyPacksPageTab } from "./policy-packs-page-view-model";
 
@@ -30,10 +37,45 @@ export type PolicyPacksCatalogSlice = {
 };
 
 export function usePolicyPacksCatalog(controls: PolicyPacksCatalogControls): PolicyPacksCatalogSlice {
+  const router = useRouter();
+  const pathname = usePathname() ?? GOVERNANCE_POLICY_PACKS_PATH;
+  const searchParams = useSearchParams();
+  const urlCatalogEntryId = parsePolicyPackCatalogEntryFromSearch(
+    searchParams.get(POLICY_PACK_CATALOG_ENTRY_PARAM),
+  );
   const [catalogItems, setCatalogItems] = useState<PolicyPackCatalogListItem[]>([]);
   const [catalogLoading, setCatalogLoading] = useState(false);
   const [catalogFailure, setCatalogFailure] = useState<ApiLoadFailureState | null>(null);
-  const [selectedCatalogEntryId, setSelectedCatalogEntryId] = useState("");
+  const [selectedCatalogEntryId, setSelectedCatalogEntryIdState] = useState(urlCatalogEntryId);
+
+  const syncCatalogEntryToUrl = useCallback(
+    (catalogEntryId: string) => {
+      router.replace(policyPackCatalogEntryHrefFromSearch(searchParams.toString(), catalogEntryId, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSelectedCatalogEntryId = useCallback(
+    (value: SetStateAction<string>) => {
+      setSelectedCatalogEntryIdState((current) => {
+        const resolved = typeof value === "function" ? value(current) : value;
+        syncCatalogEntryToUrl(resolved);
+
+        return resolved;
+      });
+    },
+    [syncCatalogEntryToUrl],
+  );
+
+  useEffect(() => {
+    const nextEntryId = parsePolicyPackCatalogEntryFromSearch(searchParams.get(POLICY_PACK_CATALOG_ENTRY_PARAM));
+
+    if (nextEntryId.length > 0) {
+      setSelectedCatalogEntryIdState(nextEntryId);
+    }
+  }, [searchParams]);
 
   const refreshCatalog = useCallback(async () => {
     setCatalogLoading(true);

@@ -1,7 +1,13 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+
+import {
+  parseSsoWizardStepFromSearch,
+  SSO_WIZARD_PATH,
+  ssoWizardStepHrefFromSearch,
+} from "@/lib/administration/sso-wizard-step-url";
 
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import {
@@ -114,6 +120,9 @@ export type UseSsoWizardPageResult = {
 
 export function useSsoWizardPage(): UseSsoWizardPageResult {
   const router = useRouter();
+  const pathname = usePathname() ?? SSO_WIZARD_PATH;
+  const searchParams = useSearchParams();
+  const urlStepIndex = parseSsoWizardStepFromSearch(searchParams.get("step"));
   const [state, setState] = useState<SsoWizardState>(() => createDefaultSsoWizardState());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -141,8 +150,30 @@ export function useSsoWizardPage(): UseSsoWizardPageResult {
   } = useSsoWizardStepState({
     state,
     busy,
+    initialStep: urlStepIndex ?? 0,
     onBeforeStepChange: clearNavigationMessages,
   });
+
+  const syncStepToUrl = useCallback(
+    (nextStep: number) => {
+      router.replace(ssoWizardStepHrefFromSearch(searchParams.toString(), nextStep, pathname), { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    syncStepToUrl(step);
+  }, [step, syncStepToUrl]);
+
+  useEffect(() => {
+    const nextStep = parseSsoWizardStepFromSearch(searchParams.get("step"));
+
+    if (nextStep === null) {
+      return;
+    }
+
+    setStep(nextStep);
+  }, [searchParams, setStep]);
   const setupChecklistInput = useMemo(
     () => ({
       idpAndProtocolComplete: completedSteps.includes(0) && completedSteps.includes(1),
