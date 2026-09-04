@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 149
-- **bugs-found:** 345
+- **hunts:** 150
+- **bugs-found:** 351
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — mutation-correction and run-history controller validation guards
+- **last-bug:** 2026-09-04 — simulate/dry-run/pre-commit run-id and waiver renew HTTP validation guards
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3912,6 +3912,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.GetApprovalRequests` / `GetPromotions` / `GetActivations` — route `runId` longer than 64 chars reached scoped run lookup without controller-level max-length guard (#688 workflow sibling) — **hit 2026-09-04 (#690):** shared `ValidateGovernanceRunId` before run-history facade; regression in `GovernanceControllerRunHistoryScopeTests` run-id max-length tests on all three list routes.
 
 2026-09-04 seed hunt #690: promoted and proved mutation-correction HTTP validation, waiver owner/evidence HTTP guards, preview run-id cap, and run-history route run-id caps.
+
+- [x] (proven) `GovernanceStickinessHttpMapper.ValidateCreateRiskException` / `GovernanceStickinessController.CreateRiskException` — overlong or too-short body `rationale` reached facade inspect/create without HTTP mapper guards (#658/#680 application-layer siblings) — **hit 2026-09-04 (#691):** min/max-length rationale guards before tenant/facade calls; regression in `GovernanceStickinessHttpMapperTests` and `GovernanceStickinessControllerTests.CreateRiskException_returns_bad_request_when_rationale_exceeds_max_length_before_facade`.
+
+- [x] (proven) `GovernanceStickinessHttpMapper.ValidateRenewRiskException` / `GovernanceStickinessController.RenewRiskException` — overlong or too-short optional `rationale` / overlong `evidenceRef` reached `IRiskExceptionService.RenewAsync` without HTTP mapper guards (#561/#676/#680 application-layer siblings) — **hit 2026-09-04 (#691):** new HTTP mapper + controller wiring rejects invalid renew fields before facade; regression in `GovernanceStickinessHttpMapperTests` and strict-mock controller tests.
+
+- [x] (proven) `GovernanceController.Simulate` — overlong body `runId` reached `IPolicyPackHttpFacade.SimulateAsync` without shared `ValidateGovernanceRunId` guard (#688 workflow sibling) — **hit 2026-09-04 (#691):** shared run-id max-length validation before simulate facade; regression in `GovernanceControllerSimulateTests.Simulate_returns_bad_request_when_run_id_exceeds_max_length`.
+
+- [x] (proven) `GovernanceController.DryRunProposedPolicyPack` / `DryRunPolicyPack` — overlong `targetRunId` or `evaluateAgainstRunIds` entries reached dry-run services without controller-level max-length guard; `DryRunProposedPolicyPack` also ran tenant preflight before input validation — **hit 2026-09-04 (#691):** shared `ValidateGovernanceRunId` + fail-fast validation ordering before tenant/service calls; regression in `GovernanceControllerSimulateTests`.
+
+- [x] (proven) `GovernancePreCommitSimulationController.GetChecklistAsync` / `SimulateAsync` — overlong route/body `runId` reached scoped `IRunRepository` lookup without shared 64-char cap (#688/#690 sibling) — **hit 2026-09-04 (#691):** shared `ValidateGovernanceRunId` before trim/parse; regression in `GovernancePreCommitSimulationControllerTests`.
+
+2026-09-04 seed hunt #691: promoted and proved waiver create/renew HTTP rationale guards, simulate/dry-run run-id caps, and pre-commit simulation run-id caps.
 
 2026-09-04 seed hunt #685: promoted and proved recurrence preview cron max-length parity and single approve/reject review-comment cap parity with batch review.
 
