@@ -840,3 +840,4 @@
 {"at":"2026-09-04T06:59:07.993904Z","zoneId":"commit-output-integrity","outcome":"hit"}
 {"at":"2026-09-04T07:02:43.9653367Z","zoneId":"ui-auth-proxy","outcome":"hit"}
 {"at":"2026-09-04T07:08:49.7817146Z","zoneId":"decisioning","outcome":"hit"}
+{"at":"2026-09-04T07:15:38.1429379Z","zoneId":"knowledge-graph-provenance","outcome":"hit"}
