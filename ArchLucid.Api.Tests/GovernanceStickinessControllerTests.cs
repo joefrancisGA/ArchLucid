@@ -1047,14 +1047,82 @@ public sealed class GovernanceStickinessControllerTests
         RecordFindingDispositionRequest request = new()
         {
             FindingId = "finding-1",
-            Disposition = FindingDisposition.Accepted,
-            Rationale = "ok"
+            Disposition = FindingDisposition.Deferred,
+            RevisitDueUtc = DateTimeOffset.UtcNow.AddDays(7),
         };
 
         IActionResult action = await controller.RecordDisposition("finding-1", request, CancellationToken.None);
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Detail.Should().Contain("Idempotency-Key");
+    }
+
+    [Fact]
+    public async Task RecordDisposition_returns_bad_request_when_disposition_is_unrecognized_without_idempotency_key()
+    {
+        GovernanceStickinessController controller = BuildSut();
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            Disposition = (FindingDisposition)99,
+        };
+
+        IActionResult action = await controller.RecordDisposition("finding-1", request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Detail.Should().Contain("disposition");
+        problem.Detail.Should().NotContain("Idempotency-Key");
+    }
+
+    [Fact]
+    public async Task RecordDisposition_returns_bad_request_when_finding_id_is_whitespace_without_idempotency_key()
+    {
+        GovernanceStickinessController controller = BuildSut();
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            Disposition = FindingDisposition.Deferred,
+            RevisitDueUtc = DateTimeOffset.UtcNow.AddDays(7),
+        };
+
+        IActionResult action = await controller.RecordDisposition("   ", request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Detail.Should().Contain("findingId");
+        problem.Detail.Should().NotContain("Idempotency-Key");
+    }
+
+    [Fact]
+    public async Task RecordBulkDisposition_returns_bad_request_when_disposition_is_unrecognized_without_idempotency_key()
+    {
+        GovernanceStickinessController controller = BuildSut();
+
+        IActionResult action = await controller.RecordBulkDisposition(
+            new RecordBulkFindingDispositionRequest
+            {
+                FindingIds = ["finding-1"],
+                Disposition = (FindingDisposition)99,
+                Rationale = "bulk rationale",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Detail.Should().Contain("disposition");
+        problem.Detail.Should().NotContain("Idempotency-Key");
     }
 
     [Fact]
@@ -1484,13 +1552,16 @@ public sealed class GovernanceStickinessControllerTests
         {
             FindingIds = ["finding-1"],
             Disposition = FindingDisposition.Accepted,
-            Rationale = "bulk"
+            Rationale = "bulk rationale",
         };
 
         IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Detail.Should().Contain("Idempotency-Key");
     }
 
     [Fact]

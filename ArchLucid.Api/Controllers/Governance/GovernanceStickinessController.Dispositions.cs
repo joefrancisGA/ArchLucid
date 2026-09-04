@@ -26,11 +26,6 @@ public sealed partial class GovernanceStickinessController
         [FromBody] RecordFindingDispositionRequest? request,
         CancellationToken cancellationToken = default)
     {
-        (IActionResult? idempotencyError, _) = GovernanceIdempotencyKeySupport.ReadRequired(this);
-
-        if (idempotencyError is not null)
-            return idempotencyError;
-
         IActionResult? bodyProblem =
             GovernanceStickinessControllerCore.ValidateRequestBodyRequired(request).ToBadRequestProblemOrNull(this);
 
@@ -63,6 +58,11 @@ public sealed partial class GovernanceStickinessController
 
         if (dispositionValidation is not null)
             return dispositionValidation;
+
+        (IActionResult? idempotencyError, _) = GovernanceIdempotencyKeySupport.ReadRequired(this);
+
+        if (idempotencyError is not null)
+            return idempotencyError;
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
@@ -111,11 +111,6 @@ public sealed partial class GovernanceStickinessController
         [FromBody] RecordBulkFindingDispositionRequest? request,
         CancellationToken cancellationToken = default)
     {
-        (IActionResult? idempotencyError, _) = GovernanceIdempotencyKeySupport.ReadRequired(this);
-
-        if (idempotencyError is not null)
-            return idempotencyError;
-
         IActionResult? bodyProblem =
             GovernanceStickinessControllerCore.ValidateRequestBodyRequired(request).ToBadRequestProblemOrNull(this);
 
@@ -134,6 +129,11 @@ public sealed partial class GovernanceStickinessController
 
         if (dispositionValidation is not null)
             return dispositionValidation;
+
+        (IActionResult? idempotencyError, _) = GovernanceIdempotencyKeySupport.ReadRequired(this);
+
+        if (idempotencyError is not null)
+            return idempotencyError;
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 

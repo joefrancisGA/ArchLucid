@@ -3296,11 +3296,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 183
-- **bugs-found:** 391
+- **hunts:** 184
+- **bugs-found:** 392
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — recurrence schedule invalid cron syntax validated before tenant preflight
+- **last-bug:** 2026-09-04 — disposition idempotency key validated after body/route/disposition HTTP mapper guards
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4219,12 +4219,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-04 thorough hunt #752 (dry): cheap-disproved two #751 candidates; repaired stale `RecordDisposition` / `RecordBulkDisposition` tenant-missing regressions that used sub-minimum rationale after HTTP mapper min-length guards; no new hunt-ready repro in zone.
 
-- [ ] (hunt-ready) `GovernanceStickinessController.RecordDisposition` / `RecordBulkDisposition` — `GovernanceIdempotencyKeySupport.ReadRequired` runs before `ValidateRequestBodyRequired` and `ValidateRecordDisposition` / `ValidateBulkDisposition`, so a caller with missing `Idempotency-Key` plus invalid disposition enum (e.g. numeric `99`) or missing body receives HTTP 400 idempotency-header validation instead of disposition/body HTTP mapper errors (`GovernanceController.SubmitApprovalRequest` / `Promote` / `Activate` validate body and FluentValidation rules before `ReadGovernanceIdempotencyKey`).
-- [ ] (hunt-ready) `GovernanceStickinessController.RecordDisposition` — missing `Idempotency-Key` plus whitespace-only route `findingId` returns HTTP 400 idempotency error before `ValidateFindingId` rejects the route id (#729 disposition enum ordering sibling; idempotency/body ordering).
+- [x] (proven) `GovernanceStickinessController.RecordDisposition` / `RecordBulkDisposition` — `GovernanceIdempotencyKeySupport.ReadRequired` ran before `ValidateRequestBodyRequired` and `ValidateRecordDisposition` / `ValidateBulkDisposition`, so a caller with missing `Idempotency-Key` plus invalid disposition enum (e.g. numeric `99`) or missing body received HTTP 400 idempotency-header validation instead of disposition/body HTTP mapper errors — **hit 2026-09-04 (#755):** validate body, route `findingId`, and disposition HTTP mapper before `ReadRequired` (aligned with `GovernanceController.SubmitApprovalRequest`); regressions in `RecordDisposition_returns_bad_request_when_disposition_is_unrecognized_without_idempotency_key`, `RecordBulkDisposition_returns_bad_request_when_disposition_is_unrecognized_without_idempotency_key`, and `RecordDisposition_returns_bad_request_when_finding_id_is_whitespace_without_idempotency_key`.
 - [ ] (candidate) `ManifestsController.GetManifestDiagramV2` / `ManifestDiagramService.NormalizeLayout` / `NormalizeGroupBy` / `NormalizeRelationshipLabels` — unrecognized `layout`, `groupBy`, or `relationshipLabels` query values silently fall back to defaults and return HTTP 200 instead of HTTP 400 (`GetManifestSummary` rejects unknown `format` and out-of-range `maxRelationships` explicitly).
 - [ ] (candidate) `GovernanceController.DryRunPolicyPack` — `pageSize` / `page` query params have no HTTP 400 bounds guard before `RequireTenantAndWorkspaceOrNotFoundAsync`; ghost tenant + `pageSize=0` returns HTTP 404 while in-scope callers get silent service-side clamp (`PolicyPackDryRunService` parity with proven `maxRows` / `days` explicit validation on sibling reads).
 
 2026-09-04 seed hunt #753 (seed-only): reseeded four post-#752 candidates (two hunt-ready idempotency/body ordering on disposition mutations, diagram v2 silent query defaults, dry-run paging clamp); no repro attempted in-zone.
+
+2026-09-04 seed hunt #755 (hit): proved disposition `RecordDisposition` / `RecordBulkDisposition` idempotency-key validation ordering before body/route/disposition HTTP mapper guards; seeded diagram v2 silent query defaults and dry-run paging clamp candidates.
 
 2026-09-04 thorough hunt #723 (hit): proved SubmitApprovalRequest same-environment validation ordering before tenant preflight.
 
