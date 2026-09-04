@@ -12,6 +12,24 @@ vi.mock("./run-detail-page-view-deferred-chunks", () => ({
   RunDetailAdvancedAnalysisSectionDeferred: () => <section id="advanced-analysis">Advanced</section>,
 }));
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: vi.fn(() => false),
+}));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: vi.fn(() => false),
+}));
+
+class IntersectionObserverMock {
+  observe(): void {}
+
+  unobserve(): void {}
+
+  disconnect(): void {}
+}
+
+vi.stubGlobal("IntersectionObserver", IntersectionObserverMock);
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 

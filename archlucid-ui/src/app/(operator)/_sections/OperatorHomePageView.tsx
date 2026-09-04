@@ -40,6 +40,7 @@ import {
   PilotCommandCenterCardDeferred,
 } from "./operator-home-page-view-deferred-chunks";
 import { OperatorHomePageHeader } from "./OperatorHomePageHeader";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import {
   OPERATOR_HOME_PRIMARY_CONTENT_ID,
@@ -257,14 +258,14 @@ function OperatorHomePageBody(props: {
 
 /** Landing page: hero CTA, workspace activity, and collapsed advanced guidance. */
 export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
-  const buyerPolishedShell = model.buyerPolishedShell;
+  const evalChromeShell = useProductionEvalChrome();
   const { isWorkingMode } = useWorkspaceMode();
 
   return (
     <OperatorHomeGateDeferred>
       <OperatorHomeRefreshProvider>
         {isWorkingMode ? null : <OperatorHomeDeferredOnboarding />}
-        {buyerPolishedShell ? (
+        {evalChromeShell ? (
           <a
             href={`#${OPERATOR_HOME_PRIMARY_CONTENT_ID}`}
             className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
@@ -273,17 +274,17 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
           </a>
         ) : null}
         <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.majorSectionGap}>
-          <OperatorHomePageChrome buyerPolishedShell={buyerPolishedShell} workingMode={isWorkingMode} />
-          {buyerPolishedShell ? (
+          <OperatorHomePageChrome buyerPolishedShell={evalChromeShell} workingMode={isWorkingMode} />
+          {evalChromeShell ? (
             <div
               id={OPERATOR_HOME_PRIMARY_CONTENT_ID}
               className="scroll-mt-24 space-y-4"
               data-testid="operator-home-primary-content"
             >
-              <OperatorHomePageBody model={model} buyerPolishedShell workingMode={isWorkingMode} />
+              <OperatorHomePageBody model={model} buyerPolishedShell={evalChromeShell} workingMode={isWorkingMode} />
             </div>
           ) : (
-            <OperatorHomePageBody model={model} buyerPolishedShell={false} workingMode={isWorkingMode} />
+            <OperatorHomePageBody model={model} buyerPolishedShell={evalChromeShell} workingMode={isWorkingMode} />
           )}
         </OperatorPageContainer>
       </OperatorHomeRefreshProvider>

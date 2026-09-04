@@ -3,7 +3,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import { dedupeRunSummariesByRunId, normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
 import { resolveOverviewListProjectId } from "@/lib/demo-seeded-overview";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveProductionEvalChromeForServer } from "@/lib/production-desk-chrome";
 import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
 import { isStaticDemoPayloadFallbackEnabled, tryStaticDemoRunSummariesPaged } from "@/lib/operator/operator-static-demo";
 import type { RunSummary } from "@/types/authority";
@@ -19,7 +19,7 @@ const DEFAULT_PROJECT_ID = "default";
 export async function loadOperatorHomeRunsDashboardModel(): Promise<OperatorHomeRunsDashboardModel> {
   const page = 1;
   const pageSize = OPERATOR_HOME_RUNS_DASHBOARD_PAGE_SIZE;
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = resolveProductionEvalChromeForServer();
   const { getServerResolvedScopeHeaders } = await import("@/lib/server-operator-scope");
   // Server-resolved scope only — never getEffectiveBrowserProxyScopeHeaders() on SSR (dev defaults).
   const scopeHeaders = await getServerResolvedScopeHeaders();
