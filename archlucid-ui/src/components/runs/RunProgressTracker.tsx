@@ -10,6 +10,10 @@ import {
   REVIEW_PIPELINE_KEEP_WATCHING_CTA,
   REVIEW_PIPELINE_NOTIFICATIONS_ENABLED_LABEL,
 } from "@/lib/review-execution-background-safety-copy";
+import {
+  formatLongOperationQueueStatusLine,
+  LONG_OPERATION_QUEUE_STATUS_REFRESH_HINT,
+} from "@/lib/operations/long-operation-wait-copy";
 import { ReRunReviewButton } from "@/components/runs/ReRunReviewButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { renderDoThisNextReferenceCopy } from "@/lib/usability/do-this-next-reference-copy";
@@ -96,12 +100,14 @@ export function RunProgressTracker({
       ) : null}
 
       {tracker.pollEnabled && tracker.clientPhase === "polling" ? (
-        <p
-          className={cn("mt-3 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}
-          data-testid="run-progress-current-stage"
-        >
-          Currently: {tracker.currentStageLabel}
-        </p>
+        <div className="mt-3" data-testid="run-progress-queue-status">
+          <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+            {formatLongOperationQueueStatusLine(tracker.currentStageLabel)}
+          </p>
+          <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {LONG_OPERATION_QUEUE_STATUS_REFRESH_HINT}
+          </p>
+        </div>
       ) : null}
 
       <div aria-live="polite" aria-atomic="true" className={cn("mt-3 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
