@@ -17,6 +17,14 @@ type GovernanceWorkflowMutationHostProps = {
   readonly showInlineFeedback?: boolean;
 };
 
+/** Success-path record correction for amendable workflow mutations (CD-10). */
+const GOVERNANCE_WORKFLOW_RECORD_CORRECTION_MUTATION_IDS = [
+  "governance_workflow_approve",
+  "governance_workflow_reject",
+  "governance_workflow_promote",
+  "governance_workflow_activate",
+] as const;
+
 export function GovernanceWorkflowMutationHost(props: GovernanceWorkflowMutationHostProps) {
   const { mutations, showInlineFeedback = true } = props;
   const {

@@ -257,7 +257,6 @@ export const PRODUCTION_DESK_CHROME_EVAL_GRANDFATHERED_PATHS = [
   "components/use-sponsor-workspace-health-dashboard.ts",
   "components/WelcomeBanner.tsx",
   "components/wizard/steps/WizardStepTrack.tsx",
-  "hooks/useAskReviewAvailability.ts",
   "hooks/use-effective-nav-committed-architecture-review.ts",
   "hooks/useOperatorShellNavRows.ts",
   "hooks/use-reviews-new-suppress-wizard-resume-prompt.ts",
