@@ -76,7 +76,14 @@ public sealed class SponsorOnePagerPdfBuilderTests
             Governance = new ManifestGovernance(),
         };
 
-        ArchitectureRunDetail detail = new() { Run = run, Manifest = manifest, Results = [], DecisionTraces = [] };
+        ArchitectureRunDetail detail = new()
+        {
+            Run = run,
+            Manifest = manifest,
+            Results = [],
+            DecisionTraces = [],
+            AuthorityLifecyclePhase = AuthorityRunLifecyclePhase.Complete
+        };
 
         Mock<IRunDetailQueryService> query = new();
         query.Setup(q => q.GetRunDetailAsync("r-pdf-1", It.IsAny<CancellationToken>()))
@@ -160,7 +167,14 @@ public sealed class SponsorOnePagerPdfBuilderTests
             Governance = new ManifestGovernance(),
         };
 
-        ArchitectureRunDetail detail = new() { Run = run, Manifest = manifest, Results = [], DecisionTraces = [] };
+        ArchitectureRunDetail detail = new()
+        {
+            Run = run,
+            Manifest = manifest,
+            Results = [],
+            DecisionTraces = [],
+            AuthorityLifecyclePhase = AuthorityRunLifecyclePhase.Complete
+        };
 
         Mock<IRunDetailQueryService> query = new();
         query.Setup(q => q.GetRunDetailAsync("r-pdf-demo", It.IsAny<CancellationToken>()))

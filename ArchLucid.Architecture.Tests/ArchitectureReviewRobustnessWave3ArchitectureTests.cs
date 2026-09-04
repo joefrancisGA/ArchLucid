@@ -20,8 +20,7 @@ public sealed class ArchitectureReviewRobustnessWave3ArchitectureTests
 
         engineInterface.Should().Contain("FindingAnalysisContext? analysisContext");
 
-        string orchestrator = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "FindingsOrchestrator.cs"));
+        string orchestrator = ArchitectureSourceProbe.ReadFindingsPipeline();
 
         orchestrator.Should().Contain("analysisContext");
     }
@@ -160,8 +159,7 @@ public sealed class ArchitectureReviewRobustnessWave3ArchitectureTests
     [Fact]
     public void Suggestion29_orchestrator_uses_confluent_merger()
     {
-        string mergeStage = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "Findings", "FindingsMergeAndGateStage.cs"));
+        string mergeStage = ArchitectureSourceProbe.ReadFindingsPipeline();
 
         mergeStage.Should().Contain("FindingSnapshotConfluentMerger");
         mergeStage.Should().NotContain("type|title");
