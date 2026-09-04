@@ -64,6 +64,9 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<ICloudInventoryExtractorPackageRepository, NoOpCloudInventoryExtractorPackageRepository>();
         services.AddSingleton<IAzureInventorySnapshotRepository, NoOpAzureInventorySnapshotRepository>();
         services.AddSingleton<IAzureInventoryDiffRepository, NoOpAzureInventoryDiffRepository>();
+        services.AddSingleton<IAzureInventoryBaselineRepository, NoOpAzureInventoryBaselineRepository>();
+        services.AddSingleton<IAzureInventoryDriftApprovalRepository, NoOpAzureInventoryDriftApprovalRepository>();
+        services.AddSingleton<IAzureInventoryDiffNarrativeRepository, NoOpAzureInventoryDiffNarrativeRepository>();
         services.AddSingleton<IAdvisoryTerraformRepresentationRepository, NoOpAdvisoryTerraformRepresentationRepository>();
         services.AddSingleton<ICloudResourceIdentityDirectory, NoOpCloudResourceIdentityDirectory>();
         services.AddSingleton<IAuditFrameworkRepository, NoOpAuditFrameworkRepository>();

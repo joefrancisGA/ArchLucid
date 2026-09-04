@@ -36,6 +36,9 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<ICloudInventoryExtractorPackageRepository, SqlCloudInventoryExtractorPackageRepository>();
         services.AddScoped<IAzureInventorySnapshotRepository, SqlAzureInventorySnapshotRepository>();
         services.AddScoped<IAzureInventoryDiffRepository, SqlAzureInventoryDiffRepository>();
+        services.AddScoped<IAzureInventoryBaselineRepository, SqlAzureInventoryBaselineRepository>();
+        services.AddScoped<IAzureInventoryDriftApprovalRepository, SqlAzureInventoryDriftApprovalRepository>();
+        services.AddScoped<IAzureInventoryDiffNarrativeRepository, SqlAzureInventoryDiffNarrativeRepository>();
         services.AddScoped<IAdvisoryTerraformRepresentationRepository, SqlAdvisoryTerraformRepresentationRepository>();
         services.AddScoped<ICloudResourceIdentityDirectory, SqlCloudResourceIdentityDirectory>();
         services.AddScoped<IAuditFrameworkRepository, SqlAuditFrameworkRepository>();
