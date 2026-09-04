@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 157
-- **bugs-found:** 367
+- **hunts:** 158
+- **bugs-found:** 368
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — approval lineage/rationale route-id validation ordering before tenant lookup
+- **last-bug:** 2026-09-04 — run-history route runId GUID validation ordering before tenant lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3968,6 +3968,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.GetApprovalRequestLineage` / `GetApprovalRequestRationale` — tenant preflight ran before `approvalRequestId` normalization/validation so ghost tenant + whitespace route id returned HTTP 404 instead of 400 (Approve/Reject ordering sibling; #697 workspace route-id parity) — **hit 2026-09-04 (#698):** validate route approvalRequestId before tenant lookup; regression in `GovernanceControllerRunHistoryScopeTests.GetApprovalRequestLineage_returns_bad_request_when_approval_request_id_is_whitespace_and_tenant_missing` and `GetApprovalRequestRationale_returns_bad_request_when_approval_request_id_is_whitespace_and_tenant_missing`.
 
 2026-09-04 seed hunt #698: promoted and proved approval lineage/rationale fail-fast route-id validation ordering.
+
+- [x] (proven) `GovernanceController.GetApprovalRequests` / `GetPromotions` / `GetActivations` — tenant preflight ran before route `runId` GUID/empty-GUID validation so ghost tenant + malformed or empty run id returned HTTP 404 instead of 400 (#698 approvalRequestId ordering sibling; `ValidateGovernanceRunId` only checked whitespace/length) — **hit 2026-09-04 (#699):** `ValidateGovernanceRouteRunId` before tenant lookup on all three run-history reads; regression in `GovernanceControllerRunHistoryScopeTests.GetPromotions_returns_bad_request_when_run_id_is_empty_guid_and_tenant_missing`, `GetPromotions_returns_bad_request_when_run_id_is_not_valid_and_tenant_missing`, `GetActivations_returns_bad_request_when_run_id_is_empty_guid_and_tenant_missing`, `GetActivations_returns_bad_request_when_run_id_is_not_valid_and_tenant_missing`, and approval-request ghost-tenant parity tests.
+
+2026-09-04 seed hunt #699: promoted and proved run-history route runId GUID validation ordering before tenant lookup.
 
 2026-09-04 seed hunt #695: promoted and proved attestation upsert HTTP mapper and product-feedback validation ordering.
 
