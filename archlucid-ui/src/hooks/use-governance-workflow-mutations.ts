@@ -52,6 +52,7 @@ export type UseGovernanceWorkflowMutationsResult = {
   readonly setMutationCorrectionTarget: (value: GovernanceMutationCorrectionTarget | null) => void;
   readonly setMutationCorrectionMutationId: (value: GovernanceMutationReversibilityId | null) => void;
   readonly mutationErrorMessage: string | null;
+  readonly mutationErrorIsConcurrencyConflict: boolean;
   readonly setMutationErrorMessage: (message: string | null) => void;
   readonly submitBusy: boolean;
   readonly submitApprovalComplete: boolean;
@@ -99,6 +100,20 @@ export function useGovernanceWorkflowMutations(
   const [mutationCorrectionMutationId, setMutationCorrectionMutationId] =
     useState<GovernanceMutationReversibilityId | null>(null);
   const [mutationErrorMessage, setMutationErrorMessage] = useState<string | null>(null);
+  const [mutationErrorIsConcurrencyConflict, setMutationErrorIsConcurrencyConflict] = useState(false);
+
+  function reportMutationFailure(error: unknown): void {
+    const failure = toApiLoadFailure(error);
+
+    setMutationErrorMessage(failure.message);
+    setMutationErrorIsConcurrencyConflict(failure.httpStatus === 409);
+    setMutationSuccessMessage(null);
+  }
+
+  function clearMutationFailure(): void {
+    setMutationErrorMessage(null);
+    setMutationErrorIsConcurrencyConflict(false);
+  }
 
   const [submitBusy, setSubmitBusy] = useState(false);
   const [submitApprovalComplete, setSubmitApprovalComplete] = useState(false);
@@ -159,7 +174,7 @@ export function useGovernanceWorkflowMutations(
         requestComment: submitComment.trim() || undefined,
       });
       setMutationSuccessMessage(GOVERNANCE_WORKFLOW_APPROVAL_SUBMITTED_SUCCESS);
-      setMutationErrorMessage(null);
+      clearMutationFailure();
       setSubmitComment("");
       setSubmitApprovalComplete(true);
 
@@ -167,9 +182,7 @@ export function useGovernanceWorkflowMutations(
         await refetchRunLists();
       }
     } catch (e) {
-      const f = toApiLoadFailure(e);
-      setMutationErrorMessage(f.message);
-      setMutationSuccessMessage(null);
+      reportMutationFailure(e);
     } finally {
       setSubmitBusy(false);
     }
@@ -219,6 +232,7 @@ export function useGovernanceWorkflowMutations(
         });
         setMutationCorrectionMutationId("governance_workflow_approve");
         setMutationErrorMessage(null);
+        setMutationErrorIsConcurrencyConflict(false);
       } else {
         await rejectRequest(pendingReview.approvalRequestId, {
           reviewedBy: reviewedBy.trim(),
@@ -232,6 +246,7 @@ export function useGovernanceWorkflowMutations(
         });
         setMutationCorrectionMutationId("governance_workflow_reject");
         setMutationErrorMessage(null);
+        setMutationErrorIsConcurrencyConflict(false);
       }
 
       setPendingReview(null);
@@ -239,9 +254,7 @@ export function useGovernanceWorkflowMutations(
       setReviewComment("");
       await refreshIfActive();
     } catch (e) {
-      const f = toApiLoadFailure(e);
-      setMutationErrorMessage(f.message);
-      setMutationSuccessMessage(null);
+      reportMutationFailure(e);
     } finally {
       setReviewBusy(false);
     }
@@ -291,9 +304,7 @@ export function useGovernanceWorkflowMutations(
       pendingPromoteRequestRef.current = null;
       await refreshIfActive();
     } catch (e) {
-      const f = toApiLoadFailure(e);
-      setMutationErrorMessage(f.message);
-      setMutationSuccessMessage(null);
+      reportMutationFailure(e);
     } finally {
       setPromoteBusy(false);
     }
@@ -341,9 +352,7 @@ export function useGovernanceWorkflowMutations(
       pendingActivatePromotionRef.current = null;
       await refreshIfActive();
     } catch (e) {
-      const f = toApiLoadFailure(e);
-      setMutationErrorMessage(f.message);
-      setMutationSuccessMessage(null);
+      reportMutationFailure(e);
     } finally {
       setActivateBusyId(null);
     }
@@ -357,6 +366,7 @@ export function useGovernanceWorkflowMutations(
     setMutationCorrectionTarget,
     setMutationCorrectionMutationId,
     mutationErrorMessage,
+    mutationErrorIsConcurrencyConflict,
     setMutationErrorMessage,
     submitBusy,
     submitApprovalComplete,

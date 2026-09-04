@@ -6,7 +6,7 @@ import { GovernanceRecordCorrectionDialog } from "@/components/governance/Govern
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { ReversibleMutationSuccessCallout } from "@/components/operator/ReversibleMutationSuccessCallout";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
-import { GOVERNANCE_MUTATION_CORRECTION_SUCCESS_MESSAGE } from "@/lib/governance/governance-mutation-correction-api";
+import { GOVERNANCE_CONCURRENCY_CONFLICT_RECOVERY } from "@/lib/error-recovery-contract-copy";
 import type { UseGovernanceWorkflowMutationsResult } from "@/hooks/use-governance-workflow-mutations";
 
 import { GovernanceWorkflowDialogsDeferred } from "./governance-workflow-deferred-chunks";
@@ -26,6 +26,7 @@ export function GovernanceWorkflowMutationHost(props: GovernanceWorkflowMutation
     setMutationCorrectionTarget,
     setMutationCorrectionMutationId,
     mutationErrorMessage,
+    mutationErrorIsConcurrencyConflict,
     pendingPromote,
     setPendingPromote,
     pendingPromoteRequestRef,
@@ -85,6 +86,9 @@ export function GovernanceWorkflowMutationHost(props: GovernanceWorkflowMutation
           message={mutationErrorMessage}
           testId="governance-workflow-mutation-error"
           className="mb-4"
+          recoveryPresentation={
+            mutationErrorIsConcurrencyConflict ? GOVERNANCE_CONCURRENCY_CONFLICT_RECOVERY : undefined
+          }
         />
       ) : null}
 

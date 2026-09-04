@@ -186,4 +186,36 @@ public sealed partial class UserPreferencesController
 
         return NoContent();
     }
+
+    /// <summary>Persists the authenticated user's personal ROI loaded hourly cost (USD).</summary>
+    [HttpPut("roi-loaded-hourly-cost")]
+    [MutatingAuditExcluded("Personal ROI loaded hourly cost stored in dbo.UserSettings; no durable tenant audit row required.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SetRoiLoadedHourlyCostUsd(
+        [FromBody] SetRoiLoadedHourlyCostUsdRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (body is null)
+        {
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        }
+
+        if (body.HourlyCostUsd < RoiLoadedHourlyCostUsdValues.Min || body.HourlyCostUsd > RoiLoadedHourlyCostUsdValues.Max)
+        {
+            return this.BadRequestProblem(
+                $"hourlyCostUsd must be between {RoiLoadedHourlyCostUsdValues.Min} and {RoiLoadedHourlyCostUsdValues.Max}.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        string userId = _actorContext.GetActorId();
+
+        await _userSettingsRepository.UpsertAsync(
+            userId,
+            UserSettingKeys.RoiLoadedHourlyCostUsd,
+            RoiLoadedHourlyCostUsdValues.Serialize(body.HourlyCostUsd),
+            cancellationToken);
+
+        return NoContent();
+    }
 }

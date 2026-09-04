@@ -58,8 +58,19 @@ export function emptyArchitectureDraftStructuredBrief(): ArchitectureDraftStruct
 }
 
 /** TB-2343: unknown placeholders are not confirmed facts for readiness or projection. */
+function normalizeUnknownSentinelKey(value: string): string {
+  return value
+    .trim()
+    .replace(/\u2014/g, "-")
+    .replace(/\u2013/g, "-")
+    .toLowerCase();
+}
+
 export function isUnknownConfirmSentinel(value: string): boolean {
-  return value.trim() === ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL;
+  return (
+    normalizeUnknownSentinelKey(value) ===
+    normalizeUnknownSentinelKey(ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL)
+  );
 }
 
 export function isConfirmedBriefEntry(value: string): boolean {

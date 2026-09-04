@@ -48,6 +48,12 @@ const GOVERNANCE_MUTATION_RECOVERY: ErrorRecoveryContractPresentation = {
   nextStep: "Review the inline error, fix any required fields, and submit again.",
 };
 
+export const GOVERNANCE_CONCURRENCY_CONFLICT_RECOVERY: ErrorRecoveryContractPresentation = {
+  whatFailed: "Another session saved a newer version of this record first.",
+  whatIsIntact: "The server copy is unchanged by this attempt; your unsaved form edits are still on screen.",
+  nextStep: "Refresh this page to load the latest server state, then re-apply any changes you still need.",
+};
+
 /** Resolves the three-part operator error recovery copy for a guarded golden-path surface. */
 export function errorRecoveryContractForScenario(
   scenario: ErrorRecoveryContractScenario,

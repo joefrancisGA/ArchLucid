@@ -8129,6 +8129,10 @@ export interface components {
         SetProfessionalWorkbenchEnabledRequest: {
             enabled?: boolean;
         };
+        SetRoiLoadedHourlyCostUsdRequest: {
+            /** Format: double */
+            hourlyCostUsd?: number | string;
+        };
         SetSampleReviewsOnOverviewVisibilityRequest: {
             enabled?: boolean;
         };
@@ -9548,6 +9552,9 @@ export interface components {
             ianaTimeZoneIsExplicit?: boolean;
             professionalWorkbenchEnabled?: boolean;
             professionalWorkbenchEnabledIsExplicit?: boolean;
+            /** Format: double */
+            roiLoadedHourlyCostUsd?: number | string;
+            roiLoadedHourlyCostUsdIsExplicit?: boolean;
             sampleReviewsOnOverviewEnabled?: boolean;
             sampleReviewsOnOverviewIsExplicit?: boolean;
             whereToGoNextEnabled?: boolean;
