@@ -5,6 +5,12 @@ namespace ArchLucid.Persistence.InfraEvidence;
 
 public sealed class NoOpAzureInventoryDiffRepository : IAzureInventoryDiffRepository
 {
+    public Task<AzureInventoryDiffSummaryRecord?> TryGetByDiffIdAsync(
+        ScopeContext scope,
+        Guid diffId,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<AzureInventoryDiffSummaryRecord?>(null);
+
     public Task<AzureInventoryDiffSummaryRecord?> TryGetBySnapshotPairAsync(
         ScopeContext scope,
         Guid snapshotAId,

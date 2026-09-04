@@ -13,6 +13,41 @@ namespace ArchLucid.Persistence.InfraEvidence;
 
 public sealed class SqlAzureInventoryDiffRepository(ISqlConnectionFactory connectionFactory) : IAzureInventoryDiffRepository
 {
+    public async Task<AzureInventoryDiffSummaryRecord?> TryGetByDiffIdAsync(
+        ScopeContext scope,
+        Guid diffId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        const string sql = """
+                           SELECT TOP (1)
+                               DiffId, SnapshotAId, SnapshotBId, SubscriptionId, TotalChanges,
+                               ResourceAddedCount, ResourceRemovedCount, ResourceModifiedCount,
+                               NetworkExposureChangeCount, PermissionChangeCount, LoggingRegressionCount,
+                               NewPrivateEndpointCount, RelationshipRemovedCount, CreatedUtc
+                           FROM dbo.AzureInventoryDiffs
+                           WHERE TenantId = @TenantId
+                               AND WorkspaceId = @WorkspaceId
+                               AND ProjectId = @ProjectId
+                               AND DiffId = @DiffId;
+                           """;
+
+        using IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        return await conn.QuerySingleOrDefaultAsync<AzureInventoryDiffSummaryRecord>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    DiffId = diffId,
+                },
+                cancellationToken: cancellationToken));
+    }
+
     public async Task<AzureInventoryDiffSummaryRecord?> TryGetBySnapshotPairAsync(
         ScopeContext scope,
         Guid snapshotAId,
