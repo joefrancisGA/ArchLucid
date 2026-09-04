@@ -3187,11 +3187,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 177
-- **bugs-found:** 388
+- **hunts:** 178
+- **bugs-found:** 389
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — Coverage preview cloudProvider enum validation ordering before tenant preflight
+- **last-bug:** 2026-09-04 — Record disposition enum validation ordering before tenant preflight
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4085,6 +4085,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceCoverageController.PreviewCoverage` / `CoveragePreviewRequest.CloudProvider` — tenant preflight ran before `cloudProvider` enum guard, so ghost tenant + unrecognized provider (e.g. numeric `99`) returned HTTP 404 instead of 400 (#727 syntheticSeverity ordering sibling) — **hit 2026-09-04 (#728):** `CoveragePreviewHttpMapper.Validate` rejects undefined `CloudProvider` before `TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync`; regression in `GovernanceCoverageControllerScopeTests.PreviewCoverage_returns_bad_request_when_cloud_provider_is_unrecognized_and_tenant_missing`.
 
 2026-09-04 seed hunt #728 (hit): proved Coverage preview cloudProvider enum validation ordering before tenant preflight.
+
+- [x] (proven) `GovernanceStickinessController.RecordDisposition` / `RecordBulkDisposition` / `GovernanceStickinessHttpMapper.ValidateRecordDisposition` — tenant preflight ran before `disposition` enum guard, so ghost tenant + unrecognized disposition (e.g. numeric `99`) returned HTTP 404 instead of 400 (#728 cloudProvider ordering sibling) — **hit 2026-09-04 (#729):** `ValidateDispositionEnum` before `RequireTenantAndWorkspaceOrNotFoundAsync` on single and bulk disposition paths; regression in `GovernanceStickinessControllerTests.RecordDisposition_returns_bad_request_when_disposition_is_unrecognized_and_tenant_missing`.
+
+2026-09-04 seed hunt #729 (hit): proved finding disposition enum validation ordering before tenant preflight.
 
 2026-09-04 thorough hunt #723 (hit): proved SubmitApprovalRequest same-environment validation ordering before tenant preflight.
 
