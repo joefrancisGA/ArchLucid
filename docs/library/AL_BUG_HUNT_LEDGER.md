@@ -3348,11 +3348,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 207
-- **bugs-found:** 429
+- **hunts:** 208
+- **bugs-found:** 430
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — create policy pack whitespace description silent pass
+- **last-bug:** 2026-09-04 — assign policy pack whitespace scopeLevel silent default
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4364,6 +4364,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyPacksController.Create` / `CreatePolicyPackRequestValidator` — whitespace-only optional `description` passed FluentValidation and flowed through `PolicyPackHttpFacade.CreatePackAsync` unchanged instead of HTTP 400 — **hit 2026-09-04 (#790):** reject explicit whitespace-only description while allowing omitted/default empty string (coverage preview #789 parity); regressions in `CreatePolicyPackRequestValidatorTests.Whitespace_only_description_fails` and `PolicyPacksControllerListScopeTests.Create_returns_bad_request_when_description_is_whitespace_only_and_tenant_missing`.
 
 2026-09-04 seed hunt #790 (hit): proved create policy pack whitespace description silent pass.
+
+- [x] (proven) `PolicyPacksController.Assign` / `AssignPolicyPackRequestValidator` — whitespace-only `scopeLevel` passed FluentValidation via `GovernanceScopeLevel.TryNormalize` and silently defaulted to `Project` instead of HTTP 400 — **hit 2026-09-04 (#791):** reject explicit whitespace-only scope level while preserving omitted/default `Project` (create pack description #790 parity); regressions in `AssignPolicyPackRequestValidatorTests.Validate_fails_when_scope_level_is_whitespace_only` and `PolicyPacksControllerListScopeTests.Assign_returns_bad_request_when_scope_level_is_whitespace_only_and_tenant_missing`.
+
+2026-09-04 seed hunt #791 (hit): proved assign policy pack whitespace scopeLevel silent Project default.
 
 2026-09-04 seed hunt #787 (hit): proved disposition inapplicable optional string silent drop beyond whitespace-only cases.
 
