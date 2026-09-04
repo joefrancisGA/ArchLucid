@@ -1294,11 +1294,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 3
-- **bugs-found:** 5
+- **hunts:** 4
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-24 — duplicate x-*-id headers bypassed header-only scope escalation guard
+- **last-hunt:** 2026-09-04
+- **last-bug:** 2026-09-04 — production-like guard trusted Guid.Empty claim-bound scope
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1315,6 +1315,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Duplicate `x-workspace-id` headers bypass workspace header-only escalation — `TryParseHeaderGuid` iterates header segments for all dimensions; regression in `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_workspace_headers_without_claim_for_saml2`
 - [x] (valid-no-repro) Production-like guard accepts workspace/project scope resolved from `x-*-id` headers — `ScopeResolutionGuard.IsUntrusted` rejects any `ScopeSource.Header` dimension; regressions in `RequiresTrustedScopeRejection_true_when_workspace_from_header` and `RequiresTrustedScopeRejection_true_when_project_from_header`
 - [x] (valid-no-repro) ApiKey-authenticated principal with bound `tenant_id` claim still accepts hostile `x-workspace-id` — generic `ValidateHeaderOnlyDimensionEscalation` branch rejects any unbound dimension; regression in `InvokeAsync_api_key_with_tenant_claim_rejects_x_workspace_id_header`
+- [x] (proven) Production-like guard trusted `Guid.Empty` claim-bound scope — **hit 2026-09-04:** `ScopeResolutionGuard.IsUntrusted` only rejected Header/Default/development-default claims; `tenant_id=00000000-0000-0000-0000-000000000000` passed staging guard; fixed by rejecting `Guid.Empty` for any source; regressions in `RequiresTrustedScopeRejection_true_when_tenant_claim_is_empty_guid` and `InvokeAsync_staging_host_rejects_empty_guid_tenant_claim`
+- [x] (invalid) Whitespace-padded route `tenantId` bypasses `RouteTenantScopeBindingFilter` — admin/value-report routes bind `{tenantId:guid}`; non-parseable segments never reach the filter
+- [ ] (candidate) `DevelopmentBypass` authentication type omitted from `RequiresBoundScopeClaimsForHeaders` — handler materializes scope claims from headers at authenticate time; `Validate` still rejects claim/header disagreement for authenticated principals
+- [ ] (candidate) Unauthenticated mutating requests receive 403 from `ScopeResolutionGuardMiddleware` before authorization — fail-closed scope semantics; not cross-tenant IDOR in this zone's contract
 
 ---
 
