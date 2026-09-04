@@ -8,6 +8,9 @@ export const SERVICE_BUS_HEALTH_LABELS = {
   bannerBody:
     "Results may take longer than usual. Contact your ArchLucid administrator if this persists.",
   systemHealthLink: "System health",
+  systemHealthHref: "/administration/system-health",
+  internalHealthLink: "Internal readiness probe",
+  internalHealthHref: "/internal/health",
   refreshFailedTitle: "Review processing status unavailable",
   refreshFailedBodyDegraded:
     "Could not refresh processing status. Showing the last known delayed state until refresh succeeds.",

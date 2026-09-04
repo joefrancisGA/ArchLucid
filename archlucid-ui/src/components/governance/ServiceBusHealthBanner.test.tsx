@@ -90,8 +90,15 @@ describe("ServiceBusHealthBanner", () => {
       expect(screen.getByTestId("service-bus-health-degraded-banner")).toBeInTheDocument();
     });
     expect(screen.getByRole("alert")).toHaveTextContent(/review processing is delayed/i);
-    expect(screen.getByRole("link", { name: "System health" })).toHaveAttribute("href", "/internal/health");
-    expect(screen.queryByText(/system health \(operators\)/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "System health" })).toHaveAttribute(
+      "href",
+      "/administration/system-health",
+    );
+    expect(screen.getByText(/azure_service_bus readiness probe/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Internal readiness probe" })).toHaveAttribute(
+      "href",
+      "/internal/health",
+    );
   });
 
   it("keeps the degraded banner when a later health poll fails", async () => {

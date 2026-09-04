@@ -3,6 +3,8 @@
 import { useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
+import { askReviewQuestionsHref } from "@/lib/ask-review-questions-route";
+import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import { SHORTCUTS, WORKING_MODE_NEW_REVIEW_ROUTE, resolveShortcutDescription } from "@/lib/shortcut-registry";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
@@ -41,11 +43,19 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
           route = buildCompareTwoReviewsHref({ baseRunId: reviewRunId });
         }
 
+        if (workingMode && entry.key === "alt+a" && reviewRunId !== null) {
+          route = askReviewQuestionsHref({ runId: reviewRunId });
+        }
+
+        if (workingMode && entry.key === "alt+y" && reviewRunId !== null) {
+          route = evidenceGraphHref({ runId: reviewRunId });
+        }
+
         next[entry.key] = {
           handler: () => {
             router.push(route);
           },
-          description: resolveShortcutDescription(entry, workingMode),
+          description: resolveShortcutDescription(entry, workingMode, reviewRunId !== null),
         };
       } else if (isHelpShortcutKey(entry.key)) {
         next[entry.key] = {

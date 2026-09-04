@@ -86,6 +86,40 @@ describe("useShortcutNavigation", () => {
     expect(routerPush).toHaveBeenCalledWith("/insights/compare-two-reviews?priorRunId=run-abc");
   });
 
+  it("scopes Ask to the open review when Alt+A is pressed on review-detail in Working mode", () => {
+    mockPathname.mockReturnValue("/architecture/reviews/run-abc/findings/f-1");
+    mockWorkspaceMode.mockReturnValue({
+      mode: "working",
+      mounted: true,
+      accountSyncState: "synced",
+      isWorkingMode: true,
+      setAndPersist: vi.fn(),
+    });
+
+    renderHook(() => useShortcutNavigation());
+
+    fireEvent.keyDown(window, { key: "a", altKey: true });
+
+    expect(routerPush).toHaveBeenCalledWith("/insights/ask-review-questions?runId=run-abc");
+  });
+
+  it("scopes evidence graph to the open review when Alt+Y is pressed on review-detail in Working mode", () => {
+    mockPathname.mockReturnValue("/architecture/reviews/run-abc");
+    mockWorkspaceMode.mockReturnValue({
+      mode: "working",
+      mounted: true,
+      accountSyncState: "synced",
+      isWorkingMode: true,
+      setAndPersist: vi.fn(),
+    });
+
+    renderHook(() => useShortcutNavigation());
+
+    fireEvent.keyDown(window, { key: "y", altKey: true });
+
+    expect(routerPush).toHaveBeenCalledWith("/insights/evidence-graph?runId=run-abc");
+  });
+
   it("invokes onHelpRequested for Shift+?", () => {
     const onHelpRequested = vi.fn();
 

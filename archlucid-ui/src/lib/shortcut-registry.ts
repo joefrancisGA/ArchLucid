@@ -124,13 +124,27 @@ export function findShortcutByKey(combo: string): ShortcutEntry | undefined {
 }
 
 /** Help overlay and keyboard map descriptions — Working Alt+N is the draft editor, not the wizard. */
-export function resolveShortcutDescription(entry: ShortcutEntry, workingMode: boolean): string {
+export function resolveShortcutDescription(
+  entry: ShortcutEntry,
+  workingMode: boolean,
+  onReviewPage = false,
+): string {
   if (normalizeCombo(entry.key) === "alt+n") {
     return workingMode ? WORKING_ALT_N_SHORTCUT_DESCRIPTION : GUIDED_ALT_N_SHORTCUT_DESCRIPTION;
   }
 
   if (normalizeCombo(entry.key) === "alt+c" && workingMode) {
-    return "Compare two reviews — on a review page, uses that review as the base run";
+    return onReviewPage
+      ? "Compare two reviews — uses this review as the base run"
+      : "Compare two reviews — on a review page, uses that review as the base run";
+  }
+
+  if (normalizeCombo(entry.key) === "alt+a" && workingMode && onReviewPage) {
+    return "Ask review questions — scoped to this review";
+  }
+
+  if (normalizeCombo(entry.key) === "alt+y" && workingMode && onReviewPage) {
+    return "Open evidence graph — scoped to this review";
   }
 
   return entry.description;
