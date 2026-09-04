@@ -14,7 +14,9 @@ public sealed record ArchitectureReviewBoardCoverPageContent(
     string GeneratedOnLabel,
     bool IsDemoTenant,
     string? DemoNotice,
-    string? ActiveTrialNotice)
+    string? ActiveTrialNotice,
+    string? SimulatorRehearsalTitle,
+    string? SimulatorRehearsalBody)
 {
     internal const string DemoTenantNotice = "Demo tenant — replace before publishing to executives.";
 
@@ -76,7 +78,9 @@ public sealed record ArchitectureReviewBoardCoverPageContent(
             generatedOnLabel,
             model.IsDemoTenant,
             model.IsDemoTenant ? DemoTenantNotice : null,
-            trialNotice);
+            trialNotice,
+            string.IsNullOrWhiteSpace(model.SimulatorRehearsalTitle) ? null : model.SimulatorRehearsalTitle.Trim(),
+            string.IsNullOrWhiteSpace(model.SimulatorRehearsalBody) ? null : model.SimulatorRehearsalBody.Trim());
     }
 
     internal static string FormatGeneratedOnLabel(DateTimeOffset exportTimestampUtc) =>

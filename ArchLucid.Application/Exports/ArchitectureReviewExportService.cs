@@ -67,15 +67,8 @@ public sealed class ArchitectureReviewExportService(
             throw new ConflictException(
                 "This finalized review references an architecture snapshot that could not be loaded from storage. Resolve the broken manifest reference before exporting.");
 
-            AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());
-
-        AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());
-
-        AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());
-
-        AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());
-
-        AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());
+        if (!detail.IsCommitted)
+            throw new ConflictException("Export requires a finalized review with a committed architecture snapshot.");
 
         AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());
 
@@ -266,6 +259,20 @@ public sealed class ArchitectureReviewExportService(
             html.AppendLine(
                 CultureInfo.InvariantCulture,
                 $"<p><strong>Trial notice:</strong> {HtmlEncode(activeTrialExportNotice)}</p>");
+        }
+
+        if (!string.IsNullOrWhiteSpace(documentModel.SimulatorRehearsalTitle))
+        {
+            html.AppendLine(
+                CultureInfo.InvariantCulture,
+                $"<p><strong>Simulator notice:</strong> {HtmlEncode(documentModel.SimulatorRehearsalTitle)}</p>");
+
+            if (!string.IsNullOrWhiteSpace(documentModel.SimulatorRehearsalBody))
+            {
+                html.AppendLine(
+                    CultureInfo.InvariantCulture,
+                    $"<p>{HtmlEncode(documentModel.SimulatorRehearsalBody)}</p>");
+            }
         }
 
         if (!string.IsNullOrWhiteSpace(documentModel.ExplanationConfidenceCallout))
