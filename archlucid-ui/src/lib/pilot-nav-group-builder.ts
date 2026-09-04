@@ -1,5 +1,6 @@
 import {
   Compass,
+  FileText,
   Home,
   LayoutDashboard,
   ListOrdered,
@@ -23,6 +24,7 @@ import {
   PACKAGES_NAV_HREF,
   PACKAGES_NAV_LABEL,
 } from "@/lib/usability/usability-consolidation";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 const PORTFOLIO_OVERVIEW_NAV_TITLE = "Track ROI, risks, and approval status";
 
@@ -60,6 +62,14 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           keyShortcut: "alt+r",
           icon: ListOrdered,
           tier: "essential",
+        },
+        {
+          href: SIGNED_RECORDS_LIST_PATH,
+          label: OPERATOR_NAV_LINK_LABELS.sealedReviewRecords,
+          title: "Browse finalized review records across reviews",
+          icon: FileText,
+          tier: "essential",
+          requiredAuthority: "ReadAuthority",
         },
         {
           // String literals required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.

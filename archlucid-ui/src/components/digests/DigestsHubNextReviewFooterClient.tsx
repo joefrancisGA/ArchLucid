@@ -8,7 +8,7 @@ import type { DigestsHubTabId } from "@/lib/digests-hub-tab";
 import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 import { projectIdFromScopeHeaders } from "@/lib/operator/operator-resource-scope";
-import { tryStaticDemoRunSummariesPaged } from "@/lib/operator/operator-static-demo";
+import { enrichRunsListWithStaticDemoFallback } from "@/lib/operator/operator-runs-list-with-demo-fallback";
 import { resolveNextRunsListRow } from "@/lib/resolve-next-runs-list-row";
 import type { RunSummary } from "@/types/authority";
 
@@ -46,14 +46,7 @@ export function DigestsHubNextReviewFooterClient(
         return;
       }
 
-      let items = coerced.value.items;
-      const staticFallback = tryStaticDemoRunSummariesPaged(projectId);
-
-      if (items.length === 0 && staticFallback !== null) {
-        items = staticFallback.items;
-      }
-
-      setRuns(items);
+      setRuns(enrichRunsListWithStaticDemoFallback(coerced.value.items, projectId));
     } catch {
       setRuns([]);
     }
