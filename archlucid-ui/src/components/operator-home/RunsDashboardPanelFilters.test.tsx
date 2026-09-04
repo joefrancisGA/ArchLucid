@@ -52,6 +52,26 @@ describe("RunsDashboardPanelFilters", () => {
     expect(tabList.className).not.toMatch(/overflow-y-auto/);
   });
 
+  it("does not render operator recent summary copy under Latest in workspace", () => {
+    renderPanelFilters({
+      buyerPolishedShell: false,
+      hideHeading: false,
+      tab: "all",
+      isRecentListTab: true,
+      statusTabIds: resolveRunsDashboardStatusTabIds(false, statusTabCounts),
+      statusTabCounts,
+      archivedFieldSupported: true,
+      archivedCount: 0,
+      archivedFilterDisabled: false,
+      showArchived: false,
+      onSelectDashboardTab: vi.fn(),
+      onShowArchivedChange: vi.fn(),
+      openAllReviewsHref: "/architecture/reviews?projectId=default",
+    });
+
+    expect(screen.queryByText("Showing the latest architecture reviews for this workspace.")).toBeNull();
+  });
+
   it("enables archived chip with zero count and calls onShowArchivedChange(true)", () => {
     const onShowArchivedChange = vi.fn();
 

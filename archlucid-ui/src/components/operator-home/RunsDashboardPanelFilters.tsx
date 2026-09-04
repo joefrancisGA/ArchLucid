@@ -51,6 +51,13 @@ export function RunsDashboardPanelFilters({
   onShowArchivedChange,
   openAllReviewsHref,
 }: RunsDashboardPanelFiltersProps) {
+  const panelSummaryText = resolveRunsDashboardPanelSummaryText({
+    buyerPolishedShell,
+    hideHeading,
+    isRecentListTab,
+    tab,
+  });
+
   return (
     <CardHeader className={OPERATOR_CARD.header}>
       {buyerPolishedShell && hideHeading ? null : (
@@ -153,23 +160,38 @@ export function RunsDashboardPanelFilters({
           </Link>
         ) : null}
       </div>
-      {buyerPolishedShell && hideHeading ? null : (
+      {panelSummaryText !== null ? (
         <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-neutral-600 dark:text-neutral-400")}>
-          {isRecentListTab
-            ? buyerPolishedShell
-              ? BUYER_RUNS_DASHBOARD_RECENT_SUMMARY
-              : RUNS_DASHBOARD_LABELS.recentSummary
-            : null}
-          {!isRecentListTab && tab === "attention"
-            ? buyerPolishedShell
-              ? RUNS_DASHBOARD_LABELS.attentionSummaryBuyer
-              : RUNS_DASHBOARD_LABELS.attentionSummary
-            : null}
-          {!isRecentListTab && tab === "outcomes"
-            ? "Reviews finalized, findings surfaced, and average time to finalization."
-            : null}
+          {panelSummaryText}
         </p>
-      )}
+      ) : null}
     </CardHeader>
   );
+}
+
+function resolveRunsDashboardPanelSummaryText(props: {
+  readonly buyerPolishedShell: boolean;
+  readonly hideHeading: boolean;
+  readonly isRecentListTab: boolean;
+  readonly tab: RunsDashboardTabId;
+}): string | null {
+  if (props.buyerPolishedShell && props.hideHeading) {
+    return null;
+  }
+
+  if (props.isRecentListTab) {
+    return props.buyerPolishedShell ? BUYER_RUNS_DASHBOARD_RECENT_SUMMARY : null;
+  }
+
+  if (props.tab === "attention") {
+    return props.buyerPolishedShell
+      ? RUNS_DASHBOARD_LABELS.attentionSummaryBuyer
+      : RUNS_DASHBOARD_LABELS.attentionSummary;
+  }
+
+  if (props.tab === "outcomes") {
+    return "Reviews finalized, findings surfaced, and average time to finalization.";
+  }
+
+  return null;
 }
