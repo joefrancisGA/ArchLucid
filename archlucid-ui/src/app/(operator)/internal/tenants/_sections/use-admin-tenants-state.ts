@@ -151,7 +151,7 @@ export function useAdminTenantsState(): AdminTenantsState {
 
     if (
       pendingTenantAction?.row.id === row.id
-      && pendingTenantAction.kind === urlTenantAction
+      && pendingTenantAction?.kind === urlTenantAction
     ) {
       return;
     }
