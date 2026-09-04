@@ -56,10 +56,15 @@ public sealed class PolicyPackWorkspaceSelectionOrganizationRequiredTests
                     CurrentVersion = "1.0.0",
                 });
 
+        Mock<IPlatformBundledPolicyPackAvailability> platformAvailability = new();
+        platformAvailability
+            .Setup(s => s.IsGloballyActiveAsync(It.IsAny<PolicyPack>(), It.IsAny<CancellationToken>()))
+            .Returns(new ValueTask<bool>(true));
+
         PolicyPackWorkspaceSelectionService sut = new(
             packs.Object,
             assignments.Object,
-            Mock.Of<IPlatformBundledPolicyPackAvailability>(s => s.IsGloballyActiveAsync(It.IsAny<PolicyPack>(), It.IsAny<CancellationToken>()) == Task.FromResult(true)),
+            platformAvailability.Object,
             Mock.Of<IPolicyPackResolverCacheInvalidator>());
 
         bool ok = await sut.TrySetAssignmentEnabledAsync(CallerScope, assignmentId, false, CancellationToken.None);
