@@ -109,6 +109,7 @@ public sealed class AuthorityCommittedPipelineFinalizer(
             schemaVersion = 1,
             runId = run.RunId,
             manifestId = manifest.ManifestId,
+            manifestHash = manifest.ManifestHash,
             tenantId = scope.TenantId,
             workspaceId = scope.WorkspaceId,
             projectId = scope.ProjectId,

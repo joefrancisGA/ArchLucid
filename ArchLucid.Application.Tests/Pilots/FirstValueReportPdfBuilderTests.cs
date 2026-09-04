@@ -187,6 +187,8 @@ public sealed class FirstValueReportPdfBuilderTests
             baselineRepo,
             FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 

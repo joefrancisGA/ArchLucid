@@ -3,9 +3,12 @@ using ArchLucid.Application.Drafts.PriorAnswerReuse;
 using ArchLucid.Application.Drafts.QuestionSelection;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Decisioning.Feasibility;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
+
+using FluentValidation;
 
 namespace ArchLucid.Application.Drafts;
 
@@ -21,7 +24,8 @@ public sealed partial class DraftAdmissionService(
     IRequestContentSafetyPrecheck contentSafetyPrecheck,
     FeasibilityVerdictBuilder feasibilityVerdictBuilder,
     IWorkspaceSystemNameCollisionGuard workspaceSystemNameCollisionGuard,
-    IRunRepository runRepository) : IDraftAdmissionService
+    IRunRepository runRepository,
+    IValidator<ArchitectureRequest> architectureRequestValidator) : IDraftAdmissionService
 {
     private readonly IDraftAdmissionGate _admissionGate =
         admissionGate ?? throw new ArgumentNullException(nameof(admissionGate));
@@ -55,4 +59,7 @@ public sealed partial class DraftAdmissionService(
 
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IValidator<ArchitectureRequest> _architectureRequestValidator =
+        architectureRequestValidator ?? throw new ArgumentNullException(nameof(architectureRequestValidator));
 }

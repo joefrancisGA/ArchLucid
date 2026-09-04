@@ -88,6 +88,7 @@ public sealed partial class ManifestFinalizationService
             schemaVersion = 1,
             runId = request.RunId,
             manifestId = persisted.ManifestId,
+            manifestHash = persisted.ManifestHash,
             decisionTraceId = audit.DecisionTraceId,
             tenantId = scope.TenantId,
             workspaceId = scope.WorkspaceId,

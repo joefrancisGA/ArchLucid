@@ -181,6 +181,8 @@ public sealed class GovernanceStickinessFacadeTests
             new Mock<IReviewsAwaitingActionQueryService>().Object,
             new Mock<IRealizedValueAttestationService>().Object,
             new Mock<IAuditService>().Object,
-            new Mock<IFindingInspectReadRepository>().Object);
+            new Mock<IFindingInspectReadRepository>().Object,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>());
     }
 }

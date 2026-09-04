@@ -247,6 +247,8 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
             pilotBaselines.Object,
             FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 

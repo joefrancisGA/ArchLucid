@@ -115,8 +115,15 @@ public sealed partial class AdvisoryScanRunner
         await scheduleRepository.UpdateAsync(schedule, ct);
     }
 
-    private Task TryPublishAdvisoryScanCompletedAsync(AdvisoryScanSchedule schedule, AdvisoryScanExecution execution, Guid? runId, Guid? comparedToRunId,
-        Guid? digestId, bool hasRuns, CancellationToken ct)
+    private Task TryPublishAdvisoryScanCompletedAsync(
+        AdvisoryScanSchedule schedule,
+        AdvisoryScanExecution execution,
+        Guid? runId,
+        Guid? comparedToRunId,
+        Guid? digestId,
+        bool hasRuns,
+        string? manifestHash,
+        CancellationToken ct)
     {
         object payload = new
         {
@@ -130,6 +137,7 @@ public sealed partial class AdvisoryScanRunner
             runId,
             comparedToRunId,
             digestId,
+            manifestHash,
             completedUtc = execution.CompletedUtc ?? TimeProvider.System.UtcNowDateTime()
         };
         string messageId = $"{execution.ExecutionId:D}:{IntegrationEventTypes.AdvisoryScanCompletedV1}";

@@ -62,7 +62,9 @@ public sealed class ExportsControllerReplayExportAuditTests
             replay.Object,
             Mock.Of<IExportRecordDiffService>(),
             Mock.Of<IExportRecordDiffSummaryFormatter>(),
-            audit.Object);
+            audit.Object,
+            Mock.Of<IRunExportLineageVerifier>(),
+            Mock.Of<IScopeContextProvider>());
 
         ExportsController sut = new(facade);
         DefaultHttpContext http = new()

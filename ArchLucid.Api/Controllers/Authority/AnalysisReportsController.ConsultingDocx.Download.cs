@@ -1,6 +1,7 @@
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Authorization;
@@ -35,6 +36,17 @@ public sealed partial class AnalysisReportsController
 
         if (loaded.Error is not null)
             return loaded.Error;
+
+        if (Guid.TryParse(runId, out Guid runGuid))
+        {
+            await ConsultingDocxExportSealedReceiptGuard.EnsureVerifiedOrThrowAsync(
+                runGuid,
+                runId,
+                _authorityQueryService,
+                _manifestHashService,
+                _scopeContextProvider.GetCurrentScope(),
+                cancellationToken);
+        }
 
         try
         {
@@ -102,6 +114,18 @@ public sealed partial class AnalysisReportsController
                 bytes,
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 $"analysis-report-consulting-{runId}.docx");
+        }
+        catch (ConflictException ex)
+        {
+            logger.LogWarningWithSanitizedUserArg(ex, "Consulting DOCX export blocked for run '{RunId}'.", runId);
+
+            string problemType = ex.Message.Contains("hash verification failed", StringComparison.OrdinalIgnoreCase)
+                ? ProblemTypes.DecisionReceiptSealedHashMismatch
+                : ex.Message.Contains("fields are incomplete", StringComparison.OrdinalIgnoreCase)
+                    ? ProblemTypes.DecisionReceiptSealedIncomplete
+                    : ProblemTypes.Conflict;
+
+            return this.ConflictProblem(ex.Message, problemType);
         }
         catch (InvalidOperationException ex)
         {

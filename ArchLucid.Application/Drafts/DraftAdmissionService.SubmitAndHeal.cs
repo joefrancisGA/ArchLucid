@@ -6,6 +6,8 @@ using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
 
+using FluentValidation;
+
 namespace ArchLucid.Application.Drafts;
 
 public sealed partial class DraftAdmissionService
@@ -52,6 +54,8 @@ public sealed partial class DraftAdmissionService
         }
 
         ArchitectureRequest architectureRequest = _projector.Project(existing.Document, draftId);
+
+        await ValidateProjectedArchitectureRequestOrThrowAsync(architectureRequest, cancellationToken);
 
         CreateRunCommandResult createResult = await _architectureRunCommandService.CreateRunAsync(
             scope,
@@ -209,6 +213,21 @@ public sealed partial class DraftAdmissionService
             await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
 
         return header?.ArchitectureVersionId;
+    }
+
+    private async Task ValidateProjectedArchitectureRequestOrThrowAsync(
+        ArchitectureRequest architectureRequest,
+        CancellationToken cancellationToken)
+    {
+        FluentValidation.Results.ValidationResult validation =
+            await _architectureRequestValidator.ValidateAsync(architectureRequest, cancellationToken);
+
+        if (validation.IsValid)
+            return;
+
+        string message = string.Join(' ', validation.Errors.Select(static e => e.ErrorMessage));
+
+        throw new ArgumentException(message, nameof(architectureRequest));
     }
 
     private static void EnsureSpawnedDocumentHashMatches(Guid draftId, DraftRequestResponse existing)

@@ -211,6 +211,8 @@ public sealed class FirstValueReportBuilderCostEvidenceFreshnessTests
             pilotBaselines.Object,
             collectionResolver,
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 
