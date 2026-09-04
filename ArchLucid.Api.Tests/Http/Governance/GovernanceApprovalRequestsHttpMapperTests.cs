@@ -12,6 +12,35 @@ namespace ArchLucid.Api.Tests.Http.Governance;
 public sealed class GovernanceApprovalRequestsHttpMapperTests
 {
     [Fact]
+    public void ValidateApprovalRequestId_rejects_overlong_id()
+    {
+        string overlongId = new string('a', GovernanceRequestValidationRules.ApprovalRequestIdMaxLength + 1);
+
+        GovernanceHttpValidation? validation = GovernanceApprovalRequestsHttpMapper.ValidateApprovalRequestId(overlongId);
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain(GovernanceRequestValidationRules.ApprovalRequestIdMaxLength.ToString());
+    }
+
+    [Fact]
+    public void ValidateBatchReviewRequest_rejects_overlong_approval_request_id()
+    {
+        string overlongId = new string('a', GovernanceRequestValidationRules.ApprovalRequestIdMaxLength + 1);
+
+        GovernanceHttpValidation? validation = GovernanceApprovalRequestsHttpMapper.ValidateBatchReviewRequest(
+            new GovernanceApprovalBatchReviewRequest
+            {
+                ApprovalRequestIds = [overlongId],
+                Decision = "approve",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain(GovernanceRequestValidationRules.ApprovalRequestIdMaxLength.ToString());
+    }
+
+    [Fact]
     public void ValidateBatchReviewRequest_rejects_empty_ids()
     {
         GovernanceHttpValidation? validation = GovernanceApprovalRequestsHttpMapper.ValidateBatchReviewRequest(

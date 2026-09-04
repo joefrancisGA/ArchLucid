@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Models;
+using ArchLucid.Api.Validators;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Workflow;
@@ -322,6 +323,30 @@ public sealed class GovernanceControllerRunHistoryScopeTests
 
         IActionResult result = await sut.Approve(
             "   ",
+            new ApproveGovernanceRequest { ReviewComment = "ok" },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        approvals.VerifyNoOtherCalls();
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Approve_returns_bad_request_when_approval_request_id_exceeds_max_length()
+    {
+        Mock<IGovernanceApprovalRequestRepository> approvals = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            approvalRepository: approvals.Object,
+            workflowFacade: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        string overlongApprovalRequestId = new string('a', GovernanceRequestValidationRules.ApprovalRequestIdMaxLength + 1);
+
+        IActionResult result = await sut.Approve(
+            overlongApprovalRequestId,
             new ApproveGovernanceRequest { ReviewComment = "ok" },
             CancellationToken.None);
 

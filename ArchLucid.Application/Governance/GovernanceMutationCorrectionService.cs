@@ -72,15 +72,11 @@ public sealed class GovernanceMutationCorrectionService(
         if (subjectId.Length == 0)
             throw new ArgumentException("Subject id is required.", nameof(request));
 
-        if (mutationKind is GovernanceMutationCorrectionKinds.BulkDisposition
-            or GovernanceMutationCorrectionKinds.KeyboardFindingDisposition)
+        if (subjectId.Length > FindingDispositionValidation.MaxFindingIdLength)
         {
-            if (subjectId.Length > FindingDispositionValidation.MaxFindingIdLength)
-            {
-                throw new ArgumentException(
-                    $"Subject id must not exceed {FindingDispositionValidation.MaxFindingIdLength} characters.",
-                    nameof(request));
-            }
+            throw new ArgumentException(
+                $"Subject id must not exceed {FindingDispositionValidation.MaxFindingIdLength} characters.",
+                nameof(request));
         }
 
         string rationale = request.Rationale?.Trim() ?? string.Empty;

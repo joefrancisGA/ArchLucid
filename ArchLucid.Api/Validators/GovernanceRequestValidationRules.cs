@@ -8,4 +8,7 @@ public static class GovernanceRequestValidationRules
     public const int ReviewCommentMaxLength = 4000;
 
     public const int FindingIdMaxLength = 64;
+
+    /// <summary>Matches <c>dbo.GovernanceApprovalRequests.ApprovalRequestId</c> primary key.</summary>
+    public const int ApprovalRequestIdMaxLength = 64;
 }

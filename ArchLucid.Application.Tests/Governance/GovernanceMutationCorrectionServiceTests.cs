@@ -368,6 +368,37 @@ public sealed class GovernanceMutationCorrectionServiceTests
     }
 
     [Fact]
+    public async Task RecordAsync_rejects_approval_correction_when_subject_id_exceeds_max_length()
+    {
+        const string runId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+        string overlongApprovalRequestId = new string('a', FindingDispositionValidation.MaxFindingIdLength + 1);
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new(MockBehavior.Strict);
+
+        GovernanceMutationCorrectionService sut = CreateSut(
+            approvals.Object,
+            CreateScopedRunRepository(runId).Object,
+            new Mock<IAuditService>().Object);
+
+        Func<Task> act = () => sut.RecordAsync(
+            new RecordGovernanceMutationCorrectionRequest
+            {
+                MutationKind = GovernanceMutationCorrectionKinds.QuickApprove,
+                SubjectId = overlongApprovalRequestId,
+                RunId = runId,
+                Rationale = "Approval recorded on wrong request id.",
+            },
+            Scope,
+            "operator-1",
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage($"*exceed*{FindingDispositionValidation.MaxFindingIdLength}*");
+
+        approvals.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task RecordAsync_rejects_correction_when_rationale_is_shorter_than_minimum_length()
     {
         const string runId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";

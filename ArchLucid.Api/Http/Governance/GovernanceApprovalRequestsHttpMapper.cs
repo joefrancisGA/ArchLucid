@@ -20,6 +20,13 @@ public static class GovernanceApprovalRequestsHttpMapper
         if (string.IsNullOrWhiteSpace(approvalRequestId))
             return new GovernanceHttpValidation("approvalRequestId is required.", ProblemTypes.ValidationFailed);
 
+        if (approvalRequestId.Length > GovernanceRequestValidationRules.ApprovalRequestIdMaxLength)
+        {
+            return new GovernanceHttpValidation(
+                $"approvalRequestId must not exceed {GovernanceRequestValidationRules.ApprovalRequestIdMaxLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         return null;
     }
 
@@ -47,6 +54,21 @@ public static class GovernanceApprovalRequestsHttpMapper
             return new GovernanceHttpValidation(
                 "ApprovalRequestIds must contain at least one non-empty id.",
                 ProblemTypes.ValidationFailed);
+        }
+
+        foreach (string rawApprovalRequestId in body.ApprovalRequestIds)
+        {
+            if (string.IsNullOrWhiteSpace(rawApprovalRequestId))
+                continue;
+
+            string normalizedApprovalRequestId = rawApprovalRequestId.Trim();
+
+            if (normalizedApprovalRequestId.Length > GovernanceRequestValidationRules.ApprovalRequestIdMaxLength)
+            {
+                return new GovernanceHttpValidation(
+                    $"Each approvalRequestId must not exceed {GovernanceRequestValidationRules.ApprovalRequestIdMaxLength} characters.",
+                    ProblemTypes.ValidationFailed);
+            }
         }
 
         if (body.Decision is null)
