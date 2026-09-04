@@ -900,8 +900,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 5
-- **bugs-found:** 8
+- **hunts:** 6
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
 - **last-bug:** 2026-09-04 — MUST-question skip/answer scope validation parity
@@ -3348,11 +3348,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 189
-- **bugs-found:** 400
-- **consecutive-dry-hunts:** 1
+- **hunts:** 190
+- **bugs-found:** 401
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — cost-settings PUT omitted EA fields reset stored discount multiplier
+- **last-bug:** 2026-09-04 — homepage PUT omitted `selectedRunId` cleared featured sample
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4291,6 +4291,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `TenantExecDigestPreferencesController` / `TenantSponsorDigestPreferencesController` — omitted `ianaTimeZoneId` coalesces to `"UTC"` on full upsert and may reset timezone when caller only updates recipients — **cheap-disproof 2026-09-04 (#760):** defaults match `ExecDigestPreferencesResponse.Unconfigured` / `SponsorDigestPreferencesResponse.Unconfigured` timezone field; intentional partial-upsert semantics (schedule-default #758 sibling); regressions in `PostExecDigestPreferences_applies_default_timezone_when_iana_time_zone_omitted` and `PostSponsorDigestPreferences_applies_default_timezone_when_iana_time_zone_omitted`.
 
 2026-09-04 thorough hunt #760 (dry): cheap-disproved digest timezone omission candidate; no new hunt-ready repro in zone.
+
+- [x] (proven) `TenantHomepageSettingsController.PutAsync` / `TenantHomepageSettingsPutRequest` — JSON body omitted `selectedRunId` (e.g. `{}`) cleared featured sample via `ClearSelectionAsync` instead of HTTP 400 — **hit 2026-09-04 (#773):** `required Guid? SelectedRunId` rejects omitted property while explicit `null` still clears selection (policy-pack `isEnabled` / checklist `stepIndex` omission parity); regressions in `PutRequest_deserialization_rejects_missing_selected_run_id` and `PutAsync_clears_selection_when_selected_run_id_is_explicitly_null`.
+- [ ] (candidate) `TenantCostSettingsController.PutAsync` / `TenantCostSettingsPutRequest` — omitted `architectHourlyRateUsd` / `averageIncidentCostUsd` bind as `0` and return misleading range validation instead of required-field 400 — verify whether partial PUT should preserve existing rates before hunt-ready promotion.
+- [ ] (candidate) `TenantBaselineController.PutAsync` — whitespace-only `baselineReviewCycleSourceNote` may collapse persisted operator note to marker-only `baseline_settings` — verify intentional normalization vs data-loss before hunt-ready promotion.
+
+2026-09-04 seed hunt #773: reseeded cost-settings rate-field omission and baseline whitespace source-note candidates; proved homepage `selectedRunId` omission clearing featured sample promoted from seed read.
 
 2026-09-04 seed hunt #759 (hit): proved policy-pack create `initialContentJson`, assign `isPinned`, checklist `stepIndex` omission, and cost-settings EA discount wipe on partial PUT; seeded digest timezone omission candidate.
 
