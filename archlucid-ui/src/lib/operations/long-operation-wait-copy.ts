@@ -8,6 +8,14 @@ export const LONG_OPERATION_ESCALATION_30S_MS = 30_000;
 /** Soft ceiling aligned with UI proxy JSON timeout (~60s) — recovery copy, not a hard abort. */
 export const LONG_OPERATION_TIMEOUT_HINT_MS = 60_000;
 
+/** Operator-facing cadence for queue status on long-running review work. */
+export const LONG_OPERATION_QUEUE_STATUS_REFRESH_HINT =
+  "Queue status refreshes every 10 seconds.";
+
+/** Lets operators leave the review detail page without losing visibility into pipeline state. */
+export const LONG_OPERATION_HOME_PAGE_STATUS_HINT =
+  "Return to Overview if you want to keep working — this review's status stays on your home page.";
+
 export type LongOperationEscalationLevel = "quiet" | "after10s" | "after30s" | "timeoutHint";
 
 export type LongOperationWaitCopy = {
@@ -61,7 +69,7 @@ export function buildLongOperationWaitCopy(args: {
     return {
       level,
       headline,
-      detail: `${args.operationLabel} is still in progress. Named stages only — no percent complete.`,
+      detail: `${args.operationLabel} is still in progress.`,
     };
   }
 
@@ -70,4 +78,10 @@ export function buildLongOperationWaitCopy(args: {
     headline,
     detail: `${args.operationLabel} started…`,
   };
+}
+
+export function formatLongOperationQueueStatusLine(stageLabel: string): string {
+  const label = stageLabel.trim().length > 0 ? stageLabel.trim() : "Queued";
+
+  return `Queue status: ${label}`;
 }

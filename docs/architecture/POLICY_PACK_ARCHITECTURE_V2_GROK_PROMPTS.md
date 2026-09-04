@@ -15,7 +15,7 @@
 | PP-COV-05 | Buyer-pack `advisoryDefaults` expectation facets | **Shipped** (SOC 2, HIPAA, GDPR, PCI, CIS AWS/GCP) |
 | PP-COV-06 | Golden corpus extension | Deferred |
 | PP-COV-07 | Coverage exclusion PATCH | Deferred (use org-required + enabled endpoints) |
-| PP-COV-08 | Run detail multi-pack scope disclosure | Deferred |
+| PP-COV-08 | Run detail multi-pack scope disclosure | **Shipped** (committed coverage headline on review detail) |
 | PP-COV-09 | Empty-key fail-closed governance filter | **Explicitly out** (breaks existing tests) |
 
 ## Global constraints

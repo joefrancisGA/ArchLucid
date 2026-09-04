@@ -3,6 +3,8 @@ using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 using FluentAssertions;
 
+using ComplianceRuleApplicabilityContext = ArchLucid.Core.Governance.PolicyPacks.ComplianceRuleApplicabilityContext;
+
 namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
@@ -94,5 +96,20 @@ public sealed class ComplianceRulePackGovernanceFilterTests
         ComplianceRulePack filtered = ComplianceRulePackGovernanceFilter.Filter(source, effective);
 
         filtered.Rules.Select(r => r.RuleId).Should().BeEquivalentTo("by-key", g.ToString("D"));
+    }
+
+    [Fact]
+    public void Filter_ApplicabilityContext_ExcludesRulesForOtherCloudProvider()
+    {
+        ComplianceRule azureRule = Rule("azure-only");
+        azureRule.Applicability = new ComplianceRuleApplicabilityConditions { CloudProviders = ["Azure"] };
+        ComplianceRulePack source = Pack(azureRule, Rule("any-cloud"));
+        PolicyPackContentDocument effective = new() { ComplianceRuleKeys = ["azure-only", "any-cloud"] };
+        ComplianceRuleApplicabilityContext context =
+            ComplianceRuleApplicabilityContext.FromCloudProvider(ArchLucid.Contracts.Common.CloudProvider.Aws);
+
+        ComplianceRulePack filtered = ComplianceRulePackGovernanceFilter.Filter(source, effective, context);
+
+        filtered.Rules.Select(r => r.RuleId).Should().ContainSingle(r => r == "any-cloud");
     }
 }

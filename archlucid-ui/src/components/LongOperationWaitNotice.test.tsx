@@ -29,6 +29,10 @@ describe("LongOperationWaitNotice", () => {
     );
 
     expect(screen.getByText("Saving finalized review record")).toBeInTheDocument();
+    expect(screen.getByTestId("long-operation-queue-status")).toHaveTextContent(
+      "Queue status: Saving finalized review record",
+    );
+    expect(screen.getByTestId("long-operation-home-page-status-hint")).toHaveTextContent(/Overview/i);
     expect(screen.getByTestId("long-operation-wait-notice")).toHaveAttribute("aria-live", "polite");
 
     await act(async () => {
