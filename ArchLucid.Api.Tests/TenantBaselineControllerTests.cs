@@ -120,6 +120,30 @@ public sealed class TenantBaselineControllerTests
     }
 
     [Fact]
+    public async Task PutAsync_returns_bad_request_when_manual_prep_hours_invalid_and_tenant_missing()
+    {
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantBaselineController controller = CreateController(
+            tenants.Object,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>());
+
+        TenantBaselinePutRequest body = new() { ManualPrepHoursPerReview = 0m };
+
+        IActionResult action = await controller.PutAsync(body, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        tenants.Verify(
+            r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task PutAsync_returns_bad_request_when_people_per_review_set_without_manual_prep_hours()
     {
         TenantRecord tenant = new()

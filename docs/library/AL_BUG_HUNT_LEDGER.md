@@ -3189,9 +3189,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 167
+- **hunts:** 168
 - **bugs-found:** 376
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-04
 - **last-bug:** 2026-09-04 — link-entra localEmail length validation ordering before tenant lookup
 - **related-pd-tb:** none
@@ -4032,11 +4032,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `TenantTrialController.LinkEntraAsync` / `TenantTrialFacade.LinkEntraAsync` — tenant lookup ran before `LocalEmail` max-length validation (`NormalizedEmail NVARCHAR(256)`) so ghost tenant + overlong `localEmail` returned HTTP 404 instead of 400 (#706 entraOid ordering sibling) — **hit 2026-09-04 (#718):** shared `TrialLocalEmailValidation.TryValidateLength` before tenant repository lookup; regression in `TenantTrialControllerTests.LinkEntraAsync_returns_bad_request_when_local_email_exceeds_max_length_and_tenant_missing`.
 
-- [ ] (candidate) `CorePilotTeamChecklistController.PutAsync` — ghost tenant + out-of-range `stepIndex` may return HTTP 404 instead of HTTP 400 (#718 link-entra ordering sibling; controller validates `stepIndex` before `TenantWorkspaceScopePreflight` — needs cheap-disproof).
+- [x] (invalid) `CorePilotTeamChecklistController.PutAsync` — ghost tenant + out-of-range `stepIndex` may return HTTP 404 instead of HTTP 400 (#718 link-entra ordering sibling; controller validates `stepIndex` before `TenantWorkspaceScopePreflight` — needs cheap-disproof) — **cheap-disproof 2026-09-04 (#719):** `stepIndex` guard runs before `TenantWorkspaceScopePreflight`; regression in `CorePilotTeamChecklistControllerTests.PutAsync_returns_bad_request_when_step_index_invalid_and_tenant_missing`.
 
-- [ ] (candidate) `TenantCostSettingsController.PutAsync` — ghost tenant + invalid `eaDiscountPercentage` may return HTTP 404 instead of HTTP 400 (#718 ordering sibling; `TryResolveEaDiscountMultiplier` runs before `GetByIdAsync` — needs cheap-disproof).
+- [x] (invalid) `TenantCostSettingsController.PutAsync` — ghost tenant + invalid `eaDiscountPercentage` may return HTTP 404 instead of HTTP 400 (#718 ordering sibling; `TryResolveEaDiscountMultiplier` runs before `GetByIdAsync` — needs cheap-disproof) — **cheap-disproof 2026-09-04 (#719):** EA discount validation runs before `GetByIdAsync`; regression in `TenantCostSettingsControllerTests.PutAsync_returns_bad_request_when_ea_discount_invalid_and_tenant_missing`.
 
-- [ ] (candidate) `TenantBaselineController.PutAsync` — ghost tenant + invalid `manualPrepHoursPerReview` may return HTTP 404 instead of HTTP 400 (#718 ordering sibling; numeric guards run before tenant lookup — needs cheap-disproof).
+- [x] (invalid) `TenantBaselineController.PutAsync` — ghost tenant + invalid `manualPrepHoursPerReview` may return HTTP 404 instead of HTTP 400 (#718 ordering sibling; numeric guards run before tenant lookup — needs cheap-disproof) — **cheap-disproof 2026-09-04 (#719):** manual-prep guard runs before `GetByIdAsync`; regression in `TenantBaselineControllerTests.PutAsync_returns_bad_request_when_manual_prep_hours_invalid_and_tenant_missing`.
+
+2026-09-04 thorough hunt #719 (dry): cheap-disproved three #718 validation-ordering siblings; no new hunt-ready repro.
 
 2026-09-04 seed hunt #718 (hit): proved link-entra localEmail max-length validation ordering before tenant lookup; seeded checklist stepIndex, cost-settings EA discount, and baseline PUT ordering candidates.
 

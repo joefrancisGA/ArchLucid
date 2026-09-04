@@ -111,6 +111,36 @@ public sealed class TenantCostSettingsControllerTests
     }
 
     [Fact]
+    public async Task PutAsync_returns_bad_request_when_ea_discount_invalid_and_tenant_missing()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<ITenantRepository> tenantRepository = new(MockBehavior.Strict);
+
+        TenantCostSettingsController controller = CreateController(
+            Mock.Of<ITenantCostSettingsRepository>(),
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            tenantRepository.Object);
+
+        TenantCostSettingsPutRequest body = new()
+        {
+            ArchitectHourlyRateUsd = 200m,
+            AverageIncidentCostUsd = 25_000m,
+            EaDiscountPercentage = 150m
+        };
+
+        IActionResult action = await controller.PutAsync(body, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        tenantRepository.Verify(
+            r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task PutAsync_returns_not_found_when_tenant_missing()
     {
         Mock<ITenantCostSettingsRepository> repository = new();
