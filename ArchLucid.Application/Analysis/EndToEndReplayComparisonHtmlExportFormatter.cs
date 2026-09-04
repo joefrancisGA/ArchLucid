@@ -48,9 +48,16 @@ public static class EndToEndReplayComparisonHtmlExportFormatter
 
         sb.AppendLine("<hr/>");
         string summaryMarkdown = summaryFormatter.FormatMarkdown(report).Trim();
-        string summaryHtml = MarkdownToSimpleHtml(summaryMarkdown);
+        string summaryMarkdownForHtml = RemoveCompareQualityDeltaMarkdownSection(summaryMarkdown);
+        string summaryHtml = MarkdownToSimpleHtml(summaryMarkdownForHtml);
         sb.AppendLine(summaryHtml);
         sb.AppendLine();
+
+        if (report.CompareQualityDelta is not null)
+        {
+            CompareQualityDeltaExportFormatter.AppendHtml(sb, report.CompareQualityDelta);
+            sb.AppendLine();
+        }
 
         if (!EndToEndComparisonExportProfile.IsShort(p))
         {
@@ -75,6 +82,22 @@ public static class EndToEndReplayComparisonHtmlExportFormatter
 
         sb.AppendLine("</body></html>");
         return sb.ToString();
+    }
+
+    private static string RemoveCompareQualityDeltaMarkdownSection(string markdown)
+    {
+        const string heading = "## Compare Quality Delta";
+        int start = markdown.IndexOf(heading, StringComparison.Ordinal);
+
+        if (start < 0)
+            return markdown;
+
+        int nextSection = markdown.IndexOf("\n## ", start + heading.Length, StringComparison.Ordinal);
+
+        if (nextSection < 0)
+            return markdown[..start].TrimEnd();
+
+        return (markdown[..start] + markdown[nextSection..]).Trim();
     }
 
     private static string EscapeHtml(string text)

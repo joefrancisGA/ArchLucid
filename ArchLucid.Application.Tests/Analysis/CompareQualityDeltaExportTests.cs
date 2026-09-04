@@ -59,9 +59,10 @@ public sealed class CompareQualityDeltaExportTests
 
         string html = sut.GenerateHtml(report, profile: null);
 
-        html.Should().Contain("Compare Quality Delta");
+        html.Should().Contain("<h2>Compare Quality Delta</h2>");
         html.Should().Contain("Unsupported assumptions");
-        html.Should().Contain("| 2 | 1 |");
+        html.Should().Contain("before 2, after 1");
+        html.Should().NotContain("<p>| Metric | Before | After |</p>");
     }
 
     [SkippableFact]
