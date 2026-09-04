@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 146
-- **bugs-found:** 329
+- **hunts:** 147
+- **bugs-found:** 335
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — submit/promote/activate manifest version max-length validation
+- **last-bug:** 2026-09-04 — governance workflow body field max-length controller guards
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3886,6 +3886,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.Activate` — overlong body `manifestVersion` reached activation workflow and returned HTTP 404 `ManifestNotFound` instead of HTTP 400 while FluentValidation caps at 128 chars (#675 sibling) — **hit 2026-09-04 (#687):** shared `ValidateManifestVersion` before activate workflow; regression in `GovernanceControllerRunHistoryScopeTests.Activate_returns_bad_request_when_manifest_version_exceeds_max_length`.
 
 2026-09-04 seed hunt #687: promoted and proved submit/promote/activate manifest version max-length controller guards (manifest read-route parity).
+
+- [x] (proven) `GovernancePreviewController.Preview` — overlong body `manifestVersion` reached preview service and returned HTTP 404 `ManifestNotFound` instead of HTTP 400 (#687 submit/promote sibling) — **hit 2026-09-04 (#688):** shared `ValidateManifestVersion` before preview; regression in `GovernancePreviewControllerUnitTests.Preview_returns_bad_request_when_manifest_version_exceeds_max_length`.
+
+- [x] (proven) `GovernanceController.SubmitApprovalRequest` / `Promote` / `Activate` — overlong body `runId` reached workflow lookup and returned HTTP 404 `RunNotFound` instead of HTTP 400 while FluentValidation caps at 64 chars (#687 manifest sibling) — **hit 2026-09-04 (#688):** shared `ValidateGovernanceRunId` before workflow; regression in `GovernanceControllerRunHistoryScopeTests` run-id max-length tests.
+
+- [x] (proven) `GovernanceController.SubmitApprovalRequest` / `Promote` — overlong `sourceEnvironment` / `targetEnvironment` reached transition validation without controller-level slug cap (#554 catalog sibling) — **hit 2026-09-04 (#688):** shared `ValidateEnvironmentSlug` before workflow; regression in `GovernanceControllerRunHistoryScopeTests` environment max-length tests.
+
+2026-09-04 seed hunt #688: promoted and proved preview manifest-version, workflow run-id, and environment-slug max-length controller guards.
 
 2026-09-04 seed hunt #685: promoted and proved recurrence preview cron max-length parity and single approve/reject review-comment cap parity with batch review.
 
