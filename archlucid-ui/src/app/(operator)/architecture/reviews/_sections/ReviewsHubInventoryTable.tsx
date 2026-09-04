@@ -25,6 +25,9 @@ import {
 } from "./reviews-list-virtualization";
 
 const PINNED_COLUMN_CLASS = "w-10 px-2";
+const REVIEW_TITLE_COLUMN_CLASS =
+  "min-w-[12rem] max-w-[18rem] lg:sticky lg:left-10 lg:z-[2] lg:bg-al-surface-raised";
+const STATUS_COLUMN_CLASS = "min-w-[6.5rem] lg:sticky lg:left-[calc(2.5rem+12rem)] lg:z-[2] lg:bg-al-surface-raised";
 
 function ReviewsHubInventoryTableHead(): React.JSX.Element {
   return (
@@ -34,9 +37,9 @@ function ReviewsHubInventoryTableHead(): React.JSX.Element {
           <span className="sr-only">Pinned</span>
           <ReviewPinGlyph filled={false} className="h-3.5 w-3.5 text-al-text-secondary" />
         </EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell className={REVIEW_TITLE_COLUMN_CLASS}>Review</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Architecture</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell className={STATUS_COLUMN_CLASS}>Status</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Approval</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Stage</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>

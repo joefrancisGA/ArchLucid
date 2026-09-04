@@ -18,6 +18,11 @@ import {
   enqueueArchitectureDraftOfflinePatch,
   listArchitectureDraftOfflineQueue,
 } from "@/lib/architecture/architecture-draft-offline-queue";
+import {
+  clearArchitectureNewDraftRecovery,
+  readArchitectureNewDraftRecovery,
+  writeArchitectureNewDraftRecovery,
+} from "@/lib/architecture/architecture-new-draft-recovery";
 import { createDraftRequest, getDraftRequest, patchDraftRequest } from "@/lib/api/draft-intake-api";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
@@ -92,6 +97,17 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
           ),
           queuedAtUtc: new Date().toISOString(),
         });
+      } else if (
+        deferCreateUntilFirstSave &&
+        args.resolvedArchitectureIdRef.current === null &&
+        hasArchitectureDraftSaveableContent(args.fieldsRef.current) &&
+        validateArchitectureDraftIntegrity(args.fieldsRef.current).isValid
+      ) {
+        writeArchitectureNewDraftRecovery({
+          fields: args.fieldsRef.current,
+          actorSet: args.actorSetRef.current,
+          queuedAtUtc: new Date().toISOString(),
+        });
       }
 
       args.setSaveState("offline");
@@ -136,6 +152,7 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
           args.setHasPersistedDraft(true);
           args.onDraftCreated?.(created.draftId);
           void invalidateArchitectureDraftListQueries();
+          clearArchitectureNewDraftRecovery();
         }
 
         const latestServer = await getDraftRequest(architectureId);

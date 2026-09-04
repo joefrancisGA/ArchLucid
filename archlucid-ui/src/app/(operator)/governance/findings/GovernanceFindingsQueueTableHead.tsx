@@ -8,6 +8,10 @@ import {
 import { governanceFindingsQueueRecordColumnLabel } from "@/lib/governance/governance-assigned-to-me-queue-copy";
 import type { GovernanceAssignedToMeQueueSortKey } from "@/lib/governance/governance-assigned-to-me-queue-sort";
 import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
+import {
+  GOVERNANCE_FINDINGS_QUEUE_SEVERITY_STICKY_CLASS,
+  GOVERNANCE_FINDINGS_QUEUE_TITLE_STICKY_CLASS,
+} from "@/lib/governance/governance-queue-sticky-identity";
 
 import { GovernanceFindingsQueueSortHeaderCell } from "./GovernanceFindingsQueueSortHeaderCell";
 
@@ -79,6 +83,7 @@ export function GovernanceFindingsQueueTableHead(props: {
               sortKey="title"
               activeSortKey={assignedToMeSortKey}
               sortAsc={assignedToMeSortAsc}
+              className={GOVERNANCE_FINDINGS_QUEUE_TITLE_STICKY_CLASS}
               onSort={(sortKey) => {
                 onAssignedToMeSort?.(sortKey);
               }}
@@ -97,6 +102,7 @@ export function GovernanceFindingsQueueTableHead(props: {
               sortKey="severity"
               activeSortKey={assignedToMeSortKey}
               sortAsc={assignedToMeSortAsc}
+              className={GOVERNANCE_FINDINGS_QUEUE_SEVERITY_STICKY_CLASS}
               onSort={(sortKey) => {
                 onAssignedToMeSort?.(sortKey);
               }}
@@ -115,9 +121,9 @@ export function GovernanceFindingsQueueTableHead(props: {
           </>
         ) : (
           <>
-            <EnterpriseTableHeaderCell>Risk</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell className={GOVERNANCE_FINDINGS_QUEUE_TITLE_STICKY_CLASS}>Risk</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Source review</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Severity</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell className={GOVERNANCE_FINDINGS_QUEUE_SEVERITY_STICKY_CLASS}>Severity</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Disposition</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Age</EnterpriseTableHeaderCell>

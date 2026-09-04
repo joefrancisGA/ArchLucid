@@ -24,6 +24,11 @@ export type UseArchitectureDraftAutosaveArgs = {
   readonly onDraftLoaded?: (draft: DraftRequestResponse) => void;
   /** Called when GET shows a non-drafting status — do not treat as another-session conflict. */
   readonly onImmutableDraftDetected?: (draft: DraftRequestResponse) => void;
+  /** Hydrate a new-draft session from this-browser offline recovery (AD-04). */
+  readonly onNewDraftRecoveryHydrated?: (snapshot: {
+    readonly fields: ArchitectureDraftFieldState;
+    readonly actorSet: ActorSet;
+  }) => void;
 };
 
 export type UseArchitectureDraftAutosaveResult = {

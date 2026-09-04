@@ -46,6 +46,18 @@ export const LIVELIHOOD_DOCUMENT_GUARD_SURFACES: readonly ErrorRecoveryContractG
     sourceRoots: ["components/alerts/use-alert-rules-content-create.ts"],
     requiredMarkers: [LIVELIHOOD_DOCUMENT_GUARD_MARKER],
   },
+  {
+    id: "finding-inspect-disposition",
+    sourceRoots: [
+      "app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/FindingInspectDispositionControls.tsx",
+    ],
+    requiredMarkers: [LIVELIHOOD_DOCUMENT_GUARD_MARKER],
+  },
+  {
+    id: "integrations/azure-boards-connection",
+    sourceRoots: ["app/(operator)/integrations/azure-boards/_sections/AzureBoardsIntegrationPageClient.tsx"],
+    requiredMarkers: [LIVELIHOOD_DOCUMENT_GUARD_MARKER],
+  },
 ] as const;
 
 /**
@@ -63,6 +75,4 @@ export const LIVELIHOOD_DOCUMENT_GUARD_PRIMITIVE_SURFACES: readonly ErrorRecover
 /**
  * Dirty operator forms deferred to LD-12 — documented so the inventory does not silently grow.
  */
-export const LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_SURFACES: readonly string[] = [
-  "integrations/azure-boards-connection",
-] as const;
+export const LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_SURFACES: readonly string[] = [] as const;

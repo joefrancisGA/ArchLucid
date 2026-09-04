@@ -9,6 +9,10 @@ import { ItsmConnectorProviderChooserRail } from "@/components/itsm/ItsmConnecto
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
+  LivelihoodDocumentGuardDialog,
+  useLivelihoodDocumentGuards,
+} from "@/hooks/use-livelihood-document-guards";
+import {
   AZURE_BOARDS_INTEGRATION_FIRST_VIEWPORT_TEST_ID,
   AZURE_BOARDS_INTEGRATION_PRIMARY_CONTENT_ID,
   AZURE_BOARDS_INTEGRATION_SKIP_LINK_LABEL,
@@ -74,12 +78,14 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
     connectionProvenance,
     organizationDisplay,
     connectionTestCollapsedSummary,
+    hasUnsavedConnectionEdits,
     settingsReady,
     handleRefresh,
     saveConnection,
     saveSettings,
     runConnectionTest,
   } = useAzureBoardsIntegrationPage();
+  const documentGuards = useLivelihoodDocumentGuards({ when: hasUnsavedConnectionEdits });
 
   const workspaceBody = isInitialLoad ? (
     <AzureBoardsIntegrationPageLoadingSkeleton />
@@ -174,6 +180,7 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
   );
 
   return (
+    <>
     <OperatorPageContainer
       variant="workflow"
       className={cn("px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
@@ -228,5 +235,12 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
         ) : null}
       </div>
     </OperatorPageContainer>
+    <LivelihoodDocumentGuardDialog
+      open={documentGuards.dialogOpen}
+      message={documentGuards.dialogMessage}
+      onConfirmLeave={documentGuards.confirmLeave}
+      onCancelLeave={documentGuards.cancelLeave}
+    />
+    </>
   );
 }
