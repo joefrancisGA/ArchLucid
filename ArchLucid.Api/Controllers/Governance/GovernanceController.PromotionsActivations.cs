@@ -28,12 +28,33 @@ public sealed partial class GovernanceController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        IActionResult? runIdProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRunId(request.RunId)
+                .ToBadRequestProblemOrNull(this);
+
+        if (runIdProblem is not null)
+            return runIdProblem;
+
         IActionResult? manifestVersionProblem =
             GovernanceApprovalRequestsHttpMapper.ValidateManifestVersion(request.ManifestVersion)
                 .ToBadRequestProblemOrNull(this);
 
         if (manifestVersionProblem is not null)
             return manifestVersionProblem;
+
+        IActionResult? sourceEnvironmentProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateEnvironmentSlug(request.SourceEnvironment, "SourceEnvironment")
+                .ToBadRequestProblemOrNull(this);
+
+        if (sourceEnvironmentProblem is not null)
+            return sourceEnvironmentProblem;
+
+        IActionResult? targetEnvironmentProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateEnvironmentSlug(request.TargetEnvironment, "TargetEnvironment")
+                .ToBadRequestProblemOrNull(this);
+
+        if (targetEnvironmentProblem is not null)
+            return targetEnvironmentProblem;
 
         IActionResult? notesProblem =
             GovernanceApprovalRequestsHttpMapper.ValidateOptionalGovernanceComment(request.Notes, "Notes")
@@ -120,6 +141,13 @@ public sealed partial class GovernanceController
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? runIdProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRunId(request.RunId)
+                .ToBadRequestProblemOrNull(this);
+
+        if (runIdProblem is not null)
+            return runIdProblem;
 
         IActionResult? manifestVersionProblem =
             GovernanceApprovalRequestsHttpMapper.ValidateManifestVersion(request.ManifestVersion)

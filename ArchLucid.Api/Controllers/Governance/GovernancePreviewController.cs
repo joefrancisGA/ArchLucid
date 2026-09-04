@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
+using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
@@ -61,6 +62,13 @@ public sealed class GovernancePreviewController(
         {
             return this.BadRequestProblem("runId is not valid.", ProblemTypes.ValidationFailed);
         }
+
+        IActionResult? manifestVersionProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateManifestVersion(body.ManifestVersion)
+                .ToBadRequestProblemOrNull(this);
+
+        if (manifestVersionProblem is not null)
+            return manifestVersionProblem;
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 

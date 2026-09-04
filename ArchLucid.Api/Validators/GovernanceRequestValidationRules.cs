@@ -5,6 +5,8 @@ public static class GovernanceRequestValidationRules
 {
     public const int ManifestVersionMaxLength = 128;
 
+    public const int RunIdMaxLength = 64;
+
     public const int ReviewCommentMaxLength = 4000;
 
     public const int FindingIdMaxLength = 64;

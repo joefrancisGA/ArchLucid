@@ -4,6 +4,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Governance;
 
 namespace ArchLucid.Api.Http.Governance;
 
@@ -43,6 +44,36 @@ public static class GovernanceApprovalRequestsHttpMapper
         {
             return new GovernanceHttpValidation(
                 $"ManifestVersion must not exceed {GovernanceRequestValidationRules.ManifestVersionMaxLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
+    public static GovernanceHttpValidation? ValidateGovernanceRunId(string? runId)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return new GovernanceHttpValidation("RunId is required.", ProblemTypes.ValidationFailed);
+
+        if (runId.Trim().Length > GovernanceRequestValidationRules.RunIdMaxLength)
+        {
+            return new GovernanceHttpValidation(
+                $"RunId must not exceed {GovernanceRequestValidationRules.RunIdMaxLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
+    public static GovernanceHttpValidation? ValidateEnvironmentSlug(string? environment, string fieldName)
+    {
+        if (string.IsNullOrWhiteSpace(environment))
+            return new GovernanceHttpValidation($"{fieldName} is required.", ProblemTypes.ValidationFailed);
+
+        if (environment.Trim().Length > GovernanceEnvironmentSlug.MaxLength)
+        {
+            return new GovernanceHttpValidation(
+                $"{fieldName} must not exceed {GovernanceEnvironmentSlug.MaxLength} characters.",
                 ProblemTypes.ValidationFailed);
         }
 

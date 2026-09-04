@@ -1,5 +1,6 @@
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Http.Governance;
+using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
 
@@ -92,6 +93,32 @@ public sealed class GovernanceApprovalRequestsHttpMapperTests
         validation.Should().NotBeNull();
         validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
         validation.Message.Should().Contain(GovernanceRequestValidationRules.ManifestVersionMaxLength.ToString());
+    }
+
+    [Fact]
+    public void ValidateGovernanceRunId_rejects_overlong_run_id()
+    {
+        string overlongRunId = new string('r', GovernanceRequestValidationRules.RunIdMaxLength + 1);
+
+        GovernanceHttpValidation? validation =
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRunId(overlongRunId);
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain(GovernanceRequestValidationRules.RunIdMaxLength.ToString());
+    }
+
+    [Fact]
+    public void ValidateEnvironmentSlug_rejects_overlong_slug()
+    {
+        string overlongSlug = new string('e', GovernanceEnvironmentSlug.MaxLength + 1);
+
+        GovernanceHttpValidation? validation =
+            GovernanceApprovalRequestsHttpMapper.ValidateEnvironmentSlug(overlongSlug, "SourceEnvironment");
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain(GovernanceEnvironmentSlug.MaxLength.ToString());
     }
 
     [Fact]
