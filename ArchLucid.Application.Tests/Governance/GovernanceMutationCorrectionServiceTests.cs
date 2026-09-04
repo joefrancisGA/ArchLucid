@@ -242,11 +242,109 @@ public sealed class GovernanceMutationCorrectionServiceTests
         await act.Should().ThrowAsync<ConflictException>();
     }
 
+    [Fact]
+    public async Task RecordAsync_appends_correction_for_bulk_disposition_when_trail_has_authority_run_id()
+    {
+        const string runId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+        const string findingId = "finding-bulk-correction-1";
+        List<AuditEvent> auditEvents = [];
+
+        Mock<IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(r => r.ListByFindingAsync(Scope.TenantId, findingId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new FindingReviewEventRecord
+                {
+                    EventId = Guid.NewGuid(),
+                    TenantId = Scope.TenantId,
+                    WorkspaceId = Scope.WorkspaceId,
+                    ProjectId = Scope.ProjectId,
+                    FindingId = findingId,
+                    ReviewerUserId = "operator-1",
+                    Action = FindingReviewAction.RecordDisposition,
+                    OccurredAtUtc = DateTimeOffset.UtcNow,
+                    RunId = Guid.Parse(runId),
+                    Disposition = ArchLucid.Contracts.Findings.FindingDisposition.Accepted,
+                },
+            ]);
+
+        Mock<IRunRepository> runs = CreateScopedRunRepository(runId);
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((evt, _) => auditEvents.Add(evt))
+            .Returns(Task.CompletedTask);
+
+        GovernanceMutationCorrectionService sut = CreateSut(
+            new Mock<IGovernanceApprovalRequestRepository>().Object,
+            runs.Object,
+            auditService.Object,
+            trail.Object);
+
+        GovernanceMutationCorrectionRecordedDto result = await sut.RecordAsync(
+            new RecordGovernanceMutationCorrectionRequest
+            {
+                MutationKind = GovernanceMutationCorrectionKinds.BulkDisposition,
+                SubjectId = findingId,
+                RunId = runId,
+                Rationale = "Bulk disposition applied to wrong finding set.",
+            },
+            Scope,
+            "operator-1",
+            CancellationToken.None);
+
+        result.MutationKind.Should().Be(GovernanceMutationCorrectionKinds.BulkDisposition);
+        result.SubjectId.Should().Be(findingId);
+        auditEvents.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task RecordAsync_throws_conflict_when_environment_activation_is_superseded()
+    {
+        const string runId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+        const string activationId = "activation-superseded-1";
+
+        Mock<IGovernanceEnvironmentActivationRepository> activations = new();
+        activations
+            .Setup(r => r.GetByRunIdAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new GovernanceEnvironmentActivation
+                {
+                    ActivationId = activationId,
+                    RunId = runId,
+                    IsActive = false,
+                },
+            ]);
+
+        GovernanceMutationCorrectionService sut = CreateSut(
+            new Mock<IGovernanceApprovalRequestRepository>().Object,
+            CreateScopedRunRepository(runId).Object,
+            new Mock<IAuditService>().Object,
+            activationRepo: activations.Object);
+
+        Func<Task> act = () => sut.RecordAsync(
+            new RecordGovernanceMutationCorrectionRequest
+            {
+                MutationKind = GovernanceMutationCorrectionKinds.WorkflowActivate,
+                SubjectId = activationId,
+                RunId = runId,
+                Rationale = "Correction on superseded activation.",
+            },
+            Scope,
+            "operator-1",
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ConflictException>();
+    }
+
     private static GovernanceMutationCorrectionService CreateSut(
         IGovernanceApprovalRequestRepository approvalRepo,
         IRunRepository runRepository,
         IAuditService auditService,
-        IFindingReviewTrailRepository? findingReviewTrailRepository = null)
+        IFindingReviewTrailRepository? findingReviewTrailRepository = null,
+        IGovernanceEnvironmentActivationRepository? activationRepo = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(p => p.GetCurrentScope()).Returns(Scope);
@@ -254,7 +352,7 @@ public sealed class GovernanceMutationCorrectionServiceTests
         return new GovernanceMutationCorrectionService(
             approvalRepo,
             new Mock<IGovernancePromotionRecordRepository>().Object,
-            new Mock<IGovernanceEnvironmentActivationRepository>().Object,
+            activationRepo ?? new Mock<IGovernanceEnvironmentActivationRepository>().Object,
             findingReviewTrailRepository ?? new Mock<IFindingReviewTrailRepository>().Object,
             scopeProvider.Object,
             runRepository,

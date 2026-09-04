@@ -1,5 +1,6 @@
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 
 namespace ArchLucid.Api.Controllers.Governance;
 
@@ -63,6 +64,13 @@ internal static class GovernanceStickinessControllerCore
         if (string.IsNullOrWhiteSpace(normalizedFindingId))
             return new GovernanceHttpValidation("findingId is required.", ProblemTypes.ValidationFailed);
 
+        if (normalizedFindingId.Length > GovernanceRequestValidationRules.FindingIdMaxLength)
+        {
+            return new GovernanceHttpValidation(
+                $"findingId must not exceed {GovernanceRequestValidationRules.FindingIdMaxLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         return null;
     }
 
@@ -104,6 +112,13 @@ internal static class GovernanceStickinessControllerCore
                 continue;
 
             string normalizedFindingId = findingId.Trim();
+
+            if (normalizedFindingId.Length > GovernanceRequestValidationRules.FindingIdMaxLength)
+            {
+                return new GovernanceHttpValidation(
+                    $"Each findingId must not exceed {GovernanceRequestValidationRules.FindingIdMaxLength} characters.",
+                    ProblemTypes.ValidationFailed);
+            }
 
             if (!seenFindingIds.Add(normalizedFindingId))
             {

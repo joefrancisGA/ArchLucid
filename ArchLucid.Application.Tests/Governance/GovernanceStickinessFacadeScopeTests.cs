@@ -1056,6 +1056,66 @@ public sealed class GovernanceStickinessFacadeScopeTests
         response.ProcessedCount.Should().Be(1);
     }
 
+    [Fact]
+    public async Task RecordBulkDispositionAsync_binds_authority_run_id_from_finding_inspect()
+    {
+        Guid authorityRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        const string findingId = "finding-bulk-authority-run";
+
+        Mock<IFindingInspectReadRepository> inspect = new();
+        inspect
+            .Setup(r => r.GetInspectAsync(
+                CallerScope,
+                findingId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions>()))
+            .ReturnsAsync(new FindingInspectResponse
+            {
+                FindingId = findingId,
+                RunId = authorityRunId,
+            });
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(CallerScope, authorityRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchLucid.Persistence.Models.RunRecord { RunId = authorityRunId });
+
+        Mock<IFindingDispositionService> dispositions = new();
+        dispositions
+            .Setup(d => d.RecordAsync(
+                It.Is<RecordFindingDispositionRequest>(request =>
+                    request.FindingId == findingId
+                    && request.RunId == authorityRunId),
+                CallerScope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingDispositionEventDto { FindingId = findingId });
+
+        GovernanceStickinessFacade sut = CreateSut(
+            findingInspect: inspect.Object,
+            runRepository: runs.Object,
+            dispositionService: dispositions.Object);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = [findingId],
+            Disposition = ArchLucid.Contracts.Findings.FindingDisposition.Accepted,
+            Rationale = "bulk with authority run binding",
+        };
+
+        RecordBulkFindingDispositionResponse response =
+            await sut.RecordBulkDispositionAsync(request, CancellationToken.None);
+
+        response.ProcessedCount.Should().Be(1);
+        dispositions.Verify(
+            d => d.RecordAsync(
+                It.Is<RecordFindingDispositionRequest>(r => r.RunId == authorityRunId),
+                CallerScope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     private static GovernanceStickinessFacade CreateSut(
         IArchitectureRiskRegisterService? riskRegister = null,
         IFindingInspectReadRepository? findingInspect = null,

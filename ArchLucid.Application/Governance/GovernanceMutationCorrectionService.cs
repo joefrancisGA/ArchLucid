@@ -241,10 +241,16 @@ public sealed class GovernanceMutationCorrectionService(
         IReadOnlyList<GovernanceEnvironmentActivation> activations =
             await _activationRepo.GetByRunIdAsync(normalizedRunId, cancellationToken);
 
-        bool found = activations.Any(a =>
+        GovernanceEnvironmentActivation? activation = activations.FirstOrDefault(a =>
             string.Equals(a.ActivationId, activationId, StringComparison.OrdinalIgnoreCase));
 
-        if (!found)
+        if (activation is null)
             throw new KeyNotFoundException($"Environment activation '{activationId}' was not found.");
+
+        if (!activation.IsActive)
+        {
+            throw new ConflictException(
+                "Corrections can only be recorded for the active environment activation.");
+        }
     }
 }

@@ -6,8 +6,10 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Explanation;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Queries;
 
 using DocumentFormat.OpenXml.Packaging;
 
@@ -76,6 +78,8 @@ public sealed class ArchitectureReviewBoardSimulatorModeExportTests
 
         ArchitectureReviewExportService sut = new(
             runDetailQuery.Object,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
             analysis.Object,
             scope.Object,
             Mock.Of<ITenantRepository>(),

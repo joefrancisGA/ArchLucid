@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 135
-- **bugs-found:** 298
+- **hunts:** 136
+- **bugs-found:** 302
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — manifest summary relationship default cap; disposition run binding; renew rationale parity; mutation correction 409
+- **last-bug:** 2026-09-04 — bulk disposition authority-run binding; findingId max-length; superseded activation correction 409
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3798,6 +3798,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.RecordGovernanceMutationCorrection` / `GovernanceMutationCorrectionService.ValidateApprovalSubjectAsync` — correction on `Submitted` approval returned HTTP 400 `ValidationFailed` while waiver lifecycle conflicts map to HTTP 409 — **hit 2026-09-04 (#676):** throw `ConflictException` for approval status mismatch; controller maps to HTTP 409; regression in `GovernanceMutationCorrectionServiceTests.RecordAsync_throws_conflict_when_approval_request_is_not_yet_approved`.
 
 2026-09-04 seed hunt #676: promoted and proved manifest summary default relationship cap, disposition authority-run binding, renew rationale min-length parity, and mutation-correction lifecycle conflict status mapping.
+
+- [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` / `GovernanceStickinessFacade.RecordBulkDispositionAsync` — bulk path hardcoded `RunId = Guid.Empty` while single-item disposition binds inspect authority `RunId` (#676 parity) and mutation correction requires exact trail run match (#674) — **hit 2026-09-04 (#677):** inspect each finding, apply `EnsureRunMatchesFindingAuthorityRun`, bind authority `RunId` on per-finding requests; regression in `GovernanceStickinessFacadeScopeTests.RecordBulkDispositionAsync_binds_authority_run_id_from_finding_inspect`.
+
+- [x] (proven) `GovernanceMutationCorrectionService.ValidateFindingDispositionSubjectAsync` / `GovernanceMutationCorrectionKinds.BulkDisposition` — bulk disposition corrections returned HTTP 404 when trail stored authority `RunId` but bulk path omitted run binding — **hit 2026-09-04 (#677):** bulk binding fix restores correction path; regression in `GovernanceMutationCorrectionServiceTests.RecordAsync_appends_correction_for_bulk_disposition_when_trail_has_authority_run_id`.
+
+- [x] (proven) `GovernanceStickinessControllerCore.ValidateFindingId` / stickiness disposition routes — overlong `findingId` (>64) returned HTTP 404 while `FindingInspectController` returns HTTP 400 — **hit 2026-09-04 (#677):** shared `GovernanceRequestValidationRules.FindingIdMaxLength` guard on single and bulk routes; regression in `GovernanceStickinessControllerTests.RecordDisposition_returns_bad_request_when_finding_id_exceeds_max_length` and `RecordBulkDisposition_returns_bad_request_when_finding_id_exceeds_max_length`.
+
+- [x] (proven) `GovernanceMutationCorrectionService.ValidateActivationSubjectAsync` / `GovernanceController.RecordGovernanceMutationCorrection` — correction on superseded activation (`IsActive = false`) returned HTTP 200 while approval status mismatch maps to HTTP 409 (#676 lifecycle parity) — **hit 2026-09-04 (#677):** throw `ConflictException` when activation is not active; regression in `GovernanceMutationCorrectionServiceTests.RecordAsync_throws_conflict_when_environment_activation_is_superseded`.
+
+2026-09-04 seed hunt #677: promoted and proved bulk disposition authority-run binding, bulk correction trail parity, findingId max-length validation, and superseded activation correction conflict mapping.
 
 2026-09-04 seed hunt #675: promoted and proved manifest compare max-length validation, batch review comment cap, and approve/reject/promote actor-field validator parity.
 

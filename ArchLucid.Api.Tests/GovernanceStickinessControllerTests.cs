@@ -1,6 +1,7 @@
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Governance;
@@ -1502,6 +1503,46 @@ public sealed class GovernanceStickinessControllerTests
         };
 
         IActionResult action = await controller.RecordDisposition("   ", request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task RecordDisposition_returns_bad_request_when_finding_id_exceeds_max_length()
+    {
+        GovernanceStickinessController controller = BuildSut();
+        SetIdempotencyKey(controller);
+        string overlongFindingId = new string('f', GovernanceRequestValidationRules.FindingIdMaxLength + 1);
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = overlongFindingId,
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "ok",
+        };
+
+        IActionResult action = await controller.RecordDisposition(overlongFindingId, request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task RecordBulkDisposition_returns_bad_request_when_finding_id_exceeds_max_length()
+    {
+        GovernanceStickinessController controller = BuildSut();
+        SetIdempotencyKey(controller);
+        string overlongFindingId = new string('f', GovernanceRequestValidationRules.FindingIdMaxLength + 1);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = [overlongFindingId],
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "bulk ok",
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
