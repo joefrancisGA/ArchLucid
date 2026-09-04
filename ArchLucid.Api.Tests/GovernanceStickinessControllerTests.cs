@@ -1956,6 +1956,24 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task ResolveFindingMergeConflict_returns_bad_request_when_action_is_unrecognized_and_tenant_missing()
+    {
+        GovernanceStickinessController controller = BuildSut(tenantRepository: TenantMissingRepository());
+
+        IActionResult action = await controller.ResolveFindingMergeConflict(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            "finding-1",
+            new ResolveFindingMergeConflictRequest
+            {
+                Action = (FindingMergeConflictResolutionAction)99,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task ResolveFindingMergeConflict_returns_bad_request_when_run_id_empty_and_tenant_missing()
     {
         GovernanceStickinessController controller = BuildSut(tenantRepository: TenantMissingRepository());

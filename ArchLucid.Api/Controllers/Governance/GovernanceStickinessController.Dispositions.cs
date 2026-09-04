@@ -213,6 +213,13 @@ public sealed partial class GovernanceStickinessController
         if (runIdProblem is not null)
             return runIdProblem;
 
+        IActionResult? actionValidation =
+            GovernanceStickinessHttpMapper.ValidateResolveFindingMergeConflict(request!)
+                .ToBadRequestProblemOrNull(this);
+
+        if (actionValidation is not null)
+            return actionValidation;
+
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)

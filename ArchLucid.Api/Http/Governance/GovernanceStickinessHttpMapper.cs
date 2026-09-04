@@ -442,6 +442,27 @@ public static class GovernanceStickinessHttpMapper
         return null;
     }
 
+    public static GovernanceHttpValidation? ValidateResolveFindingMergeConflict(
+        ResolveFindingMergeConflictRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        return ValidateMergeConflictResolutionAction(request.Action);
+    }
+
+    private static GovernanceHttpValidation? ValidateMergeConflictResolutionAction(
+        FindingMergeConflictResolutionAction action)
+    {
+        if (!Enum.IsDefined(action))
+        {
+            return new GovernanceHttpValidation(
+                "action is not valid.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
     public static GovernanceHttpValidation? ValidateRouteGuid(Guid id, string parameterName)
     {
         if (id == Guid.Empty)
