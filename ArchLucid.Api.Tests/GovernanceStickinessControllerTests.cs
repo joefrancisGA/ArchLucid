@@ -7,6 +7,7 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Application.Governance.Stickiness;
 using ArchLucid.Application.Roi;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
@@ -2716,6 +2717,57 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task CreateRiskException_returns_bad_request_when_rationale_shorter_than_minimum_length()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                "finding-1",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = "finding-1" });
+
+        RiskExceptionService riskExceptionService = new(
+            Mock.Of<IRiskExceptionRepository>(),
+            Mock.Of<IFindingReviewTrailRepository>(),
+            Mock.Of<IAuditService>(),
+            Mock.Of<Microsoft.Extensions.Logging.ILogger<RiskExceptionService>>());
+
+        Mock<IRiskExceptionService> riskExceptions = new();
+        riskExceptions
+            .Setup(r => r.CreateAsync(
+                It.IsAny<CreateRiskExceptionRequest>(),
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Returns((
+                CreateRiskExceptionRequest request,
+                ScopeContext scope,
+                string actor,
+                CancellationToken cancellationToken) =>
+                riskExceptionService.CreateAsync(request, scope, actor, cancellationToken));
+
+        GovernanceStickinessController controller = BuildSut(
+            findingInspect: findingInspect,
+            riskExceptions: riskExceptions);
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = "finding-1",
+            OwnerUserId = "owner@contoso.com",
+            Rationale = "too short",
+            EvidenceRef = "artifact://evidence/1",
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        IActionResult action = await controller.CreateRiskException(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task CreateRiskException_returns_ok_when_finding_id_is_padded()
     {
         Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -2838,6 +2890,7 @@ public sealed class GovernanceStickinessControllerTests
             {
                 RunId = sourceRunId,
                 ArchitectureId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
             });
 
         GovernanceStickinessController controller = BuildSut(runRepository: runs);
@@ -2868,6 +2921,7 @@ public sealed class GovernanceStickinessControllerTests
             {
                 RunId = sourceRunId,
                 ArchitectureId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
             });
 
         GovernanceStickinessController controller = BuildSut(runRepository: runs);
@@ -2877,6 +2931,37 @@ public sealed class GovernanceStickinessControllerTests
             SourceRunId = sourceRunId,
             Name = "weekly review",
             CronExpression = new string('0', RecurrenceScheduleValidation.CronExpressionMaxLength + 1),
+            IsEnabled = true,
+        };
+
+        IActionResult action = await controller.CreateRecurrenceSchedule(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task CreateRecurrenceSchedule_returns_bad_request_when_source_run_is_not_committed()
+    {
+        Guid sourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, sourceRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = sourceRunId,
+                ArchitectureId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+                GoldenManifestId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+            });
+
+        GovernanceStickinessController controller = BuildSut(runRepository: runs);
+
+        CreateArchitectureReviewRecurrenceScheduleRequest request = new()
+        {
+            SourceRunId = sourceRunId,
+            CronExpression = "0 9 * * 1",
             IsEnabled = true,
         };
 
@@ -2905,6 +2990,7 @@ public sealed class GovernanceStickinessControllerTests
             {
                 RunId = sourceRunId,
                 ArchitectureId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
             });
 
         GovernanceStickinessController controller = BuildSut(recurrenceRepo: recurrenceRepo, runRepository: runs);
@@ -2947,6 +3033,7 @@ public sealed class GovernanceStickinessControllerTests
             {
                 RunId = sourceRunId,
                 ArchitectureId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
             });
 
         GovernanceStickinessController controller = BuildSut(recurrenceRepo: recurrenceRepo, runRepository: runs);
@@ -3057,6 +3144,7 @@ public sealed class GovernanceStickinessControllerTests
                 WorkspaceId = Scope.WorkspaceId,
                 ScopeProjectId = Scope.ProjectId,
                 ArchitectureId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
             });
 
         GovernanceStickinessController controller = BuildSut(

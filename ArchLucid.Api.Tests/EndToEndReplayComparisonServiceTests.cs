@@ -29,6 +29,7 @@ public sealed class EndToEndReplayComparisonServiceTests
 {
     private readonly Mock<IAgentResultDiffService> _agentDiff = new();
     private readonly Mock<IExportRecordDiffService> _exportDiff = new();
+    private readonly Mock<ICompareRunsApplicationFacade> _compareRunsFacade = new();
     private readonly Mock<IRunExportRecordRepository> _exportRepo = new();
     private readonly Mock<IManifestDiffService> _manifestDiff = new();
     private readonly Mock<IRunDetailQueryService> _runDetailQueryService = new();
@@ -65,8 +66,46 @@ public sealed class EndToEndReplayComparisonServiceTests
                 _scopeContextProvider.Object),
             new ReplayComparisonInterpretationDiffSlice(),
         ]);
+        _compareRunsFacade
+            .Setup(f => f.LoadScopedRunPairAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string leftRunId, string rightRunId, CancellationToken ct) =>
+            {
+                ArchitectureRunDetail? left = _runDetailQueryService.Object
+                    .GetRunDetailForRollupAsync(leftRunId, ct)
+                    .GetAwaiter()
+                    .GetResult();
+                ArchitectureRunDetail? right = _runDetailQueryService.Object
+                    .GetRunDetailForRollupAsync(rightRunId, ct)
+                    .GetAwaiter()
+                    .GetResult();
+
+                if (left is null)
+                {
+                    return new ScopedRunPairLoadResult
+                    {
+                        Outcome = ScopedRunPairLoadOutcome.LeftRunNotFound,
+                        MissingRunId = leftRunId,
+                    };
+                }
+
+                if (right is null)
+                {
+                    return new ScopedRunPairLoadResult
+                    {
+                        Outcome = ScopedRunPairLoadOutcome.RightRunNotFound,
+                        MissingRunId = rightRunId,
+                    };
+                }
+
+                return new ScopedRunPairLoadResult
+                {
+                    Outcome = ScopedRunPairLoadOutcome.Success,
+                    Left = left,
+                    Right = right,
+                };
+            });
         _sut = new EndToEndReplayComparisonService(
-            _runDetailQueryService.Object,
+            _compareRunsFacade.Object,
             _runRepository.Object,
             _exportRepo.Object,
             _scopeContextProvider.Object,

@@ -56,6 +56,16 @@ public sealed class TenantTrialSeatPolicyTests
         TenantTrialSeatPolicy.RequiresSeatClaim(tenant).Should().BeTrue();
     }
 
+    [Fact]
+    public void RequiresSeatClaim_true_when_padded_active_trial_status()
+    {
+        TenantRecord tenant = CreateTenant(
+            trialStatus: " active ",
+            trialSeatsLimit: 2);
+
+        TenantTrialSeatPolicy.RequiresSeatClaim(tenant).Should().BeTrue();
+    }
+
     private static TenantRecord CreateTenant(string? trialStatus, int? trialSeatsLimit)
     {
         return new TenantRecord

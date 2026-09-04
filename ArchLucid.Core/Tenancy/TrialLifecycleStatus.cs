@@ -18,4 +18,16 @@ public static class TrialLifecycleStatus
 
     /// <summary>Terminal: row scheduled for removal after hard purge completes.</summary>
     public const string Deleted = "Deleted";
+
+    /// <summary>
+    ///     Compares persisted <c>TrialStatus</c> values with trim and case-insensitive equality.
+    ///     SQL and legacy imports may store padded or differently-cased lifecycle labels.
+    /// </summary>
+    public static bool EqualsStatus(string? actual, string expected)
+    {
+        if (actual is null)
+            return false;
+
+        return string.Equals(actual.Trim(), expected, StringComparison.OrdinalIgnoreCase);
+    }
 }

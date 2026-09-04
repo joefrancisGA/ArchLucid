@@ -8,6 +8,7 @@ using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Comparison;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -49,7 +50,7 @@ public sealed partial class RunComparisonController
         RunPairQuery query,
         CancellationToken cancellationToken)
     {
-        (IActionResult? error, ArchitectureRunDetail? leftDetail, ArchitectureRunDetail? rightDetail) =
+        (IActionResult? error, ArchitectureRunDetail? leftDetail, ArchitectureRunDetail? rightDetail, CompareInputFingerprints? inputFingerprints) =
             await LoadValidatedRunPairAsync(query, cancellationToken);
         if (error is not null)
             return (error, null);
@@ -58,7 +59,8 @@ public sealed partial class RunComparisonController
             query.LeftRunId,
             leftDetail!,
             query.RightRunId,
-            rightDetail!);
+            rightDetail!,
+            inputFingerprints);
         return (null, diff);
     }
 
@@ -66,14 +68,14 @@ public sealed partial class RunComparisonController
     ///     Validates the query, loads both runs through <see cref="ICompareRunsApplicationFacade" />, and returns 404 when
     ///     either run is missing.
     /// </summary>
-    private async Task<(IActionResult? Error, ArchitectureRunDetail? Left, ArchitectureRunDetail? Right)>
+    private async Task<(IActionResult? Error, ArchitectureRunDetail? Left, ArchitectureRunDetail? Right, CompareInputFingerprints? InputFingerprints)>
         LoadValidatedRunPairAsync(
             RunPairQuery query,
             CancellationToken cancellationToken)
     {
         IActionResult? queryError = await ValidateRunPairQueryAsync(query, cancellationToken);
         if (queryError is not null)
-            return (queryError, null, null);
+            return (queryError, null, null, null);
 
         ScopedRunPairLoadResult loadResult = await _compareRunsFacade.LoadScopedRunPairAsync(
             query.LeftRunId,
@@ -85,13 +87,30 @@ public sealed partial class RunComparisonController
             ScopedRunPairLoadOutcome.Success => ReturnPairOrError(
                 TryReturnLoadedPair(loadResult.Left!, loadResult.Right!, query),
                 loadResult.Left!,
-                loadResult.Right!),
+                loadResult.Right!,
+                loadResult.InputFingerprints),
             ScopedRunPairLoadOutcome.LeftRunNotFound => (
                 this.NotFoundProblem($"Run '{loadResult.MissingRunId}' was not found.", ProblemTypes.RunNotFound),
+                null,
                 null,
                 null),
             ScopedRunPairLoadOutcome.RightRunNotFound => (
                 this.NotFoundProblem($"Run '{loadResult.MissingRunId}' was not found.", ProblemTypes.RunNotFound),
+                null,
+                null,
+                null),
+            ScopedRunPairLoadOutcome.LeftManifestNotFound => (
+                this.NotFoundProblem(
+                    $"Manifest for run '{loadResult.MissingRunId}' was not found.",
+                    ProblemTypes.ManifestNotFound),
+                null,
+                null,
+                null),
+            ScopedRunPairLoadOutcome.RightManifestNotFound => (
+                this.NotFoundProblem(
+                    $"Manifest for run '{loadResult.MissingRunId}' was not found.",
+                    ProblemTypes.ManifestNotFound),
+                null,
                 null,
                 null),
             ScopedRunPairLoadOutcome.PinFingerprintMismatch => (
@@ -99,11 +118,13 @@ public sealed partial class RunComparisonController
                     "Compare blocked: create-time pin fingerprints differ between the selected runs.",
                     ProblemTypes.Conflict),
                 null,
+                null,
                 null),
             ScopedRunPairLoadOutcome.CommittedArtifactInventoryMismatch => (
                 this.ConflictProblem(
                     "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.",
                     ProblemTypes.CommittedArtifactInventoryMismatch),
+                null,
                 null,
                 null),
             _ => throw new InvalidOperationException($"Unexpected run-pair load outcome: {loadResult.Outcome}."),
@@ -128,14 +149,15 @@ public sealed partial class RunComparisonController
         return null;
     }
 
-    private static (IActionResult? Error, ArchitectureRunDetail? Left, ArchitectureRunDetail? Right) ReturnPairOrError(
+    private static (IActionResult? Error, ArchitectureRunDetail? Left, ArchitectureRunDetail? Right, CompareInputFingerprints? InputFingerprints) ReturnPairOrError(
         IActionResult? guardError,
         ArchitectureRunDetail left,
-        ArchitectureRunDetail right)
+        ArchitectureRunDetail right,
+        CompareInputFingerprints? inputFingerprints)
     {
         if (guardError is not null)
-            return (guardError, null, null);
+            return (guardError, null, null, null);
 
-        return (null, left, right);
+        return (null, left, right, inputFingerprints);
     }
 }

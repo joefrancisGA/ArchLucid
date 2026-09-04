@@ -1,7 +1,7 @@
 "use client";
 
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import ReactFlow, {
   Background,
   BackgroundVariant,
@@ -38,6 +38,8 @@ import {
 } from "@/lib/graph-buyer-path-filter";
 import { applyGraphSelectionFocus } from "@/lib/graph-selection-highlight";
 import { parseGraphPathOnlyFromSearch, graphPathOnlyHrefFromSearch } from "@/lib/insights/graph-path-only-url";
+import { graphNodeFocusHrefFromSearch } from "@/lib/insights/graph-node-focus-url";
+import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { useInpOffloadTask } from "@/lib/workers/inp-offload-client";
 
 /**
@@ -69,9 +71,14 @@ export function GraphViewer({
   compactChrome?: boolean;
 }) {
   const router = useRouter();
+  const pathname = usePathname() ?? EVIDENCE_GRAPH_PATH;
   const searchParams = useSearchParams();
   const currentSearch = searchParams.toString();
   const urlPathOnly = parseGraphPathOnlyFromSearch(searchParams.get("pathOnly"));
+
+  const syncGraphNodeFocusToUrl = (graphNodeId: string | null): void => {
+    router.replace(graphNodeFocusHrefFromSearch(currentSearch, graphNodeId, pathname), { scroll: false });
+  };
 
   const deferredTypeFilter = useDeferredValue(typeFilter);
   const filtered = useMemo(
@@ -296,13 +303,16 @@ export function GraphViewer({
                 setSelectedNode(null);
                 setExplainStatusLine("");
                 setExplainAggregateHref(null);
+                syncGraphNodeFocusToUrl(null);
               }
             }}
             onNodeClick={(_, node) => {
               setSelectedEdge(null);
               setExplainStatusLine("");
               setExplainAggregateHref(null);
-              setSelectedNode((node.data.raw as GraphNodeVm) ?? null);
+              const nextNode = (node.data.raw as GraphNodeVm) ?? null;
+              setSelectedNode(nextNode);
+              syncGraphNodeFocusToUrl(nextNode?.id ?? null);
             }}
           >
             <GraphFitViewSync

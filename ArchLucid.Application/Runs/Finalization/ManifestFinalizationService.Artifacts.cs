@@ -112,6 +112,10 @@ public sealed partial class ManifestFinalizationService
             connection,
             transaction);
 
+        ManifestCommittedArtifactInventoryCapturer.EnsureDecisionTraceInventoryMaterialOrThrow(
+            inventoryMaterial,
+            request.RunId.ToString("N"));
+
         if (request.SkipPersistingPipelineArtifacts)
         {
             if (connection is not null)

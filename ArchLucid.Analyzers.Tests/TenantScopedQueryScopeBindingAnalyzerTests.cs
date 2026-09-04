@@ -349,6 +349,69 @@ public sealed class PropertyInitializedRunsRepository
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
     }
 
+    [Fact]
+    public async Task ARCH006_does_not_crash_when_sql_field_lives_in_partial_class_sibling_file()
+    {
+        const string sqlFieldFile =
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+public sealed partial class PartialFileRunsRepository
+{
+    private static readonly string UnscopedRunsSql =
+        "SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL";
+}
+}
+""";
+
+        const string queryFile =
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using Dapper;
+
+public sealed partial class PartialFileRunsRepository
+{
+    public void Load(IDbConnection connection)
+    {
+        _ = SqlMapper.Query<int>(connection, UnscopedRunsSql);
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
+            .WithSpan("Query.cs", 11, 13, 11, 62)
+            .WithArguments("dbo.Runs");
+
+        CSharpAnalyzerTest<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier> test = new()
+        {
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidPersistence },
+            TestState =
+            {
+                AdditionalFiles =
+                {
+                    ("tenant_scoped_tables.v1.json", Microsoft.CodeAnalysis.Text.SourceText.From(RegistryJson)),
+                },
+                Sources =
+                {
+                    ("Stubs.cs", SharedStubs),
+                    ("SqlField.cs", sqlFieldFile),
+                    ("Query.cs", queryFile),
+                },
+            },
+        };
+
+        test.ExpectedDiagnostics.Add(expected);
+
+        await test.RunAsync();
+    }
+
     private static async Task RunPersistenceAnalyzerTestAsync(
         string testCode,
         params DiagnosticResult[] expectedDiagnostics)

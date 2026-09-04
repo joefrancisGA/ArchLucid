@@ -40,6 +40,13 @@ public sealed partial class ArtifactExportController
                 ProblemTypes.DecisionReceiptSealedHashMismatch);
         }
 
+        if (buildResult.Outcome == DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete)
+        {
+            return this.ConflictProblem(
+                $"Decision receipt for run '{runId}' is missing sealed receipt fields required for export.",
+                ProblemTypes.DecisionReceiptSealedIncomplete);
+        }
+
         if (buildResult.Outcome != DecisionReceiptRunBuildOutcome.Success || buildResult.Receipt is null)
         {
             return this.NotFoundProblem(
@@ -72,6 +79,7 @@ public sealed partial class ArtifactExportController
     [Produces("application/zip")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> DownloadRunExport(

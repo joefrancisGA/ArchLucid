@@ -1,10 +1,15 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -174,8 +179,46 @@ public sealed class GovernanceMutationCorrectionServiceTests
             findingReviewTrailRepository ?? new Mock<IFindingReviewTrailRepository>().Object,
             scopeProvider.Object,
             runRepository,
+            CreateAuthorityQueryService(runRepository).Object,
+            CreateManifestHashService().Object,
             auditService,
             NullLogger<GovernanceMutationCorrectionService>.Instance);
+    }
+
+    private static Mock<IAuthorityQueryService> CreateAuthorityQueryService(IRunRepository runRepository)
+    {
+        Mock<IAuthorityQueryService> query = new();
+        query
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(
+                Scope,
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken _) =>
+            {
+                ManifestDocument manifest = new()
+                {
+                    RunId = runId,
+                    ManifestHash = "SEALED-HASH",
+                };
+
+                return new RunDetailDto
+                {
+                    Run = new ArchLucid.Persistence.Models.RunRecord { RunId = runId },
+                    GoldenManifest = manifest,
+                };
+            });
+
+        return query;
+    }
+
+    private static Mock<IManifestHashService> CreateManifestHashService()
+    {
+        Mock<IManifestHashService> hashService = new();
+        hashService
+            .Setup(h => h.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns("SEALED-HASH");
+
+        return hashService;
     }
 
     private static Mock<IRunRepository> CreateScopedRunRepository(string runId)

@@ -10,8 +10,6 @@ import { CaiqSigResponseHelpPostureSummary } from "@/components/help/CaiqSigResp
 
 import { ScopeHelpClaimDisciplineStrip } from "@/components/help/ScopeHelpClaimDisciplineStrip";
 
-import { CaiqSigResponseHelpPostureSummary } from "@/components/help/CaiqSigResponseHelpPostureSummary";
-
 import { HelpTopicExportClaimDiscipline } from "@/components/help/HelpTopicExportClaimDiscipline";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";

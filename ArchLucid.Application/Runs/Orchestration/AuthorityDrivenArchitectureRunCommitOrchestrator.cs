@@ -269,9 +269,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                 runId,
                 _manifestHashService);
 
-            string manifestVersion = !string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
-                ? run.CurrentManifestVersion
-                : persistedManifest.Metadata.Version;
+            string manifestVersion = !string.IsNullOrWhiteSpace(persistedManifest.Metadata?.Version)
+                ? persistedManifest.Metadata.Version
+                : run.CurrentManifestVersion ?? string.Empty;
 
             AuthorityCommitRecoveryVerifier.EnsureDecisionReceiptHashConsistentOrThrow(
                 persistedManifest,

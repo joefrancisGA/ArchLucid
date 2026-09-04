@@ -120,7 +120,10 @@ public sealed class AuditPathClassificationArchitectureTests
         "AuthorityPipelineArtifactsStage",
         "AuthorityPipelineDecisioningStage",
         "AuthorityPipelineFindingsStage",
-        "TraceabilityBundleExportApplicationService"
+        "TraceabilityBundleExportApplicationService",
+        "RunExportQueryFacade",
+        "DigestSubscriptionFacade",
+        "TenantTrialIdentityHandoffStage"
     ];
 
     private static string FindRepoRoot()

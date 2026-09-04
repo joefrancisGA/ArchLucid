@@ -6,8 +6,11 @@ using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Exports;
 using ArchLucid.Core.Explanation;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Exports;
 
@@ -16,6 +19,8 @@ namespace ArchLucid.Application.Exports;
 /// </summary>
 public sealed partial class ArchitectureReviewExportService(
     IRunDetailQueryService runDetailQueryService,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     IArchitectureAnalysisService architectureAnalysisService,
     IScopeContextProvider scopeContextProvider,
     ITenantRepository tenantRepository,
@@ -24,6 +29,12 @@ public sealed partial class ArchitectureReviewExportService(
     ArchitectureReviewDocxBuilder docxBuilder,
     ArchitectureReviewPdfBuilder pdfBuilder) : IArchitectureReviewExportService
 {
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
     /// <inheritdoc/>
     public async Task<ExportResult> GenerateReportAsync(string runId, ExportFormat format, WhitelabelConfiguration? whitelabel,
         byte[]? logoImageBytes, string? httpCorrelationId, CancellationToken cancellationToken)
@@ -41,7 +52,15 @@ public sealed partial class ArchitectureReviewExportService(
             throw new ConflictException(
                 "This finalized review references an architecture snapshot that could not be loaded from storage. Resolve the broken manifest reference before exporting.");
 
+        if (detail.Manifest is null)
+        {
+            throw new ConflictException(
+                "Export requires a finalized review with a committed architecture snapshot.");
+        }
+
         AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());
+
+        await EnsureSealedDecisionReceiptVerifiedOrThrowAsync(runId.Trim(), cancellationToken);
 
         ArchitectureAnalysisRequest analysisRequest = new()
         {

@@ -78,6 +78,12 @@ public sealed partial class AuditController
             Take = exportMaxRows
         };
 
+        IActionResult? rowCapProblem =
+            await EnsureAuditExportWithinRowCapOrConflictAsync(scope, exportFilter, exportMaxRows, ct);
+
+        if (rowCapProblem is not null)
+            return rowCapProblem;
+
         if (!string.IsNullOrWhiteSpace(format))
         {
             string f = format.Trim().ToLowerInvariant();

@@ -163,11 +163,20 @@ public sealed partial class CompareRunsApplicationFacade
             };
         }
 
+        GoldenManifest projectedLeft =
+            await ProjectCompareManifestAsync(leftDetail.GoldenManifest, leftHeader, ct);
+        GoldenManifest projectedRight =
+            await ProjectCompareManifestAsync(rightDetail.GoldenManifest, rightHeader, ct);
+
         return new VersionManifestCompareLoadResult
         {
             Outcome = ManifestCompareLoadOutcome.Success,
-            Left = await ProjectCompareManifestAsync(leftDetail.GoldenManifest, leftHeader, ct),
-            Right = await ProjectCompareManifestAsync(rightDetail.GoldenManifest, rightHeader, ct),
+            Left = ManifestCompareInventoryCheckedDocumentBuilder.ApplyProjectedTopologyToGoldenManifest(
+                leftDetail.GoldenManifest,
+                projectedLeft),
+            Right = ManifestCompareInventoryCheckedDocumentBuilder.ApplyProjectedTopologyToGoldenManifest(
+                rightDetail.GoldenManifest,
+                projectedRight),
             InputFingerprints = RunComparePinFingerprintGuard.BuildCompareInputFingerprints(
                 leftHeader,
                 rightHeader,
