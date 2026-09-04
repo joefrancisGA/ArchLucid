@@ -44,7 +44,7 @@ export function OperatorAttentionKindStrip(
       data-testid="operator-attention-kind-strip"
       data-variant={variant}
     >
-      {variant === "default" ? (
+      {variant === "default" || variant === "compact" ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {OPERATOR_ATTENTION_KIND_STRIP_HELPER}
         </p>

@@ -8,6 +8,7 @@ import type { RunSummary } from "@/types/authority";
 
 export type OperatorHomeContinueLastReviewPackageSectionProps = {
   readonly runs: readonly RunSummary[];
+  readonly buttonVariant?: "primary" | "outline";
 };
 
 /** Working Home resume row for the last-open review package (CD-11). */
@@ -23,5 +24,5 @@ export function OperatorHomeContinueLastReviewPackageSection(
     return null;
   }
 
-  return <ReviewPackageContinueLastRow target={target} />;
+  return <ReviewPackageContinueLastRow target={target} buttonVariant={props.buttonVariant ?? "primary"} />;
 }

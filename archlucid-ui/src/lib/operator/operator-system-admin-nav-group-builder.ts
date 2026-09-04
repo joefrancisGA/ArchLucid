@@ -400,6 +400,8 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
 
       surface: "system-admin",
 
+      staffInternalOnly: true,
+
       links,
 
     };

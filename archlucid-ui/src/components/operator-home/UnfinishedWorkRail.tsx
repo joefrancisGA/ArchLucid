@@ -10,7 +10,7 @@ import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-dr
 import { countUnlinkedArchitectureDraftRegistryEntries } from "@/lib/architecture/architecture-draft-registry";
 import { REVIEWS_HUB_UNFINISHED_WORK_HREF } from "@/lib/reviews-hub-unfinished-work-href";
 import {
-  OPERATOR_HOME_PRIMARY_SECTION_HEADING,
+  OPERATOR_HOME_SECTION_HEADING,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
   type EnterpriseStatusKind,
@@ -293,7 +293,7 @@ export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.El
       data-attention-partition="unfinished-work"
       aria-label={UNFINISHED_WORK_RAIL_TITLE}
     >
-      <h2 className={OPERATOR_HOME_PRIMARY_SECTION_HEADING}>{OPERATOR_HOME_YOUR_WORK_HEADING}</h2>
+      <h2 className={OPERATOR_HOME_SECTION_HEADING}>{OPERATOR_HOME_YOUR_WORK_HEADING}</h2>
       <UnfinishedWorkRailList items={items} />
       {railSummary.truncated ? (
         <p className="m-0">

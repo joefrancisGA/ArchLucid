@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 
 export type ReviewPackageContinueLastRowProps = {
   readonly target: ContinueLastReviewPackageTarget;
+  readonly buttonVariant?: "primary" | "outline";
 };
 
 /** Working Overview: resume the last-open architecture package (CD-11). */
@@ -41,7 +42,7 @@ export function ReviewPackageContinueLastRow(props: ReviewPackageContinueLastRow
             </time>
           </p>
         </div>
-        <Button type="button" variant="primary" size="sm" asChild data-testid="review-package-continue-last-open">
+        <Button type="button" variant={props.buttonVariant ?? "primary"} size="sm" asChild data-testid="review-package-continue-last-open">
           <Link href={target.href}>Open</Link>
         </Button>
       </div>

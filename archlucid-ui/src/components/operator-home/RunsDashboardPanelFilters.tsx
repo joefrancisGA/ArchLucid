@@ -23,7 +23,9 @@ export type RunsDashboardPanelFiltersProps = {
   readonly tab: RunsDashboardTabId;
   readonly isRecentListTab: boolean;
   readonly statusTabIds: readonly RunsDashboardTabId[];
-  readonly statusTabCounts: Readonly<Record<RunsDashboardTabId, number>>;
+  readonly statusTabCounts: Readonly<Record<RunsDashboardTabId, number>> & {
+    readonly recentTotalCount?: number;
+  };
   readonly archivedFieldSupported: boolean;
   readonly archivedCount: number;
   readonly archivedFilterDisabled: boolean;
@@ -105,6 +107,10 @@ export function RunsDashboardPanelFilters({
                 >
                   {runsDashboardTabLabel(id, buyerPolishedShell, statusTabCounts[id], {
                     homePreviewMode: hideHeading,
+                    recentTotalCount:
+                      hideHeading && "recentTotalCount" in statusTabCounts
+                        ? statusTabCounts.recentTotalCount
+                        : undefined,
                   })}
                 </TabsTrigger>
               ))}
@@ -146,9 +152,14 @@ export function RunsDashboardPanelFilters({
                 value={id}
                 data-testid={`runs-dashboard-tab-${id}`}
                 className="shrink-0"
+                disabled={statusTabCounts[id] === 0 && id !== "all"}
               >
                 {runsDashboardTabLabel(id, buyerPolishedShell, statusTabCounts[id], {
                   homePreviewMode: hideHeading,
+                  recentTotalCount:
+                    hideHeading && "recentTotalCount" in statusTabCounts
+                      ? statusTabCounts.recentTotalCount
+                      : undefined,
                 })}
               </TabsTrigger>
             ))}

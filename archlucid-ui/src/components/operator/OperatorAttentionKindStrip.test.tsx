@@ -52,14 +52,14 @@ describe("OperatorAttentionKindStrip (TB-2353)", () => {
     expect(screen.getByTestId("operator-attention-kind-chip-awaiting-approval")).toHaveTextContent("3");
   });
 
-  it("omits helper text on compact home hub layout", () => {
+  it("shows helper text on compact home hub layout", () => {
     usePathname.mockReturnValue("/");
     useSearchParams.mockReturnValue(new URLSearchParams());
 
     render(<OperatorAttentionKindStrip variant="compact" />);
 
     expect(screen.getByTestId("operator-attention-kind-strip")).toHaveAttribute("data-variant", "compact");
-    expect(screen.queryByText(OPERATOR_ATTENTION_KIND_STRIP_HELPER)).not.toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_ATTENTION_KIND_STRIP_HELPER)).toBeInTheDocument();
     expect(screen.getByTestId("operator-attention-kind-chips")).toBeInTheDocument();
   });
 
@@ -69,7 +69,7 @@ describe("OperatorAttentionKindStrip (TB-2353)", () => {
 
     render(<OperatorAttentionKindStrip variant="compact" suppressKinds={["unfinished-work"]} />);
 
-    expect(screen.queryByText(OPERATOR_ATTENTION_KIND_STRIP_HELPER)).not.toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_ATTENTION_KIND_STRIP_HELPER)).toBeInTheDocument();
     expect(screen.queryByTestId("operator-attention-kind-chip-unfinished-work")).not.toBeInTheDocument();
     expect(screen.getByTestId("operator-attention-kind-chip-awaiting-approval")).toBeInTheDocument();
   });
