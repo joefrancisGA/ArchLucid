@@ -13,6 +13,7 @@ import { OperatorMutationInlineError } from "@/components/operator/OperatorMutat
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { useGovernanceRecordCorrectionUrlSync } from "@/hooks/use-governance-record-correction-url-sync";
 import {
   focusAdjacentFindingCard,
   getFocusedFindingId,
@@ -96,7 +97,9 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
   const [successUndo, setSuccessUndo] = useState<(() => Promise<void>) | null>(null);
   const [successUndoBusy, setSuccessUndoBusy] = useState(false);
   const [correctionTarget, setCorrectionTarget] = useState<GovernanceMutationCorrectionTarget | null>(null);
-  const [correctionDialogOpen, setCorrectionDialogOpen] = useState(false);
+  const { correctionDialogOpen, setCorrectionDialogOpen } = useGovernanceRecordCorrectionUrlSync({
+    correctionTarget,
+  });
   const [correctionRecorded, setCorrectionRecorded] = useState(false);
 
   const syncKeyboardTriageConfirmToUrl = useCallback(

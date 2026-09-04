@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useState, type ReactNode } from "react";
+import { useCallback, useState, type ReactNode, type SetStateAction } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import {
@@ -19,6 +20,10 @@ import { downloadTerraformAdvisoryExportZip } from "@/lib/api";
 import { recordFirstExportOpenedOnce } from "@/lib/first-tenant-funnel-telemetry";
 import { showError } from "@/lib/toast";
 import { TERRAFORM_ADVISORY_EXPORT_DISCLAIMER } from "@/lib/terraform-advisory-disclaimer";
+import {
+  parseTerraformAdvisoryExportConfirmOpenFromSearch,
+  terraformAdvisoryExportConfirmHrefFromSearch,
+} from "@/lib/reviews/terraform-advisory-export-confirm-url";
 
 export type ExportTerraformAdvisoryButtonProps = {
   runId: string;
@@ -27,8 +32,36 @@ export type ExportTerraformAdvisoryButtonProps = {
 /** Run detail action: downloads advisory Terraform placeholder ZIP via API (disclaimer gate). */
 export function ExportTerraformAdvisoryButton(props: ExportTerraformAdvisoryButtonProps): ReactNode {
   const { runId } = props;
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? `/architecture/reviews/${runId}`;
+  const searchParams = useSearchParams();
+  const terraformExportConfirmParam = searchParams.get("terraformExportConfirm");
+  const [open, setOpenState] = useState(() =>
+    parseTerraformAdvisoryExportConfirmOpenFromSearch(terraformExportConfirmParam),
+  );
   const [busy, setBusy] = useState(false);
+
+  const syncTerraformExportConfirmToUrl = useCallback(
+    (confirmOpen: boolean) => {
+      router.replace(
+        terraformAdvisoryExportConfirmHrefFromSearch(searchParams.toString(), confirmOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncTerraformExportConfirmToUrl(next);
+
+        return next;
+      });
+    },
+    [syncTerraformExportConfirmToUrl],
+  );
 
   const runDownload = useCallback(async () => {
     setBusy(true);
