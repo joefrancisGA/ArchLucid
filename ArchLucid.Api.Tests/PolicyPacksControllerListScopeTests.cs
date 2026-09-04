@@ -433,6 +433,25 @@ public sealed class PolicyPacksControllerListScopeTests
     }
 
     [Fact]
+    public async Task PromoteCatalogEntry_returns_bad_request_when_version_is_whitespace_only()
+    {
+        PolicyPacksController sut = CreateSut(
+            httpFacade: new Mock<IPolicyPackHttpFacade>(MockBehavior.Strict),
+            tenantExists: true);
+
+        IActionResult result = await sut.PromoteCatalogEntry(
+            new PromotePolicyPackCatalogEntryRequest
+            {
+                SourcePolicyPackId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                Version = "   ",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task PromoteCatalogEntry_returns_bad_request_when_version_exceeds_max_length()
     {
         PolicyPacksController sut = CreateSut(
