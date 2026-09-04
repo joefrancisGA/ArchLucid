@@ -35,6 +35,7 @@ This set is the **2026-09-04 residual 15** — the same five diagnosis classes, 
 | **RS-01–15** | Wave 3 unique leftovers | **Shipped** #1457 — do not re-run |
 | **WA-01–24** | Wave 4 chrome + career edges | **Shipped** #1496 — do not re-run |
 | **CD-01–15** | Wave 5 unique leftovers | [`career-desk-00-index.md`](career-desk-00-index.md) |
+| **AD-01–12** | Wave 6 all-day desk leftovers | [`all-day-desk-00-index.md`](all-day-desk-00-index.md) |
 
 ## Run order
 

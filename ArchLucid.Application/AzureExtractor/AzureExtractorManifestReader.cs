@@ -47,7 +47,7 @@ public static class AzureExtractorManifestReader
 
                 return (null, "manifest.json schemaVersion is missing or invalid.");
 
-            if (!AzureExtractorZipSchema.AllSupportedVersions.Contains(dto.SchemaVersion))
+            if (!Core.AzureExtractor.AzureExtractorZipSchema.IsSupported(dto.SchemaVersion))
 
                 return (null, $"Unsupported manifest schemaVersion: {dto.SchemaVersion}.");
 

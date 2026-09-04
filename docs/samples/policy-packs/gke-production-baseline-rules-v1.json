@@ -110,7 +110,7 @@
     {
       "id": "gke-004",
       "title": "GKE Workload Identity for pods",
-      "description": "Applications must use GKE Workload Identity — not long-lived service account keys in Kubernetes secrets.",
+      "description": "Applications must use GKE Workload Identity \u2014 not long-lived service account keys in Kubernetes secrets.",
       "severity": "Critical",
       "priority": "P0",
       "remediationGuidance": "Document Workload Identity GSA bindings in governance.RequiredControls and services[].Tags for GKE workloads.",
@@ -135,17 +135,17 @@
       "frameworkMappings": [
         {
           "framework": "GKE baseline",
-          "theme": "GKE baseline — Workload Identity"
+          "theme": "GKE baseline \u2014 Workload Identity"
         }
       ]
     },
     {
       "id": "gke-005",
       "title": "RBAC enabled with Google Groups / Cloud IAM integration",
-      "description": "Kubernetes RBAC must integrate with Google Groups or Cloud IAM — not local cluster-admin accounts for routine ops.",
+      "description": "Kubernetes RBAC must integrate with Google Groups or Cloud IAM \u2014 not local cluster-admin accounts for routine ops.",
       "severity": "Critical",
       "priority": "P0",
-      "remediationGuidance": "Capture Google Groups–integrated RBAC in governance.PolicyConstraints and governance.ComplianceTags.",
+      "remediationGuidance": "Capture Google Groups\u2013integrated RBAC in governance.PolicyConstraints and governance.ComplianceTags.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -167,7 +167,7 @@
       "frameworkMappings": [
         {
           "framework": "GKE baseline",
-          "theme": "GKE baseline — Google Groups RBAC"
+          "theme": "GKE baseline \u2014 Google Groups RBAC"
         }
       ]
     },
@@ -200,7 +200,7 @@
     {
       "id": "gke-007",
       "title": "Container image from trusted registry",
-      "description": "Images must pull from approved Artifact Registry or registry with vulnerability scanning — not unvetted public images in prod.",
+      "description": "Images must pull from approved Artifact Registry or registry with vulnerability scanning \u2014 not unvetted public images in prod.",
       "severity": "High",
       "priority": "P1",
       "remediationGuidance": "Tag image source on services[].Tags; document Artifact Registry linkage in governance.RequiredControls.",
@@ -284,7 +284,7 @@
     {
       "id": "gke-010",
       "title": "Secrets via Secret Manager CSI or External Secrets",
-      "description": "Application secrets should use Secret Manager with the CSI driver or External Secrets Operator — not plain Kubernetes secrets for long-lived credentials.",
+      "description": "Application secrets should use Secret Manager with the CSI driver or External Secrets Operator \u2014 not plain Kubernetes secrets for long-lived credentials.",
       "severity": "High",
       "priority": "P1",
       "remediationGuidance": "Document secret injection pattern in governance.RequiredControls and services[].Tags.",
@@ -309,7 +309,7 @@
       "frameworkMappings": [
         {
           "framework": "GKE baseline",
-          "theme": "GKE baseline — Secret Manager CSI"
+          "theme": "GKE baseline \u2014 Secret Manager CSI"
         }
       ]
     },
@@ -714,7 +714,7 @@
     {
       "id": "gke-024",
       "title": "Outbound traffic control (VPC firewall or Cloud NAT)",
-      "description": "Egress from cluster should document VPC firewall rules, Cloud NAT, or hierarchical firewall policies — not unrestricted outbound.",
+      "description": "Egress from cluster should document VPC firewall rules, Cloud NAT, or hierarchical firewall policies \u2014 not unrestricted outbound.",
       "severity": "High",
       "priority": "P2",
       "remediationGuidance": "Map egress controls in metadata.ChangeDescription; align with gcpExtractor route tables.",

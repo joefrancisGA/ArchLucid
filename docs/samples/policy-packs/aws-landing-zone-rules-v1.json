@@ -30,7 +30,7 @@
       "frameworkMappings": [
         {
           "framework": "AWS Control Tower",
-          "theme": "Govern — Organizational unit design"
+          "theme": "Govern \u2014 Organizational unit design"
         }
       ]
     },
@@ -54,7 +54,7 @@
       "frameworkMappings": [
         {
           "framework": "AWS Control Tower",
-          "theme": "Plan — Account design"
+          "theme": "Plan \u2014 Account design"
         }
       ]
     },
@@ -77,7 +77,7 @@
       "frameworkMappings": [
         {
           "framework": "AWS Landing Zone",
-          "designArea": "Networking — Hub-spoke or Transit Gateway"
+          "designArea": "Networking \u2014 Hub-spoke or Transit Gateway"
         }
       ]
     },
@@ -100,7 +100,7 @@
       "frameworkMappings": [
         {
           "framework": "AWS Landing Zone",
-          "designArea": "Governance — SCP and compliance"
+          "designArea": "Governance \u2014 SCP and compliance"
         }
       ]
     },
@@ -125,7 +125,7 @@
       "frameworkMappings": [
         {
           "framework": "AWS Landing Zone",
-          "designArea": "Identity — IAM Identity Center and RBAC"
+          "designArea": "Identity \u2014 IAM Identity Center and RBAC"
         }
       ]
     },
@@ -148,7 +148,7 @@
       "frameworkMappings": [
         {
           "framework": "AWS Landing Zone",
-          "designArea": "Management — Centralized audit logging"
+          "designArea": "Management \u2014 Centralized audit logging"
         }
       ]
     },
@@ -172,7 +172,7 @@
       "frameworkMappings": [
         {
           "framework": "AWS Landing Zone",
-          "designArea": "Networking — Private DNS and VPC endpoints"
+          "designArea": "Networking \u2014 Private DNS and VPC endpoints"
         }
       ]
     },
@@ -196,7 +196,7 @@
       "frameworkMappings": [
         {
           "framework": "AWS Landing Zone",
-          "designArea": "Security — Security Hub and GuardDuty"
+          "designArea": "Security \u2014 Security Hub and GuardDuty"
         }
       ]
     },
@@ -219,7 +219,7 @@
       "frameworkMappings": [
         {
           "framework": "AWS Control Tower",
-          "theme": "Manage — Cost management"
+          "theme": "Manage \u2014 Cost management"
         }
       ]
     },
@@ -243,7 +243,7 @@
       "frameworkMappings": [
         {
           "framework": "AWS Control Tower",
-          "theme": "Govern — Access control"
+          "theme": "Govern \u2014 Access control"
         }
       ]
     },
@@ -267,7 +267,7 @@
       "frameworkMappings": [
         {
           "framework": "AWS Landing Zone",
-          "designArea": "Networking — Shared services"
+          "designArea": "Networking \u2014 Shared services"
         }
       ]
     },
@@ -290,7 +290,7 @@
       "frameworkMappings": [
         {
           "framework": "AWS Landing Zone",
-          "designArea": "Management — Evidence hygiene"
+          "designArea": "Management \u2014 Evidence hygiene"
         }
       ]
     }

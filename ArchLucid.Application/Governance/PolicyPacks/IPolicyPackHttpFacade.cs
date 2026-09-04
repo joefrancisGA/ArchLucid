@@ -40,6 +40,11 @@ public interface IPolicyPackHttpFacade
         bool isEnabled,
         CancellationToken ct);
 
+    Task<PolicyPackHttpResult<bool>> SetAssignmentOrganizationRequiredAsync(
+        Guid assignmentId,
+        bool isOrganizationRequired,
+        CancellationToken ct);
+
     Task<PolicyPackHttpResult<PolicyPacksPageBundleResponse>> GetPageBundleAsync(CancellationToken ct);
 
     Task<PolicyPackHttpResult<IReadOnlyList<PolicyPackWorkspaceSelectionItem>>> ListWorkspaceSelectionAsync(

@@ -4,7 +4,7 @@
   "pack": {
     "name": "NIST Cybersecurity Framework 2.0",
     "description": "CSF 2.0 function themes for architecture evidence (Govern, Identify, Protect, Detect, Respond, Recover).",
-    "version": "1.1.0",
+    "version": "1.0.0",
     "category": "Compliance",
     "isDefault": true,
     "suggestedPackType": "PlatformDefault",
@@ -13,11 +13,11 @@
   "rules": [
     {
       "id": "nist-csf-001",
-      "title": "Organizational context documented (GV)",
-      "description": "Architecture must state mission drivers, stakeholders, and risk tolerance informing security decisions.",
-      "severity": "Medium",
+      "title": "NIST Cybersecurity Framework 2.0 \u2014 control theme 1",
+      "description": "Architecture manifest and Azure extractor evidence should support: nist cybersecurity framework 2.0 \u2014 control theme 1. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
       "priority": "P0",
-      "remediationGuidance": "Capture organizational context in systemName and metadata.ChangeDescription.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -28,17 +28,17 @@
       "frameworkMappings": [
         {
           "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 GV.OC Organizational context"
+          "theme": "Govern"
         }
       ]
     },
     {
       "id": "nist-csf-002",
-      "title": "Risk management strategy aligned (GV)",
-      "description": "Security architecture should reference enterprise risk management strategy and appetite.",
+      "title": "NIST Cybersecurity Framework 2.0 \u2014 control theme 2",
+      "description": "Architecture manifest and Azure extractor evidence should support: nist cybersecurity framework 2.0 \u2014 control theme 2. Thematic mapping only \u2014 not certification.",
       "severity": "High",
       "priority": "P0",
-      "remediationGuidance": "Link risk appetite in governance.PolicyConstraints and governance.ComplianceTags.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -49,17 +49,17 @@
       "frameworkMappings": [
         {
           "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 GV.RM Risk management strategy"
+          "theme": "Identify"
         }
       ]
     },
     {
       "id": "nist-csf-003",
-      "title": "Roles and responsibilities for cybersecurity (GV)",
-      "description": "Named security roles for the system must be identifiable in governance metadata.",
-      "severity": "Medium",
-      "priority": "P0",
-      "remediationGuidance": "Record roles in governance.ComplianceTags and metadata.ChangeDescription.",
+      "title": "NIST Cybersecurity Framework 2.0 \u2014 control theme 3",
+      "description": "Architecture manifest and Azure extractor evidence should support: nist cybersecurity framework 2.0 \u2014 control theme 3. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -70,17 +70,17 @@
       "frameworkMappings": [
         {
           "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 GV.RR Roles and responsibilities"
+          "theme": "Protect"
         }
       ]
     },
     {
       "id": "nist-csf-004",
-      "title": "Policy established and communicated (GV)",
-      "description": "Applicable security policies must be referenced \u2014 not absent or generic.",
+      "title": "NIST Cybersecurity Framework 2.0 \u2014 control theme 4",
+      "description": "Architecture manifest and Azure extractor evidence should support: nist cybersecurity framework 2.0 \u2014 control theme 4. Thematic mapping only \u2014 not certification.",
       "severity": "Medium",
-      "priority": "P0",
-      "remediationGuidance": "Cite policy IDs in governance.ComplianceTags and governance.PolicyConstraints.",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -91,17 +91,17 @@
       "frameworkMappings": [
         {
           "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 GV.PO Policy"
+          "theme": "Detect"
         }
       ]
     },
     {
       "id": "nist-csf-005",
-      "title": "Asset inventory maintained (ID.AM)",
-      "description": "Systems, data, and services must be inventoried in the architecture manifest.",
-      "severity": "Critical",
-      "priority": "P0",
-      "remediationGuidance": "Ensure complete services[] and datastores[] with ownership tags.",
+      "title": "NIST Cybersecurity Framework 2.0 \u2014 control theme 5",
+      "description": "Architecture manifest and Azure extractor evidence should support: nist cybersecurity framework 2.0 \u2014 control theme 5. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -112,17 +112,17 @@
       "frameworkMappings": [
         {
           "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 ID.AM Asset management"
+          "theme": "Govern"
         }
       ]
     },
     {
       "id": "nist-csf-006",
-      "title": "Business environment understood (ID.BE)",
-      "description": "Architecture should document business processes supported and criticality tiers.",
+      "title": "NIST Cybersecurity Framework 2.0 \u2014 control theme 6",
+      "description": "Architecture manifest and Azure extractor evidence should support: nist cybersecurity framework 2.0 \u2014 control theme 6. Thematic mapping only \u2014 not certification.",
       "severity": "Medium",
       "priority": "P1",
-      "remediationGuidance": "Describe business context in metadata.ChangeDescription and services[].Purpose.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -133,17 +133,17 @@
       "frameworkMappings": [
         {
           "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 ID.BE Business environment"
+          "theme": "Identify"
         }
       ]
     },
     {
       "id": "nist-csf-007",
-      "title": "Governance and risk assessment (ID.RA)",
-      "description": "Threat and vulnerability assessment themes must be referenced for the system.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Document risk assessment cadence in governance.ComplianceTags.",
+      "title": "NIST Cybersecurity Framework 2.0 \u2014 control theme 7",
+      "description": "Architecture manifest and Azure extractor evidence should support: nist cybersecurity framework 2.0 \u2014 control theme 7. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -154,17 +154,17 @@
       "frameworkMappings": [
         {
           "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 ID.RA Risk assessment"
+          "theme": "Protect"
         }
       ]
     },
     {
       "id": "nist-csf-008",
-      "title": "Improvement from assessments (ID.IM)",
-      "description": "Findings from assessments should feed architecture improvements \u2014 documented closure loop.",
-      "severity": "Low",
-      "priority": "P1",
-      "remediationGuidance": "Note improvement backlog in metadata.ChangeDescription.",
+      "title": "NIST Cybersecurity Framework 2.0 \u2014 control theme 8",
+      "description": "Architecture manifest and Azure extractor evidence should support: nist cybersecurity framework 2.0 \u2014 control theme 8. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -175,17 +175,17 @@
       "frameworkMappings": [
         {
           "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 ID.IM Improvement"
+          "theme": "Detect"
         }
       ]
     },
     {
       "id": "nist-csf-009",
-      "title": "Identity management and access control (PR.AA)",
-      "description": "Identity lifecycle and access control must be documented per NIST protect function.",
-      "severity": "Critical",
-      "priority": "P1",
-      "remediationGuidance": "Align with entra-iam themes in governance.RequiredControls.",
+      "title": "NIST Cybersecurity Framework 2.0 \u2014 control theme 9",
+      "description": "Architecture manifest and Azure extractor evidence should support: nist cybersecurity framework 2.0 \u2014 control theme 9. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -196,182 +196,17 @@
       "frameworkMappings": [
         {
           "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 PR.AA Identity and access"
+          "theme": "Govern"
         }
       ]
     },
     {
       "id": "nist-csf-010",
-      "title": "Data security (PR.DS)",
-      "description": "Data at rest, in transit, and in use protections must be documented.",
-      "severity": "Critical",
-      "priority": "P1",
-      "remediationGuidance": "Tag encryption and DLP on datastores[].Tags and governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 PR.DS Data security"
-        }
-      ]
-    },
-    {
-      "id": "nist-csf-011",
-      "title": "Platform security (PR.PS)",
-      "description": "Platform hardening (OS, container, PaaS config) must reference secure baselines.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Document platform baseline in governance.RequiredControls; align with azureExtractor.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 PR.PS Platform security"
-        }
-      ]
-    },
-    {
-      "id": "nist-csf-012",
-      "title": "Technology infrastructure resilience (PR.IR)",
-      "description": "Resilience controls (backup, DR, HA) must be documented.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Cross-reference DR tags in governance.PolicyConstraints.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 PR.IR Infrastructure resilience"
-        }
-      ]
-    },
-    {
-      "id": "nist-csf-013",
-      "title": "Awareness and training themes (PR.AT)",
-      "description": "Security training for operators of the system should be referenced where human error is material.",
-      "severity": "Low",
-      "priority": "P1",
-      "remediationGuidance": "Note training hooks in governance.ComplianceTags for admin-facing systems.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 PR.AT Awareness and training"
-        }
-      ]
-    },
-    {
-      "id": "nist-csf-014",
-      "title": "Data protection processes (PR.DP)",
-      "description": "Data handling procedures (classification, retention, disposal) must be documented.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Align with data-classification tags in governance.PolicyConstraints.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 PR.DP Data protection processes"
-        }
-      ]
-    },
-    {
-      "id": "nist-csf-015",
-      "title": "Continuous monitoring (DE.CM)",
-      "description": "Security monitoring coverage must map assets and threats to log sources.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "List monitoring in governance.RequiredControls and services[].Tags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 DE.CM Continuous monitoring"
-        }
-      ]
-    },
-    {
-      "id": "nist-csf-016",
-      "title": "Adverse event analysis (DE.AE)",
-      "description": "SIEM rules and analytics for detecting adverse events must be documented.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Describe detection use cases in governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 DE.AE Adverse event analysis"
-        }
-      ]
-    },
-    {
-      "id": "nist-csf-017",
-      "title": "Incident management (RS.MA)",
-      "description": "Incident response plan integration with architecture must be explicit.",
-      "severity": "Critical",
+      "title": "NIST Cybersecurity Framework 2.0 \u2014 control theme 10",
+      "description": "Architecture manifest and Azure extractor evidence should support: nist cybersecurity framework 2.0 \u2014 control theme 10. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
       "priority": "P2",
-      "remediationGuidance": "Document IR hooks in metadata.ChangeDescription and governance.RequiredControls.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -382,256 +217,7 @@
       "frameworkMappings": [
         {
           "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 RS.MA Incident management"
-        }
-      ]
-    },
-    {
-      "id": "nist-csf-018",
-      "title": "Incident analysis and mitigation (RS.AN)",
-      "description": "Containment and eradication levers (isolate subnet, revoke tokens) must be identifiable.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "List mitigation actions in governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 RS.AN Incident analysis"
-        }
-      ]
-    },
-    {
-      "id": "nist-csf-019",
-      "title": "Incident recovery (RS.MI)",
-      "description": "Recovery procedures after incidents must align with DR and backup narratives.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Cross-reference DR runbooks in metadata.ChangeDescription.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 RS.MI Incident recovery"
-        }
-      ]
-    },
-    {
-      "id": "nist-csf-020",
-      "title": "Recovery planning (RC.RP)",
-      "description": "Disaster recovery plans must be documented and tested.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Document DR plans in governance.PolicyConstraints.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 RC.RP Recovery planning"
-        }
-      ]
-    },
-    {
-      "id": "nist-csf-021",
-      "title": "Recovery improvements (RC.IM)",
-      "description": "Post-incident and DR test improvements must feed back to architecture.",
-      "severity": "Low",
-      "priority": "P2",
-      "remediationGuidance": "Note recovery improvements in governance.ComplianceTags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 RC.RP Recovery improvements"
-        }
-      ]
-    },
-    {
-      "id": "nist-csf-022",
-      "title": "Supply chain risk management (GV.SC)",
-      "description": "Third-party and software supply chain risks must be enumerated.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "List suppliers on external services and governance.ComplianceTags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 GV.SC Cybersecurity supply chain"
-        }
-      ]
-    },
-    {
-      "id": "nist-csf-023",
-      "title": "Secure software development (PR.PS-SDLC)",
-      "description": "Custom code must reference SSDF-aligned secure development practices.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Document SDLC in governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 PR.PS Secure development"
-        }
-      ]
-    },
-    {
-      "id": "nist-csf-024",
-      "title": "Configuration management (PR.PS-CM)",
-      "description": "Secure configuration baselines and drift detection must be documented.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Align config baseline with azureExtractor and governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 PR.PS Configuration management"
-        }
-      ]
-    },
-    {
-      "id": "nist-csf-025",
-      "title": "Network segmentation (PR.IR-NS)",
-      "description": "Network zones and segmentation must be documented for protect function.",
-      "severity": "Critical",
-      "priority": "P2",
-      "remediationGuidance": "Map network zones in metadata.ChangeDescription.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 PR.IR Network segmentation"
-        }
-      ]
-    },
-    {
-      "id": "nist-csf-026",
-      "title": "Logging and audit (DE.CM-LOG)",
-      "description": "Audit logs must be protected, retained, and time-synchronized.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Document log retention in governance.PolicyConstraints.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 DE.CM Audit logging"
-        }
-      ]
-    },
-    {
-      "id": "nist-csf-027",
-      "title": "Vulnerability management (ID.RA-VM)",
-      "description": "Vulnerability scanning and remediation SLAs must be documented.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Capture VM program in governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 ID.RA Vulnerability management"
-        }
-      ]
-    },
-    {
-      "id": "nist-csf-028",
-      "title": "CSF profile and target tier documented",
-      "description": "Architecture should state which CSF implementation tier or profile applies \u2014 not claim full maturity without evidence.",
-      "severity": "Low",
-      "priority": "P2",
-      "remediationGuidance": "Note CSF profile in governance.ComplianceTags and metadata.ChangeDescription.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST CSF 2.0",
-          "theme": "CSF 2.0 \u2014 Implementation tiers"
+          "theme": "Identify"
         }
       ]
     }

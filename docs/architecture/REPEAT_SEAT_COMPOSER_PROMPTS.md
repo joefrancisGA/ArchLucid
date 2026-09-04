@@ -1,12 +1,12 @@
 > **Scope:** Copy-paste Composer prompts that close **repeat-seat wave-3 leftovers** after LD-01–15. Internal engineering only — not buyer-facing copy.
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Founding contract:** [`ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) R13 · **UI standard:** [`../library/UI_DESIGN_SYSTEM.md`](../library/UI_DESIGN_SYSTEM.md)
 > **Paste-ready files:** [`.cursor/prompts/repeat-seat-00-index.md`](../../.cursor/prompts/repeat-seat-00-index.md) (**RS-01–15**)
-> **Run first (historical):** [`LIVELIHOOD_DESK_COMPOSER_PROMPTS.md`](LIVELIHOOD_DESK_COMPOSER_PROMPTS.md) (**LD-01–15**, shipped). **Wave 4 shipped:** [`WORKING_ARCHITECT_COMPOSER_PROMPTS.md`](WORKING_ARCHITECT_COMPOSER_PROMPTS.md). **Wave 5:** [`CAREER_DESK_COMPOSER_PROMPTS.md`](CAREER_DESK_COMPOSER_PROMPTS.md)
+> **Run first (historical):** [`LIVELIHOOD_DESK_COMPOSER_PROMPTS.md`](LIVELIHOOD_DESK_COMPOSER_PROMPTS.md) (**LD-01–15**, shipped). **Wave 4 shipped:** [`WORKING_ARCHITECT_COMPOSER_PROMPTS.md`](WORKING_ARCHITECT_COMPOSER_PROMPTS.md). **Wave 5:** [`CAREER_DESK_COMPOSER_PROMPTS.md`](CAREER_DESK_COMPOSER_PROMPTS.md). **Wave 6:** [`ALL_DAY_DESK_COMPOSER_PROMPTS.md`](ALL_DAY_DESK_COMPOSER_PROMPTS.md)
 > **Shipped predecessor:** [`.cursor/prompts/livelihood-instrument-00-index.md`](../../.cursor/prompts/livelihood-instrument-00-index.md) (**LI-01–15**, `master` #1397)
 
 # Repeat-seat Composer prompts (RS-01–RS-15)
 
-**Created:** 2026-09-04 · **Status:** **shipped** `master` #1457 · **Do not re-run.** Wave 4 shipped #1496. Wave 5: [`CAREER_DESK_COMPOSER_PROMPTS.md`](CAREER_DESK_COMPOSER_PROMPTS.md) (**CD-01–15**).
+**Created:** 2026-09-04 · **Status:** **shipped** `master` #1457 · **Do not re-run.** Wave 4 shipped #1496. Wave 5: [`CAREER_DESK_COMPOSER_PROMPTS.md`](CAREER_DESK_COMPOSER_PROMPTS.md) (**CD-01–15**). Wave 6: [`ALL_DAY_DESK_COMPOSER_PROMPTS.md`](ALL_DAY_DESK_COMPOSER_PROMPTS.md) (**AD-01–12**).
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record. **LD-01–15 shipped** (#1421 / #1439). **RS-01–15 shipped** (#1457). Do not re-run this set.
 

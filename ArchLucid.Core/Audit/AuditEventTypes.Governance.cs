@@ -29,6 +29,9 @@ public static partial class AuditEventTypes
     /// <summary>Tenant admin enabled or disabled a policy pack assignment for the workspace.</summary>
     public const string PolicyPackAssignmentEnabledChanged = "PolicyPackAssignmentEnabledChanged";
 
+    /// <summary>Tenant admin marked a policy pack assignment as organization-required (or removed that lock).</summary>
+    public const string PolicyPackAssignmentOrganizationRequiredChanged = "PolicyPackAssignmentOrganizationRequiredChanged";
+
     /// <summary>Platform admin globally activated or deactivated a bundled policy pack.</summary>
     public const string PlatformBundledPolicyPackActivationChanged = "PlatformBundledPolicyPackActivationChanged";
 

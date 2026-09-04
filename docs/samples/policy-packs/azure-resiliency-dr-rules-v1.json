@@ -4,7 +4,7 @@
   "pack": {
     "name": "Azure Resiliency & Disaster Recovery",
     "description": "Multi-region, availability zones, RTO/RPO, and backup themes for Azure workloads.",
-    "version": "1.1.0",
+    "version": "1.0.0",
     "category": "Reliability",
     "isDefault": true,
     "suggestedPackType": "PlatformDefault",
@@ -12,228 +12,201 @@
   },
   "rules": [
     {
-      "id": "az-dr-003",
-      "title": "Multi-region deployment for critical workloads",
-      "description": "Tier-1 services should document active-active or active-passive multi-region strategy with failover triggers.",
-      "severity": "Critical",
+      "id": "az-dr-001",
+      "title": "Azure Resiliency & Disaster Recovery \u2014 control theme 1",
+      "description": "Architecture manifest and Azure extractor evidence should support: azure resiliency & disaster recovery \u2014 control theme 1. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
       "priority": "P0",
-      "remediationGuidance": "Describe region pairs in metadata.ChangeDescription; align region tags on services[].Tags with azureExtractor locations.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
         "governance.ComplianceTags",
         "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
+        "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
         {
           "framework": "Azure Well-Architected",
-          "theme": "WAF Reliability \u2014 Multi-region architecture"
+          "theme": "Reliability \u2014 DR"
+        }
+      ]
+    },
+    {
+      "id": "az-dr-002",
+      "title": "Azure Resiliency & Disaster Recovery \u2014 control theme 2",
+      "description": "Architecture manifest and Azure extractor evidence should support: azure resiliency & disaster recovery \u2014 control theme 2. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure Well-Architected",
+          "theme": "Backup"
+        }
+      ]
+    },
+    {
+      "id": "az-dr-003",
+      "title": "Azure Resiliency & Disaster Recovery \u2014 control theme 3",
+      "description": "Architecture manifest and Azure extractor evidence should support: azure resiliency & disaster recovery \u2014 control theme 3. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure Well-Architected",
+          "theme": "Failover"
         }
       ]
     },
     {
       "id": "az-dr-004",
-      "title": "Availability Zones used for fault isolation",
-      "description": "Stateful and stateless tiers should document AZ spread within region for zone-level failure tolerance.",
-      "severity": "High",
-      "priority": "P0",
-      "remediationGuidance": "Tag zonal deployment on services[].Tags; verify zone redundancy in azureExtractor compute and data inventory.",
+      "title": "Azure Resiliency & Disaster Recovery \u2014 control theme 4",
+      "description": "Architecture manifest and Azure extractor evidence should support: azure resiliency & disaster recovery \u2014 control theme 4. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
         "governance.ComplianceTags",
         "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
+        "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
         {
           "framework": "Azure Well-Architected",
-          "theme": "WAF Reliability \u2014 Availability Zones"
+          "theme": "Reliability \u2014 DR"
         }
       ]
     },
     {
       "id": "az-dr-005",
-      "title": "Regional paired disaster recovery documented",
-      "description": "DR strategy must reference Azure region pairs or explicit cross-region replication topology.",
-      "severity": "High",
-      "priority": "P0",
-      "remediationGuidance": "Document DR region mapping in governance.PolicyConstraints and metadata.ChangeDescription.",
+      "title": "Azure Resiliency & Disaster Recovery \u2014 control theme 5",
+      "description": "Architecture manifest and Azure extractor evidence should support: azure resiliency & disaster recovery \u2014 control theme 5. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
         "governance.ComplianceTags",
         "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
+        "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
         {
           "framework": "Azure Well-Architected",
-          "theme": "WAF Reliability \u2014 Region pairing"
+          "theme": "Backup"
+        }
+      ]
+    },
+    {
+      "id": "az-dr-006",
+      "title": "Azure Resiliency & Disaster Recovery \u2014 control theme 6",
+      "description": "Architecture manifest and Azure extractor evidence should support: azure resiliency & disaster recovery \u2014 control theme 6. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure Well-Architected",
+          "theme": "Failover"
+        }
+      ]
+    },
+    {
+      "id": "az-dr-007",
+      "title": "Azure Resiliency & Disaster Recovery \u2014 control theme 7",
+      "description": "Architecture manifest and Azure extractor evidence should support: azure resiliency & disaster recovery \u2014 control theme 7. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure Well-Architected",
+          "theme": "Reliability \u2014 DR"
         }
       ]
     },
     {
       "id": "az-dr-008",
-      "title": "Geo-redundant storage for critical data",
-      "description": "Blob, table, and queue tiers holding tier-1 data should document GRS or GZRS replication.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Tag replication SKU on datastores[].Tags; cite storage redundancy from azureExtractor.",
+      "title": "Azure Resiliency & Disaster Recovery \u2014 control theme 8",
+      "description": "Architecture manifest and Azure extractor evidence should support: azure resiliency & disaster recovery \u2014 control theme 8. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
         "governance.ComplianceTags",
         "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
+        "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
         {
           "framework": "Azure Well-Architected",
-          "theme": "WAF Reliability \u2014 Geo-redundant storage"
+          "theme": "Backup"
         }
       ]
     },
     {
       "id": "az-dr-009",
-      "title": "SQL geo-replication or failover groups",
-      "description": "Azure SQL tier-1 databases must document auto-failover groups or geo-replication with RPO alignment.",
-      "severity": "Critical",
-      "priority": "P1",
-      "remediationGuidance": "Document SQL DR topology in governance.RequiredControls and datastores[].Tags.",
+      "title": "Azure Resiliency & Disaster Recovery \u2014 control theme 9",
+      "description": "Architecture manifest and Azure extractor evidence should support: azure resiliency & disaster recovery \u2014 control theme 9. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
         "governance.ComplianceTags",
         "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
+        "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
         {
           "framework": "Azure Well-Architected",
-          "theme": "WAF Reliability \u2014 SQL geo-replication"
+          "theme": "Failover"
         }
       ]
     },
     {
       "id": "az-dr-010",
-      "title": "Cosmos DB multi-region write or failover",
-      "description": "Cosmos accounts must document multi-region consistency level and automatic failover configuration.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Capture Cosmos DR settings in governance.PolicyConstraints and azureExtractor Cosmos inventory.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Azure Well-Architected",
-          "theme": "WAF Reliability \u2014 Cosmos multi-region"
-        }
-      ]
-    },
-    {
-      "id": "az-dr-011",
-      "title": "Traffic Manager or Front Door failover routing",
-      "description": "Global entry points must document health-probed failover between regional endpoints.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Tag global load balancer services and routing policy in services[].Tags and metadata.ChangeDescription.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Azure Well-Architected",
-          "theme": "WAF Reliability \u2014 Global traffic failover"
-        }
-      ]
-    },
-    {
-      "id": "az-dr-019",
-      "title": "Immutable infrastructure for stateless tiers",
-      "description": "Stateless app tiers should document image-based redeploy rather than in-place patching for consistency.",
+      "title": "Azure Resiliency & Disaster Recovery \u2014 control theme 10",
+      "description": "Architecture manifest and Azure extractor evidence should support: azure resiliency & disaster recovery \u2014 control theme 10. Thematic mapping only \u2014 not certification.",
       "severity": "Medium",
       "priority": "P2",
-      "remediationGuidance": "Tag immutable deploy pattern on services[].Tags; reference container/VMSS images in metadata.ChangeDescription.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Azure Well-Architected",
-          "theme": "WAF Reliability \u2014 Immutable infrastructure"
-        }
-      ]
-    },
-    {
-      "id": "az-dr-020",
-      "title": "Data consistency model documented",
-      "description": "Distributed data paths must document consistency trade-offs (strong vs eventual) and conflict resolution.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Capture consistency choices in governance.PolicyConstraints and datastores[].Tags.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -244,136 +217,7 @@
       "frameworkMappings": [
         {
           "framework": "Azure Well-Architected",
-          "theme": "WAF Reliability \u2014 Data consistency"
-        }
-      ]
-    },
-    {
-      "id": "az-dr-021",
-      "title": "Maintenance window and update orchestration",
-      "description": "Platform maintenance (AKS upgrades, SQL patching) must document schedule, notification, and blast-radius control.",
-      "severity": "Medium",
-      "priority": "P2",
-      "remediationGuidance": "Document maintenance orchestration in metadata.ChangeDescription and governance.ComplianceTags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Azure Well-Architected",
-          "theme": "WAF Reliability \u2014 Managed maintenance"
-        }
-      ]
-    },
-    {
-      "id": "az-dr-024",
-      "title": "Secrets and config available during DR",
-      "description": "Failover regions must document Key Vault replication, config sync, and identity availability during regional loss.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Describe secret DR in governance.PolicyConstraints and governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Azure Well-Architected",
-          "theme": "WAF Reliability \u2014 Config DR"
-        }
-      ]
-    },
-    {
-      "id": "az-dr-025",
-      "title": "Network DR connectivity documented",
-      "description": "Cross-region VNet peering, VPN, or ExpressRoute failover must be documented for DR traffic paths.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Map DR network paths in metadata.ChangeDescription; align with azureExtractor network inventory.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Azure Well-Architected",
-          "theme": "WAF Reliability \u2014 Network DR"
-        }
-      ]
-    },
-    {
-      "id": "az-dr-026",
-      "title": "Ransomware-resistant backup (immutable)",
-      "description": "Critical backups should document immutability, air-gap, or M365/Azure Backup vault soft-delete protections.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Tag immutable backup on datastores[].Tags and governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Azure Well-Architected",
-          "theme": "WAF Reliability \u2014 Ransomware resilience"
-        }
-      ]
-    },
-    {
-      "id": "az-dr-027",
-      "title": "Observability during incident and DR",
-      "description": "Monitoring and alerting must remain available during regional degradation \u2014 document observability DR.",
-      "severity": "Medium",
-      "priority": "P2",
-      "remediationGuidance": "List observability failover in governance.RequiredControls and security/ops services[].Tags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Azure Well-Architected",
-          "theme": "WAF Reliability \u2014 Observability DR"
+          "theme": "Reliability \u2014 DR"
         }
       ]
     }

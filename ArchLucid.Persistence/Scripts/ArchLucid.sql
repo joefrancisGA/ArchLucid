@@ -10992,7 +10992,20 @@ END
 GO
 
 /*
-  346: Infrastructure-evidence plane foundation — Azure inventory snapshots, cloud resource identity,
+  346: Organization-required flag on policy pack assignments (distinct from merge-precedence IsPinned).
+*/
+
+IF OBJECT_ID(N'dbo.PolicyPackAssignments', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.PolicyPackAssignments', N'IsOrganizationRequired') IS NULL
+BEGIN
+    ALTER TABLE dbo.PolicyPackAssignments
+        ADD IsOrganizationRequired BIT NOT NULL
+            CONSTRAINT DF_PolicyPackAssignments_IsOrganizationRequired DEFAULT (0);
+END;
+GO
+
+/*
+  347: Infrastructure-evidence plane foundation — Azure inventory snapshots, cloud resource identity,
        audit framework catalog, and tenant branding profiles (IE-01, IE-04, AE-01, BR-01).
 */
 

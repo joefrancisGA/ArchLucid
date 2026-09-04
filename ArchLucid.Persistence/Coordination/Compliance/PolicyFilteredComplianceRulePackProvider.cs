@@ -1,3 +1,4 @@
+using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.Coordination.Compliance;
@@ -40,6 +41,10 @@ public sealed class PolicyFilteredComplianceRulePackProvider(
                 .LoadEffectiveContentAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, ct)
             ;
         ComplianceRulePack merged = TenantCuratedComplianceRulePackMerger.MergeFilePackWithCuratedFromGovernance(full, effective);
-        return ComplianceRulePackGovernanceFilter.Filter(merged, effective);
+        ComplianceRuleApplicabilityContext? applicabilityContext = PilotModeGovernanceScope.IsActive
+            ? ComplianceRuleApplicabilityContext.FromCloudProvider(PilotModeGovernanceScope.ActiveCloudProvider)
+            : null;
+
+        return ComplianceRulePackGovernanceFilter.Filter(merged, effective, applicabilityContext);
     }
 }

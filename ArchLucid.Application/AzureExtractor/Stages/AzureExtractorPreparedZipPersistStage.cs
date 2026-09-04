@@ -3,6 +3,8 @@ using System.Text.Json;
 
 using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Application.Common;
+using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.AzureExtractor;
@@ -24,6 +26,7 @@ public sealed class AzureExtractorPreparedZipPersistStage(
     IAuditService auditService,
     IAzureExtractorPackageRepository packageRepository,
     IAzureInventorySnapshotHeaderService inventorySnapshotHeaderService,
+    IAzureInventorySnapshotMaterializer inventorySnapshotMaterializer,
     IAgentTaskRepository agentTaskRepository,
     IEvidenceBundleRepository evidenceBundleRepository,
     ILogger<AzureExtractorPreparedZipPersistStage> logger) : IAzureExtractorPreparedZipPersistStage
@@ -32,6 +35,7 @@ public sealed class AzureExtractorPreparedZipPersistStage(
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
     private readonly IEvidenceBundleRepository _evidenceBundleRepository = evidenceBundleRepository ?? throw new ArgumentNullException(nameof(evidenceBundleRepository));
     private readonly IAzureInventorySnapshotHeaderService _inventorySnapshotHeaderService = inventorySnapshotHeaderService ?? throw new ArgumentNullException(nameof(inventorySnapshotHeaderService));
+    private readonly IAzureInventorySnapshotMaterializer _inventorySnapshotMaterializer = inventorySnapshotMaterializer ?? throw new ArgumentNullException(nameof(inventorySnapshotMaterializer));
     private readonly ILogger<AzureExtractorPreparedZipPersistStage> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IAzureExtractorPackageRepository _packageRepository = packageRepository ?? throw new ArgumentNullException(nameof(packageRepository));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -59,17 +63,39 @@ public sealed class AzureExtractorPreparedZipPersistStage(
 
             try
             {
-                await _inventorySnapshotHeaderService.TryCreatePendingFromPackageAsync(
-                    scope,
-                    packageId,
-                    manifest.SubscriptionId,
-                    subscriptionName: null,
-                    manifest.CollectionTimestamp.UtcDateTime,
-                    manifest.SchemaVersion.ToString(),
-                    manifest.ScriptVersion,
-                    context.Actor,
-                    allowRecapture: false,
-                    ct);
+                AzureInventorySnapshotHeaderCreateResult headerResult =
+                    await _inventorySnapshotHeaderService.TryCreatePendingFromPackageAsync(
+                        scope,
+                        packageId,
+                        manifest.SubscriptionId,
+                        subscriptionName: null,
+                        manifest.CollectionTimestamp.UtcDateTime,
+                        manifest.SchemaVersion.ToString(),
+                        manifest.ScriptVersion,
+                        context.Actor,
+                        allowRecapture: false,
+                        ct);
+
+                if (headerResult.Succeeded && headerResult.SnapshotId is Guid snapshotId)
+                {
+                    AzureInventoryCaptureMethod captureMethod = manifest.RawJson.Contains(
+                        "\"captureMethod\":\"HostedReader\"",
+                        StringComparison.OrdinalIgnoreCase)
+                        || manifest.RawJson.Contains(
+                            "\"captureMethod\": \"HostedReader\"",
+                            StringComparison.OrdinalIgnoreCase)
+                        ? AzureInventoryCaptureMethod.HostedReader
+                        : AzureInventoryCaptureMethod.CustomerScript;
+
+                    await _inventorySnapshotMaterializer.TryMaterializePackageAsync(
+                        scope,
+                        snapshotId,
+                        packageId,
+                        zipBytes,
+                        captureMethod,
+                        manifest.ScriptVersion,
+                        ct);
+                }
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {

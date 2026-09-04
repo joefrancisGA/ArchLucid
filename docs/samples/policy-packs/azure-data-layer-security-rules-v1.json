@@ -4,7 +4,7 @@
   "pack": {
     "name": "Azure SQL / Cosmos DB Data-Layer Security",
     "description": "RLS, TDE, auditing, and private endpoint themes for Azure data platforms.",
-    "version": "1.1.0",
+    "version": "1.0.0",
     "category": "Data Platform",
     "isDefault": true,
     "suggestedPackType": "PlatformDefault",
@@ -13,146 +13,116 @@
   "rules": [
     {
       "id": "az-data-001",
-      "title": "Azure SQL TDE enabled for all databases",
-      "description": "Every SQL database storing sensitive data must document Transparent Data Encryption enabled.",
-      "severity": "Critical",
+      "title": "Azure SQL / Cosmos DB Data-Layer Security \u2014 control theme 1",
+      "description": "Architecture manifest and Azure extractor evidence should support: azure sql / cosmos db data-layer security \u2014 control theme 1. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
       "priority": "P0",
-      "remediationGuidance": "Tag tde:enabled on datastores[].Tags; verify from azureExtractor SQL inventory.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
         "governance.ComplianceTags",
         "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
+        "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
         {
           "framework": "Azure data services",
-          "theme": "Azure SQL \u2014 TDE"
+          "theme": "Encryption"
         }
       ]
     },
     {
       "id": "az-data-002",
-      "title": "SQL auditing to secure destination",
-      "description": "SQL audit logs must route to Log Analytics, Storage, or Event Hub \u2014 not disabled.",
-      "severity": "Critical",
+      "title": "Azure SQL / Cosmos DB Data-Layer Security \u2014 control theme 2",
+      "description": "Architecture manifest and Azure extractor evidence should support: azure sql / cosmos db data-layer security \u2014 control theme 2. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
       "priority": "P0",
-      "remediationGuidance": "List audit destination in governance.RequiredControls.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
         "governance.ComplianceTags",
         "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
+        "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
         {
           "framework": "Azure data services",
-          "theme": "Azure SQL \u2014 Auditing"
+          "theme": "Private endpoints"
         }
       ]
     },
     {
       "id": "az-data-003",
-      "title": "SQL Advanced Threat Protection or Defender",
-      "description": "Anomaly detection for SQL must be documented (Defender for SQL or equivalent).",
+      "title": "Azure SQL / Cosmos DB Data-Layer Security \u2014 control theme 3",
+      "description": "Architecture manifest and Azure extractor evidence should support: azure sql / cosmos db data-layer security \u2014 control theme 3. Thematic mapping only \u2014 not certification.",
       "severity": "High",
-      "priority": "P0",
-      "remediationGuidance": "Record threat detection in governance.ComplianceTags.",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
         "governance.ComplianceTags",
         "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
+        "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
         {
           "framework": "Azure data services",
-          "theme": "Azure SQL \u2014 Threat detection"
+          "theme": "Auditing"
         }
       ]
     },
     {
       "id": "az-data-004",
-      "title": "SQL firewall and private endpoint only",
-      "description": "SQL servers must disable public endpoint or restrict to private link.",
-      "severity": "Critical",
-      "priority": "P0",
-      "remediationGuidance": "Document connectivity in governance.PolicyConstraints; verify publicNetworkAccess in extractor.",
+      "title": "Azure SQL / Cosmos DB Data-Layer Security \u2014 control theme 4",
+      "description": "Architecture manifest and Azure extractor evidence should support: azure sql / cosmos db data-layer security \u2014 control theme 4. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
         "governance.ComplianceTags",
         "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
+        "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
         {
           "framework": "Azure data services",
-          "theme": "Azure SQL \u2014 Network isolation"
+          "theme": "Encryption"
         }
       ]
     },
     {
       "id": "az-data-005",
-      "title": "SQL AAD authentication preferred",
-      "description": "SQL auth should use Entra ID \u2014 SQL authentication minimized with documented exceptions.",
-      "severity": "High",
-      "priority": "P0",
-      "remediationGuidance": "Capture auth mode in governance.RequiredControls and datastores[].Tags.",
+      "title": "Azure SQL / Cosmos DB Data-Layer Security \u2014 control theme 5",
+      "description": "Architecture manifest and Azure extractor evidence should support: azure sql / cosmos db data-layer security \u2014 control theme 5. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
         "governance.ComplianceTags",
         "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
+        "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
         {
           "framework": "Azure data services",
-          "theme": "Azure SQL \u2014 AAD authentication"
+          "theme": "Private endpoints"
         }
       ]
     },
     {
       "id": "az-data-006",
-      "title": "Row-level security documented where multi-tenant",
-      "description": "Multi-tenant SQL must document RLS policies binding tenant identity to rows.",
-      "severity": "High",
+      "title": "Azure SQL / Cosmos DB Data-Layer Security \u2014 control theme 6",
+      "description": "Architecture manifest and Azure extractor evidence should support: azure sql / cosmos db data-layer security \u2014 control theme 6. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
       "priority": "P1",
-      "remediationGuidance": "Describe RLS in governance.PolicyConstraints and metadata.ChangeDescription.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -163,17 +133,17 @@
       "frameworkMappings": [
         {
           "framework": "Azure data services",
-          "theme": "Azure SQL \u2014 Row-level security"
+          "theme": "Auditing"
         }
       ]
     },
     {
       "id": "az-data-007",
-      "title": "Always Encrypted or column encryption for highly sensitive columns",
-      "description": "Highly sensitive columns must document Always Encrypted or application-layer encryption.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Note column encryption in datastores[].Tags and governance.RequiredControls.",
+      "title": "Azure SQL / Cosmos DB Data-Layer Security \u2014 control theme 7",
+      "description": "Architecture manifest and Azure extractor evidence should support: azure sql / cosmos db data-layer security \u2014 control theme 7. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -184,179 +154,59 @@
       "frameworkMappings": [
         {
           "framework": "Azure data services",
-          "theme": "Azure SQL \u2014 Column encryption"
+          "theme": "Encryption"
         }
       ]
     },
     {
       "id": "az-data-008",
-      "title": "Cosmos DB firewall and private endpoint",
-      "description": "Cosmos accounts must document network ACLs or private endpoint \u2014 not open to internet.",
-      "severity": "Critical",
-      "priority": "P1",
-      "remediationGuidance": "Verify ipRules and private endpoints in azureExtractor Cosmos properties.",
+      "title": "Azure SQL / Cosmos DB Data-Layer Security \u2014 control theme 8",
+      "description": "Architecture manifest and Azure extractor evidence should support: azure sql / cosmos db data-layer security \u2014 control theme 8. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
         "governance.ComplianceTags",
         "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
+        "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
         {
           "framework": "Azure data services",
-          "theme": "Cosmos DB \u2014 Network security"
+          "theme": "Private endpoints"
         }
       ]
     },
     {
       "id": "az-data-009",
-      "title": "Cosmos DB encryption with customer-managed keys",
-      "description": "Regulated workloads should document CMK for Cosmos when organizational policy requires.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Record CMK usage in governance.PolicyConstraints and datastores[].Tags.",
+      "title": "Azure SQL / Cosmos DB Data-Layer Security \u2014 control theme 9",
+      "description": "Architecture manifest and Azure extractor evidence should support: azure sql / cosmos db data-layer security \u2014 control theme 9. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
         "governance.ComplianceTags",
         "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
+        "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
         {
           "framework": "Azure data services",
-          "theme": "Cosmos DB \u2014 CMK encryption"
+          "theme": "Auditing"
         }
       ]
     },
     {
       "id": "az-data-010",
-      "title": "Cosmos DB RBAC over account keys",
-      "description": "Data plane access should use Entra RBAC \u2014 not long-lived account keys in applications.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Document RBAC model in governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Azure data services",
-          "theme": "Cosmos DB \u2014 Data plane RBAC"
-        }
-      ]
-    },
-    {
-      "id": "az-data-011",
-      "title": "Cosmos DB consistency and session token handling",
-      "description": "Multi-region Cosmos must document consistency level impact on security and integrity.",
+      "title": "Azure SQL / Cosmos DB Data-Layer Security \u2014 control theme 10",
+      "description": "Architecture manifest and Azure extractor evidence should support: azure sql / cosmos db data-layer security \u2014 control theme 10. Thematic mapping only \u2014 not certification.",
       "severity": "Medium",
-      "priority": "P1",
-      "remediationGuidance": "Capture consistency in governance.PolicyConstraints.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Azure data services",
-          "theme": "Cosmos DB \u2014 Consistency model"
-        }
-      ]
-    },
-    {
-      "id": "az-data-012",
-      "title": "Storage account encryption and infrastructure encryption",
-      "description": "Blob/queue/table must document SSE and optional infrastructure encryption double-encrypt.",
-      "severity": "Critical",
-      "priority": "P1",
-      "remediationGuidance": "Cite encryption from azureExtractor storage accounts.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Azure data services",
-          "theme": "Azure Storage \u2014 Encryption"
-        }
-      ]
-    },
-    {
-      "id": "az-data-013",
-      "title": "Storage immutability for audit and compliance blobs",
-      "description": "WORM/immutability policies must be documented for compliance retention buckets.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Tag immutability on datastores[].Tags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Azure data services",
-          "theme": "Azure Storage \u2014 Immutability"
-        }
-      ]
-    },
-    {
-      "id": "az-data-014",
-      "title": "Storage SAS minimal permission and short expiry",
-      "description": "Shared access signatures must document least permission and time-bound expiry.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Describe SAS policy in governance.PolicyConstraints.",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -367,373 +217,7 @@
       "frameworkMappings": [
         {
           "framework": "Azure data services",
-          "theme": "Azure Storage \u2014 SAS governance"
-        }
-      ]
-    },
-    {
-      "id": "az-data-015",
-      "title": "Data Lake ACLs and POSIX-style permissions",
-      "description": "ADLS Gen2 must document ACL inheritance and access model for analytics zones.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Map lake zones in metadata.ChangeDescription.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Azure data services",
-          "theme": "Azure Data Lake \u2014 ACL model"
-        }
-      ]
-    },
-    {
-      "id": "az-data-016",
-      "title": "Synapse workspace managed private endpoints",
-      "description": "Synapse must document managed VNet and private endpoints for linked services.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Describe Synapse networking in governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Azure data services",
-          "theme": "Azure Synapse \u2014 Private connectivity"
-        }
-      ]
-    },
-    {
-      "id": "az-data-017",
-      "title": "Purview classification scan coverage",
-      "description": "Data map scans must document scope for sensitive data discovery on Azure data estate.",
-      "severity": "Medium",
-      "priority": "P2",
-      "remediationGuidance": "Note Purview coverage in governance.ComplianceTags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Azure data services",
-          "theme": "Microsoft Purview \u2014 Classification scans"
-        }
-      ]
-    },
-    {
-      "id": "az-data-018",
-      "title": "Dynamic data masking on SQL for non-prod readers",
-      "description": "Analytical readers without full access should document dynamic masking rules.",
-      "severity": "Medium",
-      "priority": "P2",
-      "remediationGuidance": "Describe masking in governance.RequiredControls and datastores[].Tags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Azure data services",
-          "theme": "Azure SQL \u2014 Dynamic data masking"
-        }
-      ]
-    },
-    {
-      "id": "az-data-019",
-      "title": "Backup encryption and geo-redundancy for databases",
-      "description": "SQL/Cosmos backups must document encrypted geo-redundant backup retention.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Align backup tags with governance.PolicyConstraints.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Azure data services",
-          "theme": "Azure data \u2014 Backup encryption"
-        }
-      ]
-    },
-    {
-      "id": "az-data-020",
-      "title": "Key Vault separation for data encryption keys",
-      "description": "DEK/KEK separation must document Key Vault usage for SQL TDE and storage CMK.",
-      "severity": "Critical",
-      "priority": "P2",
-      "remediationGuidance": "Map Key Vault to datastores in relationships[] and governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Azure data services",
-          "theme": "Azure data \u2014 Key management"
-        }
-      ]
-    },
-    {
-      "id": "az-data-021",
-      "title": "Managed identity for data plane access from apps",
-      "description": "Applications must use MI to access SQL/Cosmos/Storage \u2014 not connection string passwords.",
-      "severity": "Critical",
-      "priority": "P2",
-      "remediationGuidance": "Tag mi-data-access on services[].Tags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Azure data services",
-          "theme": "Azure data \u2014 Managed identity access"
-        }
-      ]
-    },
-    {
-      "id": "az-data-022",
-      "title": "SQL vulnerability assessment remediation",
-      "description": "SQL VA findings must document remediation SLAs.",
-      "severity": "Medium",
-      "priority": "P2",
-      "remediationGuidance": "Note VA program in governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Azure data services",
-          "theme": "Azure SQL \u2014 Vulnerability assessment"
-        }
-      ]
-    },
-    {
-      "id": "az-data-023",
-      "title": "Cosmos DB partition key prevents cross-tenant leakage",
-      "description": "Multi-tenant Cosmos must document partition key design preventing cross-tenant reads.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Describe partition strategy in metadata.ChangeDescription.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Azure data services",
-          "theme": "Cosmos DB \u2014 Tenant isolation"
-        }
-      ]
-    },
-    {
-      "id": "az-data-024",
-      "title": "Diagnostic logs for all data services",
-      "description": "SQL, Cosmos, Storage must export diagnostic logs to centralized analytics.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "List diagnostics in governance.RequiredControls; align with azureExtractor.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Azure data services",
-          "theme": "Azure data \u2014 Diagnostic logging"
-        }
-      ]
-    },
-    {
-      "id": "az-data-025",
-      "title": "Data exfiltration monitoring on storage",
-      "description": "Storage analytics must document alerts for unusual egress or SAS abuse.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Describe exfiltration monitoring in governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Azure data services",
-          "theme": "Azure Storage \u2014 Exfiltration detection"
-        }
-      ]
-    },
-    {
-      "id": "az-data-026",
-      "title": "Elastic pool and serverless SKU security implications",
-      "description": "SKU choices must document security trade-offs (serverless auto-pause, pool sharing).",
-      "severity": "Low",
-      "priority": "P2",
-      "remediationGuidance": "Note SKU security in metadata.ChangeDescription.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Azure data services",
-          "theme": "Azure SQL \u2014 SKU security posture"
-        }
-      ]
-    },
-    {
-      "id": "az-data-027",
-      "title": "Cross-subscription data access documented",
-      "description": "Linked servers, private endpoint DNS, and peering for data access must be enumerated.",
-      "severity": "Medium",
-      "priority": "P2",
-      "remediationGuidance": "Map cross-subscription paths on relationships[].",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Azure data services",
-          "theme": "Azure data \u2014 Cross-subscription access"
-        }
-      ]
-    },
-    {
-      "id": "az-data-028",
-      "title": "Data-layer DR tested with encryption keys available",
-      "description": "Failover drills must document key availability and connection string rotation in DR region.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Cross-reference DR and Key Vault replication in governance.PolicyConstraints.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Azure data services",
-          "theme": "Azure data \u2014 DR key availability"
+          "theme": "Encryption"
         }
       ]
     }
