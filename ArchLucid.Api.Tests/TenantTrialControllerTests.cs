@@ -397,6 +397,45 @@ public sealed class TenantTrialControllerTests
     }
 
     [SkippableFact]
+    public async Task ConvertTrialAsync_returns_bad_request_when_target_tier_unrecognized_and_tenant_missing()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        tenants
+            .Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
+        Mock<IBillingTrialConversionGate> gate = new(MockBehavior.Strict);
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
+        schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        TenantTrialController sut = CreateController(
+            tenants.Object,
+            scopeProvider.Object,
+            audit.Object,
+            gate.Object,
+            NoopTrialIdentityUsers(),
+            schedulerOpts.Object);
+
+        IActionResult result = await sut.ConvertTrialAsync(
+            new TenantTrialConvertRequest { TargetTier = "EnterpriseTypo" },
+            CancellationToken.None);
+
+        ObjectResult bad = result.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        tenants.Verify(
+            t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
     public async Task ConvertTrialAsync_returns_bad_request_when_target_tier_unrecognized()
     {
         ScopeContext scope = new()

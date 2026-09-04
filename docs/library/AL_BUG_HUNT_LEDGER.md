@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 163
-- **bugs-found:** 373
+- **hunts:** 164
+- **bugs-found:** 374
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — environment catalog replace validation ordering before tenant lookup
+- **last-bug:** 2026-09-04 — trial convert target tier validation ordering before tenant lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3992,6 +3992,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceEnvironmentCatalogController.Replace` — tenant preflight ran before catalog body validation so ghost tenant + empty environments/transitions returned HTTP 404 instead of 400 (#703 posture projectId ordering sibling; `ReplaceCatalogAsync` validated only after `TenantWorkspaceScopePreflight`) — **hit 2026-09-04 (#704):** `GovernanceEnvironmentCatalogService.ValidateCatalogOrThrow` before tenant lookup; regression in `GovernanceEnvironmentCatalogControllerTests.Replace_returns_bad_request_when_catalog_is_invalid_and_tenant_missing`.
 
 2026-09-04 seed hunt #704: promoted and proved environment catalog replace validation ordering before tenant lookup.
+
+- [x] (proven) `TenantTrialController.ConvertTrialAsync` / `TenantTrialConversionStage.ConvertTrialAsync` — tenant lookup ran before `TryMapRequestTier` so ghost tenant + unrecognized `targetTier` returned HTTP 404 instead of 400 (#704 environment catalog ordering sibling; prior row closed valid-no-repro for tier semantics only) — **hit 2026-09-04 (#705):** validate target tier before tenant repository lookup; regression in `TenantTrialControllerTests.ConvertTrialAsync_returns_bad_request_when_target_tier_unrecognized_and_tenant_missing`.
+
+2026-09-04 seed hunt #705: promoted and proved trial convert target-tier validation ordering before tenant lookup.
 
 2026-09-04 seed hunt #695: promoted and proved attestation upsert HTTP mapper and product-feedback validation ordering.
 
