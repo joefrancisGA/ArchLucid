@@ -4,6 +4,7 @@ import { memo, type ReactNode } from "react";
 
 import { OperatorNavAuthorityProvider } from "@/components/operator/OperatorNavAuthorityProvider";
 import { WorkspaceActiveRunProvider } from "@/components/WorkspaceActiveRunContext";
+import { SessionAiReadinessProvider } from "@/hooks/session-ai-readiness-context";
 
 /** Memoized operator shell context stack to narrow re-render blast radius (TB-568). */
 export const OperatorShellProviders = memo(function OperatorShellProviders(props: {
@@ -13,7 +14,9 @@ export const OperatorShellProviders = memo(function OperatorShellProviders(props
 
   return (
     <OperatorNavAuthorityProvider>
-      <WorkspaceActiveRunProvider>{children}</WorkspaceActiveRunProvider>
+      <SessionAiReadinessProvider>
+        <WorkspaceActiveRunProvider>{children}</WorkspaceActiveRunProvider>
+      </SessionAiReadinessProvider>
     </OperatorNavAuthorityProvider>
   );
 });

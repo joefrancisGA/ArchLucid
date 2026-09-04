@@ -10,7 +10,7 @@ export const MARKETING_UPSTREAM_FETCH_TIMEOUT_MS = 12_000;
 export const PROXY_UPSTREAM_FETCH_TIMEOUT_MS = 60_000;
 
 /** Workspace AI availability live probe through the UI BFF (bounded server probe + margin). */
-export const PROXY_UPSTREAM_WORKSPACE_AI_AVAILABILITY_FETCH_TIMEOUT_MS = 10_000;
+export const PROXY_UPSTREAM_WORKSPACE_AI_AVAILABILITY_FETCH_TIMEOUT_MS = 18_000;
 
 /**
  * LLM advisory intake (structured-brief suggest, overview rewrite, suggestion explain).

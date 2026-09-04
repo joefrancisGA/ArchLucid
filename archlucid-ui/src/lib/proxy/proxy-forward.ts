@@ -14,6 +14,7 @@ import {
   respondWithProxyProblem,
 } from "@/lib/proxy/proxy-problem-response";
 import { passThrough } from "@/lib/proxy/proxy-passthrough";
+import { resolveProxyUpstreamFetchTimeout } from "@/lib/resolve-proxy-upstream-fetch-timeout";
 import { PROXY_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { trySandboxProxyMock } from "@/lib/sandbox-proxy-mocks";
 import { fetchWithWarmupRetry } from "@/lib/warmup-retry";
@@ -136,6 +137,7 @@ async function forward(
   let res: Response;
 
   const upstreamFetchStartedAtMs = performance.now();
+  const upstreamTimeout = resolveProxyUpstreamFetchTimeout(pathForLog);
 
   if (traceInteractiveReadHang) {
     logProxyDiagnostic("upstream_fetch_started", {
@@ -153,7 +155,7 @@ async function forward(
           method: "GET",
           headers,
           cache: "no-store",
-          signal: AbortSignal.timeout(PROXY_UPSTREAM_FETCH_TIMEOUT_MS),
+          signal: AbortSignal.timeout(upstreamTimeout.timeoutMs),
         }),
       {
         onRetry: ({ attemptIndex, reason, status }) => {
@@ -177,7 +179,8 @@ async function forward(
         path: pathForLog,
         message,
         durationMs: Math.round(performance.now() - upstreamFetchStartedAtMs),
-        timeoutMs: PROXY_UPSTREAM_FETCH_TIMEOUT_MS,
+        timeoutMs: upstreamTimeout.timeoutMs,
+        timeoutKind: upstreamTimeout.kind,
         correlationId,
       });
     }
@@ -186,7 +189,8 @@ async function forward(
       method,
       pathForLog,
       correlationId,
-      timeoutMs: PROXY_UPSTREAM_FETCH_TIMEOUT_MS,
+      timeoutMs: upstreamTimeout.timeoutMs,
+      timeoutKind: upstreamTimeout.kind,
       causeMessage: message,
     });
   }

@@ -10,6 +10,11 @@ export const REAL_MODE_TOP_BAR_CHIP_LABEL = "Live AI";
 export const REAL_MODE_TOP_BAR_CHIP_DETAIL =
   "AI operations use the live Azure OpenAI path. Click to switch back to rule-based analysis.";
 
+export const REAL_MODE_AI_READINESS_OK_TITLE = "Live AI checked — OK";
+
+export const REAL_MODE_AI_READINESS_OK_DETAIL =
+  "The live Azure OpenAI probe succeeded for this session. Expand probe details below for deployment and check metadata.";
+
 export const REAL_MODE_AI_READINESS_BLOCKED_TITLE = "Live AI selected — connection is not ready";
 
 export const REAL_MODE_AI_READINESS_BLOCKED_DETAIL =

@@ -4,7 +4,7 @@ namespace ArchLucid.Core.Hosting;
 public static class WorkspaceAiAvailabilityProbeLimits
 {
     /// <summary>Overall server-side budget for <c>GET /v1/diagnostics/workspace-ai-availability</c>.</summary>
-    public static readonly TimeSpan TotalProbeTimeout = TimeSpan.FromSeconds(5);
+    public static readonly TimeSpan TotalProbeTimeout = TimeSpan.FromSeconds(10);
 
     /// <summary>Minimal completion output for live vendor probes (platform absorbs cost; not tenant-metered).</summary>
     public const int MaxCompletionTokens = 16;

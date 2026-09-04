@@ -3,23 +3,24 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { RealModeAiReadinessShellBanner } from "@/components/usability/RealModeAiReadinessShellBanner";
 import {
-  REAL_MODE_AI_READINESS_BLOCKED_DETAIL,
-  REAL_MODE_AI_READINESS_BLOCKED_TITLE,
+  REAL_MODE_AI_READINESS_OK_TITLE,
 } from "@/lib/simulator-mode-chrome-copy";
 
 const readinessState = vi.hoisted(() => ({
   isSessionReal: true,
   isLoading: false,
   isReady: false,
-  detail: "AI availability check timed out after 12s.",
+  detail: "AI availability check timed out after 20s.",
   hasDevOverride: false,
   hostMode: "Real" as "Simulator" | "Real" | null,
   sessionMode: "Real" as "Simulator" | "Real" | null,
-  probeState: { status: "error" as const, message: "AI availability check timed out after 12s." },
+  probeState: { status: "error" as const, message: "AI availability check timed out after 20s." },
   checkAvailability: vi.fn(),
+  availability: null,
+  blocksExecute: true,
 }));
 
-vi.mock("@/hooks/use-session-ai-readiness", () => ({
+vi.mock("@/hooks/session-ai-readiness-context", () => ({
   useSessionAiReadiness: () => readinessState,
 }));
 
@@ -37,24 +38,26 @@ describe("RealModeAiReadinessShellBanner", () => {
     readinessState.isSessionReal = true;
     readinessState.isLoading = false;
     readinessState.isReady = false;
-    readinessState.detail = "AI availability check timed out after 12s.";
+    readinessState.detail = "AI availability check timed out after 20s.";
     readinessState.hasDevOverride = false;
     readinessState.hostMode = "Real";
     readinessState.sessionMode = "Real";
     readinessState.probeState = {
       status: "error",
-      message: "AI availability check timed out after 12s.",
+      message: "AI availability check timed out after 20s.",
     };
+    readinessState.availability = null;
+    readinessState.blocksExecute = true;
     readinessState.checkAvailability.mockReset();
   });
 
-  it("renders the blocked title, detail, and a retry button when live AI is not ready", () => {
+  it("renders the availability panel and recovery steps when live AI is not ready", () => {
     render(<RealModeAiReadinessShellBanner />);
 
     expect(screen.getByTestId("real-mode-ai-readiness-shell-banner")).toBeInTheDocument();
-    expect(screen.getByText(REAL_MODE_AI_READINESS_BLOCKED_TITLE)).toBeInTheDocument();
-    expect(screen.getByText("AI availability check timed out after 12s.")).toBeInTheDocument();
-    expect(screen.getByTestId("real-mode-ai-readiness-check-button")).toHaveTextContent(
+    expect(screen.getByTestId("review-package-workspace-ai-availability-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("real-mode-ai-readiness-recovery-steps")).toBeInTheDocument();
+    expect(screen.getByTestId("review-package-check-ai-availability-button")).toHaveTextContent(
       "Check AI availability",
     );
   });
@@ -62,51 +65,53 @@ describe("RealModeAiReadinessShellBanner", () => {
   it("retries the availability probe when the button is clicked", () => {
     render(<RealModeAiReadinessShellBanner />);
 
-    fireEvent.click(screen.getByTestId("real-mode-ai-readiness-check-button"));
+    fireEvent.click(screen.getByTestId("review-package-check-ai-availability-button"));
 
     expect(readinessState.checkAvailability).toHaveBeenCalledWith({ force: true });
   });
 
-  it("shows a loading label and disables the button while the probe is running", () => {
+  it("stays visible while a retry probe is in flight", () => {
     readinessState.isLoading = true;
     readinessState.probeState = { status: "loading" };
-    readinessState.detail = "Validating live AI readiness for this session…";
 
     render(<RealModeAiReadinessShellBanner />);
 
     expect(screen.getByTestId("real-mode-ai-readiness-shell-banner")).toBeInTheDocument();
     expect(screen.getByTestId("real-mode-ai-readiness-shell-banner")).toHaveAttribute("aria-busy", "true");
-
-    const button = screen.getByTestId("real-mode-ai-readiness-check-button");
-
-    expect(button).toHaveTextContent("Checking AI availability…");
-    expect(button).toBeDisabled();
+    expect(screen.getByTestId("review-package-check-ai-availability-button")).toHaveTextContent(
+      "Checking AI availability…",
+    );
   });
 
-  it("stays visible while a retry probe is in flight after a prior failure", () => {
-    readinessState.isLoading = true;
-    readinessState.probeState = { status: "loading" };
-    readinessState.detail = "Validating live AI readiness for this session…";
+  it("shows a success callout when live AI is ready", () => {
+    readinessState.isReady = true;
+    readinessState.blocksExecute = false;
+    readinessState.detail = "ArchLucid-managed Azure OpenAI live probe succeeded.";
+    readinessState.probeState = {
+      status: "loaded",
+      result: {
+        isAvailable: true,
+        validated: true,
+        aiSource: "managed-platform",
+        summary: "ArchLucid-managed Azure OpenAI live probe succeeded.",
+        asOfUtc: "2026-01-01T00:00:00Z",
+        checks: [{ name: "azure_openai_configuration", status: "ok", detail: "configured" }],
+        debug: {},
+      },
+    };
 
     render(<RealModeAiReadinessShellBanner />);
 
     expect(screen.getByTestId("real-mode-ai-readiness-shell-banner")).toBeInTheDocument();
-    expect(screen.getByText("Validating live AI readiness for this session…")).toBeInTheDocument();
+    expect(screen.getByText(REAL_MODE_AI_READINESS_OK_TITLE)).toBeInTheDocument();
+    expect(screen.queryByTestId("real-mode-ai-readiness-recovery-steps")).not.toBeInTheDocument();
   });
 
-  it("hides when live AI is already ready", () => {
-    readinessState.isReady = true;
+  it("hides when the session is not in Real mode", () => {
+    readinessState.isSessionReal = false;
 
     render(<RealModeAiReadinessShellBanner />);
 
     expect(screen.queryByTestId("real-mode-ai-readiness-shell-banner")).not.toBeInTheDocument();
-  });
-
-  it("falls back to the default blocked detail when no probe detail is available", () => {
-    readinessState.detail = null;
-
-    render(<RealModeAiReadinessShellBanner />);
-
-    expect(screen.getByText(REAL_MODE_AI_READINESS_BLOCKED_DETAIL)).toBeInTheDocument();
   });
 });
