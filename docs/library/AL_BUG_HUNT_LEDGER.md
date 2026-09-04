@@ -3348,11 +3348,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 206
-- **bugs-found:** 428
+- **hunts:** 207
+- **bugs-found:** 429
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — coverage preview whitespace optional intake text silent pass
+- **last-bug:** 2026-09-04 — create policy pack whitespace description silent pass
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4360,6 +4360,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceCoverageController.PreviewCoverage` / `CoveragePreviewHttpMapper.ValidateFreeTextLength` — whitespace-only optional `descriptionText` / `securityIntakeAnswer` passed HTTP validation and flowed through `CoveragePreviewMapper.ToInput` unchanged instead of HTTP 400 — **hit 2026-09-04 (#789):** reject non-null whitespace-only optional free-text fields before tenant preflight (governance comment #784 / promote-catalog #788 parity); regressions in `CoveragePreviewHttpMapperTests` and `GovernanceCoverageControllerScopeTests.PreviewCoverage_returns_bad_request_when_description_text_is_whitespace_only_and_tenant_missing` / `..._security_intake_answer_is_whitespace_only_and_tenant_missing`.
 
 2026-09-04 seed hunt #789 (hit): proved coverage preview whitespace optional intake text silent pass.
+
+- [x] (proven) `PolicyPacksController.Create` / `CreatePolicyPackRequestValidator` — whitespace-only optional `description` passed FluentValidation and flowed through `PolicyPackHttpFacade.CreatePackAsync` unchanged instead of HTTP 400 — **hit 2026-09-04 (#790):** reject explicit whitespace-only description while allowing omitted/default empty string (coverage preview #789 parity); regressions in `CreatePolicyPackRequestValidatorTests.Whitespace_only_description_fails` and `PolicyPacksControllerListScopeTests.Create_returns_bad_request_when_description_is_whitespace_only_and_tenant_missing`.
+
+2026-09-04 seed hunt #790 (hit): proved create policy pack whitespace description silent pass.
 
 2026-09-04 seed hunt #787 (hit): proved disposition inapplicable optional string silent drop beyond whitespace-only cases.
 
