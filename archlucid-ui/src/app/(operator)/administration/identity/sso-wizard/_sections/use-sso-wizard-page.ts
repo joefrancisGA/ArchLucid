@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type SetStateAction } from "react";
 
 import {
   parseSsoWizardCancelConfirmOpenFromSearch,
@@ -175,9 +175,13 @@ export function useSsoWizardPage(): UseSsoWizardPageResult {
   );
 
   const setPendingCancelConfirm = useCallback(
-    (confirmOpen: boolean) => {
-      setPendingCancelConfirmState(confirmOpen);
-      syncCancelConfirmToUrl(confirmOpen);
+    (value: SetStateAction<boolean>) => {
+      setPendingCancelConfirmState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncCancelConfirmToUrl(next);
+
+        return next;
+      });
     },
     [syncCancelConfirmToUrl],
   );
