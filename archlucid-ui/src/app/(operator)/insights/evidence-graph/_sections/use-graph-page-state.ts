@@ -305,6 +305,7 @@ export function useGraphPageState() {
     showSavedViews: savedViews.showSavedViews,
     getGraphSavedViewPayload: savedViews.getGraphSavedViewPayload,
     loadGraphSavedView: savedViews.loadGraphSavedView,
+    workingMode,
   };
 }
 
