@@ -1433,11 +1433,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 9
-- **bugs-found:** 11
+- **hunts:** 10
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — ServiceNow inbound PascalCase sys_id/state property lookup
+- **last-hunt:** 2026-09-04
+- **last-bug:** 2026-09-04 — ServiceNow inbound ignored mapped incident_state when state was present but unmapped; JSON float state serialized as 6.0 failed builtin map
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1462,6 +1462,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ItsmInboundServiceNowPayloadReader` case-sensitive on `sys_id` / `sysId` / `state` / `incident_state` — PascalCase `Sys_Id` / `SysId` / `State` / `Incident_State` webhook shapes returned `TryRead=false` and were dropped as unrecognized payloads — **hit 2026-09-03 (#558):** shared `ItsmInboundJsonElementReader` case-insensitive property lookup for ServiceNow (Jira reader refactored to same helper); regression in `ItsmInboundServiceNowPayloadReaderTests`.
 
 2026-09-03 seed hunt #558: proved ServiceNow inbound PascalCase property lookup gap; refactored Jira reader onto shared JSON helper.
+
+- [x] (proven) ServiceNow inbound webhook ignored mapped `incident_state` when `state` was present but unmapped — **hit 2026-09-04 (#717):** `TryReadServiceNowKeys` only fell back on null/whitespace `state`, so payloads like `"state":"4"` with `"incident_state":"6"` were rejected; fixed with `AlternateStatusValue` fallback in pipeline (`ServiceNow_inbound_uses_incident_state_when_state_is_unmapped_but_incident_state_resolves`).
+- [x] (proven) ServiceNow JSON numeric `state` serialized as whole-number float (`6.0`) failed builtin choice-list map — **hit 2026-09-04 (#717):** `ReadStringOrRawText` used `GetRawText()` (`"6.0"`), so `int.TryParse` failed; fixed by normalizing JSON numbers to integer status text (`ServiceNow_inbound_json_whole_number_float_state_parses_as_builtin_choice_list`).
+- [x] (valid-no-repro) Jira changelog-only webhook bodies without `issue.fields.status.name` are dropped — reader contract requires `issue → fields → status → name`; changelog-only automation payloads are intentionally unsupported (`ItsmInboundJiraPayloadReaderTests.TryRead_rejects_changelog_only_payload_without_issue_fields_status_name`).
+- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` returns HTTP 500 after human-review update when disposition sync throws a non-`ArgumentException` — human-review mutation precedes disposition; replay claim is released in `catch` so vendor retry can re-apply.
+
+2026-09-04 seed hunt #717 (hit): reseeded zone; proved ServiceNow incident_state fallback and JSON float state normalization; retired changelog-only Jira candidate as valid-no-repro.
 
 ---
 

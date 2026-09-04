@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 namespace ArchLucid.Application.Integrations.Itsm;
@@ -29,6 +30,25 @@ internal static class ItsmInboundJsonElementReader
 
         if (element.ValueKind == JsonValueKind.String)
             return element.GetString();
+
+        if (element.ValueKind == JsonValueKind.Number)
+            return ReadNumberAsStatusText(element);
+
+        return element.GetRawText();
+    }
+
+    private static string ReadNumberAsStatusText(JsonElement element)
+    {
+        if (element.TryGetInt64(out long whole))
+            return whole.ToString(CultureInfo.InvariantCulture);
+
+        if (element.TryGetDouble(out double numeric) && double.IsFinite(numeric))
+        {
+            double rounded = Math.Round(numeric);
+
+            if (Math.Abs(numeric - rounded) < 0.0000001d)
+                return rounded.ToString(CultureInfo.InvariantCulture);
+        }
 
         return element.GetRawText();
     }

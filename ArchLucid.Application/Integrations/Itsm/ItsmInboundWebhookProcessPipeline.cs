@@ -68,7 +68,16 @@ public sealed class ItsmInboundWebhookProcessPipeline(
         }
 
         IntegrationsItsmInboundOptions options = _inboundOptions.CurrentValue;
+        string effectiveStatusValue = payload.StatusValue;
         (string humanReview, bool mapped) = statusMapper.MapToHumanReview(payload.StatusValue, options);
+
+        if (!mapped && !string.IsNullOrWhiteSpace(payload.AlternateStatusValue))
+        {
+            (humanReview, mapped) = statusMapper.MapToHumanReview(payload.AlternateStatusValue, options);
+
+            if (mapped)
+                effectiveStatusValue = payload.AlternateStatusValue.Trim();
+        }
 
         if (!mapped)
         {
@@ -93,8 +102,15 @@ public sealed class ItsmInboundWebhookProcessPipeline(
 
             return new ItsmInboundWebhookProcessResult(false, null);
 
+        ItsmInboundPayloadReadResult effectivePayload = new()
+        {
+            ExternalKey = payload.ExternalKey,
+            StatusValue = effectiveStatusValue,
+            AlternateStatusValue = payload.AlternateStatusValue,
+        };
+
         ItsmFindingCorrelationRecord? row =
-            await _support.TryResolveCorrelationAsync(descriptor.ProviderName, payload.ExternalKey, authenticatedTenantId, ct).ConfigureAwait(false);
+            await _support.TryResolveCorrelationAsync(descriptor.ProviderName, effectivePayload.ExternalKey, authenticatedTenantId, ct).ConfigureAwait(false);
 
         if (row is null)
         {
@@ -125,14 +141,14 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                     row.WorkspaceId,
                     row.ProjectId,
                     "finding_not_found",
-                    CreateFindingNotFoundPayload(descriptor.ProviderName, payload, row.FindingId)));
+                    CreateFindingNotFoundPayload(descriptor.ProviderName, effectivePayload, row.FindingId)));
         }
 
         string replayEventId = ItsmInboundWebhookReplayEventId.Resolve(
             deliveryId,
             descriptor.ProviderName,
-            payload.ExternalKey,
-            payload.StatusValue);
+            effectivePayload.ExternalKey,
+            effectivePayload.StatusValue);
 
         if (!await _support.TryClaimReplayAsync(row.TenantId, descriptor.ProviderName, replayEventId, ct).ConfigureAwait(false))
         {
@@ -144,7 +160,7 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                     row.WorkspaceId,
                     row.ProjectId,
                     replayEventId,
-                    CreateStatusPayload(descriptor.ProviderName, payload)),
+                    CreateStatusPayload(descriptor.ProviderName, effectivePayload)),
                 ReplayIgnored: true);
         }
 
@@ -163,11 +179,11 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                     LogSanitizer.Sanitize(row.FindingId));
 
             FindingDisposition? mappedDisposition =
-                statusMapper.TryMapToDisposition(payload.StatusValue, options);
+                statusMapper.TryMapToDisposition(effectivePayload.StatusValue, options);
 
             ItsmInboundDispositionSyncResult dispositionResult =
                 await _dispositionSync
-                    .TryRecordFromWebhookAsync(row, mappedDisposition, payload.StatusValue, descriptor.WebhookActorId, ct)
+                    .TryRecordFromWebhookAsync(row, mappedDisposition, effectivePayload.StatusValue, descriptor.WebhookActorId, ct)
                     .ConfigureAwait(false);
 
             AuditEvent auditEvent = new()
@@ -180,7 +196,7 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                 WorkspaceId = row.WorkspaceId,
                 ProjectId = row.ProjectId,
                 DataJson = JsonSerializer.Serialize(
-                    CreateSyncedAuditPayload(descriptor.ProviderName, payload, replayEventId, humanReview, updated, dispositionResult))
+                    CreateSyncedAuditPayload(descriptor.ProviderName, effectivePayload, replayEventId, humanReview, updated, dispositionResult))
             };
 
             return new ItsmInboundWebhookProcessResult(true, auditEvent);
