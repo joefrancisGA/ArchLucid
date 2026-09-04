@@ -20,6 +20,7 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type OperatorHomeWorkspaceMetricsStripProps = {
   readonly runsDashboard: OperatorHomeRunsDashboardModel;
+  readonly workingMode?: boolean;
 };
 
 type MetricTileProps = {
@@ -99,11 +100,13 @@ export function OperatorHomeWorkspaceMetricsStrip(
         <div className="min-w-0">
           <OperatorHomeGovernanceWarningsMetricLink label={warningsLabel} />
         </div>
-        <MetricTile
-          label={setupLabel}
-          href={readiness.phase === "loading" ? undefined : OPERATOR_HOME_SETUP_READINESS_HREF}
-          ariaLabel={setupAriaLabel}
-        />
+        {props.workingMode === true ? null : (
+          <MetricTile
+            label={setupLabel}
+            href={readiness.phase === "loading" ? undefined : OPERATOR_HOME_SETUP_READINESS_HREF}
+            ariaLabel={setupAriaLabel}
+          />
+        )}
       </div>
     </section>
   );

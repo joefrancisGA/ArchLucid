@@ -131,7 +131,8 @@ public sealed class RunSummaryOnePagerExportServiceTests
                 CurrentManifestVersion = "v1"
             },
             Manifest = manifest,
-            HasBrokenManifestReference = false
+            HasBrokenManifestReference = false,
+            AuthorityLifecyclePhase = AuthorityRunLifecyclePhase.Complete
         };
     }
 }

@@ -26,10 +26,10 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
 
         ArchitectureFinding finding = new();
 
-        if (root.TryGetProperty("findingId", out JsonElement findingId) && findingId.ValueKind == JsonValueKind.String)
+        if (TryGetPropertyIgnoreCase(root, "findingId", out JsonElement findingId) && findingId.ValueKind == JsonValueKind.String)
             finding.FindingId = findingId.GetString() ?? finding.FindingId;
 
-        if (root.TryGetProperty("sourceAgent", out JsonElement sourceAgent) &&
+        if (TryGetPropertyIgnoreCase(root, "sourceAgent", out JsonElement sourceAgent) &&
             sourceAgent.ValueKind == JsonValueKind.String &&
             Enum.TryParse(sourceAgent.GetString(), ignoreCase: true, out AgentType agentType))
         {
@@ -39,24 +39,28 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
         if (TryGetPropertyIgnoreCase(root, "severity", out JsonElement severityElement))
             finding.Severity = ReadSeverity(severityElement);
 
-        if (root.TryGetProperty("category", out JsonElement category) && category.ValueKind == JsonValueKind.String)
+        if (TryGetPropertyIgnoreCase(root, "category", out JsonElement category) && category.ValueKind == JsonValueKind.String)
             finding.Category = category.GetString() ?? string.Empty;
 
-        if (root.TryGetProperty("policyRuleId", out JsonElement policyRuleId) &&
+        if (TryGetPropertyIgnoreCase(root, "policyRuleId", out JsonElement policyRuleId) &&
             policyRuleId.ValueKind == JsonValueKind.String)
         {
             finding.PolicyRuleId = policyRuleId.GetString();
         }
 
-        if (TryGetPropertyIgnoreCase(root, "enforcementTier", out JsonElement enforcementTier) &&
-            TryReadEnforcementTier(enforcementTier, out FindingEnforcementTier tier))
+        if (TryGetPropertyIgnoreCase(root, "enforcementTier", out JsonElement enforcementTier)
+            && TryReadEnforcementTier(enforcementTier, out FindingEnforcementTier tier))
         {
             finding.EnforcementTier = tier;
+        }
+        else
+        {
+            throw new JsonException("enforcementTier is required.");
         }
 
         finding.Message = ReadMessage(root);
 
-        if (root.TryGetProperty("evidenceRefs", out JsonElement evidenceRefs) &&
+        if (TryGetPropertyIgnoreCase(root, "evidenceRefs", out JsonElement evidenceRefs) &&
             evidenceRefs.ValueKind == JsonValueKind.Array)
         {
             foreach (JsonElement item in evidenceRefs.EnumerateArray())
@@ -76,6 +80,11 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
     public override void Write(Utf8JsonWriter writer, ArchitectureFinding value, JsonSerializerOptions options)
     {
         ArgumentNullException.ThrowIfNull(value);
+
+        if (!Enum.IsDefined(value.EnforcementTier))
+        {
+            throw new JsonException("enforcementTier must be a valid tier when writing architecture findings.");
+        }
 
         writer.WriteStartObject();
         writer.WriteString("findingId", value.FindingId);
@@ -102,7 +111,7 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
 
     private static void ReadInsightDensityFields(JsonElement root, ArchitectureFinding finding)
     {
-        if (root.TryGetProperty("insightDensityScore", out JsonElement scoreElement) &&
+        if (TryGetPropertyIgnoreCase(root, "insightDensityScore", out JsonElement scoreElement) &&
             scoreElement.ValueKind == JsonValueKind.Number &&
             scoreElement.TryGetInt32(out int insightDensityScore))
         {
@@ -247,7 +256,7 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
 
     private static string? ReadOptionalStringProperty(JsonElement root, string propertyName)
     {
-        if (!root.TryGetProperty(propertyName, out JsonElement property) || property.ValueKind == JsonValueKind.Null)
+        if (!TryGetPropertyIgnoreCase(root, propertyName, out JsonElement property) || property.ValueKind == JsonValueKind.Null)
             return null;
 
         return property.GetString();

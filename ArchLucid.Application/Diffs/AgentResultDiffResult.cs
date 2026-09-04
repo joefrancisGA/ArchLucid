@@ -1,5 +1,7 @@
 namespace ArchLucid.Application.Diffs;
 
+using ArchLucid.Core.Comparison;
+
 public sealed class AgentResultDiffResult
 {
     public string LeftRunId
@@ -25,4 +27,10 @@ public sealed class AgentResultDiffResult
         get;
         set;
     } = [];
+
+    public CompareInputFingerprints? InputFingerprints
+    {
+        get;
+        set;
+    }
 }

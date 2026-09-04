@@ -12,9 +12,19 @@ export { BUYER_OPERATOR_HOME_PAGE_SUBTITLE };
 
 export const OPERATOR_HOME_PAGE_SUBTITLE_OPERATOR = OPERATOR_HOME_PAGE_SUBTITLE;
 
-export function operatorHomePageSubtitle(buyerPolishedShell: boolean): string | undefined {
+export const OPERATOR_HOME_WORKING_PAGE_SUBTITLE =
+  "Resume drafts, triage findings, and continue reviews already in progress.";
+
+export function operatorHomePageSubtitle(
+  buyerPolishedShell: boolean,
+  workingMode = false,
+): string | undefined {
   if (buyerPolishedShell) {
     return undefined;
+  }
+
+  if (workingMode) {
+    return OPERATOR_HOME_WORKING_PAGE_SUBTITLE;
   }
 
   return OPERATOR_HOME_PAGE_SUBTITLE_OPERATOR;

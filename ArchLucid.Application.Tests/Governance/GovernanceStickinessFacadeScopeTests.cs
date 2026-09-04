@@ -4,6 +4,7 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Application.Governance.Stickiness;
 using ArchLucid.Application.Roi;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
@@ -724,6 +725,38 @@ public sealed class GovernanceStickinessFacadeScopeTests
     }
 
     [Fact]
+    public async Task CreateRecurrenceScheduleAsync_throws_when_source_run_is_not_committed()
+    {
+        Guid sourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(CallerScope, sourceRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchLucid.Persistence.Models.RunRecord
+            {
+                RunId = sourceRunId,
+                ArchitectureId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+                GoldenManifestId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+            });
+
+        GovernanceStickinessFacade sut = CreateSut(runRepository: runs.Object);
+
+        CreateArchitectureReviewRecurrenceScheduleRequest request = new()
+        {
+            SourceRunId = sourceRunId,
+            IsEnabled = true,
+            CronExpression = "0 8 * * 1",
+        };
+
+        Func<Task> act = () => sut.CreateRecurrenceScheduleAsync(request, CancellationToken.None);
+
+        await act.Should()
+            .ThrowAsync<ArgumentException>()
+            .WithMessage("*committed*");
+    }
+
+    [Fact]
     public async Task CreateRecurrenceScheduleAsync_throws_when_name_exceeds_sql_max_length()
     {
         Guid sourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -735,6 +768,7 @@ public sealed class GovernanceStickinessFacadeScopeTests
             {
                 RunId = sourceRunId,
                 ArchitectureId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
             });
 
         ArchitectureReviewRecurrenceNextRunCalculator realCalculator =

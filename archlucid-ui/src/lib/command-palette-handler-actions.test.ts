@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  COMMAND_PALETTE_FINALIZE_REVIEW_EVENT,
   COMMAND_PALETTE_FINDING_NEXT_EVENT,
   COMMAND_PALETTE_HANDLER_ACTIONS,
   dispatchCommandPaletteHandlerAction,
@@ -8,7 +9,11 @@ import {
   isArchitectureDraftWorkPath,
   isCommandPaletteReversibleUndoAvailable,
   isFindingsWorkPath,
+  isReviewDetailWorkPath,
 } from "@/lib/command-palette-handler-actions";
+import {
+  isCommandPaletteFinalizeReviewAvailable,
+} from "@/lib/command-palette-work-action-dom";
 import { resolveVisibleCommandPaletteHandlerActions } from "@/lib/resolve-visible-command-palette-actions";
 
 describe("command-palette-handler-actions (LI-07 / WD-05)", () => {
@@ -53,11 +58,43 @@ describe("command-palette-handler-actions (LI-07 / WD-05)", () => {
     );
   });
 
-  it("keeps save-draft scoped to architecture draft workspace", () => {
-    const draftAction = COMMAND_PALETTE_HANDLER_ACTIONS.find((action) => action.id === "action-save-draft");
+  it("keeps save changes scoped to draft routes or dirty review-detail controls", () => {
+    const saveAction = COMMAND_PALETTE_HANDLER_ACTIONS.find((action) => action.id === "action-save-draft");
 
-    expect(draftAction?.isAvailable("/architecture/architectures/draft-1")).toBe(true);
-    expect(draftAction?.isAvailable("/architecture/reviews")).toBe(false);
+    expect(saveAction?.label).toBe("Save changes");
+    expect(saveAction?.isAvailable("/architecture/architectures/draft-1")).toBe(true);
+    expect(saveAction?.isAvailable("/architecture/reviews")).toBe(false);
+
+    document.body.innerHTML = '<button data-testid="finding-disposition-save" type="button">Save</button>';
+
+    expect(saveAction?.isAvailable("/architecture/reviews/run-1/findings/f-1")).toBe(true);
+    expect(isReviewDetailWorkPath("/architecture/reviews/run-1/findings/f-1")).toBe(true);
+  });
+
+  it("shows finalize review only when the on-page CTA is available", () => {
+    const finalizeAction = COMMAND_PALETTE_HANDLER_ACTIONS.find((action) => action.id === "action-finalize-review");
+
+    expect(finalizeAction).toBeDefined();
+    expect(finalizeAction?.isAvailable("/architecture/reviews/run-1")).toBe(false);
+
+    document.body.innerHTML = '<button data-testid="commit-run-finalize" type="button">Finalize review</button>';
+
+    expect(isCommandPaletteFinalizeReviewAvailable()).toBe(true);
+    expect(finalizeAction?.isAvailable("/architecture/reviews/run-1")).toBe(true);
+    expect(finalizeAction?.isAvailable("/governance/findings")).toBe(false);
+  });
+
+  it("dispatches finalize review as a window event", () => {
+    const seen: string[] = [];
+    const onFinalize = () => {
+      seen.push("finalize");
+    };
+
+    window.addEventListener(COMMAND_PALETTE_FINALIZE_REVIEW_EVENT, onFinalize);
+    dispatchCommandPaletteHandlerAction("action-finalize-review");
+    window.removeEventListener(COMMAND_PALETTE_FINALIZE_REVIEW_EVENT, onFinalize);
+
+    expect(seen).toEqual(["finalize"]);
   });
 
   it("dispatches finding next as a window event", () => {

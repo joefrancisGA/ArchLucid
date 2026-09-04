@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { evaluateAuthSignInRouting } from "@/lib/auth/auth-sign-in-routing-api";
@@ -29,6 +30,11 @@ import { assertOidcSignInConfig } from "@/lib/oidc/config";
 import { initiateOidcRedirect, initiateSupplementalOidcRedirect } from "@/lib/oidc/initiate-redirect";
 import { isLikelySignedIn, persistTokenResponse } from "@/lib/oidc/session";
 import { maskEmailForDisplay } from "@/lib/signup-verify-email";
+import {
+  parseSignInFlowStepFromSearch,
+  signInFlowStepHrefFromSearch,
+  type SignInFlowStepUrlValue,
+} from "@/lib/auth/sign-in-flow-step-url";
 
 export type SignInFlowStep = "options" | "email" | "code" | "sso";
 
@@ -38,14 +44,44 @@ export type UseSignInFlowStateProps = {
 };
 
 export function useSignInFlowState({ returnUrl, invitationTokenFromQuery }: UseSignInFlowStateProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/auth/signin";
+  const searchParams = useSearchParams();
   const safeReturnUrl = useMemo(() => resolveSafeReturnPath(returnUrl, "/"), [returnUrl]);
   const hasReturnDestination = useMemo(() => signInHasReturnDestination(returnUrl), [returnUrl]);
   const methodOptions = useMemo(() => resolveSignInMethodOptions(), []);
 
   const restoredSession = useMemo(() => readEmailOtpChallengeSession(), []);
-  const initialStep: SignInFlowStep = restoredSession ? "code" : "options";
+  const urlStep = parseSignInFlowStepFromSearch(searchParams.get("step"));
+  const initialStep: SignInFlowStep = urlStep ?? (restoredSession ? "code" : "options");
 
-  const [step, setStep] = useState<SignInFlowStep>(initialStep);
+  const [step, setStepState] = useState<SignInFlowStep>(initialStep);
+
+  const syncStepToUrl = useCallback(
+    (nextStep: SignInFlowStep) => {
+      router.replace(
+        signInFlowStepHrefFromSearch(searchParams.toString(), nextStep as SignInFlowStepUrlValue, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setStep = useCallback(
+    (nextStep: SignInFlowStep) => {
+      setStepState(nextStep);
+      syncStepToUrl(nextStep);
+    },
+    [syncStepToUrl],
+  );
+
+  useEffect(() => {
+    const fromUrl = parseSignInFlowStepFromSearch(searchParams.get("step"));
+
+    if (fromUrl !== null) {
+      setStepState(fromUrl);
+    }
+  }, [searchParams]);
   const [email, setEmail] = useState(restoredSession?.email ?? "");
   const [maskedEmail, setMaskedEmail] = useState(restoredSession?.maskedEmail ?? "");
   const [challengeId, setChallengeId] = useState<string | null>(restoredSession?.challengeId ?? null);

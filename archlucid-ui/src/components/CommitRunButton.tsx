@@ -158,6 +158,7 @@ export function CommitRunButton({
           type="button"
           variant={buttonVariant}
           title={FINALIZE_REPLAY_COMPARE_TOOLTIP}
+          data-testid="commit-run-finalize"
           onClick={() => {
             setError(null);
             setNotifySponsor(false);

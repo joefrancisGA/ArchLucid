@@ -926,6 +926,390 @@ type _AskSseStreamWave17BarrelAliases = [
   >,
 ];
 
+/** Wave 18 — artifact review helper slices. */
+type _ArtifactReviewWave18ModuleAliases = [
+  AssertExtends<
+    typeof import("@/lib/artifact-review-view-kind").classifyArtifactView,
+    typeof import("@/lib/artifact-review-view-kind").classifyArtifactView
+  >,
+  AssertExtends<
+    typeof import("@/lib/artifact-review-labels").getArtifactDisplayLabel,
+    typeof import("@/lib/artifact-review-labels").getArtifactDisplayLabel
+  >,
+  AssertExtends<
+    typeof import("@/lib/artifact-review-audience").sponsorArtifactAudienceBucket,
+    typeof import("@/lib/artifact-review-audience").sponsorArtifactAudienceBucket
+  >,
+];
+
+/** Wave 18 — artifact-review-helpers barrel re-exports view-kind, labels, and audience slices. */
+type _ArtifactReviewWave18BarrelAliases = [
+  AssertExtends<
+    typeof import("@/lib/artifact-review-view-kind").prepareArtifactBodyText,
+    typeof import("@/lib/artifact-review-helpers").prepareArtifactBodyText
+  >,
+  AssertExtends<
+    typeof import("@/lib/artifact-review-labels").getArtifactTypeLabel,
+    typeof import("@/lib/artifact-review-helpers").getArtifactTypeLabel
+  >,
+  AssertExtends<
+    typeof import("@/lib/artifact-review-audience").sponsorArtifactOpenActionLabel,
+    typeof import("@/lib/artifact-review-helpers").sponsorArtifactOpenActionLabel
+  >,
+];
+
+/** Wave 18 — architecture risk register page slices. */
+type _ArchitectureRiskRegisterWave18ModuleAliases = [
+  AssertExtends<
+    typeof import("@/lib/architecture/architecture-risk-register-copy").ARCHITECTURE_RISK_REGISTER_PAGE_TITLE,
+    typeof import("@/lib/architecture/architecture-risk-register-copy").ARCHITECTURE_RISK_REGISTER_PAGE_TITLE
+  >,
+  AssertExtends<
+    typeof import("@/lib/architecture/architecture-risk-register-filters").matchesRiskRegisterFilter,
+    typeof import("@/lib/architecture/architecture-risk-register-filters").matchesRiskRegisterFilter
+  >,
+  AssertExtends<
+    typeof import("@/lib/architecture/architecture-risk-register-summary").computeArchitectureRiskRegisterSummary,
+    typeof import("@/lib/architecture/architecture-risk-register-summary").computeArchitectureRiskRegisterSummary
+  >,
+];
+
+/** Wave 18 — architecture-risk-register-page barrel re-exports copy, filters, and summary slices. */
+type _ArchitectureRiskRegisterWave18BarrelAliases = [
+  AssertExtends<
+    typeof import("@/lib/architecture/architecture-risk-register-copy").ARCHITECTURE_RISK_REGISTER_GLOSSARY,
+    typeof import("@/lib/architecture/architecture-risk-register-page").ARCHITECTURE_RISK_REGISTER_GLOSSARY
+  >,
+  AssertExtends<
+    typeof import("@/lib/architecture/architecture-risk-register-filters").riskRegisterFilterFromQuery,
+    typeof import("@/lib/architecture/architecture-risk-register-page").riskRegisterFilterFromQuery
+  >,
+  AssertExtends<
+    typeof import("@/lib/architecture/architecture-risk-register-summary").computeArchitectureRiskRegisterSummary,
+    typeof import("@/lib/architecture/architecture-risk-register-page").computeArchitectureRiskRegisterSummary
+  >,
+];
+
+/** Wave 18 — exec digest schedule page model slices. */
+type _ExecDigestSchedulePageWave18ModuleAliases = [
+  AssertExtends<
+    typeof import("@/lib/exec-digest-schedule-status").resolveExecDigestStatus,
+    typeof import("@/lib/exec-digest-schedule-status").resolveExecDigestStatus
+  >,
+  AssertExtends<
+    typeof import("@/lib/exec-digest-schedule-readiness").buildExecDigestDeliveryReadiness,
+    typeof import("@/lib/exec-digest-schedule-readiness").buildExecDigestDeliveryReadiness
+  >,
+  AssertExtends<
+    typeof import("@/lib/exec-digest-schedule-copy").EXEC_DIGEST_PRODUCT_INTRO,
+    typeof import("@/lib/exec-digest-schedule-copy").EXEC_DIGEST_PRODUCT_INTRO
+  >,
+];
+
+/** Wave 18 — exec-digest-schedule-page-model barrel re-exports status, readiness, and copy slices. */
+type _ExecDigestSchedulePageWave18BarrelAliases = [
+  AssertExtends<
+    typeof import("@/lib/exec-digest-schedule-status").formatExecDigestNextSendLabel,
+    typeof import("@/lib/exec-digest-schedule-page-model").formatExecDigestNextSendLabel
+  >,
+  AssertExtends<
+    typeof import("@/lib/exec-digest-schedule-readiness").resolveExecDigestOutboundEmailStatus,
+    typeof import("@/lib/exec-digest-schedule-page-model").resolveExecDigestOutboundEmailStatus
+  >,
+  AssertExtends<
+    typeof import("@/lib/exec-digest-schedule-copy").EXEC_DIGEST_READ_ONLY,
+    typeof import("@/lib/exec-digest-schedule-page-model").EXEC_DIGEST_READ_ONLY
+  >,
+];
+
+/** Wave 18 — downloads blob trigger API slices. */
+type _DownloadsBlobTriggerWave18ModuleAliases = [
+  AssertExtends<
+    typeof import("@/lib/api/downloads-blob-trigger-browser").fetchBrowserDownload,
+    typeof import("@/lib/api/downloads-blob-trigger-browser").fetchBrowserDownload
+  >,
+  AssertExtends<
+    typeof import("@/lib/api/downloads-blob-trigger-terraform").downloadTerraformAdvisoryExportZip,
+    typeof import("@/lib/api/downloads-blob-trigger-terraform").downloadTerraformAdvisoryExportZip
+  >,
+  AssertExtends<
+    typeof import("@/lib/api/downloads-blob-trigger-reports").downloadFirstValueReportPdf,
+    typeof import("@/lib/api/downloads-blob-trigger-reports").downloadFirstValueReportPdf
+  >,
+];
+
+/** Wave 18 — downloads-blob-trigger barrel re-exports browser, terraform, and reports slices. */
+type _DownloadsBlobTriggerWave18BarrelAliases = [
+  AssertExtends<
+    typeof import("@/lib/api/downloads-blob-trigger-browser").triggerBrowserBlobDownload,
+    typeof import("@/lib/api/downloads-blob-trigger").triggerBrowserBlobDownload
+  >,
+  AssertExtends<
+    typeof import("@/lib/api/downloads-blob-trigger-terraform").downloadTerraformAdvisoryExportZip,
+    typeof import("@/lib/api/downloads-blob-trigger").downloadTerraformAdvisoryExportZip
+  >,
+  AssertExtends<
+    typeof import("@/lib/api/downloads-blob-trigger-reports").downloadBoardPackPdf,
+    typeof import("@/lib/api/downloads-blob-trigger").downloadBoardPackPdf
+  >,
+];
+
+/** Wave 18 — ITSM outbound connections API slices. */
+type _ItsmOutboundConnectionsWave18ModuleAliases = [
+  AssertExtends<
+    typeof import("@/lib/api/itsm-outbound-connections-health").fetchItsmIntegrationHealth,
+    typeof import("@/lib/api/itsm-outbound-connections-health").fetchItsmIntegrationHealth
+  >,
+  AssertExtends<
+    typeof import("@/lib/api/itsm-outbound-connections-settings").fetchTenantItsmOutboundSettings,
+    typeof import("@/lib/api/itsm-outbound-connections-settings").fetchTenantItsmOutboundSettings
+  >,
+  AssertExtends<
+    typeof import("@/lib/api/itsm-outbound-connections-oauth").startItsmAtlassianOAuthConsent,
+    typeof import("@/lib/api/itsm-outbound-connections-oauth").startItsmAtlassianOAuthConsent
+  >,
+];
+
+/** Wave 18 — itsm-outbound-connections barrel re-exports health, settings, and oauth slices. */
+type _ItsmOutboundConnectionsWave18BarrelAliases = [
+  AssertExtends<
+    typeof import("@/lib/api/itsm-outbound-connections-health").probeItsmIntegrationHealth,
+    typeof import("@/lib/api/itsm-outbound-connections").probeItsmIntegrationHealth
+  >,
+  AssertExtends<
+    typeof import("@/lib/api/itsm-outbound-connections-settings").upsertTenantItsmConnectorConnection,
+    typeof import("@/lib/api/itsm-outbound-connections").upsertTenantItsmConnectorConnection
+  >,
+  AssertExtends<
+    typeof import("@/lib/api/itsm-outbound-connections-oauth").completeItsmAtlassianOAuthConsent,
+    typeof import("@/lib/api/itsm-outbound-connections").completeItsmAtlassianOAuthConsent
+  >,
+];
+
+/** Wave 18 — policy packs API slices. */
+type _PolicyPacksApiWave18ModuleAliases = [
+  AssertExtends<
+    typeof import("@/lib/api/policy-packs-api-catalog").listPolicyPacks,
+    typeof import("@/lib/api/policy-packs-api-catalog").listPolicyPacks
+  >,
+  AssertExtends<
+    typeof import("@/lib/api/policy-packs-api-mutate").createPolicyPack,
+    typeof import("@/lib/api/policy-packs-api-mutate").createPolicyPack
+  >,
+  AssertExtends<
+    typeof import("@/lib/api/policy-packs-api-assign").assignPolicyPack,
+    typeof import("@/lib/api/policy-packs-api-assign").assignPolicyPack
+  >,
+];
+
+/** Wave 18 — policy-packs-api barrel re-exports catalog, mutate, and assign slices. */
+type _PolicyPacksApiWave18BarrelAliases = [
+  AssertExtends<
+    typeof import("@/lib/api/policy-packs-api-catalog").getEffectivePolicyPacks,
+    typeof import("@/lib/api/policy-packs-api").getEffectivePolicyPacks
+  >,
+  AssertExtends<
+    typeof import("@/lib/api/policy-packs-api-mutate").dryRunPolicyPack,
+    typeof import("@/lib/api/policy-packs-api").dryRunPolicyPack
+  >,
+  AssertExtends<
+    typeof import("@/lib/api/policy-packs-api-assign").setPolicyPackAssignmentEnabled,
+    typeof import("@/lib/api/policy-packs-api").setPolicyPackAssignmentEnabled
+  >,
+];
+
+/** Wave 19 — recommendation-learning-operational type slices. */
+type _RecommendationLearningOperationalWave19ModuleAliases = [
+  AssertExtends<
+    import("@/types/recommendation-learning-operational-profile-metadata").RecommendationLearningProfileMetadata,
+    import("@/types/recommendation-learning-operational").RecommendationLearningProfileMetadata
+  >,
+  AssertExtends<
+    import("@/types/recommendation-learning-operational-operational-status").RecommendationLearningOperationalStatus,
+    import("@/types/recommendation-learning-operational").RecommendationLearningOperationalStatus
+  >,
+  AssertExtends<
+    import("@/types/recommendation-learning-operational-preview-validation").RecommendationLearningPreview,
+    import("@/types/recommendation-learning-operational").RecommendationLearningPreview
+  >,
+];
+
+/** Wave 19 — recommendation-learning-operational barrel re-exports profile, status, and preview slices. */
+type _RecommendationLearningOperationalWave19BarrelAliases = [
+  AssertExtends<
+    import("@/types/recommendation-learning-operational-profile-metadata").RECOMMENDATION_LEARNING_CANONICAL_PATH,
+    typeof import("@/types/recommendation-learning-operational").RECOMMENDATION_LEARNING_CANONICAL_PATH
+  >,
+  AssertExtends<
+    import("@/types/recommendation-learning-operational-operational-status").RecommendationLearningOutcomeEligibility,
+    import("@/types/recommendation-learning-operational").RecommendationLearningOutcomeEligibility
+  >,
+  AssertExtends<
+    import("@/types/recommendation-learning-operational-preview-validation").RecommendationLearningRollbackRequest,
+    import("@/types/recommendation-learning-operational").RecommendationLearningRollbackRequest
+  >,
+];
+
+/** Wave 19 — advisory type slices. */
+type _AdvisoryWave19ModuleAliases = [
+  AssertExtends<
+    import("@/types/advisory-improvement-plan").ImprovementPlan,
+    import("@/types/advisory").ImprovementPlan
+  >,
+  AssertExtends<
+    import("@/types/advisory-recommendation-record").RecommendationRecord,
+    import("@/types/advisory").RecommendationRecord
+  >,
+  AssertExtends<
+    import("@/types/advisory-action-result").RecommendationActionResult,
+    import("@/types/advisory").RecommendationActionResult
+  >,
+];
+
+/** Wave 19 — advisory barrel re-exports improvement-plan, recommendation-record, and action-result slices. */
+type _AdvisoryWave19BarrelAliases = [
+  AssertExtends<
+    import("@/types/advisory-improvement-plan").ImprovementRecommendation,
+    import("@/types/advisory").ImprovementRecommendation
+  >,
+  AssertExtends<
+    import("@/types/advisory-recommendation-record").AdvisoryRunRecommendationsList,
+    import("@/types/advisory").AdvisoryRunRecommendationsList
+  >,
+  AssertExtends<
+    import("@/types/advisory-recommendation-record").RecommendationImproveLoopEvidence,
+    import("@/types/advisory").RecommendationImproveLoopEvidence
+  >,
+];
+
+/** Wave 19 — agent-forensics-scores type slices. */
+type _AgentForensicsScoresWave19ModuleAliases = [
+  AssertExtends<
+    import("@/types/agent-forensics-scores-semantic").AgentOutputSemanticScoreRow,
+    import("@/types/agent-forensics-scores").AgentOutputSemanticScoreRow
+  >,
+  AssertExtends<
+    import("@/types/agent-forensics-scores-evaluation-summary").AgentOutputEvaluationSummaryPayload,
+    import("@/types/agent-forensics-scores").AgentOutputEvaluationSummaryPayload
+  >,
+  AssertExtends<
+    import("@/types/agent-forensics-scores-retrieval-grounding").RunRetrievalGroundingPayload,
+    import("@/types/agent-forensics-scores").RunRetrievalGroundingPayload
+  >,
+];
+
+/** Wave 19 — agent-forensics-scores barrel re-exports semantic, evaluation-summary, and retrieval-grounding slices. */
+type _AgentForensicsScoresWave19BarrelAliases = [
+  AssertExtends<
+    import("@/types/agent-forensics-scores-evaluation-summary").AgentOutputEvaluationScoreRow,
+    import("@/types/agent-forensics-scores").AgentOutputEvaluationScoreRow
+  >,
+  AssertExtends<
+    import("@/types/agent-forensics-scores-evaluation-summary").AgentOutputEvaluationPerspectivePayload,
+    import("@/types/agent-forensics-scores").AgentOutputEvaluationPerspectivePayload
+  >,
+  AssertExtends<
+    import("@/types/agent-forensics-scores-retrieval-grounding").RunRetrievalGroundingRow,
+    import("@/types/agent-forensics-scores").RunRetrievalGroundingRow
+  >,
+];
+
+/** Wave 20 — copy-finding-as-work-item module slices. */
+type _CopyFindingAsWorkItemWave20ModuleAliases = [
+  AssertExtends<
+    import("@/lib/copy-finding-as-work-item-types").WorkItemClipboardFormat,
+    import("@/lib/copy-finding-as-work-item").WorkItemClipboardFormat
+  >,
+  AssertExtends<
+    import("@/lib/copy-finding-as-work-item-trace-row").buildTraceRowWorkItemBody,
+    typeof import("@/lib/copy-finding-as-work-item").buildTraceRowWorkItemBody
+  >,
+  AssertExtends<
+    import("@/lib/copy-finding-as-work-item-inspect").buildInspectFindingWorkItemBody,
+    typeof import("@/lib/copy-finding-as-work-item").buildInspectFindingWorkItemBody
+  >,
+];
+
+/** Wave 20 — copy-finding-as-work-item barrel re-exports types, trace-row, and inspect slices. */
+type _CopyFindingAsWorkItemWave20BarrelAliases = [
+  AssertExtends<
+    import("@/lib/copy-finding-as-work-item-types").FindingWorkItemBuildInput,
+    import("@/lib/copy-finding-as-work-item").FindingWorkItemBuildInput
+  >,
+  AssertExtends<
+    import("@/lib/copy-finding-as-work-item-types").TraceRowWorkItemInput,
+    import("@/lib/copy-finding-as-work-item").TraceRowWorkItemInput
+  >,
+  AssertExtends<
+    import("@/lib/copy-finding-as-work-item-types").writeWorkItemBodyToClipboard,
+    typeof import("@/lib/copy-finding-as-work-item").writeWorkItemBodyToClipboard
+  >,
+];
+
+/** Wave 20 — architecture-draft-structured-brief-suggestions module slices. */
+type _ArchitectureDraftStructuredBriefSuggestionsWave20ModuleAliases = [
+  AssertExtends<
+    typeof import("@/lib/architecture/architecture-draft-structured-brief-suggestions-source-text").buildArchitectureDraftSuggestionSourceText,
+    typeof import("@/lib/architecture/architecture-draft-structured-brief-suggestions").buildArchitectureDraftSuggestionSourceText
+  >,
+  AssertExtends<
+    typeof import("@/lib/architecture/architecture-draft-structured-brief-suggestions-apply").applyArchitectureDraftStructuredBriefSuggestionsFromDraftResponse,
+    typeof import("@/lib/architecture/architecture-draft-structured-brief-suggestions").applyArchitectureDraftStructuredBriefSuggestionsFromDraftResponse
+  >,
+  AssertExtends<
+    typeof import("@/lib/architecture/architecture-draft-structured-brief-suggestions-extract").buildDeterministicStructuredBriefSuggestionsFromText,
+    typeof import("@/lib/architecture/architecture-draft-structured-brief-suggestions").buildDeterministicStructuredBriefSuggestionsFromText
+  >,
+];
+
+/** Wave 20 — architecture-draft-structured-brief-suggestions barrel re-exports source-text, apply, and extract slices. */
+type _ArchitectureDraftStructuredBriefSuggestionsWave20BarrelAliases = [
+  AssertExtends<
+    import("@/lib/architecture/architecture-draft-structured-brief-suggestions-apply").ApplyArchitectureDraftStructuredBriefSuggestionsResult,
+    import("@/lib/architecture/architecture-draft-structured-brief-suggestions").ApplyArchitectureDraftStructuredBriefSuggestionsResult
+  >,
+  AssertExtends<
+    typeof import("@/lib/architecture/architecture-draft-structured-brief-suggestions-extract").extractFailureModeSuggestionFromText,
+    typeof import("@/lib/architecture/architecture-draft-structured-brief-suggestions").extractFailureModeSuggestionFromText
+  >,
+  AssertExtends<
+    typeof import("@/lib/architecture/architecture-draft-structured-brief-suggestions-apply").hasArchitectureContextForFailureModeSuggestion,
+    typeof import("@/lib/architecture/architecture-draft-structured-brief-suggestions").hasArchitectureContextForFailureModeSuggestion
+  >,
+];
+
+/** Wave 20 — adr-from-run module slices. */
+type _AdrFromRunWave20ModuleAliases = [
+  AssertExtends<
+    import("@/lib/adr-from-run-slices").AdrGeneratorRunInput,
+    import("@/lib/adr-from-run").AdrGeneratorRunInput
+  >,
+  AssertExtends<
+    typeof import("@/lib/adr-from-run-mappers").buildAdrExplanationSlice,
+    typeof import("@/lib/adr-from-run").buildAdrExplanationSlice
+  >,
+  AssertExtends<
+    typeof import("@/lib/adr-from-run-markdown").buildMadrMarkdownFromRun,
+    typeof import("@/lib/adr-from-run").buildMadrMarkdownFromRun
+  >,
+];
+
+/** Wave 20 — adr-from-run barrel re-exports slices, mappers, and markdown compose. */
+type _AdrFromRunWave20BarrelAliases = [
+  AssertExtends<
+    import("@/lib/adr-from-run-slices").AdrGeneratorExplanationSlice,
+    import("@/lib/adr-from-run").AdrGeneratorExplanationSlice
+  >,
+  AssertExtends<
+    typeof import("@/lib/adr-from-run-mappers").buildAdrGeneratorRunInput,
+    typeof import("@/lib/adr-from-run").buildAdrGeneratorRunInput
+  >,
+  AssertExtends<
+    import("@/lib/adr-from-run-slices").AdrGeneratorFindingSlice,
+    import("@/lib/adr-from-run").AdrGeneratorFindingSlice
+  >,
+];
+
 /** Wave 12 — authority run-detail trust-evidence module. */
 type _AuthorityRunDetailWave12TrustModuleAliases = [
   AssertExtends<
@@ -1674,6 +2058,42 @@ const _compileTimeAliasGuards: [
   _FirstReviewGuideWave16BarrelAliases,
   _ConnectorOperationsWave16ModuleAliases,
   _ConnectorOperationsWave16BarrelAliases,
+  _FirstReviewGuideWave17ModuleAliases,
+  _FirstReviewGuideWave17BarrelAliases,
+  _ExecDigestScheduleFormWave17ModuleAliases,
+  _ExecDigestScheduleFormWave17BarrelAliases,
+  _BuyerCtoDemoReadinessWave17ModuleAliases,
+  _BuyerCtoDemoReadinessWave17BarrelAliases,
+  _GovernanceWorkflowApiWave17ModuleAliases,
+  _GovernanceWorkflowApiWave17BarrelAliases,
+  _AlertsRoutingApiWave17ModuleAliases,
+  _AlertsRoutingApiWave17BarrelAliases,
+  _AskSseStreamWave17ModuleAliases,
+  _AskSseStreamWave17BarrelAliases,
+  _ArtifactReviewWave18ModuleAliases,
+  _ArtifactReviewWave18BarrelAliases,
+  _ArchitectureRiskRegisterWave18ModuleAliases,
+  _ArchitectureRiskRegisterWave18BarrelAliases,
+  _ExecDigestSchedulePageWave18ModuleAliases,
+  _ExecDigestSchedulePageWave18BarrelAliases,
+  _DownloadsBlobTriggerWave18ModuleAliases,
+  _DownloadsBlobTriggerWave18BarrelAliases,
+  _ItsmOutboundConnectionsWave18ModuleAliases,
+  _ItsmOutboundConnectionsWave18BarrelAliases,
+  _PolicyPacksApiWave18ModuleAliases,
+  _PolicyPacksApiWave18BarrelAliases,
+  _RecommendationLearningOperationalWave19ModuleAliases,
+  _RecommendationLearningOperationalWave19BarrelAliases,
+  _AdvisoryWave19ModuleAliases,
+  _AdvisoryWave19BarrelAliases,
+  _AgentForensicsScoresWave19ModuleAliases,
+  _AgentForensicsScoresWave19BarrelAliases,
+  _CopyFindingAsWorkItemWave20ModuleAliases,
+  _CopyFindingAsWorkItemWave20BarrelAliases,
+  _ArchitectureDraftStructuredBriefSuggestionsWave20ModuleAliases,
+  _ArchitectureDraftStructuredBriefSuggestionsWave20BarrelAliases,
+  _AdrFromRunWave20ModuleAliases,
+  _AdrFromRunWave20BarrelAliases,
   _AuthorityRunDetailWave12TrustModuleAliases,
   _AuthorityRunDetailWave12ProvenanceModuleAliases,
   _AuthorityRunDetailWave12BarrelAliases,
@@ -1747,6 +2167,18 @@ const _compileTimeAliasGuards: [
   [] as unknown as _FirstReviewGuideWave16BarrelAliases,
   [] as unknown as _ConnectorOperationsWave16ModuleAliases,
   [] as unknown as _ConnectorOperationsWave16BarrelAliases,
+  [] as unknown as _RecommendationLearningOperationalWave19ModuleAliases,
+  [] as unknown as _RecommendationLearningOperationalWave19BarrelAliases,
+  [] as unknown as _AdvisoryWave19ModuleAliases,
+  [] as unknown as _AdvisoryWave19BarrelAliases,
+  [] as unknown as _AgentForensicsScoresWave19ModuleAliases,
+  [] as unknown as _AgentForensicsScoresWave19BarrelAliases,
+  [] as unknown as _CopyFindingAsWorkItemWave20ModuleAliases,
+  [] as unknown as _CopyFindingAsWorkItemWave20BarrelAliases,
+  [] as unknown as _ArchitectureDraftStructuredBriefSuggestionsWave20ModuleAliases,
+  [] as unknown as _ArchitectureDraftStructuredBriefSuggestionsWave20BarrelAliases,
+  [] as unknown as _AdrFromRunWave20ModuleAliases,
+  [] as unknown as _AdrFromRunWave20BarrelAliases,
   [] as unknown as _FirstReviewGuideWave17ModuleAliases,
   [] as unknown as _FirstReviewGuideWave17BarrelAliases,
   [] as unknown as _ExecDigestScheduleFormWave17ModuleAliases,
@@ -1759,6 +2191,24 @@ const _compileTimeAliasGuards: [
   [] as unknown as _AlertsRoutingApiWave17BarrelAliases,
   [] as unknown as _AskSseStreamWave17ModuleAliases,
   [] as unknown as _AskSseStreamWave17BarrelAliases,
+  [] as unknown as _ArtifactReviewWave18ModuleAliases,
+  [] as unknown as _ArtifactReviewWave18BarrelAliases,
+  [] as unknown as _ArchitectureRiskRegisterWave18ModuleAliases,
+  [] as unknown as _ArchitectureRiskRegisterWave18BarrelAliases,
+  [] as unknown as _ExecDigestSchedulePageWave18ModuleAliases,
+  [] as unknown as _ExecDigestSchedulePageWave18BarrelAliases,
+  [] as unknown as _DownloadsBlobTriggerWave18ModuleAliases,
+  [] as unknown as _DownloadsBlobTriggerWave18BarrelAliases,
+  [] as unknown as _ItsmOutboundConnectionsWave18ModuleAliases,
+  [] as unknown as _ItsmOutboundConnectionsWave18BarrelAliases,
+  [] as unknown as _PolicyPacksApiWave18ModuleAliases,
+  [] as unknown as _PolicyPacksApiWave18BarrelAliases,
+  [] as unknown as _RecommendationLearningOperationalWave19ModuleAliases,
+  [] as unknown as _RecommendationLearningOperationalWave19BarrelAliases,
+  [] as unknown as _AdvisoryWave19ModuleAliases,
+  [] as unknown as _AdvisoryWave19BarrelAliases,
+  [] as unknown as _AgentForensicsScoresWave19ModuleAliases,
+  [] as unknown as _AgentForensicsScoresWave19BarrelAliases,
   [] as unknown as _AuthorityRunDetailWave12TrustModuleAliases,
   [] as unknown as _AuthorityRunDetailWave12ProvenanceModuleAliases,
   [] as unknown as _AuthorityRunDetailWave12BarrelAliases,

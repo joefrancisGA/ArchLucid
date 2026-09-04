@@ -510,6 +510,9 @@ public sealed class RiskExceptionServiceTests
                 CreatedAtUtc = DateTimeOffset.UtcNow,
                 CreatedByUserId = "creator",
             });
+        repository
+            .Setup(r => r.MarkExpiredAsync(Scope.TenantId, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
 
         RiskExceptionService sut = new(
             repository.Object,
@@ -525,6 +528,74 @@ public sealed class RiskExceptionServiceTests
 
         await act.Should().ThrowAsync<ConflictException>().WithMessage("*active*");
 
+        repository.Verify(
+            r => r.RevokeAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task RevokeAsync_marks_expired_before_revoke_when_waiver_is_past_expiry()
+    {
+        Guid exceptionId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        DateTimeOffset pastExpiry = DateTimeOffset.UtcNow.AddDays(-1);
+
+        Mock<IRiskExceptionRepository> repository = new();
+        repository
+            .SetupSequence(r => r.GetByIdAsync(Scope.TenantId, exceptionId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RiskExceptionRecord
+            {
+                RiskExceptionId = exceptionId,
+                TenantId = Scope.TenantId,
+                WorkspaceId = Scope.WorkspaceId,
+                ProjectId = Scope.ProjectId,
+                FindingId = "finding-1",
+                OwnerUserId = "owner",
+                Rationale = "rationale",
+                Status = RiskExceptionStatus.Active,
+                ExpiresAtUtc = pastExpiry,
+                CreatedAtUtc = DateTimeOffset.UtcNow.AddDays(-30),
+                CreatedByUserId = "creator",
+            })
+            .ReturnsAsync(new RiskExceptionRecord
+            {
+                RiskExceptionId = exceptionId,
+                TenantId = Scope.TenantId,
+                WorkspaceId = Scope.WorkspaceId,
+                ProjectId = Scope.ProjectId,
+                FindingId = "finding-1",
+                OwnerUserId = "owner",
+                Rationale = "rationale",
+                Status = RiskExceptionStatus.Expired,
+                ExpiresAtUtc = pastExpiry,
+                CreatedAtUtc = DateTimeOffset.UtcNow.AddDays(-30),
+                CreatedByUserId = "creator",
+            });
+        repository
+            .Setup(r => r.MarkExpiredAsync(Scope.TenantId, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        RiskExceptionService sut = new(
+            repository.Object,
+            Mock.Of<IFindingReviewTrailRepository>(),
+            Mock.Of<IAuditService>(),
+            Mock.Of<ILogger<RiskExceptionService>>());
+
+        Func<Task> act = () => sut.RevokeAsync(
+            Scope.TenantId,
+            exceptionId,
+            "reviewer@test",
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ConflictException>().WithMessage("*active*");
+
+        repository.Verify(
+            r => r.MarkExpiredAsync(Scope.TenantId, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
+            Times.Once);
         repository.Verify(
             r => r.RevokeAsync(
                 It.IsAny<Guid>(),

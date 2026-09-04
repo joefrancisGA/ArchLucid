@@ -417,12 +417,57 @@ public sealed class EndToEndReplayComparisonServiceRunDiffTests
       new ReplayComparisonInterpretationDiffSlice(),
     ]);
 
-    return new EndToEndReplayComparisonService(
-      runDetailQuery.Object,
+        return new EndToEndReplayComparisonService(
+      CreateCompareRunsFacade(runDetailQuery).Object,
       Mock.Of<IRunRepository>(),
       exportRecords,
       scopeProvider,
       composer);
+  }
+
+  private static Mock<ICompareRunsApplicationFacade> CreateCompareRunsFacade(Mock<IRunDetailQueryService> runDetailQuery)
+  {
+    Mock<ICompareRunsApplicationFacade> compareRunsFacade = new();
+    compareRunsFacade
+      .Setup(f => f.LoadScopedRunPairAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync((string leftRunId, string rightRunId, CancellationToken ct) =>
+      {
+        ArchitectureRunDetail? left = runDetailQuery.Object
+          .GetRunDetailForRollupAsync(leftRunId, ct)
+          .GetAwaiter()
+          .GetResult();
+        ArchitectureRunDetail? right = runDetailQuery.Object
+          .GetRunDetailForRollupAsync(rightRunId, ct)
+          .GetAwaiter()
+          .GetResult();
+
+        if (left is null)
+        {
+          return new ScopedRunPairLoadResult
+          {
+            Outcome = ScopedRunPairLoadOutcome.LeftRunNotFound,
+            MissingRunId = leftRunId,
+          };
+        }
+
+        if (right is null)
+        {
+          return new ScopedRunPairLoadResult
+          {
+            Outcome = ScopedRunPairLoadOutcome.RightRunNotFound,
+            MissingRunId = rightRunId,
+          };
+        }
+
+        return new ScopedRunPairLoadResult
+        {
+          Outcome = ScopedRunPairLoadOutcome.Success,
+          Left = left,
+          Right = right,
+        };
+      });
+
+    return compareRunsFacade;
   }
 
   private static ICrossReviewFindingLifecycleService CreateLifecycleService()

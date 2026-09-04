@@ -5,7 +5,6 @@ using ArchLucid.Application;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
-using ArchLucid.Persistence.Models;
 
 using Gen = ArchLucid.Api.Client.Generated;
 
@@ -52,26 +51,26 @@ public sealed partial class ArchLucidApiClient
                 using JsonDocument runDoc = JsonDocument.Parse(runWireJson);
                 JsonElement runElement = runDoc.RootElement;
 
-                RunRecord header = new()
-                {
-                    PinnedPolicyPackIdsJson = runElement.TryGetProperty("pinnedPolicyPackIdsJson", out JsonElement policyJson)
-                        ? policyJson.GetString()
-                        : null,
-                    PinnedEvidencePackagePinsJson = runElement.TryGetProperty(
-                            "pinnedEvidencePackagePinsJson",
-                            out JsonElement evidenceJson)
-                        ? evidenceJson.GetString()
-                        : null,
-                    PinnedEvidencePackagePinsHashSha256 = runElement.TryGetProperty(
-                            "pinnedEvidencePackagePinsHashSha256",
-                            out JsonElement evidenceHash)
-                        && evidenceHash.ValueKind == JsonValueKind.String
-                        && !string.IsNullOrWhiteSpace(evidenceHash.GetString())
-                        ? Convert.FromBase64String(evidenceHash.GetString()!)
-                        : null,
-                };
+                string? policyJson = runElement.TryGetProperty("pinnedPolicyPackIdsJson", out JsonElement policyElement)
+                    ? policyElement.GetString()
+                    : null;
+                string? evidenceJson = runElement.TryGetProperty(
+                        "pinnedEvidencePackagePinsJson",
+                        out JsonElement evidenceElement)
+                    ? evidenceElement.GetString()
+                    : null;
+                byte[]? evidenceHashBytes = runElement.TryGetProperty(
+                        "pinnedEvidencePackagePinsHashSha256",
+                        out JsonElement evidenceHash)
+                    && evidenceHash.ValueKind == JsonValueKind.String
+                    && !string.IsNullOrWhiteSpace(evidenceHash.GetString())
+                    ? Convert.FromBase64String(evidenceHash.GetString()!)
+                    : null;
 
-                createTimePins = RunHeaderCreateTimePinCommitmentFactory.TryFromRunHeader(header);
+                createTimePins = RunHeaderCreateTimePinCommitmentFactory.TryFromPinJson(
+                    policyJson,
+                    evidenceJson,
+                    evidenceHashBytes);
             }
 
             IReadOnlyList<CommittedArtifactInventoryFingerprintRow>? inventoryRows = null;

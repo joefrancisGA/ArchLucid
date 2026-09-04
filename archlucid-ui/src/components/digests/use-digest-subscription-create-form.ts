@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useTenantIntegrationsOperationsQuery } from "@/hooks/use-tenant-integrations-operations-query";
 import {
@@ -33,6 +34,10 @@ import {
 import { whyDisabledEnterpriseMutationControl, whyDisabledIncompleteInput, firstWhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import type { DigestSubscription } from "@/types/digest-subscriptions";
+import {
+  digestSubscriptionsPanelsHrefFromSearch,
+  parseDigestSubscriptionsCreatePanelFromSearch,
+} from "@/lib/digests/digest-subscriptions-panels-url";
 
 export type DigestSubscriptionCreateFormProps = {
   readonly existingSubscriptions: readonly DigestSubscription[];
@@ -52,10 +57,16 @@ export type DigestSubscriptionCreateFormProps = {
 };
 
 export function useDigestSubscriptionCreateForm(props: DigestSubscriptionCreateFormProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/architecture/digests";
+  const searchParams = useSearchParams();
+  const urlShowCreate = parseDigestSubscriptionsCreatePanelFromSearch(searchParams.get("create"));
   const sampleModeBlocked: boolean =
     isBuyerPolishedOperatorShellEnv() && !isOperatorExperienceFullShellEnv();
   const canEdit: boolean = props.canMutate && !sampleModeBlocked;
-  const [expanded, setExpanded] = useState<boolean>(!props.collapsedByDefault);
+  const [expanded, setExpandedState] = useState<boolean>(
+    () => urlShowCreate || !props.collapsedByDefault,
+  );
   const [name, setName] = useState<string>(suggestedSubscriptionName("Email"));
   const [channelType, setChannelType] = useState<string>("Email");
   const [destination, setDestination] = useState<string>("");
@@ -66,11 +77,39 @@ export function useDigestSubscriptionCreateForm(props: DigestSubscriptionCreateF
   const integrationsQuery = useTenantIntegrationsOperationsQuery();
   const integrationOps = integrationsQuery.data ?? null;
 
+  const syncCreatePanelToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        digestSubscriptionsPanelsHrefFromSearch(searchParams.toString(), { showCreatePanel: open }, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setExpanded = useCallback(
+    (value: boolean | ((prev: boolean) => boolean)) => {
+      setExpandedState((prev) => {
+        const resolved = typeof value === "function" ? value(prev) : value;
+        syncCreatePanelToUrl(resolved);
+
+        return resolved;
+      });
+    },
+    [syncCreatePanelToUrl],
+  );
+
   useEffect(() => {
-    if (props.collapsedByDefault) {
-      setExpanded(false);
+    if (parseDigestSubscriptionsCreatePanelFromSearch(searchParams.get("create"))) {
+      setExpandedState(true);
     }
-  }, [props.collapsedByDefault]);
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (props.collapsedByDefault && !urlShowCreate) {
+      setExpandedState(false);
+    }
+  }, [props.collapsedByDefault, urlShowCreate]);
 
   useEffect(() => {
     if (props.prefillFrom === null) {

@@ -29,7 +29,8 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
-                              "humanReviewStatus": "Pending"
+                              "humanReviewStatus": "Pending",
+                              "enforcementTier": "Advisory"
                             }
                             """;
 

@@ -158,6 +158,35 @@ function resolveReviewTitle(run: RunSummary): string {
   return buyerFacingReviewTitleFromSummary(run);
 }
 
+function normalizeUnfinishedWorkRailTitle(title: string): string {
+  return title.trim().toLowerCase();
+}
+
+/** Drops draft rows when an active review row already represents the same lifecycle title. */
+function collapseUnfinishedWorkLifecycleDuplicates(
+  items: readonly UnfinishedWorkRailItem[],
+): UnfinishedWorkRailItem[] {
+  const activeReviewTitles = new Set(
+    items
+      .filter(
+        (item) => item.kind === "review-in-progress" || item.kind === "awaiting-disposition",
+      )
+      .map((item) => normalizeUnfinishedWorkRailTitle(item.title)),
+  );
+
+  if (activeReviewTitles.size === 0) {
+    return [...items];
+  }
+
+  return items.filter((item) => {
+    if (item.kind !== "architecture-draft") {
+      return true;
+    }
+
+    return !activeReviewTitles.has(normalizeUnfinishedWorkRailTitle(item.title));
+  });
+}
+
 function compareRailItems(left: UnfinishedWorkRailItem, right: UnfinishedWorkRailItem): number {
   const priorityDelta = KIND_PRIORITY[left.kind] - KIND_PRIORITY[right.kind];
 
@@ -288,11 +317,11 @@ export function summarizeUnfinishedWorkRailItems(
     return { items: [], totalCount: 0, truncated: false };
   }
 
-  const combined = [
+  const combined = collapseUnfinishedWorkLifecycleDuplicates([
     ...buildRunItems(inputs.runs),
     ...buildDraftItems(inputs.drafts),
     ...buildWizardItems(inputs.incompleteWizards),
-  ];
+  ]);
 
   combined.sort(compareRailItems);
 

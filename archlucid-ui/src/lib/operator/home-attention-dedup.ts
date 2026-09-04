@@ -3,24 +3,38 @@ import type { RunSummary } from "@/types/authority";
 import type { UnfinishedWorkRailItem } from "@/lib/unfinished-work-rail";
 
 const AWAITING_DISPOSITION_RAIL_ID_PREFIX = "awaiting-disposition:";
+const REVIEW_IN_PROGRESS_RAIL_ID_PREFIX = "review-in-progress:";
 
-/** Run ids already surfaced on home unfinished-work rail awaiting-disposition rows (TB-2369). */
+function runIdFromUnfinishedWorkRailItem(item: UnfinishedWorkRailItem): string | null {
+  if (item.kind === "awaiting-disposition") {
+    const runId = item.id.startsWith(AWAITING_DISPOSITION_RAIL_ID_PREFIX)
+      ? item.id.slice(AWAITING_DISPOSITION_RAIL_ID_PREFIX.length)
+      : "";
+
+    return runId.length > 0 ? runId : null;
+  }
+
+  if (item.kind === "review-in-progress") {
+    const runId = item.id.startsWith(REVIEW_IN_PROGRESS_RAIL_ID_PREFIX)
+      ? item.id.slice(REVIEW_IN_PROGRESS_RAIL_ID_PREFIX.length)
+      : "";
+
+    return runId.length > 0 ? runId : null;
+  }
+
+  return null;
+}
+
+/** Run ids already surfaced on home unfinished-work rail rows (TB-2369). */
 export function listHomeAttentionPreviewExcludedRunIds(
   unfinishedRailItems: readonly UnfinishedWorkRailItem[],
 ): readonly string[] {
   const runIds: string[] = [];
 
   for (const item of unfinishedRailItems) {
+    const runId = runIdFromUnfinishedWorkRailItem(item);
 
-    if (item.kind !== "awaiting-disposition") {
-      continue;
-    }
-
-    const runId = item.id.startsWith(AWAITING_DISPOSITION_RAIL_ID_PREFIX)
-      ? item.id.slice(AWAITING_DISPOSITION_RAIL_ID_PREFIX.length)
-      : "";
-
-    if (runId.length > 0) {
+    if (runId !== null) {
       runIds.push(runId);
     }
   }

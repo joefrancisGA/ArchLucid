@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
@@ -23,6 +23,11 @@ import {
   helpTopicsForGuidesTab,
   helpTopicsForTroubleshootingTab,
 } from "./help-panel-topic-filter";
+import {
+  helpPanelOverlayHrefFromSearch,
+  parseHelpPanelQueryFromSearch,
+  parseHelpPanelTabFromSearch,
+} from "@/lib/help/help-panel-overlay-url";
 
 export type HelpTabId = "guides" | "shortcuts" | "troubleshooting";
 
@@ -37,17 +42,61 @@ const HELP_CORE_PILOT_PIN_DISMISSED_SESSION_KEY = "archlucid_help_core_pilot_pin
 
 export function useHelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPanelProps) {
   const pathname = usePathname() ?? "/";
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const teachingChromeVisible = useTeachingChromeVisible();
-  const [query, setQuery] = useState("");
-  const [tab, setTab] = useState<HelpTabId>(initialTab);
+  const urlHelpQuery = parseHelpPanelQueryFromSearch(searchParams.get("helpQ"));
+  const urlHelpTab = parseHelpPanelTabFromSearch(searchParams.get("helpTab"));
+  const [query, setQueryState] = useState(urlHelpQuery);
+  const [tab, setTabState] = useState<HelpTabId>(urlHelpTab ?? initialTab);
   const [corePilotPinDismissedThisSession, setCorePilotPinDismissedThisSession] = useState(false);
+
+  const syncHelpPanelOverlayToUrl = useCallback(
+    (patch: { tab?: HelpTabId; query?: string; open?: boolean }) => {
+      router.replace(
+        helpPanelOverlayHrefFromSearch(searchParams.toString(), {
+          open: patch.open ?? open,
+          tab: patch.tab ?? tab,
+          query: patch.query ?? query,
+        }, pathname),
+        { scroll: false },
+      );
+    },
+    [open, pathname, query, router, searchParams, tab],
+  );
+
+  const setQuery = useCallback(
+    (value: string) => {
+      setQueryState(value);
+      syncHelpPanelOverlayToUrl({ query: value });
+    },
+    [syncHelpPanelOverlayToUrl],
+  );
+
+  const setTab = useCallback(
+    (value: HelpTabId) => {
+      setTabState(value);
+      syncHelpPanelOverlayToUrl({ tab: value });
+    },
+    [syncHelpPanelOverlayToUrl],
+  );
 
   useEffect(() => {
     if (open) {
-      setTab(initialTab);
+      setTabState(initialTab);
     }
   }, [open, initialTab]);
+
+  useEffect(() => {
+    setQueryState(parseHelpPanelQueryFromSearch(searchParams.get("helpQ")));
+
+    const fromUrl = parseHelpPanelTabFromSearch(searchParams.get("helpTab"));
+
+    if (fromUrl !== null) {
+      setTabState(fromUrl);
+    }
+  }, [searchParams]);
 
   useLayoutEffect(() => {
     try {
@@ -159,12 +208,13 @@ export function useHelpPanel({ open, onOpenChange, initialTab = "guides" }: Help
 
   const handleOpenChange = useCallback((next: boolean): void => {
     if (!next) {
-      setQuery("");
-      setTab("guides");
+      setQueryState("");
+      setTabState("guides");
+      syncHelpPanelOverlayToUrl({ open: false, tab: "guides", query: "" });
     }
 
     onOpenChange(next);
-  }, [onOpenChange]);
+  }, [onOpenChange, syncHelpPanelOverlayToUrl]);
 
   return {
     query,

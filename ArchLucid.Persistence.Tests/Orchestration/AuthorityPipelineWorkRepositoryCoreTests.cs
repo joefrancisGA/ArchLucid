@@ -4,6 +4,8 @@ using FluentAssertions;
 
 namespace ArchLucid.Persistence.Tests.Orchestration;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class AuthorityPipelineWorkRepositoryCoreTests
 {
     [Theory]

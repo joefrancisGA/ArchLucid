@@ -121,6 +121,15 @@ vi.mock("@/hooks/use-featured-completed-sample-query", () => ({
   }),
 }));
 
+const workspaceModeMock = vi.hoisted(() => ({
+  isWorkingMode: false,
+  mounted: true,
+}));
+
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => workspaceModeMock,
+}));
+
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
     push: vi.fn(),
@@ -204,6 +213,7 @@ describe("PilotCommandCenterCard", () => {
     } as ReturnType<typeof useArchitectureDraftQuery>);
     workspaceActivityMock.hasWorkspaceReviews = false;
     workspaceActivityMock.liveRunsSnapshot = null;
+    workspaceModeMock.isWorkingMode = false;
   });
 
   it("shows create and review lifecycle cards on empty Overview (ADR 0067)", async () => {
@@ -236,6 +246,16 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.queryByTestId("inline-guidance-recommended-next")).toBeNull();
     expect(screen.queryByText(/Recommended first/i)).toBeNull();
     expect(screen.queryByText(/Recommended next/i)).toBeNull();
+  });
+
+  it("hides dual-path lifecycle cards on Working eval-empty Overview (LD-06)", () => {
+    workspaceModeMock.isWorkingMode = true;
+
+    renderWithOperatorQuery(<PilotCommandCenterCard />);
+
+    expect(screen.getByTestId("pilot-command-center-card")).toHaveAttribute("data-workspace-phase", "eval-empty");
+    expect(screen.queryByTestId("operator-home-dual-path-cards")).toBeNull();
+    expect(screen.queryByTestId("operator-home-lifecycle-alternatives-disclosure")).toBeNull();
   });
 
   it("shows resume-draft callout and lifecycle cards when drafts exist without reviews", () => {

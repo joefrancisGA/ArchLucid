@@ -1,9 +1,9 @@
 using System.Data;
 
 using ArchLucid.Contracts.Persistence.DecisionTraces;
+using ArchLucid.Core.Persistence.DecisionTraces;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Repositories;
 
 namespace ArchLucid.Decisioning.Repositories;
 
@@ -19,7 +19,7 @@ public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
-        DecisionTraceRepositoryCore.RequireRuleAudit(trace);
+        DecisionTraceStoreRules.RequireRuleAudit(trace);
 
         ct.ThrowIfCancellationRequested();
         _ = connection;
@@ -27,8 +27,8 @@ public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
 
         lock (_lock)
         {
-            _store.Add(DecisionTraceRepositoryCore.Clone(trace));
-            DecisionTraceRepositoryCore.TrimInMemoryEntries(_store);
+            _store.Add(DecisionTraceStoreRules.Clone(trace));
+            DecisionTraceStoreRules.TrimInMemoryEntries(_store);
         }
 
         return Task.CompletedTask;
@@ -41,9 +41,9 @@ public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
         {
             DecisionTraceDto? result = _store.FirstOrDefault(trace =>
                 trace is RuleAuditTraceDto ruleAuditTrace
-                && DecisionTraceRepositoryCore.MatchesIdAndScope(ruleAuditTrace, scope, decisionTraceId));
+                && DecisionTraceStoreRules.MatchesIdAndScope(ruleAuditTrace, scope, decisionTraceId));
 
-            return Task.FromResult(result is null ? null : DecisionTraceRepositoryCore.Clone(result));
+            return Task.FromResult(result is null ? null : DecisionTraceStoreRules.Clone(result));
         }
     }
 }

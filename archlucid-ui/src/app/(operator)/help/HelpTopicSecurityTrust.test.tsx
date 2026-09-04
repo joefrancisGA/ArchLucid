@@ -5,8 +5,7 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
-import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
-import { SecurityTrustHelpEvidenceOrientationStrip } from "@/components/help/SecurityTrustHelpEvidenceOrientationStrip";
+import { HelpSecurityTrustGuideView } from "@/app/(operator)/help/_sections/HelpSecurityTrustGuideView";
 import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { buildSecurityTrustTocGroups } from "@/lib/security-trust-help-presentation";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
@@ -29,7 +28,7 @@ const EXPECTED_TOC_LABELS = [
   "How to request the procurement pack",
 ] as const;
 
-describe("HelpTopicMarkdownView security and trust", () => {
+describe("HelpSecurityTrustGuideView security and trust", () => {
   const loaded = tryLoadProductDocumentation("security-trust");
 
   it("loads security-trust markdown from the monorepo", () => {
@@ -59,13 +58,7 @@ describe("HelpTopicMarkdownView security and trust", () => {
       throw new Error("Expected security-trust documentation to load.");
     }
 
-    render(
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        evidenceOrientation={<SecurityTrustHelpEvidenceOrientationStrip />}
-      />,
-    );
+    render(<HelpSecurityTrustGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     expect(screen.queryByText(/check_procurement_pack_index/i)).toBeNull();
     expect(screen.queryByText(/Automated freshness posture/i)).toBeNull();
@@ -84,13 +77,7 @@ describe("HelpTopicMarkdownView security and trust", () => {
       throw new Error("Expected security-trust documentation to load.");
     }
 
-    render(
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        evidenceOrientation={<SecurityTrustHelpEvidenceOrientationStrip />}
-      />,
-    );
+    render(<HelpSecurityTrustGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     expect(screen.getByTestId("security-trust-help-orientation")).toBeInTheDocument();
     expect(screen.getByTestId("help-security-trust-claim-discipline-strip")).toHaveTextContent(
@@ -114,13 +101,7 @@ describe("HelpTopicMarkdownView security and trust", () => {
       throw new Error("Expected security-trust documentation to load.");
     }
 
-    render(
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        evidenceOrientation={<SecurityTrustHelpEvidenceOrientationStrip />}
-      />,
-    );
+    render(<HelpSecurityTrustGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     expect(screen.getByRole("heading", { name: "Posture summary" })).toBeInTheDocument();
     expect(screen.getAllByText("Self-asserted").length).toBeGreaterThan(0);
@@ -137,13 +118,7 @@ describe("HelpTopicMarkdownView security and trust", () => {
       throw new Error("Expected security-trust documentation to load.");
     }
 
-    render(
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        evidenceOrientation={<SecurityTrustHelpEvidenceOrientationStrip />}
-      />,
-    );
+    render(<HelpSecurityTrustGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     const scrollRegions = screen.getAllByRole("region").filter((region) => region.getAttribute("tabindex") === "0");
     expect(scrollRegions.length).toBeGreaterThan(0);
@@ -161,13 +136,7 @@ describe("HelpTopicMarkdownView security and trust", () => {
     const headings = extractHelpMarkdownHeadings(preparedMarkdown);
     const tocHeadings = buildSecurityTrustTocGroups(headings).flatMap((group) => group.headings);
 
-    render(
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        evidenceOrientation={<SecurityTrustHelpEvidenceOrientationStrip />}
-      />,
-    );
+    render(<HelpSecurityTrustGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     const toc = screen.getByTestId("help-topic-toc");
 

@@ -140,6 +140,26 @@ public sealed class RunExportBlobPushOutboxProcessor(
 
         if (!packageResult.Found)
         {
+            if (packageResult.IsConflict)
+            {
+                await outbox.RecordDeadLetterAsync(
+                    entry.OutboxId,
+                    packageResult.NotFoundReason ?? "Run export blocked by sealed receipt verification.",
+                    cancellationToken);
+                ArchLucidInstrumentation.RecordRunExportBlobPushOutboxDeadLettered();
+                await LogDeadLetterAuditAsync(auditService, entry.RunId, cancellationToken);
+
+                if (Logger.IsEnabled(LogLevel.Warning))
+                {
+                    Logger.LogWarning(
+                        "Run export blob push outbox dead-lettered outbox {OutboxId}, run {RunId}: sealed receipt verification blocked export.",
+                        entry.OutboxId,
+                        entry.RunId);
+                }
+
+                return;
+            }
+
             Logger.LogWarning(
                 "Skipping run export blob push for run {RunId}: {Reason}",
                 entry.RunId,

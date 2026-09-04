@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 
 import {
+  COMMAND_PALETTE_FINALIZE_REVIEW_EVENT,
   COMMAND_PALETTE_FINDING_ACCEPT_EVENT,
   COMMAND_PALETTE_FINDING_NEXT_EVENT,
   COMMAND_PALETTE_FINDING_PREVIOUS_EVENT,
@@ -11,6 +12,11 @@ import {
   COMMAND_PALETTE_SAVE_DRAFT_EVENT,
   COMMAND_PALETTE_UNDO_MUTATION_EVENT,
 } from "@/lib/command-palette-handler-actions";
+import {
+  queryVisibleArchitectureDraftSaveControl,
+  queryVisibleFinalizeReviewControl,
+  queryVisibleReviewDetailSaveControl,
+} from "@/lib/command-palette-work-action-dom";
 import {
   dispatchFocusedFindingDispositionShortcut,
   FINDING_CARD_SHORTCUT_DISPOSITIONS,
@@ -29,19 +35,24 @@ function clickVisibleUndoControl(): void {
   undoButtons[0]?.click();
 }
 
-function clickArchitectureSaveDraftControl(): void {
-  const saveNow = document.querySelector<HTMLButtonElement>('[data-testid="architecture-save-draft-retry"]');
+function clickVisibleSaveControl(): void {
+  const architectureSave = queryVisibleArchitectureDraftSaveControl();
 
-  if (saveNow !== null && !saveNow.disabled) {
-    saveNow.click();
+  if (architectureSave !== null) {
+    architectureSave.click();
+
     return;
   }
 
-  const saveAndExit = document.querySelector<HTMLButtonElement>('[data-testid="architecture-save-and-exit"]');
+  const reviewSave = queryVisibleReviewDetailSaveControl();
 
-  if (saveAndExit !== null && !saveAndExit.disabled) {
-    saveAndExit.click();
+  if (reviewSave !== null) {
+    reviewSave.click();
   }
+}
+
+function clickVisibleFinalizeReviewControl(): void {
+  queryVisibleFinalizeReviewControl()?.click();
 }
 
 function isFindingKeyboardTriageHostMounted(): boolean {
@@ -52,7 +63,11 @@ function isFindingKeyboardTriageHostMounted(): boolean {
 export function CommandPaletteWorkActionBridge(): null {
   useEffect(() => {
     const onSaveDraft = () => {
-      clickArchitectureSaveDraftControl();
+      clickVisibleSaveControl();
+    };
+
+    const onFinalizeReview = () => {
+      clickVisibleFinalizeReviewControl();
     };
 
     const onUndoMutation = () => {
@@ -100,6 +115,7 @@ export function CommandPaletteWorkActionBridge(): null {
     };
 
     window.addEventListener(COMMAND_PALETTE_SAVE_DRAFT_EVENT, onSaveDraft);
+    window.addEventListener(COMMAND_PALETTE_FINALIZE_REVIEW_EVENT, onFinalizeReview);
     window.addEventListener(COMMAND_PALETTE_UNDO_MUTATION_EVENT, onUndoMutation);
     window.addEventListener(COMMAND_PALETTE_FINDING_NEXT_EVENT, onFindingNext);
     window.addEventListener(COMMAND_PALETTE_FINDING_PREVIOUS_EVENT, onFindingPrevious);
@@ -109,6 +125,7 @@ export function CommandPaletteWorkActionBridge(): null {
 
     return () => {
       window.removeEventListener(COMMAND_PALETTE_SAVE_DRAFT_EVENT, onSaveDraft);
+      window.removeEventListener(COMMAND_PALETTE_FINALIZE_REVIEW_EVENT, onFinalizeReview);
       window.removeEventListener(COMMAND_PALETTE_UNDO_MUTATION_EVENT, onUndoMutation);
       window.removeEventListener(COMMAND_PALETTE_FINDING_NEXT_EVENT, onFindingNext);
       window.removeEventListener(COMMAND_PALETTE_FINDING_PREVIOUS_EVENT, onFindingPrevious);

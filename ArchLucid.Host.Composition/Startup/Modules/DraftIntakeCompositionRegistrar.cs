@@ -56,6 +56,7 @@ internal static class DraftIntakeCompositionRegistrar
         services.AddScoped<IGitTerraformContentFetcher, GitTerraformContentFetcher>();
         services.AddScoped<IConnectorIntakeParserService, ConnectorIntakeParserService>();
         services.AddScoped<IArchitectureRequestIntakeFacade, ArchitectureRequestIntakeFacade>();
+        ArchitectureRequestIntakeValidatorRegistration.Register(services);
         services.AddScoped<IPolicyPackDraftService, PolicyPackDraftService>();
         services.AddScoped<ICuratedRulesDocumentValidationService, CuratedRulesDocumentValidationService>();
         services.AddScoped<IPolicyPackGeneratorService, PolicyPackGeneratorService>();

@@ -331,7 +331,8 @@ public sealed class ArtifactExportControllerRunExportTests
             runExportPackageBuilder,
             outbox.Object,
             runExportLineageVerifier ?? Mock.Of<IRunExportLineageVerifier>(),
-            Mock.Of<ArchLucid.Application.Exports.IDecisionReceiptService>());
+            Mock.Of<ArchLucid.Application.Exports.IDecisionReceiptService>(),
+            Mock.Of<IManifestHashService>());
 
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 

@@ -65,6 +65,7 @@ export function GraphPageCanvasShell(props: GraphPageCanvasShellProps): React.JS
             presentationView={vm.presentationView}
             onPresentationViewChange={vm.setPresentationView}
             sampleGraphActive={vm.sampleGraphActive}
+            operatorListFirst={vm.workingMode}
           />
         </>
       ) : null}
