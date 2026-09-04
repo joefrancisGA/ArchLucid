@@ -12,7 +12,7 @@ const GOLDEN_PATH_SURFACE_FILES = [
   "src/components/llm/LlmBudgetApproachingLimitBanner.tsx",
 ] as const;
 
-const GOLDEN_PATH_BANNED_FIRST_LINE_PATTERNS = [
+const GOLDEN_PATH_BANNED_SURFACE_PATTERNS = [
   "redis",
   "service bus",
   "packager",
@@ -20,6 +20,9 @@ const GOLDEN_PATH_BANNED_FIRST_LINE_PATTERNS = [
   "azure extractor package",
   "fleet llm cogs",
 ] as const;
+
+// Back-compat alias: these patterns are currently enforced across the entire file contents.
+const GOLDEN_PATH_BANNED_FIRST_LINE_PATTERNS = GOLDEN_PATH_BANNED_SURFACE_PATTERNS;
 
 function readUiSource(relativePath: string): string {
   return readFileSync(join(process.cwd(), relativePath), "utf8");
