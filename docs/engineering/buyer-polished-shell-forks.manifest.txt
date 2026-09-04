@@ -196,6 +196,7 @@ archlucid-ui/src/app/(operator)/help/_sections/HelpWorkspaceSettingsGuideView.ts
 archlucid-ui/src/app/(operator)/insights/architecture-scorecard/_sections/ArchitectureScorecardBuyerChrome.tsx
 archlucid-ui/src/app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardPageView.tsx
 archlucid-ui/src/app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardPrimaryOutcomes.tsx
+archlucid-ui/src/app/(operator)/insights/ask-review-questions/_sections/AskPageHeaderActions.tsx
 archlucid-ui/src/app/(operator)/insights/ask-review-questions/_sections/use-ask-page.ts
 archlucid-ui/src/app/(operator)/insights/compare-two-reviews/_sections/CompareSuspenseFallback.tsx
 archlucid-ui/src/app/(operator)/insights/compare-two-reviews/_sections/use-compare-form-run-selection.ts
