@@ -1929,11 +1929,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 139
-- **bugs-found:** 259
+- **hunts:** 140
+- **bugs-found:** 262
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — dot-delimiter `reproduction` environment names misclassified as production-like
+- **last-bug:** 2026-09-04 — `RequestConstraintClassifier` substring false positives on ai/search/private tokens
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2053,6 +2053,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-04 seed hunt #655: reseeded from `HostingEnvironmentNamePatterns` after #654 mixed-delimiter reproduction fix; proved dot-delimiter reproduction environment gap.
 
+- [x] (proven) `RequestConstraintClassifier` — substring false positives on ai/search/private capability and constraint tokens — **hit 2026-09-04 (#735):** unbounded `Contains` matched `email`→ai, `research`→search, and `non-private`/`non private`→private networking; starter evidence refs incorrectly added AI/search/private policy packs; fixed with `RequestConstraintTokenMatcher` standalone-word and non-prefixed-negation phrase matching (`RequiresAiCapability_does_not_false_positive_on_email_capability_phrasing`, `RequiresSearchCapability_does_not_false_positive_on_research_capability_phrasing`, `HasPrivateNetworkingConstraint_does_not_false_positive_on_non_private_phrasing`).
+- [x] (proven) `HostingEnvironmentNamePatterns.EnvironmentNameImpliesProductionLike` — underscore/dot/space `non_production` variants misclassified as production-like — **hit 2026-09-04 (#735):** after #655 hyphen-only exclusions, `non_production` / `non.production` / `non production` still hit the `production` substring scan; fixed with delimiter-variant non-production exclusions (`EnvironmentNameImpliesProductionLike_rejects_non_production_delimiter_variants`).
+- [x] (proven) `RequiredAuditEventTypes.IsRequired` — padded required event type wire values rejected — **hit 2026-09-04 (#735):** outer whitespace on governance audit wire values failed `Ordinal` equality and skipped fail-closed routing; fixed with `Trim()` before registry lookup (`IsRequired_trims_outer_whitespace_on_wire_values`).
+
+2026-09-04 seed hunt #735: reseeded from `RequestConstraintClassifier`, `HostingEnvironmentNamePatterns`, and `RequiredAuditEventTypes`; proved substring constraint/capability false positives, non-production delimiter variants, and padded required-audit trim gap.
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
 - [x] (valid-no-repro) Tenant scope model treats empty workspace as a wildcard — `ActivityScopeTags` rejects `Guid.Empty` workspace ids; no wildcard semantics in Core tenancy models.

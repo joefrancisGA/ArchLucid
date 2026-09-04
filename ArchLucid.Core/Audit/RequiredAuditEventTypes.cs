@@ -83,9 +83,11 @@ public static class RequiredAuditEventTypes
         if (string.IsNullOrWhiteSpace(eventType))
             return false;
 
+        string normalized = eventType.Trim();
+
         for (int i = 0; i < All.Count; i++)
         {
-            if (string.Equals(All[i], eventType, StringComparison.Ordinal))
+            if (string.Equals(All[i], normalized, StringComparison.Ordinal))
                 return true;
         }
 

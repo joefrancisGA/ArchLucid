@@ -91,6 +91,38 @@ public sealed class RequestConstraintClassifierTests
     }
 
     [Fact]
+    public void RequiresAiCapability_does_not_false_positive_on_email_capability_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(capabilities: ["email notifications"]);
+
+        RequestConstraintClassifier.RequiresAiCapability(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void RequiresSearchCapability_does_not_false_positive_on_research_capability_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(capabilities: ["market research"]);
+
+        RequestConstraintClassifier.RequiresSearchCapability(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasPrivateNetworkingConstraint_does_not_false_positive_on_non_private_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["non-private networking allowed"]);
+
+        RequestConstraintClassifier.HasPrivateNetworkingConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasPrivateNetworkingConstraint_does_not_false_positive_on_non_private_space_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["non private networking allowed"]);
+
+        RequestConstraintClassifier.HasPrivateNetworkingConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
     public void All_members_throw_when_request_is_null()
     {
         Action act1 = () => RequestConstraintClassifier.HasManagedIdentityConstraint(null!);
