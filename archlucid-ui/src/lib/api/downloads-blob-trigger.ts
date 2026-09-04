@@ -214,3 +214,62 @@ export async function downloadBoardPackPdf(year: number, quarter: number): Promi
   const blob = await response.blob();
   await triggerBrowserBlobDownload(blob, fileName);
 }
+
+type ScopedProxyFileGetOptions = {
+  readonly accept: string;
+  readonly defaultFileName: string;
+};
+
+async function fetchScopedProxyFileGet(url: string, options: ScopedProxyFileGetOptions): Promise<Blob> {
+  if (!isBrowser()) {
+    throw new Error("fetchScopedProxyFileGet is only supported in the browser.");
+  }
+
+  await ensureOidcBearerReady();
+  const headers = new Headers();
+  headers.set("Accept", options.accept);
+  const bearer = getBearerToken();
+
+  if (bearer) {
+    headers.set("Authorization", `Bearer ${bearer}`);
+  }
+
+  const init = mergeRegistrationScopeForProxy({
+    method: "GET",
+    headers,
+    credentials: "same-origin",
+    cache: "no-store",
+  });
+  const { response, correlationId } = await fetchBrowserDownload(url, init);
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throwApiRequestError(response, errText, correlationId);
+  }
+
+  return response.blob();
+}
+
+/** GET a same-origin `/api/proxy/*` file with operator scope headers and trigger a browser download. */
+export async function downloadScopedProxyFileGet(
+  url: string,
+  options: ScopedProxyFileGetOptions,
+): Promise<void> {
+  const blob = await fetchScopedProxyFileGet(url, options);
+  await triggerBrowserBlobDownload(blob, options.defaultFileName);
+}
+
+/** GET a same-origin `/api/proxy/*` file with operator scope headers and open it in a new tab. */
+export async function openScopedProxyFileGetInNewTab(
+  url: string,
+  options: Pick<ScopedProxyFileGetOptions, "accept">,
+): Promise<void> {
+  const blob = await fetchScopedProxyFileGet(url, options);
+  const objectUrl = URL.createObjectURL(blob);
+  const opened = window.open(objectUrl, "_blank", "noopener,noreferrer");
+  URL.revokeObjectURL(objectUrl);
+
+  if (opened === null) {
+    throw new Error("Pop-up blocked. Allow pop-ups to open this export in a new tab.");
+  }
+}
