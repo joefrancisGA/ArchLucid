@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Models;
+using ArchLucid.Api.Serialization;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Contracts.Governance.PolicyPacks;
@@ -354,6 +355,26 @@ public sealed class PolicyPacksControllerListScopeTests
 
         ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public void SetAssignmentEnabledRequest_deserialization_rejects_missing_is_enabled()
+    {
+        Action act = () => JsonSerializer.Deserialize<SetPolicyPackAssignmentEnabledRequest>(
+            "{}",
+            ArchLucidApiJsonSerializerOptions.Web);
+
+        act.Should().Throw<JsonException>();
+    }
+
+    [Fact]
+    public void PublishPolicyPackVersionRequest_deserialization_rejects_missing_content_json()
+    {
+        Action act = () => JsonSerializer.Deserialize<PublishPolicyPackVersionRequest>(
+            """{"version":"1.0.0"}""",
+            ArchLucidApiJsonSerializerOptions.Web);
+
+        act.Should().Throw<JsonException>();
     }
 
     [Fact]

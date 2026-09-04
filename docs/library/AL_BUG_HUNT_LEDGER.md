@@ -3296,11 +3296,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 185
-- **bugs-found:** 393
+- **hunts:** 186
+- **bugs-found:** 395
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — manifest diagram v2 rejects unrecognized layout/groupBy/relationshipLabels query values
+- **last-bug:** 2026-09-04 — policy pack publish omitted contentJson defaulted to empty pack JSON
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4224,6 +4224,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `GovernanceController.DryRunPolicyPack` — `pageSize` / `page` query params have no HTTP 400 bounds guard before `RequireTenantAndWorkspaceOrNotFoundAsync`; ghost tenant + `pageSize=0` returns HTTP 404 while in-scope callers get silent service-side clamp — **cheap-disproof 2026-09-04 (#756):** `pageSize=0` is intentionally server-clamped to 1 per PENDING_QUESTIONS Q38 (`DryRunPolicyPack_delegates_page_size_to_service_for_documented_server_side_clamp`); not a validation defect; regression in `DryRunPolicyPack_clamps_page_size_zero_before_tenant_preflight_is_not_a_validation_error`.
 
 2026-09-04 thorough hunt #756 (hit): proved manifest diagram v2 silent query defaults; cheap-disproved dry-run paging clamp candidate.
+
+- [x] (proven) `PolicyPacksController.SetAssignmentEnabled` / `SetPolicyPackAssignmentEnabledRequest` — JSON body omitted `isEnabled` → HTTP 204 and persisted `IsEnabled = false` instead of HTTP 400 — **hit 2026-09-04 (#757):** `required bool IsEnabled` (CorePilot checklist `isCompleted` omission parity); regression in `SetAssignmentEnabledRequest_deserialization_rejects_missing_is_enabled`.
+- [x] (proven) `PolicyPacksController.Publish` / `PublishPolicyPackVersionRequest` — JSON body omitted `contentJson` → HTTP 200 and published `"{}"` empty pack via property initializer — **hit 2026-09-04 (#757):** `required string ContentJson` + FluentValidation `NotEmpty`; regression in `PublishPolicyPackVersionRequest_deserialization_rejects_missing_content_json`.
+- [ ] (hunt-ready) `TenantExecDigestPreferencesController.PostExecDigestPreferences` / `TenantSponsorDigestPreferencesController.PostSponsorDigestPreferences` / `ExecDigestPreferencesUpsertRequest` — omitted `emailEnabled` binds as `false` and may unintentionally disable digest when caller only updates recipients (`DigestRecipientEmailsValidator` only gates `emailEnabled: true` + zero recipients).
+- [ ] (candidate) `TenantExecDigestPreferencesController.PostExecDigestPreferences` — omitted `dayOfWeek` / `hourOfDay` silently default to Monday 08:00 (`?? 1`, `?? 8`) instead of HTTP 400 validation.
+
+2026-09-04 seed hunt #757 (hit): proved policy pack assignment `isEnabled` omission and publish `contentJson` omission; seeded digest `emailEnabled` omission and silent schedule-default candidates.
 
 2026-09-04 seed hunt #755 (hit): proved disposition `RecordDisposition` / `RecordBulkDisposition` idempotency-key validation ordering before body/route/disposition HTTP mapper guards; seeded diagram v2 silent query defaults and dry-run paging clamp candidates.
 
