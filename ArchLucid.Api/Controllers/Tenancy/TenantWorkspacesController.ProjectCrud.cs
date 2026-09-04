@@ -21,17 +21,17 @@ public sealed partial class TenantWorkspacesController
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteProjectAsync(Guid workspaceId, Guid projectId, CancellationToken cancellationToken)
     {
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
-
-        if (tenant is null)
-            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
-
         if (workspaceId == Guid.Empty)
             return this.BadRequestProblem("workspaceId is required.", ProblemTypes.ValidationFailed);
 
         if (projectId == Guid.Empty)
             return this.BadRequestProblem("projectId is required.", ProblemTypes.ValidationFailed);
+
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         IReadOnlyList<TenantWorkspaceListItem> workspaces =
             await _tenantRepository.ListWorkspacesAsync(scope.TenantId, cancellationToken);
@@ -98,17 +98,17 @@ public sealed partial class TenantWorkspacesController
         Guid projectId,
         CancellationToken cancellationToken)
     {
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
-
-        if (tenant is null)
-            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
-
         if (workspaceId == Guid.Empty)
             return this.BadRequestProblem("workspaceId is required.", ProblemTypes.ValidationFailed);
 
         if (projectId == Guid.Empty)
             return this.BadRequestProblem("projectId is required.", ProblemTypes.ValidationFailed);
+
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         IReadOnlyList<TenantWorkspaceListItem> workspaces =
             await _tenantRepository.ListWorkspacesAsync(scope.TenantId, cancellationToken);
