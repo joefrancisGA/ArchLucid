@@ -1,8 +1,5 @@
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
-import {
-  SPONSOR_REPORT_PATH,
-  SPONSOR_REPORT_ROI_SUMMARY_PATH,
-} from "@/lib/sponsor-report-navigation";
+import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 
 export type ReportSurfaceCanonicalPointer = {
   readonly surfaceLabel: string;
