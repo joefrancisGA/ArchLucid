@@ -96,7 +96,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
           m.manifestSummaryForUi?.feasibilityVerdict?.transparencyTrail ??
           null
         }
-        graphSnapshot={m.resolvedDetail.run.graphSnapshot}
+        graphSnapshot={m.resolvedDetail.graphSnapshot}
         analysisStagesComplete={createHomeAnalysisStagesComplete}
         {...reviewPackageDoThisNextEvidenceProps}
       />

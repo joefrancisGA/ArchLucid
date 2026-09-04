@@ -1,6 +1,7 @@
 import {
   isSelectableWizardEvidenceSourceId,
   type WizardEvidenceSourceId,
+  type WizardEvidenceSourceOption,
 } from "@/lib/wizard-evidence-source-options";
 import { isAzureExtractorDemoScenarioId } from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
 import type { DemoReviewScenarioId } from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
@@ -20,12 +21,13 @@ export function parseWizardEvidenceSourceFromSearch(raw: string | null | undefin
   }
 
   const trimmed = raw.trim();
+  const candidate = trimmed as WizardEvidenceSourceOption["id"];
 
-  if (!isSelectableWizardEvidenceSourceId(trimmed)) {
+  if (!isSelectableWizardEvidenceSourceId(candidate)) {
     return null;
   }
 
-  return trimmed;
+  return candidate;
 }
 
 export function parseWizardEvidenceDemoScenarioFromSearch(
