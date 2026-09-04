@@ -25,6 +25,11 @@ import {
   digestsBrowsePreviewHrefFromSearch,
   parseDigestsBrowsePreviewOpenFromSearch,
 } from "@/lib/digests/digests-browse-preview-url";
+import {
+  digestsBrowseDigestHrefFromSearch,
+  parseDigestsBrowseDigestIdFromSearch,
+  DIGESTS_BROWSE_DIGEST_PARAM,
+} from "@/lib/digests/digests-browse-digest-url";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 
 const EMPTY_DIGESTS: ArchitectureDigest[] = [];
@@ -107,6 +112,7 @@ export function useDigestsBrowseContent(
   const selectDigest = useCallback(async (digestId: string): Promise<void> => {
     setDetailFailure(null);
     writeDigestBrowseLastViewedId(digestId);
+    router.replace(digestsBrowseDigestHrefFromSearch(searchParams.toString(), digestId, pathname), { scroll: false });
 
     try {
       const full = await getArchitectureDigest(digestId);
@@ -117,7 +123,7 @@ export function useDigestsBrowseContent(
     } catch (e) {
       setDetailFailure(toApiLoadFailure(e));
     }
-  }, []);
+  }, [pathname, router, searchParams, setPreviewOpen]);
 
   useEffect(() => {
     if (!digestsQuery.isFetched) {
@@ -149,6 +155,22 @@ export function useDigestsBrowseContent(
       return;
     }
 
+    const digestIdFromQuery = parseDigestsBrowseDigestIdFromSearch(searchParams.get(DIGESTS_BROWSE_DIGEST_PARAM));
+
+    if (digestIdFromQuery.length > 0) {
+      const matchFromQuery: ArchitectureDigest | undefined = digests.find(
+        (digest) => digest.digestId === digestIdFromQuery,
+      );
+
+      if (matchFromQuery !== undefined) {
+        void selectDigest(matchFromQuery.digestId).then(() => {
+          detailPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+
+        return;
+      }
+    }
+
     function selectFromHash(): void {
       const hashDigestId: string | null = digestIdFromLocationHash(window.location.hash);
 
@@ -173,7 +195,7 @@ export function useDigestsBrowseContent(
     window.addEventListener("hashchange", selectFromHash);
 
     return () => window.removeEventListener("hashchange", selectFromHash);
-  }, [digests, selectDigest]);
+  }, [digests, searchParams, selectDigest]);
 
   const setupChecklist: readonly DigestSetupChecklistItem[] | null =
     healthSnap !== null ? buildDigestSetupChecklistItems(healthSnap, digests.length > 0) : null;

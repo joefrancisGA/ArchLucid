@@ -1026,6 +1026,103 @@ describe("wave23 filter url helpers", () => {
   });
 });
 
+describe("wave24 filter url helpers", () => {
+  it("sso wizard step, tier2 connection step, and guided intake step", async () => {
+    const { parseSsoWizardStepFromSearch, ssoWizardStepHrefFromSearch, SSO_WIZARD_PATH } = await import(
+      "@/lib/administration/sso-wizard-step-url"
+    );
+    const { parseTier2ConnectionWizardStepFromSearch, tier2ConnectionWizardStepHrefFromSearch } = await import(
+      "@/lib/integrations/tier2-connection-wizard-step-url"
+    );
+    const { parseGuidedIntakeStepFromSearch, guidedIntakeStepHrefFromSearch } = await import(
+      "@/lib/runs/guided-intake-step-url"
+    );
+
+    expect(parseSsoWizardStepFromSearch("3")).toBe(3);
+    expect(ssoWizardStepHrefFromSearch("", 2, SSO_WIZARD_PATH)).toBe(
+      "/administration/identity/sso-wizard?step=2",
+    );
+    expect(parseTier2ConnectionWizardStepFromSearch("2")).toBe(2);
+    expect(tier2ConnectionWizardStepHrefFromSearch("", 1, "/integrations/cloud-connections/azure")).toBe(
+      "/integrations/cloud-connections/azure?step=1",
+    );
+    expect(parseGuidedIntakeStepFromSearch("1")).toBe(1);
+    expect(guidedIntakeStepHrefFromSearch("path=guided-intake", 2)).toBe(
+      "/architecture/reviews/new?path=guided-intake&intakeStep=2",
+    );
+  });
+
+  it("policy pack selection, catalog entry, version compare, and authoring input mode", async () => {
+    const { parsePolicyPackSelectionFromSearch, policyPackSelectionHrefFromSearch } = await import(
+      "@/lib/policy/policy-pack-selection-url"
+    );
+    const { parsePolicyPackCatalogEntryFromSearch, policyPackCatalogEntryHrefFromSearch } = await import(
+      "@/lib/policy/policy-pack-catalog-entry-url"
+    );
+    const {
+      parsePolicyPackCompareVersionIdFromSearch,
+      parsePolicyPackVersionDiffOpenFromSearch,
+      policyPackVersionCompareHrefFromSearch,
+    } = await import("@/lib/policy/policy-pack-version-compare-url");
+    const { parsePolicyPackAuthoringInputModeFromSearch, policyPackAuthoringInputModeHrefFromSearch } =
+      await import("@/lib/policy/policy-pack-authoring-input-mode-url");
+
+    expect(parsePolicyPackSelectionFromSearch("pack-1")).toBe("pack-1");
+    expect(policyPackSelectionHrefFromSearch("tab=my-packs", "pack-1")).toBe(
+      "/governance/policy-packs?tab=my-packs&packId=pack-1",
+    );
+    expect(parsePolicyPackCatalogEntryFromSearch("cat-9")).toBe("cat-9");
+    expect(policyPackCatalogEntryHrefFromSearch("tab=catalog", "cat-9")).toBe(
+      "/governance/policy-packs?tab=catalog&catalogEntry=cat-9",
+    );
+    expect(parsePolicyPackVersionDiffOpenFromSearch("1")).toBe(true);
+    expect(parsePolicyPackCompareVersionIdFromSearch("left-1")).toBe("left-1");
+    expect(
+      policyPackVersionCompareHrefFromSearch("tab=my-packs&packId=p1", {
+        showVersionDiff: true,
+        compareLeftId: "left-1",
+        compareRightId: "right-2",
+      }),
+    ).toBe("/governance/policy-packs?tab=my-packs&packId=p1&diff=1&compareLeft=left-1&compareRight=right-2");
+    expect(parsePolicyPackAuthoringInputModeFromSearch("visual")).toBe("visual");
+    expect(policyPackAuthoringInputModeHrefFromSearch("tab=author", "json")).toBe(
+      "/governance/policy-packs?tab=author&inputMode=json",
+    );
+  });
+
+  it("digests browse digest, graph load gate, and alert simulation scope", async () => {
+    const { parseDigestsBrowseDigestIdFromSearch, digestsBrowseDigestHrefFromSearch } = await import(
+      "@/lib/digests/digests-browse-digest-url"
+    );
+    const { parseGraphLoadRequestedFromSearch, graphLoadRequestedHrefFromSearch } = await import(
+      "@/lib/insights/graph-load-requested-url"
+    );
+    const {
+      alertSimulationScopeHrefFromSearch,
+      parseAlertSimulationCompareRunIdFromSearch,
+      parseAlertSimulationProjectSlugFromSearch,
+      parseAlertSimulationRunIdFromSearch,
+    } = await import("@/lib/alerts/alert-simulation-scope-url");
+
+    expect(parseDigestsBrowseDigestIdFromSearch("digest-42")).toBe("digest-42");
+    expect(digestsBrowseDigestHrefFromSearch("tab=get-started", "digest-42")).toBe(
+      "/architecture/digests?tab=get-started&digest=digest-42",
+    );
+    expect(parseGraphLoadRequestedFromSearch("1")).toBe(true);
+    expect(graphLoadRequestedHrefFromSearch("runId=r1", true)).toBe("/insights/evidence-graph?runId=r1&load=1");
+    expect(parseAlertSimulationRunIdFromSearch("run-sim")).toBe("run-sim");
+    expect(parseAlertSimulationCompareRunIdFromSearch("run-base")).toBe("run-base");
+    expect(parseAlertSimulationProjectSlugFromSearch("vpc")).toBe("vpc");
+    expect(
+      alertSimulationScopeHrefFromSearch("tab=test-alerts&simMode=compare", {
+        runId: "run-sim",
+        compareRunId: "run-base",
+        projectSlug: "vpc",
+      }),
+    ).toBe("/governance/alert-rules?tab=test-alerts&simMode=compare&simRunId=run-sim&simCompareRun=run-base&simSlug=vpc");
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

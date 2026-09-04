@@ -1,9 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { applyGeneratedCuratedPolicyPack } from "@/lib/apply-generated-curated-policy-pack";
 import type { CuratedRulesDocument } from "@/lib/policy/policy-pack-curated-rules-v1";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { policyPackAuthoringInputModeHrefFromSearch } from "@/lib/policy/policy-pack-authoring-input-mode-url";
 import { preloadPolicyRuleAuthoringWizardChunk } from "./policy-packs-authoring-deferred-chunks";
 import type { PolicyPacksAuthoringDeps } from "./policy-packs-authoring-deps";
 import type { PolicyPacksCreatePublishSlice } from "./use-policy-packs-create-publish";
@@ -12,6 +15,9 @@ export function usePolicyPacksGenerator(
   deps: PolicyPacksAuthoringDeps,
   createPublish: PolicyPacksCreatePublishSlice,
 ) {
+  const router = useRouter();
+  const pathname = usePathname() ?? GOVERNANCE_POLICY_PACKS_PATH;
+  const searchParams = useSearchParams();
   const [generatedRuleCount, setGeneratedRuleCount] = useState(0);
   const [generatedValidationErrors, setGeneratedValidationErrors] = useState<readonly string[]>([]);
   const [authoringWizardInputMode, setAuthoringWizardInputMode] = useState<"guided" | "visual" | "json" | "ai">("guided");
@@ -65,6 +71,9 @@ export function usePolicyPacksGenerator(
   const openAuthoringWizardFromGenerator = useCallback(() => {
     preloadPolicyRuleAuthoringWizardChunk();
     setAuthoringWizardInputMode("visual");
+    router.replace(policyPackAuthoringInputModeHrefFromSearch(searchParams.toString(), "visual", pathname), {
+      scroll: false,
+    });
     setAuthoringToolsOpen(true);
     deps.setPageTab("author");
 
@@ -84,7 +93,7 @@ export function usePolicyPacksGenerator(
     };
 
     window.setTimeout(tryScrollToWizard, 0);
-  }, []);
+  }, [deps, pathname, router, searchParams]);
 
   const onCreateFromGenerator = useCallback(async () => {
     deps.setPageTab("my-packs");
