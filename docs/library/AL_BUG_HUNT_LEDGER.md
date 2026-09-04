@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 152
-- **bugs-found:** 358
+- **hunts:** 153
+- **bugs-found:** 362
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — stickiness disposition/recurrence HTTP validation and fail-fast ordering
+- **last-bug:** 2026-09-04 — update-recurrence HTTP validation, deferred revisit-due guards, merge-conflict run-id ordering
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3940,6 +3940,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController` waiver mutations (`CreateRiskException`, `RenewRiskException`, `RevokeRiskException`) — tenant preflight ran before HTTP/body validation so ghost tenant + invalid body returned HTTP 404 instead of 400 (#691 dry-run ordering sibling) — **hit 2026-09-04 (#693):** fail-fast validation before tenant lookup; regression in `CreateRiskException_returns_bad_request_when_rationale_exceeds_max_length_and_tenant_missing`.
 
 - [x] (proven) `TenantHomepageSettingsController.PutAsync` — empty `selectedRunId` guard ran after tenant preflight so ghost tenant + `Guid.Empty` returned HTTP 404 instead of 400 — **hit 2026-09-04 (#693):** empty-run validation before scope preflight; regression in `PutAsync_returns_bad_request_when_selected_run_id_is_empty_and_tenant_missing`.
+
+- [x] (proven) `GovernanceStickinessHttpMapper.ValidateUpdateRecurrenceSchedule` / `GovernanceStickinessController.UpdateRecurrenceSchedule` — overlong `name` or `cronExpression` reached tenant preflight without HTTP mapper guards (#693 create sibling) — **hit 2026-09-04 (#694):** update schedule HTTP validation before tenant/facade; regression in `GovernanceStickinessHttpMapperTests` and `UpdateRecurrenceSchedule_returns_bad_request_when_name_exceeds_max_length_and_tenant_missing`.
+
+- [x] (proven) `GovernanceStickinessController.UpdateRecurrenceSchedule` — tenant preflight and route `scheduleId` validation ran after body checks so ghost tenant + empty `scheduleId` returned HTTP 404 instead of 400 (#693 waiver ordering sibling) — **hit 2026-09-04 (#694):** schedule body/id validation before tenant lookup; regression in `UpdateRecurrenceSchedule_returns_bad_request_when_schedule_id_empty_and_tenant_missing`.
+
+- [x] (proven) `GovernanceStickinessHttpMapper.ValidateRecordDisposition` / `ValidateBulkDisposition` — deferred disposition without `revisitDueUtc` or with past `revisitDueUtc` reached tenant/facade without HTTP mapper guards (#566 application-layer sibling) — **hit 2026-09-04 (#694):** deferred revisit-due validation before tenant/facade; regression in `GovernanceStickinessHttpMapperTests` and `RecordDisposition_returns_bad_request_when_deferred_revisit_past_and_tenant_missing`.
+
+- [x] (proven) `GovernanceStickinessController.ResolveFindingMergeConflict` — route `runId` validation ran after tenant preflight so ghost tenant + `Guid.Empty` returned HTTP 404 instead of 400 (#693 ordering sibling) — **hit 2026-09-04 (#694):** run-id validation before tenant lookup; regression in `ResolveFindingMergeConflict_returns_bad_request_when_run_id_empty_and_tenant_missing`.
+
+2026-09-04 seed hunt #694: promoted and proved update-recurrence HTTP mapper, deferred revisit-due HTTP guards, and merge-conflict run-id fail-fast ordering.
 
 2026-09-04 seed hunt #693: promoted and proved disposition/recurrence HTTP mappers, waiver mutation validation ordering, and homepage empty-run ordering.
 
