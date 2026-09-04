@@ -2684,11 +2684,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 74
-- **bugs-found:** 136
+- **hunts:** 75
+- **bugs-found:** 138
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — empty object elements in array literals silently dropped `tf.*` property
+- **last-bug:** 2026-09-04 — Bicep multiline array `#` probe and inline `#` scalar comment parity gaps
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2894,6 +2894,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `BicepArrayLiteralConverter.TryParsePrimitiveStrings` — unquoted numeric primitive `list(number)` arrays silently dropped — `service_endpoints = [10, 20]` already preserves `tf.service_endpoints` via primitive fallback; regression `ParseAsync_NumericPrimitiveAddressPrefixesArray_PreservesTfProperty` (cheap-disproof hunt #656).
 
 2026-09-04 seed hunt #656: reseeded from `BicepArrayLiteralConverter` after #655 whitespace-only primitive fix; proved empty object array gap; disproved unquoted numeric primitive-array candidate.
+
+- [x] (proven) `BicepResourceBodyParser.TryConsumeMultilineArrayAssignment` — `#` comment lines before `[` not skipped during multiline array probe — **hit 2026-09-04 (#741):** HCL/terraform probe skips `#` lines but Bicep only skipped `//`, so `ipSecurityRestrictions:` + `# legacy` + `[...]` leaked inner rule scalars and omitted `tf.ipsecurityrestrictions`; fixed by skipping `#` lines in probe loop (terraform #527 parity); regression in `ParseAsync_MultilineIpSecurityRestrictionsArrayWithHashCommentLine_PreservesRulesForNetworkExpander`
+- [x] (proven) `BicepResourceBodyParser.ParseBodyIntoProperties` — inline `#` HCL comments on scalar values not stripped — **hit 2026-09-04 (#741):** `publicNetworkAccess: 'Enabled' # primary region` stored polluted `tf.publicnetworkaccess` and false-modified infra declaration deltas (#590 `//` parity gap); fixed with `StripTrailingHclComment` before unquote; regressions in `ParseAsync_InlineHashComment_DoesNotChangeTfPublicNetworkAccess` and `DeltaAsync_BicepInlineHashCommentChange_ReportsUnchanged`
+- [x] (valid-no-repro) `PlainTextDocumentPrefixedLine` — `POL :` spaced-prefix parity — shared `TryGetPrefixedBody` already accepts optional whitespace before `:` for all prefixed line types; regression in `ParseAsync_SpacedPolPrefixBeforeColon_ExtractsPolicyControl`
+- [x] (valid-no-repro) `BicepArrayLiteralConverter.TryParsePrimitiveStrings` — boolean `list(bool)` arrays silently dropped — `service_endpoints = [true, false]` already emits canonicalized `tf.service_endpoints`; regression in `ParseAsync_BooleanPrimitiveArray_PreservesTfProperty`
+
+2026-09-04 seed hunt #741: reseeded from Bicep/terraform parser parity; proved multiline-array `#` probe and inline `#` scalar gaps; cheap-disproved POL spaced-prefix and boolean primitive-array candidates.
 
 - [x] (proven) `PlainTextContextDocumentParser` required `REQ:`/`POL:`/`TOP:`/`SEC:` prefix without optional whitespace before colon — **hit 2026-09-02:** `REQ : Must scale` lines were skipped while `REQ: Must scale` parsed; fixed with `TryGetPrefixedBody` accepting optional whitespace before `:` (`PlainTextContextDocumentParserTests.ParseAsync_SpacedPrefixBeforeColon_ExtractsRequirement`).
 - [x] (proven) `BicepResourceBodyParser` treated `key: [` array headers as scalar assignments — **hit 2026-09-02:** `ipSecurityRestrictions: [` stored `tf.ipsecurityrestrictions = "["` and leaked inner object scalars (`tf.name`, `tf.ipaddress`) so App Service network-rule expander never ran; fixed with balanced-bracket extraction and `BicepArrayLiteralConverter` JSON serialization (`BicepInfrastructureDeclarationParserTests.ParseAsync_AppServiceIpSecurityRestrictionsArray_IsPreservedForNetworkExpander`, `ParseAsync_AppServiceIpSecurityRestrictionsArray_ExpandsNetworkBaseline`).

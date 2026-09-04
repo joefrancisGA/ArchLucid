@@ -58,7 +58,7 @@ internal static class BicepResourceBodyParser
                 continue;
             }
 
-            if (line.Length == 0 || line.StartsWith("//", StringComparison.Ordinal))
+            if (line.Length == 0 || line.StartsWith("//", StringComparison.Ordinal) || line.StartsWith('#'))
             {
                 lineIndex++;
                 continue;
@@ -117,6 +117,7 @@ internal static class BicepResourceBodyParser
                 continue;
             }
 
+            rawValue = CanonicalInfrastructurePropertyBag.StripTrailingHclComment(rawValue);
             rawValue = CanonicalInfrastructurePropertyBag.StripTrailingSlashSlashComment(rawValue);
             rawValue = CanonicalInfrastructurePropertyBag.StripTrailingBlockComment(rawValue);
             string scalarValue = CanonicalInfrastructurePropertyBag.UnquoteInfrastructureScalar(rawValue);
@@ -160,7 +161,9 @@ internal static class BicepResourceBodyParser
         {
             string probeLine = lines[probeIndex].Trim();
 
-            if (probeLine.Length == 0 || probeLine.StartsWith("//", StringComparison.Ordinal))
+            if (probeLine.Length == 0
+                || probeLine.StartsWith("//", StringComparison.Ordinal)
+                || probeLine.StartsWith('#'))
             {
                 probeIndex++;
                 continue;

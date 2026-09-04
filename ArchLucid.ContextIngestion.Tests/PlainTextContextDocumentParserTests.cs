@@ -150,6 +150,23 @@ public sealed class PlainTextContextDocumentParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_SpacedPolPrefixBeforeColon_ExtractsPolicyControl()
+    {
+        ContextDocumentReference doc = new()
+        {
+            Name = "spec.txt",
+            ContentType = "text/plain",
+            Content = "POL : SOC2 alignment"
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(doc, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].ObjectType.Should().Be("PolicyControl");
+        result[0].Properties["text"].Should().Be("soc2 alignment");
+    }
+
+    [Fact]
     public async Task ParseAsync_RequirementInternalWhitespace_Reparse_ProducesStableObjectId()
     {
         ContextDocumentReference spaced = new()
