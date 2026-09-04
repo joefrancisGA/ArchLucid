@@ -151,6 +151,8 @@ archlucid-ui/src/app/(operator)/help/_sections/HelpGovernanceApprovalHeaderActio
 archlucid-ui/src/app/(operator)/help/_sections/HelpImpactPreviewHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpImprovementPlanningHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpIntegrationReadinessHeaderActions.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpModelGovernanceGuideView.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpModelGovernanceHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpPathChooserGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpPilotFeedbackGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpPilotFeedbackHeaderActions.tsx
