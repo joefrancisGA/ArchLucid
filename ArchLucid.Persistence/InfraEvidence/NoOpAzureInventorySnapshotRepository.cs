@@ -21,6 +21,12 @@ public sealed class NoOpAzureInventorySnapshotRepository : IAzureInventorySnapsh
         CancellationToken cancellationToken = default)
         => Task.FromResult<AzureInventorySnapshotRecord?>(null);
 
+    public Task<AzureInventorySnapshotDetailReadModel?> TryGetSnapshotDetailAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<AzureInventorySnapshotDetailReadModel?>(null);
+
     public Task MaterializeSnapshotAsync(
         ScopeContext scope,
         Guid snapshotId,

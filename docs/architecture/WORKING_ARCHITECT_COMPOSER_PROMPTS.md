@@ -4,10 +4,11 @@
 > **Shipped predecessors:** LI-01–15 (`master` #1397), LD-01–15 (#1421 / #1439), RS-01–15 (#1457)
 > **Wave 5 leftovers:** [`CAREER_DESK_COMPOSER_PROMPTS.md`](CAREER_DESK_COMPOSER_PROMPTS.md) (**CD-01–15**)
 > **Wave 6 leftovers:** [`ALL_DAY_DESK_COMPOSER_PROMPTS.md`](ALL_DAY_DESK_COMPOSER_PROMPTS.md) (**AD-01–12**)
+> **Wave 7 leftovers:** [`FOUNDING_DESK_COMPOSER_PROMPTS.md`](FOUNDING_DESK_COMPOSER_PROMPTS.md) (**FD-01–13**)
 
 # Working-architect Composer prompts (WA-01–WA-24)
 
-**Created:** 2026-09-04 · **Status:** **shipped** `master` #1496 · **Do not re-run.** Wave 5: [`CAREER_DESK_COMPOSER_PROMPTS.md`](CAREER_DESK_COMPOSER_PROMPTS.md) (**CD-01–15**). Wave 6: [`ALL_DAY_DESK_COMPOSER_PROMPTS.md`](ALL_DAY_DESK_COMPOSER_PROMPTS.md) (**AD-01–12**).
+**Created:** 2026-09-04 · **Status:** **shipped** `master` #1496 · **Do not re-run.** Wave 5: [`CAREER_DESK_COMPOSER_PROMPTS.md`](CAREER_DESK_COMPOSER_PROMPTS.md) (**CD-01–15**). Wave 6: [`ALL_DAY_DESK_COMPOSER_PROMPTS.md`](ALL_DAY_DESK_COMPOSER_PROMPTS.md) (**AD-01–12**). Wave 7: [`FOUNDING_DESK_COMPOSER_PROMPTS.md`](FOUNDING_DESK_COMPOSER_PROMPTS.md) (**FD-01–13**).
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record. **LD-01–15** and **RS-01–15** closed the 2026-09-04 residual waves (desk identity, never-sample, honesty on queues, every seal *gate*, amend mounts, empty desk, sealed-record nav, keyboard leftovers, spawn lock, conflict desk, account-scoped ROI, and related).
 
@@ -75,6 +76,7 @@ See [`.cursor/prompts/working-architect-00-index.md`](../../.cursor/prompts/work
 
 - **CD-01–15** — wave 5 leftovers; do not implement from WA files
 - **AD-01–12** — wave 6 all-day desk; do not implement from WA files
+- **FD-01–13** — wave 7 founding leftovers; do not implement from WA files
 - **RS-01–15** — shipped #1457
 - **LD-01–15** — shipped #1421 / #1439
 - **LI-01–15** — shipped #1397

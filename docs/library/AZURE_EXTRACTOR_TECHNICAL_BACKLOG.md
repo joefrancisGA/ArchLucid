@@ -13,6 +13,7 @@ This file tracks **remaining** work after the initial ingest API, MVP PowerShell
 - `archlucid azure terraform-export`: non-interactive **resource-group** mode wrapping `aztfexport`, adds `ADVISORY.md`, zips output.
 - `AzureExtractorCitationFormatter` for future evidence-bundle lines.
 - Advisory Terraform comment templates in `ArchLucid.Application`.
+- **IE-05 reconstruction:** `AdvisoryTerraformRepresentationService` builds labeled reconstruction artifacts from `AzureInventorySnapshot` rows (additive to C2 snippet path and CLI aztfexport primary export).
 
 ## Backlog (prioritized)
 
