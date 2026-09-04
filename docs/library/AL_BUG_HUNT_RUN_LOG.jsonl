@@ -800,4 +800,5 @@
 {"at":"2026-09-04T01:52:25.7746377Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-04T02:02:00Z","zoneId":"host-core-coordination","outcome":"seed-only"}
 {"at":"2026-09-04T02:01:01.3329768Z","zoneId":"host-core-coordination","outcome":"seed-only"}
-{"at":"2026-09-04T02:12:57.0000000Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-09-04T02:12:57Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-09-04T02:13:20.4380517Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
