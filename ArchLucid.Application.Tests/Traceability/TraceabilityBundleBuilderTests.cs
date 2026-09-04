@@ -6,7 +6,9 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Audit;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -25,7 +27,11 @@ public sealed class TraceabilityBundleBuilderTests
             .ReturnsAsync((ArchitectureRunDetail?)null);
 
         Mock<IAuditRepository> audit = new();
-        TraceabilityBundleBuilder sut = new(runDetail.Object, audit.Object);
+        TraceabilityBundleBuilder sut = new(
+            runDetail.Object,
+            audit.Object,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>());
         ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid(), };
 
         byte[]? zip = await sut.BuildAsync("missing-run", scope, 10_000_000, CancellationToken.None);
@@ -67,7 +73,11 @@ public sealed class TraceabilityBundleBuilderTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        TraceabilityBundleBuilder sut = new(runDetail.Object, audit.Object);
+        TraceabilityBundleBuilder sut = new(
+            runDetail.Object,
+            audit.Object,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>());
         ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId, };
 
         byte[]? zipBytes = await sut.BuildAsync(runGuid.ToString("N"), scope, 10_000_000, CancellationToken.None);
@@ -109,7 +119,11 @@ public sealed class TraceabilityBundleBuilderTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        TraceabilityBundleBuilder sut = new(runDetail.Object, audit.Object);
+        TraceabilityBundleBuilder sut = new(
+            runDetail.Object,
+            audit.Object,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>());
         ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid(), };
 
         Func<Task> act = async () =>

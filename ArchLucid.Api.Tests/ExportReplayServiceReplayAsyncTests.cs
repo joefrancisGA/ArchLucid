@@ -2,6 +2,10 @@ using System.Text.Json;
 
 using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -270,7 +274,10 @@ public sealed class ExportReplayServiceReplayAsyncTests
             analysis.Object,
             standardDocx.Object,
             consultingDocx.Object,
-            audit.Object);
+            audit.Object,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
+            Mock.Of<IScopeContextProvider>());
     }
 
     private static RunExportRecord BaseRecord(string exportType)

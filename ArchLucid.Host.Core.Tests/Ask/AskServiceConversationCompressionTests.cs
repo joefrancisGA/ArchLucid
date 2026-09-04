@@ -76,6 +76,7 @@ public sealed class AskServiceConversationCompressionTests
             ProjectId = scope.ProjectId,
             ManifestId = Guid.NewGuid(),
         };
+        AskSealedManifestTestSupport.ApplySealedManifestDefaults(manifest);
         Mock<IAuthorityQueryService> query = new();
         query.Setup(q => q.GetRunDetailAsync(scope, runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunDetailDto { GoldenManifest = manifest });

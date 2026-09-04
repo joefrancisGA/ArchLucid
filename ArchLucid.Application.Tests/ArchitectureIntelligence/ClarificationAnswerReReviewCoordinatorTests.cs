@@ -1,4 +1,5 @@
 using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
@@ -47,6 +48,7 @@ public sealed class ClarificationAnswerReReviewCoordinatorTests
         specialistReview ?? Mock.Of<IAsyncSpecialistReviewService>(),
         findingsUpdater,
         stageOutcomes ?? Mock.Of<IRunStageOutcomesRepository>(),
-        audit ?? Mock.Of<IAuditService>());
+        audit ?? Mock.Of<IAuditService>(),
+        Mock.Of<IReRunExecuteSealedManifestPinGate>());
   }
 }

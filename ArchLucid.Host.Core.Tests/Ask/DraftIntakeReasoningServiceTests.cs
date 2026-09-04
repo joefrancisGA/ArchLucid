@@ -62,7 +62,7 @@ public sealed class DraftIntakeReasoningServiceTests
                 It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((Guid _, Guid _, Guid _, Guid _, DraftRequestStatus status, DraftRequestDocument document,
-                string? _, string? _, CancellationToken _) =>
+                string? _, string? _, CancellationToken _, Guid? _, byte[]? _) =>
                 new DraftRequestResponse
                 {
                     DraftId = draftId,
@@ -215,7 +215,7 @@ public sealed class DraftIntakeReasoningServiceTests
                 It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((Guid _, Guid _, Guid _, Guid _, DraftRequestStatus status, DraftRequestDocument document,
-                string? _, string? _, CancellationToken _) =>
+                string? _, string? _, CancellationToken _, Guid? _, byte[]? _) =>
                 new DraftRequestResponse
                 {
                     DraftId = draftId,
@@ -315,7 +315,7 @@ public sealed class DraftIntakeReasoningServiceTests
                 It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((Guid _, Guid _, Guid _, Guid _, DraftRequestStatus status, DraftRequestDocument document,
-                string? _, string? _, CancellationToken _) =>
+                string? _, string? _, CancellationToken _, Guid? _, byte[]? _) =>
                 new DraftRequestResponse
                 {
                     DraftId = draftId,
@@ -415,7 +415,7 @@ public sealed class DraftIntakeReasoningServiceTests
                 It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((Guid _, Guid _, Guid _, Guid _, DraftRequestStatus status, DraftRequestDocument document,
-                string? _, string? _, CancellationToken _) =>
+                string? _, string? _, CancellationToken _, Guid? _, byte[]? _) =>
                 new DraftRequestResponse
                 {
                     DraftId = draftId,
