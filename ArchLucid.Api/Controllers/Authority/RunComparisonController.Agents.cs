@@ -127,6 +127,18 @@ public sealed partial class RunComparisonController
                 null,
                 null,
                 null),
+            ScopedRunPairLoadOutcome.PinFingerprintMismatch => (
+                this.ConflictProblem(
+                    "Compare blocked: create-time pin fingerprints differ between the selected runs.",
+                    ProblemTypes.Conflict),
+                null,
+                null),
+            ScopedRunPairLoadOutcome.CommittedArtifactInventoryMismatch => (
+                this.ConflictProblem(
+                    "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.",
+                    ProblemTypes.CommittedArtifactInventoryMismatch),
+                null,
+                null),
             _ => throw new InvalidOperationException($"Unexpected run-pair load outcome: {loadResult.Outcome}."),
         };
     }

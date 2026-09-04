@@ -1,7 +1,6 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Comparison;
-using ArchLucid.Core.Manifest;
 
 namespace ArchLucid.Application.Analysis;
 

@@ -24,6 +24,10 @@ import {
   parseDecisionRegisterMinConfidenceFromSearch,
 } from "@/lib/governance/decision-register-confidence-band-url";
 import { parseDecisionRegisterDatePresetFromSearch } from "@/lib/governance/decision-register-date-range-url";
+import {
+  decisionRegisterCustomDateHrefFromSearch,
+  parseDecisionRegisterCustomDateFromSearch,
+} from "@/lib/governance/decision-register-custom-date-url";
 import { parseDecisionRegisterViewModeFromSearch } from "@/lib/governance/decision-register-view-url";
 import {
   resolveDecisionRegisterFilterEmphasizedStepId,
@@ -61,10 +65,18 @@ export function useDecisionRegisterPage() {
   const urlConfidenceBasis = parseDecisionRegisterConfidenceBasisFromSearch(searchParams.get("basis"));
   const urlMinConfidence = parseDecisionRegisterMinConfidenceFromSearch(searchParams.get("minConfidence"));
   const urlMaxConfidence = parseDecisionRegisterMaxConfidenceFromSearch(searchParams.get("maxConfidence"));
-  const initialDateRange = useMemo(
-    () => resolveDecisionRegisterDateRange(datePreset),
-    [datePreset],
-  );
+  const urlFromUtc = parseDecisionRegisterCustomDateFromSearch(searchParams.get("from"));
+  const urlToUtc = parseDecisionRegisterCustomDateFromSearch(searchParams.get("to"));
+  const initialDateRange = useMemo(() => {
+    if (urlFromUtc.length > 0 || urlToUtc.length > 0) {
+      return {
+        recordedAfter: urlFromUtc,
+        recordedBefore: urlToUtc,
+      };
+    }
+
+    return resolveDecisionRegisterDateRange(datePreset);
+  }, [datePreset, urlFromUtc, urlToUtc]);
   const projectId = useMemo(
     () => projectIdFromScopeHeaders(getEffectiveBrowserProxyScopeHeaders()),
     [],
@@ -126,10 +138,47 @@ export function useDecisionRegisterPage() {
   }, [category, router, searchParams]);
 
   useEffect(() => {
+    const urlFrom = parseDecisionRegisterCustomDateFromSearch(searchParams.get("from"));
+    const urlTo = parseDecisionRegisterCustomDateFromSearch(searchParams.get("to"));
+
+    if (urlFrom.length === 0 && urlTo.length === 0) {
+      return;
+    }
+
+    setRecordedAfter(urlFrom);
+    setRecordedBefore(urlTo);
+  }, [searchParams]);
+
+  useEffect(() => {
+    const urlFrom = parseDecisionRegisterCustomDateFromSearch(searchParams.get("from"));
+    const urlTo = parseDecisionRegisterCustomDateFromSearch(searchParams.get("to"));
+
+    if (urlFrom.length > 0 || urlTo.length > 0) {
+      return;
+    }
+
     const range = resolveDecisionRegisterDateRange(datePreset);
     setRecordedAfter(range.recordedAfter);
     setRecordedBefore(range.recordedBefore);
-  }, [datePreset]);
+  }, [datePreset, searchParams]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const nextHref = decisionRegisterCustomDateHrefFromSearch(
+        searchParams.toString(),
+        recordedAfter,
+        recordedBefore,
+      );
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [recordedAfter, recordedBefore, router, searchParams]);
 
   const retryLoad = useCallback(() => {
     setReloadToken((value) => value + 1);
@@ -256,6 +305,8 @@ export function useDecisionRegisterPage() {
     params.delete("range");
     params.delete("category");
     params.delete("basis");
+    params.delete("from");
+    params.delete("to");
     const nextQuery = params.toString();
     router.replace(
       nextQuery.length === 0 ? GOVERNANCE_DECISION_REGISTER_PATH : `${GOVERNANCE_DECISION_REGISTER_PATH}?${nextQuery}`,
@@ -264,8 +315,11 @@ export function useDecisionRegisterPage() {
   }, [router, searchParams]);
 
   const clearCustomDatePreset = useCallback(() => {
-    // recordedAfter/recordedBefore aren't URL-bound; don't force ?range=all (it clears the typed dates via the datePreset effect).
-  }, []);
+    const range = resolveDecisionRegisterDateRange(datePreset);
+    setRecordedAfter(range.recordedAfter);
+    setRecordedBefore(range.recordedBefore);
+    router.replace(decisionRegisterCustomDateHrefFromSearch(searchParams.toString(), "", ""), { scroll: false });
+  }, [datePreset, router, searchParams]);
 
   return {
     buyerPolishedShell,

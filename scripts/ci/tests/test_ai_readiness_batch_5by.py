@@ -21,13 +21,11 @@ class TestAiReadinessBatch5BY(unittest.TestCase):
         self.assertIn("ILlmJudgeBudgetTracker", text)
 
     def test_tb_190_cost_and_compliance_eligible(self) -> None:
-        path = (
-            REPO_ROOT
-            / "ArchLucid.AgentRuntime"
-            / "Evaluation"
-            / "AgentOutputLlmSemanticJudge.cs"
+        judge_dir = REPO_ROOT / "ArchLucid.AgentRuntime" / "Evaluation"
+        text = "".join(
+            path.read_text(encoding="utf-8")
+            for path in sorted(judge_dir.glob("AgentOutputLlmSemanticJudge*.cs"))
         )
-        text = path.read_text(encoding="utf-8")
         self.assertIn("AgentType.Cost", text)
         self.assertIn("AgentType.Compliance", text)
         self.assertIn("TryPeekWithinBudgetAsync", text)

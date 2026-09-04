@@ -307,6 +307,11 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
                       finalizeAssumptionGateApplies={finalizeAssumptionGateApplies}
                       quickDecisionFindings={quickDecisionFindings}
                       requestAssumptionTexts={requestAssumptionTexts}
+                      transparencyTrail={
+                        m.manifestSummaryForUi?.feasibilityVerdict?.transparencyTrail ??
+                        m.manifestSummary?.feasibilityVerdict?.transparencyTrail ??
+                        null
+                      }
                       {...chrome.reviewPackageDoThisNextEvidenceProps}
                     />
 

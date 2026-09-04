@@ -4,10 +4,16 @@
  * `@/lib/i18n` re-exports these for existing consumers.
  */
 export const SERVICE_BUS_HEALTH_LABELS = {
-  bannerTitle: "Some analysis tasks are delayed",
+  bannerTitle: "Review processing is delayed",
   bannerBody:
     "Results may take longer than usual. Contact your ArchLucid administrator if this persists.",
   systemHealthLink: "System health",
+  refreshFailedTitle: "Review processing status unavailable",
+  refreshFailedBodyDegraded:
+    "Could not refresh processing status. Showing the last known delayed state until refresh succeeds.",
+  refreshFailedBodyUnknown:
+    "Could not confirm review processing readiness. Retry before assuming reviews are healthy.",
+  technicalProbeDisclosure: "Technical detail: azure_service_bus readiness probe.",
 } as const;
 
 export const DATA_ARCHIVAL_HEALTH_LABELS = {

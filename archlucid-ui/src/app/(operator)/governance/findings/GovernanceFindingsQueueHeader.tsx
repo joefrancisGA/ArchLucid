@@ -17,6 +17,13 @@ import {
   GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID,
   GOVERNANCE_FINDINGS_SKIP_LINK_LABEL,
 } from "@/lib/governance-findings-page-copy";
+import {
+  GOVERNANCE_ASSIGNED_TO_ME_CLAIM_DISCIPLINE,
+} from "@/lib/governance/governance-assigned-to-me-evidence-copy";
+import {
+  GOVERNANCE_ASSIGNED_TO_ME_PRIMARY_CONTENT_ID,
+  GOVERNANCE_ASSIGNED_TO_ME_SKIP_LINK_LABEL,
+} from "@/lib/governance/governance-assigned-to-me-page-copy";
 import type { GovernanceApprovalProvenance } from "@/lib/governance/governance-approval-provenance";
 import type { GovernanceJobId } from "@/lib/governance/governance-job-router";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -61,14 +68,28 @@ export function GovernanceFindingsQueueHeader({
   loading,
   currentJobId,
 }: GovernanceFindingsQueueHeaderProps) {
+  const skipLinkTargetId = isAssignedToMe
+    ? GOVERNANCE_ASSIGNED_TO_ME_PRIMARY_CONTENT_ID
+    : GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID;
+  const skipLinkLabel = isAssignedToMe
+    ? GOVERNANCE_ASSIGNED_TO_ME_SKIP_LINK_LABEL
+    : GOVERNANCE_FINDINGS_SKIP_LINK_LABEL;
+  const claimDiscipline =
+    isAssignedToMe && buyerPolishedShell
+      ? GOVERNANCE_ASSIGNED_TO_ME_CLAIM_DISCIPLINE
+      : GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE;
+  const claimDisciplineTestId = isAssignedToMe
+    ? "governance-assigned-to-me-claim-discipline"
+    : "governance-findings-claim-discipline";
+
   return (
     <>
-      {!isAssignedToMe ? (
+      {buyerPolishedShell || !isAssignedToMe ? (
         <a
-          href={`#${GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID}`}
+          href={`#${skipLinkTargetId}`}
           className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
         >
-          {GOVERNANCE_FINDINGS_SKIP_LINK_LABEL}
+          {skipLinkLabel}
         </a>
       ) : null}
 
@@ -89,8 +110,8 @@ export function GovernanceFindingsQueueHeader({
         navHref={navHref}
         title={pageTitle}
         subtitle={pageSubtitle}
-        claimDiscipline={GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE}
-        claimDisciplineTestId="governance-findings-claim-discipline"
+        claimDiscipline={claimDiscipline}
+        claimDisciplineTestId={claimDisciplineTestId}
         titleTestId="architecture-risk-register-page-title"
         breadcrumb={
           isAssignedToMe ? (

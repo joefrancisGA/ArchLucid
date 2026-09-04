@@ -18,6 +18,8 @@ import {
 import type { GovernanceApprovalRequest, GovernancePromotionRecord } from "@/types/governance-workflow";
 
 import type { GovernanceWorkflowPendingReview } from "@/app/(operator)/governance/_sections/governance-workflow-helpers";
+import type { GovernanceMutationCorrectionTarget } from "@/lib/governance/governance-mutation-correction-api";
+import type { GovernanceMutationReversibilityId } from "@/lib/mutation-reversibility-registry";
 
 type GovernanceWorkflowPromotePending = {
   manifestId: string;
@@ -45,6 +47,10 @@ export type UseGovernanceWorkflowMutationsOptions = {
 export type UseGovernanceWorkflowMutationsResult = {
   readonly mutationSuccessMessage: string | null;
   readonly setMutationSuccessMessage: (message: string | null) => void;
+  readonly mutationCorrectionTarget: GovernanceMutationCorrectionTarget | null;
+  readonly mutationCorrectionMutationId: GovernanceMutationReversibilityId | null;
+  readonly setMutationCorrectionTarget: (value: GovernanceMutationCorrectionTarget | null) => void;
+  readonly setMutationCorrectionMutationId: (value: GovernanceMutationReversibilityId | null) => void;
   readonly mutationErrorMessage: string | null;
   readonly setMutationErrorMessage: (message: string | null) => void;
   readonly submitBusy: boolean;
@@ -88,6 +94,10 @@ export function useGovernanceWorkflowMutations(
   } = options;
 
   const [mutationSuccessMessage, setMutationSuccessMessage] = useState<string | null>(null);
+  const [mutationCorrectionTarget, setMutationCorrectionTarget] =
+    useState<GovernanceMutationCorrectionTarget | null>(null);
+  const [mutationCorrectionMutationId, setMutationCorrectionMutationId] =
+    useState<GovernanceMutationReversibilityId | null>(null);
   const [mutationErrorMessage, setMutationErrorMessage] = useState<string | null>(null);
 
   const [submitBusy, setSubmitBusy] = useState(false);
@@ -202,6 +212,12 @@ export function useGovernanceWorkflowMutations(
           reviewComment: reviewComment.trim() || undefined,
         });
         setMutationSuccessMessage(GOVERNANCE_WORKFLOW_REQUEST_APPROVED_SUCCESS);
+        setMutationCorrectionTarget({
+          mutationKind: "governance_workflow_approve",
+          subjectId: pendingReview.approvalRequestId,
+          runId: pendingReview.runId,
+        });
+        setMutationCorrectionMutationId("governance_workflow_approve");
         setMutationErrorMessage(null);
       } else {
         await rejectRequest(pendingReview.approvalRequestId, {
@@ -209,6 +225,12 @@ export function useGovernanceWorkflowMutations(
           reviewComment: reviewComment.trim() || undefined,
         });
         setMutationSuccessMessage(GOVERNANCE_WORKFLOW_REQUEST_REJECTED_SUCCESS);
+        setMutationCorrectionTarget({
+          mutationKind: "governance_workflow_reject",
+          subjectId: pendingReview.approvalRequestId,
+          runId: pendingReview.runId,
+        });
+        setMutationCorrectionMutationId("governance_workflow_reject");
         setMutationErrorMessage(null);
       }
 
@@ -249,7 +271,7 @@ export function useGovernanceWorkflowMutations(
 
     try {
       const { promoteManifest } = await import("@/lib/api");
-      await promoteManifest({
+      const promotion = await promoteManifest({
         runId: promoteFor.runId,
         manifestVersion: promoteFor.manifestVersion,
         sourceEnvironment: promoteFor.sourceEnvironment,
@@ -258,6 +280,12 @@ export function useGovernanceWorkflowMutations(
         approvalRequestId: promoteFor.approvalRequestId ?? undefined,
       });
       setMutationSuccessMessage(GOVERNANCE_WORKFLOW_RELEASE_SUCCESS_TOAST);
+      setMutationCorrectionTarget({
+        mutationKind: "governance_workflow_promote",
+        subjectId: promotion.promotionRecordId,
+        runId: promoteFor.runId,
+      });
+      setMutationCorrectionMutationId("governance_workflow_promote");
       setMutationErrorMessage(null);
       setPendingPromote(null);
       pendingPromoteRequestRef.current = null;
@@ -295,13 +323,19 @@ export function useGovernanceWorkflowMutations(
 
     try {
       const { activateEnvironment } = await import("@/lib/api");
-      await activateEnvironment({
+      const activation = await activateEnvironment({
         runId: row.runId,
         manifestVersion: row.manifestVersion,
         environment: row.targetEnvironment,
         activatedBy: by,
       });
       setMutationSuccessMessage(governanceWorkflowActivateSuccessMessage(row.manifestVersion, row.targetEnvironment));
+      setMutationCorrectionTarget({
+        mutationKind: "governance_workflow_activate",
+        subjectId: activation.activationId,
+        runId: row.runId,
+      });
+      setMutationCorrectionMutationId("governance_workflow_activate");
       setMutationErrorMessage(null);
       setPendingActivate(null);
       pendingActivatePromotionRef.current = null;
@@ -318,6 +352,10 @@ export function useGovernanceWorkflowMutations(
   return {
     mutationSuccessMessage,
     setMutationSuccessMessage,
+    mutationCorrectionTarget,
+    mutationCorrectionMutationId,
+    setMutationCorrectionTarget,
+    setMutationCorrectionMutationId,
     mutationErrorMessage,
     setMutationErrorMessage,
     submitBusy,

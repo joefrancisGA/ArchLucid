@@ -19,6 +19,8 @@ export type ReviewWorkbenchLayoutProps = {
   readonly focusColumn: ReviewWorkbenchColumnId | null;
   readonly onFocusColumn: (column: ReviewWorkbenchColumnId) => void;
   readonly onExitWorkbench?: () => void;
+  readonly selectedFindingId?: string | null;
+  readonly highlightedNodeId?: string | null;
 };
 
 function columnLabel(column: ReviewWorkbenchColumnId): string {
@@ -85,6 +87,15 @@ export function ReviewWorkbenchLayout(props: ReviewWorkbenchLayoutProps): React.
                   : "border-neutral-200 dark:border-neutral-800",
               )}
               data-testid={`review-workbench-column-${column.id}`}
+              data-workbench-selected-finding-id={
+                column.id === "findings" ? props.selectedFindingId ?? "" : undefined
+              }
+              data-workbench-highlighted-node-id={
+                column.id === "architecture" ? props.highlightedNodeId ?? "" : undefined
+              }
+              data-workbench-evidence-finding-id={
+                column.id === "evidence" ? props.selectedFindingId ?? "" : undefined
+              }
             >
               <div className="mb-2 flex items-center justify-between gap-2">
                 <h3

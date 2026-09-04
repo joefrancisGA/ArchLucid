@@ -161,3 +161,12 @@ export function defaultFindingEvidenceGraphViewMode(
 
   return "reasoningPath";
 }
+
+export type FindingEvidenceGraphPresentationMode = "graph" | "outline";
+
+/** Working mode defaults to keyboard-reachable outline; Guided keeps canvas-first. */
+export function defaultFindingEvidenceGraphPresentationMode(
+  workingMode: boolean,
+): FindingEvidenceGraphPresentationMode {
+  return workingMode ? "outline" : "graph";
+}

@@ -21,4 +21,35 @@ describe("resolve-visible-command-palette-actions (PT-06)", () => {
     expect(draftActions.some((action) => action.id === "action-save-draft")).toBe(true);
     expect(homeActions.some((action) => action.id === "action-save-draft")).toBe(false);
   });
+
+  it("omits undo on Home when no reversible mutation callout is active (LI-07)", () => {
+    const homeActions = resolveVisibleCommandPaletteHandlerActions("/");
+
+    expect(homeActions.some((action) => action.id === "action-undo-mutation")).toBe(false);
+  });
+
+  it("exposes undo only when a reversible mutation callout is active (LI-07)", () => {
+    const homeActions = resolveVisibleCommandPaletteHandlerActions("/", { reversibleUndoAvailable: true });
+
+    expect(homeActions.some((action) => action.id === "action-undo-mutation")).toBe(true);
+  });
+
+  it("exposes finding work actions on findings and review-detail routes (LI-07)", () => {
+    const findingsActions = resolveVisibleCommandPaletteHandlerActions("/governance/findings");
+    const reviewActions = resolveVisibleCommandPaletteHandlerActions("/architecture/reviews/run-1");
+    const homeActions = resolveVisibleCommandPaletteHandlerActions("/");
+
+    expect(findingsActions.some((action) => action.id === "action-finding-next")).toBe(true);
+    expect(findingsActions.some((action) => action.id === "action-finding-accept")).toBe(true);
+    expect(reviewActions.some((action) => action.id === "action-finding-prev")).toBe(true);
+    expect(homeActions.some((action) => action.id === "action-finding-next")).toBe(false);
+  });
+
+  it("exposes alert work actions on the alerts inbox (LI-07)", () => {
+    const alertActions = resolveVisibleCommandPaletteHandlerActions("/governance/alerts");
+    const homeActions = resolveVisibleCommandPaletteHandlerActions("/");
+
+    expect(alertActions.some((action) => action.id === "action-alert-acknowledge")).toBe(true);
+    expect(homeActions.some((action) => action.id === "action-alert-next")).toBe(false);
+  });
 });

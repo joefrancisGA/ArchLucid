@@ -7,11 +7,16 @@ import {
   GOVERNANCE_QUICK_APPROVE_DEFAULT_REVIEW_COMMENT,
   GovernanceQuickApproveDialog,
 } from "@/components/governance/GovernanceQuickApproveDialog";
-import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
+import { GovernanceRecordCorrectionDialog } from "@/components/governance/GovernanceRecordCorrectionDialog";
+import { ReversibleMutationSuccessCallout } from "@/components/operator/ReversibleMutationSuccessCallout";
 import { useApprovalRequestLineageQuery } from "@/hooks/use-approval-request-lineage-query";
 import { batchReviewGovernanceApprovalRequests } from "@/lib/api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { approvalLineageBlocksQuickApprove } from "@/lib/governance/governance-quick-approve-lineage";
+import {
+  GOVERNANCE_MUTATION_CORRECTION_SUCCESS_MESSAGE,
+  type GovernanceMutationCorrectionTarget,
+} from "@/lib/governance/governance-mutation-correction-api";
 import {
   GOVERNANCE_QUICK_APPROVE_FAILURE_MESSAGE,
   GOVERNANCE_QUICK_APPROVE_SUCCESS_MESSAGE,
@@ -59,6 +64,8 @@ export function GovernanceQuickApproveButton({
   onApproved,
 }: GovernanceQuickApproveButtonProps) {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [correctionTarget, setCorrectionTarget] = useState<GovernanceMutationCorrectionTarget | null>(null);
+  const [correctionDialogOpen, setCorrectionDialogOpen] = useState(false);
   const lineageQuery = useApprovalRequestLineageQuery(approvalRequestId, {
     enabled: canExecute && status === "Submitted",
   });
@@ -104,6 +111,11 @@ export function GovernanceQuickApproveButton({
 
         setDialogOpen(false);
         setSuccessMessage(GOVERNANCE_QUICK_APPROVE_SUCCESS_MESSAGE);
+        setCorrectionTarget({
+          mutationKind: "governance_quick_approve",
+          subjectId: approvalRequestId,
+          runId,
+        });
         await onApproved();
       } catch (e) {
         setDialogErrorMessage(toApiLoadFailure(e).message);
@@ -140,11 +152,26 @@ export function GovernanceQuickApproveButton({
   return (
     <>
       {successMessage !== null ? (
-        <OperatorSuccessCallout
-          message={successMessage}
+        <ReversibleMutationSuccessCallout
+          message={
+            correctionTarget === null
+              ? successMessage
+              : `${successMessage} ${GOVERNANCE_MUTATION_CORRECTION_SUCCESS_MESSAGE}`
+          }
+          mutationId="governance_quick_approve"
           testId="governance-quick-approve-success-callout"
           className="mb-2"
-          onDismiss={() => setSuccessMessage(null)}
+          onDismiss={() => {
+            setSuccessMessage(null);
+            setCorrectionTarget(null);
+          }}
+          onRecordCorrection={
+            correctionTarget !== null
+              ? () => {
+                  setCorrectionDialogOpen(true);
+                }
+              : undefined
+          }
         />
       ) : null}
 
@@ -177,6 +204,15 @@ export function GovernanceQuickApproveButton({
         busy={busy}
         errorMessage={dialogErrorMessage}
         onConfirm={(approverNote) => void submitApproval(approverNote)}
+      />
+
+      <GovernanceRecordCorrectionDialog
+        open={correctionDialogOpen}
+        onOpenChange={setCorrectionDialogOpen}
+        target={correctionTarget}
+        onRecorded={() => {
+          setSuccessMessage(`${GOVERNANCE_QUICK_APPROVE_SUCCESS_MESSAGE} ${GOVERNANCE_MUTATION_CORRECTION_SUCCESS_MESSAGE}`);
+        }}
       />
     </>
   );

@@ -32,6 +32,8 @@ export function signedRecordsListDateRangeHrefFromSearch(
   if (preset === null) {
     params.delete(SIGNED_RECORDS_LIST_DATE_RANGE_PARAM);
   } else {
+    params.delete("from");
+    params.delete("to");
     params.set(SIGNED_RECORDS_LIST_DATE_RANGE_PARAM, preset);
   }
 

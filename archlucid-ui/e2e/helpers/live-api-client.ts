@@ -63,6 +63,7 @@ export async function postArchitectureRequestRaw(
   return request.post(`${resolveLiveApiBase()}/v1/architecture/request`, {
     data: body,
     headers: mergeTenantScope(liveJsonHeaders(null, explicitBearerToken), tenantScope),
+    timeout: architectureRequestAttemptHttpTimeoutMs,
   });
 }
 
@@ -70,6 +71,9 @@ export async function postArchitectureRequestRaw(
 function maxArchitectureMutationAttempts(): number {
   return getMaxInfrastructureMutationAttempts();
 }
+
+/** Per-attempt HTTP timeout — prevents a wedged create from burning the whole Playwright test timeout. */
+const architectureRequestAttemptHttpTimeoutMs = 90_000;
 
 /** Per-attempt HTTP timeout — prevents a wedged commit from burning the whole Playwright test timeout. */
 const commitAttemptHttpTimeoutMs = 90_000;
@@ -138,7 +142,20 @@ export async function createRun(
   explicitBearerToken?: string | null,
 ): Promise<{ runId: string }> {
   for (let attempt = 0; attempt < maxArchitectureMutationAttempts(); attempt++) {
-    const res = await postArchitectureRequestRaw(request, body, tenantScope, explicitBearerToken);
+    let res: APIResponse;
+
+    try {
+      res = await postArchitectureRequestRaw(request, body, tenantScope, explicitBearerToken);
+    } catch (error) {
+      if (isTransientLiveApiTransportError(error) && attempt < maxArchitectureMutationAttempts() - 1) {
+        await sleepTransientHttpBackoff(attempt);
+
+        continue;
+      }
+
+      throw error;
+    }
+
     const status = res.status();
 
     if (status === 429 && attempt < maxArchitectureMutationAttempts() - 1) {

@@ -34,6 +34,7 @@ import {
   createRun,
   enrichArchitectureRequestBody,
   liveE2eArchitectureDescription,
+  liveE2eArchitectureRunCyclePlaywrightTimeoutMs,
   resolveLiveJwtMode,
   toRunGuidPathSegment,
   waitForArchitectureRunListIncludesRun,
@@ -64,7 +65,7 @@ test.describe("live-api-private-beta-access", () => {
     request,
     browser,
   }) => {
-    test.setTimeout(300_000);
+    test.setTimeout(liveE2eArchitectureRunCyclePlaywrightTimeoutMs());
 
     const { accessToken } = requireLivePrivateBetaJwtEnv();
 
@@ -175,7 +176,7 @@ test.describe("live-api-private-beta-access", () => {
     page,
     request,
   }) => {
-    test.setTimeout(300_000);
+    test.setTimeout(liveE2eArchitectureRunCyclePlaywrightTimeoutMs());
 
     requireLivePrivateBetaJwtEnv();
 

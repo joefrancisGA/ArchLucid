@@ -12,6 +12,15 @@ public sealed class ArchitectureReviewRobustnessWave20ArchitectureTests
     private static string RepoRoot =>
         Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", ".."));
 
+    private static string ReadCompareRunsFacadeSources() =>
+        string.Join(
+            '\n',
+            Directory.GetFiles(
+                    Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis"),
+                    "CompareRunsApplicationFacade*.cs")
+                .OrderBy(static path => path, StringComparer.Ordinal)
+                .Select(File.ReadAllText));
+
     [Fact]
     public void Suggestion191_zip_export_fail_closed_when_sealed_receipt_fields_missing()
     {
@@ -75,14 +84,19 @@ public sealed class ArchitectureReviewRobustnessWave20ArchitectureTests
     [Fact]
     public void Suggestion195_run_id_compare_diffs_inventory_checked_projection()
     {
-        string facade = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "CompareRunsApplicationFacade.cs"));
+        string facade = ReadCompareRunsFacadeSources();
+        string builder = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Analysis",
+                "ManifestCompareInventoryCheckedDocumentBuilder.cs"));
 
         int compareIndex = facade.IndexOf("CompareManifestsAsync", StringComparison.Ordinal);
         string compareBody = facade[compareIndex..];
 
         compareBody.Should().Contain("ProjectCompareManifestAsync");
-        compareBody.Should().Contain("ManifestCompareInventoryCheckedDocumentBuilder");
+        builder.Should().Contain("ManifestCompareInventoryCheckedDocumentBuilder");
     }
 
     [Fact]
@@ -99,8 +113,7 @@ public sealed class ArchitectureReviewRobustnessWave20ArchitectureTests
     [Fact]
     public void Suggestion197_agent_compare_emits_input_fingerprints()
     {
-        string facade = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "CompareRunsApplicationFacade.cs"));
+        string facade = ReadCompareRunsFacadeSources();
 
         facade.Should().Contain("InputFingerprints = RunComparePinFingerprintGuard.BuildCompareInputFingerprints");
 

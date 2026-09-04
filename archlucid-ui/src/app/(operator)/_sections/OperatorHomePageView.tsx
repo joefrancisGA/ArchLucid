@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { OperatorHomeDeferredOnboarding } from "@/components/operator-home/OperatorHomeDeferredOnboarding";
+import { OperatorHomeInFlightReviewsSection } from "@/components/operator-home/OperatorHomeInFlightReviewsSection";
 import { UnfinishedWorkRail } from "@/components/operator-home/UnfinishedWorkRail";
 import { OperatorHomeWorkspaceMetricsStrip } from "@/components/operator-home/OperatorHomeWorkspaceMetricsStrip";
 import { OperatorHomeCompactStartingActionsSection } from "@/components/operator-home/OperatorHomeCompactStartingActionsSection";
@@ -103,6 +104,7 @@ type RenderOperatorHomeSectionInput = {
   readonly model: OperatorHomePageViewModel;
   readonly buyerPolishedShell: boolean;
   readonly workspaceMetrics: ReturnType<typeof deriveOperatorHomeWorkspaceMetrics>;
+  readonly workingMode: boolean;
 };
 
 function renderOperatorHomeSection(input: RenderOperatorHomeSectionInput): React.JSX.Element | null {
@@ -126,7 +128,15 @@ function renderOperatorHomeSection(input: RenderOperatorHomeSectionInput): React
         <div key={input.section.id} data-testid={input.section.testId}>
           <OperatorHomeCompactStartingActionsSection
             hasCommittedManifest={input.workspaceMetrics.reviewPackagesCommitted > 0}
+            workingMode={input.workingMode}
           />
+        </div>
+      );
+
+    case "in-flight":
+      return (
+        <div key={input.section.id} data-testid={input.section.testId}>
+          <OperatorHomeInFlightReviewsSection />
         </div>
       );
 
@@ -232,6 +242,7 @@ function OperatorHomePageBody(props: {
           model: props.model,
           buyerPolishedShell: props.buyerPolishedShell,
           workspaceMetrics,
+          workingMode: props.workingMode,
         }),
       )}
       <DevTestingQuickSwitchPanelDeferred />

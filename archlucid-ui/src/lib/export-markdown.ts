@@ -1,6 +1,7 @@
 import type { ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
 
 import { formatManifestDocumentShape } from "./export-markdown-manifest-document";
+import { formatTransparencyTrailMarkdownSection } from "@/lib/feasibility/export-transparency-trail-section";
 import { pushPolicyAtCommitMarkdownLines } from "./export-markdown-policy-section";
 import { formatSandboxStyleGoldenManifest } from "./export-markdown-sandbox-manifest";
 import { isRecord } from "./export-markdown-text";
@@ -103,6 +104,12 @@ function formatManifestSummaryFallback(summary: ManifestSummary, runId?: string 
   lines.push("");
   lines.push("_Unavailable without full review record JSON._");
   lines.push("");
+
+  const trail = summary.feasibilityVerdict?.transparencyTrail ?? null;
+
+  if (trail !== null && trail !== undefined) {
+    lines.push(formatTransparencyTrailMarkdownSection(trail));
+  }
 
   return lines.join("\n");
 }

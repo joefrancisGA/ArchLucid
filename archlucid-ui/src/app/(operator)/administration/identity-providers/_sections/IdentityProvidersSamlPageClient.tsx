@@ -14,11 +14,16 @@ import { AuthTokenTestMappingCard } from "./AuthTokenTestMappingCard";
 import { IdentityProvidersSettingsGate } from "./IdentityProvidersSettingsGate";
 import { IdentityProvidersSettingsShell } from "./IdentityProvidersSettingsShell";
 import { IdentityProvidersSamlSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import {
+  LivelihoodDocumentGuardDialog,
+  useLivelihoodDocumentGuards,
+} from "@/hooks/use-livelihood-document-guards";
 import { SamlOperationalHealthStrip } from "./SamlOperationalHealthStrip";
 import { SamlSpConfigurationForm } from "./SamlSpConfigurationForm";
 
 export function IdentityProvidersSamlPageClient(): React.JSX.Element {
   const [hasUnsavedSamlEdits, setHasUnsavedSamlEdits] = useState(false);
+  const documentGuards = useLivelihoodDocumentGuards({ when: hasUnsavedSamlEdits });
 
   return (
     <IdentityProvidersSettingsGate>
@@ -52,6 +57,12 @@ export function IdentityProvidersSamlPageClient(): React.JSX.Element {
             </div>
             <ArchLucidSamlSpValuesCard />
           </div>
+          <LivelihoodDocumentGuardDialog
+            open={documentGuards.dialogOpen}
+            message={documentGuards.dialogMessage}
+            onConfirmLeave={documentGuards.confirmLeave}
+            onCancelLeave={documentGuards.cancelLeave}
+          />
         </IdentityProvidersSettingsShell>
       )}
     </IdentityProvidersSettingsGate>

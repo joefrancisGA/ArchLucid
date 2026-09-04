@@ -44,6 +44,10 @@ function clickArchitectureSaveDraftControl(): void {
   }
 }
 
+function isFindingKeyboardTriageHostMounted(): boolean {
+  return document.querySelector("[data-finding-keyboard-triage-host]") !== null;
+}
+
 /** Bridges palette handler actions to existing on-page controls without duplicating API calls (PT-06). */
 export function CommandPaletteWorkActionBridge(): null {
   useEffect(() => {
@@ -56,22 +60,42 @@ export function CommandPaletteWorkActionBridge(): null {
     };
 
     const onFindingNext = () => {
+      if (isFindingKeyboardTriageHostMounted()) {
+        return;
+      }
+
       focusAdjacentFindingCard(1);
     };
 
     const onFindingPrevious = () => {
+      if (isFindingKeyboardTriageHostMounted()) {
+        return;
+      }
+
       focusAdjacentFindingCard(-1);
     };
 
     const onFindingAccept = () => {
+      if (isFindingKeyboardTriageHostMounted()) {
+        return;
+      }
+
       dispatchFocusedFindingDispositionShortcut(FINDING_CARD_SHORTCUT_DISPOSITIONS.alt1);
     };
 
     const onFindingRemediate = () => {
+      if (isFindingKeyboardTriageHostMounted()) {
+        return;
+      }
+
       dispatchFocusedFindingDispositionShortcut(FINDING_CARD_SHORTCUT_DISPOSITIONS.alt2);
     };
 
     const onFindingReject = () => {
+      if (isFindingKeyboardTriageHostMounted()) {
+        return;
+      }
+
       dispatchFocusedFindingDispositionShortcut(FINDING_CARD_SHORTCUT_DISPOSITIONS.alt3);
     };
 

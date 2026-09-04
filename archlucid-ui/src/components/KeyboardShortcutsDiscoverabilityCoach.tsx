@@ -10,6 +10,7 @@ import {
   isKeyboardShortcutsDiscoverabilityDismissed,
   type KeyboardShortcutsDiscoverabilityModel,
 } from "@/lib/keyboard-shortcuts-discoverability";
+import { useTeachingChromeVisible } from "@/lib/workspace-mode/use-teaching-chrome-visible";
 import { cn } from "@/lib/utils";
 
 export type KeyboardShortcutsDiscoverabilityCoachProps = {
@@ -25,6 +26,7 @@ export type KeyboardShortcutsDiscoverabilityCoachProps = {
 export function KeyboardShortcutsDiscoverabilityCoach(
   props: KeyboardShortcutsDiscoverabilityCoachProps,
 ): JSX.Element | null {
+  const teachingChromeVisible = useTeachingChromeVisible();
   const model = props.model ?? buildKeyboardShortcutsDiscoverability();
   const [ready, setReady] = useState(false);
   const [dismissed, setDismissed] = useState(true);
@@ -43,7 +45,7 @@ export function KeyboardShortcutsDiscoverabilityCoach(
     setDismissed(true);
   }, []);
 
-  if (!ready || dismissed) {
+  if (!teachingChromeVisible || !ready || dismissed) {
     return null;
   }
 

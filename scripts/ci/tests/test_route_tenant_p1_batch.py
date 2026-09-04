@@ -97,8 +97,11 @@ class TestRouteTenantP1Batch(unittest.TestCase):
             self.assertIn(fragment, text, f"TB-279/281 matrix must cover {fragment}")
 
     def test_ui_value_report_download_uses_scope_only_path(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "api" / "downloads-api.ts"
-        text = path.read_text(encoding="utf-8")
+        downloads_dir = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "api"
+        text = "".join(
+            path.read_text(encoding="utf-8")
+            for path in sorted(downloads_dir.glob("downloads*.ts"))
+        )
         self.assertIn("/v1/value-report/generate", text)
         self.assertNotIn("/v1/value-report/${", text)
 

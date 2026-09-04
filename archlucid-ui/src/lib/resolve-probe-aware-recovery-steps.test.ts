@@ -78,7 +78,7 @@ describe("resolveProbeAwareRecoverySteps", () => {
   it("shows retry guidance when automatic checks fail", () => {
     const steps = resolveProbeAwareRecoverySteps({
       baseSteps,
-      probeState: { status: "error", message: "AI availability check timed out after 12s." },
+      probeState: { status: "error", message: "AI availability check timed out after 20s." },
       usesCustomerAiConnection: false,
       canConfigureWorkspaceAi: true,
     });

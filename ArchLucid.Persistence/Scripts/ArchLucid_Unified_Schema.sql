@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 344_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 345_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -7005,46 +7005,6 @@ END;
 
 GO
 
-/* ---- DbUp 344 parity: widen workflow SourceEnvironment/TargetEnvironment (see Migrations/344_*.sql) ---- */
-
-IF OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NOT NULL
-   AND EXISTS (
-       SELECT 1
-       FROM sys.columns AS c
-       INNER JOIN sys.types AS t ON c.user_type_id = t.user_type_id
-       WHERE c.object_id = OBJECT_ID(N'dbo.GovernanceApprovalRequests')
-         AND c.name = N'SourceEnvironment'
-         AND t.name = N'nvarchar'
-         AND c.max_length > 0
-         AND c.max_length < 128)
-BEGIN
-    ALTER TABLE dbo.GovernanceApprovalRequests
-        ALTER COLUMN SourceEnvironment NVARCHAR(64) NOT NULL;
-
-    ALTER TABLE dbo.GovernanceApprovalRequests
-        ALTER COLUMN TargetEnvironment NVARCHAR(64) NOT NULL;
-END;
-
-IF OBJECT_ID(N'dbo.GovernancePromotionRecords', N'U') IS NOT NULL
-   AND EXISTS (
-       SELECT 1
-       FROM sys.columns AS c
-       INNER JOIN sys.types AS t ON c.user_type_id = t.user_type_id
-       WHERE c.object_id = OBJECT_ID(N'dbo.GovernancePromotionRecords')
-         AND c.name = N'SourceEnvironment'
-         AND t.name = N'nvarchar'
-         AND c.max_length > 0
-         AND c.max_length < 128)
-BEGIN
-    ALTER TABLE dbo.GovernancePromotionRecords
-        ALTER COLUMN SourceEnvironment NVARCHAR(64) NOT NULL;
-
-    ALTER TABLE dbo.GovernancePromotionRecords
-        ALTER COLUMN TargetEnvironment NVARCHAR(64) NOT NULL;
-END;
-
-GO
-
 /* ---- DbUp 144 parity: ITSM finding correlations (see Migrations/144_ItsmFindingCorrelations.sql) ---- */
 
 IF OBJECT_ID(N'dbo.ItsmFindingCorrelations', N'U') IS NULL
@@ -9268,6 +9228,30 @@ BEGIN
 
     EXEC sp_executesql @sql;
 END
+
+GO
+
+/*
+  345: Wave-10 robustness — create-time knowledge model content hash (κ) on run headers.
+*/
+
+DECLARE @runTable345 sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
+
+DECLARE @sql345 NVARCHAR(MAX);
+
+IF @runTable345 IS NOT NULL
+   AND COL_LENGTH(@runTable345, N'PinnedKnowledgeModelContentHashSha256') IS NULL
+BEGIN
+    SET @sql345 = N'ALTER TABLE ' + @runTable345 + N' ADD PinnedKnowledgeModelContentHashSha256 VARBINARY(32) NULL;';
+
+    EXEC sp_executesql @sql345;
+END
+
+GO
 
 /*
   345: Wave-10 robustness — create-time knowledge model content hash (κ) on run headers.

@@ -9,6 +9,7 @@ import {
 import {
   BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD,
   BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE,
+  BUYER_GOVERNANCE_ASSIGNED_TO_ME_PAGE_LEAD,
 } from "@/lib/buyer/buyer-polish-copy";
 import {
   comparePageHrefWithLifecycleAnchor,
@@ -233,7 +234,9 @@ export function resolveGovernanceFindingsPageSubtitle(
   buyerPolishedShell: boolean,
 ): string {
   if (isAssignedToMe) {
-    return "Open findings assigned to you for remediation across reviews in this workspace.";
+    return buyerPolishedShell
+      ? BUYER_GOVERNANCE_ASSIGNED_TO_ME_PAGE_LEAD
+      : "Open findings assigned to you for remediation across reviews in this workspace.";
   }
 
   return buyerPolishedShell

@@ -1,12 +1,16 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type SetStateAction } from "react";
 
 import { replayRun } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { INTERNAL_REPLAY_PATH, replayScopedHref } from "@/lib/internal-ops-route-paths";
+import {
+  parseReplayValidationModeFromSearch,
+  replayValidationModeHrefFromSearch,
+} from "@/lib/replay/replay-validation-mode-url";
 import { coerceReplayResponse } from "@/lib/operator/operator-response-guards";
 import {
   latestValidationOutcomeByRunId,
@@ -18,16 +22,16 @@ import { replayValidationModeDefinition, type ReplayValidationHistoryEntry } fro
 import type { ReplayResponse } from "@/types/authority";
 import type { RunSummary } from "@/types/authority";
 
-import { defaultReplayMode } from "./replay-page-constants";
 import type { ReplayFormViewModel } from "./replay-form-view-model";
 
 export function useReplayForm(): ReplayFormViewModel {
   const router = useRouter();
   const searchParams = useSearchParams();
   const scopedRunIdFromUrl = (searchParams.get("runId") ?? "").trim();
+  const urlMode = parseReplayValidationModeFromSearch(searchParams.get("mode"));
   const [runId, setRunId] = useState(scopedRunIdFromUrl);
   const [selectedRun, setSelectedRun] = useState<RunSummary | null>(null);
-  const [mode, setMode] = useState<string>(defaultReplayMode);
+  const [mode, setModeState] = useState<string>(urlMode);
   const [modifyConfirmed, setModifyConfirmed] = useState(false);
   const [result, setResult] = useState<ReplayResponse | null>(null);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
@@ -39,6 +43,23 @@ export function useReplayForm(): ReplayFormViewModel {
   useEffect(() => {
     setRunId(scopedRunIdFromUrl);
   }, [scopedRunIdFromUrl]);
+
+  useEffect(() => {
+    setModeState(urlMode);
+  }, [urlMode]);
+
+  const setMode = useCallback(
+    (next: SetStateAction<string>) => {
+      setModeState((prev) => {
+        const resolved = typeof next === "function" ? next(prev) : next;
+        const parsed = parseReplayValidationModeFromSearch(resolved);
+        router.replace(replayValidationModeHrefFromSearch(searchParams.toString(), parsed), { scroll: false });
+
+        return parsed;
+      });
+    },
+    [router, searchParams],
+  );
 
   const onPickReview = useCallback(
     (next: string) => {

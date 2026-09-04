@@ -6,7 +6,11 @@ import { PackageActivityAuditTrailVocabularyRail } from "@/components/PackageAct
 import { PackageEvidenceEvidenceGraphVocabularyRail } from "@/components/PackageEvidenceEvidenceGraphVocabularyRail";
 import { PackageGovernanceApprovalQueueVocabularyRail } from "@/components/PackageGovernanceApprovalQueueVocabularyRail";
 import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
-import { ReviewWorkbenchLayout, type ReviewWorkbenchColumnId } from "@/components/reviews/ReviewWorkbenchLayout";
+import type { ReviewWorkbenchColumnId } from "@/components/reviews/ReviewWorkbenchLayout";
+import {
+  WorkbenchLayoutBridge,
+  WorkbenchSelectionCoordinator,
+} from "@/components/reviews/WorkbenchSelectionCoordinator";
 import { WorkbenchFindingSelectionSync } from "@/components/reviews/WorkbenchFindingSelectionSync";
 import { ReviewWorkspaceTabStrip } from "@/components/reviews/ReviewWorkspaceTabStrip";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
@@ -103,7 +107,7 @@ export function ReviewDetailWorkspaceTabShell({
       {props.tabSectionNav ?? null}
 
       {workbenchVisible ? (
-        <ReviewWorkbenchLayout
+        <WorkbenchLayoutBridge
           architecture={panelWithInPipelineBanner(
             "architecture",
             props.panels.architecture,
@@ -123,6 +127,7 @@ export function ReviewDetailWorkspaceTabShell({
           onExitWorkbench={() => setWorkbenchEnabled(false)}
         />
       ) : null}
+      <WorkbenchSelectionCoordinator enabled={workbenchVisible} />
       <WorkbenchFindingSelectionSync />
 
       <div

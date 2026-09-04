@@ -1,9 +1,14 @@
 "use client";
 
-import { useState, type Dispatch, type SetStateAction } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { compareAlertRuleCandidates, simulateAlertRule } from "@/lib/api";
+import {
+  alertSimulationModeHrefFromSearch,
+  parseAlertSimulationModeFromSearch,
+} from "@/lib/alerts/alert-simulation-mode-url";
 import {
   isAlertSimulationRecentCountValid,
   isAlertSimulationThresholdValid,
@@ -123,8 +128,28 @@ export type AlertSimulationModel = {
 
 /** Controller: alert simulation form state and run/compare actions. */
 export function useAlertSimulation(): AlertSimulationModel {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const canMutateEnterpriseShell = useOperateCapability();
-  const [tab, setTab] = useState<AlertSimulationModeTabId>("simple");
+  const urlTab = parseAlertSimulationModeFromSearch(searchParams.get("simMode"));
+  const [tab, setTabState] = useState<AlertSimulationModeTabId>(urlTab);
+
+  const setTab: Dispatch<SetStateAction<AlertSimulationModeTabId>> = useCallback(
+    (next) => {
+      setTabState((prev) => {
+        const resolved = typeof next === "function" ? next(prev) : next;
+        router.replace(alertSimulationModeHrefFromSearch(searchParams.toString(), resolved), { scroll: false });
+
+        return resolved;
+      });
+    },
+    [router, searchParams],
+  );
+
+  useEffect(() => {
+    setTabState(parseAlertSimulationModeFromSearch(searchParams.get("simMode")));
+  }, [searchParams]);
+
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [simpleResult, setSimpleResult] = useState<RuleSimulationResult | null>(null);
