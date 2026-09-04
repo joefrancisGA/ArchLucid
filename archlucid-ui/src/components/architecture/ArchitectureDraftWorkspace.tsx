@@ -172,6 +172,14 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     setDraft(loaded);
   }, [setDraft]);
 
+  const handleNewDraftRecoveryHydrated = useCallback(
+    (snapshot: { readonly fields: ArchitectureDraftFieldState; readonly actorSet: ActorSet }) => {
+      setFields(snapshot.fields);
+      setActorSet(snapshot.actorSet);
+    },
+    [setActorSet, setFields],
+  );
+
   const {
     saveState,
     conflictMessage,
@@ -191,6 +199,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       onDraftCreated: isNewDraft ? handleDraftCreated : undefined,
       onDraftLoaded: handleDraftLoaded,
       onImmutableDraftDetected: handleImmutableDraftDetected,
+      onNewDraftRecoveryHydrated: isNewDraft ? handleNewDraftRecoveryHydrated : undefined,
     });
 
   acceptServerBaselineRef.current = acceptServerBaseline;

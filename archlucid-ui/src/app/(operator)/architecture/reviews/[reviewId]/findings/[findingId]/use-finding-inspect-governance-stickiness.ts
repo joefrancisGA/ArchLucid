@@ -160,7 +160,12 @@ export function useFindingInspectGovernanceStickiness(
     pendingDispositionBlockedReason: dispositions.pendingDispositionBlockedReason,
     remediationLastSavedUtc: remediation.remediationLastSavedUtc,
     remediationInlineSaveError: remediation.remediationInlineSaveError,
+    remediationBaseline: remediation.remediationBaseline,
     dispositionLastSavedUtc: dispositions.dispositionLastSavedUtc,
     dispositionInlineSaveError: dispositions.dispositionInlineSaveError,
+    dispositionBaseline: dispositions.dispositionBaseline,
+    waiverBaseline: waivers.waiverBaseline,
+    dispositionHistoryAsOfUtc: dispositions.dispositionHistoryAsOfUtc,
+    refreshDispositionHistory: dispositions.refreshDispositionHistory,
   };
 }

@@ -49,4 +49,17 @@ export const ERROR_RECOVERY_CONTRACT_GUARDED_SURFACES: readonly ErrorRecoveryCon
     sourceRoots: ["components/operator/OperatorMutationInlineError.tsx"],
     requiredMarkers: ERROR_RECOVERY_CONTRACT_WIRED_ROOT_MARKERS,
   },
+  {
+    id: "architecture-draft-load-failure",
+    sourceRoots: [
+      "components/architecture/ArchitectureDraftDetailLoadFailure.tsx",
+      "components/architecture/ArchitectureDraftWorkspaceBody.tsx",
+    ],
+    requiredMarkers: ERROR_RECOVERY_CONTRACT_WIRED_ROOT_MARKERS,
+  },
+  {
+    id: "in-flight-cancel-failure",
+    sourceRoots: ["components/shell/ShellInFlightOperationsAffordance.tsx"],
+    requiredMarkers: ERROR_RECOVERY_CONTRACT_WIRED_ROOT_MARKERS,
+  },
 ] as const;

@@ -10,12 +10,13 @@ export function GovernanceFindingsQueueSortHeaderCell(props: {
   readonly activeSortKey: GovernanceAssignedToMeQueueSortKey;
   readonly sortAsc: boolean;
   readonly onSort: (sortKey: GovernanceAssignedToMeQueueSortKey) => void;
+  readonly className?: string;
 }): ReactElement {
   const isActive = props.activeSortKey === props.sortKey;
   const directionLabel = props.sortAsc ? "ascending" : "descending";
 
   return (
-    <EnterpriseTableHeaderCell>
+    <EnterpriseTableHeaderCell className={props.className}>
       <button
         type="button"
         className={cn(

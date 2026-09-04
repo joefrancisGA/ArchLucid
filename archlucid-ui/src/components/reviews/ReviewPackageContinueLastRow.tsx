@@ -38,8 +38,6 @@ export function ReviewPackageContinueLastRow(props: ReviewPackageContinueLastRow
             <time dateTime={target.visitedAtUtc} title={updatedAt.absoluteTitle}>
               {updatedAt.display}
             </time>
-            {" · "}
-            This browser
           </p>
         </div>
         <Button type="button" variant="primary" size="sm" asChild data-testid="review-package-continue-last-open">

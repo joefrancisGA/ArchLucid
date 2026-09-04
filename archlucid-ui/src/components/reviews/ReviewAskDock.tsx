@@ -24,6 +24,7 @@ import {
   parseReviewAskDockThreadIdFromSearch,
   reviewAskDockHrefFromSearch,
 } from "@/lib/reviews/review-ask-dock-url";
+import { formatWhyDisabledCtaMessage, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 
 const DEFAULT_REVIEW_QUESTION =
   "What are the top unresolved risks in this review and what evidence supports them?";
@@ -31,6 +32,8 @@ const DEFAULT_REVIEW_QUESTION =
 export type ReviewAskDockProps = {
   readonly runId: string;
   readonly reviewTitle?: string | null;
+  readonly disabled?: boolean;
+  readonly disabledReason?: WhyDisabledCtaReason | null;
 };
 
 type AskTurn = {
@@ -57,6 +60,8 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
   } | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const { ask: askStream, isStreaming, tokens: streamingContent, reset: resetStream } = useAskStream();
+  const askDockDisabled = props.disabled === true;
+  const disabledReasonMessage = formatWhyDisabledCtaMessage(props.disabledReason);
 
   const syncAskDockToUrl = useCallback(
     (nextOpen: boolean, nextThreadId: string | null) => {
@@ -89,12 +94,21 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
   );
 
   useEffect(() => {
+    if (askDockDisabled) {
+      if (urlAskDockOpen) {
+        setOpenState(false);
+        syncAskDockToUrl(false, threadId);
+      }
+
+      return;
+    }
+
     setOpenState(urlAskDockOpen);
 
     if (urlAskThreadId.length > 0) {
       setThreadIdState(urlAskThreadId);
     }
-  }, [urlAskDockOpen, urlAskThreadId]);
+  }, [askDockDisabled, syncAskDockToUrl, threadId, urlAskDockOpen, urlAskThreadId]);
 
   const submitQuestion = useCallback(async (): Promise<void> => {
     const trimmed = question.trim();
@@ -168,7 +182,17 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
         variant="outline"
         size="sm"
         className="gap-1.5"
+        disabled={askDockDisabled}
+        aria-label={
+          askDockDisabled
+            ? disabledReasonMessage ?? "Ask about this review unavailable until the review completes"
+            : undefined
+        }
         onClick={() => {
+          if (askDockDisabled) {
+            return;
+          }
+
           setOpen(true);
         }}
         data-testid="review-ask-dock-trigger"

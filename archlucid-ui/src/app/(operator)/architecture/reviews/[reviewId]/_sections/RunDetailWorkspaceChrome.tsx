@@ -25,6 +25,7 @@ import {
   isReviewPipelineIncomplete,
   resolveReviewMetadataAbsentReasons,
 } from "@/lib/run-detail-workspace-derive";
+import { whyDisabledReviewHeaderActions } from "@/lib/why-disabled-cta";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 
 type ReviewMetadataField = {
@@ -141,6 +142,8 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
   const unrecordedFieldCount = collapseMetadataFieldSet.filter((field) => field.value === null).length;
   const collapseMetadataFields = unrecordedFieldCount >= 3;
   const showReviewRecordMetadata = shouldShowReviewRecordMetadata(metadataContext, props.workspaceStatus);
+  const reviewPipelineIncomplete = isReviewPipelineIncomplete(props.workspaceStatus);
+  const headerActionDisabledReason = whyDisabledReviewHeaderActions(props.workspaceStatus);
   const metadataDisclosureSummary = resolveMetadataDisclosureSummary(
     unrecordedFieldCount,
     metadataContext,
@@ -190,8 +193,15 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
               runId={props.runId}
               isCommitted={props.signedReviewRecordId !== null}
               findingsQueueHref={`/governance/findings?runId=${encodeURIComponent(props.runId)}`}
+              disabled={reviewPipelineIncomplete}
+              disabledReason={headerActionDisabledReason}
             />
-            <ReviewAskDock runId={props.runId} reviewTitle={h1Title} />
+            <ReviewAskDock
+              runId={props.runId}
+              reviewTitle={h1Title}
+              disabled={reviewPipelineIncomplete}
+              disabledReason={headerActionDisabledReason}
+            />
             <FavoriteReviewToggle runId={props.runId} title={h1Title} size="sm" />
           </>
         }
