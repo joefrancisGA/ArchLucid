@@ -3,8 +3,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useRouter } from "next/navigation";
-import { useState, type ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type ReactElement, type SetStateAction } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +19,12 @@ import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCal
 import { recordRunOperatorGovernanceDisposition } from "@/lib/api/architecture-runs";
 import { awaitMinimumVisibleDuration } from "@/lib/await-minimum-visible-duration";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  runGovernanceDispositionConfirmHrefFromSearch,
+  runGovernanceDispositionFromUrlValue,
+  runGovernanceDispositionToUrlValue,
+  parseRunGovernanceDispositionDecisionFromSearch,
+} from "@/lib/governance/run-governance-disposition-confirm-url";
 import {
   runOperatorGovernanceDispositionSuccessMessage,
   type RunOperatorGovernanceDispositionDecision,
@@ -39,11 +45,62 @@ export function RunDetailRunGovernanceDispositionActions(
   const { runId, hasCommitBlockingFailures, existingDecision = null } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const router = useRouter();
-  const [pending, setPending] = useState<PendingDecision | null>(null);
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const runDispDecisionParam = searchParams.get("runDispDecision");
+  const [pending, setPendingState] = useState<PendingDecision | null>(null);
   const [rationale, setRationale] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  const syncRunDispConfirmToUrl = useCallback(
+    (decision: PendingDecision | null) => {
+      if (pathname.length === 0) {
+        return;
+      }
+
+      router.replace(
+        runGovernanceDispositionConfirmHrefFromSearch(
+          searchParams.toString(),
+          decision === null ? null : runGovernanceDispositionToUrlValue(decision),
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPending = useCallback(
+    (value: SetStateAction<PendingDecision | null>) => {
+      setPendingState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncRunDispConfirmToUrl(next);
+
+        return next;
+      });
+    },
+    [syncRunDispConfirmToUrl],
+  );
+
+  useEffect(() => {
+    const parsed = parseRunGovernanceDispositionDecisionFromSearch(runDispDecisionParam);
+
+    if (parsed === null) {
+      setPendingState(null);
+
+      return;
+    }
+
+    const decision = runGovernanceDispositionFromUrlValue(parsed);
+
+    if (pending === decision) {
+      return;
+    }
+
+    setPendingState(decision);
+  }, [pending, runDispDecisionParam]);
 
   if (buyerPolishedShell)
     return null;
@@ -137,7 +194,14 @@ export function RunDetailRunGovernanceDispositionActions(
         </p>
       ) : null}
 
-      <Dialog open={pending !== null} onOpenChange={(open) => !open && setPending(null)}>
+      <Dialog
+        open={pending !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPending(null);
+          }
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Confirm review disposition</DialogTitle>

@@ -1,7 +1,7 @@
 "use client";
 
-import { memo, useState, type ReactElement } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { memo, useCallback, useEffect, useState, type ReactElement, type SetStateAction } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,15 @@ import {
 import { downloadGovernanceFindingsItsmJsonExport } from "@/lib/runs/run-findings-itsm-export";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
+import {
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+  GOVERNANCE_FINDINGS_PATH,
+} from "@/lib/governance/governance-route-paths";
+import {
+  governanceAssignedToMePresetRemoveConfirmHrefFromSearch,
+  governanceFindingsPresetRemoveConfirmHrefFromSearch,
+  parseGovernanceFindingsRemovePresetIdFromSearch,
+} from "@/lib/governance/governance-findings-preset-remove-confirm-url";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import type { GovernanceFindingsFilterPreset } from "@/components/governance/findings/governance-findings-filter-presets";
@@ -34,6 +42,12 @@ import {
 import { FindingsNaturalLanguageFilter } from "@/components/findings/FindingsNaturalLanguageFilter";
 import type { FindingsNaturalLanguageFacets } from "@/lib/findings/findings-natural-language-filter";
 import { BulkTriageRemainingProgress } from "@/components/usability/BulkTriageRemainingProgress";
+import { cn } from "@/lib/utils";
+
+function isAssignedToMeFindingsPath(pathname: string): boolean {
+  return pathname === GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH
+    || pathname.startsWith(`${GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH}/`);
+}
 
 export type GovernanceFindingsFilterBarProps = {
   readonly registerFilter: RiskRegisterFilter;
@@ -63,10 +77,61 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
     onToggleGroupByResource: _onToggleGroupByResource,
     displayedRows,
   } = props;
-  const pathname = usePathname() ?? "";
+  const pathname = usePathname() ?? GOVERNANCE_FINDINGS_PATH;
+  const router = useRouter();
   const searchParams = useSearchParams();
   const currentSearch = searchParams.toString();
-  const [pendingRemovePreset, setPendingRemovePreset] = useState<GovernanceFindingsFilterPreset | null>(null);
+  const removePresetIdParam = searchParams.get("removePresetId");
+  const [pendingRemovePreset, setPendingRemovePresetState] = useState<GovernanceFindingsFilterPreset | null>(null);
+
+  const syncRemovePresetToUrl = useCallback(
+    (presetId: string | null) => {
+      const nextHref = isAssignedToMeFindingsPath(pathname)
+        ? governanceAssignedToMePresetRemoveConfirmHrefFromSearch(currentSearch, presetId)
+        : governanceFindingsPresetRemoveConfirmHrefFromSearch(currentSearch, presetId, pathname);
+
+      router.replace(nextHref, { scroll: false });
+    },
+    [currentSearch, pathname, router],
+  );
+
+  const setPendingRemovePreset = useCallback(
+    (value: SetStateAction<GovernanceFindingsFilterPreset | null>) => {
+      setPendingRemovePresetState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncRemovePresetToUrl(next?.id ?? null);
+
+        return next;
+      });
+    },
+    [syncRemovePresetToUrl],
+  );
+
+  useEffect(() => {
+    const presetId = parseGovernanceFindingsRemovePresetIdFromSearch(removePresetIdParam);
+
+    if (presetId.length === 0) {
+      setPendingRemovePresetState(null);
+
+      return;
+    }
+
+    if (savedPresets.length === 0) {
+      return;
+    }
+
+    const preset = savedPresets.find((candidate) => candidate.id === presetId);
+
+    if (preset === undefined) {
+      return;
+    }
+
+    if (pendingRemovePreset?.id === presetId) {
+      return;
+    }
+
+    setPendingRemovePresetState(preset);
+  }, [pendingRemovePreset?.id, removePresetIdParam, savedPresets]);
 
   const findingRows = displayedRows.filter((row) => row.recordKind === "finding");
   const totalInView = findingRows.length;

@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type SetStateAction } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +22,11 @@ import {
   GOVERNANCE_QUICK_APPROVE_FAILURE_MESSAGE,
   GOVERNANCE_QUICK_APPROVE_SUCCESS_MESSAGE,
 } from "@/lib/governance/governance-mutation-outcome-copy";
+import {
+  governanceQuickApproveConfirmHrefFromSearch,
+  parseGovernanceQuickApproveIdFromSearch,
+} from "@/lib/governance/governance-quick-approve-confirm-url";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
 import { BUYER_GOVERNANCE_QUICK_APPROVE_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -63,6 +69,10 @@ export function GovernanceQuickApproveButton({
   reviewedBy,
   onApproved,
 }: GovernanceQuickApproveButtonProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? GOVERNANCE_APPROVAL_QUEUE_PATH;
+  const searchParams = useSearchParams();
+  const quickApproveIdParam = searchParams.get("quickApproveId");
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [correctionTarget, setCorrectionTarget] = useState<GovernanceMutationCorrectionTarget | null>(null);
   const [correctionDialogOpen, setCorrectionDialogOpen] = useState(false);
@@ -85,8 +95,50 @@ export function GovernanceQuickApproveButton({
   }, [canExecute, lineageQuery.data, status]);
 
   const [busy, setBusy] = useState(false);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogOpen, setDialogOpenState] = useState(false);
   const [dialogErrorMessage, setDialogErrorMessage] = useState<string | null>(null);
+
+  const syncQuickApproveToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        governanceQuickApproveConfirmHrefFromSearch(
+          searchParams.toString(),
+          open ? approvalRequestId : null,
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [approvalRequestId, pathname, router, searchParams],
+  );
+
+  const setDialogOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setDialogOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncQuickApproveToUrl(next);
+
+        return next;
+      });
+    },
+    [syncQuickApproveToUrl],
+  );
+
+  useEffect(() => {
+    const quickApproveId = parseGovernanceQuickApproveIdFromSearch(quickApproveIdParam);
+
+    if (quickApproveId.length === 0 || quickApproveId !== approvalRequestId) {
+      setDialogOpenState(false);
+
+      return;
+    }
+
+    if (!canExecute || status !== "Submitted" || blockedBySeverity || phase !== "ready") {
+      return;
+    }
+
+    setDialogOpenState(true);
+  }, [approvalRequestId, blockedBySeverity, canExecute, phase, quickApproveIdParam, status]);
 
   const submitApproval = useCallback(
     async (approverNote: string) => {
