@@ -1,5 +1,7 @@
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Manifest;
@@ -15,6 +17,7 @@ public sealed partial class ManifestsController
     [HttpGet("manifest/{manifestVersion}")]
     [ProducesResponseType(typeof(GoldenManifest), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetManifest(
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
@@ -29,15 +32,24 @@ public sealed partial class ManifestsController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        GoldenManifest? manifest = await GetManifestInScopeAsync(manifestVersion, cancellationToken);
-        return manifest is null
-            ? this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound)
-            : Ok(manifest);
+        try
+        {
+            GoldenManifest? manifest = await GetManifestInScopeAsync(manifestVersion, cancellationToken);
+
+            return manifest is null
+                ? this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound)
+                : Ok(manifest);
+        }
+        catch (ConflictException ex)
+        {
+            return GoldenManifestReadConflictProblem(ex);
+        }
     }
 
     [HttpGet("manifest/{manifestVersion}/bundle")]
     [ProducesResponseType(typeof(ManifestBundleResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetManifestBundle(
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
@@ -52,20 +64,27 @@ public sealed partial class ManifestsController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        (GoldenManifest? manifest, AgentEvidencePackage? evidence) =
-            await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
-
-        if (manifest is null)
-            return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
-
-        string diagram = diagramGenerator.GenerateMermaid(manifest);
-        string summary = summaryGenerator.GenerateMarkdown(manifest, evidence);
-        string canonicalManifestVersion = manifest.Metadata.ManifestVersion;
-
-        return Ok(new ManifestBundleResponse
+        try
         {
-            ManifestVersion = canonicalManifestVersion, Manifest = manifest, Diagram = diagram, Summary = summary
-        });
+            (GoldenManifest? manifest, AgentEvidencePackage? evidence) =
+                await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
+
+            if (manifest is null)
+                return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
+
+            string diagram = diagramGenerator.GenerateMermaid(manifest);
+            string summary = summaryGenerator.GenerateMarkdown(manifest, evidence);
+            string canonicalManifestVersion = manifest.Metadata.ManifestVersion;
+
+            return Ok(new ManifestBundleResponse
+            {
+                ManifestVersion = canonicalManifestVersion, Manifest = manifest, Diagram = diagram, Summary = summary
+            });
+        }
+        catch (ConflictException ex)
+        {
+            return GoldenManifestReadConflictProblem(ex);
+        }
     }
 
     private async Task<GoldenManifest?> GetManifestInScopeAsync(
@@ -85,6 +104,14 @@ public sealed partial class ManifestsController
 
         if (!await IsManifestRunInScopeAsync(manifest, cancellationToken))
             return null;
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        await ManifestGoldenReadSealedManifestHashGuard.EnsureGoldenManifestRunSealedHashOrThrowAsync(
+            manifest,
+            scope,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken).ConfigureAwait(false);
 
         return manifest;
     }

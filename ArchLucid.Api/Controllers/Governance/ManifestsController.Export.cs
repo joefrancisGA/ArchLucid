@@ -1,5 +1,6 @@
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Manifest;
 
@@ -12,6 +13,7 @@ public sealed partial class ManifestsController
     [HttpGet("manifest/{manifestVersion}/export")]
     [ProducesResponseType(typeof(ManifestExportContentResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetManifestExport(
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
@@ -26,26 +28,34 @@ public sealed partial class ManifestsController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        (GoldenManifest? manifest, AgentEvidencePackage? evidence) =
-            await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
-
-        if (manifest is null)
-            return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
-
-        string diagram = diagramGenerator.GenerateMermaid(manifest);
-        string summary = summaryGenerator.GenerateMarkdown(manifest, evidence);
-        string markdown = exportService.GenerateMarkdownPackage(manifest, diagram, summary, evidence);
-        string canonicalManifestVersion = manifest.Metadata.ManifestVersion;
-
-        return Ok(new ManifestExportContentResponse
+        try
         {
-            ManifestVersion = canonicalManifestVersion, Format = FormatMarkdown, Content = markdown
-        });
+            (GoldenManifest? manifest, AgentEvidencePackage? evidence) =
+                await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
+
+            if (manifest is null)
+                return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
+
+            string diagram = diagramGenerator.GenerateMermaid(manifest);
+            string summary = summaryGenerator.GenerateMarkdown(manifest, evidence);
+            string markdown = exportService.GenerateMarkdownPackage(manifest, diagram, summary, evidence);
+            string canonicalManifestVersion = manifest.Metadata.ManifestVersion;
+
+            return Ok(new ManifestExportContentResponse
+            {
+                ManifestVersion = canonicalManifestVersion, Format = FormatMarkdown, Content = markdown
+            });
+        }
+        catch (ConflictException ex)
+        {
+            return GoldenManifestReadConflictProblem(ex);
+        }
     }
 
     [HttpGet("manifest/{manifestVersion}/export/download")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DownloadManifestExport(
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
@@ -60,18 +70,26 @@ public sealed partial class ManifestsController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        (GoldenManifest? manifest, AgentEvidencePackage? evidence) =
-            await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
+        try
+        {
+            (GoldenManifest? manifest, AgentEvidencePackage? evidence) =
+                await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
 
-        if (manifest is null)
-            return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
+            if (manifest is null)
+                return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
-        string diagram = diagramGenerator.GenerateMermaid(manifest);
-        string summary = summaryGenerator.GenerateMarkdown(manifest, evidence);
-        string markdown = exportService.GenerateMarkdownPackage(manifest, diagram, summary, evidence);
-        string canonicalManifestVersion = manifest.Metadata.ManifestVersion;
-        string fileName = $"architecture-export-{canonicalManifestVersion}.md";
-        return ApiFileResults.RangeText(Request, markdown, "text/markdown", fileName);
+            string diagram = diagramGenerator.GenerateMermaid(manifest);
+            string summary = summaryGenerator.GenerateMarkdown(manifest, evidence);
+            string markdown = exportService.GenerateMarkdownPackage(manifest, diagram, summary, evidence);
+            string canonicalManifestVersion = manifest.Metadata.ManifestVersion;
+            string fileName = $"architecture-export-{canonicalManifestVersion}.md";
+
+            return ApiFileResults.RangeText(Request, markdown, "text/markdown", fileName);
+        }
+        catch (ConflictException ex)
+        {
+            return GoldenManifestReadConflictProblem(ex);
+        }
     }
 
     /// <summary>

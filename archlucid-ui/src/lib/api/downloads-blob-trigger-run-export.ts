@@ -1,4 +1,5 @@
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { pulseOidcSessionKeepalive } from "@/hooks/use-oidc-session-keepalive";
 import {
   ensureOidcBearerReady,
   getBearerToken,
@@ -21,6 +22,7 @@ export async function downloadRunExportZip(runId: string): Promise<void> {
     throw new Error("downloadRunExportZip is only supported in the browser.");
   }
 
+  await pulseOidcSessionKeepalive();
   await ensureOidcBearerReady();
   const url = getRunExportDownloadUrl(runId);
   const headers = new Headers();

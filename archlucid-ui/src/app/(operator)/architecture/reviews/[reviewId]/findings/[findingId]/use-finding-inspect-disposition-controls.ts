@@ -65,6 +65,10 @@ export type FindingInspectDispositionControlsProps = {
   readonly mutationDisabledReason: WhyDisabledCtaReason | null;
   readonly pendingDispositionKind: FindingDispositionKind;
   readonly pendingDispositionBlockedReason: string | null;
+  readonly remediationLastSavedUtc: string | null;
+  readonly remediationInlineSaveError: string | null;
+  readonly dispositionLastSavedUtc: string | null;
+  readonly dispositionInlineSaveError: string | null;
 };
 
 export function useFindingInspectDispositionControls(props: FindingInspectDispositionControlsProps) {

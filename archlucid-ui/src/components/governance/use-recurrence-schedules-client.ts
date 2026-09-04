@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type SetStateAction } from "react";
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
@@ -130,9 +130,9 @@ export function useRecurrenceSchedulesClient(): UseRecurrenceSchedulesClientResu
   const [pendingDisable, setPendingDisableState] = useState<ArchitectureReviewRecurrenceSchedule | null>(null);
 
   const setPendingDisable = useCallback(
-    (value: React.SetStateAction<ArchitectureReviewRecurrenceSchedule | null>) => {
-      setPendingDisableState((prev) => {
-        const next = typeof value === "function" ? value(prev) : value;
+    (value: SetStateAction<ArchitectureReviewRecurrenceSchedule | null>) => {
+      setPendingDisableState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
         syncPanelsToUrl({ disableScheduleId: next?.scheduleId ?? null });
 
         return next;

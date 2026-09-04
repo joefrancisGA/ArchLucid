@@ -43,6 +43,12 @@ public sealed class UserPreferencesControllerTests
         body.WorkspaceModeIsExplicit.Should().BeFalse();
         body.WorkspaceModeGraduationOffer.Should().Be(WorkspaceModeGraduationOfferValues.Default);
         body.WorkspaceModeGraduationOfferIsExplicit.Should().BeFalse();
+        body.FindingsHideGenericEnabled.Should().BeFalse();
+        body.FindingsHideGenericEnabledIsExplicit.Should().BeFalse();
+        body.FindingsShowLowConfidenceEnabled.Should().BeFalse();
+        body.FindingsShowLowConfidenceEnabledIsExplicit.Should().BeFalse();
+        body.FindingsShowAdvisoryEnabled.Should().BeFalse();
+        body.FindingsShowAdvisoryEnabledIsExplicit.Should().BeFalse();
     }
 
     [SkippableFact]
@@ -313,6 +319,46 @@ public sealed class UserPreferencesControllerTests
             Times.Once);
     }
 
+    [SkippableFact]
+    public async Task SetFindingsVisibilityPreferences_ReturnsNoContentWhenValid()
+    {
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
+        UserPreferencesController sut = CreateController(repository.Object);
+
+        IActionResult result = await sut.SetFindingsVisibilityPreferences(
+            new SetFindingsVisibilityPreferencesRequest
+            {
+                HideGenericEnabled = true,
+                ShowLowConfidenceEnabled = false,
+                ShowAdvisoryEnabled = true,
+            },
+            CancellationToken.None);
+
+        result.Should().BeOfType<NoContentResult>();
+
+        repository.Verify(
+            repo => repo.UpsertAsync(
+                "jwt:user-1",
+                UserSettingKeys.FindingsHideGenericEnabled,
+                "true",
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        repository.Verify(
+            repo => repo.UpsertAsync(
+                "jwt:user-1",
+                UserSettingKeys.FindingsShowLowConfidenceEnabled,
+                "false",
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        repository.Verify(
+            repo => repo.UpsertAsync(
+                "jwt:user-1",
+                UserSettingKeys.FindingsShowAdvisoryEnabled,
+                "true",
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     private static Mock<IUserSettingsRepository> CreateRepositoryMock()
     {
         Mock<IUserSettingsRepository> repository = new();
@@ -336,6 +382,21 @@ public sealed class UserPreferencesControllerTests
             .ReturnsAsync((string?)null);
         repository
             .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.WorkspaceModeGraduationOffer, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string?)null);
+        repository
+            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.ProfessionalWorkbenchEnabled, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string?)null);
+        repository
+            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.RoiLoadedHourlyCostUsd, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string?)null);
+        repository
+            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.FindingsHideGenericEnabled, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string?)null);
+        repository
+            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.FindingsShowLowConfidenceEnabled, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string?)null);
+        repository
+            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.FindingsShowAdvisoryEnabled, It.IsAny<CancellationToken>()))
             .ReturnsAsync((string?)null);
 
         return repository;

@@ -33,6 +33,7 @@ import {
   isBuyerSafePrimaryReviewNavigationPreferred,
 } from "@/lib/buyer/buyer-safe-review-navigation";
 import {
+  deriveHomePreviewTabCounts,
   filterTenantOverviewRuns,
   formatOperatorHomeRecentReviewsOutcome,
   isExampleOnlyOverviewRunList,
@@ -164,7 +165,30 @@ export function useRunsDashboardTabs({
 
   const homeAttentionPartitionLabel = hideHeading ? operatorAttentionKindLabel("unfinished-work") : undefined;
 
-  const statusTabCounts = useMemo(() => deriveRunsDashboardTabCounts(filteredItems), [filteredItems]);
+  const statusTabCounts = useMemo(() => {
+    if (!hideHeading) {
+      return deriveRunsDashboardTabCounts(filteredItems);
+    }
+
+    const excludeShowcaseRunId =
+      buyerPolishedShell &&
+      showcaseDemoRun !== undefined &&
+      (phase === "ready" || phase === "error")
+        ? showcaseDemoRun.runId
+        : undefined;
+
+    return deriveHomePreviewTabCounts({
+      previewItems: homeAttentionPreviewItems,
+      excludeShowcaseRunId,
+    });
+  }, [
+    buyerPolishedShell,
+    filteredItems,
+    hideHeading,
+    homeAttentionPreviewItems,
+    phase,
+    showcaseDemoRun,
+  ]);
 
   const allTabShowcase = resolveShowcaseDemoRunForItems(filteredItems, showcaseDemoRun);
   const approvedTabShowcase = resolveShowcaseDemoRunForItems(approvedTabItems, showcaseDemoRun);

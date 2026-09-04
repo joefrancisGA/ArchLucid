@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { memo, type ReactElement } from "react";
 
+import { FindingListDispositionRowActions } from "@/components/governance/findings/FindingListDispositionRowActions";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
 import { FindingCausalMiniChain } from "@/components/usability/FindingCausalMiniChain";
@@ -164,6 +165,9 @@ function GovernanceFindingRowComponent({
             ) : null}
           </div>
           <GovernanceFindingDetailPane row={row} buyerPolishedShell={buyerPolishedShell} variant="buyer" />
+          {row.recordKind === "finding" ? (
+            <FindingListDispositionRowActions findingId={row.findingId} compact />
+          ) : null}
         </CardContent>
       </Card>
     );
@@ -214,6 +218,9 @@ function GovernanceFindingRowComponent({
       </CardHeader>
       <CardContent className={cn("grid gap-2 pt-0 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
         <GovernanceFindingDetailPane row={row} buyerPolishedShell={buyerPolishedShell} variant="operational" />
+        {row.recordKind === "finding" ? (
+          <FindingListDispositionRowActions findingId={row.findingId} compact />
+        ) : null}
       </CardContent>
     </Card>
   );

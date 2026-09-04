@@ -20,7 +20,7 @@ export function buildProvenanceSources(runId: string): readonly EvidenceSourceLi
 
   return [
     { label: "Review workspace", href: reviewHref },
-    { label: "Evidence trail", href: evidenceHref },
+    { label: "Evidence graph", href: evidenceHref },
     { label: "Search review evidence", href: "/insights/search-review-evidence" },
     { label: "Evidence trail help", href: inAppHelpHref("evidence-trail") },
     { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },

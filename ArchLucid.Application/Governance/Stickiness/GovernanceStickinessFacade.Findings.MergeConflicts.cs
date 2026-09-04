@@ -19,6 +19,13 @@ public sealed partial class GovernanceStickinessFacade
 
         await EnsureRunInScopeWhenProvidedAsync(scope, runId, ct);
 
+        await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
+            runId,
+            scope,
+            _authorityQueryService,
+            _manifestHashService,
+            ct);
+
         bool resolved = await _findingMergeConflictResolutionService.TryResolveAsync(
             scope,
             runId,

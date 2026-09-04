@@ -239,6 +239,7 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
           hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
           operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision ?? null}
           isArchived={m.resolvedDetail.run.isArchived === true}
+          pipelineInFlight={m.showProgressTracker && !m.manifestId}
         />
       ) : null}
 

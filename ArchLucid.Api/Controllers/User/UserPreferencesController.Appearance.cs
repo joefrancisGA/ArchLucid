@@ -52,6 +52,18 @@ public sealed partial class UserPreferencesController
             userId,
             UserSettingKeys.RoiLoadedHourlyCostUsd,
             cancellationToken);
+        string? findingsHideGenericStored = await _userSettingsRepository.TryGetAsync(
+            userId,
+            UserSettingKeys.FindingsHideGenericEnabled,
+            cancellationToken);
+        string? findingsShowLowConfidenceStored = await _userSettingsRepository.TryGetAsync(
+            userId,
+            UserSettingKeys.FindingsShowLowConfidenceEnabled,
+            cancellationToken);
+        string? findingsShowAdvisoryStored = await _userSettingsRepository.TryGetAsync(
+            userId,
+            UserSettingKeys.FindingsShowAdvisoryEnabled,
+            cancellationToken);
 
         string appearancePreference = AppearancePreferenceValues.NormalizeOrNull(appearanceStored)
             ?? AppearancePreferenceValues.Default;
@@ -63,6 +75,9 @@ public sealed partial class UserPreferencesController
         string workspaceModeGraduationOffer = WorkspaceModeGraduationOfferValues.ParseOrDefault(workspaceModeGraduationOfferStored);
         bool professionalWorkbenchEnabled = ProfessionalWorkbenchEnabledValues.ParseOrDefault(professionalWorkbenchStored);
         decimal roiLoadedHourlyCostUsd = RoiLoadedHourlyCostUsdValues.ParseOrDefault(roiLoadedHourlyCostStored);
+        bool findingsHideGenericEnabled = FindingsVisibilityToggleValues.ParseOrDefault(findingsHideGenericStored);
+        bool findingsShowLowConfidenceEnabled = FindingsVisibilityToggleValues.ParseOrDefault(findingsShowLowConfidenceStored);
+        bool findingsShowAdvisoryEnabled = FindingsVisibilityToggleValues.ParseOrDefault(findingsShowAdvisoryStored);
 
         return Ok(new UserPreferencesResponse
         {
@@ -87,6 +102,12 @@ public sealed partial class UserPreferencesController
             ProfessionalWorkbenchEnabledIsExplicit = ProfessionalWorkbenchEnabledValues.IsExplicitValue(professionalWorkbenchStored),
             RoiLoadedHourlyCostUsd = roiLoadedHourlyCostUsd,
             RoiLoadedHourlyCostUsdIsExplicit = RoiLoadedHourlyCostUsdValues.IsExplicitValue(roiLoadedHourlyCostStored),
+            FindingsHideGenericEnabled = findingsHideGenericEnabled,
+            FindingsHideGenericEnabledIsExplicit = FindingsVisibilityToggleValues.IsExplicitValue(findingsHideGenericStored),
+            FindingsShowLowConfidenceEnabled = findingsShowLowConfidenceEnabled,
+            FindingsShowLowConfidenceEnabledIsExplicit = FindingsVisibilityToggleValues.IsExplicitValue(findingsShowLowConfidenceStored),
+            FindingsShowAdvisoryEnabled = findingsShowAdvisoryEnabled,
+            FindingsShowAdvisoryEnabledIsExplicit = FindingsVisibilityToggleValues.IsExplicitValue(findingsShowAdvisoryStored),
         });
     }
 

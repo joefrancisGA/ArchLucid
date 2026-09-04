@@ -16,7 +16,7 @@ export const PATTERN_LIBRARY_SOURCES_INTRO =
 /** Operator Sources — no self-href to the patterns hub. */
 export const PATTERN_LIBRARY_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Architecture reviews", href: "/architecture/reviews" },
-  { label: "Evidence trail", href: "/insights/evidence-graph" },
+  { label: "Evidence graph", href: "/insights/evidence-graph" },
   { label: "Compare two reviews", href: "/insights/compare-two-reviews" },
   { label: "Impact preview", href: "/insights/impact-preview" },
   { label: "Getting started", href: inAppHelpHref("getting-started") },

@@ -101,7 +101,14 @@ export function formatOperatorHomeCompactMetricsLine(
     ? "Setup …"
     : formatSetupReadinessCompactLabel(input.setupReadyCount, input.setupTotalCount);
 
-  return [activeLabel, findingsLabel, warningsLabel, setupLabel].join(" · ");
+  const parts = [
+    ...(activeReviews === 1 ? [] : [activeLabel]),
+    findingsLabel,
+    warningsLabel,
+    setupLabel,
+  ];
+
+  return parts.join(" · ");
 }
 
 export function formatSetupReadinessCompleteLabel(readyCount: number, totalCount: number): string {

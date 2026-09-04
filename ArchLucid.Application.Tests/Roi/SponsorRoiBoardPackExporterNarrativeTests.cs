@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 
 using FluentAssertions;
 
@@ -133,7 +134,9 @@ public sealed class SponsorRoiBoardPackExporterNarrativeTests
             scopeProvider.Object,
             new SponsorRoiBoardPackPdfBuilder(),
             new SponsorRoiBoardPackNarrativeBuilder(completionClient.Object, NullLogger<SponsorRoiBoardPackNarrativeBuilder>.Instance),
-            options.Object);
+            options.Object,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>());
     }
 
     private static ScopeContext CreateScope() =>

@@ -31,6 +31,7 @@ import {
 import { invalidateOperatorHomeRunsCaches } from "@/lib/operator/operator-query-invalidation";
 import { resolvePreCommitGovernanceBlockView } from "@/lib/pre-commit-governance-block-problem";
 import { invalidateTenantTrialStatusCache } from "@/lib/tenant-trial-status-client";
+import { useOidcSessionKeepalive, pulseOidcSessionKeepalive } from "@/hooks/use-oidc-session-keepalive";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   FINALIZE_REPLAY_COMPARE_NOTE,
@@ -81,6 +82,8 @@ export function CommitRunButton({
     correlationId: string | null;
   } | null>(null);
 
+  useOidcSessionKeepalive(dialogOpen || busy);
+
   const syncFinalizeModalsToUrl = useCallback(
     (confirmOpen: boolean, successOpen: boolean) => {
       router.replace(
@@ -126,6 +129,7 @@ export function CommitRunButton({
     recordFirstFinalizationAttemptedOnce();
 
     try {
+      await pulseOidcSessionKeepalive();
       await commitArchitectureRun(runId, {
         notifySponsor,
         acknowledgedAssumptionIds: [...readAcknowledgedAssumptionIds(runId)],

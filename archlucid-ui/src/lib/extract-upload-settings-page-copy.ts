@@ -36,7 +36,7 @@ export const EXTRACT_UPLOAD_INVENTORY_CHECKING_STATUS_LABEL = "Checking inventor
 
 export const EXTRACT_UPLOAD_EXTRACTOR_VERSION_METADATA_PREFIX = "Extractor script" as const;
 
-export const EXTRACT_UPLOAD_EVIDENCE_TRAIL_LINK_LABEL = "Evidence trail" as const;
+export const EXTRACT_UPLOAD_EVIDENCE_TRAIL_LINK_LABEL = "Evidence graph" as const;
 
 export const EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF = EVIDENCE_GRAPH_PATH;
 

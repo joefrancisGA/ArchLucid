@@ -279,7 +279,7 @@ export function ReviewPackageDoThisNextStrip(
           </p>
         </div>
 
-        <div className="flex shrink-0 flex-col items-stretch gap-2 sm:items-end" data-testid="review-package-do-this-next-action" data-review-package-do-this-next-kind={next.kind}>
+      <div className="flex shrink-0 flex-wrap flex-col items-stretch gap-2 sm:items-end" data-testid="review-package-do-this-next-action" data-review-package-do-this-next-kind={next.kind}>
           {next.kind === "finalize-package" ? (
             <CommitRunButton
               runId={runId}

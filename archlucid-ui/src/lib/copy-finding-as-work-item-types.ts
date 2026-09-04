@@ -42,6 +42,8 @@ export type FindingWorkItemBuildInput = {
   evidenceExcerpts: string[];
   trustLabel?: string | null;
   trustLabelReason?: string | null;
+  /** Committed manifest version from inspect payload when available. */
+  manifestVersion?: string | null;
 };
 
 /** Minimal block for per-finding table rows (aggregate explanation list / governance queue). */

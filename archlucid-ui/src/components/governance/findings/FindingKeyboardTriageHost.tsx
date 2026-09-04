@@ -43,11 +43,18 @@ import {
   GOVERNANCE_BULK_DISPOSITION_REASON_REQUIRED,
   governanceKeyboardFindingDispositionSuccessMessage,
 } from "@/lib/governance/governance-mutation-outcome-copy";
+import {
+  FindingKeyboardTriageProvider,
+  type FindingKeyboardTriageContextValue,
+} from "@/components/governance/findings/FindingKeyboardTriageContext";
 
 export type FindingKeyboardTriageHostProps = {
   /** Resolves runId for the focused finding; return null to ignore the shortcut. */
   readonly resolveRunId: (findingId: string) => string | null;
+  /** Return a user-facing reason when disposition must be blocked (e.g. merge conflict). */
+  readonly resolveDispositionBlockedReason?: (findingId: string) => string | null;
   readonly onApplied?: () => void;
+  readonly children?: React.ReactNode;
 };
 
 type PendingKeyboardDisposition = {
@@ -83,6 +90,14 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
 
   const onAction = useCallback(
     (findingId: string, disposition: FindingCardShortcutDisposition) => {
+      const blockedReason = props.resolveDispositionBlockedReason?.(findingId) ?? null;
+
+      if (blockedReason !== null && blockedReason.trim().length > 0) {
+        setInlineErrorMessage(blockedReason);
+
+        return;
+      }
+
       const runId = props.resolveRunId(findingId);
 
       if (runId === null || runId.trim().length === 0) {
@@ -95,6 +110,12 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
     },
     [props],
   );
+
+  const triageContextValue: FindingKeyboardTriageContextValue = {
+    requestDisposition: onAction,
+    isDispositionBlocked: (findingId) => props.resolveDispositionBlockedReason?.(findingId) ?? null,
+    mutationsEnabled: canMutate,
+  };
 
   useFindingCardShortcuts({
     onAction,
@@ -261,7 +282,9 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
         : successMessage;
 
   return (
-    <>
+    <FindingKeyboardTriageProvider value={triageContextValue}>
+      {props.children}
+      <>
       <span hidden data-finding-keyboard-triage-host="" />
       {resolvedSuccessMessage !== null ? (
         <ReversibleMutationSuccessCallout
@@ -363,6 +386,7 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
         }}
       />
       )}
-    </>
+      </>
+    </FindingKeyboardTriageProvider>
   );
 }

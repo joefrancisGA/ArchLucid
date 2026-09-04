@@ -35,6 +35,8 @@ export function useFindingInspectGovernanceStickinessRemediation({
     initialRemediationDueUtc ? initialRemediationDueUtc.slice(0, 16) : "",
   );
   const [remediationOwnerError, setRemediationOwnerError] = useState<string | null>(null);
+  const [remediationLastSavedUtc, setRemediationLastSavedUtc] = useState<string | null>(null);
+  const [remediationInlineSaveError, setRemediationInlineSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     setAssignedToUserId(initialAssignedToUserId ?? "");
@@ -56,6 +58,7 @@ export function useFindingInspectGovernanceStickinessRemediation({
     setBusyAction("remediation");
     setErrorMessage(null);
     setStatusMessage(null);
+    setRemediationInlineSaveError(null);
 
     try {
       await upsertFindingRemediationAssignment(findingId, {
@@ -64,9 +67,12 @@ export function useFindingInspectGovernanceStickinessRemediation({
         remediationDueUtc:
           remediationDueUtc.trim().length > 0 ? new Date(remediationDueUtc).toISOString() : null,
       });
+      setRemediationLastSavedUtc(new Date().toISOString());
       setStatusMessage("Remediation assignment saved.");
     } catch (error) {
-      setErrorMessage(resolveMutationError(error));
+      const message = resolveMutationError(error);
+      setRemediationInlineSaveError(message);
+      setErrorMessage(message);
     } finally {
       setBusyAction(null);
     }
@@ -79,6 +85,8 @@ export function useFindingInspectGovernanceStickinessRemediation({
     setRemediationDueUtc,
     remediationOwnerError,
     setRemediationOwnerError,
+    remediationLastSavedUtc,
+    remediationInlineSaveError,
     submitRemediationAssignment,
   };
 }
