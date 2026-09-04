@@ -1,7 +1,7 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type SetStateAction } from "react";
 
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -18,33 +18,24 @@ import type {
   PolicyPackContentDocument,
 } from "@/types/policy-packs";
 
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { POLICY_PACK_ID_QUERY_PARAM, POLICY_PACKS_TAB_QUERY_PARAM } from "@/lib/policy/policy-packs-deep-link";
+import {
+  parsePolicyPacksTabFromSearch,
+  policyPacksTabHrefFromSearch,
+} from "@/lib/policy/policy-packs-tab-url";
 import type { PolicyPacksPageServerLoad } from "./load-policy-packs-page-data";
 import type { PolicyPacksPageTab, PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
 import { usePolicyPacksAuthoring } from "./use-policy-packs-authoring";
 import { usePolicyPacksCatalog } from "./use-policy-packs-catalog";
 import { usePolicyPacksWorkspaceSelection } from "./use-policy-packs-workspace-selection";
 
-function pageTabFromQuery(raw: string | null): PolicyPacksPageTab {
-  if (raw === "catalog") {
-    return "catalog";
-  }
-
-  if (raw === "generator") {
-    return "generator";
-  }
-
-  if (raw === "author") {
-    return "author";
-  }
-
-  return "my-packs";
-}
-
 export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): PolicyPacksPageViewModel {
+  const router = useRouter();
+  const pathname = usePathname() ?? GOVERNANCE_POLICY_PACKS_PATH;
   const searchParams = useSearchParams();
   const packIdFromUrl = searchParams.get(POLICY_PACK_ID_QUERY_PARAM)?.trim() ?? "";
-  const pageTabFromUrl = pageTabFromQuery(searchParams.get(POLICY_PACKS_TAB_QUERY_PARAM));
+  const pageTabFromUrl = parsePolicyPacksTabFromSearch(searchParams.get(POLICY_PACKS_TAB_QUERY_PARAM));
   const canMutatePacks = useNavSurface("policy-packs").mutationCapability;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [packs, setPacks] = useState<PolicyPack[]>(serverLoad.packs);
@@ -55,7 +46,19 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
   const [loading, setLoading] = useState(false);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(() => new Date());
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(serverLoad.failure);
-  const [pageTab, setPageTab] = useState<PolicyPacksPageTab>(pageTabFromUrl);
+  const [pageTab, setPageTabState] = useState<PolicyPacksPageTab>(pageTabFromUrl);
+
+  const setPageTab = useCallback(
+    (next: SetStateAction<PolicyPacksPageTab>) => {
+      setPageTabState((prev) => {
+        const resolved = typeof next === "function" ? next(prev) : next;
+        router.replace(policyPacksTabHrefFromSearch(searchParams.toString(), resolved, pathname), { scroll: false });
+
+        return resolved;
+      });
+    },
+    [pathname, router, searchParams],
+  );
 
   const loadRef = useRef<() => Promise<void>>(async () => {});
 
@@ -130,7 +133,7 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
   });
 
   useEffect(() => {
-    setPageTab(pageTabFromUrl);
+    setPageTabState(pageTabFromUrl);
   }, [pageTabFromUrl]);
 
   return {

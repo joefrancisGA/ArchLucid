@@ -18,6 +18,7 @@ import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import type { AskRunListAvailability } from "@/lib/graph-page-state";
 import { graphPresentationViewHrefFromSearch } from "@/lib/insights/graph-presentation-view-url";
+import { graphRunIdHrefFromSearch } from "@/lib/insights/graph-run-id-url";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 
 export function useGraphPageState() {
@@ -136,17 +137,33 @@ export function useGraphPageState() {
     [pathname, router, searchParams],
   );
 
-  const handleRunIdChange = useCallback((value: string) => {
-    setRunId(value);
+  const handleRunIdChange = useCallback(
+    (value: string) => {
+      setRunId(value);
 
-    if (value.trim().length > 0) {
-      setGraphLoadRequested(true);
-      return;
-    }
+      if (value.trim().length > 0) {
+        setGraphLoadRequested(true);
+      } else {
+        setGraphLoadRequested(false);
+        setGraph(null);
+      }
+    },
+    [setGraph],
+  );
 
-    setGraphLoadRequested(false);
-    setGraph(null);
-  }, [setGraph]);
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const nextHref = graphRunIdHrefFromSearch(searchParams.toString(), runId, pathname);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [pathname, router, runId, searchParams]);
 
   useLayoutEffect(() => {
     setGraph(null);

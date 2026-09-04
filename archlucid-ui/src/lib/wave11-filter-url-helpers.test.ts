@@ -857,6 +857,104 @@ describe("wave21 filter url helpers", () => {
   });
 });
 
+describe("wave22 filter url helpers", () => {
+  it("policy packs tab, composite create panel, wizard mode, and specialty walkthrough selection", async () => {
+    const { parsePolicyPacksTabFromSearch, policyPacksTabHrefFromSearch } = await import(
+      "@/lib/policy/policy-packs-tab-url"
+    );
+    const {
+      compositeAlertRulesPanelsHrefFromSearch,
+      parseCompositeAlertRulesCreatePanelFromSearch,
+    } = await import("@/lib/alerts/composite-alert-rules-panels-url");
+    const { newRunWizardModeHrefFromSearch, parseNewRunWizardModeFromSearch } = await import(
+      "@/lib/runs/new-run-wizard-mode-url"
+    );
+    const {
+      parseSpecialtyWalkthroughCloudFromSearch,
+      parseSpecialtyWalkthroughTemplateFromSearch,
+      specialtyWalkthroughsSelectionHrefFromSearch,
+    } = await import("@/lib/help/specialty-walkthroughs-selection-url");
+
+    expect(parsePolicyPacksTabFromSearch("generator")).toBe("generator");
+    expect(policyPacksTabHrefFromSearch("packId=p1", "catalog")).toBe(
+      "/governance/policy-packs?packId=p1&tab=catalog",
+    );
+    expect(parseCompositeAlertRulesCreatePanelFromSearch("1")).toBe(true);
+    expect(
+      compositeAlertRulesPanelsHrefFromSearch("tab=advanced-rules", { showCreatePanel: true }),
+    ).toBe("/governance/alert-rules?tab=advanced-rules&create=1");
+    expect(parseNewRunWizardModeFromSearch("full")).toBe("full");
+    expect(newRunWizardModeHrefFromSearch("", "full")).toBe("/architecture/reviews/new?mode=full");
+    expect(parseSpecialtyWalkthroughTemplateFromSearch("saas-readiness")).toBe("saas-readiness");
+    expect(parseSpecialtyWalkthroughCloudFromSearch("azure")).toBe("Azure");
+    expect(
+      specialtyWalkthroughsSelectionHrefFromSearch("", {
+        templateId: "ai-governance",
+        cloudContext: "Aws",
+      }),
+    ).toBe("/help/specialty-walkthroughs?template=ai-governance&cloud=aws");
+  });
+
+  it("audit cursor/disclosure, simulation mode, graph run id, generator template, and advisory scans filters", async () => {
+    const { auditTrailCursorHrefFromSearch, parseAuditTrailCursorFromSearch } = await import(
+      "@/lib/governance/audit-trail-cursor-url"
+    );
+    const {
+      auditTrailFiltersDisclosureHrefFromSearch,
+      parseAuditTrailAdvancedFiltersOpenFromSearch,
+      parseAuditTrailPrimaryFiltersOpenFromSearch,
+    } = await import("@/lib/governance/audit-trail-filters-disclosure-url");
+    const { alertSimulationModeHrefFromSearch, parseAlertSimulationModeFromSearch } = await import(
+      "@/lib/alerts/alert-simulation-mode-url"
+    );
+    const { graphRunIdHrefFromSearch, parseGraphRunIdFromSearch } = await import(
+      "@/lib/insights/graph-run-id-url"
+    );
+    const {
+      parsePolicyPackGeneratorTemplateFromSearch,
+      policyPackGeneratorTemplateHrefFromSearch,
+    } = await import("@/lib/policy/policy-pack-generator-template-url");
+    const {
+      advisoryScansFilterHrefFromSearch,
+      parseAdvisoryScansCompareToFromSearch,
+      parseAdvisoryScansSamplePreviewFromSearch,
+    } = await import("@/lib/advisory/advisory-scans-filter-url");
+
+    expect(parseAuditTrailCursorFromSearch("cur-audit")).toBe("cur-audit");
+    expect(auditTrailCursorHrefFromSearch("action=Create", "cur-audit")).toBe(
+      "/governance/audit?action=Create&cursor=cur-audit",
+    );
+    expect(parseAuditTrailAdvancedFiltersOpenFromSearch("1")).toBe(true);
+    expect(parseAuditTrailPrimaryFiltersOpenFromSearch("1")).toBe(true);
+    expect(
+      auditTrailFiltersDisclosureHrefFromSearch("", {
+        advancedAuditFiltersOpen: true,
+        buyerPrimaryFiltersOpen: true,
+      }),
+    ).toBe("/governance/audit?advanced=1&primaryFilters=1");
+    expect(parseAlertSimulationModeFromSearch("composite")).toBe("composite");
+    expect(alertSimulationModeHrefFromSearch("tab=test-alerts", "compare")).toBe(
+      "/governance/alert-rules?tab=test-alerts&simMode=compare",
+    );
+    expect(parseGraphRunIdFromSearch("run-graph")).toBe("run-graph");
+    expect(graphRunIdHrefFromSearch("presentation=graph", "run-graph")).toBe(
+      "/insights/evidence-graph?presentation=graph&runId=run-graph",
+    );
+    expect(parsePolicyPackGeneratorTemplateFromSearch("tpl-1")).toBe("tpl-1");
+    expect(policyPackGeneratorTemplateHrefFromSearch("tab=generator", "tpl-1")).toBe(
+      "/governance/policy-packs?tab=generator&generatorTemplate=tpl-1",
+    );
+    expect(parseAdvisoryScansCompareToFromSearch("run-baseline")).toBe("run-baseline");
+    expect(parseAdvisoryScansSamplePreviewFromSearch("1")).toBe(true);
+    expect(
+      advisoryScansFilterHrefFromSearch("tab=scans&runId=r1", {
+        compareToRunId: "run-baseline",
+        showSamplePreview: true,
+      }),
+    ).toBe("/governance/advisory-scans?tab=scans&runId=r1&compareTo=run-baseline&sample=1");
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

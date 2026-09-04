@@ -23,6 +23,11 @@ import {
   parseAuditTrailRunIdFromSearch,
 } from "@/lib/governance/audit-trail-run-id-url";
 import {
+  auditTrailFiltersDisclosureHrefFromSearch,
+  parseAuditTrailAdvancedFiltersOpenFromSearch,
+  parseAuditTrailPrimaryFiltersOpenFromSearch,
+} from "@/lib/governance/audit-trail-filters-disclosure-url";
+import {
   auditTrailCustomDateHrefFromSearch,
   parseAuditTrailCustomDateFromSearch,
 } from "@/lib/governance/audit-trail-custom-date-url";
@@ -92,9 +97,13 @@ export function useAuditPageSearch(
   const urlDatePreset = parseAuditTrailDateRangePresetFromSearch(searchParams.get("range"));
   const urlFromUtc = parseAuditTrailCustomDateFromSearch(searchParams.get("from"));
   const urlToUtc = parseAuditTrailCustomDateFromSearch(searchParams.get("to"));
+  const urlAdvancedOpen = parseAuditTrailAdvancedFiltersOpenFromSearch(searchParams.get("advanced"));
+  const urlPrimaryFiltersOpen = parseAuditTrailPrimaryFiltersOpenFromSearch(searchParams.get("primaryFilters"));
 
-  const [advancedAuditFiltersOpen, setAdvancedAuditFiltersOpen] = useState(!buyerPolishedShell);
-  const [buyerPrimaryFiltersOpen, setBuyerPrimaryFiltersOpen] = useState(false);
+  const [advancedAuditFiltersOpen, setAdvancedAuditFiltersOpenState] = useState(
+    buyerPolishedShell ? urlAdvancedOpen : true,
+  );
+  const [buyerPrimaryFiltersOpen, setBuyerPrimaryFiltersOpenState] = useState(urlPrimaryFiltersOpen);
   const [eventTypes, setEventTypes] = useState<string[]>(serverLoad.eventTypes);
   const [eventType, setEventType] = useState<string>(urlAction);
   const [fromUtc, setFromUtc] = useState<string>(urlDatePreset === null ? urlFromUtc : "");
@@ -104,6 +113,48 @@ export function useAuditPageSearch(
   const [runId, setRunId] = useState<string>(() => parseAuditTrailRunIdFromSearch(searchParams.get("runId")));
   const [loadingTypes, setLoadingTypes] = useState(serverLoad.typesLoadFailure !== null);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
+
+  const syncFiltersDisclosureToUrl = useCallback(
+    (patch: { readonly advancedAuditFiltersOpen?: boolean; readonly buyerPrimaryFiltersOpen?: boolean }) => {
+      router.replace(
+        auditTrailFiltersDisclosureHrefFromSearch(searchParams.toString(), patch, pathname ?? GOVERNANCE_AUDIT_PATH),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setAdvancedAuditFiltersOpen: Dispatch<SetStateAction<boolean>> = useCallback(
+    (next) => {
+      setAdvancedAuditFiltersOpenState((prev) => {
+        const resolved = typeof next === "function" ? next(prev) : next;
+        syncFiltersDisclosureToUrl({ advancedAuditFiltersOpen: resolved });
+
+        return resolved;
+      });
+    },
+    [syncFiltersDisclosureToUrl],
+  );
+
+  const setBuyerPrimaryFiltersOpen: Dispatch<SetStateAction<boolean>> = useCallback(
+    (next) => {
+      setBuyerPrimaryFiltersOpenState((prev) => {
+        const resolved = typeof next === "function" ? next(prev) : next;
+        syncFiltersDisclosureToUrl({ buyerPrimaryFiltersOpen: resolved });
+
+        return resolved;
+      });
+    },
+    [syncFiltersDisclosureToUrl],
+  );
+
+  useEffect(() => {
+    if (buyerPolishedShell) {
+      setAdvancedAuditFiltersOpenState(parseAuditTrailAdvancedFiltersOpenFromSearch(searchParams.get("advanced")));
+    }
+
+    setBuyerPrimaryFiltersOpenState(parseAuditTrailPrimaryFiltersOpenFromSearch(searchParams.get("primaryFilters")));
+  }, [buyerPolishedShell, searchParams]);
 
   const { ctoDemoAuditFilterActive, onClearCtoDemoAuditFilter } = useAuditPageCtoDemoFilter();
 
@@ -237,6 +288,9 @@ export function useAuditPageSearch(
     runId,
     currentFilters,
     setFailure,
+    pathname: pathname ?? GOVERNANCE_AUDIT_PATH,
+    searchParams,
+    router,
   });
 
   const dateRange = useAuditPageDateRange({
