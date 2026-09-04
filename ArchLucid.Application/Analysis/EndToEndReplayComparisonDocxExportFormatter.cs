@@ -90,6 +90,8 @@ public static class EndToEndReplayComparisonDocxExportFormatter
                     AddDiffSection(body, "Removed Datastores", report.ManifestDiff.RemovedDatastores);
                     AddDiffSection(body, "Added Required Controls", report.ManifestDiff.AddedRequiredControls);
                     AddDiffSection(body, "Removed Required Controls", report.ManifestDiff.RemovedRequiredControls);
+                    AddRelationshipDiffSection(body, "Added Relationships", report.ManifestDiff.AddedRelationships);
+                    AddRelationshipDiffSection(body, "Removed Relationships", report.ManifestDiff.RemovedRelationships);
                     AddSpacer(body);
                 }
 
@@ -188,5 +190,22 @@ public static class EndToEndReplayComparisonDocxExportFormatter
 
         foreach (string item in items)
             AddBullet(body, item);
+    }
+
+    private static void AddRelationshipDiffSection(
+        Body body,
+        string title,
+        IReadOnlyCollection<RelationshipDiffItem> relationships)
+    {
+        AddParagraph(body, title, true);
+
+        if (relationships.Count == 0)
+        {
+            AddBullet(body, "None");
+            return;
+        }
+
+        foreach (RelationshipDiffItem relationship in relationships)
+            AddBullet(body, relationship.ToDisplayLine());
     }
 }

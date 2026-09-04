@@ -1609,11 +1609,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 9
-- **bugs-found:** 15
+- **hunts:** 10
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — PDF detailed appendices parity; DOCX interpretation-notes/warnings fallback
+- **last-bug:** 2026-09-04 — HTML/PDF/DOCX detailed export parity gaps (relationships, agent confidence, export request diffs)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1638,6 +1638,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) PDF interpretation-notes fallback missing when summary formatter omits `## Interpretation Notes` — **hit 2026-09-04 (#664):** same gap as DOCX on PDF detailed path; fixed alongside detailed-appendices refactor; regression in `EndToEndReplayComparisonPdfAndDocxParityTests.GeneratePdf_detailed_profile_appends_interpretation_notes_when_summary_formatter_omits_them`.
 
 2026-09-04 thorough hunt #664: proved PDF detailed appendices parity and DOCX/PDF interpretation-notes/warnings fallback gaps.
+
+- [x] (proven) HTML/PDF/DOCX detailed manifest appendices omit relationship diffs while markdown detailed export renders them — **hit 2026-09-04 (#762):** `EndToEndReplayComparisonHtmlExportFormatter`, `EndToEndReplayComparisonPdfExportFormatter`, and `EndToEndReplayComparisonDocxExportFormatter` listed services/datastores/required-controls only; fixed with relationship sections and `RelationshipDiffItem.ToDisplayLine()`; regressions in `GenerateHtml_detailed_includes_relationship_subsections_when_populated`, `GeneratePdf_detailed_includes_relationship_subsections_when_populated`, `GenerateDocx_detailed_includes_relationship_subsections_when_populated`.
+- [x] (proven) `EndToEndReplayComparisonHtmlExportFormatter.AppendAgentResultDiff` omits confidence and required-control/warning deltas — **hit 2026-09-04 (#762):** detailed HTML showed claims/findings only while markdown/PDF/DOCX include confidence and control/warning lists; fixed with markdown parity; regression in `GenerateHtml_detailed_includes_agent_confidence_and_required_control_diffs`.
+- [x] (proven) `EndToEndReplayComparisonHtmlExportFormatter.AppendExportDiffs` omits `RequestDiff.ChangedFlags` / `ChangedValues` — **hit 2026-09-04 (#762):** HTML listed only top-level fields and warnings; fixed with markdown parity; regression in `GenerateHtml_detailed_includes_export_request_flag_and_value_diffs`.
+- [ ] (candidate) `EndToEndReplayComparisonHtmlExportFormatter.MarkdownToSimpleHtml` leaves compare-quality-delta markdown tables as raw pipe text while `CompareQualityDeltaExportFormatter.AppendHtml` is unused — verify structured HTML rendering before hunt-ready promotion.
+- [ ] (candidate) `ComparisonDriftAnalyzer.CompareElement` may false-positive on JSON numbers that differ only in representation (`1` vs `1.0`) because scalar compare uses `JsonElement.ToString()` — cheap-disproof with numeric fixture before promotion.
+- [ ] (candidate) `GraphGcpInventoryReconciliationAnalyzer.CollectInventoryResourceIds` only reads inventory `name`; rows keyed by alternate property fields may be silently dropped — needs corpus fixture before promotion.
+
+2026-09-04 seed hunt #762: proved HTML/PDF/DOCX detailed export parity gaps; reseeded compare-quality-delta HTML rendering and drift-analyzer numeric candidates.
 
 2026-09-03 seed hunt #547: proved GCP Cloud Asset URI normalization, HTML sponsor interpretation-notes fallback, and manifest-warnings materiality; reseeded PDF/DOCX export parity candidates.
 

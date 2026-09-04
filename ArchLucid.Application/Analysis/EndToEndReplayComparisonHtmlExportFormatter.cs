@@ -146,6 +146,8 @@ public static class EndToEndReplayComparisonHtmlExportFormatter
             sb.AppendLine("<h3>" + EscapeHtml(delta.AgentType.ToString()) + "</h3><ul>");
             sb.AppendLine("<li>Left Exists: " + (delta.LeftExists ? "Yes" : "No") + "</li>");
             sb.AppendLine("<li>Right Exists: " + (delta.RightExists ? "Yes" : "No") + "</li>");
+            sb.AppendLine("<li>Left Confidence: " + (delta.LeftConfidence.HasValue ? delta.LeftConfidence.Value.ToString("0.00") : "n/a") + "</li>");
+            sb.AppendLine("<li>Right Confidence: " + (delta.RightConfidence.HasValue ? delta.RightConfidence.Value.ToString("0.00") : "n/a") + "</li>");
             foreach (string c in delta.AddedClaims)
                 sb.AppendLine("<li>Added claim: " + EscapeHtml(c) + "</li>");
             foreach (string c in delta.RemovedClaims)
@@ -154,6 +156,14 @@ public static class EndToEndReplayComparisonHtmlExportFormatter
                 sb.AppendLine("<li>Added finding: " + EscapeHtml(f) + "</li>");
             foreach (string f in delta.RemovedFindings)
                 sb.AppendLine("<li>Removed finding: " + EscapeHtml(f) + "</li>");
+            foreach (string c in delta.AddedRequiredControls)
+                sb.AppendLine("<li>Added required control: " + EscapeHtml(c) + "</li>");
+            foreach (string c in delta.RemovedRequiredControls)
+                sb.AppendLine("<li>Removed required control: " + EscapeHtml(c) + "</li>");
+            foreach (string w in delta.AddedWarnings)
+                sb.AppendLine("<li>Added warning: " + EscapeHtml(w) + "</li>");
+            foreach (string w in delta.RemovedWarnings)
+                sb.AppendLine("<li>Removed warning: " + EscapeHtml(w) + "</li>");
             sb.AppendLine("</ul>");
         }
     }
@@ -171,6 +181,14 @@ public static class EndToEndReplayComparisonHtmlExportFormatter
             sb.AppendLine("<li>Added datastore: " + EscapeHtml(d) + "</li>");
         foreach (string d in report.ManifestDiff.RemovedDatastores)
             sb.AppendLine("<li>Removed datastore: " + EscapeHtml(d) + "</li>");
+        foreach (string c in report.ManifestDiff.AddedRequiredControls)
+            sb.AppendLine("<li>Added required control: " + EscapeHtml(c) + "</li>");
+        foreach (string c in report.ManifestDiff.RemovedRequiredControls)
+            sb.AppendLine("<li>Removed required control: " + EscapeHtml(c) + "</li>");
+        foreach (RelationshipDiffItem rel in report.ManifestDiff.AddedRelationships)
+            sb.AppendLine("<li>Added relationship: " + EscapeHtml(rel.ToDisplayLine()) + "</li>");
+        foreach (RelationshipDiffItem rel in report.ManifestDiff.RemovedRelationships)
+            sb.AppendLine("<li>Removed relationship: " + EscapeHtml(rel.ToDisplayLine()) + "</li>");
         sb.AppendLine("</ul>");
     }
 
@@ -183,7 +201,11 @@ public static class EndToEndReplayComparisonHtmlExportFormatter
         {
             sb.AppendLine("<h3>" + EscapeHtml(diff.LeftExportRecordId + " -> " + diff.RightExportRecordId) + "</h3><ul>");
             foreach (string f in diff.ChangedTopLevelFields)
-                sb.AppendLine("<li>" + EscapeHtml(f) + "</li>");
+                sb.AppendLine("<li>Changed top-level field: " + EscapeHtml(f) + "</li>");
+            foreach (string f in diff.RequestDiff.ChangedFlags)
+                sb.AppendLine("<li>Changed request flag: " + EscapeHtml(f) + "</li>");
+            foreach (string v in diff.RequestDiff.ChangedValues)
+                sb.AppendLine("<li>Changed request value: " + EscapeHtml(v) + "</li>");
             foreach (string w in diff.Warnings)
                 sb.AppendLine("<li>Warning: " + EscapeHtml(w) + "</li>");
             sb.AppendLine("</ul>");

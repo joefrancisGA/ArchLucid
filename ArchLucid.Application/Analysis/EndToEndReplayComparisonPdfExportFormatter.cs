@@ -135,6 +135,8 @@ public static class EndToEndReplayComparisonPdfExportFormatter
         AppendDiffSection(column, "Removed Datastores", report.ManifestDiff.RemovedDatastores);
         AppendDiffSection(column, "Added Required Controls", report.ManifestDiff.AddedRequiredControls);
         AppendDiffSection(column, "Removed Required Controls", report.ManifestDiff.RemovedRequiredControls);
+        AppendRelationshipDiffSection(column, "Added Relationships", report.ManifestDiff.AddedRelationships);
+        AppendRelationshipDiffSection(column, "Removed Relationships", report.ManifestDiff.RemovedRelationships);
     }
 
     private static void AppendExportDiffs(ColumnDescriptor column, EndToEndReplayComparisonReport report)
@@ -179,5 +181,22 @@ public static class EndToEndReplayComparisonPdfExportFormatter
 
         foreach (string item in items)
             column.Item().Text($"• {item}");
+    }
+
+    private static void AppendRelationshipDiffSection(
+        ColumnDescriptor column,
+        string title,
+        IReadOnlyCollection<RelationshipDiffItem> relationships)
+    {
+        column.Item().PaddingTop(2).Text(title).Bold();
+
+        if (relationships.Count == 0)
+        {
+            column.Item().Text("None");
+            return;
+        }
+
+        foreach (RelationshipDiffItem relationship in relationships)
+            column.Item().Text($"• {relationship.ToDisplayLine()}");
     }
 }
