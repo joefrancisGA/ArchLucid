@@ -6,6 +6,7 @@ import { GovernanceRecordCorrectionDialog } from "@/components/governance/Govern
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { ReversibleMutationSuccessCallout } from "@/components/operator/ReversibleMutationSuccessCallout";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
+import { GOVERNANCE_MUTATION_CORRECTION_SUCCESS_MESSAGE } from "@/lib/governance/governance-mutation-correction-api";
 import { GOVERNANCE_CONCURRENCY_CONFLICT_RECOVERY } from "@/lib/error-recovery-contract-copy";
 import type { UseGovernanceWorkflowMutationsResult } from "@/hooks/use-governance-workflow-mutations";
 
