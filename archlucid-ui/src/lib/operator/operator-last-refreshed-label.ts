@@ -93,6 +93,28 @@ export function operatorLastRefreshedExactLabel(
 }
 
 /**
+ * Home header freshness — relative age for older refreshes; minute-precision clock when just loaded.
+ * Avoids second-level precision that reads like a live stream beside day-old review rows.
+ */
+export function operatorHomeDataCurrencyValue(lastRefreshedAt: Date): string {
+  const relativeLabel = operatorLastRefreshedLabel(lastRefreshedAt);
+  const clockLabel = operatorLastRefreshedClockLabel(lastRefreshedAt);
+
+  if (clockLabel === null) {
+    return relativeLabel;
+  }
+
+  const nowMs = Date.now();
+  const nowRelativeLabel = formatRelativeTime(new Date(nowMs).toISOString(), nowMs);
+
+  if (relativeLabel === nowRelativeLabel) {
+    return clockLabel;
+  }
+
+  return relativeLabel;
+}
+
+/**
  * Clock time with timezone for health surfaces. A relative age alone goes stale silently,
  * and operators correlating health with an incident timeline need an absolute reading.
  */
@@ -106,7 +128,6 @@ export function operatorLastRefreshedClockLabel(
   return new Intl.DateTimeFormat(undefined, {
     hour: "numeric",
     minute: "2-digit",
-    second: "2-digit",
     timeZoneName: "short",
   }).format(lastRefreshedAt);
 }
