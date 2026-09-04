@@ -3296,11 +3296,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 186
-- **bugs-found:** 395
+- **hunts:** 187
+- **bugs-found:** 396
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — policy pack publish omitted contentJson defaulted to empty pack JSON
+- **last-bug:** 2026-09-04 — digest preferences POST omitted emailEnabled bound to false
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4227,8 +4227,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `PolicyPacksController.SetAssignmentEnabled` / `SetPolicyPackAssignmentEnabledRequest` — JSON body omitted `isEnabled` → HTTP 204 and persisted `IsEnabled = false` instead of HTTP 400 — **hit 2026-09-04 (#757):** `required bool IsEnabled` (CorePilot checklist `isCompleted` omission parity); regression in `SetAssignmentEnabledRequest_deserialization_rejects_missing_is_enabled`.
 - [x] (proven) `PolicyPacksController.Publish` / `PublishPolicyPackVersionRequest` — JSON body omitted `contentJson` → HTTP 200 and published `"{}"` empty pack via property initializer — **hit 2026-09-04 (#757):** `required string ContentJson` + FluentValidation `NotEmpty`; regression in `PublishPolicyPackVersionRequest_deserialization_rejects_missing_content_json`.
-- [ ] (hunt-ready) `TenantExecDigestPreferencesController.PostExecDigestPreferences` / `TenantSponsorDigestPreferencesController.PostSponsorDigestPreferences` / `ExecDigestPreferencesUpsertRequest` — omitted `emailEnabled` binds as `false` and may unintentionally disable digest when caller only updates recipients (`DigestRecipientEmailsValidator` only gates `emailEnabled: true` + zero recipients).
-- [ ] (candidate) `TenantExecDigestPreferencesController.PostExecDigestPreferences` — omitted `dayOfWeek` / `hourOfDay` silently default to Monday 08:00 (`?? 1`, `?? 8`) instead of HTTP 400 validation.
+- [x] (proven) `TenantExecDigestPreferencesController.PostExecDigestPreferences` / `TenantSponsorDigestPreferencesController.PostSponsorDigestPreferences` / `ExecDigestPreferencesUpsertRequest` — omitted `emailEnabled` bound as `false` and could unintentionally disable digest when caller only updated recipients — **hit 2026-09-04 (#758):** `required bool EmailEnabled` on exec/sponsor upsert requests (checklist `isCompleted` / policy-pack `isEnabled` omission parity); regressions in `ExecDigestPreferencesUpsertRequest_deserialization_rejects_missing_email_enabled` and `SponsorDigestPreferencesUpsertRequest_deserialization_rejects_missing_email_enabled`.
+- [x] (invalid) `TenantExecDigestPreferencesController.PostExecDigestPreferences` — omitted `dayOfWeek` / `hourOfDay` silently default to Monday 08:00 (`?? 1`, `?? 8`) instead of HTTP 400 validation — **cheap-disproof 2026-09-04 (#758):** defaults match `ExecDigestPreferencesResponse.Unconfigured` schedule fields; intentional partial-upsert semantics; regression in `PostExecDigestPreferences_applies_default_schedule_when_day_of_week_and_hour_omitted`.
+
+2026-09-04 thorough hunt #758 (hit): proved digest preferences omitted `emailEnabled`; cheap-disproved silent schedule-default candidate.
 
 2026-09-04 seed hunt #757 (hit): proved policy pack assignment `isEnabled` omission and publish `contentJson` omission; seeded digest `emailEnabled` omission and silent schedule-default candidates.
 

@@ -1,4 +1,7 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Controllers.Tenancy;
+using ArchLucid.Api.Serialization;
 using ArchLucid.Contracts.Notifications;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -24,6 +27,16 @@ public sealed class TenantSponsorDigestPreferencesControllerTests
         WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
     };
+
+    [Fact]
+    public void SponsorDigestPreferencesUpsertRequest_deserialization_rejects_missing_email_enabled()
+    {
+        Action act = () => JsonSerializer.Deserialize<SponsorDigestPreferencesUpsertRequest>(
+            """{"recipientEmails":["sponsor@contoso.test"]}""",
+            ArchLucidApiJsonSerializerOptions.Web);
+
+        act.Should().Throw<JsonException>();
+    }
 
     [Fact]
     public async Task GetSponsorDigestPreferences_returns_unconfigured_defaults_when_no_row()
@@ -102,7 +115,7 @@ public sealed class TenantSponsorDigestPreferencesControllerTests
             Mock.Of<ITenantSponsorDigestPreferencesRepository>(),
             Mock.Of<IAuditService>());
 
-        SponsorDigestPreferencesUpsertRequest body = new() { DayOfWeek = 7 };
+        SponsorDigestPreferencesUpsertRequest body = new() { EmailEnabled = false, DayOfWeek = 7 };
 
         IActionResult action = await controller.PostSponsorDigestPreferences(body, CancellationToken.None);
 
@@ -121,7 +134,7 @@ public sealed class TenantSponsorDigestPreferencesControllerTests
             Mock.Of<ITenantSponsorDigestPreferencesRepository>(),
             Mock.Of<IAuditService>());
 
-        SponsorDigestPreferencesUpsertRequest body = new() { IanaTimeZoneId = "Not/AZone" };
+        SponsorDigestPreferencesUpsertRequest body = new() { EmailEnabled = false, IanaTimeZoneId = "Not/AZone" };
 
         IActionResult action = await controller.PostSponsorDigestPreferences(body, CancellationToken.None);
 

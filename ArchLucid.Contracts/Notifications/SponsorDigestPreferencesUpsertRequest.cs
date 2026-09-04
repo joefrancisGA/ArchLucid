@@ -3,7 +3,7 @@ namespace ArchLucid.Contracts.Notifications;
 /// <summary>Upsert body for <c>POST /v1/tenant/sponsor-digest-preferences</c>.</summary>
 public sealed class SponsorDigestPreferencesUpsertRequest
 {
-    public bool EmailEnabled
+    public required bool EmailEnabled
     {
         get;
         init;

@@ -1,4 +1,7 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Controllers.Tenancy;
+using ArchLucid.Api.Serialization;
 using ArchLucid.Contracts.Notifications;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -24,6 +27,57 @@ public sealed class TenantExecDigestPreferencesControllerTests
         WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
     };
+
+    [Fact]
+    public void ExecDigestPreferencesUpsertRequest_deserialization_rejects_missing_email_enabled()
+    {
+        Action act = () => JsonSerializer.Deserialize<ExecDigestPreferencesUpsertRequest>(
+            """{"recipientEmails":["exec@contoso.test"]}""",
+            ArchLucidApiJsonSerializerOptions.Web);
+
+        act.Should().Throw<JsonException>();
+    }
+
+    [Fact]
+    public async Task PostExecDigestPreferences_applies_default_schedule_when_day_of_week_and_hour_omitted()
+    {
+        Mock<ITenantExecDigestPreferencesRepository> repository = new();
+        repository
+            .Setup(r => r.UpsertAsync(
+                Scope.TenantId,
+                true,
+                It.IsAny<IReadOnlyList<string>>(),
+                "UTC",
+                1,
+                8,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ExecDigestPreferencesResponse
+            {
+                TenantId = Scope.TenantId,
+                IsConfigured = true,
+                EmailEnabled = true,
+                RecipientEmails = ["exec@contoso.test"],
+            });
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantExecDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            repository.Object,
+            Mock.Of<IAuditService>());
+
+        ExecDigestPreferencesUpsertRequest body = new()
+        {
+            EmailEnabled = true,
+            RecipientEmails = ["exec@contoso.test"],
+        };
+
+        IActionResult action = await controller.PostExecDigestPreferences(body, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        repository.VerifyAll();
+    }
 
     [Fact]
     public async Task GetExecDigestPreferences_returns_unconfigured_defaults_when_no_row()
@@ -102,7 +156,7 @@ public sealed class TenantExecDigestPreferencesControllerTests
             Mock.Of<ITenantExecDigestPreferencesRepository>(),
             Mock.Of<IAuditService>());
 
-        ExecDigestPreferencesUpsertRequest body = new() { DayOfWeek = 7 };
+        ExecDigestPreferencesUpsertRequest body = new() { EmailEnabled = false, DayOfWeek = 7 };
 
         IActionResult action = await controller.PostExecDigestPreferences(body, CancellationToken.None);
 
@@ -121,7 +175,7 @@ public sealed class TenantExecDigestPreferencesControllerTests
             Mock.Of<ITenantExecDigestPreferencesRepository>(),
             Mock.Of<IAuditService>());
 
-        ExecDigestPreferencesUpsertRequest body = new() { IanaTimeZoneId = "Not/AZone" };
+        ExecDigestPreferencesUpsertRequest body = new() { EmailEnabled = false, IanaTimeZoneId = "Not/AZone" };
 
         IActionResult action = await controller.PostExecDigestPreferences(body, CancellationToken.None);
 
