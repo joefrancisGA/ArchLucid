@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useCallback, useMemo, useState } from "react";
 
 import { useSponsorRoiSummaryQuery } from "@/hooks/use-sponsor-roi-summary-query";
+import { useAskRunCoverageHonestyQuery } from "@/hooks/use-ask-run-coverage-honesty-query";
 
 import { downloadSponsorRoiBoardPack } from "@/lib/api/sponsor-roi-board-pack-api";
 
@@ -22,6 +23,7 @@ import { SponsorRoiSystemsIncludedSection } from "./SponsorRoiSystemsIncludedSec
 import { RoiHeadlineMathTooltip } from "@/components/roi/RoiHeadlineMathTooltip";
 import { resolveSponsorRoiIdentifiedVsRealized } from "@/lib/sponsor-roi-identified-vs-realized";
 import { triggerGoldenManifestMarkdownDownload } from "@/lib/export-markdown";
+import { formatSponsorReviewCoverageHonestyMarkdown } from "@/lib/sponsor/sponsor-review-coverage-honesty";
 import { showError } from "@/lib/toast";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -58,6 +60,7 @@ export type SponsorRoiSummarySectionProps = {
   readonly loading?: boolean;
   readonly summaryError?: string | null;
   readonly surface?: "operator" | "sponsor";
+  readonly scopedReviewId?: string;
 };
 
 /** Live cross-run sponsor ROI panel backed by sponsor ROI summary API. */
@@ -66,10 +69,15 @@ export function SponsorRoiSummarySection({
   loading: loadingProp,
   summaryError: summaryErrorProp,
   surface = "operator",
+  scopedReviewId = "",
 }: SponsorRoiSummarySectionProps = {}) {
   const executiveSurface = surface === "sponsor";
   const usesExternalSummary = summaryProp !== undefined || loadingProp !== undefined || summaryErrorProp !== undefined;
   const summaryQuery = useSponsorRoiSummaryQuery({ enabled: !usesExternalSummary });
+  const scopedReviewTrimmed = scopedReviewId.trim();
+  const coverageHonestyQuery = useAskRunCoverageHonestyQuery(scopedReviewTrimmed, {
+    enabled: scopedReviewTrimmed.length > 0,
+  });
   const data = usesExternalSummary ? (summaryProp ?? null) : (summaryQuery.data ?? null);
   const failure = useMemo(
     () => (usesExternalSummary || !summaryQuery.isError ? null : toApiLoadFailure(summaryQuery.error)),
@@ -84,10 +92,22 @@ export function SponsorRoiSummarySection({
       return;
     }
 
-    const markdown = buildSponsorSummaryMarkdown(resolved);
+    const reviewHonestyMarkdown =
+      scopedReviewTrimmed.length > 0 && coverageHonestyQuery.data !== undefined
+        ? formatSponsorReviewCoverageHonestyMarkdown({
+            runId: scopedReviewTrimmed,
+            progressSummary: coverageHonestyQuery.data.progressSummary,
+            manifestSummary: coverageHonestyQuery.data.manifestSummary,
+            graphSnapshot: coverageHonestyQuery.data.buyerSummary.graphSnapshot,
+          })
+        : "";
+
+    const markdown = buildSponsorSummaryMarkdown(resolved, {
+      reviewHonestyMarkdown,
+    });
 
     triggerGoldenManifestMarkdownDownload(markdown, SponsorReportMarkdownFilename());
-  }, [data, summaryProp, usesExternalSummary]);
+  }, [coverageHonestyQuery.data, data, scopedReviewTrimmed, summaryProp, usesExternalSummary]);
 
   const onDownloadBoardPack = useCallback(async () => {
     setBoardPackBusy(true);
