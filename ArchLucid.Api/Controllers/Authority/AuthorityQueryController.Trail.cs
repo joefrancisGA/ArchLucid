@@ -83,13 +83,17 @@ public sealed partial class AuthorityQueryController
 
         try
         {
-            if (manifestDetail?.GoldenManifest is not null)
+            if (manifestDetail?.GoldenManifest is null)
             {
-                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                    manifestDetail.GoldenManifest,
-                    result.RunId.ToString("D"),
-                    manifestHashService);
+                return this.ConflictProblem(
+                    $"Manifest '{manifestId}' sealed hash verification is unavailable because the committed golden manifest is missing.",
+                    ProblemTypes.Conflict);
             }
+
+            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                manifestDetail.GoldenManifest,
+                result.RunId.ToString("D"),
+                manifestHashService);
         }
         catch (ConflictException ex)
         {
