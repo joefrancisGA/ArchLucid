@@ -74,6 +74,28 @@ public sealed class GovernancePreviewControllerUnitTests
     }
 
     [Fact]
+    public async Task Preview_returns_bad_request_when_run_id_exceeds_max_length()
+    {
+        string overlongRunId = new string('r', GovernanceRequestValidationRules.RunIdMaxLength + 1);
+        Mock<IGovernancePreviewService> preview = new(MockBehavior.Strict);
+
+        GovernancePreviewController controller = CreateController(preview.Object, tenantExists: true);
+
+        IActionResult action = await controller.Preview(
+            new CreateGovernancePreviewRequest
+            {
+                RunId = overlongRunId,
+                ManifestVersion = "v1",
+                Environment = "dev",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        preview.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task Preview_returns_bad_request_when_environment_exceeds_max_length()
     {
         string overlongEnvironment = new string('e', GovernanceEnvironmentSlug.MaxLength + 1);

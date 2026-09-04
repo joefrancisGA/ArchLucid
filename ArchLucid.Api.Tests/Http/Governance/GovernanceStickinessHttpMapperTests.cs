@@ -1,6 +1,7 @@
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
+using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Manifest;
 
@@ -58,6 +59,45 @@ public sealed class GovernanceStickinessHttpMapperTests
         validation.Should().NotBeNull();
         validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
         validation.Message.Should().Contain(GovernanceRequestValidationRules.FindingIdMaxLength.ToString());
+    }
+
+    [Fact]
+    public void ValidateCreateRiskException_rejects_overlong_owner_user_id()
+    {
+        string overlongOwnerUserId = new string('o', RiskExceptionValidation.OwnerUserIdMaxLength + 1);
+
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateCreateRiskException(
+            new CreateRiskExceptionRequest
+            {
+                RunId = Guid.NewGuid(),
+                FindingId = "finding-1",
+                OwnerUserId = overlongOwnerUserId,
+                Rationale = "accepted risk rationale",
+                ExpiresAtUtc = DateTime.UtcNow.AddDays(30),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain(RiskExceptionValidation.OwnerUserIdMaxLength.ToString());
+    }
+
+    [Fact]
+    public void ValidateCreateRiskException_rejects_overlong_evidence_ref()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateCreateRiskException(
+            new CreateRiskExceptionRequest
+            {
+                RunId = Guid.NewGuid(),
+                FindingId = "finding-1",
+                OwnerUserId = "owner",
+                Rationale = "accepted risk rationale",
+                EvidenceRef = new string('e', RiskExceptionValidation.EvidenceRefMaxLength + 1),
+                ExpiresAtUtc = DateTime.UtcNow.AddDays(30),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain(RiskExceptionValidation.EvidenceRefMaxLength.ToString());
     }
 
     [Fact]

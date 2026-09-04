@@ -1738,6 +1738,33 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task CreateRiskException_returns_bad_request_when_owner_user_id_exceeds_max_length_before_facade()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new(MockBehavior.Strict);
+        Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            findingInspect: findingInspect,
+            riskExceptions: riskExceptions);
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = "finding-1",
+            RunId = Guid.NewGuid(),
+            OwnerUserId = new string('o', RiskExceptionValidation.OwnerUserIdMaxLength + 1),
+            Rationale = "accepted risk rationale",
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        IActionResult action = await controller.CreateRiskException(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        findingInspect.VerifyNoOtherCalls();
+        riskExceptions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task CreateRiskException_returns_bad_request_when_run_id_is_empty()
     {
         GovernanceStickinessController controller = BuildSut();

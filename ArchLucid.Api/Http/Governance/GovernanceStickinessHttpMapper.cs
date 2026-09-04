@@ -49,6 +49,30 @@ public static class GovernanceStickinessHttpMapper
                 ProblemTypes.ValidationFailed);
         }
 
+        if (string.IsNullOrWhiteSpace(request.OwnerUserId))
+            return new GovernanceHttpValidation("ownerUserId is required.", ProblemTypes.ValidationFailed);
+
+        string normalizedOwnerUserId = request.OwnerUserId.Trim();
+
+        if (normalizedOwnerUserId.Length > RiskExceptionValidation.OwnerUserIdMaxLength)
+        {
+            return new GovernanceHttpValidation(
+                $"ownerUserId must not exceed {RiskExceptionValidation.OwnerUserIdMaxLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (request.EvidenceRef is not null)
+        {
+            string normalizedEvidenceRef = request.EvidenceRef.Trim();
+
+            if (normalizedEvidenceRef.Length > RiskExceptionValidation.EvidenceRefMaxLength)
+            {
+                return new GovernanceHttpValidation(
+                    $"evidenceRef must not exceed {RiskExceptionValidation.EvidenceRefMaxLength} characters.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
         return null;
     }
 

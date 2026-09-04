@@ -53,10 +53,12 @@ public sealed class GovernancePreviewController(
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (string.IsNullOrWhiteSpace(body.RunId))
-        {
-            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
-        }
+        IActionResult? runIdProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRunId(body.RunId)
+                .ToBadRequestProblemOrNull(this);
+
+        if (runIdProblem is not null)
+            return runIdProblem;
 
         if (!Guid.TryParse(body.RunId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
         {

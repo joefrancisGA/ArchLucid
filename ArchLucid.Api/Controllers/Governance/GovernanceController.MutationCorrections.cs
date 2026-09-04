@@ -1,4 +1,5 @@
 using ArchLucid.Api.Http;
+using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Governance;
@@ -27,6 +28,13 @@ public sealed partial class GovernanceController
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? validationProblem =
+            GovernanceMutationCorrectionsHttpMapper.ValidateRecordMutationCorrection(request)
+                .ToBadRequestProblemOrNull(this);
+
+        if (validationProblem is not null)
+            return validationProblem;
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 

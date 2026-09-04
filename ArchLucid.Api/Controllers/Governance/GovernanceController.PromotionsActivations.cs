@@ -208,6 +208,13 @@ public sealed partial class GovernanceController
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        IActionResult? runIdProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRunId(runId)
+                .ToBadRequestProblemOrNull(this);
+
+        if (runIdProblem is not null)
+            return runIdProblem;
+
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -236,6 +243,13 @@ public sealed partial class GovernanceController
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        IActionResult? runIdProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRunId(runId)
+                .ToBadRequestProblemOrNull(this);
+
+        if (runIdProblem is not null)
+            return runIdProblem;
+
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -264,6 +278,13 @@ public sealed partial class GovernanceController
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        IActionResult? runIdProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRunId(runId)
+                .ToBadRequestProblemOrNull(this);
+
+        if (runIdProblem is not null)
+            return runIdProblem;
+
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)

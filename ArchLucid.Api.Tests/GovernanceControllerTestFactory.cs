@@ -41,6 +41,7 @@ internal static class GovernanceControllerTestFactory
         IPolicyPackDraftService? policyPackDraftService = null,
         IPolicyPackGeneratorService? policyPackGeneratorService = null,
         ITenantRepository? tenantRepository = null,
+        IGovernanceMutationCorrectionService? mutationCorrectionService = null,
         HttpContext? httpContext = null)
     {
         IScopeContextProvider scope = scopeContextProvider ?? Mock.Of<IScopeContextProvider>();
@@ -72,7 +73,8 @@ internal static class GovernanceControllerTestFactory
             scope,
             runs);
 
-        IGovernanceMutationCorrectionService mutationCorrectionService = new GovernanceMutationCorrectionService(
+        IGovernanceMutationCorrectionService mutationCorrection = mutationCorrectionService
+            ?? new GovernanceMutationCorrectionService(
             approvals,
             promotionRepository ?? Mock.Of<IGovernancePromotionRecordRepository>(),
             activationRepository ?? Mock.Of<IGovernanceEnvironmentActivationRepository>(),
@@ -86,7 +88,7 @@ internal static class GovernanceControllerTestFactory
             approvalRequestsFacade,
             promotionsActivationsFacade,
             insightsFacade,
-            mutationCorrectionService,
+            mutationCorrection,
             actorContext ?? Mock.Of<IActorContext>(),
             scope,
             policyPackDryRunService ?? Mock.Of<IPolicyPackDryRunService>(),

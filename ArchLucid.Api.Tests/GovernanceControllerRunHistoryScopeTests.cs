@@ -1415,6 +1415,54 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     }
 
     [Fact]
+    public async Task GetApprovalRequests_returns_bad_request_when_run_id_exceeds_max_length()
+    {
+        string overlongRunId = new string('r', GovernanceRequestValidationRules.RunIdMaxLength + 1);
+        Mock<IGovernanceApprovalRequestRepository> approvals = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(approvalRepository: approvals.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.GetApprovalRequests(overlongRunId, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        approvals.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetPromotions_returns_bad_request_when_run_id_exceeds_max_length()
+    {
+        string overlongRunId = new string('r', GovernanceRequestValidationRules.RunIdMaxLength + 1);
+        Mock<IGovernancePromotionRecordRepository> promotions = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(promotionRepository: promotions.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.GetPromotions(overlongRunId, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        promotions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetActivations_returns_bad_request_when_run_id_exceeds_max_length()
+    {
+        string overlongRunId = new string('r', GovernanceRequestValidationRules.RunIdMaxLength + 1);
+        Mock<IGovernanceEnvironmentActivationRepository> activations = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(activationRepository: activations.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.GetActivations(overlongRunId, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        activations.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task SubmitApprovalRequest_returns_validation_failed_when_environment_step_is_invalid()
     {
         Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");
