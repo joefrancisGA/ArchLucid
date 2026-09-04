@@ -196,6 +196,27 @@ public sealed class GovernancePreviewControllerUnitTests
     }
 
     [Fact]
+    public async Task Preview_returns_bad_request_when_environment_is_unrecognized_and_tenant_missing()
+    {
+        Mock<IGovernancePreviewService> preview = new(MockBehavior.Strict);
+
+        GovernancePreviewController controller = CreateController(preview.Object, tenantExists: false);
+
+        IActionResult action = await controller.Preview(
+            new CreateGovernancePreviewRequest
+            {
+                RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D"),
+                ManifestVersion = "v1",
+                Environment = "staging",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        preview.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task CompareEnvironments_returns_bad_request_when_source_environment_exceeds_max_length()
     {
         string overlongEnvironment = new string('e', GovernanceEnvironmentSlug.MaxLength + 1);

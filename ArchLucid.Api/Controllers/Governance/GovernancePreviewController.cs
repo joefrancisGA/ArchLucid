@@ -79,6 +79,12 @@ public sealed class GovernancePreviewController(
         if (environmentProblem is not null)
             return environmentProblem;
 
+        IActionResult? previewValidationProblem =
+            GovernancePreviewHttpMapper.Validate(body).ToBadRequestProblemOrNull(this);
+
+        if (previewValidationProblem is not null)
+            return previewValidationProblem;
+
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)

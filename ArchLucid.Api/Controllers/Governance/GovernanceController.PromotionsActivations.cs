@@ -169,6 +169,12 @@ public sealed partial class GovernanceController
         if (environmentProblem is not null)
             return environmentProblem;
 
+        IActionResult? activationValidationProblem =
+            GovernanceActivationHttpMapper.Validate(request).ToBadRequestProblemOrNull(this);
+
+        if (activationValidationProblem is not null)
+            return activationValidationProblem;
+
         (IActionResult? idempotencyError, _) = ReadGovernanceIdempotencyKey(true);
 
         if (idempotencyError is not null)
