@@ -471,6 +471,23 @@ public sealed class GovernanceStickinessHttpMapperTests
     }
 
     [Fact]
+    public void ValidateBulkDisposition_rejects_whitespace_only_optional_trade_off_acknowledgment()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateBulkDisposition(
+            new RecordBulkFindingDispositionRequest
+            {
+                FindingIds = ["finding-1"],
+                Disposition = FindingDisposition.Remediated,
+                Rationale = "bulk remediated with enough chars",
+                TradeOffAcknowledgment = "   ",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("tradeOffAcknowledgment");
+    }
+
+    [Fact]
     public void ValidateCreateRiskException_rejects_rationale_shorter_than_minimum_length()
     {
         GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateCreateRiskException(

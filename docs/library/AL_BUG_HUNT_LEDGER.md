@@ -3348,11 +3348,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 198
-- **bugs-found:** 419
+- **hunts:** 199
+- **bugs-found:** 420
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — disposition optional-field whitespace silent no-op
+- **last-bug:** 2026-09-04 — bulk disposition optional trade-off whitespace no-op
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4327,6 +4327,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` / `GovernanceStickinessHttpMapper.ValidateBulkDisposition` — bulk `Accepted` with whitespace-only `tradeOffAcknowledgment` skipped validation and defaulted to shared `rationale` while single-item `Accepted` rejected whitespace — **hit 2026-09-04 (#781):** validate trade-off whenever field is non-null on bulk `Accepted`; regressions in `ValidateBulkDisposition_rejects_whitespace_only_trade_off_acknowledgment_on_accepted` and `RecordBulkDisposition_returns_bad_request_when_accepted_trade_off_is_whitespace_only`.
 
 2026-09-04 seed hunt #781 (hit): proved disposition optional-field whitespace silent no-op on single and bulk paths.
+
+- [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` / `GovernanceStickinessHttpMapper.ValidateBulkDisposition` — whitespace-only `tradeOffAcknowledgment` on non-`Accepted` bulk dispositions passed HTTP validation and was silently ignored — **hit 2026-09-04 (#782):** `ValidateOptionalDispositionFieldWhenNotApplicable` parity with single-item path (#781); regression in `ValidateBulkDisposition_rejects_whitespace_only_optional_trade_off_acknowledgment`.
+
+2026-09-04 seed hunt #782 (hit): proved bulk disposition optional trade-off whitespace no-op on non-`Accepted` path.
 
 2026-09-04 thorough hunt #778: proved digest disable-only recipient wipe; cheap-disproved promotion/activation environment omission candidates.
 

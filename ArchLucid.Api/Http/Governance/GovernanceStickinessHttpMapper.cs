@@ -446,6 +446,15 @@ public static class GovernanceStickinessHttpMapper
         if (optionalEvidenceValidation is not null)
             return optionalEvidenceValidation;
 
+        GovernanceHttpValidation? optionalTradeOffValidation =
+            ValidateOptionalDispositionFieldWhenNotApplicable(
+                request.TradeOffAcknowledgment,
+                "tradeOffAcknowledgment",
+                request.Disposition == FindingDisposition.Accepted);
+
+        if (optionalTradeOffValidation is not null)
+            return optionalTradeOffValidation;
+
         return null;
     }
 
