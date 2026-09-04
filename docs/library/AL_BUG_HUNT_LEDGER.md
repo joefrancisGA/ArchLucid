@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 156
-- **bugs-found:** 366
+- **hunts:** 157
+- **bugs-found:** 367
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — workspace delete/restore route-id validation ordering before tenant lookup
+- **last-bug:** 2026-09-04 — approval lineage/rationale route-id validation ordering before tenant lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3964,6 +3964,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantWorkspacesController.DeleteProjectAsync` / `RestoreProjectAsync` — tenant preflight ran before route `workspaceId`/`projectId` empty-GUID checks so ghost tenant + `Guid.Empty` returned HTTP 404 instead of 400 (#3382 tenant-present parity gap; #695 ordering sibling) — **hit 2026-09-04 (#697):** reject empty route guids before tenant lookup; regression in `TenantWorkspacesControllerTests.DeleteProjectAsync_returns_bad_request_when_workspace_id_is_empty_and_tenant_missing` and `RestoreProjectAsync_returns_bad_request_when_project_id_is_empty_and_tenant_missing`.
 
 2026-09-04 seed hunt #697: promoted and proved workspace project delete/restore fail-fast route-id validation ordering.
+
+- [x] (proven) `GovernanceController.GetApprovalRequestLineage` / `GetApprovalRequestRationale` — tenant preflight ran before `approvalRequestId` normalization/validation so ghost tenant + whitespace route id returned HTTP 404 instead of 400 (Approve/Reject ordering sibling; #697 workspace route-id parity) — **hit 2026-09-04 (#698):** validate route approvalRequestId before tenant lookup; regression in `GovernanceControllerRunHistoryScopeTests.GetApprovalRequestLineage_returns_bad_request_when_approval_request_id_is_whitespace_and_tenant_missing` and `GetApprovalRequestRationale_returns_bad_request_when_approval_request_id_is_whitespace_and_tenant_missing`.
+
+2026-09-04 seed hunt #698: promoted and proved approval lineage/rationale fail-fast route-id validation ordering.
 
 2026-09-04 seed hunt #695: promoted and proved attestation upsert HTTP mapper and product-feedback validation ordering.
 
