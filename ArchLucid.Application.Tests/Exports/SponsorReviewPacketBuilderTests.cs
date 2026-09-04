@@ -12,6 +12,7 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
@@ -309,6 +310,7 @@ public sealed class SponsorReviewPacketBuilderTests
             scopeProvider,
             tenantRepository ?? Mock.Of<ITenantRepository>(),
             authorityQuery.Object,
-            manifestHash.Object);
+            manifestHash.Object,
+            Mock.Of<IGraphSnapshotRepository>());
     }
 }

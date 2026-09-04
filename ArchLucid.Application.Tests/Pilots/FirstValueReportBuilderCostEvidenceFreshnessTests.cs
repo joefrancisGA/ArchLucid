@@ -213,6 +213,7 @@ public sealed class FirstValueReportBuilderCostEvidenceFreshnessTests
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
+            FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 
