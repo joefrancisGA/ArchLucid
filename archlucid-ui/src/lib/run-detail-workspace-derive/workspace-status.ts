@@ -136,3 +136,29 @@ export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceSt
 
   return { label: "Draft", kind: "draft", statusTagKind: "neutral" };
 }
+
+export function isReviewPipelineIncomplete(workspaceStatus: RunDetailWorkspaceStatus): boolean {
+  return (
+    workspaceStatus.kind === "draft"
+    || workspaceStatus.kind === "analysis-in-progress"
+    || workspaceStatus.kind === "execution-failed"
+    || workspaceStatus.kind === "quality-gate-rejected"
+  );
+}
+
+export function deriveDecisionSnapshotSuppressedReason(
+  workspaceStatus: RunDetailWorkspaceStatus,
+): string | null {
+  switch (workspaceStatus.kind) {
+    case "execution-failed":
+      return "Unavailable until the review completes. Resolve the execution failure and re-run the review.";
+    case "quality-gate-rejected":
+      return "Unavailable until the review completes. Resolve quality gate issues and re-run the review.";
+    case "analysis-in-progress":
+      return "Unavailable while the review is running. Metrics appear after the pipeline completes.";
+    case "draft":
+      return "Unavailable until the review runs. Start or re-run the review to generate findings.";
+    default:
+      return null;
+  }
+}

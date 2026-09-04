@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  filterRunDetailInPageAnchorSectionsForTab,
   filterRunDetailNavSectionsForTab,
   resolveReviewDetailTabForSectionAnchor,
   RUN_DETAIL_SECTION_TAB,
@@ -28,6 +29,18 @@ describe("run-detail-section-tab-map", () => {
 
     expect(filterRunDetailNavSectionsForTab(sections, "activity").map((s) => s.id)).toEqual([
       "pipeline-timeline",
+    ]);
+  });
+
+  it("excludes tab destinations from tabbed in-page anchor nav", () => {
+    const sections = [
+      { id: "overview", label: "Overview", available: true },
+      { id: "findings", label: "Findings", available: true },
+      { id: "review-summary", label: "Decision snapshot", available: true },
+    ];
+
+    expect(filterRunDetailInPageAnchorSectionsForTab(sections, "overview").map((s) => s.id)).toEqual([
+      "review-summary",
     ]);
   });
 });
