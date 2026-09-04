@@ -2765,6 +2765,16 @@
             },
             "type": "array"
           },
+          "inputFingerprints": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CompareInputFingerprints"
+              }
+            ]
+          },
           "leftRunId": {
             "type": "string"
           },
@@ -28022,6 +28032,19 @@
         },
         "type": "object"
       },
+      "SetRoiLoadedHourlyCostUsdRequest": {
+        "properties": {
+          "hourlyCostUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "SetSampleReviewsOnOverviewVisibilityRequest": {
         "properties": {
           "enabled": {
@@ -32882,6 +32905,17 @@
           "professionalWorkbenchEnabledIsExplicit": {
             "type": "boolean"
           },
+          "roiLoadedHourlyCostUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "roiLoadedHourlyCostUsdIsExplicit": {
+            "type": "boolean"
+          },
           "sampleReviewsOnOverviewEnabled": {
             "type": "boolean"
           },
@@ -35535,13 +35569,28 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
