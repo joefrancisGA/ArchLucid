@@ -160,11 +160,11 @@ public sealed class ArchitectureReviewRobustnessWave3ArchitectureTests
     [Fact]
     public void Suggestion29_orchestrator_uses_confluent_merger()
     {
-        string orchestrator = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "FindingsOrchestrator.cs"));
+        string mergeStage = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "Findings", "FindingsMergeAndGateStage.cs"));
 
-        orchestrator.Should().Contain("FindingSnapshotConfluentMerger");
-        orchestrator.Should().NotContain("type|title");
+        mergeStage.Should().Contain("FindingSnapshotConfluentMerger");
+        mergeStage.Should().NotContain("type|title");
     }
 
     [Fact]

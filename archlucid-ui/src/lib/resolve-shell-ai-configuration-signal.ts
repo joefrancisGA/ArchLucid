@@ -2,7 +2,7 @@ import type { SessionAiReadinessState } from "@/hooks/use-session-ai-readiness-c
 import type { WorkspaceAiConfigurationSignal } from "@/lib/review-failure-recovery-role-copy";
 import { REAL_MODE_DEV_OVERRIDE_HOST_MISMATCH_DETAIL } from "@/lib/simulator-mode-chrome-copy";
 
-/** Workspace AI signal copy for the operator shell Live AI readiness panel. */
+/** Workspace AI signal copy for the architect workspace Live AI readiness panel. */
 export function resolveShellAiConfigurationSignal(
   readiness: SessionAiReadinessState,
 ): WorkspaceAiConfigurationSignal {
@@ -26,6 +26,6 @@ export function resolveShellAiConfigurationSignal(
   return {
     label: "Live AI readiness",
     detail:
-      "Live AI mode is selected for this session. Availability is checked automatically while you work in the operator shell.",
+      "Live AI mode is selected for this session. Availability is checked automatically while you work in the architect workspace.",
   };
 }
