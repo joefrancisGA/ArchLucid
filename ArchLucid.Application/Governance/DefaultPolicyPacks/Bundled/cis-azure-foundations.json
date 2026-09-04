@@ -10,7 +10,11 @@
     "cis-az-007",
     "cis-az-008",
     "cis-az-009",
-    "cis-az-010"
+    "cis-az-010",
+    "cis-az-012",
+    "cis-az-018",
+    "cis-az-025",
+    "cis-az-027"
   ],
   "alertRuleIds": [],
   "compositeAlertRuleIds": [],

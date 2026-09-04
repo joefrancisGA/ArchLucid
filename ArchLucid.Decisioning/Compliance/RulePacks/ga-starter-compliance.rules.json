@@ -5511,7 +5511,7 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "priority": "P1",
+      "priority": "P0",
       "description": "Stub for aws-dr-003; see docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json for narrative."
     },
     {
@@ -5522,7 +5522,7 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "priority": "P1",
+      "priority": "P0",
       "description": "Stub for aws-dr-004; see docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json for narrative."
     },
     {
@@ -5533,7 +5533,7 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "priority": "P1",
+      "priority": "P0",
       "description": "Stub for aws-dr-005; see docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json for narrative."
     },
     {
@@ -5577,7 +5577,7 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "priority": "P1",
+      "priority": "P0",
       "description": "Stub for gcp-dr-003; see docs/samples/policy-packs/gcp-resiliency-dr-rules-v1.json for narrative."
     },
     {
@@ -5588,7 +5588,7 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "priority": "P1",
+      "priority": "P0",
       "description": "Stub for gcp-dr-004; see docs/samples/policy-packs/gcp-resiliency-dr-rules-v1.json for narrative."
     },
     {
@@ -5599,7 +5599,7 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "priority": "P1",
+      "priority": "P0",
       "description": "Stub for gcp-dr-005; see docs/samples/policy-packs/gcp-resiliency-dr-rules-v1.json for narrative."
     },
     {
