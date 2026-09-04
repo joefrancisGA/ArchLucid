@@ -2,20 +2,23 @@ import Link from "next/link";
 
 import { Suspense } from "react";
 
-import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpAzureBoardsConnectionContext } from "@/app/(operator)/help/_sections/HelpAzureBoardsConnectionContext";
+import { HelpAzureBoardsHeaderActions } from "@/app/(operator)/help/_sections/HelpAzureBoardsHeaderActions";
 import { HelpAzureBoardsSetupStepCtAs } from "@/app/(operator)/help/_sections/HelpAzureBoardsSetupStepCtAs";
+import { HelpAzureBoardsSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpAzureBoardsSourcesOrientationStrip";
+import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { AzureBoardsHelpClaimDisciplineStrip } from "@/components/help/AzureBoardsHelpClaimDisciplineStrip";
-import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
+import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
-import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   AZURE_BOARDS_HELP_AUTHORITY_NOTE,
   AZURE_BOARDS_HELP_CANONICAL_PATH,
+  AZURE_BOARDS_HELP_CLAIM_DISCIPLINE,
   AZURE_BOARDS_HELP_CONTINUE_HEADING,
   AZURE_BOARDS_HELP_PAGE_SUBTITLE,
   AZURE_BOARDS_HELP_PAGE_TITLE,
@@ -27,6 +30,13 @@ import {
   AZURE_BOARDS_HELP_SOURCES_INTRO,
 } from "@/lib/azure-boards-help-evidence-copy";
 import {
+  AZURE_BOARDS_HELP_FIRST_VIEWPORT_TEST_ID,
+  AZURE_BOARDS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  AZURE_BOARDS_HELP_PRIMARY_CONTENT_ID,
+  AZURE_BOARDS_HELP_SKIP_LINK_LABEL,
+  AZURE_BOARDS_HELP_SKIP_TARGET_ID,
+} from "@/lib/azure-boards-help-page-copy";
+import {
   DESIGN_TOKENS,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
@@ -37,98 +47,64 @@ import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-pre
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
-import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpAzureBoardsGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
   readonly markdown: string;
 };
 
-/** Buyer-safe Azure Boards orientation for `/help/azure-boards` (HEZ). */
-export function HelpAzureBoardsGuideView(props: HelpAzureBoardsGuideViewProps): React.ReactElement {
-  const { entry, markdown } = props;
-  const sourceDocPath = entry.sourcePaths[0] ?? "";
-  const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
-    helpTopicSlug: entry.slug,
-  });
-  const headings = extractHelpMarkdownHeadings(preparedMarkdown);
+type AzureBoardsActionPanelProps = {
+  readonly showInlineSources: boolean;
+};
 
+function AzureBoardsActionPanel(props: AzureBoardsActionPanelProps): React.ReactElement {
   return (
-    <article
-      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
-      data-testid="help-azure-boards-guide"
+    <section
+      className="space-y-4 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+      data-testid="help-azure-boards-action-panel"
+      aria-labelledby="help-azure-boards-action-panel-heading"
     >
-      <HelpTopicHashScroll />
-
-      <OperatorPageHeader
-        title={AZURE_BOARDS_HELP_PAGE_TITLE}
-        titleTestId="help-azure-boards-page-title"
-        subtitle={AZURE_BOARDS_HELP_PAGE_SUBTITLE}
-        navHref={AZURE_BOARDS_HELP_CANONICAL_PATH}
-        headingLevel="h1"
-        metadata={
-          <div
-            className="flex flex-wrap items-center gap-x-3 gap-y-1"
-            data-testid="help-azure-boards-header-metadata"
-          >
-            <HelpTopicRegistryProvenanceLine entry={entry} />
-          </div>
-        }
-        actions={
-          <div className="flex flex-wrap items-center gap-2" data-testid="help-azure-boards-header-actions">
-            <PageContextualHelpButton />
-            <HelpTopicPrintButton entry={entry} />
-          </div>
-        }
-      />
-
-      <AzureBoardsHelpClaimDisciplineStrip />
-
-      <section
-        className="space-y-4 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
-        data-testid="help-azure-boards-action-panel"
-        aria-labelledby="help-azure-boards-action-panel-heading"
+      <h2
+        id="help-azure-boards-action-panel-heading"
+        className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
       >
-        <h2
-          id="help-azure-boards-action-panel-heading"
-          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
-        >
-          {AZURE_BOARDS_HELP_CONTINUE_HEADING}
-        </h2>
-        <aside
-          className={cn(DESIGN_TOKENS.callout.warn, "space-y-2 p-3")}
-          data-testid="help-azure-boards-pat-warnings"
-        >
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{AZURE_BOARDS_HELP_PAT_SCOPE_WARNING}</p>
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{AZURE_BOARDS_HELP_PAT_NON_RECOVERABLE_WARNING}</p>
-        </aside>
+        {AZURE_BOARDS_HELP_CONTINUE_HEADING}
+      </h2>
+      <aside
+        className={cn(DESIGN_TOKENS.callout.warn, "space-y-2 p-3")}
+        data-testid="help-azure-boards-pat-warnings"
+      >
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{AZURE_BOARDS_HELP_PAT_SCOPE_WARNING}</p>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{AZURE_BOARDS_HELP_PAT_NON_RECOVERABLE_WARNING}</p>
+      </aside>
 
-        <div className="space-y-2">
-          <Button asChild size="sm" variant="primary" data-testid="help-azure-boards-primary-cta">
-            <Link href={AZURE_BOARDS_HELP_PRIMARY_ACTIONS.openSettings.href}>
-              {AZURE_BOARDS_HELP_PRIMARY_ACTIONS.openSettings.label}
-            </Link>
-          </Button>
-          <p
-            className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="help-azure-boards-authority-note"
-          >
-            {AZURE_BOARDS_HELP_AUTHORITY_NOTE}
+      <div className="space-y-2">
+        <Button asChild size="sm" variant="primary" data-testid="help-azure-boards-primary-cta">
+          <Link href={AZURE_BOARDS_HELP_PRIMARY_ACTIONS.openSettings.href}>
+            {AZURE_BOARDS_HELP_PRIMARY_ACTIONS.openSettings.label}
+          </Link>
+        </Button>
+        <p
+          className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="help-azure-boards-authority-note"
+        >
+          {AZURE_BOARDS_HELP_AUTHORITY_NOTE}
+        </p>
+      </div>
+
+      <HelpAzureBoardsSetupStepCtAs />
+
+      <Suspense
+        fallback={
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Loading connection status…
           </p>
-        </div>
+        }
+      >
+        <HelpAzureBoardsConnectionContext />
+      </Suspense>
 
-        <HelpAzureBoardsSetupStepCtAs />
-
-        <Suspense
-          fallback={
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Loading connection status…
-            </p>
-          }
-        >
-          <HelpAzureBoardsConnectionContext />
-        </Suspense>
-
+      {props.showInlineSources ? (
         <div className="space-y-2 border-t border-neutral-200 pt-4 dark:border-neutral-800">
           <h3
             className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
@@ -152,19 +128,103 @@ export function HelpAzureBoardsGuideView(props: HelpAzureBoardsGuideViewProps): 
             ))}
           </ul>
         </div>
-      </section>
+      ) : null}
+    </section>
+  );
+}
 
-      <div className={HELP_PAGE_LAYOUT.contentGrid}>
-        <div className={HELP_PAGE_LAYOUT.contentColumn} data-testid="help-azure-boards-content">
-          <MarketingAccessibilityMarkdownFragment
-            markdownBody={markdown}
-            tableCaption={`${entry.title} reference table`}
-            presentation="help"
-            sourceDocPath={sourceDocPath}
-            helpTopicSlug={entry.slug}
+/** Buyer-safe Azure Boards orientation for `/help/azure-boards` (HEZ). */
+export function HelpAzureBoardsGuideView(props: HelpAzureBoardsGuideViewProps): React.ReactElement {
+  const { entry, markdown } = props;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const sourceDocPath = entry.sourcePaths[0] ?? "";
+  const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
+    helpTopicSlug: entry.slug,
+  });
+  const headings = extractHelpMarkdownHeadings(preparedMarkdown);
+
+  return (
+    <article
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
+      data-testid="help-azure-boards-guide"
+    >
+      {buyerPolishedShell ? (
+        <a href={`#${AZURE_BOARDS_HELP_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+          {AZURE_BOARDS_HELP_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+      <HelpTopicHashScroll />
+
+      <div
+        id={buyerPolishedShell ? AZURE_BOARDS_HELP_PRIMARY_CONTENT_ID : undefined}
+        data-testid={buyerPolishedShell ? AZURE_BOARDS_HELP_PRIMARY_CONTENT_ID : undefined}
+        className={cn(buyerPolishedShell && "scroll-mt-24 space-y-6", buyerPolishedShell && OPERATOR_LAYOUT.sectionStack)}
+      >
+        {buyerPolishedShell ? (
+          <HelpTopicGuidePageHeader
+            title={AZURE_BOARDS_HELP_PAGE_TITLE}
+            titleTestId="help-azure-boards-page-title"
+            subtitle={AZURE_BOARDS_HELP_PAGE_SUBTITLE}
+            navHref={AZURE_BOARDS_HELP_CANONICAL_PATH}
+            headingLevel="h1"
+            claimDiscipline={AZURE_BOARDS_HELP_CLAIM_DISCIPLINE}
+            claimDisciplineTestId={AZURE_BOARDS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+            actions={<HelpAzureBoardsHeaderActions entry={entry} />}
           />
+        ) : (
+          <HelpTopicGuidePageHeader
+            title={AZURE_BOARDS_HELP_PAGE_TITLE}
+            titleTestId="help-azure-boards-page-title"
+            subtitle={AZURE_BOARDS_HELP_PAGE_SUBTITLE}
+            navHref={AZURE_BOARDS_HELP_CANONICAL_PATH}
+            headingLevel="h1"
+            metadata={
+              <div
+                className="flex flex-wrap items-center gap-x-3 gap-y-1"
+                data-testid="help-azure-boards-header-metadata"
+              >
+                <HelpTopicRegistryProvenanceLine entry={entry} />
+              </div>
+            }
+            actions={<HelpAzureBoardsHeaderActions entry={entry} />}
+          />
+        )}
+
+        {!buyerPolishedShell ? <AzureBoardsHelpClaimDisciplineStrip /> : null}
+
+        {buyerPolishedShell ? (
+          <div
+            id={AZURE_BOARDS_HELP_SKIP_TARGET_ID}
+            data-testid={AZURE_BOARDS_HELP_FIRST_VIEWPORT_TEST_ID}
+            className={cn(
+              "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+              OPERATOR_LAYOUT.sectionStack,
+            )}
+          >
+            <AzureBoardsActionPanel showInlineSources={false} />
+          </div>
+        ) : (
+          <AzureBoardsActionPanel showInlineSources />
+        )}
+
+        <div className={HELP_PAGE_LAYOUT.contentGrid}>
+          <div className={HELP_PAGE_LAYOUT.contentColumn} data-testid="help-azure-boards-content">
+            <MarketingAccessibilityMarkdownFragment
+              markdownBody={markdown}
+              tableCaption={`${entry.title} reference table`}
+              presentation="help"
+              sourceDocPath={sourceDocPath}
+              helpTopicSlug={entry.slug}
+            />
+          </div>
+          <HelpTopicTableOfContents headings={headings} />
         </div>
-        <HelpTopicTableOfContents headings={headings} />
+
+        {buyerPolishedShell ? (
+          <div data-testid="help-azure-boards-orientation-bottom">
+            <HelpAzureBoardsSourcesOrientationStrip />
+          </div>
+        ) : null}
       </div>
     </article>
   );
