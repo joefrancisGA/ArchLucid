@@ -72,43 +72,58 @@ export function listHasConfirmedEntry(items: readonly string[]): boolean {
   return items.some((item) => isConfirmedBriefEntry(item));
 }
 
-/** TB-2343: structured brief still contains explicit unknown placeholders. */
-export function hasUnconfirmedStructuredBriefPlaceholders(
+/** Operator-facing labels for structured-brief fields that can block review start. */
+export type StructuredBriefPlaceholderFieldLabel =
+  | "Constraints"
+  | "Assumptions"
+  | "Required capabilities"
+  | "Quality attributes"
+  | "Failure mode note"
+  | "Operational owner";
+
+/** TB-2343 / LI-01: names which brief fields still hold only unknown sentinels. */
+export function listUnconfirmedStructuredBriefFieldLabels(
   brief: ArchitectureDraftStructuredBriefState,
-): boolean {
+): StructuredBriefPlaceholderFieldLabel[] {
+  const blockers: StructuredBriefPlaceholderFieldLabel[] = [];
+
   const listIsOnlyUnknown = (items: readonly string[]) =>
     items.length > 0 && items.every((item) => isUnknownConfirmSentinel(item));
 
   if (listIsOnlyUnknown(brief.confirmedConstraints)) {
-    return true;
+    blockers.push("Constraints");
   }
 
   if (listIsOnlyUnknown(brief.confirmedAssumptions)) {
-    return true;
+    blockers.push("Assumptions");
   }
 
   if (listIsOnlyUnknown(brief.confirmedRequiredCapabilities)) {
-    return true;
+    blockers.push("Required capabilities");
   }
 
-  const qualityEntries = brief.qualityAttribute
-    .split(";")
-    .map((entry) => entry.trim())
-    .filter((entry) => entry.length > 0);
+  const qualityEntries = parseQualityAttributeEntries(brief.qualityAttribute);
 
   if (qualityEntries.length > 0 && qualityEntries.every((entry) => isUnknownConfirmSentinel(entry))) {
-    return true;
+    blockers.push("Quality attributes");
   }
 
   if (isUnknownConfirmSentinel(brief.failureModeNote)) {
-    return true;
+    blockers.push("Failure mode note");
   }
 
   if (isUnknownConfirmSentinel(brief.operationalOwner)) {
-    return true;
+    blockers.push("Operational owner");
   }
 
-  return false;
+  return blockers;
+}
+
+/** TB-2343: structured brief still contains explicit unknown placeholders. */
+export function hasUnconfirmedStructuredBriefPlaceholders(
+  brief: ArchitectureDraftStructuredBriefState,
+): boolean {
+  return listUnconfirmedStructuredBriefFieldLabels(brief).length > 0;
 }
 
 export function qualityAttributeMeetsMinimum(value: string): boolean {

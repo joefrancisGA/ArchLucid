@@ -30,8 +30,8 @@ echo "Regenerating ArchLucid.Api.Client (NSwag) from v1 baseline..."
 dotnet build ArchLucid.Api.Client/ArchLucid.Api.Client.csproj -c Release
 
 if [ "${ARCHLUCID_REGENERATE_UI_API_TYPES:-0}" = "1" ]; then
-  echo "Verifying split api-types output is now in sync..."
-  bash scripts/ci/assert_api_types_in_sync.sh
+  echo "Regenerating split api-types from the refreshed snapshot..."
+  (cd "${ROOT}/archlucid-ui" && npm run generate:api-types)
 fi
 
 echo "Verifying snapshots match generated /openapi/v1.json..."

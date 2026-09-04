@@ -8,7 +8,7 @@ import { ReviewArchiveControl } from "@/components/reviews/ReviewArchiveControl"
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { getTraceabilityBundleDownloadUrl } from "@/lib/api";
-import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import { buildCompareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 import { RunDetailRunGovernanceDispositionActions } from "@/components/runs/RunDetailRunGovernanceDispositionActions";
@@ -63,7 +63,9 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
             </Button>
             {buyerPolishedShell ? null : (
             <Button variant="outline" size="sm" asChild>
-              <Link href={comparePageHrefAdaptive(runId)}>Compare two reviews (baseline = this review)</Link>
+              <Link href={buildCompareTwoReviewsHref({ baseRunId: runId })}>
+                Compare two reviews (baseline = this review)
+              </Link>
             </Button>
             )}
             {manifestId && !buyerPolishedShell ? (

@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { CommitRunButton } from "@/components/CommitRunButton";
+import { FinalizeSkippedMustStrip } from "@/components/reviews/FinalizeSkippedMustStrip";
 import { ExportFormatWhenToUseHint } from "@/components/ExportFormatWhenToUseHint";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
@@ -33,6 +34,7 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import type { RunSummary } from "@/types/authority";
+import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
 /** Shown instead of a live download link when the page is rendering curated sample data (no backend-persisted review). */
 function BuyerSponsorBriefExports({ runId, usedStaticDemoRun }: { runId: string; usedStaticDemoRun: boolean }) {
@@ -142,6 +144,7 @@ export type RunDetailPageHeaderProps = {
   usedStaticDemoRun?: boolean;
   /** Demote finalize to outline when the summary header owns the single primary CTA (TB-618). */
   demoteFinalizeButton?: boolean;
+  readonly transparencyTrail?: TransparencyTrail | null;
 };
 
 /**
@@ -160,6 +163,7 @@ export function RunDetailPageHeader({
   hasGovernanceWarnings,
   usedStaticDemoRun = false,
   demoteFinalizeButton = false,
+  transparencyTrail = null,
 }: RunDetailPageHeaderProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
@@ -309,6 +313,7 @@ export function RunDetailPageHeader({
                   data-testid="run-detail-commit-governance-warning-badge"
                 />
               ) : null}
+              {!hasGoldenManifest ? <FinalizeSkippedMustStrip transparencyTrail={transparencyTrail} /> : null}
               <CommitRunButton
                 runId={runId}
                 disabled={hasGoldenManifest}
@@ -337,7 +342,8 @@ export function RunDetailPageHeader({
                 data-testid="run-detail-commit-governance-warning-badge"
               />
             ) : null}
-            <CommitRunButton
+            {!hasGoldenManifest ? <FinalizeSkippedMustStrip transparencyTrail={transparencyTrail} /> : null}
+              <CommitRunButton
               runId={runId}
               disabled={hasGoldenManifest}
               commitBlockedReason={commitBlockedReason}

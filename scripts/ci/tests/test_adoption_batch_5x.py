@@ -11,8 +11,11 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 class TestAdoptionBatch5X(unittest.TestCase):
     def test_tb_207_diagnose_token_endpoint_exists(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Admin" / "AdminAuthDiagnosticsController.cs"
-        text = path.read_text(encoding="utf-8")
+        controller_dir = REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Admin"
+        text = "".join(
+            path.read_text(encoding="utf-8")
+            for path in sorted(controller_dir.glob("AdminAuthDiagnosticsController*.cs"))
+        )
         self.assertIn("auth/diagnose-token", text)
         self.assertIn("ITokenClaimsDiagnosticService", text)
         self.assertIn("AuthTokenDiagnosticRequested", text)

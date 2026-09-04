@@ -8,6 +8,7 @@ import { useCorePilotDerivedStepStatus } from "@/lib/use-core-pilot-derived-step
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_RESUME } from "@/lib/design-tokens";
+import { useTeachingChromeVisible } from "@/lib/workspace-mode/use-teaching-chrome-visible";
 import { cn } from "@/lib/utils";
 
 const CORE_PILOT_COMPLETE_COMPARE_AVAILABLE_BODY =
@@ -21,10 +22,11 @@ const CORE_PILOT_COMPLETE_LOADING_BODY =
 
 /** Shown after Core Pilot completes — suggests analysis and sponsor handoff next steps. */
 export function CorePilotCompleteCelebrateStrip(): React.JSX.Element | null {
+  const teachingChromeVisible = useTeachingChromeVisible();
   const { progress, isPending: pilotPending } = useCorePilotDerivedStepStatus();
   const { loading: compareLoading, insufficientForCompare } = useCompareFinalizedRunAvailability();
 
-  if (pilotPending || !progress.allDone) {
+  if (!teachingChromeVisible || pilotPending || !progress.allDone) {
     return null;
   }
 

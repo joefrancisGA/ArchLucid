@@ -117,13 +117,21 @@ export function resolveGraphIdleEmptyPreset(options: GraphIdleEmptyPresetOptions
   return GRAPH_IDLE;
 }
 
-/** Resolve Trace vs Graph tab from the URL. Eval/demo shells default to graph; Working desk defaults to trace (WD-12). */
+/**
+ * Resolve Trace vs Graph tab from the URL.
+ * Eval/demo shells default to graph (WD-12); Working desk defaults to trace / list-first (LI-15).
+ */
 export function resolveEvidenceTrailPresentationView(
   urlPresentation: string | null | undefined,
   preferGraphDefault: boolean,
+  workingMode: boolean = false,
 ): EvidenceTrailPresentationView {
   if (urlPresentation === "trace" || urlPresentation === "graph") {
     return urlPresentation;
+  }
+
+  if (workingMode) {
+    return "trace";
   }
 
   return preferGraphDefault ? "graph" : "trace";

@@ -4190,6 +4190,16 @@ export interface components {
             runId?: string;
             status?: string;
         };
+        GovernanceMutationCorrectionRecordedDto: {
+            correctionId?: string;
+            mutationKind?: string;
+            rationale?: string;
+            /** Format: date-time */
+            recordedAtUtc?: string;
+            recordedByUserId?: string;
+            runId?: string;
+            subjectId?: string;
+        };
         GovernancePreviewResult: {
             currentManifestVersion?: null | string;
             currentRunId?: null | string;
@@ -5056,6 +5066,7 @@ export interface components {
             addedRelationships?: components["schemas"]["RelationshipDiffItem"][];
             addedRequiredControls?: string[];
             addedServices?: string[];
+            inputFingerprints?: null | components["schemas"]["CompareInputFingerprints"];
             leftManifestVersion?: string;
             removedDatastores?: string[];
             removedRelationships?: components["schemas"]["RelationshipDiffItem"][];
@@ -6993,6 +7004,12 @@ export interface components {
             /** Format: uuid */
             runId?: null | string;
             tradeOffAcknowledgment?: null | string;
+        };
+        RecordGovernanceMutationCorrectionRequest: {
+            mutationKind?: string;
+            rationale?: string;
+            runId?: string;
+            subjectId?: string;
         };
         RecordRunOperatorGovernanceDispositionRequest: {
             decision?: components["schemas"]["RunOperatorGovernanceDecision"];

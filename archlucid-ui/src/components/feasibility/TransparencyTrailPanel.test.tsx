@@ -26,4 +26,22 @@ describe("TransparencyTrailPanel", () => {
 
     expect(screen.getByTestId("transparency-trail-missing-defect")).toBeInTheDocument();
   });
+
+  it("collapses behind a disclosure when defaultExpanded is false", () => {
+    render(
+      <TransparencyTrailPanel
+        defaultExpanded={false}
+        trail={{
+          asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+          inferred: [],
+          skipped: [],
+        }}
+      />,
+    );
+
+    const panel = screen.getByTestId("transparency-trail-panel");
+
+    expect(panel.tagName).toBe("DETAILS");
+    expect(panel).not.toHaveAttribute("open");
+  });
 });

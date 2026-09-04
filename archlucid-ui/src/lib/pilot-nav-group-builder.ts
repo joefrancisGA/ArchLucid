@@ -4,14 +4,18 @@ import {
   LayoutDashboard,
   ListOrdered,
   Newspaper,
+  PenLine,
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
+import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { BUYER_ONBOARDING_NAV_TOOLTIP } from "@/lib/buyer/buyer-polish-copy";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { resolveArchitecturesListNavTitle } from "@/lib/operator/operator-nav-labels";
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 import {
   FIRST_RUN_GUIDE_NAV_LABEL,
@@ -38,6 +42,14 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           // `/governance/dashboard` is "Workspace health" — keep this tooltip distinct from it.
           title: "Workspace home",
           icon: Home,
+          tier: "essential",
+        },
+        {
+          // String literal required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
+          href: ARCHITECTURES_LIST_PATH as typeof ARCHITECTURES_LIST_PATH & "/architecture/architectures",
+          label: ARCHITECTURE_DRAFTS_LIST_LABEL,
+          title: resolveArchitecturesListNavTitle(),
+          icon: PenLine,
           tier: "essential",
         },
         {

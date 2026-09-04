@@ -171,6 +171,9 @@ describe("resolveReviewPackageDoThisNext", () => {
       "Compare reviews",
       "Open sponsor briefing export",
     ]);
+    expect(next.quickLinks?.find((link) => link.label === "Compare reviews")?.href).toBe(
+      "/insights/compare-two-reviews?priorRunId=run-abc",
+    );
   });
 
   it("demotes sponsor handoff when open findings lack linked evidence", () => {

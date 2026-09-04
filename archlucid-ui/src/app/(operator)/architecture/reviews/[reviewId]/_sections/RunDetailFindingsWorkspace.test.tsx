@@ -12,6 +12,7 @@ const navigationMocks = vi.hoisted(() => ({
 vi.mock("next/navigation", () => ({
   useSearchParams: () => navigationMocks.searchParams,
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  usePathname: () => "/architecture/reviews/run-1",
 }));
 
 vi.mock("@/components/QuickDecisionSummary", () => ({
@@ -20,6 +21,14 @@ vi.mock("@/components/QuickDecisionSummary", () => ({
 
 vi.mock("@/components/findings/FindingsItsmExportToolbar", () => ({
   FindingsItsmExportToolbar: () => null,
+}));
+
+const architectWorkspaceChromeMocks = vi.hoisted(() => ({
+  enabled: false,
+}));
+
+vi.mock("@/hooks/useArchitectWorkspaceChrome", () => ({
+  useArchitectWorkspaceChrome: () => architectWorkspaceChromeMocks.enabled,
 }));
 
 const simulatorNoticeMocks = vi.hoisted(() => ({
@@ -53,6 +62,7 @@ describe("RunDetailFindingsWorkspace", () => {
   beforeEach(() => {
     navigationMocks.searchParams = new URLSearchParams();
     simulatorNoticeMocks.isSimulator = false;
+    architectWorkspaceChromeMocks.enabled = false;
   });
 
   it("writes findingJobView to the url when the operator changes job view", () => {
@@ -68,6 +78,7 @@ describe("RunDetailFindingsWorkspace", () => {
 
     render(<RunDetailFindingsWorkspace runId="run-1" findings={findings} />);
 
+    fireEvent.click(screen.getByTestId("finding-job-view-more-toggle"));
     fireEvent.click(screen.getByTestId("finding-job-view-verify-hypotheses"));
 
     expect(replaceState).toHaveBeenCalled();
@@ -162,19 +173,41 @@ describe("RunDetailFindingsWorkspace", () => {
     expect(screen.getByTestId("run-detail-findings-simulator-notice")).toBeInTheDocument();
   });
 
-  it("shows actor-engine quiet hint when analysis is complete and graph has no actors", () => {
+  it("shows actor-engine quiet hint in the toolbar hero when analysis is complete and graph has no actors", () => {
+    architectWorkspaceChromeMocks.enabled = true;
+
     render(
       <RunDetailFindingsWorkspace
         runId="run-1"
         findings={[]}
         analysisStagesComplete={true}
         graphSnapshot={{ nodes: [{ nodeType: "service" }] }}
+        packageCommitted={true}
       />,
     );
 
+    const hero = screen.getByTestId("run-detail-findings-toolbar-hero");
+    expect(hero).toContainElement(screen.getByTestId("run-detail-actor-engines-quiet-hint"));
     expect(screen.getByTestId("run-detail-actor-engines-quiet-hint")).toHaveTextContent(
-      "Trust-boundary",
+      "did not run",
     );
+  });
+
+  it("shows density desk honesty line and opt-in hide-generic control in Working mode", () => {
+    architectWorkspaceChromeMocks.enabled = true;
+
+    render(
+      <RunDetailFindingsWorkspace
+        runId="run-1"
+        findings={[finding({ findingId: "f-1", insightDensityScore: 20 })]}
+        packageCommitted={true}
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-findings-density-desk-controls")).toHaveTextContent(
+      "typed-engine scores do not hide findings",
+    );
+    expect(screen.getByTestId("run-detail-findings-hide-generic-control")).toBeInTheDocument();
   });
 
   it("hides actor-engine quiet hint when actor nodes exist", () => {

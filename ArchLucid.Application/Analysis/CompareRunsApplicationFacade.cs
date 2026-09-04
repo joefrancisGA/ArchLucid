@@ -1,6 +1,7 @@
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Runs;
 using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
@@ -17,6 +18,7 @@ public sealed partial class CompareRunsApplicationFacade(
     IRunDetailQueryService runDetailQueryService,
     IRunRepository authorityRunRepository,
     IUnifiedGoldenManifestReader unifiedGoldenManifestReader,
+    IAuthorityCommitProjectionBuilder projectionBuilder,
     IComparisonService comparison,
     IAgentResultDiffService agentResultDiffService,
     IScopeContextProvider scopeProvider) : ICompareRunsApplicationFacade
@@ -32,6 +34,9 @@ public sealed partial class CompareRunsApplicationFacade(
 
     private readonly IUnifiedGoldenManifestReader _unifiedGoldenManifestReader =
         unifiedGoldenManifestReader ?? throw new ArgumentNullException(nameof(unifiedGoldenManifestReader));
+
+    private readonly IAuthorityCommitProjectionBuilder _projectionBuilder =
+        projectionBuilder ?? throw new ArgumentNullException(nameof(projectionBuilder));
 
     private readonly IComparisonService _comparison =
         comparison ?? throw new ArgumentNullException(nameof(comparison));

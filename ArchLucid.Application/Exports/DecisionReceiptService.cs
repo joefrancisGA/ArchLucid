@@ -63,7 +63,7 @@ public sealed class DecisionReceiptService(
     }
 
     /// <inheritdoc />
-    public async Task<DecisionReceiptDocument?> BuildForRunAsync(
+    public async Task<DecisionReceiptRunBuildResult> BuildForRunAsync(
         ScopeContext scope,
         Guid runId,
         CancellationToken cancellationToken)
@@ -72,36 +72,20 @@ public sealed class DecisionReceiptService(
             .GetRunDetailAsync(runId.ToString("N"), cancellationToken);
 
         if (detail is null)
-            return null;
+            return NotFound();
 
         if (!detail.IsCommitted || detail.HasBrokenManifestReference)
-            return null;
+            return NotFound();
 
         AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.ToString("N"));
 
         RunSummaryDto? summary = await _authorityQueryService.GetRunSummaryAsync(scope, runId, cancellationToken);
 
         if (summary is null)
-            return null;
+            return NotFound();
 
         if (summary.GoldenManifestId is null)
-            return null;
-
-        ManifestSummaryDto? manifestSummary = await _authorityQueryService.GetManifestSummaryAsync(
-            scope,
-            summary.GoldenManifestId.Value,
-            cancellationToken);
-
-        if (manifestSummary is null)
-            return null;
-
-        FeasibilityVerdict? verdict = manifestSummary.FeasibilityVerdict;
-
-        if (verdict is null)
-            return null;
-
-        if (string.IsNullOrWhiteSpace(detail.Run.CurrentManifestVersion))
-            return null;
+            return NotFound();
 
         RunDetailDto? compareDetail = await _authorityQueryService.GetRunDetailForManifestCompareAsync(
             scope,
@@ -109,13 +93,26 @@ public sealed class DecisionReceiptService(
             cancellationToken);
 
         if (compareDetail?.GoldenManifest is null)
-            return null;
+            return NotFound();
 
-        return ManifestDecisionReceiptExportBinder.TryBuildVerifiedExportReceiptOrNull(
+        FeasibilityVerdict? verdict = compareDetail.GoldenManifest.FeasibilityVerdict;
+
+        if (verdict is null)
+            return NotFound();
+
+        string? manifestVersion = compareDetail.GoldenManifest.Metadata?.Version;
+
+        if (string.IsNullOrWhiteSpace(manifestVersion))
+            return NotFound();
+
+        return ManifestDecisionReceiptExportBinder.BuildVerifiedExportReceipt(
             runId,
             compareDetail.GoldenManifest,
             verdict,
-            detail.Run.CurrentManifestVersion,
+            manifestVersion.Trim(),
             _manifestHashService);
     }
+
+    private static DecisionReceiptRunBuildResult NotFound() =>
+        new() { Outcome = DecisionReceiptRunBuildOutcome.NotFound };
 }

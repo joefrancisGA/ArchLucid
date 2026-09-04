@@ -3,7 +3,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import type { AlertActionKind } from "@/components/alerts/AlertsInboxAlertCard";
-import { useAlertCardShortcuts } from "@/hooks/useAlertCardShortcuts";
+import { useAlertCardShortcuts, focusAdjacentAlertCard, getFocusedAlertId } from "@/hooks/useAlertCardShortcuts";
+import {
+  COMMAND_PALETTE_ALERT_ACKNOWLEDGE_EVENT,
+  COMMAND_PALETTE_ALERT_NEXT_EVENT,
+  COMMAND_PALETTE_ALERT_PREV_EVENT,
+  COMMAND_PALETTE_ALERT_RESOLVE_EVENT,
+  COMMAND_PALETTE_ALERT_SUPPRESS_EVENT,
+} from "@/lib/command-palette-handler-actions";
 import {
   acknowledgeAlertsBatch,
   applyAlertAction,
@@ -82,6 +89,78 @@ export function useAlertsInboxBatchActions(options: {
   }, []);
 
   useAlertCardShortcuts({ onAction: onAlertShortcutAction, mutationsEnabled: canMutateAlertInbox });
+
+  useEffect(() => {
+    function resolveFocusedAlertId(): string | null {
+      const focused = getFocusedAlertId();
+
+      if (focused !== null) {
+        return focused;
+      }
+
+      focusAdjacentAlertCard(1, { startFromFirstWhenUnfocused: true });
+
+      return getFocusedAlertId();
+    }
+
+    function onNext(): void {
+      focusAdjacentAlertCard(1, { startFromFirstWhenUnfocused: true });
+    }
+
+    function onPrev(): void {
+      focusAdjacentAlertCard(-1, { startFromFirstWhenUnfocused: true });
+    }
+
+    function onAcknowledge(): void {
+      if (!canMutateAlertInbox) {
+        return;
+      }
+
+      const alertId = resolveFocusedAlertId();
+
+      if (alertId !== null) {
+        onAlertShortcutAction(alertId, "Acknowledge");
+      }
+    }
+
+    function onResolve(): void {
+      if (!canMutateAlertInbox) {
+        return;
+      }
+
+      const alertId = resolveFocusedAlertId();
+
+      if (alertId !== null) {
+        onAlertShortcutAction(alertId, "Resolve");
+      }
+    }
+
+    function onSuppress(): void {
+      if (!canMutateAlertInbox) {
+        return;
+      }
+
+      const alertId = resolveFocusedAlertId();
+
+      if (alertId !== null) {
+        onAlertShortcutAction(alertId, "Suppress");
+      }
+    }
+
+    window.addEventListener(COMMAND_PALETTE_ALERT_NEXT_EVENT, onNext);
+    window.addEventListener(COMMAND_PALETTE_ALERT_PREV_EVENT, onPrev);
+    window.addEventListener(COMMAND_PALETTE_ALERT_ACKNOWLEDGE_EVENT, onAcknowledge);
+    window.addEventListener(COMMAND_PALETTE_ALERT_RESOLVE_EVENT, onResolve);
+    window.addEventListener(COMMAND_PALETTE_ALERT_SUPPRESS_EVENT, onSuppress);
+
+    return () => {
+      window.removeEventListener(COMMAND_PALETTE_ALERT_NEXT_EVENT, onNext);
+      window.removeEventListener(COMMAND_PALETTE_ALERT_PREV_EVENT, onPrev);
+      window.removeEventListener(COMMAND_PALETTE_ALERT_ACKNOWLEDGE_EVENT, onAcknowledge);
+      window.removeEventListener(COMMAND_PALETTE_ALERT_RESOLVE_EVENT, onResolve);
+      window.removeEventListener(COMMAND_PALETTE_ALERT_SUPPRESS_EVENT, onSuppress);
+    };
+  }, [canMutateAlertInbox, onAlertShortcutAction]);
 
   async function onAcknowledgeSelected(): Promise<void> {
     if (!canMutateAlertInbox || selectedAlertIds.length === 0) {

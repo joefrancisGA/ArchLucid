@@ -1,4 +1,5 @@
 import { formatPolicySection, pushPolicyAtCommitMarkdownLines } from "./export-markdown-policy-section";
+import { formatTransparencyTrailMarkdownSection } from "@/lib/feasibility/export-transparency-trail-section";
 import { isRecord, normalizeInlineText, pushBulletLines } from "./export-markdown-text";
 
 function formatRequirementItems(items: unknown, heading: string, lines: string[]): void {
@@ -334,6 +335,29 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
   }
 
   pushBulletLines(lines, m.warnings, undefined);
+
+  const feasibilityVerdict = isRecord(m.feasibilityVerdict) ? m.feasibilityVerdict : null;
+  const transparencyTrail =
+    feasibilityVerdict !== null && isRecord(feasibilityVerdict.transparencyTrail)
+      ? (feasibilityVerdict.transparencyTrail as {
+          asserted?: unknown;
+          inferred?: unknown;
+          skipped?: unknown;
+        })
+      : null;
+
+  if (
+    transparencyTrail !== null &&
+    Array.isArray(transparencyTrail.asserted) &&
+    Array.isArray(transparencyTrail.inferred) &&
+    Array.isArray(transparencyTrail.skipped)
+  ) {
+    lines.push(formatTransparencyTrailMarkdownSection({
+      asserted: transparencyTrail.asserted as never,
+      inferred: transparencyTrail.inferred as never,
+      skipped: transparencyTrail.skipped as never,
+    }));
+  }
 
   return lines.join("\n").trimEnd() + "\n";
 }

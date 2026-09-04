@@ -115,6 +115,7 @@ paths = [
   '''(?:^|/)archlucid-ui/src/app/\(operator\)/reviews/\[runId\]/_sections/RunDetailFeasibilityVerdictSection\.test\.tsx$''',
   '''(?:^|/)archlucid-ui/src/components/feasibility/TransparencyTrailPanel\.test\.tsx$''',
   '''(?:^|/)archlucid-ui/src/lib/feasibility-verdict-transparency-trail\.test\.ts$''',
+  '''(?:^|/)archlucid-ui/src/lib/feasibility/export-transparency-trail-section\.test\.ts$''',
 ]
 
 [[allowlists]]

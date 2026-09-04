@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
-import { SHORTCUTS, WORKING_MODE_NEW_REVIEW_ROUTE } from "@/lib/shortcut-registry";
+import { SHORTCUTS, WORKING_MODE_NEW_REVIEW_ROUTE, resolveShortcutDescription } from "@/lib/shortcut-registry";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 import { buildCompareTwoReviewsHref, readReviewRunIdFromPathname } from "@/lib/compare-two-reviews-route";
@@ -45,7 +45,7 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
           handler: () => {
             router.push(route);
           },
-          description: entry.description,
+          description: resolveShortcutDescription(entry, workingMode),
         };
       } else if (isHelpShortcutKey(entry.key)) {
         next[entry.key] = {

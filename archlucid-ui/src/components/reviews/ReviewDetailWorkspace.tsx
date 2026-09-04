@@ -77,6 +77,15 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
     workbenchFocusColumn: tabs.workbenchFocusColumn,
   });
 
+  const presenterBody =
+    props.presenterFindingBody ?? (
+      <div className="space-y-8" data-testid="review-presenter-body">
+        {props.defensibilityStrip ?? null}
+        {props.panels.findings}
+        {props.panels.activity}
+      </div>
+    );
+
   const workspaceBody = (
     <ReviewDetailWorkspaceTabContext.Provider value={{ navigateTab: tabs.navigateTab }}>
       <ReviewDetailWorkspaceTabShell
@@ -92,7 +101,7 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
     return (
       <ReviewPresenterSurface
         title={props.presenterFindingTitle ?? "Review in progress"}
-        body={props.presenterFindingBody ?? props.panels.overview}
+        body={presenterBody}
         actions={props.presenterFindingActions}
         onExit={presenter.exitPresenter}
       />

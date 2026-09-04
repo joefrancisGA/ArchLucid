@@ -16,6 +16,10 @@ import { AlertRuleNotificationReadinessPanel } from "@/components/alerts/AlertRu
 import { AlertRuleSimulateModal } from "@/components/alerts/AlertRuleSimulateModal";
 import { MutatingInWorkspaceChip } from "@/components/MutatingInWorkspaceChip";
 import { Button } from "@/components/ui/button";
+import {
+  LivelihoodDocumentGuardDialog,
+  useLivelihoodDocumentGuards,
+} from "@/hooks/use-livelihood-document-guards";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useOptionalAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
 import {
@@ -154,6 +158,7 @@ export function AlertRulesContent() {
 
   const fieldErrors = useMemo(() => validateAlertRuleForm(formInput), [formInput]);
   const formValid = useMemo(() => isAlertRuleFormValid(formInput), [formInput]);
+  const formDirty = alertRuleFormDiffersFromDefaultDraft(formInput);
   const thresholdStep = usesIntegerThreshold(ruleType) ? 1 : 0.1;
 
   const load = useCallback(async () => {
@@ -246,6 +251,7 @@ export function AlertRulesContent() {
   const isEmpty = items.length === 0;
   const showEmptyCard = !listInitialLoading && isEmpty;
   const showCreateForm = scopedRunFilterActive && (canEdit || !isEmpty);
+  const documentGuards = useLivelihoodDocumentGuards({ when: formDirty && showCreateForm });
   const sectionGap = pinLivePreviewRail ? "gap-8" : "gap-4";
 
   const emptyStateDescription = useMemo(() => {
@@ -434,6 +440,12 @@ export function AlertRulesContent() {
       />
 
       {scopedRunFilterActive ? <AlertRulesNextReviewFooterClient runId={scopedRunId} /> : null}
+      <LivelihoodDocumentGuardDialog
+        open={documentGuards.dialogOpen}
+        message={documentGuards.dialogMessage}
+          onConfirmLeave={documentGuards.confirmLeave}
+          onCancelLeave={documentGuards.cancelLeave}
+      />
     </div>
   );
 }

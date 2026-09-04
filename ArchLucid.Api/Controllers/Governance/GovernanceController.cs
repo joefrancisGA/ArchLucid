@@ -37,6 +37,7 @@ public sealed partial class GovernanceController(
     IGovernanceApprovalRequestsFacade approvalRequestsFacade,
     IGovernancePromotionsActivationsFacade promotionsActivationsFacade,
     IGovernanceInsightsFacade insightsFacade,
+    IGovernanceMutationCorrectionService governanceMutationCorrectionService,
     IActorContext actorContext,
     IScopeContextProvider scopeContextProvider,
     IPolicyPackDryRunService policyPackDryRunService,
@@ -60,6 +61,9 @@ public sealed partial class GovernanceController(
 
     private readonly IGovernanceInsightsFacade _insightsFacade =
         insightsFacade ?? throw new ArgumentNullException(nameof(insightsFacade));
+
+    private readonly IGovernanceMutationCorrectionService _governanceMutationCorrectionService =
+        governanceMutationCorrectionService ?? throw new ArgumentNullException(nameof(governanceMutationCorrectionService));
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));

@@ -11,8 +11,9 @@ describe("InsightDensityCurationBanner", () => {
       />,
     );
 
-    expect(screen.getByTestId("insight-density-curation-banner")).toHaveTextContent("suppressed 2");
+    expect(screen.getByTestId("insight-density-curation-banner")).toHaveTextContent("moved 2");
     expect(screen.getByTestId("insight-density-curation-banner")).toHaveTextContent("retained 1");
+    expect(screen.getByTestId("insight-density-curation-banner")).toHaveTextContent("typed-engine-protected");
   });
 
   it("renders nothing when curation is null", () => {

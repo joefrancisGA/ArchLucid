@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { GovernanceQuickApproveButton } from "@/components/governance/GovernanceQuickApproveButton";
+import { GovernanceRecordCorrectionInlineControl } from "@/components/governance/GovernanceRecordCorrectionInlineControl";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { GovernanceStatusTag } from "@/components/governance/GovernanceStatusTag";
 import { Button } from "@/components/ui/button";
@@ -160,7 +161,12 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
           target={continueLastRequest}
           onOpen={(approvalRequestId) => {
             openApprovalRequest(approvalRequestId);
-            setPendingReview({ approvalRequestId, mode: "approve" });
+            const row = approvals.find((approval) => approval.approvalRequestId === approvalRequestId);
+            setPendingReview({
+              approvalRequestId,
+              mode: "approve",
+              runId: row?.runId ?? "",
+            });
             setPendingPromote(null);
             pendingPromoteRequestRef.current = null;
           }}
@@ -171,7 +177,11 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
         <ApprovalQueueTriageFirstPendingStrip
           target={triageFirstPending}
           onReviewDecision={(approvalRequestId) => {
-            setPendingReview({ approvalRequestId, mode: "approve" });
+            setPendingReview({
+              approvalRequestId,
+              mode: "approve",
+              runId: triageFirstPending.runId,
+            });
             setPendingPromote(null);
             pendingPromoteRequestRef.current = null;
           }}
@@ -217,6 +227,20 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                     <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Review comment</span>{" "}
                     {row.reviewComment}
                   </div>
+                ) : null}
+
+                {row.status === "Approved" || row.status === "Rejected" ? (
+                  <GovernanceRecordCorrectionInlineControl
+                    testId={`governance-approval-correction-${row.approvalRequestId}`}
+                    target={{
+                      mutationKind:
+                        row.status === "Approved"
+                          ? "governance_workflow_approve"
+                          : "governance_workflow_reject",
+                      subjectId: row.approvalRequestId,
+                      runId: row.runId,
+                    }}
+                  />
                 ) : null}
 
                 {!compactSupportingRows && pendingReview?.approvalRequestId === row.approvalRequestId ? (
@@ -320,7 +344,11 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                       }
                       onClick={() => {
                         writeApprovalQueueLastViewedRequestId(row.approvalRequestId);
-                        setPendingReview({ approvalRequestId: row.approvalRequestId, mode: "approve" });
+                        setPendingReview({
+                          approvalRequestId: row.approvalRequestId,
+                          mode: "approve",
+                          runId: row.runId,
+                        });
                         setPendingPromote(null);
                         pendingPromoteRequestRef.current = null;
                       }}
@@ -337,7 +365,11 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                       }
                       onClick={() => {
                         writeApprovalQueueLastViewedRequestId(row.approvalRequestId);
-                        setPendingReview({ approvalRequestId: row.approvalRequestId, mode: "reject" });
+                        setPendingReview({
+                          approvalRequestId: row.approvalRequestId,
+                          mode: "reject",
+                          runId: row.runId,
+                        });
                         setPendingPromote(null);
                         pendingPromoteRequestRef.current = null;
                       }}

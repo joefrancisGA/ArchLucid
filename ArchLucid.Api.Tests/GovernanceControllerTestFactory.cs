@@ -71,10 +71,20 @@ internal static class GovernanceControllerTestFactory
             scope,
             runs);
 
+        IGovernanceMutationCorrectionService mutationCorrectionService = new GovernanceMutationCorrectionService(
+            approvals,
+            promotionRepository ?? Mock.Of<IGovernancePromotionRecordRepository>(),
+            activationRepository ?? Mock.Of<IGovernanceEnvironmentActivationRepository>(),
+            scope,
+            runs,
+            auditService ?? Mock.Of<IAuditService>(),
+            NullLogger<GovernanceMutationCorrectionService>.Instance);
+
         GovernanceController controller = new(
             approvalRequestsFacade,
             promotionsActivationsFacade,
             insightsFacade,
+            mutationCorrectionService,
             actorContext ?? Mock.Of<IActorContext>(),
             scope,
             policyPackDryRunService ?? Mock.Of<IPolicyPackDryRunService>(),

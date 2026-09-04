@@ -10,8 +10,11 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 class TestAiReadinessBatch5BV(unittest.TestCase):
     def test_tb_189_draft_endpoint(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Governance" / "GovernanceController.PolicyPacks.cs"
-        text = path.read_text(encoding="utf-8")
+        controller_dir = REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Governance"
+        text = "".join(
+            path.read_text(encoding="utf-8")
+            for path in sorted(controller_dir.glob("GovernanceController*.cs"))
+        )
         self.assertIn("policy-pack/draft", text)
         self.assertIn("policyPackDraftService", text)
 

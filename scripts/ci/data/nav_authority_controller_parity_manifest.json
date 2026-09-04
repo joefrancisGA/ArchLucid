@@ -748,8 +748,8 @@
         {
           "controller_file": "Advisory/RecommendationLearningController.cs",
           "primary_get_policy": "ReadAuthority",
-          "method": "GetLatest",
-          "http_get_route": "latest"
+          "method": "GetStatus",
+          "http_get_route": "status"
         }
       ],
       "parity": "match"

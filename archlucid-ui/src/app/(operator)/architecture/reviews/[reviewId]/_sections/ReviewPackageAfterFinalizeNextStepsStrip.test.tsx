@@ -16,5 +16,18 @@ describe("ReviewPackageAfterFinalizeNextStepsStrip", () => {
       "href",
       "/insights/sponsor-report?runId=run-final",
     );
+    expect(screen.getByTestId("review-package-after-finalize-compare")).toHaveAttribute(
+      "href",
+      "/insights/compare-two-reviews?leftRunId=run-prior&rightRunId=run-final",
+    );
+  });
+
+  it("prefills only the base review when no prior package is known", () => {
+    render(<ReviewPackageAfterFinalizeNextStepsStrip runId="run-final" />);
+
+    expect(screen.getByTestId("review-package-after-finalize-compare")).toHaveAttribute(
+      "href",
+      "/insights/compare-two-reviews?priorRunId=run-final",
+    );
   });
 });

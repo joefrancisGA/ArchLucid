@@ -6,7 +6,7 @@ import { resolveReviewDetailVisibleTabs } from "@/lib/resolve-review-detail-visi
 import { REVIEW_DETAIL_TAB_LABELS, type ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
 
 describe("ReviewWorkspaceTabStrip", () => {
-  it("renders primary and secondary tab groups with a divider on desktop", () => {
+  it("renders all workspace tabs in the desktop strip without a More menu", () => {
     const resolved = resolveReviewDetailVisibleTabs({
       manifestId: "manifest-1",
       showProgressTracker: false,
@@ -23,9 +23,9 @@ describe("ReviewWorkspaceTabStrip", () => {
       />,
     );
 
-    expect(resolved.moreTabIds.length).toBeGreaterThan(0);
-    expect(screen.getByTestId("review-detail-workspace-tab-divider")).toBeInTheDocument();
-    expect(screen.getByTestId("review-detail-workspace-tab-additional-label")).toHaveTextContent("Additional");
+    expect(resolved.moreTabIds).toEqual([]);
+    expect(screen.queryByTestId("review-detail-workspace-tab-divider")).toBeNull();
+    expect(screen.queryByTestId("review-detail-workspace-tab-additional-label")).toBeNull();
   });
 
   it("renders all workspace tabs in the desktop strip and a mobile section picker", () => {
@@ -85,7 +85,7 @@ describe("ReviewWorkspaceTabStrip", () => {
       runCompleted: false,
     });
     const onTabChange = vi.fn();
-    const moreTab = resolved.moreTabIds[0];
+    const targetTab = resolved.visibleTabIds.find((tabId) => tabId !== "overview") ?? "architecture";
 
     render(
       <ReviewWorkspaceTabStrip
@@ -97,9 +97,9 @@ describe("ReviewWorkspaceTabStrip", () => {
     );
 
     fireEvent.change(screen.getByTestId("review-detail-workspace-sections-select"), {
-      target: { value: moreTab },
+      target: { value: targetTab },
     });
 
-    expect(onTabChange).toHaveBeenCalledWith(moreTab);
+    expect(onTabChange).toHaveBeenCalledWith(targetTab);
   });
 });

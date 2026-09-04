@@ -1,5 +1,9 @@
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Analysis;
 
@@ -34,6 +38,104 @@ public sealed partial class CompareRunsApplicationFacade
             {
                 Outcome = ScopedRunPairLoadOutcome.RightRunNotFound,
                 MissingRunId = rightRunId,
+            };
+        }
+
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        if (!TryParseRunId(leftRunId, out Guid leftGuid))
+        {
+            return new ScopedRunPairLoadResult
+            {
+                Outcome = ScopedRunPairLoadOutcome.LeftRunNotFound,
+                MissingRunId = leftRunId,
+            };
+        }
+
+        if (!TryParseRunId(rightRunId, out Guid rightGuid))
+        {
+            return new ScopedRunPairLoadResult
+            {
+                Outcome = ScopedRunPairLoadOutcome.RightRunNotFound,
+                MissingRunId = rightRunId,
+            };
+        }
+
+        RunRecord? leftHeader = await _authorityRunRepository.GetByIdAsync(scope, leftGuid, ct);
+        RunRecord? rightHeader = await _authorityRunRepository.GetByIdAsync(scope, rightGuid, ct);
+
+        if (leftHeader is null)
+        {
+            return new ScopedRunPairLoadResult
+            {
+                Outcome = ScopedRunPairLoadOutcome.LeftRunNotFound,
+                MissingRunId = leftRunId,
+            };
+        }
+
+        if (rightHeader is null)
+        {
+            return new ScopedRunPairLoadResult
+            {
+                Outcome = ScopedRunPairLoadOutcome.RightRunNotFound,
+                MissingRunId = rightRunId,
+            };
+        }
+
+        try
+        {
+            RunComparePinFingerprintGuard.EnsureCreateTimePinFingerprintsMatchOrThrow(leftHeader, rightHeader);
+        }
+        catch (ConflictException)
+        {
+            return new ScopedRunPairLoadResult
+            {
+                Outcome = ScopedRunPairLoadOutcome.PinFingerprintMismatch,
+                RunId = leftGuid,
+            };
+        }
+
+        Task<RunDetailDto?> leftCompareTask =
+            _authorityQuery.GetRunDetailForManifestCompareAsync(scope, leftGuid, ct);
+        Task<RunDetailDto?> rightCompareTask =
+            _authorityQuery.GetRunDetailForManifestCompareAsync(scope, rightGuid, ct);
+        await Task.WhenAll(leftCompareTask, rightCompareTask);
+
+        RunDetailDto? leftCompare = await leftCompareTask;
+        RunDetailDto? rightCompare = await rightCompareTask;
+
+        if (leftCompare?.GoldenManifest is null)
+        {
+            return new ScopedRunPairLoadResult
+            {
+                Outcome = ScopedRunPairLoadOutcome.LeftRunNotFound,
+                MissingRunId = leftRunId,
+            };
+        }
+
+        if (rightCompare?.GoldenManifest is null)
+        {
+            return new ScopedRunPairLoadResult
+            {
+                Outcome = ScopedRunPairLoadOutcome.RightRunNotFound,
+                MissingRunId = rightRunId,
+            };
+        }
+
+        try
+        {
+            RunComparePinFingerprintGuard.EnsureCommittedArtifactInventoryFingerprintsMatchOrThrow(
+                CommittedArtifactInventoryCompareFingerprint.ComputeHashSha256(
+                    leftCompare.GoldenManifest.CommittedArtifactInventory),
+                CommittedArtifactInventoryCompareFingerprint.ComputeHashSha256(
+                    rightCompare.GoldenManifest.CommittedArtifactInventory));
+        }
+        catch (ConflictException)
+        {
+            return new ScopedRunPairLoadResult
+            {
+                Outcome = ScopedRunPairLoadOutcome.CommittedArtifactInventoryMismatch,
+                RunId = leftGuid,
             };
         }
 

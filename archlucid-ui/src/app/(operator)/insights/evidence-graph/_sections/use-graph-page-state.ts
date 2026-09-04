@@ -13,10 +13,13 @@ import {
   type GraphMode,
 } from "@/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import type { AskRunListAvailability } from "@/lib/graph-page-state";
 
 export function useGraphPageState() {
+  const { isWorkingMode, mounted: workspaceMounted } = useWorkspaceMode();
+  const workingMode = workspaceMounted && isWorkingMode;
   const [decisionId, setDecisionId] = useState("");
   const [nodeId, setNodeId] = useState("");
   const [depth, setDepth] = useState(1);
@@ -30,7 +33,7 @@ export function useGraphPageState() {
   const [graphInteractiveReady, setGraphInteractiveReady] = useState(false);
   const productionEvalChrome = useProductionEvalChrome();
   const [presentationView, setPresentationView] = useState<EvidenceTrailPresentationView>(() =>
-    resolveEvidenceTrailPresentationView(null, productionEvalChrome),
+    resolveEvidenceTrailPresentationView(null, productionEvalChrome, workingMode),
   );
   const [reviewsListLoadError, setReviewsListLoadError] = useState(false);
   const [reviewListAvailability, setReviewListAvailability] = useState<AskRunListAvailability>({

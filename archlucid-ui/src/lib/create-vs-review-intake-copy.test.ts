@@ -20,7 +20,8 @@ describe("create-vs-review-intake-copy (TB-1459)", () => {
   it("discloses account sync for saved drafts without implying review filing is required", () => {
     expect(ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY.toLowerCase()).toContain("account");
     expect(ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY.toLowerCase()).toContain("sync");
-    expect(ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY.toLowerCase()).toContain("this browser");
+    expect(ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY.toLowerCase()).not.toMatch(/^recently saved drafts on this browser/);
+    expect(ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY.toLowerCase()).toContain("unsaved typing");
   });
 
   it("aligns view-all drafts label with saved-draft inventory", () => {

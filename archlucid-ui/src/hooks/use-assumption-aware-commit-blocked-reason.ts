@@ -1,6 +1,7 @@
 "use client";
 
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
 import { useReviewAssumptionAcknowledgements } from "@/hooks/use-review-assumption-acknowledgements";
 import { resolveClientAwareCommitBlockedReason } from "@/lib/review-quality/resolve-client-commit-blocked-reason";
@@ -12,6 +13,7 @@ export function useAssumptionAwareCommitBlockedReason(input: {
   readonly findings: readonly QuickDecisionFinding[];
   readonly blockingFindingCount: number;
   readonly requestAssumptionTexts: readonly string[];
+  readonly transparencyTrail?: TransparencyTrail | null;
 }): string | null {
   const { acknowledgedIds } = useReviewAssumptionAcknowledgements(input.runId);
 
@@ -22,5 +24,6 @@ export function useAssumptionAwareCommitBlockedReason(input: {
     blockingFindingCount: input.blockingFindingCount,
     acknowledgedAssumptionIds: acknowledgedIds,
     requestAssumptionTexts: input.requestAssumptionTexts,
+    transparencyTrail: input.transparencyTrail,
   });
 }

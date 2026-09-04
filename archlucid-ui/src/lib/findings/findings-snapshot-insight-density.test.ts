@@ -43,10 +43,13 @@ describe("findings-snapshot-insight-density", () => {
     expect(view.curation).toEqual({ demotedToChecklistCount: 1, retainedFindingCount: 2 });
   });
 
-  it("formatInsightDensityCurationMessage renders buyer copy", () => {
+  it("formatInsightDensityCurationMessage renders buyer copy without implying typed-engine demotion", () => {
     expect(
       formatInsightDensityCurationMessage({ demotedToChecklistCount: 3, retainedFindingCount: 2 }),
-    ).toContain("suppressed 3");
+    ).toContain("moved 3");
+    expect(
+      formatInsightDensityCurationMessage({ demotedToChecklistCount: 3, retainedFindingCount: 2 }),
+    ).toContain("typed-engine-protected");
     expect(formatInsightDensityCurationMessage({ demotedToChecklistCount: 0, retainedFindingCount: 0 })).toBe("");
   });
 

@@ -1,4 +1,5 @@
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Runs;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Runs.Finalization;
@@ -75,6 +76,20 @@ public sealed partial class ManifestFinalizationService(
         ArgumentNullException.ThrowIfNull(request.Keying);
         ArgumentNullException.ThrowIfNull(request.Trace);
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        RunRecord? runHeader = await runRepository.GetByIdAsync(scope, request.RunId, cancellationToken);
+
+        if (runHeader is null)
+        {
+            throw new ConflictException(
+                $"Finalization blocked for run '{request.RunId:N}': run header was not found.");
+        }
+
+        RunScopeAssertionGuard.EnsureCallerScopeMatchesRunOrThrow(
+            scope,
+            runHeader,
+            request.RunId.ToString("N"),
+            "Finalize");
+
         await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
         try
         {

@@ -1,6 +1,7 @@
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
@@ -165,8 +166,17 @@ public sealed partial class CompareRunsApplicationFacade
         return new VersionManifestCompareLoadResult
         {
             Outcome = ManifestCompareLoadOutcome.Success,
-            Left = left,
-            Right = right,
+            Left = await ProjectCompareManifestAsync(leftDetail.GoldenManifest, leftHeader, ct),
+            Right = await ProjectCompareManifestAsync(rightDetail.GoldenManifest, rightHeader, ct),
+            InputFingerprints = RunComparePinFingerprintGuard.BuildCompareInputFingerprints(
+                leftHeader,
+                rightHeader,
+                leftDetail.GoldenManifest.ManifestHash,
+                rightDetail.GoldenManifest.ManifestHash,
+                CommittedArtifactInventoryCompareFingerprint.ComputeHashSha256(
+                    leftDetail.GoldenManifest.CommittedArtifactInventory),
+                CommittedArtifactInventoryCompareFingerprint.ComputeHashSha256(
+                    rightDetail.GoldenManifest.CommittedArtifactInventory)),
         };
     }
 
@@ -203,4 +213,22 @@ public sealed partial class CompareRunsApplicationFacade
 
         return (true, null, runGuid);
     }
+
+    private async Task<GoldenManifest> ProjectCompareManifestAsync(
+        ManifestDocument manifest,
+        RunRecord runHeader,
+        CancellationToken ct)
+    {
+        string systemName = runHeader.ScopeProjectId == Guid.Empty
+            ? "Unknown"
+            : runHeader.ScopeProjectId.ToString("D");
+
+        return await _projectionBuilder.BuildAsync(
+            manifest,
+            new AuthorityCommitProjectionInput { SystemName = systemName },
+            ct);
+    }
+
+    private static bool TryParseRunId(string runId, out Guid runGuid) =>
+        Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
 }

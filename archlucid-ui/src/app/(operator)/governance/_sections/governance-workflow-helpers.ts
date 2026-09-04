@@ -50,4 +50,8 @@ export function governanceApprovalCardTitle(row: GovernanceApprovalRequest): str
 
 export type GovernanceWorkflowToastState = { kind: "ok" | "err"; message: string } | null;
 
-export type GovernanceWorkflowPendingReview = { approvalRequestId: string; mode: "approve" | "reject" };
+export type GovernanceWorkflowPendingReview = {
+  approvalRequestId: string;
+  mode: "approve" | "reject";
+  runId: string;
+};

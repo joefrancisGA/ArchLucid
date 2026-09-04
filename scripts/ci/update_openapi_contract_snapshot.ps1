@@ -25,10 +25,14 @@ dotnet build ArchLucid.Api.Client/ArchLucid.Api.Client.csproj -c Release
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 if ($env:ARCHLUCID_REGENERATE_UI_API_TYPES -eq '1') {
-    Write-Host 'Verifying split api-types output is now in sync...'
-    & (Join-Path $Root 'scripts\ci\assert_api_types_in_sync.ps1')
-
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    Write-Host 'Regenerating split api-types from the refreshed snapshot...'
+    Push-Location (Join-Path $Root 'archlucid-ui')
+    npm run generate:api-types
+    if ($LASTEXITCODE -ne 0) {
+        Pop-Location
+        exit $LASTEXITCODE
+    }
+    Pop-Location
 }
 
 Write-Host 'Verifying snapshots match generated /openapi/v1.json...'

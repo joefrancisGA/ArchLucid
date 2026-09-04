@@ -58,4 +58,44 @@ public sealed class UniversalIntakeAnswerProjectorTests
 
         request.CloudProvider.Should().Be(CloudProvider.None);
     }
+
+    [Fact]
+    public void ApplyToRequest_does_not_promote_unknown_sentinel_into_inline_requirements()
+    {
+        ArchitectureRequest request = new()
+        {
+            Description = new string('a', ArchitectureRequestFieldLimits.MinDescriptionLength),
+            SystemName = "Retail API",
+            Environment = "staging",
+            IntakeQuestionAnswers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["l0.pillar.reliability"] = ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview,
+                ["l0.pillar.cost"] = ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview,
+            },
+        };
+
+        UniversalIntakeAnswerProjector.ApplyToRequest(request);
+
+        request.InlineRequirements.Should().BeEmpty();
+        request.Constraints.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ApplyToRequest_projects_confirmed_inline_requirement_when_not_unknown()
+    {
+        ArchitectureRequest request = new()
+        {
+            Description = new string('a', ArchitectureRequestFieldLimits.MinDescriptionLength),
+            SystemName = "Retail API",
+            Environment = "staging",
+            IntakeQuestionAnswers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["l0.pillar.reliability"] = "RTO 4 hours",
+            },
+        };
+
+        UniversalIntakeAnswerProjector.ApplyToRequest(request);
+
+        request.InlineRequirements.Should().Contain("Reliability: RTO 4 hours");
+    }
 }

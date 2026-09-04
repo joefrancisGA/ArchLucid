@@ -16,10 +16,16 @@ class TestAdoptionBatch5BL(unittest.TestCase):
         self.assertIn("UpdatePriorityRanksAsync", text)
 
     def test_tb_183_order_by_priority_api(self) -> None:
-        controller_path = REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Authority" / "RunQueryController.Findings.cs"
-        service_path = REPO_ROOT / "ArchLucid.Application" / "Runs" / "Query" / "RunFindingsQueryService.cs"
-        controller_text = controller_path.read_text(encoding="utf-8")
-        service_text = service_path.read_text(encoding="utf-8")
+        controller_dir = REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Authority"
+        query_dir = REPO_ROOT / "ArchLucid.Application" / "Runs" / "Query"
+        controller_text = "".join(
+            path.read_text(encoding="utf-8")
+            for path in sorted(controller_dir.glob("RunQueryController*.cs"))
+        )
+        service_text = "".join(
+            path.read_text(encoding="utf-8")
+            for path in sorted(query_dir.glob("RunFindings*.cs"))
+        )
         self.assertIn("orderBy", controller_text)
         self.assertIn("orderByPriority", service_text)
         self.assertIn("PriorityRank", service_text)

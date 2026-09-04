@@ -8,6 +8,7 @@ import {
 export type OperatorHomeSectionId =
   | "metrics-strip"
   | "attention-taxonomy"
+  | "in-flight"
   | "start-something"
   | "unfinished"
   | "hero"
@@ -101,6 +102,7 @@ function operatorShellSections(
 function workingModeEarlyPhaseSections(phase: OperatorHomeWorkspacePhase): OperatorHomeSectionDescriptor[] {
   if (phase === "eval-empty") {
     return [
+      { id: "in-flight", testId: "operator-home-in-flight-analysis" },
       { id: "unfinished", testId: "operator-home-unfinished-work" },
       { id: "start-something", testId: "operator-home-start-something" },
       { id: "recent-reviews", testId: "operator-home-recent-reviews" },
@@ -108,6 +110,7 @@ function workingModeEarlyPhaseSections(phase: OperatorHomeWorkspacePhase): Opera
   }
 
   return [
+    { id: "in-flight", testId: "operator-home-in-flight-analysis" },
     { id: "unfinished", testId: "operator-home-unfinished-work" },
     { id: "recent-reviews", testId: "operator-home-recent-reviews" },
     { id: "start-something", testId: "operator-home-start-something" },
@@ -125,6 +128,7 @@ function workingModeOperatorShellSections(
   return [
     ...(shouldShowHomeMetricsStrip(metrics) ? [metricsStripSection()] : []),
     { id: "attention-taxonomy", testId: "operator-home-attention-taxonomy" },
+    { id: "in-flight", testId: "operator-home-in-flight-analysis" },
     { id: "unfinished", testId: "operator-home-unfinished-work" },
     { id: "recent-reviews", testId: "operator-home-recent-reviews" },
     { id: "start-something", testId: "operator-home-start-something" },

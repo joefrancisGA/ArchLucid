@@ -15,6 +15,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ReviewPackageDoThisNextStrip } from "./ReviewPackageDoThisNextStrip";
 import { FinalizeReadinessStrip } from "@/components/reviews/FinalizeReadinessStrip";
+import { FinalizeSkippedMustStrip } from "@/components/reviews/FinalizeSkippedMustStrip";
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import type {
   ResolveReviewPackageDoThisNextInput,
@@ -23,6 +24,7 @@ import type {
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
 import type { RunSummary } from "@/types/authority";
+import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
 export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackageDoThisNextInput & {
   readonly hasGoldenManifest: boolean;
@@ -30,6 +32,7 @@ export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackage
   readonly finalizeAssumptionGateApplies: boolean;
   readonly quickDecisionFindings: readonly QuickDecisionFinding[];
   readonly requestAssumptionTexts: readonly string[];
+  readonly transparencyTrail?: TransparencyTrail | null;
   readonly pipelineDiagnosticContext?: ReviewPipelineDiagnosticContext | null;
   readonly lastFailureSummary?: RunDetailLastFailureSummary | null;
   readonly pipelineSummary?: RunSummary | null;
@@ -86,6 +89,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
     findings: props.quickDecisionFindings,
     blockingFindingCount: props.blockingFindingCount,
     requestAssumptionTexts: props.requestAssumptionTexts,
+    transparencyTrail: props.transparencyTrail,
   });
 
   useEffect(() => {
@@ -191,6 +195,9 @@ export function RunDetailReviewPackageDoThisNextResolved(
 
   return (
     <>
+      {!props.hasGoldenManifest ? (
+        <FinalizeSkippedMustStrip transparencyTrail={props.transparencyTrail ?? null} className="mb-3" />
+      ) : null}
       <FinalizeReadinessStrip commitBlockedReason={assumptionAwareCommitBlockedReason} />
       <ReviewPackageDoThisNextStrip
         next={next}
@@ -201,6 +208,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
         sessionAiReadiness={sessionAiReadiness}
         canConfigureWorkspaceAi={canConfigureWorkspaceAi}
         usesCustomerAiConnection={usesCustomerAiConnection}
+        transparencyTrail={props.transparencyTrail ?? null}
       />
     </>
   );

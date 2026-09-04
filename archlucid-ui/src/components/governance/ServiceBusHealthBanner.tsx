@@ -66,14 +66,23 @@ export function ServiceBusHealthBanner() {
           </p>
         </>
       ) : (
-        <p className="m-0 font-semibold text-amber-900 dark:text-amber-100">Service Bus health status unavailable</p>
+        <>
+          <p className="m-0 font-semibold text-amber-900 dark:text-amber-100">
+            {SERVICE_BUS_HEALTH_LABELS.refreshFailedTitle}
+          </p>
+          <details className="mt-1">
+            <summary className="cursor-pointer text-sm text-amber-950/90 dark:text-amber-100/90">
+              {SERVICE_BUS_HEALTH_LABELS.technicalProbeDisclosure}
+            </summary>
+          </details>
+        </>
       )}
       {refreshFailed ? (
         <div className="mt-2 space-y-2" data-testid="service-bus-health-refresh-failed">
           <p className="m-0 leading-snug text-amber-950/90 dark:text-amber-100/90">
             {showWarning
-              ? "Could not refresh Service Bus health. Showing the last known degraded state until refresh succeeds."
-              : "Could not confirm Service Bus readiness. Retry before assuming delivery is healthy."}
+              ? SERVICE_BUS_HEALTH_LABELS.refreshFailedBodyDegraded
+              : SERVICE_BUS_HEALTH_LABELS.refreshFailedBodyUnknown}
           </p>
           <Button
             type="button"

@@ -11,6 +11,7 @@ import { ReviewInPipelineBanner } from "@/components/reviews/ReviewInPipelineBan
 import { ReviewDefensibilityStrip } from "@/components/reviews/ReviewDefensibilityStrip";
 import { reviewPipelineDiagnosticContextFromRunDetail } from "@/lib/review-pipeline-diagnostic-context";
 import { buildReviewDefensibilityStripProps } from "@/lib/reviews/build-review-defensibility-strip-props";
+import { RunDetailInfeasibleDecisionLead } from "./RunDetailInfeasibleDecisionLead";
 import { composeRunDetailTabbedWorkspaceEvidenceShell } from "./RunDetailTabbedWorkspaceEvidenceShell";
 import { composeRunDetailTabbedWorkspaceGovernanceShell } from "./RunDetailTabbedWorkspaceGovernanceShell";
 import { composeRunDetailTabbedWorkspaceOverviewShell } from "./RunDetailTabbedWorkspaceOverviewShell";
@@ -75,7 +76,6 @@ export function resolveRunDetailTabbedWorkspace(
   const p = presentation;
   const {
     architectureEditHref,
-    architectureSummaryTitle,
     blockingApprovalCount,
     deferredContext,
     evidenceInventoryCount,
@@ -87,6 +87,7 @@ export function resolveRunDetailTabbedWorkspace(
     showArchitectureCreatedHome,
     showDemoMarketingChrome,
     submittedArchitectureText,
+    requestAssumptionTexts,
     lowExtractionConfidenceCount,
   } = p;
 
@@ -110,7 +111,7 @@ export function resolveRunDetailTabbedWorkspace(
       goldenManifestJsonForExport={m.goldenManifestJsonForExport}
       manifestRuleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
       manifestRuleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
-      requestAssumptionTexts={p.requestAssumptionTexts}
+      requestAssumptionTexts={requestAssumptionTexts}
     />
   );
   const submittedArchitectureTabEl = (
@@ -228,6 +229,10 @@ export function resolveRunDetailTabbedWorkspace(
       decisionsRemediation: governanceTabPanelEl,
       reviewPackage: (
         <div className="space-y-4">
+          <RunDetailInfeasibleDecisionLead
+            feasibilityVerdict={m.manifestSummaryForUi?.feasibilityVerdict ?? m.manifestSummary?.feasibilityVerdict ?? null}
+            runId={m.resolvedDetail.run.runId}
+          />
           {m.manifestId ? (
             <RunDetailReviewPackageSponsorHandoffGateDeferred
               runId={m.resolvedDetail.run.runId}

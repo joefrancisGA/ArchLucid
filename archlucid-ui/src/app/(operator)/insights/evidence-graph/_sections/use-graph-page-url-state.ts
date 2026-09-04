@@ -12,10 +12,10 @@ import {
 import { parseGraphScopeModeFromSearch } from "@/lib/insights/graph-scope-mode-url";
 import { parseGraphNodeTypeFromSearch } from "@/lib/insights/graph-node-type-url";
 import { parseGraphNeighborhoodDepthFromSearch } from "@/lib/insights/graph-neighborhood-depth-url";
-import {
-  parseGraphDecisionIdFromSearch,
+import { parseGraphDecisionIdFromSearch,
   parseGraphNodeIdFromSearch,
 } from "@/lib/insights/graph-node-decision-id-url";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 
 export function useGraphPageUrlState(options: {
   setRunId: (runId: string) => void;
@@ -27,6 +27,8 @@ export function useGraphPageUrlState(options: {
   setNodeId: (nodeId: string) => void;
   setDecisionId: (decisionId: string) => void;
 }): { urlRunId: string; urlGraphNodeId: string } {
+  const { isWorkingMode, mounted: workspaceMounted } = useWorkspaceMode();
+  const workingMode = workspaceMounted && isWorkingMode;
   const { setRunId, setGraphLoadRequested, setPresentationView, setMode, setTypeFilter, setDepth, setNodeId, setDecisionId } = options;
   const productionEvalChrome = useProductionEvalChrome();
   const searchParams = useSearchParams();
@@ -46,8 +48,10 @@ export function useGraphPageUrlState(options: {
   }, [urlRunId, setRunId, setGraphLoadRequested]);
 
   useEffect(() => {
-    setPresentationView(resolveEvidenceTrailPresentationView(urlPresentation, productionEvalChrome));
-  }, [productionEvalChrome, urlPresentation, setPresentationView]);
+    setPresentationView(
+      resolveEvidenceTrailPresentationView(urlPresentation, productionEvalChrome, workingMode),
+    );
+  }, [productionEvalChrome, urlPresentation, workingMode, setPresentationView]);
 
   useEffect(() => {
     setMode(parseGraphScopeModeFromSearch(urlGraphMode));

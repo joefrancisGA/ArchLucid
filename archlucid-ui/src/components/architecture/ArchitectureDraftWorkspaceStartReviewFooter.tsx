@@ -118,6 +118,7 @@ export function ArchitectureDraftWorkspaceStartReviewFooter(
           linkedReviewId={linkedReviewId}
           briefFrozen={briefFrozen}
           reviewReadiness={reviewReadiness}
+          structuredBrief={fields.structuredBrief}
           needsPersistedDraftBeforeStart={needsPersistedDraftBeforeStart}
           scopeGateOpen={scopeGateOpen}
           actorSuggestionsUnresolved={actorSuggestionsUnresolved}
