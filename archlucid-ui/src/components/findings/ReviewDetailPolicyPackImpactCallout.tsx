@@ -7,6 +7,7 @@ import type { CompareEffectiveGovernanceAtCommitSnapshot } from "@/lib/compare-e
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { resolveReviewDetailPolicyPackHref } from "@/lib/group-findings-by-policy-pack";
+import { buildCommittedPolicyPackEvaluationHeadline } from "@/lib/policy/committed-coverage-scope-summary";
 import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import { policyPacksAuthorHref, policyPacksEditHref } from "@/lib/policy/policy-packs-deep-link";
 import { POLICY_PACK_CLOUD_MISMATCH_MESSAGE } from "@/lib/review-quality/review-intake-quality-gates";
@@ -39,6 +40,12 @@ export function ReviewDetailPolicyPackImpactCallout(
   }
 
   const packLabel = policyPackBuyerLabel(ruleSetId, props.ruleSetVersion ?? "");
+  const evaluationHeadline = buildCommittedPolicyPackEvaluationHeadline({
+    ruleSetId,
+    ruleSetVersion: props.ruleSetVersion,
+    packLabel,
+    effectiveGovernanceAtCommit: props.effectiveGovernanceAtCommit,
+  });
   const packHref = resolveReviewDetailPolicyPackHref(ruleSetId);
   const simulateHref = policyPacksEditHref(ruleSetId);
   const authorHref = policyPacksAuthorHref(ruleSetId);
@@ -72,9 +79,8 @@ export function ReviewDetailPolicyPackImpactCallout(
             Policy-aware review
           </p>
           <p className={cn("m-0 leading-relaxed text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-            Evaluated against{" "}
-            <span className="font-semibold text-neutral-900 dark:text-neutral-100">{packLabel}</span>. Findings below
-            should cite curated pack rules, evidence, and explainability traces — not generic model advice alone.
+            {evaluationHeadline} Findings below should cite curated pack rules, evidence, and explainability traces —
+            not generic model advice alone.
           </p>
           {props.cloudMismatchDetail !== null && props.cloudMismatchDetail !== undefined ? (
             <p

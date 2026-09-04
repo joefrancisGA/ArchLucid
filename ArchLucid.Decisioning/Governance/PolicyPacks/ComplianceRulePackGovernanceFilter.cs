@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Compliance;
+using ArchLucid.Core.Governance.PolicyPacks;
 
 namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
@@ -30,5 +31,16 @@ public static class ComplianceRulePackGovernanceFilter
     public static ComplianceRulePack Filter(ComplianceRulePack source, PolicyPackContentDocument effective)
     {
         return ArchLucid.Core.Governance.PolicyPacks.ComplianceRulePackGovernanceFilter.Filter(source, effective);
+    }
+
+    public static ComplianceRulePack Filter(
+        ComplianceRulePack source,
+        PolicyPackContentDocument effective,
+        ComplianceRuleApplicabilityContext? applicabilityContext)
+    {
+        return ArchLucid.Core.Governance.PolicyPacks.ComplianceRulePackGovernanceFilter.Filter(
+            source,
+            effective,
+            applicabilityContext);
     }
 }
