@@ -700,10 +700,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recurrence; next run calculator
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
-- **hunts:** 3
+- **hunts:** 4
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
+- **last-hunt:** 2026-09-04
 - **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -718,6 +718,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Batch preview from an exact weekly cron occurrence repeats the reference Monday — `NormalizeNextRunUtc` advances when `candidate <= fromUtc`; regression in `ComputeNextRunsUtc_from_exact_weekly_occurrence_returns_following_mondays`
 - [x] (valid-no-repro) `ComputeNextRunsUtc` with `count <= 0` still invoked the underlying calculator — early return `Array.Empty<DateTime>()`; regression in `ComputeNextRunsUtc_returns_empty_when_count_is_zero`
 - [x] (invalid) `SpecifyUtc` mishandles `DateTimeKind.Local` from the underlying calculator on production paths — `SimpleScanScheduleCalculator` always receives UTC-normalized references; Local-kind results are not produced in this wrapper's live path
+- [x] (valid-no-repro) `NormalizeNextRunUtc` returns null when the single retry still lands on `fromUtc` — stub `PastThenExactScanScheduleCalculator` reproduces null; `SimpleScanScheduleCalculator` never returns a past first occurrence so production paths do not hit this branch; regression in `ComputeNextRunUtc_returns_null_when_underlying_retry_still_not_after_reference`
+- [x] (valid-no-repro) `ComputeNextRunsUtc` with negative `count` still invoked the underlying calculator — early return `Array.Empty<DateTime>()` for `count <= 0`; regression in `ComputeNextRunsUtc_returns_empty_when_count_is_negative`
+- [x] (valid-no-repro) Whitespace-only cron slips through `IsSupportedCronExpression` / `ComputeNextRunUtc` — wrapper delegates to `SimpleScanScheduleCalculator`, which rejects whitespace-only input; regressions in `IsSupportedCronExpression_rejects_whitespace_only_cron` / `ComputeNextRunUtc_returns_null_for_whitespace_only_cron`
+- [x] (valid-no-repro) Single-run `ComputeNextRunUtc` from an exact weekly cron occurrence repeats the reference Monday — Cronos `inclusive: false` plus `NormalizeNextRunUtc` advance to the following Monday; regression in `ComputeNextRunUtc_from_exact_weekly_occurrence_returns_next_monday`
+
+2026-09-04 seed hunt #740: reseeded four recurrence-normalization candidates; cheap-disproved all with scoped regressions. No hunt-ready rows; seed-only.
 
 ---
 

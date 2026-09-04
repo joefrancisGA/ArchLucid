@@ -868,3 +868,4 @@
 {"at":"2026-09-04T15:21:44.7965308Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-04T15:26:24.0529568Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-04T15:29:39.7736756Z","zoneId":"archlucid-core","outcome":"dry"}
+{"at":"2026-09-04T15:40:11.4091136Z","zoneId":"review-recurrence","outcome":"seed-only"}
