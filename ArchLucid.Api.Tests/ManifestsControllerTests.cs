@@ -261,6 +261,19 @@ public sealed class ManifestsControllerTests
     }
 
     [Fact]
+    public async Task CompareManifests_returns_bad_request_when_left_version_exceeds_max_length_and_tenant_missing()
+    {
+        string overlongLeftVersion = new string('v', GovernanceRequestValidationRules.ManifestVersionMaxLength + 1);
+        ManifestsController controller = CreateController(tenantRepository: TenantMissingRepository());
+
+        IActionResult action =
+            await controller.CompareManifests(overlongLeftVersion, RightVersion, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task GetManifest_returns_bad_request_when_manifest_version_exceeds_max_length()
     {
         string overlongVersion = new string('v', GovernanceRequestValidationRules.ManifestVersionMaxLength + 1);

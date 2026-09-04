@@ -3166,9 +3166,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 165
+- **hunts:** 166
 - **bugs-found:** 375
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-04
 - **last-bug:** 2026-09-04 — link-entra entraOid length validation ordering before tenant lookup
 - **related-pd-tb:** none
@@ -4000,6 +4000,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantTrialController.LinkEntraAsync` / `TenantTrialFacade.LinkEntraAsync` — tenant lookup ran before `EntraOid` max-length validation in `TenantTrialAbuseGuard` so ghost tenant + overlong `entraOid` returned HTTP 404 instead of 400 (#705 convert tier ordering sibling) — **hit 2026-09-04 (#706):** shared `TrialEntraOidValidation.TryValidateLength` before tenant repository lookup; regression in `TenantTrialControllerTests.LinkEntraAsync_returns_bad_request_when_entra_oid_exceeds_max_length_and_tenant_missing`.
 
 2026-09-04 seed hunt #706: promoted and proved link-entra entraOid max-length validation ordering before tenant lookup.
+
+- [x] (invalid) `TenantTrialController.LinkEntraAsync` / `TenantTrialFacade.LinkEntraAsync` — empty `entraTenantId` or mismatched `localEmail`/`entraOid` pair returned HTTP 404 instead of 400 for ghost tenant (#706 entraOid ordering sibling) — **cheap-disproof 2026-09-04 (#707):** facade rejects `Guid.Empty` entra tenant id and email/oid pair mismatch before `GetByIdAsync`; regression in `TenantTrialControllerTests.LinkEntraAsync_returns_bad_request_when_entra_tenant_id_is_empty_and_tenant_missing` and `LinkEntraAsync_returns_bad_request_when_local_email_without_entra_oid_and_tenant_missing`.
+
+- [x] (invalid) `ManifestsController.CompareManifests` — overlong `leftVersion`/`rightVersion` returned HTTP 404 instead of 400 for ghost tenant (#702 manifest summary query ordering sibling) — **cheap-disproof 2026-09-04 (#707):** `BadRequestWhenManifestVersionInvalid` runs before tenant lookup on compare load path; regression in `ManifestsControllerTests.CompareManifests_returns_bad_request_when_left_version_exceeds_max_length_and_tenant_missing`.
+
+2026-09-04 seed hunt #707 (dry): reseeded link-entra and manifest-compare validation-ordering siblings; no new hunt-ready repro after cheap-disproof tests.
 
 2026-09-04 seed hunt #695: promoted and proved attestation upsert HTTP mapper and product-feedback validation ordering.
 
