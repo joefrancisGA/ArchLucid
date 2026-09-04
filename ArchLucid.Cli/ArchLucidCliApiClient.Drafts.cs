@@ -210,7 +210,7 @@ public sealed partial class ArchLucidApiClient
     {
         try
         {
-            Gen.SubmitDraftResponse submitted = await _api.SubmitAsync(draftId, ct);
+            Gen.SubmitDraftResponse submitted = await _api.SubmitAsync(draftId, null, ct);
             SubmitDraftResponse? mapped = MapGeneratedToContract<SubmitDraftResponse>(submitted);
 
             if (mapped is null)
