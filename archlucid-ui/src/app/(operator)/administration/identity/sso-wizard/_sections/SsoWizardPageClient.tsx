@@ -17,15 +17,23 @@ import {
   SSO_WIZARD_SETTINGS_SKIP_TARGET_ID,
 } from "@/lib/sso-wizard-settings-page-copy";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  LivelihoodDocumentGuardDialog,
+  useLivelihoodDocumentGuards,
+} from "@/hooks/use-livelihood-document-guards";
 
 import { SsoWizardFooter } from "./SsoWizardFooter";
 import { SsoWizardPageChrome } from "./SsoWizardPageChrome";
 import { SsoWizardStepContent } from "./SsoWizardStepContent";
+import { ssoWizardHasUnsavedChanges } from "./sso-wizard-state";
 import { useSsoWizardPage } from "./use-sso-wizard-page";
 
 export function SsoWizardPageClient() {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const wizard = useSsoWizardPage();
+  const documentGuards = useLivelihoodDocumentGuards({
+    when: ssoWizardHasUnsavedChanges(wizard.state, wizard.step),
+  });
 
   return (
     <OperatorPageContainer variant="settings" className={cn(OPERATOR_LAYOUT.sectionStack, "px-1 sm:px-0")} data-testid="sso-wizard-page">
@@ -112,6 +120,12 @@ export function SsoWizardPageClient() {
         </CardContent>
       </Card>
       </div>
+      <LivelihoodDocumentGuardDialog
+        open={documentGuards.dialogOpen}
+        message={documentGuards.dialogMessage}
+        onConfirmLeave={documentGuards.confirmLeave}
+        onCancelLeave={documentGuards.cancelLeave}
+      />
     </OperatorPageContainer>
   );
 }

@@ -4,7 +4,7 @@ export const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
 
 export const WIZARD_STEP_DEFINITIONS_FULL = [
   { label: "Choose starting point", description: "Template, import, or blank" },
-  { label: "Evidence (optional)", description: "Brief, docs, IaC, cloud export, or demo" },
+  { label: "Add evidence (optional)", description: "Brief, docs, IaC, cloud export, or demo" },
   { label: "Identity & goals", description: "System, environment & requirements" },
   { label: "Constraints", description: "Limits & capabilities" },
   { label: "Optional enrichment", description: "Cloud inventory or supporting files — optional" },

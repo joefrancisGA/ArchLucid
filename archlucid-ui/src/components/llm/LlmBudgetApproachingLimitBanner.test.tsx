@@ -6,9 +6,17 @@ import {
   LlmBudgetApproachingLimitBanner,
   shouldShowLlmBudgetApproachingBanner,
 } from "@/components/llm/LlmBudgetApproachingLimitBanner";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 
 const fetchStatus = vi.hoisted(() => vi.fn());
+const navAuthMock = vi.hoisted(() => ({
+  callerAuthorityRank: 100,
+}));
+
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
+  useNavCallerAuthorityRank: () => navAuthMock.callerAuthorityRank,
+}));
 
 vi.mock("@/lib/llm-monthly-budget-status", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/llm-monthly-budget-status")>();
@@ -77,6 +85,7 @@ describe("shouldShowLlmBudgetApproachingBanner", () => {
 describe("LlmBudgetApproachingLimitBanner", () => {
   beforeEach(() => {
     resetOperatorQueryClientForTests();
+    navAuthMock.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
     fetchStatus.mockResolvedValue({
       monthlyBudgetMonitoringActive: true,
       blocksAdditionalLlmExecution: false,
@@ -113,5 +122,17 @@ describe("LlmBudgetApproachingLimitBanner", () => {
     await waitFor(() => {
       expect(screen.queryByTestId("llm-budget-approaching-limit-banner")).not.toBeInTheDocument();
     });
+  });
+
+  it("hides for Execute seats without admin authority", async () => {
+    navAuthMock.callerAuthorityRank = AUTHORITY_RANK.ExecuteAuthority;
+
+    renderWithOperatorQuery(<LlmBudgetApproachingLimitBanner />);
+
+    await waitFor(() => {
+      expect(fetchStatus).not.toHaveBeenCalled();
+    });
+
+    expect(screen.queryByTestId("llm-budget-approaching-limit-banner")).not.toBeInTheDocument();
   });
 });
