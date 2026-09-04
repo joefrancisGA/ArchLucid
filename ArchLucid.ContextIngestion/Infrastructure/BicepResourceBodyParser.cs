@@ -16,19 +16,19 @@ internal static class BicepResourceBodyParser
 
     private static readonly Regex ArrayAssignmentRegex = new(
         """
-        ^\s*(?<key>[A-Za-z0-9_-]+)\s*:\s*\[
+        ^\s*(?<key>[A-Za-z0-9_-]+)\s*(?::|=)\s*\[
         """,
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     private static readonly Regex MultilineArrayAssignmentRegex = new(
         """
-        ^\s*(?<key>[A-Za-z0-9_-]+)\s*:\s*$
+        ^\s*(?<key>[A-Za-z0-9_-]+)\s*(?::|=)\s*$
         """,
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     private static readonly Regex ScalarAssignmentRegex = new(
         """
-        ^\s*(?<key>[A-Za-z0-9_-]+)\s*:\s*(?<value>.+?)\s*$
+        ^\s*(?<key>[A-Za-z0-9_-]+)\s*(?::|=)\s*(?<value>.+?)\s*$
         """,
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 

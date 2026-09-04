@@ -122,6 +122,56 @@ public sealed class BicepInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_HclEqualsScalarAssignment_ParsesTfProperty()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "main.bicep",
+            Format = "bicep",
+            Content = """
+                      resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                        properties: {
+                          publicNetworkAccess = 'Enabled'
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.publicnetworkaccess"].Should().Be("enabled");
+        result[0].Properties["publicNetworkAccess"].Should().Be("enabled");
+    }
+
+    [Fact]
+    public async Task ParseAsync_HclEqualsArrayHeader_PreservesIpSecurityRestrictions()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "main.bicep",
+            Format = "bicep",
+            Content = """
+                      resource app 'Microsoft.Web/sites@2022-03-01' = {
+                        properties: {
+                          siteConfig: {
+                            ipSecurityRestrictions = [
+                              { name: 'AllowAll', ipAddress: '0.0.0.0/0', action: 'Allow' }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.ipsecurityrestrictions"].Should().Contain("0.0.0.0/0");
+        result[0].Properties.Should().NotContainKey("tf.name");
+    }
+
+    [Fact]
     public async Task ParseAsync_InlineSlashSlashComment_DoesNotChangeTfPublicNetworkAccess()
     {
         InfrastructureDeclarationReference declaration = new()

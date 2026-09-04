@@ -2684,11 +2684,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 76
-- **bugs-found:** 140
+- **hunts:** 77
+- **bugs-found:** 141
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — multiline array probe skipped `#`/`//` but not `/* */` before `[`
+- **last-bug:** 2026-09-04 — Bicep resource body ignored HCL `=` scalar and array assignments
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2907,6 +2907,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `PlainTextDocumentPrefixedLine` — `SEC :` spaced-prefix parity — shared `TryGetPrefixedBody` already accepts optional whitespace before `:`; regression in `ParseAsync_SpacedSecPrefixBeforeColon_ExtractsSecurityBaseline` (added this hunt)
 
 2026-09-04 seed hunt #742: reseeded multiline-array probe after #741 `#` fix; proved block-comment before `[` gap in Bicep and simple-terraform; cheap-disproved inline-`#`-after-`[` and `SEC :` prefix candidates.
+
+- [x] (proven) `BicepResourceBodyParser` scalar/array/multiline assignment regexes — HCL `=` assignments silently ignored in Bicep bodies — **hit 2026-09-04 (#743):** `publicNetworkAccess = 'Enabled'` and `ipSecurityRestrictions = [...]` were not parsed while `BicepArrayLiteralConverter` already accepted `=` inside array objects; fixed by allowing `(?::|=)` in body assignment regexes; regressions in `ParseAsync_HclEqualsScalarAssignment_ParsesTfProperty` and `ParseAsync_HclEqualsArrayHeader_PreservesIpSecurityRestrictions`
+- [x] (valid-no-repro) Multiline `/* */` block comment spanning multiple lines before `[` — `InfrastructureDeclarationLineCommentScanner` in probe loop already skips spanning comments; covered by existing #742 single-line block-comment regression
+- [x] (valid-no-repro) Two empty objects in security array `[{}, {}]` — #656 empty-object append already serializes multiple elements; regression in `ParseAsync_TwoEmptyObjectsInSecurityArray_PreservesTfProperty`
+- [x] (valid-no-repro) Bicep line-level `${...}` interpolation reference lines — lines without `:`/`=` assignment shape are skipped without leaking scalars
+
+2026-09-04 seed hunt #743: reseeded Bicep body parser after #742 comment-probe fixes; proved HCL `=` assignment parity gap; cheap-disproved spanning block-comment, dual empty-object, and `${}` line candidates.
 
 - [x] (proven) `PlainTextContextDocumentParser` required `REQ:`/`POL:`/`TOP:`/`SEC:` prefix without optional whitespace before colon — **hit 2026-09-02:** `REQ : Must scale` lines were skipped while `REQ: Must scale` parsed; fixed with `TryGetPrefixedBody` accepting optional whitespace before `:` (`PlainTextContextDocumentParserTests.ParseAsync_SpacedPrefixBeforeColon_ExtractsRequirement`).
 - [x] (proven) `BicepResourceBodyParser` treated `key: [` array headers as scalar assignments — **hit 2026-09-02:** `ipSecurityRestrictions: [` stored `tf.ipsecurityrestrictions = "["` and leaked inner object scalars (`tf.name`, `tf.ipaddress`) so App Service network-rule expander never ran; fixed with balanced-bracket extraction and `BicepArrayLiteralConverter` JSON serialization (`BicepInfrastructureDeclarationParserTests.ParseAsync_AppServiceIpSecurityRestrictionsArray_IsPreservedForNetworkExpander`, `ParseAsync_AppServiceIpSecurityRestrictionsArray_ExpandsNetworkBaseline`).
