@@ -3938,11 +3938,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 10
-- **bugs-found:** 17
+- **hunts:** 11
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — demo preview artifact sections bypass operator deep-link gating
+- **last-hunt:** 2026-09-04
+- **last-bug:** 2026-09-04 — sponsor digest issue-page sign-in missing returnUrl to digest entry
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3972,8 +3972,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-02 seed hunt #535: reseeded from showcase demo preview callouts; proved sign-in returnUrl parity gap vs `ShowcaseQuickNav`.
 
 - [x] (proven) `DemoPreviewEvidenceGraphSection` / `DemoPreviewGovernanceSection` linked operator routes when `ShowcaseQuickNav` gated anonymous visitors — **hit 2026-09-03 (#548):** evidence graph and governance CTAs used `/insights/evidence-graph` and `/governance/approval-queue` without sign-in `returnUrl` while `canShowcaseAnonymousVisitorOpenOperatorDeepLinks` was false; fixed by threading `operatorDeepLinksAvailable` from `DemoPreviewMarketingBody` (`DemoPreviewArtifactSections.test.tsx`).
-- [ ] (candidate) `ExecDigestSponsorDeepLinkIssuePage` hardcodes `/auth/signin` without `returnUrl` on token-missing shells — may be acceptable when digest token is unknown; confirm whether sponsor digest entry path should be preserved.
-- [ ] (candidate) `GetStartedPageClient` builds sign-in href manually instead of `buildAuthSignInHref` — parity risk if auth route normalization changes.
+- [x] (proven) `ExecDigestSponsorDeepLinkIssuePage` hardcodes `/auth/signin` without `returnUrl` on token-missing shells — **hit 2026-09-04 (#662):** issue-page sign-in CTA omitted `returnUrl` to `/digest/sponsor` unlike Quick Scan and demo preview parity fixes; fixed with `buildAuthSignInHref({ returnPath: DIGEST_SPONSOR_CANONICAL_PATH })`; regression in `ExecDigestSponsorDeepLinkIssuePage.test.tsx`.
+- [x] (valid-no-repro) `GetStartedPageClient` builds sign-in href manually instead of `buildAuthSignInHref` — **cheap-disproof 2026-09-04 (#662):** `buildSignInTrialHref` already encodes onboarding `returnUrl` and matches `buildAuthSignInHref({ returnPath: buildGuidedTrialHref() })`; parity risk only on future auth route changes, not a current wrong outcome.
+
+2026-09-04 thorough hunt #662: proved sponsor digest issue-page sign-in returnUrl gap; cheap-disproved get-started sign-in helper parity as already equivalent.
 
 2026-09-03 seed hunt #548: proved demo preview artifact operator deep-link gating gap; reseeded digest issue-page and get-started sign-in parity candidates.
 
