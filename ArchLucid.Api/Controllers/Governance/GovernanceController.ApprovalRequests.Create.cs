@@ -32,7 +32,7 @@ public sealed partial class GovernanceController
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         IActionResult? runIdProblem =
-            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRunId(request.RunId)
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRouteRunId(request.RunId)
                 .ToBadRequestProblemOrNull(this);
 
         if (runIdProblem is not null)
