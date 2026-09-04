@@ -40,6 +40,14 @@ import {
   PREFERENCES_SETTINGS_SOURCES_INTRO,
 } from "@/lib/preferences-settings-evidence-copy";
 import {
+  SETTINGS_ROLES_SETTINGS_CLAIM_DISCIPLINE,
+  SETTINGS_ROLES_SETTINGS_CLAIM_DISCIPLINE_HEADING,
+  SETTINGS_ROLES_SETTINGS_CLAIM_HEADING_ID,
+  SETTINGS_ROLES_SETTINGS_FOLLOW_UPS_TITLE,
+  SETTINGS_ROLES_SETTINGS_SOURCES,
+  SETTINGS_ROLES_SETTINGS_SOURCES_INTRO,
+} from "@/lib/settings-roles-settings-evidence-copy";
+import {
   MODEL_GOVERNANCE_SETTINGS_FOLLOW_UPS_TITLE,
   MODEL_GOVERNANCE_SETTINGS_SOURCES,
   MODEL_GOVERNANCE_SETTINGS_SOURCES_INTRO,
@@ -409,6 +417,18 @@ export function ProjectsRecycleBinEvidenceOrientationStrip(): React.JSX.Element 
       sourcesTitle={PROJECTS_RECYCLE_BIN_FOLLOW_UPS_TITLE}
       sourcesIntro={PROJECTS_RECYCLE_BIN_SOURCES_INTRO}
       sources={PROJECTS_RECYCLE_BIN_SOURCES}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function SettingsRolesSettingsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="settings-roles-settings"
+      sourcesTitle={SETTINGS_ROLES_SETTINGS_FOLLOW_UPS_TITLE}
+      sourcesIntro={SETTINGS_ROLES_SETTINGS_SOURCES_INTRO}
+      sources={SETTINGS_ROLES_SETTINGS_SOURCES}
       sourcesHeadingId="where-to-go-next"
     />
   );

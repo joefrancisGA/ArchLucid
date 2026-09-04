@@ -38,6 +38,7 @@ archlucid-ui/src/app/(operator)/administration/system-health/_sections/use-syste
 archlucid-ui/src/app/(operator)/administration/users/_sections/InviteReviewerBuyerChrome.tsx
 archlucid-ui/src/app/(operator)/administration/users/_sections/InviteReviewerPageView.tsx
 archlucid-ui/src/app/(operator)/administration/users/_sections/SettingsRolesInvitePanel.tsx
+archlucid-ui/src/app/(operator)/administration/users/_sections/SettingsRolesPageView.tsx
 archlucid-ui/src/app/(operator)/administration/workspace-settings/_sections/load-tenant-settings-page-data.ts
 archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceBuyerChrome.tsx
 archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceReasoningResults.tsx
