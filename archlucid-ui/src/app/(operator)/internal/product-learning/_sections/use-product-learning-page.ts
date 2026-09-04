@@ -1,10 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { fetchProductLearningDashboard } from "@/lib/api";
+import {
+  parseProductLearningRangeFromSearch,
+  productLearningRangeHrefFromSearch,
+} from "@/lib/internal/product-learning-range-url";
+import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 import type { ProductLearningDashboardBundle } from "@/types/product-learning";
 
 import { sinceIsoForRange } from "./product-learning-page-helpers";
@@ -17,11 +23,31 @@ type UseProductLearningPageArgs = {
 };
 
 export function useProductLearningPage(args: UseProductLearningPageArgs): ProductLearningPageViewModel {
-  const [range, setRange] = useState<ProductLearningTimeRangeKey>("all");
+  const router = useRouter();
+  const pathname = usePathname() ?? PRODUCT_LEARNING_PATH;
+  const searchParams = useSearchParams();
+  const urlRange = parseProductLearningRangeFromSearch(searchParams.get("range"));
+  const [range, setRangeState] = useState<ProductLearningTimeRangeKey>(urlRange);
   const [bundle, setBundle] = useState<ProductLearningDashboardBundle | null>(args.initialBundle);
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(args.initialFailure);
   const skipInitialRangeFetchRef = useRef(true);
+
+  useEffect(() => {
+    setRangeState(urlRange);
+  }, [urlRange]);
+
+  const setRange: Dispatch<SetStateAction<ProductLearningTimeRangeKey>> = useCallback(
+    (value) => {
+      setRangeState((prev) => {
+        const next = typeof value === "function" ? value(prev) : value;
+        router.replace(productLearningRangeHrefFromSearch(searchParams.toString(), next, pathname), { scroll: false });
+
+        return next;
+      });
+    },
+    [pathname, router, searchParams],
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -44,11 +70,13 @@ export function useProductLearningPage(args: UseProductLearningPageArgs): Produc
     if (skipInitialRangeFetchRef.current) {
       skipInitialRangeFetchRef.current = false;
 
-      return;
+      if (range === "all") {
+        return;
+      }
     }
 
     void load();
-  }, [load]);
+  }, [load, range]);
 
   return {
     range,
