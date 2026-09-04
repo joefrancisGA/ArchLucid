@@ -7,7 +7,7 @@ import { RunDetailEvidenceInventorySection } from "@/components/runs/RunDetailEv
 import { RunDetailEvidenceScopeHeader } from "@/components/runs/RunDetailEvidenceScopeHeader";
 import { RunDetailSectionNav } from "@/components/runs/RunDetailSectionNav";
 import { deriveRunTrustEvidenceReadinessFromCard } from "@/components/runs/RunTrustEvidenceCardSection";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { deriveEvidencePresenceFromInventoryKinds } from "@/lib/evidence-gap-forecast";
 import type { RunDetailEvidenceInventoryItem } from "@/lib/runs/run-detail-evidence-inventory";
 import {
@@ -50,10 +50,10 @@ type RunDetailEvidenceTabPanelProps = {
 /** Evidence tab body — deferred off sync First Load JS (TB-2142). */
 export function RunDetailEvidenceTabPanel(props: RunDetailEvidenceTabPanelProps): ReactElement {
   const inventoryCount = countRunDetailEvidenceInventoryItems(props.items);
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const evalChromeShell = useProductionEvalChrome();
   const trustReadiness =
     props.trustEvidenceCard != null
-      ? deriveRunTrustEvidenceReadinessFromCard(props.trustEvidenceCard, buyerPolishedShell)
+      ? deriveRunTrustEvidenceReadinessFromCard(props.trustEvidenceCard, evalChromeShell)
       : null;
   const scopeReadiness = deriveEvidenceScopeReadiness({
     inventoryCount,

@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
+import { DEFAULT_LOADED_HOURLY_USD } from "@/lib/roi-assumptions";
 import {
-  DEFAULT_LOADED_HOURLY_USD,
-  ROI_HOURLY_USD_STORAGE_KEY,
-  readStoredHourlyUsd,
-} from "@/lib/roi-assumptions";
+  persistRoiLoadedHourlyUsd,
+  readRoiLoadedHourlyUsdFromStorage,
+  syncRoiLoadedHourlyUsdFromServer,
+} from "@/lib/roi-loaded-hourly-preference";
 
 export function useRoiLoadedHourlyUsd(): {
   readonly hourlyUsd: number;
@@ -14,23 +15,24 @@ export function useRoiLoadedHourlyUsd(): {
   readonly isDefaultRate: boolean;
   readonly setHourlyUsd: (next: number) => void;
 } {
-  const [hourlyUsd, setHourlyUsdState] = useState<number>(DEFAULT_LOADED_HOURLY_USD);
+  const [hourlyUsd, setHourlyUsdState] = useState<number>(() => readRoiLoadedHourlyUsdFromStorage());
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    setHourlyUsdState(readStoredHourlyUsd());
+    setHourlyUsdState(readRoiLoadedHourlyUsdFromStorage());
+
+    void syncRoiLoadedHourlyUsdFromServer().then((synced) => {
+      if (synced !== null) {
+        setHourlyUsdState(synced);
+      }
+    });
   }, []);
 
-  function setHourlyUsd(next: number): void {
+  const setHourlyUsd = useCallback((next: number) => {
     setHourlyUsdState(next);
-
-    try {
-      window.localStorage.setItem(ROI_HOURLY_USD_STORAGE_KEY, String(next));
-    } catch {
-      /* private mode */
-    }
-  }
+    void persistRoiLoadedHourlyUsd(next);
+  }, []);
 
   return {
     hourlyUsd,

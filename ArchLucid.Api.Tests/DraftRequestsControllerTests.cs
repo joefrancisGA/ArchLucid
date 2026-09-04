@@ -327,12 +327,16 @@ public sealed class DraftRequestsControllerTests
     public async Task SubmitDraft_NotFound_ReturnsNotFound_AndDoesNotAudit()
     {
         _service
-            .Setup(static s => s.SubmitAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Setup(static s => s.SubmitAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<DateTime?>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((SubmitDraftResponse?)null);
 
         DraftRequestsController sut = BuildSut();
 
-        IActionResult result = await sut.SubmitDraft(DraftId, CancellationToken.None);
+        IActionResult result = await sut.SubmitDraft(DraftId, null, CancellationToken.None);
 
         ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
@@ -345,12 +349,16 @@ public sealed class DraftRequestsControllerTests
     public async Task SubmitDraft_BadState_ReturnsBadRequest()
     {
         _service
-            .Setup(static s => s.SubmitAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Setup(static s => s.SubmitAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<DateTime?>(),
+                It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("MUST question 'l0.pillar.cost' must be answered before submit."));
 
         DraftRequestsController sut = BuildSut();
 
-        IActionResult result = await sut.SubmitDraft(DraftId, CancellationToken.None);
+        IActionResult result = await sut.SubmitDraft(DraftId, null, CancellationToken.None);
 
         ObjectResult bad = result.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);

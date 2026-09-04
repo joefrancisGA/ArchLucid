@@ -2,6 +2,7 @@ import {
   resolveArchitectWorkspaceChrome,
   type ResolveArchitectWorkspaceChromeInput,
 } from "@/lib/architect-workspace-chrome";
+import { DEFAULT_WORKSPACE_MODE, type WorkspaceModeId } from "@/lib/workspace-mode/workspace-mode";
 
 export type ResolveProductionDeskChromeInput = ResolveArchitectWorkspaceChromeInput;
 
@@ -20,4 +21,14 @@ export function resolveProductionDeskChrome(input: ResolveProductionDeskChromeIn
  */
 export function resolveProductionEvalChrome(input: ResolveProductionDeskChromeInput): boolean {
   return !resolveProductionDeskChrome(input);
+}
+
+/**
+ * Server/RSC eval-chrome gate when workspace mode is not yet hydrated.
+ * Defaults to Working; demo/trial/static flags still flow through architect-workspace chrome.
+ */
+export function resolveProductionEvalChromeForServer(
+  workspaceMode: WorkspaceModeId = DEFAULT_WORKSPACE_MODE,
+): boolean {
+  return resolveProductionEvalChrome({ workspaceMode });
 }

@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import type { ReactElement } from "react";
 
@@ -9,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { getTraceabilityBundleDownloadUrl } from "@/lib/api";
 import { buildCompareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 
 import { RunDetailRunGovernanceDispositionActions } from "@/components/runs/RunDetailRunGovernanceDispositionActions";
 
@@ -26,7 +28,7 @@ type RunDetailRunActionsSectionProps = {
 
 export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProps): ReactElement {
   const { runId, systemName, manifestId, hasCommitBlockingFailures, operatorGovernanceDecision = null } = props;
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const evalChromeShell = useProductionEvalChrome();
 
   return (
     <section id="run-actions" className="scroll-mt-24">
@@ -61,14 +63,14 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
                 Download evidence bundle (ZIP)
               </ExportTrackedAnchor>
             </Button>
-            {buyerPolishedShell ? null : (
+            {evalChromeShell ? null : (
             <Button variant="outline" size="sm" asChild>
               <Link href={buildCompareTwoReviewsHref({ baseRunId: runId })}>
                 Compare two reviews (baseline = this review)
               </Link>
             </Button>
             )}
-            {manifestId && !buyerPolishedShell ? (
+            {manifestId && !evalChromeShell ? (
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/architecture/reviews/${encodeURIComponent(runId)}`}>Open sponsor report</Link>
               </Button>

@@ -3,7 +3,8 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { MessageCircleQuestion } from "lucide-react";
-import { useCallback, useRef, useState, type ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
 
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
@@ -17,6 +18,11 @@ import { useAskStream } from "@/hooks/useAskStream";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  parseReviewAskDockOpenFromSearch,
+  parseReviewAskDockThreadIdFromSearch,
+  reviewAskDockHrefFromSearch,
+} from "@/lib/reviews/review-ask-dock-url";
 
 const DEFAULT_REVIEW_QUESTION =
   "What are the top unresolved risks in this review and what evidence supports them?";
@@ -34,10 +40,15 @@ type AskTurn = {
 /** Review-scoped Ask dock: grounded Q&A without leaving the review detail page. */
 export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
   const runId = props.runId.trim();
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? `/architecture/reviews/${encodeURIComponent(runId)}`;
+  const searchParams = useSearchParams();
+  const urlAskDockOpen = parseReviewAskDockOpenFromSearch(searchParams.get("askDock"));
+  const urlAskThreadId = parseReviewAskDockThreadIdFromSearch(searchParams.get("askThread"));
+  const [open, setOpenState] = useState(urlAskDockOpen);
   const [question, setQuestion] = useState(DEFAULT_REVIEW_QUESTION);
   const [turns, setTurns] = useState<AskTurn[]>([]);
-  const [threadId, setThreadId] = useState<string | null>(null);
+  const [threadId, setThreadIdState] = useState<string | null>(urlAskThreadId.length > 0 ? urlAskThreadId : null);
   const [error, setError] = useState<{
     message: string;
     problem: ApiProblemDetails | null;
@@ -45,6 +56,44 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
   } | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const { ask: askStream, isStreaming, tokens: streamingContent, reset: resetStream } = useAskStream();
+
+  const syncAskDockToUrl = useCallback(
+    (nextOpen: boolean, nextThreadId: string | null) => {
+      router.replace(
+        reviewAskDockHrefFromSearch(
+          searchParams.toString(),
+          { open: nextOpen, threadId: nextThreadId },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (nextOpen: boolean) => {
+      setOpenState(nextOpen);
+      syncAskDockToUrl(nextOpen, threadId);
+    },
+    [syncAskDockToUrl, threadId],
+  );
+
+  const setThreadId = useCallback(
+    (nextThreadId: string | null) => {
+      setThreadIdState(nextThreadId);
+      syncAskDockToUrl(open, nextThreadId);
+    },
+    [open, syncAskDockToUrl],
+  );
+
+  useEffect(() => {
+    setOpenState(urlAskDockOpen);
+
+    if (urlAskThreadId.length > 0) {
+      setThreadIdState(urlAskThreadId);
+    }
+  }, [urlAskDockOpen, urlAskThreadId]);
 
   const submitQuestion = useCallback(async (): Promise<void> => {
     const trimmed = question.trim();

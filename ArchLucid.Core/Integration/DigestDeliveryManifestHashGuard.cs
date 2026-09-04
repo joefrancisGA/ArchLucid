@@ -20,17 +20,31 @@ public static class DigestDeliveryManifestHashGuard
                 $"Digest delivery blocked for digest '{digest.DigestId:D}': metadata must include manifestHash when RunId is set.");
         }
 
-        using JsonDocument document = JsonDocument.Parse(digest.MetadataJson);
-        JsonElement root = document.RootElement;
-
-        if (root.TryGetProperty("manifestHash", out JsonElement hashElement)
-            && hashElement.ValueKind == JsonValueKind.String
-            && !string.IsNullOrWhiteSpace(hashElement.GetString()))
+        JsonDocument document;
+        try
         {
-            return;
+            document = JsonDocument.Parse(digest.MetadataJson);
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidOperationException(
+                $"Digest delivery blocked for digest '{digest.DigestId:D}': metadata is not valid JSON.",
+                ex);
         }
 
-        throw new InvalidOperationException(
-            $"Digest delivery blocked for digest '{digest.DigestId:D}': manifestHash metadata is required when RunId is set.");
+        using (document)
+        {
+            JsonElement root = document.RootElement;
+
+            if (root.TryGetProperty("manifestHash", out JsonElement hashElement)
+                && hashElement.ValueKind == JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(hashElement.GetString()))
+            {
+                return;
+            }
+
+            throw new InvalidOperationException(
+                $"Digest delivery blocked for digest '{digest.DigestId:D}': manifestHash metadata is required when RunId is set.");
+        }
     }
 }

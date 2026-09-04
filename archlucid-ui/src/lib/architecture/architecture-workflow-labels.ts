@@ -18,3 +18,6 @@ export const ARCHITECTURE_DRAFTS_LIST_LABEL = "Architectures" as const;
 
 /** Left-nav and review-intake entry for starting an architecture review. */
 export const START_REVIEW_LABEL = "Start review" as const;
+
+/** Working-mode single start verb — dense draft editor (`ARCHITECTURES_NEW_PATH`). */
+export const WORKING_NEW_REVIEW_LABEL = "New review" as const;

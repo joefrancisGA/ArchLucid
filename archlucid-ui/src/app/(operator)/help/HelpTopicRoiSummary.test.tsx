@@ -252,7 +252,7 @@ describe("HelpRoiSummaryGuideView", () => {
       expect(within(dataNeeds).getByText(item)).toBeInTheDocument();
     }
 
-    expect(dataNeeds).toHaveTextContent(/browser only/i);
+    expect(dataNeeds).toHaveTextContent(/signed-in account/i);
     expect(dataNeeds.textContent).not.toMatch(/baseline settings.*loaded hourly cost/i);
   });
 

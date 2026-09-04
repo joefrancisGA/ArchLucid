@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   resolveProductionDeskChrome,
   resolveProductionEvalChrome,
+  resolveProductionEvalChromeForServer,
 } from "@/lib/production-desk-chrome";
 
 describe("resolveProductionDeskChrome", () => {
@@ -37,6 +38,11 @@ describe("resolveProductionDeskChrome", () => {
         frictionlessTrial: false,
       }),
     ).toBe(false);
+  });
+
+  it("resolveProductionEvalChromeForServer defaults Working to desk chrome on production builds", () => {
+    expect(resolveProductionEvalChromeForServer("working")).toBe(false);
+    expect(resolveProductionEvalChromeForServer("guided")).toBe(true);
   });
 
   it("resolveProductionEvalChrome is the inverse of desk chrome", () => {

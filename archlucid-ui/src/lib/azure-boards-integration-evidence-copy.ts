@@ -7,6 +7,9 @@ export const AZURE_BOARDS_INTEGRATION_CANONICAL_PATH = "/integrations/azure-boar
 
 export const AZURE_BOARDS_INTEGRATION_HELP_TOPIC_LABEL = "How Azure Boards integration works";
 
+export const AZURE_BOARDS_INTEGRATION_CLAIM_DISCIPLINE =
+  "Azure Boards connection settings configure outbound work-item creation from findings — not delivery retry forensics, a signed audit record, or platform incident response. Use Integration readiness or Audit when operations needs readiness context or export follow-up.";
+
 export const AZURE_BOARDS_INTEGRATION_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const AZURE_BOARDS_INTEGRATION_SOURCES_INTRO =

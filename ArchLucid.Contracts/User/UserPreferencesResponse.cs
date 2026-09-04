@@ -112,4 +112,18 @@ public sealed class UserPreferencesResponse
         get;
         set;
     }
+
+    /// <summary>Personal loaded hourly cost (USD) for ROI desk assumptions.</summary>
+    public decimal RoiLoadedHourlyCostUsd
+    {
+        get;
+        set;
+    } = RoiLoadedHourlyCostUsdValues.Default;
+
+    /// <summary>True when the user has an explicit stored ROI loaded hourly cost row.</summary>
+    public bool RoiLoadedHourlyCostUsdIsExplicit
+    {
+        get;
+        set;
+    }
 }

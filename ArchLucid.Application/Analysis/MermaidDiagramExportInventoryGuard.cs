@@ -1,5 +1,6 @@
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Packaging;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Application.Analysis;

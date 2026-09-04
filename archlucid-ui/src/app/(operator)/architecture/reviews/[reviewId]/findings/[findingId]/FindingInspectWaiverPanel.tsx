@@ -72,7 +72,7 @@ export function FindingInspectWaiverPanel(props: FindingInspectWaiverPanelProps)
 
   return (
     <>
-      <section className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800" aria-labelledby="governance-waiver-heading">
+      <section id="finding-inspect-waiver-panel" className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800" aria-labelledby="governance-waiver-heading">
         <h3 id="governance-waiver-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Risk exception (waiver)
         </h3>

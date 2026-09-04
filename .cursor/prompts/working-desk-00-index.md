@@ -4,8 +4,9 @@
      These twelve mitigate the *structural* gaps after the professional-tool (PT-01–PT-10)
      residual set. Do not implement from this index; run one numbered file at a time.
      Created: 2026-09-03.
-     Successor leftovers (2026-09-04): livelihood-desk-00-index.md (LD-01–15).
-     Wave 3 unique leftovers: repeat-seat-00-index.md (RS-01–15). -->
+     Successor leftovers (2026-09-04): livelihood-desk-00-index.md (LD-01–15) shipped.
+     Wave 3: repeat-seat-00-index.md (RS-01–15) shipped #1457.
+     Wave 4: working-architect-00-index.md (WA-01–24). -->
 
 # Working-desk mitigations — Composer prompt set (WD-01–WD-12)
 
@@ -17,9 +18,11 @@ ArchLucid sells a **seat for a repeat professional**. Working mode, finding undo
 
 **Fifteen-prompt residual set (shipped):** [`livelihood-instrument-00-index.md`](livelihood-instrument-00-index.md) (**LI-01–15**, `master` #1397). Do not re-run.
 
-**Next fifteen (run these first):** [`livelihood-desk-00-index.md`](livelihood-desk-00-index.md) (**LD-01–15**) — 2026-09-04 leftovers after LI. If an LD row lists a WD owner, do not fork — implement only the leftover *What to build* in that LD file.
+**LD-01–15 (shipped):** [`livelihood-desk-00-index.md`](livelihood-desk-00-index.md) — `master` #1421 / #1439. Do not re-run. If an LD row listed a WD owner, that leftover is closed unless WA names it.
 
-**Wave 3 (after LD):** [`repeat-seat-00-index.md`](repeat-seat-00-index.md) (**RS-01–15**) — unique leftovers LD does not cover. If an RS row lists a WD owner, do not fork this file.
+**Wave 3 (shipped):** [`repeat-seat-00-index.md`](repeat-seat-00-index.md) (**RS-01–15**, `master` #1457). Do not re-run.
+
+**Wave 4 (predicted leftovers after LD+RS):** [`working-architect-00-index.md`](working-architect-00-index.md) (**WA-01–24**). If a WA row lists a WD owner, do not fork this file.
 
 ## Run order
 

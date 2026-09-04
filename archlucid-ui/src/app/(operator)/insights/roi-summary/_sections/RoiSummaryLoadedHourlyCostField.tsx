@@ -50,7 +50,7 @@ export function RoiSummaryLoadedHourlyCostField(props: Props) {
         />
         {!props.isDefaultRate ? (
           <span className={cn("rounded bg-amber-100 px-1.5 py-0.5 font-medium text-amber-950 dark:bg-amber-950/40 dark:text-amber-100", OPERATOR_TYPOGRAPHY.badge)}>
-            Custom rate saved locally
+            Custom rate saved to your account
           </span>
         ) : null}
       </div>

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveProductionEvalChromeForServer } from "@/lib/production-desk-chrome";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import { CtoDemoSponsorLandingRedirectDeferred } from "./_sections/operator-home-page-view-deferred-chunks";
@@ -20,13 +20,13 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const evalChromeShell = resolveProductionEvalChromeForServer();
 
   return (
     <>
       <CtoDemoSponsorLandingRedirectDeferred />
       <Suspense fallback={<OperatorHomePageSuspenseFallback />}>
-        <OperatorHomeRunsDashboardAsync buyerPolishedShell={buyerPolishedShell} />
+        <OperatorHomeRunsDashboardAsync buyerPolishedShell={evalChromeShell} />
       </Suspense>
     </>
   );

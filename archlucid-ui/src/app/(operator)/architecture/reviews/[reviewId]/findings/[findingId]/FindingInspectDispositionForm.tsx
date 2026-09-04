@@ -117,7 +117,7 @@ export function FindingInspectDispositionForm(props: FindingInspectDispositionFo
 
   return (
     <>
-      <section className="space-y-3" aria-labelledby="governance-remediation-heading">
+      <section id="finding-inspect-remediation-panel" className="space-y-3" aria-labelledby="governance-remediation-heading">
         <h3 id="governance-remediation-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Remediation assignment
         </h3>
@@ -170,7 +170,7 @@ export function FindingInspectDispositionForm(props: FindingInspectDispositionFo
         </div>
       </section>
 
-      <section className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800" aria-labelledby="governance-disposition-heading">
+      <section id="finding-inspect-disposition-panel" className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800" aria-labelledby="governance-disposition-heading">
         <h3 id="governance-disposition-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Disposition
         </h3>

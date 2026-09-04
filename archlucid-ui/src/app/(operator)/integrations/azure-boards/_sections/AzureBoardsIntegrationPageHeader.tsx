@@ -20,6 +20,12 @@ import {
   AZURE_BOARDS_PAGE_TITLE,
   AZURE_BOARDS_READINESS_LINK_LABEL,
 } from "@/lib/azure-boards-page-copy";
+import { AZURE_BOARDS_INTEGRATION_CLAIM_DISCIPLINE } from "@/lib/azure-boards-integration-evidence-copy";
+import {
+  AZURE_BOARDS_INTEGRATION_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  azureBoardsIntegrationPageSubtitle,
+} from "@/lib/azure-boards-integration-page-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 
 export type AzureBoardsIntegrationPageHeaderProps = {
@@ -32,6 +38,7 @@ export type AzureBoardsIntegrationPageHeaderProps = {
 export function AzureBoardsIntegrationPageHeader(
   props: AzureBoardsIntegrationPageHeaderProps,
 ): React.JSX.Element {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const freshnessLabel = props.refreshing
     ? AZURE_BOARDS_ACTION_REFRESHING
     : operatorFreshnessMetadataWithClockLabel({
@@ -45,22 +52,28 @@ export function AzureBoardsIntegrationPageHeader(
       navHref={INTEGRATIONS_AZURE_BOARDS_PATH}
       title={AZURE_BOARDS_PAGE_TITLE}
       titleTestId="azure-boards-page-title"
-      subtitle={AZURE_BOARDS_PAGE_SUBTITLE}
+      subtitle={azureBoardsIntegrationPageSubtitle(buyerPolishedShell, AZURE_BOARDS_PAGE_SUBTITLE)}
+      claimDiscipline={buyerPolishedShell ? AZURE_BOARDS_INTEGRATION_CLAIM_DISCIPLINE : undefined}
+      claimDisciplineTestId={
+        buyerPolishedShell ? AZURE_BOARDS_INTEGRATION_HEADER_CLAIM_DISCIPLINE_TEST_ID : undefined
+      }
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="azure-boards-header-actions">
-          <PageContextualHelpButton />
+          {buyerPolishedShell ? null : <PageContextualHelpButton />}
           <RefreshButton
             data-testid="azure-boards-refresh-button"
             busy={props.refreshing}
             onClick={() => void props.onRefresh()}
           />
-          <Link
-            href={INTEGRATIONS_READINESS_PATH}
-            className={OPERATOR_LINK.optional}
-            data-testid="azure-boards-readiness-link"
-          >
-            {AZURE_BOARDS_READINESS_LINK_LABEL}
-          </Link>
+          {buyerPolishedShell ? null : (
+            <Link
+              href={INTEGRATIONS_READINESS_PATH}
+              className={OPERATOR_LINK.optional}
+              data-testid="azure-boards-readiness-link"
+            >
+              {AZURE_BOARDS_READINESS_LINK_LABEL}
+            </Link>
+          )}
         </div>
       }
       metadata={

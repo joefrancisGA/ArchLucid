@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { isShowcaseDemoRunId } from "@/lib/graph-page-state";
 import { BUYER_EVIDENCE_GRAPH_SYNTHETIC_LOAD_ERROR_HINT } from "@/lib/buyer/buyer-polish-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -93,6 +94,8 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
     emptyListHint,
     hideFieldHelper = false,
   } = props;
+  const { isWorkingMode } = useWorkspaceMode();
+  const allowsSyntheticAskRunPick = operatorAllowsSyntheticAskRunPick(isWorkingMode);
   const [items, setItems] = useState<RunSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
@@ -119,7 +122,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       (!loading &&
         !loadError &&
         items.length === 0 &&
-        operatorAllowsSyntheticAskRunPick() &&
+        allowsSyntheticAskRunPick &&
         preferAutoPick &&
         autoSelectSyntheticSample &&
         value.trim().length > 0);
@@ -130,7 +133,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       packageCount: items.length,
       usingSyntheticSample,
     });
-  }, [autoSelectSyntheticSample, items.length, loadError, loading, preferAutoPick, value]);
+  }, [allowsSyntheticAskRunPick, autoSelectSyntheticSample, items.length, loadError, loading, preferAutoPick, value]);
 
   const { data: projectRunsData, isLoading: projectRunsLoading, isError: projectRunsError } =
     useAskProjectRunsQuery("default", { committedOnly });
@@ -186,9 +189,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       return;
     }
 
-    const allowSyntheticPick = operatorAllowsSyntheticAskRunPick();
-
-    if (!allowSyntheticPick || items.length > 0) {
+    if (!allowsSyntheticAskRunPick || items.length > 0) {
       return;
     }
 
@@ -201,7 +202,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
     }
 
     onChange(SHOWCASE_STATIC_DEMO_RUN_ID);
-  }, [autoSelectSyntheticSample, loading, loadError, items, preferAutoPick, value, onChange]);
+  }, [allowsSyntheticAskRunPick, autoSelectSyntheticSample, loading, loadError, items, preferAutoPick, value, onChange]);
 
   useEffect(() => {
     if (!loadError) {
@@ -212,7 +213,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       return;
     }
 
-    if (!operatorAllowsSyntheticAskRunPick()) {
+    if (!allowsSyntheticAskRunPick) {
       return;
     }
 
@@ -225,7 +226,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
     }
 
     onChange(SHOWCASE_STATIC_DEMO_RUN_ID);
-  }, [autoSelectSyntheticSample, loadError, preferAutoPick, value, onChange]);
+  }, [allowsSyntheticAskRunPick, autoSelectSyntheticSample, loadError, preferAutoPick, value, onChange]);
 
   const trimmedValue = value.trim();
   const reviewFieldLabel = (
@@ -238,7 +239,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
   );
 
   if (loadError) {
-    if (operatorAllowsSyntheticAskRunPick()) {
+    if (allowsSyntheticAskRunPick) {
       return (
         <AskRunIdPickerSyntheticSelect
           value={value}
@@ -284,7 +285,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
   }
 
   if (items.length === 0) {
-    const allowSyntheticPick = operatorAllowsSyntheticAskRunPick() && preferAutoPick;
+    const allowSyntheticPick = allowsSyntheticAskRunPick && preferAutoPick;
 
     if (allowSyntheticPick) {
       return (

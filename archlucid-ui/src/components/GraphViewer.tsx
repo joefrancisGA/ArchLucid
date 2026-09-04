@@ -325,7 +325,7 @@ export function GraphViewer({
                 setSelectedNode(null);
                 setExplainStatusLine("");
                 setExplainAggregateHref(null);
-                syncGraphSelectionToUrl(null, rawEdge.id);
+                syncGraphSelectionToUrl(null, rawEdge.id ?? null);
               }
             }}
             onNodeClick={(_, node) => {

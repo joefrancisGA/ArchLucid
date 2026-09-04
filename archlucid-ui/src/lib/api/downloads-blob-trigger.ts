@@ -17,3 +17,8 @@ export {
   downloadConsultingArchitectureReportDocx,
   downloadFirstValueReportPdf,
 } from "./downloads-blob-trigger-reports";
+
+export {
+  downloadScopedProxyFileGet,
+  openScopedProxyFileGetInNewTab,
+} from "./downloads-blob-trigger-scoped-proxy";
