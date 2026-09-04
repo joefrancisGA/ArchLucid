@@ -40,7 +40,7 @@ public sealed class DeterminismCheckService(
             if (baseline.Manifest is not null && replay.Manifest is not null)
             {
                 ManifestDiffResult manifestDiff = manifestDiffService.Compare(baseline.Manifest, replay.Manifest);
-                bool hasManifestDrift = HasManifestDrift(manifestDiff);
+                bool hasManifestDrift = ManifestDiffMateriality.HasMaterialChanges(manifestDiff);
                 iteration.MatchesBaselineManifest = !hasManifestDrift;
                 if (hasManifestDrift)
                     iteration.ManifestDriftWarnings.Add("Manifest differs from baseline replay.");
@@ -75,16 +75,5 @@ public sealed class DeterminismCheckService(
                                          d.AddedRequiredControls.Count > 0 || d.RemovedRequiredControls.Count > 0 || d.AddedWarnings.Count > 0 ||
                                          d.RemovedWarnings.Count > 0 || // ReSharper disable once CompareOfFloatsByEqualityOperator
                                          d.LeftConfidence != d.RightConfidence);
-    }
-
-    /// <summary>
-    ///     Returns <c>true</c> when <paramref name = "diff"/> reports any added or removed services,
-    ///     datastores, required controls, or relationships.
-    /// </summary>
-    private static bool HasManifestDrift(ManifestDiffResult diff)
-    {
-        return diff.AddedServices.Count > 0 || diff.RemovedServices.Count > 0 || diff.AddedDatastores.Count > 0 || diff.RemovedDatastores.Count > 0 ||
-               diff.AddedRequiredControls.Count > 0 || diff.RemovedRequiredControls.Count > 0 || diff.AddedRelationships.Count > 0 ||
-               diff.RemovedRelationships.Count > 0;
     }
 }

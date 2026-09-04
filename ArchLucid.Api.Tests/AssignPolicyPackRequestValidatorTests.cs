@@ -16,7 +16,7 @@ public sealed class AssignPolicyPackRequestValidatorTests
     [Fact]
     public void Validate_fails_when_version_is_empty()
     {
-        AssignPolicyPackRequest request = new() { Version = "", ScopeLevel = "Tenant" };
+        AssignPolicyPackRequest request = new() { Version = "", ScopeLevel = "Tenant", IsPinned = false };
 
         ValidationResult result = _validator.Validate(request);
 
@@ -27,7 +27,7 @@ public sealed class AssignPolicyPackRequestValidatorTests
     [Fact]
     public void Validate_fails_when_version_is_not_semver()
     {
-        AssignPolicyPackRequest request = new() { Version = "not-a-version", ScopeLevel = "Tenant" };
+        AssignPolicyPackRequest request = new() { Version = "not-a-version", ScopeLevel = "Tenant", IsPinned = false };
 
         ValidationResult result = _validator.Validate(request);
 
@@ -41,7 +41,7 @@ public sealed class AssignPolicyPackRequestValidatorTests
     [InlineData("v1.2.3")]
     public void Validate_passes_for_semver_versions(string version)
     {
-        AssignPolicyPackRequest request = new() { Version = version, ScopeLevel = "Tenant" };
+        AssignPolicyPackRequest request = new() { Version = version, ScopeLevel = "Tenant", IsPinned = false };
 
         ValidationResult result = _validator.Validate(request);
 
@@ -51,7 +51,7 @@ public sealed class AssignPolicyPackRequestValidatorTests
     [Fact]
     public void Validate_fails_when_scope_level_is_unrecognized()
     {
-        AssignPolicyPackRequest request = new() { Version = "1.0.0", ScopeLevel = "Galaxy" };
+        AssignPolicyPackRequest request = new() { Version = "1.0.0", ScopeLevel = "Galaxy", IsPinned = false };
 
         ValidationResult result = _validator.Validate(request);
 
@@ -65,7 +65,7 @@ public sealed class AssignPolicyPackRequestValidatorTests
     [InlineData("PROJECT")]
     public void Validate_passes_for_known_scope_levels_regardless_of_case(string scopeLevel)
     {
-        AssignPolicyPackRequest request = new() { Version = "1.0.0", ScopeLevel = scopeLevel };
+        AssignPolicyPackRequest request = new() { Version = "1.0.0", ScopeLevel = scopeLevel, IsPinned = false };
 
         ValidationResult result = _validator.Validate(request);
 

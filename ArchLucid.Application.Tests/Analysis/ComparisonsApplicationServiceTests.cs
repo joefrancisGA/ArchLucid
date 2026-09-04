@@ -78,6 +78,42 @@ public sealed class ComparisonsApplicationServiceTests
         zip.Should().BeNull();
     }
 
+    [Fact]
+    public async Task TryGetScopedRecordAsync_returns_record_when_only_left_run_anchor_is_in_scope()
+    {
+        ComparisonRecord record = new()
+        {
+            ComparisonRecordId = "cmp-1",
+            LeftRunId = "run-left",
+            RightRunId = "run-right",
+            ComparisonType = "end-to-end",
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        Mock<IComparisonRecordRepository> comparisons = new();
+        comparisons
+            .Setup(r => r.GetByIdAsync("cmp-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(record);
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync("run-left", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = "run-left" } });
+        runDetail
+            .Setup(s => s.GetRunDetailAsync("run-right", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchitectureRunDetail?)null);
+
+        ComparisonsApplicationService sut = CreateSut(
+            runDetail: runDetail.Object,
+            comparisonRecords: comparisons.Object);
+
+        ComparisonRecord? scoped =
+            await sut.TryGetScopedRecordAsync("cmp-1", CancellationToken.None);
+
+        scoped.Should().NotBeNull(
+            "artifact replay intentionally allows access when any comparison anchor is in scope");
+    }
+
     private static ComparisonsApplicationService CreateSut(
         IRunDetailQueryService? runDetail = null,
         IComparisonRecordRepository? comparisonRecords = null)

@@ -1,4 +1,7 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Controllers.Tenancy;
+using ArchLucid.Api.Serialization;
 using ArchLucid.Contracts.Notifications;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -24,6 +27,58 @@ public sealed class TenantSponsorDigestPreferencesControllerTests
         WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
     };
+
+    [Fact]
+    public void SponsorDigestPreferencesUpsertRequest_deserialization_rejects_missing_email_enabled()
+    {
+        Action act = () => JsonSerializer.Deserialize<SponsorDigestPreferencesUpsertRequest>(
+            """{"recipientEmails":["sponsor@contoso.test"]}""",
+            ArchLucidApiJsonSerializerOptions.Web);
+
+        act.Should().Throw<JsonException>();
+    }
+
+    [Fact]
+    public async Task PostSponsorDigestPreferences_applies_default_timezone_when_iana_time_zone_omitted()
+    {
+        Mock<ITenantSponsorDigestPreferencesRepository> repository = new();
+        repository
+            .Setup(r => r.UpsertAsync(
+                Scope.TenantId,
+                true,
+                It.IsAny<IReadOnlyList<string>>(),
+                "UTC",
+                1,
+                8,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SponsorDigestPreferencesResponse
+            {
+                TenantId = Scope.TenantId,
+                IsConfigured = true,
+                EmailEnabled = true,
+                RecipientEmails = ["sponsor@contoso.test"],
+                IanaTimeZoneId = "UTC",
+            });
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantSponsorDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            repository.Object,
+            Mock.Of<IAuditService>());
+
+        SponsorDigestPreferencesUpsertRequest body = new()
+        {
+            EmailEnabled = true,
+            RecipientEmails = ["sponsor@contoso.test"],
+        };
+
+        IActionResult action = await controller.PostSponsorDigestPreferences(body, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        repository.VerifyAll();
+    }
 
     [Fact]
     public async Task GetSponsorDigestPreferences_returns_unconfigured_defaults_when_no_row()
@@ -102,7 +157,7 @@ public sealed class TenantSponsorDigestPreferencesControllerTests
             Mock.Of<ITenantSponsorDigestPreferencesRepository>(),
             Mock.Of<IAuditService>());
 
-        SponsorDigestPreferencesUpsertRequest body = new() { DayOfWeek = 7 };
+        SponsorDigestPreferencesUpsertRequest body = new() { EmailEnabled = false, DayOfWeek = 7 };
 
         IActionResult action = await controller.PostSponsorDigestPreferences(body, CancellationToken.None);
 
@@ -121,7 +176,7 @@ public sealed class TenantSponsorDigestPreferencesControllerTests
             Mock.Of<ITenantSponsorDigestPreferencesRepository>(),
             Mock.Of<IAuditService>());
 
-        SponsorDigestPreferencesUpsertRequest body = new() { IanaTimeZoneId = "Not/AZone" };
+        SponsorDigestPreferencesUpsertRequest body = new() { EmailEnabled = false, IanaTimeZoneId = "Not/AZone" };
 
         IActionResult action = await controller.PostSponsorDigestPreferences(body, CancellationToken.None);
 
@@ -158,6 +213,58 @@ public sealed class TenantSponsorDigestPreferencesControllerTests
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task PostSponsorDigestPreferences_preserves_recipients_when_disable_only_body_omits_recipient_emails()
+    {
+        SponsorDigestPreferencesResponse existing = new()
+        {
+            TenantId = Scope.TenantId,
+            IsConfigured = true,
+            EmailEnabled = true,
+            RecipientEmails = ["sponsor@contoso.test"],
+            IanaTimeZoneId = "UTC",
+            DayOfWeek = 1,
+            HourOfDay = 8,
+            UpdatedUtc = DateTimeOffset.Parse("2026-06-01T08:00:00Z"),
+        };
+
+        Mock<ITenantSponsorDigestPreferencesRepository> repository = new();
+        repository
+            .Setup(r => r.GetByTenantAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
+        repository
+            .Setup(r => r.UpsertAsync(
+                Scope.TenantId,
+                false,
+                It.Is<IReadOnlyList<string>>(emails => emails.SequenceEqual(new[] { "sponsor@contoso.test" })),
+                "UTC",
+                1,
+                8,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SponsorDigestPreferencesResponse
+            {
+                TenantId = Scope.TenantId,
+                IsConfigured = true,
+                EmailEnabled = false,
+                RecipientEmails = ["sponsor@contoso.test"],
+            });
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantSponsorDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            repository.Object,
+            Mock.Of<IAuditService>());
+
+        SponsorDigestPreferencesUpsertRequest body = new() { EmailEnabled = false };
+
+        IActionResult action = await controller.PostSponsorDigestPreferences(body, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        repository.VerifyAll();
     }
 
     [Fact]

@@ -17,6 +17,20 @@ public sealed class FocusedPilotModePolicyPacksTests
     }
 
     [Fact]
+    public void IsAllowedPackDisplayName_matches_case_insensitive_baseline_display_names()
+    {
+        FocusedPilotModePolicyPacks
+            .IsAllowedPackDisplayName("security architecture baseline")
+            .Should()
+            .BeTrue();
+
+        FocusedPilotModePolicyPacks
+            .IsAllowedPackDisplayName("operational excellence")
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
     public void IsAllowedPackDisplayName_allows_six_architecture_quality_baseline_packs()
     {
         FocusedPilotModePolicyPacks.IsAllowedPackDisplayName(FocusedPilotModePolicyPacks.SecurityBaselineDisplayName)
@@ -52,6 +66,18 @@ public sealed class FocusedPilotModePolicyPacksTests
 
         FocusedPilotModePolicyPacks
             .IsPackAllowedInFocusedReview("Custom Org Pack", isOrganizationRequired: true, isPlatformOverlayForRunCloud: false)
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
+    public void IsPackAllowedInFocusedReview_allows_lowercase_baseline_pack_display_name()
+    {
+        FocusedPilotModePolicyPacks
+            .IsPackAllowedInFocusedReview(
+                "security architecture baseline",
+                isOrganizationRequired: false,
+                isPlatformOverlayForRunCloud: false)
             .Should()
             .BeTrue();
     }

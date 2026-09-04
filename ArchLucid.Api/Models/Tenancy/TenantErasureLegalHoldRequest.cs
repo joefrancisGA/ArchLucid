@@ -4,10 +4,10 @@ namespace ArchLucid.Api.Models.Tenancy;
 public sealed class TenantErasureLegalHoldRequest
 {
     /// <summary>Hold remains effective until this UTC instant (exclusive of purge while <c>UtcNow &lt; UntilUtc</c>).</summary>
-    public DateTimeOffset UntilUtc
+    public required DateTimeOffset UntilUtc
     {
         get;
-        set;
+        init;
     }
 
     public string? Reason

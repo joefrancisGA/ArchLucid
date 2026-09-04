@@ -1,4 +1,5 @@
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
@@ -127,6 +128,38 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
         md.Should().Contain("graph TD");
         md.Should().Contain("## Architecture Summary");
         md.Should().Contain("Trimmed summary line");
+    }
+
+    [Fact]
+    public void GenerateMarkdown_manifest_diff_includes_relationship_subsections_when_populated()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run =
+                new ArchitectureRun
+                {
+                    RunId = "a1b2c3d4e5f678901234567890abcd",
+                    RequestId = "req-1",
+                    Status = ArchitectureRunStatus.Committed
+                },
+            ManifestDiff = new ManifestDiffResult
+            {
+                AddedRelationships =
+                [
+                    new RelationshipDiffItem
+                    {
+                        SourceId = "api",
+                        TargetId = "db",
+                        RelationshipType = "reads"
+                    }
+                ]
+            }
+        };
+
+        string markdown = _sut.GenerateMarkdown(report);
+
+        markdown.Should().Contain("#### Added Relationships");
+        markdown.Should().Contain("api -> db (reads)");
     }
 
     [Fact]

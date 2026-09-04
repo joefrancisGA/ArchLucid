@@ -12,9 +12,9 @@ public sealed class PublishPolicyPackVersionRequest
     } = null!;
 
     /// <summary>Full pack content JSON.</summary>
-    public string ContentJson
+    public required string ContentJson
     {
         get;
         set;
-    } = "{}";
+    }
 }

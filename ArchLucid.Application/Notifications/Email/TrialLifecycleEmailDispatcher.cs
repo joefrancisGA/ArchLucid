@@ -105,6 +105,20 @@ public sealed class TrialLifecycleEmailDispatcher(
         if (trigger is TrialLifecycleEmailTrigger.Converted)
             return TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Converted);
 
+        if (trigger is TrialLifecycleEmailTrigger.Expired)
+        {
+            if (!TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Active)
+                && !TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Expired))
+            {
+                return false;
+            }
+
+            if (tenant.TrialExpiresUtc is not { } expEnd)
+                return false;
+
+            return expEnd <= utcNow;
+        }
+
         if (!TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Active))
             return false;
         if (trigger is TrialLifecycleEmailTrigger.TrialProvisioned)
@@ -137,11 +151,7 @@ public sealed class TrialLifecycleEmailDispatcher(
             return (expSoon - utcNow).TotalDays <= 2d;
         }
 
-        if (trigger is not TrialLifecycleEmailTrigger.Expired)
-            return false;
-        if (tenant.TrialExpiresUtc is not { } expEnd)
-            return false;
-        return expEnd <= utcNow;
+        return false;
     }
 
     private static TrialDispatchPlan? TryBuildPlan(TrialLifecycleEmailIntegrationEnvelope envelope, TenantRecord tenant, string productName, string? baseUrl,

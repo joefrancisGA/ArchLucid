@@ -11,6 +11,8 @@ public sealed class AgentModelExecutionProfileParserTests
     [Theory]
     [InlineData("HighAssurance")]
     [InlineData("high-assurance")]
+    [InlineData("high assurance")]
+    [InlineData("high_assurance")]
     [InlineData("High Assurance")]
     public void TryParse_accepts_high_assurance_display_labels(string raw)
     {

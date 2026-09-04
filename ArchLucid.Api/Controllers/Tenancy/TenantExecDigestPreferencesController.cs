@@ -98,6 +98,11 @@ public sealed class TenantExecDigestPreferencesController(
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
+        ExecDigestPreferencesResponse? existingPreferences =
+            await _preferencesRepository.GetByTenantAsync(scope.TenantId, cancellationToken);
+
+        IReadOnlyList<string>? recipientEmails = body.RecipientEmails ?? existingPreferences?.RecipientEmails;
+
         string? normalizedTimeZone = IanaTimeZonePreferenceValues.NormalizeOrNull(body.IanaTimeZoneId ?? "UTC");
 
         if (normalizedTimeZone is null)
@@ -108,7 +113,7 @@ public sealed class TenantExecDigestPreferencesController(
         }
 
         if (!DigestRecipientEmailsValidator.TryNormalize(
-                body.RecipientEmails,
+                recipientEmails,
                 body.EmailEnabled,
                 out IReadOnlyList<string> recipients,
                 out string? recipientError))

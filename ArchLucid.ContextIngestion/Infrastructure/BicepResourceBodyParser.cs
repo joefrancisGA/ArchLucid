@@ -10,25 +10,25 @@ internal static class BicepResourceBodyParser
 {
     private static readonly Regex NestedBlockStartRegex = new(
         """
-        ^\s*(?<block>[A-Za-z0-9_-]+)\s*:\s*\{
+        ^\s*(?<block>[A-Za-z0-9_-]+)\s*(?::|=)\s*(?:#[^{]*|//[^{]*)?\{
         """,
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     private static readonly Regex ArrayAssignmentRegex = new(
         """
-        ^\s*(?<key>[A-Za-z0-9_-]+)\s*:\s*\[
+        ^\s*(?<key>[A-Za-z0-9_-]+)\s*(?::|=)\s*(?:#[^[]*|//[^[]*)?\[
         """,
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     private static readonly Regex MultilineArrayAssignmentRegex = new(
         """
-        ^\s*(?<key>[A-Za-z0-9_-]+)\s*:\s*$
+        ^\s*(?<key>[A-Za-z0-9_-]+)\s*(?::|=)\s*$
         """,
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     private static readonly Regex ScalarAssignmentRegex = new(
         """
-        ^\s*(?<key>[A-Za-z0-9_-]+)\s*:\s*(?<value>.+?)\s*$
+        ^\s*(?<key>[A-Za-z0-9_-]+)\s*(?::|=)\s*(?<value>.+?)\s*$
         """,
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
@@ -58,7 +58,7 @@ internal static class BicepResourceBodyParser
                 continue;
             }
 
-            if (line.Length == 0 || line.StartsWith("//", StringComparison.Ordinal))
+            if (line.Length == 0 || line.StartsWith("//", StringComparison.Ordinal) || line.StartsWith('#'))
             {
                 lineIndex++;
                 continue;
@@ -117,6 +117,7 @@ internal static class BicepResourceBodyParser
                 continue;
             }
 
+            rawValue = CanonicalInfrastructurePropertyBag.StripTrailingHclComment(rawValue);
             rawValue = CanonicalInfrastructurePropertyBag.StripTrailingSlashSlashComment(rawValue);
             rawValue = CanonicalInfrastructurePropertyBag.StripTrailingBlockComment(rawValue);
             string scalarValue = CanonicalInfrastructurePropertyBag.UnquoteInfrastructureScalar(rawValue);
@@ -155,12 +156,21 @@ internal static class BicepResourceBodyParser
         Dictionary<string, string> properties)
     {
         int probeIndex = lineIndex + 1;
+        bool inBlockComment = false;
 
         while (probeIndex < lines.Length)
         {
             string probeLine = lines[probeIndex].Trim();
 
-            if (probeLine.Length == 0 || probeLine.StartsWith("//", StringComparison.Ordinal))
+            if (InfrastructureDeclarationLineCommentScanner.TryConsumeBlockComment(ref probeLine, ref inBlockComment))
+            {
+                probeIndex++;
+                continue;
+            }
+
+            if (probeLine.Length == 0
+                || probeLine.StartsWith("//", StringComparison.Ordinal)
+                || probeLine.StartsWith('#'))
             {
                 probeIndex++;
                 continue;

@@ -37,6 +37,7 @@ public sealed class GovernanceStickinessHttpMapperTests
                 FindingId = " ",
                 OwnerUserId = "owner",
                 Rationale = "rationale",
+                EvidenceRef = "artifact://evidence/1",
                 ExpiresAtUtc = DateTime.UtcNow.AddDays(30),
             });
 
@@ -56,12 +57,31 @@ public sealed class GovernanceStickinessHttpMapperTests
                 FindingId = overlongFindingId,
                 OwnerUserId = "owner",
                 Rationale = "accepted risk rationale",
+                EvidenceRef = "artifact://evidence/1",
                 ExpiresAtUtc = DateTime.UtcNow.AddDays(30),
             });
 
         validation.Should().NotBeNull();
         validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
         validation.Message.Should().Contain(GovernanceRequestValidationRules.FindingIdMaxLength.ToString());
+    }
+
+    [Fact]
+    public void ValidateCreateRiskException_requires_evidence_ref()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateCreateRiskException(
+            new CreateRiskExceptionRequest
+            {
+                RunId = Guid.NewGuid(),
+                FindingId = "finding-1",
+                OwnerUserId = "owner",
+                Rationale = "accepted risk rationale",
+                ExpiresAtUtc = DateTime.UtcNow.AddDays(30),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("evidenceRef");
     }
 
     [Fact]
@@ -76,6 +96,7 @@ public sealed class GovernanceStickinessHttpMapperTests
                 FindingId = "finding-1",
                 OwnerUserId = overlongOwnerUserId,
                 Rationale = "accepted risk rationale",
+                EvidenceRef = "artifact://evidence/1",
                 ExpiresAtUtc = DateTime.UtcNow.AddDays(30),
             });
 
@@ -148,6 +169,23 @@ public sealed class GovernanceStickinessHttpMapperTests
     }
 
     [Fact]
+    public void ValidateCreateRecurrenceSchedule_rejects_invalid_cron_expression()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateCreateRecurrenceSchedule(
+            new CreateArchitectureReviewRecurrenceScheduleRequest
+            {
+                SourceRunId = Guid.NewGuid(),
+                CronExpression = "not-a-real-cron",
+                IsEnabled = true,
+            },
+            _ => false);
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Be(RecurrenceScheduleCronValidation.InvalidCronMessage);
+    }
+
+    [Fact]
     public void ValidateUpsertRealizedValueAttestation_rejects_negative_attested_incidents()
     {
         GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateUpsertRealizedValueAttestation(
@@ -159,6 +197,48 @@ public sealed class GovernanceStickinessHttpMapperTests
         validation.Should().NotBeNull();
         validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
         validation.Message.Should().Contain("non-negative");
+    }
+
+    [Fact]
+    public void ValidateUpsertRealizedValueAttestation_rejects_whitespace_reviewer_note()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateUpsertRealizedValueAttestation(
+            new UpsertRealizedValueAttestationRequest
+            {
+                AttestedReviewerTimeSavedNote = "   ",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("whitespace");
+    }
+
+    [Fact]
+    public void ValidateUpdateRecurrenceSchedule_rejects_whitespace_only_name()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateUpdateRecurrenceSchedule(
+            new UpdateArchitectureReviewRecurrenceScheduleRequest
+            {
+                Name = "   ",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("whitespace");
+    }
+
+    [Fact]
+    public void ValidateUpdateRecurrenceSchedule_rejects_whitespace_only_cron_expression()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateUpdateRecurrenceSchedule(
+            new UpdateArchitectureReviewRecurrenceScheduleRequest
+            {
+                CronExpression = "   ",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("whitespace");
     }
 
     [Fact]
@@ -265,6 +345,7 @@ public sealed class GovernanceStickinessHttpMapperTests
                 FindingId = "finding-1",
                 OwnerUserId = "owner",
                 Rationale = "too short",
+                EvidenceRef = "artifact://evidence/1",
                 ExpiresAtUtc = DateTime.UtcNow.AddDays(30),
             });
 
@@ -283,6 +364,7 @@ public sealed class GovernanceStickinessHttpMapperTests
                 FindingId = "finding-1",
                 OwnerUserId = "owner",
                 Rationale = new string('r', FindingDispositionValidation.MaximumRationaleLength + 1),
+                EvidenceRef = "artifact://evidence/1",
                 ExpiresAtUtc = DateTime.UtcNow.AddDays(30),
             });
 
@@ -319,6 +401,36 @@ public sealed class GovernanceStickinessHttpMapperTests
         validation.Should().NotBeNull();
         validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
         validation.Message.Should().Contain(FindingDispositionValidation.MaximumRationaleLength.ToString());
+    }
+
+    [Fact]
+    public void ValidateRenewRiskException_rejects_whitespace_only_rationale()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRenewRiskException(
+            new RenewRiskExceptionRequest
+            {
+                ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+                Rationale = "   ",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("whitespace");
+    }
+
+    [Fact]
+    public void ValidateRenewRiskException_rejects_whitespace_only_evidence_ref()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRenewRiskException(
+            new RenewRiskExceptionRequest
+            {
+                ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+                EvidenceRef = "   ",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("whitespace");
     }
 
     [Fact]

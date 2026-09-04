@@ -1,3 +1,4 @@
+using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
@@ -66,6 +67,25 @@ public sealed partial class ManifestsController
 
         if (manifestVersionProblem is not null)
             return manifestVersionProblem;
+
+        IActionResult? layoutProblem =
+            ManifestDiagramQueryValidation.ValidateLayout(layout).ToBadRequestProblemOrNull(this);
+
+        if (layoutProblem is not null)
+            return layoutProblem;
+
+        IActionResult? relationshipLabelsProblem =
+            ManifestDiagramQueryValidation.ValidateRelationshipLabels(relationshipLabels)
+                .ToBadRequestProblemOrNull(this);
+
+        if (relationshipLabelsProblem is not null)
+            return relationshipLabelsProblem;
+
+        IActionResult? groupByProblem =
+            ManifestDiagramQueryValidation.ValidateGroupBy(groupBy).ToBadRequestProblemOrNull(this);
+
+        if (groupByProblem is not null)
+            return groupByProblem;
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
