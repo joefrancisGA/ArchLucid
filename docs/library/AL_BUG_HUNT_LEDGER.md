@@ -3348,11 +3348,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 203
-- **bugs-found:** 425
+- **hunts:** 204
+- **bugs-found:** 426
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — disposition optional revisitDueUtc silent drop
+- **last-bug:** 2026-09-04 — disposition inapplicable optional string silent drop
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4346,6 +4346,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-04 seed hunt #785 (hit): proved diagram v2 whitespace query silent default on layout, relationshipLabels, and groupBy.
 
 - [x] (proven) `GovernanceStickinessController.RecordDisposition` / `RecordBulkDisposition` / `GovernanceStickinessHttpMapper` — non-null `revisitDueUtc` on non-`Deferred` dispositions passed HTTP validation and was silently dropped by `FindingDispositionService` — **hit 2026-09-04 (#786):** `ValidateOptionalDispositionDateWhenNotApplicable` guard on single and bulk paths (optional-field #781 parity); regressions in `ValidateRecordDisposition_rejects_revisit_due_on_non_deferred_disposition`, `ValidateBulkDisposition_rejects_revisit_due_on_non_deferred_disposition`, and `RecordDisposition_returns_bad_request_when_revisit_due_on_non_deferred_disposition`.
+
+2026-09-04 seed hunt #786 (hit): proved disposition optional revisitDueUtc silent drop on non-Deferred paths.
+
+- [x] (proven) `GovernanceStickinessController.RecordDisposition` / `RecordBulkDisposition` / `GovernanceStickinessHttpMapper.ValidateOptionalDispositionFieldWhenNotApplicable` — non-null `evidenceRequestText` or `tradeOffAcknowledgment` on inapplicable dispositions passed HTTP validation when text was non-whitespace and was silently dropped by `FindingDispositionService` — **hit 2026-09-04 (#787):** reject any explicitly provided inapplicable optional string fields (whitespace #781 and revisitDueUtc #786 parity); regressions in `ValidateRecordDisposition_rejects_optional_evidence_request_text_on_non_needs_evidence_disposition`, `ValidateRecordDisposition_rejects_optional_trade_off_acknowledgment_on_non_accepted_disposition`, bulk mapper siblings, and `RecordDisposition_returns_bad_request_when_remediated_evidence_request_text_is_provided`.
+
+2026-09-04 seed hunt #787 (hit): proved disposition inapplicable optional string silent drop beyond whitespace-only cases.
 
 2026-09-04 seed hunt #786 (hit): proved disposition optional revisitDueUtc silent drop on non-Deferred paths.
 
