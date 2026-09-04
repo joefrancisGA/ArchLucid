@@ -3,7 +3,9 @@
      livelihoods may depend on it), not a casual evaluator product.
      These twelve mitigate the *structural* gaps after the professional-tool (PT-01–PT-10)
      residual set. Do not implement from this index; run one numbered file at a time.
-     Created: 2026-09-03. -->
+     Created: 2026-09-03.
+     Successor leftovers (2026-09-04): livelihood-desk-00-index.md (LD-01–15).
+     Wave 3 unique leftovers: repeat-seat-00-index.md (RS-01–15). -->
 
 # Working-desk mitigations — Composer prompt set (WD-01–WD-12)
 
@@ -15,7 +17,9 @@ ArchLucid sells a **seat for a repeat professional**. Working mode, finding undo
 
 **Fifteen-prompt residual set (shipped):** [`livelihood-instrument-00-index.md`](livelihood-instrument-00-index.md) (**LI-01–15**, `master` #1397). Do not re-run.
 
-**Next fifteen (run these):** [`livelihood-desk-00-index.md`](livelihood-desk-00-index.md) (**LD-01–15**) — 2026-09-04 leftovers after LI. If an LD row lists a WD owner, do not fork — implement only the leftover *What to build* in that LD file.
+**Next fifteen (run these first):** [`livelihood-desk-00-index.md`](livelihood-desk-00-index.md) (**LD-01–15**) — 2026-09-04 leftovers after LI. If an LD row lists a WD owner, do not fork — implement only the leftover *What to build* in that LD file.
+
+**Wave 3 (after LD):** [`repeat-seat-00-index.md`](repeat-seat-00-index.md) (**RS-01–15**) — unique leftovers LD does not cover. If an RS row lists a WD owner, do not fork this file.
 
 ## Run order
 
