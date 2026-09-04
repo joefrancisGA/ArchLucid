@@ -147,6 +147,12 @@ export async function createRun(
     try {
       res = await postArchitectureRequestRaw(request, body, tenantScope, explicitBearerToken);
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+
+      if (/request context.*disposed/i.test(message)) {
+        throw error;
+      }
+
       if (isTransientLiveApiTransportError(error) && attempt < maxArchitectureMutationAttempts() - 1) {
         await sleepTransientHttpBackoff(attempt);
 
