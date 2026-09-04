@@ -89,6 +89,15 @@ public sealed class ComparisonReplayService(
         ArgumentException.ThrowIfNullOrWhiteSpace(comparisonRecordId);
         ComparisonRecord record = await _comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken) ??
                                   throw new InvalidOperationException($"Comparison record '{comparisonRecordId}' was not found.");
+
+        await ComparisonReplayManifestHashGuard.EnsureDriftAnalyzeSealedManifestHashesOrThrowAsync(
+            record,
+            _authorityQueryService,
+            _manifestHashService,
+            _scopeContextProvider,
+            _runExportRecordRepository,
+            cancellationToken);
+
         return record.ComparisonType switch
         {
             ComparisonTypes.EndToEndReplay => await AnalyzeDriftEndToEndAsync(record, cancellationToken),

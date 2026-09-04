@@ -64,6 +64,7 @@ internal static class SealedExportReceiptTestSupport
             hashBeforeReceipt,
             "v1");
         manifest.CommittedDecisionReceiptHashSha256 = sealedReceipt.ReceiptHashSha256;
+        manifest.ManifestHash = manifestHashService.ComputeHash(manifest);
 
         authority
             .Setup(static s => s.GetRunDetailForManifestCompareAsync(

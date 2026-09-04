@@ -19,6 +19,14 @@ namespace ArchLucid.Persistence.Tests.Alerts;
 [Trait("Category", "Unit")]
 public sealed class AlertSimulationContextProviderTests
 {
+    private static IManifestHashService CreateSealedManifestHashMock()
+    {
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash.Setup(m => m.ComputeHash(It.IsAny<ManifestDocument>())).Returns("sealed-hash");
+
+        return manifestHash.Object;
+    }
+
     [SkippableFact]
     public async Task GetContextsAsync_when_run_has_no_manifest_returns_empty()
     {
@@ -55,7 +63,8 @@ public sealed class AlertSimulationContextProviderTests
             advisor.Object,
             comparison.Object,
             recommendations.Object,
-            learning.Object);
+            learning.Object,
+            CreateSealedManifestHashMock());
 
         IReadOnlyList<AlertEvaluationContext> contexts = await provider.GetContextsAsync(
             tenantId,
@@ -138,7 +147,8 @@ public sealed class AlertSimulationContextProviderTests
             advisor.Object,
             comparison.Object,
             recommendations.Object,
-            learning.Object);
+            learning.Object,
+            CreateSealedManifestHashMock());
 
         IReadOnlyList<AlertEvaluationContext> contexts = await provider.GetContextsAsync(
             callerTenantId,
@@ -214,7 +224,8 @@ public sealed class AlertSimulationContextProviderTests
             advisor.Object,
             comparison.Object,
             recommendations.Object,
-            learning.Object);
+            learning.Object,
+            CreateSealedManifestHashMock());
 
         IReadOnlyList<AlertEvaluationContext> contexts = await provider.GetContextsAsync(
             tenantId,
@@ -262,7 +273,8 @@ public sealed class AlertSimulationContextProviderTests
                 {
                     RunId = runId,
                     FindingsSnapshotId = Guid.NewGuid(),
-                    CreatedUtc = DateTime.UtcNow
+                    CreatedUtc = DateTime.UtcNow,
+                    ManifestHash = "sealed-hash",
                 },
                 FindingsSnapshot = new FindingsSnapshot
                 {
@@ -289,7 +301,8 @@ public sealed class AlertSimulationContextProviderTests
             advisor.Object,
             comparison.Object,
             recommendations.Object,
-            learning.Object);
+            learning.Object,
+            CreateSealedManifestHashMock());
 
         IReadOnlyList<AlertEvaluationContext> contexts = await provider.GetContextsAsync(
             tenantId,
@@ -358,7 +371,8 @@ public sealed class AlertSimulationContextProviderTests
             advisor.Object,
             comparison.Object,
             recommendations.Object,
-            learning.Object);
+            learning.Object,
+            CreateSealedManifestHashMock());
 
         IReadOnlyList<AlertEvaluationContext> contexts = await provider.GetContextsAsync(
             tenantId,

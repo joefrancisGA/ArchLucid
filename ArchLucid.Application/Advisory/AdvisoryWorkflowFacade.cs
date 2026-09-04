@@ -1,5 +1,6 @@
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.Advisory.Workflow;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
@@ -15,10 +16,14 @@ public sealed partial class AdvisoryWorkflowFacade(
     IRecommendationWorkflowService recommendationWorkflowService,
     IRecommendationRepository recommendationRepository,
     IRunRepository runRepository,
+    IManifestHashService manifestHashService,
     IRecommendationImproveLoopCoordinator? recommendationImproveLoopCoordinator = null,
     IRecommendationImproveLoopEvidencePersister? recommendationImproveLoopEvidencePersister = null)
     : IAdvisoryWorkflowFacade
 {
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
     private readonly IAuthorityQueryService _authorityQueryService =
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
     private readonly IComparisonService _comparisonService =

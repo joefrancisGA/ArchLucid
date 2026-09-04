@@ -119,7 +119,8 @@ public sealed class ReplayRunServiceTests
             EmptyStageOutcomesRepository(),
             Mock.Of<IRunPolicyPackPinService>(),
             Mock.Of<IRunEvidencePackagePinService>(),
-            cloneStage);
+            cloneStage,
+            Mock.Of<IReRunExecuteSealedManifestPinGate>());
         IReplayRunCommitStage commitStage = new ReplayRunCommitStage(
             _decisionEngine.Object,
             EmptyAgentEvaluationService(),

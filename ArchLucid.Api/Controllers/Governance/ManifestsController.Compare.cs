@@ -3,6 +3,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diffs;
+using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Scoping;
 
@@ -154,6 +155,26 @@ public sealed partial class ManifestsController
 
         if (mappedProblem is not null)
             return new LoadedManifestPair { Error = mappedProblem };
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        try
+        {
+            await ManifestVersionCompareSealedManifestHashGuard.EnsurePairSealedOrThrowAsync(
+                result.Left!,
+                result.Right!,
+                scope,
+                _authorityQueryService,
+                _manifestHashService,
+                cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return new LoadedManifestPair
+            {
+                Error = this.ConflictProblem(ex.Message, ProblemTypes.Conflict),
+            };
+        }
 
         return new LoadedManifestPair
         {

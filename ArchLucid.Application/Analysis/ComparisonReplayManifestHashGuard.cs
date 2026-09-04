@@ -12,6 +12,22 @@ namespace ArchLucid.Application.Analysis;
 /// <summary>Wave-22 suggestion 212: comparison verify/regenerate fail-closed on sealed <see cref="ManifestDocument.ManifestHash"/> drift.</summary>
 internal static class ComparisonReplayManifestHashGuard
 {
+    public static Task EnsureDriftAnalyzeSealedManifestHashesOrThrowAsync(
+        ComparisonRecord record,
+        IAuthorityQueryService authorityQueryService,
+        IManifestHashService manifestHashService,
+        IScopeContextProvider scopeContextProvider,
+        IRunExportRecordRepository runExportRecordRepository,
+        CancellationToken cancellationToken) =>
+        EnsureReplaySealedManifestHashesOrThrowAsync(
+            record,
+            ComparisonReplayMode.Regenerate,
+            authorityQueryService,
+            manifestHashService,
+            scopeContextProvider,
+            runExportRecordRepository,
+            cancellationToken);
+
     public static async Task EnsureReplaySealedManifestHashesOrThrowAsync(
         ComparisonRecord record,
         ComparisonReplayMode mode,

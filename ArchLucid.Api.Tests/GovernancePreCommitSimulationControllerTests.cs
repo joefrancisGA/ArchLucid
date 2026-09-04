@@ -8,8 +8,10 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -543,6 +545,8 @@ public sealed class GovernancePreCommitSimulationControllerTests
             Mock.Of<IAuditService>(),
             runRepository ?? Mock.Of<IRunRepository>(),
             scopeProvider ?? scopeMock.Object,
-            tenantRepository ?? TenantExistsRepository());
+            tenantRepository ?? TenantExistsRepository(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>());
     }
 }
