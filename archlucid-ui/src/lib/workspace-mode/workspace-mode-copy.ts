@@ -26,7 +26,7 @@ export const WORKSPACE_MODE_GRADUATION_LEAD =
 export const WORKSPACE_MODE_GRADUATION_CHANGES = [
   "Overview leads with your work queue.",
   "Architecture, findings, and evidence stay on screen in the workbench.",
-  "Full operator shell density without a deploy flag.",
+  "Full architect workspace density without a deploy flag.",
   "Getting started moves out of the main navigation (still in Help).",
   "Teaching strips and tour prompts stay hidden.",
 ] as const;
