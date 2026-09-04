@@ -29289,6 +29289,18 @@
         },
         "type": "object"
       },
+      "SubmitDraftPostRequest": {
+        "properties": {
+          "expectedUpdatedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "SubmitDraftResponse": {
         "properties": {
           "draftId": {
