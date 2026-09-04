@@ -88,15 +88,14 @@ public sealed class InMemoryAuthenticationIdentityRepository : IAuthenticationId
 
         string storageKey = AuthenticationIdentityRepositoryCore.BuildStorageKey(key);
 
-        if (_activeExternalKeys.ContainsKey(storageKey))
-            throw new DuplicateAuthenticationIdentityException(key);
-
         AuthenticationIdentityRecord row = AuthenticationIdentityRepositoryCore.CreateFromInsert(
             insert,
             TimeProvider.System.GetUtcNow());
 
+        if (!_activeExternalKeys.TryAdd(storageKey, row.Id))
+            throw new DuplicateAuthenticationIdentityException(key);
+
         _byId[row.Id] = row;
-        _activeExternalKeys[storageKey] = row.Id;
 
         return Task.FromResult(row);
     }
@@ -133,10 +132,12 @@ public sealed class InMemoryAuthenticationIdentityRepository : IAuthenticationId
         if (_activeExternalKeys.TryGetValue(storageKey, out Guid occupantId) && occupantId != identityId)
             return Task.FromResult(false);
 
+        if (!_activeExternalKeys.TryAdd(storageKey, identityId))
+            return Task.FromResult(false);
+
         AuthenticationIdentityRecord updated = AuthenticationIdentityRepositoryCore.WithReEnabled(existing);
 
         _byId[identityId] = updated;
-        _activeExternalKeys[storageKey] = identityId;
 
         return Task.FromResult(true);
     }

@@ -1774,11 +1774,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 7
-- **bugs-found:** 10
+- **hunts:** 8
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — InMemory platform user duplicate Id silently overwrote prior row
+- **last-hunt:** 2026-09-04
+- **last-bug:** 2026-09-04 — InMemory identity concurrent insert race and ReEnable left DisabledUtc set
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1797,10 +1797,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SqlTrialIdentityUserRepository.RecordAccessFailedAsync` / `TrialLocalIdentityService.AuthenticateAsync` — read-modify-write with unconditional `UPDATE` lost lockout increments under parallel failed logins — **hit 2026-09-02 (#422):** atomic `AccessFailedCount + 1` with threshold lockout in SQL; service no longer passes absolute counts; regression in `SqlTrialIdentityUserRepositorySqlIntegrationTests` and `TrialLocalIdentityServiceTests`.
 - [x] (proven) `EmailOtpRequestFlow.ExecuteAsync` — `InvalidateActiveChallengesForEmailAsync` then `InsertAsync` was non-atomic; concurrent resend could leave multiple active challenges — **hit 2026-09-02 (#422):** `ReplaceActiveChallengeForEmailAsync` transactional replace in Dapper and lock in in-memory repo; regression in `EmailOtpChallengeRepositoryConcurrencyTests`.
 - [x] (proven) `InMemoryPlatformUserRepository.InsertAsync` — duplicate explicit `PlatformUserInsert.Id` silently overwrote the prior user while SQL raises PK violation — **hit 2026-09-03 (#545):** `TryAdd` + `DuplicatePlatformUserException`; regression in `InMemoryPlatformUserRepositoryCoverageTests`.
-- [ ] (candidate) `InMemoryAuthenticationIdentityRepository.InsertAsync` — concurrent inserts with the same external key can both land in `_byId` (check-then-act race on `_activeExternalKeys`).
-- [ ] (candidate) `InMemoryWorkspaceMembershipRepository.UpsertAsync` — update path can reassign `TenantId` on an existing `(UserId, WorkspaceId)` row, shifting privileged-member counts across tenants.
-- [ ] (candidate) `InMemoryTenantIdentityProviderConfigurationRepository` — accepts `Guid.Empty` tenant id and round-trips caller `UpdatedUtc`; SQL repository rejects empty GUID and stamps `SYSUTCDATETIME()` on upsert.
-- [ ] (candidate) `DapperEmailOtpChallengeRepository.TryCompleteSingleAttemptAsync` — correct-code UPDATE on `RowVersion` conflict returns `AlreadyCompleted` without retry (fail-path retries already proven).
+- [x] (proven) `InMemoryAuthenticationIdentityRepository.InsertAsync` — concurrent inserts with the same external key can both land in `_byId` (check-then-act race on `_activeExternalKeys`) — **hit 2026-09-04 (#669):** atomic `TryAdd` on active external-key index before `_byId` insert; regression in `InMemoryAuthenticationIdentityRepositoryCoverageTests.InsertAsync_concurrent_same_external_key_activates_only_one_identity`.
+- [x] (proven) `AuthenticationIdentityRepositoryCore.WithReEnabled` — `Clone(existing, disabledUtc: null)` left `DisabledUtc` set via null-coalescing, so in-memory `ReEnableAsync` returned true but `FindByExternalKeyAsync` still filtered the row — **hit 2026-09-04 (#669):** `clearDisabledUtc: true`; regression in `DisableAsync_and_ReEnableAsync_toggle_active_lookup` and `PersistencePackageCoverageBatch4Tests`.
+- [x] (invalid) `InMemoryWorkspaceMembershipRepository.UpsertAsync` — update path can reassign `TenantId` on an existing `(UserId, WorkspaceId)` row — Dapper `MERGE` also updates `TenantId` on match; same dev/test behavior as SQL.
+- [x] (valid-no-repro) `InMemoryTenantIdentityProviderConfigurationRepository` — accepts `Guid.Empty` tenant id and round-trips caller `UpdatedUtc` — dev/test parity drift only; SQL validates `TenantId` and stamps `SYSUTCDATETIME()`; no production path through in-memory store.
+- [x] (valid-no-repro) `DapperEmailOtpChallengeRepository.TryCompleteSingleAttemptAsync` — correct-code UPDATE on `RowVersion` conflict returns `AlreadyCompleted` without retry — fail-path retry proven (#314); success path uses `UPDLOCK` and no concurrent repro in integration tests.
+
+2026-09-04 thorough hunt #669: proved in-memory identity concurrent insert race and `WithReEnabled` disabled-flag retention; cheap-disproved workspace membership tenant re-home; valid-no-repro on tenant IdP config drift and OTP correct-code RowVersion retry.
 
 2026-09-03 seed hunt #545: proved InMemory platform-user duplicate Id overwrite; seeded concurrent identity insert, workspace membership tenant re-home, tenant IdP config InMemory/SQL drift, and OTP correct-code RowVersion retry candidates.
 
