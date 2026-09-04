@@ -1214,6 +1214,102 @@ type _AgentForensicsScoresWave19BarrelAliases = [
   >,
 ];
 
+/** Wave 20 — copy-finding-as-work-item module slices. */
+type _CopyFindingAsWorkItemWave20ModuleAliases = [
+  AssertExtends<
+    import("@/lib/copy-finding-as-work-item-types").WorkItemClipboardFormat,
+    import("@/lib/copy-finding-as-work-item").WorkItemClipboardFormat
+  >,
+  AssertExtends<
+    import("@/lib/copy-finding-as-work-item-trace-row").buildTraceRowWorkItemBody,
+    typeof import("@/lib/copy-finding-as-work-item").buildTraceRowWorkItemBody
+  >,
+  AssertExtends<
+    import("@/lib/copy-finding-as-work-item-inspect").buildInspectFindingWorkItemBody,
+    typeof import("@/lib/copy-finding-as-work-item").buildInspectFindingWorkItemBody
+  >,
+];
+
+/** Wave 20 — copy-finding-as-work-item barrel re-exports types, trace-row, and inspect slices. */
+type _CopyFindingAsWorkItemWave20BarrelAliases = [
+  AssertExtends<
+    import("@/lib/copy-finding-as-work-item-types").FindingWorkItemBuildInput,
+    import("@/lib/copy-finding-as-work-item").FindingWorkItemBuildInput
+  >,
+  AssertExtends<
+    import("@/lib/copy-finding-as-work-item-types").TraceRowWorkItemInput,
+    import("@/lib/copy-finding-as-work-item").TraceRowWorkItemInput
+  >,
+  AssertExtends<
+    import("@/lib/copy-finding-as-work-item-types").writeWorkItemBodyToClipboard,
+    typeof import("@/lib/copy-finding-as-work-item").writeWorkItemBodyToClipboard
+  >,
+];
+
+/** Wave 20 — architecture-draft-structured-brief-suggestions module slices. */
+type _ArchitectureDraftStructuredBriefSuggestionsWave20ModuleAliases = [
+  AssertExtends<
+    typeof import("@/lib/architecture/architecture-draft-structured-brief-suggestions-source-text").buildArchitectureDraftSuggestionSourceText,
+    typeof import("@/lib/architecture/architecture-draft-structured-brief-suggestions").buildArchitectureDraftSuggestionSourceText
+  >,
+  AssertExtends<
+    typeof import("@/lib/architecture/architecture-draft-structured-brief-suggestions-apply").applyArchitectureDraftStructuredBriefSuggestionsFromDraftResponse,
+    typeof import("@/lib/architecture/architecture-draft-structured-brief-suggestions").applyArchitectureDraftStructuredBriefSuggestionsFromDraftResponse
+  >,
+  AssertExtends<
+    typeof import("@/lib/architecture/architecture-draft-structured-brief-suggestions-extract").buildDeterministicStructuredBriefSuggestionsFromText,
+    typeof import("@/lib/architecture/architecture-draft-structured-brief-suggestions").buildDeterministicStructuredBriefSuggestionsFromText
+  >,
+];
+
+/** Wave 20 — architecture-draft-structured-brief-suggestions barrel re-exports source-text, apply, and extract slices. */
+type _ArchitectureDraftStructuredBriefSuggestionsWave20BarrelAliases = [
+  AssertExtends<
+    import("@/lib/architecture/architecture-draft-structured-brief-suggestions-apply").ApplyArchitectureDraftStructuredBriefSuggestionsResult,
+    import("@/lib/architecture/architecture-draft-structured-brief-suggestions").ApplyArchitectureDraftStructuredBriefSuggestionsResult
+  >,
+  AssertExtends<
+    typeof import("@/lib/architecture/architecture-draft-structured-brief-suggestions-extract").extractFailureModeSuggestionFromText,
+    typeof import("@/lib/architecture/architecture-draft-structured-brief-suggestions").extractFailureModeSuggestionFromText
+  >,
+  AssertExtends<
+    typeof import("@/lib/architecture/architecture-draft-structured-brief-suggestions-apply").hasArchitectureContextForFailureModeSuggestion,
+    typeof import("@/lib/architecture/architecture-draft-structured-brief-suggestions").hasArchitectureContextForFailureModeSuggestion
+  >,
+];
+
+/** Wave 20 — adr-from-run module slices. */
+type _AdrFromRunWave20ModuleAliases = [
+  AssertExtends<
+    import("@/lib/adr-from-run-slices").AdrGeneratorRunInput,
+    import("@/lib/adr-from-run").AdrGeneratorRunInput
+  >,
+  AssertExtends<
+    typeof import("@/lib/adr-from-run-mappers").buildAdrExplanationSlice,
+    typeof import("@/lib/adr-from-run").buildAdrExplanationSlice
+  >,
+  AssertExtends<
+    typeof import("@/lib/adr-from-run-markdown").buildMadrMarkdownFromRun,
+    typeof import("@/lib/adr-from-run").buildMadrMarkdownFromRun
+  >,
+];
+
+/** Wave 20 — adr-from-run barrel re-exports slices, mappers, and markdown compose. */
+type _AdrFromRunWave20BarrelAliases = [
+  AssertExtends<
+    import("@/lib/adr-from-run-slices").AdrGeneratorExplanationSlice,
+    import("@/lib/adr-from-run").AdrGeneratorExplanationSlice
+  >,
+  AssertExtends<
+    typeof import("@/lib/adr-from-run-mappers").buildAdrGeneratorRunInput,
+    typeof import("@/lib/adr-from-run").buildAdrGeneratorRunInput
+  >,
+  AssertExtends<
+    import("@/lib/adr-from-run-slices").AdrGeneratorFindingSlice,
+    import("@/lib/adr-from-run").AdrGeneratorFindingSlice
+  >,
+];
+
 /** Wave 12 — authority run-detail trust-evidence module. */
 type _AuthorityRunDetailWave12TrustModuleAliases = [
   AssertExtends<
@@ -1992,6 +2088,12 @@ const _compileTimeAliasGuards: [
   _AdvisoryWave19BarrelAliases,
   _AgentForensicsScoresWave19ModuleAliases,
   _AgentForensicsScoresWave19BarrelAliases,
+  _CopyFindingAsWorkItemWave20ModuleAliases,
+  _CopyFindingAsWorkItemWave20BarrelAliases,
+  _ArchitectureDraftStructuredBriefSuggestionsWave20ModuleAliases,
+  _ArchitectureDraftStructuredBriefSuggestionsWave20BarrelAliases,
+  _AdrFromRunWave20ModuleAliases,
+  _AdrFromRunWave20BarrelAliases,
   _AuthorityRunDetailWave12TrustModuleAliases,
   _AuthorityRunDetailWave12ProvenanceModuleAliases,
   _AuthorityRunDetailWave12BarrelAliases,
@@ -2065,6 +2167,18 @@ const _compileTimeAliasGuards: [
   [] as unknown as _FirstReviewGuideWave16BarrelAliases,
   [] as unknown as _ConnectorOperationsWave16ModuleAliases,
   [] as unknown as _ConnectorOperationsWave16BarrelAliases,
+  [] as unknown as _RecommendationLearningOperationalWave19ModuleAliases,
+  [] as unknown as _RecommendationLearningOperationalWave19BarrelAliases,
+  [] as unknown as _AdvisoryWave19ModuleAliases,
+  [] as unknown as _AdvisoryWave19BarrelAliases,
+  [] as unknown as _AgentForensicsScoresWave19ModuleAliases,
+  [] as unknown as _AgentForensicsScoresWave19BarrelAliases,
+  [] as unknown as _CopyFindingAsWorkItemWave20ModuleAliases,
+  [] as unknown as _CopyFindingAsWorkItemWave20BarrelAliases,
+  [] as unknown as _ArchitectureDraftStructuredBriefSuggestionsWave20ModuleAliases,
+  [] as unknown as _ArchitectureDraftStructuredBriefSuggestionsWave20BarrelAliases,
+  [] as unknown as _AdrFromRunWave20ModuleAliases,
+  [] as unknown as _AdrFromRunWave20BarrelAliases,
   [] as unknown as _FirstReviewGuideWave17ModuleAliases,
   [] as unknown as _FirstReviewGuideWave17BarrelAliases,
   [] as unknown as _ExecDigestScheduleFormWave17ModuleAliases,
