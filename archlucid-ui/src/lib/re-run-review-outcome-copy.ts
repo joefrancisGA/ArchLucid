@@ -2,9 +2,6 @@ import { formatOperationElapsed } from "@/lib/operations/format-operation-elapse
 
 export const RE_RUN_REVIEW_MIN_BUSY_MS = 400;
 
-export const RE_RUN_REVIEW_RUNNING_DETAIL =
-  "Analysis continues on the server. This page updates when the attempt finishes.";
-
 export type ReRunReviewOutcomePhase = "running" | "succeeded" | "failed" | "canceled";
 
 export function resolveReRunReviewAttemptNumber(
