@@ -33,7 +33,7 @@ public sealed class AgentResultJsonConverter : JsonConverter<AgentResult>
 
     internal static void MergeClaimEvidenceRefs(JsonElement root, AgentResult result)
     {
-        if (!root.TryGetProperty("claims", out JsonElement claims) || claims.ValueKind != JsonValueKind.Array)
+        if (!TryGetPropertyIgnoreCase(root, "claims", out JsonElement claims) || claims.ValueKind != JsonValueKind.Array)
             return;
 
         List<string> merged = new(result.EvidenceRefs);
