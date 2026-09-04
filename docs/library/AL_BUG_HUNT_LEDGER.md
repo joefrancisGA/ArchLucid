@@ -3348,11 +3348,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 204
-- **bugs-found:** 426
+- **hunts:** 205
+- **bugs-found:** 427
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — disposition inapplicable optional string silent drop
+- **last-bug:** 2026-09-04 — promote catalog whitespace version silent skip
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4350,6 +4350,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-04 seed hunt #786 (hit): proved disposition optional revisitDueUtc silent drop on non-Deferred paths.
 
 - [x] (proven) `GovernanceStickinessController.RecordDisposition` / `RecordBulkDisposition` / `GovernanceStickinessHttpMapper.ValidateOptionalDispositionFieldWhenNotApplicable` — non-null `evidenceRequestText` or `tradeOffAcknowledgment` on inapplicable dispositions passed HTTP validation when text was non-whitespace and was silently dropped by `FindingDispositionService` — **hit 2026-09-04 (#787):** reject any explicitly provided inapplicable optional string fields (whitespace #781 and revisitDueUtc #786 parity); regressions in `ValidateRecordDisposition_rejects_optional_evidence_request_text_on_non_needs_evidence_disposition`, `ValidateRecordDisposition_rejects_optional_trade_off_acknowledgment_on_non_accepted_disposition`, bulk mapper siblings, and `RecordDisposition_returns_bad_request_when_remediated_evidence_request_text_is_provided`.
+
+2026-09-04 seed hunt #787 (hit): proved disposition inapplicable optional string silent drop beyond whitespace-only cases.
+
+- [x] (proven) `PolicyPacksController.PromoteCatalogEntry` / `PolicyPacksHttpMapper.ValidatePromoteCatalogEntry` — whitespace-only optional `version` skipped `ValidatePackVersion` and promoted with a blank version label instead of HTTP 400 — **hit 2026-09-04 (#788):** validate optional version whenever field is non-null (create recurrence #783 parity); regressions in `ValidatePromoteCatalogEntry_rejects_whitespace_only_optional_version` and `PromoteCatalogEntry_returns_bad_request_when_version_is_whitespace_only`.
+
+2026-09-04 seed hunt #788 (hit): proved promote-catalog whitespace optional version silent skip.
 
 2026-09-04 seed hunt #787 (hit): proved disposition inapplicable optional string silent drop beyond whitespace-only cases.
 
