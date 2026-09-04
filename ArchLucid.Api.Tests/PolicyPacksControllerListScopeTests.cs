@@ -200,6 +200,31 @@ public sealed class PolicyPacksControllerListScopeTests
     }
 
     [Fact]
+    public async Task Create_returns_bad_request_when_description_is_whitespace_only_and_tenant_missing()
+    {
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        PolicyPacksController sut = CreateSut(httpFacade, tenantExists: false);
+
+        IActionResult result = await sut.Create(
+            new CreatePolicyPackRequest
+            {
+                Name = "baseline",
+                Description = "   ",
+                PackType = "TenantCustom",
+                InitialContentJson = "{}",
+            },
+            CancellationToken.None);
+
+        ObjectResult response = result.Should().BeOfType<ObjectResult>().Subject;
+        response.StatusCode.Should().NotBe(StatusCodes.Status404NotFound);
+        sut.ModelState.Should().ContainKey(nameof(CreatePolicyPackRequest.Description));
+        sut.ModelState[nameof(CreatePolicyPackRequest.Description)]!.Errors
+            .Should()
+            .Contain(error => error.ErrorMessage.Contains("whitespace"));
+        httpFacade.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task Create_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
