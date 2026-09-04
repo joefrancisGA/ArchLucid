@@ -226,6 +226,38 @@ public sealed class GovernanceStickinessHttpMapperTests
     }
 
     [Fact]
+    public void ValidateCreateRecurrenceSchedule_rejects_whitespace_only_name()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateCreateRecurrenceSchedule(
+            new CreateArchitectureReviewRecurrenceScheduleRequest
+            {
+                SourceRunId = Guid.NewGuid(),
+                Name = "   ",
+                IsEnabled = true,
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("whitespace");
+    }
+
+    [Fact]
+    public void ValidateCreateRecurrenceSchedule_rejects_whitespace_only_cron_expression()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateCreateRecurrenceSchedule(
+            new CreateArchitectureReviewRecurrenceScheduleRequest
+            {
+                SourceRunId = Guid.NewGuid(),
+                CronExpression = "   ",
+                IsEnabled = true,
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("whitespace");
+    }
+
+    [Fact]
     public void ValidateCreateRecurrenceSchedule_rejects_overlong_name()
     {
         GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateCreateRecurrenceSchedule(

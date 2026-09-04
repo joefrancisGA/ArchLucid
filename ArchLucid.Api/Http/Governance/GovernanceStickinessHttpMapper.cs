@@ -179,7 +179,14 @@ public static class GovernanceStickinessHttpMapper
                 ProblemTypes.ValidationFailed);
         }
 
-        string name = string.IsNullOrWhiteSpace(request.Name) ? "Recurring architecture review" : request.Name.Trim();
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            return new GovernanceHttpValidation(
+                "name cannot be empty or whitespace.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        string name = request.Name.Trim();
 
         if (name.Length > RecurrenceScheduleValidation.NameMaxLength)
         {
@@ -188,9 +195,14 @@ public static class GovernanceStickinessHttpMapper
                 ProblemTypes.ValidationFailed);
         }
 
-        string cronExpression = string.IsNullOrWhiteSpace(request.CronExpression)
-            ? "0 8 * * 1"
-            : request.CronExpression.Trim();
+        if (string.IsNullOrWhiteSpace(request.CronExpression))
+        {
+            return new GovernanceHttpValidation(
+                "cronExpression cannot be empty or whitespace.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        string cronExpression = request.CronExpression.Trim();
 
         if (cronExpression.Length > RecurrenceScheduleValidation.CronExpressionMaxLength)
         {

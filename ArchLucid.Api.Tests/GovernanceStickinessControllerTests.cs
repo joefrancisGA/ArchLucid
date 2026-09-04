@@ -3622,6 +3622,42 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task CreateRecurrenceSchedule_returns_bad_request_when_name_is_whitespace_only()
+    {
+        GovernanceStickinessController controller = BuildSut();
+
+        CreateArchitectureReviewRecurrenceScheduleRequest request = new()
+        {
+            SourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            Name = "   ",
+            IsEnabled = true,
+        };
+
+        IActionResult action = await controller.CreateRecurrenceSchedule(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task CreateRecurrenceSchedule_returns_bad_request_when_cron_expression_is_whitespace_only()
+    {
+        GovernanceStickinessController controller = BuildSut();
+
+        CreateArchitectureReviewRecurrenceScheduleRequest request = new()
+        {
+            SourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            CronExpression = "   ",
+            IsEnabled = true,
+        };
+
+        IActionResult action = await controller.CreateRecurrenceSchedule(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task CreateRecurrenceSchedule_returns_bad_request_when_cron_is_invalid_and_tenant_missing()
     {
         GovernanceStickinessController controller = BuildSut(
