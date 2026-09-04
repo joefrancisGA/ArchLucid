@@ -43,7 +43,7 @@ export function useReviewFindingsVisibilityState(): ReviewFindingsVisibilityStat
   const hasUrlShowLow = searchParams?.has(REVIEW_FINDINGS_SHOW_LOW_PARAM) ?? false;
   const hasUrlShowAdvisory = searchParams?.has(REVIEW_FINDINGS_SHOW_ADVISORY_PARAM) ?? false;
   const hasUrlHideGeneric = searchParams?.has(REVIEW_FINDINGS_HIDE_GENERIC_PARAM) ?? false;
-  const accountPrefs = readFindingsVisibilityFromStorage();
+  const [accountPrefs] = useState(readFindingsVisibilityFromStorage);
   const [showLowConfidence, setShowLowConfidenceState] = useState(() =>
     resolveFindingsVisibilityFlag(hasUrlShowLow, urlShowLow, accountPrefs.showLowConfidenceEnabled),
   );
