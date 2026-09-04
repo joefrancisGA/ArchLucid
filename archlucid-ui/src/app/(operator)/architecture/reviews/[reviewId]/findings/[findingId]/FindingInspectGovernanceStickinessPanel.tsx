@@ -14,6 +14,7 @@ import {
   findingInspectGovernancePanelHrefFromSearch,
   parseFindingInspectGovernancePanelFromSearch,
   parseFindingInspectWaiverConfirmOpenFromSearch,
+  parseFindingInspectWaiverRevokeConfirmOpenFromSearch,
   type FindingInspectGovernancePanelId,
 } from "@/lib/findings/finding-inspect-governance-panel-url";
 
@@ -35,6 +36,9 @@ export function FindingInspectGovernanceStickinessPanel(
   const searchParams = useSearchParams();
   const urlGovPanel = parseFindingInspectGovernancePanelFromSearch(searchParams.get("govPanel"));
   const urlWaiverConfirm = parseFindingInspectWaiverConfirmOpenFromSearch(searchParams.get("waiverConfirm"));
+  const urlWaiverRevokeConfirm = parseFindingInspectWaiverRevokeConfirmOpenFromSearch(
+    searchParams.get("waiverRevokeConfirm"),
+  );
   const urlDispConfirm = parseFindingInspectDispositionConfirmFromSearch(searchParams.get("dispConfirm"));
   const stickiness = useFindingInspectGovernanceStickiness(props);
   const scrolledPanelRef = useRef<FindingInspectGovernancePanelId | null>(null);
@@ -43,10 +47,11 @@ export function FindingInspectGovernanceStickinessPanel(
     panel: FindingInspectGovernancePanelId | null,
     waiverConfirmOpen: boolean,
     dispConfirm: FindingInspectDispositionConfirmUrlValue | null = urlDispConfirm,
+    waiverRevokeConfirmOpen: boolean = urlWaiverRevokeConfirm,
   ): void => {
     const panelHref = findingInspectGovernancePanelHrefFromSearch(
       searchParams.toString(),
-      { panel, waiverConfirmOpen },
+      { panel, waiverConfirmOpen, waiverRevokeConfirmOpen },
       pathname,
     );
     const questionIndex = panelHref.indexOf("?");
@@ -60,10 +65,10 @@ export function FindingInspectGovernanceStickinessPanel(
   };
 
   useEffect(() => {
-    if (urlWaiverConfirm) {
+    if (urlWaiverRevokeConfirm) {
       stickiness.setPendingRevokeWaiverConfirm(true);
     }
-  }, [stickiness.setPendingRevokeWaiverConfirm, urlWaiverConfirm]);
+  }, [stickiness.setPendingRevokeWaiverConfirm, urlWaiverRevokeConfirm]);
 
   useEffect(() => {
     if (urlDispConfirm !== null) {
@@ -89,14 +94,14 @@ export function FindingInspectGovernanceStickinessPanel(
 
   const setPendingRevokeWaiverConfirmWithUrl = (open: boolean) => {
     stickiness.setPendingRevokeWaiverConfirm(open);
-    syncGovernancePanelToUrl(urlGovPanel, open);
+    syncGovernancePanelToUrl(urlGovPanel, urlWaiverConfirm, urlDispConfirm, open);
   };
 
   const setPendingDispositionConfirmWithUrl = (
     confirm: FindingInspectDispositionConfirmUrlValue | null,
   ) => {
     stickiness.setPendingDispositionConfirm(confirm);
-    syncGovernancePanelToUrl(urlGovPanel, urlWaiverConfirm, confirm);
+    syncGovernancePanelToUrl(urlGovPanel, urlWaiverConfirm, confirm, urlWaiverRevokeConfirm);
   };
 
   return (

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
@@ -39,6 +40,11 @@ import type {
 
 import type { TeamsNotificationsIntegrationPageServerLoad } from "./load-teams-notifications-integration-page-data";
 import type { TeamsNotificationsIntegrationPageViewModel } from "./teams-notifications-integration-view-model";
+import { INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
+import {
+  parseTeamsRemoveConfirmOpenFromSearch,
+  teamsNotificationsRemoveConfirmHrefFromSearch,
+} from "@/lib/integrations/teams-notifications-remove-confirm-url";
 
 const SAVE_FAILURE_MESSAGE = "We could not save this Teams connection. Check the fields and try again.";
 
@@ -65,11 +71,15 @@ function seedFormFields(
 export function useTeamsNotificationsIntegrationPage(
   serverLoad: TeamsNotificationsIntegrationPageServerLoad,
 ): TeamsNotificationsIntegrationPageViewModel {
+  const router = useRouter();
+  const pathname = usePathname() ?? INTEGRATIONS_TEAMS_PATH;
+  const searchParams = useSearchParams();
+  const urlRemoveConfirm = parseTeamsRemoveConfirmOpenFromSearch(searchParams.get("teamsRemoveConfirm"));
   const isDemo = serverLoad.mode === "demo";
   const canMutate = useOperateCapability();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [pendingRemoveConfirm, setPendingRemoveConfirm] = useState(false);
+  const [pendingRemoveConfirm, setPendingRemoveConfirmState] = useState(urlRemoveConfirm);
   const [validating, setValidating] = useState(false);
   const [testing, setTesting] = useState(false);
 
@@ -99,6 +109,28 @@ export function useTeamsNotificationsIntegrationPage(
   const [mutationSuccessMessage, setMutationSuccessMessage] = useState<string | null>(null);
 
   const skipInitialClientLoadRef = useRef(serverLoad.mode === "live");
+
+  const syncRemoveConfirmToUrl = useCallback(
+    (confirmOpen: boolean) => {
+      router.replace(
+        teamsNotificationsRemoveConfirmHrefFromSearch(searchParams.toString(), confirmOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPendingRemoveConfirm = useCallback(
+    (confirmOpen: boolean) => {
+      setPendingRemoveConfirmState(confirmOpen);
+      syncRemoveConfirmToUrl(confirmOpen);
+    },
+    [syncRemoveConfirmToUrl],
+  );
+
+  useEffect(() => {
+    setPendingRemoveConfirmState(parseTeamsRemoveConfirmOpenFromSearch(searchParams.get("teamsRemoveConfirm")));
+  }, [searchParams]);
 
   const connectionStatus = useMemo(
     () =>
