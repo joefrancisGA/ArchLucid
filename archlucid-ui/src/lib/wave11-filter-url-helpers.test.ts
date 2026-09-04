@@ -653,6 +653,99 @@ describe("wave19 filter url helpers", () => {
   });
 });
 
+describe("wave20 filter url helpers", () => {
+  it("decision register custom dates, trial funnel attention/compare/sort, and operational errors text filters", async () => {
+    const {
+      parseDecisionRegisterCustomDateFromSearch,
+      decisionRegisterCustomDateHrefFromSearch,
+    } = await import("@/lib/governance/decision-register-custom-date-url");
+    const {
+      parseTrialFunnelAttentionOnlyFromSearch,
+      trialFunnelAttentionHrefFromSearch,
+      parseTrialFunnelComparePreviousFromSearch,
+      trialFunnelCompareHrefFromSearch,
+      parseTrialFunnelCohortSortKeyFromSearch,
+      trialFunnelCohortSortHrefFromSearch,
+    } = await import("@/lib/internal/trial-funnel-filter-url");
+    const {
+      parseOperationalErrorsTenantFromSearch,
+      operationalErrorsTenantHrefFromSearch,
+      parseOperationalErrorsCorrelationFromSearch,
+      operationalErrorsCorrelationHrefFromSearch,
+    } = await import("@/lib/internal/operational-errors-filter-url");
+
+    expect(parseDecisionRegisterCustomDateFromSearch("2026-04-10")).toBe("2026-04-10");
+    expect(decisionRegisterCustomDateHrefFromSearch("category=Security", "2026-04-10", "2026-05-01")).toBe(
+      "/governance/decision-register?category=Security&from=2026-04-10&to=2026-05-01",
+    );
+    expect(parseTrialFunnelAttentionOnlyFromSearch("1")).toBe(true);
+    expect(trialFunnelAttentionHrefFromSearch("range=30", true)).toBe("/internal/trial-funnel?range=30&attention=1");
+    expect(parseTrialFunnelComparePreviousFromSearch("1")).toBe(true);
+    expect(trialFunnelCompareHrefFromSearch("stage=converted", true)).toBe(
+      "/internal/trial-funnel?stage=converted&compare=1",
+    );
+    expect(parseTrialFunnelCohortSortKeyFromSearch("organizationName")).toBe("organizationName");
+    expect(trialFunnelCohortSortHrefFromSearch("", "organizationName", true)).toBe(
+      "/internal/trial-funnel?sort=organizationName&dir=asc",
+    );
+    expect(parseOperationalErrorsTenantFromSearch("tenant-1")).toBe("tenant-1");
+    expect(operationalErrorsTenantHrefFromSearch("category=HttpError", "tenant-1")).toBe(
+      "/internal/operational-errors?category=HttpError&tenant=tenant-1",
+    );
+    expect(parseOperationalErrorsCorrelationFromSearch("corr-9")).toBe("corr-9");
+    expect(operationalErrorsCorrelationHrefFromSearch("tenant=tenant-1", "corr-9")).toBe(
+      "/internal/operational-errors?tenant=tenant-1&correlation=corr-9",
+    );
+  });
+
+  it("platform policy packs, product learning range, findings visibility, and recommendation learning sort", async () => {
+    const {
+      parsePlatformBundledPolicyPacksSearchFromSearch,
+      platformBundledPolicyPacksSearchHrefFromSearch,
+      parsePlatformBundledPolicyPacksCategoryFromSearch,
+      platformBundledPolicyPacksCategoryHrefFromSearch,
+    } = await import("@/lib/internal/platform-bundled-policy-packs-filter-url");
+    const { parseProductLearningRangeFromSearch, productLearningRangeHrefFromSearch } = await import(
+      "@/lib/internal/product-learning-range-url"
+    );
+    const {
+      parseReviewFindingsShowLowFromSearch,
+      parseReviewFindingsShowAdvisoryFromSearch,
+      parseReviewFindingsHideGenericFromSearch,
+      reviewFindingsVisibilityHrefFromSearch,
+    } = await import("@/lib/findings/review-findings-visibility-url");
+    const {
+      parseRecommendationLearningWeightSortKeyFromSearch,
+      recommendationLearningWeightSortHrefFromSearch,
+    } = await import("@/lib/internal/recommendation-learning-weight-sort-url");
+
+    expect(parsePlatformBundledPolicyPacksSearchFromSearch("azure waf")).toBe("azure waf");
+    expect(platformBundledPolicyPacksSearchHrefFromSearch("", "azure waf")).toBe(
+      "/internal/platform-bundled-policy-packs?q=azure+waf",
+    );
+    expect(parsePlatformBundledPolicyPacksCategoryFromSearch("aws")).toBe("aws");
+    expect(platformBundledPolicyPacksCategoryHrefFromSearch("q=waf", "aws")).toBe(
+      "/internal/platform-bundled-policy-packs?q=waf&category=aws",
+    );
+    expect(parseProductLearningRangeFromSearch("7d")).toBe("7d");
+    expect(productLearningRangeHrefFromSearch("", "30d")).toBe("/internal/product-learning?range=30d");
+    expect(parseReviewFindingsShowLowFromSearch("1")).toBe(true);
+    expect(parseReviewFindingsShowAdvisoryFromSearch("1")).toBe(true);
+    expect(parseReviewFindingsHideGenericFromSearch("1")).toBe(true);
+    expect(
+      reviewFindingsVisibilityHrefFromSearch(
+        "tab=findings",
+        { showLowConfidence: true, showAdvisory: false, hideGenericLowDensity: true },
+        "/architecture/reviews/r1",
+      ),
+    ).toBe("/architecture/reviews/r1?tab=findings&showLow=1&hideGeneric=1");
+    expect(parseRecommendationLearningWeightSortKeyFromSearch("feature")).toBe("feature");
+    expect(recommendationLearningWeightSortHrefFromSearch("", "feature", true)).toBe(
+      "/internal/recommendation-learning?sort=feature&dir=asc",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(
