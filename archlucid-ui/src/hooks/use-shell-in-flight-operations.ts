@@ -180,6 +180,7 @@ export function useShellInFlightOperations(): readonly TrackedInFlightOperation[
           patchInFlightOperation(operationId, {
             stepLabel: detail.stepLabel,
             state: detail.state,
+            heartbeatUtc: detail.heartbeatUtc,
             runId,
             href,
           });
@@ -190,6 +191,7 @@ export function useShellInFlightOperations(): readonly TrackedInFlightOperation[
                 ...row,
                 stepLabel: detail.stepLabel,
                 state: detail.state,
+                heartbeatUtc: detail.heartbeatUtc,
                 runId,
                 href,
               };

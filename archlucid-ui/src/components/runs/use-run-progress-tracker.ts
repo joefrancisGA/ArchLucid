@@ -7,6 +7,7 @@ import {
   useReviewCompletionNotification,
 } from "@/hooks/use-review-completion-notification";
 import { useRunStageTimelineQuery } from "@/hooks/use-run-stage-timeline-query";
+import { useReviewPipelineInFlightForRun } from "@/hooks/use-review-pipeline-in-flight-for-run";
 import { useWorkspaceReviewDurationEstimate } from "@/hooks/use-workspace-review-duration-estimate";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import {
@@ -28,6 +29,7 @@ import {
   type ReviewPipelineDiagnosticContext,
 } from "@/lib/review-pipeline-stall-diagnosis";
 import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
+import { isTerminalOperationState } from "@/lib/operations/operation-state";
 import { resolveCurrentPipelineStageLabel } from "@/lib/resolve-active-pipeline-stage";
 import { formatWorkspaceReviewDurationBand } from "@/lib/workspace-review-duration-estimate";
 import type { RunSummary } from "@/types/authority";
@@ -63,8 +65,11 @@ export function useRunProgressTracker({
     resolvePreFinalizeTerminal(initialSummary, preFinalizeReadyToFinalize),
   );
   const pipelineTerminalFailure = isReviewPipelineTerminalFailure(diagnosticContext);
+  const inFlightOperation = useReviewPipelineInFlightForRun(runId);
+  const rerunning =
+    inFlightOperation !== null && !isTerminalOperationState(inFlightOperation.state);
   const pollEnabled =
-    !allStagesReady(initialSummary) && !preFinalizeTerminal && !pipelineTerminalFailure;
+    (!allStagesReady(initialSummary) && !preFinalizeTerminal && !pipelineTerminalFailure) || rerunning;
 
   const [pollSession, setPollSession] = useState(0);
   const [clientPhase, setClientPhase] = useState<"polling" | "complete" | "timeout">(() =>
