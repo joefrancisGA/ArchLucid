@@ -2069,6 +2069,59 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task RecordDisposition_returns_bad_request_when_remediated_evidence_request_text_is_whitespace_only()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new(MockBehavior.Strict);
+        Mock<IFindingDispositionService> dispositions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            findingInspect: findingInspect,
+            dispositionService: dispositions);
+        SetIdempotencyKey(controller);
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            Disposition = FindingDisposition.Remediated,
+            EvidenceRequestText = "   ",
+        };
+
+        IActionResult action = await controller.RecordDisposition("finding-1", request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        findingInspect.VerifyNoOtherCalls();
+        dispositions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task RecordBulkDisposition_returns_bad_request_when_accepted_trade_off_is_whitespace_only()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new(MockBehavior.Strict);
+        Mock<IFindingDispositionService> dispositions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            findingInspect: findingInspect,
+            dispositionService: dispositions);
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = ["finding-1"],
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "accepting residual risk with rationale",
+            TradeOffAcknowledgment = "   ",
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        findingInspect.VerifyNoOtherCalls();
+        dispositions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task UpdateRecurrenceSchedule_returns_bad_request_when_name_exceeds_max_length_and_tenant_missing()
     {
         Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new(MockBehavior.Strict);

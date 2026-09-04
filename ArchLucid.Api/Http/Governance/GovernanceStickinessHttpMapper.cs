@@ -369,6 +369,24 @@ public static class GovernanceStickinessHttpMapper
         if (revisitValidation is not null)
             return revisitValidation;
 
+        GovernanceHttpValidation? optionalEvidenceValidation =
+            ValidateOptionalDispositionFieldWhenNotApplicable(
+                request.EvidenceRequestText,
+                "evidenceRequestText",
+                request.Disposition == FindingDisposition.NeedsEvidence);
+
+        if (optionalEvidenceValidation is not null)
+            return optionalEvidenceValidation;
+
+        GovernanceHttpValidation? optionalTradeOffValidation =
+            ValidateOptionalDispositionFieldWhenNotApplicable(
+                request.TradeOffAcknowledgment,
+                "tradeOffAcknowledgment",
+                request.Disposition == FindingDisposition.Accepted);
+
+        if (optionalTradeOffValidation is not null)
+            return optionalTradeOffValidation;
+
         return null;
     }
 
@@ -388,7 +406,7 @@ public static class GovernanceStickinessHttpMapper
             return rationaleValidation;
 
         if (request.Disposition == FindingDisposition.Accepted
-            && !string.IsNullOrWhiteSpace(request.TradeOffAcknowledgment))
+            && request.TradeOffAcknowledgment is not null)
         {
             GovernanceHttpValidation? tradeOffValidation =
                 ValidateRequiredDispositionText(request.TradeOffAcknowledgment, "tradeOffAcknowledgment");
@@ -418,6 +436,15 @@ public static class GovernanceStickinessHttpMapper
 
         if (revisitValidation is not null)
             return revisitValidation;
+
+        GovernanceHttpValidation? optionalEvidenceValidation =
+            ValidateOptionalDispositionFieldWhenNotApplicable(
+                request.EvidenceRequestText,
+                "evidenceRequestText",
+                request.Disposition == FindingDisposition.NeedsEvidence);
+
+        if (optionalEvidenceValidation is not null)
+            return optionalEvidenceValidation;
 
         return null;
     }
@@ -514,6 +541,17 @@ public static class GovernanceStickinessHttpMapper
         }
 
         return null;
+    }
+
+    private static GovernanceHttpValidation? ValidateOptionalDispositionFieldWhenNotApplicable(
+        string? value,
+        string fieldName,
+        bool fieldApplies)
+    {
+        if (value is null || fieldApplies)
+            return null;
+
+        return ValidateOptionalDispositionTextMaxLength(value, fieldName);
     }
 
     private static GovernanceHttpValidation? ValidateDispositionEnum(FindingDisposition disposition)
