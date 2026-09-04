@@ -35,11 +35,24 @@ public sealed partial class PolicyPacksController
         if (string.IsNullOrWhiteSpace(request.RunId))
             return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
 
+        IActionResult? runIdValidation =
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRunId(request.RunId)
+                .ToBadRequestProblemOrNull(this);
+
+        if (runIdValidation is not null)
+            return runIdValidation;
+
         if (!Guid.TryParse(request.RunId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
             return this.BadRequestProblem("runId is not valid.", ProblemTypes.ValidationFailed);
 
         if (request.Content is null)
             return this.BadRequestProblem("content is required.", ProblemTypes.ValidationFailed);
+
+        IActionResult? validationProblem =
+            PolicyPackSimulateHttpMapper.Validate(request).ToBadRequestProblemOrNull(this);
+
+        if (validationProblem is not null)
+            return validationProblem;
 
         PolicyPackHttpResult<PolicyPackGovernanceDryRunResult> result = await _httpFacade.SimulateAsync(
             request.Content,
@@ -99,6 +112,13 @@ public sealed partial class PolicyPacksController
             if (string.IsNullOrWhiteSpace(runId))
                 continue;
 
+            IActionResult? runIdValidation =
+                GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRunId(runId)
+                    .ToBadRequestProblemOrNull(this);
+
+            if (runIdValidation is not null)
+                return runIdValidation;
+
             if (!Guid.TryParse(runId.Trim(), out Guid parsedRunGuid) || parsedRunGuid == Guid.Empty)
             {
                 return this.BadRequestProblem(
@@ -111,6 +131,12 @@ public sealed partial class PolicyPacksController
 
         if (routeIdProblem is not null)
             return routeIdProblem;
+
+        IActionResult? validationProblem =
+            PolicyPackSimulateBulkHttpMapper.Validate(request).ToBadRequestProblemOrNull(this);
+
+        if (validationProblem is not null)
+            return validationProblem;
 
         PolicyPackHttpResult<PolicyPackSimulateBulkSummary> result = await _httpFacade.SimulateBulkAsync(
             policyPackId,
@@ -147,6 +173,12 @@ public sealed partial class PolicyPacksController
 
         if (body.Value.ValueKind is not JsonValueKind.Object)
             return this.BadRequestProblem("Expected a JSON object.", ProblemTypes.ValidationFailed);
+
+        IActionResult? validationProblem =
+            PolicyPackValidateContentHttpMapper.Validate(body.Value).ToBadRequestProblemOrNull(this);
+
+        if (validationProblem is not null)
+            return validationProblem;
 
         PolicyPackHttpResult<PolicyPackContentValidationResponse> result =
             await _httpFacade.ValidateContentAsync(body.Value, cancellationToken).ConfigureAwait(false);

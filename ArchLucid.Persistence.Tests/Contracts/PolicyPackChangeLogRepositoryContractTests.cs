@@ -213,4 +213,44 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
         list.Should().HaveCount(2);
         list.Select(e => e.SummaryText).Should().Equal("in1", "in2");
     }
+
+    [SkippableFact]
+    public async Task GetByScopeInRangeAsync_ReturnsAscending_ForScopeOnly_ExcludesEnds()
+    {
+        SkipIfSqlServerUnavailable();
+        IPolicyPackChangeLogRepository repo = CreateRepository();
+        Guid packId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        DateTime from = new(2026, 7, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime to = new(2026, 7, 2, 0, 0, 0, DateTimeKind.Utc);
+
+        await AppendEntryAsync(
+            repo,
+            CreateEntry(packId, TenantA, "before", from.AddHours(-1)),
+            CancellationToken.None);
+        await AppendEntryAsync(
+            repo,
+            CreateEntry(packId, TenantA, "in-scope", from.AddHours(1)),
+            CancellationToken.None);
+        PolicyPackChangeLogEntry foreignWorkspaceEntry = new()
+        {
+            PolicyPackId = packId,
+            TenantId = TenantA,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = ProjectP,
+            ChangeType = PolicyPackChangeTypes.Created,
+            ChangedBy = "tester",
+            ChangedUtc = from.AddHours(2),
+            SummaryText = "foreign-workspace",
+        };
+        await AppendEntryAsync(repo, foreignWorkspaceEntry, CancellationToken.None);
+        await AppendEntryAsync(
+            repo,
+            CreateEntry(packId, TenantA, "after", to),
+            CancellationToken.None);
+
+        IReadOnlyList<PolicyPackChangeLogEntry> list =
+            await repo.GetByScopeInRangeAsync(TenantA, WorkspaceW, ProjectP, from, to, CancellationToken.None);
+
+        list.Should().ContainSingle(e => e.SummaryText == "in-scope");
+    }
 }

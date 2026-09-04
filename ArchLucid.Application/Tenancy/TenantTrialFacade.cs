@@ -1,5 +1,6 @@
 using ArchLucid.Application.Tenancy.Trial;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Identity;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
@@ -93,6 +94,24 @@ public sealed class TenantTrialFacade(
             {
                 Outcome = TenantTrialHttpOutcome.ValidationFailed,
                 Message = "LocalEmail and EntraOid must both be supplied together, or both omitted.",
+            };
+        }
+
+        if (hasEmail && !TrialLocalEmailValidation.TryValidateLength(body.LocalEmail, out string? localEmailError))
+        {
+            return new TenantTrialLinkEntraResult
+            {
+                Outcome = TenantTrialHttpOutcome.ValidationFailed,
+                Message = localEmailError,
+            };
+        }
+
+        if (hasOid && !TrialEntraOidValidation.TryValidateLength(body.EntraOid, out string? entraOidError))
+        {
+            return new TenantTrialLinkEntraResult
+            {
+                Outcome = TenantTrialHttpOutcome.ValidationFailed,
+                Message = entraOidError,
             };
         }
 

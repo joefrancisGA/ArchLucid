@@ -146,6 +146,57 @@ public sealed class IterativeRetrievalLoopTests
         hits[0].ChunkId.Should().Be("chunk-2");
     }
 
+    [Fact]
+    public async Task MaybeRetryAsync_clamps_final_merge_to_retrieval_query_max_topk()
+    {
+        AdvancedRetrievalOptions options = new()
+        {
+            Enabled = true,
+            EnableIterativeRetrieveCritiqueRetry = true,
+            MaxIterativeRetrievalRounds = 3,
+        };
+
+        Mock<IAgenticRetrievalCompletionClient> completionClient = new();
+        completionClient
+            .Setup(c => c.CritiqueRetrievalAsync(It.IsAny<string>(), It.IsAny<IReadOnlyList<RetrievalHit>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RetrievalCritiqueVerdict
+            {
+                IsSufficient = false,
+                RefinedQueryText = "refined architecture evidence",
+            });
+
+        AgenticRetrievalQueryExpander expander = new(
+            new HeuristicAgenticRetrievalCompletionClient(),
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(options),
+            Mock.Of<ILogger<AgenticRetrievalQueryExpander>>());
+
+        IterativeRetrievalLoop sut = new(
+            completionClient.Object,
+            expander,
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(options),
+            Mock.Of<ILogger<IterativeRetrievalLoop>>());
+
+        RetrievalQuery query = BuildQuery();
+        query.TopK = 80;
+
+        List<RetrievalHit> initialHits = Enumerable.Range(0, RetrievalQuery.MaxTopK)
+            .Select(index => Hit($"chunk-{index}", 0.1 + index * 0.001))
+            .ToList();
+
+        List<RetrievalHit> retryHits = Enumerable.Range(RetrievalQuery.MaxTopK, RetrievalQuery.MaxTopK)
+            .Select(index => Hit($"chunk-{index}", 0.9 - index * 0.001))
+            .ToList();
+
+        (IReadOnlyList<RetrievalHit> hits, _) = await sut.MaybeRetryAsync(
+            query,
+            PassthroughPlan(),
+            initialHits,
+            (_, _, _) => Task.FromResult<IReadOnlyList<RetrievalHit>>(retryHits),
+            CancellationToken.None);
+
+        hits.Should().HaveCount(RetrievalQuery.MaxTopK);
+    }
+
     private static IterativeRetrievalLoop CreateSut(AdvancedRetrievalOptions options)
     {
         AgenticRetrievalQueryExpander expander = new(

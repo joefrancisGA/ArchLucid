@@ -1,3 +1,4 @@
+using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Governance.PolicyPacks;
@@ -34,13 +35,15 @@ public sealed partial class GovernanceController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
-
-        if (tenantProblem is not null)
-            return tenantProblem;
-
         if (!string.IsNullOrWhiteSpace(request.TargetRunId))
         {
+            IActionResult? targetRunIdValidation =
+                GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRunId(request.TargetRunId)
+                    .ToBadRequestProblemOrNull(this);
+
+            if (targetRunIdValidation is not null)
+                return targetRunIdValidation;
+
             if (!Guid.TryParse(request.TargetRunId.Trim(), out Guid targetRunGuid) || targetRunGuid == Guid.Empty)
             {
                 return this.BadRequestProblem("targetRunId is not valid.", ProblemTypes.ValidationFailed);
@@ -51,6 +54,17 @@ public sealed partial class GovernanceController
         {
             return this.BadRequestProblem("targetManifestId is not valid.", ProblemTypes.ValidationFailed);
         }
+
+        IActionResult? validationProblem =
+            PolicyPackGovernanceDryRunHttpMapper.Validate(request).ToBadRequestProblemOrNull(this);
+
+        if (validationProblem is not null)
+            return validationProblem;
+
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         PolicyPackGovernanceDryRunResult? result = await _policyPackGovernanceDryRunService.EvaluateAsync(
             request.PolicyPackContentJson,
@@ -121,6 +135,13 @@ public sealed partial class GovernanceController
             if (string.IsNullOrWhiteSpace(runId))
                 continue;
 
+            IActionResult? runIdValidation =
+                GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRunId(runId)
+                    .ToBadRequestProblemOrNull(this);
+
+            if (runIdValidation is not null)
+                return runIdValidation;
+
             if (!Guid.TryParse(runId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
             {
                 return this.BadRequestProblem(
@@ -128,11 +149,6 @@ public sealed partial class GovernanceController
                     ProblemTypes.ValidationFailed);
             }
         }
-
-        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
-
-        if (tenantProblem is not null)
-            return tenantProblem;
 
         if (id == Guid.Empty)
             return this.BadRequestProblem("id is required.", ProblemTypes.ValidationFailed);
@@ -145,6 +161,11 @@ public sealed partial class GovernanceController
                 "proposedThresholds is required.",
                 ProblemTypes.ValidationFailed);
         }
+
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         PolicyPackDryRunResponse result = await _policyPackDryRunService.EvaluateAsync(
             id,

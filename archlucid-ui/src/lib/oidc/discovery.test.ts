@@ -92,4 +92,40 @@ describe("loadDiscoveryDocument", () => {
     expect(doc).toEqual(discoveryDoc);
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
+
+  it("omits malformed end_session_endpoint instead of advertising RP-initiated logout", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        ...discoveryDoc,
+        end_session_endpoint: "not-a-valid-url",
+      }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { loadDiscoveryDocument } = await import("@/lib/oidc/discovery");
+
+    const doc = await loadDiscoveryDocument("https://login.microsoftonline.com/tenant/v2.0");
+
+    expect(doc.end_session_endpoint).toBeUndefined();
+  });
+
+  it("keeps a valid end_session_endpoint", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        ...discoveryDoc,
+        end_session_endpoint: "https://login.microsoftonline.com/logout",
+      }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { loadDiscoveryDocument } = await import("@/lib/oidc/discovery");
+
+    const doc = await loadDiscoveryDocument("https://login.microsoftonline.com/tenant/v2.0");
+
+    expect(doc.end_session_endpoint).toBe("https://login.microsoftonline.com/logout");
+  });
 });

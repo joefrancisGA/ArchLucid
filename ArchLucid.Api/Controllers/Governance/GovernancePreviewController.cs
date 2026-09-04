@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
+using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
@@ -52,15 +53,37 @@ public sealed class GovernancePreviewController(
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (string.IsNullOrWhiteSpace(body.RunId))
-        {
-            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
-        }
+        IActionResult? runIdProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRunId(body.RunId)
+                .ToBadRequestProblemOrNull(this);
+
+        if (runIdProblem is not null)
+            return runIdProblem;
 
         if (!Guid.TryParse(body.RunId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
         {
             return this.BadRequestProblem("runId is not valid.", ProblemTypes.ValidationFailed);
         }
+
+        IActionResult? manifestVersionProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateManifestVersion(body.ManifestVersion)
+                .ToBadRequestProblemOrNull(this);
+
+        if (manifestVersionProblem is not null)
+            return manifestVersionProblem;
+
+        IActionResult? environmentProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateEnvironmentSlug(body.Environment, "Environment")
+                .ToBadRequestProblemOrNull(this);
+
+        if (environmentProblem is not null)
+            return environmentProblem;
+
+        IActionResult? previewValidationProblem =
+            GovernancePreviewHttpMapper.Validate(body).ToBadRequestProblemOrNull(this);
+
+        if (previewValidationProblem is not null)
+            return previewValidationProblem;
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
@@ -110,6 +133,26 @@ public sealed class GovernancePreviewController(
     {
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? sourceEnvironmentProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateEnvironmentSlug(body.SourceEnvironment, "SourceEnvironment")
+                .ToBadRequestProblemOrNull(this);
+
+        if (sourceEnvironmentProblem is not null)
+            return sourceEnvironmentProblem;
+
+        IActionResult? targetEnvironmentProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateEnvironmentSlug(body.TargetEnvironment, "TargetEnvironment")
+                .ToBadRequestProblemOrNull(this);
+
+        if (targetEnvironmentProblem is not null)
+            return targetEnvironmentProblem;
+
+        IActionResult? comparisonValidationProblem =
+            GovernanceEnvironmentComparisonHttpMapper.Validate(body).ToBadRequestProblemOrNull(this);
+
+        if (comparisonValidationProblem is not null)
+            return comparisonValidationProblem;
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 

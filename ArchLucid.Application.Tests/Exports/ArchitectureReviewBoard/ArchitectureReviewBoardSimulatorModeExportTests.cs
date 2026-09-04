@@ -9,7 +9,6 @@ using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using DocumentFormat.OpenXml.Packaging;

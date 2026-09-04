@@ -1,14 +1,18 @@
 using System.Collections.Immutable;
 
 using ArchLucid.Application.Governance;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Repositories;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
 
@@ -309,6 +313,97 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task EvaluateAsync_blocks_when_technology_consistency_supplemental_findings_would_block_live_gate()
+    {
+        Guid runGuid = Guid.NewGuid();
+        string runId = runGuid.ToString("N");
+        Guid snapshotId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runGuid,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                ArchitectureRequestId = "req-dry-tech-consistency",
+                LegacyRunStatus = "ReadyForCommit",
+                FindingsSnapshotId = snapshotId,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        InMemoryFindingsSnapshotRepository findingsRepo = new();
+        await findingsRepo.SaveAsync(
+            new FindingsSnapshot
+            {
+                FindingsSnapshotId = snapshotId,
+                RunId = runGuid,
+                ContextSnapshotId = Guid.NewGuid(),
+                GraphSnapshotId = Guid.NewGuid(),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                Findings = [],
+            },
+            CancellationToken.None);
+
+        InMemoryTechnologyLedgerRepository ledgerRepository = new();
+        await ledgerRepository.AddAsync(
+            new TechnologyLedgerEntry
+            {
+                RunId = runId,
+                Role = TechnologyLedgerRole.CloudPlatform,
+                TechnologyName = "Microsoft Azure",
+                ProviderFamily = CloudProvider.Azure,
+                Status = TechnologyLedgerStatus.Chosen,
+                Source = TechnologyLedgerSource.User,
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+        await ledgerRepository.AddAsync(
+            new TechnologyLedgerEntry
+            {
+                RunId = runId,
+                Role = TechnologyLedgerRole.PrimaryDatastore,
+                TechnologyName = "Amazon RDS",
+                ProviderFamily = CloudProvider.Aws,
+                Status = TechnologyLedgerStatus.Chosen,
+                Source = TechnologyLedgerSource.User,
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        PolicyPackGovernanceDryRunServiceTestsFixture fixture = CreateSut(
+            runs,
+            findingsRepo,
+            new InMemoryGoldenManifestRepository(),
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
+            ledgerRepository,
+            Options.Create(new TechnologyConsistencyFindingEngineOptions
+            {
+                Enabled = true,
+                Mode = TechnologyConsistencyFindingEngineMode.Enforcing,
+            }));
+
+        PolicyPackGovernanceDryRunResult? result = await fixture.Sut.EvaluateAsync(
+            """{"metadata":{"governance.blockCommitMinimumSeverity":"2"},"complianceRuleIds":[],"complianceRuleKeys":[],"alertRuleIds":[],"compositeAlertRuleIds":[],"advisoryDefaults":{}}""",
+            runId,
+            null,
+            null,
+            null,
+            null,
+            CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.GateResult.Blocked.Should().BeTrue(
+            "dry-run must include technology-consistency supplemental findings like the live pre-commit gate");
+        result.FailedChecks.Should().Contain(check =>
+            check.Contains("pre_commit_severity_gate", StringComparison.Ordinal));
+    }
+
     private sealed record PolicyPackGovernanceDryRunServiceTestsFixture(
         PolicyPackGovernanceDryRunService Sut,
         Mock<IAuditService> Audit);
@@ -317,7 +412,10 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
         IRunRepository runs,
         IFindingsSnapshotRepository findings,
         IGoldenManifestRepository goldenManifests,
-        IOptions<PreCommitGovernanceGateOptions> options)
+        IOptions<PreCommitGovernanceGateOptions> options,
+        ITechnologyLedgerRepository? ledgerRepository = null,
+        IOptions<TechnologyConsistencyFindingEngineOptions>? consistencyOptions = null,
+        IOptions<FindingEvidenceLinkageFindingEngineOptions>? linkageOptions = null)
     {
         Mock<IPromptRedactor> redactor = new();
         redactor
@@ -340,6 +438,11 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
             options,
             redactor.Object,
             audit.Object,
+            ledgerRepository ?? new InMemoryTechnologyLedgerRepository(),
+            new TechnologyConsistencyFindingEngine(),
+            consistencyOptions ?? Options.Create(new TechnologyConsistencyFindingEngineOptions { Enabled = false }),
+            new FindingEvidenceLinkageFindingEngine(),
+            linkageOptions ?? Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = false }),
             NullLogger<PolicyPackGovernanceDryRunService>.Instance);
 
         return new PolicyPackGovernanceDryRunServiceTestsFixture(sut, audit);

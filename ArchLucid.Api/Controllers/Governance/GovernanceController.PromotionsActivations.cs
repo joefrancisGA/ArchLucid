@@ -1,4 +1,5 @@
 using ArchLucid.Api.Http;
+using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
@@ -26,6 +27,54 @@ public sealed partial class GovernanceController
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? runIdProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRouteRunId(request.RunId)
+                .ToBadRequestProblemOrNull(this);
+
+        if (runIdProblem is not null)
+            return runIdProblem;
+
+        IActionResult? manifestVersionProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateManifestVersion(request.ManifestVersion)
+                .ToBadRequestProblemOrNull(this);
+
+        if (manifestVersionProblem is not null)
+            return manifestVersionProblem;
+
+        IActionResult? sourceEnvironmentProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateEnvironmentSlug(request.SourceEnvironment, "SourceEnvironment")
+                .ToBadRequestProblemOrNull(this);
+
+        if (sourceEnvironmentProblem is not null)
+            return sourceEnvironmentProblem;
+
+        IActionResult? targetEnvironmentProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateEnvironmentSlug(request.TargetEnvironment, "TargetEnvironment")
+                .ToBadRequestProblemOrNull(this);
+
+        if (targetEnvironmentProblem is not null)
+            return targetEnvironmentProblem;
+
+        IActionResult? notesProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateOptionalGovernanceComment(request.Notes, "Notes")
+                .ToBadRequestProblemOrNull(this);
+
+        if (notesProblem is not null)
+            return notesProblem;
+
+        IActionResult? approvalRequestIdProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateOptionalApprovalRequestId(request.ApprovalRequestId)
+                .ToBadRequestProblemOrNull(this);
+
+        if (approvalRequestIdProblem is not null)
+            return approvalRequestIdProblem;
+
+        IActionResult? promotionValidationProblem =
+            GovernancePromotionHttpMapper.Validate(request).ToBadRequestProblemOrNull(this);
+
+        if (promotionValidationProblem is not null)
+            return promotionValidationProblem;
 
         (IActionResult? idempotencyError, _) = ReadGovernanceIdempotencyKey(!dryRun);
 
@@ -99,6 +148,33 @@ public sealed partial class GovernanceController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        IActionResult? runIdProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRouteRunId(request.RunId)
+                .ToBadRequestProblemOrNull(this);
+
+        if (runIdProblem is not null)
+            return runIdProblem;
+
+        IActionResult? manifestVersionProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateManifestVersion(request.ManifestVersion)
+                .ToBadRequestProblemOrNull(this);
+
+        if (manifestVersionProblem is not null)
+            return manifestVersionProblem;
+
+        IActionResult? environmentProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateEnvironmentSlug(request.Environment, "Environment")
+                .ToBadRequestProblemOrNull(this);
+
+        if (environmentProblem is not null)
+            return environmentProblem;
+
+        IActionResult? activationValidationProblem =
+            GovernanceActivationHttpMapper.Validate(request).ToBadRequestProblemOrNull(this);
+
+        if (activationValidationProblem is not null)
+            return activationValidationProblem;
+
         (IActionResult? idempotencyError, _) = ReadGovernanceIdempotencyKey(true);
 
         if (idempotencyError is not null)
@@ -144,6 +220,13 @@ public sealed partial class GovernanceController
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        IActionResult? runIdProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRouteRunId(runId)
+                .ToBadRequestProblemOrNull(this);
+
+        if (runIdProblem is not null)
+            return runIdProblem;
+
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -172,6 +255,13 @@ public sealed partial class GovernanceController
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        IActionResult? runIdProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRouteRunId(runId)
+                .ToBadRequestProblemOrNull(this);
+
+        if (runIdProblem is not null)
+            return runIdProblem;
+
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -200,6 +290,13 @@ public sealed partial class GovernanceController
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        IActionResult? runIdProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRouteRunId(runId)
+                .ToBadRequestProblemOrNull(this);
+
+        if (runIdProblem is not null)
+            return runIdProblem;
+
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
