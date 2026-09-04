@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 151
-- **bugs-found:** 353
+- **hunts:** 152
+- **bugs-found:** 358
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — PolicyPacks simulate/bulk run-id HTTP validation guards
+- **last-bug:** 2026-09-04 — stickiness disposition/recurrence HTTP validation and fail-fast ordering
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3928,6 +3928,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyPacksController.Simulate` — overlong body `runId` reached `IPolicyPackHttpFacade.SimulateAsync` without shared `ValidateGovernanceRunId` guard (`GovernanceController.Simulate` #691 sibling) — **hit 2026-09-04 (#692):** shared run-id max-length validation before simulate facade; regression in `PolicyPacksControllerSimulateTests.Simulate_returns_bad_request_when_run_id_exceeds_max_length`.
 
 - [x] (proven) `PolicyPacksController.SimulateBulk` — overlong `runIds` entry reached `SimulateBulkAsync` without per-id `ValidateGovernanceRunId` guard (`GovernanceController.DryRunPolicyPack` #691 sibling) — **hit 2026-09-04 (#692):** shared run-id max-length validation in bulk loop before facade; regression in `PolicyPacksControllerSimulateBulkScopeTests.SimulateBulk_returns_bad_request_when_run_id_exceeds_max_length`.
+
+2026-09-04 seed hunt #692: promoted and proved PolicyPacks simulate and simulate-bulk run-id HTTP validation parity.
+
+- [x] (proven) `GovernanceStickinessHttpMapper.ValidateRecordDisposition` / `GovernanceStickinessController.RecordDisposition` — overlong or too-short body `rationale`, `tradeOffAcknowledgment`, or `evidenceRequestText` reached `IFindingInspectReadRepository` without HTTP mapper guards (#680 application-layer sibling) — **hit 2026-09-04 (#693):** disposition body validation before tenant/facade inspect; regression in `GovernanceStickinessHttpMapperTests` and strict-mock `RecordDisposition_returns_bad_request_when_rationale_exceeds_max_length_before_finding_inspect`.
+
+- [x] (proven) `GovernanceStickinessHttpMapper.ValidateBulkDisposition` / `GovernanceStickinessController.RecordBulkDisposition` — overlong shared `rationale` reached bulk inspect loop without HTTP mapper guards (#680 application-layer sibling) — **hit 2026-09-04 (#693):** bulk disposition body validation before tenant/facade; regression in `GovernanceStickinessHttpMapperTests` and `RecordBulkDisposition_returns_bad_request_when_rationale_exceeds_max_length_before_finding_inspect`.
+
+- [x] (proven) `GovernanceStickinessHttpMapper.ValidateCreateRecurrenceSchedule` / `GovernanceStickinessController.CreateRecurrenceSchedule` — overlong `name` or `cronExpression` reached `IRunRepository.GetByIdAsync` without HTTP mapper guards (#556/#685 facade-only siblings) — **hit 2026-09-04 (#693):** schedule create HTTP validation before tenant/facade; regression with `runs.VerifyNoOtherCalls()` on overlong name.
+
+- [x] (proven) `GovernanceStickinessController` waiver mutations (`CreateRiskException`, `RenewRiskException`, `RevokeRiskException`) — tenant preflight ran before HTTP/body validation so ghost tenant + invalid body returned HTTP 404 instead of 400 (#691 dry-run ordering sibling) — **hit 2026-09-04 (#693):** fail-fast validation before tenant lookup; regression in `CreateRiskException_returns_bad_request_when_rationale_exceeds_max_length_and_tenant_missing`.
+
+- [x] (proven) `TenantHomepageSettingsController.PutAsync` — empty `selectedRunId` guard ran after tenant preflight so ghost tenant + `Guid.Empty` returned HTTP 404 instead of 400 — **hit 2026-09-04 (#693):** empty-run validation before scope preflight; regression in `PutAsync_returns_bad_request_when_selected_run_id_is_empty_and_tenant_missing`.
+
+2026-09-04 seed hunt #693: promoted and proved disposition/recurrence HTTP mappers, waiver mutation validation ordering, and homepage empty-run ordering.
 
 2026-09-04 seed hunt #692: promoted and proved PolicyPacks simulate and simulate-bulk run-id HTTP validation parity.
 
