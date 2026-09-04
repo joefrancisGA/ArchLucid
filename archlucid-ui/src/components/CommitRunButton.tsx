@@ -1,8 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -37,6 +37,11 @@ import {
 } from "@/lib/finalize-consequence-preview";
 import { PRIOR_MANIFEST_RETRIEVAL_HELP_FINALIZE_SUCCESS_LINK_LABEL } from "@/lib/prior-manifest-retrieval-help-inbound-label-surfaces";
 import { FinalizeConsequencePreview } from "@/components/FinalizeConsequencePreview";
+import {
+  parseReviewFinalizeConfirmOpenFromSearch,
+  parseReviewFinalizeSuccessOpenFromSearch,
+  reviewFinalizeConfirmHrefFromSearch,
+} from "@/lib/reviews/review-finalize-confirm-url";
 
 /** Nav and review-detail copy  —  replay/compare stay available post-finalize (see UI_GLOSSARY_V1). */
 export const FINALIZE_REPLAY_COMPARE_TOOLTIP = FINALIZE_REPLAY_COMPARE_NOTE;
@@ -61,8 +66,12 @@ export function CommitRunButton({
   buttonVariant = "primary",
 }: CommitRunButtonProps) {
   const router = useRouter();
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const pathname = usePathname() ?? `/architecture/reviews/${encodeURIComponent(runId)}`;
+  const searchParams = useSearchParams();
+  const urlFinalizeConfirm = parseReviewFinalizeConfirmOpenFromSearch(searchParams.get("finalizeConfirm"));
+  const urlFinalizeSuccess = parseReviewFinalizeSuccessOpenFromSearch(searchParams.get("finalizeSuccess"));
+  const [dialogOpen, setDialogOpenState] = useState(urlFinalizeConfirm);
+  const [successModalOpen, setSuccessModalOpenState] = useState(urlFinalizeSuccess);
   const [findingsCount, setFindingsCount] = useState<number | null>(null);
   const [notifySponsor, setNotifySponsor] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -71,6 +80,44 @@ export function CommitRunButton({
     problem: ApiProblemDetails | null;
     correlationId: string | null;
   } | null>(null);
+
+  const syncFinalizeModalsToUrl = useCallback(
+    (confirmOpen: boolean, successOpen: boolean) => {
+      router.replace(
+        reviewFinalizeConfirmHrefFromSearch(
+          searchParams.toString(),
+          { confirmOpen, successOpen },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setDialogOpen = useCallback(
+    (open: boolean) => {
+      setDialogOpenState(open);
+      syncFinalizeModalsToUrl(open, successModalOpen);
+    },
+    [successModalOpen, syncFinalizeModalsToUrl],
+  );
+
+  const setSuccessModalOpen = useCallback(
+    (open: boolean) => {
+      setSuccessModalOpenState(open);
+      syncFinalizeModalsToUrl(dialogOpen, open);
+    },
+    [dialogOpen, syncFinalizeModalsToUrl],
+  );
+
+  useEffect(() => {
+    setDialogOpenState(urlFinalizeConfirm);
+  }, [urlFinalizeConfirm]);
+
+  useEffect(() => {
+    setSuccessModalOpenState(urlFinalizeSuccess);
+  }, [urlFinalizeSuccess]);
 
   async function onConfirm(): Promise<void> {
     setBusy(true);
@@ -96,6 +143,7 @@ export function CommitRunButton({
       }
       
       setSuccessModalOpen(true);
+      syncFinalizeModalsToUrl(false, true);
     } catch (e: unknown) {
       if (isApiRequestError(e)) {
         setError({

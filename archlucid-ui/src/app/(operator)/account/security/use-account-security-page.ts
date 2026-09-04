@@ -11,6 +11,11 @@ import {
   parseAccountSecurityStepFromSearch,
   type AccountSecurityStepUrlValue,
 } from "@/lib/account/account-security-step-url";
+import {
+  accountSecurityRemoveLinkHrefFromSearch,
+  parseAccountSecurityLinkProposalFromSearch,
+  parseAccountSecurityRemoveMethodFromSearch,
+} from "@/lib/account/account-security-remove-link-url";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   ACCOUNT_SECURITY_AUTH_REQUIRED_EMPTY_COMPACT,
@@ -75,6 +80,8 @@ export function useAccountSecurityPage() {
   const searchParams = useSearchParams();
   const urlSecStep = parseAccountSecurityStepFromSearch(searchParams.get("secStep"));
   const urlChallengeId = parseAccountSecurityChallengeIdFromSearch(searchParams.get("challengeId"));
+  const urlRemoveMethod = parseAccountSecurityRemoveMethodFromSearch(searchParams.get("removeMethod"));
+  const urlLinkProposal = parseAccountSecurityLinkProposalFromSearch(searchParams.get("linkProposal"));
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [methods, setMethods] = useState<SignInMethodSummary[]>([]);
   const [listLoaded, setListLoaded] = useState(false);
@@ -105,6 +112,27 @@ export function useAccountSecurityPage() {
       );
     },
     [pathname, router, searchParams],
+  );
+
+  const syncAccountSecurityRemoveLinkToUrl = useCallback(
+    (removeMethodIdentityId: string | null, linkProposalId: string | null) => {
+      const stepHref = accountSecurityStepHrefFromSearch(
+        searchParams.toString(),
+        { step: urlSecStep, challengeId: urlChallengeId.length > 0 ? urlChallengeId : null },
+        pathname,
+      );
+      const stepQuery = stepHref.includes("?") ? stepHref.split("?")[1] ?? "" : "";
+
+      router.replace(
+        accountSecurityRemoveLinkHrefFromSearch(
+          stepQuery,
+          { removeMethodIdentityId, linkProposalId },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams, urlChallengeId, urlSecStep],
   );
 
   useEffect(() => {
@@ -181,6 +209,28 @@ export function useAccountSecurityPage() {
   }, [refreshMethods]);
 
   useEffect(() => {
+    if (!listLoaded || urlRemoveMethod.length === 0) {
+      return;
+    }
+
+    const method = methods.find((row) => row.identityId === urlRemoveMethod) ?? null;
+
+    if (method === null) {
+      return;
+    }
+
+    setMethodToRemove((current) => (current?.identityId === method.identityId ? current : method));
+  }, [listLoaded, methods, urlRemoveMethod]);
+
+  const setMethodToRemoveWithUrl = useCallback(
+    (value: SignInMethodSummary | null) => {
+      setMethodToRemove(value);
+      syncAccountSecurityRemoveLinkToUrl(value?.identityId ?? null, pendingProposal?.proposalId ?? null);
+    },
+    [pendingProposal?.proposalId, syncAccountSecurityRemoveLinkToUrl],
+  );
+
+  useEffect(() => {
     if (pendingProposal === null && resendCooldownUntilMs <= Date.now()) {
       return;
     }
@@ -200,7 +250,8 @@ export function useAccountSecurityPage() {
     setPendingProposal(null);
     setResendCooldownUntilMs(0);
     syncAccountSecurityStepToUrl("add-email", null);
-  }, [syncAccountSecurityStepToUrl]);
+    syncAccountSecurityRemoveLinkToUrl(methodToRemove?.identityId ?? null, null);
+  }, [methodToRemove?.identityId, syncAccountSecurityRemoveLinkToUrl, syncAccountSecurityStepToUrl]);
 
   const handleRequestEmailChallenge = useCallback(async () => {
     if (busy || blockedForAuth || !emailValid) {
@@ -245,6 +296,7 @@ export function useAccountSecurityPage() {
       const proposal = await verifyEmailLinkChallenge(challengeId, verificationCode.trim());
       setPendingProposal(proposal);
       syncAccountSecurityStepToUrl("verify", challengeId);
+      syncAccountSecurityRemoveLinkToUrl(methodToRemove?.identityId ?? null, proposal.proposalId);
       setAddFeedback({
         tone: "info",
         message: "Review the link details and confirm to add this sign-in method.",
@@ -254,7 +306,7 @@ export function useAccountSecurityPage() {
     } finally {
       setBusy(false);
     }
-  }, [blockedForAuth, busy, challengeId, codeValid, verificationCode]);
+  }, [blockedForAuth, busy, challengeId, codeValid, methodToRemove?.identityId, syncAccountSecurityRemoveLinkToUrl, syncAccountSecurityStepToUrl, verificationCode]);
 
   const handleConfirmProposal = useCallback(async () => {
     if (pendingProposal === null || busy || blockedForAuth || proposalExpired) {
@@ -273,13 +325,14 @@ export function useAccountSecurityPage() {
       setVerificationCode("");
       setAddFeedback({ tone: "success", message: "Sign-in method added." });
       syncAccountSecurityStepToUrl(null, null);
+      syncAccountSecurityRemoveLinkToUrl(null, null);
       await refreshMethods({ preserveListFeedback: true });
     } catch (error) {
       setAddFeedback(problemToFeedback(classifySignInMethodsUnknownFailure(error)));
     } finally {
       setBusy(false);
     }
-  }, [blockedForAuth, busy, pendingProposal, proposalExpired, refreshMethods]);
+  }, [blockedForAuth, busy, pendingProposal, proposalExpired, refreshMethods, syncAccountSecurityRemoveLinkToUrl, syncAccountSecurityStepToUrl]);
 
   const handleCancelProposal = useCallback(async () => {
     if (pendingProposal === null || busy) {
@@ -312,6 +365,7 @@ export function useAccountSecurityPage() {
     try {
       await removeSignInMethod(method.identityId);
       setMethodToRemove(null);
+      syncAccountSecurityRemoveLinkToUrl(null, pendingProposal?.proposalId ?? null);
       setListFeedback({ tone: "success", message: "Sign-in method removed." });
       await refreshMethods({ preserveListFeedback: true });
     } catch (error) {
@@ -319,7 +373,7 @@ export function useAccountSecurityPage() {
     } finally {
       setBusy(false);
     }
-  }, [busy, methodToRemove, refreshMethods]);
+  }, [busy, methodToRemove, pendingProposal?.proposalId, refreshMethods, syncAccountSecurityRemoveLinkToUrl]);
 
   const authBlockedEmptyProps = isDemoSession
     ? ACCOUNT_SECURITY_DEMO_BLOCKED_EMPTY_COMPACT
@@ -352,7 +406,7 @@ export function useAccountSecurityPage() {
     pendingProposal,
     busy,
     methodToRemove,
-    setMethodToRemove,
+    setMethodToRemove: setMethodToRemoveWithUrl,
     emailValid,
     codeValid,
     proposalRemainingMs,

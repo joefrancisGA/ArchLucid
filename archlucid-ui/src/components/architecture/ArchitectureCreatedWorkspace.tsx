@@ -22,6 +22,10 @@ import {
   ARCHITECTURE_FINDINGS_DUAL_PANE_TOGGLE_ON_LABEL,
   resolveArchitectureFindingsDualPaneLayoutMode,
 } from "@/lib/architecture/architecture-findings-dual-pane";
+import {
+  architectureFindingsLinkedViewHrefFromSearch,
+  parseArchitectureFindingsLinkedViewFromSearch,
+} from "@/lib/architecture/architecture-findings-linked-view-url";
 import { Button } from "@/components/ui/button";
 import {
   countClarificationGaps,
@@ -87,24 +91,47 @@ function resolveUserAssertions(
 /** Tabbed post-creation architecture workspace with compact first viewport and lazy tab panels. */
 export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspaceProps): React.JSX.Element {
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
+  const urlLinkedView = parseArchitectureFindingsLinkedViewFromSearch(searchParams.get("linkedView"));
   const [hashResolved, setHashResolved] = useState(false);
   const [dismissedClarificationGapIds, setDismissedClarificationGapIds] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
   const [diagramInferredCount, setDiagramInferredCount] = useState(0);
   const { isWorkingMode } = useWorkspaceMode();
-  const [showFindingsLinkedView, setShowFindingsLinkedView] = useState(false);
+  const [showFindingsLinkedView, setShowFindingsLinkedViewState] = useState(urlLinkedView);
   const [diagramNodes, setDiagramNodes] = useState<readonly { id: string; label: string }[]>([]);
   const [highlightedNodeId, setHighlightedNodeId] = useState<string | null>(null);
   const linkedLayoutMode = resolveArchitectureFindingsDualPaneLayoutMode(showFindingsLinkedView);
+
+  const setShowFindingsLinkedView = useCallback(
+    (value: boolean | ((current: boolean) => boolean)) => {
+      setShowFindingsLinkedViewState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+
+        if (pathname !== null) {
+          router.replace(
+            architectureFindingsLinkedViewHrefFromSearch(searchParams.toString(), next, pathname),
+            { scroll: false },
+          );
+        }
+
+        return next;
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    setShowFindingsLinkedViewState(urlLinkedView);
+  }, [urlLinkedView]);
 
   useEffect(() => {
     if (isWorkingMode) {
       setShowFindingsLinkedView(true);
     }
-  }, [isWorkingMode]);
+  }, [isWorkingMode, setShowFindingsLinkedView]);
 
   const clarificationQuestionsQuery = useReviewClarificationQuestions({
     runId: props.baseline.runId,
