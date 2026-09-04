@@ -354,6 +354,30 @@ public sealed class GovernancePreCommitSimulationControllerTests
     }
 
     [Fact]
+    public async Task Simulate_returns_bad_request_when_synthetic_severity_is_unrecognized_and_tenant_missing()
+    {
+        Mock<IPreCommitGovernanceGate> gate = new(MockBehavior.Strict);
+
+        GovernancePreCommitSimulationController sut = CreateController(
+            gate: gate.Object,
+            tenantRepository: TenantMissingRepository());
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.SimulateAsync(
+            new PreCommitSyntheticSimulationRequest
+            {
+                RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D"),
+                SyntheticSeverity = (FindingSeverity)99,
+                SyntheticCount = 1,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        gate.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task Simulate_returns_validation_failed_with_trimmed_run_id_in_detail_when_malformed_id_is_padded()
     {
         Mock<IPreCommitGovernanceGate> gate = new(MockBehavior.Strict);
