@@ -1,7 +1,11 @@
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Decisioning.DecisionTraces;
 using PersistenceDecisionTraceDto = ArchLucid.Contracts.Persistence.DecisionTraces.DecisionTraceDto;
 using ArchLucid.Contracts.Manifest;
@@ -118,7 +122,10 @@ public sealed class ManifestFinalizationServiceTests
             runRepository: runs.Object,
             findingsSnapshotRepository: findings.Object);
 
-        ManifestFinalizationRequest request = CreateMinimalRequest(runId, findingsId);
+        ManifestFinalizationRequest request = CreateMinimalRequest(
+            runId,
+            findingsId,
+            findingsGenerationStatus: FindingsSnapshotGenerationStatus.Generating);
 
         Func<Task> act = async () => await sut.FinalizeAsync(request, CancellationToken.None);
 
@@ -451,6 +458,16 @@ public sealed class ManifestFinalizationServiceTests
 
         Mock<IGoldenManifestRepository> golden = new();
         ManifestDocument existingManifest = CreateMinimalManifest(runId, findingsId, traceId);
+        golden.Setup(g => g.SaveAsync(
+                It.IsAny<GoldenManifest>(),
+                scope,
+                It.IsAny<SaveContractsManifestOptions>(),
+                It.IsAny<IManifestHashService>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection?>(),
+                It.IsAny<IDbTransaction?>(),
+                It.IsAny<ManifestDocument>()))
+            .ReturnsAsync(existingManifest);
         golden.Setup(g => g.SupersedeUnreferencedActiveGoldenManifestsAsync(
                 scope,
                 existingManifest.ManifestId,
@@ -495,7 +512,7 @@ public sealed class ManifestFinalizationServiceTests
         result.ManifestId.Should().Be(existingManifest.ManifestId);
         traces.Verify(
             t => t.SaveAsync(It.IsAny<PersistenceDecisionTraceDto>(), It.IsAny<CancellationToken>()),
-            Times.Never);
+            Times.Once);
         golden.Verify(
             g => g.SaveAsync(
                 It.IsAny<GoldenManifest>(),
@@ -506,7 +523,7 @@ public sealed class ManifestFinalizationServiceTests
                 It.IsAny<IDbConnection?>(),
                 It.IsAny<IDbTransaction?>(),
                 It.IsAny<ManifestDocument>()),
-            Times.Never);
+            Times.Once);
         runs.Verify(
             r => r.UpdateAsync(It.Is<RunRecord>(h => h.LegacyRunStatus == nameof(ArchitectureRunStatus.Committed)),
                 It.IsAny<CancellationToken>(),
@@ -520,7 +537,8 @@ public sealed class ManifestFinalizationServiceTests
         Guid findingsId,
         Guid? decisionTraceId = null,
         bool skipPersistingPipelineArtifacts = false,
-        ManifestDocument? manifestModel = null)
+        ManifestDocument? manifestModel = null,
+        FindingsSnapshotGenerationStatus findingsGenerationStatus = FindingsSnapshotGenerationStatus.Complete)
     {
         Guid tid = decisionTraceId ?? Guid.NewGuid();
         DecisionTrace trace = RuleAuditTrace.From(
@@ -541,7 +559,17 @@ public sealed class ManifestFinalizationServiceTests
                 Notes = [],
             });
 
-        ManifestDocument model = CreateMinimalManifest(runId, findingsId, tid);
+        ManifestDocument model = manifestModel ?? CreateMinimalManifest(runId, findingsId, tid);
+
+        if (model.FeasibilityVerdict is null)
+        {
+            model.FeasibilityVerdict = new FeasibilityVerdict
+            {
+                Kind = FeasibilityVerdictKind.Feasible,
+                Summary = "Test manifest is feasible.",
+                TransparencyTrail = new TransparencyTrail(),
+            };
+        }
 
         return new ManifestFinalizationRequest
         {
@@ -549,7 +577,14 @@ public sealed class ManifestFinalizationServiceTests
             ExpectedFindingsSnapshotId = findingsId,
             ActorUserId = "u1",
             ActorUserName = "User One",
-            ManifestModel = manifestModel ?? model,
+            ManifestModel = model,
+            PreloadedFindingsSnapshot = new FindingsSnapshot
+            {
+                FindingsSnapshotId = findingsId,
+                GenerationStatus = findingsGenerationStatus,
+                Findings = [],
+            },
+            PreloadedScopePolicyPackAssignments = Array.Empty<PolicyPackAssignment>(),
             Contract = new GoldenManifest
             {
                 RunId = runId.ToString("N"),
@@ -574,7 +609,12 @@ public sealed class ManifestFinalizationServiceTests
                 CreatedUtc = model.CreatedUtc,
             },
             Trace = trace,
-            SkipPersistingPipelineArtifacts = skipPersistingPipelineArtifacts
+            SkipPersistingPipelineArtifacts = skipPersistingPipelineArtifacts,
+            PreloadedArchitectureRequest = new ArchitectureRequest
+            {
+                SystemName = "Sys",
+                CloudProvider = CloudProvider.Azure,
+            },
         };
     }
 
@@ -613,6 +653,11 @@ public sealed class ManifestFinalizationServiceTests
         scope.Setup(s => s.GetCurrentScope()).Returns(
             new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
+        Mock<IManifestHashService> defaultHasher = new();
+        defaultHasher
+            .Setup(h => h.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns("ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789");
+
         return new ManifestFinalizationService(
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             scopeProvider ?? scope.Object,
@@ -620,7 +665,7 @@ public sealed class ManifestFinalizationServiceTests
             findingsSnapshotRepository ?? CreateDefaultFindingsSnapshotRepository(),
             decisionTraceRepository ?? Mock.Of<IDecisionTraceRepository>(),
             goldenManifestRepository ?? Mock.Of<IGoldenManifestRepository>(),
-            manifestHashService ?? Mock.Of<IManifestHashService>(),
+            manifestHashService ?? defaultHasher.Object,
             auditService ?? Mock.Of<IAuditService>(),
             integrationEventOutbox ?? Mock.Of<IIntegrationEventOutboxRepository>(),
             Mock.Of<IManifestFinalizationSqlRepository>(),

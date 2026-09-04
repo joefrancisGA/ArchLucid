@@ -1,7 +1,12 @@
 "use client";
 
+import { useState } from "react";
+
+import { GovernanceRecordCorrectionDialog } from "@/components/governance/GovernanceRecordCorrectionDialog";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
+import { ReversibleMutationSuccessCallout } from "@/components/operator/ReversibleMutationSuccessCallout";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
+import { GOVERNANCE_MUTATION_CORRECTION_SUCCESS_MESSAGE } from "@/lib/governance/governance-mutation-correction-api";
 import type { UseGovernanceWorkflowMutationsResult } from "@/hooks/use-governance-workflow-mutations";
 
 import { GovernanceWorkflowDialogsDeferred } from "./governance-workflow-deferred-chunks";
@@ -16,6 +21,10 @@ export function GovernanceWorkflowMutationHost(props: GovernanceWorkflowMutation
   const {
     mutationSuccessMessage,
     setMutationSuccessMessage,
+    mutationCorrectionTarget,
+    mutationCorrectionMutationId,
+    setMutationCorrectionTarget,
+    setMutationCorrectionMutationId,
     mutationErrorMessage,
     pendingPromote,
     setPendingPromote,
@@ -28,10 +37,41 @@ export function GovernanceWorkflowMutationHost(props: GovernanceWorkflowMutation
     activateBusyId,
     onConfirmActivateFromPromotion,
   } = mutations;
+  const [correctionDialogOpen, setCorrectionDialogOpen] = useState(false);
+  const [correctionRecorded, setCorrectionRecorded] = useState(false);
+
+  const successMessage =
+    mutationSuccessMessage === null
+      ? null
+      : correctionRecorded
+        ? `${mutationSuccessMessage} ${GOVERNANCE_MUTATION_CORRECTION_SUCCESS_MESSAGE}`
+        : mutationSuccessMessage;
 
   return (
     <>
-      {showInlineFeedback && mutationSuccessMessage !== null ? (
+      {showInlineFeedback && successMessage !== null && mutationCorrectionMutationId !== null ? (
+        <ReversibleMutationSuccessCallout
+          message={successMessage}
+          mutationId={mutationCorrectionMutationId}
+          testId="governance-workflow-mutation-success"
+          className="mb-4"
+          onDismiss={() => {
+            setMutationSuccessMessage(null);
+            setMutationCorrectionTarget(null);
+            setMutationCorrectionMutationId(null);
+            setCorrectionRecorded(false);
+          }}
+          onRecordCorrection={
+            mutationCorrectionTarget !== null
+              ? () => {
+                  setCorrectionDialogOpen(true);
+                }
+              : undefined
+          }
+        />
+      ) : null}
+
+      {showInlineFeedback && mutationSuccessMessage !== null && mutationCorrectionMutationId === null ? (
         <OperatorSuccessCallout
           message={mutationSuccessMessage}
           testId="governance-workflow-mutation-success"
@@ -47,6 +87,15 @@ export function GovernanceWorkflowMutationHost(props: GovernanceWorkflowMutation
           className="mb-4"
         />
       ) : null}
+
+      <GovernanceRecordCorrectionDialog
+        open={correctionDialogOpen}
+        onOpenChange={setCorrectionDialogOpen}
+        target={mutationCorrectionTarget}
+        onRecorded={() => {
+          setCorrectionRecorded(true);
+        }}
+      />
 
       <GovernanceWorkflowDialogsDeferred
         pendingPromote={pendingPromote}

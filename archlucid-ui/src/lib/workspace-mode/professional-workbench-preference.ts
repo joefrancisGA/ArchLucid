@@ -3,6 +3,29 @@ import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 
 export const PROFESSIONAL_WORKBENCH_STORAGE_KEY = "archlucid.professional-workbench.v1.enabled";
 
+/** Diagram panels publish node ids/labels for workbench finding ↔ diagram sync (LI-09). */
+export const REVIEW_WORKBENCH_DIAGRAM_NODES_EVENT = "archlucid:review-workbench-diagram-nodes" as const;
+
+export type ReviewWorkbenchDiagramNodesEventDetail = {
+  readonly nodes: readonly { readonly id: string; readonly label: string }[];
+};
+
+/** True when the user explicitly chose Tab-only layout (stored off or server explicit false). */
+export function hasExplicitProfessionalWorkbenchTabOnlyInStorage(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(PROFESSIONAL_WORKBENCH_STORAGE_KEY);
+
+    return raw === "0" || raw === "false";
+  }
+  catch {
+    return false;
+  }
+}
+
 /** Working mode defaults to the split workbench; Guided keeps tab-only layout. */
 export function readProfessionalWorkbenchEnabledFromStorage(): boolean {
   if (typeof window === "undefined") {
@@ -49,9 +72,13 @@ export async function syncProfessionalWorkbenchFromServer(): Promise<boolean | n
     const { getUserPreferences } = await import("@/lib/api/user-preferences");
     const remote = await getUserPreferences();
 
-    writeProfessionalWorkbenchEnabledToStorage(remote.professionalWorkbenchEnabled);
+    if (remote.professionalWorkbenchEnabledIsExplicit) {
+      writeProfessionalWorkbenchEnabledToStorage(remote.professionalWorkbenchEnabled);
 
-    return remote.professionalWorkbenchEnabled;
+      return remote.professionalWorkbenchEnabled;
+    }
+
+    return readProfessionalWorkbenchEnabledFromStorage();
   }
   catch {
     return null;

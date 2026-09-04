@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Fragment, useCallback, useEffect, useState } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -15,34 +15,61 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { replayModeLabel, REPLAY_MODE_PLAIN_OPTIONS } from "@/lib/replay-display";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import type { ReplayValidationModeId } from "@/lib/replay-validation-workflow";
+import {
+  comparisonReplayCostHrefFromSearch,
+  parseComparisonFormatFromSearch,
+  parseComparisonRecordIdFromSearch,
+  parseComparisonReplayModeFromSearch,
+  parseComparisonReplayPersistFromSearch,
+} from "@/lib/compare/comparison-replay-cost-url";
 
 /** Warn-only cost band estimate for architecture comparison replay (distinct from review-package validation). */
 
 export function ArchitectureComparisonReplayCostSection() {
+  const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [comparisonRecordId, setComparisonRecordId] = useState("");
-  const [replayMode, setReplayMode] = useState<string>("");
-  const [persistReplay, setPersistReplay] = useState(false);
-  const [format, setFormat] = useState("");
+  const [comparisonRecordId, setComparisonRecordId] = useState(() =>
+    parseComparisonRecordIdFromSearch(searchParams.get("comparisonRecordId")),
+  );
+  const [replayMode, setReplayMode] = useState<ReplayValidationModeId | "">(() =>
+    parseComparisonReplayModeFromSearch(searchParams.get("replayMode")),
+  );
+  const [persistReplay, setPersistReplay] = useState(() =>
+    parseComparisonReplayPersistFromSearch(searchParams.get("persist")),
+  );
+  const [format, setFormat] = useState(() => parseComparisonFormatFromSearch(searchParams.get("comparisonFormat")));
 
   const [estimate, setEstimate] = useState<ComparisonReplayCostEstimateResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
 
   useEffect(() => {
-    const id = searchParams.get("comparisonRecordId");
-
-    if (id != null && id.trim().length > 0) {
-      setComparisonRecordId(id.trim());
-    }
-
-    const fmt = searchParams.get("comparisonFormat");
-
-    if (fmt != null && fmt.trim().length > 0) {
-      setFormat(fmt.trim());
-    }
+    setComparisonRecordId(parseComparisonRecordIdFromSearch(searchParams.get("comparisonRecordId")));
+    setReplayMode(parseComparisonReplayModeFromSearch(searchParams.get("replayMode")));
+    setPersistReplay(parseComparisonReplayPersistFromSearch(searchParams.get("persist")));
+    setFormat(parseComparisonFormatFromSearch(searchParams.get("comparisonFormat")));
   }, [searchParams]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const nextHref = comparisonReplayCostHrefFromSearch(searchParams.toString(), {
+        comparisonRecordId,
+        replayMode,
+        persistReplay,
+        format,
+      });
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [comparisonRecordId, format, persistReplay, replayMode, router, searchParams]);
 
   const trimmedId = comparisonRecordId.trim();
 
@@ -141,7 +168,7 @@ export function ArchitectureComparisonReplayCostSection() {
             value={replayMode}
             aria-label="Optional validation mode for comparison replay cost estimate"
             onChange={(e) => {
-              setReplayMode(e.target.value);
+              setReplayMode(parseComparisonReplayModeFromSearch(e.target.value));
             }}
           >
             <option value="">Default</option>

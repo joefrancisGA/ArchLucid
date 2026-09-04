@@ -118,11 +118,16 @@ export async function buildRunDetailGovernancePresentation(
   const baseCommitBlockedReason = resolveCommitBlockedReason(model, input.findingCoverageSummary);
   const finalizeAssumptionGateApplies = baseCommitBlockedReason === null && !input.hasManifest;
   const requestAssumptionTexts = await tryLoadRequestAssumptionsForRun(model.routeRunId);
+  const transparencyTrail =
+    model.manifestSummaryForUi?.feasibilityVerdict?.transparencyTrail ??
+    model.manifestSummary?.feasibilityVerdict?.transparencyTrail ??
+    null;
   const finalizeScorecard =
     finalizeAssumptionGateApplies
       ? evaluateFinalizeQualityScorecard(
           deriveFinalizeQualityScorecardInput(input.quickDecisionFindings, input.blockingApprovalCount, {
             requestAssumptionTexts,
+            transparencyTrail,
           }),
         )
       : null;

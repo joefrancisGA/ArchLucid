@@ -1,3 +1,5 @@
+using ArchLucid.Core.Comparison;
+
 namespace ArchLucid.Application.Diffs;
 
 public sealed class ManifestDiffResult
@@ -67,4 +69,10 @@ public sealed class ManifestDiffResult
         get;
         set;
     } = [];
+
+    public CompareInputFingerprints? InputFingerprints
+    {
+        get;
+        set;
+    }
 }

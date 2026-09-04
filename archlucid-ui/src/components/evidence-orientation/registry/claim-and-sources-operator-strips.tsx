@@ -1,5 +1,10 @@
 import { cn } from "@/lib/utils";
 import {
+  GOVERNANCE_ASSIGNED_TO_ME_FOLLOW_UPS_TITLE,
+  GOVERNANCE_ASSIGNED_TO_ME_SOURCES,
+  GOVERNANCE_ASSIGNED_TO_ME_SOURCES_INTRO,
+} from "@/lib/governance/governance-assigned-to-me-evidence-copy";
+import {
   EvidenceOrientationClaimAndSourcesStrip,
 } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import {
@@ -373,6 +378,25 @@ export function OperatorHomeEvidenceOrientationStrip(
       sourcesIntro={OPERATOR_HOME_SOURCES_INTRO}
       sources={sources}
       sourcesHeadingId="where-to-go-next"
+      hubSecondary
+    />
+  );
+}
+
+export function GovernanceAssignedToMeEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string; readonly sources?: readonly EvidenceOrientationLink[] } = {},
+): React.JSX.Element {
+  const sources = props.sources ?? GOVERNANCE_ASSIGNED_TO_ME_SOURCES;
+
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="governance-assigned-to-me"
+      sourcesTestId="governance-assigned-to-me-settings-sources"
+      sourcesTitle={GOVERNANCE_ASSIGNED_TO_ME_FOLLOW_UPS_TITLE}
+      sourcesIntro={GOVERNANCE_ASSIGNED_TO_ME_SOURCES_INTRO}
+      sources={sources}
+      sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
       hubSecondary
     />
   );

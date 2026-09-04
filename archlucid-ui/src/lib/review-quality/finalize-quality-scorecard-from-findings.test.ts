@@ -295,4 +295,38 @@ describe("finalize-quality-scorecard-from-findings", () => {
 
     expect(input.unverifiedAssumptionCount).toBe(1);
   });
+
+  it("counts skipped MUST questions from the transparency trail", () => {
+    const input = deriveFinalizeQualityScorecardInput([], 0, {
+      transparencyTrail: {
+        asserted: [],
+        inferred: [],
+        skipped: [
+          { questionKey: "q1", tier: "Must" },
+          { questionKey: "q2", tier: "Should" },
+          { questionKey: "q3", tier: "Must" },
+        ],
+      },
+    });
+
+    expect(input.skippedMustCount).toBe(2);
+  });
+
+  it("does not count SHOULD-only skips as blocked MUST questions", () => {
+    const input = deriveFinalizeQualityScorecardInput([], 0, {
+      transparencyTrail: {
+        asserted: [],
+        inferred: [],
+        skipped: [{ questionKey: "q-should", tier: "Should" }],
+      },
+    });
+
+    expect(input.skippedMustCount).toBe(0);
+  });
+
+  it("keeps skipped MUST count at zero when no trail is supplied", () => {
+    const input = deriveFinalizeQualityScorecardInput([], 0);
+
+    expect(input.skippedMustCount).toBe(0);
+  });
 });

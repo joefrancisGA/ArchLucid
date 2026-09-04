@@ -25,6 +25,7 @@ internal static class GovernanceControllerTestFactory
         IGovernanceApprovalRequestRepository? approvalRepository = null,
         IGovernancePromotionRecordRepository? promotionRepository = null,
         IGovernanceEnvironmentActivationRepository? activationRepository = null,
+        IFindingReviewTrailRepository? findingReviewTrailRepository = null,
         IActorContext? actorContext = null,
         IScopeContextProvider? scopeContextProvider = null,
         IRunRepository? runRepository = null,
@@ -71,10 +72,21 @@ internal static class GovernanceControllerTestFactory
             scope,
             runs);
 
+        IGovernanceMutationCorrectionService mutationCorrectionService = new GovernanceMutationCorrectionService(
+            approvals,
+            promotionRepository ?? Mock.Of<IGovernancePromotionRecordRepository>(),
+            activationRepository ?? Mock.Of<IGovernanceEnvironmentActivationRepository>(),
+            findingReviewTrailRepository ?? Mock.Of<IFindingReviewTrailRepository>(),
+            scope,
+            runs,
+            auditService ?? Mock.Of<IAuditService>(),
+            NullLogger<GovernanceMutationCorrectionService>.Instance);
+
         GovernanceController controller = new(
             approvalRequestsFacade,
             promotionsActivationsFacade,
             insightsFacade,
+            mutationCorrectionService,
             actorContext ?? Mock.Of<IActorContext>(),
             scope,
             policyPackDryRunService ?? Mock.Of<IPolicyPackDryRunService>(),

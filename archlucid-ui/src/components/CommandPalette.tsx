@@ -50,6 +50,7 @@ import {
   type OpenCommandPaletteEventDetail,
 } from "@/lib/shortcut-registry";
 import { CommandPaletteActions } from "@/components/CommandPaletteActions";
+import { consumePendingCommandPaletteOpen } from "@/lib/command-palette-open-intent";
 import { CommandPaletteAdminNavGroups } from "@/components/CommandPaletteAdminNavGroups";
 import { CommandPaletteCuratedTasks } from "@/components/CommandPaletteCuratedTasks";
 import { CommandPaletteDemoActions } from "@/components/CommandPaletteDemoActions";
@@ -160,6 +161,22 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     roleNavDensityPersona,
     roleNavDensityShowFullNav,
   ]);
+
+  useEffect(() => {
+    const pending = consumePendingCommandPaletteOpen();
+
+    if (pending === null) {
+      return;
+    }
+
+    const initialQuery = pending.initialQuery?.trim() ?? "";
+
+    if (initialQuery.length > 0) {
+      setPaletteQuery(initialQuery);
+    }
+
+    setOpen(true);
+  }, []);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {

@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { OperatorHomeDeferredOnboarding } from "@/components/operator-home/OperatorHomeDeferredOnboarding";
+import { OperatorHomeInFlightReviewsSection } from "@/components/operator-home/OperatorHomeInFlightReviewsSection";
 import { UnfinishedWorkRail } from "@/components/operator-home/UnfinishedWorkRail";
 import { OperatorHomeWorkspaceMetricsStrip } from "@/components/operator-home/OperatorHomeWorkspaceMetricsStrip";
 import { OperatorHomeCompactStartingActionsSection } from "@/components/operator-home/OperatorHomeCompactStartingActionsSection";
@@ -39,16 +40,13 @@ import {
   PilotCommandCenterCardDeferred,
 } from "./operator-home-page-view-deferred-chunks";
 import { OperatorHomePageHeader } from "./OperatorHomePageHeader";
-import { WorkspaceModeGraduationOfferHost } from "@/components/workspace-mode/WorkspaceModeGraduationOfferHost";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import {
   OPERATOR_HOME_PRIMARY_CONTENT_ID,
   OPERATOR_HOME_SKIP_LINK_LABEL,
 } from "./operator-home-page-surface-copy";
 import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
-import {
-  operatorHomePageSubtitle,
-} from "@/lib/operator/operator-home-page-copy";
+import { operatorHomePageSubtitle } from "@/lib/operator/operator-home-page-copy";
 import { cn } from "@/lib/utils";
 
 type OperatorHomePageViewProps = {
@@ -63,10 +61,15 @@ function HomeSectionHeading(props: { readonly id?: string; readonly children: st
   );
 }
 
-function OperatorHomePageChrome(props: { readonly buyerPolishedShell: boolean }): React.JSX.Element {
+function OperatorHomePageChrome(props: {
+  readonly buyerPolishedShell: boolean;
+  readonly workingMode: boolean;
+}): React.JSX.Element {
   return (
     <>
-      <OperatorHomePageHeader subtitle={operatorHomePageSubtitle(props.buyerPolishedShell) ?? ""} />
+      <OperatorHomePageHeader
+        subtitle={operatorHomePageSubtitle(props.buyerPolishedShell, props.workingMode) ?? ""}
+      />
 </>
   );
 }
@@ -103,6 +106,7 @@ type RenderOperatorHomeSectionInput = {
   readonly model: OperatorHomePageViewModel;
   readonly buyerPolishedShell: boolean;
   readonly workspaceMetrics: ReturnType<typeof deriveOperatorHomeWorkspaceMetrics>;
+  readonly workingMode: boolean;
 };
 
 function renderOperatorHomeSection(input: RenderOperatorHomeSectionInput): React.JSX.Element | null {
@@ -110,7 +114,10 @@ function renderOperatorHomeSection(input: RenderOperatorHomeSectionInput): React
     case "metrics-strip":
       return (
         <div key={input.section.id} data-testid={input.section.testId}>
-          <OperatorHomeWorkspaceMetricsStrip runsDashboard={input.model.runsDashboard} />
+          <OperatorHomeWorkspaceMetricsStrip
+            runsDashboard={input.model.runsDashboard}
+            workingMode={input.workingMode}
+          />
         </div>
       );
 
@@ -126,7 +133,16 @@ function renderOperatorHomeSection(input: RenderOperatorHomeSectionInput): React
         <div key={input.section.id} data-testid={input.section.testId}>
           <OperatorHomeCompactStartingActionsSection
             hasCommittedManifest={input.workspaceMetrics.reviewPackagesCommitted > 0}
+            hasActiveDeskWork={input.workspaceMetrics.reviewPackagesActive > 0}
+            workingMode={input.workingMode}
           />
+        </div>
+      );
+
+    case "in-flight":
+      return (
+        <div key={input.section.id} data-testid={input.section.testId}>
+          <OperatorHomeInFlightReviewsSection />
         </div>
       );
 
@@ -225,13 +241,13 @@ function OperatorHomePageBody(props: {
       initialHasOverviewReviewRows={overviewPhaseSignals.hasOverviewReviewRows}
       initialOpenFindingsCount={workspaceMetrics.openFindings}
     >
-      <WorkspaceModeGraduationOfferHost />
       {sections.map((section) =>
         renderOperatorHomeSection({
           section,
           model: props.model,
           buyerPolishedShell: props.buyerPolishedShell,
           workspaceMetrics,
+          workingMode: props.workingMode,
         }),
       )}
       <DevTestingQuickSwitchPanelDeferred />
@@ -257,7 +273,7 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
           </a>
         ) : null}
         <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.majorSectionGap}>
-          <OperatorHomePageChrome buyerPolishedShell={buyerPolishedShell} />
+          <OperatorHomePageChrome buyerPolishedShell={buyerPolishedShell} workingMode={isWorkingMode} />
           {buyerPolishedShell ? (
             <div
               id={OPERATOR_HOME_PRIMARY_CONTENT_ID}

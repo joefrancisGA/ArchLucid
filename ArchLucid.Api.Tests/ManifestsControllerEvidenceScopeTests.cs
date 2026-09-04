@@ -1,6 +1,6 @@
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Models;
-using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diagrams;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Exports;
@@ -15,6 +15,7 @@ using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -448,6 +449,8 @@ public sealed class ManifestsControllerEvidenceScopeTests
                 Mock.Of<IManifestDiagramService>(),
                 scopeProvider,
                 runRepository,
+                Mock.Of<IAuthorityQueryService>(),
+                Mock.Of<ICompareRunsApplicationFacade>(),
                 tenantRepository ?? TenantExistsRepository())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },

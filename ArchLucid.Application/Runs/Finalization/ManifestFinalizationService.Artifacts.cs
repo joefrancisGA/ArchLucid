@@ -83,33 +83,58 @@ public sealed partial class ManifestFinalizationService
             request.ManifestModel,
             inventoryMaterial,
             request.ManifestModel.CreatedUtc);
-        ManifestDecisionReceiptHashCapturer.ApplyToManifest(
-            request.ManifestModel,
-            request.RunId,
-            request.Contract.Metadata.ManifestVersion,
-            manifestHashService);
 
         await _committedEffectiveGovernanceSnapshotCapturer.ApplyToManifestAsync(
             request.ManifestModel,
             BuildGovernanceSnapshotCaptureOptions(request),
             cancellationToken);
 
-        if (request.PreloadedArchitectureRequest is not null && request.PreloadedFindingsSnapshot is not null)
+        if (request.PreloadedArchitectureRequest is null || request.PreloadedFindingsSnapshot is null)
         {
-            _committedReviewStandardsSnapshotCapturer.ApplyToManifest(
-                request.ManifestModel,
-                request.PreloadedArchitectureRequest,
-                request.PreloadedFindingsSnapshot);
+            throw new ConflictException(
+                "Finalization blocked: review standards snapshot requires preloaded architecture request and findings snapshot.");
         }
 
-        if (request.SkipPersistingPipelineArtifacts)
-            return request.ManifestModel;
+        _committedReviewStandardsSnapshotCapturer.ApplyToManifest(
+            request.ManifestModel,
+            request.PreloadedArchitectureRequest,
+            request.PreloadedFindingsSnapshot);
+
+        ManifestDecisionReceiptHashCapturer.ApplyToManifest(
+            request.ManifestModel,
+            request.RunId,
+            request.Contract.Metadata.ManifestVersion,
+            manifestHashService);
 
         await decisionTraceRepository.SaveAsync(
             DecisionTraceRecordMapper.ToDto(request.Trace),
             cancellationToken,
             connection,
             transaction);
+
+        if (request.SkipPersistingPipelineArtifacts)
+        {
+            if (connection is not null)
+            {
+                return await goldenManifestRepository.SaveAsync(
+                    request.Contract,
+                    scope,
+                    request.Keying,
+                    manifestHashService,
+                    cancellationToken,
+                    connection,
+                    transaction,
+                    request.ManifestModel);
+            }
+
+            return await goldenManifestRepository.SaveAsync(
+                request.Contract,
+                scope,
+                request.Keying,
+                manifestHashService,
+                cancellationToken,
+                authorityPersistBody: request.ManifestModel);
+        }
 
         if (connection is not null)
         {

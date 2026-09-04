@@ -3,7 +3,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 
 import {
   buildAdvisoryScheduleCronExpression,
@@ -26,24 +27,58 @@ import {
 } from "@/lib/advisory-schedule-create-checklist";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import {
+  advisorySchedulesPanelsHrefFromSearch,
+  parseAdvisorySchedulesAdvancedOpenFromSearch,
+} from "@/lib/advisory/advisory-schedules-panels-url";
+import {
   getIanaTimeZoneSelectOptions,
 } from "@/lib/iana-time-zone-select";
 
 import type { AdvisoryScheduleCreateFormProps } from "./advisory-schedule-create-form-props";
 
 export function useAdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/governance/advisory-scans";
+  const searchParams = useSearchParams();
+  const urlAdvancedOpen = parseAdvisorySchedulesAdvancedOpenFromSearch(searchParams.get("advanced"));
   const [form, setForm] = useState<AdvisoryScheduleFormState>(() => createDefaultAdvisoryScheduleFormState());
-  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [advancedOpen, setAdvancedOpenState] = useState(urlAdvancedOpen);
   const [preview, setPreview] = useState<AdvisorySchedulePreviewState>(EMPTY_ADVISORY_SCHEDULE_PREVIEW);
   const [customCronValid, setCustomCronValid] = useState(false);
   const ianaOptions = useMemo(() => getIanaTimeZoneSelectOptions(), []);
   const mutationDisabledHintId = "advisory-schedule-create-mutate-disabled-hint";
   const mutationDisabledReason = props.canEdit ? null : whyDisabledEnterpriseMutationControl();
 
+  const syncAdvancedToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(advisorySchedulesPanelsHrefFromSearch(searchParams.toString(), { advancedOpen: open }, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setAdvancedOpen = useCallback(
+    (value: boolean | ((prev: boolean) => boolean)) => {
+      setAdvancedOpenState((prev) => {
+        const resolved = typeof value === "function" ? value(prev) : value;
+        syncAdvancedToUrl(resolved);
+
+        return resolved;
+      });
+    },
+    [syncAdvancedToUrl],
+  );
+
+  useEffect(() => {
+    setAdvancedOpenState(parseAdvisorySchedulesAdvancedOpenFromSearch(searchParams.get("advanced")));
+  }, [searchParams]);
+
   useEffect(() => {
     setForm(createDefaultAdvisoryScheduleFormState());
-    setAdvancedOpen(false);
-  }, [props.formResetKey]);
+    setAdvancedOpenState(false);
+    syncAdvancedToUrl(false);
+  }, [props.formResetKey, syncAdvancedToUrl]);
 
   const cronExpression = useMemo(() => buildAdvisoryScheduleCronExpression(form), [form]);
   const suggestedName = useMemo(

@@ -9,8 +9,8 @@ import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { PageHeaderClaimDiscipline } from "@/components/operator/page-header-claim-discipline";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
-  ARCHITECTURE_DRAFT_DETAIL_AUTOSAVE_SENTENCE,
   ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE,
+  resolveArchitectureDraftAutosaveSentence,
   resolveArchitectureDraftRefineGuidanceSentence,
 } from "@/lib/architecture/architecture-draft-detail-page-copy";
 import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
@@ -71,7 +71,7 @@ export function ArchitectureDraftWorkspaceHeaderChrome(
                   <InlineGuidanceText
                     text={resolveArchitectureDraftRefineGuidanceSentence(reviewReadiness.isValid)}
                   />{" "}
-                  {ARCHITECTURE_DRAFT_DETAIL_AUTOSAVE_SENTENCE}
+                  {resolveArchitectureDraftAutosaveSentence(!isNewDraft && architectureId.trim().length > 0)}
                 </>
               ) : (
                 workspaceLead

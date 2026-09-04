@@ -3,10 +3,14 @@ import { describe, expect, it } from "vitest";
 import { BUYER_NEW_REVIEW_NAV_LABEL } from "@/lib/operator/operator-nav-labels";
 import {
   ALERTS_PAGE_SHORTCUTS,
+  GUIDED_ALT_N_SHORTCUT_DESCRIPTION,
   SHELL_COMMAND_SHORTCUTS,
   SHORTCUTS,
+  WORKING_ALT_N_SHORTCUT_DESCRIPTION,
+  WORKING_MODE_NEW_REVIEW_ROUTE,
   findShortcutByKey,
   registryKeyToAriaKeyShortcuts,
+  resolveShortcutDescription,
 } from "./shortcut-registry";
 
 describe("shortcut-registry", () => {
@@ -79,11 +83,21 @@ describe("shortcut-registry", () => {
     expect(byLower?.label).toBe(BUYER_NEW_REVIEW_NAV_LABEL);
 
     const byMixed = findShortcutByKey("Alt+N");
-    expect(byMixed?.route).toBe("/architecture/reviews/new");
+    expect(byMixed?.route).toBe(WORKING_MODE_NEW_REVIEW_ROUTE);
 
     const help = findShortcutByKey("Shift+?");
-    expect(help?.label).toBe("Documentation search");
+    expect(help?.label).toBe("Find help (Ctrl+K)");
 
     expect(findShortcutByKey("not-a-real-combo")).toBeUndefined();
+  });
+
+  it("LI-06: Alt+N descriptions distinguish Working draft editor from Guided wizard", () => {
+    const altN = SHORTCUTS.find((entry) => entry.key === "alt+n");
+
+    expect(altN).toBeDefined();
+    expect(altN?.description).toBe(WORKING_ALT_N_SHORTCUT_DESCRIPTION);
+    expect(altN?.description.toLowerCase()).not.toContain("wizard");
+    expect(resolveShortcutDescription(altN!, true).toLowerCase()).not.toContain("wizard");
+    expect(resolveShortcutDescription(altN!, false)).toBe(GUIDED_ALT_N_SHORTCUT_DESCRIPTION);
   });
 });

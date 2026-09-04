@@ -15,10 +15,12 @@ import Link from "next/link";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import { useImpactPreviewShellPageState } from "@/lib/impact-preview-route-shell-state";
 import { routeViewExplanationForPathname, explainViewDismissKey } from "@/lib/usability/route-view-explanations";
+import { useTeachingChromeVisible } from "@/lib/workspace-mode/use-teaching-chrome-visible";
 
 /** Compact per-route orientation — merged into the main column, not a competing right-side hero card. */
 export function ExplainThisViewBanner() {
   const pathname = usePathname() ?? "/";
+  const teachingChromeVisible = useTeachingChromeVisible();
   const searchParams = useSearchParams();
   const aiUsageShell = useAiUsageRouteShellState();
   const impactPreviewPageState = useImpactPreviewShellPageState();
@@ -42,7 +44,7 @@ export function ExplainThisViewBanner() {
     }
   }, [pathname]);
 
-  if (explanation === null || dismissed) {
+  if (!teachingChromeVisible || explanation === null || dismissed) {
     return null;
   }
 

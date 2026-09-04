@@ -25,7 +25,7 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
                     : 0,
             FindingId = ReadRequiredString(root, "findingId") is { Length: > 0 } findingId
                 ? findingId
-                : Guid.NewGuid().ToString("N"),
+                : throw new JsonException("findingId is required."),
             FindingType = ReadRequiredString(root, "findingType"),
             Category = ReadOptionalString(root, "category") ?? "",
             EngineType = ReadRequiredString(root, "engineType"),
@@ -52,21 +52,67 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
         finding.ReviewedByUserId = ReadOptionalString(root, "reviewedByUserId");
         finding.ReviewNotes = ReadOptionalString(root, "reviewNotes");
 
-        if (TryGetPropertyCaseInsensitive(root, "evidencePackageId", out JsonElement packageIdEl)
-            && packageIdEl.ValueKind == JsonValueKind.String
-            && Guid.TryParse(packageIdEl.GetString(), out Guid evidencePackageId))
+        bool enforcementTierResolved = false;
+
+        if (TryGetPropertyCaseInsensitive(root, "evidencePackageId", out JsonElement packageIdEl))
         {
-            finding.EvidencePackageId = evidencePackageId;
+            if (packageIdEl.ValueKind == JsonValueKind.Null)
+            {
+                finding.EvidencePackageId = null;
+            }
+            else if (packageIdEl.ValueKind != JsonValueKind.String)
+            {
+                throw new JsonException("evidencePackageId must be a string GUID when present.");
+            }
+            else
+            {
+                string? packageIdRaw = packageIdEl.GetString();
+
+                if (string.IsNullOrWhiteSpace(packageIdRaw))
+                {
+                    finding.EvidencePackageId = null;
+                }
+                else if (!Guid.TryParse(packageIdRaw, out Guid evidencePackageId))
+                {
+                    throw new JsonException("evidencePackageId must be a valid GUID when present.");
+                }
+                else
+                {
+                    finding.EvidencePackageId = evidencePackageId;
+                }
+            }
+        }
+        else if (finding.Properties.TryGetValue(FindingPropertyKeys.EvidencePackageId, out string? propertyPackageId))
+        {
+            if (string.IsNullOrWhiteSpace(propertyPackageId))
+            {
+                finding.EvidencePackageId = null;
+            }
+            else if (!Guid.TryParse(propertyPackageId, out Guid propertyEvidencePackageId))
+            {
+                throw new JsonException("evidencePackageId in properties must be a valid GUID when present.");
+            }
+            else
+            {
+                finding.EvidencePackageId = propertyEvidencePackageId;
+            }
         }
 
         if (TryGetPropertyCaseInsensitive(root, "enforcementTier", out JsonElement tierEl))
         {
             finding.EnforcementTier = ReadEnforcementTier(tierEl);
+            enforcementTierResolved = true;
         }
         else if (finding.Properties.TryGetValue(FindingPropertyKeys.EnforcementTier, out string? tierFromProps))
         {
             finding.EnforcementTier = ReadEnforcementTierFromString(tierFromProps);
+            enforcementTierResolved = true;
         }
+
+        if (!enforcementTierResolved)
+            throw new JsonException("enforcementTier is required.");
+
+        finding.Properties[FindingPropertyKeys.EnforcementTier] = finding.EnforcementTier.ToString();
 
         if (TryGetPropertyCaseInsensitive(root, "confidenceScore", out JsonElement confEl)
             && TryReadFiniteDouble(confEl, out double conf))
@@ -128,8 +174,25 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
         JsonSerializer.Serialize(writer, value.RelatedNodeIds, options);
         writer.WritePropertyName("recommendedActions");
         JsonSerializer.Serialize(writer, value.RecommendedActions, options);
+
+        Dictionary<string, string> properties = new(value.Properties);
+
+        if (value.EvidencePackageId is Guid syncedPackageId)
+        {
+            properties[FindingPropertyKeys.EvidencePackageId] = syncedPackageId.ToString("D");
+            value.Properties[FindingPropertyKeys.EvidencePackageId] = syncedPackageId.ToString("D");
+        }
+        else
+        {
+            properties.Remove(FindingPropertyKeys.EvidencePackageId);
+            value.Properties.Remove(FindingPropertyKeys.EvidencePackageId);
+        }
+
+        properties[FindingPropertyKeys.EnforcementTier] = value.EnforcementTier.ToString();
+        value.Properties[FindingPropertyKeys.EnforcementTier] = value.EnforcementTier.ToString();
+
         writer.WritePropertyName("properties");
-        JsonSerializer.Serialize(writer, value.Properties, options);
+        JsonSerializer.Serialize(writer, properties, options);
 
         if (value.PayloadType is not null)
             writer.WriteString("payloadType", value.PayloadType);

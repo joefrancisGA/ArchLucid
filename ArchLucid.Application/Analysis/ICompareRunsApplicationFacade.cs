@@ -1,5 +1,6 @@
 using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Core.Comparison;
 
 namespace ArchLucid.Application.Analysis;
 
@@ -19,9 +20,15 @@ public interface ICompareRunsApplicationFacade
         Guid targetRunId,
         CancellationToken ct);
 
+    Task<VersionManifestCompareLoadResult> CompareManifestVersionsAsync(
+        string leftVersion,
+        string rightVersion,
+        CancellationToken ct);
+
     AgentResultDiffResult CompareAgentResults(
         string leftRunId,
         ArchitectureRunDetail leftDetail,
         string rightRunId,
-        ArchitectureRunDetail rightDetail);
+        ArchitectureRunDetail rightDetail,
+        CompareInputFingerprints? inputFingerprints = null);
 }

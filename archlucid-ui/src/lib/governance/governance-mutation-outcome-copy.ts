@@ -21,6 +21,23 @@ export function governanceBulkDispositionSuccessMessage(
 
 export const GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE = "Failed to apply bulk disposition.";
 
+export function governanceKeyboardFindingDispositionSuccessMessage(
+  disposition: "Accepted" | "Remediated" | "RejectedAsNotApplicable",
+): string {
+  switch (disposition) {
+    case "Accepted":
+      return "Finding marked as accepted.";
+    case "Remediated":
+      return "Finding marked as remediated.";
+    case "RejectedAsNotApplicable":
+      return "Finding marked as not applicable.";
+    default: {
+      const exhaustive: never = disposition;
+      return exhaustive;
+    }
+  }
+}
+
 export const GOVERNANCE_WORKFLOW_LOAD_REVIEW_REQUIRED =
   "Choose a review to load approval data.";
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { OperationalErrorsDetailPanel } from "@/app/(operator)/internal/operational-errors/_sections/OperationalErrorsDetailPanel";
 import { OperationalErrorsTable } from "@/app/(operator)/internal/operational-errors/_sections/OperationalErrorsTable";
@@ -14,12 +15,26 @@ import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessag
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RefreshButton } from "@/components/ui/refresh-button";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INTERNAL_OPERATIONAL_ERRORS_PATH } from "@/lib/internal-ops-route-paths";
+import {
+  operationalErrorsCategoryHrefFromSearch,
+  operationalErrorsCorrelationHrefFromSearch,
+  operationalErrorsStatusHrefFromSearch,
+  operationalErrorsTenantHrefFromSearch,
+  parseOperationalErrorsCategoryFromSearch,
+  parseOperationalErrorsCorrelationFromSearch,
+  parseOperationalErrorsStatusFromSearch,
+  parseOperationalErrorsTenantFromSearch,
+} from "@/lib/internal/operational-errors-filter-url";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 type LoadState =
@@ -30,14 +45,71 @@ type LoadState =
 
 const listPath = "/api/proxy/v1/admin/operational-errors?maxRows=200";
 
+const CATEGORY_CHIP_OPTIONS = [
+  { value: "all", label: "All categories" },
+  { value: "HttpError", label: "HttpError" },
+  { value: "DatabaseError", label: "DatabaseError" },
+  { value: "UnhandledException", label: "UnhandledException" },
+] as const;
+
+const STATUS_CHIP_OPTIONS = [
+  { value: "all", label: "Any status" },
+  { value: "400", label: "400+" },
+  { value: "500", label: "500+" },
+] as const;
+
 /** Internal staff review for platform HTTP, database, and unhandled exceptions. */
 export function OperationalErrorsPageClient() {
+  const router = useRouter();
+  const pathname = usePathname() ?? INTERNAL_OPERATIONAL_ERRORS_PATH;
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
+  const urlCategory = parseOperationalErrorsCategoryFromSearch(searchParams.get("category"));
+  const urlStatus = parseOperationalErrorsStatusFromSearch(searchParams.get("status"));
+  const urlTenant = parseOperationalErrorsTenantFromSearch(searchParams.get("tenant"));
+  const urlCorrelation = parseOperationalErrorsCorrelationFromSearch(searchParams.get("correlation"));
+
   const [state, setState] = useState<LoadState>({ status: "idle" });
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [tenantFilter, setTenantFilter] = useState("");
-  const [correlationFilter, setCorrelationFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState(urlCategory);
+  const [statusFilter, setStatusFilter] = useState(urlStatus);
+  const [tenantFilter, setTenantFilter] = useState(urlTenant);
+  const [correlationFilter, setCorrelationFilter] = useState(urlCorrelation);
   const [selectedRow, setSelectedRow] = useState<OperationalErrorRow | null>(null);
+
+  useEffect(() => {
+    setCategoryFilter(urlCategory);
+  }, [urlCategory]);
+
+  useEffect(() => {
+    setStatusFilter(urlStatus);
+  }, [urlStatus]);
+
+  useEffect(() => {
+    setTenantFilter(urlTenant);
+  }, [urlTenant]);
+
+  useEffect(() => {
+    setCorrelationFilter(urlCorrelation);
+  }, [urlCorrelation]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      let nextHref = operationalErrorsTenantHrefFromSearch(searchParams.toString(), tenantFilter, pathname);
+      nextHref = operationalErrorsCorrelationHrefFromSearch(
+        nextHref.includes("?") ? nextHref.split("?")[1] ?? "" : "",
+        correlationFilter,
+        pathname,
+      );
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [correlationFilter, pathname, router, searchParams, tenantFilter]);
 
   const load = useCallback(async () => {
     setState({ status: "loading" });
@@ -78,6 +150,22 @@ export function OperationalErrorsPageClient() {
     );
   }, [state, categoryFilter, statusFilter, tenantFilter, correlationFilter]);
 
+  const onCategoryChange = useCallback(
+    (category: string) => {
+      setCategoryFilter(category);
+      router.replace(operationalErrorsCategoryHrefFromSearch(currentSearch, category, pathname), { scroll: false });
+    },
+    [currentSearch, pathname, router],
+  );
+
+  const onStatusChange = useCallback(
+    (status: string) => {
+      setStatusFilter(status);
+      router.replace(operationalErrorsStatusHrefFromSearch(currentSearch, status, pathname), { scroll: false });
+    },
+    [currentSearch, pathname, router],
+  );
+
   return (
     <OperatorPageContainer>
       <OperatorPageHeader
@@ -94,49 +182,60 @@ export function OperationalErrorsPageClient() {
             Rows are retained for 90 days. Use correlation ID to join audit and trace evidence.
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-          <div className="space-y-1">
-            <Label htmlFor="operational-errors-category">Category</Label>
-            <select
-              id="operational-errors-category"
-              className={cn("h-9 w-full rounded-md border border-al-border-subtle bg-al-surface px-2", OPERATOR_TYPOGRAPHY.helper)}
-              value={categoryFilter}
-              onChange={(event) => setCategoryFilter(event.target.value)}
-            >
-              <option value="all">All categories</option>
-              <option value="HttpError">HttpError</option>
-              <option value="DatabaseError">DatabaseError</option>
-              <option value="UnhandledException">UnhandledException</option>
-            </select>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Category</p>
+            <FilterChipGroup aria-label="Filter operational errors by category" className="flex flex-wrap gap-2">
+              {CATEGORY_CHIP_OPTIONS.map((option) => (
+                <FilterChip
+                  key={option.value}
+                  href={operationalErrorsCategoryHrefFromSearch(currentSearch, option.value, pathname)}
+                  scroll={false}
+                  className={buyerFilterChipClass(categoryFilter === option.value, false)}
+                  aria-current={categoryFilter === option.value ? "page" : undefined}
+                  data-testid={`operational-errors-category-${option.value}`}
+                  onClick={() => onCategoryChange(option.value)}
+                >
+                  {option.label}
+                </FilterChip>
+              ))}
+            </FilterChipGroup>
           </div>
-          <div className="space-y-1">
-            <Label htmlFor="operational-errors-status">Minimum status</Label>
-            <select
-              id="operational-errors-status"
-              className={cn("h-9 w-full rounded-md border border-al-border-subtle bg-al-surface px-2", OPERATOR_TYPOGRAPHY.helper)}
-              value={statusFilter}
-              onChange={(event) => setStatusFilter(event.target.value)}
-            >
-              <option value="all">Any status</option>
-              <option value="400">400+</option>
-              <option value="500">500+</option>
-            </select>
+          <div className="space-y-2">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Minimum status</p>
+            <FilterChipGroup aria-label="Filter operational errors by status" className="flex flex-wrap gap-2">
+              {STATUS_CHIP_OPTIONS.map((option) => (
+                <FilterChip
+                  key={option.value}
+                  href={operationalErrorsStatusHrefFromSearch(currentSearch, option.value, pathname)}
+                  scroll={false}
+                  className={buyerFilterChipClass(statusFilter === option.value, false)}
+                  aria-current={statusFilter === option.value ? "page" : undefined}
+                  data-testid={`operational-errors-status-${option.value}`}
+                  onClick={() => onStatusChange(option.value)}
+                >
+                  {option.label}
+                </FilterChip>
+              ))}
+            </FilterChipGroup>
           </div>
-          <div className="space-y-1">
-            <Label htmlFor="operational-errors-tenant">Tenant ID contains</Label>
-            <Input
-              id="operational-errors-tenant"
-              value={tenantFilter}
-              onChange={(event) => setTenantFilter(event.target.value)}
-            />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="operational-errors-correlation">Correlation ID contains</Label>
-            <Input
-              id="operational-errors-correlation"
-              value={correlationFilter}
-              onChange={(event) => setCorrelationFilter(event.target.value)}
-            />
+          <div className="grid gap-3 md:grid-cols-2">
+            <div className="space-y-1">
+              <Label htmlFor="operational-errors-tenant">Tenant ID contains</Label>
+              <Input
+                id="operational-errors-tenant"
+                value={tenantFilter}
+                onChange={(event) => setTenantFilter(event.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="operational-errors-correlation">Correlation ID contains</Label>
+              <Input
+                id="operational-errors-correlation"
+                value={correlationFilter}
+                onChange={(event) => setCorrelationFilter(event.target.value)}
+              />
+            </div>
           </div>
         </CardContent>
       </Card>

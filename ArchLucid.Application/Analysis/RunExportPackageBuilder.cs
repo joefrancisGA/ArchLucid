@@ -13,6 +13,10 @@ public sealed class RunExportPackageBuilder(
 {
     private const string RunNotFoundProblemType = "https://archlucid.example.org/errors#run-not-found";
     private const string ManifestNotFoundProblemType = "https://archlucid.example.org/errors#manifest-not-found";
+    private const string DecisionReceiptSealedHashMismatchProblemType =
+        "https://archlucid.example.org/errors#decision-receipt-sealed-hash-mismatch";
+    private const string DecisionReceiptSealedIncompleteProblemType =
+        "https://archlucid.example.org/errors#decision-receipt-sealed-incomplete";
 
     private readonly IRunExportAuthorityMaterialLoader _exportAuthorityMaterialLoader =
         exportAuthorityMaterialLoader ?? throw new ArgumentNullException(nameof(exportAuthorityMaterialLoader));
@@ -33,12 +37,26 @@ public sealed class RunExportPackageBuilder(
         RunExportAuthorityMaterialLoadResult materialResult =
             await _exportAuthorityMaterialLoader.LoadAsync(scope, runId, ct);
 
-        if (!materialResult.RunFound)
+        if (materialResult.Outcome == RunExportAuthorityMaterialLoadOutcome.RunNotFound)
             return RunExportPackageResult.NotFound(
                 $"Run '{runId}' was not found.",
                 RunNotFoundProblemType);
 
-        if (!materialResult.ManifestFound || materialResult.Material is null)
+        if (materialResult.Outcome == RunExportAuthorityMaterialLoadOutcome.SealedReceiptHashMismatch)
+        {
+            return RunExportPackageResult.Conflict(
+                $"Run '{runId}' export blocked: sealed decision receipt hash verification failed.",
+                DecisionReceiptSealedHashMismatchProblemType);
+        }
+
+        if (materialResult.Outcome == RunExportAuthorityMaterialLoadOutcome.SealedReceiptIncomplete)
+        {
+            return RunExportPackageResult.Conflict(
+                $"Run '{runId}' export blocked: sealed decision receipt fields are incomplete.",
+                DecisionReceiptSealedIncompleteProblemType);
+        }
+
+        if (materialResult.Outcome != RunExportAuthorityMaterialLoadOutcome.Success || materialResult.Material is null)
             return RunExportPackageResult.NotFound(
                 $"Run '{runId}' has no committed golden manifest available for export.",
                 ManifestNotFoundProblemType);

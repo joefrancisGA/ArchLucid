@@ -17,7 +17,7 @@ export const WIZARD_STEP_DEFINITIONS_FULL = [
 /** Pilot-baseline entry point: same slides, but step 1 asks for a baseline inventory instead. */
 export const WIZARD_STEP_DEFINITIONS_BASELINE = [
   WIZARD_STEP_DEFINITIONS_FULL[0],
-  { label: "Add evidence", description: "Optional cloud inventory or sample review evidence" },
+  { label: "Add evidence (optional)", description: "Briefs, diagrams, cloud inventory export, or sample review evidence" },
   WIZARD_STEP_DEFINITIONS_FULL[2],
   WIZARD_STEP_DEFINITIONS_FULL[3],
   WIZARD_STEP_DEFINITIONS_FULL[4],

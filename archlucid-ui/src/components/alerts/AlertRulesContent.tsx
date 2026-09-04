@@ -16,6 +16,10 @@ import { AlertRuleNotificationReadinessPanel } from "@/components/alerts/AlertRu
 import { AlertRuleSimulateModal } from "@/components/alerts/AlertRuleSimulateModal";
 import { MutatingInWorkspaceChip } from "@/components/MutatingInWorkspaceChip";
 import { Button } from "@/components/ui/button";
+import {
+  LivelihoodDocumentGuardDialog,
+  useLivelihoodDocumentGuards,
+} from "@/hooks/use-livelihood-document-guards";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useOptionalAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
 import {
@@ -69,6 +73,10 @@ import {
   resolveContinueLastAlertRule,
   writeAlertRuleLastViewedId,
 } from "@/lib/resolve-continue-last-alert-rule";
+import {
+  compositeAlertRulesPanelsHrefFromSearch,
+  parseCompositeAlertRulesCreatePanelFromSearch,
+} from "@/lib/alerts/composite-alert-rules-panels-url";
 
 export function AlertRulesContent() {
   const router = useRouter();
@@ -106,6 +114,8 @@ export function AlertRulesContent() {
 
   const rulesQuery = useAlertRulesListQuery();
   const routingQuery = useAlertRoutingSubscriptionsQuery();
+  const urlShowCreate = parseCompositeAlertRulesCreatePanelFromSearch(searchParams.get("create"));
+  const [showCreatePanel, setShowCreatePanelState] = useState(urlShowCreate);
   const [creating, setCreating] = useState(false);
   const [mutationFailure, setMutationFailure] = useState<ApiLoadFailureState | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -115,6 +125,31 @@ export function AlertRulesContent() {
   const loading = rulesQuery.loading;
   const failure = rulesQuery.failure ?? mutationFailure;
   const [simulateForRule, setSimulateForRule] = useState<AlertRule | null>(null);
+
+  const syncCreatePanelToUrl = useCallback(
+    (showCreate: boolean) => {
+      router.replace(compositeAlertRulesPanelsHrefFromSearch(searchParams.toString(), { showCreatePanel: showCreate }), {
+        scroll: false,
+      });
+    },
+    [router, searchParams],
+  );
+
+  const setShowCreatePanel = useCallback(
+    (next: boolean | ((prev: boolean) => boolean)) => {
+      setShowCreatePanelState((prev) => {
+        const resolved = typeof next === "function" ? next(prev) : next;
+        syncCreatePanelToUrl(resolved);
+
+        return resolved;
+      });
+    },
+    [syncCreatePanelToUrl],
+  );
+
+  useEffect(() => {
+    setShowCreatePanelState(parseCompositeAlertRulesCreatePanelFromSearch(searchParams.get("create")));
+  }, [searchParams]);
 
   function rememberRule(ruleId: string): void {
     writeAlertRuleLastViewedId(ruleId);
@@ -154,6 +189,7 @@ export function AlertRulesContent() {
 
   const fieldErrors = useMemo(() => validateAlertRuleForm(formInput), [formInput]);
   const formValid = useMemo(() => isAlertRuleFormValid(formInput), [formInput]);
+  const formDirty = alertRuleFormDiffersFromDefaultDraft(formInput);
   const thresholdStep = usesIntegerThreshold(ruleType) ? 1 : 0.1;
 
   const load = useCallback(async () => {
@@ -245,7 +281,9 @@ export function AlertRulesContent() {
   const listInitialLoading = loading && items.length === 0;
   const isEmpty = items.length === 0;
   const showEmptyCard = !listInitialLoading && isEmpty;
-  const showCreateForm = scopedRunFilterActive && (canEdit || !isEmpty);
+  const emptyIntroMode = scopedRunFilterActive && isEmpty && canEdit && !showCreatePanel && !loading;
+  const showCreateForm = scopedRunFilterActive && (!canEdit || showCreatePanel || !isEmpty);
+  const documentGuards = useLivelihoodDocumentGuards({ when: formDirty && showCreateForm });
   const sectionGap = pinLivePreviewRail ? "gap-8" : "gap-4";
 
   const emptyStateDescription = useMemo(() => {
@@ -280,13 +318,13 @@ export function AlertRulesContent() {
     ruleEnabled: items.some((rule) => rule.isEnabled === true),
   });
 
-  const emptyStateFooter = canEdit && scopedRunFilterActive ? (
+  const emptyStateFooter = canEdit && scopedRunFilterActive && emptyIntroMode ? (
     <div className="flex flex-wrap items-center gap-2" data-testid="alert-rules-empty-footer">
       <Button
         type="button"
         variant="primary"
         data-testid="alert-rules-create-action"
-        onClick={() => nameInputRef.current?.focus()}
+        onClick={() => setShowCreatePanel(true)}
       >
         {ALERT_RULES_CREATE_BUTTON_LABEL}
       </Button>
@@ -434,6 +472,12 @@ export function AlertRulesContent() {
       />
 
       {scopedRunFilterActive ? <AlertRulesNextReviewFooterClient runId={scopedRunId} /> : null}
+      <LivelihoodDocumentGuardDialog
+        open={documentGuards.dialogOpen}
+        message={documentGuards.dialogMessage}
+          onConfirmLeave={documentGuards.confirmLeave}
+          onCancelLeave={documentGuards.cancelLeave}
+      />
     </div>
   );
 }

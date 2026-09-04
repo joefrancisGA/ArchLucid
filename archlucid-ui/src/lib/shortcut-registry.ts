@@ -9,9 +9,14 @@ import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { BUYER_NEW_REVIEW_NAV_LABEL, OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator/operator-nav-labels";
 
-import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { ARCHITECTURES_NEW_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 
 export const WORKING_MODE_NEW_REVIEW_ROUTE = ARCHITECTURES_NEW_PATH;
+
+/** Shift+? / help overlay — Guided mode may still say wizard; Working uses draft editor (LI-06). */
+export const GUIDED_ALT_N_SHORTCUT_DESCRIPTION = `${OPERATOR_START_REVIEW_QUICK_ACTION_LABEL} — open the guided new-review wizard`;
+
+export const WORKING_ALT_N_SHORTCUT_DESCRIPTION = `${OPERATOR_START_REVIEW_QUICK_ACTION_LABEL} — open the draft editor`;
 
 export type ShortcutEntry = {
   key: string;
@@ -24,8 +29,8 @@ export const SHORTCUTS: ShortcutEntry[] = [
   {
     key: "alt+n",
     label: BUYER_NEW_REVIEW_NAV_LABEL,
-    route: "/architecture/reviews/new",
-    description: `${OPERATOR_START_REVIEW_QUICK_ACTION_LABEL} — open the new-review wizard`,
+    route: ARCHITECTURES_NEW_PATH,
+    description: WORKING_ALT_N_SHORTCUT_DESCRIPTION,
   },
   {
     key: "alt+r",
@@ -118,6 +123,18 @@ export function findShortcutByKey(combo: string): ShortcutEntry | undefined {
   return SHORTCUTS.find((entry) => normalizeCombo(entry.key) === needle);
 }
 
+/** Help overlay and keyboard map descriptions — Working Alt+N is the draft editor, not the wizard. */
+export function resolveShortcutDescription(entry: ShortcutEntry, workingMode: boolean): string {
+  if (normalizeCombo(entry.key) === "alt+n") {
+    return workingMode ? WORKING_ALT_N_SHORTCUT_DESCRIPTION : GUIDED_ALT_N_SHORTCUT_DESCRIPTION;
+  }
+
+  return entry.description;
+}
+
+/** Guided palette and legacy bookmarks still target the wizard hub route. */
+export const GUIDED_NEW_REVIEW_ROUTE = REVIEWS_NEW_PATH;
+
 /**
  * Page-scoped shortcuts (documented in the global help dialog). These do not use `route`; they apply only
  * in context (e.g. when an alert card has focus on `/alerts`).
@@ -141,7 +158,7 @@ export const SHELL_COMMAND_SHORTCUTS: PageShortcutEntry[] = [
     key: "ctrl+k",
     label: "Command palette",
     description:
-      "Open the command palette to jump to any page, review, or task (Cmd+K on Mac; works while the header search box has focus)",
+      "Open the command palette to jump to any page, review, or task, including save-draft / finding / alert work actions when those surfaces are open (Cmd+K on Mac; works while the header search box has focus)",
   },
 ];
 

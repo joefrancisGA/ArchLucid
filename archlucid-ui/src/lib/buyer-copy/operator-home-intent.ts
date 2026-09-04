@@ -166,7 +166,7 @@ export function formatOperatorHomeRecommendedNextTitle(title: string): string {
  * Bold lead label on Overview subtitle (buyer-polished shell).
  * ADR 0067 — the pair is co-equal, so this lead must not number the paths or rank one above the other.
  */
-export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL = "Two ways in:";
+export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL = "One lifecycle, two doors:";
 
 export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY =
   "Create an architecture from any combination of description, uploaded evidence, or connected cloud inventory — or review an architecture you already have.";

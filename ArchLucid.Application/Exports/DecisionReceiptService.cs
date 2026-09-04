@@ -1,10 +1,12 @@
 using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Exports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Feasibility;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Exports;
@@ -14,6 +16,7 @@ public sealed class DecisionReceiptService(
     IDraftRequestService draftRequestService,
     IAuthorityQueryService authorityQueryService,
     IRunDetailQueryService runDetailQueryService,
+    IManifestHashService manifestHashService,
     FeasibilityVerdictBuilder feasibilityVerdictBuilder) : IDecisionReceiptService
 {
     private readonly IAuthorityQueryService _authorityQueryService =
@@ -21,6 +24,9 @@ public sealed class DecisionReceiptService(
 
     private readonly IDraftRequestService _draftRequestService =
         draftRequestService ?? throw new ArgumentNullException(nameof(draftRequestService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
@@ -57,7 +63,7 @@ public sealed class DecisionReceiptService(
     }
 
     /// <inheritdoc />
-    public async Task<DecisionReceiptDocument?> BuildForRunAsync(
+    public async Task<DecisionReceiptRunBuildResult> BuildForRunAsync(
         ScopeContext scope,
         Guid runId,
         CancellationToken cancellationToken)
@@ -66,41 +72,54 @@ public sealed class DecisionReceiptService(
             .GetRunDetailAsync(runId.ToString("N"), cancellationToken);
 
         if (detail is null)
-            return null;
+            return NotFound();
 
         if (!detail.IsCommitted || detail.HasBrokenManifestReference)
-            return null;
+            return NotFound();
 
         AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.ToString("N"));
 
         RunSummaryDto? summary = await _authorityQueryService.GetRunSummaryAsync(scope, runId, cancellationToken);
 
         if (summary is null)
-            return null;
+            return NotFound();
 
         if (summary.GoldenManifestId is null)
-            return null;
+            return NotFound();
 
-        ManifestSummaryDto? manifestSummary = await _authorityQueryService.GetManifestSummaryAsync(
+        RunDetailDto? compareDetail = await _authorityQueryService.GetRunDetailForManifestCompareAsync(
             scope,
-            summary.GoldenManifestId.Value,
+            runId,
             cancellationToken);
 
-        FeasibilityVerdict? verdict = manifestSummary?.FeasibilityVerdict;
+        if (compareDetail?.GoldenManifest is null)
+            return NotFound();
 
-        if (verdict is null || !DecisionReceiptComposer.IsExportableVerdict(verdict.Kind))
-            return null;
+        FeasibilityVerdict? verdict = compareDetail.GoldenManifest.FeasibilityVerdict;
+        string? manifestVersion = compareDetail.GoldenManifest.Metadata?.Version;
 
-        if (string.IsNullOrWhiteSpace(manifestSummary!.ManifestHash)
-            || string.IsNullOrWhiteSpace(detail.Run.CurrentManifestVersion))
+        DecisionReceiptRunBuildOutcome? readinessOutcome =
+            ManifestDecisionReceiptExportBinder.TryGetSealedReceiptReadinessOutcome(
+                compareDetail.GoldenManifest,
+                verdict,
+                manifestVersion);
+
+        if (readinessOutcome == DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete)
         {
-            return null;
+            return new DecisionReceiptRunBuildResult
+            {
+                Outcome = DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete,
+            };
         }
 
-        return DecisionReceiptComposer.BuildForRun(
+        return ManifestDecisionReceiptExportBinder.BuildVerifiedExportReceipt(
             runId,
-            verdict,
-            manifestSummary!.ManifestHash,
-            detail.Run.CurrentManifestVersion);
+            compareDetail.GoldenManifest,
+            verdict!,
+            manifestVersion!.Trim(),
+            _manifestHashService);
     }
+
+    private static DecisionReceiptRunBuildResult NotFound() =>
+        new() { Outcome = DecisionReceiptRunBuildOutcome.NotFound };
 }

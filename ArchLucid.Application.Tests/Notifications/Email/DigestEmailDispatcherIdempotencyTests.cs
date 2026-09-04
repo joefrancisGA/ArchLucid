@@ -622,35 +622,35 @@ public sealed class DigestEmailDispatcherIdempotencyTests
             options.Object,
             NullLogger<ExecDigestEmailDispatcher>.Instance);
 
-Guid tenantId = Guid.Parse("40404040-4040-4040-4040-404040404040");
-const string isoWeek = "2026-W16";
+        Guid tenantId = Guid.Parse("40404040-4040-4040-4040-404040404040");
+        const string isoWeek = "2026-W16";
 
-bool sent = await sut.TryDispatchAsync(
-    tenantId,
-    isoWeek,
-    new ExecDigestComposition(
-        WeekLabel: "W16",
-        ComplianceDriftMarkdown: null,
-        CommittedManifestsInWeek: null,
-        TopManifestRuns: [],
-        FindingsDeltaSummary: null,
-        DashboardUrl: "https://example.test/d",
-        SponsorValueReportUrl: "https://example.test/sponsor",
-        LatestCommittedRunIdHex: null),
-    ["finance@", " "],
-    "https://example.test/unsub",
-    CancellationToken.None);
+        bool sent = await sut.TryDispatchAsync(
+            tenantId,
+            isoWeek,
+            new ExecDigestComposition(
+                WeekLabel: "W16",
+                ComplianceDriftMarkdown: null,
+                CommittedManifestsInWeek: null,
+                TopManifestRuns: [],
+                FindingsDeltaSummary: null,
+                DashboardUrl: "https://example.test/d",
+                SponsorValueReportUrl: "https://example.test/sponsor",
+                LatestCommittedRunIdHex: null),
+            ["finance@", " "],
+            "https://example.test/unsub",
+            CancellationToken.None);
 
-sent.Should().BeFalse("invalid recipient mailboxes must not trigger digest send");
-bool recordedInvalid = await ledger.IsRecordedAsync(
-    tenantId,
-    $"exec-digest:{tenantId:N}:{isoWeek}:finance@",
-    CancellationToken.None);
-recordedInvalid.Should().BeFalse("invalid recipient mailboxes must not reserve the exec digest ledger");
+        sent.Should().BeFalse("invalid recipient mailboxes must not trigger digest send");
+        bool recordedInvalid = await ledger.IsRecordedAsync(
+            tenantId,
+            $"exec-digest:{tenantId:N}:{isoWeek}:finance@",
+            CancellationToken.None);
+        recordedInvalid.Should().BeFalse("invalid recipient mailboxes must not reserve the exec digest ledger");
 
-provider.Verify(
-    p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
-    Times.Never);
+        provider.Verify(
+            p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]

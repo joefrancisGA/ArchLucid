@@ -29,7 +29,8 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
-                              "humanReviewStatus": "Pending"
+                              "humanReviewStatus": "Pending",
+                              "enforcementTier": "Advisory"
                             }
                             """;
 
@@ -69,6 +70,65 @@ public sealed class FindingJsonConverterTests
 
         roundTripped.Should().NotBeNull();
         roundTripped!.EvidencePackageId.Should().Be(packageId);
+    }
+
+    [Fact]
+    public void RoundTrip_syncsEvidencePackageIdWithPropertiesBag()
+    {
+        Guid packageId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffffff");
+        Finding finding = new()
+        {
+            FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
+            FindingId = "finding-003",
+            FindingType = "SecurityControlFinding",
+            Category = "Security",
+            EngineType = "SecurityCoverage",
+            Severity = FindingSeverity.Warning,
+            Title = "Missing control",
+            Rationale = "Control not applied.",
+            EvidencePackageId = packageId,
+        };
+
+        JsonSerializerOptions options = CreateOptions();
+        string json = JsonSerializer.Serialize(finding, options);
+        Finding? roundTripped = JsonSerializer.Deserialize<Finding>(json, options);
+
+        roundTripped.Should().NotBeNull();
+        roundTripped!.Properties.Should().ContainKey(FindingPropertyKeys.EvidencePackageId);
+        roundTripped.Properties[FindingPropertyKeys.EvidencePackageId].Should().Be(packageId.ToString("D"));
+    }
+
+    [Fact]
+    public void Deserialize_readsEvidencePackageIdFromPropertiesBag()
+    {
+        Guid packageId = Guid.Parse("cccccccc-dddd-eeee-ffff-000000000001");
+        string json = $$"""
+                        {
+                          "findingSchemaVersion": 2,
+                          "findingId": "finding-004",
+                          "findingType": "SecurityControlFinding",
+                          "category": "Security",
+                          "engineType": "SecurityCoverage",
+                          "severity": "Warning",
+                          "title": "Missing control",
+                          "rationale": "Control not applied.",
+                          "relatedNodeIds": [],
+                          "recommendedActions": [],
+                          "properties": {
+                            "{{FindingPropertyKeys.EvidencePackageId}}": "{{packageId:D}}"
+                          },
+                          "payloadType": null,
+                          "payload": null,
+                          "trace": {},
+                          "humanReviewStatus": "Pending"
+                        }
+                        """;
+
+        JsonSerializerOptions options = CreateOptions();
+        Finding? finding = JsonSerializer.Deserialize<Finding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.EvidencePackageId.Should().Be(packageId);
     }
 
     [Fact]
@@ -1974,6 +2034,60 @@ public sealed class FindingJsonConverterTests
 
         finding.Should().NotBeNull();
         finding!.ConfidenceScore.Should().Be(1.0);
+    }
+
+    [Fact]
+    public void RoundTrip_syncsEnforcementTierWithPropertiesBag()
+    {
+        Finding finding = new()
+        {
+            FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
+            FindingId = "finding-enforcement-tier",
+            FindingType = "SecurityControlFinding",
+            Category = "Security",
+            EngineType = "SecurityCoverage",
+            Severity = FindingSeverity.Warning,
+            Title = "Missing control",
+            Rationale = "Control not applied.",
+            EnforcementTier = FindingEnforcementTier.Advisory,
+        };
+
+        JsonSerializerOptions options = CreateOptions();
+        string json = JsonSerializer.Serialize(finding, options);
+        Finding? roundTripped = JsonSerializer.Deserialize<Finding>(json, options);
+
+        roundTripped.Should().NotBeNull();
+        roundTripped!.Properties.Should().ContainKey(FindingPropertyKeys.EnforcementTier);
+        roundTripped.Properties[FindingPropertyKeys.EnforcementTier].Should().Be(FindingEnforcementTier.Advisory.ToString());
+    }
+
+    [Fact]
+    public void Deserialize_withoutFindingId_throwsJsonException()
+    {
+        const string json = """
+                            {
+                              "findingSchemaVersion": 2,
+                              "findingType": "TopologyGap",
+                              "category": "Topology",
+                              "engineType": "TopologyCoverage",
+                              "severity": "Warning",
+                              "title": "Missing worker subnet",
+                              "rationale": "No subnet is defined for worker pool isolation.",
+                              "relatedNodeIds": [],
+                              "recommendedActions": [],
+                              "properties": {},
+                              "payloadType": null,
+                              "payload": null,
+                              "trace": {},
+                              "humanReviewStatus": "Pending"
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Action act = () => JsonSerializer.Deserialize<Finding>(json, options);
+
+        act.Should().Throw<JsonException>().WithMessage("*findingId is required*");
     }
 
     private static JsonSerializerOptions CreateOptions()

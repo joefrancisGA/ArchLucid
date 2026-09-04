@@ -1,7 +1,7 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import type { ReactElement } from "react";
 
 import { ArchitectureCreatedFindingsEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedFindingsEvidenceOrientationStrip";
@@ -35,6 +35,7 @@ import {
   INSIGHT_DENSITY_GENERIC_THRESHOLD,
   sortReviewDetailFindingsBySignal,
 } from "@/lib/findings/review-detail-findings-density-sort";
+import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
 import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
 import {
   deriveRunDetailFindingsTriageCounts,
@@ -44,6 +45,12 @@ import {
   resolveFindingJobViewFromSearchParam,
   REVIEW_FINDINGS_JOB_VIEW_PARAM,
 } from "@/lib/findings/review-findings-job-view-url";
+import {
+  parseReviewFindingsHideGenericFromSearch,
+  parseReviewFindingsShowAdvisoryFromSearch,
+  parseReviewFindingsShowLowFromSearch,
+  reviewFindingsVisibilityHrefFromSearch,
+} from "@/lib/findings/review-findings-visibility-url";
 import { buildWorkspaceCardRenderedFindings } from "@/lib/quick-decision-finding-merge-and-sort";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -75,7 +82,12 @@ export type RunDetailFindingsWorkspaceProps = {
 
 /** Findings list with workspace toolbar filters for the review detail page. */
 export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProps): ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
+  const urlShowLow = parseReviewFindingsShowLowFromSearch(searchParams?.get("showLow"));
+  const urlShowAdvisory = parseReviewFindingsShowAdvisoryFromSearch(searchParams?.get("showAdvisory"));
+  const urlHideGeneric = parseReviewFindingsHideGenericFromSearch(searchParams?.get("hideGeneric"));
   const initialJobView = resolveFindingJobViewFromSearchParam(
     searchParams?.get(REVIEW_FINDINGS_JOB_VIEW_PARAM),
   );
@@ -93,9 +105,69 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
 
     toolbar.setSearchQuery(facets.titleKeywords.join(" "));
   }
-  const [showLowConfidence, setShowLowConfidence] = useState(false);
-  const [showAdvisory, setShowAdvisory] = useState(false);
-  const [hideGenericLowDensity, setHideGenericLowDensity] = useState(false);
+  const [showLowConfidence, setShowLowConfidenceState] = useState(urlShowLow);
+  const [showAdvisory, setShowAdvisoryState] = useState(urlShowAdvisory);
+  const [hideGenericLowDensity, setHideGenericLowDensityState] = useState(urlHideGeneric);
+
+  useEffect(() => {
+    setShowLowConfidenceState(urlShowLow);
+  }, [urlShowLow]);
+
+  useEffect(() => {
+    setShowAdvisoryState(urlShowAdvisory);
+  }, [urlShowAdvisory]);
+
+  useEffect(() => {
+    setHideGenericLowDensityState(urlHideGeneric);
+  }, [urlHideGeneric]);
+
+  const syncVisibilityToUrl = useCallback(
+    (next: { showLowConfidence: boolean; showAdvisory: boolean; hideGenericLowDensity: boolean }) => {
+      if (pathname.length === 0) {
+        return;
+      }
+
+      const nextHref = reviewFindingsVisibilityHrefFromSearch(searchParams.toString(), next, pathname);
+      router.replace(nextHref, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setShowLowConfidence = useCallback(
+    (next: boolean) => {
+      setShowLowConfidenceState(next);
+      syncVisibilityToUrl({
+        showLowConfidence: next,
+        showAdvisory,
+        hideGenericLowDensity,
+      });
+    },
+    [hideGenericLowDensity, showAdvisory, syncVisibilityToUrl],
+  );
+
+  const setShowAdvisory = useCallback(
+    (next: boolean) => {
+      setShowAdvisoryState(next);
+      syncVisibilityToUrl({
+        showLowConfidence,
+        showAdvisory: next,
+        hideGenericLowDensity,
+      });
+    },
+    [hideGenericLowDensity, showLowConfidence, syncVisibilityToUrl],
+  );
+
+  const setHideGenericLowDensity = useCallback(
+    (next: boolean) => {
+      setHideGenericLowDensityState(next);
+      syncVisibilityToUrl({
+        showLowConfidence,
+        showAdvisory,
+        hideGenericLowDensity: next,
+      });
+    },
+    [showAdvisory, showLowConfidence, syncVisibilityToUrl],
+  );
   const architectWorkspaceChrome = useArchitectWorkspaceChrome();
   const createHomeSurface = props.packageCommitted === false;
   const actorNodeCount = countActorNodesInGraphSnapshot(props.graphSnapshot);
@@ -199,7 +271,11 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
     />
   );
   const toolbarEl = (
-    <RunDetailFindingsToolbar
+    <div className="space-y-3" data-testid="run-detail-findings-toolbar-hero">
+      {architectWorkspaceChrome && showActorEnginesQuietHint ? (
+        <ActorDependentFindingsQuietEnginesHint show={true} />
+      ) : null}
+      <RunDetailFindingsToolbar
       findings={confidenceGatedForCounts}
       renderedFindingCount={listFindings.length}
       toolbarFilteredCount={toolbarScopedFindings.length}
@@ -236,12 +312,12 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
         />
       }
     />
+    </div>
   );
 
   return (
     <div className="space-y-4" data-testid="run-detail-findings-workspace">
       <SimulatorModeAiOperationNotice testId="run-detail-findings-simulator-notice" />
-      <ActorDependentFindingsQuietEnginesHint show={showActorEnginesQuietHint} />
       <FindingKeyboardTriageHost resolveRunId={(findingId) => (findingId.trim().length > 0 ? props.runId : null)} />
       {createHomeSurface ? <ArchitectureCreatedFindingsEvidenceOrientationStrip /> : null}
       {findingsSecondaryViewPresentation !== null ? (
@@ -265,22 +341,27 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       />
       {!createHomeSurface ? <RootCauseClusterDispositionStrip findings={props.findings} /> : null}
       {architectWorkspaceChrome ? (
-        <label
-          className={cn(
-            "flex items-center gap-2 text-al-text-secondary",
-            OPERATOR_TYPOGRAPHY.helper,
-          )}
-          data-testid="run-detail-findings-hide-generic-control"
-        >
-          <input
-            type="checkbox"
-            checked={hideGenericLowDensity}
-            onChange={(event) => {
-              setHideGenericLowDensity(event.target.checked);
-            }}
-          />
-          Hide generic findings (density score below {INSIGHT_DENSITY_GENERIC_THRESHOLD}) — advisory only
-        </label>
+        <div className="space-y-2" data-testid="run-detail-findings-density-desk-controls">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE}
+          </p>
+          <label
+            className={cn(
+              "flex items-center gap-2 text-al-text-secondary",
+              OPERATOR_TYPOGRAPHY.helper,
+            )}
+            data-testid="run-detail-findings-hide-generic-control"
+          >
+            <input
+              type="checkbox"
+              checked={hideGenericLowDensity}
+              onChange={(event) => {
+                setHideGenericLowDensity(event.target.checked);
+              }}
+            />
+            Hide generic findings (density score below {INSIGHT_DENSITY_GENERIC_THRESHOLD}) — advisory only
+          </label>
+        </div>
       ) : null}
       {createHomeSurface ? (
         <>

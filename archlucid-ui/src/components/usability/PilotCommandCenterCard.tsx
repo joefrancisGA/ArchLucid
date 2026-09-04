@@ -19,6 +19,7 @@ import { OperatorHomeLifecycleAlternativesDisclosure } from "@/components/operat
 import { OperatorHomeWorkspaceMetricsSummary } from "@/components/operator-home/OperatorHomeWorkspaceMetricsSummary";
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { useSampleReviewsOnOverviewVisible } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
@@ -168,6 +169,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
   const resumeHref = latestDraftPrimary?.href ?? null;
   const resumeCtaLabel = latestDraftPrimary?.ctaLabel ?? "Resume latest draft";
   const sampleReviewsVisible = useSampleReviewsOnOverviewVisible();
+  const { isWorkingMode } = useWorkspaceMode();
   const rawEmphasizedPath = resolveOperatorHomeLifecycleEmphasizedPath(workspacePhase, latestDraft);
   const emphasizedPath =
     !sampleReviewsVisible && rawEmphasizedPath === "explore-completed-review" ? null : rawEmphasizedPath;
@@ -346,7 +348,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
         />
       ) : null}
 
-      {workspacePhase === "eval-empty" ? (
+      {workspacePhase === "eval-empty" && !isWorkingMode ? (
         <div className={cn("space-y-4", OPERATOR_LAYOUT.inlineGap)}>
           {isInviteeReviewer ? (
             <InviteeFirstOrientationPanel copy={resolveInviteeHomeOrientationCopy()} />
@@ -355,14 +357,14 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
         </div>
       ) : null}
 
-      {workspacePhase === "eval-with-drafts" ? (
+      {workspacePhase === "eval-with-drafts" && !isWorkingMode ? (
         <OperatorHomeLifecycleAlternativesDisclosure
           emphasizedPath={emphasizedPath}
           pagePrimaryOwnedElsewhere={resumeHref !== null}
         />
       ) : null}
 
-      {workspacePhase === "active-reviews" ? (
+      {workspacePhase === "active-reviews" && !isWorkingMode ? (
         <OperatorHomeLifecycleAlternativesDisclosure emphasizedPath={emphasizedPath} />
       ) : null}
 

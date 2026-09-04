@@ -1,7 +1,6 @@
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
-import { countSkippedMustQuestions } from "./count-skipped-must-questions";
 import { evaluateFinalizeQualityScorecard } from "./finalize-quality-scorecard";
 import {
   deriveFinalizeQualityScorecardInput,
@@ -29,16 +28,14 @@ export function resolveClientAwareCommitBlockedReason(
   const scorecardOptions: DeriveFinalizeQualityScorecardOptions = {
     acknowledgedAssumptionIds: input.acknowledgedAssumptionIds,
     requestAssumptionTexts: input.requestAssumptionTexts,
+    transparencyTrail: input.transparencyTrail,
   };
   const scorecardInput = deriveFinalizeQualityScorecardInput(
     input.findings,
     input.blockingFindingCount,
     scorecardOptions,
   );
-  const scorecard = evaluateFinalizeQualityScorecard({
-    ...scorecardInput,
-    skippedMustCount: countSkippedMustQuestions(input.transparencyTrail),
-  });
+  const scorecard = evaluateFinalizeQualityScorecard(scorecardInput);
 
   return scorecard.ready ? null : scorecard.blockingReasons.join(" ");
 }

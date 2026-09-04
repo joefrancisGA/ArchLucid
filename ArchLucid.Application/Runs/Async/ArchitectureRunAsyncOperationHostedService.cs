@@ -145,7 +145,11 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
                     $"Execute blocked for run '{item.RunId}': run header was not found.");
             }
 
-            ReplayRunScopeAssertionGuard.EnsureCallerScopeMatchesSourceOrThrow(item.Scope, executeHeader, item.RunId);
+            RunScopeAssertionGuard.EnsureCallerScopeMatchesRunOrThrow(
+                item.Scope,
+                executeHeader,
+                item.RunId,
+                "Execute");
 
             await scope.ServiceProvider
                 .GetRequiredService<IArchitectureRunExecuteOrchestrator>()
@@ -163,6 +167,21 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
             {
                 throw new InvalidOperationException($"Create work item run id '{item.RunId}' is not a valid GUID.");
             }
+
+            IRunRepository createRuns = scope.ServiceProvider.GetRequiredService<IRunRepository>();
+            RunRecord? createHeader = await createRuns.GetByIdAsync(item.Scope, parsedCreateRunId, cancellationToken);
+
+            if (createHeader is null)
+            {
+                throw new InvalidOperationException(
+                    $"Create blocked for run '{item.RunId}': run header was not found.");
+            }
+
+            RunScopeAssertionGuard.EnsureCallerScopeMatchesRunOrThrow(
+                item.Scope,
+                createHeader,
+                item.RunId,
+                "Create");
 
             await scope.ServiceProvider
                 .GetRequiredService<IArchitectureRunCreateOrchestrator>()

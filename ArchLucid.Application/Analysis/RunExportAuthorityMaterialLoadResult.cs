@@ -1,34 +1,53 @@
 namespace ArchLucid.Application.Analysis;
 
+/// <summary>Outcome of loading run export authority material.</summary>
+public enum RunExportAuthorityMaterialLoadOutcome
+{
+    Success,
+    RunNotFound,
+    ManifestNotFound,
+    SealedReceiptIncomplete,
+    SealedReceiptHashMismatch,
+}
+
 /// <summary>Outcome of <see cref="IRunExportAuthorityMaterialLoader.LoadAsync" />.</summary>
 public sealed class RunExportAuthorityMaterialLoadResult
 {
     private RunExportAuthorityMaterialLoadResult(
-        RunExportAuthorityMaterial? material,
-        bool runFound,
-        bool manifestFound)
+        RunExportAuthorityMaterialLoadOutcome outcome,
+        RunExportAuthorityMaterial? material)
     {
+        Outcome = outcome;
         Material = material;
-        RunFound = runFound;
-        ManifestFound = manifestFound;
     }
+
+    public RunExportAuthorityMaterialLoadOutcome Outcome { get; }
 
     public RunExportAuthorityMaterial? Material { get; }
 
-    public bool RunFound { get; }
+    public bool RunFound => Outcome != RunExportAuthorityMaterialLoadOutcome.RunNotFound;
 
-    public bool ManifestFound { get; }
+    public bool ManifestFound =>
+        Outcome is RunExportAuthorityMaterialLoadOutcome.Success
+            or RunExportAuthorityMaterialLoadOutcome.SealedReceiptIncomplete
+            or RunExportAuthorityMaterialLoadOutcome.SealedReceiptHashMismatch;
 
     public static RunExportAuthorityMaterialLoadResult Success(RunExportAuthorityMaterial material)
     {
         ArgumentNullException.ThrowIfNull(material);
 
-        return new RunExportAuthorityMaterialLoadResult(material, runFound: true, manifestFound: true);
+        return new RunExportAuthorityMaterialLoadResult(RunExportAuthorityMaterialLoadOutcome.Success, material);
     }
 
     public static RunExportAuthorityMaterialLoadResult RunNotFound() =>
-        new(material: null, runFound: false, manifestFound: false);
+        new(RunExportAuthorityMaterialLoadOutcome.RunNotFound, material: null);
 
     public static RunExportAuthorityMaterialLoadResult ManifestNotFound() =>
-        new(material: null, runFound: true, manifestFound: false);
+        new(RunExportAuthorityMaterialLoadOutcome.ManifestNotFound, material: null);
+
+    public static RunExportAuthorityMaterialLoadResult SealedReceiptIncomplete() =>
+        new(RunExportAuthorityMaterialLoadOutcome.SealedReceiptIncomplete, material: null);
+
+    public static RunExportAuthorityMaterialLoadResult SealedReceiptHashMismatch() =>
+        new(RunExportAuthorityMaterialLoadOutcome.SealedReceiptHashMismatch, material: null);
 }

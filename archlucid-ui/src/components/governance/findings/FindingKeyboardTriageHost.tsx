@@ -1,8 +1,11 @@
 "use client";
 
-import { useCallback, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useState, type ReactElement } from "react";
+import { useRouter } from "next/navigation";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { GovernanceRecordCorrectionDialog } from "@/components/governance/GovernanceRecordCorrectionDialog";
+import { ReversibleMutationSuccessCallout } from "@/components/operator/ReversibleMutationSuccessCallout";
 import { useReviewWorkbenchSelection } from "@/components/reviews/ReviewWorkbenchSelectionContext";
 import { DispositionExportBeforeAfterPreview } from "@/components/operator/DispositionExportBeforeAfterPreview";
 import { DispositionExportImpactNotice } from "@/components/operator/DispositionExportImpactNotice";
@@ -11,15 +14,34 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
+  focusAdjacentFindingCard,
+  getFocusedFindingId,
   useFindingCardShortcuts,
   type FindingCardShortcutDisposition,
 } from "@/hooks/useFindingCardShortcuts";
+import {
+  COMMAND_PALETTE_FINDING_ACCEPT_EVENT,
+  COMMAND_PALETTE_FINDING_NEXT_EVENT,
+  COMMAND_PALETTE_FINDING_PREV_EVENT,
+  COMMAND_PALETTE_FINDING_REJECT_EVENT,
+  COMMAND_PALETTE_FINDING_REMEDIATE_EVENT,
+} from "@/lib/command-palette-handler-actions";
 import { recordFindingDisposition } from "@/lib/api/governance-stickiness-api";
 import { findingDispositionKindLabel } from "@/lib/disposition-export-before-after";
+import { computeFindingDispositionRevisitDueUtc } from "@/lib/findings/finding-disposition-revisit-window";
+import {
+  buildDispositionRestoreRevisitDueUtc,
+  recordFindingDispositionRestoreSnapshot,
+} from "@/lib/findings/finding-disposition-restore-snapshot";
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
+import {
+  GOVERNANCE_MUTATION_CORRECTION_SUCCESS_MESSAGE,
+  type GovernanceMutationCorrectionTarget,
+} from "@/lib/governance/governance-mutation-correction-api";
 import {
   GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE,
   GOVERNANCE_BULK_DISPOSITION_REASON_REQUIRED,
+  governanceKeyboardFindingDispositionSuccessMessage,
 } from "@/lib/governance/governance-mutation-outcome-copy";
 
 export type FindingKeyboardTriageHostProps = {
@@ -46,11 +68,18 @@ const CONFIRM_LABELS: Record<FindingCardShortcutDisposition, string> = {
  */
 export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps): ReactElement | null {
   const canMutate = useOperateCapability();
+  const router = useRouter();
   const workbenchSelection = useReviewWorkbenchSelection();
   const [pending, setPending] = useState<PendingKeyboardDisposition | null>(null);
   const [rationale, setRationale] = useState("");
   const [busy, setBusy] = useState(false);
   const [inlineErrorMessage, setInlineErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [successUndo, setSuccessUndo] = useState<(() => Promise<void>) | null>(null);
+  const [successUndoBusy, setSuccessUndoBusy] = useState(false);
+  const [correctionTarget, setCorrectionTarget] = useState<GovernanceMutationCorrectionTarget | null>(null);
+  const [correctionDialogOpen, setCorrectionDialogOpen] = useState(false);
+  const [correctionRecorded, setCorrectionRecorded] = useState(false);
 
   const onAction = useCallback(
     (findingId: string, disposition: FindingCardShortcutDisposition) => {
@@ -73,6 +102,80 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
     onFindingFocus: workbenchSelection?.setSelectedFindingId,
   });
 
+  useEffect(() => {
+    const onFindingFocus = workbenchSelection?.setSelectedFindingId;
+
+    function resolveFocusedFindingId(): string | null {
+      const focused = getFocusedFindingId();
+
+      if (focused !== null) {
+        return focused;
+      }
+
+      focusAdjacentFindingCard(1, { onFindingFocus, startFromFirstWhenUnfocused: true });
+
+      return getFocusedFindingId();
+    }
+
+    function onNext(): void {
+      focusAdjacentFindingCard(1, { onFindingFocus, startFromFirstWhenUnfocused: true });
+    }
+
+    function onPrev(): void {
+      focusAdjacentFindingCard(-1, { onFindingFocus, startFromFirstWhenUnfocused: true });
+    }
+
+    function onAccept(): void {
+      if (!canMutate) {
+        return;
+      }
+
+      const findingId = resolveFocusedFindingId();
+
+      if (findingId !== null) {
+        onAction(findingId, "Accepted");
+      }
+    }
+
+    function onRemediate(): void {
+      if (!canMutate) {
+        return;
+      }
+
+      const findingId = resolveFocusedFindingId();
+
+      if (findingId !== null) {
+        onAction(findingId, "Remediated");
+      }
+    }
+
+    function onReject(): void {
+      if (!canMutate) {
+        return;
+      }
+
+      const findingId = resolveFocusedFindingId();
+
+      if (findingId !== null) {
+        onAction(findingId, "RejectedAsNotApplicable");
+      }
+    }
+
+    window.addEventListener(COMMAND_PALETTE_FINDING_NEXT_EVENT, onNext);
+    window.addEventListener(COMMAND_PALETTE_FINDING_PREV_EVENT, onPrev);
+    window.addEventListener(COMMAND_PALETTE_FINDING_ACCEPT_EVENT, onAccept);
+    window.addEventListener(COMMAND_PALETTE_FINDING_REMEDIATE_EVENT, onRemediate);
+    window.addEventListener(COMMAND_PALETTE_FINDING_REJECT_EVENT, onReject);
+
+    return () => {
+      window.removeEventListener(COMMAND_PALETTE_FINDING_NEXT_EVENT, onNext);
+      window.removeEventListener(COMMAND_PALETTE_FINDING_PREV_EVENT, onPrev);
+      window.removeEventListener(COMMAND_PALETTE_FINDING_ACCEPT_EVENT, onAccept);
+      window.removeEventListener(COMMAND_PALETTE_FINDING_REMEDIATE_EVENT, onRemediate);
+      window.removeEventListener(COMMAND_PALETTE_FINDING_REJECT_EVENT, onReject);
+    };
+  }, [canMutate, onAction, workbenchSelection?.setSelectedFindingId]);
+
   async function applyPending(): Promise<void> {
     if (pending === null) {
       return;
@@ -89,19 +192,60 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
     setBusy(true);
     setInlineErrorMessage(null);
 
+    const appliedFindingId = pending.findingId;
+    const appliedRunId = pending.runId;
+    const appliedDisposition = pending.disposition;
+
     try {
       await recordFindingDisposition(
-        pending.findingId,
+        appliedFindingId,
         {
-          disposition: pending.disposition,
+          disposition: appliedDisposition,
           rationale: trimmedReason,
-          runId: pending.runId,
+          runId: appliedRunId,
         },
         { idempotencyKey: createGovernanceMutationIdempotencyKey() },
       );
+
+      if (appliedDisposition === "Accepted" || appliedDisposition === "RejectedAsNotApplicable") {
+        const appliedAtUtc = new Date().toISOString();
+
+        recordFindingDispositionRestoreSnapshot({
+          findingId: appliedFindingId,
+          previousDisposition: null,
+          appliedDisposition,
+          appliedAtUtc,
+          revisitDueUtc: buildDispositionRestoreRevisitDueUtc(),
+        });
+      }
+
+      const undoRationale = `Undo: deferred for revisit after keyboard ${appliedDisposition.toLowerCase()}.`;
+
+      setSuccessMessage(governanceKeyboardFindingDispositionSuccessMessage(appliedDisposition));
+      setCorrectionRecorded(false);
+      setCorrectionTarget({
+        mutationKind: "governance_keyboard_finding_disposition",
+        subjectId: appliedFindingId,
+        runId: appliedRunId,
+      });
+      setSuccessUndo(async () => {
+        await recordFindingDisposition(
+          appliedFindingId,
+          {
+            disposition: "Deferred",
+            rationale: undoRationale,
+            runId: appliedRunId,
+            revisitDueUtc: computeFindingDispositionRevisitDueUtc(),
+          },
+          { idempotencyKey: createGovernanceMutationIdempotencyKey() },
+        );
+        props.onApplied?.();
+        router.refresh();
+      });
       setPending(null);
       setRationale("");
       props.onApplied?.();
+      router.refresh();
     } catch (err) {
       setInlineErrorMessage(err instanceof Error ? err.message : GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE);
     } finally {
@@ -109,52 +253,116 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
     }
   }
 
-  if (pending === null) {
-    return null;
-  }
+  const resolvedSuccessMessage =
+    successMessage === null
+      ? null
+      : correctionRecorded
+        ? `${successMessage} ${GOVERNANCE_MUTATION_CORRECTION_SUCCESS_MESSAGE}`
+        : successMessage;
 
   return (
-    <ConfirmationDialog
-      open
-      onOpenChange={(open) => {
-        if (!open) {
-          setPending(null);
-          setInlineErrorMessage(null);
-          setRationale("");
-        }
-      }}
-      title="Confirm finding disposition"
-      description={`${CONFIRM_LABELS[pending.disposition]} (${findingDispositionKindLabel(pending.disposition)}).`}
-      confirmLabel="Apply disposition"
-      variant="default"
-      busy={busy}
-      extraContent={
-        <div className="mt-2 space-y-3">
-          {inlineErrorMessage !== null ? (
-            <OperatorMutationInlineError
-              message={inlineErrorMessage}
-              testId="finding-keyboard-disposition-inline-error"
-            />
-          ) : null}
-          <div>
-            <Label htmlFor="finding-keyboard-disposition-reason">Reason</Label>
-            <Input
-              id="finding-keyboard-disposition-reason"
-              value={rationale}
-              onChange={(event) => setRationale(event.target.value)}
-              placeholder="Required for disposition audit trail"
-              disabled={busy}
-              data-testid="finding-keyboard-disposition-reason"
-            />
+    <>
+      <span hidden data-finding-keyboard-triage-host="" />
+      {resolvedSuccessMessage !== null ? (
+        <ReversibleMutationSuccessCallout
+          message={resolvedSuccessMessage}
+          mutationId="governance_keyboard_finding_disposition"
+          testId="finding-keyboard-disposition-success-callout"
+          className="mb-2"
+          undoBusy={successUndoBusy}
+          onDismiss={() => {
+            setSuccessMessage(null);
+            setSuccessUndo(null);
+            setCorrectionTarget(null);
+            setCorrectionRecorded(false);
+          }}
+          onUndo={
+            successUndo !== null
+              ? async () => {
+                  setSuccessUndoBusy(true);
+
+                  try {
+                    await successUndo();
+                    setSuccessMessage(null);
+                    setSuccessUndo(null);
+                    setCorrectionTarget(null);
+                    setCorrectionRecorded(false);
+                  } catch (undoError) {
+                    setSuccessMessage(
+                      undoError instanceof Error
+                        ? undoError.message
+                        : GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE,
+                    );
+                    setSuccessUndo(null);
+                  } finally {
+                    setSuccessUndoBusy(false);
+                  }
+                }
+              : undefined
+          }
+          onRecordCorrection={
+            correctionTarget !== null
+              ? () => {
+                  setCorrectionDialogOpen(true);
+                }
+              : undefined
+          }
+        />
+      ) : null}
+
+      <GovernanceRecordCorrectionDialog
+        open={correctionDialogOpen}
+        onOpenChange={setCorrectionDialogOpen}
+        target={correctionTarget}
+        onRecorded={() => {
+          setCorrectionRecorded(true);
+        }}
+      />
+
+      {pending === null ? null : (
+      <ConfirmationDialog
+        open
+        onOpenChange={(open) => {
+          if (!open) {
+            setPending(null);
+            setInlineErrorMessage(null);
+            setRationale("");
+          }
+        }}
+        title="Confirm finding disposition"
+        description={`${CONFIRM_LABELS[pending.disposition]} (${findingDispositionKindLabel(pending.disposition)}).`}
+        confirmLabel="Apply disposition"
+        variant="default"
+        busy={busy}
+        extraContent={
+          <div className="mt-2 space-y-3">
+            {inlineErrorMessage !== null ? (
+              <OperatorMutationInlineError
+                message={inlineErrorMessage}
+                testId="finding-keyboard-disposition-inline-error"
+              />
+            ) : null}
+            <div>
+              <Label htmlFor="finding-keyboard-disposition-reason">Reason</Label>
+              <Input
+                id="finding-keyboard-disposition-reason"
+                value={rationale}
+                onChange={(event) => setRationale(event.target.value)}
+                placeholder="Required for disposition audit trail"
+                disabled={busy}
+                data-testid="finding-keyboard-disposition-reason"
+              />
+            </div>
+            <DispositionExportBeforeAfterPreview disposition={pending.disposition} />
+            <DispositionExportImpactNotice disposition={pending.disposition} />
           </div>
-          <DispositionExportBeforeAfterPreview disposition={pending.disposition} />
-          <DispositionExportImpactNotice disposition={pending.disposition} />
-        </div>
-      }
-      reversibilityMutationId="governance_keyboard_finding_disposition"
-      onConfirm={() => {
-        void applyPending();
-      }}
-    />
+        }
+        reversibilityMutationId="governance_keyboard_finding_disposition"
+        onConfirm={() => {
+          void applyPending();
+        }}
+      />
+      )}
+    </>
   );
 }

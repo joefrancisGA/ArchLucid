@@ -1,6 +1,7 @@
 import type {
   AiUsageActivityStatusFilter,
   AiUsageActivityTriggerFilter,
+  AiUsageBreakdownGroupBy,
 } from "@/lib/ai-usage-dashboard-filters";
 import { DEFAULT_AI_USAGE_DASHBOARD_FILTERS } from "@/lib/ai-usage-dashboard-filters";
 
@@ -75,6 +76,43 @@ export function aiUsageStatusHrefFromSearch(
     params.delete(AI_USAGE_STATUS_PARAM);
   } else {
     params.set(AI_USAGE_STATUS_PARAM, status);
+  }
+
+  const nextQuery = params.toString();
+
+  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+}
+
+export function aiUsageFeatureHrefFromSearch(
+  currentSearch: string,
+  feature: string | null,
+  pathname: string,
+): string {
+  const params = new URLSearchParams(currentSearch);
+  const trimmed = (feature ?? "").trim();
+
+  if (trimmed.length === 0) {
+    params.delete("feature");
+  } else {
+    params.set("feature", trimmed);
+  }
+
+  const nextQuery = params.toString();
+
+  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+}
+
+export function aiUsageGroupByHrefFromSearch(
+  currentSearch: string,
+  groupBy: AiUsageBreakdownGroupBy,
+  pathname: string,
+): string {
+  const params = new URLSearchParams(currentSearch);
+
+  if (groupBy === DEFAULT_AI_USAGE_DASHBOARD_FILTERS.groupBy) {
+    params.delete("groupBy");
+  } else {
+    params.set("groupBy", groupBy);
   }
 
   const nextQuery = params.toString();

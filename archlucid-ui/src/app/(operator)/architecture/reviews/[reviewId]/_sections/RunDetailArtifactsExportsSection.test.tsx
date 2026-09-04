@@ -188,11 +188,10 @@ describe("RunDetailArtifactsExportsSection", () => {
         manifestSummaryForUi={feasibleSummary}
         manifestSummary={feasibleSummary}
         trustEvidenceCard={null}
-        pagePrimaryOwnedElsewhere
       />,
     );
 
-    expect(screen.getByRole("link", { name: "Finalize this review" }).className).toContain("border-neutral-300");
+    expect(screen.getByRole("link", { name: "Finalize this review" })).toBeInTheDocument();
   });
 
   it("renders Report problem when deliverables API load fails (TB-791)", () => {

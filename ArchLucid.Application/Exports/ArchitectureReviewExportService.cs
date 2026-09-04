@@ -1,6 +1,3 @@
-using System.Globalization;
-using System.Text;
-
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Explanation;
@@ -9,16 +6,21 @@ using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Exports;
 using ArchLucid.Core.Explanation;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Exports;
 
 /// <summary>
 ///     Orchestrates finalized-review exports (DOCX/PDF) using hydrated run detail + analysis projection.
 /// </summary>
-public sealed class ArchitectureReviewExportService(
+public sealed partial class ArchitectureReviewExportService(
     IRunDetailQueryService runDetailQueryService,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     IArchitectureAnalysisService architectureAnalysisService,
     IScopeContextProvider scopeContextProvider,
     ITenantRepository tenantRepository,
@@ -27,28 +29,11 @@ public sealed class ArchitectureReviewExportService(
     ArchitectureReviewDocxBuilder docxBuilder,
     ArchitectureReviewPdfBuilder pdfBuilder) : IArchitectureReviewExportService
 {
-    private readonly IRunDetailQueryService _runDetailQueryService =
-        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
 
-    private readonly IArchitectureAnalysisService _architectureAnalysisService =
-        architectureAnalysisService ?? throw new ArgumentNullException(nameof(architectureAnalysisService));
-
-    private readonly IScopeContextProvider _scopeContextProvider =
-        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-
-    private readonly ITenantRepository _tenantRepository =
-        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
-
-    private readonly IRunExplanationSummaryService _runExplanationSummaryService =
-        runExplanationSummaryService ?? throw new ArgumentNullException(nameof(runExplanationSummaryService));
-
-    private readonly ArchitectureReviewDocxBuilder _docxBuilder =
-        docxBuilder ?? throw new ArgumentNullException(nameof(docxBuilder));
-
-    private readonly ArchitectureReviewPdfBuilder _pdfBuilder =
-        pdfBuilder ?? throw new ArgumentNullException(nameof(pdfBuilder));
-
-    private readonly ITenantReviewBoardCoverLogoStore? _tenantReviewBoardCoverLogoStore = tenantReviewBoardCoverLogoStore;
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     /// <inheritdoc/>
     public async Task<ExportResult> GenerateReportAsync(string runId, ExportFormat format, WhitelabelConfiguration? whitelabel,
@@ -58,7 +43,7 @@ public sealed class ArchitectureReviewExportService(
 
         ArchitectureReviewBoardCoverLogoValidator.ValidateLogoOptional(logoImageBytes);
 
-        ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailAsync(runId.Trim(), cancellationToken);
+        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId.Trim(), cancellationToken);
 
         if (detail is null)
             throw new RunNotFoundException(runId.Trim());
@@ -67,10 +52,15 @@ public sealed class ArchitectureReviewExportService(
             throw new ConflictException(
                 "This finalized review references an architecture snapshot that could not be loaded from storage. Resolve the broken manifest reference before exporting.");
 
-        if (!detail.IsCommitted)
-            throw new ConflictException("Export requires a finalized review with a committed architecture snapshot.");
+        if (detail.Manifest is null)
+        {
+            throw new ConflictException(
+                "Export requires a finalized review with a committed architecture snapshot.");
+        }
 
         AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());
+
+        await EnsureSealedDecisionReceiptVerifiedOrThrowAsync(runId.Trim(), cancellationToken);
 
         ArchitectureAnalysisRequest analysisRequest = new()
         {
@@ -86,7 +76,7 @@ public sealed class ArchitectureReviewExportService(
             IncludeAgentResultCompare = false
         };
 
-        ArchitectureAnalysisReport report = await _architectureAnalysisService.BuildAsync(analysisRequest, cancellationToken);
+        ArchitectureAnalysisReport report = await architectureAnalysisService.BuildAsync(analysisRequest, cancellationToken);
 
         string? tenantDisplayName = await ResolveTenantDisplayNameAsync(cancellationToken).ConfigureAwait(false);
         string? explanationCallout = await TryBuildExplanationConfidenceCalloutAsync(detail, cancellationToken).ConfigureAwait(false);
@@ -104,214 +94,36 @@ public sealed class ArchitectureReviewExportService(
 
         byte[]? resolvedLogoBytes = logoImageBytes;
 
-        if (resolvedLogoBytes is null && _tenantReviewBoardCoverLogoStore is not null)
-            resolvedLogoBytes = await _tenantReviewBoardCoverLogoStore.TryGetBytesAsync(cancellationToken).ConfigureAwait(false);
+        if (resolvedLogoBytes is null && tenantReviewBoardCoverLogoStore is not null)
+            resolvedLogoBytes = await tenantReviewBoardCoverLogoStore.TryGetBytesAsync(cancellationToken).ConfigureAwait(false);
 
         string safeSegment = SanitizeRunIdForFileName(documentModel.RunId);
 
         switch (format)
         {
             case ExportFormat.Docx:
-            {
-                byte[] bytes = await _docxBuilder.BuildAsync(
+                return await BuildDocxExportAsync(
                     documentModel,
                     whitelabel,
                     resolvedLogoBytes,
                     activeTrialExportNotice,
+                    safeSegment,
                     cancellationToken);
-
-                MemoryStream stream = new(bytes);
-
-                return new ExportResult(stream, "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    $"architecture-review-board-{safeSegment}.docx");
-            }
 
             case ExportFormat.Pdf:
-            {
-                byte[] bytes = await _pdfBuilder.BuildAsync(
+                return await BuildPdfExportAsync(
                     documentModel,
                     whitelabel,
                     resolvedLogoBytes,
                     activeTrialExportNotice,
+                    safeSegment,
                     cancellationToken);
 
-                MemoryStream stream = new(bytes);
-
-                return new ExportResult(stream, "application/pdf", $"architecture-review-board-{safeSegment}.pdf");
-            }
-
             case ExportFormat.Html:
-            {
-                byte[] bytes = Encoding.UTF8.GetBytes(BuildMinimalHtml(documentModel, activeTrialExportNotice));
-                MemoryStream stream = new(bytes);
-
-                return new ExportResult(stream, "text/html; charset=utf-8", $"architecture-review-board-{safeSegment}.html");
-            }
+                return BuildHtmlExport(documentModel, activeTrialExportNotice, safeSegment);
 
             default:
                 throw new ArgumentOutOfRangeException(nameof(format), format, "Unsupported export format.");
         }
-    }
-
-    private async Task<string?> ResolveActiveTrialExportNoticeAsync(CancellationToken cancellationToken)
-    {
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-
-        if (scope.TenantId == Guid.Empty)
-            return null;
-
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
-
-        return ActiveTrialExportNoticeFormatter.Format(tenant);
-    }
-
-    private async Task<string?> ResolveTenantDisplayNameAsync(CancellationToken cancellationToken)
-    {
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-
-        if (scope.TenantId == Guid.Empty)
-            return null;
-
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
-
-        if (tenant is null || string.IsNullOrWhiteSpace(tenant.Name))
-            return null;
-
-        return tenant.Name.Trim();
-    }
-
-    private async Task<string?> TryBuildExplanationConfidenceCalloutAsync(
-        ArchitectureRunDetail detail,
-        CancellationToken cancellationToken)
-    {
-        string runId = detail.Run.RunId ?? string.Empty;
-
-        if (!TryParseRunGuid(runId, out Guid runGuid))
-            return null;
-
-        try
-        {
-            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-            RunExplanationSummary? summary = await _runExplanationSummaryService
-                .GetSummaryAsync(scope, runGuid, cancellationToken)
-                .ConfigureAwait(false);
-
-            if (summary is null)
-                return null;
-
-            RunExplanationConfidenceSignals signals = RunExplanationConfidenceCalloutBuilder.FromSummary(summary);
-
-            return RunExplanationConfidenceCalloutBuilder.BuildExportCallout(signals);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            return null;
-        }
-    }
-
-    private static bool TryParseRunGuid(string runId, out Guid runGuid)
-    {
-        runGuid = Guid.Empty;
-
-        if (string.IsNullOrWhiteSpace(runId))
-            return false;
-
-        if (Guid.TryParse(runId, out runGuid))
-            return true;
-
-        if (runId.Length >= 32 && Guid.TryParseExact(runId[..32], "N", out runGuid))
-            return true;
-
-        return false;
-    }
-
-    private static string BuildMinimalHtml(ArchitectureReviewBoardExportDocumentModel documentModel, string? activeTrialExportNotice)
-    {
-        ArgumentNullException.ThrowIfNull(documentModel);
-
-        string title = string.IsNullOrWhiteSpace(documentModel.SystemName)
-            ? "Architecture review"
-            : documentModel.SystemName.Trim();
-        string summary = string.IsNullOrWhiteSpace(documentModel.SponsorReport)
-            ? "No Sponsor report is available for this review."
-            : documentModel.SponsorReport.Trim();
-
-        StringBuilder html = new();
-        html.AppendLine("<!DOCTYPE html>");
-        html.AppendLine("<html lang=\"en\">");
-        html.AppendLine("<head>");
-        html.AppendLine("<meta charset=\"utf-8\" />");
-        html.AppendLine(CultureInfo.InvariantCulture, $"<title>{HtmlEncode(title)}</title>");
-        html.AppendLine("</head>");
-        html.AppendLine("<body>");
-        html.AppendLine(CultureInfo.InvariantCulture, $"<h1>{HtmlEncode(title)}</h1>");
-        html.AppendLine(CultureInfo.InvariantCulture, $"<p><strong>Run:</strong> {HtmlEncode(documentModel.RunId)}</p>");
-
-        if (documentModel.IsDemoTenant)
-        {
-            html.AppendLine(
-                CultureInfo.InvariantCulture,
-                $"<p><strong>Demo notice:</strong> {HtmlEncode(ArchitectureReviewBoardCoverPageContent.DemoTenantNotice)}</p>");
-        }
-
-        if (!string.IsNullOrWhiteSpace(activeTrialExportNotice))
-        {
-            html.AppendLine(
-                CultureInfo.InvariantCulture,
-                $"<p><strong>Trial notice:</strong> {HtmlEncode(activeTrialExportNotice)}</p>");
-        }
-
-        if (!string.IsNullOrWhiteSpace(documentModel.SimulatorRehearsalTitle))
-        {
-            html.AppendLine(
-                CultureInfo.InvariantCulture,
-                $"<p><strong>Simulator notice:</strong> {HtmlEncode(documentModel.SimulatorRehearsalTitle)}</p>");
-
-            if (!string.IsNullOrWhiteSpace(documentModel.SimulatorRehearsalBody))
-            {
-                html.AppendLine(
-                    CultureInfo.InvariantCulture,
-                    $"<p>{HtmlEncode(documentModel.SimulatorRehearsalBody)}</p>");
-            }
-        }
-
-        if (!string.IsNullOrWhiteSpace(documentModel.ExplanationConfidenceCallout))
-        {
-            html.AppendLine(
-                CultureInfo.InvariantCulture,
-                $"<p><em>{HtmlEncode(documentModel.ExplanationConfidenceCallout)}</em></p>");
-        }
-
-        if (!string.IsNullOrWhiteSpace(documentModel.ManifestVersion))
-        {
-            html.AppendLine(
-                CultureInfo.InvariantCulture,
-                $"<p><strong>Manifest version:</strong> {HtmlEncode(documentModel.ManifestVersion)}</p>");
-        }
-
-        html.AppendLine("<h2>Summary</h2>");
-        html.AppendLine(CultureInfo.InvariantCulture, $"<p>{HtmlEncode(summary)}</p>");
-        html.AppendLine("</body>");
-        html.AppendLine("</html>");
-
-        return html.ToString();
-    }
-
-    private static string HtmlEncode(string value)
-    {
-        return System.Net.WebUtility.HtmlEncode(value);
-    }
-
-    private static string SanitizeRunIdForFileName(string runId)
-    {
-        string trimmed = runId.Trim();
-
-        if (trimmed.Length == 0)
-            return "run";
-
-        foreach (char c in Path.GetInvalidFileNameChars())
-            trimmed = trimmed.Replace(c, '_');
-
-        return trimmed.Length <= 120 ? trimmed : trimmed[..120];
     }
 }

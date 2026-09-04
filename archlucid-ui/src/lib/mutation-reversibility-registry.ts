@@ -18,6 +18,8 @@ export type MutationReversibilityEntry = {
   readonly classification: MutationReversibilityClass;
   readonly confirmationLead: string;
   readonly undoWindowSeconds?: number;
+  /** When true, operators can record an append-only correction on the audit trail after confirm. */
+  readonly amendable?: boolean;
 };
 
 export const MUTATION_UNDO_WINDOW_SECONDS = 300;
@@ -29,63 +31,72 @@ export const MUTATION_REVERSIBILITY_REGISTRY: Readonly<
 > = {
   governance_quick_approve: {
     id: "governance_quick_approve",
-    classification: "permanent",
+    classification: "reversible_with_audit",
+    amendable: true,
     confirmationLead:
-      "This records governance approval on the finalized review record. Prior approval remains on the audit trail; record a correction there if approval was mistaken.",
+      "This records governance approval on the finalized review record. Prior approval remains on the audit trail; use Record correction after confirming if approval was mistaken.",
   },
   governance_workflow_approve: {
     id: "governance_workflow_approve",
     classification: "reversible_with_audit",
+    amendable: true,
     confirmationLead:
-      "Approving this request updates the approval workflow state. Prior approval remains on the audit trail; record a correction there if approval was mistaken.",
+      "Approving this request updates the approval workflow state. Prior approval remains on the audit trail; use Record correction after confirming if approval was mistaken.",
   },
   governance_workflow_reject: {
     id: "governance_workflow_reject",
     classification: "reversible_with_audit",
+    amendable: true,
     confirmationLead:
-      "Rejecting this request updates the approval workflow state. Prior rejection remains on the audit trail; record a correction there if rejection was mistaken.",
+      "Rejecting this request updates the approval workflow state. Prior rejection remains on the audit trail; use Record correction after confirming if rejection was mistaken.",
   },
   governance_workflow_promote: {
     id: "governance_workflow_promote",
     classification: "reversible_with_audit",
+    amendable: true,
     confirmationLead:
-      "Promoting this pack applies it to the target environment for future approved changes. Prior promotion remains on the audit trail; record a correction there if promotion was mistaken.",
+      "Promoting this pack applies it to the target environment for future approved changes. Prior promotion remains on the audit trail; use Record correction after confirming if promotion was mistaken.",
   },
   governance_workflow_activate: {
     id: "governance_workflow_activate",
     classification: "reversible_with_audit",
+    amendable: true,
     confirmationLead:
-      "Activating this pack applies its rules to future approved changes in this environment. Prior activation remains on the audit trail; record a correction there if activation was mistaken.",
+      "Activating this pack applies its rules to future approved changes in this environment. Prior activation remains on the audit trail; use Record correction after confirming if activation was mistaken.",
   },
   governance_bulk_disposition: {
     id: "governance_bulk_disposition",
     classification: "reversible",
+    amendable: true,
     confirmationLead:
-      "Disposition changes are recorded on the evidence trail. You can undo for several minutes after confirming, or revisit deferred findings for 24 hours.",
+      "Disposition changes are recorded on the evidence trail. You can undo for several minutes after confirming, revisit deferred findings for 24 hours, or record a correction on the audit trail after confirming if the disposition was mistaken.",
     undoWindowSeconds: MUTATION_UNDO_WINDOW_SECONDS,
   },
   governance_keyboard_finding_disposition: {
     id: "governance_keyboard_finding_disposition",
     classification: "reversible",
+    amendable: true,
     confirmationLead:
-      "This disposition is recorded on the evidence trail. You can undo for several minutes after confirming, or revisit deferred findings for 24 hours.",
+      "This disposition is recorded on the evidence trail. You can undo for several minutes after confirming, revisit deferred findings for 24 hours, or record a correction on the audit trail after confirming if the disposition was mistaken.",
     undoWindowSeconds: MUTATION_UNDO_WINDOW_SECONDS,
   },
   governance_policy_pack_publish: {
     id: "governance_policy_pack_publish",
     classification: "permanent",
     confirmationLead:
-      "Publishing creates an immutable version row for this policy pack. It cannot be unpublished from this workspace.",
+      "Publishing creates an immutable version row for this policy pack. It cannot be unpublished from this workspace. If this publish was mistaken, document the correction in the governance audit trail or contact support.",
   },
   platform_bundled_policy_pack_activate: {
     id: "platform_bundled_policy_pack_activate",
     classification: "reversible_with_audit",
+    amendable: false,
     confirmationLead:
       "Activating this pack makes it available to every tenant. You can deactivate it later from this registry; changes are recorded on the audit trail.",
   },
   platform_bundled_policy_pack_deactivate: {
     id: "platform_bundled_policy_pack_deactivate",
     classification: "reversible_with_audit",
+    amendable: false,
     confirmationLead:
       "Deactivating removes this pack from tenant workspaces and stops it from applying to reviews. You can activate it again later; changes are recorded on the audit trail.",
   },
@@ -114,3 +125,19 @@ export function mutationReversibilityConfirmationDetail(mutationId: GovernanceMu
 export function mutationSupportsUndoWindow(mutationId: GovernanceMutationReversibilityId): boolean {
   return getMutationReversibilityEntry(mutationId).classification === "reversible";
 }
+
+export function mutationSupportsAmend(mutationId: GovernanceMutationReversibilityId): boolean {
+  const entry = getMutationReversibilityEntry(mutationId);
+
+  if (entry.amendable === false) {
+    return false;
+  }
+
+  if (entry.amendable === true) {
+    return true;
+  }
+
+  return entry.classification === "reversible_with_audit";
+}
+
+export const MUTATION_AMEND_ACTION_LABEL = "Record correction";

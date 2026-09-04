@@ -5,11 +5,13 @@ import { useCallback, useEffect, useState } from "react";
 import { DismissControl } from "@/components/usability/DismissControl";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { useTeachingChromeVisible } from "@/lib/workspace-mode/use-teaching-chrome-visible";
 
 const STORAGE_KEY = "archlucid_global_search_shortcut_coach_dismissed_v1";
 
 /** One-time reminder that `/` focuses global search and Ctrl+K opens the command palette. */
 export function GlobalSearchShortcutCoach(): React.JSX.Element | null {
+  const teachingChromeVisible = useTeachingChromeVisible();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -30,7 +32,7 @@ export function GlobalSearchShortcutCoach(): React.JSX.Element | null {
     setVisible(false);
   }, []);
 
-  if (!visible) {
+  if (!teachingChromeVisible || !visible) {
     return null;
   }
 

@@ -22,7 +22,9 @@ export const OPERATOR_START_REVIEW_QUICK_ACTION_LABEL = START_REVIEW_LABEL;
 /** Default left-nav label for `/architecture/reviews/new` when buyer vocabulary pass is active (TB-646). */
 export const NEW_REVIEW_NAV_LINK_LABEL = BUYER_NEW_REVIEW_NAV_LABEL;
 
-const NEW_REVIEW_NAV_TOOLTIP = `${START_REVIEW_LABEL} — Quick review, Guided intake, or full wizard (Alt+N)`;
+const NEW_REVIEW_NAV_TOOLTIP_GUIDED = `${START_REVIEW_LABEL} — Quick review, Guided intake, or full wizard (Alt+N)`;
+
+const NEW_REVIEW_NAV_TOOLTIP_WORKING = `${START_REVIEW_LABEL} — open the draft editor (Alt+N)`;
 
 const CREATE_ARCHITECTURE_NAV_TOOLTIP = `${CREATE_ARCHITECTURE_LABEL} — save drafts and resume later without starting a review`;
 
@@ -35,7 +37,11 @@ export function resolveNewReviewWizardBreadcrumbLabel(): string {
 }
 
 /** Sidebar / pilot nav tooltip for `/architecture/reviews/new` — explicit review initiation. */
-export function resolveStartReviewPrimaryNavTitle(): string {
+export function resolveStartReviewPrimaryNavTitle(workingMode = false): string {
+  if (workingMode) {
+    return NEW_REVIEW_NAV_TOOLTIP_WORKING;
+  }
+
   return `${START_REVIEW_LABEL} — evaluate an existing architecture or submitted material (Alt+N)`;
 }
 
@@ -73,8 +79,8 @@ export function resolveNewReviewNavLinkLabel(buyerPolishedShell: boolean): strin
   return START_REVIEW_LABEL;
 }
 
-export function resolveNewReviewNavLinkTitle(): string {
-  return NEW_REVIEW_NAV_TOOLTIP;
+export function resolveNewReviewNavLinkTitle(workingMode = false): string {
+  return workingMode ? NEW_REVIEW_NAV_TOOLTIP_WORKING : NEW_REVIEW_NAV_TOOLTIP_GUIDED;
 }
 
 type NavLinkPresentationSource = {
@@ -149,7 +155,7 @@ export function resolveQuickActionNavLinkPresentation(
     return applyBuyerNavVocabulary({
       href: link.href,
       label: OPERATOR_START_REVIEW_QUICK_ACTION_LABEL,
-      title: NEW_REVIEW_NAV_TOOLTIP,
+      title: NEW_REVIEW_NAV_TOOLTIP_GUIDED,
     });
   }
 

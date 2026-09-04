@@ -20,6 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 
 import type { GovernanceFindingsQueueAssignedToMeShellProps } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueAssignedToMeShell";
+import { GovernanceFindingsQueueQuietEnginesHint } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueQuietEnginesHint";
 
 export function GovernanceFindingsQueueScopeSection(
   props: GovernanceFindingsQueueAssignedToMeShellProps,
@@ -60,11 +61,15 @@ export function GovernanceFindingsQueueScopeSection(
             Compare with prior review (finding lifecycle)
           </Link>
         </p>
-      ) : props.scopedRunId === null || props.scopedRunId.length === 0 ? (
+      ) : !props.isAssignedToMe && (props.scopedRunId === null || props.scopedRunId.length === 0) ? (
         <FindingsQueuePickReviewBeforeTriageStrip
           selectedReviewId=""
           onSelectReview={props.onPickReviewForTriage}
         />
+      ) : null}
+
+      {props.scopedRunFilterActive ? (
+        <GovernanceFindingsQueueQuietEnginesHint scopedRunId={props.scopedRunId} />
       ) : null}
 
       {props.scopedRunFilterActive ? (

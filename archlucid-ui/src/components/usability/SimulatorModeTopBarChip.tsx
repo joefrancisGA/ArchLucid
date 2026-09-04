@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, type ReactElement } from "react";
 
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
-import { useSessionAiReadiness } from "@/hooks/use-session-ai-readiness";
+import { useSessionAiReadiness } from "@/hooks/session-ai-readiness-context";
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { OPERATOR_TYPOGRAPHY, enterpriseStatusTagClass } from "@/lib/design-tokens";
 import {

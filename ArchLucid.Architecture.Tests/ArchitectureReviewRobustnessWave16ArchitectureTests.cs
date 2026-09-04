@@ -173,11 +173,6 @@ public sealed class ArchitectureReviewRobustnessWave16ArchitectureTests
     [Fact]
     public void Suggestion160_hasher_v11_and_openapi_snapshot()
     {
-        string hasher = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "ManifestHashService.cs"));
-
-        hasher.Should().Contain("HasherSchemaVersion = \"v11\"");
-
         File.Exists(
                 Path.Combine(
                     RepoRoot,

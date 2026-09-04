@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import {
   resolveEvidenceTrailPresentationView,
   type EvidenceTrailPresentationView,
@@ -12,10 +12,10 @@ import {
 import { parseGraphScopeModeFromSearch } from "@/lib/insights/graph-scope-mode-url";
 import { parseGraphNodeTypeFromSearch } from "@/lib/insights/graph-node-type-url";
 import { parseGraphNeighborhoodDepthFromSearch } from "@/lib/insights/graph-neighborhood-depth-url";
-import {
-  parseGraphDecisionIdFromSearch,
+import { parseGraphDecisionIdFromSearch,
   parseGraphNodeIdFromSearch,
 } from "@/lib/insights/graph-node-decision-id-url";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 
 export function useGraphPageUrlState(options: {
   setRunId: (runId: string) => void;
@@ -27,7 +27,10 @@ export function useGraphPageUrlState(options: {
   setNodeId: (nodeId: string) => void;
   setDecisionId: (decisionId: string) => void;
 }): { urlRunId: string; urlGraphNodeId: string } {
+  const { isWorkingMode, mounted: workspaceMounted } = useWorkspaceMode();
+  const workingMode = workspaceMounted && isWorkingMode;
   const { setRunId, setGraphLoadRequested, setPresentationView, setMode, setTypeFilter, setDepth, setNodeId, setDecisionId } = options;
+  const productionEvalChrome = useProductionEvalChrome();
   const searchParams = useSearchParams();
   const urlRunId = searchParams.get("runId")?.trim() ?? "";
   const urlGraphNodeId = searchParams.get("graphNodeId")?.trim() ?? "";
@@ -46,9 +49,9 @@ export function useGraphPageUrlState(options: {
 
   useEffect(() => {
     setPresentationView(
-      resolveEvidenceTrailPresentationView(urlPresentation, isBuyerPolishedOperatorShellEnv()),
+      resolveEvidenceTrailPresentationView(urlPresentation, productionEvalChrome, workingMode),
     );
-  }, [urlPresentation, setPresentationView]);
+  }, [productionEvalChrome, urlPresentation, workingMode, setPresentationView]);
 
   useEffect(() => {
     setMode(parseGraphScopeModeFromSearch(urlGraphMode));

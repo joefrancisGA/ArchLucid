@@ -24,18 +24,37 @@ public sealed partial class ArtifactExportController
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> DownloadRunDecisionReceipt(Guid runId, CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
-        DecisionReceiptDocument? receipt =
+        DecisionReceiptRunBuildResult buildResult =
             await decisionReceiptService.BuildForRunAsync(scope, runId, ct);
 
-        if (receipt is null)
+        if (buildResult.Outcome == DecisionReceiptRunBuildOutcome.SealedHashMismatch)
+        {
+            return this.ConflictProblem(
+                $"Decision receipt for run '{runId}' failed sealed-hash verification.",
+                ProblemTypes.DecisionReceiptSealedHashMismatch);
+        }
+
+        if (buildResult.Outcome == DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete)
+        {
+            return this.ConflictProblem(
+                $"Decision receipt for run '{runId}' is missing sealed receipt fields required for export.",
+                ProblemTypes.DecisionReceiptSealedIncomplete);
+        }
+
+        if (buildResult.Outcome != DecisionReceiptRunBuildOutcome.Success || buildResult.Receipt is null)
+        {
             return this.NotFoundProblem(
                 $"Decision receipt for run '{runId}' was not found or is not exportable.",
                 ProblemTypes.ManifestNotFound);
+        }
+
+        DecisionReceiptDocument receipt = buildResult.Receipt;
 
         await auditService.LogAsync(
             new AuditEvent
@@ -60,6 +79,7 @@ public sealed partial class ArtifactExportController
     [Produces("application/zip")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> DownloadRunExport(
@@ -92,7 +112,16 @@ public sealed partial class ArtifactExportController
             await runExportPackageBuilder.BuildAsync(scope, runId, renderedPng, ct);
 
         if (!packageResult.Found)
+        {
+            if (packageResult.IsConflict)
+            {
+                return this.ConflictProblem(
+                    packageResult.NotFoundReason!,
+                    packageResult.ProblemType ?? ProblemTypes.DecisionReceiptSealedHashMismatch);
+            }
+
             return this.NotFoundProblem(packageResult.NotFoundReason!, packageResult.ProblemType);
+        }
 
         await auditService.LogAsync(
             new AuditEvent

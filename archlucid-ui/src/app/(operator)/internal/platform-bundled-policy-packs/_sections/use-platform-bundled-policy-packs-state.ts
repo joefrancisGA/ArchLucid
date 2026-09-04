@@ -1,9 +1,17 @@
 "use client";
 
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { listPlatformBundledPolicyPacks, setPlatformBundledPolicyPackActivation } from "@/lib/api";
+import { INTERNAL_PLATFORM_BUNDLED_POLICY_PACKS_PATH } from "@/lib/internal-ops-route-paths";
+import {
+  parsePlatformBundledPolicyPacksCategoryFromSearch,
+  parsePlatformBundledPolicyPacksSearchFromSearch,
+  platformBundledPolicyPacksCategoryHrefFromSearch,
+  platformBundledPolicyPacksSearchHrefFromSearch,
+} from "@/lib/internal/platform-bundled-policy-packs-filter-url";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
   platformBundledPolicyPackListLoadFailureMessage,
@@ -43,6 +51,12 @@ function rowMatchesFilters(
 }
 
 export function usePlatformBundledPolicyPacksState() {
+  const router = useRouter();
+  const pathname = usePathname() ?? INTERNAL_PLATFORM_BUNDLED_POLICY_PACKS_PATH;
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
+  const urlNameFilter = parsePlatformBundledPolicyPacksSearchFromSearch(searchParams.get("q"));
+  const urlCategoryFilter = parsePlatformBundledPolicyPacksCategoryFromSearch(searchParams.get("category"));
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const isAdmin = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
 
@@ -51,10 +65,46 @@ export function usePlatformBundledPolicyPacksState() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [updatingFile, setUpdatingFile] = useState<string | null>(null);
   const [toggleMessage, setToggleMessage] = useState<string | null>(null);
-  const [nameFilter, setNameFilter] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState<PlatformBundledPolicyPackCategory>("all");
+  const [nameFilter, setNameFilterState] = useState(urlNameFilter);
+  const [categoryFilter, setCategoryFilterState] = useState<PlatformBundledPolicyPackCategory>(urlCategoryFilter);
   const [pendingActivation, setPendingActivation] = useState<PendingPlatformBundledPolicyPackActivation | null>(null);
   const [deactivateAcknowledgment, setDeactivateAcknowledgment] = useState("");
+
+  useEffect(() => {
+    setNameFilterState(urlNameFilter);
+  }, [urlNameFilter]);
+
+  useEffect(() => {
+    setCategoryFilterState(urlCategoryFilter);
+  }, [urlCategoryFilter]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const nextHref = platformBundledPolicyPacksSearchHrefFromSearch(searchParams.toString(), nameFilter, pathname);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [nameFilter, pathname, router, searchParams]);
+
+  const setNameFilter = useCallback((value: string) => {
+    setNameFilterState(value);
+  }, []);
+
+  const setCategoryFilter = useCallback(
+    (value: PlatformBundledPolicyPackCategory) => {
+      setCategoryFilterState(value);
+      router.replace(platformBundledPolicyPacksCategoryHrefFromSearch(currentSearch, value, pathname), {
+        scroll: false,
+      });
+    },
+    [currentSearch, pathname, router],
+  );
 
   const load = useCallback(async (): Promise<boolean> => {
     setLoading(true);

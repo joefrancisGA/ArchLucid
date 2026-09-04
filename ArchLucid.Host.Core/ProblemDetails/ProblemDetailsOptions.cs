@@ -59,6 +59,15 @@ public static class ProblemTypes
     /// <summary>Request cannot be applied due to a resource state conflict.</summary>
     public const string Conflict = Base + "#conflict";
 
+    /// <summary>Manifest compare blocked because committed artifact inventory fingerprints differ.</summary>
+    public const string CommittedArtifactInventoryMismatch = Base + "#committed-artifact-inventory-mismatch";
+
+    /// <summary>Export blocked because sealed decision receipt hash does not match recomputed receipt.</summary>
+    public const string DecisionReceiptSealedHashMismatch = Base + "#decision-receipt-sealed-hash-mismatch";
+
+    /// <summary>Export blocked because sealed decision receipt fields are incomplete on the committed manifest.</summary>
+    public const string DecisionReceiptSealedIncomplete = Base + "#decision-receipt-sealed-incomplete";
+
     /// <summary>Agent output quality gate rejected persisted traces for this workspace (RFC 9457; HTTP 409).</summary>
     public const string QualityGateRejected = Base + "#quality-gate-rejected";
 

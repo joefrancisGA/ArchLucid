@@ -1,5 +1,5 @@
 using ArchLucid.Contracts.Findings;
-using ArchLucid.Persistence.Findings;
+using ArchLucid.Core.Findings;
 
 using FluentAssertions;
 

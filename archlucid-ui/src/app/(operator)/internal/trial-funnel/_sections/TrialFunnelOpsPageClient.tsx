@@ -2,17 +2,21 @@
 
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState, type ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { TrialFunnelEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { TrialFunnelDemoReadinessVocabularyRail } from "@/components/trial/TrialFunnelDemoReadinessVocabularyRail";
 import { Button } from "@/components/ui/button";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE_SHORT } from "@/lib/buyer/buyer-polish-copy";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { INTERNAL_TRIAL_FUNNEL_PATH } from "@/lib/internal-ops-route-paths";
 import {
@@ -21,29 +25,126 @@ import {
   type TrialFunnelPeriodDays,
 } from "@/lib/trial-funnel-metric-contract";
 import {
+  parseTrialFunnelAttentionOnlyFromSearch,
+  parseTrialFunnelCohortSortAscFromSearch,
+  parseTrialFunnelCohortSortKeyFromSearch,
+  parseTrialFunnelComparePreviousFromSearch,
+  parseTrialFunnelPeriodDaysFromSearch,
+  parseTrialFunnelStageFromSearch,
+  trialFunnelAttentionHrefFromSearch,
+  trialFunnelCohortSortHrefFromSearch,
+  trialFunnelCompareHrefFromSearch,
+  trialFunnelPeriodHrefFromSearch,
+  trialFunnelStageHrefFromSearch,
+  type TrialFunnelCohortSortKey,
+} from "@/lib/internal/trial-funnel-filter-url";
+import {
   fetchTrialFunnelOperationalSummary,
   type TrialFunnelOperationalSummary,
 } from "@/lib/trial-funnel-ops";
 
 import { exportCohortCsv, formatUtcLabel } from "./trial-funnel-formatters";
-import { TrialFunnelCohortTable, type CohortSortKey } from "./TrialFunnelCohortTable";
+import { TrialFunnelCohortTable } from "./TrialFunnelCohortTable";
 import { TrialFunnelOverviewSection } from "./TrialFunnelOverviewSection";
 
 type LoadState = "loading" | "ready" | "error";
 
 export function TrialFunnelOpsPageClient(): ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? INTERNAL_TRIAL_FUNNEL_PATH;
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
+  const urlPeriodDays = parseTrialFunnelPeriodDaysFromSearch(searchParams.get("range"));
+  const urlStageFilter = parseTrialFunnelStageFromSearch(searchParams.get("stage"));
+  const urlAttentionOnly = parseTrialFunnelAttentionOnlyFromSearch(searchParams.get("attention"));
+  const urlComparePrevious = parseTrialFunnelComparePreviousFromSearch(searchParams.get("compare"));
+  const urlSortKey = parseTrialFunnelCohortSortKeyFromSearch(searchParams.get("sort"));
+  const urlSortAsc = parseTrialFunnelCohortSortAscFromSearch(searchParams.get("dir"));
+
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const isAdmin = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const [data, setData] = useState<TrialFunnelOperationalSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loadState, setLoadState] = useState<LoadState>("loading");
-  const [periodDays, setPeriodDays] = useState<TrialFunnelPeriodDays>(30);
-  const [comparePrevious, setComparePrevious] = useState(false);
-  const [stageFilter, setStageFilter] = useState<string>("all");
-  const [attentionOnly, setAttentionOnly] = useState(false);
-  const [sortKey, setSortKey] = useState<CohortSortKey>("trialStartedUtc");
-  const [sortAsc, setSortAsc] = useState(false);
+  const [periodDays, setPeriodDays] = useState<TrialFunnelPeriodDays>(urlPeriodDays);
+  const [comparePrevious, setComparePrevious] = useState(urlComparePrevious);
+  const [stageFilter, setStageFilter] = useState<string>(urlStageFilter);
+  const [attentionOnly, setAttentionOnly] = useState(urlAttentionOnly);
+  const [sortKey, setSortKey] = useState<TrialFunnelCohortSortKey>(urlSortKey);
+  const [sortAsc, setSortAsc] = useState(urlSortAsc);
   const [refreshAnnouncement, setRefreshAnnouncement] = useState<string | null>(null);
+
+  useEffect(() => {
+    setPeriodDays(urlPeriodDays);
+  }, [urlPeriodDays]);
+
+  useEffect(() => {
+    setStageFilter(urlStageFilter);
+  }, [urlStageFilter]);
+
+  useEffect(() => {
+    setAttentionOnly(urlAttentionOnly);
+  }, [urlAttentionOnly]);
+
+  useEffect(() => {
+    setComparePrevious(urlComparePrevious);
+  }, [urlComparePrevious]);
+
+  useEffect(() => {
+    setSortKey(urlSortKey);
+  }, [urlSortKey]);
+
+  useEffect(() => {
+    setSortAsc(urlSortAsc);
+  }, [urlSortAsc]);
+
+  const onComparePreviousChange = useCallback(
+    (next: boolean) => {
+      setComparePrevious(next);
+      router.replace(trialFunnelCompareHrefFromSearch(currentSearch, next, pathname), { scroll: false });
+    },
+    [currentSearch, pathname, router],
+  );
+
+  const onAttentionOnlyChange = useCallback(
+    (next: boolean) => {
+      setAttentionOnly(next);
+      router.replace(trialFunnelAttentionHrefFromSearch(currentSearch, next, pathname), { scroll: false });
+    },
+    [currentSearch, pathname, router],
+  );
+
+  const onSortKeyChange = useCallback(
+    (next: TrialFunnelCohortSortKey) => {
+      setSortKey(next);
+      router.replace(trialFunnelCohortSortHrefFromSearch(currentSearch, next, sortAsc, pathname), { scroll: false });
+    },
+    [currentSearch, pathname, router, sortAsc],
+  );
+
+  const onSortAscChange = useCallback(
+    (next: boolean) => {
+      setSortAsc(next);
+      router.replace(trialFunnelCohortSortHrefFromSearch(currentSearch, sortKey, next, pathname), { scroll: false });
+    },
+    [currentSearch, pathname, router, sortKey],
+  );
+
+  const onPeriodDaysChange = useCallback(
+    (next: TrialFunnelPeriodDays) => {
+      setPeriodDays(next);
+      router.replace(trialFunnelPeriodHrefFromSearch(currentSearch, next, pathname), { scroll: false });
+    },
+    [currentSearch, pathname, router],
+  );
+
+  const onStageFilterChange = useCallback(
+    (next: string) => {
+      setStageFilter(next);
+      router.replace(trialFunnelStageHrefFromSearch(currentSearch, next, pathname), { scroll: false });
+    },
+    [currentSearch, pathname, router],
+  );
 
   const refresh = useCallback(async () => {
     setLoadState("loading");
@@ -160,26 +261,27 @@ export function TrialFunnelOpsPageClient(): ReactElement {
         }
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            <label className={cn("inline-flex items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>
-              <span className={OPERATOR_NAV_GROUP_LABEL}>Date range</span>
-              <select
-                className="rounded-md border border-neutral-300 bg-white px-2 py-1 text-sm dark:border-neutral-700 dark:bg-neutral-950"
-                value={periodDays}
-                onChange={(event) => setPeriodDays(Number(event.target.value) as TrialFunnelPeriodDays)}
-                aria-label="Date range"
-              >
-                {TRIAL_FUNNEL_PERIOD_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <FilterChipGroup aria-label="Trial funnel date range" className="flex flex-wrap gap-2">
+              {TRIAL_FUNNEL_PERIOD_OPTIONS.map((option) => (
+                <FilterChip
+                  key={option.value}
+                  href={trialFunnelPeriodHrefFromSearch(currentSearch, option.value, pathname)}
+                  scroll={false}
+                  className={buyerFilterChipClass(periodDays === option.value, loadState === "loading")}
+                  aria-current={periodDays === option.value ? "page" : undefined}
+                  disabled={loadState === "loading"}
+                  data-testid={`trial-funnel-period-${option.value}`}
+                  onClick={() => onPeriodDaysChange(option.value)}
+                >
+                  {option.label}
+                </FilterChip>
+              ))}
+            </FilterChipGroup>
             <label className={cn("inline-flex items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>
               <input
                 type="checkbox"
                 checked={comparePrevious}
-                onChange={(event) => setComparePrevious(event.target.checked)}
+                onChange={(event) => onComparePreviousChange(event.target.checked)}
               />
               Compare with previous period
             </label>
@@ -233,15 +335,17 @@ export function TrialFunnelOpsPageClient(): ReactElement {
         data={data}
         loadState={loadState}
         periodDays={periodDays}
+        currentSearch={currentSearch}
+        pathname={pathname}
         filteredCohortRows={filteredCohortRows}
         stageFilter={stageFilter}
-        setStageFilter={setStageFilter}
+        setStageFilter={onStageFilterChange}
         attentionOnly={attentionOnly}
-        setAttentionOnly={setAttentionOnly}
+        setAttentionOnly={onAttentionOnlyChange}
         sortKey={sortKey}
-        setSortKey={setSortKey}
+        setSortKey={onSortKeyChange}
         sortAsc={sortAsc}
-        setSortAsc={setSortAsc}
+        setSortAsc={onSortAscChange}
       />
     </OperatorPageContainer>
   );

@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 
-import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import { buildCompareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
 import { INTERNAL_REPLAY_PATH } from "@/lib/internal-ops-route-paths";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -16,7 +16,7 @@ export function RunDetailWhatsNextSection(props: RunDetailWhatsNextSectionProps)
   const runId = props.runId.trim();
   const encodedRunId = encodeURIComponent(runId);
   const planNextReviewHref = `/architecture/reviews/new?sourceRunId=${encodedRunId}&mode=followup`;
-  const compareHref = comparePageHrefAdaptive(runId);
+  const compareHref = buildCompareTwoReviewsHref({ baseRunId: runId });
   const replayHref = `${INTERNAL_REPLAY_PATH}?runId=${encodedRunId}`;
 
   return (

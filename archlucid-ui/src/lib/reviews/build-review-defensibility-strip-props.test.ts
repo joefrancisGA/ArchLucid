@@ -5,10 +5,11 @@ import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
 const verdict: ManifestFeasibilityVerdict = {
   kind: "feasible",
+  summary: "Ready",
   transparencyTrail: {
-    asserted: ["outcome"],
-    inferred: ["latency"],
-    skipped: ["security"],
+    asserted: [{ key: "outcome", value: "ok" }],
+    inferred: [{ key: "latency", value: "low", confidence: 0.9 }],
+    skipped: [{ questionKey: "l0.pillar.security", tier: "Must" }],
   },
 };
 

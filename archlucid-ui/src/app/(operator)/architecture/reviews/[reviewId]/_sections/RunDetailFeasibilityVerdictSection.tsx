@@ -8,10 +8,7 @@ import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
 import {
   parseFeasibilityVerdictDrivers,
 } from "@/lib/feasibility-verdict-transparency-trail";
-import {
-  feasibilityVerdictKindLabel,
-  feasibilityVerdictTone,
-} from "@/lib/feasibility-verdict-display";
+import { resolveFeasibilityVerdictForDisplay } from "@/lib/feasibility/resolve-feasibility-verdict-for-display";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -39,15 +36,29 @@ export function RunDetailFeasibilityVerdictSection(
 ): ReactElement {
   const { verdict } = props;
   const reviewId = props.runId.trim();
-  const tone = feasibilityVerdictTone(verdict.kind);
+  const display = resolveFeasibilityVerdictForDisplay(verdict);
   const trail = verdict.transparencyTrail;
   const verdictDrivers = parseFeasibilityVerdictDrivers(trail);
 
   return (
     <section id="feasibility-verdict" className="scroll-mt-24" data-testid="run-detail-feasibility-verdict">
-      <div className={`rounded-lg border p-4 ${toneClassName(tone)}`}>
+      <div className={`rounded-lg border p-4 ${toneClassName(display.tone)}`}>
         <h4 className={`${runDetailSectionHeadingClass} mb-2`}>Feasibility verdict</h4>
-        <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.body)}>{feasibilityVerdictKindLabel(verdict.kind)}</p>
+        {display.missingHardCitationDefect ? (
+          <div
+            className="mb-3 rounded-md border border-rose-300 bg-rose-50 px-3 py-2 text-rose-900 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-100"
+            data-testid="feasibility-verdict-missing-hard-citation-defect"
+          >
+            <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.body)}>
+              Hard infeasibility requires a citation
+            </p>
+            <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+              This verdict cannot be presented as hard infeasible without a law, theorem, or invariant contradiction
+              reference. Treat the outcome as provisional until the citation is recorded.
+            </p>
+          </div>
+        ) : null}
+        <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.body)}>{display.kindLabel}</p>
         <p className={cn("mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{verdict.summary}</p>
 
         <FeasibilityVerdictDriversPanel

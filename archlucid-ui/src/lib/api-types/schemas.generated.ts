@@ -1981,12 +1981,21 @@ export interface components {
         };
         /** @enum {string} */
         CloudProvider: "None" | "Azure" | "Aws" | "Gcp";
+        CommitRunCommittedArtifactInventoryEntry: {
+            artifactName?: string;
+            /** Format: date-time */
+            capturedUtc?: string;
+            contentHashSha256?: string;
+            contentType?: string;
+            producer?: string;
+        };
         CommitRunRequest: {
             acknowledgedAssumptionIds?: null | string[];
             bypassJustification?: null | string;
             notifySponsor?: boolean;
         };
         CommitRunResponse: {
+            committedArtifactInventory?: components["schemas"]["CommitRunCommittedArtifactInventoryEntry"][];
             decisionTraces?: unknown[];
             manifest?: components["schemas"]["GoldenManifest"];
             warnings?: string[];
@@ -2044,14 +2053,17 @@ export interface components {
             policyReferences?: string[];
             reviewedQualityDimensions?: string[];
         };
+        /** @description Wave-15 suggestion 145: compare input fingerprints including committed artifact inventory rows. */
         CompareInputFingerprints: {
             baseArchitectureVersionContentHashSha256?: null | string;
+            baseCommittedArtifactInventoryHashSha256?: null | string;
             baseEvidencePackagePinHashSha256?: null | string;
             baseKnowledgeModelContentHashSha256?: null | string;
             baseManifestHashSha256?: null | string;
             basePolicyPackPinHashSha256?: null | string;
             comparisonAlgorithmVersion?: string;
             targetArchitectureVersionContentHashSha256?: null | string;
+            targetCommittedArtifactInventoryHashSha256?: null | string;
             targetEvidencePackagePinHashSha256?: null | string;
             targetKnowledgeModelContentHashSha256?: null | string;
             targetManifestHashSha256?: null | string;
@@ -2159,7 +2171,14 @@ export interface components {
             costChanges?: components["schemas"]["CostDelta"][];
             decisionChanges?: components["schemas"]["DecisionDelta"][];
             duplicateKeyConflicts?: components["schemas"]["ComparisonDuplicateKeyConflict"][];
-            inputFingerprints?: null | components["schemas"]["CompareInputFingerprints"];
+            /** @description Wave-13/14/15: create-time pin, manifest hash, and committed artifact inventory fingerprints for both compare inputs. */
+            inputFingerprints?: {
+                baseCommittedArtifactInventoryHashSha256?: string;
+                baseManifestHashSha256?: string;
+                comparisonAlgorithmVersion?: string;
+                targetCommittedArtifactInventoryHashSha256?: string;
+                targetManifestHashSha256?: string;
+            } | null | components["schemas"]["CompareInputFingerprints"];
             requirementChanges?: components["schemas"]["RequirementDelta"][];
             securityChanges?: components["schemas"]["SecurityDelta"][];
             summaryHighlights?: string[];
@@ -3601,6 +3620,8 @@ export interface components {
             engineType?: string;
             /** Format: int32 */
             evaluationConfidenceScore?: null | number;
+            /** Format: uuid */
+            evidencePackageId?: null | string;
             findingId?: string;
             /** Format: int32 */
             findingSchemaVersion?: number;
@@ -4168,6 +4189,16 @@ export interface components {
             currentManifestVersion?: null | string;
             runId?: string;
             status?: string;
+        };
+        GovernanceMutationCorrectionRecordedDto: {
+            correctionId?: string;
+            mutationKind?: string;
+            rationale?: string;
+            /** Format: date-time */
+            recordedAtUtc?: string;
+            recordedByUserId?: string;
+            runId?: string;
+            subjectId?: string;
         };
         GovernancePreviewResult: {
             currentManifestVersion?: null | string;
@@ -5035,6 +5066,7 @@ export interface components {
             addedRelationships?: components["schemas"]["RelationshipDiffItem"][];
             addedRequiredControls?: string[];
             addedServices?: string[];
+            inputFingerprints?: null | components["schemas"]["CompareInputFingerprints"];
             leftManifestVersion?: string;
             removedDatastores?: string[];
             removedRelationships?: components["schemas"]["RelationshipDiffItem"][];
@@ -5048,6 +5080,7 @@ export interface components {
             architectureVersionId?: null | string;
             assumptions?: string[];
             committedArtifactInventory?: components["schemas"]["CommittedArtifactInventoryEntry"][];
+            committedDecisionReceiptHashSha256?: null | string;
             compliance?: components["schemas"]["ComplianceSection"];
             constraints?: components["schemas"]["ConstraintSection"];
             /** Format: uuid */
@@ -5170,6 +5203,7 @@ export interface components {
             feasibilityVerdict?: null | components["schemas"]["FeasibilityVerdict"];
             hasUnresolvedIssues?: boolean;
             hasWarnings?: boolean;
+            /** @description Read-only SHA-256 over canonical committed manifest hash (Hasher A). */
             manifestHash: string;
             /** Format: uuid */
             manifestId: string;
@@ -6971,6 +7005,12 @@ export interface components {
             runId?: null | string;
             tradeOffAcknowledgment?: null | string;
         };
+        RecordGovernanceMutationCorrectionRequest: {
+            mutationKind?: string;
+            rationale?: string;
+            runId?: string;
+            subjectId?: string;
+        };
         RecordRunOperatorGovernanceDispositionRequest: {
             decision?: components["schemas"]["RunOperatorGovernanceDecision"];
             rationale?: null | string;
@@ -8084,6 +8124,9 @@ export interface components {
         };
         SetPolicyPackAssignmentEnabledRequest: {
             isEnabled?: boolean;
+        };
+        SetProfessionalWorkbenchEnabledRequest: {
+            enabled?: boolean;
         };
         SetSampleReviewsOnOverviewVisibilityRequest: {
             enabled?: boolean;
@@ -9502,6 +9545,8 @@ export interface components {
             cloudPlatformScopeIsExplicit?: boolean;
             ianaTimeZoneId?: string;
             ianaTimeZoneIsExplicit?: boolean;
+            professionalWorkbenchEnabled?: boolean;
+            professionalWorkbenchEnabledIsExplicit?: boolean;
             sampleReviewsOnOverviewEnabled?: boolean;
             sampleReviewsOnOverviewIsExplicit?: boolean;
             whereToGoNextEnabled?: boolean;

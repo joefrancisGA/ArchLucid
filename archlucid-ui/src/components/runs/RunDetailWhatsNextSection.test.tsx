@@ -18,7 +18,10 @@ describe("RunDetailWhatsNextSection", () => {
     );
 
     const compareLink = screen.getByTestId("run-detail-compare-review");
-    expect(compareLink.getAttribute("href")).toContain(runId);
+    expect(compareLink).toHaveAttribute(
+      "href",
+      `/insights/compare-two-reviews?priorRunId=${encodeURIComponent(runId)}`,
+    );
 
     const replayLink = screen.getByTestId("run-detail-replay-review");
     expect(replayLink).toHaveAttribute("href", `/internal/validate-route?runId=${encodeURIComponent(runId)}`);

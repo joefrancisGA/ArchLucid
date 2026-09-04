@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:403 -->
+<!-- audit-core-const-count:404 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -150,6 +150,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Governance resolution API | `GovernanceResolutionController` | `GovernanceResolutionExecuted`, `GovernanceConflictDetected` | — | resolution payload summary |
 | Governance environment catalog replace | `GovernanceEnvironmentCatalogController` (`PUT /v1/governance/environment-catalog`) | `GovernanceEnvironmentCatalogReplaced` | Tenant/Workspace/Project from ambient scope | `environmentCount`, `transitionCount` |
 | Governance workflow (approval / promote / activate) | `GovernanceWorkflowService` | `GovernanceApprovalSubmitted`, `GovernanceApprovalApproved`, `GovernanceApprovalRejected`, `GovernanceSelfApprovalBlocked` (segregation-of-duties block), `GovernanceManifestPromoted`, `GovernanceEnvironmentActivated` | RunId when parseable | ids, environments, manifest version (JSON); self-approval block includes `approvalRequestId`, `requestedBy`, `requestedByActorKey`, `attemptedReviewerBy`, `attemptedReviewerActorKey` |
+| Governance mutation correction (append-only, original row unchanged) | `GovernanceController` (`POST /v1/governance/mutation-corrections`); `GovernanceMutationCorrectionService` | `GovernanceMutationCorrectionRecorded` | RunId when parseable | `{ correctionId, mutationKind, subjectId, runId, rationale, recordedAtUtc, recordedByUserId }` |
 | Governance approval SLA breach | `ApprovalSlaMonitor` | `GovernanceApprovalSlaBreached` | — | `approvalRequestId`, `runId`, `requestedBy`, `slaDeadlineUtc`, `breachedByMinutes` |
 | Governance policy-pack rule draft (LLM assist, no persistence) | `GovernanceController` (`POST /v1/governance/policy-pack/draft`); `PolicyPackDraftService` | — | — | Execute-auth gated LLM assist; returns suggested rule only — **no** durable audit row |
 | Governance policy-pack generate (NL curated rules document, no persistence) | `GovernanceController` (`POST /v1/governance/policy-pack/generate`); `PolicyPackGeneratorService` | — | — | Execute-auth gated NL assist; returns curated rules document only — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
@@ -162,6 +163,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | User cloud platform scope preference upsert | `UserPreferencesController` (`PUT /v1/user/preferences/cloud-platforms`) | — | — | Personal cloud platform scope stored in `dbo.UserSettings`; **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | User Where to go next visibility preference upsert | `UserPreferencesController` (`PUT /v1/user/preferences/where-to-go-next`) | — | — | Personal Where to go next strip visibility stored in `dbo.UserSettings`; **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | User sample reviews on Overview visibility preference upsert | `UserPreferencesController` (`PUT /v1/user/preferences/sample-reviews-on-overview`) | — | — | Personal sample-reviews-on-Overview visibility stored in `dbo.UserSettings`; **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
+| User professional workbench preference upsert | `UserPreferencesController` (`PUT /v1/user/preferences/professional-workbench`) | — | — | Personal professional workbench layout preference stored in `dbo.UserSettings`; **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | User IANA time zone preference upsert | `UserPreferencesController` (`PUT /v1/user/preferences/time-zone`) | — | — | Personal IANA time zone stored in `dbo.UserSettings`; **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | User workspace mode preference upsert | `UserPreferencesController` (`PUT /v1/user/preferences/workspace-mode`) | — | — | Personal Guided/Working workspace mode stored in `dbo.UserSettings`; **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | User workspace-mode graduation-offer preference upsert | `UserPreferencesController` (`PUT /v1/user/preferences/workspace-mode-graduation-offer`) | — | — | Personal workspace-mode graduation-offer state stored in `dbo.UserSettings`; **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
@@ -585,6 +587,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `GovernanceManifestPromoted` | `GovernanceManifestPromoted` | `GovernanceWorkflowService` |
 | `GovernanceEnvironmentCatalogReplaced` | `GovernanceEnvironmentCatalogReplaced` | `GovernanceEnvironmentCatalogController` (`PUT /v1/governance/environment-catalog`) |
 | `GovernanceEnvironmentActivated` | `GovernanceEnvironmentActivated` | `GovernanceWorkflowService` |
+| `GovernanceMutationCorrectionRecorded` | `GovernanceMutationCorrectionRecorded` | `GovernanceMutationCorrectionService` (`POST /v1/governance/mutation-corrections`) |
 | `GovernanceDryRunRequested` | `GovernanceDryRunRequested` | `PolicyPackDryRunService` (POST `/v1/governance/policy-packs/{id}/dry-run`; redaction-pipeline mandatory per Q37) |
 | `GovernanceDryRunValidationAttempted` | `GovernanceDryRunValidationAttempted` | `GovernanceWorkflowService` (approval / promotion path with `dryRun=true`; validates write path without committing row/outbox/integration publish) |
 | `DataArchivalHostLoopFailed` | `DataArchivalHostLoopFailed` | `DataArchivalHostIteration` |

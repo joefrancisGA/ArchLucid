@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { logWorkspaceAiAvailabilityProbe } from "@/lib/session-ai-readiness/log-workspace-ai-availability-probe";
 import {
   fetchWorkspaceAiAvailability,
   WORKSPACE_AI_AVAILABILITY_FETCH_TIMEOUT_MS,
@@ -27,6 +28,7 @@ export function useWorkspaceAiAvailabilityCheck(input: {
   const inFlightRef = useRef<AbortController | null>(null);
   const autoCheckedRef = useRef(false);
   const retriesRemainingRef = useRef(input.maxAutoRetries ?? (input.autoRetryOnError === true ? 1 : 0));
+  const attemptIndexRef = useRef(0);
 
   const checkAvailability = useCallback(
     async (options?: { readonly force?: boolean }) => {
@@ -41,6 +43,9 @@ export function useWorkspaceAiAvailabilityCheck(input: {
       inFlightRef.current?.abort();
       const controller = new AbortController();
       inFlightRef.current = controller;
+      const startedAtMs = performance.now();
+      const attemptIndex = attemptIndexRef.current;
+      attemptIndexRef.current += 1;
 
       const timeoutId = window.setTimeout(() => {
         controller.abort();
@@ -55,7 +60,16 @@ export function useWorkspaceAiAvailabilityCheck(input: {
           return;
         }
 
+        logWorkspaceAiAvailabilityProbe({
+          outcome: "success",
+          durationMs: Math.round(performance.now() - startedAtMs),
+          isAvailable: result.isAvailable,
+          aiSource: result.aiSource,
+          retryAttempt: attemptIndex,
+        });
+
         setState({ status: "loaded", result });
+        attemptIndexRef.current = 0;
       } catch (error) {
         if (inFlightRef.current !== controller) {
           return;
@@ -66,14 +80,17 @@ export function useWorkspaceAiAvailabilityCheck(input: {
           (error instanceof Error &&
             (error.name === "AbortError" || error.message.toLowerCase().includes("abort")));
 
-        const message = timedOut
-          ? `AI availability check timed out after ${WORKSPACE_AI_AVAILABILITY_FETCH_TIMEOUT_MS / 1000}s.`
-          : error instanceof Error && error.message.trim().length > 0
-            ? error.message
-            : "Workspace AI availability check failed.";
+        const durationMs = Math.round(performance.now() - startedAtMs);
 
         if (input.autoRetryOnError === true && retriesRemainingRef.current > 0) {
           retriesRemainingRef.current -= 1;
+
+          logWorkspaceAiAvailabilityProbe({
+            outcome: timedOut ? "timeout" : "error",
+            durationMs,
+            retryAttempt: attemptIndex,
+          });
+
           window.setTimeout(() => {
             void checkAvailability({ force: true });
           }, 400);
@@ -81,11 +98,20 @@ export function useWorkspaceAiAvailabilityCheck(input: {
           return;
         }
 
-        const finalMessage = timedOut
-          ? `${message} Press Check AI availability to retry.`
-          : message;
+        logWorkspaceAiAvailabilityProbe({
+          outcome: timedOut ? "timeout" : "error",
+          durationMs,
+          retryAttempt: attemptIndex,
+        });
 
-        setState({ status: "error", message: finalMessage });
+        const message = timedOut
+          ? `AI availability check timed out after ${WORKSPACE_AI_AVAILABILITY_FETCH_TIMEOUT_MS / 1000}s.`
+          : error instanceof Error && error.message.trim().length > 0
+            ? error.message
+            : "Workspace AI availability check failed.";
+
+        setState({ status: "error", message });
+        attemptIndexRef.current = 0;
       } finally {
         window.clearTimeout(timeoutId);
 
@@ -96,6 +122,14 @@ export function useWorkspaceAiAvailabilityCheck(input: {
     },
     [input.autoRetryOnError, input.enabled, state.status],
   );
+
+  useEffect(() => {
+    if (!input.enabled) {
+      autoCheckedRef.current = false;
+      retriesRemainingRef.current = input.maxAutoRetries ?? (input.autoRetryOnError === true ? 1 : 0);
+      attemptIndexRef.current = 0;
+    }
+  }, [input.autoRetryOnError, input.enabled, input.maxAutoRetries]);
 
   useEffect(() => {
     if (!input.enabled || input.autoCheck !== true || autoCheckedRef.current) {

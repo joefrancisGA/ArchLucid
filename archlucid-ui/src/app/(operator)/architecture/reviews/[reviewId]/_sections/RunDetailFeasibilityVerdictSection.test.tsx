@@ -46,4 +46,17 @@ describe("RunDetailFeasibilityVerdictSection", () => {
     expect(screen.getByTestId("transparency-trail-panel")).toBeInTheDocument();
     expect(screen.getByTestId("decision-receipt-export")).toBeInTheDocument();
   });
+
+  it("shows a defect instead of hard labeling when citation is missing", () => {
+    const verdict: ManifestFeasibilityVerdict = {
+      kind: "HardInfeasible",
+      summary: "Required controls cannot be satisfied.",
+    };
+
+    render(<RunDetailFeasibilityVerdictSection verdict={verdict} runId="run-1" />);
+
+    expect(screen.getByTestId("feasibility-verdict-missing-hard-citation-defect")).toBeInTheDocument();
+    expect(screen.getByText("Infeasibility verdict needs citation")).toBeInTheDocument();
+    expect(screen.queryByText("Hold")).not.toBeInTheDocument();
+  });
 });

@@ -79,7 +79,9 @@ internal static class ManifestCommittedArtifactInventoryRecoveryMaterialBuilder
             FindingsSerialization.SerializeSnapshot(findingsSnapshot));
 
         byte[] decisionTraceUtf8 = Encoding.UTF8.GetBytes(
-            JsonSerializer.Serialize(traceDto, ContractJson.Default));
+            JsonSerializer.Serialize(
+                DecisionTraceRecordMapper.ToDto(DecisionTraceRecordMapper.ToDomain(traceDto)),
+                ContractJson.Default));
 
         byte[]? artifactBundleUtf8 = null;
 

@@ -1,10 +1,11 @@
 import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { describe, expect, it, vi, afterEach } from "vitest";
 
 import { OperatorAdminNavGroupBuilder } from "@/lib/operator/operator-admin-nav-group-builder";
-import { OperateGovernanceNavGroupBuilder } from "@/lib/operate-governance-nav-group-builder";
+import { OperatePolicyNavGroupBuilder } from "@/lib/operate-policy-nav-group-builder";
 import { PilotNavGroupBuilder } from "@/lib/pilot-nav-group-builder";
 
 describe("PilotNavGroupBuilder", () => {
@@ -42,8 +43,8 @@ describe("PilotNavGroupBuilder", () => {
     expect(dashboardLink?.href).toBe(SPONSOR_DASHBOARD_HREF);
   });
 
-  it("includes recurrence schedules in the governance nav group (TB-406)", () => {
-    const group = new OperateGovernanceNavGroupBuilder().build();
+  it("includes recurrence schedules in the policy nav group (TB-406)", () => {
+    const group = new OperatePolicyNavGroupBuilder().build();
     const recurrenceLink = group.links.find((link) => link.href === "/governance/recurrence-schedules");
 
     expect(recurrenceLink).toBeDefined();
@@ -79,7 +80,9 @@ describe("PilotNavGroupBuilder", () => {
 
     expect(group.links.map((link) => link.label)).toEqual([
       "Home",
+      "Architectures",
       "Packages",
+      "Finalized review records",
       "Sponsor dashboard",
       "First review guide",
       "Digests",
@@ -87,13 +90,29 @@ describe("PilotNavGroupBuilder", () => {
     expect(group.links.some((link) => link.href === "/insights/evidence-graph")).toBe(false);
   });
 
+  it("lists Architectures as the draft inventory destination (LI-06)", () => {
+    const group = new PilotNavGroupBuilder().build();
+    const architecturesLink = group.links.find((link) => link.href === ARCHITECTURES_LIST_PATH);
+
+    expect(architecturesLink?.label).toBe("Architectures");
+    expect(architecturesLink?.title).toContain("saved architecture drafts");
+  });
+
   it("lists Packages as the unified reviews and drafts destination", () => {
     const group = new PilotNavGroupBuilder().build();
     const packagesLink = group.links.find((link) => link.label === "Packages");
 
     expect(packagesLink?.href).toBe("/architecture/reviews");
-    expect(group.links.some((link) => link.href === ARCHITECTURES_LIST_PATH)).toBe(false);
+    expect(group.links.some((link) => link.href === ARCHITECTURES_LIST_PATH)).toBe(true);
     expect(group.links.some((link) => link.label === "Reviews")).toBe(false);
+  });
+
+  it("lists sealed review records in Architecture nav for Working discoverability (LD-07)", () => {
+    const group = new PilotNavGroupBuilder().build();
+    const sealedLink = group.links.find((link) => link.href === SIGNED_RECORDS_LIST_PATH);
+
+    expect(sealedLink?.label).toBe("Finalized review records");
+    expect(sealedLink?.requiredAuthority).toBe("ReadAuthority");
   });
 
   it("keeps Architecture intelligence out of nav so it stays a run-scoped deep-link target", () => {

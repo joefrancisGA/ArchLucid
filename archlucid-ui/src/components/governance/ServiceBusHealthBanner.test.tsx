@@ -89,7 +89,7 @@ describe("ServiceBusHealthBanner", () => {
     await waitFor(() => {
       expect(screen.getByTestId("service-bus-health-degraded-banner")).toBeInTheDocument();
     });
-    expect(screen.getByRole("alert")).toHaveTextContent(/some analysis tasks are delayed/i);
+    expect(screen.getByRole("alert")).toHaveTextContent(/review processing is delayed/i);
     expect(screen.getByRole("link", { name: "System health" })).toHaveAttribute("href", "/internal/health");
     expect(screen.queryByText(/system health \(operators\)/i)).not.toBeInTheDocument();
   });
@@ -134,6 +134,6 @@ describe("ServiceBusHealthBanner", () => {
     });
 
     expect(screen.getByTestId("service-bus-health-degraded-banner")).toBeInTheDocument();
-    expect(screen.getByText(/Could not refresh Service Bus health/i)).toBeInTheDocument();
+    expect(screen.getByText(/Could not refresh processing status/i)).toBeInTheDocument();
   });
 });

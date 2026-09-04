@@ -29,9 +29,9 @@ export const ARCHITECTURE_CREATION_PAGE_SUBTITLE_WITH_DRAFTS =
 /** Form section heading on `/architectures/new` before the draft is named or persisted (TB-1461). */
 export const ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE = "New architecture draft";
 
-/** Resume strip body when local registry entries exist (TB-1459). */
+/** Resume strip body when saved drafts exist (TB-1459). Account-first — not this-browser-only. */
 export const ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY =
-  "Recently saved drafts on this browser. Saved drafts are stored to your account and sync across browsers where you sign in. Continue one below or browse the full list.";
+  "Saved drafts sync to your account where you sign in. Continue one below or browse the full list. Unsaved typing before the first save stays on this browser." as const;
 
 /** Link to `/architectures` from the create path — aligned with architectures hub honesty (TB-1459). */
 export const ARCHITECTURE_CREATION_VIEW_ALL_DRAFTS_LABEL = "View all saved drafts" as const;

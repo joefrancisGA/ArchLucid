@@ -41,7 +41,7 @@ function getFindingCardFromActiveElement(): HTMLElement | null {
   return active.closest<HTMLElement>("[data-finding-id]");
 }
 
-function getFocusedFindingId(): string | null {
+export function getFocusedFindingId(): string | null {
   const card = getFindingCardFromActiveElement();
 
   if (card === null) {
@@ -57,7 +57,15 @@ function getFocusedFindingId(): string | null {
   return id;
 }
 
-function focusAdjacentFindingCard(delta: number, onFindingFocus?: (findingId: string) => void): void {
+export type FocusAdjacentFindingCardOptions = {
+  readonly onFindingFocus?: (findingId: string) => void;
+  /** Palette work actions may start from the first card when nothing is focused (LI-07). */
+  readonly startFromFirstWhenUnfocused?: boolean;
+};
+
+/** Move keyboard focus to the next/previous `[data-finding-id]` card (palette + shortcut bridge). */
+export function focusAdjacentFindingCard(delta: number, options?: FocusAdjacentFindingCardOptions): void {
+  const onFindingFocus = options?.onFindingFocus;
   const nodes = Array.from(document.querySelectorAll<HTMLElement>("[data-finding-id]"));
 
   if (nodes.length === 0) {
@@ -68,6 +76,18 @@ function focusAdjacentFindingCard(delta: number, onFindingFocus?: (findingId: st
   const idx = current !== null ? nodes.indexOf(current) : -1;
 
   if (idx < 0) {
+    if (options?.startFromFirstWhenUnfocused !== true) {
+      return;
+    }
+
+    const first = nodes[0];
+    first?.focus();
+    const firstId = first?.getAttribute("data-finding-id") ?? "";
+
+    if (firstId.length > 0) {
+      onFindingFocus?.(firstId);
+    }
+
     return;
   }
 
@@ -90,6 +110,32 @@ function focusAdjacentFindingCard(delta: number, onFindingFocus?: (findingId: st
   }
 }
 
+/** Dispatch Alt+1/2/3 at the window so palette actions reuse the same shortcut handlers (WD-05). */
+export function dispatchFocusedFindingDispositionShortcut(
+  disposition: FindingCardShortcutDisposition,
+): boolean {
+  if (getFocusedFindingId() === null) {
+    return false;
+  }
+
+  const key =
+    disposition === FINDING_CARD_SHORTCUT_DISPOSITIONS.alt1
+      ? "1"
+      : disposition === FINDING_CARD_SHORTCUT_DISPOSITIONS.alt2
+        ? "2"
+        : "3";
+
+  window.dispatchEvent(
+    new KeyboardEvent("keydown", {
+      key,
+      altKey: true,
+      bubbles: true,
+    }),
+  );
+
+  return true;
+}
+
 /**
  * Findings queues: Alt+1/2/3 act on the focused (or containing) finding card/row; Alt+J/K move focus.
  * Skips when focus is not inside a `[data-finding-id]` element (or when `useKeyboardShortcuts` blocks inputs).
@@ -104,13 +150,13 @@ export function useFindingCardShortcuts(options: UseFindingCardShortcutsOptions)
       "alt+j": {
         description: "Focus next finding card",
         handler: () => {
-          focusAdjacentFindingCard(1, onFindingFocus);
+          focusAdjacentFindingCard(1, { onFindingFocus });
         },
       },
       "alt+k": {
         description: "Focus previous finding card",
         handler: () => {
-          focusAdjacentFindingCard(-1, onFindingFocus);
+          focusAdjacentFindingCard(-1, { onFindingFocus });
         },
       },
     };

@@ -2,7 +2,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -17,18 +18,27 @@ import { mergeConnectorIntakeIntoWizardValues } from "@/lib/connector-intake-to-
 import { useWizardAiSuggestedFields } from "@/lib/wizard-ai-suggested-fields";
 import { firstWhyDisabledCtaReason, whyDisabledBusy, whyDisabledIncompleteInput } from "@/lib/why-disabled-cta";
 import type { WizardFormValues } from "@/lib/wizard-schema";
+import {
+  connectorIntakeTabHrefFromSearch,
+  parseConnectorIntakeTabFromSearch,
+  type ConnectorIntakeTabId,
+} from "@/lib/runs/connector-intake-tab-url";
 
 export type ConnectorIntakePanelProps = {
   readonly onParsed?: () => void;
 };
 
-type ConnectorTab = "terraform" | "git";
+type ConnectorTab = ConnectorIntakeTabId;
 
 export function ConnectorIntakePanel(props: ConnectorIntakePanelProps) {
   const { onParsed } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/architecture/reviews/new";
+  const searchParams = useSearchParams();
+  const urlTab = parseConnectorIntakeTabFromSearch(searchParams.get("intake"));
   const { getValues, reset, clearErrors } = useFormContext<WizardFormValues>();
   const { markAiSuggested } = useWizardAiSuggestedFields();
-  const [tab, setTab] = useState<ConnectorTab>("terraform");
+  const [tab, setTabState] = useState<ConnectorTab>(urlTab ?? "terraform");
   const [terraformJson, setTerraformJson] = useState("");
   const [gitRepositoryUrl, setGitRepositoryUrl] = useState("");
   const [gitBranch, setGitBranch] = useState("main");
@@ -40,6 +50,22 @@ export function ConnectorIntakePanel(props: ConnectorIntakePanelProps) {
     correlationId: string | null;
   } | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  const setTab = useCallback(
+    (next: ConnectorTab) => {
+      setTabState(next);
+      router.replace(connectorIntakeTabHrefFromSearch(searchParams.toString(), next, pathname), { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    const nextTab = parseConnectorIntakeTabFromSearch(searchParams.get("intake"));
+
+    if (nextTab !== null) {
+      setTabState(nextTab);
+    }
+  }, [searchParams]);
 
   async function onImport(): Promise<void> {
     if (busy) {

@@ -578,6 +578,450 @@ type _AiUsageDashboardModelWave14BarrelAliases = [
   >,
 ];
 
+/** Wave 15 — health-dashboard summary tiles and severity-helper modules. */
+type _HealthDashboardSummaryWave15ModuleAliases = [
+  AssertExtends<
+    import("@/lib/health-dashboard-summary-tiles").HealthSummaryTile,
+    import("@/lib/health-dashboard-summary").HealthSummaryTile
+  >,
+  AssertExtends<
+    import("@/lib/health-dashboard-summary-severity-helpers").humanizeCircuitGateName,
+    typeof import("@/lib/health-dashboard-summary").humanizeCircuitGateName
+  >,
+];
+
+/** Wave 15 — health-dashboard summary barrel re-exports tiles and severity-helper slices. */
+type _HealthDashboardSummaryWave15BarrelAliases = [
+  AssertExtends<
+    import("@/lib/health-dashboard-summary-tiles").buildHealthSummaryTiles,
+    typeof import("@/lib/health-dashboard-summary").buildHealthSummaryTiles
+  >,
+  AssertExtends<
+    import("@/lib/health-dashboard-summary-severity-helpers").circuitSeverity,
+    typeof import("@/lib/health-dashboard-summary").circuitSeverity
+  >,
+];
+
+/** Wave 15 — governance-dashboard summary, lineage, and batch-review modules. */
+type _GovernanceDashboardWave15ModuleAliases = [
+  AssertExtends<
+    components["schemas"]["GovernanceDashboardSummary"],
+    import("@/types/governance-dashboard-summary").GovernanceDashboardSummary
+  >,
+  AssertExtends<
+    components["schemas"]["GovernanceLineageResult"],
+    import("@/types/governance-dashboard-lineage").GovernanceLineageResult
+  >,
+  AssertExtends<
+    components["schemas"]["GovernanceBatchReviewResponse"],
+    import("@/types/governance-dashboard-batch-review").GovernanceBatchReviewResponse
+  >,
+];
+
+/** Wave 15 — governance-dashboard barrel re-exports summary, lineage, and batch-review slices. */
+type _GovernanceDashboardWave15BarrelAliases = [
+  AssertExtends<
+    import("@/types/governance-dashboard-summary").ComplianceDriftTrendPoint,
+    import("@/types/governance-dashboard").ComplianceDriftTrendPoint
+  >,
+  AssertExtends<
+    import("@/types/governance-dashboard-lineage").GovernanceRationaleResult,
+    import("@/types/governance-dashboard").GovernanceRationaleResult
+  >,
+  AssertExtends<
+    import("@/types/governance-dashboard-batch-review").GovernanceBatchReviewItemResult,
+    import("@/types/governance-dashboard").GovernanceBatchReviewItemResult
+  >,
+];
+
+/** Wave 15 — operate-rhythm pilot-stickiness, integrations, and alerts modules. */
+type _OperateRhythmWave15ModuleAliases = [
+  AssertExtends<
+    components["schemas"]["OperatorStickinessSnapshotResponse"],
+    import("@/types/operate-rhythm-pilot-stickiness").OperatorStickinessSnapshotDto
+  >,
+  AssertExtends<
+    components["schemas"]["TenantIntegrationsOperationsResponse"],
+    import("@/types/operate-rhythm-integrations").TenantIntegrationsOperationsDto
+  >,
+  AssertExtends<
+    components["schemas"]["AlertActionLoopResponse"],
+    import("@/types/operate-rhythm-alerts").AlertActionLoopDto
+  >,
+];
+
+/** Wave 15 — operate-rhythm barrel re-exports pilot-stickiness, integrations, and alerts slices. */
+type _OperateRhythmWave15BarrelAliases = [
+  AssertExtends<
+    import("@/types/operate-rhythm-pilot-stickiness").PilotFunnelSnapshotDto,
+    import("@/types/operate-rhythm").PilotFunnelSnapshotDto
+  >,
+  AssertExtends<
+    import("@/types/operate-rhythm-integrations").normalizeConnectorSurfaceStatus,
+    typeof import("@/types/operate-rhythm").normalizeConnectorSurfaceStatus
+  >,
+  AssertExtends<
+    import("@/types/operate-rhythm-alerts").WeeklyDigestHealthDto,
+    import("@/types/operate-rhythm").WeeklyDigestHealthDto
+  >,
+];
+
+/** Wave 16 — page-help-topic-rows-admin integrations, security, and compose partials. */
+type _PageHelpTopicRowsAdminWave16ModuleAliases = [
+  AssertExtends<
+    typeof import("@/lib/usability/page-help-topic-rows-admin-integrations").PAGE_HELP_TOPIC_ROWS_ADMIN_INTEGRATIONS,
+    readonly { prefix: string; topic: import("@/lib/usability/page-help-topic-rows-operator").PageHelpTopic }[]
+  >,
+  AssertExtends<
+    typeof import("@/lib/usability/page-help-topic-rows-admin-security").PAGE_HELP_TOPIC_ROWS_ADMIN_SECURITY,
+    readonly { prefix: string; topic: import("@/lib/usability/page-help-topic-rows-operator").PageHelpTopic }[]
+  >,
+  AssertExtends<
+    typeof import("@/lib/usability/page-help-topic-rows-admin-compose").PAGE_HELP_TOPIC_ROWS_ADMIN_COMPOSE,
+    readonly { prefix: string; topic: import("@/lib/usability/page-help-topic-rows-operator").PageHelpTopic }[]
+  >,
+];
+
+/** Wave 16 — page-help-topic-rows-admin barrel composes integrations, security, and compose slices. */
+type _PageHelpTopicRowsAdminWave16BarrelAliases = [
+  AssertExtends<
+    (typeof import("@/lib/usability/page-help-topic-rows-admin-integrations").PAGE_HELP_TOPIC_ROWS_ADMIN_INTEGRATIONS)[number],
+    (typeof import("@/lib/usability/page-help-topic-rows-admin").PAGE_HELP_TOPIC_ROWS_ADMIN)[number]
+  >,
+  AssertExtends<
+    (typeof import("@/lib/usability/page-help-topic-rows-admin-security").PAGE_HELP_TOPIC_ROWS_ADMIN_SECURITY)[number],
+    (typeof import("@/lib/usability/page-help-topic-rows-admin").PAGE_HELP_TOPIC_ROWS_ADMIN)[number]
+  >,
+];
+
+/** Wave 16 — first-review-guide state and persistence modules. */
+type _FirstReviewGuideWave16ModuleAliases = [
+  AssertExtends<
+    typeof import("@/lib/first-review-guide-persistence").hasSealedReviewRecord,
+    (input: import("@/lib/core-pilot-commit-context").CorePilotCommitContext) => boolean
+  >,
+  AssertExtends<
+    import("@/lib/first-review-guide-state").FirstReviewGuideReadiness,
+    import("@/lib/first-review-guide-state").FirstReviewGuideReadiness
+  >,
+];
+
+/** Wave 16 — first-review-guide-state exports persistence-backed readiness helpers. */
+type _FirstReviewGuideWave16BarrelAliases = [
+  AssertExtends<
+    typeof import("@/lib/first-review-guide-state").resolveFirstReviewGuideReadiness,
+    typeof import("@/lib/first-review-guide-state").resolveFirstReviewGuideReadiness
+  >,
+  AssertExtends<
+    typeof import("@/lib/first-review-guide-persistence").hasSealedReviewRecord,
+    (input: import("@/lib/core-pilot-commit-context").CorePilotCommitContext) => boolean
+  >,
+];
+
+/** Wave 16 — connector-operations status and present modules. */
+type _ConnectorOperationsWave16ModuleAliases = [
+  AssertExtends<
+    import("@/lib/connector-operations-status").ConnectorHumanStatus,
+    import("@/lib/connector-operations-present").ConnectorHumanStatus
+  >,
+  AssertExtends<
+    typeof import("@/lib/connector-operations-present").resolveConnectorGuidance,
+    (connector: import("@/types/operate-rhythm").ConnectorSurfaceStatusDto, humanStatus: import("@/lib/connector-operations-status").ConnectorHumanStatus) => string
+  >,
+];
+
+/** Wave 16 — connector-operations-present barrel re-exports status slice helpers. */
+type _ConnectorOperationsWave16BarrelAliases = [
+  AssertExtends<
+    typeof import("@/lib/connector-operations-status").resolveConnectorHumanStatus,
+    typeof import("@/lib/connector-operations-present").resolveConnectorHumanStatus
+  >,
+  AssertExtends<
+    typeof import("@/lib/connector-operations-present").groupConnectorsByPurpose,
+    typeof import("@/lib/connector-operations-present").groupConnectorsByPurpose
+  >,
+];
+
+/** Wave 17 — first-review-guide state slices export readiness and blocker helpers. */
+type _FirstReviewGuideWave17ModuleAliases = [
+  AssertExtends<
+    typeof import("@/lib/first-review-guide-readiness").resolveFirstReviewGuideReadiness,
+    (input: import("@/lib/first-review-guide-status").FirstReviewGuideStateInput) => import("@/lib/first-review-guide-readiness").FirstReviewGuideReadiness
+  >,
+  AssertExtends<
+    typeof import("@/lib/first-review-guide-blockers").resolveFirstReviewGuideRequiredBlockers,
+    typeof import("@/lib/first-review-guide-blockers").resolveFirstReviewGuideRequiredBlockers
+  >,
+  AssertExtends<
+    typeof import("@/lib/first-review-guide-status").resolveFirstReviewGuideSteps,
+    typeof import("@/lib/first-review-guide-status").resolveFirstReviewGuideSteps
+  >,
+];
+
+/** Wave 17 — first-review-guide-state barrel re-exports status, readiness, and blocker slices. */
+type _FirstReviewGuideWave17BarrelAliases = [
+  AssertExtends<
+    typeof import("@/lib/first-review-guide-readiness").resolveFirstReviewGuideReadiness,
+    typeof import("@/lib/first-review-guide-state").resolveFirstReviewGuideReadiness
+  >,
+  AssertExtends<
+    typeof import("@/lib/first-review-guide-blockers").resolveFirstReviewGuideRequiredBlockers,
+    typeof import("@/lib/first-review-guide-state").resolveFirstReviewGuideRequiredBlockers
+  >,
+  AssertExtends<
+    typeof import("@/lib/first-review-guide-status").resolveFirstReviewGuideProgress,
+    typeof import("@/lib/first-review-guide-state").resolveFirstReviewGuideProgress
+  >,
+];
+
+/** Wave 17 — exec-digest schedule form slices. */
+type _ExecDigestScheduleFormWave17ModuleAliases = [
+  AssertExtends<
+    typeof import("@/lib/exec-digest-schedule-validation").validateExecDigestRecipientEmails,
+    typeof import("@/lib/exec-digest-schedule-validation").validateExecDigestRecipientEmails
+  >,
+  AssertExtends<
+    typeof import("@/lib/exec-digest-schedule-options").computeExecDigestNextSendInstant,
+    typeof import("@/lib/exec-digest-schedule-options").computeExecDigestNextSendInstant
+  >,
+  AssertExtends<
+    import("@/lib/exec-digest-schedule-form-state").ExecDigestScheduleFormState,
+    import("@/lib/exec-digest-schedule-form-state").ExecDigestScheduleFormState
+  >,
+];
+
+/** Wave 17 — exec-digest-schedule-form barrel re-exports state, options, and validation slices. */
+type _ExecDigestScheduleFormWave17BarrelAliases = [
+  AssertExtends<
+    typeof import("@/lib/exec-digest-schedule-form-state").execDigestFormFromPreferences,
+    typeof import("@/lib/exec-digest-schedule-form").execDigestFormFromPreferences
+  >,
+  AssertExtends<
+    typeof import("@/lib/exec-digest-schedule-options").formatExecDigestNextSendPreview,
+    typeof import("@/lib/exec-digest-schedule-form").formatExecDigestNextSendPreview
+  >,
+  AssertExtends<
+    typeof import("@/lib/exec-digest-schedule-validation").isExecDigestScheduleFormValid,
+    typeof import("@/lib/exec-digest-schedule-form").isExecDigestScheduleFormValid
+  >,
+];
+
+/** Wave 17 — buyer CTO demo readiness check slices. */
+type _BuyerCtoDemoReadinessWave17ModuleAliases = [
+  AssertExtends<
+    typeof import("@/lib/buyer/buyer-cto-demo-readiness-check-evaluators").evaluateBuyerCtoDemoShellCheck,
+    typeof import("@/lib/buyer/buyer-cto-demo-readiness-check-evaluators").evaluateBuyerCtoDemoShellCheck
+  >,
+  AssertExtends<
+    typeof import("@/lib/buyer/buyer-cto-demo-readiness-signals").readinessDetail,
+    typeof import("@/lib/buyer/buyer-cto-demo-readiness-signals").readinessDetail
+  >,
+];
+
+/** Wave 17 — buyer-cto-demo-readiness-checks barrel re-exports evaluators and signals. */
+type _BuyerCtoDemoReadinessWave17BarrelAliases = [
+  AssertExtends<
+    typeof import("@/lib/buyer/buyer-cto-demo-readiness-check-evaluators").evaluateBuyerCtoDemoAuthCheck,
+    typeof import("@/lib/buyer/buyer-cto-demo-readiness-checks").evaluateBuyerCtoDemoAuthCheck
+  >,
+  AssertExtends<
+    typeof import("@/lib/buyer/buyer-cto-demo-readiness-signals").isShowcaseStaticSpineReady,
+    typeof import("@/lib/buyer/buyer-cto-demo-readiness-checks").isShowcaseStaticSpineReady
+  >,
+];
+
+/** Wave 17 — governance workflow API slices. */
+type _GovernanceWorkflowApiWave17ModuleAliases = [
+  AssertExtends<
+    typeof import("@/lib/api/governance-workflow-api-dashboard").getGovernanceDashboard,
+    typeof import("@/lib/api/governance-workflow-api-dashboard").getGovernanceDashboard
+  >,
+  AssertExtends<
+    typeof import("@/lib/api/governance-workflow-api-approvals").listApprovalRequests,
+    typeof import("@/lib/api/governance-workflow-api-approvals").listApprovalRequests
+  >,
+  AssertExtends<
+    typeof import("@/lib/api/governance-workflow-api-environments").fetchGovernanceEnvironmentCatalog,
+    typeof import("@/lib/api/governance-workflow-api-environments").fetchGovernanceEnvironmentCatalog
+  >,
+];
+
+/** Wave 17 — governance-workflow-api barrel re-exports dashboard, approvals, and environment slices. */
+type _GovernanceWorkflowApiWave17BarrelAliases = [
+  AssertExtends<
+    typeof import("@/lib/api/governance-workflow-api-dashboard").getComplianceDriftTrend,
+    typeof import("@/lib/api/governance-workflow-api").getComplianceDriftTrend
+  >,
+  AssertExtends<
+    typeof import("@/lib/api/governance-workflow-api-approvals").approveRequest,
+    typeof import("@/lib/api/governance-workflow-api").approveRequest
+  >,
+  AssertExtends<
+    typeof import("@/lib/api/governance-workflow-api-environments").activateEnvironment,
+    typeof import("@/lib/api/governance-workflow-api").activateEnvironment
+  >,
+];
+
+/** Wave 17 — alerts routing API slices. */
+type _AlertsRoutingApiWave17ModuleAliases = [
+  AssertExtends<
+    typeof import("@/lib/api/alerts-routing-api-rules").listAlertRules,
+    typeof import("@/lib/api/alerts-routing-api-rules").listAlertRules
+  >,
+  AssertExtends<
+    typeof import("@/lib/api/alerts-routing-api-subscriptions").listAlertRoutingSubscriptions,
+    typeof import("@/lib/api/alerts-routing-api-subscriptions").listAlertRoutingSubscriptions
+  >,
+  AssertExtends<
+    typeof import("@/lib/api/alerts-routing-api-simulation").simulateAlertRule,
+    typeof import("@/lib/api/alerts-routing-api-simulation").simulateAlertRule
+  >,
+];
+
+/** Wave 17 — alerts-routing-api barrel re-exports rules, subscriptions, and simulation slices. */
+type _AlertsRoutingApiWave17BarrelAliases = [
+  AssertExtends<
+    typeof import("@/lib/api/alerts-routing-api-rules").createCompositeAlertRule,
+    typeof import("@/lib/api/alerts-routing-api").createCompositeAlertRule
+  >,
+  AssertExtends<
+    typeof import("@/lib/api/alerts-routing-api-subscriptions").testWebhookSubscription,
+    typeof import("@/lib/api/alerts-routing-api").testWebhookSubscription
+  >,
+  AssertExtends<
+    typeof import("@/lib/api/alerts-routing-api-simulation").compareAlertRuleCandidates,
+    typeof import("@/lib/api/alerts-routing-api").compareAlertRuleCandidates
+  >,
+];
+
+/** Wave 17 — ask SSE stream slices. */
+type _AskSseStreamWave17ModuleAliases = [
+  AssertExtends<
+    typeof import("@/lib/api/ask-sse-connect").resolveAskStreamRequest,
+    typeof import("@/lib/api/ask-sse-connect").resolveAskStreamRequest
+  >,
+  AssertExtends<
+    typeof import("@/lib/api/ask-sse-demux").consumeSseStream,
+    typeof import("@/lib/api/ask-sse-demux").consumeSseStream
+  >,
+  AssertExtends<
+    typeof import("@/lib/api/ask-sse-recovery").askArchLucidStream,
+    typeof import("@/lib/api/ask-sse-recovery").askArchLucidStream
+  >,
+];
+
+/** Wave 17 — ask-sse-stream barrel re-exports connect, demux, and recovery slices. */
+type _AskSseStreamWave17BarrelAliases = [
+  AssertExtends<
+    typeof import("@/lib/api/ask-sse-connect").resolveAskStreamRequest,
+    typeof import("@/lib/api/ask-sse-stream").resolveAskStreamRequest
+  >,
+  AssertExtends<
+    typeof import("@/lib/api/ask-sse-demux").consumeSseStream,
+    typeof import("@/lib/api/ask-sse-stream").consumeSseStream
+  >,
+  AssertExtends<
+    typeof import("@/lib/api/ask-sse-recovery").askArchLucidStream,
+    typeof import("@/lib/api/ask-sse-stream").askArchLucidStream
+  >,
+];
+
+/** Wave 19 — recommendation-learning-operational type slices. */
+type _RecommendationLearningOperationalWave19ModuleAliases = [
+  AssertExtends<
+    import("@/types/recommendation-learning-operational-profile-metadata").RecommendationLearningProfileMetadata,
+    import("@/types/recommendation-learning-operational").RecommendationLearningProfileMetadata
+  >,
+  AssertExtends<
+    import("@/types/recommendation-learning-operational-operational-status").RecommendationLearningOperationalStatus,
+    import("@/types/recommendation-learning-operational").RecommendationLearningOperationalStatus
+  >,
+  AssertExtends<
+    import("@/types/recommendation-learning-operational-preview-validation").RecommendationLearningPreview,
+    import("@/types/recommendation-learning-operational").RecommendationLearningPreview
+  >,
+];
+
+/** Wave 19 — recommendation-learning-operational barrel re-exports profile, status, and preview slices. */
+type _RecommendationLearningOperationalWave19BarrelAliases = [
+  AssertExtends<
+    import("@/types/recommendation-learning-operational-profile-metadata").RECOMMENDATION_LEARNING_CANONICAL_PATH,
+    typeof import("@/types/recommendation-learning-operational").RECOMMENDATION_LEARNING_CANONICAL_PATH
+  >,
+  AssertExtends<
+    import("@/types/recommendation-learning-operational-operational-status").RecommendationLearningOutcomeEligibility,
+    import("@/types/recommendation-learning-operational").RecommendationLearningOutcomeEligibility
+  >,
+  AssertExtends<
+    import("@/types/recommendation-learning-operational-preview-validation").RecommendationLearningRollbackRequest,
+    import("@/types/recommendation-learning-operational").RecommendationLearningRollbackRequest
+  >,
+];
+
+/** Wave 19 — advisory type slices. */
+type _AdvisoryWave19ModuleAliases = [
+  AssertExtends<
+    import("@/types/advisory-improvement-plan").ImprovementPlan,
+    import("@/types/advisory").ImprovementPlan
+  >,
+  AssertExtends<
+    import("@/types/advisory-recommendation-record").RecommendationRecord,
+    import("@/types/advisory").RecommendationRecord
+  >,
+  AssertExtends<
+    import("@/types/advisory-action-result").RecommendationActionResult,
+    import("@/types/advisory").RecommendationActionResult
+  >,
+];
+
+/** Wave 19 — advisory barrel re-exports improvement-plan, recommendation-record, and action-result slices. */
+type _AdvisoryWave19BarrelAliases = [
+  AssertExtends<
+    import("@/types/advisory-improvement-plan").ImprovementRecommendation,
+    import("@/types/advisory").ImprovementRecommendation
+  >,
+  AssertExtends<
+    import("@/types/advisory-recommendation-record").AdvisoryRunRecommendationsList,
+    import("@/types/advisory").AdvisoryRunRecommendationsList
+  >,
+  AssertExtends<
+    import("@/types/advisory-recommendation-record").RecommendationImproveLoopEvidence,
+    import("@/types/advisory").RecommendationImproveLoopEvidence
+  >,
+];
+
+/** Wave 19 — agent-forensics-scores type slices. */
+type _AgentForensicsScoresWave19ModuleAliases = [
+  AssertExtends<
+    import("@/types/agent-forensics-scores-semantic").AgentOutputSemanticScoreRow,
+    import("@/types/agent-forensics-scores").AgentOutputSemanticScoreRow
+  >,
+  AssertExtends<
+    import("@/types/agent-forensics-scores-evaluation-summary").AgentOutputEvaluationSummaryPayload,
+    import("@/types/agent-forensics-scores").AgentOutputEvaluationSummaryPayload
+  >,
+  AssertExtends<
+    import("@/types/agent-forensics-scores-retrieval-grounding").RunRetrievalGroundingPayload,
+    import("@/types/agent-forensics-scores").RunRetrievalGroundingPayload
+  >,
+];
+
+/** Wave 19 — agent-forensics-scores barrel re-exports semantic, evaluation-summary, and retrieval-grounding slices. */
+type _AgentForensicsScoresWave19BarrelAliases = [
+  AssertExtends<
+    import("@/types/agent-forensics-scores-evaluation-summary").AgentOutputEvaluationScoreRow,
+    import("@/types/agent-forensics-scores").AgentOutputEvaluationScoreRow
+  >,
+  AssertExtends<
+    import("@/types/agent-forensics-scores-evaluation-summary").AgentOutputEvaluationPerspectivePayload,
+    import("@/types/agent-forensics-scores").AgentOutputEvaluationPerspectivePayload
+  >,
+  AssertExtends<
+    import("@/types/agent-forensics-scores-retrieval-grounding").RunRetrievalGroundingRow,
+    import("@/types/agent-forensics-scores").RunRetrievalGroundingRow
+  >,
+];
+
 /** Wave 12 — authority run-detail trust-evidence module. */
 type _AuthorityRunDetailWave12TrustModuleAliases = [
   AssertExtends<
@@ -1314,6 +1758,18 @@ const _compileTimeAliasGuards: [
   _HealthDashboardWave14BarrelAliases,
   _AiUsageDashboardModelWave14ModuleAliases,
   _AiUsageDashboardModelWave14BarrelAliases,
+  _HealthDashboardSummaryWave15ModuleAliases,
+  _HealthDashboardSummaryWave15BarrelAliases,
+  _GovernanceDashboardWave15ModuleAliases,
+  _GovernanceDashboardWave15BarrelAliases,
+  _OperateRhythmWave15ModuleAliases,
+  _OperateRhythmWave15BarrelAliases,
+  _PageHelpTopicRowsAdminWave16ModuleAliases,
+  _PageHelpTopicRowsAdminWave16BarrelAliases,
+  _FirstReviewGuideWave16ModuleAliases,
+  _FirstReviewGuideWave16BarrelAliases,
+  _ConnectorOperationsWave16ModuleAliases,
+  _ConnectorOperationsWave16BarrelAliases,
   _AuthorityRunDetailWave12TrustModuleAliases,
   _AuthorityRunDetailWave12ProvenanceModuleAliases,
   _AuthorityRunDetailWave12BarrelAliases,
@@ -1375,6 +1831,30 @@ const _compileTimeAliasGuards: [
   [] as unknown as _HealthDashboardWave14BarrelAliases,
   [] as unknown as _AiUsageDashboardModelWave14ModuleAliases,
   [] as unknown as _AiUsageDashboardModelWave14BarrelAliases,
+  [] as unknown as _HealthDashboardSummaryWave15ModuleAliases,
+  [] as unknown as _HealthDashboardSummaryWave15BarrelAliases,
+  [] as unknown as _GovernanceDashboardWave15ModuleAliases,
+  [] as unknown as _GovernanceDashboardWave15BarrelAliases,
+  [] as unknown as _OperateRhythmWave15ModuleAliases,
+  [] as unknown as _OperateRhythmWave15BarrelAliases,
+  [] as unknown as _PageHelpTopicRowsAdminWave16ModuleAliases,
+  [] as unknown as _PageHelpTopicRowsAdminWave16BarrelAliases,
+  [] as unknown as _FirstReviewGuideWave16ModuleAliases,
+  [] as unknown as _FirstReviewGuideWave16BarrelAliases,
+  [] as unknown as _ConnectorOperationsWave16ModuleAliases,
+  [] as unknown as _ConnectorOperationsWave16BarrelAliases,
+  [] as unknown as _FirstReviewGuideWave17ModuleAliases,
+  [] as unknown as _FirstReviewGuideWave17BarrelAliases,
+  [] as unknown as _ExecDigestScheduleFormWave17ModuleAliases,
+  [] as unknown as _ExecDigestScheduleFormWave17BarrelAliases,
+  [] as unknown as _BuyerCtoDemoReadinessWave17ModuleAliases,
+  [] as unknown as _BuyerCtoDemoReadinessWave17BarrelAliases,
+  [] as unknown as _GovernanceWorkflowApiWave17ModuleAliases,
+  [] as unknown as _GovernanceWorkflowApiWave17BarrelAliases,
+  [] as unknown as _AlertsRoutingApiWave17ModuleAliases,
+  [] as unknown as _AlertsRoutingApiWave17BarrelAliases,
+  [] as unknown as _AskSseStreamWave17ModuleAliases,
+  [] as unknown as _AskSseStreamWave17BarrelAliases,
   [] as unknown as _AuthorityRunDetailWave12TrustModuleAliases,
   [] as unknown as _AuthorityRunDetailWave12ProvenanceModuleAliases,
   [] as unknown as _AuthorityRunDetailWave12BarrelAliases,

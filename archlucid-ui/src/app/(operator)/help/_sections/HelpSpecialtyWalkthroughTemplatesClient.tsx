@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useId, useMemo, useState } from "react";
 
 import { HelpSpecialtyWalkthroughClaimOrientationStrip } from "@/app/(operator)/help/_sections/HelpSpecialtyWalkthroughClaimOrientationStrip";
@@ -61,6 +62,11 @@ import {
   type SpecialtyReviewCloudContext,
   type SpecialtyReviewTemplateId,
 } from "@/lib/specialty-review-templates";
+import {
+  parseSpecialtyWalkthroughCloudFromSearch,
+  parseSpecialtyWalkthroughTemplateFromSearch,
+  specialtyWalkthroughsSelectionHrefFromSearch,
+} from "@/lib/help/specialty-walkthroughs-selection-url";
 
 import { SPECIALTY_TEMPLATE_READ_ONLY_HINT_ID, SpecialtyTemplateCard } from "./SpecialtyTemplateCard";
 import {
@@ -77,25 +83,68 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
   props: HelpSpecialtyWalkthroughTemplatesClientProps,
 ): React.ReactElement {
   const { entry } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? SPECIALTY_WALKTHROUGHS_HELP_CANONICAL_PATH;
+  const searchParams = useSearchParams();
   const canExecute = useOperateCapability();
   const navigation = useReviewIntakeNavigation();
   const cloudContextFieldsetId = useId();
-  const [selectedTemplateId, setSelectedTemplateId] = useState<SpecialtyReviewTemplateId | null>(null);
+  const [selectedTemplateId, setSelectedTemplateIdState] = useState<SpecialtyReviewTemplateId | null>(() =>
+    parseSpecialtyWalkthroughTemplateFromSearch(searchParams.get("template")),
+  );
   const [preview, setPreview] = useState<SpecialtyTemplatePreviewState | null>(null);
-  const [saasCloudContext, setSaasCloudContext] = useState<SpecialtyReviewCloudContext>("None");
+  const [saasCloudContext, setSaasCloudContextState] = useState<SpecialtyReviewCloudContext>(() =>
+    parseSpecialtyWalkthroughCloudFromSearch(searchParams.get("cloud")),
+  );
+
+  const syncSelectionToUrl = useCallback(
+    (patch: {
+      readonly templateId?: SpecialtyReviewTemplateId | null;
+      readonly cloudContext?: SpecialtyReviewCloudContext;
+    }) => {
+      router.replace(specialtyWalkthroughsSelectionHrefFromSearch(searchParams.toString(), patch, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSelectedTemplateId = useCallback(
+    (templateId: SpecialtyReviewTemplateId | null) => {
+      setSelectedTemplateIdState(templateId);
+      syncSelectionToUrl({ templateId });
+    },
+    [syncSelectionToUrl],
+  );
+
+  const setSaasCloudContext = useCallback(
+    (cloudContext: SpecialtyReviewCloudContext) => {
+      setSaasCloudContextState(cloudContext);
+      syncSelectionToUrl({ cloudContext });
+    },
+    [syncSelectionToUrl],
+  );
+
+  useEffect(() => {
+    setSelectedTemplateIdState(parseSpecialtyWalkthroughTemplateFromSearch(searchParams.get("template")));
+    setSaasCloudContextState(parseSpecialtyWalkthroughCloudFromSearch(searchParams.get("cloud")));
+  }, [searchParams]);
 
   const selectedTemplate = useMemo(
     () => (selectedTemplateId === null ? null : findSpecialtyReviewTemplate(selectedTemplateId) ?? null),
     [selectedTemplateId],
   );
 
-  const handleSelect = useCallback((templateId: SpecialtyReviewTemplateId) => {
-    setSelectedTemplateId(templateId);
-  }, []);
+  const handleSelect = useCallback(
+    (templateId: SpecialtyReviewTemplateId) => {
+      setSelectedTemplateId(templateId);
+    },
+    [setSelectedTemplateId],
+  );
 
   const handleRemoveSelection = useCallback(() => {
     setSelectedTemplateId(null);
-  }, []);
+  }, [setSelectedTemplateId]);
 
   const handleContinueToReviewSetup = useCallback(() => {
     if (selectedTemplate === null) {

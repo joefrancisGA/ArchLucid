@@ -12,7 +12,6 @@ import {
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { parseEvolutionPlanSnapshot } from "@/lib/evolution-plan-snapshot";
-import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import {
   type ImpactPreviewBaselineOption,
   type ImpactPreviewComparisonScope,
@@ -21,6 +20,12 @@ import {
   impactPreviewComparisonScopeHrefFromSearch,
   parseImpactPreviewComparisonScopeFromSearch,
 } from "@/lib/impact-preview/impact-preview-comparison-scope-url";
+import {
+  impactPreviewBaselineHrefFromSearch,
+  impactPreviewCandidateHrefFromSearch,
+  parseImpactPreviewBaselineFromSearch,
+  parseImpactPreviewCandidateIdFromSearch,
+} from "@/lib/impact-preview/impact-preview-selection-url";
 import {
   readFindingApplyChangePreviewQuery,
   recordFindingApplyChangePreviewCompleted,
@@ -70,14 +75,17 @@ export function useEvolutionReviewPage(
   const searchParams = useSearchParams();
   const isDemo = serverLoad.mode === "demo";
 
+  const urlComparisonScope = parseImpactPreviewComparisonScopeFromSearch(searchParams.get("scope"));
+  const urlCandidateId = parseImpactPreviewCandidateIdFromSearch(searchParams.get("candidateId"));
+  const urlBaselineId = parseImpactPreviewBaselineFromSearch(searchParams.get("baseline"));
+
   const [candidates, setCandidates] = useState<EvolutionCandidateChangeSetResponse[]>(
     serverLoad.mode === "live" ? serverLoad.candidates : [],
   );
   const [selectedId, setSelectedId] = useState<string | null>(
     serverLoad.mode === "live" ? serverLoad.selectedId : null,
   );
-  const [selectedBaselineId, setSelectedBaselineId] = useState<string | null>(null);
-  const urlComparisonScope = parseImpactPreviewComparisonScopeFromSearch(searchParams.get("scope"));
+  const [selectedBaselineId, setSelectedBaselineId] = useState<string | null>(urlBaselineId);
   const [comparisonScope, setComparisonScope] = useState<ImpactPreviewComparisonScope>(urlComparisonScope);
   const [detail, setDetail] = useState<EvolutionResultsResponse | null>(
     serverLoad.mode === "live" ? serverLoad.detail : null,
@@ -105,6 +113,34 @@ export function useEvolutionReviewPage(
     setComparisonScope(urlComparisonScope);
   }, [urlComparisonScope]);
 
+  useEffect(() => {
+    if (urlCandidateId === null) {
+      return;
+    }
+
+    setSelectedId(urlCandidateId);
+  }, [urlCandidateId]);
+
+  useEffect(() => {
+    setSelectedBaselineId(urlBaselineId);
+  }, [urlBaselineId]);
+
+  const selectCandidate = useCallback(
+    (candidateId: string) => {
+      setSelectedId(candidateId);
+      router.replace(impactPreviewCandidateHrefFromSearch(searchParams.toString(), candidateId), { scroll: false });
+    },
+    [router, searchParams],
+  );
+
+  const selectBaseline = useCallback(
+    (baselineId: string) => {
+      setSelectedBaselineId(baselineId);
+      router.replace(impactPreviewBaselineHrefFromSearch(searchParams.toString(), baselineId), { scroll: false });
+    },
+    [router, searchParams],
+  );
+
   const rememberBaselinePair = useCallback((baselineRunId: string | null, candidateRunId: string | null) => {
     if (baselineRunId === null || candidateRunId === null) {
       return;
@@ -131,10 +167,13 @@ export function useEvolutionReviewPage(
     writeImpactPreviewLastBaselinePair(pair);
     setContinueLastPair(pair);
 
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("runId", pair.baselineRunId);
+    let nextHref = impactPreviewCandidateHrefFromSearch(searchParams.toString(), pair.candidateRunId);
+    nextHref = impactPreviewBaselineHrefFromSearch(
+      nextHref.includes("?") ? nextHref.split("?")[1] ?? "" : "",
+      pair.baselineRunId,
+    );
 
-    router.replace(`${IMPACT_PREVIEW_PATH}?${params.toString()}`, { scroll: false });
+    router.replace(nextHref, { scroll: false });
   }, [router, searchParams]);
 
   const skipInitialClientListFetchRef = useRef(serverLoad.mode === "live");
@@ -271,6 +310,10 @@ export function useEvolutionReviewPage(
     const trimmedScopedRunId = scopedRunId.trim();
 
     setSelectedBaselineId((prev) => {
+      if (urlBaselineId !== null && baselineOptions.some((option) => option.runId === urlBaselineId)) {
+        return urlBaselineId;
+      }
+
       if (
         trimmedScopedRunId.length > 0 &&
         baselineOptions.some((option) => option.runId === trimmedScopedRunId)
@@ -292,7 +335,7 @@ export function useEvolutionReviewPage(
 
       return null;
     });
-  }, [baselineOptions, scopedRunId]);
+  }, [baselineOptions, scopedRunId, urlBaselineId]);
 
   const toggleComparisonScope = useCallback((key: keyof ImpactPreviewComparisonScope) => {
     setComparisonScope((prev) => {
@@ -346,8 +389,10 @@ export function useEvolutionReviewPage(
     candidates,
     selectedId,
     setSelectedId,
+    selectCandidate,
     selectedBaselineId,
     setSelectedBaselineId,
+    selectBaseline,
     baselineOptions,
     comparisonScope,
     toggleComparisonScope,

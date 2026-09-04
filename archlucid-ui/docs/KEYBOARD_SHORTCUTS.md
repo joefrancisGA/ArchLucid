@@ -20,6 +20,7 @@ Global shortcuts apply from the main content region wrapped by [`KeyboardShortcu
 | Surface | Behavior | Visible label |
 |---------|----------|----------------|
 | Header trigger ([`CommandPalette.tsx`](../src/components/CommandPalette.tsx)) | **Ctrl+K** and **⌘K** (macOS `metaKey`) both open/close the palette | Always **`Ctrl+K`** in chips and tooltips — never the ⌘ glyph ([`keyboard-shortcut-display.ts`](../src/lib/keyboard-shortcut-display.ts)) |
+| Palette **work** actions (LI-07) | On draft routes: **Save architecture draft**. On findings / review-detail: next / previous / Alt+1–3 dispositions. On alerts: next / previous / Alt+1–3 triage. **Undo last reversible change** appears only while a reversible Undo control is on the page — not as a dead Home row. | Same labels as [`command-palette-handler-actions.ts`](../src/lib/command-palette-handler-actions.ts) |
 | Global search ([`GlobalSearchBar.tsx`](../src/components/GlobalSearchBar.tsx)) | **`/`** focuses the header search input when focus is not in a text field ([`useSearchShortcut`](../src/hooks/useSearchShortcut.ts)) | Not shown as a chip; documented here |
 | Sidebar footer | *(removed)* | No duplicate “Search pages” hint in the nav column |
 
@@ -29,7 +30,7 @@ Global shortcuts apply from the main content region wrapped by [`KeyboardShortcu
 
 | Combo | Action | Navigates to |
 |-------|--------|--------------|
-| **Alt+N** | New review wizard | `/architecture/reviews/new` |
+| **Alt+N** | Start review / draft editor | `/architecture/architectures/new` (Working); Guided intake wizard at `/architecture/reviews/new` |
 | **Alt+R** | Packages list | `/architecture/reviews` |
 | **Alt+C** | Compare | `/insights/compare-two-reviews` |
 | **Alt+A** | Ask (Q&A) | `/insights/ask-review-questions` |

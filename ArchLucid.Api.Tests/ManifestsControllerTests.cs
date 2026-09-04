@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Application.Diagrams;
@@ -7,12 +8,14 @@ using ArchLucid.Application.Summaries;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -133,8 +136,34 @@ public sealed class ManifestsControllerTests
             .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken _) => new RunRecord
             {
                 RunId = runId,
+                TenantId = CallerScope.TenantId,
+                WorkspaceId = CallerScope.WorkspaceId,
+                ScopeProjectId = CallerScope.ProjectId,
                 GoldenManifestId = Guid.NewGuid(),
-                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed)
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            });
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(
+                CallerScope,
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken _) => new RunDetailDto
+            {
+                Run = new RunRecord { RunId = runId },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    CommittedArtifactInventory =
+                    [
+                        new ArchLucid.Core.Manifest.Sections.CommittedArtifactInventoryEntry
+                        {
+                            ArtifactName = "decision-trace",
+                            ContentHashSha256 = "ABC123",
+                        },
+                    ],
+                },
             });
 
         Mock<ITenantRepository> tenants = new();
@@ -156,6 +185,31 @@ public sealed class ManifestsControllerTests
                 },
             ]);
 
+        Mock<ICompareRunsApplicationFacade> compareFacade = new();
+        compareFacade
+            .Setup(f => f.CompareManifestVersionsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string leftVersion, string rightVersion, CancellationToken _) =>
+            {
+                string normalizedLeft = leftVersion.Trim();
+                string normalizedRight = rightVersion.Trim();
+
+                if (normalizedLeft == LeftVersion && normalizedRight == RightVersion)
+                {
+                    return new VersionManifestCompareLoadResult
+                    {
+                        Outcome = ManifestCompareLoadOutcome.Success,
+                        Left = left,
+                        Right = right,
+                    };
+                }
+
+                return new VersionManifestCompareLoadResult
+                {
+                    Outcome = ManifestCompareLoadOutcome.BaseManifestNotFound,
+                    VersionLabel = normalizedLeft,
+                };
+            });
+
         return new ManifestsController(
                 manifestReader ?? reader.Object,
                 manifestDiffService ?? diffService.Object,
@@ -169,6 +223,8 @@ public sealed class ManifestsControllerTests
                 diagramService.Object,
                 scopeProvider.Object,
                 runs.Object,
+                authority.Object,
+                compareFacade.Object,
                 tenants.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
