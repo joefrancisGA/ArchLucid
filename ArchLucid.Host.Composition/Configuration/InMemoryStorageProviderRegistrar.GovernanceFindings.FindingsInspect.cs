@@ -22,6 +22,7 @@ using ArchLucid.Persistence.Feedback;
 using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.Governance;
 using ArchLucid.Persistence.Governance.Posture;
+using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Repositories;
@@ -61,5 +62,9 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<IImportedArchitectureRequestRepository, NoOpImportedArchitectureRequestRepository>();
         services.AddSingleton<IAzureExtractorPackageRepository, NoOpAzureExtractorPackageRepository>();
         services.AddSingleton<ICloudInventoryExtractorPackageRepository, NoOpCloudInventoryExtractorPackageRepository>();
+        services.AddSingleton<IAzureInventorySnapshotRepository, NoOpAzureInventorySnapshotRepository>();
+        services.AddSingleton<ICloudResourceIdentityDirectory, NoOpCloudResourceIdentityDirectory>();
+        services.AddSingleton<IAuditFrameworkRepository, NoOpAuditFrameworkRepository>();
+        services.AddSingleton<ITenantBrandingProfileRepository, InMemoryTenantBrandingProfileRepository>();
     }
 }

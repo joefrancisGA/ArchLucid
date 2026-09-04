@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Text.Json;
 
 using ArchLucid.Application.AzureExtractor;
+using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Application.AzureExtractor.Stages;
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
@@ -259,8 +260,23 @@ public sealed class AzureExtractorIngestServiceTests
             new PassthroughAzureExtractorResultEnricher(),
             Microsoft.Extensions.Options.Options.Create(new AzureExtractorEnrichmentOptions { Enabled = false }),
             NullLogger<AzureExtractorPreparedZipValidateStage>.Instance);
+        Mock<IAzureInventorySnapshotHeaderService> snapshotHeader = new();
+        snapshotHeader
+            .Setup(s => s.TryCreatePendingFromPackageAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<DateTime?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string>(),
+                It.IsAny<bool>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AzureInventorySnapshotHeaderCreateResult { Succeeded = true, SnapshotId = Guid.NewGuid() });
+
         AzureExtractorPreparedZipPersistStage persistStage = new(
-            scope.Object, auditService.Object, packageRepo.Object, tasks.Object, evidence.Object,
+            scope.Object, auditService.Object, packageRepo.Object, snapshotHeader.Object, tasks.Object, evidence.Object,
             NullLogger<AzureExtractorPreparedZipPersistStage>.Instance);
         return new AzureExtractorIngestService(
             scope.Object, actor.Object, auditService.Object,
