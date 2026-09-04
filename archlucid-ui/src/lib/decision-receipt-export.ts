@@ -4,7 +4,7 @@ import {
 } from "@/lib/feasibility/export-transparency-trail-section";
 import type { FeasibilityVerdictKind, ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
-export const DECISION_RECEIPT_SCHEMA_VERSION = "archlucid.decision-receipt.v1";
+export const DECISION_RECEIPT_SCHEMA_VERSION = "archlucid.decision-receipt.v2";
 
 /** SAQ-011 — cost figures in the receipt are estimates, not audited financial advice. */
 export const DECISION_RECEIPT_COST_ESTIMATE_LABEL =
