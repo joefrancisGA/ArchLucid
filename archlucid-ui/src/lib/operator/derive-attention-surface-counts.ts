@@ -31,9 +31,11 @@ export function deriveAttentionSurfaceCounts(
   }
 
   if (input.runs !== undefined) {
+    const activeRuns = input.runs.filter((run) => run.isArchived !== true);
+
     // Align unfinished-work chip count with `/architecture/reviews?filter=needs-attention`.
-    counts["run-work-queue-needs-attention"] = input.runs.filter((run) => reviewsHubNeedsAttention(run)).length;
-    const sections = partitionRunsIntoWorkQueueSections(input.runs);
+    counts["run-work-queue-needs-attention"] = activeRuns.filter((run) => reviewsHubNeedsAttention(run)).length;
+    const sections = partitionRunsIntoWorkQueueSections(activeRuns);
 
     for (const section of sections) {
       if (section.groupId === "in-progress") {
