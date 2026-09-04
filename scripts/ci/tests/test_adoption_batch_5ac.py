@@ -33,8 +33,11 @@ class TestAdoptionBatch5AC(unittest.TestCase):
         self.assertIn("QualityGateWarnOnlyProductionLikeConfigurationLint", text)
 
     def test_tb_213_config_lint_promotes_for_hosted_pilot_profile(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Cli" / "Commands" / "ConfigLintReportBuilder.cs"
-        text = path.read_text(encoding="utf-8")
+        commands_dir = REPO_ROOT / "ArchLucid.Cli" / "Commands"
+        text = "".join(
+            path.read_text(encoding="utf-8")
+            for path in sorted(commands_dir.glob("ConfigLintReportBuilder*.cs"))
+        )
         self.assertIn("PromoteHostedPilotQualityGateFindings", text)
         self.assertIn("quality_gate_warn_only_in_real_production_like", text)
         self.assertIn("quality_gate_pilot_strict_thresholds_too_loose_in_production_like", text)

@@ -37,6 +37,22 @@ class TestStickinessBatchTb057(unittest.TestCase):
             / "architecture"
             / "architecture-risk-register-page.ts"
         )
+        page_copy = (
+            REPO_ROOT
+            / "archlucid-ui"
+            / "src"
+            / "lib"
+            / "architecture"
+            / "architecture-risk-register-copy.ts"
+        )
+        page_filters = (
+            REPO_ROOT
+            / "archlucid-ui"
+            / "src"
+            / "lib"
+            / "architecture"
+            / "architecture-risk-register-filters.ts"
+        )
         csv_module = (
             REPO_ROOT
             / "archlucid-ui"
@@ -48,7 +64,11 @@ class TestStickinessBatchTb057(unittest.TestCase):
         i18n = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "i18n.ts"
         client_text = client.read_text(encoding="utf-8")
         findings_query_text = findings_query.read_text(encoding="utf-8")
-        page_constants_text = page_constants.read_text(encoding="utf-8")
+        page_constants_text = (
+            page_constants.read_text(encoding="utf-8")
+            + page_copy.read_text(encoding="utf-8")
+            + page_filters.read_text(encoding="utf-8")
+        )
         i18n_text = i18n.read_text(encoding="utf-8")
         self.assertIn("ARCHITECTURE_RISK_REGISTER_PAGE_TITLE", client_text)
         self.assertIn(
