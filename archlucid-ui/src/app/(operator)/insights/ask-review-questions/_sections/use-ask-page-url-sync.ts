@@ -8,7 +8,9 @@ import { writeAskContinueLastThreadId } from "@/lib/ask/ask-continue-last-thread
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
   askPageThreadHrefFromSearch,
+  parseAskPageBaseRunIdFromSearch,
   parseAskPageCompareOpenFromSearch,
+  parseAskPageTargetRunIdFromSearch,
   parseAskPageThreadIdFromSearch,
 } from "@/lib/ask/ask-page-thread-url";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
@@ -16,6 +18,9 @@ import type { ConversationMessage, ConversationThread } from "@/types/conversati
 export type UseAskPageUrlSyncOptions = {
   readonly runId: string;
   readonly selectedThreadId: string;
+  readonly baseRunId: string;
+  readonly targetRunId: string;
+  readonly compareOpen: boolean;
   readonly setRunId: (runId: string) => void;
   readonly setBaseRunId: (runId: string) => void;
   readonly setTargetRunId: (runId: string) => void;
@@ -37,10 +42,15 @@ export function useAskPageUrlSync(options: UseAskPageUrlSyncOptions) {
   const urlRunIdRaw = searchParams.get("runId")?.trim() ?? "";
   const urlThreadId = parseAskPageThreadIdFromSearch(searchParams.get("thread"));
   const urlCompareOpen = parseAskPageCompareOpenFromSearch(searchParams.get("compare"));
+  const urlBaseRunId = parseAskPageBaseRunIdFromSearch(searchParams.get("baseRunId"));
+  const urlTargetRunId = parseAskPageTargetRunIdFromSearch(searchParams.get("targetRunId"));
 
   const {
     runId,
     selectedThreadId,
+    baseRunId,
+    targetRunId,
+    compareOpen,
     setRunId,
     setBaseRunId,
     setTargetRunId,
@@ -56,9 +66,23 @@ export function useAskPageUrlSync(options: UseAskPageUrlSyncOptions) {
   } = options;
 
   const syncThreadToUrl = useCallback(
-    (threadId: string, compareOpen: boolean) => {
+    (
+      threadId: string,
+      compareOpen: boolean,
+      baseRunIdValue: string = "",
+      targetRunIdValue: string = "",
+    ) => {
       router.replace(
-        askPageThreadHrefFromSearch(searchParams.toString(), { threadId, compareOpen }, pathname),
+        askPageThreadHrefFromSearch(
+          searchParams.toString(),
+          {
+            threadId,
+            compareOpen,
+            baseRunId: compareOpen ? baseRunIdValue : undefined,
+            targetRunId: compareOpen ? targetRunIdValue : undefined,
+          },
+          pathname,
+        ),
         { scroll: false },
       );
     },
@@ -68,9 +92,25 @@ export function useAskPageUrlSync(options: UseAskPageUrlSyncOptions) {
   const setCompareOpenWithUrl = useCallback(
     (open: boolean) => {
       setCompareOpen(open);
-      syncThreadToUrl(selectedThreadId, open);
+      syncThreadToUrl(selectedThreadId, open, baseRunId, targetRunId);
     },
-    [selectedThreadId, setCompareOpen, syncThreadToUrl],
+    [baseRunId, selectedThreadId, setCompareOpen, syncThreadToUrl, targetRunId],
+  );
+
+  const setBaseRunIdWithUrl = useCallback(
+    (nextBaseRunId: string) => {
+      setBaseRunId(nextBaseRunId);
+      syncThreadToUrl(selectedThreadId, compareOpen, nextBaseRunId, targetRunId);
+    },
+    [compareOpen, selectedThreadId, setBaseRunId, syncThreadToUrl, targetRunId],
+  );
+
+  const setTargetRunIdWithUrl = useCallback(
+    (nextTargetRunId: string) => {
+      setTargetRunId(nextTargetRunId);
+      syncThreadToUrl(selectedThreadId, compareOpen, baseRunId, nextTargetRunId);
+    },
+    [baseRunId, compareOpen, selectedThreadId, setTargetRunId, syncThreadToUrl],
   );
 
   useEffect(() => {
@@ -95,7 +135,10 @@ export function useAskPageUrlSync(options: UseAskPageUrlSyncOptions) {
     setSelectedThreadId(urlThreadId);
     setCompareOpen(urlCompareOpen);
 
-    if (thread.baseRunId) {
+    if (urlCompareOpen && (urlBaseRunId.length > 0 || urlTargetRunId.length > 0)) {
+      setBaseRunId(urlBaseRunId);
+      setTargetRunId(urlTargetRunId);
+    } else if (thread.baseRunId) {
       setBaseRunId(thread.baseRunId);
       setTargetRunId(thread.targetRunId ?? "");
     } else if (!urlCompareOpen) {
@@ -111,7 +154,9 @@ export function useAskPageUrlSync(options: UseAskPageUrlSyncOptions) {
     setSelectedThreadId,
     setTargetRunId,
     threads,
+    urlBaseRunId,
     urlCompareOpen,
+    urlTargetRunId,
     urlThreadId,
   ]);
 
@@ -124,7 +169,9 @@ export function useAskPageUrlSync(options: UseAskPageUrlSyncOptions) {
       setLastAskReferencedArtifacts([]);
 
       const thread = threads.find((t) => t.threadId === threadId);
-      const nextCompareOpen = Boolean(thread?.baseRunId);
+      const nextBaseRunId = thread?.baseRunId ?? "";
+      const nextTargetRunId = thread?.targetRunId ?? "";
+      const nextCompareOpen = nextBaseRunId.length > 0;
       const params = new URLSearchParams(searchParams.toString());
 
       if (thread?.runId) {
@@ -150,7 +197,16 @@ export function useAskPageUrlSync(options: UseAskPageUrlSyncOptions) {
       }
 
       router.replace(
-        askPageThreadHrefFromSearch(params.toString(), { threadId, compareOpen: nextCompareOpen }, pathname),
+        askPageThreadHrefFromSearch(
+          params.toString(),
+          {
+            threadId,
+            compareOpen: nextCompareOpen,
+            baseRunId: nextCompareOpen ? nextBaseRunId : undefined,
+            targetRunId: nextCompareOpen ? nextTargetRunId : undefined,
+          },
+          pathname,
+        ),
         { scroll: false },
       );
       await loadMessages(threadId);
@@ -233,5 +289,7 @@ export function useAskPageUrlSync(options: UseAskPageUrlSyncOptions) {
     reviewScopedForAsking,
     showRunDeepLinkPrompts,
     setCompareOpenWithUrl,
+    setBaseRunIdWithUrl,
+    setTargetRunIdWithUrl,
   };
 }

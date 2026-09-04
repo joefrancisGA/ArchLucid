@@ -1220,6 +1220,132 @@ describe("wave25 filter url helpers", () => {
   });
 });
 
+describe("wave26 filter url helpers", () => {
+  it("quick-family wizard step, evidence source, and extract-upload demo scenario", async () => {
+    const { parseQuickFamilyWizardStepFromSearch, quickFamilyWizardStepHrefFromSearch } = await import(
+      "@/lib/runs/quick-family-wizard-step-url"
+    );
+    const {
+      parseWizardEvidenceDemoScenarioFromSearch,
+      parseWizardEvidenceSourceFromSearch,
+      wizardEvidenceSourceHrefFromSearch,
+    } = await import("@/lib/runs/wizard-evidence-source-url");
+    const { extractUploadDemoScenarioHrefFromSearch, parseExtractUploadDemoScenarioFromSearch } = await import(
+      "@/lib/administration/extract-upload-demo-scenario-url"
+    );
+
+    expect(parseQuickFamilyWizardStepFromSearch("2")).toBe(2);
+    expect(quickFamilyWizardStepHrefFromSearch("path=quick-start", 2)).toBe(
+      "/architecture/reviews/new?path=quick-start&qsStep=2",
+    );
+    expect(parseWizardEvidenceSourceFromSearch("azure-export")).toBe("azure-export");
+    expect(parseWizardEvidenceDemoScenarioFromSearch("customer-intake-modernization")).toBe(
+      "customer-intake-modernization",
+    );
+    expect(
+      wizardEvidenceSourceHrefFromSearch("", {
+        evidenceSourceId: "azure-export",
+        demoScenarioId: "customer-intake-modernization",
+      }),
+    ).toBe(
+      "/architecture/reviews/new?evidenceSource=azure-export&demoScenario=customer-intake-modernization",
+    );
+    expect(parseExtractUploadDemoScenarioFromSearch("customer-intake-modernization")).toBe(
+      "customer-intake-modernization",
+    );
+    expect(extractUploadDemoScenarioHrefFromSearch("", "customer-intake-modernization")).toBe(
+      "/administration/extract-upload?demoScenario=customer-intake-modernization",
+    );
+  });
+
+  it("architecture intelligence tier, ask compare runs, and provenance node", async () => {
+    const {
+      architectureIntelligenceTierHrefFromSearch,
+      parseArchitectureIntelligenceTierFromSearch,
+    } = await import("@/lib/architecture/architecture-intelligence-tier-url");
+    const {
+      askPageThreadHrefFromSearch,
+      parseAskPageBaseRunIdFromSearch,
+      parseAskPageTargetRunIdFromSearch,
+    } = await import("@/lib/ask/ask-page-thread-url");
+    const { parseProvenanceSelectedNodeIdFromSearch, provenanceSelectedNodeHrefFromSearch } = await import(
+      "@/lib/provenance/provenance-selected-node-url"
+    );
+
+    expect(parseArchitectureIntelligenceTierFromSearch("Deep")).toBe("Deep");
+    expect(architectureIntelligenceTierHrefFromSearch("", "Deep")).toBe(
+      "/architecture/architecture-intelligence?tier=Deep",
+    );
+    expect(architectureIntelligenceTierHrefFromSearch("tier=Deep", "Standard")).toBe(
+      "/architecture/architecture-intelligence",
+    );
+    expect(parseAskPageBaseRunIdFromSearch("run-base")).toBe("run-base");
+    expect(parseAskPageTargetRunIdFromSearch("run-target")).toBe("run-target");
+    expect(
+      askPageThreadHrefFromSearch("runId=r1", {
+        threadId: "thread-1",
+        compareOpen: true,
+        baseRunId: "run-base",
+        targetRunId: "run-target",
+      }),
+    ).toBe(
+      "/insights/ask-review-questions?runId=r1&thread=thread-1&compare=1&baseRunId=run-base&targetRunId=run-target",
+    );
+    expect(parseProvenanceSelectedNodeIdFromSearch("node-9")).toBe("node-9");
+    expect(
+      provenanceSelectedNodeHrefFromSearch("runId=r1", "node-9", "/architecture/reviews/r1/provenance"),
+    ).toBe("/architecture/reviews/r1/provenance?runId=r1&provNodeId=node-9");
+  });
+
+  it("diagram selection, findings dual-pane, what-if analysis, and graph edge focus", async () => {
+    const {
+      architectureDiagramSelectionHrefFromSearch,
+      parseArchitectureDiagramEditOpenFromSearch,
+      parseArchitectureDiagramIdFromSearch,
+      parseArchitectureDiagramKindFromSearch,
+    } = await import("@/lib/architecture/architecture-diagram-selection-url");
+    const { architectureDiagramFindingHrefFromSearch, parseArchitectureDiagramFindingIdFromSearch } = await import(
+      "@/lib/architecture/architecture-findings-dual-pane-url"
+    );
+    const {
+      findingsWhatIfAnalysisHrefFromSearch,
+      parseFindingsWhatIfEnabledFromSearch,
+      parseFindingsWhatIfIdsFromSearch,
+    } = await import("@/lib/findings/findings-what-if-analysis-url");
+    const { graphEdgeFocusHrefFromSearch, parseGraphEdgeFocusFromSearch } = await import(
+      "@/lib/insights/graph-edge-focus-url"
+    );
+
+    expect(parseArchitectureDiagramKindFromSearch("node")).toBe("node");
+    expect(parseArchitectureDiagramIdFromSearch("diag-1")).toBe("diag-1");
+    expect(parseArchitectureDiagramEditOpenFromSearch("1")).toBe(true);
+    expect(
+      architectureDiagramSelectionHrefFromSearch(
+        "tab=architecture",
+        { elementKind: "node", elementId: "diag-1", editorOpen: true },
+        "/architecture/reviews/r1",
+      ),
+    ).toBe("/architecture/reviews/r1?tab=architecture&diagKind=node&diagId=diag-1&diagEdit=1");
+    expect(parseArchitectureDiagramFindingIdFromSearch("finding-7")).toBe("finding-7");
+    expect(
+      architectureDiagramFindingHrefFromSearch("tab=architecture", "finding-7", "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?tab=architecture&diagramFindingId=finding-7");
+    expect(parseFindingsWhatIfEnabledFromSearch("1")).toBe(true);
+    expect(parseFindingsWhatIfIdsFromSearch("f1,f2")).toEqual(["f1", "f2"]);
+    expect(
+      findingsWhatIfAnalysisHrefFromSearch(
+        "tab=findings",
+        { enabled: true, findingIds: ["f1", "f2"] },
+        "/architecture/reviews/r1",
+      ),
+    ).toBe("/architecture/reviews/r1?tab=findings&whatIf=1&whatIfIds=f1%2Cf2");
+    expect(parseGraphEdgeFocusFromSearch("edge-3")).toBe("edge-3");
+    expect(graphEdgeFocusHrefFromSearch("runId=r1", "edge-3")).toBe(
+      "/insights/evidence-graph?runId=r1&graphEdgeId=edge-3",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(
