@@ -10,10 +10,12 @@ import {
   parseFilenameFromContentDisposition,
   triggerBrowserBlobDownload,
 } from "./downloads-blob-trigger-browser";
+import { assertBinaryDownloadContentType } from "./downloads-blob-trigger-guard";
 
 export type ScopedProxyFileGetOptions = {
   readonly accept: string;
   readonly defaultFileName?: string;
+  readonly expectedContentTypePrefixes?: readonly string[];
 };
 
 async function fetchScopedProxyFileGet(
@@ -44,6 +46,10 @@ async function fetchScopedProxyFileGet(
   if (!response.ok) {
     const errText = await response.text();
     throwApiRequestError(response, errText, correlationId);
+  }
+
+  if (options.expectedContentTypePrefixes && options.expectedContentTypePrefixes.length > 0) {
+    assertBinaryDownloadContentType(response, [...options.expectedContentTypePrefixes]);
   }
 
   return response;

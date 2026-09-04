@@ -3,6 +3,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Delivery;
 using ArchLucid.Decisioning.Advisory.Learning;
@@ -73,6 +74,7 @@ public sealed partial class AdvisoryScanRunner(
     IIntegrationEventPublisher integrationEventPublisher,
     IIntegrationEventOutboxRepository integrationEventOutbox,
     IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
+    IManifestHashService manifestHashService,
     ILogger<AdvisoryScanRunner> logger) : IAdvisoryScanRunner
 {
     private const string StatusStarted = "Started";

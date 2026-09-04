@@ -109,6 +109,13 @@ public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade
             exportRecordId,
             new AppReplayExportRequest { ExportRecordId = exportRecordId, RecordReplayExport = request.RecordReplayExport },
             cancellationToken);
+        if (result.Outcome is ExportRecordLoadOutcome.LineageUnverified)
+        {
+            return this.ConflictProblem(
+                $"Export replay for '{result.MissingId}' is blocked until export lineage verification succeeds.",
+                ProblemTypes.Conflict);
+        }
+
         if (result.Outcome is not ExportRecordLoadOutcome.Success)
             return this.NotFoundProblem($"Export record '{result.MissingId}' was not found.", ProblemTypes.ResourceNotFound);
         return ReplayArtifactResponseFactory.FromExportReplay(Request, result.Replay!);
@@ -130,6 +137,13 @@ public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade
             exportRecordId,
             new AppReplayExportRequest { ExportRecordId = exportRecordId, RecordReplayExport = request.RecordReplayExport },
             cancellationToken);
+        if (result.Outcome is ExportRecordLoadOutcome.LineageUnverified)
+        {
+            return this.ConflictProblem(
+                $"Export replay for '{result.MissingId}' is blocked until export lineage verification succeeds.",
+                ProblemTypes.Conflict);
+        }
+
         if (result.Outcome is not ExportRecordLoadOutcome.Success)
             return this.NotFoundProblem($"Export record '{result.MissingId}' was not found.", ProblemTypes.ResourceNotFound);
         ReplayExportResult replay = result.Replay!;
