@@ -152,7 +152,7 @@ public sealed class CompareRunsApplicationFacade(
         {
             return new ScopedRunPairLoadResult
             {
-                Outcome = ScopedRunPairLoadOutcome.LeftRunNotFound,
+                Outcome = ScopedRunPairLoadOutcome.LeftManifestNotFound,
                 MissingRunId = leftRunId,
             };
         }
@@ -161,7 +161,7 @@ public sealed class CompareRunsApplicationFacade(
         {
             return new ScopedRunPairLoadResult
             {
-                Outcome = ScopedRunPairLoadOutcome.RightRunNotFound,
+                Outcome = ScopedRunPairLoadOutcome.RightManifestNotFound,
                 MissingRunId = rightRunId,
             };
         }
@@ -188,6 +188,15 @@ public sealed class CompareRunsApplicationFacade(
             Outcome = ScopedRunPairLoadOutcome.Success,
             Left = left,
             Right = right,
+            InputFingerprints = RunComparePinFingerprintGuard.BuildCompareInputFingerprints(
+                leftHeader,
+                rightHeader,
+                leftCompare.GoldenManifest.ManifestHash,
+                rightCompare.GoldenManifest.ManifestHash,
+                CommittedArtifactInventoryCompareFingerprint.ComputeHashSha256(
+                    leftCompare.GoldenManifest.CommittedArtifactInventory),
+                CommittedArtifactInventoryCompareFingerprint.ComputeHashSha256(
+                    rightCompare.GoldenManifest.CommittedArtifactInventory)),
         };
     }
 
@@ -333,7 +342,13 @@ public sealed class CompareRunsApplicationFacade(
             };
         }
 
-        ComparisonResult comparison = _comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);
+        ComparisonResult comparison = _comparison.Compare(
+            ManifestCompareInventoryCheckedDocumentBuilder.ApplyProjectedTopology(
+                baseRun.GoldenManifest,
+                await ProjectCompareManifestAsync(baseRun.GoldenManifest, baseHeader, ct)),
+            ManifestCompareInventoryCheckedDocumentBuilder.ApplyProjectedTopology(
+                targetRun.GoldenManifest,
+                await ProjectCompareManifestAsync(targetRun.GoldenManifest, targetHeader, ct)));
         comparison.InputFingerprints = RunComparePinFingerprintGuard.BuildCompareInputFingerprints(
             baseHeader,
             targetHeader,
@@ -522,12 +537,17 @@ public sealed class CompareRunsApplicationFacade(
         string leftRunId,
         ArchitectureRunDetail leftDetail,
         string rightRunId,
-        ArchitectureRunDetail rightDetail) =>
-        _agentResultDiffService.Compare(
+        ArchitectureRunDetail rightDetail,
+        CompareInputFingerprints? inputFingerprints = null)
+    {
+        AgentResultDiffResult diff = _agentResultDiffService.Compare(
             leftRunId,
             leftDetail.Results,
             rightRunId,
             rightDetail.Results);
+        diff.InputFingerprints = inputFingerprints;
+        return diff;
+    }
 
     private static bool TryEnsureComplete(
         ArchitectureRunDetail detail,
