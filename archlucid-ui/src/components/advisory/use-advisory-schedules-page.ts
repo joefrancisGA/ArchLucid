@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { useAdvisoryScheduleReviewAvailability } from "@/hooks/use-advisory-schedule-review-availability";
@@ -40,6 +40,11 @@ import {
   resolveContinueLastAdvisorySchedule,
   writeAdvisoryScheduleLastViewedId,
 } from "@/lib/resolve-continue-last-advisory-schedule";
+import {
+  advisorySchedulesPanelsHrefFromSearch,
+  parseAdvisorySchedulesCreatePanelFromSearch,
+  parseAdvisorySchedulesHistoryFromSearch,
+} from "@/lib/advisory/advisory-schedules-panels-url";
 
 function formatAdvisorySchedulesLastLoaded(lastLoadedUtc: string | null): string {
   if (lastLoadedUtc === null) {
@@ -67,6 +72,9 @@ export type AdvisorySchedulesPageState = ReturnType<typeof useAdvisorySchedulesP
 export function useAdvisorySchedulesPage(initialRunId?: string | null) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const urlShowCreate = parseAdvisorySchedulesCreatePanelFromSearch(searchParams.get("create"));
+  const urlHistoryScheduleId = parseAdvisorySchedulesHistoryFromSearch(searchParams.get("history"));
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const sampleModeBlocked =
     isBuyerPolishedOperatorShellEnv() && !isOperatorExperienceFullShellEnv();
@@ -101,8 +109,49 @@ export function useAdvisorySchedulesPage(initialRunId?: string | null) {
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [formResetKey, setFormResetKey] = useState(0);
-  const [showCreatePanel, setShowCreatePanel] = useState(false);
-  const [historyOpenFor, setHistoryOpenFor] = useState<string | null>(null);
+  const [showCreatePanel, setShowCreatePanelState] = useState(urlShowCreate);
+  const [historyOpenFor, setHistoryOpenForState] = useState<string | null>(
+    urlHistoryScheduleId.length > 0 ? urlHistoryScheduleId : null,
+  );
+  const syncPanelsToUrl = useCallback(
+    (patch: { readonly showCreatePanel?: boolean; readonly historyScheduleId?: string | null }) => {
+      router.replace(advisorySchedulesPanelsHrefFromSearch(searchParams.toString(), patch, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setShowCreatePanel = useCallback(
+    (value: boolean | ((prev: boolean) => boolean)) => {
+      setShowCreatePanelState((prev) => {
+        const next = typeof value === "function" ? value(prev) : value;
+        syncPanelsToUrl({ showCreatePanel: next, historyScheduleId: next ? null : undefined });
+
+        return next;
+      });
+    },
+    [syncPanelsToUrl],
+  );
+
+  const setHistoryOpenFor = useCallback(
+    (value: string | null | ((prev: string | null) => string | null)) => {
+      setHistoryOpenForState((prev) => {
+        const next = typeof value === "function" ? value(prev) : value;
+        syncPanelsToUrl({ historyScheduleId: next });
+
+        return next;
+      });
+    },
+    [syncPanelsToUrl],
+  );
+
+  useEffect(() => {
+    setShowCreatePanelState(parseAdvisorySchedulesCreatePanelFromSearch(searchParams.get("create")));
+    const historyId = parseAdvisorySchedulesHistoryFromSearch(searchParams.get("history"));
+    setHistoryOpenForState(historyId.length > 0 ? historyId : null);
+  }, [searchParams]);
+
   const [projectLabel, setProjectLabel] = useState("Current project");
   const [runProjectSlug, setRunProjectSlug] = useState("default");
   const [lastLoadedUtc, setLastLoadedUtc] = useState<string | null>(null);
@@ -227,6 +276,14 @@ export function useAdvisorySchedulesPage(initialRunId?: string | null) {
       setFailure(toApiLoadFailure(error));
     }
   }
+
+  useEffect(() => {
+    if (urlHistoryScheduleId.length === 0) {
+      return;
+    }
+
+    void loadExecutions(urlHistoryScheduleId);
+  }, [urlHistoryScheduleId]);
 
   async function onCreate(input: {
     readonly name: string;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, startTransition } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useGraphPageUrlState } from "@/app/(operator)/insights/evidence-graph/_sections/use-graph-page-url-state";
 import { useGraphPageFetch } from "@/app/(operator)/insights/evidence-graph/_sections/use-graph-page-fetch";
@@ -16,8 +17,13 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import type { AskRunListAvailability } from "@/lib/graph-page-state";
+import { graphPresentationViewHrefFromSearch } from "@/lib/insights/graph-presentation-view-url";
+import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 
 export function useGraphPageState() {
+  const router = useRouter();
+  const pathname = usePathname() ?? EVIDENCE_GRAPH_PATH;
+  const searchParams = useSearchParams();
   const { isWorkingMode, mounted: workspaceMounted } = useWorkspaceMode();
   const workingMode = workspaceMounted && isWorkingMode;
   const [decisionId, setDecisionId] = useState("");
@@ -121,6 +127,14 @@ export function useGraphPageState() {
     setReviewsListLoadError(availability.loadError);
     setReviewListAvailability(availability);
   }, []);
+
+  const handlePresentationViewChange = useCallback(
+    (next: EvidenceTrailPresentationView) => {
+      setPresentationView(next);
+      router.replace(graphPresentationViewHrefFromSearch(searchParams.toString(), next, pathname), { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
 
   const handleRunIdChange = useCallback((value: string) => {
     setRunId(value);
@@ -249,7 +263,7 @@ export function useGraphPageState() {
     handleGraphInteractiveSurfaceReady,
     defaultSelectedGraphNodeId,
     presentationView,
-    setPresentationView,
+    setPresentationView: handlePresentationViewChange,
     sampleGraphActive,
     showLoadFailureAlert: buyerShell.showLoadFailureAlert,
     loadFailure,

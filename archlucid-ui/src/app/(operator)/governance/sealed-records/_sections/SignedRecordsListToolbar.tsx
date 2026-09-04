@@ -43,9 +43,13 @@ export type SignedRecordsListToolbarProps = {
   readonly searchQuery: string;
   readonly integrityFilter: SignedRecordsListIntegrityFilter;
   readonly dateRangePreset: SignedRecordsListDateRangePreset | null;
+  readonly fromUtc: string;
+  readonly toUtc: string;
   readonly disabled?: boolean;
   readonly onSearchQueryChange: (value: string) => void;
   readonly onIntegrityFilterChange: (value: SignedRecordsListIntegrityFilter) => void;
+  readonly onCustomFromUtcChange: (value: string) => void;
+  readonly onCustomToUtcChange: (value: string) => void;
 };
 
 /** Client-side register controls — filters the loaded page; server cursor paging stays unchanged. */
@@ -113,6 +117,32 @@ export function SignedRecordsListToolbar(props: SignedRecordsListToolbarProps): 
             </FilterChip>
           ))}
         </FilterChipGroup>
+      </div>
+      <div className="space-y-1">
+        <Label htmlFor="signed-records-list-from" className={OPERATOR_TYPOGRAPHY.label}>
+          From (custom)
+        </Label>
+        <Input
+          id="signed-records-list-from"
+          type="date"
+          value={props.fromUtc}
+          disabled={controlsDisabled}
+          data-testid="signed-records-list-from-input"
+          onChange={(event) => props.onCustomFromUtcChange(event.target.value)}
+        />
+      </div>
+      <div className="space-y-1">
+        <Label htmlFor="signed-records-list-to" className={OPERATOR_TYPOGRAPHY.label}>
+          To (custom)
+        </Label>
+        <Input
+          id="signed-records-list-to"
+          type="date"
+          value={props.toUtc}
+          disabled={controlsDisabled}
+          data-testid="signed-records-list-to-input"
+          onChange={(event) => props.onCustomToUtcChange(event.target.value)}
+        />
       </div>
     </div>
   );
