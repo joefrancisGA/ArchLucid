@@ -13,7 +13,11 @@ namespace ArchLucid.Application.Drafts;
 public sealed partial class DraftAdmissionService
 {
     /// <inheritdoc />
-    public async Task<SubmitDraftResponse?> SubmitAsync(ScopeContext scope, Guid draftId, CancellationToken cancellationToken)
+    public async Task<SubmitDraftResponse?> SubmitAsync(
+        ScopeContext scope,
+        Guid draftId,
+        DateTime? expectedUpdatedUtc,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -21,6 +25,8 @@ public sealed partial class DraftAdmissionService
 
         if (existing is null)
             return null;
+
+        DraftStartReviewStaleUpdatedUtcGuard.EnsureStartReviewNotStaleOrThrow(existing, expectedUpdatedUtc);
 
         if (DraftRequestStateMachine.AllowsSubmitReplay(existing.Status))
         {

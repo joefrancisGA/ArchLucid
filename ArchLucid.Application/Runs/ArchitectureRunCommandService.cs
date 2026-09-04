@@ -18,6 +18,7 @@ public sealed class ArchitectureRunCommandService(
     IArchitectureRunBatchCreateOrchestrator architectureRunBatchCreateOrchestrator,
     IArchitectureRunExecuteOrchestrator architectureRunExecuteOrchestrator,
     IExecuteEvidenceReadinessGate executeEvidenceReadinessGate,
+    IReRunExecuteSealedManifestPinGate reRunExecuteSealedManifestPinGate,
     IArchitectureRunCommitOrchestrator architectureRunCommitOrchestrator,
     IReplayRunService replayRunService,
     ICommitRunIdempotencyCoordinator commitRunIdempotencyCoordinator,
@@ -38,6 +39,9 @@ public sealed class ArchitectureRunCommandService(
 
     private readonly IExecuteEvidenceReadinessGate _executeEvidenceReadinessGate =
         executeEvidenceReadinessGate ?? throw new ArgumentNullException(nameof(executeEvidenceReadinessGate));
+
+    private readonly IReRunExecuteSealedManifestPinGate _reRunExecuteSealedManifestPinGate =
+        reRunExecuteSealedManifestPinGate ?? throw new ArgumentNullException(nameof(reRunExecuteSealedManifestPinGate));
 
     private readonly IArchitectureRunCommitOrchestrator _architectureRunCommitOrchestrator =
         architectureRunCommitOrchestrator ?? throw new ArgumentNullException(nameof(architectureRunCommitOrchestrator));
@@ -109,6 +113,7 @@ public sealed class ArchitectureRunCommandService(
     public async Task<ExecuteRunResult> ExecuteRunAsync(string runId, CancellationToken cancellationToken = default)
     {
         await _executeEvidenceReadinessGate.EnsureReadyAsync(runId, cancellationToken).ConfigureAwait(false);
+        await _reRunExecuteSealedManifestPinGate.EnsureReadyAsync(runId, cancellationToken).ConfigureAwait(false);
 
         return await _architectureRunExecuteOrchestrator.ExecuteRunAsync(runId, cancellationToken).ConfigureAwait(false);
     }
@@ -119,6 +124,8 @@ public sealed class ArchitectureRunCommandService(
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
+
+        await _reRunExecuteSealedManifestPinGate.EnsureReadyAsync(runId, cancellationToken).ConfigureAwait(false);
 
         ExecuteRunResult result =
             await _architectureRunExecuteOrchestrator

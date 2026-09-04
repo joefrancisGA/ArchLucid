@@ -124,7 +124,7 @@ public sealed class DraftRequestServiceQuestionTests
                 CancellationToken.None);
         }
 
-        await _service.SubmitAsync(_scope, created.DraftId, CancellationToken.None);
+        await _service.SubmitAsync(_scope, created.DraftId, null, CancellationToken.None);
 
         DraftRequestResponse? submitted = await _service.GetAsync(_scope, created.DraftId, CancellationToken.None);
         submitted!.Status.Should().Be(DraftRequestStatus.RunSpawned);
@@ -145,7 +145,7 @@ public sealed class DraftRequestServiceQuestionTests
 
         await _service.RequestAdmissionAsync(_scope, created.DraftId, CancellationToken.None);
 
-        Func<Task> act = () => _service.SubmitAsync(_scope, created.DraftId, CancellationToken.None);
+        Func<Task> act = () => _service.SubmitAsync(_scope, created.DraftId, null, CancellationToken.None);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*MUST question*");
@@ -170,7 +170,7 @@ public sealed class DraftRequestServiceQuestionTests
                 CancellationToken.None);
         }
 
-        SubmitDraftResponse? submit = await _service.SubmitAsync(_scope, created.DraftId, CancellationToken.None);
+        SubmitDraftResponse? submit = await _service.SubmitAsync(_scope, created.DraftId, null, CancellationToken.None);
 
         submit!.Status.Should().Be(DraftRequestStatus.RunSpawned);
     }
@@ -194,7 +194,7 @@ public sealed class DraftRequestServiceQuestionTests
                 CancellationToken.None);
         }
 
-        SubmitDraftResponse? submit = await _service.SubmitAsync(_scope, created.DraftId, CancellationToken.None);
+        SubmitDraftResponse? submit = await _service.SubmitAsync(_scope, created.DraftId, null, CancellationToken.None);
 
         submit!.Status.Should().Be(DraftRequestStatus.RunSpawned);
     }
@@ -285,7 +285,7 @@ public sealed class DraftRequestServiceQuestionTests
                 CancellationToken.None);
         }
 
-        await _service.SubmitAsync(_scope, first.DraftId, CancellationToken.None);
+        await _service.SubmitAsync(_scope, first.DraftId, null, CancellationToken.None);
 
         DraftRequestResponse second = await _service.CreateAsync(
             _scope,

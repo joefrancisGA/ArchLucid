@@ -1,10 +1,13 @@
+using ArchLucid.Application;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Traceability;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Runs.Query.Stages;
 
@@ -13,7 +16,8 @@ public sealed class RunFindingsInspectStage(
     IFindingInspectReadRepository findingInspectReadRepository,
     IFindingTrustLabelMapper findingTrustLabelMapper,
     IReasoningSummaryBuilder reasoningSummaryBuilder,
-    IScopeContextProvider scopeContextProvider) : IRunFindingsInspectStage
+    IScopeContextProvider scopeContextProvider,
+    IAuthorityQueryService authorityQueryService) : IRunFindingsInspectStage
 {
     public async Task<FindingInspectQueryResult> GetFindingInspectForRunAsync(
         string runId,
@@ -88,6 +92,23 @@ public sealed class RunFindingsInspectStage(
             {
                 Outcome = RunFindingsQueryOutcome.NotFound,
                 ProblemDetail = $"Finding '{findingId.Trim()}' was not found for run '{runId.Trim()}'."
+            };
+        }
+
+        try
+        {
+            await FindingInspectPinnedEvidenceGuard.EnsureInspectEvidenceInventoryBoundOrThrowAsync(
+                body,
+                scope,
+                authorityQueryService,
+                cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return new FindingInspectQueryResult
+            {
+                Outcome = RunFindingsQueryOutcome.Conflict,
+                ProblemDetail = ex.Message
             };
         }
 

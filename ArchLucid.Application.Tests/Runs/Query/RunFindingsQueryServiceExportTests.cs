@@ -14,6 +14,7 @@ using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -103,7 +104,8 @@ public sealed class RunFindingsQueryServiceExportTests
                 Mock.Of<ArchLucid.Persistence.Interfaces.IFindingInspectReadRepository>(),
                 Mock.Of<IFindingTrustLabelMapper>(),
                 Mock.Of<IReasoningSummaryBuilder>(),
-                scopeProvider.Object),
+                scopeProvider.Object,
+                Mock.Of<IAuthorityQueryService>()),
             Mock.Of<IRunRepository>(),
             Mock.Of<ArchLucid.Application.Explanation.IFindingEvidenceChainService>(),
             scopeProvider.Object);
