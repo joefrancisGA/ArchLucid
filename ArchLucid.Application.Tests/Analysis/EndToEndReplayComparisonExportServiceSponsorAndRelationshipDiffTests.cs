@@ -359,6 +359,54 @@ public sealed class EndToEndReplayComparisonExportServiceSponsorAndRelationshipD
         md.Should().Contain("+1 / -0 relationships");
     }
 
+    [SkippableFact]
+    public void GenerateMarkdown_executive_profile_includes_manifest_warning_count_in_key_manifest_line()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Exec summary stub");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "L",
+            RightRunId = "R",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            ManifestDiff = new ManifestDiffResult
+            {
+                Warnings = ["SystemName differs between compared manifests."],
+            }
+        };
+
+        string md = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Sponsor);
+
+        md.Should().Contain("1 manifest warning(s)");
+    }
+
+    [SkippableFact]
+    public void GenerateMarkdown_executive_profile_includes_required_control_counts_in_key_manifest_line()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Exec summary stub");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "L",
+            RightRunId = "R",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            ManifestDiff = new ManifestDiffResult
+            {
+                AddedRequiredControls = ["encrypt-at-rest"],
+            }
+        };
+
+        string md = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Sponsor);
+
+        md.Should().Contain("+1 / -0 required controls");
+    }
+
     private static EndToEndReplayComparisonReport RelationshipDiffReport() => new()
     {
         LeftRunId = "a",

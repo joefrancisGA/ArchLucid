@@ -84,8 +84,7 @@ public static class EndToEndReplayComparisonMarkdownExportFormatter
         }
 
         if (report.ManifestDiff is not null)
-            sb.AppendLine(
-                $"- Manifest: +{report.ManifestDiff.AddedServices.Count} / -{report.ManifestDiff.RemovedServices.Count} services; +{report.ManifestDiff.AddedDatastores.Count} / -{report.ManifestDiff.RemovedDatastores.Count} datastores; +{report.ManifestDiff.AddedRelationships.Count} / -{report.ManifestDiff.RemovedRelationships.Count} relationships");
+            sb.AppendLine($"- Manifest: {ManifestDiffMateriality.FormatSponsorKeyCountsLine(report.ManifestDiff)}");
         sb.AppendLine($"- Export diffs: {report.ExportDiffs.Count}");
         sb.AppendLine();
     }

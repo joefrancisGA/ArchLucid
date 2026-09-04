@@ -153,8 +153,7 @@ public static class EndToEndReplayComparisonDocxExportFormatter
         }
 
         if (report.ManifestDiff is not null)
-            AddBullet(body,
-                $"Manifest: +{report.ManifestDiff.AddedServices.Count} / -{report.ManifestDiff.RemovedServices.Count} services; +{report.ManifestDiff.AddedDatastores.Count} / -{report.ManifestDiff.RemovedDatastores.Count} datastores; +{report.ManifestDiff.AddedRelationships.Count} / -{report.ManifestDiff.RemovedRelationships.Count} relationships");
+            AddBullet(body, $"Manifest: {ManifestDiffMateriality.FormatSponsorKeyCountsLine(report.ManifestDiff)}");
         AddBullet(body, $"Export diffs: {report.ExportDiffs.Count}");
         AddSpacer(body);
     }

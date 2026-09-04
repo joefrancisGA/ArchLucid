@@ -82,8 +82,7 @@ public static class EndToEndReplayComparisonPdfExportFormatter
         }
 
         if (report.ManifestDiff is not null)
-            column.Item().Text(
-                $"Manifest: +{report.ManifestDiff.AddedServices.Count} / -{report.ManifestDiff.RemovedServices.Count} services; +{report.ManifestDiff.AddedDatastores.Count} / -{report.ManifestDiff.RemovedDatastores.Count} datastores; +{report.ManifestDiff.AddedRelationships.Count} / -{report.ManifestDiff.RemovedRelationships.Count} relationships");
+            column.Item().Text($"Manifest: {ManifestDiffMateriality.FormatSponsorKeyCountsLine(report.ManifestDiff)}");
 
         column.Item().Text($"Export diffs: {report.ExportDiffs.Count}");
     }
