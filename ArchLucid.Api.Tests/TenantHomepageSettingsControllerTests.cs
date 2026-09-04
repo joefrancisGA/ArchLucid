@@ -1,6 +1,9 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Serialization;
 using ArchLucid.Application;
 using ArchLucid.Application.OperatorHome;
 using ArchLucid.Core.Audit;
@@ -127,6 +130,40 @@ public sealed class TenantHomepageSettingsControllerTests
         body.IsConfigured.Should().BeTrue();
         body.IsAvailable.Should().BeTrue();
         body.ReviewTitle.Should().Be("Claims intake modernization");
+    }
+
+    [Fact]
+    public async Task PutAsync_clears_selection_when_selected_run_id_is_explicitly_null()
+    {
+        Mock<IFeaturedCompletedSampleService> service = new();
+        service
+            .Setup(s => s.ClearSelectionAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FeaturedCompletedSampleSnapshot
+            {
+                IsConfigured = false,
+                IsAvailable = false,
+            });
+
+        TenantHomepageSettingsController controller = CreateController(service.Object);
+
+        IActionResult action = await controller.PutAsync(
+            new TenantHomepageSettingsPutRequest { SelectedRunId = null },
+            CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        service.Verify(s => s.ClearSelectionAsync(It.IsAny<CancellationToken>()), Times.Once);
+        service.VerifyNoOtherCalls();
+    }
+
+    [Theory]
+    [InlineData("{}", "missing selectedRunId is rejected during JSON deserialization")]
+    public void PutRequest_deserialization_rejects_missing_selected_run_id(string payload, string because)
+    {
+        Action act = () => JsonSerializer.Deserialize<TenantHomepageSettingsPutRequest>(
+            payload,
+            ArchLucidApiJsonSerializerOptions.Web);
+
+        act.Should().Throw<JsonException>(because);
     }
 
     [Fact]

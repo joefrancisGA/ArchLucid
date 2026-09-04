@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
+using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models.Coverage;
 using ArchLucid.Api.ProblemDetails;
@@ -55,6 +56,11 @@ public sealed class GovernanceCoverageController(
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? validationProblem = CoveragePreviewHttpMapper.Validate(request).ToBadRequestProblemOrNull(this);
+
+        if (validationProblem is not null)
+            return validationProblem;
 
         (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,

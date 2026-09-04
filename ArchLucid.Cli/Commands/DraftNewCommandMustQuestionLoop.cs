@@ -8,6 +8,7 @@ internal static class DraftNewCommandMustQuestionLoop
     internal static async Task<int> RunAsync(
         ArchLucidApiClient client,
         Guid draftId,
+        ArchLucidProjectScaffolder.ArchLucidCliConfig? config,
         bool skipAll,
         DraftNewCommandHooks hooks,
         TextWriter output,
@@ -51,6 +52,15 @@ internal static class DraftNewCommandMustQuestionLoop
                     return CliExitCode.OperationFailed;
                 }
 
+                if (skipped.Value is not null
+                    && !CliScopeResponseValidator.TryValidateDraftScope(skipped.Value, config, out string? skipScopeError))
+                {
+                    await error.WriteLineAsync($"Error skipping question '{question.QuestionKey}': {skipScopeError}");
+                    CliOperatorHints.WriteAfterScopeMismatch(error);
+
+                    return CliExitCode.OperationFailed;
+                }
+
                 continue;
             }
 
@@ -82,6 +92,15 @@ internal static class DraftNewCommandMustQuestionLoop
                     return CliExitCode.OperationFailed;
                 }
 
+                if (skipped.Value is not null
+                    && !CliScopeResponseValidator.TryValidateDraftScope(skipped.Value, config, out string? skipScopeError))
+                {
+                    await error.WriteLineAsync($"Error skipping question '{question.QuestionKey}': {skipScopeError}");
+                    CliOperatorHints.WriteAfterScopeMismatch(error);
+
+                    return CliExitCode.OperationFailed;
+                }
+
                 continue;
             }
 
@@ -106,6 +125,15 @@ internal static class DraftNewCommandMustQuestionLoop
             {
                 await error.WriteLineAsync($"Error answering question '{question.QuestionKey}': {answered.Error}");
                 CliOperatorHints.WriteAfterApiFailure(answered.HttpStatusCode, answered.Error, error);
+
+                return CliExitCode.OperationFailed;
+            }
+
+            if (answered.Value is not null
+                && !CliScopeResponseValidator.TryValidateDraftScope(answered.Value, config, out string? answerScopeError))
+            {
+                await error.WriteLineAsync($"Error answering question '{question.QuestionKey}': {answerScopeError}");
+                CliOperatorHints.WriteAfterScopeMismatch(error);
 
                 return CliExitCode.OperationFailed;
             }

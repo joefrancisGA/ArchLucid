@@ -160,7 +160,7 @@ public sealed partial class DocxExportService(
         if (manifest.Topology.Resources.Count > 0)
 
             foreach (string resource in manifest.Topology.Resources)
-                WordDocumentBuilder.AddBodyText(body, $"Resource: {resource}");
+                WordDocumentBuilder.AddBodyText(body, $"Resource: {SanitizeArtifactText(resource)}");
 
         else
             WordDocumentBuilder.AddBodyText(body, "No concrete topology resources were recorded.");
@@ -168,11 +168,11 @@ public sealed partial class DocxExportService(
         if (manifest.Topology.SelectedPatterns.Count > 0)
         {
             WordDocumentBuilder.AddBodyText(body, "Selected patterns:");
-            WordDocumentBuilder.AddBulletList(body, manifest.Topology.SelectedPatterns);
+            WordDocumentBuilder.AddBulletList(body, manifest.Topology.SelectedPatterns.Select(SanitizeArtifactText));
         }
 
         foreach (string gap in manifest.Topology.Gaps)
-            WordDocumentBuilder.AddBodyText(body, $"Gap: {gap}");
+            WordDocumentBuilder.AddBodyText(body, $"Gap: {SanitizeArtifactText(gap)}");
         WordDocumentBuilder.AddSpacer(body);
 
         WordDocumentBuilder.AddHeading(body, "Security Posture");
@@ -193,7 +193,7 @@ public sealed partial class DocxExportService(
         }
 
         foreach (string gap in manifest.Security.Gaps)
-            WordDocumentBuilder.AddBodyText(body, $"Security gap: {gap}");
+            WordDocumentBuilder.AddBodyText(body, $"Security gap: {SanitizeArtifactText(gap)}");
         WordDocumentBuilder.AddSpacer(body);
 
         if (request.IncludeComplianceSection)
@@ -216,7 +216,7 @@ public sealed partial class DocxExportService(
             }
 
             foreach (string gap in manifest.Compliance.Gaps)
-                WordDocumentBuilder.AddBodyText(body, $"Compliance gap: {gap}");
+                WordDocumentBuilder.AddBodyText(body, $"Compliance gap: {SanitizeArtifactText(gap)}");
             WordDocumentBuilder.AddSpacer(body);
         }
 
@@ -226,10 +226,35 @@ public sealed partial class DocxExportService(
             $"Max monthly cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : "Not specified")}");
 
         foreach (string risk in manifest.Cost.CostRisks)
-            WordDocumentBuilder.AddBodyText(body, $"Cost risk: {risk}");
+            WordDocumentBuilder.AddBodyText(body, $"Cost risk: {SanitizeArtifactText(risk)}");
 
         foreach (string note in manifest.Cost.Notes)
-            WordDocumentBuilder.AddBodyText(body, $"Cost note: {note}");
+            WordDocumentBuilder.AddBodyText(body, $"Cost note: {SanitizeArtifactText(note)}");
+        WordDocumentBuilder.AddSpacer(body);
+
+        WordDocumentBuilder.AddHeading(body, "Assumptions");
+        if (manifest.Assumptions.Count == 0)
+            WordDocumentBuilder.AddBodyText(body, "No assumptions were recorded.");
+        else
+            WordDocumentBuilder.AddBulletList(body, manifest.Assumptions.Select(SanitizeArtifactText));
+
+        WordDocumentBuilder.AddSpacer(body);
+
+        WordDocumentBuilder.AddHeading(body, "Constraints");
+        if (manifest.Constraints.MandatoryConstraints.Count == 0
+            && manifest.Constraints.Preferences.Count == 0)
+        {
+            WordDocumentBuilder.AddBodyText(body, "No constraints were recorded.");
+        }
+        else
+        {
+            foreach (string item in manifest.Constraints.MandatoryConstraints)
+                WordDocumentBuilder.AddBodyText(body, $"Mandatory: {SanitizeArtifactText(item)}");
+
+            foreach (string item in manifest.Constraints.Preferences)
+                WordDocumentBuilder.AddBodyText(body, $"Preference: {SanitizeArtifactText(item)}");
+        }
+
         WordDocumentBuilder.AddSpacer(body);
 
         if (request.IncludeIssuesSection)

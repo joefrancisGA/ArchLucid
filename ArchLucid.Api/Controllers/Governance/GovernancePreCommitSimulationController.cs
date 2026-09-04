@@ -166,6 +166,12 @@ public sealed class GovernancePreCommitSimulationController(
                 ProblemTypes.ValidationFailed);
         }
 
+        IActionResult? simulationValidation =
+            PreCommitSyntheticSimulationHttpMapper.Validate(body).ToBadRequestProblemOrNull(this);
+
+        if (simulationValidation is not null)
+            return simulationValidation;
+
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)

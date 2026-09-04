@@ -3,6 +3,7 @@ using ArchLucid.Application.Runs.Async;
 using ArchLucid.Application.Scim.Tokens;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Host.Composition.Metering;
 using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Core.Health;
 using ArchLucid.Host.Core.Hosted;
@@ -454,6 +455,126 @@ public sealed class ContainerJobsOffloadRegistrationTests
             "Api durable hosts enqueue jobs and the watchdog reclaims stale Running rows via SQL + queue notify for Worker drain");
         hasProcessor.Should().BeFalse(
             "Api-only hosts must not drain the durable queue locally");
+    }
+
+    [Fact]
+    public void
+        AddArchLucidApplicationServices_Worker_offloads_first_tenant_funnel_archival_still_registers_job_not_hosted_service()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Jobs:OffloadedToContainerJobs:0"] = ArchLucidJobNames.FirstTenantFunnelArchival;
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasJob = services.Any(static d =>
+            d.ServiceType == typeof(IArchLucidJob)
+            && d.ImplementationType == typeof(FirstTenantFunnelArchivalArchLucidJob));
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(FirstTenantFunnelArchivalHostedService));
+
+        hasJob.Should().BeTrue(
+            "first-tenant-funnel-archival must resolve via ArchLucidJobRunner when offloaded from the worker host");
+        hasHosted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void
+        AddArchLucidApplicationServices_Worker_offloads_trial_lifecycle_still_registers_job_not_scheduler_hosted_service()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Jobs:OffloadedToContainerJobs:0"] = ArchLucidJobNames.TrialLifecycle;
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasJob = services.Any(static d =>
+            d.ServiceType == typeof(IArchLucidJob)
+            && d.ImplementationType == typeof(TrialLifecycleArchLucidJob));
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(TrialLifecycleSchedulerHostedService));
+
+        hasJob.Should().BeTrue(
+            "trial-lifecycle must resolve via ArchLucidJobRunner when offloaded from the worker host");
+        hasHosted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void
+        AddArchLucidApplicationServices_Worker_offloads_exec_digest_weekly_still_registers_job_not_hosted_service()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Jobs:OffloadedToContainerJobs:0"] = ArchLucidJobNames.ExecDigestWeekly;
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasJob = services.Any(static d =>
+            d.ServiceType == typeof(IArchLucidJob)
+            && d.ImplementationType == typeof(ExecDigestWeeklyArchLucidJob));
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(ExecDigestWeeklyHostedService));
+
+        hasJob.Should().BeTrue(
+            "exec-digest-weekly must resolve via ArchLucidJobRunner when offloaded from the worker host");
+        hasHosted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void
+        AddArchLucidApplicationServices_Worker_offloads_weekly_architecture_digest_still_registers_job_not_hosted_service()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Jobs:OffloadedToContainerJobs:0"] = ArchLucidJobNames.WeeklyArchitectureDigest;
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasJob = services.Any(static d =>
+            d.ServiceType == typeof(IArchLucidJob)
+            && d.ImplementationType == typeof(WeeklyArchitectureDigestArchLucidJob));
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(WeeklyArchitectureDigestHostedService));
+
+        hasJob.Should().BeTrue(
+            "weekly-architecture-digest must resolve via ArchLucidJobRunner when offloaded from the worker host");
+        hasHosted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void
+        AddArchLucidApplicationServices_Api_role_registers_ApiRequestUsageEventBatchFlushHostedService()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Hosting:Role"] = "Api";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool hasFlush = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(ApiRequestUsageEventBatchFlushHostedService));
+
+        hasFlush.Should().BeTrue(
+            "Api hosts record metering events via middleware and must drain the in-process buffer locally");
     }
 
     private static Dictionary<string, string?> CreateWorkerCompositionDictionary()

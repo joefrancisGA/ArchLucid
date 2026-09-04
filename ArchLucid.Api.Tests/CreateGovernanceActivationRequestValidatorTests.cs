@@ -126,4 +126,20 @@ public sealed class CreateGovernanceActivationRequestValidatorTests
 
         result.IsValid.Should().BeTrue();
     }
+
+    [Fact]
+    public void Validate_accepts_property_initializer_default_environment_for_standard_dev_activation()
+    {
+        CreateGovernanceActivationRequest request = new()
+        {
+            RunId = "run-1",
+            ManifestVersion = "1.0.0",
+        };
+
+        request.Environment.Should().Be("dev");
+
+        ValidationResult result = _validator.Validate(request);
+
+        result.IsValid.Should().BeTrue();
+    }
 }

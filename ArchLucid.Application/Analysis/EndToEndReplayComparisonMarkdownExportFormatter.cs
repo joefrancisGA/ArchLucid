@@ -79,15 +79,12 @@ public static class EndToEndReplayComparisonMarkdownExportFormatter
             $"- Run metadata: {report.RunDiff.ChangedFields.Count} changed field(s); Request IDs differ: {(report.RunDiff.RequestIdsDiffer ? "Yes" : "No")}");
         if (report.AgentResultDiff is not null)
         {
-            int withChanges = report.AgentResultDiff.AgentDeltas.Count(d =>
-                d.AddedClaims.Count > 0 || d.RemovedClaims.Count > 0 || d.AddedFindings.Count > 0 || d.RemovedFindings.Count > 0 ||
-                d.AddedRequiredControls.Count > 0 || d.RemovedRequiredControls.Count > 0 || d.AddedWarnings.Count > 0 || d.RemovedWarnings.Count > 0);
+            int withChanges = AgentResultDeltaMateriality.CountWithMaterialChanges(report.AgentResultDiff.AgentDeltas);
             sb.AppendLine($"- Agent deltas: {withChanges} agent(s) with material changes");
         }
 
         if (report.ManifestDiff is not null)
-            sb.AppendLine(
-                $"- Manifest: +{report.ManifestDiff.AddedServices.Count} / -{report.ManifestDiff.RemovedServices.Count} services; +{report.ManifestDiff.AddedDatastores.Count} / -{report.ManifestDiff.RemovedDatastores.Count} datastores");
+            sb.AppendLine($"- Manifest: {ManifestDiffMateriality.FormatSponsorKeyCountsLine(report.ManifestDiff)}");
         sb.AppendLine($"- Export diffs: {report.ExportDiffs.Count}");
         sb.AppendLine();
     }
@@ -127,6 +124,8 @@ public static class EndToEndReplayComparisonMarkdownExportFormatter
             AppendList(sb, "Removed Required Controls", delta.RemovedRequiredControls);
             AppendList(sb, "Added Warnings", delta.AddedWarnings);
             AppendList(sb, "Removed Warnings", delta.RemovedWarnings);
+            AppendList(sb, "Added Evidence References", delta.AddedEvidenceRefs);
+            AppendList(sb, "Removed Evidence References", delta.RemovedEvidenceRefs);
         }
     }
 
@@ -151,13 +150,16 @@ public static class EndToEndReplayComparisonMarkdownExportFormatter
             sb.AppendLine();
         }
 
-        if (report.ManifestDiff.RemovedRelationships.Count <= 0)
-            return;
-        sb.AppendLine("### Removed Relationships");
-        sb.AppendLine();
-        foreach (RelationshipDiffItem rel in report.ManifestDiff.RemovedRelationships)
-            sb.AppendLine($"- {rel.SourceId} -> {rel.TargetId} ({rel.RelationshipType})");
-        sb.AppendLine();
+        if (report.ManifestDiff.RemovedRelationships.Count > 0)
+        {
+            sb.AppendLine("### Removed Relationships");
+            sb.AppendLine();
+            foreach (RelationshipDiffItem rel in report.ManifestDiff.RemovedRelationships)
+                sb.AppendLine($"- {rel.SourceId} -> {rel.TargetId} ({rel.RelationshipType})");
+            sb.AppendLine();
+        }
+
+        AppendList(sb, "Warnings", report.ManifestDiff.Warnings);
     }
 
     private static void AppendExportDiffs(StringBuilder sb, EndToEndReplayComparisonReport report)

@@ -68,5 +68,30 @@ internal static class CompareQualityDeltaExportFormatter
         sb.AppendLine("</ul>");
     }
 
+    internal static IReadOnlyList<string> BuildPlainTextLines(CompareQualityDeltaCounts delta)
+    {
+        ArgumentNullException.ThrowIfNull(delta);
+
+        return BuildRows(delta)
+            .Select(row => $"{row.Label}: before {row.Before}, after {row.After}")
+            .ToList();
+    }
+
+    internal static string RemoveMarkdownSection(string markdown)
+    {
+        const string heading = "## Compare Quality Delta";
+        int start = markdown.IndexOf(heading, StringComparison.Ordinal);
+
+        if (start < 0)
+            return markdown;
+
+        int nextSection = markdown.IndexOf("\n## ", start + heading.Length, StringComparison.Ordinal);
+
+        if (nextSection < 0)
+            return markdown[..start].TrimEnd();
+
+        return (markdown[..start] + markdown[nextSection..]).Trim();
+    }
+
     internal sealed record CompareQualityDeltaExportRow(string Label, int Before, int After);
 }

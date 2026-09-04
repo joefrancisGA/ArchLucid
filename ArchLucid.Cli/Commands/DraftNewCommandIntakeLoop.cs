@@ -45,6 +45,7 @@ internal static class DraftNewCommandIntakeLoop
         int resolveExit = await DraftNewCommandMustQuestionLoop.RunAsync(
             client,
             draftId,
+            connect.Config,
             options.SkipMustQuestions,
             hooks,
             output,

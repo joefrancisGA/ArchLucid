@@ -120,6 +120,36 @@ public sealed class RiskExceptionValidationTests
     }
 
     [Fact]
+    public void ValidateRenew_rejects_whitespace_only_rationale()
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        RenewRiskExceptionRequest request = new()
+        {
+            ExpiresAtUtc = now.AddDays(30),
+            Rationale = "   ",
+        };
+
+        Action act = () => RiskExceptionValidation.ValidateRenew(request, now);
+
+        act.Should().Throw<ArgumentException>().WithMessage("*whitespace*");
+    }
+
+    [Fact]
+    public void ValidateRenew_rejects_whitespace_only_evidence_ref()
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        RenewRiskExceptionRequest request = new()
+        {
+            ExpiresAtUtc = now.AddDays(30),
+            EvidenceRef = "   ",
+        };
+
+        Action act = () => RiskExceptionValidation.ValidateRenew(request, now);
+
+        act.Should().Throw<ArgumentException>().WithMessage("*whitespace*");
+    }
+
+    [Fact]
     public void ValidateRenew_rejects_past_expiration()
     {
         DateTimeOffset now = DateTimeOffset.UtcNow;

@@ -30,6 +30,11 @@ public sealed partial class RunsController
         [FromBody] ReplayRunRequest? request,
         CancellationToken cancellationToken)
     {
+        IActionResult? invalidRun = NotFoundWhenRunRouteIdInvalid(runId);
+
+        if (invalidRun is not null)
+            return invalidRun;
+
         request ??= new ReplayRunRequest();
 
         string user = actorContext.GetActor();

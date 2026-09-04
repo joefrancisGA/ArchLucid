@@ -57,6 +57,14 @@ public sealed partial class TenantBaselineController
                 ProblemTypes.ValidationFailed);
         }
 
+        if (body.BaselineReviewCycleSourceNote is not null
+            && string.IsNullOrWhiteSpace(body.BaselineReviewCycleSourceNote))
+        {
+            return this.BadRequestProblem(
+                "Baseline review-cycle source note cannot be empty or whitespace.",
+                ProblemTypes.ValidationFailed);
+        }
+
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         TenantRecord? existing = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
 
@@ -133,8 +141,10 @@ public sealed partial class TenantBaselineController
         if (touchReview)
         {
             decimal hours = body.BaselineReviewCycleHours!.Value;
-            string persistedSource =
-                BaselineReviewCycleSourceMarkers.FormatOperatorSettingsPersistence(body.BaselineReviewCycleSourceNote);
+            string persistedSource = body.BaselineReviewCycleSourceNote is not null
+                ? BaselineReviewCycleSourceMarkers.FormatOperatorSettingsPersistence(body.BaselineReviewCycleSourceNote)
+                : existing.BaselineReviewCycleSource
+                    ?? BaselineReviewCycleSourceMarkers.FormatOperatorSettingsPersistence(null);
 
             DateTimeOffset capturedUtc = TimeProvider.System.GetUtcNow();
             bool firstReviewCycleCapture = existing.BaselineReviewCycleCapturedUtc is null;

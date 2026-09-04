@@ -311,6 +311,43 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
                 return true;
         }
 
+        if (MethodInheritsTrackedVerbFromInterfaces(methodDeclaredSymbolScoped))
+            return true;
+
+        return false;
+    }
+
+    private static bool MethodInheritsTrackedVerbFromInterfaces(IMethodSymbol methodDeclaredSymbolScoped)
+    {
+        foreach (IMethodSymbol explicitImplementation in methodDeclaredSymbolScoped.ExplicitInterfaceImplementations)
+        {
+            if (MethodHasTrackedVerbAttribute(explicitImplementation))
+                return true;
+        }
+
+        INamedTypeSymbol containingType = methodDeclaredSymbolScoped.ContainingType;
+
+        foreach (INamedTypeSymbol iface in containingType.AllInterfaces)
+        {
+            foreach (ISymbol member in iface.GetMembers())
+            {
+                if (member is not IMethodSymbol interfaceMethod)
+                    continue;
+
+                if (interfaceMethod.MethodKind != MethodKind.Ordinary)
+                    continue;
+
+                IMethodSymbol? implementation =
+                    containingType.FindImplementationForInterfaceMember(interfaceMethod) as IMethodSymbol;
+
+                if (implementation is null || !SymbolEqualityComparer.Default.Equals(implementation, methodDeclaredSymbolScoped))
+                    continue;
+
+                if (MethodHasTrackedVerbAttribute(interfaceMethod))
+                    return true;
+            }
+        }
+
         return false;
     }
 

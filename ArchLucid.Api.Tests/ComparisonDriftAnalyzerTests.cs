@@ -104,6 +104,18 @@ public sealed class ComparisonDriftAnalyzerTests
     }
 
     [SkippableFact]
+    public void Analyze_EquivalentIntegerAndDoubleScalars_DoesNotReportDrift()
+    {
+        object stored = new { Value = 1 };
+        object regenerated = new { Value = 1.0d };
+
+        DriftAnalysisResult result = _sut.Analyze(stored, regenerated);
+
+        result.DriftDetected.Should().BeFalse();
+        result.Items.Should().BeEmpty();
+    }
+
+    [SkippableFact]
     public void Analyze_TypeChange_DetectsTypeChange()
     {
         // Force JSON type difference: string vs number at same path.

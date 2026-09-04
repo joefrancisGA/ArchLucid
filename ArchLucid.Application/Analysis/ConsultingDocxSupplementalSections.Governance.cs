@@ -44,20 +44,41 @@ internal static partial class ConsultingDocxSupplementalSections
             }
         }
 
-        if (report.Manifest.Datastores.Count <= 0)
+        if (report.Manifest.Datastores.Count > 0)
+        {
+            ConsultingDocxOpenXmlPrimitives.AddHeading(body, "Datastores", 2);
+
+            foreach (ManifestDatastore datastore in report.Manifest.Datastores.OrderBy(x => x.DatastoreName))
+            {
+                ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, datastore.DatastoreName, "Strong");
+                ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Type: {datastore.DatastoreType}");
+                ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Platform: {datastore.RuntimePlatform}");
+                ConsultingDocxOpenXmlPrimitives.AddBullet(body,
+                    $"Private Endpoint Required: {(datastore.PrivateEndpointRequired ? "Yes" : "No")}");
+                ConsultingDocxOpenXmlPrimitives.AddBullet(body,
+                    $"Encryption At Rest Required: {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
+                ConsultingDocxOpenXmlPrimitives.AddSpacer(body);
+            }
+        }
+
+        if (report.Manifest.Relationships.Count <= 0)
             return;
 
-        ConsultingDocxOpenXmlPrimitives.AddHeading(body, "Datastores", 2);
+        ConsultingDocxOpenXmlPrimitives.AddHeading(body, "Relationships", 2);
 
-        foreach (ManifestDatastore datastore in report.Manifest.Datastores.OrderBy(x => x.DatastoreName))
+        foreach (ManifestRelationship relationship in report.Manifest.Relationships
+                     .OrderBy(x => x.SourceId)
+                     .ThenBy(x => x.TargetId))
         {
-            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, datastore.DatastoreName, "Strong");
-            ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Type: {datastore.DatastoreType}");
-            ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Platform: {datastore.RuntimePlatform}");
-            ConsultingDocxOpenXmlPrimitives.AddBullet(body,
-                $"Private Endpoint Required: {(datastore.PrivateEndpointRequired ? "Yes" : "No")}");
-            ConsultingDocxOpenXmlPrimitives.AddBullet(body,
-                $"Encryption At Rest Required: {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
+            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(
+                body,
+                $"{relationship.SourceId} {relationship.RelationshipType} {relationship.TargetId}",
+                "Strong");
+
+            if (!string.IsNullOrWhiteSpace(relationship.Description))
+
+                ConsultingDocxOpenXmlPrimitives.AddBullet(body, relationship.Description);
+
             ConsultingDocxOpenXmlPrimitives.AddSpacer(body);
         }
     }

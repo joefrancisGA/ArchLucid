@@ -118,6 +118,11 @@ public sealed partial class RunsController
         [FromServices] IArchitectureRunAsyncOperationAcceptor asyncOperationAcceptor,
         CancellationToken cancellationToken)
     {
+        IActionResult? invalidRun = NotFoundWhenRunRouteIdInvalid(runId);
+
+        if (invalidRun is not null)
+            return invalidRun;
+
         try
         {
             string operationId = await asyncOperationAcceptor.AcceptExecuteAsync(
@@ -173,6 +178,11 @@ public sealed partial class RunsController
         [FromServices] IArchitectureRunAsyncOperationAcceptor asyncOperationAcceptor,
         CancellationToken cancellationToken)
     {
+        IActionResult? invalidRun = NotFoundWhenRunRouteIdInvalid(runId);
+
+        if (invalidRun is not null)
+            return invalidRun;
+
         request ??= new ReplayRunRequest();
 
         try

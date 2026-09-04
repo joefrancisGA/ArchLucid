@@ -30,6 +30,8 @@ public sealed class CreatePolicyPackRequestValidator : AbstractValidator<CreateP
                 "PackType must be one of: TenantCustom, WorkspaceCustom, ProjectCustom.");
 
         RuleFor(x => x.InitialContentJson)
+            .NotEmpty()
+            .WithMessage("InitialContentJson is required.")
             .Must(PolicyPackRequestValidationRules.BeValidJson)
             .WithMessage("InitialContentJson must be valid JSON.");
     }

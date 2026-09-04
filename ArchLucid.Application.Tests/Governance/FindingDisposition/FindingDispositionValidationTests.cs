@@ -231,4 +231,18 @@ public sealed class FindingDispositionValidationTests
             .Throw<ArgumentException>()
             .WithMessage($"*exceed*{FindingDispositionValidation.MaxFindingIdLength}*");
     }
+
+    [Fact]
+    public void Validate_rejects_undefined_disposition_enum_value()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "f1",
+            Disposition = (Disposition)999,
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request);
+
+        act.Should().Throw<ArgumentException>().WithMessage("*disposition*");
+    }
 }

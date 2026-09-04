@@ -114,6 +114,108 @@ public sealed class EndToEndReplayComparisonPdfAndDocxParityTests
         text.Should().NotContain("Key counts");
     }
 
+    [SkippableFact]
+    public async Task GeneratePdf_detailed_includes_relationship_subsections_when_populated()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Full summary");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            ManifestDiff = new ManifestDiffResult
+            {
+                AddedRelationships =
+                [
+                    new RelationshipDiffItem { SourceId = "s1", TargetId = "t1", RelationshipType = "calls" }
+                ],
+                RemovedRelationships =
+                [
+                    new RelationshipDiffItem { SourceId = "s2", TargetId = "t2", RelationshipType = "reads" }
+                ]
+            }
+        };
+
+        byte[] pdf = await sut.GeneratePdfAsync(report, CancellationToken.None, EndToEndComparisonExportProfile.Detailed);
+        string text = ExtractPdfText(pdf);
+
+        text.Should().Contain("s1 -> t1 (calls)");
+        text.Should().Contain("s2 -> t2 (reads)");
+    }
+
+    [SkippableFact]
+    public async Task GenerateDocx_detailed_includes_relationship_subsections_when_populated()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Full summary");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            ManifestDiff = new ManifestDiffResult
+            {
+                AddedRelationships =
+                [
+                    new RelationshipDiffItem { SourceId = "s1", TargetId = "t1", RelationshipType = "calls" }
+                ],
+                RemovedRelationships =
+                [
+                    new RelationshipDiffItem { SourceId = "s2", TargetId = "t2", RelationshipType = "reads" }
+                ]
+            }
+        };
+
+        byte[] docx = await sut.GenerateDocxAsync(report, CancellationToken.None, EndToEndComparisonExportProfile.Detailed);
+        string text = ExtractDocxBodyText(docx);
+
+        text.Should().Contain("Added Relationships");
+        text.Should().Contain("s1 -> t1 (calls)");
+        text.Should().Contain("Removed Relationships");
+        text.Should().Contain("s2 -> t2 (reads)");
+    }
+
+    [SkippableFact]
+    public async Task GeneratePdf_detailed_includes_agent_evidence_ref_diffs()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Full summary");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            AgentResultDiff = new AgentResultDiffResult
+            {
+                AgentDeltas =
+                [
+                    new AgentResultDelta
+                    {
+                        AgentType = ArchLucid.Contracts.Common.AgentType.Compliance,
+                        LeftExists = true,
+                        RightExists = true,
+                        AddedEvidenceRefs = ["policy-pack:encrypt-at-rest"],
+                    }
+                ]
+            }
+        };
+
+        byte[] pdf = await sut.GeneratePdfAsync(report, CancellationToken.None, EndToEndComparisonExportProfile.Detailed);
+        string text = ExtractPdfText(pdf);
+
+        text.Should().Contain("policy-pack:encrypt-at-rest");
+    }
+
     private static string ExtractDocxBodyText(byte[] docxBytes)
     {
         using MemoryStream ms = new(docxBytes);
