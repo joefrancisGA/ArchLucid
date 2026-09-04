@@ -119,12 +119,8 @@ public sealed class ReplayComparisonInterpretationDiffSlice : IReplayComparisonD
         return string.Join(' ', parts);
     }
 
-    private static bool AgentOutputsChangedMaterially(AgentResultDiffResult agentResultDiff)
-    {
-        return agentResultDiff.AgentDeltas.Any(delta =>
-            delta.AddedClaims.Count > 0 || delta.RemovedClaims.Count > 0 || delta.AddedFindings.Count > 0 || delta.RemovedFindings.Count > 0 ||
-            delta.AddedRequiredControls.Count > 0 || delta.RemovedRequiredControls.Count > 0 || delta.AddedWarnings.Count > 0 || delta.RemovedWarnings.Count > 0);
-    }
+    private static bool AgentOutputsChangedMaterially(AgentResultDiffResult agentResultDiff) =>
+        AgentResultDeltaMateriality.AnyMaterialChanges(agentResultDiff.AgentDeltas);
 
     private static bool ManifestChangedMaterially(ManifestDiffResult manifestDiff)
     {

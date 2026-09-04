@@ -77,17 +77,13 @@ public static class EndToEndReplayComparisonPdfExportFormatter
 
         if (report.AgentResultDiff is not null)
         {
-            int withChanges = report.AgentResultDiff.AgentDeltas.Count(d =>
-                d.AddedClaims.Count > 0 || d.RemovedClaims.Count > 0 || d.AddedFindings.Count > 0 || d.RemovedFindings.Count > 0 ||
-                d.AddedRequiredControls.Count > 0 || d.RemovedRequiredControls.Count > 0 || d.AddedWarnings.Count > 0 ||
-                d.RemovedWarnings.Count > 0);
-
+            int withChanges = AgentResultDeltaMateriality.CountWithMaterialChanges(report.AgentResultDiff.AgentDeltas);
             column.Item().Text($"Agent deltas: {withChanges} agent(s) with material changes");
         }
 
         if (report.ManifestDiff is not null)
             column.Item().Text(
-                $"Manifest: +{report.ManifestDiff.AddedServices.Count} / -{report.ManifestDiff.RemovedServices.Count} services; +{report.ManifestDiff.AddedDatastores.Count} / -{report.ManifestDiff.RemovedDatastores.Count} datastores");
+                $"Manifest: +{report.ManifestDiff.AddedServices.Count} / -{report.ManifestDiff.RemovedServices.Count} services; +{report.ManifestDiff.AddedDatastores.Count} / -{report.ManifestDiff.RemovedDatastores.Count} datastores; +{report.ManifestDiff.AddedRelationships.Count} / -{report.ManifestDiff.RemovedRelationships.Count} relationships");
 
         column.Item().Text($"Export diffs: {report.ExportDiffs.Count}");
     }
@@ -145,6 +141,7 @@ public static class EndToEndReplayComparisonPdfExportFormatter
         AppendDiffSection(column, "Removed Required Controls", report.ManifestDiff.RemovedRequiredControls);
         AppendRelationshipDiffSection(column, "Added Relationships", report.ManifestDiff.AddedRelationships);
         AppendRelationshipDiffSection(column, "Removed Relationships", report.ManifestDiff.RemovedRelationships);
+        AppendDiffSection(column, "Warnings", report.ManifestDiff.Warnings);
     }
 
     private static void AppendExportDiffs(ColumnDescriptor column, EndToEndReplayComparisonReport report)

@@ -1609,11 +1609,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 12
-- **bugs-found:** 21
+- **hunts:** 13
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — PDF/DOCX compare-quality-delta fallback; E2E agent evidence-ref export parity
+- **last-bug:** 2026-09-04 — manifest warnings export parity; agent materiality confidence/evidence refs; sponsor relationship counts
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1653,6 +1653,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) E2E detailed manifest appendices omit `ManifestDiffResult.Warnings` while interpretation synergy notes may reference warnings-only diffs — verify export-body surfacing before hunt-ready promotion.
 - [ ] (candidate) `ReplayComparisonInterpretationDiffSlice.AgentOutputsChangedMaterially` ignores confidence-only and evidence-ref-only agent drift when manifest bodies are present — verify interpretation-note misclassification before promotion.
 - [ ] (candidate) Executive/sponsor `AppendSponsorReport` key counts omit relationship-only manifest deltas — low-impact profile gap; needs product decision before promotion.
+
+2026-09-04 seed hunt #764: proved PDF/DOCX compare-quality-delta fallback and agent evidence-ref export parity; reseeded manifest-warnings export body and interpretation materiality candidates.
+
+- [x] (proven) E2E detailed manifest appendices omit `ManifestDiffResult.Warnings` while interpretation synergy notes reference warnings-only diffs — **hit 2026-09-04 (#765):** detailed markdown/HTML/PDF/DOCX `AppendManifestDiff` and summary formatter listed structural deltas only; fixed with manifest warnings sections; regressions in `GenerateMarkdown_detailed_includes_manifest_warnings_when_populated` and `GenerateHtml_detailed_includes_manifest_warnings_when_populated`.
+- [x] (proven) `ReplayComparisonInterpretationDiffSlice.AgentOutputsChangedMaterially` ignores confidence-only and evidence-ref-only agent drift — **hit 2026-09-04 (#765):** synergy branch emitted "Neither agent outputs nor manifest changed materially" for confidence/evidence-only deltas; fixed via shared `AgentResultDeltaMateriality`; regressions in `BuildAsync_when_only_agent_confidence_changed_adds_material_agent_interpretation_note` and `BuildAsync_when_only_evidence_refs_changed_adds_material_agent_interpretation_note`.
+- [x] (proven) Executive/sponsor `AppendSponsorReport` key counts omit relationship-only manifest deltas — **hit 2026-09-04 (#765):** sponsor manifest line counted services/datastores only; fixed with relationship +/- counts across markdown/HTML/PDF/DOCX; regression in `GenerateMarkdown_executive_profile_includes_relationship_counts_in_key_manifest_line`.
+
+2026-09-04 thorough hunt #765: proved manifest-warnings export body gap, agent materiality interpretation misclassification, and sponsor relationship key-count parity.
 
 2026-09-04 seed hunt #764: proved PDF/DOCX compare-quality-delta fallback and agent evidence-ref export parity; reseeded manifest-warnings export body and interpretation materiality candidates.
 

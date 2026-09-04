@@ -101,6 +101,7 @@ public static class EndToEndReplayComparisonDocxExportFormatter
                     AddDiffSection(body, "Removed Required Controls", report.ManifestDiff.RemovedRequiredControls);
                     AddRelationshipDiffSection(body, "Added Relationships", report.ManifestDiff.AddedRelationships);
                     AddRelationshipDiffSection(body, "Removed Relationships", report.ManifestDiff.RemovedRelationships);
+                    AddDiffSection(body, "Warnings", report.ManifestDiff.Warnings);
                     AddSpacer(body);
                 }
 
@@ -147,15 +148,13 @@ public static class EndToEndReplayComparisonDocxExportFormatter
             $"Run metadata: {report.RunDiff.ChangedFields.Count} changed field(s); Request IDs differ: {(report.RunDiff.RequestIdsDiffer ? "Yes" : "No")}");
         if (report.AgentResultDiff is not null)
         {
-            int withChanges = report.AgentResultDiff.AgentDeltas.Count(d =>
-                d.AddedClaims.Count > 0 || d.RemovedClaims.Count > 0 || d.AddedFindings.Count > 0 || d.RemovedFindings.Count > 0 ||
-                d.AddedRequiredControls.Count > 0 || d.RemovedRequiredControls.Count > 0 || d.AddedWarnings.Count > 0 || d.RemovedWarnings.Count > 0);
+            int withChanges = AgentResultDeltaMateriality.CountWithMaterialChanges(report.AgentResultDiff.AgentDeltas);
             AddBullet(body, $"Agent deltas: {withChanges} agent(s) with material changes");
         }
 
         if (report.ManifestDiff is not null)
             AddBullet(body,
-                $"Manifest: +{report.ManifestDiff.AddedServices.Count} / -{report.ManifestDiff.RemovedServices.Count} services; +{report.ManifestDiff.AddedDatastores.Count} / -{report.ManifestDiff.RemovedDatastores.Count} datastores");
+                $"Manifest: +{report.ManifestDiff.AddedServices.Count} / -{report.ManifestDiff.RemovedServices.Count} services; +{report.ManifestDiff.AddedDatastores.Count} / -{report.ManifestDiff.RemovedDatastores.Count} datastores; +{report.ManifestDiff.AddedRelationships.Count} / -{report.ManifestDiff.RemovedRelationships.Count} relationships");
         AddBullet(body, $"Export diffs: {report.ExportDiffs.Count}");
         AddSpacer(body);
     }

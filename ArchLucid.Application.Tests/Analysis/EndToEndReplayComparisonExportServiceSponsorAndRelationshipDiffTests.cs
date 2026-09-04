@@ -283,6 +283,82 @@ public sealed class EndToEndReplayComparisonExportServiceSponsorAndRelationshipD
         markdown.Should().Contain("policy-pack:encrypt-at-rest");
     }
 
+    [SkippableFact]
+    public void GenerateMarkdown_detailed_includes_manifest_warnings_when_populated()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Full summary");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            ManifestDiff = new ManifestDiffResult
+            {
+                Warnings = ["SystemName differs between compared manifests."],
+            }
+        };
+
+        string markdown = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Detailed);
+
+        markdown.Should().Contain("### Warnings");
+        markdown.Should().Contain("SystemName differs between compared manifests.");
+    }
+
+    [SkippableFact]
+    public void GenerateHtml_detailed_includes_manifest_warnings_when_populated()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Full summary");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            ManifestDiff = new ManifestDiffResult
+            {
+                Warnings = ["SystemName differs between compared manifests."],
+            }
+        };
+
+        string html = sut.GenerateHtml(report, EndToEndComparisonExportProfile.Detailed);
+
+        html.Should().Contain("Manifest warning: SystemName differs between compared manifests.");
+    }
+
+    [SkippableFact]
+    public void GenerateMarkdown_executive_profile_includes_relationship_counts_in_key_manifest_line()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Exec summary stub");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "L",
+            RightRunId = "R",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            ManifestDiff = new ManifestDiffResult
+            {
+                AddedRelationships =
+                [
+                    new RelationshipDiffItem { SourceId = "s1", TargetId = "t1", RelationshipType = "calls" }
+                ],
+            }
+        };
+
+        string md = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Sponsor);
+
+        md.Should().Contain("+1 / -0 relationships");
+    }
+
     private static EndToEndReplayComparisonReport RelationshipDiffReport() => new()
     {
         LeftRunId = "a",

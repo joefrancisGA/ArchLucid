@@ -122,15 +122,14 @@ public static class EndToEndReplayComparisonHtmlExportFormatter
                       (report.RunDiff.RequestIdsDiffer ? "Yes" : "No") + "</li>");
         if (report.AgentResultDiff is not null)
         {
-            int withChanges = report.AgentResultDiff.AgentDeltas.Count(d =>
-                d.AddedClaims.Count > 0 || d.RemovedClaims.Count > 0 || d.AddedFindings.Count > 0 || d.RemovedFindings.Count > 0 ||
-                d.AddedRequiredControls.Count > 0 || d.RemovedRequiredControls.Count > 0 || d.AddedWarnings.Count > 0 || d.RemovedWarnings.Count > 0);
+            int withChanges = AgentResultDeltaMateriality.CountWithMaterialChanges(report.AgentResultDiff.AgentDeltas);
             sb.AppendLine("<li>Agent deltas: " + withChanges + " agent(s) with material changes</li>");
         }
 
         if (report.ManifestDiff is not null)
             sb.AppendLine("<li>Manifest: +" + report.ManifestDiff.AddedServices.Count + " / -" + report.ManifestDiff.RemovedServices.Count + " services; +" +
-                          report.ManifestDiff.AddedDatastores.Count + " / -" + report.ManifestDiff.RemovedDatastores.Count + " datastores</li>");
+                          report.ManifestDiff.AddedDatastores.Count + " / -" + report.ManifestDiff.RemovedDatastores.Count + " datastores; +" +
+                          report.ManifestDiff.AddedRelationships.Count + " / -" + report.ManifestDiff.RemovedRelationships.Count + " relationships</li>");
         sb.AppendLine("<li>Export diffs: " + report.ExportDiffs.Count + "</li></ul>");
     }
 
@@ -203,6 +202,8 @@ public static class EndToEndReplayComparisonHtmlExportFormatter
             sb.AppendLine("<li>Added relationship: " + EscapeHtml(rel.ToDisplayLine()) + "</li>");
         foreach (RelationshipDiffItem rel in report.ManifestDiff.RemovedRelationships)
             sb.AppendLine("<li>Removed relationship: " + EscapeHtml(rel.ToDisplayLine()) + "</li>");
+        foreach (string warning in report.ManifestDiff.Warnings)
+            sb.AppendLine("<li>Manifest warning: " + EscapeHtml(warning) + "</li>");
         sb.AppendLine("</ul>");
     }
 

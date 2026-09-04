@@ -26,15 +26,7 @@ public sealed class MarkdownEndToEndReplayComparisonSummaryFormatter
         if (report.AgentResultDiff is not null)
         {
             List<string> changedAgents = report.AgentResultDiff.AgentDeltas
-                .Where(d =>
-                    d.AddedClaims.Count > 0 ||
-                    d.RemovedClaims.Count > 0 ||
-                    d.AddedFindings.Count > 0 ||
-                    d.RemovedFindings.Count > 0 ||
-                    d.AddedRequiredControls.Count > 0 ||
-                    d.RemovedRequiredControls.Count > 0 ||
-                    d.AddedWarnings.Count > 0 ||
-                    d.RemovedWarnings.Count > 0)
+                .Where(AgentResultDeltaMateriality.HasMaterialChanges)
                 .Select(d => d.AgentType.ToString())
                 .ToList();
 
@@ -51,6 +43,7 @@ public sealed class MarkdownEndToEndReplayComparisonSummaryFormatter
             AppendSection(sb, "Manifest Removed Required Controls", report.ManifestDiff.RemovedRequiredControls);
             AppendRelationshipSection(sb, "Manifest Added Relationships", report.ManifestDiff.AddedRelationships);
             AppendRelationshipSection(sb, "Manifest Removed Relationships", report.ManifestDiff.RemovedRelationships);
+            AppendSection(sb, "Manifest Warnings", report.ManifestDiff.Warnings);
         }
 
         if (report.ExportDiffs.Count > 0)
