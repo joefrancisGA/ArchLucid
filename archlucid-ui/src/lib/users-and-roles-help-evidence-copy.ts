@@ -19,6 +19,8 @@ export const USERS_AND_ROLES_HELP_AS_OF_APPLICABILITY =
 export const USERS_AND_ROLES_HELP_SOURCES_INTRO =
   "Use these follow-ups when role vocabulary turns into live directory changes, audit trail review, or assurance orientation.";
 
+export const USERS_AND_ROLES_HELP_FOLLOW_UPS_TITLE = "Where to go next" as const;
+
 /** Operator Sources — no self-href to users-and-roles. */
 export const USERS_AND_ROLES_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Users settings", href: SETTINGS_USERS_USERS_TAB_PATH },

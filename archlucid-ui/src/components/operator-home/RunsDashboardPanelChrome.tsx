@@ -77,7 +77,7 @@ export function RunsDashboardPanelChrome({ model }: RunsDashboardPanelChromeProp
               archivedFilterDisabled={model.archivedFilterDisabled}
               showArchived={model.showArchived}
               onSelectDashboardTab={model.selectDashboardTab}
-              onToggleShowArchived={() => model.setShowArchived(!model.showArchived)}
+              onShowArchivedChange={model.setShowArchived}
               openAllReviewsHref={model.openAllReviewsHref}
             />
           ) : null}

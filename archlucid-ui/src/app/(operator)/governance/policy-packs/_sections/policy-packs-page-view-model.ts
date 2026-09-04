@@ -51,6 +51,7 @@ export type PolicyPacksPageViewModel = {
   readonly setPublishVersion: Dispatch<SetStateAction<string>>;
   readonly publishJson: string;
   readonly setPublishJson: Dispatch<SetStateAction<string>>;
+  readonly publishBaselineJson: string | null;
   readonly assignVersion: string;
   readonly setAssignVersion: Dispatch<SetStateAction<string>>;
   readonly assignScopeLevel: string;

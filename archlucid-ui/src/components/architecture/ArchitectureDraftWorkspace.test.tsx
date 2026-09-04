@@ -508,28 +508,10 @@ describe("ArchitectureDraftWorkspace", () => {
 
     expect(screen.queryByTestId("architecture-draft-workspace-status-tag")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Show details" })).not.toBeInTheDocument();
-    expect(screen.getByTestId("architecture-continue-review")).toHaveAttribute("href", "/architecture/reviews/run-001");
-    expect(screen.getByTestId("architecture-draft-acknowledge-edit")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-continue-review")).toHaveAttribute("href", "/architecture/reviews/run-001");
+    expect(screen.queryByTestId("architecture-draft-acknowledge-edit")).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-start-review")).not.toBeInTheDocument();
     expect(screen.getByLabelText(/Architecture overview/i)).toBeDisabled();
-  });
-
-  it("unlocks editing after the user acknowledges post-spawn divergence", async () => {
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("architecture-draft-acknowledge-edit")).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTestId("architecture-draft-acknowledge-edit"));
-
-    expect(acknowledgeArchitectureDraftHandoff).toHaveBeenCalledWith("arch-001", "run-001");
-
-    await waitFor(() => {
-      expect(screen.getByLabelText(/Architecture overview/i)).not.toBeDisabled();
-    });
-
-    expect(screen.queryByTestId("architecture-draft-acknowledge-edit")).not.toBeInTheDocument();
   });
 
   it("warns at the top and freezes the form when the draft is already in review intake", async () => {

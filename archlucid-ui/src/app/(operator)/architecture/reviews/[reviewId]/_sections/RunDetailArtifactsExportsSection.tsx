@@ -60,13 +60,19 @@ export type RunDetailArtifactsExportsSectionProps = {
   readonly deliverablesDefaultOpen?: boolean;
   /** Curated sample review — no backend export target for architecture-review-board DOCX. */
   readonly usedStaticDemoRun?: boolean;
+  /** When manifest summaries omit a verdict, use this pre-finalize payload verdict (RS-03). */
+  readonly feasibilityVerdict?: ManifestFeasibilityVerdict | null;
 };
 
 function resolveFeasibilityVerdict(
   manifestSummaryForUi: ManifestSummary | null,
   manifestSummary: ManifestSummary | null,
+  feasibilityVerdictOverride: ManifestFeasibilityVerdict | null | undefined,
 ): ManifestFeasibilityVerdict | null {
-  const verdict = manifestSummaryForUi?.feasibilityVerdict ?? manifestSummary?.feasibilityVerdict;
+  const verdict =
+    feasibilityVerdictOverride ??
+    manifestSummaryForUi?.feasibilityVerdict ??
+    manifestSummary?.feasibilityVerdict;
 
   if (verdict === undefined || verdict === null) {
     return null;
@@ -92,9 +98,14 @@ export function RunDetailArtifactsExportsSection(
     requestId,
     deliverablesDefaultOpen,
     usedStaticDemoRun = false,
+    feasibilityVerdict: feasibilityVerdictOverride,
   } = props;
 
-  const feasibilityVerdict = resolveFeasibilityVerdict(manifestSummaryForUi, manifestSummary);
+  const feasibilityVerdict = resolveFeasibilityVerdict(
+    manifestSummaryForUi,
+    manifestSummary,
+    feasibilityVerdictOverride,
+  );
   const showDecisionReceipt =
     feasibilityVerdict !== null && isExportableDecisionVerdict(feasibilityVerdict.kind);
   const deliverablesSectionDefaultOpen =

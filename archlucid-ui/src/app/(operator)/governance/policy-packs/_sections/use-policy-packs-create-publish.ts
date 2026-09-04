@@ -66,6 +66,7 @@ export function usePolicyPacksCreatePublish(deps: PolicyPacksAuthoringDeps) {
   const latestVersionDetailQuery = usePolicyPackVersionDetailQuery(selectedPackId, latestPackVersion, {
     enabled: selectedPackId.length > 0 && latestPackVersion.length > 0,
   });
+  const publishBaselineJson = latestVersionDetailQuery.data?.contentJson ?? null;
   const compareLeftMeta = packVersions.find((version) => version.policyPackVersionId === compareLeftId);
   const compareRightMeta = packVersions.find((version) => version.policyPackVersionId === compareRightId);
   const compareLeftDetailQuery = usePolicyPackVersionDetailQuery(
@@ -458,6 +459,7 @@ export function usePolicyPacksCreatePublish(deps: PolicyPacksAuthoringDeps) {
     compareRightVersion,
     selectedPackSummary,
     syncPolicyContentJson,
+    publishBaselineJson,
   };
 }
 

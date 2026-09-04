@@ -58,6 +58,29 @@ describe("QuickDecisionSummary", () => {
     );
   });
 
+  it("shows review-detail in-progress empty state when analysis is still running on a committed package", () => {
+    render(
+      <QuickDecisionSummary
+        runId="run-committed"
+        findings={[]}
+        packageCommitted
+        analysisStagesComplete={false}
+        workspaceCardMode
+      />,
+    );
+
+    expect(screen.getByTestId("quick-decision-review-detail-in-progress-empty")).toBeInTheDocument();
+    expect(screen.queryByText("No findings to act on")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /View assessment progress on the Activity tab/i })).toHaveAttribute(
+      "href",
+      expect.stringContaining("reviewTab=activity"),
+    );
+    expect(screen.getByRole("link", { name: /Open clarifications/i })).toHaveAttribute(
+      "href",
+      expect.stringContaining("reviewTab=decisions-remediation"),
+    );
+  });
+
   it("invokes create-home navigation callbacks from in-progress empty state", () => {
     const onNavigateActivity = vi.fn();
     const onNavigateClarifications = vi.fn();

@@ -1,6 +1,8 @@
 "use client";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
+import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
+import { InlineMetadataLine } from "@/components/InlineMetadataLine";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
@@ -22,23 +24,59 @@ export type WorkspaceAiAvailabilityPanelProps = {
   readonly availabilityCheck?: WorkspaceAiAvailabilityCheck;
 };
 
-function resolveProbeModelLabel(debug: Readonly<Record<string, string>>): string | null {
+const PROBE_DEBUG_HEADER_KEYS = new Set(["probeDeploymentName", "probeModelId"]);
+
+function resolveProbeDeploymentName(debug: Readonly<Record<string, string>>): string | null {
   const deployment = debug.probeDeploymentName?.trim();
+
+  if (!deployment) {
+    return null;
+  }
+
+  return deployment;
+}
+
+function resolveProbeModelId(debug: Readonly<Record<string, string>>): string | null {
   const model = debug.probeModelId?.trim();
 
-  if (deployment && model) {
-    return `Deployment ${deployment} · model ${model}`;
+  if (!model) {
+    return null;
   }
 
-  if (deployment) {
-    return `Deployment ${deployment}`;
+  return model;
+}
+
+function filterProbeDebugMetadata(
+  debug: Readonly<Record<string, string>>,
+  deploymentName: string | null,
+): ReadonlyArray<readonly [string, string]> {
+  return Object.entries(debug).filter(([key, value]) => {
+    if (PROBE_DEBUG_HEADER_KEYS.has(key)) {
+      return false;
+    }
+
+    if (key === "azureOpenAiDeploymentName" && deploymentName !== null && value.trim() === deploymentName) {
+      return false;
+    }
+
+    return true;
+  });
+}
+
+function resolveProbeProvenanceCopy(aiSource: string): string {
+  if (aiSource === "managed-platform") {
+    return "ArchLucid ran a live completion probe against the Azure OpenAI deployment configured for this workspace on the managed platform.";
   }
 
-  if (model) {
-    return `Model ${model}`;
+  if (aiSource === "customer-connection") {
+    return "ArchLucid ran a live completion probe against the deployment configured in your workspace customer AI connection.";
   }
 
-  return null;
+  if (aiSource === "simulator") {
+    return "Simulator mode is active — a live deployment probe was not required.";
+  }
+
+  return "ArchLucid ran a live completion probe against the deployment configured for this workspace.";
 }
 
 function statusTagKind(
@@ -85,23 +123,58 @@ function resolveWorkspaceAiDetail(
   return workspaceAiSignal.detail;
 }
 
+function WorkspaceAiProbeModelSummary(props: {
+  readonly deploymentName: string | null;
+  readonly modelId: string | null;
+  readonly aiSource: string;
+}): React.JSX.Element | null {
+  const { deploymentName, modelId, aiSource } = props;
+
+  if (deploymentName === null && modelId === null) {
+    return null;
+  }
+
+  return (
+    <div data-testid="review-package-workspace-ai-model">
+      {deploymentName !== null ? (
+        <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+          <InlineMetadataLabel label="Probed deployment" />
+          {" "}
+          <span className="font-semibold">{deploymentName}</span>
+          {modelId !== null ? <span className="text-al-text-secondary"> · model {modelId}</span> : null}
+        </p>
+      ) : (
+        <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+          <InlineMetadataLabel label="Probed model" />
+          {" "}
+          <span className="font-semibold">{modelId}</span>
+        </p>
+      )}
+      <p
+        className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="review-package-workspace-ai-model-provenance"
+      >
+        {resolveProbeProvenanceCopy(aiSource)}
+      </p>
+    </div>
+  );
+}
+
 function WorkspaceAiProbeDiagnostics(props: {
   readonly result: WorkspaceAiAvailabilityResult;
-  readonly probeModelLabel: string | null;
 }): React.JSX.Element {
-  const { result, probeModelLabel } = props;
+  const { result } = props;
+  const deploymentName = resolveProbeDeploymentName(result.debug);
+  const modelId = resolveProbeModelId(result.debug);
+  const debugEntries = filterProbeDebugMetadata(result.debug, deploymentName);
 
   return (
     <div className="space-y-3" data-testid="review-package-workspace-ai-debug">
-      {probeModelLabel !== null ? (
-        <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-package-workspace-ai-model">
-          {probeModelLabel}
-        </p>
-      ) : null}
+      <WorkspaceAiProbeModelSummary deploymentName={deploymentName} modelId={modelId} aiSource={result.aiSource} />
 
       <div>
         <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Probe checks</p>
-        <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        <ul className={cn("m-0 mt-1.5 list-disc space-y-0.5 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {result.checks.map((row) => (
             <li key={`${row.name}:${row.status}`}>
               <span className="font-medium text-al-text-primary">{row.name}</span>
@@ -113,17 +186,14 @@ function WorkspaceAiProbeDiagnostics(props: {
         </ul>
       </div>
 
-      {Object.keys(result.debug).length > 0 ? (
+      {debugEntries.length > 0 ? (
         <div>
           <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Debug metadata</p>
-          <dl className={cn("m-0 mt-2 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.helper)}>
-            {Object.entries(result.debug).map(([key, value]) => (
-              <div key={key}>
-                <dt className="font-medium text-neutral-500 dark:text-neutral-400">{key}</dt>
-                <dd className="m-0 mt-1 break-all text-neutral-800 dark:text-neutral-200">{value}</dd>
-              </div>
+          <div className={cn("m-0 mt-1.5 grid gap-x-4 gap-y-1 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.helper)}>
+            {debugEntries.map(([key, value]) => (
+              <InlineMetadataLine key={key} label={key} value={value} className="break-all" />
             ))}
-          </dl>
+          </div>
         </div>
       ) : null}
 
@@ -150,8 +220,6 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
       : workspaceAiSignal.label;
 
   const detail = resolveWorkspaceAiDetail(state, workspaceAiSignal, managedBySession);
-
-  const probeModelLabel = state.status === "loaded" ? resolveProbeModelLabel(state.result.debug) : null;
 
   const liveProbeFailure =
     state.status === "loaded"
@@ -211,11 +279,11 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
       {state.status === "loaded" ? (
         state.result.isAvailable ? (
           <AdvancedOptionsAccordion triggerLabel="Probe details" defaultOpen={false} className="mt-3">
-            <WorkspaceAiProbeDiagnostics result={state.result} probeModelLabel={probeModelLabel} />
+            <WorkspaceAiProbeDiagnostics result={state.result} />
           </AdvancedOptionsAccordion>
         ) : (
           <div className="mt-3">
-            <WorkspaceAiProbeDiagnostics result={state.result} probeModelLabel={probeModelLabel} />
+            <WorkspaceAiProbeDiagnostics result={state.result} />
           </div>
         )
       ) : null}

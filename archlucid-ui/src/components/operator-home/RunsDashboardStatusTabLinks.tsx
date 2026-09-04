@@ -27,7 +27,7 @@ export function RunsDashboardStatusTabLinks(props: RunsDashboardStatusTabLinksPr
       data-testid="runs-dashboard-status-filters"
       className={cn(
         "flex flex-wrap gap-1.5",
-        props.buyerPolishedShell ? "" : "-mb-px overflow-x-auto border-b border-neutral-200 pb-0 dark:border-neutral-800",
+        props.buyerPolishedShell ? "" : "-mb-px border-b border-neutral-200 pb-0 dark:border-neutral-800",
       )}
     >
       {props.statusTabIds.map((id) => {

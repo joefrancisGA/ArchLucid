@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.Application;
+using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Findings;
@@ -82,10 +84,31 @@ public sealed class GovernanceMutationCorrectionService(
         if (subjectId.Length == 0)
             throw new ArgumentException("Subject id is required.", nameof(request));
 
+        if (subjectId.Length > FindingDispositionValidation.MaxFindingIdLength)
+        {
+            throw new ArgumentException(
+                $"Subject id must not exceed {FindingDispositionValidation.MaxFindingIdLength} characters.",
+                nameof(request));
+        }
+
         string rationale = request.Rationale?.Trim() ?? string.Empty;
 
         if (rationale.Length == 0)
             throw new ArgumentException("Rationale is required to record a correction.", nameof(request));
+
+        if (rationale.Length < FindingDispositionValidation.MinimumRationaleLength)
+        {
+            throw new ArgumentException(
+                $"Rationale must be at least {FindingDispositionValidation.MinimumRationaleLength} characters.",
+                nameof(request));
+        }
+
+        if (rationale.Length > FindingDispositionValidation.MaximumRationaleLength)
+        {
+            throw new ArgumentException(
+                $"Rationale must not exceed {FindingDispositionValidation.MaximumRationaleLength} characters.",
+                nameof(request));
+        }
 
         string normalizedRunId = await GovernanceRunScope.RequireScopedRunIdAsync(
             _scopeContextProvider,
@@ -215,9 +238,7 @@ public sealed class GovernanceMutationCorrectionService(
             && reviewEvent.ProjectId == scope.ProjectId
             && reviewEvent.Action == FindingReviewAction.RecordDisposition
             && reviewEvent.Disposition is not null
-            && (normalizedRunGuid is null
-                || reviewEvent.RunId is null
-                || reviewEvent.RunId == normalizedRunGuid));
+            && reviewEvent.RunId == normalizedRunGuid);
 
         if (!hasDispositionForRun)
             throw new KeyNotFoundException($"Finding '{findingId}' has no recorded disposition to correct.");
@@ -241,11 +262,11 @@ public sealed class GovernanceMutationCorrectionService(
             or GovernanceMutationCorrectionKinds.WorkflowApprove)
         {
             if (!string.Equals(approval.Status, GovernanceApprovalStatus.Approved, StringComparison.Ordinal))
-                throw new InvalidOperationException("Corrections can only be recorded after the approval request is approved.");
+                throw new ConflictException("Corrections can only be recorded after the approval request is approved.");
         }
         else if (!string.Equals(approval.Status, GovernanceApprovalStatus.Rejected, StringComparison.Ordinal))
         {
-            throw new InvalidOperationException("Corrections can only be recorded after the approval request is rejected.");
+            throw new ConflictException("Corrections can only be recorded after the approval request is rejected.");
         }
     }
 
@@ -272,10 +293,16 @@ public sealed class GovernanceMutationCorrectionService(
         IReadOnlyList<GovernanceEnvironmentActivation> activations =
             await _activationRepo.GetByRunIdAsync(normalizedRunId, cancellationToken);
 
-        bool found = activations.Any(a =>
+        GovernanceEnvironmentActivation? activation = activations.FirstOrDefault(a =>
             string.Equals(a.ActivationId, activationId, StringComparison.OrdinalIgnoreCase));
 
-        if (!found)
+        if (activation is null)
             throw new KeyNotFoundException($"Environment activation '{activationId}' was not found.");
+
+        if (!activation.IsActive)
+        {
+            throw new ConflictException(
+                "Corrections can only be recorded for the active environment activation.");
+        }
     }
 }

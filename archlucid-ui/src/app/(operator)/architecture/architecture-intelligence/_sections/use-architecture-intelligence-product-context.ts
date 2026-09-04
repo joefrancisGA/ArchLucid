@@ -10,6 +10,11 @@ import {
   isArchitectureIntelligenceReviewTier,
   type ArchitectureIntelligenceReviewTier,
 } from "@/lib/architecture/architecture-intelligence-review-tier";
+import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
+import {
+  architectureIntelligenceTierHrefFromSearch,
+  parseArchitectureIntelligenceTierFromSearch,
+} from "@/lib/architecture/architecture-intelligence-tier-url";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { useArchitectureIntelligenceSourceContextQuery } from "@/hooks/use-architecture-intelligence-source-context-query";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
@@ -76,7 +81,7 @@ export type UseArchitectureIntelligenceProductContextResult = {
 
 export function useArchitectureIntelligenceProductContext(): UseArchitectureIntelligenceProductContextResult {
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = usePathname() ?? ARCHITECTURE_INTELLIGENCE_PATH;
   const searchParams = useSearchParams();
   const inboundRunId = searchParams.get("runId")?.trim() ?? "";
   const inboundFrom = searchParams.get("from")?.trim() ?? "";
@@ -104,7 +109,8 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
   const [hydratedSourceTexts, setHydratedSourceTexts] = useState<ClosedLoopReasoningSourceText[]>([]);
   const [productContextStatus, setProductContextStatus] = useState<ProductContextStatus>("idle");
   const [publishToProduct, setPublishToProduct] = useState(false);
-  const [reviewTier, setReviewTier] = useState<ArchitectureIntelligenceReviewTier>("Standard");
+  const urlReviewTier = parseArchitectureIntelligenceTierFromSearch(searchParams.get("tier"));
+  const [reviewTier, setReviewTier] = useState<ArchitectureIntelligenceReviewTier>(urlReviewTier ?? "Standard");
   const [loadingAction, setLoadingAction] = useState<ArchitectureIntelligenceLoadingAction>(null);
   const [error, setError] = useState<string | null>(null);
   const [runState, setRunState] = useState<RunState | null>(null);
@@ -120,10 +126,23 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
   }, [sourceContextQuery]);
 
   const setReviewTierIfValid = useCallback((value: string) => {
-    if (isArchitectureIntelligenceReviewTier(value)) {
-      setReviewTier(value);
+    if (!isArchitectureIntelligenceReviewTier(value)) {
+      return;
     }
-  }, []);
+
+    setReviewTier(value);
+    router.replace(architectureIntelligenceTierHrefFromSearch(searchParams.toString(), value, pathname), {
+      scroll: false,
+    });
+  }, [pathname, router, searchParams]);
+
+  useEffect(() => {
+    const fromUrl = parseArchitectureIntelligenceTierFromSearch(searchParams.get("tier"));
+
+    if (fromUrl !== null) {
+      setReviewTier(fromUrl);
+    }
+  }, [searchParams]);
 
   const onInterviewAnswerChange = useCallback((questionId: string, value: string) => {
     setInterviewAnswers((previous) => ({ ...previous, [questionId]: value }));

@@ -68,3 +68,5 @@ See [`.cursor/prompts/livelihood-desk-00-index.md`](../../.cursor/prompts/liveli
 - **LI-01–15** — shipped #1397
 - **PT-01–20** / **WD-01–12** — owners; LD files name leftovers only
 - **DD-01–10** — shipped/partial (`DAILY_DRIVER_COMPOSER_PROMPTS.md`)
+
+**Wave 3 after this set:** [`REPEAT_SEAT_COMPOSER_PROMPTS.md`](REPEAT_SEAT_COMPOSER_PROMPTS.md) (**RS-01–15**). Do not fork LD files; RS implements only leftovers LD does not own.

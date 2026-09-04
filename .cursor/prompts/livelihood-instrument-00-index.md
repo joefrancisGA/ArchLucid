@@ -1,13 +1,14 @@
 <!-- Livelihood-instrument Composer prompts — paste one prompt per session.
      Origin: owner diagnosis that ArchLucid is a working-architect tool (all-day use;
      livelihoods may depend on it), not a casual evaluator product.
-     Created: 2026-09-03. Fifteen prompts. Do not implement from this index. -->
+     Created: 2026-09-03. Fifteen prompts. Do not implement from this index.
+     Successor leftovers (2026-09-04): livelihood-desk-00-index.md (LD-01–15), then repeat-seat-00-index.md (RS-01–15). -->
 
 # Livelihood-instrument mitigations — Composer prompt set (LI-01–LI-15)
 
 ArchLucid sells a **seat for a repeat professional**. Working mode, finding undo, 4-hour idle, buyer-polish default false, and tab-strip stability already exist. Production UX still has a **first-session / pipeline spine** under that overlay. These **fifteen** prompts mitigate the diagnosis classes: false confidence, career defense, irreversible writes, throughput desk, and continuity.
 
-**Shipped on `master` (#1397).** Do not re-run this set. Paste **LD-01–15** from [`livelihood-desk-00-index.md`](livelihood-desk-00-index.md) instead.
+**Shipped on `master` (#1397).** Do not re-run this set. Paste **LD-01–15** from [`livelihood-desk-00-index.md`](livelihood-desk-00-index.md) first, then **RS-01–15** from [`repeat-seat-00-index.md`](repeat-seat-00-index.md) for leftovers LD does not cover.
 
 **Do not implement from this index.** Historical paste files remain below for forensic comparison only.
 
@@ -21,6 +22,7 @@ ArchLucid sells a **seat for a repeat professional**. Working mode, finding undo
 | **WD-01–12** | Structural 12 (call-site matrix, decision record, finding honesty, in-flight, ops leakage, one lifecycle, eight-hour a11y) |
 | **LI-01–15** | **This set** — fifteen residuals from the 2026-09-03 livelihood diagnosis. **Shipped** on `master` (#1397). Do not re-run. |
 | **LD-01–15** | **Run next** — 2026-09-04 leftovers after LI. [`.cursor/prompts/livelihood-desk-00-index.md`](livelihood-desk-00-index.md) |
+| **RS-01–15** | Wave 3 unique leftovers after LD. [`.cursor/prompts/repeat-seat-00-index.md`](repeat-seat-00-index.md) |
 
 If an LI row listed a PT/WD owner, that work shipped in #1397. Leftovers that this set **explicitly excluded** (WD-01 identity matrix, PT-02 / WD-08 live sample recovery, PT-09 first-paint palette chunk) are now **LD-01, LD-02, LD-08**.
 

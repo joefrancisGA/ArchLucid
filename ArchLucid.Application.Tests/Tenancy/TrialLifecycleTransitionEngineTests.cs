@@ -119,4 +119,63 @@ public sealed class TrialLifecycleTransitionEngineTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task TryAdvanceTenantAsync_when_tenant_is_offboarded_does_not_advance_or_purge()
+    {
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset trialExpires = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        DateTimeOffset now = new(2026, 9, 1, 0, 0, 0, TimeSpan.Zero);
+
+        TenantRecord tenant = new()
+        {
+            Id = tenantId,
+            Name = "n",
+            Slug = "s",
+            Tier = TenantTier.Standard,
+            CreatedUtc = trialExpires,
+            TrialStatus = TrialLifecycleStatus.ExportOnly,
+            TrialExpiresUtc = trialExpires,
+            OffboardedUtc = now.AddDays(-30),
+            LegalHoldUntilUtc = now.AddDays(30),
+        };
+
+        Mock<ITenantRepository> repo = new();
+        repo.Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+
+        Mock<ITenantHardPurgeService> purge = new();
+        Mock<IAuditService> audit = new();
+
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> opts = new();
+        opts.Setup(m => m.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        TrialLifecycleTransitionEngine engine = new(
+            repo.Object,
+            purge.Object,
+            audit.Object,
+            opts.Object,
+            new FixedUtcTimeProvider(now),
+            NullLogger<TrialLifecycleTransitionEngine>.Instance);
+
+        bool ok = await engine.TryAdvanceTenantAsync(tenantId, CancellationToken.None);
+
+        ok.Should().BeFalse();
+        repo.Verify(
+            r => r.TryRecordTrialLifecycleTransitionAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        purge.Verify(
+            p => p.PurgeTenantAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<TenantHardPurgeOptions>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }

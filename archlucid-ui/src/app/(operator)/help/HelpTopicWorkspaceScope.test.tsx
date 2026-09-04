@@ -39,15 +39,14 @@ vi.mock("@/lib/operator/operator-scope-storage", async (importOriginal) => {
   };
 });
 
-import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
-import { ScopeHelpCurrentScopePanel } from "@/components/help/ScopeHelpCurrentScopePanel";
+import { HelpScopeGuideView } from "@/app/(operator)/help/_sections/HelpScopeGuideView";
 import {
   BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
 } from "@/lib/buyer/buyer-polish-copy";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import { SCOPE_HELP_CLAIM_DISCIPLINE, SCOPE_HELP_PRIMARY_ACTION } from "@/lib/scope-help-evidence-copy";
 
-describe("HelpTopicMarkdownView workspace and scope guide", () => {
+describe("HelpScopeGuideView workspace and scope guide", () => {
   const loaded = tryLoadProductDocumentation("scope");
 
   it("loads the workspace and scope guide markdown from the monorepo", () => {
@@ -59,13 +58,7 @@ describe("HelpTopicMarkdownView workspace and scope guide", () => {
       throw new Error("Expected scope documentation to load.");
     }
 
-    render(
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        evidenceOrientation={<ScopeHelpCurrentScopePanel />}
-      />,
-    );
+    render(<HelpScopeGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     expect(screen.getByRole("heading", { level: 1, name: "Workspace and scope guide" })).toBeInTheDocument();
   });
@@ -75,14 +68,7 @@ describe("HelpTopicMarkdownView workspace and scope guide", () => {
       throw new Error("Expected scope documentation to load.");
     }
 
-    render(
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-        evidenceOrientation={<ScopeHelpCurrentScopePanel />}
-      />,
-    );
+    render(<HelpScopeGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     expect(screen.getByTestId(SCOPE_HELP_PRIMARY_ACTION.testId)).toHaveAttribute(
       "href",
@@ -96,13 +82,7 @@ describe("HelpTopicMarkdownView workspace and scope guide", () => {
       throw new Error("Expected scope documentation to load.");
     }
 
-    render(
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        evidenceOrientation={<ScopeHelpCurrentScopePanel />}
-      />,
-    );
+    render(<HelpScopeGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     expect(screen.getByTestId("help-scope-claim-discipline-strip")).toHaveTextContent(SCOPE_HELP_CLAIM_DISCIPLINE);
     expect(screen.queryByTestId("scope-help-claim-discipline")).not.toBeInTheDocument();
@@ -123,12 +103,14 @@ describe("HelpTopicMarkdownView workspace and scope guide", () => {
       throw new Error("Expected scope documentation to load.");
     }
 
-    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+    render(<HelpScopeGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    const contentColumn = screen.getByTestId("help-topic-content");
 
     expect(screen.getByRole("heading", { name: "Three scope levels" })).toBeInTheDocument();
-    expect(screen.getByText("Tenant")).toBeInTheDocument();
-    expect(screen.getByText("Workspace")).toBeInTheDocument();
-    expect(screen.getByText("Project")).toBeInTheDocument();
+    expect(within(contentColumn).getAllByText("Tenant").length).toBeGreaterThan(0);
+    expect(within(contentColumn).getAllByText("Workspace").length).toBeGreaterThan(0);
+    expect(within(contentColumn).getAllByText("Project").length).toBeGreaterThan(0);
   });
 
   it("describes sample badge placement and connected switcher labels from scope-switcher constants", () => {
@@ -136,7 +118,7 @@ describe("HelpTopicMarkdownView workspace and scope guide", () => {
       throw new Error("Expected scope documentation to load.");
     }
 
-    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+    render(<HelpScopeGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     const contentColumn = screen.getByTestId("help-topic-content");
     const renderedText = contentColumn.textContent ?? "";
@@ -152,7 +134,7 @@ describe("HelpTopicMarkdownView workspace and scope guide", () => {
       throw new Error("Expected scope documentation to load.");
     }
 
-    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+    render(<HelpScopeGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     expect(screen.getByRole("heading", { name: "Sample workspace" })).toBeInTheDocument();
     expect(screen.getByText(/demonstration only/i)).toBeInTheDocument();
@@ -166,7 +148,7 @@ describe("HelpTopicMarkdownView workspace and scope guide", () => {
       throw new Error("Expected scope documentation to load.");
     }
 
-    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+    render(<HelpScopeGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     expect(screen.getByRole("heading", { name: "When content looks wrong" })).toBeInTheDocument();
     expect(screen.getByText("Empty reviews list")).toBeInTheDocument();
@@ -179,7 +161,7 @@ describe("HelpTopicMarkdownView workspace and scope guide", () => {
       throw new Error("Expected scope documentation to load.");
     }
 
-    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+    render(<HelpScopeGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     const troubleshootingLinks = screen.getAllByRole("link", { name: "Troubleshooting" });
 
@@ -195,7 +177,7 @@ describe("HelpTopicMarkdownView workspace and scope guide", () => {
       throw new Error("Expected scope documentation to load.");
     }
 
-    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+    render(<HelpScopeGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     const contentColumn = screen.getByTestId("help-topic-content");
     expect(within(contentColumn).getByRole("link", { name: "Settings → Tenant" })).toHaveAttribute(
@@ -209,7 +191,7 @@ describe("HelpTopicMarkdownView workspace and scope guide", () => {
       throw new Error("Expected scope documentation to load.");
     }
 
-    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+    render(<HelpScopeGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     const relatedHelpHeading = screen.getByRole("heading", { name: "Related help" });
     const contentColumn = screen.getByTestId("help-topic-content");
@@ -234,7 +216,7 @@ describe("HelpTopicMarkdownView workspace and scope guide", () => {
       throw new Error("Expected scope documentation to load.");
     }
 
-    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+    render(<HelpScopeGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     const contentColumn = screen.getByTestId("help-topic-content");
     const renderedText = contentColumn.textContent ?? "";

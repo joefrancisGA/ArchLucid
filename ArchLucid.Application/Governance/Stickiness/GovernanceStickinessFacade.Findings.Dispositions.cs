@@ -49,14 +49,23 @@ public sealed partial class GovernanceStickinessFacade
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
         List<string> updated = [];
+        List<FindingInspectResponse> findingsInScope = [];
 
         foreach (string normalizedFindingId in normalizedFindingIds)
         {
-            await EnsureFindingInScopeAsync(scope, normalizedFindingId, ct);
+            FindingInspectResponse finding = await RequireFindingInspectInScopeAsync(scope, normalizedFindingId, ct);
+            Guid authorityRunId = finding.RunId;
+            EnsureRunMatchesFindingAuthorityRun(
+                authorityRunId == Guid.Empty ? null : authorityRunId,
+                finding);
+            await EnsureRunInScopeWhenProvidedAsync(scope, authorityRunId == Guid.Empty ? null : authorityRunId, ct);
+            findingsInScope.Add(finding);
         }
 
-        foreach (string normalizedFindingId in normalizedFindingIds)
+        foreach (FindingInspectResponse finding in findingsInScope)
         {
+            string normalizedFindingId = finding.FindingId;
+            Guid authorityRunId = finding.RunId;
 
             string? tradeOffAcknowledgment = null;
 
@@ -70,7 +79,7 @@ public sealed partial class GovernanceStickinessFacade
             RecordFindingDispositionRequest normalized = new()
             {
                 FindingId = normalizedFindingId,
-                RunId = Guid.Empty,
+                RunId = authorityRunId == Guid.Empty ? null : authorityRunId,
                 Disposition = request.Disposition,
                 Rationale = request.Rationale,
                 TradeOffAcknowledgment = tradeOffAcknowledgment,

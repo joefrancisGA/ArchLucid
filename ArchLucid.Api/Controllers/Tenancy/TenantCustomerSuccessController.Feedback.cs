@@ -1,4 +1,6 @@
 using ArchLucid.Api.Http;
+using ArchLucid.Api.Http.Governance;
+using ArchLucid.Api.Http.Tenancy;
 using ArchLucid.Api.Models.CustomerSuccess;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Authorization;
@@ -27,6 +29,12 @@ public sealed partial class TenantCustomerSuccessController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        IActionResult? validationProblem =
+            ProductFeedbackHttpMapper.Validate(request).ToBadRequestProblemOrNull(this);
+
+        if (validationProblem is not null)
+            return validationProblem;
+
         (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeProvider,
@@ -35,9 +43,6 @@ public sealed partial class TenantCustomerSuccessController
 
         if (scopeProblem is not null)
             return scopeProblem;
-
-        if (request.RunId == Guid.Empty)
-            return this.BadRequestProblem("runId must be a non-empty GUID when provided.", ProblemTypes.ValidationFailed);
 
         if (request.RunId is Guid runId)
         {
@@ -57,13 +62,6 @@ public sealed partial class TenantCustomerSuccessController
             ? null
             : request.FindingRef.Trim();
 
-        if (findingRef is { Length: > ProductFeedbackFindingRefMaxLength })
-        {
-            return this.BadRequestProblem(
-                $"FindingRef exceeds maximum length ({ProductFeedbackFindingRefMaxLength}).",
-                ProblemTypes.ValidationFailed);
-        }
-
         if (findingRef is not null)
         {
             FindingInspectResponse? finding = await _findingInspectReadRepository
@@ -81,13 +79,6 @@ public sealed partial class TenantCustomerSuccessController
         string? comment = string.IsNullOrWhiteSpace(request.Comment)
             ? null
             : request.Comment.Trim();
-
-        if (comment is { Length: > ProductFeedbackCommentMaxLength })
-        {
-            return this.BadRequestProblem(
-                $"Comment exceeds maximum length ({ProductFeedbackCommentMaxLength}).",
-                ProblemTypes.ValidationFailed);
-        }
 
         ProductFeedbackSubmission submission = new()
         {

@@ -12,10 +12,13 @@ import {
   RunDetailWorkspaceSummaryStripDeferred,
 } from "./RunDetailTabbedWorkspaceDeferredImports";
 import { RunDetailOverviewTransparencyTrail } from "@/components/reviews/RunDetailOverviewTransparencyTrail";
+import { RunDetailSealDeskCoverageStrip } from "@/components/reviews/RunDetailSealDeskCoverageStrip";
 import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
 import { Suspense } from "react";
 import { RunDetailInfeasibleDecisionLead } from "./RunDetailInfeasibleDecisionLead";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
+
+import { analysisStagesCompleteOnSummary } from "./pipeline-complete-on-summary";
 
 export type RunDetailOverviewTabCompositionInput = {
   readonly model: RunDetailPageModel;
@@ -81,6 +84,12 @@ export function composeRunDetailOverviewTab(
       <RunDetailOverviewTransparencyTrail
         feasibilityVerdict={feasibilityVerdict}
         runCompleted={runCompleted}
+      />
+      <RunDetailSealDeskCoverageStrip
+        runId={m.resolvedDetail.run.runId}
+        analysisStagesComplete={analysisStagesCompleteOnSummary(m.progressForPipelineUi)}
+        graphSnapshot={m.resolvedDetail.run.graphSnapshot}
+        transparencyTrail={feasibilityVerdict?.transparencyTrail ?? null}
       />
       <RunDetailOverviewPanelClientDeferred
         runId={m.resolvedDetail.run.runId}

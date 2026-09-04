@@ -1,5 +1,9 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance.FindingDisposition;
+using ArchLucid.Application.Roi;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Manifest;
 
@@ -39,6 +43,380 @@ public static class GovernanceStickinessHttpMapper
         if (string.IsNullOrWhiteSpace(request.FindingId))
             return new GovernanceHttpValidation("findingId is required.", ProblemTypes.ValidationFailed);
 
+        string normalizedFindingId = request.FindingId.Trim();
+
+        if (normalizedFindingId.Length > GovernanceRequestValidationRules.FindingIdMaxLength)
+        {
+            return new GovernanceHttpValidation(
+                $"findingId must not exceed {GovernanceRequestValidationRules.FindingIdMaxLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (string.IsNullOrWhiteSpace(request.OwnerUserId))
+            return new GovernanceHttpValidation("ownerUserId is required.", ProblemTypes.ValidationFailed);
+
+        string normalizedOwnerUserId = request.OwnerUserId.Trim();
+
+        if (normalizedOwnerUserId.Length > RiskExceptionValidation.OwnerUserIdMaxLength)
+        {
+            return new GovernanceHttpValidation(
+                $"ownerUserId must not exceed {RiskExceptionValidation.OwnerUserIdMaxLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (request.EvidenceRef is not null)
+        {
+            string normalizedEvidenceRef = request.EvidenceRef.Trim();
+
+            if (normalizedEvidenceRef.Length > RiskExceptionValidation.EvidenceRefMaxLength)
+            {
+                return new GovernanceHttpValidation(
+                    $"evidenceRef must not exceed {RiskExceptionValidation.EvidenceRefMaxLength} characters.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Rationale))
+            return new GovernanceHttpValidation("rationale is required.", ProblemTypes.ValidationFailed);
+
+        string normalizedRationale = request.Rationale.Trim();
+
+        if (normalizedRationale.Length < FindingDispositionValidation.MinimumRationaleLength)
+        {
+            return new GovernanceHttpValidation(
+                $"rationale must be at least {FindingDispositionValidation.MinimumRationaleLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (normalizedRationale.Length > FindingDispositionValidation.MaximumRationaleLength)
+        {
+            return new GovernanceHttpValidation(
+                $"rationale must not exceed {FindingDispositionValidation.MaximumRationaleLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
+    public static GovernanceHttpValidation? ValidateRenewRiskException(RenewRiskExceptionRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (!string.IsNullOrWhiteSpace(request.Rationale))
+        {
+            string normalizedRationale = request.Rationale.Trim();
+
+            if (normalizedRationale.Length < FindingDispositionValidation.MinimumRationaleLength)
+            {
+                return new GovernanceHttpValidation(
+                    $"rationale must be at least {FindingDispositionValidation.MinimumRationaleLength} characters.",
+                    ProblemTypes.ValidationFailed);
+            }
+
+            if (normalizedRationale.Length > FindingDispositionValidation.MaximumRationaleLength)
+            {
+                return new GovernanceHttpValidation(
+                    $"rationale must not exceed {FindingDispositionValidation.MaximumRationaleLength} characters.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.EvidenceRef))
+        {
+            string normalizedEvidenceRef = request.EvidenceRef.Trim();
+
+            if (normalizedEvidenceRef.Length > RiskExceptionValidation.EvidenceRefMaxLength)
+            {
+                return new GovernanceHttpValidation(
+                    $"evidenceRef must not exceed {RiskExceptionValidation.EvidenceRefMaxLength} characters.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
+        return null;
+    }
+
+    public static GovernanceHttpValidation? ValidateCreateRecurrenceSchedule(
+        CreateArchitectureReviewRecurrenceScheduleRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (request.SourceRunId == Guid.Empty)
+            return new GovernanceHttpValidation("sourceRunId is required.", ProblemTypes.ValidationFailed);
+
+        if (!request.IsEnabled.HasValue)
+        {
+            return new GovernanceHttpValidation(
+                "isEnabled is required. Set true to activate recurring assessments or false to save paused.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        string name = string.IsNullOrWhiteSpace(request.Name) ? "Recurring architecture review" : request.Name.Trim();
+
+        if (name.Length > RecurrenceScheduleValidation.NameMaxLength)
+        {
+            return new GovernanceHttpValidation(
+                $"name must not exceed {RecurrenceScheduleValidation.NameMaxLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        string cronExpression = string.IsNullOrWhiteSpace(request.CronExpression)
+            ? "0 8 * * 1"
+            : request.CronExpression.Trim();
+
+        if (cronExpression.Length > RecurrenceScheduleValidation.CronExpressionMaxLength)
+        {
+            return new GovernanceHttpValidation(
+                $"cronExpression must not exceed {RecurrenceScheduleValidation.CronExpressionMaxLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
+    public static GovernanceHttpValidation? ValidateUpdateRecurrenceSchedule(
+        UpdateArchitectureReviewRecurrenceScheduleRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (request.Name is not null)
+        {
+            string name = request.Name.Trim();
+
+            if (name.Length > RecurrenceScheduleValidation.NameMaxLength)
+            {
+                return new GovernanceHttpValidation(
+                    $"name must not exceed {RecurrenceScheduleValidation.NameMaxLength} characters.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
+        if (request.CronExpression is not null)
+        {
+            string cronExpression = request.CronExpression.Trim();
+
+            if (cronExpression.Length > RecurrenceScheduleValidation.CronExpressionMaxLength)
+            {
+                return new GovernanceHttpValidation(
+                    $"cronExpression must not exceed {RecurrenceScheduleValidation.CronExpressionMaxLength} characters.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
+        return null;
+    }
+
+    public static GovernanceHttpValidation? ValidateUpsertRealizedValueAttestation(
+        UpsertRealizedValueAttestationRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (request.AttestedIncidentsAvoided is < 0)
+        {
+            return new GovernanceHttpValidation(
+                "AttestedIncidentsAvoided must be non-negative.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        GovernanceHttpValidation? revenueImpactValidation =
+            ValidateOptionalAttestationNoteLength(
+                request.AttestedRevenueOrRetentionImpact,
+                nameof(request.AttestedRevenueOrRetentionImpact));
+
+        if (revenueImpactValidation is not null)
+            return revenueImpactValidation;
+
+        GovernanceHttpValidation? reviewerNoteValidation =
+            ValidateOptionalAttestationNoteLength(
+                request.AttestedReviewerTimeSavedNote,
+                nameof(request.AttestedReviewerTimeSavedNote));
+
+        if (reviewerNoteValidation is not null)
+            return reviewerNoteValidation;
+
+        return null;
+    }
+
+    public static GovernanceHttpValidation? ValidateRecordDisposition(RecordFindingDispositionRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        bool requiresRationale = request.Disposition is FindingDisposition.Accepted
+            or FindingDisposition.RejectedAsNotApplicable;
+
+        if (requiresRationale)
+        {
+            GovernanceHttpValidation? rationaleValidation =
+                ValidateRequiredDispositionText(request.Rationale, "rationale");
+
+            if (rationaleValidation is not null)
+                return rationaleValidation;
+        }
+        else
+        {
+            GovernanceHttpValidation? rationaleValidation =
+                ValidateOptionalDispositionTextMaxLength(request.Rationale, "rationale");
+
+            if (rationaleValidation is not null)
+                return rationaleValidation;
+        }
+
+        if (request.Disposition == FindingDisposition.Accepted)
+        {
+            GovernanceHttpValidation? tradeOffValidation =
+                ValidateRequiredDispositionText(request.TradeOffAcknowledgment, "tradeOffAcknowledgment");
+
+            if (tradeOffValidation is not null)
+                return tradeOffValidation;
+        }
+
+        if (request.Disposition == FindingDisposition.NeedsEvidence)
+        {
+            if (string.IsNullOrWhiteSpace(request.EvidenceRequestText))
+            {
+                return new GovernanceHttpValidation(
+                    "evidenceRequestText is required.",
+                    ProblemTypes.ValidationFailed);
+            }
+
+            GovernanceHttpValidation? evidenceValidation =
+                ValidateOptionalDispositionTextMaxLength(request.EvidenceRequestText, "evidenceRequestText");
+
+            if (evidenceValidation is not null)
+                return evidenceValidation;
+        }
+
+        GovernanceHttpValidation? revisitValidation =
+            ValidateDeferredRevisitDueUtc(request.Disposition, request.RevisitDueUtc);
+
+        if (revisitValidation is not null)
+            return revisitValidation;
+
+        return null;
+    }
+
+    public static GovernanceHttpValidation? ValidateBulkDisposition(RecordBulkFindingDispositionRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        GovernanceHttpValidation? rationaleValidation =
+            ValidateRequiredDispositionText(request.Rationale, "rationale");
+
+        if (rationaleValidation is not null)
+            return rationaleValidation;
+
+        if (request.Disposition == FindingDisposition.Accepted
+            && !string.IsNullOrWhiteSpace(request.TradeOffAcknowledgment))
+        {
+            GovernanceHttpValidation? tradeOffValidation =
+                ValidateRequiredDispositionText(request.TradeOffAcknowledgment, "tradeOffAcknowledgment");
+
+            if (tradeOffValidation is not null)
+                return tradeOffValidation;
+        }
+
+        if (request.Disposition == FindingDisposition.NeedsEvidence)
+        {
+            if (string.IsNullOrWhiteSpace(request.EvidenceRequestText))
+            {
+                return new GovernanceHttpValidation(
+                    "evidenceRequestText is required.",
+                    ProblemTypes.ValidationFailed);
+            }
+
+            GovernanceHttpValidation? evidenceValidation =
+                ValidateOptionalDispositionTextMaxLength(request.EvidenceRequestText, "evidenceRequestText");
+
+            if (evidenceValidation is not null)
+                return evidenceValidation;
+        }
+
+        GovernanceHttpValidation? revisitValidation =
+            ValidateDeferredRevisitDueUtc(request.Disposition, request.RevisitDueUtc);
+
+        if (revisitValidation is not null)
+            return revisitValidation;
+
+        return null;
+    }
+
+    private static GovernanceHttpValidation? ValidateDeferredRevisitDueUtc(
+        FindingDisposition disposition,
+        DateTimeOffset? revisitDueUtc)
+    {
+        if (disposition != FindingDisposition.Deferred)
+            return null;
+
+        if (revisitDueUtc is null)
+        {
+            return new GovernanceHttpValidation(
+                "Revisit due date is required when deferring.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        DateTimeOffset effectiveNowUtc = TimeProvider.System.GetUtcNow();
+
+        if (revisitDueUtc <= effectiveNowUtc)
+        {
+            return new GovernanceHttpValidation(
+                "Revisit due date must be in the future when deferring.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
+    private static GovernanceHttpValidation? ValidateOptionalAttestationNoteLength(string? value, string fieldName)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        if (value.Trim().Length > RealizedValueAttestationUpsertValidation.NoteMaxLength)
+        {
+            return new GovernanceHttpValidation(
+                $"{fieldName} must be at most {RealizedValueAttestationUpsertValidation.NoteMaxLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
+    private static GovernanceHttpValidation? ValidateRequiredDispositionText(string? value, string fieldName)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return new GovernanceHttpValidation($"{fieldName} is required.", ProblemTypes.ValidationFailed);
+
+        string normalized = value.Trim();
+
+        if (normalized.Length < FindingDispositionValidation.MinimumRationaleLength)
+        {
+            return new GovernanceHttpValidation(
+                $"{fieldName} must be at least {FindingDispositionValidation.MinimumRationaleLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (normalized.Length > FindingDispositionValidation.MaximumRationaleLength)
+        {
+            return new GovernanceHttpValidation(
+                $"{fieldName} must not exceed {FindingDispositionValidation.MaximumRationaleLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
+    private static GovernanceHttpValidation? ValidateOptionalDispositionTextMaxLength(string? value, string fieldName)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        if (value.Trim().Length > FindingDispositionValidation.MaximumRationaleLength)
+        {
+            return new GovernanceHttpValidation(
+                $"{fieldName} must not exceed {FindingDispositionValidation.MaximumRationaleLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         return null;
     }
 
@@ -62,6 +440,13 @@ public static class GovernanceStickinessHttpMapper
         {
             return new GovernanceHttpValidation(
                 "category cannot be empty or whitespace.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (category is not null && category.Trim().Length > GovernanceRequestValidationRules.DecisionRegisterCategoryMaxLength)
+        {
+            return new GovernanceHttpValidation(
+                $"category must not exceed {GovernanceRequestValidationRules.DecisionRegisterCategoryMaxLength} characters.",
                 ProblemTypes.ValidationFailed);
         }
 

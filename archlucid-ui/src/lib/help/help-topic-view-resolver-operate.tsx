@@ -2,7 +2,6 @@ import type { ReactElement } from "react";
 import dynamic from "next/dynamic";
 
 import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
-import { ScopeHelpCurrentScopePanel } from "@/components/help/ScopeHelpCurrentScopePanel";
 import type { LoadedHelpTopicContent } from "@/lib/help/help-topic-content-loader";
 
 
@@ -155,6 +154,9 @@ const HelpRoiSummaryGuideView = dynamic(() =>
 );
 const HelpSearchReviewEvidenceGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpSearchReviewEvidenceGuideView").then((module) => module.HelpSearchReviewEvidenceGuideView),
+);
+const HelpScopeGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpScopeGuideView").then((module) => module.HelpScopeGuideView),
 );
 const HelpSoc2SelfAssessmentGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpSoc2SelfAssessmentGuideView").then((module) => module.HelpSoc2SelfAssessmentGuideView),
@@ -337,14 +339,7 @@ export function tryResolveOperateHelpTopicView(
     return <HelpComparisonReplayGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
   if (loaded.entry.slug === "scope") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-        evidenceOrientation={<ScopeHelpCurrentScopePanel />}
-      />
-    );
+    return <HelpScopeGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
   if (loaded.entry.slug === "procurement") {
     return <HelpProcurementGuideView entry={loaded.entry} markdown={loaded.markdown} />;

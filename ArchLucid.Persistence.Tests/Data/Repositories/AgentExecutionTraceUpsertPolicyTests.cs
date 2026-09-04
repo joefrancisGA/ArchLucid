@@ -40,6 +40,17 @@ public sealed class AgentExecutionTraceUpsertPolicyTests
         AgentExecutionTraceUpsertPolicy.ShouldRemoveExisting(differentTask, incoming).Should().BeFalse();
     }
 
+    [Fact]
+    public void ShouldRemoveExisting_removes_same_attempt_when_task_id_differs_only_by_casing()
+    {
+        AgentExecutionTrace incoming = Trace(attemptIndex: 2);
+        incoming.TaskId = "Task-1";
+        AgentExecutionTrace existing = Trace(attemptIndex: 2);
+        existing.TaskId = "task-1";
+
+        AgentExecutionTraceUpsertPolicy.ShouldRemoveExisting(existing, incoming).Should().BeTrue();
+    }
+
     private static AgentExecutionTrace Trace(int attemptIndex) =>
         new()
         {

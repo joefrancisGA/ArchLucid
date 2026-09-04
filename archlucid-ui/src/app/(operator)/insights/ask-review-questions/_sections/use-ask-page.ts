@@ -147,6 +147,10 @@ export function useAskPage() {
 
   const urlSync = useAskPageUrlSync({
     runId,
+    selectedThreadId,
+    baseRunId,
+    targetRunId,
+    compareOpen,
     setRunId,
     setBaseRunId,
     setTargetRunId,
@@ -176,6 +180,10 @@ export function useAskPage() {
       return;
     }
 
+    if (urlSync.urlThreadId.length > 0) {
+      return;
+    }
+
     const resumeThreadId = resolveContinueLastAskThread(threads)?.threadId?.trim() ?? "";
 
     if (resumeThreadId.length === 0) {
@@ -183,7 +191,7 @@ export function useAskPage() {
     }
 
     void onSelectThread(resumeThreadId);
-  }, [threads, selectedThreadId, listFailure, onSelectThread]);
+  }, [threads, selectedThreadId, listFailure, onSelectThread, urlSync.urlThreadId]);
 
   const continueLastThread = useMemo(() => resolveContinueLastAskThread(threads), [threads]);
   const showContinueLastThreadRow =
@@ -250,16 +258,16 @@ export function useAskPage() {
     runId,
     setRunId,
     baseRunId,
-    setBaseRunId,
+    setBaseRunId: urlSync.setBaseRunIdWithUrl,
     targetRunId,
-    setTargetRunId,
+    setTargetRunId: urlSync.setTargetRunIdWithUrl,
     question,
     setQuestion,
     questionRef: stream.questionRef,
     loading,
     askStreaming: stream.askStreaming,
     compareOpen,
-    setCompareOpen,
+    setCompareOpen: urlSync.setCompareOpenWithUrl,
     listFailure,
     actionFailure,
     retrievalDegraded,

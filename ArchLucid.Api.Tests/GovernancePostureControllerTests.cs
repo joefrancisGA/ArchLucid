@@ -173,6 +173,29 @@ public sealed class GovernancePostureControllerTests
     }
 
     [Fact]
+    public async Task GetPosture_returns_bad_request_when_project_id_is_empty_guid_and_tenant_missing()
+    {
+        Mock<IArchitecturePostureService> postureService = new(MockBehavior.Strict);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+
+        GovernancePostureController controller = new(
+            postureService.Object,
+            scopeProvider.Object,
+            TenantMissingRepository())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult result = await controller.GetPosture(Guid.Empty, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        postureService.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task GetPosture_returns_not_found_when_tenant_missing()
     {
         Mock<IArchitecturePostureService> postureService = new(MockBehavior.Strict);
@@ -196,4 +219,9 @@ public sealed class GovernancePostureControllerTests
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         postureService.VerifyNoOtherCalls();
     }
+
+    private static ITenantRepository TenantMissingRepository() =>
+        Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
+            Scope.TenantId,
+            It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(null));
 }

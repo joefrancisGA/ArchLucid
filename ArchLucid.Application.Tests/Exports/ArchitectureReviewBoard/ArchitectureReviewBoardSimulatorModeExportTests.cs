@@ -9,7 +9,6 @@ using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using DocumentFormat.OpenXml.Packaging;
@@ -77,10 +76,14 @@ public sealed class ArchitectureReviewBoardSimulatorModeExportTests
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
 
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        IAuthorityQueryService authorityQuery =
+            SealedExportReceiptTestSupport.CreateAuthorityQueryService(Guid.Parse(runId), manifestHashService);
+
         ArchitectureReviewExportService sut = new(
             runDetailQuery.Object,
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>(),
+            authorityQuery,
+            manifestHashService,
             analysis.Object,
             scope.Object,
             Mock.Of<ITenantRepository>(),

@@ -22,8 +22,8 @@ describe("PlanningExportReadinessNote", () => {
     render(<PlanningExportReadinessNote />);
 
     expect(screen.getByText(IMPROVEMENT_PLANNING_EXPORT_SECTION_TITLE)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: IMPROVEMENT_PLANNING_DOWNLOAD_REPORT_CTA })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: IMPROVEMENT_PLANNING_EXPORT_DATA_CTA })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: IMPROVEMENT_PLANNING_DOWNLOAD_REPORT_CTA })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: IMPROVEMENT_PLANNING_EXPORT_DATA_CTA })).toBeInTheDocument();
     expect(screen.queryByText(/Open JSON in browser/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/GET \/v1\/learning\/report/i)).not.toBeInTheDocument();
   });

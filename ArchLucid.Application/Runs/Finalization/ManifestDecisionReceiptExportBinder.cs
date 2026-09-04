@@ -179,7 +179,7 @@ internal static class ManifestDecisionReceiptExportBinder
             await authorityQuery.GetRunDetailForManifestCompareAsync(scope, runId, cancellationToken);
 
         if (compareDetail?.GoldenManifest is null)
-            return;
+            throw new ConflictException($"Export blocked for run '{runIdLabel}': committed golden manifest is missing.");
 
         DecisionReceiptRunBuildOutcome? readinessOutcome =
             TryGetSealedReceiptReadinessOutcome(

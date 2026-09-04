@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 
 import {
@@ -15,9 +16,15 @@ import { deriveWizardPolicyPackCloudMismatch, type WizardCreateRunPayloadOptions
 import type { WizardFormValues } from "@/lib/wizard-schema";
 import {
   isLastWizardStepIndex,
+  nextWizardStepIndex,
+  previousWizardStepIndex,
   type WizardStepDefinition,
   type WizardStepFieldGroup,
 } from "@/lib/wizard-step-sequence";
+import {
+  parseQuickFamilyWizardStepFromSearch,
+  quickFamilyWizardStepHrefFromSearch,
+} from "@/lib/runs/quick-family-wizard-step-url";
 
 export type QuickFamilyWizardFlowOptions = {
   readonly steps: readonly WizardStepDefinition[];
@@ -72,10 +79,45 @@ export function useQuickFamilyWizardFlow(
     hasTemplate = false,
   } = options;
 
+  const router = useRouter();
+  const pathname = usePathname() ?? "/architecture/reviews/new";
+  const searchParams = useSearchParams();
+  const urlQsStep = parseQuickFamilyWizardStepFromSearch(searchParams.get("qsStep"));
+
   const navigation = useWizardStepNavigation({
     steps,
     telemetryWizardName,
+    initialStepIndex: urlQsStep ?? 0,
   });
+
+  const syncQsStepToUrl = useCallback(
+    (stepIndex: number) => {
+      router.replace(quickFamilyWizardStepHrefFromSearch(searchParams.toString(), stepIndex, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    const fromUrl = parseQuickFamilyWizardStepFromSearch(searchParams.get("qsStep"));
+
+    if (fromUrl !== null && fromUrl !== navigation.stepIndex) {
+      navigation.goToStep(fromUrl);
+    }
+  }, [navigation.goToStep, navigation.stepIndex, searchParams]);
+
+  const goBack = useCallback(() => {
+    const next = previousWizardStepIndex(navigation.stepIndex);
+    navigation.goToStep(next);
+    syncQsStepToUrl(next);
+  }, [navigation, syncQsStepToUrl]);
+
+  const advanceWithUrl = useCallback(() => {
+    const next = nextWizardStepIndex(navigation.stepIndex, steps.length);
+    navigation.goToStep(next);
+    syncQsStepToUrl(next);
+  }, [navigation, steps.length, syncQsStepToUrl]);
 
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<unknown | null>(null);
@@ -140,7 +182,7 @@ export function useQuickFamilyWizardFlow(
     }
 
     setStepValidationMessage(null);
-    navigation.advance();
+    advanceWithUrl();
   };
 
   const submitRun = async () => {
@@ -178,7 +220,7 @@ export function useQuickFamilyWizardFlow(
     stepValidationMessage,
     submitError,
     creationProgress,
-    goBack: navigation.goBack,
+    goBack,
     goNext,
     submitRun,
     recheckUnresolvedRun,

@@ -9,6 +9,8 @@ import { AuthCallbackLoadingView } from "@/app/(operator)/auth/callback/AuthCall
 
 import {
   assertOidcSignInConfig,
+  getGoogleOidcAuthority,
+  getGoogleOidcClientId,
   getOidcAuthority,
   getOidcClientId,
   getOidcRedirectUri,
@@ -115,9 +117,9 @@ export function CallbackClient() {
       };
     }
 
-    const stored = consumePkceState();
+    const stored = consumePkceState(state);
 
-    if (!stored || stored.state !== state) {
+    if (!stored) {
       fail("This sign-in attempt expired or was started in another window. Try signing in again.");
 
       return () => {
@@ -134,8 +136,8 @@ export function CallbackClient() {
       }, TOKEN_EXCHANGE_SLOW_HINT_MS);
 
       try {
-        const authority = getOidcAuthority();
-        const clientId = getOidcClientId();
+        const authority = stored.flow === "google" ? getGoogleOidcAuthority() : getOidcAuthority();
+        const clientId = stored.flow === "google" ? getGoogleOidcClientId() : getOidcClientId();
         const redirectUri = getOidcRedirectUri();
         const doc = await loadDiscoveryDocument(authority);
         const tokens = await exchangeAuthorizationCode({

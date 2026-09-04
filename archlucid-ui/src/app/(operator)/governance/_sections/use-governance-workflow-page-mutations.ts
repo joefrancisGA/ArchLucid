@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useGovernanceReviewContextQuery } from "@/hooks/use-governance-review-context-query";
 import { useGovernanceWorkflowMutations } from "@/hooks/use-governance-workflow-mutations";
@@ -11,8 +12,20 @@ import {
   GOVERNANCE_SUBMIT_MANIFEST_VERSION_DEFAULT,
   resolveDefaultGovernanceSubmitManifestVersion,
 } from "@/lib/governance/governance-submit-manifest-version";
+import {
+  GOVERNANCE_APPROVAL_QUEUE_PATH,
+} from "@/lib/governance/governance-route-paths";
+import {
+  governanceApprovalReviewHrefFromSearch,
+  parseGovernanceApprovalIdFromSearch,
+  parseGovernanceReviewModeFromSearch,
+} from "@/lib/governance/governance-approval-review-url";
+import type { GovernanceWorkflowPendingReview } from "./governance-workflow-helpers";
 
 export function useGovernanceWorkflowPageMutations() {
+  const router = useRouter();
+  const pathname = usePathname() ?? GOVERNANCE_APPROVAL_QUEUE_PATH;
+  const searchParams = useSearchParams();
   const canMutateWorkflow = useOperateCapability();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const versionSeedRunIdRef = useRef<string | null>(null);
@@ -73,6 +86,53 @@ export function useGovernanceWorkflowPageMutations() {
     workflowActor,
   });
 
+  const setPendingReview = useCallback(
+    (value: GovernanceWorkflowPendingReview | null) => {
+      mutations.setPendingReview(value);
+      router.replace(
+        governanceApprovalReviewHrefFromSearch(searchParams.toString(), value, pathname),
+        { scroll: false },
+      );
+    },
+    [mutations, pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    const approvalRequestId = parseGovernanceApprovalIdFromSearch(searchParams.get("approvalId"));
+    const mode = parseGovernanceReviewModeFromSearch(searchParams.get("reviewMode"));
+
+    if (approvalRequestId.length === 0 || mode === null) {
+      if (mutations.pendingReview !== null) {
+        mutations.setPendingReview(null);
+      }
+
+      return;
+    }
+
+    if (listsLoading) {
+      return;
+    }
+
+    const row = approvals.find((approval) => approval.approvalRequestId === approvalRequestId);
+
+    if (row === undefined) {
+      return;
+    }
+
+    if (
+      mutations.pendingReview?.approvalRequestId === approvalRequestId
+      && mutations.pendingReview.mode === mode
+    ) {
+      return;
+    }
+
+    mutations.setPendingReview({
+      approvalRequestId,
+      mode,
+      runId: row.runId,
+    });
+  }, [approvals, listsLoading, mutations, searchParams]);
+
   useEffect(() => {
     const runId = submitRunIdTrimmed;
 
@@ -104,6 +164,18 @@ export function useGovernanceWorkflowPageMutations() {
       return current;
     });
   }, [submitRunIdTrimmed, maxPersistedManifestVersion]);
+
+  const onConfirmReview = useCallback(async () => {
+    const hadReview = mutations.pendingReview !== null;
+    await mutations.onConfirmReview();
+
+    if (hadReview) {
+      router.replace(
+        governanceApprovalReviewHrefFromSearch(searchParams.toString(), null, pathname),
+        { scroll: false },
+      );
+    }
+  }, [mutations, pathname, router, searchParams]);
 
   return {
     canMutateWorkflow,
@@ -138,7 +210,7 @@ export function useGovernanceWorkflowPageMutations() {
     reviewBusy: mutations.reviewBusy,
     activateBusyId: mutations.activateBusyId,
     pendingReview: mutations.pendingReview,
-    setPendingReview: mutations.setPendingReview,
+    setPendingReview,
     reviewedBy: mutations.reviewedBy,
     setReviewedBy: mutations.setReviewedBy,
     reviewComment: mutations.reviewComment,
@@ -150,7 +222,7 @@ export function useGovernanceWorkflowPageMutations() {
     setPendingActivate: mutations.setPendingActivate,
     pendingActivatePromotionRef: mutations.pendingActivatePromotionRef,
     onSubmitApproval: mutations.onSubmitApproval,
-    onConfirmReview: mutations.onConfirmReview,
+    onConfirmReview,
     refreshIfActive: mutations.refreshIfActive,
     setMutationSuccessMessage: mutations.setMutationSuccessMessage,
     setMutationErrorMessage: mutations.setMutationErrorMessage,
