@@ -209,7 +209,7 @@ public sealed partial class GovernanceController
         CancellationToken cancellationToken)
     {
         IActionResult? runIdProblem =
-            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRunId(runId)
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRouteRunId(runId)
                 .ToBadRequestProblemOrNull(this);
 
         if (runIdProblem is not null)
@@ -244,7 +244,7 @@ public sealed partial class GovernanceController
         CancellationToken cancellationToken)
     {
         IActionResult? runIdProblem =
-            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRunId(runId)
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRouteRunId(runId)
                 .ToBadRequestProblemOrNull(this);
 
         if (runIdProblem is not null)
@@ -279,7 +279,7 @@ public sealed partial class GovernanceController
         CancellationToken cancellationToken)
     {
         IActionResult? runIdProblem =
-            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRunId(runId)
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRouteRunId(runId)
                 .ToBadRequestProblemOrNull(this);
 
         if (runIdProblem is not null)

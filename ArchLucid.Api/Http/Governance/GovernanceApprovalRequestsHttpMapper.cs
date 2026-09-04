@@ -65,6 +65,19 @@ public static class GovernanceApprovalRequestsHttpMapper
         return null;
     }
 
+    public static GovernanceHttpValidation? ValidateGovernanceRouteRunId(string? runId)
+    {
+        GovernanceHttpValidation? runIdValidation = ValidateGovernanceRunId(runId);
+
+        if (runIdValidation is not null)
+            return runIdValidation;
+
+        if (!Guid.TryParse(runId!.Trim(), out Guid parsedRunId) || parsedRunId == Guid.Empty)
+            return new GovernanceHttpValidation("RunId is not valid.", ProblemTypes.ValidationFailed);
+
+        return null;
+    }
+
     public static GovernanceHttpValidation? ValidateEnvironmentSlug(string? environment, string fieldName)
     {
         if (string.IsNullOrWhiteSpace(environment))
