@@ -23,7 +23,7 @@ public static class RequestConstraintClassifier
         ArgumentNullException.ThrowIfNull(request);
 
         return request.Constraints.Any(c =>
-            c.Contains(ConstraintManagedIdentity, StringComparison.OrdinalIgnoreCase));
+            RequestConstraintTokenMatcher.ContainsAffirmativePhrase(c, ConstraintManagedIdentity));
     }
 
     /// <summary>

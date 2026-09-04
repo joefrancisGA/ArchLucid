@@ -19,7 +19,7 @@ internal static class RequestConstraintTokenMatcher
             if (index < 0)
                 return false;
 
-            if (!IsNonPrefixedNegation(haystack, index))
+            if (!IsNegatedPhrasePrefix(haystack, index))
                 return true;
 
             index++;
@@ -66,7 +66,7 @@ internal static class RequestConstraintTokenMatcher
                 return false;
 
             if (IsStandaloneWordToken(haystack, index, "private".Length)
-                && !IsNonPrefixedNegation(haystack, index))
+                && !IsNegatedPhrasePrefix(haystack, index))
                 return true;
 
             index++;
@@ -84,6 +84,23 @@ internal static class RequestConstraintTokenMatcher
         bool okAfter = afterToken >= haystack.Length || !char.IsLetter(haystack[afterToken]);
 
         return okBefore && okAfter;
+    }
+
+    private static bool IsNegatedPhrasePrefix(string haystack, int tokenIndex)
+    {
+        if (IsNonPrefixedNegation(haystack, tokenIndex))
+            return true;
+
+        ReadOnlySpan<char> before = haystack.AsSpan(0, tokenIndex).TrimEnd();
+
+        if (before.Length < 2)
+            return false;
+
+        return before.EndsWith("un", StringComparison.OrdinalIgnoreCase)
+            || before.EndsWith("un-", StringComparison.OrdinalIgnoreCase)
+            || before.EndsWith("un_", StringComparison.OrdinalIgnoreCase)
+            || before.EndsWith("un.", StringComparison.OrdinalIgnoreCase)
+            || before.EndsWith("un ", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsNonPrefixedNegation(string haystack, int tokenIndex)

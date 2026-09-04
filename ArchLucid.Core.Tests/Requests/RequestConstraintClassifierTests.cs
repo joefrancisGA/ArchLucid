@@ -27,6 +27,22 @@ public sealed class RequestConstraintClassifierTests
     }
 
     [Fact]
+    public void HasManagedIdentityConstraint_does_not_false_positive_on_unmanaged_identity_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["unmanaged identity for storage"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasManagedIdentityConstraint_does_not_false_positive_on_non_managed_identity_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["non-managed identity acceptable"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
     public void HasPrivateNetworkingConstraint_detects_private_endpoint_phrasing()
     {
         ArchitectureRequest request = CreateRequest(constraints: ["traffic via private endpoint only"]);

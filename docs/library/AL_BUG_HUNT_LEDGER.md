@@ -1929,11 +1929,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 142
-- **bugs-found:** 269
+- **hunts:** 143
+- **bugs-found:** 272
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — policy pack display-name casing rejected in focused pilot / overlay gates
+- **last-bug:** 2026-09-04 — `HasManagedIdentityConstraint` unmanaged-identity false positive
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

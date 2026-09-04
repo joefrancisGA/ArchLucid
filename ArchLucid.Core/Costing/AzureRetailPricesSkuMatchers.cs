@@ -218,6 +218,9 @@ public sealed partial class AzureRetailPricesCatalogClient
         if (type.Contains("non reservation", StringComparison.OrdinalIgnoreCase))
             return true;
 
+        if (type.Contains("non.reservation", StringComparison.OrdinalIgnoreCase))
+            return true;
+
         return false;
     }
 
@@ -236,6 +239,9 @@ public sealed partial class AzureRetailPricesCatalogClient
             return true;
 
         if (meterTier.Contains("non government", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (meterTier.Contains("non.government", StringComparison.OrdinalIgnoreCase))
             return true;
 
         return false;

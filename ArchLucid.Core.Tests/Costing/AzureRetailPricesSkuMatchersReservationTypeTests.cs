@@ -34,4 +34,18 @@ public sealed class AzureRetailPricesSkuMatchersReservationTypeTests
 
         AzureRetailPricesCatalogClient.LooksLikeConsumptionUsd(dto).Should().BeTrue();
     }
+
+    [Fact]
+    public void LooksLikeConsumptionUsd_accepts_non_reservation_dot_type_with_hourly_unit()
+    {
+        AzureRetailPricesCatalogClient.RetailPriceDto dto = new()
+        {
+            CurrencyCode = "USD",
+            Type = "Non.Reservation",
+            UnitOfMeasure = "1 Hour",
+            UnitPrice = 0.01m,
+        };
+
+        AzureRetailPricesCatalogClient.LooksLikeConsumptionUsd(dto).Should().BeTrue();
+    }
 }
