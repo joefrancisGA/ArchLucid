@@ -3348,11 +3348,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 208
-- **bugs-found:** 430
+- **hunts:** 209
+- **bugs-found:** 431
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — assign policy pack whitespace scopeLevel silent default
+- **last-bug:** 2026-09-04 — digest whitespace recipientEmails silent wipe
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4368,6 +4368,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyPacksController.Assign` / `AssignPolicyPackRequestValidator` — whitespace-only `scopeLevel` passed FluentValidation via `GovernanceScopeLevel.TryNormalize` and silently defaulted to `Project` instead of HTTP 400 — **hit 2026-09-04 (#791):** reject explicit whitespace-only scope level while preserving omitted/default `Project` (create pack description #790 parity); regressions in `AssignPolicyPackRequestValidatorTests.Validate_fails_when_scope_level_is_whitespace_only` and `PolicyPacksControllerListScopeTests.Assign_returns_bad_request_when_scope_level_is_whitespace_only_and_tenant_missing`.
 
 2026-09-04 seed hunt #791 (hit): proved assign policy pack whitespace scopeLevel silent Project default.
+
+- [x] (proven) `TenantExecDigestPreferencesController.PostExecDigestPreferences` / `TenantSponsorDigestPreferencesController.PostSponsorDigestPreferences` / `DigestRecipientEmailsValidator.TryNormalize` — explicit whitespace-only `recipientEmails` bypassed merge-from-existing (#778) and wiped stored recipients on disable-only upsert instead of HTTP 400 — **hit 2026-09-04 (#792):** reject non-null recipient lists whose entries are all empty/whitespace (assign scopeLevel #791 parity); regressions in `PostExecDigestPreferences_returns_bad_request_when_recipient_emails_are_whitespace_only` and `PostSponsorDigestPreferences_returns_bad_request_when_recipient_emails_are_whitespace_only`.
+
+2026-09-04 seed hunt #792 (hit): proved digest whitespace recipientEmails silent wipe on disable-only upsert.
 
 2026-09-04 seed hunt #787 (hit): proved disposition inapplicable optional string silent drop beyond whitespace-only cases.
 
