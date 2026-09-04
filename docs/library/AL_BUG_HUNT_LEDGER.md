@@ -2903,11 +2903,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 14
-- **bugs-found:** 25
+- **hunts:** 15
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — trial lifecycle email/scanner used Ordinal for TrialStatus after Core parity fixes
+- **last-hunt:** 2026-09-04
+- **last-bug:** 2026-09-04 — padded TrialStatus bypassed trial lifecycle email gate and scheduled scanner
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -2958,6 +2958,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-03 thorough hunt #613: cheap-disproved sponsor subject capitalization candidate; proved trial lifecycle TrialStatus casing gap.
 
 2026-09-03 seed hunt #583: reseeded notifications-pipeline; proved remediation-assignment mailbox validation gap vs digest subscription parity; cheap-disproved exec unsubscribe XML summary as non-user-facing.
+
+- [x] (proven) `TrialLifecycleEmailDispatcher` / `TrialScheduledLifecycleEmailScanner` — padded `TrialStatus` bypasses active/converted gates — **hit 2026-09-04 (#660):** after Core #642 `TrialLifecycleStatus.EqualsStatus` trim parity elsewhere, notifications pipeline still used raw `string.Equals` so `" active "` skipped welcome/mid-trial/expiring mail and scheduled scans; fixed with `TrialLifecycleStatus.EqualsStatus` for Active/Converted gates; regressions in `DispatchAsync_sends_welcome_when_padded_active_trial_status` and `PublishDueAsync_publishes_mid_trial_for_padded_active_trial_status`.
+
+2026-09-04 seed hunt #660: reseeded from trial lifecycle TrialStatus parity after #623 casing fix; proved padded TrialStatus gate gap vs Core `EqualsStatus` trim parity.
 
 ## Zone: artifact-synthesis
 
