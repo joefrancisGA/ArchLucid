@@ -2,6 +2,7 @@ using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Manifest;
 
@@ -93,6 +94,87 @@ public sealed class GovernanceStickinessHttpMapperTests
                 Rationale = "accepted risk rationale",
                 EvidenceRef = new string('e', RiskExceptionValidation.EvidenceRefMaxLength + 1),
                 ExpiresAtUtc = DateTime.UtcNow.AddDays(30),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain(RiskExceptionValidation.EvidenceRefMaxLength.ToString());
+    }
+
+    [Fact]
+    public void ValidateCreateRiskException_rejects_rationale_shorter_than_minimum_length()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateCreateRiskException(
+            new CreateRiskExceptionRequest
+            {
+                RunId = Guid.NewGuid(),
+                FindingId = "finding-1",
+                OwnerUserId = "owner",
+                Rationale = "too short",
+                ExpiresAtUtc = DateTime.UtcNow.AddDays(30),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain(FindingDispositionValidation.MinimumRationaleLength.ToString());
+    }
+
+    [Fact]
+    public void ValidateCreateRiskException_rejects_overlong_rationale()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateCreateRiskException(
+            new CreateRiskExceptionRequest
+            {
+                RunId = Guid.NewGuid(),
+                FindingId = "finding-1",
+                OwnerUserId = "owner",
+                Rationale = new string('r', FindingDispositionValidation.MaximumRationaleLength + 1),
+                ExpiresAtUtc = DateTime.UtcNow.AddDays(30),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain(FindingDispositionValidation.MaximumRationaleLength.ToString());
+    }
+
+    [Fact]
+    public void ValidateRenewRiskException_rejects_rationale_shorter_than_minimum_length()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRenewRiskException(
+            new RenewRiskExceptionRequest
+            {
+                ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+                Rationale = "too short",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain(FindingDispositionValidation.MinimumRationaleLength.ToString());
+    }
+
+    [Fact]
+    public void ValidateRenewRiskException_rejects_overlong_rationale()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRenewRiskException(
+            new RenewRiskExceptionRequest
+            {
+                ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+                Rationale = new string('r', FindingDispositionValidation.MaximumRationaleLength + 1),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain(FindingDispositionValidation.MaximumRationaleLength.ToString());
+    }
+
+    [Fact]
+    public void ValidateRenewRiskException_rejects_overlong_evidence_ref()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRenewRiskException(
+            new RenewRiskExceptionRequest
+            {
+                ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+                EvidenceRef = new string('e', RiskExceptionValidation.EvidenceRefMaxLength + 1),
             });
 
         validation.Should().NotBeNull();

@@ -161,6 +161,12 @@ public sealed partial class GovernanceStickinessController
         if (routeValidation is not null)
             return routeValidation;
 
+        IActionResult? renewValidation =
+            GovernanceStickinessHttpMapper.ValidateRenewRiskException(request!).ToBadRequestProblemOrNull(this);
+
+        if (renewValidation is not null)
+            return renewValidation;
+
         try
         {
             RiskExceptionRecord record =

@@ -1,5 +1,6 @@
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Models;
+using ArchLucid.Api.Validators;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.PolicyPacks;
@@ -71,6 +72,27 @@ public sealed class GovernanceControllerSimulateTests
     }
 
     [Fact]
+    public async Task Simulate_returns_bad_request_when_run_id_exceeds_max_length()
+    {
+        string overlongRunId = new string('r', GovernanceRequestValidationRules.RunIdMaxLength + 1);
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(policyPackHttpFacade: httpFacade.Object);
+
+        IActionResult action = await sut.Simulate(
+            new PolicyPackSimulateRequest
+            {
+                RunId = overlongRunId,
+                Content = new(),
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        httpFacade.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task Simulate_returns_not_found_when_tenant_missing()
     {
         Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
@@ -133,6 +155,27 @@ public sealed class GovernanceControllerSimulateTests
             {
                 PolicyPackContentJson = "{}",
                 TargetRunId = Guid.Empty.ToString("D"),
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        dryRun.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task DryRunProposedPolicyPack_returns_bad_request_when_target_run_id_exceeds_max_length()
+    {
+        string overlongRunId = new string('r', GovernanceRequestValidationRules.RunIdMaxLength + 1);
+        Mock<IPolicyPackGovernanceDryRunService> dryRun = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(governanceDryRunService: dryRun.Object);
+
+        IActionResult action = await sut.DryRunProposedPolicyPack(
+            new PolicyPackGovernanceDryRunRequest
+            {
+                PolicyPackContentJson = "{}",
+                TargetRunId = overlongRunId,
             },
             CancellationToken.None);
 
@@ -327,6 +370,29 @@ public sealed class GovernanceControllerSimulateTests
             new PolicyPackDryRunRequest
             {
                 EvaluateAgainstRunIds = [Guid.Empty.ToString("D")],
+            },
+            pageSize: null,
+            page: null,
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        dryRun.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task DryRunPolicyPack_returns_bad_request_when_evaluate_against_run_id_exceeds_max_length()
+    {
+        string overlongRunId = new string('r', GovernanceRequestValidationRules.RunIdMaxLength + 1);
+        Mock<IPolicyPackDryRunService> dryRun = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(dryRunService: dryRun.Object);
+
+        IActionResult action = await sut.DryRunPolicyPack(
+            Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            new PolicyPackDryRunRequest
+            {
+                EvaluateAgainstRunIds = [overlongRunId],
             },
             pageSize: null,
             page: null,

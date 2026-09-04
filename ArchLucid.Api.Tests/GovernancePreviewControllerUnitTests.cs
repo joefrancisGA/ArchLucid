@@ -217,6 +217,27 @@ public sealed class GovernancePreviewControllerUnitTests
     }
 
     [Fact]
+    public async Task CompareEnvironments_returns_bad_request_when_target_environment_exceeds_max_length()
+    {
+        string overlongEnvironment = new string('e', GovernanceEnvironmentSlug.MaxLength + 1);
+        Mock<IGovernancePreviewService> preview = new(MockBehavior.Strict);
+
+        GovernancePreviewController controller = CreateController(preview.Object, tenantExists: true);
+
+        IActionResult action = await controller.CompareEnvironments(
+            new CreateGovernanceEnvironmentComparisonRequest
+            {
+                SourceEnvironment = "dev",
+                TargetEnvironment = overlongEnvironment,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        preview.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task CompareEnvironments_returns_validation_failed_when_source_equals_target()
     {
         Mock<IGovernancePreviewService> preview = new();

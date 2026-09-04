@@ -1,6 +1,7 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Manifest;
 
@@ -62,6 +63,63 @@ public static class GovernanceStickinessHttpMapper
         }
 
         if (request.EvidenceRef is not null)
+        {
+            string normalizedEvidenceRef = request.EvidenceRef.Trim();
+
+            if (normalizedEvidenceRef.Length > RiskExceptionValidation.EvidenceRefMaxLength)
+            {
+                return new GovernanceHttpValidation(
+                    $"evidenceRef must not exceed {RiskExceptionValidation.EvidenceRefMaxLength} characters.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Rationale))
+            return new GovernanceHttpValidation("rationale is required.", ProblemTypes.ValidationFailed);
+
+        string normalizedRationale = request.Rationale.Trim();
+
+        if (normalizedRationale.Length < FindingDispositionValidation.MinimumRationaleLength)
+        {
+            return new GovernanceHttpValidation(
+                $"rationale must be at least {FindingDispositionValidation.MinimumRationaleLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (normalizedRationale.Length > FindingDispositionValidation.MaximumRationaleLength)
+        {
+            return new GovernanceHttpValidation(
+                $"rationale must not exceed {FindingDispositionValidation.MaximumRationaleLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
+    public static GovernanceHttpValidation? ValidateRenewRiskException(RenewRiskExceptionRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (!string.IsNullOrWhiteSpace(request.Rationale))
+        {
+            string normalizedRationale = request.Rationale.Trim();
+
+            if (normalizedRationale.Length < FindingDispositionValidation.MinimumRationaleLength)
+            {
+                return new GovernanceHttpValidation(
+                    $"rationale must be at least {FindingDispositionValidation.MinimumRationaleLength} characters.",
+                    ProblemTypes.ValidationFailed);
+            }
+
+            if (normalizedRationale.Length > FindingDispositionValidation.MaximumRationaleLength)
+            {
+                return new GovernanceHttpValidation(
+                    $"rationale must not exceed {FindingDispositionValidation.MaximumRationaleLength} characters.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.EvidenceRef))
         {
             string normalizedEvidenceRef = request.EvidenceRef.Trim();
 

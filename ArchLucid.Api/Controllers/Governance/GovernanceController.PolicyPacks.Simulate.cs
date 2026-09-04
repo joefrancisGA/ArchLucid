@@ -31,10 +31,12 @@ public sealed partial class GovernanceController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (string.IsNullOrWhiteSpace(request.RunId))
-        {
-            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
-        }
+        IActionResult? runIdValidation =
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRunId(request.RunId)
+                .ToBadRequestProblemOrNull(this);
+
+        if (runIdValidation is not null)
+            return runIdValidation;
 
         if (!Guid.TryParse(request.RunId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
         {

@@ -1765,6 +1765,75 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task CreateRiskException_returns_bad_request_when_rationale_exceeds_max_length_before_facade()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new(MockBehavior.Strict);
+        Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            findingInspect: findingInspect,
+            riskExceptions: riskExceptions);
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = "finding-1",
+            RunId = Guid.NewGuid(),
+            OwnerUserId = "owner@contoso.com",
+            Rationale = new string('r', FindingDispositionValidation.MaximumRationaleLength + 1),
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        IActionResult action = await controller.CreateRiskException(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        findingInspect.VerifyNoOtherCalls();
+        riskExceptions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task RenewRiskException_returns_bad_request_when_rationale_exceeds_max_length_before_facade()
+    {
+        Guid exceptionId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(riskExceptions: riskExceptions);
+
+        RenewRiskExceptionRequest request = new()
+        {
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+            Rationale = new string('r', FindingDispositionValidation.MaximumRationaleLength + 1),
+        };
+
+        IActionResult action = await controller.RenewRiskException(exceptionId, request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        riskExceptions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task RenewRiskException_returns_bad_request_when_evidence_ref_exceeds_max_length_before_facade()
+    {
+        Guid exceptionId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(riskExceptions: riskExceptions);
+
+        RenewRiskExceptionRequest request = new()
+        {
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+            EvidenceRef = new string('e', RiskExceptionValidation.EvidenceRefMaxLength + 1),
+        };
+
+        IActionResult action = await controller.RenewRiskException(exceptionId, request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        riskExceptions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task CreateRiskException_returns_bad_request_when_run_id_is_empty()
     {
         GovernanceStickinessController controller = BuildSut();

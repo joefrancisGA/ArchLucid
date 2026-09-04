@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
+using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Governance;
@@ -66,8 +67,12 @@ public sealed class GovernancePreCommitSimulationController(
         [FromRoute] string runId,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(runId))
-            return this.BadRequestProblem("Run ID is required.", ProblemTypes.ValidationFailed);
+        IActionResult? runIdValidation =
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRunId(runId)
+                .ToBadRequestProblemOrNull(this);
+
+        if (runIdValidation is not null)
+            return runIdValidation;
 
         if (!TryParseRunId(runId.Trim(), out string runIdNormalized))
             return this.BadRequestProblem($"Run ID '{runId.Trim()}' is not valid.", ProblemTypes.ValidationFailed);
@@ -111,8 +116,12 @@ public sealed class GovernancePreCommitSimulationController(
 
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (string.IsNullOrWhiteSpace(body.RunId))
-            return this.BadRequestProblem("Run ID is required.", ProblemTypes.ValidationFailed);
+        IActionResult? runIdValidation =
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRunId(body.RunId)
+                .ToBadRequestProblemOrNull(this);
+
+        if (runIdValidation is not null)
+            return runIdValidation;
 
         if (!TryParseRunId(body.RunId.Trim(), out string runIdNormalized))
             return this.BadRequestProblem(
