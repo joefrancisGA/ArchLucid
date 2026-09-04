@@ -252,6 +252,25 @@ public sealed class PolicyPacksControllerListScopeTests
     }
 
     [Fact]
+    public async Task Validate_returns_bad_request_when_content_is_not_deserializable_and_tenant_missing()
+    {
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        PolicyPacksControllerTestSupport.SetupScopeNotFoundDefaults(httpFacade);
+
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(httpFacade);
+
+        JsonElement body = JsonDocument.Parse("""{"complianceRuleIds":"not-an-array"}""").RootElement;
+
+        IActionResult result = await sut.Validate(body, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        httpFacade.Verify(
+            f => f.ValidateContentAsync(It.IsAny<JsonElement>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task Publish_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(

@@ -174,6 +174,12 @@ public sealed partial class PolicyPacksController
         if (body.Value.ValueKind is not JsonValueKind.Object)
             return this.BadRequestProblem("Expected a JSON object.", ProblemTypes.ValidationFailed);
 
+        IActionResult? validationProblem =
+            PolicyPackValidateContentHttpMapper.Validate(body.Value).ToBadRequestProblemOrNull(this);
+
+        if (validationProblem is not null)
+            return validationProblem;
+
         PolicyPackHttpResult<PolicyPackContentValidationResponse> result =
             await _httpFacade.ValidateContentAsync(body.Value, cancellationToken).ConfigureAwait(false);
 

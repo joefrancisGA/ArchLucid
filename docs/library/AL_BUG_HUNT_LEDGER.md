@@ -3189,11 +3189,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 172
-- **bugs-found:** 382
+- **hunts:** 174
+- **bugs-found:** 385
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — SubmitApprovalRequest same-environment validation ordering before tenant preflight
+- **last-bug:** 2026-09-04 — PolicyPacks Validate content deserialization ordering before tenant preflight
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4063,6 +4063,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.Promote` / `CreateGovernancePromotionRequestValidator` — tenant preflight ran before same-environment guard, so ghost tenant + `sourceEnvironment == targetEnvironment` returned HTTP 404 instead of 400 (#721 compare-environments sibling) — **hit 2026-09-04 (#722):** `GovernancePromotionHttpMapper.Validate` before `RequireTenantAndWorkspaceOrNotFoundAsync`; regression in `GovernanceControllerRunHistoryScopeTests.Promote_returns_validation_failed_when_source_equals_target_and_tenant_missing`.
 
 - [x] (proven) `GovernanceController.SubmitApprovalRequest` / `CreateGovernanceApprovalRequestValidator` — tenant preflight ran before same-environment guard, so ghost tenant + `sourceEnvironment == targetEnvironment` returned HTTP 404 instead of 400 (#722 promote sibling) — **hit 2026-09-04 (#723):** `GovernanceApprovalRequestHttpMapper.Validate` before `RequireTenantAndWorkspaceOrNotFoundAsync`; regression in `GovernanceControllerRunHistoryScopeTests.SubmitApprovalRequest_returns_validation_failed_when_source_equals_target_and_tenant_missing`.
+
+2026-09-04 thorough hunt #723 (hit): proved SubmitApprovalRequest same-environment validation ordering before tenant preflight.
+
+- [x] (proven) `GovernanceController.Activate` / `CreateGovernanceActivationRequestValidator` — tenant preflight ran before environment enum guard (`dev`/`test`/`prod`), so ghost tenant + unrecognized `Environment` (e.g. `staging`) returned HTTP 404 instead of 400 — **hit 2026-09-04 (#724):** `GovernanceActivationHttpMapper.Validate` before `RequireTenantAndWorkspaceOrNotFoundAsync`; regression in `GovernanceControllerRunHistoryScopeTests.Activate_returns_bad_request_when_environment_is_unrecognized_and_tenant_missing`.
+
+- [x] (proven) `GovernancePreviewController.Preview` / `CreateGovernancePreviewRequestValidator` — tenant preflight ran before environment enum guard, so ghost tenant + unrecognized `Environment` returned HTTP 404 instead of 400 (#724 activate sibling) — **hit 2026-09-04 (#724):** `GovernancePreviewHttpMapper.Validate` before `RequireTenantAndWorkspaceOrNotFoundAsync`; regression in `GovernancePreviewControllerUnitTests.Preview_returns_bad_request_when_environment_is_unrecognized_and_tenant_missing`.
+
+2026-09-04 seed hunt #724 (hit): proved Activate and Preview environment enum validation ordering before tenant preflight.
+
+- [x] (proven) `PolicyPacksController.Validate` / `PolicyPackHttpFacade.ValidateContentAsync` — tenant preflight ran before JSON deserialize of policy pack content, so ghost tenant + non-deserializable content (e.g. `complianceRuleIds` string instead of array) returned HTTP 404 instead of 400 — **hit 2026-09-04 (#725):** `PolicyPackValidateContentHttpMapper.Validate` before `_httpFacade.ValidateContentAsync`; regression in `PolicyPacksControllerListScopeTests.Validate_returns_bad_request_when_content_is_not_deserializable_and_tenant_missing`.
+
+2026-09-04 seed hunt #725 (hit): proved PolicyPacks Validate content deserialization ordering before tenant preflight.
 
 2026-09-04 thorough hunt #723 (hit): proved SubmitApprovalRequest same-environment validation ordering before tenant preflight.
 
