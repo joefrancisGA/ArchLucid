@@ -1609,11 +1609,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 14
-- **bugs-found:** 25
+- **hunts:** 16
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — manifest warnings export parity; agent materiality confidence/evidence refs; sponsor relationship counts
+- **last-bug:** 2026-09-04 — architecture-analysis DOCX agent evidence-ref/warning diff parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1663,10 +1663,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-04 thorough hunt #765: proved manifest-warnings export body gap, agent materiality interpretation misclassification, and sponsor relationship key-count parity.
 
 - [x] (proven) `MarkdownArchitectureAnalysisExportService.AppendDeterminismAndDiffs` omits manifest relationship diffs — **hit 2026-09-04 (#766):** architecture-analysis markdown export listed services/datastores/controls/warnings only; fixed with relationship `ToDisplayLine()` sections; `DocxArchitectureAnalysisExportService` aligned for relationships and manifest warnings; regression in `GenerateMarkdown_manifest_diff_includes_relationship_subsections_when_populated`.
-- [ ] (candidate) Executive/sponsor `AppendSponsorReport` key counts omit warnings-only and required-control-only manifest deltas — sponsor line still shows all-zero structural counts when only warnings or required controls changed; verify product expectation before promotion.
-- [ ] (candidate) `DeterminismCheckService.HasManifestDrift` may ignore warnings-only manifest drift — structural counts only; needs repro before promotion.
+- [x] (proven) Executive/sponsor `AppendSponsorReport` key counts omit warnings-only and required-control-only manifest deltas — **hit 2026-09-04 (#767):** sponsor manifest line showed all-zero structural counts for warnings/controls-only diffs; fixed via shared `ManifestDiffMateriality.FormatSponsorKeyCountsLine` across markdown/HTML/PDF/DOCX; regressions in `GenerateMarkdown_executive_profile_includes_manifest_warning_count_in_key_manifest_line` and `GenerateMarkdown_executive_profile_includes_required_control_counts_in_key_manifest_line`.
+- [x] (proven) `DeterminismCheckService.HasManifestDrift` ignores warnings-only manifest drift — **hit 2026-09-04 (#767):** structural-count-only check marked warnings-only replay iterations as manifest-matching; fixed via shared `ManifestDiffMateriality.HasMaterialChanges` (also deduped interpretation slice); regression in `RunAsync_when_manifest_diff_has_warnings_only_marks_manifest_drift`.
 
-2026-09-04 thorough hunt #766: proved architecture-analysis manifest relationship export gap; reseeded sponsor warnings/controls key-count and determinism warnings-only candidates.
+2026-09-04 thorough hunt #767: proved sponsor warnings/controls key-count parity and determinism warnings-only manifest drift detection.
+
+- [x] (proven) `DocxArchitectureAnalysisExportService` agent diff omits evidence-ref and warning deltas — **hit 2026-09-04 (#768):** standard architecture-analysis DOCX listed claims/findings/controls only while markdown and E2E DOCX include evidence refs and warnings; fixed with markdown parity sections; regression in `GenerateDocxAsync_agent_result_diff_includes_evidence_refs_and_warnings`.
+- [ ] (candidate) `GraphGcpInventoryReconciliationAnalyzer.CollectInventoryResourceIds` reads only Cloud Asset `name` while graph side indexes `gcpResourceId` — inventory rows with `gcpResourceId` but no `name` are ignored; may false-report graph-only resources if upstream dumps omit `name`.
+- [ ] (candidate) `ComparisonsApplicationService.IsComparisonRecordInScopeAsync` OR-gates left/right run and export anchors — artifact replay may serve stored comparison when only one endpoint is in scope; needs integration repro before promotion.
+- [ ] (candidate) `ConsultingDocxSupplementalSections` Appendix C manifest diff lists services/controls counts only — datastore and relationship deltas omitted from consulting appendix summary.
+
+2026-09-04 seed hunt #768: reseeded GCP inventory key asymmetry, comparison scope OR-gate, and consulting appendix manifest-count candidates; proved architecture-analysis DOCX agent evidence-ref/warning diff gap promoted from seed read.
 
 2026-09-04 seed hunt #764: proved PDF/DOCX compare-quality-delta fallback and agent evidence-ref export parity; reseeded manifest-warnings export body and interpretation materiality candidates.
 

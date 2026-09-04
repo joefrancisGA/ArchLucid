@@ -178,6 +178,10 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
             builder.AddDiffSection("Removed Findings", delta.RemovedFindings);
             builder.AddDiffSection("Added Required Controls", delta.AddedRequiredControls);
             builder.AddDiffSection("Removed Required Controls", delta.RemovedRequiredControls);
+            builder.AddDiffSection("Added Warnings", delta.AddedWarnings);
+            builder.AddDiffSection("Removed Warnings", delta.RemovedWarnings);
+            builder.AddDiffSection("Added Evidence References", delta.AddedEvidenceRefs);
+            builder.AddDiffSection("Removed Evidence References", delta.RemovedEvidenceRefs);
             builder.AddSpacer();
         }
 
