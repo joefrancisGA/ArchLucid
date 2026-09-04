@@ -3348,11 +3348,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 201
-- **bugs-found:** 423
+- **hunts:** 202
+- **bugs-found:** 424
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — governance optional comment whitespace no-op
+- **last-bug:** 2026-09-04 — diagram v2 whitespace query silent default
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4338,6 +4338,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-04 seed hunt #783 (hit): proved create recurrence whitespace silent default on name and cronExpression.
 
 - [x] (proven) `GovernanceController.Approve` / `Reject` / `BatchReviewApprovalRequests` / `SubmitApprovalRequest` / `Promote` / `GovernanceApprovalRequestsHttpMapper.ValidateOptionalGovernanceComment` — whitespace-only optional `reviewComment`, `requestComment`, or `notes` passed HTTP validation and persisted as whitespace text — **hit 2026-09-04 (#784):** reject empty/whitespace optional governance comments when explicitly provided (disposition optional-field #781 parity); regressions in `ValidateReviewComment_rejects_whitespace_only_comment`, `ValidateOptionalGovernanceComment_rejects_whitespace_only_notes`, `ValidateBatchReviewRequest_rejects_whitespace_only_review_comment`, and `Approve_returns_bad_request_when_review_comment_is_whitespace_only`.
+
+2026-09-04 seed hunt #784 (hit): proved governance optional comment whitespace silent no-op on approve/reject/batch/submit/promote paths.
+
+- [x] (proven) `ManifestsController.GetManifestDiagramV2` / `ManifestDiagramQueryValidation` — whitespace-only `layout`, `relationshipLabels`, or `groupBy` query values passed HTTP validation and silently defaulted via `ManifestDiagramService.Normalize*` instead of HTTP 400 — **hit 2026-09-04 (#785):** reject explicit empty/whitespace query values while preserving omitted-null defaults (unknown-value #756 parity); regressions in `ValidateLayout_rejects_whitespace_only_layout`, `ValidateRelationshipLabels_rejects_whitespace_only_value`, `ValidateGroupBy_rejects_whitespace_only_value`, and `GetManifestDiagramV2_returns_bad_request_for_whitespace_only_layout`.
+
+2026-09-04 seed hunt #785 (hit): proved diagram v2 whitespace query silent default on layout, relationshipLabels, and groupBy.
 
 2026-09-04 seed hunt #784 (hit): proved governance optional comment whitespace silent no-op on approve/reject/batch/submit/promote paths.
 
