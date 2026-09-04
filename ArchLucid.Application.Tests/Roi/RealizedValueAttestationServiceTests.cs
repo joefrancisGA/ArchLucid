@@ -168,4 +168,20 @@ public sealed class RealizedValueAttestationServiceTests
         await act.Should().ThrowAsync<ArgumentException>()
             .WithMessage($"*at most {RealizedValueAttestationUpsertValidation.NoteMaxLength}*");
     }
+
+    [Fact]
+    public async Task SaveAttestationAsync_throws_when_note_is_whitespace_only()
+    {
+        RealizedValueAttestationService sut = new(Mock.Of<ITenantSettingsRepository>());
+
+        UpsertRealizedValueAttestationRequest request = new()
+        {
+            AttestedReviewerTimeSavedNote = "   ",
+        };
+
+        Func<Task> act = () => sut.SaveAttestationAsync(TenantId, WorkspaceId, request, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*cannot be empty or whitespace*");
+    }
 }

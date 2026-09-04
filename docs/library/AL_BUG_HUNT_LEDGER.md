@@ -3348,11 +3348,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 194
-- **bugs-found:** 408
+- **hunts:** 196
+- **bugs-found:** 412
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — renew whitespace overwrite; merge-conflict action omission
+- **last-bug:** 2026-09-04 — recurrence update whitespace no-op; create waiver evidenceRef ordering
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4306,11 +4306,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `GovernanceStickinessHttpMapper.ValidateRenewRiskException` / `RiskExceptionValidation.ValidateRenew` — whitespace-only optional `rationale` / `evidenceRef` on renew passed validation and overwrote stored waiver text via `COALESCE(@Rationale, Rationale)` — **hit 2026-09-04 (#777):** reject empty/whitespace optional renew fields before persist (create-rationale #676 parity); regressions in `ValidateRenewRiskException_rejects_whitespace_only_rationale`, `ValidateRenewRiskException_rejects_whitespace_only_evidence_ref`, `ValidateRenew_rejects_whitespace_only_rationale`, and `ValidateRenew_rejects_whitespace_only_evidence_ref`.
 - [x] (proven) `GovernanceStickinessController.ResolveFindingMergeConflict` / `ResolveFindingMergeConflictRequest.Action` — omitted `action` in JSON body bound to default `AcceptPrimary` and resolved without explicit operator choice — **hit 2026-09-04 (#777):** `required FindingMergeConflictResolutionAction Action` rejects omitted property at deserialization (checklist `stepIndex` omission parity); regression in `ResolveFindingMergeConflictRequest_deserialization_rejects_missing_action`.
-- [ ] (candidate) `GovernanceController.Promote` / `CreateGovernancePromotionRequest` — omitted `sourceEnvironment` / `targetEnvironment` bind to initializer defaults `dev`/`test` instead of HTTP 400 — verify intentional quick-promote defaults before hunt-ready promotion.
-- [ ] (candidate) `GovernanceController.Activate` / `CreateGovernanceActivationRequest` — omitted `environment` binds to initializer default `dev` instead of HTTP 400 — verify intentional activation default before hunt-ready promotion.
-- [ ] (candidate) `TenantExecDigestPreferencesController.PostExecDigestPreferences` / `TenantSponsorDigestPreferencesController.PostSponsorDigestPreferences` — disable-only POST (`emailEnabled: false` without `recipientEmails`) may wipe stored recipients on full upsert — verify merge-on-write vs intentional disable semantics before hunt-ready promotion.
+- [x] (invalid) `GovernanceController.Promote` / `CreateGovernancePromotionRequest` — omitted `sourceEnvironment` / `targetEnvironment` bind to initializer defaults `dev`/`test` instead of HTTP 400 — **cheap-disproof 2026-09-04 (#778):** property-initializer defaults match canonical dev→test workflow (submit-approval sibling); validator `.NotEmpty()` accepts defaults; regression in `Validate_accepts_property_initializer_defaults_for_standard_dev_to_test_promotion`.
+- [x] (invalid) `GovernanceController.Activate` / `CreateGovernanceActivationRequest` — omitted `environment` binds to initializer default `dev` instead of HTTP 400 — **cheap-disproof 2026-09-04 (#778):** property-initializer default matches standard dev activation path; regression in `Validate_accepts_property_initializer_default_environment_for_standard_dev_activation`.
+- [x] (proven) `TenantExecDigestPreferencesController.PostExecDigestPreferences` / `TenantSponsorDigestPreferencesController.PostSponsorDigestPreferences` — disable-only POST (`emailEnabled: false` without `recipientEmails`) wiped stored recipients on full upsert while `TryDisableEmailAsync` preserved them — **hit 2026-09-04 (#778):** merge omitted `recipientEmails` from existing preferences before upsert (unsubscribe/disable parity); regressions in `PostExecDigestPreferences_preserves_recipients_when_disable_only_body_omits_recipient_emails` and `PostSponsorDigestPreferences_preserves_recipients_when_disable_only_body_omits_recipient_emails`.
+- [x] (proven) `GovernanceStickinessController.UpsertRealizedValueAttestation` / `RealizedValueAttestationUpsertValidation` — whitespace-only `attestedReviewerTimeSavedNote` / `attestedRevenueOrRetentionImpact` passed HTTP validation and cleared stored notes via `NormalizeOptionalText` — **hit 2026-09-04 (#779):** reject empty/whitespace optional attestation notes before persist (renew-rationale #777 parity); regressions in `ValidateUpsertRealizedValueAttestation_rejects_whitespace_reviewer_note` and `SaveAttestationAsync_throws_when_note_is_whitespace_only`.
+- [x] (proven) `GovernanceStickinessController.CreateRiskException` / `GovernanceStickinessHttpMapper.ValidateCreateRiskException` — omitted `evidenceRef` passed HTTP validation and returned HTTP 404 for ghost tenant instead of 400 — **hit 2026-09-04 (#779):** require `evidenceRef` before tenant preflight (disposition enum #729 ordering parity); regressions in `ValidateCreateRiskException_requires_evidence_ref` and `CreateRiskException_returns_bad_request_when_evidence_ref_missing_and_tenant_missing`.
+- [x] (proven) `GovernanceStickinessController.UpdateRecurrenceSchedule` / `GovernanceStickinessHttpMapper.ValidateUpdateRecurrenceSchedule` — whitespace-only optional `name` / `cronExpression` passed HTTP validation and facade ignored the fields (silent no-op) — **hit 2026-09-04 (#779):** reject empty/whitespace optional update fields before persist (renew-rationale #777 parity); regressions in `ValidateUpdateRecurrenceSchedule_rejects_whitespace_only_name` and `ValidateUpdateRecurrenceSchedule_rejects_whitespace_only_cron_expression`.
 
-2026-09-04 seed hunt #777: proved renew whitespace overwrite and merge-conflict action omission; reseeded promotion/activation environment omission and digest disable recipient-wipe candidates.
+2026-09-04 seed hunt #779 (hit): proved attestation whitespace wipe, create-waiver evidenceRef ordering, and recurrence update whitespace no-op.
+
+2026-09-04 thorough hunt #778: proved digest disable-only recipient wipe; cheap-disproved promotion/activation environment omission candidates.
 
 2026-09-04 seed hunt #773: reseeded cost-settings rate-field omission and baseline whitespace source-note candidates; proved homepage `selectedRunId` omission clearing featured sample promoted from seed read.
 

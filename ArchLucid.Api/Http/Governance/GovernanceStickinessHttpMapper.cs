@@ -76,6 +76,9 @@ public static class GovernanceStickinessHttpMapper
             }
         }
 
+        if (string.IsNullOrWhiteSpace(request.EvidenceRef))
+            return new GovernanceHttpValidation("evidenceRef is required.", ProblemTypes.ValidationFailed);
+
         if (string.IsNullOrWhiteSpace(request.Rationale))
             return new GovernanceHttpValidation("rationale is required.", ProblemTypes.ValidationFailed);
 
@@ -203,6 +206,13 @@ public static class GovernanceStickinessHttpMapper
 
         if (request.Name is not null)
         {
+            if (string.IsNullOrWhiteSpace(request.Name))
+            {
+                return new GovernanceHttpValidation(
+                    "name cannot be empty or whitespace.",
+                    ProblemTypes.ValidationFailed);
+            }
+
             string name = request.Name.Trim();
 
             if (name.Length > RecurrenceScheduleValidation.NameMaxLength)
@@ -215,6 +225,13 @@ public static class GovernanceStickinessHttpMapper
 
         if (request.CronExpression is not null)
         {
+            if (string.IsNullOrWhiteSpace(request.CronExpression))
+            {
+                return new GovernanceHttpValidation(
+                    "cronExpression cannot be empty or whitespace.",
+                    ProblemTypes.ValidationFailed);
+            }
+
             string cronExpression = request.CronExpression.Trim();
 
             if (cronExpression.Length > RecurrenceScheduleValidation.CronExpressionMaxLength)
@@ -423,8 +440,15 @@ public static class GovernanceStickinessHttpMapper
 
     private static GovernanceHttpValidation? ValidateOptionalAttestationNoteLength(string? value, string fieldName)
     {
-        if (string.IsNullOrWhiteSpace(value))
+        if (value is null)
             return null;
+
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return new GovernanceHttpValidation(
+                $"{fieldName} cannot be empty or whitespace.",
+                ProblemTypes.ValidationFailed);
+        }
 
         if (value.Trim().Length > RealizedValueAttestationUpsertValidation.NoteMaxLength)
         {

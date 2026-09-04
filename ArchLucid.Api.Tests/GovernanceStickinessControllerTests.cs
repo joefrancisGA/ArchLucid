@@ -605,8 +605,10 @@ public sealed class GovernanceStickinessControllerTests
             new CreateRiskExceptionRequest
             {
                 FindingId = "finding-1",
+                RunId = Guid.NewGuid(),
                 OwnerUserId = "owner@test",
                 Rationale = "accepted risk",
+                EvidenceRef = "artifact://evidence/1",
                 ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
             },
             CancellationToken.None);
@@ -1844,6 +1846,7 @@ public sealed class GovernanceStickinessControllerTests
             RunId = Guid.NewGuid(),
             OwnerUserId = new string('o', RiskExceptionValidation.OwnerUserIdMaxLength + 1),
             Rationale = "accepted risk rationale",
+            EvidenceRef = "artifact://evidence/1",
             ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
         };
 
@@ -1871,6 +1874,7 @@ public sealed class GovernanceStickinessControllerTests
             RunId = Guid.NewGuid(),
             OwnerUserId = "owner@contoso.com",
             Rationale = new string('r', FindingDispositionValidation.MaximumRationaleLength + 1),
+            EvidenceRef = "artifact://evidence/1",
             ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
         };
 
@@ -1941,6 +1945,35 @@ public sealed class GovernanceStickinessControllerTests
             RunId = Guid.NewGuid(),
             OwnerUserId = "owner@contoso.com",
             Rationale = new string('r', FindingDispositionValidation.MaximumRationaleLength + 1),
+            EvidenceRef = "artifact://evidence/1",
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        IActionResult action = await controller.CreateRiskException(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        findingInspect.VerifyNoOtherCalls();
+        riskExceptions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task CreateRiskException_returns_bad_request_when_evidence_ref_missing_and_tenant_missing()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new(MockBehavior.Strict);
+        Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            findingInspect: findingInspect,
+            riskExceptions: riskExceptions,
+            tenantRepository: TenantMissingRepository());
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = "finding-1",
+            RunId = Guid.NewGuid(),
+            OwnerUserId = "owner@contoso.com",
+            Rationale = "accepted risk rationale",
             ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
         };
 
@@ -2420,6 +2453,7 @@ public sealed class GovernanceStickinessControllerTests
             RunId = foreignRunId,
             OwnerUserId = "owner",
             Rationale = "accepted risk",
+            EvidenceRef = "artifact://evidence/1",
             ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
         };
 
@@ -2464,6 +2498,7 @@ public sealed class GovernanceStickinessControllerTests
             ManifestId = foreignManifestId,
             OwnerUserId = "owner",
             Rationale = "accepted risk",
+            EvidenceRef = "artifact://evidence/1",
             ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
         };
 
