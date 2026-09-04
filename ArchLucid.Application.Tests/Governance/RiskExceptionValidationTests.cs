@@ -98,6 +98,27 @@ public sealed class RiskExceptionValidationTests
     }
 
     [Fact]
+    public void Validate_rejects_rationale_shorter_than_minimum_length()
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = "finding-1",
+            OwnerUserId = "owner-1",
+            Rationale = "too short",
+            EvidenceRef = "artifact://evidence/1",
+            ExpiresAtUtc = RiskExceptionValidation.DefaultExpiresAtUtc(now),
+        };
+
+        Action act = () => RiskExceptionValidation.Validate(request, now);
+
+        act.Should()
+            .Throw<ArgumentException>()
+            .WithParameterName("request")
+            .WithMessage("*at least 10*");
+    }
+
+    [Fact]
     public void ValidateRenew_rejects_past_expiration()
     {
         DateTimeOffset now = DateTimeOffset.UtcNow;
