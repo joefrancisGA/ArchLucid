@@ -221,7 +221,7 @@ archlucid-ui/src/components/TeamExpansionNudge.tsx
 archlucid-ui/src/components/WelcomeBanner.tsx
 archlucid-ui/src/components/advisory/use-advisory-schedules-page-list.ts
 archlucid-ui/src/components/alerts/use-alert-routing-list.ts
-archlucid-ui/src/components/alerts/use-alert-rules-content-list.ts
+archlucid-ui/src/components/alerts/use-alert-rules-content-list.tsx
 archlucid-ui/src/components/alerts/use-alert-rules-content-state.tsx
 archlucid-ui/src/components/alerts/use-alerts-inbox-controller.ts
 archlucid-ui/src/components/architecture-intelligence/ArchitectureIntelligenceRunSummary.tsx
