@@ -11,6 +11,7 @@ import { ArchitectureScorecardBreadcrumb } from "@/components/insights/Architect
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { ReportSurfaceCanonicalPointerStrip } from "@/components/reports/ReportSurfaceCanonicalPointerStrip";
 import { ScorecardRoiVocabularyRail } from "@/components/ScorecardRoiVocabularyRail";
 import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
@@ -264,6 +265,8 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
               )
             }
           />
+
+          <ReportSurfaceCanonicalPointerStrip surfaceId="architecture-scorecard" />
 
           <ArchitectureScorecardBuyerChrome />
 

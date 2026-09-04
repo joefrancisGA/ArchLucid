@@ -1,5 +1,8 @@
-import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
-import type { FeasibilityVerdictKind } from "@/types/feasibility-verdict";
+import {
+  buildTransparencyTrailExportSection,
+  type TransparencyTrailExportSection,
+} from "@/lib/feasibility/export-transparency-trail-section";
+import type { FeasibilityVerdictKind, ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
 export const DECISION_RECEIPT_SCHEMA_VERSION = "archlucid.decision-receipt.v1";
 
@@ -33,6 +36,7 @@ export type DecisionReceiptDocument = {
     systemName?: string;
   };
   verdict: ManifestFeasibilityVerdict;
+  transparencyTrail: TransparencyTrailExportSection | null;
   costStory: {
     label: typeof DECISION_RECEIPT_COST_ESTIMATE_LABEL;
     sessionCostUsdEstimate: number;
@@ -65,6 +69,7 @@ export function buildDecisionReceiptDocument(context: DecisionReceiptContext): D
           }
         : undefined,
     verdict: context.verdict,
+    transparencyTrail: buildTransparencyTrailExportSection(context.verdict.transparencyTrail),
     costStory: {
       label: DECISION_RECEIPT_COST_ESTIMATE_LABEL,
       sessionCostUsdEstimate: 1,

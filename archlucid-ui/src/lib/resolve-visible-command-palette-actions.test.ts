@@ -14,6 +14,17 @@ describe("resolve-visible-command-palette-actions (PT-06)", () => {
     expect(guidedActions.some((action) => action.id === "action-finish-setup")).toBe(true);
   });
 
+  it("hides Guided first-session Operate palette rows until first commit (CD-08)", () => {
+    const lockedGuided = resolveVisibleCommandPaletteHrefActions({
+      workingMode: false,
+      hasCommittedArchitectureReview: false,
+      showFullNav: false,
+    });
+
+    expect(lockedGuided.some((action) => action.href === "/insights/sponsor-report")).toBe(false);
+    expect(lockedGuided.some((action) => action.href === "/architecture/reviews")).toBe(true);
+  });
+
   it("maps Working create action to a single New review draft-editor href (WA-02)", () => {
     const workingActions = resolveVisibleCommandPaletteHrefActions(true);
     const guidedActions = resolveVisibleCommandPaletteHrefActions(false);

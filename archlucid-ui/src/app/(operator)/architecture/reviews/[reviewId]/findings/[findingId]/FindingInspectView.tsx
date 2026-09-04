@@ -33,7 +33,7 @@ import {
 } from "@/lib/findings/finding-governance-action-copy";
 import { findingRecommendedActionParagraph } from "./_sections/finding-detail-route-display";
 import { findingIdsAlignForInspectRoute } from "@/lib/load-finding-inspect-for-route";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import {
   buildFindingPolicyEvidenceCitationsFromInspect,
   resolvePolicyTraceExcerptFromInspect,
@@ -94,7 +94,7 @@ export function FindingInspectView({
   statedConstraintContext = null,
   findingsQueueRunId = null,
 }: FindingInspectViewProps) {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = resolveProductionEvalChromeFromStorage();
   const findingsQueueNavHref = resolveFindingsQueueNavHref(findingsQueueRunId);
 
   if (failure || !payload) {
