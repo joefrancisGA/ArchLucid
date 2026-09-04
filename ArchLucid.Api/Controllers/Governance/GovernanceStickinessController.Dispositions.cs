@@ -37,6 +37,9 @@ public sealed partial class GovernanceStickinessController
         if (bodyProblem is not null)
             return bodyProblem;
 
+        RecordFindingDispositionRequest body = request
+            ?? throw new InvalidOperationException("Disposition request body was required.");
+
         IActionResult? findingIdProblem =
             GovernanceStickinessControllerCore.ValidateFindingId(findingId, out findingId)
                 .ToBadRequestProblemOrNull(this);
@@ -51,9 +54,9 @@ public sealed partial class GovernanceStickinessController
 
         IActionResult? runIdProblem = null;
 
-        if (request is not null && request.RunId.HasValue)
+        if (body.RunId.HasValue)
         {
-            runIdProblem = GovernanceStickinessControllerCore.ValidateRunId(request.RunId)
+            runIdProblem = GovernanceStickinessControllerCore.ValidateRunId(body.RunId)
                 .ToBadRequestProblemOrNull(this);
         }
 
@@ -63,12 +66,12 @@ public sealed partial class GovernanceStickinessController
         RecordFindingDispositionRequest normalized = new()
         {
             FindingId = findingId,
-            RunId = request.RunId,
-            Disposition = request.Disposition,
-            Rationale = request.Rationale,
-            TradeOffAcknowledgment = request.TradeOffAcknowledgment,
-            RevisitDueUtc = request.RevisitDueUtc,
-            EvidenceRequestText = request.EvidenceRequestText,
+            RunId = body.RunId,
+            Disposition = body.Disposition,
+            Rationale = body.Rationale,
+            TradeOffAcknowledgment = body.TradeOffAcknowledgment,
+            RevisitDueUtc = body.RevisitDueUtc,
+            EvidenceRequestText = body.EvidenceRequestText,
         };
 
         try

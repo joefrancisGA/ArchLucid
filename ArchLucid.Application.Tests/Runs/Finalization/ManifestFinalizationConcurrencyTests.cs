@@ -6,6 +6,7 @@ using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Decisioning.DecisionTraces;
 using PersistenceDecisionTraceDto = ArchLucid.Contracts.Persistence.DecisionTraces.DecisionTraceDto;
 using ArchLucid.Contracts.Manifest;
@@ -286,6 +287,11 @@ public sealed class ManifestFinalizationConcurrencyTests
                 Findings = [],
             },
             PreloadedScopePolicyPackAssignments = Array.Empty<PolicyPackAssignment>(),
+            PreloadedArchitectureRequest = new ArchitectureRequest
+            {
+                SystemName = "Sys",
+                CloudProvider = CloudProvider.Azure,
+            },
         };
     }
 }
