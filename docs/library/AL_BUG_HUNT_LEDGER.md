@@ -3901,13 +3901,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
+- **last-hunt:** 2026-09-04
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -3917,6 +3917,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Coordination lease is not released and blocks all replicas — lease acquire/release is in SQL `DequeuePendingAsync`, not in `RecoverableOutboxProcessorBase` shell
 - [x] (proven) `CosmosGraphSnapshotOutboxProcessor.VerifyOptions` mutates the bound `IOptions` instance (`configured.LeaseDurationSeconds = 60`) instead of returning a normalized copy like sibling processors; first drain permanently changes the DI-bound lease for later readers — fixed 2026-08-23 (`CosmosGraphSnapshotOutboxProcessorTests.ProcessPendingBatchAsync_clamps_short_lease_without_mutating_bound_options`)
 - [x] (valid-no-repro) `PostCommitProjectionOutboxProcessor` dispatches `IacStubGeneration` without ambient scope so `FindingIacStubGenerator` reads dev-default tenant — ambient is pushed in `ProcessEntryAsync` before `DispatchWorkTypeAsync`; no repro on current code
+- [ ] (candidate) `RetrievalIndexingOutboxProcessor` marks outbox processed when `GetRunDetailForRetrievalIndexingAsync` returns null or incomplete snapshots — permanent skip if worker drains before commit visibility on in-memory UoW (`AuthorityCommittedPipelineFinalizer` enqueues before `CommitAsync` when `SupportsExternalTransaction` is false); SQL transactional enqueue path likely safe; needs repro distinguishing race vs deleted run
+- [ ] (candidate) `PostCommitProjectionOutboxProcessor` marks processed when `ProvenanceSnapshotMaterialization` detail exists but `TryMaterializeSnapshotAsync` no-ops on incomplete manifest/graph/trace — silent skip without warning log (retrieval logs skip); needs repro on committed run missing provenance snapshot after drain
+- [x] (invalid) `RecoverableOutboxProcessorBase` parallel batch leaks `AmbientScopeContext` across entries — `BoundedBatchParallelism.ForEachAsync` isolates `AsyncLocal` per task; each `ProcessEntryAsync` pushes and disposes its own ambient scope (`RetrievalIndexingOutboxProcessorCorrelationTests.ProcessPendingBatchAsync_pushes_ambient_scope_before_indexing`)
+- [x] (valid-no-repro) `CosmosGraphSnapshotOutboxProcessor.VerifyOptions` omits `OutboxProcessorOptionsVerifier` upper lease clamp — `DapperCosmosGraphSnapshotOutboxRepository.DequeuePendingAsync` clamps lease to 60–7200 seconds regardless of processor-passed value
 
 ---
 
