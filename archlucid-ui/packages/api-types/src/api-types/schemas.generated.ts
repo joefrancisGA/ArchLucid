@@ -8512,6 +8512,10 @@ export interface components {
         SubmitAgentResultResponse: {
             resultId?: string;
         };
+        SubmitDraftPostRequest: {
+            /** Format: date-time */
+            expectedUpdatedUtc?: null | string;
+        };
         SubmitDraftResponse: {
             /** Format: uuid */
             draftId?: string;
