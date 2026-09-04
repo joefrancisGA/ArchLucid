@@ -11,7 +11,6 @@ import {
 } from "@/lib/architecture/architecture-creation-init";
 import {
   architectureDraftSpawnedRunId,
-  isArchitectureDraftHandoffAcknowledged,
 } from "@/lib/architecture/architecture-draft-handoff-gate";
 import {
   buildArchitectureDraftRegistryEntry,
@@ -51,12 +50,11 @@ export function useArchitectureDraftWorkspace(options: UseArchitectureDraftWorks
     structuredBrief: emptyArchitectureDraftStructuredBrief(),
   });
   const [actorSet, setActorSet] = useState<ActorSet>(() => architectureCreationDefaultActorSet());
-  const [handoffAcknowledged, setHandoffAcknowledged] = useState(false);
   const [resolvedDraftId, setResolvedDraftId] = useState<string | null>(null);
 
   const loadDraftInFlightRef = useRef<Promise<void> | null>(null);
   const linkedReviewId = architectureDraftSpawnedRunId(draft);
-  const handoffEditorLocked = linkedReviewId !== null && !handoffAcknowledged;
+  const handoffEditorLocked = linkedReviewId !== null;
 
   const applyLoadedDraftToForm = useCallback((loaded: DraftRequestResponse) => {
     const formState = applyArchitectureCreationDraftToFormState(loaded);
@@ -89,7 +87,6 @@ export function useArchitectureDraftWorkspace(options: UseArchitectureDraftWorks
 
         const formState = applyLoadedDraftToForm(loaded);
         options.onDraftHydratedRef?.current?.(loaded, formState);
-        setHandoffAcknowledged(isArchitectureDraftHandoffAcknowledged(options.architectureId));
         upsertArchitectureDraftRegistryEntry(
           buildArchitectureDraftRegistryEntry(loaded, {
             linkedReviewId: architectureDraftSpawnedRunId(loaded),
@@ -141,8 +138,6 @@ export function useArchitectureDraftWorkspace(options: UseArchitectureDraftWorks
     setFields,
     actorSet,
     setActorSet,
-    handoffAcknowledged,
-    setHandoffAcknowledged,
     resolvedDraftId,
     setResolvedDraftId,
     linkedReviewId,

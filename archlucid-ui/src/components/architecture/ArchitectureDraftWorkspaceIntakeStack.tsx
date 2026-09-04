@@ -22,8 +22,6 @@ type ArchitectureDraftWorkspaceIntakeStackProps = Pick<
   | "isDetailDraft"
   | "linkedReviewId"
   | "linkedReviewTitle"
-  | "handoffEditorLocked"
-  | "handleAcknowledgeHandoff"
   | "intakeModeActive"
   | "draft"
   | "effectiveArchitectureId"
@@ -46,8 +44,6 @@ export function ArchitectureDraftWorkspaceIntakeStack(
     isDetailDraft,
     linkedReviewId,
     linkedReviewTitle,
-    handoffEditorLocked,
-    handleAcknowledgeHandoff,
     intakeModeActive,
     draft,
     effectiveArchitectureId,
@@ -73,8 +69,6 @@ export function ArchitectureDraftWorkspaceIntakeStack(
         <ArchitectureDraftHandoffBanner
           linkedReviewId={linkedReviewId}
           linkedReviewTitle={linkedReviewTitle}
-          editorLocked={handoffEditorLocked}
-          onAcknowledgeEditAnyway={handleAcknowledgeHandoff}
         />
       ) : null}
 

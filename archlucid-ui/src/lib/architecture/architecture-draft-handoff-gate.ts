@@ -8,6 +8,7 @@ export const ARCHITECTURE_DRAFT_HANDOFF_BANNER_LEAD =
 export const ARCHITECTURE_DRAFT_HANDOFF_CANONICAL_REVIEW_LABEL =
   "The review is the canonical work surface after handoff.";
 
+/** @deprecated RS-04 removed the post-spawn edit-anyway path; retained for telemetry label compatibility only. */
 export const ARCHITECTURE_DRAFT_HANDOFF_ACKNOWLEDGE_LABEL =
   "Edit draft anyway — changes will not update the review";
 
@@ -38,20 +39,22 @@ export function architectureDraftHasLinkedReview(entry: LinkedReviewProbe | null
   return linkedReviewId.length > 0;
 }
 
+/** RS-04: spawned drafts stay editor-locked; legacy localStorage acks are cleared and ignored. */
 export function isArchitectureDraftHandoffAcknowledged(architectureId: string): boolean {
-  if (typeof window === "undefined") {
-    return false;
-  }
-
   const trimmedArchitectureId = architectureId.trim();
 
   if (trimmedArchitectureId.length === 0) {
     return false;
   }
 
-  return window.localStorage.getItem(`${ACK_STORAGE_PREFIX}${trimmedArchitectureId}`) === "1";
+  if (typeof window !== "undefined") {
+    window.localStorage.removeItem(`${ACK_STORAGE_PREFIX}${trimmedArchitectureId}`);
+  }
+
+  return false;
 }
 
+/** @deprecated RS-04 removed the post-spawn edit-anyway path. */
 export function acknowledgeArchitectureDraftHandoff(architectureId: string, linkedReviewId: string): void {
   const trimmedArchitectureId = architectureId.trim();
   const trimmedLinkedReviewId = linkedReviewId.trim();
@@ -61,10 +64,8 @@ export function acknowledgeArchitectureDraftHandoff(architectureId: string, link
   }
 
   if (typeof window !== "undefined") {
-    window.localStorage.setItem(`${ACK_STORAGE_PREFIX}${trimmedArchitectureId}`, "1");
+    window.localStorage.removeItem(`${ACK_STORAGE_PREFIX}${trimmedArchitectureId}`);
   }
-
-  trackArchitectureDraftHandoffAcknowledged(trimmedArchitectureId, trimmedLinkedReviewId);
 }
 
 export function clearArchitectureDraftHandoffAcknowledgment(architectureId: string): void {
@@ -91,6 +92,7 @@ export function buildArchitectureDraftHandoffBannerTitle(linkedReviewTitle: stri
   return `This draft became review “${title}” — continue editing there.`;
 }
 
+/** @deprecated RS-04 removed the post-spawn edit-anyway path. */
 export function trackArchitectureDraftHandoffAcknowledged(architectureId: string, linkedReviewId: string): void {
   void ensureAppInsights().then((ai) => {
     if (ai === null) {

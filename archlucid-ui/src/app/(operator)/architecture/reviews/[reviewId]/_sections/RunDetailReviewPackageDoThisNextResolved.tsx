@@ -15,7 +15,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ReviewPackageDoThisNextStrip } from "./ReviewPackageDoThisNextStrip";
 import { FinalizeReadinessStrip } from "@/components/reviews/FinalizeReadinessStrip";
-import { FinalizeSkippedMustStrip } from "@/components/reviews/FinalizeSkippedMustStrip";
+import { RunDetailSealDeskCoverageStrip } from "@/components/reviews/RunDetailSealDeskCoverageStrip";
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import type {
   ResolveReviewPackageDoThisNextInput,
@@ -39,6 +39,8 @@ export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackage
   readonly intakeDescription?: string | null;
   readonly intakeSystemName?: string | null;
   readonly realModeFellBackToSimulator?: boolean | null;
+  readonly graphSnapshot?: unknown;
+  readonly analysisStagesComplete?: boolean;
 };
 
 function doThisNextLoadingSkeleton(): React.JSX.Element {
@@ -196,7 +198,13 @@ export function RunDetailReviewPackageDoThisNextResolved(
   return (
     <>
       {!props.hasGoldenManifest ? (
-        <FinalizeSkippedMustStrip transparencyTrail={props.transparencyTrail ?? null} className="mb-3" />
+        <RunDetailSealDeskCoverageStrip
+          runId={props.runId}
+          analysisStagesComplete={props.analysisStagesComplete}
+          graphSnapshot={props.graphSnapshot}
+          transparencyTrail={props.transparencyTrail ?? null}
+          className="mb-3"
+        />
       ) : null}
       <FinalizeReadinessStrip commitBlockedReason={assumptionAwareCommitBlockedReason} />
       <ReviewPackageDoThisNextStrip
