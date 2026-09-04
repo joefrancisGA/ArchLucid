@@ -1752,11 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 8
-- **bugs-found:** 8
+- **hunts:** 9
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — `FindingsMergeAndGateStage` dropped `GetMissingEngineTypeViolations` after pass-3 stage refactor
+- **last-hunt:** 2026-09-04
+- **last-bug:** 2026-09-04 — cross-run diff engines returned zero findings when prior run was bound but revision data was missing
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1775,9 +1775,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `DeclarationPremiseConflictFindingEngine.ResolveApplicableIntentNodes` with PROTECTS/APPLIES_TO edge weight just below `GraphEdgeDecisioningThresholds.MinWeightForSemanticLink` — sub-threshold fallback at `minWeightInclusive: 0` keeps narrow applicability; `AnalyzeAsync_emits_error_when_protects_edge_weight_is_just_below_semantic_link_threshold` confirms Error severity.
 - [x] (valid-no-repro) `PortfolioRecurrenceFindingEngine.ResolveCurrentScopeIdentities` when the current system's persisted findings snapshot is empty on first pass — `IPortfolioRecurrenceCurrentReviewIdentitySource` plus `AddInFlightIdentitiesForSystem` merge in-flight identities; `AnalyzeAsync_when_current_snapshot_missing_uses_in_flight_identities` confirms recurrence emission.
 - [x] (proven) `FindingsMergeAndGateStage.ExecuteAsync` omitted `PolicyPackCategoryCoverageValidator.GetMissingEngineTypeViolations` — **hit 2026-09-03 (#577):** pass-3 stage refactor wired category coverage only; `RequiredEngineTypes` from pinned packs never produced `policy-pack-coverage` engine failures; fixed in merge stage; regression in `FindingsMergeAndGateStageTests.ExecuteAsync_adds_engine_failure_when_required_engine_type_did_not_succeed`; architecture guard retargeted to merge stage
-- [ ] (candidate) `RequirementCrossRunDiffFindingEngine` / `TopologyCrossRunDiffFindingEngine` with `PriorRunId` set but no prior graph snapshot id and no context prior-name properties — analyzers return empty prior lists and emit zero findings instead of fail-closed incomplete signal
-- [ ] (candidate) `DecisionRuleCriteriaEvaluator.TryEvaluate` value mismatch on present field paths — criteria value differs from finding payload but `missingContextFieldPaths` stays empty so `RuleBasedDecisionEngine` emits no audit warning
-- [ ] (candidate) `PolicyPackCategoryCoverageValidator.GetMissingCategoryViolations` engine-type substring heuristic (`engineType.Contains("security")`) — successful non-Security engine whose type contains `security` satisfies category coverage without a Security finding
+- [x] (proven) `RequirementCrossRunDiffFindingEngine` / `TopologyCrossRunDiffFindingEngine` with `PriorRunId` set but no prior graph snapshot id and no context prior-name properties — **hit 2026-09-04 (#712):** analyzers returned zero findings instead of failing closed; added `CrossRunDiffFindingPriorGuard.EnsurePriorRevisionResolvableOrThrow`; regression `AnalyzeAsync_when_prior_run_bound_without_revision_data_throws`
+- [x] (valid-no-repro) `DecisionRuleCriteriaEvaluator.TryEvaluate` value mismatch on present field paths — criteria act as a match filter; missing fields warn, value mismatch silently skips the rule by design; regression `TryEvaluate_when_criteria_value_mismatches_present_field_returns_false_without_missing_paths`
+- [x] (valid-no-repro) `PolicyPackCategoryCoverageValidator.GetMissingCategoryViolations` engine-type substring heuristic — built-in engines with `security` in `EngineType` are Security-category engines; successful invocation satisfies coverage intentionally; regression `GetMissingCategoryViolations_treats_successful_security_engine_type_as_security_coverage`
+
+2026-09-04 thorough hunt #712: proved cross-run prior-revision fail-open gap; cheap-disproof on criteria value-mismatch warnings and security substring heuristic.
 
 ---
 
@@ -2907,11 +2909,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 6
-- **bugs-found:** 6
+- **hunts:** 7
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — provenance graph influence edge omitted when finding RelatedNodeIds differed only by case from graph NodeId
+- **last-hunt:** 2026-09-04
+- **last-bug:** 2026-09-04 — `KnowledgeGraphService` truncation dropped edges when endpoint `NodeId` casing differed from kept nodes
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -2926,8 +2928,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) WAF alignment flag omitted when associated-findings property keys use PascalCase — **hit 2026-08-21:** `GraphMaterializationStages` read `associatedFindings` / `findings` from raw `CanonicalObject.Properties` with case-sensitive `TryGetValue` instead of the normalized node bag via `GraphNodePropertyReader`
 - [x] (proven) Topology sensitivity misclassified when property keys use PascalCase on a case-sensitive bag — **hit 2026-08-23:** `TopologySensitivityClassifier` used case-sensitive `TryGetValue` for `topologySensitivity`, `category`, `publicNetworkAccess`, and `resourceType` instead of `GraphNodePropertyReader`
 - [x] (proven) Graph→finding provenance edge omitted when `RelatedNodeIds` casing differs from graph `NodeId` — **hit 2026-09-02:** `ProvenanceBuilder` used ordinal `graphNodeIds` and `nodeMap` keys, so `InfluencedByGraphNode` was skipped when findings referenced the same node with different casing; fixed with `StringComparer.OrdinalIgnoreCase` (`Build_links_graph_influence_when_related_node_id_differs_only_by_case`)
+- [x] (proven) `KnowledgeGraphService.BuildSnapshotAsync` truncation dropped valid edges when endpoint casing differed from kept node ids — **hit 2026-09-04 (#713):** `kept` used `StringComparer.Ordinal` while `GraphValidator` and inferrers treat node ids case-insensitively; edges with `FromNodeId`/`ToNodeId` casing variants were removed during `MaxNodes` truncation; fixed with `OrdinalIgnoreCase` on `kept`; regression `BuildSnapshotAsync_TruncationRetainsEdgesWhenEndpointCasingDiffersFromKeptNodeId`
+- [x] (valid-no-repro) `ContributingDecisionIds.Distinct(StringComparer.Ordinal)` vs manifest decision id casing — `nodeMap` is `OrdinalIgnoreCase` so `ContributedToArtifact` edges still resolve; casing-only duplicates may emit duplicate edges (low severity parity gap with `AppliedRuleIds` dedup)
 
 2026-09-02 seed hunt #421 (hit): promoted graph→finding case-mismatch from `ProvenanceBuilder` vs `DefaultGraphEdgeInferer`/`GraphValidator` ordinal-ignore-case parity; proved with failing repro.
+
+2026-09-04 seed hunt #713 (hit): proved truncation edge filter case mismatch; cheap-disproof on `ContributingDecisionIds` casing (duplicate edges only).
 
 ---
 

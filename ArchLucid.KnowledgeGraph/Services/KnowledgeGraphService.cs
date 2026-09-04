@@ -36,7 +36,7 @@ public class KnowledgeGraphService(
         if (limits.MaxNodes > 0 && buildResult.Nodes.Count > limits.MaxNodes)
         {
             nodes = buildResult.Nodes.Take(limits.MaxNodes).ToList();
-            HashSet<string> kept = nodes.Select(static n => n.NodeId).ToHashSet(StringComparer.Ordinal);
+            HashSet<string> kept = nodes.Select(static n => n.NodeId).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
             edges = buildResult.Edges
                 .Where(e => kept.Contains(e.FromNodeId) && kept.Contains(e.ToNodeId))
