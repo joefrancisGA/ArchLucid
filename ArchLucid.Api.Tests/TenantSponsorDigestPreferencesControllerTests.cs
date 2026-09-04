@@ -268,6 +268,56 @@ public sealed class TenantSponsorDigestPreferencesControllerTests
     }
 
     [Fact]
+    public async Task PostSponsorDigestPreferences_returns_bad_request_when_recipient_emails_are_whitespace_only()
+    {
+        SponsorDigestPreferencesResponse existing = new()
+        {
+            TenantId = Scope.TenantId,
+            IsConfigured = true,
+            EmailEnabled = true,
+            RecipientEmails = ["sponsor@contoso.test"],
+            IanaTimeZoneId = "UTC",
+            DayOfWeek = 1,
+            HourOfDay = 8,
+            UpdatedUtc = DateTimeOffset.Parse("2026-06-01T08:00:00Z"),
+        };
+
+        Mock<ITenantSponsorDigestPreferencesRepository> repository = new();
+        repository
+            .Setup(r => r.GetByTenantAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantSponsorDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            repository.Object,
+            Mock.Of<IAuditService>());
+
+        SponsorDigestPreferencesUpsertRequest body = new()
+        {
+            EmailEnabled = false,
+            RecipientEmails = ["   ", "\t"],
+        };
+
+        IActionResult action = await controller.PostSponsorDigestPreferences(body, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        repository.Verify(
+            r => r.UpsertAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<bool>(),
+                It.IsAny<IReadOnlyList<string>>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task PostSponsorDigestPreferences_returns_bad_request_when_email_enabled_without_recipients()
     {
         Mock<IScopeContextProvider> scopeProvider = new();
