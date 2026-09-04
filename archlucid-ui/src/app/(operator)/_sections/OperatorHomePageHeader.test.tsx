@@ -64,4 +64,15 @@ describe("OperatorHomePageHeader", () => {
     expect(screen.queryByTestId("operator-home-page-subtitle")).toBeNull();
     expect(screen.queryByText(BUYER_OPERATOR_HOME_PAGE_SUBTITLE)).toBeNull();
   });
+
+  it("uses working-desk subtitle copy in Working mode", () => {
+    render(<OperatorHomePageHeader subtitle={operatorHomePageSubtitle(false, true)} />);
+
+    expect(screen.getByTestId("operator-home-page-subtitle")).toHaveTextContent(
+      operatorHomePageSubtitle(false, true),
+    );
+    expect(screen.getByTestId("operator-home-page-subtitle")).not.toHaveTextContent(
+      operatorHomePageSubtitle(false),
+    );
+  });
 });

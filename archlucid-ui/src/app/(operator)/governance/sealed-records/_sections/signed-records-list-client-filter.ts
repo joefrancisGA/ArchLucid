@@ -6,7 +6,38 @@ import type { SignedRecordsListRow } from "./signed-records-list-row";
 function rowMatchesDateRange(
   row: SignedRecordsListRow,
   dateRangePreset: SignedRecordsListDateRangePreset | null,
+  customFromUtc: string,
+  customToUtc: string,
 ): boolean {
+  const from = customFromUtc.trim();
+  const to = customToUtc.trim();
+
+  if (from.length > 0 || to.length > 0) {
+    const committedMs = Date.parse(row.committedUtc);
+
+    if (Number.isNaN(committedMs)) {
+      return false;
+    }
+
+    if (from.length > 0) {
+      const fromMs = Date.parse(`${from}T00:00:00.000Z`);
+
+      if (!Number.isNaN(fromMs) && committedMs < fromMs) {
+        return false;
+      }
+    }
+
+    if (to.length > 0) {
+      const toMs = Date.parse(`${to}T23:59:59.999Z`);
+
+      if (!Number.isNaN(toMs) && committedMs > toMs) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   if (dateRangePreset === null) {
     return true;
   }
@@ -58,6 +89,8 @@ export function filterSignedRecordsListRows(
   integrityFilter: SignedRecordsListIntegrityFilter,
   scopedRunId: string | null = null,
   dateRangePreset: SignedRecordsListDateRangePreset | null = null,
+  customFromUtc: string = "",
+  customToUtc: string = "",
 ): SignedRecordsListRow[] {
   const normalizedQuery = searchQuery.trim().toLowerCase();
   const scopedTrim = scopedRunId?.trim() ?? "";
@@ -71,7 +104,7 @@ export function filterSignedRecordsListRows(
       return false;
     }
 
-    if (!rowMatchesDateRange(row, dateRangePreset)) {
+    if (!rowMatchesDateRange(row, dateRangePreset, customFromUtc, customToUtc)) {
       return false;
     }
 

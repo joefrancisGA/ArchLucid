@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, type SetStateAction } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useWorkspaceSystemNameAvailability } from "@/hooks/use-workspace-system-name-availability";
@@ -18,6 +18,11 @@ import { POLICY_PACK_ID_QUERY_PARAM } from "@/lib/policy/policy-packs-deep-link"
 import { deriveGuidedIntakePolicyPackCloudMismatch } from "@/lib/review-quality/guided-intake-policy-pack-cloud-mismatch";
 import { readPriorRunIdFromSearch } from "@/lib/second-review-prior-package";
 import { WIZARD_SESSION_IDS, wizardSessionHasTextContent } from "@/lib/wizard-session-persistence";
+import {
+  guidedIntakeStepHrefFromSearch,
+  parseGuidedIntakeStepFromSearch,
+} from "@/lib/runs/guided-intake-step-url";
+import { clampWizardStepIndex } from "@/lib/wizard-step-sequence";
 
 import {
   INTAKE_STEPS,
@@ -38,7 +43,9 @@ import { useGuidedIntakePriorRunPrefill } from "./use-guided-intake-prior-run-pr
  */
 export function useGuidedIntakeWizard() {
   const router = useRouter();
+  const pathname = usePathname() ?? "/architecture/reviews/new";
   const searchParams = useSearchParams();
+  const urlStepIndex = parseGuidedIntakeStepFromSearch(searchParams.get("intakeStep"));
   const { status: llmBudgetStatus, blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
 
   const exampleTemplate = useMemo(
@@ -56,10 +63,42 @@ export function useGuidedIntakeWizard() {
   const deeplinkPolicyPackId = searchParams?.get(POLICY_PACK_ID_QUERY_PARAM)?.trim() ?? "";
   const priorRunId = readPriorRunIdFromSearch(searchParams);
 
-  const { stepIndex: step, setStepIndex: setStep } = useWizardStepNavigation({
+  const { stepIndex: step, setStepIndex: setStepState, goToStep } = useWizardStepNavigation({
     steps: INTAKE_STEP_DEFINITIONS,
     telemetryWizardName: "SocraticIntake",
+    initialStepIndex: urlStepIndex ?? 0,
   });
+
+  const syncIntakeStepToUrl = useCallback(
+    (nextStepIndex: number) => {
+      router.replace(guidedIntakeStepHrefFromSearch(searchParams.toString(), nextStepIndex, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setStep = useCallback(
+    (value: SetStateAction<number>) => {
+      setStepState((current) => {
+        const resolved = typeof value === "function" ? value(current) : value;
+        syncIntakeStepToUrl(resolved);
+
+        return resolved;
+      });
+    },
+    [setStepState, syncIntakeStepToUrl],
+  );
+
+  useEffect(() => {
+    const nextStep = parseGuidedIntakeStepFromSearch(searchParams.get("intakeStep"));
+
+    if (nextStep === null) {
+      return;
+    }
+
+    goToStep(clampWizardStepIndex(nextStep, INTAKE_STEP_DEFINITIONS.length));
+  }, [goToStep, searchParams]);
 
   const form = useGuidedIntakeBriefForm({ exampleTemplate, isCreateArchitectureFlow });
 

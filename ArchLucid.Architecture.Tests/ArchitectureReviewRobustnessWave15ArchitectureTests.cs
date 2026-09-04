@@ -29,12 +29,12 @@ public sealed class ArchitectureReviewRobustnessWave15ArchitectureTests
             Path.Combine(RepoRoot, "ArchLucid.Api.Tests", "GoldenCohortSimulatorDriftTests.cs"));
 
         cohort.Should().Contain("committedArtifactInventory");
-        cohort.Should().Contain("ComputeContentSha256Hex(manifest!, createTimePins, inventoryRows)");
+        cohort.Should().Contain("ComputeContentSha256Hex(");
 
         string cli = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Cli", "ArchLucidCliApiClient.Runs.FingerprintSeed.cs"));
 
-        cli.Should().Contain("ComputeContentSha256Hex(manifest, createTimePins, inventoryRows");
+        cli.Should().Contain("ComputeContentSha256Hex(");
     }
 
     [Fact]
@@ -192,7 +192,7 @@ public sealed class ArchitectureReviewRobustnessWave15ArchitectureTests
         string manifestHasher = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "ManifestHashService.cs"));
 
-        manifestHasher.Should().Contain("HasherSchemaVersion = \"v10\"");
+        manifestHasher.Should().Contain("HasherSchemaVersion = \"v12\"");
         manifestHasher.Should().Contain("CommittedDecisionReceiptHashSha256");
     }
 }

@@ -48,7 +48,7 @@ public sealed class WizardIntakeDraftsController(
             await wizardIntakeDraftService.GetAsync(scope, wizardId, cancellationToken);
 
         if (draft is null)
-            return NotFound();
+            return this.NotFoundProblem("Wizard intake draft was not found.", ProblemTypes.ResourceNotFound);
 
         return Ok(draft);
     }

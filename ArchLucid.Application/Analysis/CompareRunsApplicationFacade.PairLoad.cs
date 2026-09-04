@@ -1,5 +1,6 @@
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Models;
@@ -108,7 +109,7 @@ public sealed partial class CompareRunsApplicationFacade
         {
             return new ScopedRunPairLoadResult
             {
-                Outcome = ScopedRunPairLoadOutcome.LeftRunNotFound,
+                Outcome = ScopedRunPairLoadOutcome.LeftManifestNotFound,
                 MissingRunId = leftRunId,
             };
         }
@@ -117,7 +118,7 @@ public sealed partial class CompareRunsApplicationFacade
         {
             return new ScopedRunPairLoadResult
             {
-                Outcome = ScopedRunPairLoadOutcome.RightRunNotFound,
+                Outcome = ScopedRunPairLoadOutcome.RightManifestNotFound,
                 MissingRunId = rightRunId,
             };
         }
@@ -144,6 +145,15 @@ public sealed partial class CompareRunsApplicationFacade
             Outcome = ScopedRunPairLoadOutcome.Success,
             Left = left,
             Right = right,
+            InputFingerprints = RunComparePinFingerprintGuard.BuildCompareInputFingerprints(
+                leftHeader,
+                rightHeader,
+                leftCompare.GoldenManifest.ManifestHash,
+                rightCompare.GoldenManifest.ManifestHash,
+                CommittedArtifactInventoryCompareFingerprint.ComputeHashSha256(
+                    leftCompare.GoldenManifest.CommittedArtifactInventory),
+                CommittedArtifactInventoryCompareFingerprint.ComputeHashSha256(
+                    rightCompare.GoldenManifest.CommittedArtifactInventory)),
         };
     }
 }

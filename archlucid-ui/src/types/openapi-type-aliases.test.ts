@@ -1118,6 +1118,102 @@ type _PolicyPacksApiWave18BarrelAliases = [
   >,
 ];
 
+/** Wave 19 — recommendation-learning-operational type slices. */
+type _RecommendationLearningOperationalWave19ModuleAliases = [
+  AssertExtends<
+    import("@/types/recommendation-learning-operational-profile-metadata").RecommendationLearningProfileMetadata,
+    import("@/types/recommendation-learning-operational").RecommendationLearningProfileMetadata
+  >,
+  AssertExtends<
+    import("@/types/recommendation-learning-operational-operational-status").RecommendationLearningOperationalStatus,
+    import("@/types/recommendation-learning-operational").RecommendationLearningOperationalStatus
+  >,
+  AssertExtends<
+    import("@/types/recommendation-learning-operational-preview-validation").RecommendationLearningPreview,
+    import("@/types/recommendation-learning-operational").RecommendationLearningPreview
+  >,
+];
+
+/** Wave 19 — recommendation-learning-operational barrel re-exports profile, status, and preview slices. */
+type _RecommendationLearningOperationalWave19BarrelAliases = [
+  AssertExtends<
+    import("@/types/recommendation-learning-operational-profile-metadata").RECOMMENDATION_LEARNING_CANONICAL_PATH,
+    typeof import("@/types/recommendation-learning-operational").RECOMMENDATION_LEARNING_CANONICAL_PATH
+  >,
+  AssertExtends<
+    import("@/types/recommendation-learning-operational-operational-status").RecommendationLearningOutcomeEligibility,
+    import("@/types/recommendation-learning-operational").RecommendationLearningOutcomeEligibility
+  >,
+  AssertExtends<
+    import("@/types/recommendation-learning-operational-preview-validation").RecommendationLearningRollbackRequest,
+    import("@/types/recommendation-learning-operational").RecommendationLearningRollbackRequest
+  >,
+];
+
+/** Wave 19 — advisory type slices. */
+type _AdvisoryWave19ModuleAliases = [
+  AssertExtends<
+    import("@/types/advisory-improvement-plan").ImprovementPlan,
+    import("@/types/advisory").ImprovementPlan
+  >,
+  AssertExtends<
+    import("@/types/advisory-recommendation-record").RecommendationRecord,
+    import("@/types/advisory").RecommendationRecord
+  >,
+  AssertExtends<
+    import("@/types/advisory-action-result").RecommendationActionResult,
+    import("@/types/advisory").RecommendationActionResult
+  >,
+];
+
+/** Wave 19 — advisory barrel re-exports improvement-plan, recommendation-record, and action-result slices. */
+type _AdvisoryWave19BarrelAliases = [
+  AssertExtends<
+    import("@/types/advisory-improvement-plan").ImprovementRecommendation,
+    import("@/types/advisory").ImprovementRecommendation
+  >,
+  AssertExtends<
+    import("@/types/advisory-recommendation-record").AdvisoryRunRecommendationsList,
+    import("@/types/advisory").AdvisoryRunRecommendationsList
+  >,
+  AssertExtends<
+    import("@/types/advisory-recommendation-record").RecommendationImproveLoopEvidence,
+    import("@/types/advisory").RecommendationImproveLoopEvidence
+  >,
+];
+
+/** Wave 19 — agent-forensics-scores type slices. */
+type _AgentForensicsScoresWave19ModuleAliases = [
+  AssertExtends<
+    import("@/types/agent-forensics-scores-semantic").AgentOutputSemanticScoreRow,
+    import("@/types/agent-forensics-scores").AgentOutputSemanticScoreRow
+  >,
+  AssertExtends<
+    import("@/types/agent-forensics-scores-evaluation-summary").AgentOutputEvaluationSummaryPayload,
+    import("@/types/agent-forensics-scores").AgentOutputEvaluationSummaryPayload
+  >,
+  AssertExtends<
+    import("@/types/agent-forensics-scores-retrieval-grounding").RunRetrievalGroundingPayload,
+    import("@/types/agent-forensics-scores").RunRetrievalGroundingPayload
+  >,
+];
+
+/** Wave 19 — agent-forensics-scores barrel re-exports semantic, evaluation-summary, and retrieval-grounding slices. */
+type _AgentForensicsScoresWave19BarrelAliases = [
+  AssertExtends<
+    import("@/types/agent-forensics-scores-evaluation-summary").AgentOutputEvaluationScoreRow,
+    import("@/types/agent-forensics-scores").AgentOutputEvaluationScoreRow
+  >,
+  AssertExtends<
+    import("@/types/agent-forensics-scores-evaluation-summary").AgentOutputEvaluationPerspectivePayload,
+    import("@/types/agent-forensics-scores").AgentOutputEvaluationPerspectivePayload
+  >,
+  AssertExtends<
+    import("@/types/agent-forensics-scores-retrieval-grounding").RunRetrievalGroundingRow,
+    import("@/types/agent-forensics-scores").RunRetrievalGroundingRow
+  >,
+];
+
 /** Wave 12 — authority run-detail trust-evidence module. */
 type _AuthorityRunDetailWave12TrustModuleAliases = [
   AssertExtends<
@@ -1890,6 +1986,12 @@ const _compileTimeAliasGuards: [
   _ItsmOutboundConnectionsWave18BarrelAliases,
   _PolicyPacksApiWave18ModuleAliases,
   _PolicyPacksApiWave18BarrelAliases,
+  _RecommendationLearningOperationalWave19ModuleAliases,
+  _RecommendationLearningOperationalWave19BarrelAliases,
+  _AdvisoryWave19ModuleAliases,
+  _AdvisoryWave19BarrelAliases,
+  _AgentForensicsScoresWave19ModuleAliases,
+  _AgentForensicsScoresWave19BarrelAliases,
   _AuthorityRunDetailWave12TrustModuleAliases,
   _AuthorityRunDetailWave12ProvenanceModuleAliases,
   _AuthorityRunDetailWave12BarrelAliases,
@@ -1987,6 +2089,12 @@ const _compileTimeAliasGuards: [
   [] as unknown as _ItsmOutboundConnectionsWave18BarrelAliases,
   [] as unknown as _PolicyPacksApiWave18ModuleAliases,
   [] as unknown as _PolicyPacksApiWave18BarrelAliases,
+  [] as unknown as _RecommendationLearningOperationalWave19ModuleAliases,
+  [] as unknown as _RecommendationLearningOperationalWave19BarrelAliases,
+  [] as unknown as _AdvisoryWave19ModuleAliases,
+  [] as unknown as _AdvisoryWave19BarrelAliases,
+  [] as unknown as _AgentForensicsScoresWave19ModuleAliases,
+  [] as unknown as _AgentForensicsScoresWave19BarrelAliases,
   [] as unknown as _AuthorityRunDetailWave12TrustModuleAliases,
   [] as unknown as _AuthorityRunDetailWave12ProvenanceModuleAliases,
   [] as unknown as _AuthorityRunDetailWave12BarrelAliases,

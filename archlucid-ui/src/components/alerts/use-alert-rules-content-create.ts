@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type MutableRefObject } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from "react";
 
 import { useLivelihoodDocumentGuards } from "@/hooks/use-livelihood-document-guards";
 import { createAlertRule } from "@/lib/api";
@@ -21,6 +22,10 @@ import {
   resolveAlertRulesCreateEmphasizedStepId,
   resolveAlertRulesCreateSteps,
 } from "@/lib/alert-rules-create-checklist";
+import {
+  compositeAlertRulesPanelsHrefFromSearch,
+  parseCompositeAlertRulesCreatePanelFromSearch,
+} from "@/lib/alerts/composite-alert-rules-panels-url";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import type { AlertRule } from "@/types/alerts";
 
@@ -45,9 +50,13 @@ export function useAlertRulesContentCreate({
   load,
   didFocusEmptyIntroRef,
 }: UseAlertRulesContentCreateInput) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const urlShowCreate = parseCompositeAlertRulesCreatePanelFromSearch(searchParams.get("create"));
   const createInFlightRef = useRef(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
 
+  const [showCreatePanel, setShowCreatePanelState] = useState(urlShowCreate);
   const [creating, setCreating] = useState(false);
   const [mutationFailure, setMutationFailure] = useState<ApiLoadFailureState | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -72,6 +81,31 @@ export function useAlertRulesContentCreate({
   const formValid = useMemo(() => isAlertRuleFormValid(formInput), [formInput]);
   const formDirty = alertRuleFormDiffersFromDefaultDraft(formInput);
   const thresholdStep = usesIntegerThreshold(ruleType) ? 1 : 0.1;
+
+  const syncCreatePanelToUrl = useCallback(
+    (showCreate: boolean) => {
+      router.replace(compositeAlertRulesPanelsHrefFromSearch(searchParams.toString(), { showCreatePanel: showCreate }), {
+        scroll: false,
+      });
+    },
+    [router, searchParams],
+  );
+
+  const setShowCreatePanel = useCallback(
+    (next: boolean | ((prev: boolean) => boolean)) => {
+      setShowCreatePanelState((prev) => {
+        const resolved = typeof next === "function" ? next(prev) : next;
+        syncCreatePanelToUrl(resolved);
+
+        return resolved;
+      });
+    },
+    [syncCreatePanelToUrl],
+  );
+
+  useEffect(() => {
+    setShowCreatePanelState(parseCompositeAlertRulesCreatePanelFromSearch(searchParams.get("create")));
+  }, [searchParams]);
 
   useEffect(() => {
     if (!canEdit || didFocusEmptyIntroRef.current || loading || items.length > 0) {
@@ -119,7 +153,8 @@ export function useAlertRulesContentCreate({
   const mutationDisabledReason = canMutateAlertRules ? null : whyDisabledEnterpriseMutationControl();
   const mutationDisabledHintId = "alert-rules-mutate-disabled-hint";
 
-  const showCreateForm = scopedRunFilterActive && (canEdit || !isEmpty);
+  const emptyIntroMode = scopedRunFilterActive && isEmpty && canEdit && !showCreatePanel && !loading;
+  const showCreateForm = scopedRunFilterActive && (!canEdit || showCreatePanel || !isEmpty);
   const documentGuards = useLivelihoodDocumentGuards({ when: formDirty && showCreateForm });
 
   const thresholdConfigured =
@@ -158,7 +193,9 @@ export function useAlertRulesContentCreate({
     onCreate,
     mutationDisabledReason,
     mutationDisabledHintId,
+    emptyIntroMode,
     showCreateForm,
+    setShowCreatePanel,
     documentGuards,
     alertRulesCreateSteps,
     alertRulesCreateEmphasizedStepId,

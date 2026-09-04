@@ -9,14 +9,18 @@ public sealed partial class AzureRetailPricesCatalogClient
                 StringComparison.OrdinalIgnoreCase))
             return false;
 
-        if ((row.Type ?? string.Empty)
-                .
-                Contains("Reservation",
-                    StringComparison.OrdinalIgnoreCase))
+        string type = row.Type ?? string.Empty;
+
+        if (!type.Contains("non-reservation", StringComparison.OrdinalIgnoreCase)
+            && !type.Contains("nonreservation", StringComparison.OrdinalIgnoreCase)
+            && type.Contains("Reservation", StringComparison.OrdinalIgnoreCase))
             return false;
 
-        if ((row.MeterTier ?? string.Empty).Contains("Government",
-                StringComparison.OrdinalIgnoreCase))
+        string meterTier = row.MeterTier ?? string.Empty;
+
+        if (!meterTier.Contains("non-government", StringComparison.OrdinalIgnoreCase)
+            && !meterTier.Contains("nongovernment", StringComparison.OrdinalIgnoreCase)
+            && meterTier.Contains("Government", StringComparison.OrdinalIgnoreCase))
             return false;
 
         string meterName = row.MeterName ?? string.Empty;
@@ -75,13 +79,14 @@ public sealed partial class AzureRetailPricesCatalogClient
         string trimmed = uom.Trim();
 
         return ContainsHourWordToken(trimmed)
-            || trimmed.Contains("hrs", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Contains(" hr", StringComparison.OrdinalIgnoreCase)
+            || ContainsBoundedToken(trimmed, " hrs")
+            || ContainsBoundedToken(trimmed, " hr")
             || ContainsSlashHrToken(trimmed)
             || ContainsSlashHourToken(trimmed)
             || ContainsBoundedToken(trimmed, " h")
             || string.Equals(trimmed, "h", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(trimmed, "hr", StringComparison.OrdinalIgnoreCase);
+            || string.Equals(trimmed, "hr", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "hrs", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool ContainsHourWordToken(string trimmed)
@@ -141,11 +146,39 @@ public sealed partial class AzureRetailPricesCatalogClient
 
         string trimmed = uom.Trim();
 
-        return trimmed.Contains("Month", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Contains("/Month", StringComparison.OrdinalIgnoreCase)
+        return ContainsMonthWordToken(trimmed)
+            || ContainsSlashMonthWordToken(trimmed)
             || ContainsSlashMonthToken(trimmed)
             || ContainsBoundedToken(trimmed, " mo")
             || string.Equals(trimmed, "mo", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool ContainsMonthWordToken(string trimmed)
+    {
+        return ContainsBoundedToken(trimmed, " month")
+            || ContainsBoundedToken(trimmed, " months");
+    }
+
+    private static bool ContainsSlashMonthWordToken(string trimmed)
+    {
+        int index = 0;
+
+        while (index < trimmed.Length)
+        {
+            index = trimmed.IndexOf("/month", index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterMonth = index + 6;
+
+            if (afterMonth >= trimmed.Length || !char.IsLetter(trimmed[afterMonth]))
+                return true;
+
+            index = afterMonth;
+        }
+
+        return false;
     }
 
     private static bool ContainsSlashMonthToken(string trimmed)

@@ -20,6 +20,7 @@ import {
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { getBuyerSafeReviewsTableLink } from "@/lib/buyer/buyer-safe-review-navigation";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
 import { tryStaticDemoRunSummariesPaged } from "@/lib/operator/operator-static-demo";
 import type { RunSummary } from "@/types/authority";
 
@@ -96,7 +97,10 @@ export class RunsListAggregateErrorBoundary extends Component<
       return <RunsListClient {...this.props} />;
     }
 
-    const demoPaged = tryStaticDemoRunSummariesPaged(this.props.projectId, { afterAuthorityListFailure: true });
+    const demoPaged =
+      isLiveOperatorShellRecoveryContext()
+        ? null
+        : tryStaticDemoRunSummariesPaged(this.props.projectId, { afterAuthorityListFailure: true });
 
     if (demoPaged !== null && demoPaged.items.length > 0) {
       return (

@@ -71,7 +71,12 @@ public sealed class MutatingHttpIdempotencyArchitectureTests
         string repoPath = Path.Combine(root, "ArchLucid.Persistence", "Data", "Repositories", "IdempotencyRecordRepository.cs");
         File.Exists(repoPath).Should().BeTrue();
 
-        string compositionPath = Path.Combine(root, "ArchLucid.Host.Composition", "Startup", "ServiceCollectionExtensions.CoordinatorAndArtifacts.cs");
+        string compositionPath = Path.Combine(
+            root,
+            "ArchLucid.Host.Composition",
+            "Startup",
+            "Modules",
+            "CoordinatorArtifactsCompositionModule.Coordinator.cs");
         File.Exists(compositionPath).Should().BeTrue();
         string compositionText = File.ReadAllText(compositionPath);
         compositionText.Should().Contain("IIdempotencyRecordRepository");

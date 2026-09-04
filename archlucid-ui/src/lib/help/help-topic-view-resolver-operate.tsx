@@ -3,8 +3,6 @@ import dynamic from "next/dynamic";
 
 import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
 import { ScopeHelpCurrentScopePanel } from "@/components/help/ScopeHelpCurrentScopePanel";
-import { SecurityTrustHelpEvidenceOrientationStrip } from "@/components/help/SecurityTrustHelpEvidenceOrientationStrip";
-import { SECURITY_TRUST_HELP_CLAIM_HEADING_ID } from "@/lib/security-trust-help-evidence-copy";
 import type { LoadedHelpTopicContent } from "@/lib/help/help-topic-content-loader";
 
 
@@ -67,6 +65,11 @@ const HelpDigestsGuideView = dynamic(() =>
 );
 const HelpDpaTemplateGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpDpaTemplateGuideView").then((module) => module.HelpDpaTemplateGuideView),
+);
+const HelpSecurityTrustGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpSecurityTrustGuideView").then(
+    (module) => module.HelpSecurityTrustGuideView,
+  ),
 );
 const HelpEngineeringTroubleshootingGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingGuideView").then(
@@ -304,15 +307,7 @@ export function tryResolveOperateHelpTopicView(
     return <HelpEngineeringTroubleshootingGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
   if (loaded.entry.slug === "security-trust") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-        evidenceOrientation={<SecurityTrustHelpEvidenceOrientationStrip />}
-        claimDisciplineTocHeadingId={SECURITY_TRUST_HELP_CLAIM_HEADING_ID}
-      />
-    );
+    return <HelpSecurityTrustGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
   if (loaded.entry.slug === "accelerator-chooser") {
     return <HelpAcceleratorChooserGuideView entry={loaded.entry} />;

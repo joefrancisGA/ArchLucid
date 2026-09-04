@@ -53,13 +53,13 @@ export function AlertRulesContent() {
   const failure = list.listFailure ?? create.mutationFailure;
   const sectionGap = preview.pinLivePreviewRail ? "gap-8" : "gap-4";
 
-  const emptyStateFooter = list.canEdit && list.scopedRunFilterActive ? (
+  const emptyStateFooter = list.canEdit && list.scopedRunFilterActive && create.emptyIntroMode ? (
     <div className="flex flex-wrap items-center gap-2" data-testid="alert-rules-empty-footer">
       <Button
         type="button"
         variant="primary"
         data-testid="alert-rules-create-action"
-        onClick={() => create.nameInputRef.current?.focus()}
+        onClick={() => create.setShowCreatePanel(true)}
       >
         {ALERT_RULES_CREATE_BUTTON_LABEL}
       </Button>

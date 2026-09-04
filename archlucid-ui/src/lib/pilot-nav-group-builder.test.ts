@@ -1,6 +1,7 @@
 import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { describe, expect, it, vi, afterEach } from "vitest";
 
 import { OperatorAdminNavGroupBuilder } from "@/lib/operator/operator-admin-nav-group-builder";
@@ -81,6 +82,7 @@ describe("PilotNavGroupBuilder", () => {
       "Home",
       "Architectures",
       "Packages",
+      "Finalized review records",
       "Sponsor dashboard",
       "First review guide",
       "Digests",
@@ -103,6 +105,14 @@ describe("PilotNavGroupBuilder", () => {
     expect(packagesLink?.href).toBe("/architecture/reviews");
     expect(group.links.some((link) => link.href === ARCHITECTURES_LIST_PATH)).toBe(true);
     expect(group.links.some((link) => link.label === "Reviews")).toBe(false);
+  });
+
+  it("lists sealed review records in Architecture nav for Working discoverability (LD-07)", () => {
+    const group = new PilotNavGroupBuilder().build();
+    const sealedLink = group.links.find((link) => link.href === SIGNED_RECORDS_LIST_PATH);
+
+    expect(sealedLink?.label).toBe("Finalized review records");
+    expect(sealedLink?.requiredAuthority).toBe("ReadAuthority");
   });
 
   it("keeps Architecture intelligence out of nav so it stays a run-scoped deep-link target", () => {

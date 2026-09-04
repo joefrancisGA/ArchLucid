@@ -26,6 +26,8 @@ export const CAIQ_SIG_RESPONSE_HELP_CLAIM_NOT_THIS = [
 export const CAIQ_SIG_RESPONSE_HELP_SOURCES_INTRO =
   "Use these follow-ups when CAIQ/SIG vocabulary turns into SOC 2 mapping, Trust Center pack, DPA, subprocessors, or procurement FAQ.";
 
+export const CAIQ_SIG_RESPONSE_HELP_FOLLOW_UPS_TITLE = "Where to go next" as const;
+
 export const CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION = {
   label: "Open Trust Center",
   href: "/trust",
