@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -64,6 +65,11 @@ import {
   writeRecycleBinProjectLastViewedId,
   type RecycleBinContinueLastTarget,
 } from "@/lib/resolve-continue-last-recycle-bin-project";
+import {
+  parseProjectsRecycleBinRestoreProjectIdFromSearch,
+  projectsRecycleBinRestoreHrefFromSearch,
+} from "@/lib/administration/projects-recycle-bin-restore-url";
+import { SETTINGS_WORKSPACE_SETTINGS_RECYCLE_BIN_PATH } from "@/lib/settings-admin-route-paths";
 
 const RECYCLE_BIN_PATH = `/api/proxy/${ApiV1Routes.tenantWorkspacesRecycleBin}`;
 
@@ -187,6 +193,10 @@ function WorkspaceRecycleBinTable(props: WorkspaceRecycleBinTableProps) {
 
 /** Admin **Recycle Bin** — soft-deleted architecture projects scoped to this tenant (`GET /v1/tenant/workspaces/recycle-bin`). */
 export function ProjectsRecycleBinPage() {
+  const router = useRouter();
+  const pathname = usePathname() ?? SETTINGS_WORKSPACE_SETTINGS_RECYCLE_BIN_PATH;
+  const searchParams = useSearchParams();
+  const urlRestoreProjectId = parseProjectsRecycleBinRestoreProjectIdFromSearch(searchParams.get("restoreProject"));
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
 
   const canRestoreExecute = callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority;
@@ -201,7 +211,18 @@ export function ProjectsRecycleBinPage() {
 
   const [restoreBusyRow, setRestoreBusyRow] = useState<string | null>(null);
 
-  const [pendingRestore, setPendingRestore] = useState<ProjectsRecycleBinPendingRestore | null>(null);
+  const [pendingRestore, setPendingRestoreState] = useState<ProjectsRecycleBinPendingRestore | null>(null);
+
+  const setPendingRestore = useCallback(
+    (value: ProjectsRecycleBinPendingRestore | null) => {
+      setPendingRestoreState(value);
+      router.replace(
+        projectsRecycleBinRestoreHrefFromSearch(searchParams.toString(), value?.projectId ?? null, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
 
   const [restoreFeedback, setRestoreFeedback] = useState<ProjectsRecycleBinFeedback | null>(null);
 
@@ -237,6 +258,42 @@ export function ProjectsRecycleBinPage() {
   useEffect(() => {
     void reload();
   }, [reload]);
+
+  useEffect(() => {
+    if (urlRestoreProjectId.length === 0 || rows.length === 0) {
+      if (urlRestoreProjectId.length === 0 && pendingRestore !== null) {
+        setPendingRestoreState(null);
+      }
+
+      return;
+    }
+
+    for (const workspace of rows) {
+      const project = workspace.projects.find((candidate) => candidate.projectId === urlRestoreProjectId);
+
+      if (project === undefined) {
+        continue;
+      }
+
+      const nextPending: ProjectsRecycleBinPendingRestore = {
+        workspaceId: workspace.workspaceId,
+        workspaceName: workspace.name,
+        projectId: project.projectId,
+        projectName: project.name,
+      };
+
+      if (
+        pendingRestore?.projectId === nextPending.projectId
+        && pendingRestore.workspaceId === nextPending.workspaceId
+      ) {
+        return;
+      }
+
+      setPendingRestoreState(nextPending);
+
+      return;
+    }
+  }, [pendingRestore, rows, urlRestoreProjectId]);
 
   async function restoreProject(workspaceId: string, projectId: string): Promise<void> {
     setRestoreBusyRow(`${workspaceId}:${projectId}`);

@@ -1,8 +1,15 @@
 "use client";
 
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import {
+  adminTenantsActionHrefFromSearch,
+  parseAdminTenantActionFromSearch,
+  parseAdminTenantIdFromSearch,
+} from "@/lib/internal/admin-tenants-action-url";
+import { INTERNAL_TENANTS_PATH } from "@/lib/internal-ops-route-paths";
 import {
   canProvisionAdminTenantForm,
   listAdminTenants,
@@ -48,6 +55,12 @@ export type AdminTenantsState = {
 };
 
 export function useAdminTenantsState(): AdminTenantsState {
+  const router = useRouter();
+  const pathname = usePathname() ?? INTERNAL_TENANTS_PATH;
+  const searchParams = useSearchParams();
+  const urlTenantId = parseAdminTenantIdFromSearch(searchParams.get("tenantId"));
+  const urlTenantAction = parseAdminTenantActionFromSearch(searchParams.get("tenantAction"));
+
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const isAdmin = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
 
@@ -56,7 +69,31 @@ export function useAdminTenantsState(): AdminTenantsState {
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [mutatingId, setMutatingId] = useState<string | null>(null);
-  const [pendingTenantAction, setPendingTenantAction] = useState<PendingAdminTenantAction | null>(null);
+  const [pendingTenantAction, setPendingTenantActionState] = useState<PendingAdminTenantAction | null>(null);
+
+  const syncTenantActionToUrl = useCallback(
+    (pending: PendingAdminTenantAction | null) => {
+      router.replace(
+        adminTenantsActionHrefFromSearch(
+          searchParams.toString(),
+          pending === null
+            ? { tenantId: null, action: null }
+            : { tenantId: pending.row.id?.trim() ?? "", action: pending.kind },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPendingTenantAction = useCallback(
+    (value: PendingAdminTenantAction | null) => {
+      setPendingTenantActionState(value);
+      syncTenantActionToUrl(value);
+    },
+    [syncTenantActionToUrl],
+  );
 
   const [name, setName] = useState("");
   const [adminEmail, setAdminEmail] = useState("");
@@ -96,6 +133,31 @@ export function useAdminTenantsState(): AdminTenantsState {
 
     void refresh();
   }, [isAdmin, isAuthorityLoading, refresh]);
+
+  useEffect(() => {
+    if (urlTenantId.length === 0 || urlTenantAction === null || items.length === 0) {
+      if (urlTenantAction === null && pendingTenantAction !== null) {
+        setPendingTenantActionState(null);
+      }
+
+      return;
+    }
+
+    const row = items.find((candidate) => (candidate.id?.trim() ?? "") === urlTenantId);
+
+    if (row === undefined) {
+      return;
+    }
+
+    if (
+      pendingTenantAction?.row.id === row.id
+      && pendingTenantAction.kind === urlTenantAction
+    ) {
+      return;
+    }
+
+    setPendingTenantActionState({ kind: urlTenantAction, row });
+  }, [items, pendingTenantAction, urlTenantAction, urlTenantId]);
 
   async function onCreate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -194,7 +256,7 @@ export function useAdminTenantsState(): AdminTenantsState {
     if (mutatingId === null) {
       setPendingTenantAction(null);
     }
-  }, [mutatingId]);
+  }, [mutatingId, setPendingTenantAction]);
 
   return {
     isAuthorityLoading,
