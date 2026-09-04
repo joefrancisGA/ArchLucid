@@ -2693,9 +2693,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 80
+- **hunts:** 81
 - **bugs-found:** 144
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-04
 - **last-bug:** 2026-09-04 — inline `//` before `[` and inline `#`/`//` before `{` dropped array/nested-block parsing
 - **related-pd-tb:** none
@@ -2933,8 +2933,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `BicepResourceBodyParser.ArrayAssignmentRegex` — inline `//` comment between `=` and `[` on same-line array header not skipped — **hit 2026-09-04 (#749):** `#748` added `#` probe only; `ipSecurityRestrictions = // legacy [...]` still missed array parsing; fixed with `(?:#[^[]*|//[^[]*)?` before `[` in Bicep/terraform array regexes; regressions in `ParseAsync_InlineSlashSlashCommentBeforeArrayBracket_PreservesIpSecurityRestrictions`.
 - [x] (proven) `BicepResourceBodyParser.NestedBlockStartRegex` — inline `#`/`//` comment between `=` and `{` on same-line nested block header not skipped — **hit 2026-09-04 (#749):** `networkAcls = # deny { ... }` stored scalar `{` after `#746` `=` parity; fixed with `(?:#[^{]*|//[^{]*)?` before `{` (Bicep `:`/`=` headers and terraform `block` headers); regressions in `ParseAsync_InlineHashCommentBeforeNestedBlockBrace_PreservesNetworkAclsBlock` and `ParseAsync_InlineHashCommentBeforeNestedBlockBrace_PreservesRetentionPolicyBlock`.
-- [ ] (candidate) Same-line `/* */` block comment between assignment operator and `[` or `{` — block comments can span; may need dedicated probe beyond EOL `#`/`//` skips.
-- [ ] (candidate) `BicepResourceBodyParser.MultilineArrayAssignmentRegex` — `//` full-line comment between `=` and multiline `[` (multiline probe already skips `//` lines; likely valid-no-repro).
+- [x] (valid-no-repro) Same-line `/* */` block comment between assignment operator and `[` or `{` — `InfrastructureDeclarationLineCommentScanner.TryConsumeBlockComment` strips inline block comments from each body line before `ArrayAssignmentRegex` / `NestedBlockStartRegex` matching (#749 `#`/`//` regex parity already handled EOL comments only); **cheap-disproof 2026-09-04 (#753):** regressions in `ParseAsync_InlineBlockCommentBeforeArrayBracket_PreservesIpSecurityRestrictions`, `ParseAsync_InlineBlockCommentBeforeNestedBlockBrace_PreservesNetworkAclsBlock`, and terraform parity tests.
+- [x] (valid-no-repro) `BicepResourceBodyParser.MultilineArrayAssignmentRegex` — `//` full-line comment between `=` and multiline `[` — **cheap-disproof 2026-09-04 (#753):** `TryConsumeMultilineArrayAssignment` probe loop already skips `//` lines (hash #741 parity); regression in `ParseAsync_MultilineIpSecurityRestrictionsArrayWithSlashSlashCommentLine_PreservesRulesForNetworkExpander`.
+
+2026-09-04 thorough hunt #753 (dry): cheap-disproved two #749 block-comment and multiline-`//` candidates; added inline-block and multiline-`//` regression coverage; no new hunt-ready repro in zone.
 
 2026-09-04 seed hunt #749: reseeded after #748 hash-before-bracket fix; proved `//`-before-bracket and hash/slash-before-brace nested-header gaps; seeded block-comment-before-delimiter and multiline-`//`-probe candidates.
 
