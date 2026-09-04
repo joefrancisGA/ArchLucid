@@ -3187,11 +3187,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 175
-- **bugs-found:** 386
+- **hunts:** 176
+- **bugs-found:** 387
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — Coverage preview free-text validation ordering before tenant preflight
+- **last-bug:** 2026-09-04 — Pre-commit simulate syntheticSeverity validation ordering before tenant preflight
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4077,6 +4077,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceCoverageController.PreviewCoverage` / `CoveragePreviewMapper.ToInput` — tenant preflight ran before `descriptionText` / `securityIntakeAnswer` max-length guard (`DraftIntakeValidation.MaximumFreeTextIntentLength`), so ghost tenant + overlong intake text returned HTTP 404 instead of 400 — **hit 2026-09-04 (#726):** `CoveragePreviewHttpMapper.Validate` before `TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync`; regression in `GovernanceCoverageControllerScopeTests.PreviewCoverage_returns_bad_request_when_description_text_exceeds_max_length_and_tenant_missing`.
 
 2026-09-04 seed hunt #726 (hit): proved Coverage preview free-text validation ordering before tenant preflight.
+
+- [x] (proven) `GovernancePreCommitSimulationController.SimulateAsync` — tenant preflight ran before `syntheticSeverity` enum guard, so ghost tenant + unrecognized severity (e.g. numeric `99`) returned HTTP 404 instead of 400 (#726 coverage preview ordering sibling) — **hit 2026-09-04 (#727):** `PreCommitSyntheticSimulationHttpMapper.Validate` before `RequireTenantAndWorkspaceOrNotFoundAsync`; regression in `GovernancePreCommitSimulationControllerTests.Simulate_returns_bad_request_when_synthetic_severity_is_unrecognized_and_tenant_missing`.
+
+2026-09-04 seed hunt #727 (hit): proved pre-commit simulate syntheticSeverity validation ordering before tenant preflight.
 
 2026-09-04 thorough hunt #723 (hit): proved SubmitApprovalRequest same-environment validation ordering before tenant preflight.
 
