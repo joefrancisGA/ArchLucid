@@ -6,9 +6,11 @@ namespace ArchLucid.Core.AzureExtractor;
 /// </summary>
 public static partial class AzureExtractorPackageZipValidator
 {
-    public const string ManifestEntryName = "manifest.json";
+    public const string ManifestEntryName = AzureExtractorPackageZipEntryNames.Manifest;
 
-    public const string ResourcesEntryName = "resources.json";
+    public const string ResourcesEntryName = AzureExtractorPackageZipEntryNames.Resources;
 
-    public const int SupportedSchemaVersion = 1;
+    public const int SupportedSchemaVersion = AzureExtractorZipSchema.CurrentVersion;
+
+    public const int MinimumSupportedSchemaVersion = AzureExtractorZipSchema.MinimumSupportedVersion;
 }

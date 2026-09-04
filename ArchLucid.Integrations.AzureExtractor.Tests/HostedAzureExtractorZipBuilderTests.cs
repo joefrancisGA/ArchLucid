@@ -43,12 +43,12 @@ public sealed class HostedAzureExtractorZipBuilderTests
 
         Assert.Null(error);
         Assert.NotNull(manifest);
-        Assert.Equal(1, manifest!.SchemaVersion);
+        Assert.Equal(2, manifest!.SchemaVersion);
         Assert.Equal("11111111-1111-1111-1111-111111111111", manifest.SubscriptionId);
     }
 
     [Fact]
-    public void BuildZip_manifest_is_schema_version_1()
+    public void BuildZip_manifest_is_schema_version_2()
     {
         byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
             "22222222-2222-2222-2222-222222222222",
@@ -64,7 +64,7 @@ public sealed class HostedAzureExtractorZipBuilderTests
         string json = reader.ReadToEnd();
 
         using JsonDocument document = JsonDocument.Parse(json);
-        Assert.Equal(1, document.RootElement.GetProperty("schemaVersion").GetInt32());
+        Assert.Equal(2, document.RootElement.GetProperty("schemaVersion").GetInt32());
         Assert.Equal(JsonValueKind.Null, document.RootElement.GetProperty("actualCostSummary").ValueKind);
     }
 }
