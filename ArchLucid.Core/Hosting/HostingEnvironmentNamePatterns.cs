@@ -47,14 +47,18 @@ public static class HostingEnvironmentNamePatterns
 
         if (trimmed.StartsWith("reproduction-", StringComparison.OrdinalIgnoreCase)
             || trimmed.StartsWith("reproduction_", StringComparison.OrdinalIgnoreCase)
+            || trimmed.StartsWith("reproduction.", StringComparison.OrdinalIgnoreCase)
             || trimmed.StartsWith("reproductions-", StringComparison.OrdinalIgnoreCase)
-            || trimmed.StartsWith("reproductions_", StringComparison.OrdinalIgnoreCase))
+            || trimmed.StartsWith("reproductions_", StringComparison.OrdinalIgnoreCase)
+            || trimmed.StartsWith("reproductions.", StringComparison.OrdinalIgnoreCase))
             return true;
 
         if (trimmed.EndsWith("-reproduction", StringComparison.OrdinalIgnoreCase)
             || trimmed.EndsWith("_reproduction", StringComparison.OrdinalIgnoreCase)
+            || trimmed.EndsWith(".reproduction", StringComparison.OrdinalIgnoreCase)
             || trimmed.EndsWith("-reproductions", StringComparison.OrdinalIgnoreCase)
-            || trimmed.EndsWith("_reproductions", StringComparison.OrdinalIgnoreCase))
+            || trimmed.EndsWith("_reproductions", StringComparison.OrdinalIgnoreCase)
+            || trimmed.EndsWith(".reproductions", StringComparison.OrdinalIgnoreCase))
             return true;
 
         return ContainsEmbeddedReproductionToken(trimmed);
@@ -62,14 +66,26 @@ public static class HostingEnvironmentNamePatterns
 
     private static bool ContainsEmbeddedReproductionToken(string trimmed)
     {
-        return trimmed.Contains("-reproduction-", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Contains("_reproduction_", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Contains("-reproduction_", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Contains("_reproduction-", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Contains("-reproductions-", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Contains("_reproductions_", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Contains("-reproductions_", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Contains("_reproductions-", StringComparison.OrdinalIgnoreCase);
+        return ContainsEmbeddedReproductionToken(trimmed, "reproduction")
+            || ContainsEmbeddedReproductionToken(trimmed, "reproductions");
+    }
+
+    private static bool ContainsEmbeddedReproductionToken(string trimmed, string token)
+    {
+        ReadOnlySpan<char> delimiters = ['-', '_', '.'];
+
+        foreach (char left in delimiters)
+        {
+            foreach (char right in delimiters)
+            {
+                string pattern = $"{left}{token}{right}";
+
+                if (trimmed.Contains(pattern, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     private static bool ContainsStandaloneProdDelimiterToken(string trimmed)
