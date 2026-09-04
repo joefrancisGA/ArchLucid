@@ -87,3 +87,5 @@ Prefer **01 → 03 → 04** first (finding honesty, trail at finalize, skipped M
 ## After each prompt
 
 Summarize: files changed, tests run, residual risk, Working vs Guided behavior.
+
+**Do not re-run this set** (shipped #1397). Wave 4: [`working-architect-00-index.md`](working-architect-00-index.md) (**WA-01–24**).
