@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 159
-- **bugs-found:** 369
+- **hunts:** 160
+- **bugs-found:** 370
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — governance mutation body runId GUID validation ordering before tenant lookup
+- **last-bug:** 2026-09-04 — mutation-correction body runId GUID validation ordering before tenant lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3976,6 +3976,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.SubmitApprovalRequest` / `Promote` / `Activate` — tenant preflight ran before body `runId` GUID/empty-GUID validation so ghost tenant + malformed or empty run id returned HTTP 404 instead of 400 (#699 route runId ordering sibling; `ValidateGovernanceRunId` only checked whitespace/length) — **hit 2026-09-04 (#700):** `ValidateGovernanceRouteRunId` before tenant lookup on all three mutation endpoints; regression in `GovernanceControllerRunHistoryScopeTests.SubmitApprovalRequest_returns_bad_request_when_run_id_is_empty_guid_and_tenant_missing`, `SubmitApprovalRequest_returns_bad_request_when_run_id_is_not_valid_and_tenant_missing`, `Promote_returns_bad_request_when_run_id_is_empty_guid_and_tenant_missing`, `Promote_returns_bad_request_when_run_id_is_not_valid_and_tenant_missing`, `Activate_returns_bad_request_when_run_id_is_empty_guid_and_tenant_missing`, and `Activate_returns_bad_request_when_run_id_is_not_valid_and_tenant_missing`.
 
 2026-09-04 seed hunt #700: promoted and proved governance mutation body runId GUID validation ordering before tenant lookup.
+
+- [x] (proven) `GovernanceController.RecordGovernanceMutationCorrection` / `GovernanceMutationCorrectionsHttpMapper.ValidateRecordMutationCorrection` — tenant preflight ran before body `runId` GUID/empty-GUID validation so ghost tenant + malformed or empty run id returned HTTP 404 instead of 400 (#700 submit/promote/activate ordering sibling; `ValidateGovernanceRunId` only checked whitespace/length) — **hit 2026-09-04 (#701):** `ValidateGovernanceRouteRunId` in mutation-correction HTTP mapper before tenant lookup; regression in `GovernanceMutationCorrectionsControllerTests.RecordGovernanceMutationCorrection_returns_bad_request_when_run_id_is_empty_guid_and_tenant_missing`, `RecordGovernanceMutationCorrection_returns_bad_request_when_run_id_is_not_valid_and_tenant_missing`, and `GovernanceMutationCorrectionsHttpMapperTests`.
+
+2026-09-04 seed hunt #701: promoted and proved mutation-correction body runId GUID validation ordering before tenant lookup.
 
 2026-09-04 seed hunt #695: promoted and proved attestation upsert HTTP mapper and product-feedback validation ordering.
 
