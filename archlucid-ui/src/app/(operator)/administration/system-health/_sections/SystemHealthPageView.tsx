@@ -7,11 +7,18 @@ import { DeploymentBuildFingerprintStrip } from "@/components/shell/DeploymentBu
 import { DeploymentStatusSystemHealthVocabularyRail } from "@/components/DeploymentStatusSystemHealthVocabularyRail";
 import { RagHealthSystemHealthVocabularyRail } from "@/components/RagHealthSystemHealthVocabularyRail";
 import { TenantSystemWorkspaceHealthVocabularyRail } from "@/components/TenantSystemWorkspaceHealthVocabularyRail";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { SystemHealthEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { SYSTEM_HEALTH_CLAIM_DISCIPLINE, SYSTEM_HEALTH_SOURCES, SYSTEM_HEALTH_SOURCES_INTRO } from "@/lib/system-health-evidence-copy";
 import {
   SYSTEM_HEALTH_CLAIM_SCOPE_SUMMARY,
+  SYSTEM_HEALTH_FIRST_VIEWPORT_TEST_ID,
+  SYSTEM_HEALTH_PRIMARY_CONTENT_ID,
+  SYSTEM_HEALTH_SKIP_LINK_LABEL,
+  SYSTEM_HEALTH_SKIP_TARGET_ID,
   systemHealthPageSubtitle,
 } from "@/lib/system-health-page-copy";
 import {
@@ -53,6 +60,7 @@ const INTERNAL_DIAGNOSTICS_LINK = {
 
 export function SystemHealthPageView(props: Props) {
   const m = props.model;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   if (m.showDemoWorkspaceDashboard) {
     return (
@@ -91,17 +99,8 @@ export function SystemHealthPageView(props: Props) {
     ? [...SYSTEM_HEALTH_SOURCES, INTERNAL_DIAGNOSTICS_LINK]
     : SYSTEM_HEALTH_SOURCES;
 
-  return (
-    <div className={cn(HEALTH_DASHBOARD_PAGE_CLASS, "space-y-4")} data-testid="system-health-page">
-      <SystemHealthPageHeader
-        subtitle={systemHealthPageSubtitle(false)}
-        loading={m.loading}
-        lastRefreshedAt={m.lastRefreshedAt}
-        onRefresh={() => {
-          void m.refresh();
-        }}
-      />
-
+  const workspaceBody = (
+    <>
       {m.statusTransitions.length > 0 ? (
         <div
           className="rounded-md border border-neutral-200 bg-neutral-50 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-950/40"
@@ -119,12 +118,16 @@ export function SystemHealthPageView(props: Props) {
         </div>
       ) : null}
 
-      <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="system-health" />
-      {isArchLucidInternalOperatorShellEnv() ? (
-        <ConfigurationSystemHealthVocabularyRail currentSurfaceId="system-health" />
+      {!buyerPolishedShell ? (
+        <>
+          <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="system-health" />
+          {isArchLucidInternalOperatorShellEnv() ? (
+            <ConfigurationSystemHealthVocabularyRail currentSurfaceId="system-health" />
+          ) : null}
+          <RagHealthSystemHealthVocabularyRail currentSurfaceId="system-health" />
+          <DeploymentStatusSystemHealthVocabularyRail currentSurfaceId="system-health" />
+        </>
       ) : null}
-      <RagHealthSystemHealthVocabularyRail currentSurfaceId="system-health" />
-      <DeploymentStatusSystemHealthVocabularyRail currentSurfaceId="system-health" />
 
       <HealthOverallStatusHeader
         overallStatus={overall}
@@ -181,11 +184,13 @@ export function SystemHealthPageView(props: Props) {
             ) : null}
           </section>
 
-          <HealthRelatedSurfacesStrip
-            intro={SYSTEM_HEALTH_SOURCES_INTRO}
-            links={relatedSurfaceLinks}
-            testId="system-health-related-surfaces"
-          />
+          {!buyerPolishedShell ? (
+            <HealthRelatedSurfacesStrip
+              intro={SYSTEM_HEALTH_SOURCES_INTRO}
+              links={relatedSurfaceLinks}
+              testId="system-health-related-surfaces"
+            />
+          ) : null}
         </div>
 
         <section aria-labelledby="system-health-dependencies-heading">
@@ -222,15 +227,66 @@ export function SystemHealthPageView(props: Props) {
         </HealthDashboardSection>
       </section>
 
-      <CollapsibleSection
-        title={SYSTEM_HEALTH_CLAIM_SCOPE_SUMMARY}
-        defaultOpen={false}
-        sectionTestId="system-health-operator-claim-scope"
+      {!buyerPolishedShell ? (
+        <CollapsibleSection
+          title={SYSTEM_HEALTH_CLAIM_SCOPE_SUMMARY}
+          defaultOpen={false}
+          sectionTestId="system-health-operator-claim-scope"
+        >
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {SYSTEM_HEALTH_CLAIM_DISCIPLINE}
+          </p>
+        </CollapsibleSection>
+      ) : null}
+    </>
+  );
+
+  return (
+    <div className={cn(HEALTH_DASHBOARD_PAGE_CLASS, "space-y-4")} data-testid="system-health-page">
+      {buyerPolishedShell ? (
+        <a
+          href={`#${SYSTEM_HEALTH_SKIP_TARGET_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {SYSTEM_HEALTH_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
+      <div
+        id={buyerPolishedShell ? SYSTEM_HEALTH_PRIMARY_CONTENT_ID : undefined}
+        data-testid={buyerPolishedShell ? SYSTEM_HEALTH_PRIMARY_CONTENT_ID : undefined}
+        className={cn(buyerPolishedShell && "scroll-mt-24", buyerPolishedShell && OPERATOR_LAYOUT.sectionStack)}
       >
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {SYSTEM_HEALTH_CLAIM_DISCIPLINE}
-        </p>
-      </CollapsibleSection>
+        <SystemHealthPageHeader
+          subtitle={systemHealthPageSubtitle(buyerPolishedShell)}
+          loading={m.loading}
+          lastRefreshedAt={m.lastRefreshedAt}
+          onRefresh={() => {
+            void m.refresh();
+          }}
+        />
+
+        {buyerPolishedShell ? (
+          <div
+            id={SYSTEM_HEALTH_SKIP_TARGET_ID}
+            data-testid={SYSTEM_HEALTH_FIRST_VIEWPORT_TEST_ID}
+            className={cn(
+              "scroll-mt-24 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+              OPERATOR_LAYOUT.sectionStack,
+            )}
+          >
+            {workspaceBody}
+          </div>
+        ) : (
+          workspaceBody
+        )}
+
+        {buyerPolishedShell ? (
+          <div data-testid="system-health-orientation-bottom">
+            <SystemHealthEvidenceOrientationStrip />
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }

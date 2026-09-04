@@ -18,6 +18,10 @@ public sealed class EvidenceGraphMaterializer : IEvidenceGraphMaterializer
     {
         ArgumentNullException.ThrowIfNull(graphSnapshot);
 
+        EvidenceGraphMaterializeInventoryGuard.EnsurePinnedEvidenceInventoryBoundOrThrow(
+            analysisContext,
+            analysisContext?.RunId.ToString("D") ?? "unknown");
+
         if (analysisContext?.EvidencePin is null)
             return;
 

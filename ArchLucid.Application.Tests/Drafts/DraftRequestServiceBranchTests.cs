@@ -115,6 +115,7 @@ public sealed class DraftRequestServiceBranchTests
         SubmitDraftResponse? parentSubmit = await _service.SubmitAsync(
             _scope,
             parent.DraftId,
+            null,
             CancellationToken.None);
 
         parentSubmit.Should().NotBeNull();
@@ -145,6 +146,7 @@ public sealed class DraftRequestServiceBranchTests
         SubmitDraftResponse? branchSubmit = await _service.SubmitAsync(
             _scope,
             branch.Branch.DraftId,
+            null,
             CancellationToken.None);
 
         branchSubmit.Should().NotBeNull();

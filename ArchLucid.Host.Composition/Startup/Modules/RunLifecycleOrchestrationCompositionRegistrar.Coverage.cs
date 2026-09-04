@@ -21,5 +21,6 @@ partial class RunLifecycleOrchestrationCompositionRegistrar
         services.AddSingleton<CoverageAssignmentValidator>();
         services.AddScoped<IArchitectureRunCommandService, ArchitectureRunCommandService>();
         services.AddScoped<IExecuteEvidenceReadinessGate, ExecuteEvidenceReadinessGate>();
+        services.AddScoped<IReRunExecuteSealedManifestPinGate, ReRunExecuteSealedManifestPinGate>();
     }
 }

@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.ArchitectureIntelligence;
@@ -19,6 +20,7 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinator(
     IAsyncSpecialistReviewService specialistReviewService,
     IRunStageOutcomesRepository runStageOutcomesRepository,
     IAuditService auditService,
+    IReRunExecuteSealedManifestPinGate reRunExecuteSealedManifestPinGate,
     IAuthorityFindingsSnapshotUpdater? authorityFindingsSnapshotUpdater = null) : ISelectiveExecuteIncrementalReReviewCoordinator
 {
     private const string StageName = "incremental-re-review";
@@ -44,6 +46,9 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinator(
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
+    private readonly IReRunExecuteSealedManifestPinGate _reRunExecuteSealedManifestPinGate =
+        reRunExecuteSealedManifestPinGate ?? throw new ArgumentNullException(nameof(reRunExecuteSealedManifestPinGate));
+
     private readonly IAuthorityFindingsSnapshotUpdater? _authorityFindingsSnapshotUpdater =
         authorityFindingsSnapshotUpdater;
 
@@ -57,6 +62,8 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinator(
 
         if (_architectureKnowledgeModelAccess is null || !Guid.TryParse(runId, out Guid parsedRunId))
             return null;
+
+        await _reRunExecuteSealedManifestPinGate.EnsureReadyAsync(runId, cancellationToken).ConfigureAwait(false);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         IReadOnlyList<AgentTask> scheduledTasks =

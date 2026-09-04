@@ -1,4 +1,5 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -55,6 +56,15 @@ public sealed partial class GraphController
 
         if (detail is null)
             return this.NotFoundProblem($"Run '{resolved.RunId}' was not found.", ProblemTypes.RunNotFound);
+
+        RunDetailDto? anchorCompareDetail =
+            await authorityQueryService.GetRunDetailForManifestCompareAsync(scope, runId, ct);
+
+        GraphSnapshotComparePinInventoryGuard.EnsureTemporalPairPinInventoryReadyOrThrow(
+            anchor,
+            resolved,
+            anchorCompareDetail?.GoldenManifest,
+            detail.GoldenManifest);
 
         if (detail.GraphSnapshot is null)
         {

@@ -15,6 +15,7 @@ type ArchitectureDraftStartReviewGateProps = {
   readonly needsPersistedDraftBeforeStart: boolean;
   readonly scopeGateOpen: boolean;
   readonly actorSuggestionsUnresolved: boolean;
+  readonly staleUpdatedUtc?: boolean;
 };
 
 export function ArchitectureDraftStartReviewGate(
@@ -36,6 +37,15 @@ export function ArchitectureDraftStartReviewGate(
             props.reviewReadiness.blockers,
             props.structuredBrief,
           )}
+        </p>
+      ) : null}
+      {props.staleUpdatedUtc ? (
+        <p
+          className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-red-800 dark:text-red-300")}
+          role="alert"
+          data-testid="architecture-draft-stale-updated-utc"
+        >
+          This draft changed in another session. Refresh the workspace before starting a review.
         </p>
       ) : null}
       {props.reviewReadiness.isValid &&
