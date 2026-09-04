@@ -115,6 +115,8 @@ public sealed partial class GovernanceStickinessFacade
 
         string cronExpression = (request.CronExpression ?? string.Empty).Trim();
 
+        RecurrenceScheduleValidation.ValidateCronExpressionLengthOrThrow(cronExpression);
+
         if (!_recurrenceNextRunCalculator.IsSupportedCronExpression(cronExpression))
         {
             return new PreviewRecurrenceScheduleRunsResponse

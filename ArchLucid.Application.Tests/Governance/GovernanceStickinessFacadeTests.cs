@@ -137,6 +137,26 @@ public sealed class GovernanceStickinessFacadeTests
         response.ValidationError.Should().Be(RecurrenceScheduleCronValidation.InvalidCronMessage);
     }
 
+    [Fact]
+    public void PreviewRecurrenceScheduleRuns_rejects_overlong_cron_expression()
+    {
+        Mock<IArchitectureReviewRecurrenceNextRunCalculator> calculator = new();
+        GovernanceStickinessFacade sut = CreateSut(recurrenceCalculator: calculator.Object);
+        string overlongCron = new string('0', RecurrenceScheduleValidation.CronExpressionMaxLength + 1);
+
+        Action act = () => sut.PreviewRecurrenceScheduleRuns(
+            new PreviewRecurrenceScheduleRunsRequest
+            {
+                CronExpression = overlongCron,
+                Count = 3,
+            });
+
+        act.Should()
+            .Throw<ArgumentException>()
+            .WithMessage($"*at most {RecurrenceScheduleValidation.CronExpressionMaxLength}*");
+        calculator.VerifyNoOtherCalls();
+    }
+
     private static GovernanceStickinessFacade CreateSut(
         IActorContext? actor = null,
         IArchitectureRiskRegisterService? riskRegister = null,

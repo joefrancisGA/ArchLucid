@@ -3269,6 +3269,22 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public void PreviewRecurrenceScheduleRuns_returns_bad_request_when_cron_expression_exceeds_max_length()
+    {
+        GovernanceStickinessController controller = BuildSut(recurrenceCalculator: BuildRealRecurrenceCalculator());
+        string overlongCron = new string('0', RecurrenceScheduleValidation.CronExpressionMaxLength + 1);
+
+        IActionResult action = controller.PreviewRecurrenceScheduleRuns(new PreviewRecurrenceScheduleRunsRequest
+        {
+            CronExpression = overlongCron,
+            Count = 3,
+        });
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task ResolveFindingMergeConflict_returns_not_found_when_run_is_out_of_scope()
     {
         Guid foreignRunId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");

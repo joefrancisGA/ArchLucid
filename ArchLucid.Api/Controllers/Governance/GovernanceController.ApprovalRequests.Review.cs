@@ -27,6 +27,13 @@ public sealed partial class GovernanceController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        IActionResult? reviewCommentProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateReviewComment(request.ReviewComment)
+                .ToBadRequestProblemOrNull(this);
+
+        if (reviewCommentProblem is not null)
+            return reviewCommentProblem;
+
         approvalRequestId = GovernanceApprovalRequestsHttpMapper.NormalizeApprovalRequestId(approvalRequestId);
 
         IActionResult? approvalRequestIdProblem =
@@ -111,6 +118,13 @@ public sealed partial class GovernanceController
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? reviewCommentProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateReviewComment(request.ReviewComment)
+                .ToBadRequestProblemOrNull(this);
+
+        if (reviewCommentProblem is not null)
+            return reviewCommentProblem;
 
         approvalRequestId = GovernanceApprovalRequestsHttpMapper.NormalizeApprovalRequestId(approvalRequestId);
 

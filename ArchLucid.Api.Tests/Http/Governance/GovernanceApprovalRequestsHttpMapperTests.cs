@@ -71,6 +71,17 @@ public sealed class GovernanceApprovalRequestsHttpMapperTests
     }
 
     [Fact]
+    public void ValidateReviewComment_rejects_overlong_comment()
+    {
+        GovernanceHttpValidation? validation = GovernanceApprovalRequestsHttpMapper.ValidateReviewComment(
+            new string('c', GovernanceRequestValidationRules.ReviewCommentMaxLength + 1));
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain(GovernanceRequestValidationRules.ReviewCommentMaxLength.ToString());
+    }
+
+    [Fact]
     public void ValidateBatchReviewRequest_rejects_unknown_decision()
     {
         GovernanceHttpValidation? validation = GovernanceApprovalRequestsHttpMapper.ValidateBatchReviewRequest(

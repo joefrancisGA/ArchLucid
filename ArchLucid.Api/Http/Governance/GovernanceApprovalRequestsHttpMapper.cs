@@ -30,6 +30,19 @@ public static class GovernanceApprovalRequestsHttpMapper
         return null;
     }
 
+    public static GovernanceHttpValidation? ValidateReviewComment(string? reviewComment)
+    {
+        if (reviewComment is not null
+            && reviewComment.Length > GovernanceRequestValidationRules.ReviewCommentMaxLength)
+        {
+            return new GovernanceHttpValidation(
+                $"ReviewComment must not exceed {GovernanceRequestValidationRules.ReviewCommentMaxLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
     public static GovernanceHttpValidation? ValidateBatchReviewRequest(GovernanceApprovalBatchReviewRequest? body)
     {
         if (body is null)
@@ -85,13 +98,10 @@ public static class GovernanceApprovalRequestsHttpMapper
         if (!approve && !reject)
             return new GovernanceHttpValidation("Decision must be 'approve' or 'reject'.", ProblemTypes.ValidationFailed);
 
-        if (body.ReviewComment is not null
-            && body.ReviewComment.Length > GovernanceRequestValidationRules.ReviewCommentMaxLength)
-        {
-            return new GovernanceHttpValidation(
-                $"ReviewComment must not exceed {GovernanceRequestValidationRules.ReviewCommentMaxLength} characters.",
-                ProblemTypes.ValidationFailed);
-        }
+        GovernanceHttpValidation? reviewCommentValidation = ValidateReviewComment(body.ReviewComment);
+
+        if (reviewCommentValidation is not null)
+            return reviewCommentValidation;
 
         return null;
     }
