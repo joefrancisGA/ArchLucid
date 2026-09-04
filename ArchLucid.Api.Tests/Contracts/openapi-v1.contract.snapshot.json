@@ -94351,11 +94351,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
-              },
-              "application/zip": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
               }
             },
             "description": "Unauthorized"
@@ -94366,11 +94361,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
-              },
-              "application/zip": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
               }
             },
             "description": "Forbidden"
@@ -94378,11 +94368,6 @@
           "404": {
             "content": {
               "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/zip": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -94403,11 +94388,6 @@
           "409": {
             "content": {
               "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/zip": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -95321,11 +95301,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
-              },
-              "application/zip": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
               }
             },
             "description": "Unauthorized"
@@ -95336,11 +95311,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
-              },
-              "application/zip": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
               }
             },
             "description": "Forbidden"
@@ -95348,11 +95318,6 @@
           "404": {
             "content": {
               "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/zip": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -95373,11 +95338,6 @@
           "409": {
             "content": {
               "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/zip": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
