@@ -33,6 +33,7 @@ internal static class DraftIntakeCompositionRegistrar
         services.AddScoped<IDraftRequestCrudService, DraftRequestCrudService>();
         services.AddScoped<IDraftAdmissionService, DraftAdmissionService>();
         services.AddScoped<IDraftBranchingService, DraftBranchingService>();
+        services.AddScoped<IDraftSnapshotCloningService, DraftSnapshotCloningService>();
         services.AddScoped<IDraftRequestService, DraftRequestService>();
         services.AddScoped<IDraftRequestApplicationFacade, DraftRequestApplicationFacade>();
         services.AddScoped<IDecisionReceiptService, DecisionReceiptService>();

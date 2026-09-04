@@ -29,6 +29,10 @@ public static class DraftRequestStateMachine
             or DraftRequestStatus.Submitted
             or DraftRequestStatus.RunSpawned;
 
+    /// <summary>Returns <see langword="true" /> when a new editable draft may be cloned from a spawned snapshot (WA-10).</summary>
+    public static bool AllowsSnapshotClone(DraftRequestStatus status) =>
+        status == DraftRequestStatus.RunSpawned;
+
     /// <summary>Returns <see langword="true" /> when admission may be requested.</summary>
     public static bool AllowsAdmission(DraftRequestStatus status) => status == DraftRequestStatus.Drafting;
 

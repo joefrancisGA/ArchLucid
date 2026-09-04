@@ -43,6 +43,12 @@ public interface IDraftRequestService
     Task<DraftBranchQuotaResponse?> GetBranchQuotaAsync(ScopeContext scope, Guid draftId,
         CancellationToken cancellationToken);
 
+    Task<CloneSnapshotDraftResponse?> CloneSnapshotAsync(
+        ScopeContext scope,
+        Guid sourceDraftId,
+        string actorUserId,
+        CancellationToken cancellationToken);
+
     Task<PagedResponse<DraftRequestSummaryResponse>> ListAsync(
         ScopeContext scope,
         string actorUserId,
