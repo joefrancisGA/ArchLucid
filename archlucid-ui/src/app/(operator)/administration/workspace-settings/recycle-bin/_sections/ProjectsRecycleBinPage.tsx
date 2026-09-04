@@ -269,7 +269,7 @@ export function ProjectsRecycleBinPage() {
     }
 
     for (const workspace of rows) {
-      const project = workspace.projects.find((candidate) => candidate.projectId === urlRestoreProjectId);
+      const project = workspace.deletedProjects.find((candidate) => candidate.projectId === urlRestoreProjectId);
 
       if (project === undefined) {
         continue;
