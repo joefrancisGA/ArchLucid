@@ -1,6 +1,7 @@
 import { runListPrimaryTitle } from "@/components/operator-home/runs-dashboard-helpers";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import { isNextPublicDemoMode, isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import { formatOperatorProjectIdDisplay } from "@/lib/operator/operator-project-display";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { formatRelativeTime } from "@/lib/relative-time";
@@ -139,7 +140,7 @@ export function inspectorTitle(run: RunSummary | null): string {
     return "Review preview";
   }
 
-  if (isBuyerPolishedOperatorShellEnv()) {
+  if (resolveProductionEvalChromeFromStorage()) {
     return "Review summary";
   }
 

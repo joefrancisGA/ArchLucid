@@ -1,5 +1,8 @@
+"use client";
+
 import type { ReactElement } from "react";
 
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -32,6 +35,7 @@ function densityBandKind(
 
 /** Compact Working-mode density band for review-detail finding rows (LI-01). */
 export function FindingInsightDensityBand(props: FindingInsightDensityBandProps): ReactElement | null {
+  const { isWorkingMode } = useWorkspaceMode();
   const band = resolveInsightDensityBand(props.insightDensityScore);
   const label = formatInsightDensityBandLabel(props.insightDensityScore);
 
@@ -39,7 +43,7 @@ export function FindingInsightDensityBand(props: FindingInsightDensityBandProps)
     return null;
   }
 
-  const showHonestyLine = props.showHonestyLine === true;
+  const showHonestyLine = props.showHonestyLine === true || isWorkingMode;
 
   return (
     <div
@@ -51,6 +55,10 @@ export function FindingInsightDensityBand(props: FindingInsightDensityBandProps)
         label={label}
         data-testid={`finding-insight-density-band-tag-${props.findingId}`}
         className="w-fit"
+        title={showHonestyLine ? INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE : undefined}
+        aria-label={
+          showHonestyLine ? `${label}. ${INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE}` : label
+        }
       />
       {showHonestyLine ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>

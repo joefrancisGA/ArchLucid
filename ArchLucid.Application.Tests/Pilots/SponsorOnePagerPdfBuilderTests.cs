@@ -237,6 +237,7 @@ public sealed class SponsorOnePagerPdfBuilderTests
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
             scope,
+            FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
             site);
     }
 
@@ -315,6 +316,7 @@ public sealed class SponsorOnePagerPdfBuilderTests
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
+            FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 

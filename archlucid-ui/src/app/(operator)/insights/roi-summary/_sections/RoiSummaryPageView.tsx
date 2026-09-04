@@ -7,6 +7,7 @@ import { useCallback } from "react";
 import { cn } from "@/lib/utils";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
+import { ReportSurfaceCanonicalPointerStrip } from "@/components/reports/ReportSurfaceCanonicalPointerStrip";
 import { RoiSummaryBreadcrumb } from "@/components/insights/RoiSummaryBreadcrumb";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import {
@@ -214,6 +215,8 @@ export function RoiSummaryPageView(props: Props) {
               )
             }
           />
+
+          <ReportSurfaceCanonicalPointerStrip surfaceId="roi-summary" />
 
           {!scopedRunFilterActive ? (
             <RoiSummaryPickReviewBeforeSummarizingStrip

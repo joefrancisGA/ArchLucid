@@ -13,6 +13,7 @@ import {
 } from "@/lib/evidence-graph-page";
 import { EXTRACT_UPLOAD_SETTINGS_PATH } from "@/lib/core-pilot-steps";
 import { GRAPH_IDLE, GRAPH_IDLE_BUYER } from "@/lib/empty-state-presets";
+import { resolveGraphIdlePreset } from "@/lib/resolve-desk-empty-state-presets";
 import { buildInsightsFinalizedReviewPrerequisiteEmpty } from "@/lib/insights-finalized-review-prerequisite-empty";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { graphLooksLikeCoordinatorProvenanceTrail } from "@/lib/graph-mapper";
@@ -90,6 +91,7 @@ export type GraphIdleEmptyPresetOptions = {
   buyerPolished: boolean;
   demoUi: boolean;
   showIdleCard: boolean;
+  workingMode?: boolean;
   /** Packages exist but no review is selected yet — teach the graph instead of "no reviews". */
   awaitingSelection?: boolean;
 };
@@ -112,6 +114,10 @@ export function resolveGraphIdleEmptyPreset(options: GraphIdleEmptyPresetOptions
       description: EVIDENCE_GRAPH_PREREQUISITE_EMPTY.description,
       actions: EVIDENCE_GRAPH_IDLE_ACTIONS,
     };
+  }
+
+  if (options.workingMode === true) {
+    return resolveGraphIdlePreset(true);
   }
 
   return GRAPH_IDLE;
