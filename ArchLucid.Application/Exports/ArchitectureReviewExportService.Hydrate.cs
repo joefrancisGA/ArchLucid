@@ -1,14 +1,66 @@
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Exports;
 
 public sealed partial class ArchitectureReviewExportService
 {
+    private async Task EnsureSealedDecisionReceiptVerifiedOrThrowAsync(
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        if (!TryParseRunGuid(runId, out Guid runGuid))
+            return;
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        RunDetailDto? compareDetail =
+            await _authorityQueryService.GetRunDetailForManifestCompareAsync(scope, runGuid, cancellationToken);
+
+        if (compareDetail?.GoldenManifest is null)
+            return;
+
+        DecisionReceiptRunBuildOutcome? readinessOutcome =
+            ManifestDecisionReceiptExportBinder.TryGetSealedReceiptReadinessOutcome(
+                compareDetail.GoldenManifest,
+                compareDetail.GoldenManifest.FeasibilityVerdict,
+                compareDetail.GoldenManifest.Metadata?.Version);
+
+        if (readinessOutcome == DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete)
+        {
+            throw new ConflictException(
+                $"Review-board export blocked for run '{runId}': sealed decision receipt fields are incomplete.");
+        }
+
+        if (readinessOutcome is not null)
+            return;
+
+        DecisionReceiptRunBuildResult buildResult = ManifestDecisionReceiptExportBinder.BuildVerifiedExportReceipt(
+            runGuid,
+            compareDetail.GoldenManifest,
+            compareDetail.GoldenManifest.FeasibilityVerdict!,
+            compareDetail.GoldenManifest.Metadata!.Version!.Trim(),
+            _manifestHashService);
+
+        if (buildResult.Outcome == DecisionReceiptRunBuildOutcome.SealedHashMismatch)
+        {
+            throw new ConflictException(
+                $"Review-board export blocked for run '{runId}': sealed decision receipt hash verification failed.");
+        }
+
+        if (buildResult.Outcome != DecisionReceiptRunBuildOutcome.Success)
+        {
+            throw new ConflictException(
+                $"Review-board export blocked for run '{runId}': sealed decision receipt could not be verified.");
+        }
+    }
+
     private async Task<string?> ResolveActiveTrialExportNoticeAsync(CancellationToken cancellationToken)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();

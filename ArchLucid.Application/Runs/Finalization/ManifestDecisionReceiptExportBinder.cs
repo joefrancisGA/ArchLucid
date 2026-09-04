@@ -13,6 +13,23 @@ namespace ArchLucid.Application.Runs.Finalization;
 /// </summary>
 internal static class ManifestDecisionReceiptExportBinder
 {
+    public static DecisionReceiptRunBuildOutcome? TryGetSealedReceiptReadinessOutcome(
+        ManifestDocument manifest,
+        FeasibilityVerdict? verdict,
+        string? manifestVersion)
+    {
+        ArgumentNullException.ThrowIfNull(manifest);
+
+        if (verdict is null
+            || string.IsNullOrWhiteSpace(manifestVersion)
+            || string.IsNullOrWhiteSpace(manifest.CommittedDecisionReceiptHashSha256))
+        {
+            return DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete;
+        }
+
+        return null;
+    }
+
     public static DecisionReceiptRunBuildResult BuildVerifiedExportReceipt(
         Guid runId,
         ManifestDocument manifest,
@@ -25,11 +42,14 @@ internal static class ManifestDecisionReceiptExportBinder
         ArgumentException.ThrowIfNullOrWhiteSpace(manifestVersion);
         ArgumentNullException.ThrowIfNull(manifestHashService);
 
-        if (string.IsNullOrWhiteSpace(manifest.CommittedDecisionReceiptHashSha256))
+        DecisionReceiptRunBuildOutcome? readinessOutcome =
+            TryGetSealedReceiptReadinessOutcome(manifest, verdict, manifestVersion);
+
+        if (readinessOutcome == DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete)
         {
             return new DecisionReceiptRunBuildResult
             {
-                Outcome = DecisionReceiptRunBuildOutcome.NotFound,
+                Outcome = DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete,
             };
         }
 

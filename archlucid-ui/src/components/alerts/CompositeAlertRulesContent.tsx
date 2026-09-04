@@ -35,6 +35,10 @@ import {
   compositeRulesPageLeadReader,
 } from "@/lib/enterprise-controls-context-copy";
 import {
+  compositeAlertRulesPanelsHrefFromSearch,
+  parseCompositeAlertRulesCreatePanelFromSearch,
+} from "@/lib/alerts/composite-alert-rules-panels-url";
+import {
   OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -81,7 +85,8 @@ export function CompositeAlertRulesContent() {
   const loading = compositeRulesQuery.loading;
   const [mutationFailure, setMutationFailure] = useState<ApiLoadFailureState | null>(null);
   const failure = compositeRulesQuery.failure ?? mutationFailure;
-  const [showCreatePanel, setShowCreatePanel] = useState(false);
+  const urlShowCreate = parseCompositeAlertRulesCreatePanelFromSearch(searchParams.get("create"));
+  const [showCreatePanel, setShowCreatePanelState] = useState(urlShowCreate);
   const [showCreateConfirmation, setShowCreateConfirmation] = useState(false);
   const [createBusy, setCreateBusy] = useState(false);
   const [submitAttempted, setSubmitAttempted] = useState(false);
@@ -101,6 +106,31 @@ export function CompositeAlertRulesContent() {
   const [m2, setM2] = useState("NewComplianceGapCount");
   const [o2, setO2] = useState("GreaterThanOrEqual");
   const [v2, setV2] = useState(1);
+
+  const syncCreatePanelToUrl = useCallback(
+    (showCreate: boolean) => {
+      router.replace(compositeAlertRulesPanelsHrefFromSearch(searchParams.toString(), { showCreatePanel: showCreate }), {
+        scroll: false,
+      });
+    },
+    [router, searchParams],
+  );
+
+  const setShowCreatePanel = useCallback(
+    (next: boolean | ((prev: boolean) => boolean)) => {
+      setShowCreatePanelState((prev) => {
+        const resolved = typeof next === "function" ? next(prev) : next;
+        syncCreatePanelToUrl(resolved);
+
+        return resolved;
+      });
+    },
+    [syncCreatePanelToUrl],
+  );
+
+  useEffect(() => {
+    setShowCreatePanelState(parseCompositeAlertRulesCreatePanelFromSearch(searchParams.get("create")));
+  }, [searchParams]);
 
   const formInput = useMemo<CompositeAlertRuleFormInput>(
     () => ({

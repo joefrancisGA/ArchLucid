@@ -63,12 +63,18 @@ export async function postArchitectureRequestRaw(
   return request.post(`${resolveLiveApiBase()}/v1/architecture/request`, {
     data: body,
     headers: mergeTenantScope(liveJsonHeaders(null, explicitBearerToken), tenantScope),
+    timeout: architectureRequestAttemptHttpTimeoutMs(),
   });
 }
 
 /** Mutating architecture POSTs share one API with many live specs — retry transient infra before failing journeys. */
 function maxArchitectureMutationAttempts(): number {
   return getMaxInfrastructureMutationAttempts();
+}
+
+/** Per-attempt HTTP timeout — prevents a wedged create from burning the whole Playwright test timeout. */
+function architectureRequestAttemptHttpTimeoutMs(): number {
+  return liveE2eArchitectureRequestAttemptHttpTimeoutMs();
 }
 
 /** Per-attempt HTTP timeout — prevents a wedged commit from burning the whole Playwright test timeout. */
@@ -138,7 +144,20 @@ export async function createRun(
   explicitBearerToken?: string | null,
 ): Promise<{ runId: string }> {
   for (let attempt = 0; attempt < maxArchitectureMutationAttempts(); attempt++) {
-    const res = await postArchitectureRequestRaw(request, body, tenantScope, explicitBearerToken);
+    let res: APIResponse;
+
+    try {
+      res = await postArchitectureRequestRaw(request, body, tenantScope, explicitBearerToken);
+    } catch (error) {
+      if (isTransientLiveApiTransportError(error) && attempt < maxArchitectureMutationAttempts() - 1) {
+        await sleepTransientHttpBackoff(attempt);
+
+        continue;
+      }
+
+      throw error;
+    }
+
     const status = res.status();
 
     if (status === 429 && attempt < maxArchitectureMutationAttempts() - 1) {
@@ -449,9 +468,21 @@ export type LiveApiTransientRetryOptions = {
 function isTransientLiveApiTransportError(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error);
 
-  return /ECONNREFUSED|ECONNRESET|ETIMEDOUT|ENOTFOUND|socket hang up|request context.*disposed|Failed to connect|Connection refused|network error/i.test(
+  return /ECONNREFUSED|ECONNRESET|ETIMEDOUT|ENOTFOUND|socket hang up|request context.*disposed|Failed to connect|Connection refused|network error|Timeout \d+ms exceeded/i.test(
     message,
   );
+}
+
+/**
+ * Per-attempt HTTP budget for POST `/v1/architecture/request`.
+ * Create-run runs the full inline authority pipeline before returning; cold SQL CI hosts can exceed 90s.
+ */
+export function liveE2eArchitectureRequestAttemptHttpTimeoutMs(requestedMs = 90_000): number {
+  if (process.env.CI && requestedMs <= 90_000) {
+    return 300_000;
+  }
+
+  return requestedMs;
 }
 
 /** CI live API + SQL commit convergence needs more wall clock than local runs. */

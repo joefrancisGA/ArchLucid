@@ -68,9 +68,9 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
     [Fact]
     public void Suggestion5_partial_engine_failure_surfaces_generation_status_and_commit_classifier()
     {
-        string orchestrator = ArchitectureSourceProbe.ReadFindingsPipeline();
+        string emitStage = ArchitectureSourceProbe.ReadFindingsPipeline();
 
-        orchestrator.Should().Contain("FindingsSnapshotGenerationStatus.PartiallyComplete");
+        emitStage.Should().Contain("FindingsSnapshotGenerationStatus.PartiallyComplete");
 
         string decisioningStage = File.ReadAllText(
             Path.Combine(
@@ -95,7 +95,17 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
         string source = ArchitectureSourceProbe.ReadExecuteOrchestratorPipeline();
 
         source.Should().Contain("ThrowIfAuthorityPipelineCompleteAsync");
-        source.Should().Contain("RunKernelCompleteness.IsAuthorityPipelineComplete");
+
+        string scopeResolve = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Runs",
+                "Orchestration",
+                "Execute",
+                "ArchitectureRunExecuteScopeResolveStage.cs"));
+
+        scopeResolve.Should().Contain("RunKernelCompleteness.IsAuthorityPipelineComplete");
     }
 
     [Fact]

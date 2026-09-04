@@ -12,9 +12,9 @@ import { ReviewDefensibilityStrip } from "@/components/reviews/ReviewDefensibili
 import { reviewPipelineDiagnosticContextFromRunDetail } from "@/lib/review-pipeline-diagnostic-context";
 import { buildReviewDefensibilityStripProps } from "@/lib/reviews/build-review-defensibility-strip-props";
 import { RunDetailInfeasibleDecisionLead } from "./RunDetailInfeasibleDecisionLead";
-import { composeRunDetailEvidenceTab } from "./RunDetailEvidenceTabComposition";
-import { composeRunDetailGovernanceTab } from "./RunDetailGovernanceTabComposition";
-import { composeRunDetailOverviewTab, buildRunDetailOutcomeCards } from "./RunDetailOverviewTabComposition";
+import { composeRunDetailTabbedWorkspaceEvidenceShell } from "./RunDetailTabbedWorkspaceEvidenceShell";
+import { composeRunDetailTabbedWorkspaceGovernanceShell } from "./RunDetailTabbedWorkspaceGovernanceShell";
+import { composeRunDetailTabbedWorkspaceOverviewShell } from "./RunDetailTabbedWorkspaceOverviewShell";
 import type { RunDetailPresentation } from "./run-detail-page-presentation";
 import type { RunDetailPageModel } from "./run-detail-page-model";
 import {
@@ -95,20 +95,9 @@ export function resolveRunDetailTabbedWorkspace(
     return null;
   }
 
-  const outcomeCardsEl = buildRunDetailOutcomeCards(m, p);
-
-  const sampleReviewPackageSummaryEl =
-    m.usedStaticDemoRun ? (
-      <RunDetailSampleReviewPackageSummaryDeferred
-        runId={m.resolvedDetail.run.runId}
-        manifestId={m.manifestId}
-        artifactCount={m.artifacts.length}
-        findingCount={m.findingCountDisplay}
-      />
-    ) : null;
-
-  const evidenceTabPanelEl = composeRunDetailEvidenceTab({ model: m, presentation: p });
-  const governanceTabPanelEl = composeRunDetailGovernanceTab({ model: m, presentation: p });
+  const overviewPanelEl = composeRunDetailTabbedWorkspaceOverviewShell({ model: m, presentation: p });
+  const evidenceTabPanelEl = composeRunDetailTabbedWorkspaceEvidenceShell({ model: m, presentation: p });
+  const governanceTabPanelEl = composeRunDetailTabbedWorkspaceGovernanceShell({ model: m, presentation: p });
 
   const explanationDeferredEl = (
     <RunDetailExplanationDeferred
@@ -149,6 +138,16 @@ export function resolveRunDetailTabbedWorkspace(
     </div>
   );
 
+  const sampleReviewPackageSummaryEl =
+    m.usedStaticDemoRun ? (
+      <RunDetailSampleReviewPackageSummaryDeferred
+        runId={m.resolvedDetail.run.runId}
+        manifestId={m.manifestId}
+        artifactCount={m.artifacts.length}
+        findingCount={m.findingCountDisplay}
+      />
+    ) : null;
+
   const inPipelineBannerEl = m.showProgressTracker ? (
     <ReviewInPipelineBanner
       runId={m.resolvedDetail.run.runId}
@@ -185,7 +184,7 @@ export function resolveRunDetailTabbedWorkspace(
       decisionsRemediation: pendingDecisionCount > 0 ? pendingDecisionCount : null,
     },
     panels: {
-      overview: composeRunDetailOverviewTab({ model: m, presentation: p, outcomeCardsEl }),
+      overview: overviewPanelEl,
       findings: (
         <>
           {m.explanationSummary !== null ? (

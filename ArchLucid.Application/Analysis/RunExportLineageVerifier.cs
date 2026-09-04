@@ -60,6 +60,38 @@ public sealed class RunExportLineageVerifier(
         }
 
         string recomputedHash = _manifestHashService.ComputeHash(golden);
+        string? sealedHash = string.IsNullOrWhiteSpace(golden.ManifestHash) ? null : golden.ManifestHash;
+
+        if (sealedHash is null)
+        {
+            RunExportLineageVerificationResult notAttested = BuildResult(
+                runId,
+                golden.ManifestId,
+                RunExportLineageVerificationStatus.NotAttested,
+                committedHash: null,
+                recomputedHash: recomputedHash,
+                "Sealed manifest hash is missing on the committed golden manifest.");
+
+            await LogVerificationAuditAsync(runId, notAttested, ct);
+
+            return notAttested;
+        }
+
+        if (!string.Equals(recomputedHash, sealedHash, StringComparison.OrdinalIgnoreCase))
+        {
+            RunExportLineageVerificationResult mismatch = BuildResult(
+                runId,
+                golden.ManifestId,
+                RunExportLineageVerificationStatus.Mismatch,
+                committedHash: sealedHash,
+                recomputedHash: recomputedHash,
+                detail: "Recomputed manifest hash does not match sealed manifest hash.");
+
+            await LogVerificationAuditAsync(runId, mismatch, ct);
+
+            return mismatch;
+        }
+
         string? anchorHash = await TryGetManifestGeneratedAnchorHashAsync(scope, runId, ct);
 
         if (string.IsNullOrWhiteSpace(anchorHash))
@@ -68,7 +100,7 @@ public sealed class RunExportLineageVerifier(
                 runId,
                 golden.ManifestId,
                 RunExportLineageVerificationStatus.NotAttested,
-                committedHash: null,
+                committedHash: sealedHash,
                 recomputedHash: recomputedHash,
                 "No ManifestGenerated audit anchor found for this run.");
 
@@ -90,7 +122,9 @@ public sealed class RunExportLineageVerifier(
             status,
             committedHash: anchorHash,
             recomputedHash: recomputedHash,
-            detail: null);
+            detail: status == RunExportLineageVerificationStatus.Mismatch
+                ? "ManifestGenerated audit anchor does not match recomputed manifest hash."
+                : null);
 
         await LogVerificationAuditAsync(runId, result, ct);
 
