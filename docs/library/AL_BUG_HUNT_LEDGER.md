@@ -3026,7 +3026,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **last-hunt:** 2026-09-04
 - **last-bug:** 2026-09-04 — DOCX export omitted assumptions/constraints and unsanitized posture gaps
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -3058,10 +3058,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 9
+- **hunts:** 10
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-02
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-09-04
 - **last-bug:** 2026-08-26 — Combined durable omitted BackgroundJobQueueProcessorHostedService
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3090,8 +3090,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `DraftIntakeCompositionRegistrar` registers `AdvisoryDraftOperationHostedService` without hosting-role gate — `AdvisoryDraftOperationQueue` is a per-process bounded `Channel`; the HTTP host that enqueues must drain its own queue; regression documents intent in `AddArchLucidApplicationServices_Api_role_registers_in_memory_async_operation_processors`.
 - [x] (invalid) `RunLifecycleOrchestrationCompositionRegistrar` registers `ArchitectureRunAsyncOperationHostedService` without hosting-role gate — `ArchitectureRunAsyncOperationQueue` is in-process (TB-2075); async create/execute admitted on Api must be processed locally; same regression test.
 - [x] (valid-no-repro) `RegisterDurableBackgroundJobInfrastructure` registers `BackgroundJobStuckRunningWatchdogHostedService` for Api durable enqueue-only hosts — intentional: watchdog reclaims stale `Running` rows via SQL and re-notifies the durable queue for Worker drain (`HostLeaderElectionCoordinator`); regression in `AddArchLucidApplicationServices_Api_durable_registers_stuck_running_watchdog_without_queue_processor`.
+- [x] (valid-no-repro) `first-tenant-funnel-archival` container offload drops `FirstTenantFunnelArchivalArchLucidJob` — `RegisterArchLucidJobRunners` always registers the job; only `FirstTenantFunnelArchivalHostedService` is gated by offload (`ContainerJobsOffloadRegistrationTests.AddArchLucidApplicationServices_Worker_offloads_first_tenant_funnel_archival_still_registers_job_not_hosted_service`, 2026-09-04).
+- [x] (valid-no-repro) `trial-lifecycle` container offload drops `TrialLifecycleArchLucidJob` — same dual registration pattern; `ContainerJobsOffloadRegistrationTests.AddArchLucidApplicationServices_Worker_offloads_trial_lifecycle_still_registers_job_not_scheduler_hosted_service` (2026-09-04).
+- [x] (valid-no-repro) `exec-digest-weekly` / `weekly-architecture-digest` container offload drops matching `IArchLucidJob` — jobs always registered; hosted services gated by offload (`ContainerJobsOffloadRegistrationTests` exec-digest and weekly-architecture-digest parity, 2026-09-04).
+- [x] (invalid) `ApiRequestUsageEventBatchFlushHostedService` registered on Worker without metering middleware — Worker flush is a harmless no-op on an empty buffer; Api role registers flush where middleware enqueues (`ContainerJobsOffloadRegistrationTests.AddArchLucidApplicationServices_Api_role_registers_ApiRequestUsageEventBatchFlushHostedService`, 2026-09-04).
 
 2026-09-02 thorough hunt #427: cheap-disproved all three hosting-role-gate candidates; fixed `TrialLifecycleCompositionModule_registers_trial_lifecycle_services` to use Worker role for preseed assertion.
+
+2026-09-04 seed hunt #733: seeded four container-offload / metering candidates; cheap-disproved all via `ContainerJobsOffloadRegistrationTests` (first-tenant-funnel-archival, trial-lifecycle, exec-digest-weekly, weekly-architecture-digest offload parity; Api metering flush on Api role). No hunt-ready rows; seed-only.
 
 ---
 
