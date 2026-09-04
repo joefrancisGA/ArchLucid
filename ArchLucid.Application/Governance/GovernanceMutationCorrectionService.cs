@@ -95,6 +95,13 @@ public sealed class GovernanceMutationCorrectionService(
                 nameof(request));
         }
 
+        if (rationale.Length > FindingDispositionValidation.MaximumRationaleLength)
+        {
+            throw new ArgumentException(
+                $"Rationale must not exceed {FindingDispositionValidation.MaximumRationaleLength} characters.",
+                nameof(request));
+        }
+
         string normalizedRunId = await GovernanceRunScope.RequireScopedRunIdAsync(
             _scopeContextProvider,
             _runRepository,

@@ -1,6 +1,7 @@
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Models.CustomerSuccess;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Core.Scoping;
@@ -66,6 +67,13 @@ public sealed partial class TenantCustomerSuccessController
 
         if (findingRef is not null)
         {
+            if (findingRef.Length > GovernanceRequestValidationRules.FindingIdMaxLength)
+            {
+                return this.BadRequestProblem(
+                    $"FindingRef must not exceed {GovernanceRequestValidationRules.FindingIdMaxLength} characters.",
+                    ProblemTypes.ValidationFailed);
+            }
+
             FindingInspectResponse? finding = await _findingInspectReadRepository
                 .GetInspectAsync(scope, findingRef, cancellationToken, FindingInspectReadOptions.MetadataOnly)
                 .ConfigureAwait(false);

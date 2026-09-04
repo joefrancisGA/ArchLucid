@@ -13,6 +13,9 @@ public static class FindingDispositionValidation
     /// <summary>Matches inspect and stickiness route finding-id contract.</summary>
     public const int MaxFindingIdLength = 64;
 
+    /// <summary>Matches governance review comment and promotion note caps.</summary>
+    public const int MaximumRationaleLength = 4000;
+
     public static void Validate(RecordFindingDispositionRequest request, DateTimeOffset? nowUtc = null)
     {
         ArgumentNullException.ThrowIfNull(request);

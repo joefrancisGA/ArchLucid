@@ -404,6 +404,45 @@ public sealed class GovernanceMutationCorrectionServiceTests
             .WithMessage($"*at least {FindingDispositionValidation.MinimumRationaleLength}*");
     }
 
+    [Fact]
+    public async Task RecordAsync_rejects_correction_when_rationale_exceeds_maximum_length()
+    {
+        const string runId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+        const string approvalRequestId = "apr-correction-1";
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        approvals
+            .Setup(r => r.GetByIdAsync(approvalRequestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest
+            {
+                ApprovalRequestId = approvalRequestId,
+                RunId = runId,
+                Status = GovernanceApprovalStatus.Approved,
+            });
+
+        GovernanceMutationCorrectionService sut = CreateSut(
+            approvals.Object,
+            CreateScopedRunRepository(runId).Object,
+            new Mock<IAuditService>().Object);
+
+        string overlongRationale = new string('r', FindingDispositionValidation.MaximumRationaleLength + 1);
+
+        Func<Task> act = () => sut.RecordAsync(
+            new RecordGovernanceMutationCorrectionRequest
+            {
+                MutationKind = GovernanceMutationCorrectionKinds.QuickApprove,
+                SubjectId = approvalRequestId,
+                RunId = runId,
+                Rationale = overlongRationale,
+            },
+            Scope,
+            "operator-1",
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage($"*exceed*{FindingDispositionValidation.MaximumRationaleLength}*");
+    }
+
     private static GovernanceMutationCorrectionService CreateSut(
         IGovernanceApprovalRequestRepository approvalRepo,
         IRunRepository runRepository,

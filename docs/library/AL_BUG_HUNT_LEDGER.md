@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 136
-- **bugs-found:** 302
+- **hunts:** 138
+- **bugs-found:** 307
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — bulk disposition authority-run binding; findingId max-length; superseded activation correction 409
+- **last-bug:** 2026-09-04 — product-feedback findingRef max-length; mutation correction rationale max-length
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3808,6 +3808,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceMutationCorrectionService.ValidateActivationSubjectAsync` / `GovernanceController.RecordGovernanceMutationCorrection` — correction on superseded activation (`IsActive = false`) returned HTTP 200 while approval status mismatch maps to HTTP 409 (#676 lifecycle parity) — **hit 2026-09-04 (#677):** throw `ConflictException` when activation is not active; regression in `GovernanceMutationCorrectionServiceTests.RecordAsync_throws_conflict_when_environment_activation_is_superseded`.
 
 2026-09-04 seed hunt #677: promoted and proved bulk disposition authority-run binding, bulk correction trail parity, findingId max-length validation, and superseded activation correction conflict mapping.
+
+- [x] (proven) `GovernanceStickinessController.CreateRiskException` / `GovernanceStickinessHttpMapper.ValidateCreateRiskException` — body `findingId` longer than 64 chars returned HTTP 404 while stickiness route and inspect paths return HTTP 400 (#677 route parity gap) — **hit 2026-09-04 (#678):** `GovernanceRequestValidationRules.FindingIdMaxLength` guard on waiver create; regression in `GovernanceStickinessHttpMapperTests.ValidateCreateRiskException_rejects_overlong_finding_id` and `GovernanceStickinessControllerTests.CreateRiskException_returns_bad_request_when_finding_id_exceeds_max_length`.
+
+- [x] (proven) `GovernanceMutationCorrectionService.ValidateFindingDispositionSubjectAsync` / `GovernanceController.RecordGovernanceMutationCorrection` — disposition correction `subjectId` (findingId) longer than 64 chars returned HTTP 404 instead of HTTP 400 — **hit 2026-09-04 (#678):** reject overlong finding subject ids before trail lookup via `FindingDispositionValidation.MaxFindingIdLength`; regression in `GovernanceMutationCorrectionServiceTests.RecordAsync_rejects_disposition_correction_when_subject_id_exceeds_max_finding_id_length`.
+
+- [x] (proven) `GovernanceMutationCorrectionService.RecordAsync` / `GovernanceController.RecordGovernanceMutationCorrection` — correction `rationale` shorter than 10 chars returned HTTP 200 while disposition paths enforce `MinimumRationaleLength` — **hit 2026-09-04 (#678):** min-length guard on all correction rationales; regression in `GovernanceMutationCorrectionServiceTests.RecordAsync_rejects_correction_when_rationale_is_shorter_than_minimum_length`.
+
+- [x] (invalid) `ManifestsController.GetManifestSummary` JSON — unbounded `services`/`datastores` arrays when `relationships` default-capped at 1000 (#676 sibling) — **cheap-disproof 2026-09-04 (#679):** `#676` capped relationship fan-out only; markdown path lists all services/datastores by design; JSON exposes full `ServiceCount`/`DatastoreCount` with partial relationship array; no `maxServices` product constant.
+
+- [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — `findingRef` between 65 and 512 chars returned HTTP 404 after inspect miss while `#565` only capped SQL at 512 and stickiness/inspect enforce 64-char finding ids — **hit 2026-09-04 (#679):** reject `findingRef` over `FindingIdMaxLength` before inspect; regression in `TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_returns_bad_request_when_finding_ref_exceeds_finding_id_max_length`.
+
+- [x] (proven) `GovernanceMutationCorrectionService.RecordAsync` / `GovernanceController.RecordGovernanceMutationCorrection` — correction `rationale` longer than 4000 chars returned HTTP 200 while approve/reject/batch review cap at `ReviewCommentMaxLength` (#675) — **hit 2026-09-04 (#679):** `FindingDispositionValidation.MaximumRationaleLength` guard; regression in `GovernanceMutationCorrectionServiceTests.RecordAsync_rejects_correction_when_rationale_exceeds_maximum_length`.
+
+2026-09-04 thorough hunt #679: cheap-disproved manifest summary services/datastores cap candidate; proved product-feedback findingRef inspect max-length and mutation-correction rationale max-length parity.
+
+2026-09-04 seed hunt #678: promoted and proved CreateRiskException body findingId max-length, mutation correction subjectId max-length, and correction rationale min-length parity.
 
 2026-09-04 seed hunt #675: promoted and proved manifest compare max-length validation, batch review comment cap, and approve/reject/promote actor-field validator parity.
 
