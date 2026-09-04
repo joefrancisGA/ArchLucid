@@ -346,6 +346,13 @@ public sealed class UserPreferencesControllerTests
         repository.Verify(
             repo => repo.UpsertAsync(
                 "jwt:user-1",
+                UserSettingKeys.FindingsShowLowConfidenceEnabled,
+                "false",
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        repository.Verify(
+            repo => repo.UpsertAsync(
+                "jwt:user-1",
                 UserSettingKeys.FindingsShowAdvisoryEnabled,
                 "true",
                 It.IsAny<CancellationToken>()),
