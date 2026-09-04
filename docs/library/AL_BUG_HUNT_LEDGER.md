@@ -1217,13 +1217,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 3
-- **bugs-found:** 5
+- **hunts:** 4
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24
+- **last-hunt:** 2026-09-04
+- **last-bug:** 2026-09-04 — duplicate Stripe-Signature / Authorization headers comma-joined and rejected
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** 0
 
 ### Hypotheses
 
@@ -1234,6 +1234,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Ledger duplicate deliveries replayed while row still `Received` — **hit 2026-08-24:** `StripeBillingProvider` and `AzureMarketplaceBillingProvider` only rejected duplicates when prior status was `Processed`, so concurrent retries double-applied mutations during in-flight handling; fixed via `BillingWebhookLedgerReplayPolicy`.
 - [x] (proven) Wallet `payment_intent.succeeded` acked without crediting on bad metadata — **hit 2026-08-24:** missing/invalid `tenant_id` on `llm_wallet_refill` intents was ignored and the event was marked `Processed`; fixed by validating metadata and throwing so the ledger records `Failed` and Stripe can retry.
 - [x] (proven) Marketplace dedupe key used 32-bit `GetHashCode` — **hit 2026-08-24:** distinct `ChangeQuantity` payloads could collide and be falsely rejected; fixed with SHA-256 payload fingerprints in `BillingMarketplaceWebhookDedupeKey`.
+- [x] (proven) `BillingStripeWebhookController` / `BillingMarketplaceWebhookController` — duplicate `Stripe-Signature` or `Authorization` headers were comma-joined via `StringValues.ToString()`, breaking signature/JWT verification when a blank first value preceded a valid one — **hit 2026-09-04 (#671):** `InboundWebhookHeaderReader` extracts first non-empty header; regression in `InboundWebhookHeaderReaderTests` and `BillingStripeWebhookReplayHttpTests`.
+- [ ] (candidate) Stripe/Marketplace providers call `HasSeenAsync` before ledger insert instead of `TryRegisterEventAsync` — ledger `Received` status + `BillingWebhookLedgerReplayPolicy` already reject in-flight duplicates; wire `TryRegisterEventAsync` only if a repro shows double-mutation without ledger row.
+- [ ] (candidate) Wallet-route `payment_intent.*` events without `purpose=llm_wallet_refill` return handled without crediting — intentional filter so Stripe does not retry forever on subscription-route events posted to wallet URL.
+
+2026-09-04 seed hunt #671: proved duplicate billing webhook signature/bearer header comma-join; seeded replay-guard TryRegister wiring and wallet-purpose filter candidates.
 
 ---
 

@@ -46,6 +46,18 @@ public sealed class PilotValueReportService(
     /// <summary>Audit export row cap (matches <see cref = "DapperAuditRepository.GetExportAsync"/> clamp).</summary>
     public const int AuditExportMaxRows = 10_000;
 
+    /// <summary>
+    ///     Default pilot-to-date window when <c>fromUtc</c> is omitted (parity with
+    ///     <see cref="ArchLucid.Api.Controllers.Tenancy.TenantLlmCostReportingController"/> and
+    ///     <see cref="ArchLucid.Api.Controllers.Tenancy.TenantPilotValueReportController.MaxRollingDays"/>).
+    /// </summary>
+    public const int DefaultReportWindowMaxDays = 90;
+
+    private const int RunSummaryPageSize = 100;
+
+    /// <summary>Safety cap: 100 rows/page × 2 000 pages = 200 000 run summaries scanned per report.</summary>
+    private const int RunSummaryMaxPages = 2_000;
+
     private static readonly HashSet<string> ApprovalEventTypes =
         [AuditEventTypes.GovernanceApprovalApproved, AuditEventTypes.Baseline.Governance.ApprovalRequestApproved];
 
@@ -84,6 +96,14 @@ public sealed class PilotValueReportService(
 
         DateTime toExclusive = toUtc ?? TimeProvider.System.UtcNowDateTime();
         DateTime from = fromUtc ?? tenant.CreatedUtc.UtcDateTime;
+
+        if (fromUtc is null)
+        {
+            DateTime earliestDefault = toExclusive.AddDays(-DefaultReportWindowMaxDays);
+
+            if (from < earliestDefault)
+                from = earliestDefault;
+        }
 
         if (toExclusive <= from)
             return EmptyReport(scope.TenantId, from, toExclusive, pendingApprovalsNow);
@@ -181,11 +201,27 @@ public sealed class PilotValueReportService(
     {
         List<CommittedRunRef> rows = [];
         string? cursor = null;
-        const int take = 100;
+        int pageCount = 0;
+
         while (true)
         {
+            if (pageCount >= RunSummaryMaxPages)
+            {
+                if (_logger.IsEnabled(LogLevel.Warning))
+                {
+                    _logger.LogWarning(
+                        "Pilot value report: run-summary keyset max-page cap ({Cap}) reached.",
+                        RunSummaryMaxPages);
+                }
+
+                break;
+            }
+
             (IReadOnlyList<RunSummary> items, bool hasMore, string? next) =
-                await _runDetailQuery.ListRunSummariesKeysetAsync(cursor, take, cancellationToken).ConfigureAwait(false);
+                await _runDetailQuery.ListRunSummariesKeysetAsync(cursor, RunSummaryPageSize, cancellationToken).ConfigureAwait(false);
+
+            pageCount++;
+
             bool stopPaging = false;
 
             foreach (RunSummary s in items)
@@ -202,6 +238,7 @@ public sealed class PilotValueReportService(
 
             if (stopPaging || !hasMore || string.IsNullOrEmpty(next))
                 break;
+
             cursor = next;
         }
 
