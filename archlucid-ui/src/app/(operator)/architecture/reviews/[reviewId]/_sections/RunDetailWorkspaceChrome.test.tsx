@@ -29,11 +29,35 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 }));
 
 vi.mock("@/components/reviews/ReviewHeaderShareMenu", () => ({
-  ReviewHeaderShareMenu: () => <div data-testid="review-header-share-menu" />,
+  ReviewHeaderShareMenu: ({
+    disabled,
+    disabledReason,
+  }: {
+    disabled?: boolean;
+    disabledReason?: { message: string } | null;
+  }) => (
+    <div
+      data-testid="review-header-share-menu"
+      data-disabled={disabled === true ? "true" : "false"}
+      data-disabled-reason={disabledReason?.message ?? ""}
+    />
+  ),
 }));
 
 vi.mock("@/components/reviews/ReviewAskDock", () => ({
-  ReviewAskDock: () => <div data-testid="review-ask-dock" />,
+  ReviewAskDock: ({
+    disabled,
+    disabledReason,
+  }: {
+    disabled?: boolean;
+    disabledReason?: { message: string } | null;
+  }) => (
+    <div
+      data-testid="review-ask-dock"
+      data-disabled={disabled === true ? "true" : "false"}
+      data-disabled-reason={disabledReason?.message ?? ""}
+    />
+  ),
 }));
 
 vi.mock("@/components/CopyIdButton", () => ({
@@ -116,8 +140,8 @@ describe("RunDetailWorkspaceHeader", () => {
     expect(screen.getByText("Jan 1, 2026, 12:00 PM")).toBeInTheDocument();
     expect(screen.getByText("v2")).toBeInTheDocument();
     expect(screen.getByTestId("favorite-review-toggle")).toBeInTheDocument();
-    expect(screen.getByTestId("review-header-share-menu")).toBeInTheDocument();
-    expect(screen.getByTestId("review-ask-dock")).toBeInTheDocument();
+    expect(screen.getByTestId("review-header-share-menu")).toHaveAttribute("data-disabled", "false");
+    expect(screen.getByTestId("review-ask-dock")).toHaveAttribute("data-disabled", "false");
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.getByTestId("architecture-object-map-strip")).toBeInTheDocument();
   });
@@ -176,6 +200,12 @@ describe("RunDetailWorkspaceHeader", () => {
     expect(
       screen.queryByText("Not applicable — no approval decision until the review is finalized"),
     ).toBeNull();
+    expect(screen.getByTestId("review-header-share-menu")).toHaveAttribute("data-disabled", "true");
+    expect(screen.getByTestId("review-ask-dock")).toHaveAttribute("data-disabled", "true");
+    expect(screen.getByTestId("review-header-share-menu")).toHaveAttribute(
+      "data-disabled-reason",
+      "Unavailable until the review completes. Resolve the execution failure and re-run the review.",
+    );
   });
 
   it("clamps an oversized h1 title to one line without markdown", () => {
