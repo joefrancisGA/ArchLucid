@@ -3,6 +3,7 @@ using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Services;
+using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Core.Authorization;
 
@@ -183,14 +184,22 @@ public sealed partial class ComparisonsController
                 ProblemTypes.ValidationFailed);
         }
 
-        Application.Analysis.ComparisonBatchReplay.ComparisonBatchReplayZipResult? zipResult =
-            await _comparisons.TryBuildBatchReplayZipAsync(
+        Application.Analysis.ComparisonBatchReplay.ComparisonBatchReplayZipResult? zipResult;
+
+        try
+        {
+            zipResult = await _comparisons.TryBuildBatchReplayZipAsync(
                 request.ComparisonRecordIds,
                 request.Format,
                 request.ReplayMode,
                 request.Profile,
                 request.PersistReplay,
                 cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         if (zipResult is null)
         {

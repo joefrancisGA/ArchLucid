@@ -2,9 +2,12 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Logging;
 
@@ -14,6 +17,8 @@ namespace ArchLucid.Application.Governance;
 public sealed class RunOperatorGovernanceDispositionService(
     IRunRepository runRepository,
     IAuditService auditService,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     ILogger<RunOperatorGovernanceDispositionService> logger) : IRunOperatorGovernanceDispositionService
 {
     private readonly IRunRepository _runRepository =
@@ -21,6 +26,12 @@ public sealed class RunOperatorGovernanceDispositionService(
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private readonly ILogger<RunOperatorGovernanceDispositionService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -44,6 +55,13 @@ public sealed class RunOperatorGovernanceDispositionService(
 
         RunOperatorGovernanceDispositionValidation.Validate(request);
         RunOperatorGovernanceDispositionValidation.ValidateApproveAllowed(request.Decision, hasCommitBlockingFailures);
+
+        await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
+            runId,
+            scope,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken);
 
         RunRecord? run = await _runRepository.GetByIdAsync(scope, runId, cancellationToken);
 

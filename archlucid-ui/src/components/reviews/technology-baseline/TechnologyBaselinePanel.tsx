@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { Lock, LockOpen } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -29,6 +30,10 @@ import {
 } from "@/lib/technology-ledger-labels";
 import { TechnologyBaselineRationaleDialog } from "@/components/reviews/technology-baseline/TechnologyBaselineRationaleDialog";
 import { detectTechnologyLedgerDrift } from "@/lib/vocabulary/detect-technology-ledger-drift";
+import {
+  parseTechnologyBaselineEntryIdFromSearch,
+  technologyBaselineRationaleHrefFromSearch,
+} from "@/lib/reviews/technology-baseline-rationale-url";
 import type { TechnologyLedgerEntry } from "@/types/technology-ledger";
 
 export type TechnologyBaselinePanelProps = {
@@ -46,6 +51,10 @@ export function TechnologyBaselinePanel({
   usedStaticDemoRun,
   warningCountDisplay,
 }: TechnologyBaselinePanelProps): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? `/architecture/reviews/${encodeURIComponent(runId)}`;
+  const searchParams = useSearchParams();
+  const urlTechEntryId = parseTechnologyBaselineEntryIdFromSearch(searchParams.get("techEntryId"));
   const [entries, setEntries] = useState<TechnologyLedgerEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -54,7 +63,37 @@ export function TechnologyBaselinePanel({
     message: string;
     correlationId: string | null;
   } | null>(null);
-  const [rationaleDialogEntry, setRationaleDialogEntry] = useState<TechnologyLedgerEntry | null>(null);
+  const [rationaleDialogEntry, setRationaleDialogEntryState] = useState<TechnologyLedgerEntry | null>(null);
+
+  const syncTechEntryToUrl = useCallback(
+    (entryId: string | null) => {
+      router.replace(
+        technologyBaselineRationaleHrefFromSearch(searchParams.toString(), entryId, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setRationaleDialogEntry = useCallback(
+    (entry: TechnologyLedgerEntry | null) => {
+      setRationaleDialogEntryState(entry);
+      syncTechEntryToUrl(entry?.entryId ?? null);
+    },
+    [syncTechEntryToUrl],
+  );
+
+  useEffect(() => {
+    if (urlTechEntryId.length === 0 || entries.length === 0) {
+      return;
+    }
+
+    const matched = entries.find((entry) => entry.entryId === urlTechEntryId) ?? null;
+
+    if (matched !== null) {
+      setRationaleDialogEntryState(matched);
+    }
+  }, [entries, urlTechEntryId]);
 
   const sectionTitle = buyerPolished ? "Technology choices" : "Technology baseline";
 

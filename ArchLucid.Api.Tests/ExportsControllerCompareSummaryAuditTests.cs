@@ -159,5 +159,7 @@ public sealed class ExportsControllerCompareSummaryAuditTests
             Mock.Of<IExportReplayService>(),
             diffService,
             formatter,
-            audit));
+            audit,
+            Mock.Of<IRunExportLineageVerifier>(),
+            Mock.Of<IScopeContextProvider>()));
 }

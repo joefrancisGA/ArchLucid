@@ -19,7 +19,7 @@ const DEFAULT_PROJECT_ID = "default";
 export async function loadOperatorHomeRunsDashboardModel(): Promise<OperatorHomeRunsDashboardModel> {
   const page = 1;
   const pageSize = OPERATOR_HOME_RUNS_DASHBOARD_PAGE_SIZE;
-  const buyerPolishedShell = resolveProductionEvalChromeForServer();
+  const buyerPolishedShell = resolveProductionEvalChromeForServer(); // eval-chrome decision (legacy name in model)
   const { getServerResolvedScopeHeaders } = await import("@/lib/server-operator-scope");
   // Server-resolved scope only — never getEffectiveBrowserProxyScopeHeaders() on SSR (dev defaults).
   const scopeHeaders = await getServerResolvedScopeHeaders();

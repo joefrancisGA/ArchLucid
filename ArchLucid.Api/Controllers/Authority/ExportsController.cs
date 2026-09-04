@@ -32,7 +32,8 @@ public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade
 
     [HttpGet("review/{runId}/exports")]
     [ProducesResponseType(typeof(RunExportHistoryResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunExportHistory([FromRoute] string runId, CancellationToken cancellationToken)
     {
         RunExportHistoryQueryResult result = await _runExportQueryFacade.GetRunExportHistoryAsync(runId, cancellationToken);
@@ -40,6 +41,9 @@ public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade
         {
             ExportRecordLoadOutcome.Success => Ok(new RunExportHistoryResponse { Exports = result.Exports!.ToList() }),
             ExportRecordLoadOutcome.RunNotFound => this.NotFoundProblem($"Run '{result.MissingRunId}' was not found.", ProblemTypes.RunNotFound),
+            ExportRecordLoadOutcome.LineageUnverified => this.ConflictProblem(
+                $"Run export history for '{result.MissingRunId}' is blocked until export lineage verification succeeds.",
+                ProblemTypes.Conflict),
             _ => throw new InvalidOperationException($"Unexpected export history outcome: {result.Outcome}."),
         };
     }

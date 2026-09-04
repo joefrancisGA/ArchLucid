@@ -87,7 +87,7 @@ export default function GovernanceFindingsQueueClient({
     assignedToMeLoadedFindingCount,
     assignedToMeCountMismatch,
   } = queueMode;
-  const bulkActions = useGovernanceFindingsQueueBulkActions({ refresh });
+  const bulkActions = useGovernanceFindingsQueueBulkActions({ refresh, mode });
   const {
     registerFilter,
     setRegisterFilter,

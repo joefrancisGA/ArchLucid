@@ -21,6 +21,19 @@ import {
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  WEBHOOKS_INTEGRATION_CLAIM_DISCIPLINE,
+} from "@/lib/webhooks-integration-evidence-copy";
+import {
+  WEBHOOKS_INTEGRATION_FIRST_VIEWPORT_TEST_ID,
+  WEBHOOKS_INTEGRATION_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  WEBHOOKS_INTEGRATION_PRIMARY_CONTENT_ID,
+  WEBHOOKS_INTEGRATION_SKIP_LINK_LABEL,
+  WEBHOOKS_INTEGRATION_SKIP_TARGET_ID,
+  webhooksIntegrationPageDescription,
+} from "@/lib/webhooks-integration-page-copy";
 import {
   WEBHOOKS_ENABLE_CONFIRM_LABEL,
   WEBHOOKS_ENABLE_CONFIRM_TITLE,
@@ -51,6 +64,7 @@ import { WebhooksSubscriptionsTable } from "./WebhooksSubscriptionsTable";
 
 /** Integration hub for outbound HTTPS webhook subscriptions. */
 export function WebhooksSettingsClient() {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const {
     form,
     register,
@@ -118,48 +132,45 @@ export function WebhooksSettingsClient() {
     document.querySelector<HTMLButtonElement>(`[data-testid="webhook-test-${subscriptionId}"]`)?.focus();
   }
 
-  return (
-    <OperatorPageContainer
-      variant="workflow"
-      className={cn("px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
-      data-testid="webhooks-page"
-    >
-      <PageHeading
-        navHref={INTEGRATIONS_WEBHOOKS_PATH}
-        title={WEBHOOKS_PAGE_TITLE}
-        variant="integration"
-        bordered
-        actions={<PageContextualHelpButton />}
-        description={
-          <>
-            <p className={cn("m-0 leading-snug", OPERATOR_TYPOGRAPHY.body)}>{WEBHOOKS_PAGE_DESCRIPTION}</p>
-            <div className="space-y-2" data-testid="webhooks-configuration-status">
-              {loading ? (
-                <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                  Loading configuration status…
-                </p>
-              ) : (
-                <StatusTag
-                  kind={webhooksConfigurationStatusTagKind(webhookRows.length, activeSubscriptionCount)}
-                  label={webhooksConfigurationStatusLabel(webhookRows.length, activeSubscriptionCount)}
-                />
-              )}
-              {!loading && webhookRows.length === 0 ? (
-                <p
-                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                  data-testid="webhooks-not-configured-next-step"
-                >
-                  {WEBHOOKS_NOT_CONFIGURED_NEXT_STEP}
-                </p>
-              ) : null}
-            </div>
-          </>
-        }
-      />
-      <WebhooksApiKeysVocabularyRail currentSurfaceId="webhooks" />
-      <WebhooksVsDlqVocabularyRail currentSurfaceId="webhooks" />
-      <ConnectionStatusWebhooksVocabularyRail currentSurfaceId="webhooks" />
-      <WebhooksIntegrationEvidenceOrientationStrip />
+  const configurationStatusBlock = (
+    <div className="space-y-2" data-testid="webhooks-configuration-status">
+      {loading ? (
+        <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          Loading configuration status…
+        </p>
+      ) : (
+        <StatusTag
+          kind={webhooksConfigurationStatusTagKind(webhookRows.length, activeSubscriptionCount)}
+          label={webhooksConfigurationStatusLabel(webhookRows.length, activeSubscriptionCount)}
+        />
+      )}
+      {!loading && webhookRows.length === 0 ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="webhooks-not-configured-next-step"
+        >
+          {WEBHOOKS_NOT_CONFIGURED_NEXT_STEP}
+        </p>
+      ) : null}
+    </div>
+  );
+
+  const pageDescription = buyerPolishedShell ? (
+    <>
+      <p className={cn("m-0 leading-snug", OPERATOR_TYPOGRAPHY.body)}>
+        {webhooksIntegrationPageDescription(buyerPolishedShell, WEBHOOKS_PAGE_DESCRIPTION)}
+      </p>
+      {configurationStatusBlock}
+    </>
+  ) : (
+    <>
+      <p className={cn("m-0 leading-snug", OPERATOR_TYPOGRAPHY.body)}>{WEBHOOKS_PAGE_DESCRIPTION}</p>
+      {configurationStatusBlock}
+    </>
+  );
+
+  const workspaceBody = (
+    <>
       {failure !== null ? (
         <div role="alert">
           <OperatorApiProblem
@@ -211,25 +222,25 @@ export function WebhooksSettingsClient() {
               <EnterpriseCompactEmptyState {...WEBHOOKS_SUBSCRIPTIONS_EMPTY_COMPACT} />
             ) : (
               <>
-              {continueLastSubscription !== null ? (
-                <WebhooksContinueLastViewedRow
-                  target={continueLastSubscription}
-                  onOpen={openSubscription}
+                {continueLastSubscription !== null ? (
+                  <WebhooksContinueLastViewedRow
+                    target={continueLastSubscription}
+                    onOpen={openSubscription}
+                  />
+                ) : null}
+                <WebhooksSubscriptionsTable
+                  webhookRows={webhookRows}
+                  testingId={testingId}
+                  testResults={testResults}
+                  canMutate={canMutate}
+                  loading={loading}
+                  onTestWebhook={(routingSubscriptionId) => {
+                    void onTestWebhook(routingSubscriptionId);
+                  }}
+                  onToggle={(routingSubscriptionId, subscriptionName, isEnabled) => {
+                    void onToggle(routingSubscriptionId, subscriptionName, isEnabled);
+                  }}
                 />
-              ) : null}
-              <WebhooksSubscriptionsTable
-                webhookRows={webhookRows}
-                testingId={testingId}
-                testResults={testResults}
-                canMutate={canMutate}
-                loading={loading}
-                onTestWebhook={(routingSubscriptionId) => {
-                  void onTestWebhook(routingSubscriptionId);
-                }}
-                onToggle={(routingSubscriptionId, subscriptionName, isEnabled) => {
-                  void onToggle(routingSubscriptionId, subscriptionName, isEnabled);
-                }}
-              />
               </>
             )}
           </section>
@@ -253,6 +264,71 @@ export function WebhooksSettingsClient() {
           />
         </form>
       </FormProvider>
+    </>
+  );
+
+  return (
+    <OperatorPageContainer
+      variant="workflow"
+      className={cn("px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
+      data-testid="webhooks-page"
+    >
+      {buyerPolishedShell ? (
+        <a
+          href={`#${WEBHOOKS_INTEGRATION_SKIP_TARGET_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {WEBHOOKS_INTEGRATION_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
+      <div
+        id={buyerPolishedShell ? WEBHOOKS_INTEGRATION_PRIMARY_CONTENT_ID : undefined}
+        data-testid={buyerPolishedShell ? WEBHOOKS_INTEGRATION_PRIMARY_CONTENT_ID : undefined}
+        className={cn(buyerPolishedShell && "scroll-mt-24", buyerPolishedShell && OPERATOR_LAYOUT.sectionStack)}
+      >
+        <PageHeading
+          navHref={INTEGRATIONS_WEBHOOKS_PATH}
+          title={WEBHOOKS_PAGE_TITLE}
+          variant="integration"
+          bordered
+          claimDiscipline={buyerPolishedShell ? WEBHOOKS_INTEGRATION_CLAIM_DISCIPLINE : undefined}
+          claimDisciplineTestId={
+            buyerPolishedShell ? WEBHOOKS_INTEGRATION_HEADER_CLAIM_DISCIPLINE_TEST_ID : undefined
+          }
+          actions={buyerPolishedShell ? null : <PageContextualHelpButton />}
+          description={pageDescription}
+        />
+        {!buyerPolishedShell ? (
+          <>
+            <WebhooksApiKeysVocabularyRail currentSurfaceId="webhooks" />
+            <WebhooksVsDlqVocabularyRail currentSurfaceId="webhooks" />
+            <ConnectionStatusWebhooksVocabularyRail currentSurfaceId="webhooks" />
+            <WebhooksIntegrationEvidenceOrientationStrip />
+          </>
+        ) : null}
+
+        {buyerPolishedShell ? (
+          <div
+            id={WEBHOOKS_INTEGRATION_SKIP_TARGET_ID}
+            data-testid={WEBHOOKS_INTEGRATION_FIRST_VIEWPORT_TEST_ID}
+            className={cn(
+              "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+              OPERATOR_LAYOUT.sectionStack,
+            )}
+          >
+            {workspaceBody}
+          </div>
+        ) : (
+          workspaceBody
+        )}
+
+        {buyerPolishedShell ? (
+          <div data-testid="webhooks-integration-orientation-bottom">
+            <WebhooksIntegrationEvidenceOrientationStrip />
+          </div>
+        ) : null}
+      </div>
 
       <AlertRoutingSubscriptionDisableDialog
         target={pendingDisable}

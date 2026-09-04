@@ -5,6 +5,7 @@ import Link from "next/link";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { WEBHOOKS_INTEGRATION_HELP_PRIMARY_ACTION } from "@/lib/webhooks-integration-help-guide-content";
 
@@ -15,8 +16,13 @@ type HelpWebhooksIntegrationHeaderActionsProps = {
 /** Primary CTA, role tag, and print for `/help/webhooks-integration` (HEW). */
 export function HelpWebhooksIntegrationHeaderActions(
   props: HelpWebhooksIntegrationHeaderActionsProps,
-): React.ReactElement {
+): React.JSX.Element | null {
   const { entry } = props;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
+  if (buyerPolishedShell) {
+    return null;
+  }
 
   return (
     <div className="flex flex-wrap items-center gap-2" data-testid="help-webhooks-integration-header-actions">

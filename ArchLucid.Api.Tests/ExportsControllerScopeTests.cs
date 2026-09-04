@@ -81,7 +81,9 @@ public sealed class ExportsControllerScopeTests
             Mock.Of<IExportReplayService>(),
             Mock.Of<IExportRecordDiffService>(),
             Mock.Of<IExportRecordDiffSummaryFormatter>(),
-            Mock.Of<IAuditService>());
+            Mock.Of<IAuditService>(),
+            Mock.Of<IRunExportLineageVerifier>(),
+            Mock.Of<IScopeContextProvider>());
 
         ExportsController controller = new(facade);
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { buildPilotValueReportQuery, getTenantPilotValueReportJson } from "@/lib/pilot-value-report-fetch";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
@@ -16,6 +16,10 @@ import {
   parseSponsorReportCustomDateFromSearch,
   sponsorReportCustomDateHrefFromSearch,
 } from "@/lib/insights/sponsor-report-custom-date-url";
+import {
+  parseSponsorReportEmailPreviewOpenFromSearch,
+  sponsorReportEmailPreviewHrefFromSearch,
+} from "@/lib/insights/sponsor-report-email-preview-url";
 import {
   type PilotOutcomesPeriodPresetId,
   resolvePilotOutcomesPeriodPreset,
@@ -61,10 +65,12 @@ function buildEmailPreview(
 
 export function usePilotValueReportPilotPage(loaded: PilotValueReportPageServerLoad): PilotValueReportPilotPageViewModel {
   const router = useRouter();
+  const pathname = usePathname() ?? "/insights/sponsor-report";
   const searchParams = useSearchParams();
   const urlPeriodPreset = parseSponsorReportPeriodFromSearch(searchParams.get("range"));
   const urlFromUtc = parseSponsorReportCustomDateFromSearch(searchParams.get("from"));
   const urlToUtc = parseSponsorReportCustomDateFromSearch(searchParams.get("to"));
+  const urlEmailPreviewOpen = parseSponsorReportEmailPreviewOpenFromSearch(searchParams.get("emailPreview"));
   const [fromUtc, setFromUtc] = useState(
     urlPeriodPreset === "custom" && urlFromUtc.length > 0 ? urlFromUtc : loaded.initialFromUtc,
   );
@@ -80,8 +86,26 @@ export function usePilotValueReportPilotPage(loaded: PilotValueReportPageServerL
   const [boardBusy, setBoardBusy] = useState(false);
   const [emailBusy, setEmailBusy] = useState(false);
   const [error, setError] = useState<PilotValueReportPilotPageError | null>(loaded.failure);
-  const [emailPreviewOpen, setEmailPreviewOpen] = useState(false);
+  const [emailPreviewOpen, setEmailPreviewOpenState] = useState(urlEmailPreviewOpen);
   const [emailPreview, setEmailPreview] = useState<PilotOutcomesEmailPreview | null>(null);
+
+  const syncEmailPreviewToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        sponsorReportEmailPreviewHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    setEmailPreviewOpenState(urlEmailPreviewOpen);
+
+    if (urlEmailPreviewOpen && emailPreview === null) {
+      setEmailPreview(buildEmailPreview(fromUtc, toUtc, data !== null && data.totalRunsCommitted > 0));
+    }
+  }, [data, emailPreview, fromUtc, toUtc, urlEmailPreviewOpen]);
 
   const includesSampleData = isNextPublicDemoMode();
 
@@ -256,12 +280,14 @@ export function usePilotValueReportPilotPage(loaded: PilotValueReportPageServerL
 
   const openEmailPreview = useCallback(() => {
     setEmailPreview(buildEmailPreview(fromUtc, toUtc, data !== null && data.totalRunsCommitted > 0));
-    setEmailPreviewOpen(true);
-  }, [data, fromUtc, toUtc]);
+    setEmailPreviewOpenState(true);
+    syncEmailPreviewToUrl(true);
+  }, [data, fromUtc, syncEmailPreviewToUrl, toUtc]);
 
   const closeEmailPreview = useCallback(() => {
-    setEmailPreviewOpen(false);
-  }, []);
+    setEmailPreviewOpenState(false);
+    syncEmailPreviewToUrl(false);
+  }, [syncEmailPreviewToUrl]);
 
   const confirmSendEmail = useCallback(async () => {
     setEmailBusy(true);
@@ -292,7 +318,8 @@ export function usePilotValueReportPilotPage(loaded: PilotValueReportPageServerL
       const mail = `mailto:?subject=${subject}&body=${body}`;
 
       window.location.href = mail;
-      setEmailPreviewOpen(false);
+      setEmailPreviewOpenState(false);
+      syncEmailPreviewToUrl(false);
     } catch (e: unknown) {
       setError({
         message: e instanceof Error ? e.message : "Send sponsor briefing failed.",
@@ -302,7 +329,7 @@ export function usePilotValueReportPilotPage(loaded: PilotValueReportPageServerL
     } finally {
       setEmailBusy(false);
     }
-  }, [fromUtc, toUtc]);
+  }, [fromUtc, syncEmailPreviewToUrl, toUtc]);
 
   return {
     fromUtc,

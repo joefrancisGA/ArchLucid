@@ -28,16 +28,16 @@ public sealed partial class PilotsController
                 ? this.NotFoundProblem($"Sponsor review packet is not available for run '{runId}'.", ProblemTypes.RunNotFound)
                 : Content(markdown, "text/markdown; charset=utf-8");
         }
-catch (ConflictException ex)
-{
-    string problemType = ex.Message.Contains("hash verification failed", StringComparison.OrdinalIgnoreCase)
-        ? ProblemTypes.DecisionReceiptSealedHashMismatch
-        : ex.Message.Contains("fields are incomplete", StringComparison.OrdinalIgnoreCase)
-            ? ProblemTypes.DecisionReceiptSealedIncomplete
-            : ProblemTypes.Conflict;
+        catch (ConflictException ex)
+        {
+            string problemType = ex.Message.Contains("hash verification failed", StringComparison.OrdinalIgnoreCase)
+                ? ProblemTypes.DecisionReceiptSealedHashMismatch
+                : ex.Message.Contains("fields are incomplete", StringComparison.OrdinalIgnoreCase)
+                    ? ProblemTypes.DecisionReceiptSealedIncomplete
+                    : ProblemTypes.Conflict;
 
-    return this.ConflictProblem(ex.Message, problemType);
-}
+            return this.ConflictProblem(ex.Message, problemType);
+        }
     }
 
     [HttpGet("runs/{runId}/sponsor-proof-pack.zip")]
@@ -100,6 +100,16 @@ catch (ConflictException ex)
         catch (SponsorFirstValuePdfBlockedException ex)
         {
             return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+        catch (ConflictException ex)
+        {
+            string problemType = ex.Message.Contains("hash verification failed", StringComparison.OrdinalIgnoreCase)
+                ? ProblemTypes.DecisionReceiptSealedHashMismatch
+                : ex.Message.Contains("fields are incomplete", StringComparison.OrdinalIgnoreCase)
+                    ? ProblemTypes.DecisionReceiptSealedIncomplete
+                    : ProblemTypes.Conflict;
+
+            return this.ConflictProblem(ex.Message, problemType);
         }
     }
 
