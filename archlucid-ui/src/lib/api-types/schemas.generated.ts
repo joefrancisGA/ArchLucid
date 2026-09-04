@@ -1555,7 +1555,7 @@ export interface components {
             value?: string;
         };
         AssignPolicyPackRequest: {
-            isPinned?: boolean;
+            isPinned: boolean;
             scopeLevel?: string;
             version?: string;
         };
@@ -2410,7 +2410,7 @@ export interface components {
         CorePilotChecklistPutRequest: {
             isCompleted: boolean;
             /** Format: int32 */
-            stepIndex?: number;
+            stepIndex: number;
         };
         CorePilotChecklistStepResponse: {
             isCompleted?: boolean;
@@ -2570,7 +2570,7 @@ export interface components {
         };
         CreatePolicyPackRequest: {
             description?: string;
-            initialContentJson?: string;
+            initialContentJson: string;
             name?: string;
             packType?: string;
         };
@@ -3424,7 +3424,7 @@ export interface components {
         ExecDigestPreferencesUpsertRequest: {
             /** Format: int32 */
             dayOfWeek?: null | number;
-            emailEnabled?: boolean;
+            emailEnabled: boolean;
             /** Format: int32 */
             hourOfDay?: null | number;
             ianaTimeZoneId?: null | string;
@@ -6628,7 +6628,7 @@ export interface components {
         /** @enum {string} */
         ProvenanceNodeType: "Finding" | "Rule" | "Decision" | "GraphNode" | "Artifact" | "Manifest";
         PublishPolicyPackVersionRequest: {
-            contentJson?: string;
+            contentJson: string;
             version?: string;
         };
         QualityGateDefinitionSnapshotDto: {
@@ -7212,7 +7212,7 @@ export interface components {
             uncovered?: components["schemas"]["RequirementCoverageItem"][];
         };
         ResolveFindingMergeConflictRequest: {
-            action?: components["schemas"]["FindingMergeConflictResolutionAction"];
+            action: components["schemas"]["FindingMergeConflictResolutionAction"];
         };
         ResolvedArchitectureDecision: {
             buyerConfidenceSource?: null | string;
@@ -8135,7 +8135,7 @@ export interface components {
             isGloballyActive?: boolean;
         };
         SetPolicyPackAssignmentEnabledRequest: {
-            isEnabled?: boolean;
+            isEnabled: boolean;
         };
         SetProfessionalWorkbenchEnabledRequest: {
             enabled?: boolean;
@@ -8281,7 +8281,7 @@ export interface components {
         SponsorDigestPreferencesUpsertRequest: {
             /** Format: int32 */
             dayOfWeek?: null | number;
-            emailEnabled?: boolean;
+            emailEnabled: boolean;
             /** Format: int32 */
             hourOfDay?: null | number;
             ianaTimeZoneId?: null | string;
@@ -8809,9 +8809,9 @@ export interface components {
         };
         TenantCostSettingsPutRequest: {
             /** Format: double */
-            architectHourlyRateUsd?: number | string;
+            architectHourlyRateUsd: number | string;
             /** Format: double */
-            averageIncidentCostUsd?: number | string;
+            averageIncidentCostUsd: number | string;
             /** Format: double */
             eaDiscountMultiplier?: null | number | string;
             /** Format: double */
@@ -8820,7 +8820,7 @@ export interface components {
         TenantErasureLegalHoldRequest: {
             reason?: null | string;
             /** Format: date-time */
-            untilUtc?: string;
+            untilUtc: string;
         };
         TenantErasureOffboardAcceptedResponse: {
             /** Format: date-time */
@@ -8875,7 +8875,7 @@ export interface components {
         };
         TenantHomepageSettingsPutRequest: {
             /** Format: uuid */
-            selectedRunId?: null | string;
+            selectedRunId: null | string;
         };
         /** @enum {string} */
         TenantIdentityProtocol: "Oidc" | "Saml";
