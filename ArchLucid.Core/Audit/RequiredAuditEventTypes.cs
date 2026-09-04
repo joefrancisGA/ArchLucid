@@ -64,6 +64,7 @@ public static class RequiredAuditEventTypes
         nameof(AuditEventTypes.GovernanceApprovalRejected),
         nameof(AuditEventTypes.GovernanceManifestPromoted),
         nameof(AuditEventTypes.GovernanceEnvironmentActivated),
+        nameof(AuditEventTypes.GovernanceMutationCorrectionRecorded),
         nameof(AuditEventTypes.GovernanceSelfApprovalBlocked),
         nameof(AuditEventTypes.RunOperatorGovernanceDispositionRecorded),
         nameof(AuditEventTypes.RiskExceptionCreated),
