@@ -1,10 +1,15 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement, ReactNode } from "react";
 import { useId } from "react";
 
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_LAYOUT, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
+import { emptyStateActionsForDesk } from "@/lib/operator/operator-desk-empty-state-actions";
 
 export type EnterpriseCompactEmptyStateAction = {
   readonly label: string;
@@ -30,7 +35,12 @@ export type EnterpriseCompactEmptyStateProps = {
  */
 export function EnterpriseCompactEmptyState(props: EnterpriseCompactEmptyStateProps): ReactElement {
   const { title, description, actions, footer, prominentBoundary = false, role = "status", testId } = props;
-  const actionList = actions ?? [];
+  const { isWorkingMode } = useWorkspaceMode();
+  const actionList = emptyStateActionsForDesk({
+    actions,
+    workingMode: isWorkingMode,
+    liveRecovery: isLiveOperatorShellRecoveryContext(),
+  });
   const titleId = useId();
   const descriptionId = useId();
 

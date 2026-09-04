@@ -48,6 +48,10 @@ public sealed partial class UserPreferencesController
             userId,
             UserSettingKeys.ProfessionalWorkbenchEnabled,
             cancellationToken);
+        string? roiLoadedHourlyCostStored = await _userSettingsRepository.TryGetAsync(
+            userId,
+            UserSettingKeys.RoiLoadedHourlyCostUsd,
+            cancellationToken);
 
         string appearancePreference = AppearancePreferenceValues.NormalizeOrNull(appearanceStored)
             ?? AppearancePreferenceValues.Default;
@@ -58,6 +62,7 @@ public sealed partial class UserPreferencesController
         string workspaceMode = WorkspaceModeValues.ParseOrDefault(workspaceModeStored);
         string workspaceModeGraduationOffer = WorkspaceModeGraduationOfferValues.ParseOrDefault(workspaceModeGraduationOfferStored);
         bool professionalWorkbenchEnabled = ProfessionalWorkbenchEnabledValues.ParseOrDefault(professionalWorkbenchStored);
+        decimal roiLoadedHourlyCostUsd = RoiLoadedHourlyCostUsdValues.ParseOrDefault(roiLoadedHourlyCostStored);
 
         return Ok(new UserPreferencesResponse
         {
@@ -80,6 +85,8 @@ public sealed partial class UserPreferencesController
             WorkspaceModeGraduationOfferIsExplicit = WorkspaceModeGraduationOfferValues.IsExplicitValue(workspaceModeGraduationOfferStored),
             ProfessionalWorkbenchEnabled = professionalWorkbenchEnabled,
             ProfessionalWorkbenchEnabledIsExplicit = ProfessionalWorkbenchEnabledValues.IsExplicitValue(professionalWorkbenchStored),
+            RoiLoadedHourlyCostUsd = roiLoadedHourlyCostUsd,
+            RoiLoadedHourlyCostUsdIsExplicit = RoiLoadedHourlyCostUsdValues.IsExplicitValue(roiLoadedHourlyCostStored),
         });
     }
 

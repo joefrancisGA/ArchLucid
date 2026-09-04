@@ -7,6 +7,7 @@ import type { ReactElement } from "react";
 import { ArchitectureCreatedFindingsEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedFindingsEvidenceOrientationStrip";
 import { ActorDependentFindingsQuietEnginesHint } from "@/components/findings/ActorDependentFindingsQuietEnginesHint";
 import { FindingsItsmExportToolbar } from "@/components/findings/FindingsItsmExportToolbar";
+import { FindingMergeConflictListCue } from "@/components/findings/FindingMergeConflictListCue";
 import { FindingKeyboardTriageHost } from "@/components/governance/findings/FindingKeyboardTriageHost";
 import { QuickDecisionSummary } from "@/components/QuickDecisionSummary";
 import { ReviewAssumptionConfirmationStrip } from "@/components/findings/ReviewAssumptionConfirmationStrip";
@@ -319,6 +320,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
     <div className="space-y-4" data-testid="run-detail-findings-workspace">
       <SimulatorModeAiOperationNotice testId="run-detail-findings-simulator-notice" />
       <FindingKeyboardTriageHost resolveRunId={(findingId) => (findingId.trim().length > 0 ? props.runId : null)} />
+      <FindingMergeConflictListCue runId={props.runId} findings={props.findings} />
       {createHomeSurface ? <ArchitectureCreatedFindingsEvidenceOrientationStrip /> : null}
       {findingsSecondaryViewPresentation !== null ? (
         <CanonicalObjectSecondaryViewStrip

@@ -26,4 +26,7 @@ public static class UserSettingKeys
 
     /// <summary>Whether Working-mode review-detail uses the split workbench layout: <c>true</c> or <c>false</c>.</summary>
     public const string ProfessionalWorkbenchEnabled = "ProfessionalWorkbenchEnabled";
+
+    /// <summary>Personal loaded hourly cost (USD) for ROI desk assumptions.</summary>
+    public const string RoiLoadedHourlyCostUsd = "RoiLoadedHourlyCostUsd";
 }
