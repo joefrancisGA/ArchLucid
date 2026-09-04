@@ -1,5 +1,6 @@
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Diagrams;
 using ArchLucid.Contracts.Manifest;
 
@@ -12,6 +13,7 @@ public sealed partial class ManifestsController
     [HttpGet("manifest/{manifestVersion}/diagram")]
     [ProducesResponseType(typeof(DiagramResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetManifestDiagram(
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
@@ -26,24 +28,32 @@ public sealed partial class ManifestsController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        GoldenManifest? manifest = await GetManifestInScopeAsync(manifestVersion, cancellationToken);
-
-        if (manifest is null)
-            return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
-
-        string mermaid = diagramGenerator.GenerateMermaid(manifest);
-        string canonicalManifestVersion = manifest.Metadata.ManifestVersion;
-
-        return Ok(new DiagramResponse
+        try
         {
-            ManifestVersion = canonicalManifestVersion, Format = FormatMermaid, Diagram = mermaid
-        });
+            GoldenManifest? manifest = await GetManifestInScopeAsync(manifestVersion, cancellationToken);
+
+            if (manifest is null)
+                return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
+
+            string mermaid = diagramGenerator.GenerateMermaid(manifest);
+            string canonicalManifestVersion = manifest.Metadata.ManifestVersion;
+
+            return Ok(new DiagramResponse
+            {
+                ManifestVersion = canonicalManifestVersion, Format = FormatMermaid, Diagram = mermaid
+            });
+        }
+        catch (ConflictException ex)
+        {
+            return GoldenManifestReadConflictProblem(ex);
+        }
     }
 
     [HttpGet("manifest/{manifestVersion}/diagram/v2")]
     [ProducesResponseType(typeof(ManifestDiagramResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetManifestDiagramV2(
         [FromRoute] string manifestVersion,
         [FromQuery] string? layout = DiagramLayoutDefault,
@@ -62,25 +72,32 @@ public sealed partial class ManifestsController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        GoldenManifest? manifest = await GetManifestInScopeAsync(manifestVersion, cancellationToken);
-
-        if (manifest is null)
-            return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
-
-        ManifestDiagramOptions opts = new()
+        try
         {
-            Layout = layout ?? DiagramLayoutDefault,
-            IncludeRuntimePlatform = includeRuntimePlatform,
-            RelationshipLabels = relationshipLabels ?? RelationshipLabelsDefault,
-            GroupBy = groupBy ?? GroupByDefault
-        };
+            GoldenManifest? manifest = await GetManifestInScopeAsync(manifestVersion, cancellationToken);
 
-        string mermaid = manifestDiagramService.GenerateMermaid(manifest, opts);
-        string canonicalManifestVersion = manifest.Metadata.ManifestVersion;
+            if (manifest is null)
+                return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
-        return Ok(new ManifestDiagramResponse
+            ManifestDiagramOptions opts = new()
+            {
+                Layout = layout ?? DiagramLayoutDefault,
+                IncludeRuntimePlatform = includeRuntimePlatform,
+                RelationshipLabels = relationshipLabels ?? RelationshipLabelsDefault,
+                GroupBy = groupBy ?? GroupByDefault
+            };
+
+            string mermaid = manifestDiagramService.GenerateMermaid(manifest, opts);
+            string canonicalManifestVersion = manifest.Metadata.ManifestVersion;
+
+            return Ok(new ManifestDiagramResponse
+            {
+                ManifestVersion = canonicalManifestVersion, DiagramType = DiagramTypeMermaid, Content = mermaid
+            });
+        }
+        catch (ConflictException ex)
         {
-            ManifestVersion = canonicalManifestVersion, DiagramType = DiagramTypeMermaid, Content = mermaid
-        });
+            return GoldenManifestReadConflictProblem(ex);
+        }
     }
 }

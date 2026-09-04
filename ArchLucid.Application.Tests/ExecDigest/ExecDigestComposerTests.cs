@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
@@ -14,6 +15,8 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
+
+using static ArchLucid.Application.Tests.Integrations.Itsm.Outbound.ItsmOutboundSealedManifestTestSupport;
 
 namespace ArchLucid.Application.Tests.ExecDigest;
 
@@ -65,6 +68,7 @@ public sealed class ExecDigestComposerTests
             runDetails.Object,
             deltas.Object,
             decisionNeeded.Object,
+            CreateManifestHashService(),
             NullLogger<ExecDigestComposer>.Instance);
 
         Guid tenantId = Guid.Parse("11111111-2222-3333-4444-555555555555");
@@ -128,6 +132,30 @@ public sealed class ExecDigestComposerTests
                     GoldenManifestId = Guid.NewGuid(),
                 },
             ]);
+        authority
+            .Setup(s => s.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                olderRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new Persistence.Models.RunRecord { RunId = olderRunId },
+                GoldenManifest = CreateSealedGoldenManifest(
+                    new ScopeContext { TenantId = Guid.Parse("11111111-2222-3333-4444-555555555555") },
+                    olderRunId),
+            });
+        authority
+            .Setup(s => s.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                newerRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new Persistence.Models.RunRecord { RunId = newerRunId },
+                GoldenManifest = CreateSealedGoldenManifest(
+                    new ScopeContext { TenantId = Guid.Parse("11111111-2222-3333-4444-555555555555") },
+                    newerRunId),
+            });
 
         Mock<IRunDetailQueryService> runDetails = new();
         runDetails
@@ -162,6 +190,7 @@ public sealed class ExecDigestComposerTests
             runDetails.Object,
             deltas.Object,
             decisionNeeded.Object,
+            CreateManifestHashService(),
             NullLogger<ExecDigestComposer>.Instance);
 
         Guid tenantId = Guid.Parse("11111111-2222-3333-4444-555555555555");

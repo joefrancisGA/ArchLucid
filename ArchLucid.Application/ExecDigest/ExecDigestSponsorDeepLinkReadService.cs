@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Notifications;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Options;
@@ -22,6 +23,8 @@ public sealed class ExecDigestSponsorDeepLinkReadService(
     IExecDigestComposer execDigestComposer,
     IRunDetailQueryService runDetailQueryService,
     IRunSummaryOnePagerExportService runSummaryOnePagerExportService,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor) : IExecDigestSponsorDeepLinkReadService
 {
     private readonly IExecDigestComposer _execDigestComposer =
@@ -35,6 +38,12 @@ public sealed class ExecDigestSponsorDeepLinkReadService(
 
     private readonly IRunSummaryOnePagerExportService _runSummaryOnePagerExportService =
         runSummaryOnePagerExportService ?? throw new ArgumentNullException(nameof(runSummaryOnePagerExportService));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
@@ -99,8 +108,29 @@ public sealed class ExecDigestSponsorDeepLinkReadService(
                         cancellationToken)
                     .ConfigureAwait(false);
 
+                List<Guid> highlightedRunIds = composition.TopManifestRuns
+                    .Select(static run => run.RunIdHex)
+                    .Where(static runIdHex => Guid.TryParse(runIdHex, out _))
+                    .Select(static runIdHex => Guid.Parse(runIdHex!))
+                    .ToList();
+
+                await ExecDigestSponsorDeepLinkSealedManifestGuard.EnsureDashboardCompositionReadyOrThrowAsync(
+                    claims.TenantId,
+                    scope,
+                    _authorityQueryService,
+                    _manifestHashService,
+                    highlightedRunIds,
+                    cancellationToken).ConfigureAwait(false);
+
                 return MapDashboard(composition, signInUrl);
             }
+
+            await ExecDigestSponsorDeepLinkSealedManifestGuard.EnsureRunCollateralReadyOrThrowAsync(
+                claims.RunIdHex!,
+                scope,
+                _authorityQueryService,
+                _manifestHashService,
+                cancellationToken).ConfigureAwait(false);
 
             ArchitectureRunDetail? detail =
                 await _runDetailQueryService.GetRunDetailForRollupAsync(claims.RunIdHex!, cancellationToken)

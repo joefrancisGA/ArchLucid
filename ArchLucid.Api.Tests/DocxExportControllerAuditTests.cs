@@ -13,6 +13,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;

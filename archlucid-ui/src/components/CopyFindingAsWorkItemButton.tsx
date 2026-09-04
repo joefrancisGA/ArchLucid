@@ -25,6 +25,7 @@ import {
   writeWorkItemBodyToClipboard,
   type FindingWorkItemBuildInput,
 } from "@/lib/copy-finding-as-work-item";
+import { findingWorkItemSealedManifestCopyBlockedReason } from "@/lib/findings/finding-work-item-sealed-manifest-guard";
 import { showError, showSuccess } from "@/lib/toast";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
@@ -85,6 +86,7 @@ function buildFindingWorkItemInput(
     evidenceExcerpts: evidenceLinesFromInspectPayload(payload),
     trustLabel: payload.trustLabel ?? null,
     trustLabelReason: payload.trustLabelReason ?? null,
+    manifestVersion: payload.manifestVersion ?? null,
   };
 }
 
@@ -220,19 +222,44 @@ export function CopyFindingAsWorkItemButton({
     [resetCopied],
   );
 
+  const ensureCopyAllowed = useCallback(
+    (input: FindingWorkItemBuildInput): boolean => {
+      const blockedReason = findingWorkItemSealedManifestCopyBlockedReason(input);
+
+      if (blockedReason !== null) {
+        showError(blockedReason);
+
+        return false;
+      }
+
+      return true;
+    },
+    [],
+  );
+
   const onQuickCopyJira = useCallback(async () => {
     const siteOrigin = typeof window !== "undefined" ? window.location.origin : "";
     const input = buildFindingWorkItemInput(runId, findingId, siteOrigin, payload);
+
+    if (!ensureCopyAllowed(input)) {
+      return;
+    }
+
     const text = buildInspectFindingWorkItemBody("jiraWiki", input);
     await copyText(text, "jira");
-  }, [copyText, findingId, payload, runId]);
+  }, [copyText, ensureCopyAllowed, findingId, payload, runId]);
 
   const onCopySelectedFormat = useCallback(async () => {
     const siteOrigin = typeof window !== "undefined" ? window.location.origin : "";
     const input = buildFindingWorkItemInput(runId, findingId, siteOrigin, payload);
+
+    if (!ensureCopyAllowed(input)) {
+      return;
+    }
+
     const text = buildInspectFindingWorkItemBody(format, input);
     await copyText(text, "selected");
-  }, [copyText, findingId, format, payload, runId]);
+  }, [copyText, ensureCopyAllowed, findingId, format, payload, runId]);
 
   return (
     <WorkItemCopyControls

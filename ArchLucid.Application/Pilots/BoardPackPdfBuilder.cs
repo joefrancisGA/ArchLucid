@@ -7,6 +7,8 @@ using ArchLucid.Application.Value;
 using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Options;
 
@@ -25,7 +27,9 @@ public sealed class BoardPackPdfBuilder(
     ValueReportBuilder valueReportBuilder,
     IScopeContextProvider scopeProvider,
     ValueReportSnapshotMarkdownFormatter valueReportSnapshotMarkdownFormatter,
-    IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor)
+    IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService)
 {
     private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor =
         emailOptionsMonitor ?? throw new ArgumentNullException(nameof(emailOptionsMonitor));
@@ -35,6 +39,12 @@ public sealed class BoardPackPdfBuilder(
     private readonly ValueReportBuilder _valueReportBuilder = valueReportBuilder ?? throw new ArgumentNullException(nameof(valueReportBuilder));
     private readonly ValueReportSnapshotMarkdownFormatter _valueReportSnapshotMarkdownFormatter =
         valueReportSnapshotMarkdownFormatter ?? throw new ArgumentNullException(nameof(valueReportSnapshotMarkdownFormatter));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     /// <summary>Builds a PDF for the current tenant scope and requested quarter (UTC).</summary>
     public async Task<byte[]> BuildPdfAsync(int year, int quarter, DateTimeOffset? overrideStartUtc, DateTimeOffset? overrideEndUtc, string operatorBaseUrl,
@@ -48,6 +58,19 @@ public sealed class BoardPackPdfBuilder(
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
         string operatorBase = string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl) ? baseUrl : emailOptions.OperatorBaseUrl.Trim();
         ExecDigestComposition digest = await _execDigestComposer.ComposeAsync(scope.TenantId, digestStart, digestEnd, scope, operatorBase, cancellationToken);
+
+        if (!string.IsNullOrWhiteSpace(digest.LatestCommittedRunIdHex)
+            && Guid.TryParse(digest.LatestCommittedRunIdHex.Trim(), out Guid latestRunGuid))
+        {
+            await BoardPackSealedExportReceiptGuard.EnsureVerifiedOrThrowAsync(
+                latestRunGuid,
+                digest.LatestCommittedRunIdHex.Trim(),
+                _authorityQueryService,
+                _manifestHashService,
+                scope,
+                cancellationToken);
+        }
+
         string digestMd = ExecDigestCompositionMarkdownFormatter.Format(digest);
         ValueReportSnapshot value = await _valueReportBuilder.BuildAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, qStart, qEnd, cancellationToken);
         string valueMd = _valueReportSnapshotMarkdownFormatter.Format(value);
