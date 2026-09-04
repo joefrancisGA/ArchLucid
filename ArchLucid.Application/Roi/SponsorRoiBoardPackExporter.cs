@@ -3,6 +3,8 @@ using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Options;
 
@@ -15,7 +17,9 @@ public sealed class SponsorRoiBoardPackExporter(
     IScopeContextProvider scopeProvider,
     SponsorRoiBoardPackPdfBuilder pdfBuilder,
     SponsorRoiBoardPackNarrativeBuilder narrativeBuilder,
-    IOptionsMonitor<RoiBoardPackNarrativeOptions> narrativeOptions) : ISponsorRoiBoardPackExporter
+    IOptionsMonitor<RoiBoardPackNarrativeOptions> narrativeOptions,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : ISponsorRoiBoardPackExporter
 {
     private readonly ISponsorRoiSummaryService _SponsorRoiSummaryService =
         SponsorRoiSummaryService ?? throw new ArgumentNullException(nameof(SponsorRoiSummaryService));
@@ -35,6 +39,12 @@ public sealed class SponsorRoiBoardPackExporter(
     private readonly IOptionsMonitor<RoiBoardPackNarrativeOptions> _narrativeOptions =
         narrativeOptions ?? throw new ArgumentNullException(nameof(narrativeOptions));
 
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
     /// <inheritdoc />
     public async Task<SponsorRoiBoardPackExportResult> ExportAsync(
         SponsorRoiBoardPackFormat format,
@@ -45,6 +55,13 @@ public sealed class SponsorRoiBoardPackExporter(
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         SponsorRoiSummaryResponse summary =
             await _SponsorRoiSummaryService.BuildAsync(cancellationToken).ConfigureAwait(false);
+
+        await SponsorRoiBoardPackSealedManifestGuard.EnsureSummaryRunsSealedOrThrowAsync(
+            summary,
+            scope,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken).ConfigureAwait(false);
 
         string tenantName = await ResolveTenantDisplayNameAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
         DateTime generatedUtc = TimeProvider.System.UtcNowDateTime();

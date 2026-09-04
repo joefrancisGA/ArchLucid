@@ -67,6 +67,16 @@ public sealed partial class GovernanceStickinessFacade
             string normalizedFindingId = finding.FindingId;
             Guid authorityRunId = finding.RunId;
 
+            if (authorityRunId != Guid.Empty)
+            {
+                await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                    authorityRunId,
+                    scope,
+                    _authorityQueryService,
+                    _manifestHashService,
+                    ct);
+            }
+
             string? tradeOffAcknowledgment = null;
 
             if (request.Disposition == ArchLucid.Contracts.Findings.FindingDisposition.Accepted)

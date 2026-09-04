@@ -135,6 +135,7 @@ public sealed class ReplayRunServiceTests
             Mock.Of<IRunPolicyPackPinService>(),
             Mock.Of<IRunEvidencePackagePinService>(),
             cloneStage,
+            Mock.Of<IReRunExecuteSealedManifestPinGate>(),
             NullLogger<ReplayRunCommitStage>.Instance);
         IReplayRunExecutePreparedStage executePreparedStage = new ReplayRunExecutePreparedStage(
             _runDetailQueryService.Object,
@@ -147,7 +148,8 @@ public sealed class ReplayRunServiceTests
             commitStage,
             _authorityRunRepository.Object,
             _scopeContextProvider.Object,
-            Mock.Of<IRunGovernanceScopePinService>());
+            Mock.Of<IRunGovernanceScopePinService>(),
+            Mock.Of<IReRunExecuteSealedManifestPinGate>());
         _sut = new ReplayRunService(prepareStage, executePreparedStage);
     }
 

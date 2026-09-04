@@ -450,6 +450,7 @@ public sealed class ManifestsControllerEvidenceScopeTests
                 scopeProvider,
                 runRepository,
                 Mock.Of<IAuthorityQueryService>(),
+                Mock.Of<IManifestHashService>(),
                 Mock.Of<ICompareRunsApplicationFacade>(),
                 tenantRepository ?? TenantExistsRepository())
             {

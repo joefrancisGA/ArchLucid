@@ -28,7 +28,8 @@ public sealed class ReplayRunExecutePreparedStage(
     IReplayRunCommitStage commitStage,
     IRunRepository runRepository,
     IScopeContextProvider scopeContextProvider,
-    IRunGovernanceScopePinService runGovernanceScopePinService) : IReplayRunExecutePreparedStage
+    IRunGovernanceScopePinService runGovernanceScopePinService,
+    IReRunExecuteSealedManifestPinGate reRunExecuteSealedManifestPinGate) : IReplayRunExecutePreparedStage
 {
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
@@ -63,6 +64,9 @@ public sealed class ReplayRunExecutePreparedStage(
     private readonly IRunGovernanceScopePinService _runGovernanceScopePinService =
         runGovernanceScopePinService ?? throw new ArgumentNullException(nameof(runGovernanceScopePinService));
 
+    private readonly IReRunExecuteSealedManifestPinGate _reRunExecuteSealedManifestPinGate =
+        reRunExecuteSealedManifestPinGate ?? throw new ArgumentNullException(nameof(reRunExecuteSealedManifestPinGate));
+
     /// <inheritdoc />
     public async Task<ReplayRunResult> ExecuteAsync(
         string preparedReplayRunId,
@@ -75,6 +79,11 @@ public sealed class ReplayRunExecutePreparedStage(
         ArgumentException.ThrowIfNullOrWhiteSpace(preparedReplayRunId);
         ArgumentException.ThrowIfNullOrWhiteSpace(originalRunId);
         ArgumentException.ThrowIfNullOrWhiteSpace(executionMode);
+
+        await ReplayRunSourceSealedManifestPinGuard.EnsureSourceRunReadyOrThrowAsync(
+            originalRunId,
+            _reRunExecuteSealedManifestPinGate,
+            cancellationToken).ConfigureAwait(false);
 
         ArchitectureRunDetail sourceDetail = await _runDetailQueryService.GetRunDetailAsync(originalRunId, cancellationToken) ??
                                              throw new RunNotFoundException(originalRunId);

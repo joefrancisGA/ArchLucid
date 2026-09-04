@@ -1,5 +1,6 @@
 using ArchLucid.Application;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
@@ -83,6 +84,7 @@ public sealed class RecurringArchitectureReviewTriggerServiceFailureTests
             requests.Object,
             create.Object,
             execute.Object,
+            Mock.Of<IReRunExecuteSealedManifestPinGate>(),
             calculator.Object,
             Mock.Of<IRecurrenceCompletionNotificationService>(),
             audit.Object,
