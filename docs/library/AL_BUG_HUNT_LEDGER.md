@@ -3166,7 +3166,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 135
+- **hunts:** 136
 - **bugs-found:** 298
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
@@ -3798,6 +3798,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.RecordGovernanceMutationCorrection` / `GovernanceMutationCorrectionService.ValidateApprovalSubjectAsync` — correction on `Submitted` approval returned HTTP 400 `ValidationFailed` while waiver lifecycle conflicts map to HTTP 409 — **hit 2026-09-04 (#676):** throw `ConflictException` for approval status mismatch; controller maps to HTTP 409; regression in `GovernanceMutationCorrectionServiceTests.RecordAsync_throws_conflict_when_approval_request_is_not_yet_approved`.
 
 2026-09-04 seed hunt #676: promoted and proved manifest summary default relationship cap, disposition authority-run binding, renew rationale min-length parity, and mutation-correction lifecycle conflict status mapping.
+
+- [ ] (hunt-ready) `GovernanceStickinessFacade.RecordBulkDispositionAsync` / `GovernanceMutationCorrectionService.ValidateFindingDispositionSubjectAsync` — bulk disposition persists trail rows with `RunId = Guid.Empty` while UI correction supplies the finding authority `runId` → HTTP 404 `ResourceNotFound` on `governance_bulk_disposition` correction (#674 keyboard binding parity).
+- [ ] (hunt-ready) `GovernanceStickinessFacade.RecordBulkDispositionAsync` vs `RecordDispositionAsync` — bulk path skips `EnsureRunMatchesFindingAuthorityRun` added in #676; in-scope finding with authority `RunId` still accepts bulk POST with `RunId = Guid.Empty` trail row.
+- [ ] (hunt-ready) `GovernanceStickinessControllerCore.ValidateFindingId` / stickiness disposition routes — `findingId` longer than 64 chars returns HTTP 404 after inspect miss while `FindingInspectController` returns HTTP 400 for the same input.
+- [ ] (hunt-ready) `GovernanceMutationCorrectionService.ValidateActivationSubjectAsync` / `GovernanceController.RecordGovernanceMutationCorrection` — correction on superseded activation (`IsActive = false`) returns HTTP 200 while approval status mismatch maps to HTTP 409 (#676 lifecycle parity).
+
+2026-09-04 seed hunt #677: promoted four hunt-ready rows (bulk correction run binding, bulk authority-run bypass, findingId max-length status mapping, superseded activation correction 409 gap).
 
 2026-09-04 seed hunt #675: promoted and proved manifest compare max-length validation, batch review comment cap, and approve/reject/promote actor-field validator parity.
 
