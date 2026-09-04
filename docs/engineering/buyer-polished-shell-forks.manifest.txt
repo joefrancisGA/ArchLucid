@@ -153,6 +153,8 @@ archlucid-ui/src/app/(operator)/help/_sections/HelpImprovementPlanningHeaderActi
 archlucid-ui/src/app/(operator)/help/_sections/HelpIntegrationReadinessHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpModelGovernanceGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpModelGovernanceHeaderActions.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpNotificationsGuideView.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpNotificationsHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpPathChooserGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpPilotFeedbackGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpPilotFeedbackHeaderActions.tsx
