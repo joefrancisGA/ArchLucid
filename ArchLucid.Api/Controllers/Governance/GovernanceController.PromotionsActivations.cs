@@ -1,4 +1,5 @@
 using ArchLucid.Api.Http;
+using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
@@ -26,6 +27,20 @@ public sealed partial class GovernanceController
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? notesProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateOptionalGovernanceComment(request.Notes, "Notes")
+                .ToBadRequestProblemOrNull(this);
+
+        if (notesProblem is not null)
+            return notesProblem;
+
+        IActionResult? approvalRequestIdProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateOptionalApprovalRequestId(request.ApprovalRequestId)
+                .ToBadRequestProblemOrNull(this);
+
+        if (approvalRequestIdProblem is not null)
+            return approvalRequestIdProblem;
 
         (IActionResult? idempotencyError, _) = ReadGovernanceIdempotencyKey(!dryRun);
 

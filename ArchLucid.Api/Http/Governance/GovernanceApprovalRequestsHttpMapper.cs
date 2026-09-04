@@ -30,13 +30,39 @@ public static class GovernanceApprovalRequestsHttpMapper
         return null;
     }
 
-    public static GovernanceHttpValidation? ValidateReviewComment(string? reviewComment)
+    public static GovernanceHttpValidation? ValidateReviewComment(string? reviewComment) =>
+        ValidateOptionalGovernanceComment(reviewComment, "ReviewComment");
+
+    public static GovernanceHttpValidation? ValidateOptionalGovernanceComment(string? value, string fieldName)
     {
-        if (reviewComment is not null
-            && reviewComment.Length > GovernanceRequestValidationRules.ReviewCommentMaxLength)
+        if (value is not null && value.Length > GovernanceRequestValidationRules.ReviewCommentMaxLength)
         {
             return new GovernanceHttpValidation(
-                $"ReviewComment must not exceed {GovernanceRequestValidationRules.ReviewCommentMaxLength} characters.",
+                $"{fieldName} must not exceed {GovernanceRequestValidationRules.ReviewCommentMaxLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
+    public static GovernanceHttpValidation? ValidateOptionalApprovalRequestId(string? approvalRequestId)
+    {
+        if (approvalRequestId is null)
+            return null;
+
+        string normalizedApprovalRequestId = approvalRequestId.Trim();
+
+        if (normalizedApprovalRequestId.Length == 0)
+        {
+            return new GovernanceHttpValidation(
+                "approvalRequestId is required.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (normalizedApprovalRequestId.Length > GovernanceRequestValidationRules.ApprovalRequestIdMaxLength)
+        {
+            return new GovernanceHttpValidation(
+                $"approvalRequestId must not exceed {GovernanceRequestValidationRules.ApprovalRequestIdMaxLength} characters.",
                 ProblemTypes.ValidationFailed);
         }
 

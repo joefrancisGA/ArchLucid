@@ -31,6 +31,13 @@ public sealed partial class GovernanceController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        IActionResult? requestCommentProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateOptionalGovernanceComment(request.RequestComment, "RequestComment")
+                .ToBadRequestProblemOrNull(this);
+
+        if (requestCommentProblem is not null)
+            return requestCommentProblem;
+
         (IActionResult? idempotencyError, string? idempotencyKey) = ReadGovernanceIdempotencyKey(!dryRun);
 
         if (idempotencyError is not null)
