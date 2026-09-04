@@ -2,9 +2,6 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { RealModeAiReadinessShellBanner } from "@/components/usability/RealModeAiReadinessShellBanner";
-import {
-  REAL_MODE_AI_READINESS_OK_TITLE,
-} from "@/lib/simulator-mode-chrome-copy";
 
 const readinessState = vi.hoisted(() => ({
   isSessionReal: true,
@@ -83,7 +80,7 @@ describe("RealModeAiReadinessShellBanner", () => {
     );
   });
 
-  it("shows a success callout when live AI is ready", () => {
+  it("hides when live AI is ready so only the top-bar chip reports success", () => {
     readinessState.isReady = true;
     readinessState.blocksExecute = false;
     readinessState.detail = "ArchLucid-managed Azure OpenAI live probe succeeded.";
@@ -102,9 +99,8 @@ describe("RealModeAiReadinessShellBanner", () => {
 
     render(<RealModeAiReadinessShellBanner />);
 
-    expect(screen.getByTestId("real-mode-ai-readiness-shell-banner")).toBeInTheDocument();
-    expect(screen.getByText(REAL_MODE_AI_READINESS_OK_TITLE)).toBeInTheDocument();
-    expect(screen.queryByTestId("real-mode-ai-readiness-recovery-steps")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("real-mode-ai-readiness-shell-banner")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("review-package-workspace-ai-availability-panel")).not.toBeInTheDocument();
   });
 
   it("hides when the session is not in Real mode", () => {
