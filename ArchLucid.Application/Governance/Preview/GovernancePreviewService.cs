@@ -2,8 +2,10 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.Preview;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Governance.Preview;
 
@@ -15,9 +17,21 @@ namespace ArchLucid.Application.Governance.Preview;
 public sealed class GovernancePreviewService(
     IGovernanceEnvironmentActivationRepository activationRepository,
     IRunDetailQueryService runDetailQueryService,
-    IUnifiedGoldenManifestReader unifiedGoldenManifestReader) : IGovernancePreviewService
+    IUnifiedGoldenManifestReader unifiedGoldenManifestReader,
+    IScopeContextProvider scopeContextProvider,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : IGovernancePreviewService
 {
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private readonly IGovernanceEnvironmentActivationRepository _activationRepository =
         activationRepository ?? throw new ArgumentNullException(nameof(activationRepository));
@@ -54,6 +68,16 @@ public sealed class GovernancePreviewService(
 
         if (!string.Equals(candidateManifest.RunId, runId, StringComparison.Ordinal))
             throw new GoldenManifestVersionNotFoundException(manifestVersion, runId);
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        await GovernancePreviewSealedManifestHashGuard.EnsureGoldenManifestRunSealedHashOrThrowAsync(
+            candidateManifest,
+            scope,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken);
+
         IReadOnlyList<GovernanceEnvironmentActivation> activationRows = await activationRepository.GetByEnvironmentAsync(environment, cancellationToken);
         GovernanceEnvironmentActivation? active = activationRows.FirstOrDefault(a => a.IsActive);
         List<string> notes = [DiffOnlyNote];
@@ -139,6 +163,15 @@ public sealed class GovernancePreviewService(
                 $"Golden manifest version '{activation.ManifestVersion}' does not belong to activation run '{activation.RunId}' for environment '{activation.Environment}'.");
             return null;
         }
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        await GovernancePreviewSealedManifestHashGuard.EnsureGoldenManifestRunSealedHashOrThrowAsync(
+            manifest,
+            scope,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken);
 
         return manifest;
     }

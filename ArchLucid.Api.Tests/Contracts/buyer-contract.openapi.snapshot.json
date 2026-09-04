@@ -6678,6 +6678,24 @@
         },
         "type": "object"
       },
+      "CloneSnapshotDraftResponse": {
+        "properties": {
+          "clone": {
+            "$ref": "#/components/schemas/DraftRequestResponse"
+          },
+          "sourceDraftId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "sourceSpawnedRunId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "ClosedLoopReasoningRequest": {
         "properties": {
           "continueFromExistingRun": {
@@ -27997,6 +28015,20 @@
         },
         "type": "object"
       },
+      "SetFindingsVisibilityPreferencesRequest": {
+        "properties": {
+          "hideGenericEnabled": {
+            "type": "boolean"
+          },
+          "showAdvisoryEnabled": {
+            "type": "boolean"
+          },
+          "showLowConfidenceEnabled": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "SetIanaTimeZonePreferenceRequest": {
         "properties": {
           "ianaTimeZoneId": {
@@ -32905,6 +32937,24 @@
           "cloudPlatformScopeIsExplicit": {
             "type": "boolean"
           },
+          "findingsHideGenericEnabled": {
+            "type": "boolean"
+          },
+          "findingsHideGenericEnabledIsExplicit": {
+            "type": "boolean"
+          },
+          "findingsShowAdvisoryEnabled": {
+            "type": "boolean"
+          },
+          "findingsShowAdvisoryEnabledIsExplicit": {
+            "type": "boolean"
+          },
+          "findingsShowLowConfidenceEnabled": {
+            "type": "boolean"
+          },
+          "findingsShowLowConfidenceEnabledIsExplicit": {
+            "type": "boolean"
+          },
           "ianaTimeZoneId": {
             "type": "string"
           },
@@ -35762,13 +35812,28 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
@@ -35928,13 +35993,28 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {

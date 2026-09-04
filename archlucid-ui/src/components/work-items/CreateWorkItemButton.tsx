@@ -11,11 +11,14 @@ import {
   type BuildArchitectureWorkItemPreviewInput,
 } from "@/lib/architecture/architecture-work-item-model";
 import { CREATE_WORK_ITEM_LABEL } from "@/lib/create-work-item-copy";
+import { findingWorkItemSealedManifestCopyBlockedReason } from "@/lib/findings/finding-work-item-sealed-manifest-guard";
+import { showError } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
 export type CreateWorkItemButtonProps = BuildArchitectureWorkItemPreviewInput & {
   readonly compact?: boolean;
   readonly className?: string;
+  readonly manifestVersion?: string | null;
 };
 
 /** Secondary outline trigger for the provider-neutral create-work-item dialog. */
@@ -55,6 +58,17 @@ export function CreateWorkItemButton(props: CreateWorkItemButtonProps): React.JS
           props.className,
         )}
         onClick={() => {
+          const blockedReason = findingWorkItemSealedManifestCopyBlockedReason({
+            runId: props.runId,
+            manifestVersion: props.manifestVersion,
+          });
+
+          if (blockedReason !== null) {
+            showError(blockedReason);
+
+            return;
+          }
+
           setOpen(true);
         }}
         data-testid="create-work-item-open"

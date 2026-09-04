@@ -1,4 +1,5 @@
 using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
@@ -21,7 +22,8 @@ public sealed class AlertSimulationContextProvider(
     IImprovementAdvisorService improvementAdvisorService,
     IComparisonService comparisonService,
     IRecommendationRepository recommendationRepository,
-    IRecommendationLearningService recommendationLearningService) : IAlertSimulationContextProvider
+    IRecommendationLearningService recommendationLearningService,
+    IManifestHashService manifestHashService) : IAlertSimulationContextProvider
 {
     /// <inheritdoc />
     public async Task<IReadOnlyList<AlertEvaluationContext>> GetContextsAsync(
@@ -95,6 +97,11 @@ public sealed class AlertSimulationContextProvider(
         if (detail.GoldenManifest.RunId != runId)
             return null;
 
+        AlertSimulationSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrow(
+            detail.GoldenManifest,
+            runId,
+            manifestHashService);
+
         FindingsSnapshot findings = detail.FindingsSnapshot ?? CreateEmptyFindings(detail.GoldenManifest);
 
         if (findings.RunId != runId)
@@ -112,6 +119,11 @@ public sealed class AlertSimulationContextProvider(
                 && RunMatchesCallerScope(comparedDetail.Run, scope)
                 && comparedDetail.GoldenManifest.RunId == comparedToRunId.Value)
             {
+                AlertSimulationSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrow(
+                    comparedDetail.GoldenManifest,
+                    comparedToRunId.Value,
+                    manifestHashService);
+
                 comparison = comparisonService.Compare(comparedDetail.GoldenManifest, detail.GoldenManifest);
             }
         }

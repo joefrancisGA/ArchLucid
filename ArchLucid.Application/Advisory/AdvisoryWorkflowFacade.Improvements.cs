@@ -22,6 +22,13 @@ public sealed partial class AdvisoryWorkflowFacade
         if (run.GoldenManifest is null)
             return new ImprovementsPlanLoadResult { Outcome = ImprovementsPlanLoadOutcome.ManifestNotFound, RunId = runId };
 
+        await AdvisoryImprovementsPlanSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+            runId,
+            scope,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken);
+
         FindingsSnapshot findings = run.FindingsSnapshot ?? CreateEmptyFindings(run.GoldenManifest);
         int advisoryFindingCount = findings.Findings?.Count ?? 0;
         ImprovementPlan plan;
@@ -48,6 +55,13 @@ public sealed partial class AdvisoryWorkflowFacade
                     AdvisoryFindingCount = advisoryFindingCount,
                 };
             }
+
+            await AdvisoryImprovementsPlanSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                compareToRunId.Value,
+                scope,
+                _authorityQueryService,
+                _manifestHashService,
+                cancellationToken);
 
             plan = await _improvementAdvisorService.GeneratePlanAsync(
                 run.GoldenManifest,

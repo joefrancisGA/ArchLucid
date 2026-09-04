@@ -285,6 +285,7 @@ export type CopyGovernanceQueueWorkItemButtonProps = {
   severityLabel: string;
   recommendedAction: string;
   statusLabel: string;
+  manifestVersion?: string | null;
   /** Compact layout for queue table cells. */
   compact?: boolean;
 };
@@ -299,6 +300,7 @@ export function CopyGovernanceQueueWorkItemButton({
   severityLabel,
   recommendedAction,
   statusLabel,
+  manifestVersion = null,
   compact = false,
 }: CopyGovernanceQueueWorkItemButtonProps) {
   const [format, setFormat] = useState<WorkItemClipboardFormat>("jiraWiki");
@@ -342,15 +344,35 @@ export function CopyGovernanceQueueWorkItemButton({
     [resetCopied],
   );
 
+  const ensureCopyAllowed = useCallback((): boolean => {
+    const blockedReason = findingWorkItemSealedManifestCopyBlockedReason({ runId, manifestVersion });
+
+    if (blockedReason !== null) {
+      showError(blockedReason);
+
+      return false;
+    }
+
+    return true;
+  }, [manifestVersion, runId]);
+
   const onQuickCopyJira = useCallback(async () => {
+    if (!ensureCopyAllowed()) {
+      return;
+    }
+
     const text = buildTraceRowWorkItemBody("jiraWiki", buildRowInput());
     await copyText(text, "jira");
-  }, [buildRowInput, copyText]);
+  }, [buildRowInput, copyText, ensureCopyAllowed]);
 
   const onCopySelectedFormat = useCallback(async () => {
+    if (!ensureCopyAllowed()) {
+      return;
+    }
+
     const text = buildTraceRowWorkItemBody(format, buildRowInput());
     await copyText(text, "selected");
-  }, [buildRowInput, copyText, format]);
+  }, [buildRowInput, copyText, ensureCopyAllowed, format]);
 
   return (
     <WorkItemCopyControls
@@ -372,12 +394,17 @@ export function CopyGovernanceQueueWorkItemButton({
 export type CopyTraceRowWorkItemButtonProps = {
   runId: string;
   row: FindingTraceConfidenceDto;
+  manifestVersion?: string | null;
 };
 
 /**
  * Minimal copy for [`RunFindingExplainabilityTable`](/components/RunFindingExplainabilityTable) rows (aggregate trace list).
  */
-export function CopyTraceRowWorkItemButton({ runId, row }: CopyTraceRowWorkItemButtonProps) {
+export function CopyTraceRowWorkItemButton({
+  runId,
+  row,
+  manifestVersion = null,
+}: CopyTraceRowWorkItemButtonProps) {
   const [format, setFormat] = useState<WorkItemClipboardFormat>("jiraWiki");
   const [copied, setCopied] = useState<CopyFeedbackKind>("none");
 
@@ -419,15 +446,35 @@ export function CopyTraceRowWorkItemButton({ runId, row }: CopyTraceRowWorkItemB
     [resetCopied],
   );
 
+  const ensureCopyAllowed = useCallback((): boolean => {
+    const blockedReason = findingWorkItemSealedManifestCopyBlockedReason({ runId, manifestVersion });
+
+    if (blockedReason !== null) {
+      showError(blockedReason);
+
+      return false;
+    }
+
+    return true;
+  }, [manifestVersion, runId]);
+
   const onQuickCopyJira = useCallback(async () => {
+    if (!ensureCopyAllowed()) {
+      return;
+    }
+
     const text = buildTraceRowWorkItemBody("jiraWiki", buildRowInput());
     await copyText(text, "jira");
-  }, [buildRowInput, copyText]);
+  }, [buildRowInput, copyText, ensureCopyAllowed]);
 
   const onCopySelectedFormat = useCallback(async () => {
+    if (!ensureCopyAllowed()) {
+      return;
+    }
+
     const text = buildTraceRowWorkItemBody(format, buildRowInput());
     await copyText(text, "selected");
-  }, [buildRowInput, copyText, format]);
+  }, [buildRowInput, copyText, ensureCopyAllowed, format]);
 
   return (
     <WorkItemCopyControls

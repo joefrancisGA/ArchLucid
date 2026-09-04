@@ -25,7 +25,8 @@ public sealed class ReplayRunPrepareStage(
     IRunStageOutcomesRepository runStageOutcomesRepository,
     IRunPolicyPackPinService runPolicyPackPinService,
     IRunEvidencePackagePinService runEvidencePackagePinService,
-    IReplayRunCloneStage cloneStage) : IReplayRunPrepareStage
+    IReplayRunCloneStage cloneStage,
+    IReRunExecuteSealedManifestPinGate reRunExecuteSealedManifestPinGate) : IReplayRunPrepareStage
 {
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
@@ -57,10 +58,18 @@ public sealed class ReplayRunPrepareStage(
     private readonly IReplayRunCloneStage _cloneStage =
         cloneStage ?? throw new ArgumentNullException(nameof(cloneStage));
 
+    private readonly IReRunExecuteSealedManifestPinGate _reRunExecuteSealedManifestPinGate =
+        reRunExecuteSealedManifestPinGate ?? throw new ArgumentNullException(nameof(reRunExecuteSealedManifestPinGate));
+
     /// <inheritdoc />
     public async Task<string> PrepareAsync(string originalRunId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(originalRunId);
+
+        await ReplayRunPrepareSealedManifestHashGuard.EnsureSourceRunReadyOrThrowAsync(
+            originalRunId,
+            _reRunExecuteSealedManifestPinGate,
+            cancellationToken).ConfigureAwait(false);
 
         ArchitectureRunDetail sourceDetail = await _runDetailQueryService.GetRunDetailAsync(originalRunId, cancellationToken) ??
                                              throw new RunNotFoundException(originalRunId);
