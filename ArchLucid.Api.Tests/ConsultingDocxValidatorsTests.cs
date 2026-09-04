@@ -5,6 +5,8 @@ using FluentAssertions;
 
 using FluentValidation.Results;
 
+using ApiConsultingDocxProfileRecommendationRequest = ArchLucid.Api.Models.ConsultingDocxProfileRecommendationRequest;
+
 namespace ArchLucid.Api.Tests;
 
 [Trait("Category", "Unit")]
@@ -43,7 +45,7 @@ public sealed class ConsultingDocxValidatorsTests
     [Fact]
     public void ProfileRecommendationValidator_fails_when_audience_exceeds_max_length()
     {
-        ConsultingDocxProfileRecommendationRequest request = new()
+        ApiConsultingDocxProfileRecommendationRequest request = new()
         {
             Audience = new string('a', 501),
         };
@@ -52,13 +54,13 @@ public sealed class ConsultingDocxValidatorsTests
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should()
-            .Contain(e => e.PropertyName == nameof(ConsultingDocxProfileRecommendationRequest.Audience));
+            .Contain(e => e.PropertyName == nameof(ApiConsultingDocxProfileRecommendationRequest.Audience));
     }
 
     [Fact]
     public void ProfileRecommendationValidator_passes_for_minimal_valid_request()
     {
-        ConsultingDocxProfileRecommendationRequest request = new() { Audience = "CIO" };
+        ApiConsultingDocxProfileRecommendationRequest request = new() { Audience = "CIO" };
 
         ValidationResult result = _profileValidator.Validate(request);
 

@@ -202,6 +202,7 @@ public sealed class AdvisoryScanRunnerTests
             Title = "t",
             Summary = "s",
             ContentMarkdown = "m",
+            MetadataJson = """{"manifestHash":"h"}""",
         };
 
         Mock<IArchitectureDigestBuilder> digestBuilder = new();
@@ -214,7 +215,9 @@ public sealed class AdvisoryScanRunnerTests
                     runId,
                     null,
                     It.IsAny<ImprovementPlan>(),
-                    It.IsAny<IReadOnlyList<AlertRecord>>()))
+                    It.IsAny<IReadOnlyList<AlertRecord>>(),
+                    It.IsAny<string?>(),
+                    It.IsAny<string?>()))
             .Returns(builtDigest);
 
         Mock<IArchitectureDigestRepository> digestRepo = new();

@@ -134,11 +134,14 @@ public sealed class ComparisonsControllerTests
             .Setup(s => s.AnalyzeDriftAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new DriftAnalysisResult { Summary = "ok" });
 
+        Mock<ICompareRunsApplicationFacade> compareRunsFacade = new();
+
         IComparisonsApplicationService comparisonsService = new ComparisonsApplicationService(
             runDetailQueryService ?? runDetail.Object,
             runExportRecordRepository ?? exports.Object,
             comparisonRecordRepository ?? comparisons.Object,
             comparisonReplayService ?? replayService.Object,
+            compareRunsFacade.Object,
             comparisonReplayCostEstimator ?? costEstimator.Object,
             driftFormatter.Object,
             new DriftReportDocxExport());
