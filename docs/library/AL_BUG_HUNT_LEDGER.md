@@ -3166,8 +3166,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 143
-- **bugs-found:** 321
+- **hunts:** 144
+- **bugs-found:** 323
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
 - **last-bug:** 2026-09-04 — approval request id max-length validation parity
@@ -3862,6 +3862,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RiskExceptionValidation.Validate` / `GovernanceStickinessController.CreateRiskException` — overlong `findingId` reached waiver validation when application layer ran without HTTP mapper guard (#678 HTTP sibling) — **hit 2026-09-04 (#684):** `FindingDispositionValidation.MaxFindingIdLength` guard on create; regression in `RiskExceptionValidationTests.Validate_rejects_overlong_finding_id`.
 
 - [x] (proven) `GovernanceStickinessHttpMapper.ValidateDecisionRegisterFilters` / `GovernanceStickinessController.GetDecisionRegister` — `category` query longer than 200 chars returned HTTP 200 empty register instead of HTTP 400 — **hit 2026-09-04 (#684):** `GovernanceRequestValidationRules.DecisionRegisterCategoryMaxLength` guard; regression in `GovernanceStickinessHttpMapperTests.ValidateDecisionRegisterFilters_rejects_overlong_category`.
+
+2026-09-04 seed hunt #684: promoted and proved application-layer finding-id max-length parity and decision-register category filter max-length validation.
+
+- [x] (proven) `GovernanceStickinessFacade.PreviewRecurrenceScheduleRuns` / `GovernanceStickinessController.PreviewRecurrenceScheduleRuns` — overlong `cronExpression` returned HTTP 200 `isValid: false` while create/update enforce `RecurrenceScheduleValidation.CronExpressionMaxLength` with HTTP 400 (#657 create sibling) — **hit 2026-09-04 (#685):** shared cron max-length guard before preview evaluation; regression in `GovernanceStickinessFacadeTests.PreviewRecurrenceScheduleRuns_rejects_overlong_cron_expression` and `GovernanceStickinessControllerTests.PreviewRecurrenceScheduleRuns_returns_bad_request_when_cron_expression_exceeds_max_length`.
+
+- [x] (proven) `GovernanceController.Approve` / `Reject` — overlong `reviewComment` reached approval workflow without controller-level HTTP 400 while batch review enforces `ReviewCommentMaxLength` via `GovernanceApprovalRequestsHttpMapper` (#675 sibling) — **hit 2026-09-04 (#685):** shared `ValidateReviewComment` helper on single approve/reject paths; regression in `GovernanceControllerRunHistoryScopeTests.Approve_returns_bad_request_when_review_comment_exceeds_max_length` and `Reject_returns_bad_request_when_review_comment_exceeds_max_length`.
+
+2026-09-04 seed hunt #685: promoted and proved recurrence preview cron max-length parity and single approve/reject review-comment cap parity with batch review.
 
 2026-09-04 seed hunt #684: promoted and proved application-layer finding-id max-length parity and decision-register category filter max-length validation.
 
