@@ -13,6 +13,7 @@ export { countFindingsAwaitingAction } from "./finding-metrics";
 export { severityLabelForFinding } from "./finding-metrics";
 export { deriveArchitectureSystemName } from "./review-metadata";
 export { deriveSubmittedArchitectureText } from "./review-metadata";
+export { deriveHasSubmittedArchitectureDescription } from "./review-metadata";
 export { deriveReviewOwnerLabel } from "./review-metadata";
 export { deriveReviewTemplateLabel } from "./review-metadata";
 export { deriveSignedReviewRecordIdLabel } from "./review-metadata";

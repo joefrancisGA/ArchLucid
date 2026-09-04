@@ -113,7 +113,7 @@ describe("buildRunDetailPresentation", () => {
 
     const presentation = await buildRunDetailPresentation(generated, true);
 
-    expect(presentation.hasSubmittedArchitecture).toBe(false);
+    expect(presentation.hasSubmittedArchitecture).toBe(true);
     expect(presentation.evidenceInventoryItems.map((item) => item.sourceName)).toEqual([
       "ARCHITECTURE_HANDBOOK.docx",
     ]);
