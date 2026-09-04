@@ -3348,11 +3348,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 199
-- **bugs-found:** 420
+- **hunts:** 200
+- **bugs-found:** 422
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — bulk disposition optional trade-off whitespace no-op
+- **last-bug:** 2026-09-04 — create recurrence whitespace silent default
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4329,6 +4329,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-04 seed hunt #781 (hit): proved disposition optional-field whitespace silent no-op on single and bulk paths.
 
 - [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` / `GovernanceStickinessHttpMapper.ValidateBulkDisposition` — whitespace-only `tradeOffAcknowledgment` on non-`Accepted` bulk dispositions passed HTTP validation and was silently ignored — **hit 2026-09-04 (#782):** `ValidateOptionalDispositionFieldWhenNotApplicable` parity with single-item path (#781); regression in `ValidateBulkDisposition_rejects_whitespace_only_optional_trade_off_acknowledgment`.
+
+2026-09-04 seed hunt #782 (hit): proved bulk disposition optional trade-off whitespace no-op on non-`Accepted` path.
+
+- [x] (proven) `GovernanceStickinessController.CreateRecurrenceSchedule` / `GovernanceStickinessHttpMapper.ValidateCreateRecurrenceSchedule` — whitespace-only `name` passed HTTP validation and silently defaulted to `"Recurring architecture review"` instead of HTTP 400 — **hit 2026-09-04 (#783):** reject empty/whitespace create fields (update recurrence #779 parity); regressions in `ValidateCreateRecurrenceSchedule_rejects_whitespace_only_name` and `CreateRecurrenceSchedule_returns_bad_request_when_name_is_whitespace_only`.
+- [x] (proven) `GovernanceStickinessController.CreateRecurrenceSchedule` / `GovernanceStickinessHttpMapper.ValidateCreateRecurrenceSchedule` — whitespace-only `cronExpression` passed HTTP validation and silently defaulted to `"0 8 * * 1"` instead of HTTP 400 — **hit 2026-09-04 (#783):** same create-path whitespace guard (update cron #779 parity); regressions in `ValidateCreateRecurrenceSchedule_rejects_whitespace_only_cron_expression` and `CreateRecurrenceSchedule_returns_bad_request_when_cron_expression_is_whitespace_only`.
+
+2026-09-04 seed hunt #783 (hit): proved create recurrence whitespace silent default on name and cronExpression.
 
 2026-09-04 seed hunt #782 (hit): proved bulk disposition optional trade-off whitespace no-op on non-`Accepted` path.
 
