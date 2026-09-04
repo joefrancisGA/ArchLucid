@@ -3348,11 +3348,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 190
-- **bugs-found:** 401
+- **hunts:** 191
+- **bugs-found:** 403
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — homepage PUT omitted `selectedRunId` cleared featured sample
+- **last-bug:** 2026-09-04 — cost-settings rate omission and baseline whitespace source note
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4293,8 +4293,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-04 thorough hunt #760 (dry): cheap-disproved digest timezone omission candidate; no new hunt-ready repro in zone.
 
 - [x] (proven) `TenantHomepageSettingsController.PutAsync` / `TenantHomepageSettingsPutRequest` — JSON body omitted `selectedRunId` (e.g. `{}`) cleared featured sample via `ClearSelectionAsync` instead of HTTP 400 — **hit 2026-09-04 (#773):** `required Guid? SelectedRunId` rejects omitted property while explicit `null` still clears selection (policy-pack `isEnabled` / checklist `stepIndex` omission parity); regressions in `PutRequest_deserialization_rejects_missing_selected_run_id` and `PutAsync_clears_selection_when_selected_run_id_is_explicitly_null`.
-- [ ] (candidate) `TenantCostSettingsController.PutAsync` / `TenantCostSettingsPutRequest` — omitted `architectHourlyRateUsd` / `averageIncidentCostUsd` bind as `0` and return misleading range validation instead of required-field 400 — verify whether partial PUT should preserve existing rates before hunt-ready promotion.
-- [ ] (candidate) `TenantBaselineController.PutAsync` — whitespace-only `baselineReviewCycleSourceNote` may collapse persisted operator note to marker-only `baseline_settings` — verify intentional normalization vs data-loss before hunt-ready promotion.
+- [x] (proven) `TenantCostSettingsController.PutAsync` / `TenantCostSettingsPutRequest` — omitted `architectHourlyRateUsd` / `averageIncidentCostUsd` bound as `0` and returned misleading range validation instead of required-field 400 — **hit 2026-09-04 (#774):** `required decimal` on both rate fields (checklist `stepIndex` / policy-pack `isPinned` omission parity); regression in `PutRequest_deserialization_rejects_missing_rate_fields`.
+- [x] (proven) `TenantBaselineController.PutAsync` — whitespace-only `baselineReviewCycleSourceNote` collapsed persisted operator note to marker-only `baseline_settings` — **hit 2026-09-04 (#774):** reject empty/whitespace source note before persist (`findingRef` whitespace #325 parity); regression in `PutAsync_returns_bad_request_when_review_cycle_source_note_is_whitespace`.
+
+2026-09-04 thorough hunt #774: proved cost-settings rate-field omission and baseline whitespace source-note data loss.
 
 2026-09-04 seed hunt #773: reseeded cost-settings rate-field omission and baseline whitespace source-note candidates; proved homepage `selectedRunId` omission clearing featured sample promoted from seed read.
 
