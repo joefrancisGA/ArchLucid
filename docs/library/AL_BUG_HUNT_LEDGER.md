@@ -3348,11 +3348,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 193
-- **bugs-found:** 406
+- **hunts:** 194
+- **bugs-found:** 408
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — baseline hours-only PUT wiped source note; legal-hold omitted untilUtc
+- **last-bug:** 2026-09-04 — renew whitespace overwrite; merge-conflict action omission
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4303,6 +4303,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantErasureLegalHoldController.SetLegalHoldAsync` / `TenantErasureLegalHoldRequest` — omitted `untilUtc` bound `default(DateTimeOffset)` and returned misleading future-date validation — **hit 2026-09-04 (#776):** `required DateTimeOffset UntilUtc` rejects omitted property at deserialization (checklist `stepIndex` omission parity); regression in `SetLegalHoldRequest_deserialization_rejects_missing_until_utc`.
 
 2026-09-04 thorough hunt #776: proved baseline hours-only source-note wipe and legal-hold `untilUtc` omission.
+
+- [x] (proven) `GovernanceStickinessHttpMapper.ValidateRenewRiskException` / `RiskExceptionValidation.ValidateRenew` — whitespace-only optional `rationale` / `evidenceRef` on renew passed validation and overwrote stored waiver text via `COALESCE(@Rationale, Rationale)` — **hit 2026-09-04 (#777):** reject empty/whitespace optional renew fields before persist (create-rationale #676 parity); regressions in `ValidateRenewRiskException_rejects_whitespace_only_rationale`, `ValidateRenewRiskException_rejects_whitespace_only_evidence_ref`, `ValidateRenew_rejects_whitespace_only_rationale`, and `ValidateRenew_rejects_whitespace_only_evidence_ref`.
+- [x] (proven) `GovernanceStickinessController.ResolveFindingMergeConflict` / `ResolveFindingMergeConflictRequest.Action` — omitted `action` in JSON body bound to default `AcceptPrimary` and resolved without explicit operator choice — **hit 2026-09-04 (#777):** `required FindingMergeConflictResolutionAction Action` rejects omitted property at deserialization (checklist `stepIndex` omission parity); regression in `ResolveFindingMergeConflictRequest_deserialization_rejects_missing_action`.
+- [ ] (candidate) `GovernanceController.Promote` / `CreateGovernancePromotionRequest` — omitted `sourceEnvironment` / `targetEnvironment` bind to initializer defaults `dev`/`test` instead of HTTP 400 — verify intentional quick-promote defaults before hunt-ready promotion.
+- [ ] (candidate) `GovernanceController.Activate` / `CreateGovernanceActivationRequest` — omitted `environment` binds to initializer default `dev` instead of HTTP 400 — verify intentional activation default before hunt-ready promotion.
+- [ ] (candidate) `TenantExecDigestPreferencesController.PostExecDigestPreferences` / `TenantSponsorDigestPreferencesController.PostSponsorDigestPreferences` — disable-only POST (`emailEnabled: false` without `recipientEmails`) may wipe stored recipients on full upsert — verify merge-on-write vs intentional disable semantics before hunt-ready promotion.
+
+2026-09-04 seed hunt #777: proved renew whitespace overwrite and merge-conflict action omission; reseeded promotion/activation environment omission and digest disable recipient-wipe candidates.
 
 2026-09-04 seed hunt #773: reseeded cost-settings rate-field omission and baseline whitespace source-note candidates; proved homepage `selectedRunId` omission clearing featured sample promoted from seed read.
 

@@ -339,6 +339,36 @@ public sealed class GovernanceStickinessHttpMapperTests
     }
 
     [Fact]
+    public void ValidateRenewRiskException_rejects_whitespace_only_rationale()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRenewRiskException(
+            new RenewRiskExceptionRequest
+            {
+                ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+                Rationale = "   ",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("whitespace");
+    }
+
+    [Fact]
+    public void ValidateRenewRiskException_rejects_whitespace_only_evidence_ref()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRenewRiskException(
+            new RenewRiskExceptionRequest
+            {
+                ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+                EvidenceRef = "   ",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("whitespace");
+    }
+
+    [Fact]
     public void ValidateRenewRiskException_rejects_overlong_evidence_ref()
     {
         GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRenewRiskException(

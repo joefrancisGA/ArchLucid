@@ -102,6 +102,20 @@ public static class GovernanceStickinessHttpMapper
     {
         ArgumentNullException.ThrowIfNull(request);
 
+        if (request.Rationale is not null && string.IsNullOrWhiteSpace(request.Rationale))
+        {
+            return new GovernanceHttpValidation(
+                "rationale cannot be empty or whitespace.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (request.EvidenceRef is not null && string.IsNullOrWhiteSpace(request.EvidenceRef))
+        {
+            return new GovernanceHttpValidation(
+                "evidenceRef cannot be empty or whitespace.",
+                ProblemTypes.ValidationFailed);
+        }
+
         if (!string.IsNullOrWhiteSpace(request.Rationale))
         {
             string normalizedRationale = request.Rationale.Trim();

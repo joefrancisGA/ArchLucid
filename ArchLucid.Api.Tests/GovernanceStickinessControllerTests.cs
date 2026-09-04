@@ -1,6 +1,9 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Serialization;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Findings;
@@ -2064,6 +2067,17 @@ public sealed class GovernanceStickinessControllerTests
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         findingInspect.VerifyNoOtherCalls();
         dispositions.VerifyNoOtherCalls();
+    }
+
+    [Theory]
+    [InlineData("{}", "missing action")]
+    public void ResolveFindingMergeConflictRequest_deserialization_rejects_missing_action(string payload, string because)
+    {
+        Action act = () => JsonSerializer.Deserialize<ResolveFindingMergeConflictRequest>(
+            payload,
+            ArchLucidApiJsonSerializerOptions.Web);
+
+        act.Should().Throw<JsonException>(because);
     }
 
     [Fact]

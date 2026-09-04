@@ -95,6 +95,16 @@ public static class RiskExceptionValidation
         if (request.ExpiresAtUtc > maxExpiry)
             throw new ArgumentException($"Waiver duration cannot exceed {MaxDurationDays} days.", nameof(request));
 
+        if (request.Rationale is not null && string.IsNullOrWhiteSpace(request.Rationale))
+        {
+            throw new ArgumentException("Rationale cannot be empty or whitespace.", nameof(request));
+        }
+
+        if (request.EvidenceRef is not null && string.IsNullOrWhiteSpace(request.EvidenceRef))
+        {
+            throw new ArgumentException("Evidence reference cannot be empty or whitespace.", nameof(request));
+        }
+
         if (!string.IsNullOrWhiteSpace(request.Rationale)
             && request.Rationale.Trim().Length < FindingDispositionValidation.MinimumRationaleLength)
         {
