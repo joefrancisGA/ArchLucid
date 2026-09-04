@@ -7,6 +7,9 @@ export const WEBHOOKS_INTEGRATION_CANONICAL_PATH = "/integrations/webhooks" as c
 
 export const WEBHOOKS_INTEGRATION_HELP_TOPIC_LABEL = "How webhooks work";
 
+export const WEBHOOKS_INTEGRATION_CLAIM_DISCIPLINE =
+  "Webhook subscriptions configure outbound alert delivery to your HTTPS endpoint — not delivery retry forensics, a signed audit record, or platform incident response. Use Integration readiness or Failed integration messages when operations needs queue visibility.";
+
 export const WEBHOOKS_INTEGRATION_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const WEBHOOKS_INTEGRATION_SOURCES_INTRO =
