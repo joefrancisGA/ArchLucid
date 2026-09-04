@@ -1,8 +1,10 @@
 using ArchLucid.Application;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Tenancy;
 
 namespace ArchLucid.Application.OperatorHome;
@@ -10,7 +12,9 @@ namespace ArchLucid.Application.OperatorHome;
 public sealed class FeaturedCompletedSampleService(
     IScopeContextProvider scopeContextProvider,
     ITenantSettingsRepository tenantSettingsRepository,
-    IRunRepository runRepository) : IFeaturedCompletedSampleService
+    IRunRepository runRepository,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : IFeaturedCompletedSampleService
 {
     private const int CandidateListLimit = 100;
 
@@ -22,6 +26,12 @@ public sealed class FeaturedCompletedSampleService(
 
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     public async Task<FeaturedCompletedSampleSnapshot> GetSnapshotAsync(CancellationToken cancellationToken)
     {
@@ -72,6 +82,13 @@ public sealed class FeaturedCompletedSampleService(
         {
             throw new InvalidOperationException("The selected review is not eligible for workspace sample use.");
         }
+
+        await FeaturedCompletedSampleSealedManifestGuard.EnsureEligibleRunSealedManifestOrThrowAsync(
+            run,
+            scope,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken).ConfigureAwait(false);
 
         await _tenantSettingsRepository
             .UpsertAsync(
@@ -139,6 +156,25 @@ public sealed class FeaturedCompletedSampleService(
         }
 
         if (!FeaturedCompletedSampleEligibility.IsEligible(run))
+        {
+            return new FeaturedCompletedSampleSnapshot
+            {
+                SelectedRunId = runId,
+                IsConfigured = isConfigured,
+                IsAvailable = false,
+            };
+        }
+
+        try
+        {
+            await FeaturedCompletedSampleSealedManifestGuard.EnsureEligibleRunSealedManifestOrThrowAsync(
+                run,
+                scope,
+                _authorityQueryService,
+                _manifestHashService,
+                cancellationToken).ConfigureAwait(false);
+        }
+        catch (ConflictException)
         {
             return new FeaturedCompletedSampleSnapshot
             {

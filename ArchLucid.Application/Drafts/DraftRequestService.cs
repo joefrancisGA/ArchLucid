@@ -70,8 +70,12 @@ public sealed class DraftRequestService(
         => _admissionService.GetQuestionsAsync(scope, draftId, cancellationToken);
 
     /// <inheritdoc />
-    public Task<SubmitDraftResponse?> SubmitAsync(ScopeContext scope, Guid draftId, CancellationToken cancellationToken)
-        => _admissionService.SubmitAsync(scope, draftId, cancellationToken);
+    public Task<SubmitDraftResponse?> SubmitAsync(
+        ScopeContext scope,
+        Guid draftId,
+        DateTime? expectedUpdatedUtc,
+        CancellationToken cancellationToken)
+        => _admissionService.SubmitAsync(scope, draftId, expectedUpdatedUtc, cancellationToken);
 
     /// <inheritdoc />
     public Task<DraftRequestResponse?> AbandonAsync(ScopeContext scope, Guid draftId, CancellationToken cancellationToken)

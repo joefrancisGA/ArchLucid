@@ -1,8 +1,10 @@
 using ArchLucid.Application;
 using ArchLucid.Application.OperatorHome;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Tenancy;
 
 using FluentAssertions;
@@ -15,6 +17,8 @@ namespace ArchLucid.Application.Tests.OperatorHome;
 [Trait("Suite", "Core")]
 public sealed class FeaturedCompletedSampleServiceTests
 {
+    private const string SealedManifestHash = "sealed-manifest-hash";
+
     private static readonly ScopeContext Scope = new()
     {
         TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
@@ -188,7 +192,33 @@ public sealed class FeaturedCompletedSampleServiceTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
 
-        return new FeaturedCompletedSampleService(scopeProvider.Object, tenantSettings.Object, runs.Object);
+        Mock<IAuthorityQueryService> authorityQuery = new();
+        authorityQuery
+            .Setup(service => service.GetRunDetailForManifestCompareAsync(
+                Scope,
+                EligibleRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = CreateEligibleRun(),
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = EligibleRunId,
+                    ManifestHash = SealedManifestHash,
+                },
+            });
+
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns(SealedManifestHash);
+
+        return new FeaturedCompletedSampleService(
+            scopeProvider.Object,
+            tenantSettings.Object,
+            runs.Object,
+            authorityQuery.Object,
+            manifestHash.Object);
     }
 
     private static Mock<ITenantSettingsRepository> CreateTenantSettingsMock(string? storedValue)

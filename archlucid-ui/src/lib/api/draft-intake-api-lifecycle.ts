@@ -19,8 +19,19 @@ export async function admitDraftRequest(draftId: string): Promise<DraftAdmission
   );
 }
 
-export async function submitDraftRequest(draftId: string): Promise<SubmitDraftResponse> {
-  return apiPostJson<SubmitDraftResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/submit`, {});
+export async function submitDraftRequest(
+  draftId: string,
+  expectedUpdatedUtc?: string | null,
+): Promise<SubmitDraftResponse> {
+  const body =
+    expectedUpdatedUtc === undefined || expectedUpdatedUtc === null
+      ? {}
+      : { expectedUpdatedUtc };
+
+  return apiPostJson<SubmitDraftResponse>(
+    `${DRAFT_BASE}/${encodeURIComponent(draftId)}/submit`,
+    body,
+  );
 }
 
 /** Return an admitted draft to drafting so the architecture brief can be edited again. */

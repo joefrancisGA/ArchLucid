@@ -27,7 +27,11 @@ public interface IDraftRequestService
     Task<DraftQuestionsResponse?> GetQuestionsAsync(ScopeContext scope, Guid draftId,
         CancellationToken cancellationToken);
 
-    Task<SubmitDraftResponse?> SubmitAsync(ScopeContext scope, Guid draftId, CancellationToken cancellationToken);
+    Task<SubmitDraftResponse?> SubmitAsync(
+        ScopeContext scope,
+        Guid draftId,
+        DateTime? expectedUpdatedUtc,
+        CancellationToken cancellationToken);
 
     Task<DraftRequestResponse?> AbandonAsync(ScopeContext scope, Guid draftId, CancellationToken cancellationToken);
 

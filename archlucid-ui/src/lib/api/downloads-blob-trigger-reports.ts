@@ -12,6 +12,7 @@ import {
   parseFilenameFromContentDisposition,
   triggerBrowserBlobDownload,
 } from "./downloads-blob-trigger-browser";
+import { assertBinaryDownloadContentType } from "./downloads-blob-trigger-guard";
 
 /**
  * POST consulting-template architecture analysis DOCX (`CanExportConsultingDocx` / `export:consulting-docx`).
@@ -144,6 +145,8 @@ export async function downloadBoardPackPdf(year: number, quarter: number): Promi
     const errText = await response.text();
     throwApiRequestError(response, errText, correlationId);
   }
+
+  assertBinaryDownloadContentType(response, ["application/pdf"]);
 
   const fileName =
     parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ??

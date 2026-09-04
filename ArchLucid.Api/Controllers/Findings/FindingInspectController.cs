@@ -5,7 +5,9 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -29,7 +31,8 @@ public sealed class FindingInspectController(
     IReasoningSummaryBuilder reasoningSummaryBuilder,
     RunFindingExternalTrackingEnrichmentService runFindingExternalTrackingEnrichmentService,
     IFindingTrustLabelMapper findingTrustLabelMapper,
-    IScopeContextProvider scopeContextProvider) : ControllerBase
+    IScopeContextProvider scopeContextProvider,
+    IAuthorityQueryService authorityQueryService) : ControllerBase
 {
     private readonly IFindingInspectReadRepository _findingInspectReadRepository =
         findingInspectReadRepository ?? throw new ArgumentNullException(nameof(findingInspectReadRepository));
@@ -46,6 +49,9 @@ public sealed class FindingInspectController(
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
 
     /// <summary>Returns persisted payload, rule linkage, evidence citations, and best-effort audit correlation.</summary>
     /// <param name="findingId">Finding identifier.</param>
@@ -78,6 +84,12 @@ public sealed class FindingInspectController(
             return this.NotFoundProblem(
                 $"Finding '{findingId.Trim()}' was not found in the current scope.",
                 ProblemTypes.ResourceNotFound);
+
+        await FindingInspectPinnedEvidenceGuard.EnsureInspectEvidenceInventoryBoundOrThrowAsync(
+            body,
+            scope,
+            _authorityQueryService,
+            ct);
 
         string trimmedFindingId = findingId.Trim();
 
