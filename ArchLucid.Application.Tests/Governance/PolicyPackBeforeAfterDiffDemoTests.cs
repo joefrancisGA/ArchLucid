@@ -19,6 +19,7 @@ using ArchLucid.Host.Core.Services;
 using ArchLucid.Persistence.Governance;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.TestSupport;
@@ -294,6 +295,11 @@ public sealed class PolicyPackBeforeAfterDiffDemoTests : VerifyBase
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
             redactor.Object,
             audit.Object,
+            new InMemoryTechnologyLedgerRepository(),
+            new TechnologyConsistencyFindingEngine(),
+            Options.Create(new TechnologyConsistencyFindingEngineOptions { Enabled = false }),
+            new FindingEvidenceLinkageFindingEngine(),
+            Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = false }),
             NullLogger<PolicyPackGovernanceDryRunService>.Instance);
     }
 

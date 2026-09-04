@@ -180,8 +180,16 @@ public sealed class PreCommitGovernanceGate(
                 findings.Add(CreateSyntheticFinding(runId, i, sev));
         }
 
-        await AppendTechnologyConsistencyFindingsAsync(runId, scope, findings, cancellationToken);
-        AppendEvidenceLinkageFindings(runId, findings);
+        await PreCommitSupplementalFindingsAppender.AppendAsync(
+            runId,
+            scope,
+            findings,
+            _technologyLedgerRepository,
+            _technologyConsistencyFindingEngine,
+            _technologyConsistencyFindingEngineOptions.Value,
+            _findingEvidenceLinkageFindingEngine,
+            _findingEvidenceLinkageFindingEngineOptions.Value,
+            cancellationToken).ConfigureAwait(false);
 
         if (enforcing is not null)
             return PreCommitGateEvaluator.EvaluateForAssignment(findings, enforcing, _options.Value);
@@ -197,51 +205,6 @@ public sealed class PreCommitGovernanceGate(
             blockCommitMinimumSeverity: (int)globalThreshold.Value,
             policyPackIdLabel: "global-pre-commit-threshold",
             _options.Value.WarnOnlySeverities);
-    }
-
-    private async Task AppendTechnologyConsistencyFindingsAsync(
-        string runId,
-        ScopeContext scope,
-        List<Finding> findings,
-        CancellationToken cancellationToken)
-    {
-        TechnologyConsistencyFindingEngineOptions consistencyOptions = _technologyConsistencyFindingEngineOptions.Value;
-        consistencyOptions.Normalize();
-
-        if (!consistencyOptions.Enabled)
-            return;
-
-        IReadOnlyList<TechnologyLedgerEntry> ledgerEntries =
-            await _technologyLedgerRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
-
-        IReadOnlyList<Finding> consistencyFindings =
-            _technologyConsistencyFindingEngine.Evaluate(runId, ledgerEntries, consistencyOptions);
-
-        if (consistencyFindings.Count == 0)
-            return;
-
-        findings.AddRange(consistencyFindings);
-    }
-
-    private void AppendEvidenceLinkageFindings(string runId, List<Finding> findings)
-    {
-        FindingEvidenceLinkageFindingEngineOptions linkageOptions = _findingEvidenceLinkageFindingEngineOptions.Value;
-
-        if (!linkageOptions.Enabled)
-            return;
-
-        IReadOnlyList<Finding> linkageFindings = _findingEvidenceLinkageFindingEngine.Evaluate(runId, findings);
-
-        if (linkageFindings.Count == 0)
-            return;
-
-        foreach (Finding linkageFinding in linkageFindings)
-        {
-            if (linkageOptions.WarnOnly)
-                linkageFinding.Severity = FindingSeverity.Warning;
-
-            findings.Add(linkageFinding);
-        }
     }
 
     private static Finding CreateSyntheticFinding(string runId, int index, FindingSeverity severity)

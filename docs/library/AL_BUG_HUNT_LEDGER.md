@@ -4095,11 +4095,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 9
-- **bugs-found:** 9
+- **hunts:** 10
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — pre-commit gate counted muted findings as blocking while pre-finalize checklist excluded them
+- **last-hunt:** 2026-09-04
+- **last-bug:** 2026-09-04 — governance dry-run omitted supplemental findings; pack finding matcher skipped EngineType fallback when ComplianceRuleKeys populated
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -4119,10 +4119,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PreCommitGateEvaluator` counted muted findings toward severity thresholds while `PreFinalizeChecklistService.CountActiveFindings` excluded `IsMuted` — **hit 2026-09-03:** operators could mute a critical finding and see checklist "Critical findings resolved" clear while pre-commit gate still blocked finalize; fixed by filtering `IsMuted` in shared gate evaluator (`PreCommitGateEvaluatorTests.Evaluate_ignores_muted_findings_when_blocking_on_critical`, `PreCommitGovernanceGateTests.EvaluateAsync_allows_when_only_blocking_findings_are_muted`)
 - [x] (invalid) Policy pack coverage proof ignores muted findings in outcome recorder mismatch — `PolicyPackCoverageProofEvaluator` and `PolicyPackAssignmentOutcomeRecorder` both filter `IsMuted` before matching; `PartiallyComplete` snapshots use the same incomplete branch as `Generating` (muted-only signals → `Skipped`, active signals → `Evaluated`; coverage proof agrees)
 - [x] (invalid) Governance dry-run returns null for invalid run id format — `PolicyPackGovernanceDryRunService.EvaluateAsync` intentionally returns null for non-GUID `targetRunId` so the API surfaces the same 404 as an out-of-scope run (no id-format oracle)
-- [ ] (candidate) `PolicyPackGovernanceDryRunService.EvaluateAsync` omits technology-consistency and evidence-linkage supplemental findings that `PreCommitGovernanceGate` appends on live evaluation — dry-run may report allowed while live gate blocks on the same run
-- [ ] (candidate) `PolicyPackFindingMatcher.MatchesAssignment` returns false on rule-key miss without pack-token/`EngineType` fallback when `ComplianceRuleKeys` is populated — coverage proof may mark assignments unproven despite pack-attributed findings
+- [x] (proven) `PolicyPackGovernanceDryRunService.EvaluateAsync` omits technology-consistency and evidence-linkage supplemental findings that `PreCommitGovernanceGate` appends on live evaluation — **hit 2026-09-04:** dry-run reported allowed on empty snapshot while enforcing technology-consistency would block; fixed via shared `PreCommitSupplementalFindingsAppender` (`PolicyPackGovernanceDryRunServiceTests.EvaluateAsync_blocks_when_technology_consistency_supplemental_findings_would_block_live_gate`)
+- [x] (proven) `PolicyPackFindingMatcher.MatchesAssignment` returns false on rule-key miss without pack-token/`EngineType` fallback when `ComplianceRuleKeys` is populated — **hit 2026-09-04:** coverage proof marked pack-attributed findings unproven when `PolicyRuleId` did not match listed keys; fixed by falling through to pack-token/`EngineType` checks (`PolicyPackFindingMatcherTests`, `PolicyPackCoverageProofEvaluatorTests.Evaluate_treats_pack_engine_type_as_proven_when_compliance_rule_keys_miss`)
 
-2026-09-03 seed hunt #581 (hit): reseeded gate/checklist parity audit; proved muted-finding pre-commit gate mismatch.
+2026-09-04 thorough hunt #715 (hit): proved governance dry-run supplemental-finding parity gap and pack finding matcher fallback gap.
 
 2026-09-02 seed hunt #8: reseeded pre-finalize coverage proof path; proved governance-scope JSON deserialization gap.
 

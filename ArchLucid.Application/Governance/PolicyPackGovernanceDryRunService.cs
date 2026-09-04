@@ -1,11 +1,13 @@
 using System.Text.Json;
 
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Serialization;
@@ -36,6 +38,11 @@ public sealed class PolicyPackGovernanceDryRunService(
     IOptions<PreCommitGovernanceGateOptions> preCommitOptions,
     IPromptRedactor promptRedactor,
     IAuditService auditService,
+    ITechnologyLedgerRepository technologyLedgerRepository,
+    ITechnologyConsistencyFindingEngine technologyConsistencyFindingEngine,
+    IOptions<TechnologyConsistencyFindingEngineOptions> technologyConsistencyFindingEngineOptions,
+    IFindingEvidenceLinkageFindingEngine findingEvidenceLinkageFindingEngine,
+    IOptions<FindingEvidenceLinkageFindingEngineOptions> findingEvidenceLinkageFindingEngineOptions,
     ILogger<PolicyPackGovernanceDryRunService> logger) : IPolicyPackGovernanceDryRunService
 {
     private static readonly string[] BlockCommitOnCriticalMetadataKeys = ["governance.blockCommitOnCritical", "blockCommitOnCritical"];
@@ -53,6 +60,20 @@ public sealed class PolicyPackGovernanceDryRunService(
     private readonly IPromptRedactor _promptRedactor = promptRedactor ?? throw new ArgumentNullException(nameof(promptRedactor));
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+    private readonly ITechnologyLedgerRepository _technologyLedgerRepository =
+        technologyLedgerRepository ?? throw new ArgumentNullException(nameof(technologyLedgerRepository));
+
+    private readonly ITechnologyConsistencyFindingEngine _technologyConsistencyFindingEngine =
+        technologyConsistencyFindingEngine ?? throw new ArgumentNullException(nameof(technologyConsistencyFindingEngine));
+
+    private readonly IOptions<TechnologyConsistencyFindingEngineOptions> _technologyConsistencyFindingEngineOptions =
+        technologyConsistencyFindingEngineOptions ?? throw new ArgumentNullException(nameof(technologyConsistencyFindingEngineOptions));
+
+    private readonly IFindingEvidenceLinkageFindingEngine _findingEvidenceLinkageFindingEngine =
+        findingEvidenceLinkageFindingEngine ?? throw new ArgumentNullException(nameof(findingEvidenceLinkageFindingEngine));
+
+    private readonly IOptions<FindingEvidenceLinkageFindingEngineOptions> _findingEvidenceLinkageFindingEngineOptions =
+        findingEvidenceLinkageFindingEngineOptions ?? throw new ArgumentNullException(nameof(findingEvidenceLinkageFindingEngineOptions));
 
     /// <inheritdoc/>
     public async Task<PolicyPackGovernanceDryRunResult?> EvaluateAsync(string policyPackContentJson, string? targetRunId, Guid? targetManifestId,
@@ -94,6 +115,17 @@ public sealed class PolicyPackGovernanceDryRunService(
             if (snapshot?.Findings is { Count: > 0 } list)
                 findings = list.ToList();
         }
+
+        await PreCommitSupplementalFindingsAppender.AppendAsync(
+            runKey.ToString("N"),
+            scope,
+            findings,
+            _technologyLedgerRepository,
+            _technologyConsistencyFindingEngine,
+            _technologyConsistencyFindingEngineOptions.Value,
+            _findingEvidenceLinkageFindingEngine,
+            _findingEvidenceLinkageFindingEngineOptions.Value,
+            cancellationToken).ConfigureAwait(false);
 
         PreCommitGateResult gate = gateActive
             ? PreCommitGateEvaluator.Evaluate(findings, mergedCritical, mergedMin, packLabel, _preCommitOptions.Value.WarnOnlySeverities)

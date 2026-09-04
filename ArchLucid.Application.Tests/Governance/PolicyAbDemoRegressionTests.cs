@@ -4,6 +4,7 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Compliance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
@@ -11,6 +12,7 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Repositories;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
 
@@ -160,6 +162,11 @@ public sealed class PolicyAbDemoRegressionTests
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
             redactor.Object,
             audit.Object,
+            new InMemoryTechnologyLedgerRepository(),
+            new TechnologyConsistencyFindingEngine(),
+            Options.Create(new TechnologyConsistencyFindingEngineOptions { Enabled = false }),
+            new FindingEvidenceLinkageFindingEngine(),
+            Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = false }),
             NullLogger<PolicyPackGovernanceDryRunService>.Instance);
     }
 }
