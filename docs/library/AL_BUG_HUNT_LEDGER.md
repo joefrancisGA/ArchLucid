@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 148
-- **bugs-found:** 338
+- **hunts:** 149
+- **bugs-found:** 345
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — activate/preview environment slug max-length validation
+- **last-bug:** 2026-09-04 — mutation-correction and run-history controller validation guards
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3902,6 +3902,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernancePreviewController.CompareEnvironments` — overlong `sourceEnvironment` reached compare service without controller-level slug cap (#688 submit/promote sibling) — **hit 2026-09-04 (#689):** shared `ValidateEnvironmentSlug` before compare-environments; regression in `GovernancePreviewControllerUnitTests.CompareEnvironments_returns_bad_request_when_source_environment_exceeds_max_length`.
 
 2026-09-04 seed hunt #689: promoted and proved activate/preview environment-slug max-length controller guards.
+
+- [x] (proven) `GovernanceController.RecordGovernanceMutationCorrection` / `GovernanceMutationCorrectionsHttpMapper` — overlong body `runId`, `subjectId`, or `rationale` reached `IGovernanceMutationCorrectionService` without controller-level guards (#688 workflow sibling) — **hit 2026-09-04 (#690):** shared HTTP mapper rejects over-length and min-length fields before tenant/service calls; regression in `GovernanceMutationCorrectionsHttpMapperTests` and `GovernanceMutationCorrectionsControllerTests`.
+
+- [x] (proven) `GovernanceStickinessHttpMapper.ValidateCreateRiskException` / `GovernanceStickinessController.CreateRiskException` — overlong `ownerUserId` or `evidenceRef` reached facade inspect/create without HTTP mapper guards (#552 application-layer sibling) — **hit 2026-09-04 (#690):** max-length guards on waiver create; regression in `GovernanceStickinessHttpMapperTests` and `GovernanceStickinessControllerTests.CreateRiskException_returns_bad_request_when_owner_user_id_exceeds_max_length_before_facade`.
+
+- [x] (proven) `GovernancePreviewController.Preview` — overlong body `runId` lacked shared `ValidateGovernanceRunId` guard (#688 submit/promote sibling) — **hit 2026-09-04 (#690):** shared run-id max-length validation before preview service; regression in `GovernancePreviewControllerUnitTests.Preview_returns_bad_request_when_run_id_exceeds_max_length`.
+
+- [x] (proven) `GovernanceController.GetApprovalRequests` / `GetPromotions` / `GetActivations` — route `runId` longer than 64 chars reached scoped run lookup without controller-level max-length guard (#688 workflow sibling) — **hit 2026-09-04 (#690):** shared `ValidateGovernanceRunId` before run-history facade; regression in `GovernanceControllerRunHistoryScopeTests` run-id max-length tests on all three list routes.
+
+2026-09-04 seed hunt #690: promoted and proved mutation-correction HTTP validation, waiver owner/evidence HTTP guards, preview run-id cap, and run-history route run-id caps.
 
 2026-09-04 seed hunt #685: promoted and proved recurrence preview cron max-length parity and single approve/reject review-comment cap parity with batch review.
 
