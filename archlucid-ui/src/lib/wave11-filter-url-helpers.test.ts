@@ -1594,6 +1594,282 @@ describe("wave28 filter url helpers", () => {
   });
 });
 
+describe("wave29 filter url helpers", () => {
+  it("auth domains, operational errors, alert routing disable, and pilot wizards", async () => {
+    const {
+      authDomainsSelectionConfirmHrefFromSearch,
+      parseAuthConfirmKindFromSearch,
+      parseAuthDomainFromSearch,
+    } = await import("@/lib/administration/auth-domains-selection-confirm-url");
+    const {
+      operationalErrorsDetailHrefFromSearch,
+      parseOperationalErrorsDetailIdFromSearch,
+    } = await import("@/lib/internal/operational-errors-detail-url");
+    const {
+      alertRoutingDisableRouteHrefFromSearch,
+      parseAlertRoutingDisableRouteIdFromSearch,
+    } = await import("@/lib/alerts/alert-routing-disable-route-url");
+    const {
+      parsePilotRoiWizardOpenFromSearch,
+      parsePilotRoiWizardStepFromSearch,
+      pilotRoiBaselineWizardHrefFromSearch,
+    } = await import("@/lib/operator/pilot-roi-baseline-wizard-url");
+    const {
+      corePilotWizardHrefFromSearch,
+      parseCorePilotWizardOpenFromSearch,
+      parseCorePilotWizardStepFromSearch,
+    } = await import("@/lib/operator/core-pilot-wizard-url");
+
+    expect(parseAuthDomainFromSearch("example.com")).toBe("example.com");
+    expect(parseAuthConfirmKindFromSearch("enable-enforcement")).toBe("enable-enforcement");
+    expect(
+      authDomainsSelectionConfirmHrefFromSearch(
+        "",
+        {
+          selectedDomain: "example.com",
+          confirmKind: "set-enforcement-mode",
+          enforcementMode: "SsoRequired",
+          allowEmailOtpRecovery: true,
+          recoveryAdminEmail: null,
+        },
+      ),
+    ).toBe(
+      "/administration/auth-domains?authDomain=example.com&authConfirm=set-enforcement-mode&authEnforcementMode=SsoRequired&authOtpRecovery=1",
+    );
+    expect(parseOperationalErrorsDetailIdFromSearch("err-1")).toBe("err-1");
+    expect(operationalErrorsDetailHrefFromSearch("category=HttpError", "err-1")).toBe(
+      "/internal/operational-errors?category=HttpError&errorId=err-1",
+    );
+    expect(parseAlertRoutingDisableRouteIdFromSearch("route-1")).toBe("route-1");
+    expect(
+      alertRoutingDisableRouteHrefFromSearch("tab=notifications", "route-1"),
+    ).toBe("/governance/alert-rules?tab=notifications&disableRouteId=route-1");
+    expect(parsePilotRoiWizardOpenFromSearch("1")).toBe(true);
+    expect(parsePilotRoiWizardStepFromSearch("1")).toBe(1);
+    expect(pilotRoiBaselineWizardHrefFromSearch("", { open: true, stepIndex: 1 }, "/")).toBe("/?roiWizard=1&roiStep=1");
+    expect(parseCorePilotWizardOpenFromSearch("true")).toBe(true);
+    expect(parseCorePilotWizardStepFromSearch("2")).toBe(2);
+    expect(corePilotWizardHrefFromSearch("help=1", { open: true, stepIndex: 2 }, "/home")).toBe(
+      "/home?help=1&pilotWizard=1&pilotWizardStep=2",
+    );
+  });
+
+  it("admin tenants, recycle bin, scim, account security, and governance promote/activate", async () => {
+    const {
+      adminTenantsActionHrefFromSearch,
+      parseAdminTenantActionFromSearch,
+      parseAdminTenantIdFromSearch,
+    } = await import("@/lib/internal/admin-tenants-action-url");
+    const {
+      parseProjectsRecycleBinRestoreProjectIdFromSearch,
+      projectsRecycleBinRestoreHrefFromSearch,
+    } = await import("@/lib/administration/projects-recycle-bin-restore-url");
+    const {
+      parseScimTokenCreateOpenFromSearch,
+      parseScimTokenRevokeIdFromSearch,
+      scimProvisioningTokenHrefFromSearch,
+    } = await import("@/lib/administration/scim-provisioning-token-url");
+    const {
+      accountSecurityRemoveLinkHrefFromSearch,
+      parseAccountSecurityLinkProposalFromSearch,
+      parseAccountSecurityRemoveMethodFromSearch,
+    } = await import("@/lib/account/account-security-remove-link-url");
+    const {
+      governanceApprovalPromoteActivateHrefFromSearch,
+      parseGovernanceActivateIdFromSearch,
+      parseGovernancePromoteEnvFromSearch,
+      parseGovernancePromoteManifestFromSearch,
+    } = await import("@/lib/governance/governance-approval-promote-activate-url");
+
+    expect(parseAdminTenantIdFromSearch("tenant-1")).toBe("tenant-1");
+    expect(parseAdminTenantActionFromSearch("shut-off")).toBe("shut-off");
+    expect(
+      adminTenantsActionHrefFromSearch("", { tenantId: "tenant-1", action: "turn-on" }),
+    ).toBe("/internal/tenants?tenantId=tenant-1&tenantAction=turn-on");
+    expect(parseProjectsRecycleBinRestoreProjectIdFromSearch("project-1")).toBe("project-1");
+    expect(projectsRecycleBinRestoreHrefFromSearch("", "project-1")).toBe(
+      "/administration/workspace-settings/recycle-bin?restoreProject=project-1",
+    );
+    expect(parseScimTokenCreateOpenFromSearch("1")).toBe(true);
+    expect(parseScimTokenRevokeIdFromSearch("token-1")).toBe("token-1");
+    expect(
+      scimProvisioningTokenHrefFromSearch("", { createOpen: true, revokeTokenId: "token-1" }),
+    ).toBe("/administration/scim-provisioning?scimCreate=1&scimRevokeId=token-1");
+    expect(parseAccountSecurityRemoveMethodFromSearch("identity-1")).toBe("identity-1");
+    expect(parseAccountSecurityLinkProposalFromSearch("proposal-1")).toBe("proposal-1");
+    expect(
+      accountSecurityRemoveLinkHrefFromSearch(
+        "secStep=verify",
+        { removeMethodIdentityId: "identity-1", linkProposalId: "proposal-1" },
+      ),
+    ).toBe("/account/security?secStep=verify&removeMethod=identity-1&linkProposal=proposal-1");
+    expect(parseGovernancePromoteManifestFromSearch("manifest-1")).toBe("manifest-1");
+    expect(parseGovernancePromoteEnvFromSearch("prod")).toBe("prod");
+    expect(parseGovernanceActivateIdFromSearch("activation-1")).toBe("activation-1");
+    expect(
+      governanceApprovalPromoteActivateHrefFromSearch(
+        "approvalId=a1&reviewMode=approve",
+        {
+          promoteManifestId: "manifest-1",
+          promoteTargetEnv: "prod",
+          activateId: "activation-1",
+        },
+      ),
+    ).toBe(
+      "/governance/approval-queue?approvalId=a1&reviewMode=approve&promoteManifest=manifest-1&promoteEnv=prod&activateId=activation-1",
+    );
+  });
+
+  it("architecture linked view and finalize confirm/success params", async () => {
+    const {
+      architectureFindingsLinkedViewHrefFromSearch,
+      parseArchitectureFindingsLinkedViewFromSearch,
+    } = await import("@/lib/architecture/architecture-findings-linked-view-url");
+    const {
+      parseReviewFinalizeConfirmOpenFromSearch,
+      parseReviewFinalizeSuccessOpenFromSearch,
+      reviewFinalizeConfirmHrefFromSearch,
+    } = await import("@/lib/reviews/review-finalize-confirm-url");
+
+    expect(parseArchitectureFindingsLinkedViewFromSearch("1")).toBe(true);
+    expect(
+      architectureFindingsLinkedViewHrefFromSearch("reviewTab=diagram", true, "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?reviewTab=diagram&linkedView=1");
+    expect(parseReviewFinalizeConfirmOpenFromSearch("true")).toBe(true);
+    expect(parseReviewFinalizeSuccessOpenFromSearch("1")).toBe(true);
+    expect(
+      reviewFinalizeConfirmHrefFromSearch(
+        "reviewTab=overview",
+        { confirmOpen: true, successOpen: false },
+        "/architecture/reviews/r1",
+      ),
+    ).toBe("/architecture/reviews/r1?reviewTab=overview&finalizeConfirm=1");
+    expect(
+      reviewFinalizeConfirmHrefFromSearch(
+        "finalizeConfirm=1",
+        { confirmOpen: false, successOpen: true },
+        "/architecture/reviews/r1",
+      ),
+    ).toBe("/architecture/reviews/r1?finalizeSuccess=1");
+  });
+});
+
+describe("wave30 filter url helpers", () => {
+  it("aws wizard, cloud disconnect, webhooks toggle, and review archive", async () => {
+    const {
+      awsConnectionWizardStepHrefFromSearch,
+      parseAwsConnectionWizardStepFromSearch,
+    } = await import("@/lib/integrations/aws-connection-wizard-step-url");
+    const {
+      cloudConnectionDisconnectHrefFromSearch,
+      parseCloudConnectionDisconnectIdFromSearch,
+    } = await import("@/lib/integrations/cloud-connection-disconnect-url");
+    const {
+      parseWebhookDisableIdFromSearch,
+      parseWebhookEnableIdFromSearch,
+      webhooksToggleConfirmHrefFromSearch,
+    } = await import("@/lib/integrations/webhooks-toggle-confirm-url");
+    const {
+      parseReviewArchiveConfirmOpenFromSearch,
+      parseReviewArchiveRunIdFromSearch,
+      reviewArchiveConfirmHrefFromSearch,
+    } = await import("@/lib/reviews/review-archive-confirm-url");
+
+    expect(parseAwsConnectionWizardStepFromSearch("1")).toBe(1);
+    expect(awsConnectionWizardStepHrefFromSearch("", 1)).toBe(
+      "/integrations/cloud-connections/aws?awsStep=1",
+    );
+    expect(parseCloudConnectionDisconnectIdFromSearch("conn-1")).toBe("conn-1");
+    expect(
+      cloudConnectionDisconnectHrefFromSearch("", "conn-1", "/integrations/cloud-connections/aws"),
+    ).toBe("/integrations/cloud-connections/aws?disconnectId=conn-1");
+    expect(parseWebhookDisableIdFromSearch("sub-1")).toBe("sub-1");
+    expect(parseWebhookEnableIdFromSearch("sub-2")).toBe("sub-2");
+    expect(
+      webhooksToggleConfirmHrefFromSearch("", {
+        disableRoutingSubscriptionId: "sub-1",
+        enableRoutingSubscriptionId: null,
+      }),
+    ).toBe("/integrations/webhooks?webhookDisableId=sub-1");
+    expect(
+      webhooksToggleConfirmHrefFromSearch("", {
+        disableRoutingSubscriptionId: null,
+        enableRoutingSubscriptionId: "sub-2",
+      }),
+    ).toBe("/integrations/webhooks?webhookEnableId=sub-2");
+    expect(parseReviewArchiveRunIdFromSearch("run-1")).toBe("run-1");
+    expect(parseReviewArchiveConfirmOpenFromSearch("1")).toBe(true);
+    expect(
+      reviewArchiveConfirmHrefFromSearch("", { runId: "run-1", confirmOpen: true }),
+    ).toBe("/architecture/reviews?archiveRunId=run-1&archiveConfirm=1");
+  });
+
+  it("draft delete, api keys, billing checkout, digest pause, recurrence disable, cluster disposition", async () => {
+    const {
+      architectureDraftDeleteConfirmHrefFromSearch,
+      parseArchitectureDraftDeleteConfirmOpenFromSearch,
+      parseArchitectureDraftDeleteIdFromSearch,
+    } = await import("@/lib/architecture/architecture-draft-delete-confirm-url");
+    const {
+      apiKeyActionConfirmHrefFromSearch,
+      parseApiKeyActionFromSearch,
+    } = await import("@/lib/administration/api-key-action-confirm-url");
+    const {
+      billingCheckoutConfirmHrefFromSearch,
+      parseBillingCheckoutConfirmOpenFromSearch,
+    } = await import("@/lib/administration/billing-checkout-confirm-url");
+    const {
+      digestSubscriptionsPanelsHrefFromSearch,
+      parseDigestSubscriptionsPauseIdFromSearch,
+    } = await import("@/lib/digests/digest-subscriptions-panels-url");
+    const {
+      parseRecurrenceSchedulesDisableIdFromSearch,
+      recurrenceSchedulesPanelsHrefFromSearch,
+    } = await import("@/lib/governance/recurrence-schedules-panels-url");
+    const {
+      parseRootCauseClusterDispFromSearch,
+      parseRootCauseClusterKeyFromSearch,
+      rootCauseClusterDispositionHrefFromSearch,
+      rootCauseClusterDispositionToUrlValue,
+    } = await import("@/lib/findings/root-cause-cluster-disposition-url");
+
+    expect(parseArchitectureDraftDeleteIdFromSearch("draft-1")).toBe("draft-1");
+    expect(parseArchitectureDraftDeleteConfirmOpenFromSearch("true")).toBe(true);
+    expect(
+      architectureDraftDeleteConfirmHrefFromSearch(
+        "",
+        { architectureId: "draft-1", confirmOpen: true },
+      ),
+    ).toBe("/architecture/architectures?draftDeleteId=draft-1&draftDeleteConfirm=1");
+    expect(parseApiKeyActionFromSearch("rotate_admin")).toBe("rotate_admin");
+    expect(apiKeyActionConfirmHrefFromSearch("", "issue_overlap")).toBe(
+      "/administration/api-keys?apiKeyAction=issue_overlap",
+    );
+    expect(parseBillingCheckoutConfirmOpenFromSearch("1")).toBe(true);
+    expect(billingCheckoutConfirmHrefFromSearch("plan=architect", true)).toBe(
+      "/administration/billing?plan=architect&checkoutConfirm=1",
+    );
+    expect(parseDigestSubscriptionsPauseIdFromSearch("sub-1")).toBe("sub-1");
+    expect(
+      digestSubscriptionsPanelsHrefFromSearch("tab=subscriptions", { pauseSubscriptionId: "sub-1" }),
+    ).toBe("/architecture/digests?tab=subscriptions&pauseSubId=sub-1");
+    expect(parseRecurrenceSchedulesDisableIdFromSearch("sched-1")).toBe("sched-1");
+    expect(
+      recurrenceSchedulesPanelsHrefFromSearch("", { disableScheduleId: "sched-1" }),
+    ).toBe("/governance/recurrence-schedules?disableScheduleId=sched-1");
+    expect(parseRootCauseClusterKeyFromSearch("cluster-a")).toBe("cluster-a");
+    expect(parseRootCauseClusterDispFromSearch("accepted")).toBe("accepted");
+    expect(rootCauseClusterDispositionToUrlValue("RejectedAsNotApplicable")).toBe("waived");
+    expect(
+      rootCauseClusterDispositionHrefFromSearch(
+        "reviewTab=findings",
+        { clusterKey: "cluster-a", disposition: "Accepted" },
+        "/architecture/reviews/r1",
+      ),
+    ).toBe("/architecture/reviews/r1?reviewTab=findings&clusterKey=cluster-a&clusterDisp=accepted");
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

@@ -5,7 +5,10 @@ using ArchLucid.Core.Conversation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Ask;
 using ArchLucid.Host.Core.Services.Ask;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -51,18 +54,36 @@ public sealed class AskServiceAskAboutFindingTests
             .Setup(c => c.GetHistoryAsync(thread.ThreadId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
+        Guid runId = Guid.NewGuid();
+
         Mock<IFindingInspectReadRepository> findingRepository = new();
         findingRepository
             .Setup(r => r.GetInspectAsync(scope, It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Contracts.Findings.FindingInspectResponse
             {
                 FindingId = Guid.NewGuid().ToString("N"),
+                RunId = runId,
                 Severity = Contracts.Findings.FindingSeverity.Warning,
                 Evidence =
                 [
                     new Contracts.Findings.FindingInspectEvidenceItem { Excerpt = "evidence-line" }
                 ]
             });
+
+        ManifestDocument goldenManifest = new()
+        {
+            RunId = runId,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            ManifestId = Guid.NewGuid(),
+        };
+        AskSealedManifestTestSupport.ApplySealedManifestDefaults(goldenManifest);
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(query => query.GetRunDetailForManifestCompareAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto { GoldenManifest = goldenManifest });
 
         Mock<IAgentCompletionClient> llm = new();
         llm.Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), null, null, It.IsAny<CancellationToken>()))
@@ -78,7 +99,8 @@ public sealed class AskServiceAskAboutFindingTests
         AskService sut = AskServiceTestFactory.Create(
             llm: llm.Object,
             conversationService: conversationService.Object,
-            findingInspectReadRepository: findingRepository.Object);
+            findingInspectReadRepository: findingRepository.Object,
+            query: authority.Object);
 
         AskResponse response = await sut.AskAboutFindingAsync(
             new FindingAskRequest

@@ -250,16 +250,32 @@ const BUYER_FILTER_CHIP_DISABLED_CLASS =
 const BUYER_FILTER_CHIP_EMPTY_CLASS =
   "border-neutral-300 bg-neutral-100 text-neutral-700 hover:border-neutral-400 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400 dark:hover:border-neutral-600";
 
+const BUYER_FILTER_CHIP_NEEDS_ACTION_CLASS =
+  "cursor-pointer border-[var(--al-accent-interactive)]/45 bg-[var(--al-status-warn-bg)] text-[var(--al-status-warn-fg)] shadow-sm hover:border-[var(--al-accent-interactive)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-amber-700/60";
+
 export function buyerFilterChipActiveClass(active: boolean): string {
   return active ? BUYER_FILTER_CHIP_ACTIVE_CLASS : BUYER_FILTER_CHIP_IDLE_CLASS;
 }
 
-export function buyerFilterChipClass(active: boolean, disabled: boolean, empty: boolean = false): string {
+export function buyerFilterChipClass(
+  active: boolean,
+  disabled: boolean,
+  empty: boolean = false,
+  needsAction: boolean = false,
+): string {
   if (disabled) {
     return BUYER_FILTER_CHIP_DISABLED_CLASS;
   }
 
-  if (empty && !active) {
+  if (active) {
+    return BUYER_FILTER_CHIP_ACTIVE_CLASS;
+  }
+
+  if (needsAction) {
+    return BUYER_FILTER_CHIP_NEEDS_ACTION_CLASS;
+  }
+
+  if (empty) {
     return BUYER_FILTER_CHIP_EMPTY_CLASS;
   }
 

@@ -1,14 +1,17 @@
 using System.Text.Json;
 
-using ArchLucid.AgentRuntime;
 using ArchLucid.Application.Ask;
+using ArchLucid.Application.Findings;
+using ArchLucid.AgentRuntime;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Ask;
 using ArchLucid.Host.Core.Ask;
 using ArchLucid.Core.Conversation;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Host.Core.Services.Ask;
 
@@ -22,6 +25,7 @@ public sealed class AskService(
     IAgentCompletionClient llm,
     IConversationService conversationService,
     IFindingInspectReadRepository findingInspectReadRepository,
+    IAuthorityQueryService authorityQueryService,
     AskContextPreparer contextPreparer,
     AskComparisonNarrativeBuilder comparisonNarrativeBuilder,
     AskResponseComposer responseComposer,
@@ -60,6 +64,9 @@ public sealed class AskService(
 
     private readonly IFindingInspectReadRepository _findingInspectReadRepository =
         findingInspectReadRepository ?? throw new ArgumentNullException(nameof(findingInspectReadRepository));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
 
     private readonly AskContextPreparer _contextPreparer =
         contextPreparer ?? throw new ArgumentNullException(nameof(contextPreparer));
@@ -205,6 +212,12 @@ public sealed class AskService(
 
         if (finding is null)
             throw new InvalidOperationException($"Finding '{findingId}' was not found in the current scope.");
+
+        await FindingInspectPinnedEvidenceGuard.EnsureInspectEvidenceInventoryBoundOrThrowAsync(
+            finding,
+            scope,
+            _authorityQueryService,
+            ct);
 
         object findingContext = new
         {

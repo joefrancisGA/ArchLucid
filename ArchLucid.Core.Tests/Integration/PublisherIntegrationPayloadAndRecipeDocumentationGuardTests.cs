@@ -26,6 +26,7 @@ public sealed class PublisherIntegrationPayloadAndRecipeDocumentationGuardTests
             "schemaVersion",
             "runId",
             "manifestId",
+            "manifestHash",
             "tenantId",
             "workspaceId",
             "projectId",

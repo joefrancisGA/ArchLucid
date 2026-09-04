@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
@@ -61,6 +62,12 @@ import {
   resolveScimIssueTokenEmphasizedStepId,
   resolveScimIssueTokenSteps,
 } from "@/lib/scim-issue-token-checklist";
+import {
+  parseScimTokenCreateOpenFromSearch,
+  parseScimTokenRevokeIdFromSearch,
+  scimProvisioningTokenHrefFromSearch,
+} from "@/lib/administration/scim-provisioning-token-url";
+import { SCIM_PROVISIONING_CANONICAL_PATH } from "@/lib/scim-provisioning-evidence-copy";
 
 const tokensPath = "/api/proxy/v1/admin/scim/tokens";
 
@@ -74,6 +81,12 @@ async function copyText(value: string): Promise<void> {
 
 /** SCIM inbound provisioning administration — token lifecycle and connectivity verification. */
 export function ScimProvisioningSettingsPageClient() {
+  const router = useRouter();
+  const pathname = usePathname() ?? SCIM_PROVISIONING_CANONICAL_PATH;
+  const searchParams = useSearchParams();
+  const urlScimCreate = parseScimTokenCreateOpenFromSearch(searchParams.get("scimCreate"));
+  const urlScimRevokeId = parseScimTokenRevokeIdFromSearch(searchParams.get("scimRevokeId"));
+
   const [state, setState] = useState<ScimTokensLoadState>({ status: "idle" });
   const [scimBaseUrlClassification, setScimBaseUrlClassification] = useState<ScimBaseUrlClassification | null>(
     null,
@@ -84,8 +97,39 @@ export function ScimProvisioningSettingsPageClient() {
   const [verifyState, setVerifyState] = useState<VerifyState>({ status: "idle" });
   const [issuing, setIssuing] = useState(false);
   const [revokingId, setRevokingId] = useState<string | null>(null);
-  const [pendingRevoke, setPendingRevoke] = useState<ScimTokenSummary | null>(null);
-  const [pendingCreate, setPendingCreate] = useState(false);
+  const [pendingRevoke, setPendingRevokeState] = useState<ScimTokenSummary | null>(null);
+  const [pendingCreate, setPendingCreateState] = useState(false);
+
+  const syncScimTokenUrl = useCallback(
+    (createOpen: boolean, revokeTokenId: string | null) => {
+      router.replace(
+        scimProvisioningTokenHrefFromSearch(
+          searchParams.toString(),
+          { createOpen, revokeTokenId },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPendingCreate = useCallback(
+    (value: boolean) => {
+      setPendingCreateState(value);
+      syncScimTokenUrl(value, pendingRevoke?.id ?? null);
+    },
+    [pendingRevoke?.id, syncScimTokenUrl],
+  );
+
+  const setPendingRevoke = useCallback(
+    (value: ScimTokenSummary | null) => {
+      setPendingRevokeState(value);
+      syncScimTokenUrl(pendingCreate, value?.id ?? null);
+    },
+    [pendingCreate, syncScimTokenUrl],
+  );
+
   const [copiedBaseUrl, setCopiedBaseUrl] = useState(false);
   const [copiedToken, setCopiedToken] = useState(false);
   const [statusAnnouncement, setStatusAnnouncement] = useState("");
@@ -131,6 +175,36 @@ export function ScimProvisioningSettingsPageClient() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    setPendingCreateState(urlScimCreate);
+  }, [urlScimCreate]);
+
+  useEffect(() => {
+    if (urlScimRevokeId.length === 0) {
+      if (pendingRevoke !== null) {
+        setPendingRevokeState(null);
+      }
+
+      return;
+    }
+
+    if (state.status !== "ready") {
+      return;
+    }
+
+    const token = state.tokens.find((row) => row.id === urlScimRevokeId);
+
+    if (token === undefined) {
+      return;
+    }
+
+    if (pendingRevoke?.id === token.id) {
+      return;
+    }
+
+    setPendingRevokeState(token);
+  }, [pendingRevoke?.id, state, urlScimRevokeId]);
 
   const clearSetupSession = useCallback(() => {
     setIssuedToken(null);

@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { UseFormHandleSubmit, UseFormReturn } from "react-hook-form";
 
 import type { AlertRoutingSubscriptionDisableTarget } from "@/app/(operator)/integrations/_sections/AlertRoutingSubscriptionDisableDialog";
@@ -20,6 +21,12 @@ import { webhookSettingsDefaultValues } from "@/lib/webhook-settings-form-schema
 import { buildWebhookSubscriptionMetadata } from "@/lib/webhook-subscription-metadata";
 import { writeWebhookSubscriptionLastViewedId } from "@/lib/resolve-continue-last-webhook-subscription";
 import type { AlertRoutingSubscription } from "@/types/alert-routing";
+import { INTEGRATIONS_WEBHOOKS_PATH } from "@/lib/integrations-nav-paths";
+import {
+  parseWebhookDisableIdFromSearch,
+  parseWebhookEnableIdFromSearch,
+  webhooksToggleConfirmHrefFromSearch,
+} from "@/lib/integrations/webhooks-toggle-confirm-url";
 
 export type WebhookEnableTarget = {
   readonly routingSubscriptionId: string;
@@ -69,15 +76,118 @@ export type UseWebhooksSettingsMutationsResult = {
 export function useWebhooksSettingsMutations(
   options: UseWebhooksSettingsMutationsOptions,
 ): UseWebhooksSettingsMutationsResult {
+  const router = useRouter();
+  const pathname = usePathname() ?? INTEGRATIONS_WEBHOOKS_PATH;
+  const searchParams = useSearchParams();
+  const urlDisableId = parseWebhookDisableIdFromSearch(searchParams.get("webhookDisableId"));
+  const urlEnableId = parseWebhookEnableIdFromSearch(searchParams.get("webhookEnableId"));
   const [isSaving, setIsSaving] = useState(false);
   const isSavingRef = useRef(false);
   const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(null);
-  const [pendingDisable, setPendingDisable] = useState<AlertRoutingSubscriptionDisableTarget | null>(null);
+  const [pendingDisable, setPendingDisableState] = useState<AlertRoutingSubscriptionDisableTarget | null>(null);
   const [disableBusy, setDisableBusy] = useState(false);
   const [disableErrorMessage, setDisableErrorMessage] = useState<string | null>(null);
-  const [pendingEnable, setPendingEnable] = useState<WebhookEnableTarget | null>(null);
+  const [pendingEnable, setPendingEnableState] = useState<WebhookEnableTarget | null>(null);
   const [enableBusy, setEnableBusy] = useState(false);
   const [enableErrorMessage, setEnableErrorMessage] = useState<string | null>(null);
+
+  const syncToggleConfirmToUrl = useCallback(
+    (state: { disableId: string | null; enableId: string | null }) => {
+      router.replace(
+        webhooksToggleConfirmHrefFromSearch(
+          searchParams.toString(),
+          {
+            disableRoutingSubscriptionId: state.disableId,
+            enableRoutingSubscriptionId: state.enableId,
+          },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPendingDisable = useCallback(
+    (value: AlertRoutingSubscriptionDisableTarget | null) => {
+      setPendingDisableState(value);
+      syncToggleConfirmToUrl({
+        disableId: value?.routingSubscriptionId ?? null,
+        enableId: null,
+      });
+    },
+    [syncToggleConfirmToUrl],
+  );
+
+  const setPendingEnable = useCallback(
+    (value: WebhookEnableTarget | null) => {
+      setPendingEnableState(value);
+      syncToggleConfirmToUrl({
+        disableId: null,
+        enableId: value?.routingSubscriptionId ?? null,
+      });
+    },
+    [syncToggleConfirmToUrl],
+  );
+
+  useEffect(() => {
+    if (urlDisableId.length === 0 && urlEnableId.length === 0) {
+      if (pendingDisable !== null) {
+        setPendingDisableState(null);
+      }
+
+      if (pendingEnable !== null) {
+        setPendingEnableState(null);
+      }
+
+      return;
+    }
+
+    if (options.webhookRows.length === 0) {
+      return;
+    }
+
+    if (urlDisableId.length > 0) {
+      const subscription = options.webhookRows.find((row) => row.routingSubscriptionId === urlDisableId);
+
+      if (subscription === undefined) {
+        return;
+      }
+
+      if (pendingDisable?.routingSubscriptionId === urlDisableId) {
+        return;
+      }
+
+      setPendingDisableState({
+        routingSubscriptionId: subscription.routingSubscriptionId,
+        subscriptionName: subscription.name,
+        channel: "webhook",
+      });
+
+      return;
+    }
+
+    const subscription = options.webhookRows.find((row) => row.routingSubscriptionId === urlEnableId);
+
+    if (subscription === undefined) {
+      return;
+    }
+
+    if (pendingEnable?.routingSubscriptionId === urlEnableId) {
+      return;
+    }
+
+    setPendingEnableState({
+      routingSubscriptionId: subscription.routingSubscriptionId,
+      subscriptionName: subscription.name,
+    });
+  }, [
+    options.webhookRows,
+    pendingDisable?.routingSubscriptionId,
+    pendingEnable?.routingSubscriptionId,
+    urlDisableId,
+    urlEnableId,
+  ]);
 
   const resetMutationState = useCallback(() => {
     setSaveSuccessMessage(null);
@@ -89,7 +199,7 @@ export function useWebhooksSettingsMutations(
     setPendingEnable(null);
     setDisableErrorMessage(null);
     setEnableErrorMessage(null);
-  }, []);
+  }, [setPendingDisable, setPendingEnable]);
 
   async function executeToggle(routingSubscriptionId: string, generation: number): Promise<void> {
     if (options.scopeGenerationRef.current !== generation) {

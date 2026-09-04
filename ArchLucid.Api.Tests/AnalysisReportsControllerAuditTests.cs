@@ -6,6 +6,8 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
@@ -60,6 +62,9 @@ public sealed class AnalysisReportsControllerAuditTests
             Mock.Of<IConsultingDocxExportProfileSelector>(),
             Mock.Of<IRunExportAuditService>(),
             Mock.Of<IRunExportRecordRepository>(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
+            Mock.Of<IScopeContextProvider>(),
             Mock.Of<IBackgroundJobQueue>(),
             audit.Object,
             NullLogger<AnalysisReportsController>.Instance) { ControllerContext = CreateControllerContext() };

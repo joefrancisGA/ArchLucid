@@ -288,7 +288,7 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
               );
             })}
           </ul>
-          {hiddenFeaturedCount > 0 ? (
+          {hiddenFeaturedCount > 0 && props.pagePrimaryOwnedElsewhere !== true ? (
             <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
               <Link href="/architecture/reviews" className={OPERATOR_LINK.nav}>
                 View all reviews

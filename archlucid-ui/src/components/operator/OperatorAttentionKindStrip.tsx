@@ -59,11 +59,13 @@ export function OperatorAttentionKindStrip(
             destination.href,
           );
 
+          const needsAction = kind === "awaiting-approval" && count > 0 && !selected;
+
           return (
             <li key={kind}>
               <FilterChip
                 href={destination.href}
-                className={cn("gap-1", buyerFilterChipClass(selected, false, count === 0))}
+                className={cn("gap-1", buyerFilterChipClass(selected, false, count === 0, needsAction))}
                 aria-current={selected ? "page" : undefined}
                 aria-label={`${label}: ${count} items`}
                 data-testid={`operator-attention-kind-chip-${kind}`}

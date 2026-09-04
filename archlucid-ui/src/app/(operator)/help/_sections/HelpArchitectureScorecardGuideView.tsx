@@ -1,14 +1,16 @@
 import Link from "next/link";
 
+import { HelpArchitectureScorecardHeaderActions } from "@/app/(operator)/help/_sections/HelpArchitectureScorecardHeaderActions";
+import { HelpArchitectureScorecardSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpArchitectureScorecardSourcesOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ArchitectureScorecardHelpClaimDisciplineStrip } from "@/components/help/ArchitectureScorecardHelpClaimDisciplineStrip";
 import { ArchitectureScorecardHelpEvidenceOrientationStrip } from "@/components/help/ArchitectureScorecardHelpEvidenceOrientationStrip";
 import { ScorecardRoiVocabularyRail } from "@/components/ScorecardRoiVocabularyRail";
+import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
   CTA_WIDTH,
@@ -18,6 +20,7 @@ import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
@@ -40,8 +43,17 @@ import {
 } from "@/lib/architecture-scorecard-help-guide-content";
 import {
   ARCHITECTURE_SCORECARD_HELP_CANONICAL_PATH,
+  ARCHITECTURE_SCORECARD_HELP_CLAIM_DISCIPLINE,
   ARCHITECTURE_SCORECARD_HELP_CLAIM_HEADING_ID,
 } from "@/lib/architecture-scorecard-help-evidence-copy";
+import {
+  ARCHITECTURE_SCORECARD_HELP_FIRST_VIEWPORT_ACTION_TITLE,
+  ARCHITECTURE_SCORECARD_HELP_FIRST_VIEWPORT_TEST_ID,
+  ARCHITECTURE_SCORECARD_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  ARCHITECTURE_SCORECARD_HELP_PRIMARY_CONTENT_ID,
+  ARCHITECTURE_SCORECARD_HELP_SKIP_LINK_LABEL,
+  ARCHITECTURE_SCORECARD_HELP_SKIP_TARGET_ID,
+} from "@/lib/architecture-scorecard-help-page-copy";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
@@ -60,11 +72,34 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
   );
 }
 
+function ArchitectureScorecardFirstViewportActionPanel(): React.ReactElement {
+  return (
+    <section
+      className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+      data-testid="help-architecture-scorecard-action-panel"
+      aria-labelledby="help-architecture-scorecard-action-panel-heading"
+    >
+      <h2
+        id="help-architecture-scorecard-action-panel-heading"
+        className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+      >
+        {ARCHITECTURE_SCORECARD_HELP_FIRST_VIEWPORT_ACTION_TITLE}
+      </h2>
+      <Button asChild className={CTA_WIDTH.content} size="sm" variant="primary" data-testid="help-architecture-scorecard-start-here-primary-cta">
+        <Link href={ARCHITECTURE_SCORECARD_HELP_PRIMARY_ACTION.href}>
+          {ARCHITECTURE_SCORECARD_HELP_PRIMARY_ACTION.label}
+        </Link>
+      </Button>
+    </section>
+  );
+}
+
 /** Operator architecture scorecard orientation for `/help/architecture-scorecard`. */
 export function HelpArchitectureScorecardGuideView(
   props: HelpArchitectureScorecardGuideViewProps,
 ): React.ReactElement {
   const { entry } = props;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const guideHeadings = resolveGuideHeadingsForStrip(
     "help-architecture-scorecard",
     ARCHITECTURE_SCORECARD_HELP_GUIDE_HEADINGS,
@@ -77,134 +112,183 @@ export function HelpArchitectureScorecardGuideView(
       className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-architecture-scorecard-guide"
     >
+      {buyerPolishedShell ? (
+        <a href={`#${ARCHITECTURE_SCORECARD_HELP_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+          {ARCHITECTURE_SCORECARD_HELP_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
       <HelpTopicHashScroll />
 
-      <OperatorPageHeader
-        title={ARCHITECTURE_SCORECARD_HELP_PAGE_TITLE}
-        titleTestId="help-architecture-scorecard-page-title"
-        subtitle={ARCHITECTURE_SCORECARD_HELP_PAGE_SUBTITLE}
-        navHref={ARCHITECTURE_SCORECARD_HELP_CANONICAL_PATH}
-        headingLevel="h1"
-        metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
-        actions={<PageContextualHelpButton />}
-      />
+      <div
+        id={buyerPolishedShell ? ARCHITECTURE_SCORECARD_HELP_PRIMARY_CONTENT_ID : undefined}
+        data-testid={buyerPolishedShell ? ARCHITECTURE_SCORECARD_HELP_PRIMARY_CONTENT_ID : undefined}
+        className={cn(buyerPolishedShell && "scroll-mt-24 space-y-6", buyerPolishedShell && OPERATOR_LAYOUT.sectionStack)}
+      >
+        {buyerPolishedShell ? (
+          <HelpTopicGuidePageHeader
+            title={ARCHITECTURE_SCORECARD_HELP_PAGE_TITLE}
+            titleTestId="help-architecture-scorecard-page-title"
+            subtitle={ARCHITECTURE_SCORECARD_HELP_PAGE_SUBTITLE}
+            navHref={ARCHITECTURE_SCORECARD_HELP_CANONICAL_PATH}
+            headingLevel="h1"
+            claimDiscipline={ARCHITECTURE_SCORECARD_HELP_CLAIM_DISCIPLINE}
+            claimDisciplineTestId={ARCHITECTURE_SCORECARD_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+            metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
+            actions={<HelpArchitectureScorecardHeaderActions />}
+          />
+        ) : (
+          <OperatorPageHeader
+            title={ARCHITECTURE_SCORECARD_HELP_PAGE_TITLE}
+            titleTestId="help-architecture-scorecard-page-title"
+            subtitle={ARCHITECTURE_SCORECARD_HELP_PAGE_SUBTITLE}
+            navHref={ARCHITECTURE_SCORECARD_HELP_CANONICAL_PATH}
+            headingLevel="h1"
+            metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
+            actions={<HelpArchitectureScorecardHeaderActions />}
+          />
+        )}
 
-      <ArchitectureScorecardHelpClaimDisciplineStrip />
+        {buyerPolishedShell ? null : <ArchitectureScorecardHelpClaimDisciplineStrip />}
 
-      <div className={contentGridClass}>
-        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
-          <ArchitectureScorecardHelpEvidenceOrientationStrip />
-
-          <p
-            className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="help-architecture-scorecard-overview"
+        {buyerPolishedShell ? (
+          <div
+            id={ARCHITECTURE_SCORECARD_HELP_SKIP_TARGET_ID}
+            data-testid={ARCHITECTURE_SCORECARD_HELP_FIRST_VIEWPORT_TEST_ID}
+            className={cn(
+              "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+              OPERATOR_LAYOUT.sectionStack,
+            )}
           >
-            {ARCHITECTURE_SCORECARD_HELP_OVERVIEW}
-          </p>
+            <ArchitectureScorecardFirstViewportActionPanel />
+          </div>
+        ) : null}
 
-          <div className="flex flex-wrap gap-2" data-testid="help-architecture-scorecard-primary-action">
-            <Button asChild className={CTA_WIDTH.content} size="sm" variant="primary">
-              <Link href={ARCHITECTURE_SCORECARD_HELP_PRIMARY_ACTION.href}>
-                {ARCHITECTURE_SCORECARD_HELP_PRIMARY_ACTION.label}
-              </Link>
-            </Button>
+        <div className={contentGridClass}>
+          <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+            {buyerPolishedShell ? null : <ArchitectureScorecardHelpEvidenceOrientationStrip />}
+
+            <p
+              className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="help-architecture-scorecard-overview"
+            >
+              {ARCHITECTURE_SCORECARD_HELP_OVERVIEW}
+            </p>
+
+            {buyerPolishedShell ? null : (
+              <div className="flex flex-wrap gap-2" data-testid="help-architecture-scorecard-primary-action">
+                <Button asChild className={CTA_WIDTH.content} size="sm" variant="primary">
+                  <Link href={ARCHITECTURE_SCORECARD_HELP_PRIMARY_ACTION.href}>
+                    {ARCHITECTURE_SCORECARD_HELP_PRIMARY_ACTION.label}
+                  </Link>
+                </Button>
+              </div>
+            )}
+
+            <section
+              aria-labelledby="what-the-scorecard-shows"
+              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="what-the-scorecard-shows">What the scorecard shows</HelpSectionHeading>
+              <div
+                className="grid gap-3 sm:grid-cols-2"
+                data-testid="help-architecture-scorecard-tile-items"
+              >
+                {ARCHITECTURE_SCORECARD_HELP_TILE_ITEMS.map((item) => (
+                  <div key={item.label} className={cn(DESIGN_TOKENS.surface.card, "space-y-1 p-4")}>
+                    <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{item.label}</p>
+                    <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{item.detail}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section
+              aria-labelledby="how-to-read-architecture-scorecard"
+              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="how-to-read-architecture-scorecard">How architecture scorecards work</HelpSectionHeading>
+              <ol
+                className={cn("m-0 list-decimal space-y-2 pl-5", OPERATOR_TYPOGRAPHY.body)}
+                data-testid="help-architecture-scorecard-how-stepper"
+              >
+                {ARCHITECTURE_SCORECARD_HELP_HOW_TO_READ_STEPS.map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ol>
+            </section>
+
+            <section
+              aria-labelledby="basis-of-estimate"
+              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="basis-of-estimate">{ARCHITECTURE_SCORECARD_HELP_METHODOLOGY_SECTION_TITLE}</HelpSectionHeading>
+              <div
+                className={cn(DESIGN_TOKENS.surface.card, "space-y-3 p-4")}
+                data-testid="help-architecture-scorecard-methodology"
+              >
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{ARCHITECTURE_SCORECARD_HELP_METHODOLOGY_BODY}</p>
+                <p className={cn("m-0 font-mono text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {ARCHITECTURE_SCORECARD_HELP_METHODOLOGY_FORMULA}
+                </p>
+                <details className={HELP_PAGE_LAYOUT.details} data-testid="help-architecture-scorecard-worked-example">
+                  <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                    {ARCHITECTURE_SCORECARD_HELP_WORKED_EXAMPLE_TITLE}
+                  </summary>
+                  <ul className={cn(HELP_PAGE_LAYOUT.detailsBody, "m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+                    {ARCHITECTURE_SCORECARD_HELP_WORKED_EXAMPLE_LINES.map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                  </ul>
+                </details>
+                <Link className={OPERATOR_LINK.inline} href={ARCHITECTURE_SCORECARD_HELP_METHODOLOGY_HREF}>
+                  {ARCHITECTURE_SCORECARD_HELP_METHODOLOGY_LABEL} →
+                </Link>
+              </div>
+            </section>
+
+            {buyerPolishedShell ? null : (
+              <section
+                aria-labelledby="scorecard-vs-roi-summary"
+                className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+              >
+                <HelpSectionHeading id="scorecard-vs-roi-summary">
+                  {ARCHITECTURE_SCORECARD_HELP_SCORECARD_ROI_SECTION_TITLE}
+                </HelpSectionHeading>
+                <ScorecardRoiVocabularyRail currentSurfaceId="scorecard" variant="full" />
+              </section>
+            )}
+
+            <section
+              aria-labelledby="where-to-go-next"
+              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="where-to-go-next">Where to go next</HelpSectionHeading>
+              <div className="grid gap-3 sm:grid-cols-2" data-testid="help-architecture-scorecard-sibling-reports">
+                {ARCHITECTURE_SCORECARD_HELP_SIBLING_REPORTS.map((report) => (
+                  <div
+                    key={report.id}
+                    className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+                  >
+                    <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{report.title}</h3>
+                    <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{report.description}</p>
+                    <Button asChild className={CTA_WIDTH.content} size="sm" variant="outline">
+                      <Link href={report.href}>{report.actionLabel}</Link>
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </section>
           </div>
 
-          <section
-            aria-labelledby="what-the-scorecard-shows"
-            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="what-the-scorecard-shows">What the scorecard shows</HelpSectionHeading>
-            <div
-              className="grid gap-3 sm:grid-cols-2"
-              data-testid="help-architecture-scorecard-tile-items"
-            >
-              {ARCHITECTURE_SCORECARD_HELP_TILE_ITEMS.map((item) => (
-                <div key={item.label} className={cn(DESIGN_TOKENS.surface.card, "space-y-1 p-4")}>
-                  <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{item.label}</p>
-                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{item.detail}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section
-            aria-labelledby="how-to-read-architecture-scorecard"
-            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="how-to-read-architecture-scorecard">How architecture scorecards work</HelpSectionHeading>
-            <ol
-              className={cn("m-0 list-decimal space-y-2 pl-5", OPERATOR_TYPOGRAPHY.body)}
-              data-testid="help-architecture-scorecard-how-stepper"
-            >
-              {ARCHITECTURE_SCORECARD_HELP_HOW_TO_READ_STEPS.map((step) => (
-                <li key={step}>{step}</li>
-              ))}
-            </ol>
-          </section>
-
-          <section
-            aria-labelledby="basis-of-estimate"
-            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="basis-of-estimate">{ARCHITECTURE_SCORECARD_HELP_METHODOLOGY_SECTION_TITLE}</HelpSectionHeading>
-            <div
-              className={cn(DESIGN_TOKENS.surface.card, "space-y-3 p-4")}
-              data-testid="help-architecture-scorecard-methodology"
-            >
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{ARCHITECTURE_SCORECARD_HELP_METHODOLOGY_BODY}</p>
-              <p className={cn("m-0 font-mono text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {ARCHITECTURE_SCORECARD_HELP_METHODOLOGY_FORMULA}
-              </p>
-              <details className={HELP_PAGE_LAYOUT.details} data-testid="help-architecture-scorecard-worked-example">
-                <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                  {ARCHITECTURE_SCORECARD_HELP_WORKED_EXAMPLE_TITLE}
-                </summary>
-                <ul className={cn(HELP_PAGE_LAYOUT.detailsBody, "m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-                  {ARCHITECTURE_SCORECARD_HELP_WORKED_EXAMPLE_LINES.map((line) => (
-                    <li key={line}>{line}</li>
-                  ))}
-                </ul>
-              </details>
-              <Link className={OPERATOR_LINK.inline} href={ARCHITECTURE_SCORECARD_HELP_METHODOLOGY_HREF}>
-                {ARCHITECTURE_SCORECARD_HELP_METHODOLOGY_LABEL} →
-              </Link>
-            </div>
-          </section>
-
-          <section
-            aria-labelledby="scorecard-vs-roi-summary"
-            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="scorecard-vs-roi-summary">
-              {ARCHITECTURE_SCORECARD_HELP_SCORECARD_ROI_SECTION_TITLE}
-            </HelpSectionHeading>
-            <ScorecardRoiVocabularyRail currentSurfaceId="scorecard" variant="full" />
-          </section>
-
-          <section
-            aria-labelledby="where-to-go-next"
-            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="where-to-go-next">Where to go next</HelpSectionHeading>
-            <div className="grid gap-3 sm:grid-cols-2" data-testid="help-architecture-scorecard-sibling-reports">
-              {ARCHITECTURE_SCORECARD_HELP_SIBLING_REPORTS.map((report) => (
-                <div
-                  key={report.id}
-                  className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
-                >
-                  <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{report.title}</h3>
-                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{report.description}</p>
-                  <Button asChild className={CTA_WIDTH.content} size="sm" variant="outline">
-                    <Link href={report.href}>{report.actionLabel}</Link>
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </section>
+          <HelpTopicTableOfContents headings={guideHeadings} />
         </div>
 
-        <HelpTopicTableOfContents headings={guideHeadings} />
+        {buyerPolishedShell ? (
+          <div data-testid="help-architecture-scorecard-orientation-bottom">
+            <HelpArchitectureScorecardSourcesOrientationStrip />
+          </div>
+        ) : null}
       </div>
     </article>
   );

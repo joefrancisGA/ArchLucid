@@ -45,7 +45,7 @@ function buildRunsDashboard(): OperatorHomeRunsDashboardModel {
 }
 
 describe("OperatorHomeWorkspaceMetricsStrip", () => {
-  it("renders metric links with resting underline affordance and a single bottom divider", () => {
+  it("renders counter-style metrics without resting underline affordance and a single bottom divider", () => {
     useFinishSetupReadinessContext.mockReturnValue({
       phase: "ready",
       readyCount: 2,
@@ -54,9 +54,10 @@ describe("OperatorHomeWorkspaceMetricsStrip", () => {
 
     render(<OperatorHomeWorkspaceMetricsStrip runsDashboard={buildRunsDashboard()} />);
 
-    const activeReviewLink = screen.getByRole("link", { name: /1 Active review/ });
-    expect(activeReviewLink.className).toMatch(/underline/);
-    expect(activeReviewLink.className).not.toMatch(/no-underline/);
+    const activeReviewLink = screen.getByTestId("operator-home-metric-active-reviews");
+    expect(activeReviewLink.className).toMatch(/no-underline/);
+    expect(activeReviewLink).toHaveTextContent("1");
+    expect(activeReviewLink).toHaveTextContent("Active review");
 
     const strip = screen.getByTestId("operator-home-workspace-metrics-strip");
     const row = strip.querySelector("div");
@@ -73,7 +74,7 @@ describe("OperatorHomeWorkspaceMetricsStrip", () => {
 
     render(<OperatorHomeWorkspaceMetricsStrip runsDashboard={buildRunsDashboard()} workingMode />);
 
-    expect(screen.queryByRole("link", { name: /Setup 2\/3/ })).toBeNull();
-    expect(screen.getByRole("link", { name: /1 Active review/ })).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-metric-setup-readiness")).toBeNull();
+    expect(screen.getByTestId("operator-home-metric-active-reviews")).toBeInTheDocument();
   });
 });

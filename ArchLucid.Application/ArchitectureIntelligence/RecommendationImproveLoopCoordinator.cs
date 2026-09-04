@@ -1,3 +1,4 @@
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Advisory.Workflow;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
@@ -72,6 +73,7 @@ public sealed class RecommendationImproveLoopCoordinator(
     IMustNotFailEnforcer mustNotFailEnforcer,
     ITrustPublishGate trustPublishGate,
     IAuthorityFindingsSnapshotUpdater? findingsSnapshotUpdater,
+    IReRunExecuteSealedManifestPinGate reRunExecuteSealedManifestPinGate,
     ITechnologyLedgerRepository? technologyLedgerRepository = null,
     IReviewResultCache? reviewResultCache = null) : IRecommendationImproveLoopCoordinator
 {
@@ -104,6 +106,9 @@ public sealed class RecommendationImproveLoopCoordinator(
 
     private readonly IAuthorityFindingsSnapshotUpdater? _findingsSnapshotUpdater = findingsSnapshotUpdater;
 
+    private readonly IReRunExecuteSealedManifestPinGate _reRunExecuteSealedManifestPinGate =
+        reRunExecuteSealedManifestPinGate ?? throw new ArgumentNullException(nameof(reRunExecuteSealedManifestPinGate));
+
     private readonly ITechnologyLedgerRepository? _technologyLedgerRepository = technologyLedgerRepository;
 
     private readonly IReviewResultCache? _reviewResultCache = reviewResultCache;
@@ -126,6 +131,9 @@ public sealed class RecommendationImproveLoopCoordinator(
 
         if (model is null)
             return null;
+
+        await _reRunExecuteSealedManifestPinGate.EnsureReadyAsync(runId.ToString("N"), cancellationToken)
+            .ConfigureAwait(false);
 
         ArchitectureRecommendation architectureRecommendation = new()
         {
