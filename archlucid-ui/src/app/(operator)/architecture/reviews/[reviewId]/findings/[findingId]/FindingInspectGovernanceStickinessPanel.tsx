@@ -161,6 +161,10 @@ export function FindingInspectGovernanceStickinessPanel(
         mutationDisabledReason={stickiness.mutationDisabledReason}
         pendingDispositionKind={stickiness.pendingDispositionKind}
         pendingDispositionBlockedReason={stickiness.pendingDispositionBlockedReason}
+        remediationLastSavedUtc={stickiness.remediationLastSavedUtc}
+        remediationInlineSaveError={stickiness.remediationInlineSaveError}
+        dispositionLastSavedUtc={stickiness.dispositionLastSavedUtc}
+        dispositionInlineSaveError={stickiness.dispositionInlineSaveError}
       />
     </div>
   );

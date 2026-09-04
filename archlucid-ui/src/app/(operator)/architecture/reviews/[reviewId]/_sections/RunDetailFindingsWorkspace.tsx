@@ -1,7 +1,6 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import type { ReactElement } from "react";
 
 import { ArchitectureCreatedFindingsEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedFindingsEvidenceOrientationStrip";
@@ -31,6 +30,7 @@ import { SimulatorModeAiOperationNotice } from "@/components/usability/Simulator
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
 import { useArchitectWorkspaceChrome } from "@/hooks/useArchitectWorkspaceChrome";
+import { useReviewFindingsVisibilityState } from "@/hooks/use-review-findings-visibility-state";
 import {
   filterReviewDetailFindingsHideGeneric,
   INSIGHT_DENSITY_GENERIC_THRESHOLD,
@@ -46,12 +46,6 @@ import {
   resolveFindingJobViewFromSearchParam,
   REVIEW_FINDINGS_JOB_VIEW_PARAM,
 } from "@/lib/findings/review-findings-job-view-url";
-import {
-  parseReviewFindingsHideGenericFromSearch,
-  parseReviewFindingsShowAdvisoryFromSearch,
-  parseReviewFindingsShowLowFromSearch,
-  reviewFindingsVisibilityHrefFromSearch,
-} from "@/lib/findings/review-findings-visibility-url";
 import { buildWorkspaceCardRenderedFindings } from "@/lib/quick-decision-finding-merge-and-sort";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -83,16 +77,19 @@ export type RunDetailFindingsWorkspaceProps = {
 
 /** Findings list with workspace toolbar filters for the review detail page. */
 export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProps): ReactElement {
-  const router = useRouter();
-  const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
-  const urlShowLow = parseReviewFindingsShowLowFromSearch(searchParams?.get("showLow"));
-  const urlShowAdvisory = parseReviewFindingsShowAdvisoryFromSearch(searchParams?.get("showAdvisory"));
-  const urlHideGeneric = parseReviewFindingsHideGenericFromSearch(searchParams?.get("hideGeneric"));
   const initialJobView = resolveFindingJobViewFromSearchParam(
     searchParams?.get(REVIEW_FINDINGS_JOB_VIEW_PARAM),
   );
   const toolbar = useRunDetailFindingsToolbarState({ initialJobView });
+  const {
+    showLowConfidence,
+    showAdvisory,
+    hideGenericLowDensity,
+    setShowLowConfidence,
+    setShowAdvisory,
+    setHideGenericLowDensity,
+  } = useReviewFindingsVisibilityState();
 
   function applyNaturalLanguageFacets(facets: FindingsNaturalLanguageFacets): void {
 
@@ -106,69 +103,6 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
 
     toolbar.setSearchQuery(facets.titleKeywords.join(" "));
   }
-  const [showLowConfidence, setShowLowConfidenceState] = useState(urlShowLow);
-  const [showAdvisory, setShowAdvisoryState] = useState(urlShowAdvisory);
-  const [hideGenericLowDensity, setHideGenericLowDensityState] = useState(urlHideGeneric);
-
-  useEffect(() => {
-    setShowLowConfidenceState(urlShowLow);
-  }, [urlShowLow]);
-
-  useEffect(() => {
-    setShowAdvisoryState(urlShowAdvisory);
-  }, [urlShowAdvisory]);
-
-  useEffect(() => {
-    setHideGenericLowDensityState(urlHideGeneric);
-  }, [urlHideGeneric]);
-
-  const syncVisibilityToUrl = useCallback(
-    (next: { showLowConfidence: boolean; showAdvisory: boolean; hideGenericLowDensity: boolean }) => {
-      if (pathname.length === 0) {
-        return;
-      }
-
-      const nextHref = reviewFindingsVisibilityHrefFromSearch(searchParams.toString(), next, pathname);
-      router.replace(nextHref, { scroll: false });
-    },
-    [pathname, router, searchParams],
-  );
-
-  const setShowLowConfidence = useCallback(
-    (next: boolean) => {
-      setShowLowConfidenceState(next);
-      syncVisibilityToUrl({
-        showLowConfidence: next,
-        showAdvisory,
-        hideGenericLowDensity,
-      });
-    },
-    [hideGenericLowDensity, showAdvisory, syncVisibilityToUrl],
-  );
-
-  const setShowAdvisory = useCallback(
-    (next: boolean) => {
-      setShowAdvisoryState(next);
-      syncVisibilityToUrl({
-        showLowConfidence,
-        showAdvisory: next,
-        hideGenericLowDensity,
-      });
-    },
-    [hideGenericLowDensity, showLowConfidence, syncVisibilityToUrl],
-  );
-
-  const setHideGenericLowDensity = useCallback(
-    (next: boolean) => {
-      setHideGenericLowDensityState(next);
-      syncVisibilityToUrl({
-        showLowConfidence,
-        showAdvisory,
-        hideGenericLowDensity: next,
-      });
-    },
-    [showAdvisory, showLowConfidence, syncVisibilityToUrl],
-  );
   const architectWorkspaceChrome = useArchitectWorkspaceChrome();
   const createHomeSurface = props.packageCommitted === false;
   const actorNodeCount = countActorNodesInGraphSnapshot(props.graphSnapshot);

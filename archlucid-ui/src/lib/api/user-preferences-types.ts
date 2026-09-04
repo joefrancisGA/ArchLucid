@@ -30,6 +30,12 @@ export type UserPreferencesResponse = {
   professionalWorkbenchEnabledIsExplicit: boolean;
   roiLoadedHourlyCostUsd: number;
   roiLoadedHourlyCostUsdIsExplicit: boolean;
+  findingsHideGenericEnabled: boolean;
+  findingsHideGenericEnabledIsExplicit: boolean;
+  findingsShowLowConfidenceEnabled: boolean;
+  findingsShowLowConfidenceEnabledIsExplicit: boolean;
+  findingsShowAdvisoryEnabled: boolean;
+  findingsShowAdvisoryEnabledIsExplicit: boolean;
 };
 
 export type SetAppearancePreferenceRequest = {
@@ -68,6 +74,18 @@ export type SetRoiLoadedHourlyCostUsdRequest = {
   hourlyCostUsd: number;
 };
 
+export type SetFindingsVisibilityPreferencesRequest = {
+  hideGenericEnabled: boolean;
+  showLowConfidenceEnabled: boolean;
+  showAdvisoryEnabled: boolean;
+};
+
+export type FindingsVisibilityPreferences = {
+  readonly hideGenericEnabled: boolean;
+  readonly showLowConfidenceEnabled: boolean;
+  readonly showAdvisoryEnabled: boolean;
+};
+
 export const DEFAULT_CLOUD_PLATFORM_SCOPE_DTO: CloudPlatformScopeDto = {
   "evidence-only": true,
   azure: true,
@@ -100,6 +118,12 @@ export function defaultUserPreferencesResponse(): UserPreferencesResponse {
     professionalWorkbenchEnabledIsExplicit: false,
     roiLoadedHourlyCostUsd: DEFAULT_LOADED_HOURLY_USD,
     roiLoadedHourlyCostUsdIsExplicit: false,
+    findingsHideGenericEnabled: false,
+    findingsHideGenericEnabledIsExplicit: false,
+    findingsShowLowConfidenceEnabled: false,
+    findingsShowLowConfidenceEnabledIsExplicit: false,
+    findingsShowAdvisoryEnabled: false,
+    findingsShowAdvisoryEnabledIsExplicit: false,
   };
 }
 
