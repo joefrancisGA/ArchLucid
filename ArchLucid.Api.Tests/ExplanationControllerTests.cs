@@ -1,4 +1,5 @@
 using ArchLucid.Api.Controllers.Planning;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Explanation.Models;
 using ArchLucid.Contracts.Explanation;
@@ -106,7 +107,7 @@ public sealed class ExplanationControllerTests
 
         return new ExplanationController(
             query ?? Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IComparisonService>(),
+            Mock.Of<ICompareRunsApplicationFacade>(),
             Mock.Of<IExplanationService>(),
             Mock.Of<IRunExplanationSummaryService>(),
             Mock.Of<IFindingExplainabilityComposer>(),

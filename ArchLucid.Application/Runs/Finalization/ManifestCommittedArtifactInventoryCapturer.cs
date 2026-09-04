@@ -157,6 +157,37 @@ public static class ManifestCommittedArtifactInventoryCapturer
     public static string HashUtf8(byte[] utf8) =>
         Convert.ToHexString(SHA256.HashData(utf8));
 
+    /// <summary>Wave-21 suggestion 209: fail-closed when decision-trace inventory bytes are missing before skip-persist finalize.</summary>
+    public static void EnsureDecisionTraceInventoryMaterialOrThrow(
+        ManifestCommittedArtifactInventoryMaterial material,
+        string runIdLabel)
+    {
+        ArgumentNullException.ThrowIfNull(material);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runIdLabel);
+
+        if (material.DecisionTraceUtf8 is null || material.DecisionTraceUtf8.Length == 0)
+        {
+            throw new ConflictException(
+                $"Finalization blocked for run '{runIdLabel}': decision trace inventory bytes are missing.");
+        }
+    }
+
+    /// <summary>Wave-21 suggestion 209: fail-closed when sealed inventory lacks decision-trace row content.</summary>
+    public static void EnsureDecisionTraceInventoryRowPresentOrThrow(ManifestDocument persistedManifest, string runIdLabel)
+    {
+        ArgumentNullException.ThrowIfNull(persistedManifest);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runIdLabel);
+
+        CommittedArtifactInventoryEntry? decisionTraceRow = persistedManifest.CommittedArtifactInventory
+            .FirstOrDefault(row => string.Equals(row.ArtifactName, "decision-trace", StringComparison.Ordinal));
+
+        if (decisionTraceRow is null || string.IsNullOrWhiteSpace(decisionTraceRow.ContentHashSha256))
+        {
+            throw new ConflictException(
+                $"Commit recovery blocked for run '{runIdLabel}': committed artifact inventory decision-trace row is missing.");
+        }
+    }
+
     private static CommittedArtifactInventoryEntry CreateEntry(
         string artifactName,
         string contentType,

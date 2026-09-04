@@ -6,6 +6,10 @@ export {
   triggerBrowserBlobDownload,
 } from "./downloads-blob-trigger-browser";
 
+export { assertBinaryDownloadContentType } from "./downloads-blob-trigger-guard";
+
+export { downloadRunExportZip } from "./downloads-blob-trigger-run-export";
+
 export { downloadTerraformAdvisoryExportZip } from "./downloads-blob-trigger-terraform";
 
 export {

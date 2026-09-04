@@ -68,6 +68,9 @@ public static class ProblemTypes
     /// <summary>Export blocked because sealed decision receipt fields are incomplete on the committed manifest.</summary>
     public const string DecisionReceiptSealedIncomplete = Base + "#decision-receipt-sealed-incomplete";
 
+    /// <summary>Export blocked because audit export row cap would silently truncate the filtered set.</summary>
+    public const string AuditExportRowCapExceeded = Base + "#audit-export-row-cap-exceeded";
+
     /// <summary>Agent output quality gate rejected persisted traces for this workspace (RFC 9457; HTTP 409).</summary>
     public const string QualityGateRejected = Base + "#quality-gate-rejected";
 

@@ -161,6 +161,13 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
 
     public override void Write(Utf8JsonWriter writer, Finding value, JsonSerializerOptions options)
     {
+        if (value.Properties.TryGetValue(FindingPropertyKeys.EvidencePackageId, out string? propertyPackageId)
+            && !string.IsNullOrWhiteSpace(propertyPackageId)
+            && !Guid.TryParse(propertyPackageId, out _))
+        {
+            throw new JsonException("evidencePackageId in properties must be a valid GUID when present.");
+        }
+
         writer.WriteStartObject();
         writer.WriteNumber("findingSchemaVersion", value.FindingSchemaVersion);
         writer.WriteString("findingId", value.FindingId);

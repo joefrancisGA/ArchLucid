@@ -1,10 +1,15 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Coordination.Compare;
+using ArchLucid.Persistence.Interfaces;
 
 using Asp.Versioning;
 
@@ -26,6 +31,8 @@ namespace ArchLucid.Api.Controllers.Authority;
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class AuthorityCompareController(
     IAuthorityCompareService compareService,
+    IGoldenManifestRepository manifestRepository,
+    IRunRepository runRepository,
     IScopeContextProvider scopeProvider) : ControllerBase
 {
     /// <summary>Compares two manifests by id in the current scope.</summary>
@@ -46,6 +53,30 @@ public sealed class AuthorityCompareController(
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        ManifestDocument? left = await manifestRepository.GetByIdAsync(scope, leftManifestId, ct);
+        ManifestDocument? right = await manifestRepository.GetByIdAsync(scope, rightManifestId, ct);
+
+        if (left is null || right is null)
+        {
+            return this.NotFoundProblem(
+                $"One or both manifests ('{leftManifestId}', '{rightManifestId}') were not found in the current scope.",
+                ProblemTypes.ManifestNotFound);
+        }
+
+        try
+        {
+            await AuthorityManifestIdCompareGuard.EnsurePinAndInventoryFingerprintsMatchOrThrowAsync(
+                left,
+                right,
+                scope,
+                runRepository,
+                ct);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         ManifestComparisonResult? result;
 

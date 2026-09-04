@@ -5,7 +5,7 @@ import {
   isBrowser,
   throwApiRequestError,
 } from "./http";
-import { getTerraformAdvisoryExportDownloadUrl } from "./downloads-blob-urls";
+import { getRunExportDownloadUrl } from "./downloads-blob-urls";
 import {
   fetchBrowserDownload,
   parseFilenameFromContentDisposition,
@@ -14,15 +14,15 @@ import {
 import { assertBinaryDownloadContentType } from "./downloads-blob-trigger-guard";
 
 /**
- * GET advisory Terraform ZIP (`ReadAuthority`, Standard+ tier on API). Browser-only download through the BFF proxy.
+ * GET full run export ZIP (`ReadAuthority`). Browser-only download through the BFF proxy.
  */
-export async function downloadTerraformAdvisoryExportZip(runId: string): Promise<void> {
+export async function downloadRunExportZip(runId: string): Promise<void> {
   if (!isBrowser()) {
-    throw new Error("downloadTerraformAdvisoryExportZip is only supported in the browser.");
+    throw new Error("downloadRunExportZip is only supported in the browser.");
   }
 
   await ensureOidcBearerReady();
-  const url = getTerraformAdvisoryExportDownloadUrl(runId);
+  const url = getRunExportDownloadUrl(runId);
   const headers = new Headers();
   headers.set("Accept", "application/zip, application/json");
   const bearer = getBearerToken();
@@ -48,7 +48,7 @@ export async function downloadTerraformAdvisoryExportZip(runId: string): Promise
 
   const fileName =
     parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ??
-    `archlucid-terraform-advisory-${runId}.zip`;
+    `archlucid-run-export-${runId}.zip`;
   const blob = await response.blob();
   await triggerBrowserBlobDownload(blob, fileName);
 }
