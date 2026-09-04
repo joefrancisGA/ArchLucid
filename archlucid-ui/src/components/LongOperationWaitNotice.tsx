@@ -4,6 +4,11 @@ import Link from "next/link";
 
 import { useLongOperationWait } from "@/hooks/use-long-operation-wait";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  formatLongOperationQueueStatusLine,
+  LONG_OPERATION_HOME_PAGE_STATUS_HINT,
+  LONG_OPERATION_QUEUE_STATUS_REFRESH_HINT,
+} from "@/lib/operations/long-operation-wait-copy";
 import { cn } from "@/lib/utils";
 
 export type LongOperationWaitNoticeProps = {
@@ -31,6 +36,7 @@ export function LongOperationWaitNotice(props: LongOperationWaitNoticeProps): Re
   }
 
   const showTimeout = props.showTimeoutRecovery !== false && wait.level === "timeoutHint";
+  const stageLabel = props.stageLabel?.trim() ?? "";
 
   return (
     <div
@@ -48,7 +54,24 @@ export function LongOperationWaitNotice(props: LongOperationWaitNoticeProps): Re
       data-escalation-level={wait.level}
     >
       <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{wait.copy.headline}</p>
+      {stageLabel.length > 0 ? (
+        <p
+          className={cn("m-0 mt-2 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="long-operation-queue-status"
+        >
+          {formatLongOperationQueueStatusLine(stageLabel)}
+        </p>
+      ) : null}
+      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        {LONG_OPERATION_QUEUE_STATUS_REFRESH_HINT}
+      </p>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{wait.copy.detail}</p>
+      <p
+        className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="long-operation-home-page-status-hint"
+      >
+        {LONG_OPERATION_HOME_PAGE_STATUS_HINT}
+      </p>
       {showTimeout ? (
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Recovery:{" "}
