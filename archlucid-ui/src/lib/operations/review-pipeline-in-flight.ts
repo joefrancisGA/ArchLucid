@@ -1,4 +1,7 @@
-import { trackInFlightOperation } from "@/lib/operations/in-flight-operations-store";
+import {
+  removeInFlightOperation,
+  trackInFlightOperation,
+} from "@/lib/operations/in-flight-operations-store";
 import { resolveOperationDetailHref } from "@/lib/operations/operation-location";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo/eligibility";
 
@@ -46,6 +49,41 @@ export function trackReviewPipelineInFlight(runId: string | null | undefined): s
     runId: trimmed,
     stepLabel: "Queued",
     state: "Pending",
+  });
+
+  return operationId;
+}
+
+/**
+ * Clears a prior terminal pipeline row and registers a fresh in-flight attempt.
+ * Call synchronously when the operator starts a re-run so stale failure copy cannot flash.
+ */
+export function restartReviewPipelineInFlight(
+  runId: string,
+  startedAtMs: number = Date.now(),
+): string | null {
+  const trimmed = runId.trim();
+
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  if (isStaticDemoPayloadFallbackEnabled()) {
+    return null;
+  }
+
+  const operationId = reviewPipelineOperationId(trimmed);
+
+  removeInFlightOperation(operationId);
+  trackInFlightOperation({
+    operationId,
+    title: REVIEW_PIPELINE_IN_FLIGHT_TITLE,
+    href: reviewPipelineDetailHref(trimmed),
+    runId: trimmed,
+    stepLabel: "Queued",
+    state: "Pending",
+    startedAtMs,
+    heartbeatUtc: null,
   });
 
   return operationId;
