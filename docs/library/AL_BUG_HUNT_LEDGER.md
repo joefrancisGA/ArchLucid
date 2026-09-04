@@ -1615,11 +1615,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 17
-- **bugs-found:** 29
+- **hunts:** 18
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — consulting DOCX Appendix C manifest diff count parity
+- **last-bug:** 2026-09-04 — consulting DOCX Architecture Details relationship parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1680,6 +1680,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ConsultingDocxSupplementalSections` Appendix C manifest diff lists services/controls counts only — **hit 2026-09-04 (#769):** Appendix C omitted datastore, relationship, and warning counts; fixed with full manifest diff count bullets; regression in `AddAppendices_includes_datastore_relationship_and_warning_manifest_counts`.
 
 2026-09-04 thorough hunt #769: proved consulting Appendix C manifest-count parity; cheap-disproved GCP inventory alternate-key and comparison scope OR-gate candidates.
+
+- [x] (proven) `ConsultingDocxSupplementalSections.AddArchitectureDetails` omits manifest relationships and returns before rendering when `Datastores` is empty — **hit 2026-09-04 (#771):** Architecture Details listed services/datastores only; relationship-only manifests (no datastores) silently dropped relationships; fixed with Relationships section and removed datastore early-return; regression in `AddArchitectureDetails_includes_relationships_when_datastores_are_empty`.
+- [ ] (candidate) `ComparisonReplayPayloadComplexity.ScoreManifestDiff` ignores `manifestDiff.warnings` when structural lists are empty — warnings-only replay payloads may score as zero manifest complexity while materiality treats warnings as drift; verify whether cost-band under-scoring is intentional before hunt-ready promotion.
+- [ ] (candidate) `ReplayComparisonExportsDiffSlice.BuildExportPairingKey` pairs exports on `ExportType|TemplateProfile|Format` only — two exports with same profile but different `AnalysisRequestJson` compare options may mispair when creation order differs across runs (same defect shape as proven #430 template-profile fix).
+
+2026-09-04 seed hunt #771: reseeded replay-complexity warnings-only and export request-option pairing candidates; proved consulting Architecture Details relationship parity promoted from seed read.
 
 2026-09-04 seed hunt #768: reseeded GCP inventory key asymmetry, comparison scope OR-gate, and consulting appendix manifest-count candidates; proved architecture-analysis DOCX agent evidence-ref/warning diff gap promoted from seed read.
 
