@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type SetStateAction } from "react";
 import type { UseFormHandleSubmit, UseFormReturn } from "react-hook-form";
 
 import type { AlertRoutingSubscriptionDisableTarget } from "@/app/(operator)/integrations/_sections/AlertRoutingSubscriptionDisableDialog";
@@ -109,22 +109,30 @@ export function useWebhooksSettingsMutations(
   );
 
   const setPendingDisable = useCallback(
-    (value: AlertRoutingSubscriptionDisableTarget | null) => {
-      setPendingDisableState(value);
-      syncToggleConfirmToUrl({
-        disableId: value?.routingSubscriptionId ?? null,
-        enableId: null,
+    (value: SetStateAction<AlertRoutingSubscriptionDisableTarget | null>) => {
+      setPendingDisableState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncToggleConfirmToUrl({
+          disableId: next?.routingSubscriptionId ?? null,
+          enableId: null,
+        });
+
+        return next;
       });
     },
     [syncToggleConfirmToUrl],
   );
 
   const setPendingEnable = useCallback(
-    (value: WebhookEnableTarget | null) => {
-      setPendingEnableState(value);
-      syncToggleConfirmToUrl({
-        disableId: null,
-        enableId: value?.routingSubscriptionId ?? null,
+    (value: SetStateAction<WebhookEnableTarget | null>) => {
+      setPendingEnableState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncToggleConfirmToUrl({
+          disableId: null,
+          enableId: next?.routingSubscriptionId ?? null,
+        });
+
+        return next;
       });
     },
     [syncToggleConfirmToUrl],
