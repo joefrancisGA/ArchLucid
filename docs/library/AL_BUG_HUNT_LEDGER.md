@@ -3187,11 +3187,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 178
-- **bugs-found:** 389
+- **hunts:** 179
+- **bugs-found:** 390
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — Record disposition enum validation ordering before tenant preflight
+- **last-bug:** 2026-09-04 — Merge conflict resolve action enum validation ordering before tenant preflight
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4089,6 +4089,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.RecordDisposition` / `RecordBulkDisposition` / `GovernanceStickinessHttpMapper.ValidateRecordDisposition` — tenant preflight ran before `disposition` enum guard, so ghost tenant + unrecognized disposition (e.g. numeric `99`) returned HTTP 404 instead of 400 (#728 cloudProvider ordering sibling) — **hit 2026-09-04 (#729):** `ValidateDispositionEnum` before `RequireTenantAndWorkspaceOrNotFoundAsync` on single and bulk disposition paths; regression in `GovernanceStickinessControllerTests.RecordDisposition_returns_bad_request_when_disposition_is_unrecognized_and_tenant_missing`.
 
 2026-09-04 seed hunt #729 (hit): proved finding disposition enum validation ordering before tenant preflight.
+
+- [x] (proven) `GovernanceStickinessController.ResolveFindingMergeConflict` / `ResolveFindingMergeConflictRequest.Action` — tenant preflight ran before merge-conflict `action` enum guard, so ghost tenant + unrecognized action (e.g. numeric `99`) returned HTTP 404 instead of 400 (#729 disposition ordering sibling) — **hit 2026-09-04 (#730):** `GovernanceStickinessHttpMapper.ValidateResolveFindingMergeConflict` before `RequireTenantAndWorkspaceOrNotFoundAsync`; regression in `GovernanceStickinessControllerTests.ResolveFindingMergeConflict_returns_bad_request_when_action_is_unrecognized_and_tenant_missing`.
+
+2026-09-04 seed hunt #730 (hit): proved merge conflict resolve action enum validation ordering before tenant preflight.
 
 2026-09-04 thorough hunt #723 (hit): proved SubmitApprovalRequest same-environment validation ordering before tenant preflight.
 
