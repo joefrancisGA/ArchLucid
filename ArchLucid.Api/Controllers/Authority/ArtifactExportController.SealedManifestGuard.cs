@@ -16,8 +16,11 @@ public sealed partial class ArtifactExportController
     private IActionResult? EnsureSealedManifestHashOrConflict(ManifestDocument? manifest, string runIdLabel)
     {
         if (manifest is null)
-            return null;
-
+        {
+            return this.ConflictProblem(
+                $"Signed review record read blocked for run '{runIdLabel}': committed golden manifest is missing for sealed manifest hash verification.",
+                ProblemTypes.Conflict);
+        }
         try
         {
             SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
