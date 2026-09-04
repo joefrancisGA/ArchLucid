@@ -1,4 +1,5 @@
 using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Advisory.Models;
 using ArchLucid.Decisioning.Models;

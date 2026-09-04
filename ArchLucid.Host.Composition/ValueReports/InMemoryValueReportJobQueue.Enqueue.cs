@@ -1,3 +1,4 @@
+using ArchLucid.Application.Value;
 using ArchLucid.Contracts.ValueReports;
 
 namespace ArchLucid.Host.Composition.ValueReports;

@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Compliance.Loaders;
 using ArchLucid.Decisioning.Compliance.Models;

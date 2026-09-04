@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Models.Integrations;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Integrations.AzureBoards;
 using ArchLucid.Contracts.Integrations;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;

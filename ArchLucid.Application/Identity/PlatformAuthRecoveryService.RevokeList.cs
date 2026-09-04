@@ -1,4 +1,5 @@
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Identity;
 
 namespace ArchLucid.Application.Identity;
 

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.RelationalRead;
 using ArchLucid.Persistence.Sql;

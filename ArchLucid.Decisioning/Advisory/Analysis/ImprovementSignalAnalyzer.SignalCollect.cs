@@ -1,3 +1,4 @@
+using ArchLucid.Core.Manifest;
 using ArchLucid.Decisioning.Advisory.Models;
 using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Models;

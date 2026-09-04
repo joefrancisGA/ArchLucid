@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Application.Value;
 using ArchLucid.Contracts.ValueReports;
 
 using Microsoft.Extensions.Caching.Distributed;

@@ -3,7 +3,7 @@
 
 # Next refactorings
 
-**Last updated:** 2026-09-03.
+**Last updated:** 2026-09-04.
 
 **Where to start:** [START_HERE.md — What to open first](../START_HERE.md) (Mermaid + table).
 
@@ -211,10 +211,20 @@
 | Split leftover type composites (wave 17 type modules) | Done (2026-09-03 pass-16) — `first-review-guide-{status,readiness,blockers}`; `exec-digest-schedule-{form-state,options,validation}`; `buyer-cto-demo-readiness-{check-evaluators,signals}`; `openapi-type-aliases.test.ts` wave-17 guards |
 | Split leftover Host.Composition `OutboxProcessorsCompositionRegistrar` and `ServiceCollectionExtensions.TenancyMeteringSecrets` | Done (2026-09-03 pass-16) — `OutboxProcessorsCompositionRegistrar.{RetrievalIndexing,ProjectionExport,IntegrationEvents}`; `ServiceCollectionExtensions.TenancyMeteringSecrets.{Metering,BillingSecrets,LlmWallet}` |
 | Split `FindingExplainabilityNarrativeBuilder` and `DefaultGoldenManifestBuilder` | Done (2026-09-03 pass-16) — `FindingExplainabilityNarrativeBuilder.{EvidenceCollect,LabelResolve,ComposeText}`; `DefaultGoldenManifestBuilder.{SectionPopulators,Finalize}` |
+| Split leftover `RunsController.Intake`, `DigestSubscriptionsController`, and `AzureBoardsIntegrationsController` route families | Done (2026-09-04 pass-18) — `RunsController.Intake.{DraftSync,DraftAsync,ChatConnector}`; `DigestSubscriptionsController.{Crud,Attempts,Digests}`; `AzureBoardsIntegrationsController.{Discovery,Settings,TestConnection}` |
+| Decompose `PlatformAuthRecoveryService` and `DigestSubscriptionFacade` into stages/partials | Done (2026-09-04 pass-18) — `PlatformAuthRecoveryService.{GrantCreate,RevokeList,Notify}`; `DigestSubscriptionFacade.{Create,ListToggle,Attempts}` |
+| Extend leftover persistence (`ProductLearningSignalAggregations` + `DapperPilotReportCardMetricsReader` + `SqlFindingsSnapshotRepository`) | Done (2026-09-04 pass-18) — `ProductLearningSignalAggregations.{KeyBuilders,Aggregates,Opportunities}`; `DapperPilotReportCardMetricsReader.{ScopeSql,ReadQuery,Normalize}`; `SqlFindingsSnapshotRepository.{Write,Read,ListMutate}` |
+| Split `ManifestDocument` and `ArchLucidInstrumentation.ObservableGauges` | Done (2026-09-04 pass-18) — `ManifestDocument.{TopologySections,GovernanceSections,MetadataFinalize}`; `ArchLucidInstrumentation.ObservableGauges.{OutboxDepth,StaleRuns,LlmBudgetRoi}` |
+| Split leftover CLI `TrialSmokeRunner` and `SponsorPacketWriter` | Done (2026-09-04 pass-18) — `TrialSmokeRunner.{Register,Probe,Report}`; `SponsorPacketWriter.{WriteFolder,WriteZip,EnrichFromApi}` |
+| Continue UI mega-client split (digest subscriptions, alert routing, governance workflow) | Done (2026-09-04 pass-18) — `use-digest-subscriptions-content-{list,create,toggle}`; `use-alert-routing-{list,create,test-connection}`; `GovernanceWorkflowPageShell` + `use-governance-workflow-page-{tabs,mutations}` |
+| Split leftover UI API catalogs (`http-verbs-mutate`, `clarification-answer-rephrase-api`, `architecture-runs-read`) | Done (2026-09-04 pass-18) — `http-verbs-mutate-{post,patch,delete}`; `clarification-answer-rephrase-api-{types,build-items,rephrase}`; `architecture-runs-read-{types,list,detail-artifacts}` |
+| Split leftover type composites (wave 19 type modules) | Done (2026-09-04 pass-18) — `recommendation-learning-operational-{profile-metadata,operational-status,preview-validation}`; `advisory-{improvement-plan,recommendation-record,action-result}`; `agent-forensics-scores-{semantic,evaluation-summary,retrieval-grounding}`; `openapi-type-aliases.test.ts` wave-19 guards |
+| Split leftover Host.Composition `InMemoryStorageProviderRegistrar.GovernanceFindings` and `InMemoryValueReportJobQueue` | Done (2026-09-04 pass-18) — `InMemoryStorageProviderRegistrar.GovernanceFindings.{FindingsInspect,AdvisoryLearning,PolicyAlertsGovernance}`; `InMemoryValueReportJobQueue.{Enqueue,RunJob,DistributedState}` |
+| Split `DeclarationPremiseConflictFindingEngine` and `ImprovementSignalAnalyzer` | Done (2026-09-04 pass-18) — `DeclarationPremiseConflictFindingEngine.{IntentResolve,ConflictClassify,Emit}`; `ImprovementSignalAnalyzer.{SignalCollect,RankFilter,Compose}` |
 
 ## Active items (remaining)
 
-_None — pass-16 items 1–10 shipped in PR **#1401**._
+_None — pass-18 items 1–10 shipped in this PR._
 
 ## Completed (2026-08-24 pass)
 

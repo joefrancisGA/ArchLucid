@@ -1,5 +1,6 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Planning;
+using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Requests;
 
 using Microsoft.AspNetCore.Mvc;

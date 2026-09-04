@@ -1,5 +1,6 @@
 using ArchLucid.Api.Models.Integrations;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Integrations.AzureBoards;
 using ArchLucid.Contracts.Integrations;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;

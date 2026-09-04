@@ -2,6 +2,8 @@ using System.Data;
 
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Persistence.Findings;
+using ArchLucid.Persistence.RelationalRead;
+using ArchLucid.Persistence.Sql;
 
 using Dapper;
 

@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 
+using ArchLucid.Application.Value;
 using ArchLucid.Contracts.ValueReports;
 
 namespace ArchLucid.Host.Composition.ValueReports;
