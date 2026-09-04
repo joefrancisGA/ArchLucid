@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 140
-- **bugs-found:** 313
+- **hunts:** 141
+- **bugs-found:** 315
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — NeedsEvidence evidence text and optional rationale max-length parity
+- **last-bug:** 2026-09-04 — policy pack draft/generate advisory text max-length parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3842,6 +3842,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `GovernanceStickinessFacade.CreateRiskExceptionAsync` — invalid waiver body on out-of-scope finding returns HTTP 404 instead of HTTP 400 — **cheap-disproof 2026-09-04 (#681):** `#678` fixed overlong `findingId` at HTTP layer; remaining out-of-scope inspect-first ordering is intentional scope gate before body validation.
 
 2026-09-04 seed hunt #681: promoted and proved NeedsEvidence evidence-request-text and optional-rationale max-length parity; cheap-disproved CreateRiskException inspect-before-body validation order.
+
+- [x] (proven) `GovernanceController.DraftPolicyPackRule` — `FreeTextIntent` longer than `DraftIntakeValidation.MaximumFreeTextIntentLength` reached `IPolicyPackDraftService` without HTTP 400 while draft intake and chat endpoints enforce the shared cap (#661 sibling) — **hit 2026-09-04 (#682):** shared advisory-text validation helper; regression in `GovernanceControllerSimulateTests.DraftPolicyPackRule_returns_bad_request_when_free_text_intent_exceeds_max_length`.
+
+- [x] (proven) `GovernanceController.GeneratePolicyPack` — `Prompt` longer than `DraftIntakeValidation.MaximumFreeTextIntentLength` reached `IPolicyPackGeneratorService` without HTTP 400 while sibling advisory intake paths enforce the shared cap — **hit 2026-09-04 (#682):** shared advisory-text validation helper; regression in `GovernanceControllerSimulateTests.GeneratePolicyPack_returns_bad_request_when_prompt_exceeds_max_length`.
+
+2026-09-04 seed hunt #682: promoted and proved policy-pack draft/generate advisory text max-length parity with `DraftIntakeValidation`.
 
 2026-09-04 thorough hunt #679: cheap-disproved manifest summary services/datastores cap candidate; proved product-feedback findingRef inspect max-length and mutation-correction rationale max-length parity.
 
