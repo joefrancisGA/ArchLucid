@@ -98,6 +98,11 @@ public static class GovernanceStickinessHttpMapper
                 ProblemTypes.ValidationFailed);
         }
 
+        GovernanceHttpValidation? expiryValidation = ValidateRiskExceptionExpiry(request.ExpiresAtUtc);
+
+        if (expiryValidation is not null)
+            return expiryValidation;
+
         return null;
     }
 
@@ -149,6 +154,11 @@ public static class GovernanceStickinessHttpMapper
                     ProblemTypes.ValidationFailed);
             }
         }
+
+        GovernanceHttpValidation? expiryValidation = ValidateRiskExceptionExpiry(request.ExpiresAtUtc);
+
+        if (expiryValidation is not null)
+            return expiryValidation;
 
         return null;
     }
@@ -486,8 +496,15 @@ public static class GovernanceStickinessHttpMapper
 
     private static GovernanceHttpValidation? ValidateOptionalDispositionTextMaxLength(string? value, string fieldName)
     {
-        if (string.IsNullOrWhiteSpace(value))
+        if (value is null)
             return null;
+
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return new GovernanceHttpValidation(
+                $"{fieldName} cannot be empty or whitespace.",
+                ProblemTypes.ValidationFailed);
+        }
 
         if (value.Trim().Length > FindingDispositionValidation.MaximumRationaleLength)
         {
@@ -648,4 +665,27 @@ public static class GovernanceStickinessHttpMapper
         string.Equals(buyerConfidenceSource, BuyerDecisionConfidenceSource.EvidenceBacked, StringComparison.OrdinalIgnoreCase)
         || string.Equals(buyerConfidenceSource, BuyerDecisionConfidenceSource.ModelAssisted, StringComparison.OrdinalIgnoreCase)
         || string.Equals(buyerConfidenceSource, BuyerDecisionConfidenceSource.Unknown, StringComparison.OrdinalIgnoreCase);
+
+    private static GovernanceHttpValidation? ValidateRiskExceptionExpiry(DateTimeOffset expiresAtUtc)
+    {
+        DateTimeOffset nowUtc = TimeProvider.System.GetUtcNow();
+
+        if (expiresAtUtc <= nowUtc)
+        {
+            return new GovernanceHttpValidation(
+                "Expiration must be in the future.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        DateTimeOffset maxExpiry = nowUtc.AddDays(RiskExceptionValidation.MaxDurationDays);
+
+        if (expiresAtUtc > maxExpiry)
+        {
+            return new GovernanceHttpValidation(
+                $"Waiver duration cannot exceed {RiskExceptionValidation.MaxDurationDays} days.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
 }

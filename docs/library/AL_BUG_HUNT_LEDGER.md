@@ -3348,11 +3348,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 196
-- **bugs-found:** 412
+- **hunts:** 197
+- **bugs-found:** 415
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — recurrence update whitespace no-op; create waiver evidenceRef ordering
+- **last-bug:** 2026-09-04 — waiver expiry validation ordering; disposition whitespace rationale
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4314,6 +4314,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.UpdateRecurrenceSchedule` / `GovernanceStickinessHttpMapper.ValidateUpdateRecurrenceSchedule` — whitespace-only optional `name` / `cronExpression` passed HTTP validation and facade ignored the fields (silent no-op) — **hit 2026-09-04 (#779):** reject empty/whitespace optional update fields before persist (renew-rationale #777 parity); regressions in `ValidateUpdateRecurrenceSchedule_rejects_whitespace_only_name` and `ValidateUpdateRecurrenceSchedule_rejects_whitespace_only_cron_expression`.
 
 2026-09-04 seed hunt #779 (hit): proved attestation whitespace wipe, create-waiver evidenceRef ordering, and recurrence update whitespace no-op.
+
+- [x] (proven) `GovernanceStickinessController.CreateRiskException` / `GovernanceStickinessHttpMapper.ValidateCreateRiskException` — past or over-max `expiresAtUtc` passed HTTP validation and returned HTTP 404 for ghost tenant instead of 400 — **hit 2026-09-04 (#780):** `ValidateRiskExceptionExpiry` before tenant preflight (evidenceRef #779 ordering parity); regressions in `ValidateCreateRiskException_rejects_past_expires_at_utc`, `ValidateCreateRiskException_rejects_expires_at_utc_beyond_max_duration`, and `CreateRiskException_returns_bad_request_when_expires_at_is_past_and_tenant_missing`.
+- [x] (proven) `GovernanceStickinessController.RenewRiskException` / `GovernanceStickinessHttpMapper.ValidateRenewRiskException` — past `expiresAtUtc` passed HTTP validation and returned HTTP 404 for ghost tenant instead of 400 — **hit 2026-09-04 (#780):** shared `ValidateRiskExceptionExpiry` before tenant preflight (create expiry #780 sibling); regressions in `ValidateRenewRiskException_rejects_past_expires_at_utc` and `RenewRiskException_returns_bad_request_when_expires_at_is_past_and_tenant_missing`.
+- [x] (proven) `GovernanceStickinessController.RecordDisposition` / `GovernanceStickinessHttpMapper.ValidateRecordDisposition` — whitespace-only optional `rationale` on `Remediated` passed HTTP validation and stored null notes (silent no-op) — **hit 2026-09-04 (#780):** reject empty/whitespace optional disposition text before persist (attestation note #779 parity); regressions in `ValidateRecordDisposition_rejects_whitespace_only_optional_rationale` and `RecordDisposition_returns_bad_request_when_remediated_rationale_is_whitespace_only`.
+
+2026-09-04 seed hunt #780 (hit): proved waiver expiry validation ordering and disposition optional-rationale whitespace no-op.
 
 2026-09-04 thorough hunt #778: proved digest disable-only recipient wipe; cheap-disproved promotion/activation environment omission candidates.
 

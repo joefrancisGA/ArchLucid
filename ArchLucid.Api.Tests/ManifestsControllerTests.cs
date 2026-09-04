@@ -228,6 +228,7 @@ public sealed class ManifestsControllerTests
                 scopeProvider.Object,
                 runs.Object,
                 authority.Object,
+                Mock.Of<IManifestHashService>(),
                 compareFacade.Object,
                 tenantRepo)
             {

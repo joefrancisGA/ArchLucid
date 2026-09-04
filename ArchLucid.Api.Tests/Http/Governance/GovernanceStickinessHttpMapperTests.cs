@@ -85,6 +85,74 @@ public sealed class GovernanceStickinessHttpMapperTests
     }
 
     [Fact]
+    public void ValidateCreateRiskException_rejects_past_expires_at_utc()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateCreateRiskException(
+            new CreateRiskExceptionRequest
+            {
+                RunId = Guid.NewGuid(),
+                FindingId = "finding-1",
+                OwnerUserId = "owner",
+                Rationale = "accepted risk rationale",
+                EvidenceRef = "artifact://evidence/1",
+                ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(-1),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("future");
+    }
+
+    [Fact]
+    public void ValidateCreateRiskException_rejects_expires_at_utc_beyond_max_duration()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateCreateRiskException(
+            new CreateRiskExceptionRequest
+            {
+                RunId = Guid.NewGuid(),
+                FindingId = "finding-1",
+                OwnerUserId = "owner",
+                Rationale = "accepted risk rationale",
+                EvidenceRef = "artifact://evidence/1",
+                ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(RiskExceptionValidation.MaxDurationDays + 1),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain(RiskExceptionValidation.MaxDurationDays.ToString());
+    }
+
+    [Fact]
+    public void ValidateRenewRiskException_rejects_past_expires_at_utc()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRenewRiskException(
+            new RenewRiskExceptionRequest
+            {
+                ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(-1),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("future");
+    }
+
+    [Fact]
+    public void ValidateRecordDisposition_rejects_whitespace_only_optional_rationale()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRecordDisposition(
+            new RecordFindingDispositionRequest
+            {
+                FindingId = "finding-1",
+                Disposition = FindingDisposition.Remediated,
+                Rationale = "   ",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("rationale");
+    }
+
+    [Fact]
     public void ValidateCreateRiskException_rejects_overlong_owner_user_id()
     {
         string overlongOwnerUserId = new string('o', RiskExceptionValidation.OwnerUserIdMaxLength + 1);

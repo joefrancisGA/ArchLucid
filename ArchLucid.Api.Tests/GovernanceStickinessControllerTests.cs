@@ -183,7 +183,9 @@ public sealed class GovernanceStickinessControllerTests
                     reviewsAwaiting.Object,
                     attestationService ?? Mock.Of<IRealizedValueAttestationService>(),
                     audit.Object,
-                    findingInspect?.Object ?? Mock.Of<IFindingInspectReadRepository>()),
+                    findingInspect?.Object ?? Mock.Of<IFindingInspectReadRepository>(),
+                    Mock.Of<IAuthorityQueryService>(),
+                    Mock.Of<IManifestHashService>()),
                 scope.Object,
                 tenantRepository ?? TenantExistsRepository(),
                 nextRun.Object)
@@ -216,7 +218,9 @@ public sealed class GovernanceStickinessControllerTests
                     reviewsAwaiting ?? Mock.Of<IReviewsAwaitingActionQueryService>(),
                     Mock.Of<IRealizedValueAttestationService>(),
                     Mock.Of<IAuditService>(),
-                    Mock.Of<IFindingInspectReadRepository>()),
+                    Mock.Of<IFindingInspectReadRepository>(),
+                    Mock.Of<IAuthorityQueryService>(),
+                    Mock.Of<IManifestHashService>()),
                 scopeProvider,
                 tenantRepository ?? TenantExistsRepository(),
                 Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>())
@@ -1983,6 +1987,85 @@ public sealed class GovernanceStickinessControllerTests
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         findingInspect.VerifyNoOtherCalls();
         riskExceptions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task CreateRiskException_returns_bad_request_when_expires_at_is_past_and_tenant_missing()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new(MockBehavior.Strict);
+        Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            findingInspect: findingInspect,
+            riskExceptions: riskExceptions,
+            tenantRepository: TenantMissingRepository());
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = "finding-1",
+            RunId = Guid.NewGuid(),
+            OwnerUserId = "owner@contoso.com",
+            Rationale = "accepted risk rationale",
+            EvidenceRef = "artifact://evidence/1",
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(-1),
+        };
+
+        IActionResult action = await controller.CreateRiskException(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        findingInspect.VerifyNoOtherCalls();
+        riskExceptions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task RenewRiskException_returns_bad_request_when_expires_at_is_past_and_tenant_missing()
+    {
+        Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            riskExceptions: riskExceptions,
+            tenantRepository: TenantMissingRepository());
+
+        RenewRiskExceptionRequest request = new()
+        {
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(-1),
+        };
+
+        IActionResult action = await controller.RenewRiskException(
+            Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"),
+            request,
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        riskExceptions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task RecordDisposition_returns_bad_request_when_remediated_rationale_is_whitespace_only()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new(MockBehavior.Strict);
+        Mock<IFindingDispositionService> dispositions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            findingInspect: findingInspect,
+            dispositionService: dispositions);
+        SetIdempotencyKey(controller);
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            Disposition = FindingDisposition.Remediated,
+            Rationale = "   ",
+        };
+
+        IActionResult action = await controller.RecordDisposition("finding-1", request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        findingInspect.VerifyNoOtherCalls();
+        dispositions.VerifyNoOtherCalls();
     }
 
     [Fact]
