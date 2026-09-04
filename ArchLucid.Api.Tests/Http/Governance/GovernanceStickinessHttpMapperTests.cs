@@ -169,6 +169,22 @@ public sealed class GovernanceStickinessHttpMapperTests
     }
 
     [Fact]
+    public void ValidateRecordDisposition_rejects_revisit_due_on_non_deferred_disposition()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRecordDisposition(
+            new RecordFindingDispositionRequest
+            {
+                FindingId = "finding-1",
+                Disposition = FindingDisposition.Remediated,
+                RevisitDueUtc = DateTimeOffset.UtcNow.AddDays(30),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("revisitDueUtc");
+    }
+
+    [Fact]
     public void ValidateRecordDisposition_rejects_whitespace_only_optional_trade_off_acknowledgment()
     {
         GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRecordDisposition(
@@ -500,6 +516,23 @@ public sealed class GovernanceStickinessHttpMapperTests
         validation.Should().NotBeNull();
         validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
         validation.Message.Should().Contain("tradeOffAcknowledgment");
+    }
+
+    [Fact]
+    public void ValidateBulkDisposition_rejects_revisit_due_on_non_deferred_disposition()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateBulkDisposition(
+            new RecordBulkFindingDispositionRequest
+            {
+                FindingIds = ["finding-1"],
+                Disposition = FindingDisposition.Remediated,
+                Rationale = "bulk remediated with enough chars",
+                RevisitDueUtc = DateTimeOffset.UtcNow.AddDays(30),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("revisitDueUtc");
     }
 
     [Fact]

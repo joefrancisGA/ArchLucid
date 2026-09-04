@@ -399,6 +399,15 @@ public static class GovernanceStickinessHttpMapper
         if (optionalTradeOffValidation is not null)
             return optionalTradeOffValidation;
 
+        GovernanceHttpValidation? optionalRevisitValidation =
+            ValidateOptionalDispositionDateWhenNotApplicable(
+                request.RevisitDueUtc,
+                "revisitDueUtc",
+                request.Disposition == FindingDisposition.Deferred);
+
+        if (optionalRevisitValidation is not null)
+            return optionalRevisitValidation;
+
         return null;
     }
 
@@ -466,6 +475,15 @@ public static class GovernanceStickinessHttpMapper
 
         if (optionalTradeOffValidation is not null)
             return optionalTradeOffValidation;
+
+        GovernanceHttpValidation? optionalRevisitValidation =
+            ValidateOptionalDispositionDateWhenNotApplicable(
+                request.RevisitDueUtc,
+                "revisitDueUtc",
+                request.Disposition == FindingDisposition.Deferred);
+
+        if (optionalRevisitValidation is not null)
+            return optionalRevisitValidation;
 
         return null;
     }
@@ -573,6 +591,19 @@ public static class GovernanceStickinessHttpMapper
             return null;
 
         return ValidateOptionalDispositionTextMaxLength(value, fieldName);
+    }
+
+    private static GovernanceHttpValidation? ValidateOptionalDispositionDateWhenNotApplicable(
+        DateTimeOffset? value,
+        string fieldName,
+        bool fieldApplies)
+    {
+        if (value is null || fieldApplies)
+            return null;
+
+        return new GovernanceHttpValidation(
+            $"{fieldName} is not applicable for this disposition.",
+            ProblemTypes.ValidationFailed);
     }
 
     private static GovernanceHttpValidation? ValidateDispositionEnum(FindingDisposition disposition)
