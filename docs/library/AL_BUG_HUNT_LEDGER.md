@@ -1929,11 +1929,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 141
-- **bugs-found:** 267
+- **hunts:** 142
+- **bugs-found:** 269
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — `RequestConstraintClassifier` SQL/encryption substring false positives (#735 parity)
+- **last-bug:** 2026-09-04 — policy pack display-name casing rejected in focused pilot / overlay gates
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2068,6 +2068,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `PlatformOverlayPolicyPacks.IsOverlayDisplayName` — lowercase overlay display names rejected — Ordinal `HashSet` lookup; catalog may always emit canonical casing.
 
 2026-09-04 seed hunt #736: reseeded #735 parity surfaces; proved SQL/encryption classifier gaps, non-prod environment shorthand, retail SKU delimiter variants, and high-assurance underscore alias; seeded focused-pilot and overlay display-name casing candidates.
+
+- [x] (proven) `FocusedPilotModePolicyPacks.IsAllowedPackDisplayName` — lowercase baseline pack display names rejected — **hit 2026-09-04 (#737):** `AllowedDisplayNames` used `StringComparer.Ordinal` while `ReferencesIncludeFocusedPilotToken` is case-insensitive; lowercase `security architecture baseline` failed focused-review allow-list and excluded valid baseline packs; fixed with `OrdinalIgnoreCase` (`IsAllowedPackDisplayName_matches_case_insensitive_baseline_display_names`, `IsPackAllowedInFocusedReview_allows_lowercase_baseline_pack_display_name`).
+- [x] (proven) `PlatformOverlayPolicyPacks.IsOverlayDisplayName` — lowercase overlay display names rejected — **hit 2026-09-04 (#737):** Ordinal overlay `HashSet` lookup missed lowercase WAF/CIS display names so focused-review overlay bypass (`isPlatformOverlayForRunCloud`) failed; fixed with `OrdinalIgnoreCase` on overlay name sets (`IsOverlayDisplayName_matches_case_insensitive_overlay_display_names`).
+
+2026-09-04 thorough hunt #737: promoted and proved both #736 casing candidates; focused-pilot baseline and platform overlay display-name gates now case-insensitive.
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
 - [x] (valid-no-repro) Tenant scope model treats empty workspace as a wildcard — `ActivityScopeTags` rejects `Guid.Empty` workspace ids; no wildcard semantics in Core tenancy models.
