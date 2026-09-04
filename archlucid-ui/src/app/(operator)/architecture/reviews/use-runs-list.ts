@@ -4,6 +4,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent, type RefObject } from "react";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 import { useViewportNarrow } from "@/hooks/useViewportNarrow";
 import { partitionRunsIntoWorkQueueSections, type RunWorkQueueSection } from "@/lib/runs/run-work-queue-groups";
 import { isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
