@@ -35,6 +35,13 @@ public sealed partial class PolicyPacksController
         if (string.IsNullOrWhiteSpace(request.RunId))
             return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
 
+        IActionResult? runIdValidation =
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRunId(request.RunId)
+                .ToBadRequestProblemOrNull(this);
+
+        if (runIdValidation is not null)
+            return runIdValidation;
+
         if (!Guid.TryParse(request.RunId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
             return this.BadRequestProblem("runId is not valid.", ProblemTypes.ValidationFailed);
 
@@ -98,6 +105,13 @@ public sealed partial class PolicyPacksController
         {
             if (string.IsNullOrWhiteSpace(runId))
                 continue;
+
+            IActionResult? runIdValidation =
+                GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRunId(runId)
+                    .ToBadRequestProblemOrNull(this);
+
+            if (runIdValidation is not null)
+                return runIdValidation;
 
             if (!Guid.TryParse(runId.Trim(), out Guid parsedRunGuid) || parsedRunGuid == Guid.Empty)
             {
