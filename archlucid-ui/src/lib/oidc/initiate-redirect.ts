@@ -26,7 +26,7 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
   const state = randomOpaqueState();
   const nonce = randomOpaqueState();
 
-  storePkceState(state, verifier, nonce);
+  storePkceState(state, verifier, nonce, "primary");
 
   if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
     storePostSignInReturnUrl(returnUrl);
@@ -71,7 +71,7 @@ export async function initiateSupplementalOidcRedirect(
   const state = randomOpaqueState();
   const nonce = randomOpaqueState();
 
-  storePkceState(state, verifier, nonce);
+  storePkceState(state, verifier, nonce, "google");
 
   if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
     storePostSignInReturnUrl(returnUrl);

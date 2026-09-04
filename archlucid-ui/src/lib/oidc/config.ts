@@ -60,6 +60,14 @@ export function getOidcPostLogoutRedirectUri(): string {
   return "";
 }
 
+export function getGoogleOidcAuthority(): string {
+  return process.env.NEXT_PUBLIC_GOOGLE_OIDC_AUTHORITY?.trim() ?? "";
+}
+
+export function getGoogleOidcClientId(): string {
+  return process.env.NEXT_PUBLIC_GOOGLE_OIDC_CLIENT_ID?.trim() ?? "";
+}
+
 export function assertOidcSignInConfig(): { ok: true } | { ok: false; message: string } {
   if (!isJwtAuthMode()) {
     return { ok: false, message: "Set NEXT_PUBLIC_ARCHLUCID_AUTH_MODE to jwt or jwt-bearer." };

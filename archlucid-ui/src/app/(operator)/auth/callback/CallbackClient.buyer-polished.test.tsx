@@ -27,6 +27,8 @@ vi.mock("@/lib/oidc/config", () => ({
   assertOidcSignInConfig: vi.fn(() => ({ ok: true as const })),
   getOidcAuthority: vi.fn(() => "https://login.example.com"),
   getOidcClientId: vi.fn(() => "client-id"),
+  getGoogleOidcAuthority: vi.fn(() => "https://accounts.google.com"),
+  getGoogleOidcClientId: vi.fn(() => "google-client-id"),
   getOidcRedirectUri: vi.fn(() => "https://app.example.com/auth/callback"),
 }));
 
@@ -69,6 +71,7 @@ describe("CallbackClient buyer-polished shell", () => {
       state: "state-value",
       codeVerifier: "verifier",
       nonce: "nonce",
+      flow: "primary",
     });
     vi.mocked(exchangeAuthorizationCode).mockReturnValue(new Promise(() => undefined));
   });

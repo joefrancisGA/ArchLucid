@@ -1876,11 +1876,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 12
-- **bugs-found:** 15
+- **hunts:** 13
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — stale refresh `finally` cleared replacement in-flight guard (regression)
+- **last-hunt:** 2026-09-04
+- **last-bug:** 2026-09-04 — supplemental Google OIDC overwrote primary PKCE state; malformed end_session_endpoint passed discovery parse
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1903,8 +1903,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Malformed OIDC discovery document missing endpoints is cached permanently — **hit 2026-08-24:** `loadDiscoveryDocument` cached any HTTP 200 JSON body, so a partial discovery payload blocked sign-in, refresh, and logout discovery until a full page reload; fixed by validating required endpoints and evicting invalid documents from the cache.
 - [x] (proven) Token endpoint OAuth error returned with HTTP 200 is treated as a token response — **hit 2026-08-24:** `postTokenForm` only parsed OAuth `error` bodies when `response.ok` was false, so `invalid_grant` in a 200 body threw on missing `access_token` and `ensureAccessTokenFresh` kept a stale refresh token instead of clearing the session; fixed by rejecting OAuth error JSON before returning token responses.
 - [x] (proven) String `expires_in` from token response falls back to default lifetime — **hit 2026-08-24:** `resolveExpiresInSeconds` used `Number.isFinite` on the raw value, so IdPs that serialize `expires_in` as a JSON string were treated as non-finite and given the 3600s default; fixed by coercing with `Number()` before validation.
-- [ ] (candidate) Supplemental Google OIDC redirect overwrites primary PKCE state — `initiateSupplementalOidcRedirect` calls the same `storePkceState` session keys as `initiateOidcRedirect`; starting Google sign-in while a primary IdP authorize round-trip is pending could replace `state`/`code_verifier`/`nonce` before callback.
-- [ ] (candidate) Malformed `end_session_endpoint` in discovery passes parse but breaks RP-initiated logout — `parseDiscoveryDocument` validates `authorization_endpoint` and `token_endpoint` with `new URL()` but copies `end_session_endpoint` without URL validation; `signOutAndRedirectHome` may fall through to `/` without IdP logout when the endpoint is not a valid absolute URL.
+- [x] (proven) Supplemental Google OIDC redirect overwrites primary PKCE state — **hit 2026-09-04:** `initiateSupplementalOidcRedirect` called the same `storePkceState` keys as primary sign-in, so a pending work/school round-trip could be clobbered before callback; fixed with flow-scoped PKCE storage and callback token exchange keyed by matched flow (`initiate-redirect.test.ts`, `session.test.ts`, `CallbackClient.tsx`).
+- [x] (proven) Malformed `end_session_endpoint` in discovery passes parse but breaks RP-initiated logout — **hit 2026-09-04:** `parseDiscoveryDocument` copied `end_session_endpoint` without `new URL()` validation, so `signOutAndRedirectHome` silently fell through to `/`; fixed by omitting invalid optional logout endpoints at parse time (`discovery.test.ts`).
+
+2026-09-04 thorough hunt #716 (hit): proved supplemental PKCE overwrite and invalid end_session discovery gap.
 
 ---
 
