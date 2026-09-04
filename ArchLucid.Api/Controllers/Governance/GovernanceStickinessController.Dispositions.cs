@@ -85,6 +85,10 @@ public sealed partial class GovernanceStickinessController
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
         catch (InvalidOperationException ex)
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);

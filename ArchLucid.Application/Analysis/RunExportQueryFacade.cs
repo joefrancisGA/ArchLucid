@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Serialization;
@@ -15,7 +16,9 @@ public sealed class RunExportQueryFacade(
     IExportReplayService exportReplayService,
     IExportRecordDiffService exportRecordDiffService,
     IExportRecordDiffSummaryFormatter exportRecordDiffSummaryFormatter,
-    IAuditService auditService) : IRunExportQueryFacade
+    IAuditService auditService,
+    IRunExportLineageVerifier runExportLineageVerifier,
+    IScopeContextProvider scopeContextProvider) : IRunExportQueryFacade
 {
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
     private readonly IRunExportRecordRepository _runExportRecordRepository = runExportRecordRepository ?? throw new ArgumentNullException(nameof(runExportRecordRepository));
@@ -24,11 +27,32 @@ public sealed class RunExportQueryFacade(
     private readonly IExportRecordDiffService _exportRecordDiffService = exportRecordDiffService ?? throw new ArgumentNullException(nameof(exportRecordDiffService));
     private readonly IExportRecordDiffSummaryFormatter _exportRecordDiffSummaryFormatter = exportRecordDiffSummaryFormatter ?? throw new ArgumentNullException(nameof(exportRecordDiffSummaryFormatter));
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+    private readonly IRunExportLineageVerifier _runExportLineageVerifier =
+        runExportLineageVerifier ?? throw new ArgumentNullException(nameof(runExportLineageVerifier));
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     public async Task<RunExportHistoryQueryResult> GetRunExportHistoryAsync(string runId, CancellationToken cancellationToken = default)
     {
         if (await _runDetailQueryService.GetRunDetailAsync(runId, cancellationToken) is null)
             return new RunExportHistoryQueryResult { Outcome = ExportRecordLoadOutcome.RunNotFound, MissingRunId = runId };
+
+        if (Guid.TryParse(runId, out Guid runGuid))
+        {
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            RunExportLineageVerificationResult? lineage =
+                await _runExportLineageVerifier.VerifyAsync(scope, runGuid, cancellationToken);
+
+            if (lineage is not null && lineage.Status != RunExportLineageVerificationStatus.Match)
+            {
+                return new RunExportHistoryQueryResult
+                {
+                    Outcome = ExportRecordLoadOutcome.LineageUnverified,
+                    MissingRunId = runId,
+                };
+            }
+        }
+
         IReadOnlyList<RunExportRecord> records = await _runExportRecordRepository.GetByRunIdAsync(runId, cancellationToken);
         return new RunExportHistoryQueryResult { Outcome = ExportRecordLoadOutcome.Success, Exports = records.ToList() };
     }

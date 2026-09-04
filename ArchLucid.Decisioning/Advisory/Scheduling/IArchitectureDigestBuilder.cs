@@ -20,6 +20,8 @@ public interface IArchitectureDigestBuilder
     /// <param name="comparedToRunId">Optional baseline run when the plan was diff-based.</param>
     /// <param name="plan">Advisory plan whose recommendations and summary notes feed the digest.</param>
     /// <param name="evaluatedAlerts">Optional alerts evaluated during the same scan; included in markdown and metadata counts.</param>
+    /// <param name="decisionNeededMarkdown">Optional governance decision-needed section appended to markdown.</param>
+    /// <param name="sealedManifestHash">Sealed golden-manifest hash when <paramref name="runId"/> is set (digest delivery guard).</param>
     /// <returns>New digest instance with a fresh <see cref="ArchitectureDigest.DigestId" />.</returns>
     ArchitectureDigest Build(
         Guid tenantId,
@@ -29,5 +31,6 @@ public interface IArchitectureDigestBuilder
         Guid? comparedToRunId,
         ImprovementPlan plan,
         IReadOnlyList<AlertRecord>? evaluatedAlerts = null,
-        string? decisionNeededMarkdown = null);
+        string? decisionNeededMarkdown = null,
+        string? sealedManifestHash = null);
 }

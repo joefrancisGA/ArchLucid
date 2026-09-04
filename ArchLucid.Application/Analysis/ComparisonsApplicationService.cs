@@ -12,12 +12,16 @@ public sealed partial class ComparisonsApplicationService(
     IRunExportRecordRepository runExportRecordRepository,
     IComparisonRecordRepository comparisonRecordRepository,
     IComparisonReplayService comparisonReplayService,
+    ICompareRunsApplicationFacade compareRunsFacade,
     IComparisonReplayCostEstimator comparisonReplayCostEstimator,
     IDriftReportFormatter driftReportFormatter,
     DriftReportDocxExport driftReportDocxExport) : IComparisonsApplicationService
 {
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
+    private readonly ICompareRunsApplicationFacade _compareRunsFacade =
+        compareRunsFacade ?? throw new ArgumentNullException(nameof(compareRunsFacade));
 
     private readonly IRunExportRecordRepository _runExportRecordRepository =
         runExportRecordRepository ?? throw new ArgumentNullException(nameof(runExportRecordRepository));

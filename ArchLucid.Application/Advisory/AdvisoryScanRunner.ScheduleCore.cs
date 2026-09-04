@@ -108,7 +108,8 @@ public sealed partial class AdvisoryScanRunner
             comparedToRunId,
             plan,
             digestAlerts,
-            decisionNeededMarkdown);
+            decisionNeededMarkdown,
+            latestDetail.GoldenManifest.ManifestHash);
         await digestRepository.CreateAsync(digest, ct);
         await deliveryDispatcher.DeliverAsync(digest, ct);
         TraceCompletenessSummary traceCompletenessSummary = ExplainabilityTraceCompletenessAnalyzer.AnalyzeSnapshot(findings);
@@ -165,7 +166,15 @@ public sealed partial class AdvisoryScanRunner
                 RunId = latest.RunId,
                 DataJson = JsonSerializer.Serialize(new { digestId = digest.DigestId, scheduleId = schedule.ScheduleId })
             }, ct);
-        await TryPublishAdvisoryScanCompletedAsync(schedule, execution, latest.RunId, comparedToRunId, digest.DigestId, true, ct);
+        await TryPublishAdvisoryScanCompletedAsync(
+            schedule,
+            execution,
+            latest.RunId,
+            comparedToRunId,
+            digest.DigestId,
+            true,
+            latestDetail.GoldenManifest.ManifestHash,
+            ct);
         await AdvanceScheduleAsync(schedule, ct);
     }
 }

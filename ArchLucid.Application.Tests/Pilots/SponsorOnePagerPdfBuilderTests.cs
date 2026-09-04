@@ -284,6 +284,8 @@ public sealed class SponsorOnePagerPdfBuilderTests
             baselineRepo,
             FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 

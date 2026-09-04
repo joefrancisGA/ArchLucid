@@ -179,7 +179,9 @@ public sealed class GovernanceStickinessControllerTests
                     reviewsAwaiting.Object,
                     attestationService ?? Mock.Of<IRealizedValueAttestationService>(),
                     audit.Object,
-                    findingInspect?.Object ?? Mock.Of<IFindingInspectReadRepository>()),
+                    findingInspect?.Object ?? Mock.Of<IFindingInspectReadRepository>(),
+                    Mock.Of<IAuthorityQueryService>(),
+                    Mock.Of<IManifestHashService>()),
                 scope.Object,
                 tenantRepository ?? TenantExistsRepository())
             {
@@ -211,7 +213,9 @@ public sealed class GovernanceStickinessControllerTests
                     reviewsAwaiting ?? Mock.Of<IReviewsAwaitingActionQueryService>(),
                     Mock.Of<IRealizedValueAttestationService>(),
                     Mock.Of<IAuditService>(),
-                    Mock.Of<IFindingInspectReadRepository>()),
+                    Mock.Of<IFindingInspectReadRepository>(),
+                    Mock.Of<IAuthorityQueryService>(),
+                    Mock.Of<IManifestHashService>()),
                 scopeProvider,
                 tenantRepository ?? TenantExistsRepository())
             {

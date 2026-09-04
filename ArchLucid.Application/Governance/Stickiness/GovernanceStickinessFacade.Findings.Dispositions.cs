@@ -1,4 +1,5 @@
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
@@ -17,6 +18,16 @@ public sealed partial class GovernanceStickinessFacade
         FindingInspectResponse finding = await RequireFindingInspectInScopeAsync(scope, request.FindingId, ct);
         EnsureRunMatchesFindingAuthorityRun(request.RunId, finding);
         await EnsureRunInScopeWhenProvidedAsync(scope, request.RunId, ct);
+
+        if (request.RunId is { } dispositionRunId && dispositionRunId != Guid.Empty)
+        {
+            await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                dispositionRunId,
+                scope,
+                _authorityQueryService,
+                _manifestHashService,
+                ct);
+        }
 
         return await _findingDispositionService.RecordAsync(
             request,

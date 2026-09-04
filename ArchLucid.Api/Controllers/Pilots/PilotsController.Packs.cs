@@ -95,6 +95,10 @@ public sealed partial class PilotsController
         {
             return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.DecisionReceiptSealedIncomplete);
+        }
     }
 
     // idempotency-posture: operator-documented-safe-retry

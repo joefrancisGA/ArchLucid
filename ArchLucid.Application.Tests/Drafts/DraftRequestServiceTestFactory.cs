@@ -17,6 +17,8 @@ using ArchLucid.Persistence.Interfaces;
 
 using Microsoft.Extensions.Options;
 
+using FluentValidation;
+
 using Moq;
 
 namespace ArchLucid.Application.Tests.Drafts;
@@ -54,7 +56,8 @@ internal static class DraftRequestServiceTestFactory
             contentSafetyPrecheck,
             feasibilityVerdictBuilder,
             workspaceSystemNameCollisionGuard,
-            Mock.Of<IRunRepository>());
+            Mock.Of<IRunRepository>(),
+            Mock.Of<IValidator<ArchitectureRequest>>());
 
         DraftBranchingService branchingService = new(
             repository,

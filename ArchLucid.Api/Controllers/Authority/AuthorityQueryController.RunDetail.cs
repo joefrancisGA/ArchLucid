@@ -2,6 +2,7 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
+using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Governance;
@@ -105,6 +106,7 @@ public sealed partial class AuthorityQueryController
     [ProducesResponseType(typeof(RunOperatorGovernanceDispositionDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [MutatingAuditExcluded("Audit: IRunOperatorGovernanceDispositionService logs RunOperatorGovernanceDispositionRecorded.")]
     public async Task<IActionResult> RecordRunOperatorGovernanceDisposition(
         Guid runId,
@@ -137,6 +139,10 @@ public sealed partial class AuthorityQueryController
         catch (ArgumentException ex)
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {

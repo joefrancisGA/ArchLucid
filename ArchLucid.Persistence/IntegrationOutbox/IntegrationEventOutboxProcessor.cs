@@ -83,6 +83,10 @@ public sealed class IntegrationEventOutboxProcessor(
 
         try
         {
+            IntegrationEventOutboxManifestHashGuard.EnsureRunScopedPayloadIncludesManifestHashOrThrow(
+                entry.EventType,
+                entry.PayloadUtf8);
+
             IReadOnlyDictionary<string, object>? applicationProperties =
                 IntegrationEventServiceBusApplicationProperties.TryResolveForPublish(
                     entry.EventType,

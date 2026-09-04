@@ -1044,7 +1044,9 @@ public sealed class GovernanceStickinessFacadeScopeTests
             Mock.Of<IReviewsAwaitingActionQueryService>(),
             Mock.Of<IRealizedValueAttestationService>(),
             Mock.Of<IAuditService>(),
-            findingInspect ?? Mock.Of<IFindingInspectReadRepository>());
+            findingInspect ?? Mock.Of<IFindingInspectReadRepository>(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>());
     }
 
     private static ArchLucid.Persistence.Data.Repositories.IFindingReviewTrailRepository CreateTrailRepositoryReturningForeignAndInScopeEvents(
