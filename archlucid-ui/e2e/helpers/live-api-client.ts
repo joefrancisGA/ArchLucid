@@ -155,7 +155,12 @@ export async function createRun(
         throw error;
       }
 
-      if (isTransientLiveApiTransportError(error) && attempt < maxArchitectureMutationAttempts() - 1) {
+      const isPerAttemptTimeout = error instanceof Error && /timeout .* exceeded|timed out/i.test(message);
+
+      if (
+        (isPerAttemptTimeout || isTransientLiveApiTransportError(error)) &&
+        attempt < maxArchitectureMutationAttempts() - 1
+      ) {
         await sleepTransientHttpBackoff(attempt);
 
         continue;
