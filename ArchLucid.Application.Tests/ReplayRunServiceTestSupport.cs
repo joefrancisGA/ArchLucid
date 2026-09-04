@@ -213,7 +213,7 @@ internal static class ReplayRunServiceTestSupport
         TenantId = scope.TenantId,
         WorkspaceId = scope.WorkspaceId,
         ScopeProjectId = scope.ProjectId,
-        ProjectId = scope.ProjectId.ToString("N"),
+        ProjectId = string.Empty,
         PinnedPolicyPackIdsJson = "[]",
         LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
     };

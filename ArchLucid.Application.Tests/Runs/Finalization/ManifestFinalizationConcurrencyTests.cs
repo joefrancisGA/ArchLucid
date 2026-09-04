@@ -4,6 +4,7 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Decisioning.DecisionTraces;
 using PersistenceDecisionTraceDto = ArchLucid.Contracts.Persistence.DecisionTraces.DecisionTraceDto;
 using ArchLucid.Contracts.Manifest;
@@ -277,6 +278,12 @@ public sealed class ManifestFinalizationConcurrencyTests
                 CreatedUtc = model.CreatedUtc,
             },
             Trace = trace,
+            PreloadedFindingsSnapshot = new FindingsSnapshot
+            {
+                FindingsSnapshotId = findingsId,
+                GenerationStatus = FindingsSnapshotGenerationStatus.Complete,
+                Findings = [],
+            },
         };
     }
 }

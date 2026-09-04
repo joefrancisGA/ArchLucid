@@ -136,6 +136,9 @@ public sealed class ArchitectureRunExecuteOrchestratorOwnershipTests
             .Setup(s => s.EvaluateAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RequestContentSafetyResult { IsAllowed = true });
 
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns("ownership-test");
+
         return ArchitectureRunExecuteOrchestratorTestFactory.Create(
             runRepo.Object,
             scopeProvider.Object,
@@ -149,7 +152,7 @@ public sealed class ArchitectureRunExecuteOrchestratorOwnershipTests
                 AgentEvaluationRepository = Mock.Of<IAgentEvaluationRepository>(),
                 AgentEvidencePackageRepository = Mock.Of<IAgentEvidencePackageRepository>(),
                 EvidenceBuilder = new DefaultEvidenceBuilder(Mock.Of<IUnifiedGoldenManifestReader>()),
-                ActorContext = Mock.Of<IActorContext>(),
+                ActorContext = actor.Object,
                 BaselineMutationAuditService = Mock.Of<IBaselineMutationAuditService>(),
                 PostExecuteHooks = ArchitectureRunExecuteOrchestratorTestFactory.CreatePostExecuteHooks(
                 scopeContextProvider: scopeProvider.Object,
