@@ -2102,6 +2102,128 @@ describe("wave32 filter url helpers", () => {
   });
 });
 
+describe("wave33 filter url helpers", () => {
+  it("governance findings preset remove, advisory disposition, run governance disposition, and policy pack toggle", async () => {
+    const {
+      governanceAssignedToMePresetRemoveConfirmHrefFromSearch,
+      governanceFindingsPresetRemoveConfirmHrefFromSearch,
+      parseGovernanceFindingsRemovePresetIdFromSearch,
+    } = await import("@/lib/governance/governance-findings-preset-remove-confirm-url");
+    const {
+      advisoryScansDispositionConfirmHrefFromSearch,
+      advisoryScansDispositionToUrlAction,
+      advisoryScansUrlActionToDisposition,
+      parseAdvisoryScansDispActionFromSearch,
+      parseAdvisoryScansDispRecIdFromSearch,
+    } = await import("@/lib/advisory/advisory-scans-disposition-confirm-url");
+    const {
+      parseRunGovernanceDispositionDecisionFromSearch,
+      runGovernanceDispositionConfirmHrefFromSearch,
+      runGovernanceDispositionFromUrlValue,
+      runGovernanceDispositionToUrlValue,
+    } = await import("@/lib/governance/run-governance-disposition-confirm-url");
+    const {
+      parsePolicyPackToggleAssignmentIdFromSearch,
+      parsePolicyPackToggleNextFromSearch,
+      policyPackWorkspaceToggleConfirmHrefFromSearch,
+    } = await import("@/lib/policy/policy-pack-workspace-toggle-confirm-url");
+
+    expect(parseGovernanceFindingsRemovePresetIdFromSearch("preset-1")).toBe("preset-1");
+    expect(governanceFindingsPresetRemoveConfirmHrefFromSearch("severity=High", "preset-1")).toBe(
+      "/governance/findings?severity=High&removePresetId=preset-1",
+    );
+    expect(governanceAssignedToMePresetRemoveConfirmHrefFromSearch("", "preset-2")).toBe(
+      "/governance/findings/assigned-to-me?removePresetId=preset-2",
+    );
+    expect(parseAdvisoryScansDispRecIdFromSearch("rec-1")).toBe("rec-1");
+    expect(parseAdvisoryScansDispActionFromSearch("accept")).toBe("accept");
+    expect(advisoryScansDispositionToUrlAction("Defer")).toBe("defer");
+    expect(advisoryScansUrlActionToDisposition("implemented")).toBe("MarkImplemented");
+    expect(
+      advisoryScansDispositionConfirmHrefFromSearch("scanId=s1", {
+        recommendationId: "rec-1",
+        action: "reject",
+      }),
+    ).toBe("/governance/advisory-scans?scanId=s1&dispRecId=rec-1&dispAction=reject");
+    expect(parseRunGovernanceDispositionDecisionFromSearch("request-remediation")).toBe("request-remediation");
+    expect(runGovernanceDispositionToUrlValue("Approved")).toBe("approved");
+    expect(runGovernanceDispositionFromUrlValue("rejected")).toBe("Rejected");
+    expect(
+      runGovernanceDispositionConfirmHrefFromSearch("", "approved", "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?runDispDecision=approved");
+    expect(parsePolicyPackToggleAssignmentIdFromSearch("assign-1")).toBe("assign-1");
+    expect(parsePolicyPackToggleNextFromSearch("enable")).toBe("enable");
+    expect(
+      policyPackWorkspaceToggleConfirmHrefFromSearch("packId=p1", {
+        assignmentId: "assign-1",
+        next: "disable",
+      }),
+    ).toBe("/governance/policy-packs?packId=p1&packToggleAssignmentId=assign-1&packToggleNext=disable");
+  });
+
+  it("quick approve, actor gate, intake mode, dry run, sponsor share, and quality attribute encourage", async () => {
+    const {
+      governanceQuickApproveConfirmHrefFromSearch,
+      parseGovernanceQuickApproveIdFromSearch,
+    } = await import("@/lib/governance/governance-quick-approve-confirm-url");
+    const {
+      draftIntakeActorGateConfirmHrefFromSearch,
+      parseDraftIntakeActorGateConfirmOpenFromSearch,
+    } = await import("@/lib/draft-intake/draft-intake-actor-gate-confirm-url");
+    const {
+      architectureDraftIntakeModeConfirmHrefFromSearch,
+      parseArchitectureDraftIntakeModeConfirmOpenFromSearch,
+      parseArchitectureDraftIntakeModeDraftIdFromSearch,
+    } = await import("@/lib/architecture/architecture-draft-intake-mode-confirm-url");
+    const {
+      parsePolicyPackDryRunConfirmOpenFromSearch,
+      policyPackDryRunConfirmHrefFromSearch,
+    } = await import("@/lib/policy/policy-pack-dry-run-confirm-url");
+    const {
+      architectureSponsorShareConfirmHrefFromSearch,
+      parseArchitectureSponsorShareConfirmOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-sponsor-share-confirm-url");
+    const {
+      architectureDraftQualityAttrEncourageConfirmHrefFromSearch,
+      parseArchitectureDraftQualityAttrEncourageOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-draft-quality-attr-encourage-confirm-url");
+
+    expect(parseGovernanceQuickApproveIdFromSearch("approval-1")).toBe("approval-1");
+    expect(governanceQuickApproveConfirmHrefFromSearch("tab=queue", "approval-1")).toBe(
+      "/governance/approval-queue?tab=queue&quickApproveId=approval-1",
+    );
+    expect(parseDraftIntakeActorGateConfirmOpenFromSearch("true")).toBe(true);
+    expect(
+      draftIntakeActorGateConfirmHrefFromSearch("step=actors", true, "/architecture/architectures/a1/draft"),
+    ).toBe("/architecture/architectures/a1/draft?step=actors&actorGateConfirm=1");
+    expect(parseArchitectureDraftIntakeModeConfirmOpenFromSearch("1")).toBe(true);
+    expect(parseArchitectureDraftIntakeModeDraftIdFromSearch("draft-1")).toBe("draft-1");
+    expect(
+      architectureDraftIntakeModeConfirmHrefFromSearch(
+        "",
+        { confirmOpen: true, draftId: "draft-1" },
+        "/architecture/architectures/a1",
+      ),
+    ).toBe("/architecture/architectures/a1?intakeModeConfirm=1&intakeModeDraftId=draft-1");
+    expect(parsePolicyPackDryRunConfirmOpenFromSearch("true")).toBe(true);
+    expect(policyPackDryRunConfirmHrefFromSearch("packId=p1", true)).toBe(
+      "/governance/policy-packs?packId=p1&dryRunOpen=1",
+    );
+    expect(parseArchitectureSponsorShareConfirmOpenFromSearch("1")).toBe(true);
+    expect(
+      architectureSponsorShareConfirmHrefFromSearch("tab=share", true, "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?tab=share&sponsorShareConfirm=1");
+    expect(parseArchitectureDraftQualityAttrEncourageOpenFromSearch("true")).toBe(true);
+    expect(
+      architectureDraftQualityAttrEncourageConfirmHrefFromSearch(
+        "tab=quality",
+        true,
+        "/architecture/architectures/a1",
+      ),
+    ).toBe("/architecture/architectures/a1?tab=quality&qualityAttrEncourage=1");
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(
