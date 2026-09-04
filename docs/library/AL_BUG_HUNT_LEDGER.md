@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 141
-- **bugs-found:** 315
+- **hunts:** 142
+- **bugs-found:** 318
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — policy pack draft/generate advisory text max-length parity
+- **last-bug:** 2026-09-04 — approval request id max-length validation parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3848,6 +3848,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.GeneratePolicyPack` — `Prompt` longer than `DraftIntakeValidation.MaximumFreeTextIntentLength` reached `IPolicyPackGeneratorService` without HTTP 400 while sibling advisory intake paths enforce the shared cap — **hit 2026-09-04 (#682):** shared advisory-text validation helper; regression in `GovernanceControllerSimulateTests.GeneratePolicyPack_returns_bad_request_when_prompt_exceeds_max_length`.
 
 2026-09-04 seed hunt #682: promoted and proved policy-pack draft/generate advisory text max-length parity with `DraftIntakeValidation`.
+
+- [x] (proven) `GovernanceApprovalRequestsHttpMapper.ValidateApprovalRequestId` / `GovernanceController.Approve` / `Reject` — route `approvalRequestId` longer than 64 chars returned HTTP 404 while stickiness finding routes return HTTP 400 (#677 parity) — **hit 2026-09-04 (#683):** `GovernanceRequestValidationRules.ApprovalRequestIdMaxLength` guard; regression in `GovernanceApprovalRequestsHttpMapperTests.ValidateApprovalRequestId_rejects_overlong_id` and `GovernanceControllerRunHistoryScopeTests.Approve_returns_bad_request_when_approval_request_id_exceeds_max_length`.
+
+- [x] (proven) `GovernanceApprovalRequestsHttpMapper.ValidateBatchReviewRequest` / `GovernanceController.BatchReviewApprovalRequests` — batch `approvalRequestIds` entry longer than 64 chars returned per-item HTTP 404 instead of HTTP 400 — **hit 2026-09-04 (#683):** max-length guard on each normalized id; regression in `GovernanceApprovalRequestsHttpMapperTests.ValidateBatchReviewRequest_rejects_overlong_approval_request_id`.
+
+- [x] (proven) `GovernanceMutationCorrectionService.RecordAsync` / `GovernanceController.RecordGovernanceMutationCorrection` — approval/promotion/activation correction `subjectId` longer than 64 chars returned HTTP 404 while disposition corrections return HTTP 400 (#678 sibling scoped disposition-only) — **hit 2026-09-04 (#683):** max-length guard on all correction subject ids before trail/workflow lookup; regression in `GovernanceMutationCorrectionServiceTests.RecordAsync_rejects_approval_correction_when_subject_id_exceeds_max_length`.
+
+2026-09-04 seed hunt #683: promoted and proved approval request id max-length validation on approve/reject, batch review, and mutation correction paths.
 
 2026-09-04 thorough hunt #679: cheap-disproved manifest summary services/datastores cap candidate; proved product-feedback findingRef inspect max-length and mutation-correction rationale max-length parity.
 
