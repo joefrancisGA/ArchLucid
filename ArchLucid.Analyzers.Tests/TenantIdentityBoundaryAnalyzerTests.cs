@@ -330,6 +330,29 @@ namespace N
   }
 
   [Fact]
+  public async Task Reports_value_tuple_element_with_banned_type_in_inner_layer_assembly()
+  {
+    const string testCode = """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Http;
+
+    public sealed class C
+    {
+        void M(({|#0:HttpContext|} ctx, int id) pair) { }
+    }
+}
+""";
+
+    DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithLocation(0)
+        .WithArguments("Microsoft.AspNetCore.Http.HttpContext");
+
+    await RunInnerLayerTestAsync(testCode, expected);
+  }
+
+  [Fact]
   public async Task Reports_delegate_type_argument_with_banned_type_in_inner_layer_assembly()
   {
     const string testCode = """
