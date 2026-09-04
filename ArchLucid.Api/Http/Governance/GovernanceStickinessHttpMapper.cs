@@ -75,6 +75,13 @@ public static class GovernanceStickinessHttpMapper
                 ProblemTypes.ValidationFailed);
         }
 
+        if (category is not null && category.Trim().Length > GovernanceRequestValidationRules.DecisionRegisterCategoryMaxLength)
+        {
+            return new GovernanceHttpValidation(
+                $"category must not exceed {GovernanceRequestValidationRules.DecisionRegisterCategoryMaxLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         if (recordedAfterUtc is not null
             && recordedBeforeUtc is not null
             && recordedAfterUtc > recordedBeforeUtc)

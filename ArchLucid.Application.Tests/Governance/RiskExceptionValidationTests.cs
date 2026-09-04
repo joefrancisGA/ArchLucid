@@ -198,4 +198,24 @@ public sealed class RiskExceptionValidationTests
             .Throw<ArgumentException>()
             .WithMessage($"*exceed*{FindingDispositionValidation.MaximumRationaleLength}*");
     }
+
+    [Fact]
+    public void Validate_rejects_overlong_finding_id()
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = new string('f', FindingDispositionValidation.MaxFindingIdLength + 1),
+            OwnerUserId = "owner-1",
+            Rationale = "Temporary acceptance for pilot.",
+            EvidenceRef = "artifact://evidence/1",
+            ExpiresAtUtc = RiskExceptionValidation.DefaultExpiresAtUtc(now),
+        };
+
+        Action act = () => RiskExceptionValidation.Validate(request, now);
+
+        act.Should()
+            .Throw<ArgumentException>()
+            .WithMessage($"*exceed*{FindingDispositionValidation.MaxFindingIdLength}*");
+    }
 }

@@ -11,4 +11,7 @@ public static class GovernanceRequestValidationRules
 
     /// <summary>Matches <c>dbo.GovernanceApprovalRequests.ApprovalRequestId</c> primary key.</summary>
     public const int ApprovalRequestIdMaxLength = 64;
+
+    /// <summary>Matches <c>dbo.GoldenManifestDecisions.Category</c> column width.</summary>
+    public const int DecisionRegisterCategoryMaxLength = 200;
 }

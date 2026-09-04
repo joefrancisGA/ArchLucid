@@ -215,4 +215,20 @@ public sealed class FindingDispositionValidationTests
             .Throw<ArgumentException>()
             .WithMessage($"*exceed*{FindingDispositionValidation.MaximumRationaleLength}*");
     }
+
+    [Fact]
+    public void Validate_rejects_overlong_finding_id()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = new string('f', FindingDispositionValidation.MaxFindingIdLength + 1),
+            Disposition = Disposition.Remediated,
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request);
+
+        act.Should()
+            .Throw<ArgumentException>()
+            .WithMessage($"*exceed*{FindingDispositionValidation.MaxFindingIdLength}*");
+    }
 }

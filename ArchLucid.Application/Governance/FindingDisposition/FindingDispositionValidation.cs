@@ -24,6 +24,15 @@ public static class FindingDispositionValidation
         if (string.IsNullOrWhiteSpace(request.FindingId))
             throw new ArgumentException("Finding id is required.", nameof(request));
 
+        string normalizedFindingId = request.FindingId.Trim();
+
+        if (normalizedFindingId.Length > MaxFindingIdLength)
+        {
+            throw new ArgumentException(
+                $"Finding id must not exceed {MaxFindingIdLength} characters.",
+                nameof(request));
+        }
+
         bool requiresRationale = request.Disposition is Disposition.Accepted
             or Disposition.RejectedAsNotApplicable;
 

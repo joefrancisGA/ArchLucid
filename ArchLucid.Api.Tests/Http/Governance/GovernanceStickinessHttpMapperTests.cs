@@ -122,4 +122,22 @@ public sealed class GovernanceStickinessHttpMapperTests
         validation.Should().NotBeNull();
         validation!.Message.Should().Contain("recordedAfterUtc");
     }
+
+    [Fact]
+    public void ValidateDecisionRegisterFilters_rejects_overlong_category()
+    {
+        string overlongCategory = new string('c', GovernanceRequestValidationRules.DecisionRegisterCategoryMaxLength + 1);
+
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateDecisionRegisterFilters(
+            category: overlongCategory,
+            recordedAfterUtc: null,
+            recordedBeforeUtc: null,
+            minConfidence: null,
+            maxConfidence: null,
+            buyerConfidenceSource: null);
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain(GovernanceRequestValidationRules.DecisionRegisterCategoryMaxLength.ToString());
+    }
 }

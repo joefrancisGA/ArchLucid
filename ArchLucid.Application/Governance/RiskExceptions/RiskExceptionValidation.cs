@@ -21,6 +21,15 @@ public static class RiskExceptionValidation
         if (string.IsNullOrWhiteSpace(request.FindingId))
             throw new ArgumentException("Finding id is required.", nameof(request));
 
+        string normalizedFindingId = request.FindingId.Trim();
+
+        if (normalizedFindingId.Length > FindingDispositionValidation.MaxFindingIdLength)
+        {
+            throw new ArgumentException(
+                $"Finding id must not exceed {FindingDispositionValidation.MaxFindingIdLength} characters.",
+                nameof(request));
+        }
+
         if (string.IsNullOrWhiteSpace(request.OwnerUserId))
             throw new ArgumentException("Owner user id is required.", nameof(request));
 
