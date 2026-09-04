@@ -11,7 +11,6 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 class TestTraceabilityBatch5CE(unittest.TestCase):
     def test_tb_056_partial_failure_surfacing(self) -> None:
         findings_stages_dir = REPO_ROOT / "ArchLucid.Decisioning" / "Services" / "Findings"
-        engine_invoke_stage = findings_stages_dir / "FindingsEngineInvokeStage.cs"
         snapshot_emit_stage = findings_stages_dir / "FindingsSnapshotEmitStage.cs"
         manifest_builders_dir = (
             REPO_ROOT / "ArchLucid.Decisioning" / "Manifest" / "Builders"
@@ -26,7 +25,10 @@ class TestTraceabilityBatch5CE(unittest.TestCase):
             REPO_ROOT / "ArchLucid.Core" / "Diagnostics" / "ArchLucidInstrumentation.Runs.cs"
         )
 
-        engine_invoke_text = engine_invoke_stage.read_text(encoding="utf-8")
+        engine_invoke_text = "".join(
+            path.read_text(encoding="utf-8")
+            for path in sorted(findings_stages_dir.glob("FindingsEngineInvokeStage*.cs"))
+        )
         snapshot_emit_text = snapshot_emit_stage.read_text(encoding="utf-8")
         self.assertIn("FindingEngineFailure", engine_invoke_text)
         self.assertIn("RecordFindingsEnginePartialFailure", snapshot_emit_text)

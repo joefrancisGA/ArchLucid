@@ -17473,6 +17473,16 @@
             },
             "type": "array"
           },
+          "inputFingerprints": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CompareInputFingerprints"
+              }
+            ]
+          },
           "leftManifestVersion": {
             "type": "string"
           },

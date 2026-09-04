@@ -32,7 +32,7 @@ class TestAdoptionBatch5AJ(unittest.TestCase):
         self.assertIn("baselineReviewCycleHours", text)
 
     def test_tb_238_new_run_wizard_wires_baseline_step(self) -> None:
-        wizard_paths = (
+        reviews_new_dir = (
             REPO_ROOT
             / "archlucid-ui"
             / "src"
@@ -41,36 +41,16 @@ class TestAdoptionBatch5AJ(unittest.TestCase):
             / "architecture"
             / "reviews"
             / "new"
-            / "NewRunWizardStepBody.tsx",
-            REPO_ROOT
-            / "archlucid-ui"
-            / "src"
-            / "app"
-            / "(operator)"
-            / "architecture"
-            / "reviews"
-            / "new"
-            / "NewRunWizardClient.tsx",
-            REPO_ROOT
-            / "archlucid-ui"
-            / "src"
-            / "app"
-            / "(operator)"
-            / "architecture"
-            / "reviews"
-            / "new"
-            / "NewRunWizardStepPanels.tsx",
-            REPO_ROOT
-            / "archlucid-ui"
-            / "src"
-            / "app"
-            / "(operator)"
-            / "architecture"
-            / "reviews"
-            / "new"
-            / "use-new-run-wizard-client.tsx",
         )
-        text = "".join(path.read_text(encoding="utf-8") for path in wizard_paths)
+        wizard_lib_paths = (
+            REPO_ROOT / "archlucid-ui" / "src" / "lib" / "wizard-step-fields.ts",
+            REPO_ROOT / "archlucid-ui" / "src" / "lib" / "use-wizard-baseline-metrics-actions.ts",
+        )
+        text = "".join(
+            path.read_text(encoding="utf-8")
+            for path in sorted(reviews_new_dir.glob("**/*"))
+            if path.is_file() and path.suffix in {".ts", ".tsx"}
+        ) + "".join(path.read_text(encoding="utf-8") for path in wizard_lib_paths)
         self.assertIn("WizardStepBaselineMetrics", text)
         self.assertIn("FULL_WIZARD_BASELINE_METRICS_STEP_INDEX", text)
         self.assertIn("persistBaselineMetricsIfNeeded", text)
