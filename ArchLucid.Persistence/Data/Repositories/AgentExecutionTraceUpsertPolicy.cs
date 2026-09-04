@@ -12,7 +12,7 @@ internal static class AgentExecutionTraceUpsertPolicy
 {
     public static bool SharesRunTaskAgent(AgentExecutionTrace left, AgentExecutionTrace right) =>
         string.Equals(left.RunId, right.RunId, StringComparison.Ordinal)
-        && string.Equals(left.TaskId, right.TaskId, StringComparison.Ordinal)
+        && string.Equals(left.TaskId, right.TaskId, StringComparison.OrdinalIgnoreCase)
         && left.AgentType == right.AgentType;
 
     /// <summary>
