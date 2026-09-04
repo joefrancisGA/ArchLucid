@@ -338,7 +338,7 @@ export function FindingDetailInspectBody({ presentation }: Props) {
               summaryLine="Ask, ITSM workflow, and feedback"
             >
               <div className="space-y-4">
-                <FindingAskInlinePanel findingId={decodedFindingId} />
+                <FindingAskInlinePanel findingId={decodedFindingId} runId={runId} />
                 <FindingInspectItsmWorkflowPanel findingId={decodedFindingId} />
                 {isOperatorExperienceFullShellEnv() ? (
                   <ProductLearningFeedbackControls
