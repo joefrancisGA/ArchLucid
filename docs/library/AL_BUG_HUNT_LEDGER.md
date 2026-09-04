@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 150
-- **bugs-found:** 351
+- **hunts:** 151
+- **bugs-found:** 353
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — simulate/dry-run/pre-commit run-id and waiver renew HTTP validation guards
+- **last-bug:** 2026-09-04 — PolicyPacks simulate/bulk run-id HTTP validation guards
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3924,6 +3924,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernancePreCommitSimulationController.GetChecklistAsync` / `SimulateAsync` — overlong route/body `runId` reached scoped `IRunRepository` lookup without shared 64-char cap (#688/#690 sibling) — **hit 2026-09-04 (#691):** shared `ValidateGovernanceRunId` before trim/parse; regression in `GovernancePreCommitSimulationControllerTests`.
 
 2026-09-04 seed hunt #691: promoted and proved waiver create/renew HTTP rationale guards, simulate/dry-run run-id caps, and pre-commit simulation run-id caps.
+
+- [x] (proven) `PolicyPacksController.Simulate` — overlong body `runId` reached `IPolicyPackHttpFacade.SimulateAsync` without shared `ValidateGovernanceRunId` guard (`GovernanceController.Simulate` #691 sibling) — **hit 2026-09-04 (#692):** shared run-id max-length validation before simulate facade; regression in `PolicyPacksControllerSimulateTests.Simulate_returns_bad_request_when_run_id_exceeds_max_length`.
+
+- [x] (proven) `PolicyPacksController.SimulateBulk` — overlong `runIds` entry reached `SimulateBulkAsync` without per-id `ValidateGovernanceRunId` guard (`GovernanceController.DryRunPolicyPack` #691 sibling) — **hit 2026-09-04 (#692):** shared run-id max-length validation in bulk loop before facade; regression in `PolicyPacksControllerSimulateBulkScopeTests.SimulateBulk_returns_bad_request_when_run_id_exceeds_max_length`.
+
+2026-09-04 seed hunt #692: promoted and proved PolicyPacks simulate and simulate-bulk run-id HTTP validation parity.
 
 2026-09-04 seed hunt #685: promoted and proved recurrence preview cron max-length parity and single approve/reject review-comment cap parity with batch review.
 
