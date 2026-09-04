@@ -1,5 +1,13 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => ({ isWorkingMode: true, mode: "working" }),
+}));
+
+vi.mock("@/components/governance/GovernanceRecordCorrectionDialog", () => ({
+  GovernanceRecordCorrectionDialog: () => null,
+}));
 
 import { RunDetailReviewPackageDecisionReceiptStrip } from "./RunDetailReviewPackageDecisionReceiptStrip";
 
@@ -18,6 +26,7 @@ describe("RunDetailReviewPackageDecisionReceiptStrip (WA-13)", () => {
 
     expect(screen.getByTestId("run-detail-stamp-decision-receipt-strip")).toBeInTheDocument();
     expect(screen.getByTestId("decision-receipt-export")).toBeInTheDocument();
+    expect(screen.getByTestId("review-finalize-record-correction")).toBeInTheDocument();
   });
 
   it("renders nothing when no feasibility verdict is available", () => {

@@ -216,7 +216,23 @@ public sealed class GovernanceMutationCorrectionService(
             return;
         }
 
+        if (mutationKind == GovernanceMutationCorrectionKinds.ArchitectureReviewFinalize)
+        {
+            ValidateArchitectureReviewFinalizeSubject(subjectId, normalizedRunId);
+
+            return;
+        }
+
         throw new ArgumentException($"Mutation kind '{mutationKind}' does not support in-product correction.", nameof(mutationKind));
+    }
+
+    private static void ValidateArchitectureReviewFinalizeSubject(string subjectId, string normalizedRunId)
+    {
+        if (!string.Equals(subjectId, normalizedRunId, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new KeyNotFoundException(
+                $"Review finalize correction subject must match run id '{normalizedRunId}'.");
+        }
     }
 
     private async Task ValidateFindingDispositionSubjectAsync(

@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { GovernanceRecordCorrectionInlineControl } from "@/components/governance/GovernanceRecordCorrectionInlineControl";
 import { LongOperationWaitNotice } from "@/components/LongOperationWaitNotice";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { PreCommitGovernanceBlockPanel } from "@/components/PreCommitGovernanceBlockPanel";
@@ -43,6 +44,7 @@ import {
   parseReviewFinalizeSuccessOpenFromSearch,
   reviewFinalizeConfirmHrefFromSearch,
 } from "@/lib/reviews/review-finalize-confirm-url";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 
 /** Nav and review-detail copy  —  replay/compare stay available post-finalize (see UI_GLOSSARY_V1). */
 export const FINALIZE_REPLAY_COMPARE_TOOLTIP = FINALIZE_REPLAY_COMPARE_NOTE;
@@ -66,6 +68,7 @@ export function CommitRunButton({
   commitBlockedReason = null,
   buttonVariant = "primary",
 }: CommitRunButtonProps) {
+  const { isWorkingMode } = useWorkspaceMode();
   const router = useRouter();
   const pathname = usePathname() ?? `/architecture/reviews/${encodeURIComponent(runId)}`;
   const searchParams = useSearchParams();
@@ -314,6 +317,16 @@ export function CommitRunButton({
             <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
               Continue your analysis with advanced tools:
             </p>
+            {isWorkingMode ? (
+              <GovernanceRecordCorrectionInlineControl
+                target={{
+                  mutationKind: "governance_architecture_review_finalize",
+                  subjectId: runId,
+                  runId,
+                }}
+                testId="commit-run-finalize-record-correction"
+              />
+            ) : null}
             <div className="flex flex-col gap-2">
               <Button variant="outline" asChild className="justify-start">
                 <Link href="#sponsor-handoff">Send to sponsor</Link>

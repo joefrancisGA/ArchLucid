@@ -37,10 +37,6 @@ export const PRODUCTION_DESK_CHROME_EVAL_GRANDFATHERED_PATHS = [
   "app/(operator)/architecture/architecture-intelligence/_sections/use-architecture-intelligence-product-context.ts",
   "app/(operator)/architecture/architectures/new/_sections/ArchitecturesNewPageSubtitle.tsx",
   "app/(operator)/architecture/architectures/_sections/ArchitecturesHubPageSubtitle.tsx",
-  "app/(operator)/architecture/reviews/new/NewRunWizardStepBody.tsx",
-  "app/(operator)/architecture/reviews/new/ReviewsNewHeaderActions.tsx",
-  "app/(operator)/architecture/reviews/new/ReviewsNewPageShell.tsx",
-  "app/(operator)/architecture/reviews/new/SocraticIntakeWizard.tsx",
   "app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/FindingInspectAuditSection.tsx",
   "app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/FindingInspectEvidenceSection.tsx",
   "app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/FindingInspectFindingBody.tsx",
@@ -317,6 +313,16 @@ export const PRODUCTION_DESK_CHROME_EVAL_MIGRATED_SURFACES: readonly ErrorRecove
   {
     id: "run-detail-evidence-tab",
     sourceRoots: ["app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailEvidenceTabPanel.tsx"],
+    requiredMarkers: ["useProductionEvalChrome"],
+  },
+  {
+    id: "reviews-new-intake-cluster",
+    sourceRoots: [
+      "app/(operator)/architecture/reviews/new/SocraticIntakeWizard.tsx",
+      "app/(operator)/architecture/reviews/new/NewRunWizardStepBody.tsx",
+      "app/(operator)/architecture/reviews/new/ReviewsNewHeaderActions.tsx",
+      "app/(operator)/architecture/reviews/new/ReviewsNewPageShell.tsx",
+    ],
     requiredMarkers: ["useProductionEvalChrome"],
   },
 ] as const;

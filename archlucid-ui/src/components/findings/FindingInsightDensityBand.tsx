@@ -23,7 +23,7 @@ function densityBandKind(
   bandId: "decision-grade" | "review" | "generic",
 ): "ready" | "needs-attention" | "neutral" {
   if (bandId === "decision-grade") {
-    return "ready";
+    return "neutral";
   }
 
   if (bandId === "generic") {
@@ -55,7 +55,6 @@ export function FindingInsightDensityBand(props: FindingInsightDensityBandProps)
         label={label}
         data-testid={`finding-insight-density-band-tag-${props.findingId}`}
         className="w-fit"
-        title={showHonestyLine ? INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE : undefined}
         aria-label={
           showHonestyLine ? `${label}. ${INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE}` : label
         }
