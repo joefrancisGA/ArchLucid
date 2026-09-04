@@ -2547,11 +2547,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 13
-- **bugs-found:** 22
+- **hunts:** 14
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — relationship-type unknown alias silent downgrade; architecture-finding PascalCase message alias gap
+- **last-hunt:** 2026-09-04
+- **last-bug:** 2026-09-04 — architecture-finding and agent-result PascalCase property parity gaps
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2587,6 +2587,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArchitectureFindingJsonConverter.ReadMessage` — PascalCase `Description` / `Message` / `Title` / `Detail` ignored while `severity`/`treatment`/`classification` already used `TryGetPropertyIgnoreCase` — **hit 2026-09-03 (#542):** case-insensitive lookup for message aliases and `recommendation`; regression in `ArchitectureFindingJsonConverterTests.Deserialize_pascal_case_description_maps_message`.
 
 2026-09-03 seed hunt #542: proved relationship-type unknown-alias downgrade and architecture-finding PascalCase message alias gap.
+
+- [x] (proven) `ArchitectureFindingJsonConverter.Read` — PascalCase `Category` / `EvidenceRefs` / `FindingId` / `PolicyRuleId` / insight-density scalars ignored while `severity`/`treatment`/`classification` already used `TryGetPropertyIgnoreCase` — **hit 2026-09-04 (#663):** case-sensitive `TryGetProperty` left category empty and evidence refs dropped on PascalCase LLM payloads; fixed with ignore-case lookup for remaining scalar/array fields; regressions in `Deserialize_pascal_case_description_maps_message` and `Deserialize_pascal_case_evidence_refs_extracts_id_property`.
+- [x] (proven) `AgentResultJsonConverter.MergeClaimEvidenceRefs` — PascalCase `Claims` skipped structured claim `evidenceRefs` merge — **hit 2026-09-04 (#663):** case-sensitive `TryGetProperty("claims")` while payload deserialize is case-insensitive; fixed with `TryGetPropertyIgnoreCase`; regression in `Deserialize_merges_structured_claim_evidence_refs_when_claims_property_is_pascal_case`.
+- [ ] (candidate) `ServiceTypeJsonConverter` / `RuntimePlatformJsonConverter` / `DatastoreTypeJsonConverter` — unknown LLM alias labels silently map to `Unknown` while `RelationshipTypeJsonConverter` throws on unknown labels.
+- [ ] (candidate) `RelationshipTypeJsonConverter.Read` — whitespace relationship label returns default `Calls` instead of throwing like unknown labels.
+
+2026-09-04 seed hunt #663: proved architecture-finding scalar/array PascalCase parity and agent-result PascalCase claims evidence-ref merge gap; reseeded topology enum unknown-alias downgrade candidates.
 
 2026-08-31 seed hunt #332 (hit): proved object-shaped claim `evidenceRefs` dropped in `AgentResultJsonConverter`; seeded numeric/PascalCase insight-density fields, `FindingConfidenceLevel` ordinal, and comma-delimiter brief sentinel candidates.
 
