@@ -109,11 +109,21 @@ function normalizeInline(value: string): string {
 /**
  * Client-side sponsor report markdown export from `/v1/roi/sponsor-report`.
  */
-export function buildSponsorSummaryMarkdown(summary: SponsorRoiSummary): string {
+export function buildSponsorSummaryMarkdown(
+  summary: SponsorRoiSummary,
+  options?: { readonly reviewHonestyMarkdown?: string },
+): string {
   const lines: string[] = [];
 
   lines.push("# Sponsor report — portfolio ROI");
   lines.push("");
+
+  const reviewHonestyMarkdown = options?.reviewHonestyMarkdown?.trim() ?? "";
+
+  if (reviewHonestyMarkdown.length > 0) {
+    lines.push(reviewHonestyMarkdown);
+    lines.push("");
+  }
   lines.push(`- **Scope (headline):** ${resolveSponsorHeadlineScopeLabel(summary)}`);
 
   if (summary.basisBreakdown) {

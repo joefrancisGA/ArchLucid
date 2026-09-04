@@ -38,6 +38,7 @@ import { SponsorDashboardBaselineWarningBanner } from "./SponsorDashboardBaselin
 import { ArchitectureSponsorDashboardClaimOrientationStrip } from "./ArchitectureSponsorDashboardClaimOrientationStrip";
 import { SponsorDashboardLatestFinalizedReviewStrip } from "./SponsorDashboardLatestFinalizedReviewStrip";
 import { SponsorDashboardPickReviewBeforeKpisStrip } from "./SponsorDashboardPickReviewBeforeKpisStrip";
+import { SponsorDashboardReviewCoverageHonestyStrip } from "@/components/sponsor/SponsorDashboardReviewCoverageHonestyStrip";
 import { SponsorRoiDashboardNextReviewFooterClient } from "./SponsorRoiDashboardNextReviewFooterClient";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import {
@@ -172,6 +173,7 @@ function SponsorRoiDashboardPortfolioSections({
             emphasizedStepId={sponsorDashboardKpiChecklistEmphasizedStepId}
             testIdPrefix="sponsor-dashboard-kpi"
           />
+          <SponsorDashboardReviewCoverageHonestyStrip runId={selectedReviewId} />
         </>
       ) : null}
 
@@ -217,6 +219,7 @@ function SponsorRoiDashboardPortfolioSections({
             loading={summaryLoading}
             summaryError={summaryError}
             surface={surface}
+            scopedReviewId={selectedReviewId}
           />
         </section>
       ) : null}
