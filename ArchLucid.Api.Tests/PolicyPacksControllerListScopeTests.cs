@@ -180,6 +180,26 @@ public sealed class PolicyPacksControllerListScopeTests
     }
 
     [Fact]
+    public void CreatePolicyPackRequest_deserialization_rejects_missing_initial_content_json()
+    {
+        Action act = () => JsonSerializer.Deserialize<CreatePolicyPackRequest>(
+            """{"name":"baseline","packType":"TenantCustom"}""",
+            ArchLucidApiJsonSerializerOptions.Web);
+
+        act.Should().Throw<JsonException>();
+    }
+
+    [Fact]
+    public void AssignPolicyPackRequest_deserialization_rejects_missing_is_pinned()
+    {
+        Action act = () => JsonSerializer.Deserialize<AssignPolicyPackRequest>(
+            """{"version":"1.0.0"}""",
+            ArchLucidApiJsonSerializerOptions.Web);
+
+        act.Should().Throw<JsonException>();
+    }
+
+    [Fact]
     public async Task Create_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(

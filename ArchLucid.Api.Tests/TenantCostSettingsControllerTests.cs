@@ -174,6 +174,56 @@ public sealed class TenantCostSettingsControllerTests
     }
 
     [Fact]
+    public async Task PutAsync_preserves_ea_discount_multiplier_when_ea_fields_omitted()
+    {
+        TenantCostSettingsRecord existing = new()
+        {
+            TenantId = Scope.TenantId,
+            ArchitectHourlyRateUsd = 180m,
+            AverageIncidentCostUsd = 20_000m,
+            EaDiscountMultiplier = 0.85m,
+            UpdatedUtc = DateTimeOffset.Parse("2026-06-01T08:00:00Z"),
+            UpdatedByActorId = "prior",
+        };
+
+        Mock<ITenantCostSettingsRepository> repository = new();
+        repository
+            .Setup(r => r.TryGetAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
+        repository
+            .Setup(r => r.UpsertAsync(It.IsAny<TenantCostSettingsRecord>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantCostSettingsController controller = CreateController(
+            repository.Object,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>());
+
+        TenantCostSettingsPutRequest body = new()
+        {
+            ArchitectHourlyRateUsd = 200m,
+            AverageIncidentCostUsd = 30_000m,
+        };
+
+        IActionResult action = await controller.PutAsync(body, CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        TenantCostSettingsGetResponse saved = ok.Value.Should().BeOfType<TenantCostSettingsGetResponse>().Subject;
+
+        saved.EaDiscountMultiplier.Should().Be(0.85m);
+        saved.EaDiscountPercentage.Should().Be(15m);
+
+        repository.Verify(
+            r => r.UpsertAsync(
+                It.Is<TenantCostSettingsRecord>(row => row.EaDiscountMultiplier == 0.85m),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task PutAsync_persists_row_and_returns_configured_response()
     {
         Mock<ITenantCostSettingsRepository> repository = new();

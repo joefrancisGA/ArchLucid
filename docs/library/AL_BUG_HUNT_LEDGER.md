@@ -3296,11 +3296,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 187
-- **bugs-found:** 396
+- **hunts:** 188
+- **bugs-found:** 400
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — digest preferences POST omitted emailEnabled bound to false
+- **last-bug:** 2026-09-04 — cost-settings PUT omitted EA fields reset stored discount multiplier
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4231,6 +4231,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `TenantExecDigestPreferencesController.PostExecDigestPreferences` — omitted `dayOfWeek` / `hourOfDay` silently default to Monday 08:00 (`?? 1`, `?? 8`) instead of HTTP 400 validation — **cheap-disproof 2026-09-04 (#758):** defaults match `ExecDigestPreferencesResponse.Unconfigured` schedule fields; intentional partial-upsert semantics; regression in `PostExecDigestPreferences_applies_default_schedule_when_day_of_week_and_hour_omitted`.
 
 2026-09-04 thorough hunt #758 (hit): proved digest preferences omitted `emailEnabled`; cheap-disproved silent schedule-default candidate.
+
+- [x] (proven) `PolicyPacksController.Create` / `CreatePolicyPackRequest` — omitted `initialContentJson` published empty `{}` draft via property initializer — **hit 2026-09-04 (#759):** `required string InitialContentJson` + FluentValidation `NotEmpty` (publish `contentJson` #757 parity); regression in `CreatePolicyPackRequest_deserialization_rejects_missing_initial_content_json`.
+- [x] (proven) `PolicyPacksController.Assign` / `AssignPolicyPackRequest` — omitted `isPinned` bound as `false` instead of HTTP 400 — **hit 2026-09-04 (#759):** `required bool IsPinned` (assignment `isEnabled` #757 parity); regression in `AssignPolicyPackRequest_deserialization_rejects_missing_is_pinned`.
+- [x] (proven) `CorePilotTeamChecklistController.PutAsync` / `CorePilotChecklistPutRequest` — omitted `stepIndex` bound as `0` instead of HTTP 400 — **hit 2026-09-04 (#759):** `required int StepIndex` (`isCompleted` #343 parity); regression in `PutRequest_deserialization_rejects_missing_or_null_step_index`.
+- [x] (proven) `TenantCostSettingsController.PutAsync` — partial PUT omitting EA fields reset stored `EaDiscountMultiplier` to `1.0` — **hit 2026-09-04 (#759):** preserve existing multiplier when both EA fields omitted; regression in `PutAsync_preserves_ea_discount_multiplier_when_ea_fields_omitted`.
+- [ ] (candidate) `TenantExecDigestPreferencesController` / `TenantSponsorDigestPreferencesController` — omitted `ianaTimeZoneId` coalesces to `"UTC"` on full upsert and may reset timezone when caller only updates recipients (schedule-default #758 invalid sibling; cheap-disproof before promote).
+
+2026-09-04 seed hunt #759 (hit): proved policy-pack create `initialContentJson`, assign `isPinned`, checklist `stepIndex` omission, and cost-settings EA discount wipe on partial PUT; seeded digest timezone omission candidate.
 
 2026-09-04 seed hunt #757 (hit): proved policy pack assignment `isEnabled` omission and publish `contentJson` omission; seeded digest `emailEnabled` omission and silent schedule-default candidates.
 

@@ -92,11 +92,23 @@ public sealed class TenantCostSettingsController(
                 ProblemTypes.ValidationFailed);
         }
 
-        if (!TryResolveEaDiscountMultiplier(body, out decimal eaDiscountMultiplier, out string? eaValidationError))
+        if (body.EaDiscountPercentage is { } percentage)
         {
-            return this.BadRequestProblem(
-                eaValidationError ?? "EA discount values are invalid.",
-                ProblemTypes.ValidationFailed);
+            if (percentage is < 0m or > 100m)
+            {
+                return this.BadRequestProblem(
+                    "EA discount percentage must be between 0 and 100 (inclusive).",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+        else if (body.EaDiscountMultiplier is { } multiplier)
+        {
+            if (multiplier is <= 0m or > 1m)
+            {
+                return this.BadRequestProblem(
+                    "EA discount multiplier must be between 0 (exclusive) and 1 (inclusive).",
+                    ProblemTypes.ValidationFailed);
+            }
         }
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
@@ -104,6 +116,11 @@ public sealed class TenantCostSettingsController(
 
         if (tenant is null)
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
+        TenantCostSettingsRecord? existing =
+            await _repository.TryGetAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        decimal eaDiscountMultiplier = ResolveEaDiscountMultiplier(body, existing);
 
         string actor = User.Identity?.Name ?? "operator";
         DateTimeOffset updatedUtc = TimeProvider.System.GetUtcNow();
@@ -172,40 +189,19 @@ public sealed class TenantCostSettingsController(
         };
     }
 
-    private static bool TryResolveEaDiscountMultiplier(
+    private static decimal ResolveEaDiscountMultiplier(
         TenantCostSettingsPutRequest body,
-        out decimal eaDiscountMultiplier,
-        out string? validationError)
+        TenantCostSettingsRecord? existing)
     {
         if (body.EaDiscountPercentage is { } percentage)
-        {
-            if (percentage is < 0m or > 100m)
-            {
-                eaDiscountMultiplier = 0m;
-                validationError = "EA discount percentage must be between 0 and 100 (inclusive).";
+            return TenantEaDiscountMath.MultiplierFromPercentage(percentage);
 
-                return false;
-            }
+        if (body.EaDiscountMultiplier is { } multiplier)
+            return multiplier;
 
-            eaDiscountMultiplier = TenantEaDiscountMath.MultiplierFromPercentage(percentage);
-            validationError = null;
+        if (existing is not null && existing.EaDiscountMultiplier > 0m)
+            return existing.EaDiscountMultiplier;
 
-            return true;
-        }
-
-        decimal multiplier = body.EaDiscountMultiplier ?? 1.0m;
-
-        if (multiplier is <= 0m or > 1m)
-        {
-            eaDiscountMultiplier = 0m;
-            validationError = "EA discount multiplier must be between 0 (exclusive) and 1 (inclusive).";
-
-            return false;
-        }
-
-        eaDiscountMultiplier = multiplier;
-        validationError = null;
-
-        return true;
+        return 1.0m;
     }
 }
