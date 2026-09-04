@@ -1,5 +1,8 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
+using ArchLucid.Api.Serialization;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -85,6 +88,18 @@ public sealed class TenantCostSettingsControllerTests
         repository.Verify(
             r => r.TryGetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Theory]
+    [InlineData("{\"averageIncidentCostUsd\":25000}", "missing architectHourlyRateUsd")]
+    [InlineData("{\"architectHourlyRateUsd\":200}", "missing averageIncidentCostUsd")]
+    public void PutRequest_deserialization_rejects_missing_rate_fields(string payload, string because)
+    {
+        Action act = () => JsonSerializer.Deserialize<TenantCostSettingsPutRequest>(
+            payload,
+            ArchLucidApiJsonSerializerOptions.Web);
+
+        act.Should().Throw<JsonException>(because);
     }
 
     [Fact]

@@ -57,6 +57,14 @@ public sealed partial class TenantBaselineController
                 ProblemTypes.ValidationFailed);
         }
 
+        if (body.BaselineReviewCycleSourceNote is not null
+            && string.IsNullOrWhiteSpace(body.BaselineReviewCycleSourceNote))
+        {
+            return this.BadRequestProblem(
+                "Baseline review-cycle source note cannot be empty or whitespace.",
+                ProblemTypes.ValidationFailed);
+        }
+
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         TenantRecord? existing = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
 
