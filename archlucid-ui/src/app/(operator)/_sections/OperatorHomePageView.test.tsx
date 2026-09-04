@@ -1,6 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+const evalChromeShellState = vi.hoisted(() => ({ current: false }));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => evalChromeShellState.current,
+}));
+
 vi.mock("next/navigation", () => ({
   usePathname: () => "/",
   useSearchParams: () => new URLSearchParams(),
@@ -62,6 +68,11 @@ vi.mock("@/components/operator/OperatorPageContainer", () => ({
 
 vi.mock("@/components/operator-home/operator-home-workspace-activity-context", () => ({
   OperatorHomeWorkspaceActivityProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  useOperatorHomeWorkspaceActivity: () => ({
+    hasReviews: false,
+    hasOverviewReviewRows: false,
+    openFindingsCount: 0,
+  }),
 }));
 
 vi.mock("@/components/operator-home/OperatorHomeDeferredPanels", () => ({
@@ -114,6 +125,8 @@ const mockRunsDashboard: OperatorHomePageViewModel["runsDashboard"] = {
 };
 
 function mockHomeModel(buyerPolishedShell: boolean): OperatorHomePageViewModel {
+  evalChromeShellState.current = buyerPolishedShell;
+
   return {
     buyerPolishedShell,
     runsDashboard: { ...mockRunsDashboard, buyerPolishedShell },
@@ -198,6 +211,8 @@ describe("OperatorHomePageView", () => {
   it.each([false, true])(
     "does not mount the stickiness cockpit on returning home (buyerPolishedShell=%s)",
     (buyerPolishedShell) => {
+      evalChromeShellState.current = buyerPolishedShell;
+
       render(
         <OperatorHomePageView
           model={{
@@ -245,6 +260,8 @@ describe("OperatorHomePageView", () => {
   );
 
   it("does not show the attention kind strip on home (TB-2353)", () => {
+    evalChromeShellState.current = false;
+
     render(
       <OperatorHomePageView
         model={{
