@@ -25,10 +25,16 @@ import {
 } from "@/lib/governance/governance-mutation-outcome-copy";
 import { recordBulkFindingDisposition, type FindingDispositionKind } from "@/lib/api/governance-stickiness-api";
 
+export type BulkDispositionSucceededPayload = {
+  readonly message: string;
+  readonly undo?: () => Promise<void>;
+  readonly correctionFindingIds: readonly string[];
+};
+
 type GovernanceFindingsBulkActionsProps = {
   readonly selectedFindingIds: readonly string[];
   readonly onApplied: () => void;
-  readonly onDispositionSucceeded: (message: string, undo?: () => Promise<void>) => void;
+  readonly onDispositionSucceeded: (payload: BulkDispositionSucceededPayload) => void;
 };
 
 type BulkDisposition = Extract<FindingDispositionKind, "Accepted" | "RejectedAsNotApplicable" | "Deferred">;
@@ -113,23 +119,27 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
 
       const undoRationale = `Undo: deferred for revisit after bulk ${disposition.toLowerCase()}.`;
 
-      props.onDispositionSucceeded(successMessage, async () => {
-        const undoResult = await recordBulkFindingDisposition(
-          {
-            findingIds,
-            disposition: "Deferred",
-            rationale: undoRationale,
-            revisitDueUtc: computeFindingDispositionRevisitDueUtc(),
-          },
-          { idempotencyKey: createGovernanceMutationIdempotencyKey() },
-        );
+      props.onDispositionSucceeded({
+        message: successMessage,
+        undo: async () => {
+          const undoResult = await recordBulkFindingDisposition(
+            {
+              findingIds,
+              disposition: "Deferred",
+              rationale: undoRationale,
+              revisitDueUtc: computeFindingDispositionRevisitDueUtc(),
+            },
+            { idempotencyKey: createGovernanceMutationIdempotencyKey() },
+          );
 
-        if (undoResult.processedCount !== findingIds.length) {
-          throw new Error(GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE);
-        }
+          if (undoResult.processedCount !== findingIds.length) {
+            throw new Error(GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE);
+          }
 
-        props.onApplied();
-        router.refresh();
+          props.onApplied();
+          router.refresh();
+        },
+        correctionFindingIds: findingIds,
       });
       props.onApplied();
       setReason("");
