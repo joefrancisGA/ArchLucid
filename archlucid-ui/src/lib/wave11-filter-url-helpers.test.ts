@@ -1415,7 +1415,7 @@ describe("wave27 filter url helpers", () => {
     expect(
       findingInspectGovernancePanelHrefFromSearch(
         "",
-        { panel: "remediation", waiverConfirmOpen: true },
+        { panel: "remediation", waiverConfirmOpen: true, waiverRevokeConfirmOpen: false },
         "/architecture/reviews/r1/findings/f1/inspect",
       ),
     ).toBe("/architecture/reviews/r1/findings/f1/inspect?govPanel=remediation&waiverConfirm=1");
@@ -1867,6 +1867,116 @@ describe("wave30 filter url helpers", () => {
         "/architecture/reviews/r1",
       ),
     ).toBe("/architecture/reviews/r1?reviewTab=findings&clusterKey=cluster-a&clusterDisp=accepted");
+  });
+});
+
+describe("wave31 filter url helpers", () => {
+  it("slack disable, teams remove, composite create confirm, wallet and SAML save confirms", async () => {
+    const {
+      parseSlackDisableIdFromSearch,
+      slackDisableRouteHrefFromSearch,
+    } = await import("@/lib/integrations/slack-disable-route-url");
+    const {
+      parseTeamsRemoveConfirmOpenFromSearch,
+      teamsNotificationsRemoveConfirmHrefFromSearch,
+    } = await import("@/lib/integrations/teams-notifications-remove-confirm-url");
+    const {
+      compositeAlertRulesPanelsHrefFromSearch,
+      parseCompositeAlertRulesCreateConfirmOpenFromSearch,
+    } = await import("@/lib/alerts/composite-alert-rules-panels-url");
+    const {
+      billingWalletSaveConfirmHrefFromSearch,
+      parseBillingWalletSaveConfirmOpenFromSearch,
+    } = await import("@/lib/administration/billing-wallet-save-confirm-url");
+    const {
+      parseSamlSaveConfirmOpenFromSearch,
+      samlSaveConfirmHrefFromSearch,
+    } = await import("@/lib/administration/saml-save-confirm-url");
+
+    expect(parseSlackDisableIdFromSearch("sub-1")).toBe("sub-1");
+    expect(slackDisableRouteHrefFromSearch("", "sub-1")).toBe("/integrations/slack?slackDisableId=sub-1");
+    expect(parseTeamsRemoveConfirmOpenFromSearch("1")).toBe(true);
+    expect(teamsNotificationsRemoveConfirmHrefFromSearch("", true)).toBe(
+      "/integrations/teams?teamsRemoveConfirm=1",
+    );
+    expect(parseCompositeAlertRulesCreateConfirmOpenFromSearch("true")).toBe(true);
+    expect(
+      compositeAlertRulesPanelsHrefFromSearch("create=1", { showCreateConfirm: true }),
+    ).toBe("/governance/alert-rules?create=1&compositeCreateConfirm=1");
+    expect(parseBillingWalletSaveConfirmOpenFromSearch("1")).toBe(true);
+    expect(billingWalletSaveConfirmHrefFromSearch("", true)).toBe(
+      "/administration/billing?walletSaveConfirm=1",
+    );
+    expect(parseSamlSaveConfirmOpenFromSearch("1")).toBe(true);
+    expect(samlSaveConfirmHrefFromSearch("", true)).toBe(
+      "/administration/identity-providers/saml?samlSaveConfirm=1",
+    );
+  });
+
+  it("engine reset, model profile action, SSO cancel, saved view delete, waiver revoke confirms", async () => {
+    const {
+      modelGovernanceEngineResetConfirmHrefFromSearch,
+      parseModelGovernanceEngineResetConfirmOpenFromSearch,
+    } = await import("@/lib/administration/model-governance-engine-reset-confirm-url");
+    const {
+      modelGovernanceProfileActionConfirmHrefFromSearch,
+      parseModelGovernanceProfileActionFromSearch,
+      parseModelGovernanceProfileIdFromSearch,
+    } = await import("@/lib/administration/model-governance-profile-action-confirm-url");
+    const {
+      parseSsoWizardCancelConfirmOpenFromSearch,
+      ssoWizardHrefFromSearch,
+      SSO_WIZARD_PATH,
+    } = await import("@/lib/administration/sso-wizard-step-url");
+    const {
+      operatorSavedViewPanelsHrefFromSearch,
+      parseOperatorSavedViewDeleteConfirmOpenFromSearch,
+    } = await import("@/lib/operator/operator-saved-view-url");
+    const {
+      findingInspectGovernancePanelHrefFromSearch,
+      parseFindingInspectWaiverRevokeConfirmOpenFromSearch,
+    } = await import("@/lib/findings/finding-inspect-governance-panel-url");
+
+    expect(parseModelGovernanceEngineResetConfirmOpenFromSearch("1")).toBe(true);
+    expect(modelGovernanceEngineResetConfirmHrefFromSearch("", true)).toBe(
+      "/administration/model-governance?engineResetConfirm=1",
+    );
+    expect(parseModelGovernanceProfileActionFromSearch("select")).toBe("select");
+    expect(parseModelGovernanceProfileIdFromSearch("Balanced")).toBe("Balanced");
+    expect(
+      modelGovernanceProfileActionConfirmHrefFromSearch("", {
+        action: "select",
+        profileId: "Balanced",
+      }),
+    ).toBe("/administration/model-governance?modelProfileAction=select&modelProfileId=Balanced");
+    expect(
+      modelGovernanceProfileActionConfirmHrefFromSearch("", {
+        action: "clear",
+        profileId: null,
+      }),
+    ).toBe("/administration/model-governance?modelProfileAction=clear");
+    expect(parseSsoWizardCancelConfirmOpenFromSearch("1")).toBe(true);
+    expect(
+      ssoWizardHrefFromSearch("step=2", { stepIndex: 2, cancelConfirmOpen: true }, SSO_WIZARD_PATH),
+    ).toBe("/administration/identity/sso-wizard?step=2&ssoCancelConfirm=1");
+    expect(parseOperatorSavedViewDeleteConfirmOpenFromSearch("true")).toBe(true);
+    expect(
+      operatorSavedViewPanelsHrefFromSearch(
+        "viewId=v1",
+        { viewId: "v1", deleteConfirmOpen: true },
+        "/governance/audit",
+      ),
+    ).toBe("/governance/audit?viewId=v1&savedViewDeleteConfirm=1");
+    expect(parseFindingInspectWaiverRevokeConfirmOpenFromSearch("1")).toBe(true);
+    expect(
+      findingInspectGovernancePanelHrefFromSearch(
+        "govPanel=waiver",
+        { panel: "waiver", waiverConfirmOpen: false, waiverRevokeConfirmOpen: true },
+        "/architecture/reviews/r1/findings/f1/inspect",
+      ),
+    ).toBe(
+      "/architecture/reviews/r1/findings/f1/inspect?govPanel=waiver&waiverRevokeConfirm=1",
+    );
   });
 });
 
