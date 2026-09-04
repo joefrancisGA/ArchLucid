@@ -293,7 +293,28 @@ public sealed class ArchitectureFindingJsonConverterTests
 
         finding.Should().NotBeNull();
         finding!.Severity.Should().Be(FindingSeverity.Error);
+        finding.Category.Should().Be("Compliance");
         finding.Message.Should().Be("Private endpoints required.");
+    }
+
+    [Fact]
+    public void Deserialize_pascal_case_evidence_refs_extracts_id_property()
+    {
+        const string json = """
+                            {
+                              "Severity": "Warning",
+                              "Category": "Compliance",
+                              "Message": "Policy gap on private endpoints.",
+                              "EvidenceRefs": [{ "id": "pol-456" }]
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        ArchitectureFinding? finding = JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.EvidenceRefs.Should().ContainSingle().Which.Should().Be("pol-456");
     }
 
     private static JsonSerializerOptions CreateOptions()

@@ -156,6 +156,25 @@ describe("operator-scope-storage", () => {
     expect(queryClient.getQueryData(operatorQueryKeys.billingSubscriptionStatus)).toBeUndefined();
   });
 
+  it("writeOperatorScopeToStorage_clears_user_attention_summary_cache", () => {
+    const queryClient = getOperatorQueryClient();
+    queryClient.setQueryData(operatorQueryKeys.userAttentionSummary, {
+      assignedToMeFindingsCount: 9,
+      awaitingApprovalCount: 2,
+      alertsOpenCount: 1,
+    });
+
+    writeOperatorScopeToStorage({
+      tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      workspaceId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      projectId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      workspaceLabel: "WS",
+      projectLabel: "PR",
+    });
+
+    expect(queryClient.getQueryData(operatorQueryKeys.userAttentionSummary)).toBeUndefined();
+  });
+
   it("writeOperatorScopeToStorage_clears_welcome_onboarding_dismissal", () => {
     localStorage.setItem(HAS_SEEN_ONBOARDING_STORAGE_KEY, "true");
 

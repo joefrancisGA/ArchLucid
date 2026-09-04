@@ -49,7 +49,7 @@ public sealed class TrialScheduledLifecycleEmailScanner(
         IReadOnlyList<TenantRecord> tenants = await _tenantRepository.ListAsync(cancellationToken).ConfigureAwait(false);
         foreach (TenantRecord tenant in tenants)
         {
-            if (!string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.OrdinalIgnoreCase))
+            if (!TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Active))
                 continue;
             TenantWorkspaceLink? workspaceLink = await _tenantRepository.GetFirstWorkspaceAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
             if (workspaceLink is null)

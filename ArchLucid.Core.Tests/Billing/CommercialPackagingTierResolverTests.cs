@@ -40,6 +40,16 @@ public sealed class CommercialPackagingTierResolverTests
     }
 
     [SkippableFact]
+    public void ResolveCommercialTierLabel_returns_null_for_padded_active_trial_status()
+    {
+        TenantRecord tenant = PaidTenant(TenantTier.Standard, " active ");
+
+        string? label = CommercialPackagingTierResolver.ResolveCommercialTierLabel(tenant, null, 1, 2);
+
+        label.Should().BeNull();
+    }
+
+    [SkippableFact]
     public void ResolveCommercialTierLabel_returns_team_for_active_subscription_within_team_caps()
     {
         TenantRecord tenant = PaidTenant(TenantTier.Standard);

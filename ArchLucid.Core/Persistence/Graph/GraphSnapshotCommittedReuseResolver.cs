@@ -103,7 +103,10 @@ public static class GraphSnapshotCommittedReuseResolver
         string? storedContextFingerprint = ReadContextProperty(graph, ContextCanonicalFingerprintKey);
 
         if (string.IsNullOrEmpty(storedContextFingerprint)
-            || !string.Equals(storedContextFingerprint, expectedContextFingerprint, StringComparison.Ordinal))
+            || !string.Equals(
+                storedContextFingerprint.Trim(),
+                expectedContextFingerprint.Trim(),
+                StringComparison.Ordinal))
         {
             return false;
         }
@@ -113,7 +116,10 @@ public static class GraphSnapshotCommittedReuseResolver
         string? storedModelFingerprint = ReadContextProperty(graph, KnowledgeModelFingerprintKey);
 
         if (string.IsNullOrEmpty(storedModelFingerprint)
-            || !string.Equals(storedModelFingerprint, expectedModelFingerprint, StringComparison.Ordinal))
+            || !string.Equals(
+                storedModelFingerprint.Trim(),
+                expectedModelFingerprint.Trim(),
+                StringComparison.Ordinal))
         {
             return false;
         }
@@ -248,7 +254,7 @@ public static class GraphSnapshotCommittedReuseResolver
         string? stored = ReadContextProperty(graph, propertyKey);
 
         return !string.IsNullOrEmpty(stored)
-               && string.Equals(stored, expected, StringComparison.OrdinalIgnoreCase);
+               && string.Equals(stored.Trim(), expected, StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool PinFingerprintMatchesHeader(
@@ -263,7 +269,7 @@ public static class GraphSnapshotCommittedReuseResolver
         string? storedHex = ReadContextProperty(graph, propertyKey);
 
         return !string.IsNullOrEmpty(storedHex)
-               && string.Equals(storedHex, expectedHex, StringComparison.OrdinalIgnoreCase);
+               && string.Equals(storedHex.Trim(), expectedHex, StringComparison.OrdinalIgnoreCase);
     }
 
     private static string? ReadContextProperty(GraphSnapshot graph, string key)

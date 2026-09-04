@@ -3,6 +3,7 @@ using System.Globalization;
 using ArchLucid.Application.Rendering;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
@@ -29,10 +30,13 @@ public sealed class SponsorOnePagerPdfBuilder(
     IRunDetailQueryService runDetailQuery,
     PilotScorecardBuilder scorecardBuilder,
     IPilotRunDeltaComputer deltaComputer,
+    IFirstValueReportBuilder firstValueReportBuilder,
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions)
 {
     private const string IllustrationOnlyPerPageHeader = "ILLUSTRATION ONLY — not a commitment";
     private readonly IPilotRunDeltaComputer _deltaComputer = deltaComputer ?? throw new ArgumentNullException(nameof(deltaComputer));
+    private readonly IFirstValueReportBuilder _firstValueReportBuilder =
+        firstValueReportBuilder ?? throw new ArgumentNullException(nameof(firstValueReportBuilder));
     private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions = publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
     private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
     private readonly PilotScorecardBuilder _scorecardBuilder = scorecardBuilder ?? throw new ArgumentNullException(nameof(scorecardBuilder));
@@ -51,13 +55,20 @@ public sealed class SponsorOnePagerPdfBuilder(
         if (detail.IsCommitted && !detail.HasBrokenManifestReference)
             AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId);
 
+        string footer = string.IsNullOrWhiteSpace(baseUrlForFooter) ? "http://localhost:5000" : baseUrlForFooter.Trim().TrimEnd('/');
+        FirstValueReportBuildResult? sponsorGate = await _firstValueReportBuilder.BuildReportAsync(runId, footer, cancellationToken);
+
+        if (sponsorGate is null)
+            return null;
+
+        SponsorFirstValuePdfGate.EnsureCanGenerate(sponsorGate);
+
         PilotRunDeltas deltas = await _deltaComputer.ComputeAsync(detail, cancellationToken);
         DateTimeOffset end = TimeProvider.System.GetUtcNow();
         DateTimeOffset start = end.AddDays(-30);
         PilotScorecardSummary scorecard = await _scorecardBuilder.BuildAsync(start, end, cancellationToken);
         ArchitectureRun run = detail.Run;
         GoldenManifest? manifest = detail.Manifest;
-        string footer = string.IsNullOrWhiteSpace(baseUrlForFooter) ? "http://localhost:5000" : baseUrlForFooter.Trim().TrimEnd('/');
         int denom = Math.Max(1, scorecard.RunsInPeriod);
         double committedRatio = scorecard.RunsWithCommittedManifest / (double)denom;
 
