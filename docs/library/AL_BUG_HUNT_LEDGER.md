@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 145
-- **bugs-found:** 326
+- **hunts:** 146
+- **bugs-found:** 329
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — approval request id max-length validation parity
+- **last-bug:** 2026-09-04 — submit/promote/activate manifest version max-length validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3878,6 +3878,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.SubmitApprovalRequest` — overlong `requestComment` reached submit workflow without controller-level HTTP 400 while FluentValidation caps at 4000 chars (#685 approve/reject sibling) — **hit 2026-09-04 (#686):** shared `ValidateOptionalGovernanceComment` on submit; regression in `GovernanceControllerRunHistoryScopeTests.SubmitApprovalRequest_returns_bad_request_when_request_comment_exceeds_max_length`.
 
 2026-09-04 seed hunt #686: promoted and proved promote approval-request-id max-length parity plus submit/promote governance comment max-length controller guards.
+
+- [x] (proven) `GovernanceController.SubmitApprovalRequest` — overlong body `manifestVersion` reached submit workflow and returned HTTP 404 `ManifestNotFound` instead of HTTP 400 while `ManifestsController` rejects versions over 128 chars (#675 sibling) — **hit 2026-09-04 (#687):** shared `ValidateManifestVersion` before submit workflow; regression in `GovernanceControllerRunHistoryScopeTests.SubmitApprovalRequest_returns_bad_request_when_manifest_version_exceeds_max_length`.
+
+- [x] (proven) `GovernanceController.Promote` — overlong body `manifestVersion` reached promotion workflow and returned HTTP 404 `ManifestNotFound` instead of HTTP 400 while manifest read routes enforce 128-char cap (#675 sibling) — **hit 2026-09-04 (#687):** shared `ValidateManifestVersion` before promote workflow; regression in `GovernanceControllerRunHistoryScopeTests.Promote_returns_bad_request_when_manifest_version_exceeds_max_length`.
+
+- [x] (proven) `GovernanceController.Activate` — overlong body `manifestVersion` reached activation workflow and returned HTTP 404 `ManifestNotFound` instead of HTTP 400 while FluentValidation caps at 128 chars (#675 sibling) — **hit 2026-09-04 (#687):** shared `ValidateManifestVersion` before activate workflow; regression in `GovernanceControllerRunHistoryScopeTests.Activate_returns_bad_request_when_manifest_version_exceeds_max_length`.
+
+2026-09-04 seed hunt #687: promoted and proved submit/promote/activate manifest version max-length controller guards (manifest read-route parity).
 
 2026-09-04 seed hunt #685: promoted and proved recurrence preview cron max-length parity and single approve/reject review-comment cap parity with batch review.
 
