@@ -44,6 +44,13 @@ public static class FindingDispositionValidation
                     nameof(request));
             }
         }
+        else if (!string.IsNullOrWhiteSpace(request.Rationale)
+            && request.Rationale.Trim().Length > MaximumRationaleLength)
+        {
+            throw new ArgumentException(
+                $"Rationale must not exceed {MaximumRationaleLength} characters.",
+                nameof(request));
+        }
 
         if (request.Disposition == Disposition.Accepted)
         {
@@ -75,7 +82,17 @@ public static class FindingDispositionValidation
             throw new ArgumentException("Revisit due date must be in the future when deferring.", nameof(request));
         }
 
-        if (request.Disposition == Disposition.NeedsEvidence && string.IsNullOrWhiteSpace(request.EvidenceRequestText))
-            throw new ArgumentException("Evidence request text is required.", nameof(request));
+        if (request.Disposition == Disposition.NeedsEvidence)
+        {
+            if (string.IsNullOrWhiteSpace(request.EvidenceRequestText))
+                throw new ArgumentException("Evidence request text is required.", nameof(request));
+
+            if (request.EvidenceRequestText.Trim().Length > MaximumRationaleLength)
+            {
+                throw new ArgumentException(
+                    $"Evidence request text must not exceed {MaximumRationaleLength} characters.",
+                    nameof(request));
+            }
+        }
     }
 }

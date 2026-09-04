@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 139
-- **bugs-found:** 311
+- **hunts:** 140
+- **bugs-found:** 313
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — disposition and waiver rationale max-length parity
+- **last-bug:** 2026-09-04 — NeedsEvidence evidence text and optional rationale max-length parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3834,6 +3834,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `GovernanceMutationCorrectionService.ValidateApprovalSubjectAsync` — approve correction on `Promoted` approval returns HTTP 409 — **cheap-disproof 2026-09-04 (#680):** guard requires lifecycle head `Approved`/`Rejected` so corrections attach only before promote/activate advances the workflow; extending to `Promoted`/`Activated` needs explicit product scope.
 
 2026-09-04 seed hunt #680: promoted and proved disposition and waiver rationale max-length parity; cheap-disproved promoted-approval correction lifecycle scope.
+
+- [x] (proven) `FindingDispositionValidation.Validate` / `GovernanceStickinessController.RecordDisposition` — `NeedsEvidence` `evidenceRequestText` longer than 4000 chars returned HTTP 200 while required rationale paths cap at `MaximumRationaleLength` (#680 sibling) — **hit 2026-09-04 (#681):** max-length guard on evidence request text; regression in `FindingDispositionValidationTests.Validate_needs_evidence_rejects_overlong_evidence_request_text`.
+
+- [x] (proven) `FindingDispositionValidation.Validate` / `GovernanceStickinessController.RecordDisposition` — optional `rationale` on `Deferred`/`NeedsEvidence`/`Remediated` longer than 4000 chars returned HTTP 200 while required rationale paths cap at `MaximumRationaleLength` (#680 sibling) — **hit 2026-09-04 (#681):** max-length guard when optional rationale provided; regression in `FindingDispositionValidationTests.Validate_deferred_rejects_overlong_optional_rationale`.
+
+- [x] (invalid) `GovernanceStickinessFacade.CreateRiskExceptionAsync` — invalid waiver body on out-of-scope finding returns HTTP 404 instead of HTTP 400 — **cheap-disproof 2026-09-04 (#681):** `#678` fixed overlong `findingId` at HTTP layer; remaining out-of-scope inspect-first ordering is intentional scope gate before body validation.
+
+2026-09-04 seed hunt #681: promoted and proved NeedsEvidence evidence-request-text and optional-rationale max-length parity; cheap-disproved CreateRiskException inspect-before-body validation order.
 
 2026-09-04 thorough hunt #679: cheap-disproved manifest summary services/datastores cap candidate; proved product-feedback findingRef inspect max-length and mutation-correction rationale max-length parity.
 
