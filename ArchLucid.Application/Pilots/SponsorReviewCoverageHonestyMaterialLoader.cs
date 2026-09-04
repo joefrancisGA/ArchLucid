@@ -1,6 +1,5 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Metadata;
-using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
