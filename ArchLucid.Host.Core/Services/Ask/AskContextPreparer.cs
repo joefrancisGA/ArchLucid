@@ -1,7 +1,11 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Ask;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.Ask;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Ask;
 using ArchLucid.Core.Comparison;
@@ -10,7 +14,6 @@ using ArchLucid.Core.Conversation;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
-using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Retrieval.Chunking;
@@ -29,6 +32,8 @@ public sealed class AskContextPreparer(
     IRetrievalQueryService retrievalQuery,
     AskConversationHistoryBuilder conversationHistoryBuilder,
     IOptionsMonitor<AskRetrievalOptions> askRetrievalOptions,
+    IRunRepository runRepository,
+    IManifestHashService manifestHashService,
     ILogger<AskContextPreparer> logger)
 {
     private const int HistoryTake = 40;
@@ -53,6 +58,12 @@ public sealed class AskContextPreparer(
 
     private readonly IOptionsMonitor<AskRetrievalOptions> _askRetrievalOptions =
         askRetrievalOptions ?? throw new ArgumentNullException(nameof(askRetrievalOptions));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private readonly ILogger<AskContextPreparer> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -132,8 +143,23 @@ public sealed class AskContextPreparer(
             RunDetailDto? baseRun = await baseRunTask;
             RunDetailDto? targetRun = await targetRunTask;
 
-            if (baseRun?.GoldenManifest is not null && targetRun?.GoldenManifest is not null)
-                comparisonResult = _comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);
+            if (baseRun?.GoldenManifest is null || targetRun?.GoldenManifest is null)
+            {
+                throw new ArchLucid.Application.ConflictException(
+                    "Ask compare blocked: one or both runs have no committed golden manifest available for sealed hash verification.");
+            }
+
+            await AskGroundedRunSealedManifestGuard.EnsureCompareRunsReadyOrThrowAsync(
+                effectiveBaseRunId.Value,
+                effectiveTargetRunId.Value,
+                baseRun.GoldenManifest,
+                targetRun.GoldenManifest,
+                scope,
+                _runRepository,
+                _manifestHashService,
+                cancellationToken);
+
+            comparisonResult = _comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);
         }
         else
         {
@@ -154,6 +180,14 @@ public sealed class AskContextPreparer(
         }
 
         ManifestDocument manifest = detail.GoldenManifest;
+
+        if (!effectiveBaseRunId.HasValue || !effectiveTargetRunId.HasValue)
+        {
+            AskGroundedRunSealedManifestGuard.EnsureSingleRunReadyOrThrow(
+                effectiveRunId!.Value,
+                manifest,
+                _manifestHashService);
+        }
 
         object context = ContextBuilder.BuildContext(manifest, graph, comparisonResult);
         string contextJson = JsonSerializer.Serialize(context, ContractJson.CamelCaseIgnoreNullCompact);

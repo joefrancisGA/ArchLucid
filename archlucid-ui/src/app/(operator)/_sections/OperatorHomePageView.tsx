@@ -15,8 +15,8 @@ import { OperatorHomeWorkspaceActivityProvider } from "@/components/operator-hom
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorHomeBuyerChrome } from "@/components/operator-home/OperatorHomeBuyerChrome";
 import {
-  OPERATOR_HOME_PRIMARY_SECTION_HEADING,
   OPERATOR_LAYOUT,
+  OPERATOR_HOME_SECTION_HEADING,
   OPERATOR_LINK,
 } from "@/lib/design-tokens";
 import { BUYER_RUNS_DASHBOARD_OPEN_ALL_REVIEWS_CTA } from "@/lib/buyer/buyer-polish-copy";
@@ -56,7 +56,7 @@ type OperatorHomePageViewProps = {
 
 function HomeSectionHeading(props: { readonly id?: string; readonly children: string }) {
   return (
-    <h2 id={props.id} className={OPERATOR_HOME_PRIMARY_SECTION_HEADING}>
+    <h2 id={props.id} className={OPERATOR_HOME_SECTION_HEADING}>
       {props.children}
     </h2>
   );
@@ -86,15 +86,13 @@ function HomeRecentReviewsSection(props: { readonly model: OperatorHomePageViewM
     >
       <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
         <HomeSectionHeading id="operator-home-reviews-heading">{OPERATOR_HOME_RECENT_REVIEWS_HEADING}</HomeSectionHeading>
-        {props.model.buyerPolishedShell ? (
-          <Link
-            href={openAllReviewsHref}
-            className={cn("inline-block shrink-0 font-semibold", OPERATOR_LINK.nav)}
-            data-testid="runs-dashboard-open-all-reviews"
-          >
-            {BUYER_RUNS_DASHBOARD_OPEN_ALL_REVIEWS_CTA}
-          </Link>
-        ) : null}
+        <Link
+          href={openAllReviewsHref}
+          className={cn("inline-block shrink-0 font-semibold", OPERATOR_LINK.nav)}
+          data-testid="runs-dashboard-open-all-reviews"
+        >
+          {BUYER_RUNS_DASHBOARD_OPEN_ALL_REVIEWS_CTA}
+        </Link>
       </div>
       {/* Outcome line renders inside the runs panel from live list rows (avoids empty vs sample mismatch). */}
       <OperatorHomeRunsPanel hideHeading initialModel={props.model.runsDashboard} />

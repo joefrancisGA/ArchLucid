@@ -96,6 +96,11 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
           m.manifestSummaryForUi?.feasibilityVerdict?.transparencyTrail ??
           null
         }
+        feasibilityVerdict={
+          m.manifestSummary?.feasibilityVerdict ??
+          m.manifestSummaryForUi?.feasibilityVerdict ??
+          null
+        }
         graphSnapshot={m.resolvedDetail.graphSnapshot}
         analysisStagesComplete={createHomeAnalysisStagesComplete}
         {...reviewPackageDoThisNextEvidenceProps}

@@ -21,6 +21,9 @@ public static partial class AuditEventTypes
     /// <summary>What-if branch draft cloned from a parent with a single override (R12).</summary>
     public const string DraftIntakeBranched = "DraftIntake.Branched";
 
+    /// <summary>New editable draft cloned from a run-spawned snapshot (WA-10).</summary>
+    public const string DraftIntakeSnapshotCloned = "DraftIntake.SnapshotCloned";
+
     /// <summary>Terminal intake drafts purged by the background reaper (ADR 0048).</summary>
     public const string DraftIntakeTerminalPurged = "DraftIntake.TerminalPurged";
 

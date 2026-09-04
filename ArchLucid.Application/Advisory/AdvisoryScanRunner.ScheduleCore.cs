@@ -59,6 +59,11 @@ public sealed partial class AdvisoryScanRunner
             return;
         }
 
+        AdvisoryScanSealedManifestGuard.EnsureRunSealedManifestHashOrThrow(
+            latestDetail.GoldenManifest,
+            latest.RunId,
+            manifestHashService);
+
         FindingsSnapshot findings = latestDetail.FindingsSnapshot ?? CreateEmptyFindings(latestDetail.GoldenManifest);
         RunSummaryDto? compareTo = ordered.Skip(1).FirstOrDefault();
         ImprovementPlan plan;

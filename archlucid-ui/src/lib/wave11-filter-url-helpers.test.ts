@@ -1754,6 +1754,122 @@ describe("wave29 filter url helpers", () => {
   });
 });
 
+describe("wave30 filter url helpers", () => {
+  it("aws wizard, cloud disconnect, webhooks toggle, and review archive", async () => {
+    const {
+      awsConnectionWizardStepHrefFromSearch,
+      parseAwsConnectionWizardStepFromSearch,
+    } = await import("@/lib/integrations/aws-connection-wizard-step-url");
+    const {
+      cloudConnectionDisconnectHrefFromSearch,
+      parseCloudConnectionDisconnectIdFromSearch,
+    } = await import("@/lib/integrations/cloud-connection-disconnect-url");
+    const {
+      parseWebhookDisableIdFromSearch,
+      parseWebhookEnableIdFromSearch,
+      webhooksToggleConfirmHrefFromSearch,
+    } = await import("@/lib/integrations/webhooks-toggle-confirm-url");
+    const {
+      parseReviewArchiveConfirmOpenFromSearch,
+      parseReviewArchiveRunIdFromSearch,
+      reviewArchiveConfirmHrefFromSearch,
+    } = await import("@/lib/reviews/review-archive-confirm-url");
+
+    expect(parseAwsConnectionWizardStepFromSearch("1")).toBe(1);
+    expect(awsConnectionWizardStepHrefFromSearch("", 1)).toBe(
+      "/integrations/cloud-connections/aws?awsStep=1",
+    );
+    expect(parseCloudConnectionDisconnectIdFromSearch("conn-1")).toBe("conn-1");
+    expect(
+      cloudConnectionDisconnectHrefFromSearch("", "conn-1", "/integrations/cloud-connections/aws"),
+    ).toBe("/integrations/cloud-connections/aws?disconnectId=conn-1");
+    expect(parseWebhookDisableIdFromSearch("sub-1")).toBe("sub-1");
+    expect(parseWebhookEnableIdFromSearch("sub-2")).toBe("sub-2");
+    expect(
+      webhooksToggleConfirmHrefFromSearch("", {
+        disableRoutingSubscriptionId: "sub-1",
+        enableRoutingSubscriptionId: null,
+      }),
+    ).toBe("/integrations/webhooks?webhookDisableId=sub-1");
+    expect(
+      webhooksToggleConfirmHrefFromSearch("", {
+        disableRoutingSubscriptionId: null,
+        enableRoutingSubscriptionId: "sub-2",
+      }),
+    ).toBe("/integrations/webhooks?webhookEnableId=sub-2");
+    expect(parseReviewArchiveRunIdFromSearch("run-1")).toBe("run-1");
+    expect(parseReviewArchiveConfirmOpenFromSearch("1")).toBe(true);
+    expect(
+      reviewArchiveConfirmHrefFromSearch("", { runId: "run-1", confirmOpen: true }),
+    ).toBe("/architecture/reviews?archiveRunId=run-1&archiveConfirm=1");
+  });
+
+  it("draft delete, api keys, billing checkout, digest pause, recurrence disable, cluster disposition", async () => {
+    const {
+      architectureDraftDeleteConfirmHrefFromSearch,
+      parseArchitectureDraftDeleteConfirmOpenFromSearch,
+      parseArchitectureDraftDeleteIdFromSearch,
+    } = await import("@/lib/architecture/architecture-draft-delete-confirm-url");
+    const {
+      apiKeyActionConfirmHrefFromSearch,
+      parseApiKeyActionFromSearch,
+    } = await import("@/lib/administration/api-key-action-confirm-url");
+    const {
+      billingCheckoutConfirmHrefFromSearch,
+      parseBillingCheckoutConfirmOpenFromSearch,
+    } = await import("@/lib/administration/billing-checkout-confirm-url");
+    const {
+      digestSubscriptionsPanelsHrefFromSearch,
+      parseDigestSubscriptionsPauseIdFromSearch,
+    } = await import("@/lib/digests/digest-subscriptions-panels-url");
+    const {
+      parseRecurrenceSchedulesDisableIdFromSearch,
+      recurrenceSchedulesPanelsHrefFromSearch,
+    } = await import("@/lib/governance/recurrence-schedules-panels-url");
+    const {
+      parseRootCauseClusterDispFromSearch,
+      parseRootCauseClusterKeyFromSearch,
+      rootCauseClusterDispositionHrefFromSearch,
+      rootCauseClusterDispositionToUrlValue,
+    } = await import("@/lib/findings/root-cause-cluster-disposition-url");
+
+    expect(parseArchitectureDraftDeleteIdFromSearch("draft-1")).toBe("draft-1");
+    expect(parseArchitectureDraftDeleteConfirmOpenFromSearch("true")).toBe(true);
+    expect(
+      architectureDraftDeleteConfirmHrefFromSearch(
+        "",
+        { architectureId: "draft-1", confirmOpen: true },
+      ),
+    ).toBe("/architecture/architectures?draftDeleteId=draft-1&draftDeleteConfirm=1");
+    expect(parseApiKeyActionFromSearch("rotate_admin")).toBe("rotate_admin");
+    expect(apiKeyActionConfirmHrefFromSearch("", "issue_overlap")).toBe(
+      "/administration/api-keys?apiKeyAction=issue_overlap",
+    );
+    expect(parseBillingCheckoutConfirmOpenFromSearch("1")).toBe(true);
+    expect(billingCheckoutConfirmHrefFromSearch("plan=architect", true)).toBe(
+      "/administration/billing?plan=architect&checkoutConfirm=1",
+    );
+    expect(parseDigestSubscriptionsPauseIdFromSearch("sub-1")).toBe("sub-1");
+    expect(
+      digestSubscriptionsPanelsHrefFromSearch("tab=subscriptions", { pauseSubscriptionId: "sub-1" }),
+    ).toBe("/architecture/digests?tab=subscriptions&pauseSubId=sub-1");
+    expect(parseRecurrenceSchedulesDisableIdFromSearch("sched-1")).toBe("sched-1");
+    expect(
+      recurrenceSchedulesPanelsHrefFromSearch("", { disableScheduleId: "sched-1" }),
+    ).toBe("/governance/recurrence-schedules?disableScheduleId=sched-1");
+    expect(parseRootCauseClusterKeyFromSearch("cluster-a")).toBe("cluster-a");
+    expect(parseRootCauseClusterDispFromSearch("accepted")).toBe("accepted");
+    expect(rootCauseClusterDispositionToUrlValue("RejectedAsNotApplicable")).toBe("waived");
+    expect(
+      rootCauseClusterDispositionHrefFromSearch(
+        "reviewTab=findings",
+        { clusterKey: "cluster-a", disposition: "Accepted" },
+        "/architecture/reviews/r1",
+      ),
+    ).toBe("/architecture/reviews/r1?reviewTab=findings&clusterKey=cluster-a&clusterDisp=accepted");
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

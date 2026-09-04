@@ -75,6 +75,17 @@ describe("OperatorAttentionKindStrip (TB-2353)", () => {
     expect(screen.getByTestId("operator-attention-kind-chip-awaiting-approval")).toBeInTheDocument();
   });
 
+  it("emphasizes awaiting-approval chips when the queue has items", () => {
+    usePathname.mockReturnValue("/");
+    useSearchParams.mockReturnValue(new URLSearchParams());
+
+    render(<OperatorAttentionKindStrip />);
+
+    expect(screen.getByTestId("operator-attention-kind-chip-awaiting-approval").className).toMatch(
+      /al-status-warn-bg/,
+    );
+  });
+
   it("marks the matching destination chip as selected", () => {
     usePathname.mockReturnValue("/architecture/reviews");
     useSearchParams.mockReturnValue(new URLSearchParams("filter=needs-attention"));

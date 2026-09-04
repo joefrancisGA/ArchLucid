@@ -30,6 +30,18 @@ public sealed partial class GovernanceStickinessFacade
         await EnsureRunInScopeWhenProvidedAsync(scope, normalized.RunId, ct);
         await EnsureManifestMatchesRunWhenProvidedAsync(scope, normalized.RunId, normalized.ManifestId, ct);
 
+        Guid runIdForGuard = normalized.RunId ?? finding.RunId;
+
+        if (runIdForGuard != Guid.Empty)
+        {
+            await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                runIdForGuard,
+                scope,
+                _authorityQueryService,
+                _manifestHashService,
+                ct);
+        }
+
         return await _riskExceptionService.CreateAsync(
             normalized,
             scope,
@@ -78,6 +90,18 @@ public sealed partial class GovernanceStickinessFacade
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         await EnsureRiskExceptionInScopeAsync(scope, riskExceptionId, ct);
+
+        RiskExceptionRecord? existing = await _riskExceptionService.GetByIdAsync(scope.TenantId, riskExceptionId, ct);
+
+        if (existing?.RunId is { } renewRunId && renewRunId != Guid.Empty)
+        {
+            await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                renewRunId,
+                scope,
+                _authorityQueryService,
+                _manifestHashService,
+                ct);
+        }
 
         return await _riskExceptionService.RenewAsync(
             scope.TenantId,

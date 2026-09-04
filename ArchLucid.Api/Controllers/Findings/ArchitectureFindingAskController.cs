@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Ask;
 using ArchLucid.Core.Authorization;
@@ -35,6 +36,7 @@ public sealed class ArchitectureFindingAskController(
     [ProducesResponseType(typeof(AskResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> AskAboutFinding(
         [FromRoute] Guid findingId,
         [FromBody] FindingAskRequest? request,
@@ -55,6 +57,11 @@ public sealed class ArchitectureFindingAskController(
             ScopeContext scope = _scopeContextProvider.GetCurrentScope();
             AskResponse response = await _askService.AskAboutFindingAsync(request, scope, cancellationToken);
             return Ok(response);
+        }
+        catch (ConflictException ex)
+        {
+            _logger.LogWarning(ex, "Finding ask blocked for finding {FindingId}: inventory guard rejected the request.", findingId);
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {

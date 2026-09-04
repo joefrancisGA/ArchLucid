@@ -16,6 +16,7 @@ import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 
@@ -35,6 +36,8 @@ function TierCardEyebrow(props: { readonly children: string }): React.ReactEleme
 
 /** Evidence tiers and provider permission scope for `/help/cloud-connections` (HCE). */
 export function HelpCloudConnectionsProviderScopeSection(): React.ReactElement {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
   return (
     <section
       id="choose-your-cloud-platform"
@@ -84,13 +87,15 @@ export function HelpCloudConnectionsProviderScopeSection(): React.ReactElement {
               .
             </p>
           </details>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button asChild size="sm" variant="primary" data-testid="help-cloud-connections-primary-cta">
-              <Link href={CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.startEvidenceOnlyReview.href}>
-                {CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.startEvidenceOnlyReview.label}
-              </Link>
-            </Button>
-          </div>
+          {buyerPolishedShell ? null : (
+            <div className="flex flex-wrap items-center gap-2">
+              <Button asChild size="sm" variant="primary" data-testid="help-cloud-connections-primary-cta">
+                <Link href={CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.startEvidenceOnlyReview.href}>
+                  {CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.startEvidenceOnlyReview.label}
+                </Link>
+              </Button>
+            </div>
+          )}
         </div>
 
         <div className={cn(DESIGN_TOKENS.surface.card, "space-y-3 p-4")} data-testid="help-cloud-connections-tier-2-card">

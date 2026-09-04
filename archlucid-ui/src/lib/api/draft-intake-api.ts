@@ -6,6 +6,7 @@ export {
   abandonDraftRequest,
   admitDraftRequest,
   branchDraftRequest,
+  cloneDraftSnapshot,
   getDraftBranchQuota,
   reasonDraftRequest,
   reopenDraftRequest,

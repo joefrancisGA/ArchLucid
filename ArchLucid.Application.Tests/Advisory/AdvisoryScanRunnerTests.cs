@@ -5,6 +5,7 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Integration;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Contracts.Alerts.Composite;
 using ArchLucid.Decisioning.Advisory.Delivery;
@@ -88,6 +89,7 @@ public sealed class AdvisoryScanRunnerTests
             Mock.Of<IIntegrationEventPublisher>(),
             Mock.Of<IIntegrationEventOutboxRepository>(),
             OptionsMonitor(),
+            Mock.Of<IManifestHashService>(),
             NullLogger<AdvisoryScanRunner>.Instance);
 
         AdvisoryScanSchedule schedule = new()
@@ -215,6 +217,7 @@ public sealed class AdvisoryScanRunnerTests
                     null,
                     It.IsAny<ImprovementPlan>(),
                     It.IsAny<IReadOnlyList<AlertRecord>>(),
+                    It.IsAny<string?>(),
                     It.IsAny<string?>()))
             .Returns(builtDigest);
 
@@ -249,12 +252,26 @@ public sealed class AdvisoryScanRunnerTests
             .Setup(x => x.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        Mock<IGovernanceDigestDecisionNeededComposer> governanceComposer = new();
+        governanceComposer
+            .Setup(composer => composer.BuildDecisionNeededMarkdownAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string?)null);
+
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns<ManifestDocument>(manifest => manifest.ManifestHash ?? "h");
+
         AdvisoryScanRunner sut = new(
             authority.Object,
             advisor.Object,
             Mock.Of<IComparisonService>(),
             digestBuilder.Object,
-            Mock.Of<IGovernanceDigestDecisionNeededComposer>(),
+            governanceComposer.Object,
             digestRepo.Object,
             delivery.Object,
             simpleAlerts.Object,
@@ -269,6 +286,7 @@ public sealed class AdvisoryScanRunnerTests
             Mock.Of<IIntegrationEventPublisher>(),
             Mock.Of<IIntegrationEventOutboxRepository>(),
             OptionsMonitor(),
+            manifestHash.Object,
             NullLogger<AdvisoryScanRunner>.Instance);
 
         AdvisoryScanSchedule schedule = new()

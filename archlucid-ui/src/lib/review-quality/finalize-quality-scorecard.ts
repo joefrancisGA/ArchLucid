@@ -1,3 +1,5 @@
+import { formatAuthorityCommitSkippedMustBlockedReason } from "./authority-commit-skipped-must-blocked-reason";
+
 export type FinalizeQualityScorecardInput = {
   readonly blockingFindingCount: number;
   readonly unverifiedAssumptionCount: number;
@@ -69,11 +71,7 @@ export function evaluateFinalizeQualityScorecard(input: FinalizeQualityScorecard
   }
 
   if (input.skippedMustCount > 0) {
-    const noun = input.skippedMustCount === 1 ? "question is" : "questions are";
-
-    blockingReasons.push(
-      `${input.skippedMustCount} required ${noun} unanswered.`,
-    );
+    blockingReasons.push(formatAuthorityCommitSkippedMustBlockedReason(input.skippedMustCount));
   }
 
   return {

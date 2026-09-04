@@ -67,6 +67,7 @@ export function ArchitectureDraftWorkspaceIntakeStack(
 
       {linkedReviewId !== null ? (
         <ArchitectureDraftHandoffBanner
+          architectureId={effectiveArchitectureId}
           linkedReviewId={linkedReviewId}
           linkedReviewTitle={linkedReviewTitle}
         />

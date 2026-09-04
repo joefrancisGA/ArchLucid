@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Explanation;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
@@ -115,6 +116,7 @@ public sealed class ExplanationControllerTests
             Mock.Of<IProvenanceSnapshotRepository>(),
             scopeProvider.Object,
             holisticCritic ?? Mock.Of<IHolisticCriticService>(),
+            Mock.Of<IManifestHashService>(),
             NullLogger<ExplanationController>.Instance)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }

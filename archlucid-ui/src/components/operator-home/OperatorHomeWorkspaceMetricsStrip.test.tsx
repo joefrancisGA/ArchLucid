@@ -45,7 +45,7 @@ function buildRunsDashboard(): OperatorHomeRunsDashboardModel {
 }
 
 describe("OperatorHomeWorkspaceMetricsStrip", () => {
-  it("renders metric links with resting underline affordance and a single bottom divider", () => {
+  it("renders counter-style metrics without resting underline affordance and a single bottom divider", () => {
     useFinishSetupReadinessContext.mockReturnValue({
       phase: "ready",
       readyCount: 2,
@@ -73,9 +73,10 @@ describe("OperatorHomeWorkspaceMetricsStrip", () => {
 
     render(<OperatorHomeWorkspaceMetricsStrip runsDashboard={runsDashboard} />);
 
-    const activeReviewLink = screen.getByRole("link", { name: /2 Active reviews/ });
-    expect(activeReviewLink.className).toMatch(/underline/);
-    expect(activeReviewLink.className).not.toMatch(/no-underline/);
+    const activeReviewLink = screen.getByTestId("operator-home-metric-active-reviews");
+    expect(activeReviewLink.className).toMatch(/no-underline/);
+    expect(activeReviewLink).toHaveTextContent("2");
+    expect(activeReviewLink).toHaveTextContent("Active reviews");
 
     const strip = screen.getByTestId("operator-home-workspace-metrics-strip");
     const row = strip.querySelector("div");
@@ -105,8 +106,9 @@ describe("OperatorHomeWorkspaceMetricsStrip", () => {
 
     render(<OperatorHomeWorkspaceMetricsStrip runsDashboard={runsDashboard} />);
 
-    expect(screen.queryByRole("link", { name: /1 Active review/ })).toBeNull();
-    expect(screen.getByRole("link", { name: /0 Open findings/ })).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-metric-active-reviews")).toBeNull();
+    expect(screen.getByTestId("operator-home-metric-open-findings")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-metric-open-findings")).toHaveTextContent("0");
   });
 
   it("hides setup readiness in Working mode", () => {
@@ -137,7 +139,7 @@ describe("OperatorHomeWorkspaceMetricsStrip", () => {
 
     render(<OperatorHomeWorkspaceMetricsStrip runsDashboard={runsDashboard} workingMode />);
 
-    expect(screen.queryByRole("link", { name: /Setup 2\/3/ })).toBeNull();
-    expect(screen.getByRole("link", { name: /2 Active reviews/ })).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-metric-setup-readiness")).toBeNull();
+    expect(screen.getByTestId("operator-home-metric-active-reviews")).toBeInTheDocument();
   });
 });

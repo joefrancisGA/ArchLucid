@@ -7,6 +7,8 @@ using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
 
@@ -161,5 +163,7 @@ public sealed class ExportsControllerCompareSummaryAuditTests
             formatter,
             audit,
             Mock.Of<IRunExportLineageVerifier>(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
             Mock.Of<IScopeContextProvider>()));
 }
