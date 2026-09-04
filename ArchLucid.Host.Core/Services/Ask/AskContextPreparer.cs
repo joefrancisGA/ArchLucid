@@ -143,20 +143,23 @@ public sealed class AskContextPreparer(
             RunDetailDto? baseRun = await baseRunTask;
             RunDetailDto? targetRun = await targetRunTask;
 
-            if (baseRun?.GoldenManifest is not null && targetRun?.GoldenManifest is not null)
+            if (baseRun?.GoldenManifest is null || targetRun?.GoldenManifest is null)
             {
-                await AskGroundedRunSealedManifestGuard.EnsureCompareRunsReadyOrThrowAsync(
-                    effectiveBaseRunId.Value,
-                    effectiveTargetRunId.Value,
-                    baseRun.GoldenManifest,
-                    targetRun.GoldenManifest,
-                    scope,
-                    _runRepository,
-                    _manifestHashService,
-                    cancellationToken);
-
-                comparisonResult = _comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);
+                throw new ArchLucid.Application.ConflictException(
+                    "Ask compare blocked: one or both runs have no committed golden manifest available for sealed hash verification.");
             }
+
+            await AskGroundedRunSealedManifestGuard.EnsureCompareRunsReadyOrThrowAsync(
+                effectiveBaseRunId.Value,
+                effectiveTargetRunId.Value,
+                baseRun.GoldenManifest,
+                targetRun.GoldenManifest,
+                scope,
+                _runRepository,
+                _manifestHashService,
+                cancellationToken);
+
+            comparisonResult = _comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);
         }
         else
         {
