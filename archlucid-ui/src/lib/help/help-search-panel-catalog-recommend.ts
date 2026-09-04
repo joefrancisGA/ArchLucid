@@ -1,5 +1,6 @@
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
 import { helpPageSituationTopicIds, type HelpPageSituation } from "@/lib/help/help-page-situation";
+import { WORKING_HOME_HELP_SEARCH_EXCLUDED_TOPIC_IDS } from "@/lib/help/help-workspace-mode-copy";
 import { collectHelpSearchPanelTopics } from "@/lib/help/help-search-panel-catalog-topics";
 import {
   HELP_SEARCH_PANEL_MAX_RECOMMENDED,
@@ -105,21 +106,34 @@ export function shouldCollapseHelpStartHereGroup(pathname: string): boolean {
   );
 }
 
+function filterWorkingHomeHelpTopicIds(topicIds: readonly string[], workingMode: boolean): string[] {
+  if (!workingMode) {
+    return [...topicIds];
+  }
+
+  const excluded = new Set(WORKING_HOME_HELP_SEARCH_EXCLUDED_TOPIC_IDS);
+
+  return topicIds.filter((id) => !excluded.has(id));
+}
+
 export function recommendedHelpSearchPanelTopicIds(
   pathname: string,
   situation: HelpPageSituation | null = null,
+  workingMode: boolean = false,
 ): string[] {
   const situationTopicIds = helpPageSituationTopicIds(situation);
 
   // A published situation describes the review in front of the user; it outranks the route.
   if (situationTopicIds.length > 0) {
-    return [...situationTopicIds];
+    return filterWorkingHomeHelpTopicIds(situationTopicIds, workingMode);
   }
 
   const path = normalizePathname(pathname);
 
   if (path === "/") {
-    return [...(ROUTE_RECOMMENDED_TOPIC_IDS.find((row) => row.prefix === "/")?.topicIds ?? [])];
+    const homeTopicIds = ROUTE_RECOMMENDED_TOPIC_IDS.find((row) => row.prefix === "/")?.topicIds ?? [];
+
+    return filterWorkingHomeHelpTopicIds(homeTopicIds, workingMode);
   }
 
   const sorted = [...ROUTE_RECOMMENDED_TOPIC_IDS].sort((left, right) => right.prefix.length - left.prefix.length);
@@ -141,9 +155,10 @@ export function recommendedHelpSearchPanelTopics(
   pathname: string,
   isAdmin: boolean,
   situation: HelpPageSituation | null = null,
+  workingMode: boolean = false,
 ): HelpSearchPanelTopic[] {
   const byId = new Map(collectHelpSearchPanelTopics(isAdmin).map((topic) => [topic.id, topic]));
-  const ids = recommendedHelpSearchPanelTopicIds(pathname, situation);
+  const ids = recommendedHelpSearchPanelTopicIds(pathname, situation, workingMode);
 
   return ids
     .map((id) => byId.get(id))
