@@ -50,7 +50,7 @@ public sealed class BillingStripeWebhookController(StripeBillingProvider stripeB
                 ProblemTypes.RequestPayloadTooLarge);
         }
 
-        string signature = Request.Headers["Stripe-Signature"].ToString();
+        string signature = InboundWebhookHeaderReader.ExtractFirstNonEmptyHeader(Request.Headers["Stripe-Signature"]);
 
         BillingWebhookInbound inbound = new()
         {

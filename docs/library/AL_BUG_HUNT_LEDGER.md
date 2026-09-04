@@ -1022,6 +1022,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-04 seed hunt #670: proved unknown-category doc-index omission; seeded category-name search and debounced URL sync candidates.
 
+---
+
 ## Zone: ui-webhooks-settings
 
 - **id:** ui-webhooks-settings

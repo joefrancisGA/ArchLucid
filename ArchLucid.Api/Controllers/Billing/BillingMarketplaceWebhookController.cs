@@ -67,13 +67,7 @@ public sealed class BillingMarketplaceWebhookController(
                 ProblemTypes.RequestPayloadTooLarge);
         }
 
-        string auth = Request.Headers.Authorization.ToString();
-
-        string? bearer = null;
-
-        if (!string.IsNullOrWhiteSpace(auth) &&
-            auth.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
-            bearer = auth["Bearer ".Length..].Trim();
+        string? bearer = InboundWebhookHeaderReader.ExtractBearerToken(Request.Headers.Authorization);
 
         BillingWebhookInbound inbound = new()
         {
