@@ -629,7 +629,7 @@ describe("RunsDashboardPanel", () => {
     }
   });
 
-  it("buyer-polished archived filter is disabled with zero count when archive field is supported", async () => {
+  it("buyer-polished archived filter is enabled with zero count when archive field is supported", async () => {
     runsDashBuyerPolishedForced.on = true;
 
     const run: RunSummary = {
@@ -654,7 +654,7 @@ describe("RunsDashboardPanel", () => {
 
     const archivedFilter = await screen.findByTestId("runs-dashboard-show-archived");
     expect(archivedFilter).toHaveTextContent("Archived 0");
-    expect(archivedFilter).toBeDisabled();
+    expect(archivedFilter).not.toBeDisabled();
     expect(screen.queryByTestId("runs-dashboard-open-review-packages")).toBeNull();
     expect(screen.queryByTestId("runs-dashboard-archived-unsupported")).toBeNull();
     expect(screen.queryByText(/contact your administrator/i)).toBeNull();

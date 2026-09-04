@@ -108,13 +108,7 @@ export function useRunsDashboardTabs({
     return displayItems.filter((run) => run.isArchived === true).length;
   }, [archivedFieldSupported, displayItems]);
 
-  const archivedFilterDisabled = !archivedFieldSupported || archivedCount === 0;
-
-  useEffect(() => {
-    if (archivedFilterDisabled && showArchived) {
-      setShowArchived(false);
-    }
-  }, [archivedFilterDisabled, showArchived]);
+  const archivedFilterDisabled = !archivedFieldSupported;
 
   const filteredItems = useMemo(() => {
     let rows = displayItems;
@@ -206,11 +200,21 @@ export function useRunsDashboardTabs({
     return formatOperatorHomeRecentReviewsOutcome(metrics, { exampleReviewOnly });
   }, [displayItems, hideHeading, phase, sampleReviewsVisible]);
 
-  const selectDashboardTab = useCallback((next: RunsDashboardTabId) => {
+  const selectDashboardTab = useCallback((
+    next: RunsDashboardTabId,
+    options?: { readonly preserveShowArchived?: boolean },
+  ) => {
     setTab(next);
-    setShowArchived(false);
+
+    if (!options?.preserveShowArchived) {
+      setShowArchived(false);
+    }
+
     router.replace(
-      runsDashboardHomeHrefFromSearch(searchParams.toString(), { tab: next, showArchived: false }),
+      runsDashboardHomeHrefFromSearch(searchParams.toString(), {
+        tab: next,
+        ...(options?.preserveShowArchived ? {} : { showArchived: false }),
+      }),
       { scroll: false },
     );
   }, [router, searchParams]);
