@@ -19,6 +19,10 @@ import {
   provenanceTableEdgeSearchHrefFromSearch,
 } from "@/lib/provenance/provenance-workspace-filters-url";
 import {
+  parseProvenanceSelectedNodeIdFromSearch,
+  provenanceSelectedNodeHrefFromSearch,
+} from "@/lib/provenance/provenance-selected-node-url";
+import {
   PROVENANCE_SECTION_GRAPH_LABEL,
   PROVENANCE_SECTION_LINKAGE_POINTS_LABEL,
   PROVENANCE_SECTION_RELATIONSHIPS_LABEL,
@@ -69,6 +73,7 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
   const urlNodeSearch = parseProvenanceTableSearchQueryFromSearch(searchParams.get("q"));
   const urlNodeTypeFilter = parseProvenanceTableNodeTypeFromSearch(searchParams.get("nodeType"));
   const urlEdgeSearch = parseProvenanceTableEdgeSearchQueryFromSearch(searchParams.get("edgeQ"));
+  const urlSelectedNodeId = parseProvenanceSelectedNodeIdFromSearch(searchParams.get("provNodeId"));
   // OpenAPI may omit optional arrays; normalize before .length / .map so SSR/demo payloads cannot crash.
   const graph: ArchitectureRunProvenanceGraph = {
     ...props.graph,
@@ -110,6 +115,19 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
   useEffect(() => {
     setEdgeSearch(urlEdgeSearch);
   }, [urlEdgeSearch]);
+
+  useEffect(() => {
+    if (urlSelectedNodeId.length === 0) {
+      return;
+    }
+
+    if (!nodeById.has(urlSelectedNodeId)) {
+      return;
+    }
+
+    setSelectedNodeId(urlSelectedNodeId);
+    setHighlightedEdgeId(null);
+  }, [nodeById, urlSelectedNodeId]);
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
@@ -251,11 +269,15 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
   const onSelectNode = useCallback((nodeId: string | null) => {
     setSelectedNodeId(nodeId);
     setHighlightedEdgeId(null);
+    router.replace(
+      provenanceSelectedNodeHrefFromSearch(searchParams.toString(), nodeId, pathname),
+      { scroll: false },
+    );
 
     if (nodeId !== null) {
       flashNodeRow(nodeId);
     }
-  }, []);
+  }, [pathname, router, searchParams]);
 
   const onSelectEdge = useCallback((edgeId: string) => {
     setHighlightedEdgeId(edgeId);
@@ -304,6 +326,10 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
       if (event.key === "Escape") {
         setSelectedNodeId(null);
         setHighlightedEdgeId(null);
+        router.replace(
+          provenanceSelectedNodeHrefFromSearch(searchParams.toString(), null, pathname),
+          { scroll: false },
+        );
       }
     };
 
@@ -312,7 +338,7 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
     return () => {
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, []);
+  }, [pathname, router, searchParams]);
 
   const showGraph = viewMode === "graph";
   const showTimeline = viewMode === "timeline" || viewMode === "table";

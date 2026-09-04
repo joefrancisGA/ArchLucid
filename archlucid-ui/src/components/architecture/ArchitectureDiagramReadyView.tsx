@@ -47,10 +47,7 @@ export function ArchitectureDiagramReadyView(props: ArchitectureDiagramReadyView
               diagramVersionSource={panel.diagramVersionSource}
               selectedKind={panel.selectedElementKind}
               selectedId={panel.selectedElementId}
-              onSelect={(kind, id) => {
-                panel.setSelectedElementKind(kind);
-                panel.setSelectedElementId(id);
-              }}
+              onSelect={panel.selectDiagramElementWithUrl}
             />
             {panel.inferredReviewLocked ? (
               <p

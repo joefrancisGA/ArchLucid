@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import {
   DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID,
@@ -9,6 +10,10 @@ import {
   type AzureExtractorDemoScenarioId,
 } from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
 import { readArchLucidAzurePackageZipFromBytes } from "@/lib/read-arch-lucid-azure-package-zip";
+import {
+  extractUploadDemoScenarioHrefFromSearch,
+  parseExtractUploadDemoScenarioFromSearch,
+} from "@/lib/administration/extract-upload-demo-scenario-url";
 
 export type UseExtractUploadDemoInput = {
   readonly onUpload: (file: File) => Promise<void>;
@@ -29,9 +34,31 @@ export function useExtractUploadDemo({
   clearSelectionState,
   setSelectedFileLabel,
 }: UseExtractUploadDemoInput) {
-  const [selectedDemoScenarioId, setSelectedDemoScenarioId] = useState<AzureExtractorDemoScenarioId>(
-    DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID,
+  const router = useRouter();
+  const pathname = usePathname() ?? "/administration/extract-upload";
+  const searchParams = useSearchParams();
+  const urlDemoScenario = parseExtractUploadDemoScenarioFromSearch(searchParams.get("demoScenario"));
+  const [selectedDemoScenarioId, setSelectedDemoScenarioIdState] = useState<AzureExtractorDemoScenarioId>(
+    urlDemoScenario ?? DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID,
   );
+
+  const setSelectedDemoScenarioId = useCallback(
+    (scenarioId: AzureExtractorDemoScenarioId) => {
+      setSelectedDemoScenarioIdState(scenarioId);
+      router.replace(extractUploadDemoScenarioHrefFromSearch(searchParams.toString(), scenarioId, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    const fromUrl = parseExtractUploadDemoScenarioFromSearch(searchParams.get("demoScenario"));
+
+    if (fromUrl !== null) {
+      setSelectedDemoScenarioIdState(fromUrl);
+    }
+  }, [searchParams]);
 
   async function onTryDemoData(): Promise<void> {
     clearUploadState();
