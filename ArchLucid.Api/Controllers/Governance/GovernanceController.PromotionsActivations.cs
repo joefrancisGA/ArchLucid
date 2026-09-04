@@ -70,6 +70,12 @@ public sealed partial class GovernanceController
         if (approvalRequestIdProblem is not null)
             return approvalRequestIdProblem;
 
+        IActionResult? promotionValidationProblem =
+            GovernancePromotionHttpMapper.Validate(request).ToBadRequestProblemOrNull(this);
+
+        if (promotionValidationProblem is not null)
+            return promotionValidationProblem;
+
         (IActionResult? idempotencyError, _) = ReadGovernanceIdempotencyKey(!dryRun);
 
         if (idempotencyError is not null)

@@ -3189,11 +3189,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 169
-- **bugs-found:** 378
+- **hunts:** 171
+- **bugs-found:** 381
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — proposed policy-pack dry-run and simulate-bulk severity validation ordering before tenant preflight
+- **last-bug:** 2026-09-04 — Promote same-environment validation ordering before tenant preflight
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4054,13 +4054,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-04 seed hunt #720 (hit): proved proposed dry-run and simulate-bulk severity validation ordering; cheap-disproved three tenant-dependent cross-field ordering siblings.
 
-- [ ] (hunt-ready) `PolicyPacksController.Simulate` / `GovernanceController.Simulate` / `PolicyPackSimulateRequestValidator` — `IPolicyPackHttpFacade.SimulateAsync` calls `EnsureScopeAsync` (tenant 404) before `PolicyPackSimulateRequestValidator` `blockCommitMinimumSeverity` 0–3 bounds, so ghost tenant + severity 99 returns HTTP 404 instead of 400 (#720 simulate-bulk sibling; validator exists but is not wired in either controller).
+- [x] (proven) `PolicyPacksController.Simulate` / `GovernanceController.Simulate` / `PolicyPackSimulateRequestValidator` — `IPolicyPackHttpFacade.SimulateAsync` called `EnsureScopeAsync` (tenant 404) before `blockCommitMinimumSeverity` 0–3 bounds, so ghost tenant + severity 99 returned HTTP 404 instead of 400 (#720 simulate-bulk sibling) — **hit 2026-09-04 (#721):** `PolicyPackSimulateHttpMapper.Validate` before facade on both controllers; regression in `PolicyPacksControllerSimulateTests.Simulate_returns_bad_request_when_block_commit_minimum_severity_out_of_range_and_tenant_missing` and `GovernanceControllerSimulateTests.Simulate_returns_bad_request_when_block_commit_minimum_severity_out_of_range_and_tenant_missing`.
 
-- [ ] (hunt-ready) `GovernancePreviewController.CompareEnvironments` / `GovernancePreviewService.CompareEnvironmentsAsync` — `RequireTenantAndWorkspaceOrNotFoundAsync` (line 145) runs after slug max-length checks but before service `SourceEnvironment and TargetEnvironment must be different` guard (line 95 in service), so ghost tenant + `sourceEnvironment == targetEnvironment` returns HTTP 404 instead of 400 (existing test covers 400 only when `tenantExists: true`).
+- [x] (proven) `GovernancePreviewController.CompareEnvironments` / `CreateGovernanceEnvironmentComparisonRequestValidator` — tenant preflight ran before same-environment guard, so ghost tenant + `sourceEnvironment == targetEnvironment` returned HTTP 404 instead of 400 — **hit 2026-09-04 (#721):** `GovernanceEnvironmentComparisonHttpMapper.Validate` before `RequireTenantAndWorkspaceOrNotFoundAsync`; regression in `GovernancePreviewControllerUnitTests.CompareEnvironments_returns_validation_failed_when_source_equals_target_and_tenant_missing`.
 
-- [x] (invalid) `GovernanceController.DryRunPolicyPack` — ghost tenant + null `proposedThresholds` may return HTTP 404 instead of HTTP 400 (#720 proposed dry-run ordering sibling) — **cheap-disproof 2026-09-04 (#721):** `proposedThresholds` null guard (lines 156–163) runs before `RequireTenantAndWorkspaceOrNotFoundAsync` (line 165); regression in `GovernanceControllerSimulateTests.DryRunPolicyPack_returns_bad_request_when_proposed_thresholds_is_null`.
+2026-09-04 seed hunt #721 (hit): proved single-simulate severity and compare-environments same-slug validation ordering; cheap-disproved DryRunPolicyPack proposedThresholds null path.
 
-2026-09-04 seed hunt #721 (seed-only): seeded single-simulate severity ordering and compare-environments same-slug ordering; cheap-disproved DryRunPolicyPack proposedThresholds null path (validation already precedes tenant).
+- [x] (proven) `GovernanceController.Promote` / `CreateGovernancePromotionRequestValidator` — tenant preflight ran before same-environment guard, so ghost tenant + `sourceEnvironment == targetEnvironment` returned HTTP 404 instead of 400 (#721 compare-environments sibling) — **hit 2026-09-04 (#722):** `GovernancePromotionHttpMapper.Validate` before `RequireTenantAndWorkspaceOrNotFoundAsync`; regression in `GovernanceControllerRunHistoryScopeTests.Promote_returns_validation_failed_when_source_equals_target_and_tenant_missing`.
+
+- [ ] (candidate) `GovernanceController.SubmitApprovalRequest` / `CreateGovernanceApprovalRequestValidator` — same-environment guard may run after tenant preflight (#722 promote sibling; validator exists, controller uses partial slug checks only).
+
+2026-09-04 seed hunt #722 (hit): proved Promote same-environment validation ordering before tenant preflight; seeded SubmitApprovalRequest same-environment ordering candidate.
 
 2026-09-04 thorough hunt #719 (dry): cheap-disproved three #718 validation-ordering siblings; no new hunt-ready repro.
 
