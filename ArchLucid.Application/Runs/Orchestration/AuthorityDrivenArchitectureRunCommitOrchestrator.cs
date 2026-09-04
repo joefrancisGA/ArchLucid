@@ -324,6 +324,13 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         ArchitectureRequest request = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken) ??
                                       throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
 
+        PreCommitGateResult? skippedMustGate = AuthorityCommitSkippedMustGate.Evaluate(request.IntakeTransparencyTrail);
+
+        if (skippedMustGate is not null)
+        {
+            throw new PreCommitGovernanceBlockedException(skippedMustGate);
+        }
+
         AuthorityCommitDecisionMaterializationResult materialization;
         try
         {
