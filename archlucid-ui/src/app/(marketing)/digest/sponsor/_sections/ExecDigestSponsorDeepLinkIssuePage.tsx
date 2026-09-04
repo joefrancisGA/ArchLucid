@@ -16,6 +16,8 @@ import {
   DIGEST_SPONSOR_UNAVAILABLE_BODY,
   DIGEST_SPONSOR_UNAVAILABLE_TITLE,
 } from "@/lib/marketing/digest-sponsor-page-copy";
+import { DIGEST_SPONSOR_CANONICAL_PATH } from "@/lib/marketing/digest-sponsor-evidence-copy";
+import { buildAuthSignInHref } from "@/lib/navigation/auth-sign-in-href";
 import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
 import { cn } from "@/lib/utils";
 
@@ -42,7 +44,11 @@ export function ExecDigestSponsorDeepLinkIssuePage(
           <p className={cn("text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{props.body}</p>
         </header>
         <p className={MARKETING_TYPOGRAPHY.body}>
-          <Link className={MARKETING_SURFACES.inlineLink} href="/auth/signin">
+          <Link
+            className={MARKETING_SURFACES.inlineLink}
+            data-testid="digest-sponsor-issue-sign-in"
+            href={buildAuthSignInHref({ returnPath: DIGEST_SPONSOR_CANONICAL_PATH })}
+          >
             {DIGEST_SPONSOR_SIGN_IN_LABEL}
           </Link>
         </p>
