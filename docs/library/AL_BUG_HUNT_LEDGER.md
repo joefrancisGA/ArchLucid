@@ -4202,11 +4202,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 9
-- **bugs-found:** 9
+- **hunts:** 10
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — wizard baseline save/get omitted operator scope on `/api/proxy/v1/tenant/baseline`
+- **last-hunt:** 2026-09-04
+- **last-bug:** 2026-09-04 — product-learning and planning export anchors omitted operator scope on `/api/proxy` GET downloads
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4223,6 +4223,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ScimProvisioningSettingsPageClient.verifyConnection` GET `/api/proxy/scim/v2/ServiceProviderConfig` omitted `mergeRegistrationScopeForProxy` — **hit 2026-08-26:** token list/create/revoke were scoped but connectivity verification hit proxy dev-default tenant, so verify could fail or validate the wrong tenant SCIM endpoint after scope switch; fixed by wrapping verify fetch with `mergeRegistrationScopeForProxy` (`ScimProvisioningSettingsPageClient.test.tsx`).
 - [x] (proven) `architecture-intelligence-api.ts` `getJson`/`postJson` omitted `mergeRegistrationScopeForProxy` while `architecture-intelligence-client-api.ts` was scoped — **hit 2026-09-02:** `RunDetailAiRefinePanel`, `ArchitectureDraftAiRefinePanel`, and `useArchitectureIntelligenceSourceContextQuery` still called unscoped lib helpers for product source-context GET and reasoning POST, so refine/publish and hydrated intake hit proxy dev-default tenant after scope switch; fixed by wrapping lib fetch with `mergeRegistrationScopeForProxy` (`architecture-intelligence-api.test.ts`).
 - [x] (proven) `save-tenant-review-cycle-baseline.ts` GET/PUT `/api/proxy/v1/tenant/baseline` omitted `mergeRegistrationScopeForProxy` while `use-baseline-settings.ts` was scoped — **hit 2026-09-03:** new-run wizard baseline step (`useWizardBaselineMetricsActions`) read/persisted review-cycle hours on proxy dev-default tenant after scope switch; fixed by wrapping GET/PUT with `mergeRegistrationScopeForProxy` (`save-tenant-review-cycle-baseline.test.ts`).
+- [x] (proven) `ProductLearningPageView` / `PlanningExportReadinessNote` export anchors used raw `/api/proxy` hrefs without `mergeRegistrationScopeForProxy` while dashboard loads used scoped `apiGet` — **hit 2026-09-04 (#714):** markdown/JSON export and open-in-tab actions hit proxy dev-default tenant after scope switch; fixed with scoped fetch downloads via `downloadScopedProxyFileGet` (`product-learning-report-download.test.ts`, `learning-planning-report-download.test.ts`).
+
+2026-09-04 seed hunt #714 (hit): reseeded proxy-scope audit on tenant-scoped export anchors; proved product-learning and planning report download/open gaps.
 
 2026-09-03 thorough hunt #580 (hit): proved wizard baseline helper scope gap on tenant baseline GET/PUT.
 
