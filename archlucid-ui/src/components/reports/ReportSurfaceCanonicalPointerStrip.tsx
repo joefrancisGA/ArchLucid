@@ -26,7 +26,10 @@ export function ReportSurfaceCanonicalPointerStrip(
       className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
       data-testid={REPORT_SURFACE_CANONICAL_POINTER_TEST_ID}
     >
-      {pointer.surfaceLabel} is for {pointer.body} For the merged period view, use{" "}
+      {pointer.surfaceLabel} is for {pointer.body}.{" "}
+      {pointer.canonicalLabel === "Sponsor report"
+        ? "For the merged period view, use "
+        : "For per-review KPIs, use "}
       <Link href={pointer.canonicalHref} className={OPERATOR_LINK.inline}>
         {pointer.canonicalLabel}
       </Link>
