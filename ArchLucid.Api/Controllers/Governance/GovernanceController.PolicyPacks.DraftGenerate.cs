@@ -3,6 +3,7 @@ using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.PolicyPacks;
+using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -15,6 +16,8 @@ namespace ArchLucid.Api.Controllers.Governance;
 
 public sealed partial class GovernanceController
 {
+    private const int MinimumPolicyPackAdvisoryTextLength = 20;
+
     [HttpPost("policy-pack/draft")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Draft endpoint is advisory-only and does not persist domain mutations.")]
@@ -27,11 +30,10 @@ public sealed partial class GovernanceController
         if (input is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (string.IsNullOrWhiteSpace(input.FreeTextIntent))
-            return this.BadRequestProblem("FreeTextIntent is required.", ProblemTypes.ValidationFailed);
+        IActionResult? freeTextProblem = ValidatePolicyPackAdvisoryText(input.FreeTextIntent, "FreeTextIntent");
 
-        if (input.FreeTextIntent.Trim().Length < 20)
-            return this.BadRequestProblem("FreeTextIntent must be at least 20 characters.", ProblemTypes.ValidationFailed);
+        if (freeTextProblem is not null)
+            return freeTextProblem;
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
@@ -57,11 +59,10 @@ public sealed partial class GovernanceController
         if (input is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (string.IsNullOrWhiteSpace(input.Prompt))
-            return this.BadRequestProblem("Prompt is required.", ProblemTypes.ValidationFailed);
+        IActionResult? promptProblem = ValidatePolicyPackAdvisoryText(input.Prompt, "Prompt");
 
-        if (input.Prompt.Trim().Length < 20)
-            return this.BadRequestProblem("Prompt must be at least 20 characters.", ProblemTypes.ValidationFailed);
+        if (promptProblem is not null)
+            return promptProblem;
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
@@ -79,5 +80,27 @@ public sealed partial class GovernanceController
 
             return this.UnprocessableEntityProblem(detail, ProblemTypes.ValidationFailed);
         }
+    }
+
+    private IActionResult? ValidatePolicyPackAdvisoryText(string? text, string fieldName)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return this.BadRequestProblem($"{fieldName} is required.", ProblemTypes.ValidationFailed);
+
+        if (text.Trim().Length < MinimumPolicyPackAdvisoryTextLength)
+        {
+            return this.BadRequestProblem(
+                $"{fieldName} must be at least {MinimumPolicyPackAdvisoryTextLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(text))
+        {
+            return this.BadRequestProblem(
+                $"{fieldName} must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
     }
 }

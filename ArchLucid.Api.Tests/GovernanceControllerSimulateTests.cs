@@ -3,6 +3,7 @@ using ArchLucid.Api.Models;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.PolicyPacks;
+using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Scoping;
@@ -28,6 +29,9 @@ public sealed class GovernanceControllerSimulateTests
         WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
     };
+
+    private static readonly Lazy<string> OverLimitPolicyPackAdvisoryText = new(
+        () => new string('x', DraftIntakeValidation.MaximumFreeTextIntentLength + 1));
 
     [Fact]
     public async Task Simulate_returns_bad_request_when_run_id_missing()
@@ -425,6 +429,38 @@ public sealed class GovernanceControllerSimulateTests
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        generator.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task DraftPolicyPackRule_returns_bad_request_when_free_text_intent_exceeds_max_length()
+    {
+        Mock<IPolicyPackDraftService> draft = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(draftService: draft.Object);
+
+        IActionResult action = await sut.DraftPolicyPackRule(
+            new DraftPolicyPackInput { FreeTextIntent = OverLimitPolicyPackAdvisoryText.Value },
+            CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        draft.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GeneratePolicyPack_returns_bad_request_when_prompt_exceeds_max_length()
+    {
+        Mock<IPolicyPackGeneratorService> generator = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(generatorService: generator.Object);
+
+        IActionResult action = await sut.GeneratePolicyPack(
+            new GeneratePolicyPackRequest { Prompt = OverLimitPolicyPackAdvisoryText.Value },
+            CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         generator.VerifyNoOtherCalls();
     }
 
