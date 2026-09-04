@@ -422,6 +422,31 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     }
 
     [Fact]
+    public async Task Approve_returns_bad_request_when_review_comment_is_whitespace_only()
+    {
+        Mock<IGovernanceApprovalRequestRepository> approvals = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            approvalRepository: approvals.Object,
+            workflowFacade: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.Approve(
+            "apr-1",
+            new ApproveGovernanceRequest
+            {
+                ReviewComment = "   ",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        approvals.VerifyNoOtherCalls();
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task Reject_returns_bad_request_when_review_comment_exceeds_max_length()
     {
         Mock<IGovernanceApprovalRequestRepository> approvals = new(MockBehavior.Strict);
