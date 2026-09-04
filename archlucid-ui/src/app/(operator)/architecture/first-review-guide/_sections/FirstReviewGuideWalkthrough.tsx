@@ -16,6 +16,10 @@ import {
   firstReviewGuideWalkthroughStepHrefFromSearch,
   parseFirstReviewGuideWalkthroughStepFromSearch,
 } from "@/lib/first-review-guide/first-review-guide-walkthrough-step-url";
+import {
+  firstReviewGuideLedgerHrefFromSearch,
+  parseFirstReviewGuideLedgerExpandedFromSearch,
+} from "@/lib/first-review-guide/first-review-guide-ledger-url";
 import { OPERATOR_LINK, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type {
   FirstReviewGuideProgressPhase,
@@ -144,9 +148,10 @@ export function FirstReviewGuideWalkthrough({
   const pathname = usePathname() ?? FIRST_REVIEW_GUIDE_PATH;
   const searchParams = useSearchParams();
   const urlGuideStep = parseFirstReviewGuideWalkthroughStepFromSearch(searchParams.get("guideStep"));
+  const urlLedgerExpanded = parseFirstReviewGuideLedgerExpandedFromSearch(searchParams.get("ledger"));
   const scrolledStepRef = useRef<number | null>(null);
   const ledgerPanelId = useId().replaceAll(":", "");
-  const [ledgerExpanded, setLedgerExpanded] = useState(false);
+  const [ledgerExpanded, setLedgerExpandedState] = useState(urlLedgerExpanded);
 
   const syncGuideStepToUrl = (stepNumber: number | null) => {
     router.replace(
@@ -154,6 +159,23 @@ export function FirstReviewGuideWalkthrough({
       { scroll: false },
     );
   };
+
+  const setLedgerExpanded = (next: boolean | ((expanded: boolean) => boolean)) => {
+    setLedgerExpandedState((current) => {
+      const resolved = typeof next === "function" ? next(current) : next;
+
+      router.replace(
+        firstReviewGuideLedgerHrefFromSearch(searchParams.toString(), resolved, pathname),
+        { scroll: false },
+      );
+
+      return resolved;
+    });
+  };
+
+  useEffect(() => {
+    setLedgerExpandedState(urlLedgerExpanded);
+  }, [urlLedgerExpanded]);
 
   const focusGuideStep = (stepNumber: number) => {
     syncGuideStepToUrl(stepNumber);

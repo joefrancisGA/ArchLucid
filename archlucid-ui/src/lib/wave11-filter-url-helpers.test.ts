@@ -1474,6 +1474,126 @@ describe("wave27 filter url helpers", () => {
   });
 });
 
+describe("wave28 filter url helpers", () => {
+  it("alerts inbox bulk, action loop, and pending action params", async () => {
+    const {
+      alertsInboxBatchSelectionHrefFromSearch,
+      parseAlertsInboxActionAlertIdFromSearch,
+      parseAlertsInboxActionKindFromSearch,
+      parseAlertsInboxActionLoopIdFromSearch,
+      parseAlertsInboxBulkSelectionFromSearch,
+    } = await import("@/lib/alerts/alerts-inbox-batch-selection-url");
+
+    expect(parseAlertsInboxBulkSelectionFromSearch("a1,a2")).toEqual(["a1", "a2"]);
+    expect(parseAlertsInboxActionLoopIdFromSearch("alert-1")).toBe("alert-1");
+    expect(parseAlertsInboxActionAlertIdFromSearch("alert-2")).toBe("alert-2");
+    expect(parseAlertsInboxActionKindFromSearch("Acknowledge")).toBe("Acknowledge");
+    expect(
+      alertsInboxBatchSelectionHrefFromSearch(
+        "status=open",
+        {
+          bulkAlertIds: ["a1"],
+          actionLoopAlertId: "alert-1",
+          pendingActionAlertId: "alert-2",
+          pendingActionKind: "Resolve",
+        },
+      ),
+    ).toBe(
+      "/governance/alerts?status=open&bulkAlerts=a1&alertLoopId=alert-1&alertActionId=alert-2&alertAction=Resolve",
+    );
+  });
+
+  it("disposition confirm, ask dock, and finding evidence graph view params", async () => {
+    const {
+      findingInspectDispositionConfirmHrefFromSearch,
+      parseFindingInspectDispositionConfirmFromSearch,
+    } = await import("@/lib/findings/finding-inspect-disposition-confirm-url");
+    const {
+      parseReviewAskDockOpenFromSearch,
+      parseReviewAskDockThreadIdFromSearch,
+      reviewAskDockHrefFromSearch,
+    } = await import("@/lib/reviews/review-ask-dock-url");
+    const {
+      findingEvidenceGraphViewHrefFromSearch,
+      parseFindingEvidenceGraphPresentationFromSearch,
+      parseFindingEvidenceGraphViewFromSearch,
+    } = await import("@/lib/findings/finding-evidence-graph-view-url");
+
+    expect(parseFindingInspectDispositionConfirmFromSearch("mark-remediated")).toBe("mark-remediated");
+    expect(
+      findingInspectDispositionConfirmHrefFromSearch("govPanel=disposition", "disposition", "/inspect"),
+    ).toBe("/inspect?govPanel=disposition&dispConfirm=disposition");
+    expect(parseReviewAskDockOpenFromSearch("1")).toBe(true);
+    expect(parseReviewAskDockThreadIdFromSearch("thread-1")).toBe("thread-1");
+    expect(
+      reviewAskDockHrefFromSearch("reviewTab=findings", { open: true, threadId: "thread-1" }, "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?reviewTab=findings&askDock=1&askThread=thread-1");
+    expect(parseFindingEvidenceGraphViewFromSearch("reasoningPath")).toBe("reasoningPath");
+    expect(parseFindingEvidenceGraphPresentationFromSearch("outline")).toBe("outline");
+    expect(
+      findingEvidenceGraphViewHrefFromSearch(
+        "",
+        { viewMode: "reasoningPath", presentationMode: "outline" },
+        "/architecture/reviews/r1/findings/f1/inspect",
+      ),
+    ).toBe("/architecture/reviews/r1/findings/f1/inspect?evGraphView=reasoningPath&evPresentation=outline");
+  });
+
+  it("technology baseline, gcp wizard, explainability, ledger, scope gate, and email preview", async () => {
+    const {
+      parseTechnologyBaselineEntryIdFromSearch,
+      technologyBaselineRationaleHrefFromSearch,
+    } = await import("@/lib/reviews/technology-baseline-rationale-url");
+    const { gcpConnectionWizardStepHrefFromSearch, parseGcpConnectionWizardStepFromSearch } = await import(
+      "@/lib/integrations/gcp-connection-wizard-step-url"
+    );
+    const {
+      parseRunFindingsExplainIdFromSearch,
+      parseRunFindingsReasonIdFromSearch,
+      runFindingsExplainabilityHrefFromSearch,
+    } = await import("@/lib/runs/run-findings-explainability-url");
+    const {
+      firstReviewGuideLedgerHrefFromSearch,
+      parseFirstReviewGuideLedgerExpandedFromSearch,
+    } = await import("@/lib/first-review-guide/first-review-guide-ledger-url");
+    const { parseScopeGateOpenFromSearch, scopeGateHrefFromSearch } = await import("@/lib/architecture/scope-gate-url");
+    const {
+      parseSponsorReportEmailPreviewOpenFromSearch,
+      sponsorReportEmailPreviewHrefFromSearch,
+    } = await import("@/lib/insights/sponsor-report-email-preview-url");
+
+    expect(parseTechnologyBaselineEntryIdFromSearch("entry-1")).toBe("entry-1");
+    expect(
+      technologyBaselineRationaleHrefFromSearch("reviewTab=architecture", "entry-1", "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?reviewTab=architecture&techEntryId=entry-1");
+    expect(parseGcpConnectionWizardStepFromSearch("1")).toBe(1);
+    expect(gcpConnectionWizardStepHrefFromSearch("", 1)).toBe(
+      "/integrations/cloud-connections/gcp?gcpStep=1",
+    );
+    expect(parseRunFindingsExplainIdFromSearch("finding-1")).toBe("finding-1");
+    expect(parseRunFindingsReasonIdFromSearch("finding-2")).toBe("finding-2");
+    expect(
+      runFindingsExplainabilityHrefFromSearch(
+        "reviewTab=findings",
+        { explainFindingId: "finding-1", reasoningFindingId: "finding-2" },
+        "/architecture/reviews/r1",
+      ),
+    ).toBe("/architecture/reviews/r1?reviewTab=findings&explainId=finding-1&reasonId=finding-2");
+    expect(parseFirstReviewGuideLedgerExpandedFromSearch("1")).toBe(true);
+    expect(firstReviewGuideLedgerHrefFromSearch("guideStep=3", true)).toBe(
+      "/architecture/first-review-guide?guideStep=3&ledger=1",
+    );
+    expect(parseScopeGateOpenFromSearch("true")).toBe(true);
+    expect(scopeGateHrefFromSearch("", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?scopeGate=1",
+    );
+    expect(parseSponsorReportEmailPreviewOpenFromSearch("1")).toBe(true);
+    expect(sponsorReportEmailPreviewHrefFromSearch("range=30d", true)).toBe(
+      "/insights/sponsor-report?range=30d&emailPreview=1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(
