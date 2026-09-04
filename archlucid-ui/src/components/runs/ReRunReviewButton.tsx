@@ -13,11 +13,13 @@ import type { ApiProblemDetails } from "@/lib/api-problem";
 import type { ButtonProps } from "@/components/ui/button";
 import { awaitMinimumVisibleDuration } from "@/lib/await-minimum-visible-duration";
 import { findInFlightOperationForRun } from "@/lib/operations/find-in-flight-operation-for-run";
+import { isInFlightOperationForAttempt } from "@/lib/operations/is-in-flight-operation-for-attempt";
 import {
   getInFlightOperations,
   subscribeInFlightOperations,
 } from "@/lib/operations/in-flight-operations-store";
 import { isTerminalOperationState } from "@/lib/operations/operation-state";
+import { restartReviewPipelineInFlight } from "@/lib/operations/review-pipeline-in-flight";
 import {
   formatReRunReviewTerminalHeadline,
   RE_RUN_REVIEW_MIN_BUSY_MS,
@@ -112,6 +114,10 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
         return;
       }
 
+      if (!isInFlightOperationForAttempt(latest, active.startedAtMs)) {
+        return;
+      }
+
       const phase = reRunReviewOutcomePhaseFromOperationState(latest.state);
 
       if (phase === null || phase === "running") {
@@ -138,6 +144,10 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
     const active = activeAttemptRef.current;
 
     if (active === null || trackedOperation === null) {
+      return;
+    }
+
+    if (!isInFlightOperationForAttempt(trackedOperation, active.startedAtMs)) {
       return;
     }
 
@@ -171,6 +181,7 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
     const clickStartedAtMs = Date.now();
     const attemptNumber = resolveReRunReviewAttemptNumber(retryCount, sessionAttemptOffset);
 
+    restartReviewPipelineInFlight(runId, clickStartedAtMs);
     setSessionAttemptOffset((previous) => previous + 1);
     setBusy(true);
     setError(null);

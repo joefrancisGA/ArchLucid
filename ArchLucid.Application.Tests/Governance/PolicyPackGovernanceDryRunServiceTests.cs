@@ -29,8 +29,6 @@ namespace ArchLucid.Application.Tests.Governance;
 [Trait("Category", "Unit")]
 public sealed class PolicyPackGovernanceDryRunServiceTests
 {
-    private const string SealedManifestHash = "sealed-manifest-hash";
-
     private static readonly ScopeContext TestScope = new()
     {
         TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
@@ -43,7 +41,6 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
     {
         Guid runGuid = Guid.NewGuid();
         Guid snapshotId = Guid.NewGuid();
-        Guid manifestGuid = Guid.NewGuid();
         InMemoryRunRepository runs = new();
         await runs.SaveAsync(
             new RunRecord
@@ -56,7 +53,6 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
                 ArchitectureRequestId = "req-dry-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                GoldenManifestId = manifestGuid,
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -86,15 +82,10 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
             },
             CancellationToken.None);
 
-        InMemoryGoldenManifestRepository goldenManifests = new();
-        await goldenManifests.SaveAsync(
-            CreateSealedManifest(manifestGuid, runGuid, snapshotId),
-            CancellationToken.None);
-
         PolicyPackGovernanceDryRunServiceTestsFixture fixture = CreateSut(
             runs,
             findingsRepo,
-            goldenManifests,
+            new InMemoryGoldenManifestRepository(),
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }));
 
         PolicyPackGovernanceDryRunResult? result = await fixture.Sut.EvaluateAsync(
@@ -124,7 +115,6 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
     {
         Guid runGuid = Guid.NewGuid();
         Guid snapshotId = Guid.NewGuid();
-        Guid manifestGuid = Guid.NewGuid();
         InMemoryRunRepository runs = new();
         await runs.SaveAsync(
             new RunRecord
@@ -137,7 +127,6 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
                 ArchitectureRequestId = "req-dry-pascal",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                GoldenManifestId = manifestGuid,
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -167,15 +156,10 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
             },
             CancellationToken.None);
 
-        InMemoryGoldenManifestRepository goldenManifests = new();
-        await goldenManifests.SaveAsync(
-            CreateSealedManifest(manifestGuid, runGuid, snapshotId),
-            CancellationToken.None);
-
         PolicyPackGovernanceDryRunServiceTestsFixture fixture = CreateSut(
             runs,
             findingsRepo,
-            goldenManifests,
+            new InMemoryGoldenManifestRepository(),
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }));
 
         PolicyPackGovernanceDryRunResult? result = await fixture.Sut.EvaluateAsync(
@@ -335,7 +319,6 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
         Guid runGuid = Guid.NewGuid();
         string runId = runGuid.ToString("N");
         Guid snapshotId = Guid.NewGuid();
-        Guid manifestGuid = Guid.NewGuid();
         InMemoryRunRepository runs = new();
         await runs.SaveAsync(
             new RunRecord
@@ -348,7 +331,6 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
                 ArchitectureRequestId = "req-dry-tech-consistency",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                GoldenManifestId = manifestGuid,
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -364,11 +346,6 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                 Findings = [],
             },
-            CancellationToken.None);
-
-        InMemoryGoldenManifestRepository goldenManifests = new();
-        await goldenManifests.SaveAsync(
-            CreateSealedManifest(manifestGuid, runGuid, snapshotId),
             CancellationToken.None);
 
         InMemoryTechnologyLedgerRepository ledgerRepository = new();
@@ -402,7 +379,7 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
         PolicyPackGovernanceDryRunServiceTestsFixture fixture = CreateSut(
             runs,
             findingsRepo,
-            goldenManifests,
+            new InMemoryGoldenManifestRepository(),
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
             ledgerRepository,
             Options.Create(new TechnologyConsistencyFindingEngineOptions
@@ -453,11 +430,6 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(TestScope);
 
-        Mock<IManifestHashService> manifestHash = new();
-        manifestHash
-            .Setup(h => h.ComputeHash(It.IsAny<ManifestDocument>()))
-            .Returns<ManifestDocument>(manifest => manifest.ManifestHash ?? SealedManifestHash);
-
         PolicyPackGovernanceDryRunService sut = new(
             scope.Object,
             runs,
@@ -471,28 +443,8 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
             consistencyOptions ?? Options.Create(new TechnologyConsistencyFindingEngineOptions { Enabled = false }),
             new FindingEvidenceLinkageFindingEngine(),
             linkageOptions ?? Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = false }),
-            manifestHash.Object,
             NullLogger<PolicyPackGovernanceDryRunService>.Instance);
 
         return new PolicyPackGovernanceDryRunServiceTestsFixture(sut, audit);
     }
-
-    private static ManifestDocument CreateSealedManifest(Guid manifestGuid, Guid runGuid, Guid snapshotId) =>
-        new()
-        {
-            ManifestId = manifestGuid,
-            RunId = runGuid,
-            TenantId = TestScope.TenantId,
-            WorkspaceId = TestScope.WorkspaceId,
-            ProjectId = TestScope.ProjectId,
-            ContextSnapshotId = Guid.NewGuid(),
-            GraphSnapshotId = Guid.NewGuid(),
-            FindingsSnapshotId = snapshotId,
-            DecisionTraceId = Guid.NewGuid(),
-            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
-            ManifestHash = SealedManifestHash,
-            RuleSetId = "rs",
-            RuleSetVersion = "1",
-            RuleSetHash = "rsh",
-        };
 }

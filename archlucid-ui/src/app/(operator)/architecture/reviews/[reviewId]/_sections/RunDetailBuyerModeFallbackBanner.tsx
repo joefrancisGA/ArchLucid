@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type RunDetailBuyerModeFallbackBannerProps = {
@@ -14,7 +14,7 @@ type RunDetailBuyerModeFallbackBannerProps = {
 export function RunDetailBuyerModeFallbackBanner(
   props: RunDetailBuyerModeFallbackBannerProps,
 ): ReactElement | null {
-  if (!props.realModeFellBackToSimulator || isBuyerPolishedOperatorShellEnv()) {
+  if (!props.realModeFellBackToSimulator || resolveProductionEvalChromeFromStorage()) {
     return null;
   }
 

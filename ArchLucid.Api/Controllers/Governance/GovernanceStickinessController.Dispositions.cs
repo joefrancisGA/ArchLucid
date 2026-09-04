@@ -26,11 +26,6 @@ public sealed partial class GovernanceStickinessController
         [FromBody] RecordFindingDispositionRequest? request,
         CancellationToken cancellationToken = default)
     {
-        (IActionResult? idempotencyError, _) = GovernanceIdempotencyKeySupport.ReadRequired(this);
-
-        if (idempotencyError is not null)
-            return idempotencyError;
-
         IActionResult? bodyProblem =
             GovernanceStickinessControllerCore.ValidateRequestBodyRequired(request).ToBadRequestProblemOrNull(this);
 
@@ -64,6 +59,11 @@ public sealed partial class GovernanceStickinessController
         if (dispositionValidation is not null)
             return dispositionValidation;
 
+        (IActionResult? idempotencyError, _) = GovernanceIdempotencyKeySupport.ReadRequired(this);
+
+        if (idempotencyError is not null)
+            return idempotencyError;
+
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -91,10 +91,6 @@ public sealed partial class GovernanceStickinessController
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
-        catch (ConflictException ex)
-        {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-        }
         catch (InvalidOperationException ex)
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
@@ -115,11 +111,6 @@ public sealed partial class GovernanceStickinessController
         [FromBody] RecordBulkFindingDispositionRequest? request,
         CancellationToken cancellationToken = default)
     {
-        (IActionResult? idempotencyError, _) = GovernanceIdempotencyKeySupport.ReadRequired(this);
-
-        if (idempotencyError is not null)
-            return idempotencyError;
-
         IActionResult? bodyProblem =
             GovernanceStickinessControllerCore.ValidateRequestBodyRequired(request).ToBadRequestProblemOrNull(this);
 
@@ -138,6 +129,11 @@ public sealed partial class GovernanceStickinessController
 
         if (dispositionValidation is not null)
             return dispositionValidation;
+
+        (IActionResult? idempotencyError, _) = GovernanceIdempotencyKeySupport.ReadRequired(this);
+
+        if (idempotencyError is not null)
+            return idempotencyError;
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
@@ -216,6 +212,13 @@ public sealed partial class GovernanceStickinessController
 
         if (runIdProblem is not null)
             return runIdProblem;
+
+        IActionResult? actionValidation =
+            GovernanceStickinessHttpMapper.ValidateResolveFindingMergeConflict(request!)
+                .ToBadRequestProblemOrNull(this);
+
+        if (actionValidation is not null)
+            return actionValidation;
 
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 

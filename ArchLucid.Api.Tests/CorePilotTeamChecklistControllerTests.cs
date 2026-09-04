@@ -167,6 +167,16 @@ public sealed class CorePilotTeamChecklistControllerTests
     }
 
     [Theory]
+    [InlineData("{\"isCompleted\":true}", "missing stepIndex is rejected during JSON deserialization")]
+    [InlineData("{\"stepIndex\":null,\"isCompleted\":true}", "null stepIndex is rejected during JSON deserialization")]
+    public void PutRequest_deserialization_rejects_missing_or_null_step_index(string payload, string because)
+    {
+        Action act = () => JsonSerializer.Deserialize<CorePilotChecklistPutRequest>(payload, ArchLucidApiJsonSerializerOptions.Web);
+
+        act.Should().Throw<JsonException>(because);
+    }
+
+    [Theory]
     [InlineData("{\"stepIndex\":1}", "missing isCompleted is rejected during JSON deserialization")]
     [InlineData("{\"stepIndex\":1,\"isCompleted\":null}", "null isCompleted is rejected during JSON deserialization")]
     public void PutRequest_deserialization_rejects_missing_or_null_is_completed(string payload, string because)

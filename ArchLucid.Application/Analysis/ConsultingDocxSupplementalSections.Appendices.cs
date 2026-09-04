@@ -73,9 +73,19 @@ internal static partial class ConsultingDocxSupplementalSections
             ConsultingDocxOpenXmlPrimitives.AddBullet(body,
                 $"Removed Services: {report.ManifestDiff.RemovedServices.Count}");
             ConsultingDocxOpenXmlPrimitives.AddBullet(body,
+                $"Added Datastores: {report.ManifestDiff.AddedDatastores.Count}");
+            ConsultingDocxOpenXmlPrimitives.AddBullet(body,
+                $"Removed Datastores: {report.ManifestDiff.RemovedDatastores.Count}");
+            ConsultingDocxOpenXmlPrimitives.AddBullet(body,
+                $"Added Relationships: {report.ManifestDiff.AddedRelationships.Count}");
+            ConsultingDocxOpenXmlPrimitives.AddBullet(body,
+                $"Removed Relationships: {report.ManifestDiff.RemovedRelationships.Count}");
+            ConsultingDocxOpenXmlPrimitives.AddBullet(body,
                 $"Added Required Controls: {report.ManifestDiff.AddedRequiredControls.Count}");
             ConsultingDocxOpenXmlPrimitives.AddBullet(body,
                 $"Removed Required Controls: {report.ManifestDiff.RemovedRequiredControls.Count}");
+            ConsultingDocxOpenXmlPrimitives.AddBullet(body,
+                $"Manifest Warnings: {report.ManifestDiff.Warnings.Count}");
         }
 
         if (report.AgentResultDiff is null)

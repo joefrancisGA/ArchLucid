@@ -6,14 +6,14 @@ namespace ArchLucid.Core.Governance.PolicyPacks;
 public static class PlatformOverlayPolicyPacks
 {
     public static readonly IReadOnlySet<string> AzureOverlayDisplayNames =
-        new HashSet<string>(StringComparer.Ordinal)
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "Azure Well-Architected Framework",
             "CIS Microsoft Azure Foundations Benchmark",
         };
 
     public static readonly IReadOnlySet<string> AwsOverlayDisplayNames =
-        new HashSet<string>(StringComparer.Ordinal)
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "AWS Well-Architected Framework",
             "CIS AWS Foundations Benchmark",
@@ -22,7 +22,7 @@ public static class PlatformOverlayPolicyPacks
         };
 
     public static readonly IReadOnlySet<string> GcpOverlayDisplayNames =
-        new HashSet<string>(StringComparer.Ordinal)
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "Google Cloud Architecture Framework",
             "CIS Google Cloud Platform Foundation Benchmark",

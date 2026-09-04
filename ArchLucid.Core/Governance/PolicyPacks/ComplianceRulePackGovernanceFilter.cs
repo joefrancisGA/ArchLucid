@@ -5,10 +5,16 @@ namespace ArchLucid.Core.Governance.PolicyPacks;
 
 public static class ComplianceRulePackGovernanceFilter
 {
-    public static ComplianceRulePack Filter(ComplianceRulePack source, PolicyPackContentDocument effective)
+    public static ComplianceRulePack Filter(ComplianceRulePack source, PolicyPackContentDocument effective) =>
+        Filter(source, effective, applicabilityContext: null);
+
+    public static ComplianceRulePack Filter(
+        ComplianceRulePack source,
+        PolicyPackContentDocument effective,
+        ComplianceRuleApplicabilityContext? applicabilityContext)
     {
         if (effective.ComplianceRuleIds.Count == 0 && effective.ComplianceRuleKeys.Count == 0)
-            return WithPriorityFloor(source, source.Rules, effective);
+            return WithPriorityFloor(source, source.Rules, effective, applicabilityContext);
 
         HashSet<string> keySet = effective.ComplianceRuleKeys.ToHashSet(StringComparer.OrdinalIgnoreCase);
         HashSet<Guid> guidSet = effective.ComplianceRuleIds.ToHashSet();
@@ -18,16 +24,19 @@ public static class ComplianceRulePackGovernanceFilter
                         (Guid.TryParse(r.RuleId, out Guid g) && guidSet.Contains(g)))
             .ToList();
 
-        return WithPriorityFloor(source, rules, effective);
+        return WithPriorityFloor(source, rules, effective, applicabilityContext);
     }
 
     private static ComplianceRulePack WithPriorityFloor(
         ComplianceRulePack source,
         List<ComplianceRule> rules,
-        PolicyPackContentDocument effective)
+        PolicyPackContentDocument effective,
+        ComplianceRuleApplicabilityContext? applicabilityContext)
     {
+        IReadOnlyList<ComplianceRule> applicabilityFiltered =
+            ComplianceRuleApplicabilityFilter.FilterRules(rules, applicabilityContext);
         string floor = PolicyPackPriorityFloor.ResolveFloor(effective);
-        IReadOnlyList<ComplianceRule> tierFiltered = PolicyPackPriorityFloor.FilterRules(rules, floor);
+        IReadOnlyList<ComplianceRule> tierFiltered = PolicyPackPriorityFloor.FilterRules(applicabilityFiltered, floor);
 
         return new ComplianceRulePack
         {

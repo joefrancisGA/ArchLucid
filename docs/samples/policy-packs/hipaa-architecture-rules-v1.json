@@ -4,7 +4,7 @@
   "pack": {
     "name": "HIPAA / HITECH Safeguards",
     "description": "PHI handling, audit, and encryption themes for healthcare architectures. Not HIPAA certification.",
-    "version": "1.1.0",
+    "version": "1.0.0",
     "category": "Healthcare",
     "isDefault": true,
     "suggestedPackType": "PlatformDefault",
@@ -13,11 +13,11 @@
   "rules": [
     {
       "id": "hipaa-001",
-      "title": "PHI system boundary documented",
-      "description": "Architecture must delineate which components create, receive, maintain, or transmit ePHI \u2014 not treat PHI scope as implicit.",
-      "severity": "Critical",
+      "title": "HIPAA / HITECH Safeguards \u2014 control theme 1",
+      "description": "Architecture manifest and Azure extractor evidence should support: hipaa / hitech safeguards \u2014 control theme 1. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
       "priority": "P0",
-      "remediationGuidance": "Mark PHI-scoped services and datastores in governance.ComplianceTags and datastores[].Tags; state boundary in metadata.ChangeDescription.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -28,17 +28,17 @@
       "frameworkMappings": [
         {
           "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.308(a)(1) \u2014 Security management process (scope)"
+          "theme": "Administrative safeguards"
         }
       ]
     },
     {
       "id": "hipaa-002",
-      "title": "Risk analysis themes documented for PHI workloads",
-      "description": "Manifest should reference periodic risk analysis covering threats to confidentiality, integrity, and availability of ePHI.",
+      "title": "HIPAA / HITECH Safeguards \u2014 control theme 2",
+      "description": "Architecture manifest and Azure extractor evidence should support: hipaa / hitech safeguards \u2014 control theme 2. Thematic mapping only \u2014 not certification.",
       "severity": "High",
       "priority": "P0",
-      "remediationGuidance": "Document risk-analysis cadence in governance.PolicyConstraints and governance.ComplianceTags.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -49,17 +49,17 @@
       "frameworkMappings": [
         {
           "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.308(a)(1)(ii)(A) \u2014 Risk analysis"
+          "theme": "Technical safeguards"
         }
       ]
     },
     {
       "id": "hipaa-003",
-      "title": "Assigned security responsibility identified",
-      "description": "A named security official or team accountable for HIPAA safeguard implementation must be referenced at system scope.",
-      "severity": "Medium",
-      "priority": "P0",
-      "remediationGuidance": "Record security responsibility in governance.ComplianceTags and metadata.ChangeDescription.",
+      "title": "HIPAA / HITECH Safeguards \u2014 control theme 3",
+      "description": "Architecture manifest and Azure extractor evidence should support: hipaa / hitech safeguards \u2014 control theme 3. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -70,17 +70,17 @@
       "frameworkMappings": [
         {
           "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.308(a)(2) \u2014 Assigned security responsibility"
+          "theme": "Audit controls"
         }
       ]
     },
     {
       "id": "hipaa-004",
-      "title": "Workforce security and authorization",
-      "description": "Role-based workforce access to ePHI systems must document authorization procedures and termination handling.",
-      "severity": "High",
-      "priority": "P0",
-      "remediationGuidance": "Describe workforce access procedures in governance.RequiredControls; align identity roles with services[].Tags.",
+      "title": "HIPAA / HITECH Safeguards \u2014 control theme 4",
+      "description": "Architecture manifest and Azure extractor evidence should support: hipaa / hitech safeguards \u2014 control theme 4. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -91,17 +91,17 @@
       "frameworkMappings": [
         {
           "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.308(a)(3) \u2014 Workforce security"
+          "theme": "Administrative safeguards"
         }
       ]
     },
     {
       "id": "hipaa-005",
-      "title": "Information access management",
-      "description": "Access to ePHI must follow minimum necessary principles with documented approval workflows for new privileges.",
-      "severity": "High",
-      "priority": "P0",
-      "remediationGuidance": "Capture minimum-necessary policy in governance.PolicyConstraints and metadata.ChangeDescription.",
+      "title": "HIPAA / HITECH Safeguards \u2014 control theme 5",
+      "description": "Architecture manifest and Azure extractor evidence should support: hipaa / hitech safeguards \u2014 control theme 5. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -112,17 +112,17 @@
       "frameworkMappings": [
         {
           "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.308(a)(4) \u2014 Information access management"
+          "theme": "Technical safeguards"
         }
       ]
     },
     {
       "id": "hipaa-006",
-      "title": "Security awareness and training themes",
-      "description": "Architecture integrations affecting PHI (new portals, APIs) should reference workforce training and phishing awareness programs.",
-      "severity": "Low",
+      "title": "HIPAA / HITECH Safeguards \u2014 control theme 6",
+      "description": "Architecture manifest and Azure extractor evidence should support: hipaa / hitech safeguards \u2014 control theme 6. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
       "priority": "P1",
-      "remediationGuidance": "Note training program hooks in governance.ComplianceTags when user-facing PHI systems are in scope.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -133,17 +133,17 @@
       "frameworkMappings": [
         {
           "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.308(a)(5) \u2014 Security awareness training"
+          "theme": "Audit controls"
         }
       ]
     },
     {
       "id": "hipaa-007",
-      "title": "Security incident procedures documented",
-      "description": "PHI breach detection, containment, and notification workflows must be identifiable from architecture monitoring and IR integrations.",
-      "severity": "Critical",
-      "priority": "P1",
-      "remediationGuidance": "List IR and breach-notification integration points in governance.RequiredControls and metadata.ChangeDescription.",
+      "title": "HIPAA / HITECH Safeguards \u2014 control theme 7",
+      "description": "Architecture manifest and Azure extractor evidence should support: hipaa / hitech safeguards \u2014 control theme 7. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -154,44 +154,38 @@
       "frameworkMappings": [
         {
           "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.308(a)(6) \u2014 Security incident procedures"
+          "theme": "Administrative safeguards"
         }
       ]
     },
     {
       "id": "hipaa-008",
-      "title": "Contingency plan and data backup",
-      "description": "ePHI systems must document backup, disaster recovery, and emergency mode operations with tested restore procedures.",
-      "severity": "Critical",
-      "priority": "P1",
-      "remediationGuidance": "Document RTO/RPO and backup encryption in governance.RequiredControls and datastores[].Tags.",
+      "title": "HIPAA / HITECH Safeguards \u2014 control theme 8",
+      "description": "Architecture manifest and Azure extractor evidence should support: hipaa / hitech safeguards \u2014 control theme 8. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
         "governance.ComplianceTags",
         "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
+        "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
         {
           "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.308(a)(7) \u2014 Contingency plan"
+          "theme": "Technical safeguards"
         }
       ]
     },
     {
       "id": "hipaa-009",
-      "title": "Periodic evaluation of safeguards",
-      "description": "Architecture should reference periodic technical and non-technical evaluations of HIPAA controls \u2014 not one-time design only.",
+      "title": "HIPAA / HITECH Safeguards \u2014 control theme 9",
+      "description": "Architecture manifest and Azure extractor evidence should support: hipaa / hitech safeguards \u2014 control theme 9. Thematic mapping only \u2014 not certification.",
       "severity": "Medium",
-      "priority": "P1",
-      "remediationGuidance": "Add evaluation cadence tags to governance.ComplianceTags and metadata.ChangeDescription.",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -202,245 +196,17 @@
       "frameworkMappings": [
         {
           "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.308(a)(8) \u2014 Evaluation"
+          "theme": "Audit controls"
         }
       ]
     },
     {
       "id": "hipaa-010",
-      "title": "Business associate agreements for subprocessors",
-      "description": "Third-party services handling ePHI must be enumerated with BAA status and data-flow documentation.",
-      "severity": "Critical",
-      "priority": "P1",
-      "remediationGuidance": "List subprocessors on external WritesTo edges; tag BAA status in governance.ComplianceTags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.308(b) \u2014 Business associate contracts"
-        }
-      ]
-    },
-    {
-      "id": "hipaa-011",
-      "title": "Facility access controls (cloud reliance documented)",
-      "description": "While physical access is provider-operated, architecture must document reliance on certified data centers and customer access constraints.",
-      "severity": "Low",
-      "priority": "P1",
-      "remediationGuidance": "Note facility/certification reliance in governance.ComplianceTags for region and hosting decisions.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.310(a) \u2014 Facility access controls"
-        }
-      ]
-    },
-    {
-      "id": "hipaa-012",
-      "title": "Workstation and endpoint security themes",
-      "description": "Administrative access paths to PHI systems (jump boxes, privileged workstations) must document hardening expectations.",
-      "severity": "Medium",
-      "priority": "P1",
-      "remediationGuidance": "Describe admin access paths in governance.PolicyConstraints and metadata.ChangeDescription.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.310(b) \u2014 Workstation use and security"
-        }
-      ]
-    },
-    {
-      "id": "hipaa-013",
-      "title": "Device and media controls for PHI export",
-      "description": "Data export, backup media, and removable storage paths must document encryption and disposal procedures.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Tag export and backup flows on relationships[]; document media controls in governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.310(d) \u2014 Device and media controls"
-        }
-      ]
-    },
-    {
-      "id": "hipaa-014",
-      "title": "Unique user identification",
-      "description": "No shared accounts for workforce access to ePHI \u2014 each user must map to a unique identity for audit attribution.",
-      "severity": "Critical",
-      "priority": "P1",
-      "remediationGuidance": "Document unique identity requirement in governance.PolicyConstraints; prohibit shared-account tags on services[].Tags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.312(a)(2)(i) \u2014 Unique user identification"
-        }
-      ]
-    },
-    {
-      "id": "hipaa-015",
-      "title": "Emergency access procedure documented",
-      "description": "Break-glass access to ePHI during emergencies must be time-bound, logged, and reviewed \u2014 not standing shared passwords.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Record emergency access procedure in governance.RequiredControls and metadata.ChangeDescription.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.312(a)(2)(ii) \u2014 Emergency access procedure"
-        }
-      ]
-    },
-    {
-      "id": "hipaa-016",
-      "title": "Automatic logoff or session timeout",
-      "description": "Interactive sessions to PHI applications must document idle timeout or re-authentication for unattended workstations.",
-      "severity": "Medium",
-      "priority": "P1",
-      "remediationGuidance": "Capture session timeout policy in governance.PolicyConstraints and services[].Tags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.312(a)(2)(iii) \u2014 Automatic logoff"
-        }
-      ]
-    },
-    {
-      "id": "hipaa-017",
-      "title": "Encryption and decryption of ePHI",
-      "description": "ePHI at rest and in transit must document encryption mechanisms meeting organizational standards \u2014 addressable implementation required.",
-      "severity": "Critical",
-      "priority": "P2",
-      "remediationGuidance": "Record encryption controls in governance.RequiredControls and datastores[].Tags; cite Azure SSE/TDE from extractor.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.312(a)(2)(iv) \u2014 Encryption and decryption"
-        }
-      ]
-    },
-    {
-      "id": "hipaa-018",
-      "title": "Audit controls and PHI access logging",
-      "description": "Systems touching ePHI must produce audit trails for access, modification, and disclosure with tamper-resistant storage.",
-      "severity": "Critical",
-      "priority": "P2",
-      "remediationGuidance": "List audit log destinations in governance.RequiredControls; align with azureExtractor diagnostic settings.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.312(b) \u2014 Audit controls"
-        }
-      ]
-    },
-    {
-      "id": "hipaa-019",
-      "title": "Integrity controls for ePHI",
-      "description": "Architecture must document controls preventing unauthorized alteration or destruction of ePHI (checksums, WORM, versioning).",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Describe integrity mechanisms in governance.PolicyConstraints and datastores[].Tags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.312(c)(1) \u2014 Integrity"
-        }
-      ]
-    },
-    {
-      "id": "hipaa-020",
-      "title": "Mechanism to authenticate ePHI",
-      "description": "Where integrity risk is high, document how ePHI authenticity is verified (digital signatures, HMAC, immutable logs).",
+      "title": "HIPAA / HITECH Safeguards \u2014 control theme 10",
+      "description": "Architecture manifest and Azure extractor evidence should support: hipaa / hitech safeguards \u2014 control theme 10. Thematic mapping only \u2014 not certification.",
       "severity": "Medium",
       "priority": "P2",
-      "remediationGuidance": "Note authentication-of-data mechanisms in metadata.ChangeDescription and governance.RequiredControls.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -451,175 +217,7 @@
       "frameworkMappings": [
         {
           "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.312(c)(2) \u2014 Mechanism to authenticate ePHI"
-        }
-      ]
-    },
-    {
-      "id": "hipaa-021",
-      "title": "Person or entity authentication",
-      "description": "All PHI system access must document strong authentication (MFA, federated SSO) appropriate to risk.",
-      "severity": "Critical",
-      "priority": "P2",
-      "remediationGuidance": "Tag authentication requirements on services[].Tags; document MFA in governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.312(d) \u2014 Person or entity authentication"
-        }
-      ]
-    },
-    {
-      "id": "hipaa-022",
-      "title": "Transmission security for ePHI",
-      "description": "Electronic transmission of ePHI must use TLS or equivalent with documented exceptions and compensating controls.",
-      "severity": "Critical",
-      "priority": "P2",
-      "remediationGuidance": "Document TLS minimums in governance.PolicyConstraints; map PHI flows on relationships[].relationshipType.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.312(e)(1) \u2014 Transmission security"
-        }
-      ]
-    },
-    {
-      "id": "hipaa-023",
-      "title": "Integrity controls in transit",
-      "description": "End-to-end integrity for PHI transmissions (mTLS, signed payloads) should be documented for high-risk integrations.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Describe in-transit integrity in governance.RequiredControls for partner API and HL7/FHIR edges.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.312(e)(2)(i) \u2014 Integrity controls (transmission)"
-        }
-      ]
-    },
-    {
-      "id": "hipaa-024",
-      "title": "Encryption in transit for ePHI",
-      "description": "All internet and cross-zone PHI paths must assume encryption in transit unless documented isolated network exception.",
-      "severity": "Critical",
-      "priority": "P2",
-      "remediationGuidance": "Align HTTPS-only assumptions with relationships[]; record exceptions in metadata.ChangeDescription.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.312(e)(2)(ii) \u2014 Encryption (transmission)"
-        }
-      ]
-    },
-    {
-      "id": "hipaa-025",
-      "title": "Minimum necessary access for APIs exposing PHI",
-      "description": "APIs returning PHI must document field filtering, scope limits, and purpose-bound tokens \u2014 not full-record dumps by default.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Document API scoping in services[].Purpose and governance.PolicyConstraints.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.502(b) \u2014 Minimum necessary (API design)"
-        }
-      ]
-    },
-    {
-      "id": "hipaa-026",
-      "title": "De-identification and limited data set themes",
-      "description": "Analytics or secondary-use paths must document de-identification method or limited data set agreements before PHI reuse.",
-      "severity": "Medium",
-      "priority": "P2",
-      "remediationGuidance": "Tag analytics datastores with de-id method in datastores[].Tags and governance.ComplianceTags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.514 \u2014 De-identification"
-        }
-      ]
-    },
-    {
-      "id": "hipaa-027",
-      "title": "Patient access and amendment integration hooks",
-      "description": "Systems of record for PHI should reference how individual access and amendment requests are supported operationally.",
-      "severity": "Low",
-      "priority": "P2",
-      "remediationGuidance": "Note patient-rights operational hooks in metadata.ChangeDescription when EHR or patient portal services are in scope.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.524 / \u00a7164.526 \u2014 Access and amendment"
-        }
-      ]
-    },
-    {
-      "id": "hipaa-028",
-      "title": "Breach notification workflow alignment",
-      "description": "Architecture monitoring must support breach risk assessment timelines \u2014 detection sources and escalation paths documented.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "List breach-assessment triggers in governance.RequiredControls and security monitoring services[].Tags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "HIPAA Security Rule",
-          "theme": "\u00a7164.404 \u2014 Breach notification (operational alignment)"
+          "theme": "Administrative safeguards"
         }
       ]
     }

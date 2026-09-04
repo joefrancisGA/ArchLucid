@@ -3,10 +3,12 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent, type RefObject } from "react";
 
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
 import { useViewportNarrow } from "@/hooks/useViewportNarrow";
 import { partitionRunsIntoWorkQueueSections, type RunWorkQueueSection } from "@/lib/runs/run-work-queue-groups";
-import { isBuyerPolishedOperatorShellEnv, isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
+import { isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
+import { resolveProductionEvalChrome } from "@/lib/production-desk-chrome";
 import {
   canonicalizeDemoRunId,
   dedupeRunSummariesByRunId,
@@ -101,7 +103,8 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     return dedupeRunSummariesByRunId(filtered.map(normalizeRunSummaryForDemoPicker));
   }, [runs]);
 
-  const buyerPolished = isBuyerPolishedOperatorShellEnv();
+  const { mode } = useWorkspaceMode();
+  const buyerPolished = resolveProductionEvalChrome({ workspaceMode: mode });
   const buyerPipelineLabels = isBuyerVocabularyPassActive();
   const buyerCollapseFilters = buyerPolished && totalCount <= 1;
 

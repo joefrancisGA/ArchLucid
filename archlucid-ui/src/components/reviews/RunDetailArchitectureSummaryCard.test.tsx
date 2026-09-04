@@ -4,20 +4,42 @@ import { describe, expect, it } from "vitest";
 import { RunDetailArchitectureSummaryCard } from "@/components/reviews/RunDetailArchitectureSummaryCard";
 
 describe("RunDetailArchitectureSummaryCard", () => {
-  it("omits repeated architecture title and only shows submitted-architecture action when source exists", () => {
+  it("shows a documents-only summary when prose is absent but intake files were attached", () => {
     render(
       <RunDetailArchitectureSummaryCard
         architectureTitle={null}
-        architectureText="Claims Intake Modernization"
-        evidenceCount={2}
+        architectureText={null}
+        evidenceCount={1}
+        userAssertions={null}
+        hasSubmittedArchitecture
+        onNavigateTab={() => undefined}
+      />,
+    );
+
+    expect(screen.queryByText("Architecture", { selector: "dt" })).not.toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "A text summary is not available yet. Architecture details are in your submitted documents and diagrams.",
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-view-submitted-architecture")).toBeInTheDocument();
+  });
+
+  it("omits a negative empty state when submitted architecture is not recorded", () => {
+    render(
+      <RunDetailArchitectureSummaryCard
+        architectureTitle={null}
+        architectureText={null}
+        evidenceCount={0}
         userAssertions={null}
         hasSubmittedArchitecture={false}
         onNavigateTab={() => undefined}
       />,
     );
 
-    expect(screen.queryByText("Architecture", { selector: "dt" })).not.toBeInTheDocument();
-    expect(screen.getByText("No architecture description was submitted with this review.")).toBeInTheDocument();
+    expect(
+      screen.queryByText("No architecture description was submitted with this review."),
+    ).not.toBeInTheDocument();
     expect(screen.queryByTestId("run-detail-view-submitted-architecture")).not.toBeInTheDocument();
   });
 

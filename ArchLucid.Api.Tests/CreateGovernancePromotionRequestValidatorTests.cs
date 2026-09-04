@@ -15,15 +15,16 @@ public sealed class CreateGovernancePromotionRequestValidatorTests
     private readonly CreateGovernancePromotionRequestValidator _validator = new();
 
     [Fact]
-    public void Validate_passes_when_promoted_by_omitted_because_controller_uses_actor_context()
+    public void Validate_accepts_property_initializer_defaults_for_standard_dev_to_test_promotion()
     {
         CreateGovernancePromotionRequest request = new()
         {
             RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
             ManifestVersion = "1.0.0",
-            SourceEnvironment = GovernanceEnvironment.Dev,
-            TargetEnvironment = GovernanceEnvironment.Test,
         };
+
+        request.SourceEnvironment.Should().Be(GovernanceEnvironment.Dev);
+        request.TargetEnvironment.Should().Be(GovernanceEnvironment.Test);
 
         ValidationResult result = _validator.Validate(request);
 

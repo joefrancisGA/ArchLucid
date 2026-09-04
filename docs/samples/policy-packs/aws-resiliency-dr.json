@@ -20,18 +20,17 @@
   "compositeAlertRuleIds": [],
   "advisoryDefaults": {
     "severityFloor": "warning",
-    "priorityFloor": "P1",
+    "priorityFloor": "P0",
     "scanDepth": "standard"
   },
   "metadata": {
     "templateId": "aws-resiliency-dr-v1",
     "pack.displayName": "AWS Resiliency & Disaster Recovery",
     "pack.category": "Reliability",
-    "pack.version": "1.1.0",
+    "pack.version": "1.0.0",
     "pack.isDefault": "true",
     "pack.description": "Multi-AZ, Route 53, AWS Backup, and cross-region replication themes for AWS workloads.",
     "frameworkMappingDisclaimer": "DR mapping is thematic only.",
-    "curatedRulesArtifact": "docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json",
-    "overlayTrimNeutralBaseline": "2026-08-23"
+    "curatedRulesArtifact": "docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json"
   }
 }

@@ -21,13 +21,13 @@ export const MUTATION_AMENDABLE_MOUNTED_CONTROL_SURFACES: readonly MutationAmend
     },
     {
       mutationId: "governance_workflow_approve",
-      sourceRoot: "app/(operator)/governance/_sections/GovernanceWorkflowApprovalsList.tsx",
-      requiredSuccessMarkers: ["GovernanceRecordCorrectionInlineControl", "governance_workflow_approve"],
+      sourceRoot: "app/(operator)/governance/_sections/GovernanceWorkflowMutationHost.tsx",
+      requiredSuccessMarkers: ["onRecordCorrection", "governance_workflow_approve"],
     },
     {
       mutationId: "governance_workflow_reject",
-      sourceRoot: "app/(operator)/governance/_sections/GovernanceWorkflowApprovalsList.tsx",
-      requiredSuccessMarkers: ["GovernanceRecordCorrectionInlineControl", "governance_workflow_reject"],
+      sourceRoot: "app/(operator)/governance/_sections/GovernanceWorkflowMutationHost.tsx",
+      requiredSuccessMarkers: ["onRecordCorrection", "governance_workflow_reject"],
     },
     {
       mutationId: "governance_workflow_promote",

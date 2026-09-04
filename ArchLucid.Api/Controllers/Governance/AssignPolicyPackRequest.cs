@@ -22,7 +22,7 @@ public sealed class AssignPolicyPackRequest
     } = "Project";
 
     /// <summary>When true, increases precedence within the same tier during resolution.</summary>
-    public bool IsPinned
+    public required bool IsPinned
     {
         get;
         set;

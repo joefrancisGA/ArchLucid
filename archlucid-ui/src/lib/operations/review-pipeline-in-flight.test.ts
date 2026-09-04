@@ -3,9 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   getInFlightOperations,
   resetInFlightOperationsForTests,
+  trackInFlightOperation,
 } from "@/lib/operations/in-flight-operations-store";
 import {
   REVIEW_PIPELINE_IN_FLIGHT_TITLE,
+  restartReviewPipelineInFlight,
   reviewPipelineDetailHref,
   reviewPipelineOperationId,
   trackReviewPipelineInFlight,
@@ -76,5 +78,44 @@ describe("trackReviewPipelineInFlight", () => {
     expect(trackReviewPipelineInFlight(undefined)).toBeNull();
     expect(trackReviewPipelineInFlight("   ")).toBeNull();
     expect(getInFlightOperations()).toHaveLength(0);
+  });
+});
+
+describe("restartReviewPipelineInFlight", () => {
+  beforeEach(() => {
+    staticDemo.enabled = false;
+    window.sessionStorage.clear();
+    resetInFlightOperationsForTests();
+  });
+
+  afterEach(() => {
+    window.sessionStorage.clear();
+    resetInFlightOperationsForTests();
+  });
+
+  it("replaces a terminal row with a fresh pending attempt clock", () => {
+    const staleStartedAtMs = Date.parse("2026-01-01T00:00:00.000Z");
+    const restartedAtMs = Date.parse("2026-01-01T12:00:00.000Z");
+
+    trackInFlightOperation({
+      operationId: "run:abc-123",
+      title: REVIEW_PIPELINE_IN_FLIGHT_TITLE,
+      href: "/architecture/reviews/abc-123",
+      runId: "abc-123",
+      stepLabel: "Agent execution failed",
+      state: "Failed",
+      startedAtMs: staleStartedAtMs,
+      heartbeatUtc: "2026-01-01T00:00:00.000Z",
+    });
+
+    restartReviewPipelineInFlight("abc-123", restartedAtMs);
+
+    const rows = getInFlightOperations();
+
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.state).toBe("Pending");
+    expect(rows[0]?.stepLabel).toBe("Queued");
+    expect(rows[0]?.startedAtMs).toBe(restartedAtMs);
+    expect(rows[0]?.heartbeatUtc).toBeNull();
   });
 });

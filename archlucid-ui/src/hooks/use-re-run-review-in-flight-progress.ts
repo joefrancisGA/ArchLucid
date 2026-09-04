@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { useReviewPipelineInFlightForRun } from "@/hooks/use-review-pipeline-in-flight-for-run";
+import { isInFlightOperationForAttempt } from "@/lib/operations/is-in-flight-operation-for-attempt";
 import {
   buildReRunReviewRunningProgressCopy,
   RE_RUN_REVIEW_PROGRESS_TICK_MS,
@@ -31,7 +32,11 @@ export function useReRunReviewInFlightProgress(
   args: UseReRunReviewInFlightProgressArgs,
 ): UseReRunReviewInFlightProgressResult {
   const nowFn = args.nowMs ?? Date.now;
-  const operation = useReviewPipelineInFlightForRun(args.runId);
+  const trackedOperation = useReviewPipelineInFlightForRun(args.runId);
+  const operation =
+    args.active && isInFlightOperationForAttempt(trackedOperation, args.startedAtMs)
+      ? trackedOperation
+      : null;
   const [elapsedMs, setElapsedMs] = useState(0);
 
   useEffect(() => {

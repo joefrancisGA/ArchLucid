@@ -152,6 +152,13 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
             builder.AddDiffSection("Removed Datastores", report.ManifestDiff.RemovedDatastores);
             builder.AddDiffSection("Added Required Controls", report.ManifestDiff.AddedRequiredControls);
             builder.AddDiffSection("Removed Required Controls", report.ManifestDiff.RemovedRequiredControls);
+            builder.AddDiffSection(
+                "Added Relationships",
+                report.ManifestDiff.AddedRelationships.Select(static relationship => relationship.ToDisplayLine()).ToList());
+            builder.AddDiffSection(
+                "Removed Relationships",
+                report.ManifestDiff.RemovedRelationships.Select(static relationship => relationship.ToDisplayLine()).ToList());
+            builder.AddDiffSection("Warnings", report.ManifestDiff.Warnings);
             builder.AddSpacer();
         }
 
@@ -171,6 +178,10 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
             builder.AddDiffSection("Removed Findings", delta.RemovedFindings);
             builder.AddDiffSection("Added Required Controls", delta.AddedRequiredControls);
             builder.AddDiffSection("Removed Required Controls", delta.RemovedRequiredControls);
+            builder.AddDiffSection("Added Warnings", delta.AddedWarnings);
+            builder.AddDiffSection("Removed Warnings", delta.RemovedWarnings);
+            builder.AddDiffSection("Added Evidence References", delta.AddedEvidenceRefs);
+            builder.AddDiffSection("Removed Evidence References", delta.RemovedEvidenceRefs);
             builder.AddSpacer();
         }
 

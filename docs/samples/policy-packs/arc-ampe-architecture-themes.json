@@ -87,23 +87,16 @@
   "advisoryDefaults": {
     "severityFloor": "warning",
     "priorityFloor": "P0",
-    "scanDepth": "extended",
-    "verticalScope": "us-healthcare-exchange",
-    "dataResidency": "us-only",
-    "arcAmpeVolumes": "I-and-II-architecture-themes"
+    "scanDepth": "standard"
   },
   "metadata": {
     "templateId": "arc-ampe-architecture-themes-v1",
     "pack.displayName": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities)",
     "pack.category": "Compliance",
-    "pack.version": "1.1.0",
+    "pack.version": "1.0.0",
     "pack.isDefault": "true",
-    "pack.description": "Architecture-review themes aligned to CMS ARC-AMPE Volume I v1.02 (Pillars, ACA AE CSF Profile, Privacy Framework profile) with NIST SP 800-53 R5 control citations. Thematic mapping only; not CMS conformity, SSPP authoring, or attestation.",
-    "frameworkMappingDisclaimer": "Thematic architecture-review mapping toward ARC-AMPE Volumes I and II (CMS, v1.02). Not CMS conformity assessment, not SSPP authoring, not third-party attestation, not legal advice. ArchLucid does not classify customers as ACA Administering Entities or Partner Entities; those determinations rest with customer counsel.",
-    "curatedRulesArtifact": "docs/samples/policy-packs/arc-ampe-architecture-themes-rules-v1.json",
-    "sourceCitation": "Centers for Medicare & Medicaid Services, ARC-AMPE Volume I, Version 1.02, 2025-04-10",
-    "verticalRecommendation": "us-healthcare-exchange",
-    "seedScopeRecommendation": "opt-in-vertical",
-    "authoringMode": "llm-critic-human"
+    "pack.description": "Architecture-review themes mapped to ARC-AMPE Volumes I and II. Not CMS conformity assessment or SSPP authoring.",
+    "frameworkMappingDisclaimer": "ARC-AMPE references are thematic mapping only; not legal advice on ACA/Medicaid scope.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/arc-ampe-architecture-themes-rules-v1.json"
   }
 }

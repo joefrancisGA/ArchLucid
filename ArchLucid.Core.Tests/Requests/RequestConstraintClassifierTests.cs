@@ -27,6 +27,22 @@ public sealed class RequestConstraintClassifierTests
     }
 
     [Fact]
+    public void HasManagedIdentityConstraint_does_not_false_positive_on_unmanaged_identity_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["unmanaged identity for storage"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasManagedIdentityConstraint_does_not_false_positive_on_non_managed_identity_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["non-managed identity acceptable"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
     public void HasPrivateNetworkingConstraint_detects_private_endpoint_phrasing()
     {
         ArchitectureRequest request = CreateRequest(constraints: ["traffic via private endpoint only"]);
@@ -88,6 +104,70 @@ public sealed class RequestConstraintClassifierTests
         ArchitectureRequest request = CreateRequest(capabilities: ["relational store (sql)"]);
 
         RequestConstraintClassifier.RequiresSqlCapability(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void RequiresSqlCapability_does_not_false_positive_on_nosql_capability_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(capabilities: ["NoSQL document store"]);
+
+        RequestConstraintClassifier.RequiresSqlCapability(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void RequiresSqlCapability_does_not_false_positive_on_mysql_capability_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(capabilities: ["MySQL database"]);
+
+        RequestConstraintClassifier.RequiresSqlCapability(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_non_encryption_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["non-encryption allowed"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_non_encryption_underscore_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["non_encryption required"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void RequiresAiCapability_does_not_false_positive_on_email_capability_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(capabilities: ["email notifications"]);
+
+        RequestConstraintClassifier.RequiresAiCapability(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void RequiresSearchCapability_does_not_false_positive_on_research_capability_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(capabilities: ["market research"]);
+
+        RequestConstraintClassifier.RequiresSearchCapability(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasPrivateNetworkingConstraint_does_not_false_positive_on_non_private_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["non-private networking allowed"]);
+
+        RequestConstraintClassifier.HasPrivateNetworkingConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasPrivateNetworkingConstraint_does_not_false_positive_on_non_private_space_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["non private networking allowed"]);
+
+        RequestConstraintClassifier.HasPrivateNetworkingConstraint(request).Should().BeFalse();
     }
 
     [Fact]

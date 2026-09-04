@@ -18,9 +18,11 @@ import { useReviewsListReturnNavHref } from "@/hooks/use-reviews-list-return-nav
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { formatActionActorName } from "@/lib/action-actor-display";
 import { CTA_WIDTH, DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { truncateRunId } from "@/components/governance/recurrence-schedules-presentation";
 import { clampReviewWorkspaceH1Title } from "@/lib/review-display-title";
 import {
   deriveReviewRecordMetadataContext,
+  isReviewPipelineIncomplete,
   resolveReviewMetadataAbsentReasons,
 } from "@/lib/run-detail-workspace-derive";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
@@ -117,15 +119,6 @@ function resolveMetadataDisclosureSummary(
   return `Record metadata (${unrecordedFieldCount} fields not recorded)`;
 }
 
-function isReviewPipelineIncomplete(workspaceStatus: RunDetailWorkspaceStatus): boolean {
-  return (
-    workspaceStatus.kind === "draft"
-    || workspaceStatus.kind === "analysis-in-progress"
-    || workspaceStatus.kind === "execution-failed"
-    || workspaceStatus.kind === "quality-gate-rejected"
-  );
-}
-
 function shouldShowReviewRecordMetadata(
   metadataContext: ReturnType<typeof deriveReviewRecordMetadataContext>,
   workspaceStatus: RunDetailWorkspaceStatus,
@@ -169,16 +162,22 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
           >
             <span className="inline-flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
               <span className="font-medium text-neutral-700 dark:text-neutral-300">Review ID</span>
-              <code className={cn("break-all font-mono select-all", OPERATOR_TYPOGRAPHY.micro)}>
-                {props.runId}
+              <code
+                className={cn("max-w-[14rem] truncate font-mono select-all", OPERATOR_TYPOGRAPHY.micro)}
+                title={props.runId}
+              >
+                {truncateRunId(props.runId)}
               </code>
               <CopyIdButton value={props.runId} aria-label="Copy review ID" />
             </span>
             {props.signedReviewRecordId !== null ? (
               <span className="inline-flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                 <span className="font-medium text-neutral-700 dark:text-neutral-300">Finalized review record ID</span>
-                <code className={cn("break-all font-mono select-all", OPERATOR_TYPOGRAPHY.micro)}>
-                  {props.signedReviewRecordId}
+                <code
+                  className={cn("max-w-[14rem] truncate font-mono select-all", OPERATOR_TYPOGRAPHY.micro)}
+                  title={props.signedReviewRecordId}
+                >
+                  {truncateRunId(props.signedReviewRecordId)}
                 </code>
                 <CopyIdButton value={props.signedReviewRecordId} aria-label="Copy finalized review record ID" />
               </span>
@@ -243,12 +242,16 @@ export type RunDetailWorkspaceSummaryStripProps = {
   readonly evidenceCoverageLine: string;
   readonly primaryConcern: string | null;
   readonly materialSeverityLine?: string | null;
+  /** When set, metrics are hidden because the pipeline has not produced assessable outcomes yet. */
+  readonly suppressedReason?: string | null;
 };
 
 /** Compact first-viewport review status summary near the title. */
 export function RunDetailWorkspaceSummaryStrip(
   props: RunDetailWorkspaceSummaryStripProps,
 ): React.JSX.Element {
+  const suppressedReason = props.suppressedReason?.trim() ?? "";
+
   return (
     <section
       id="review-summary"
@@ -259,7 +262,15 @@ export function RunDetailWorkspaceSummaryStrip(
       <h2 className={cn("m-0 mb-2 text-base font-semibold text-neutral-900 dark:text-neutral-100")}>
         Decision snapshot
       </h2>
-      <dl className={cn("m-0 grid gap-2 sm:grid-cols-2 lg:grid-cols-3", OPERATOR_TYPOGRAPHY.body)}>
+      {suppressedReason.length > 0 ? (
+        <p
+          className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="run-detail-workspace-summary-suppressed"
+        >
+          {suppressedReason}
+        </p>
+      ) : (
+        <dl className={cn("m-0 grid gap-2 sm:grid-cols-2 lg:grid-cols-3", OPERATOR_TYPOGRAPHY.body)}>
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">{props.outcomeHeading}</dt>
           <dd className="m-0 mt-0.5 font-semibold text-neutral-900 dark:text-neutral-100">{props.reviewOutcome}</dd>
@@ -304,6 +315,7 @@ export function RunDetailWorkspaceSummaryStrip(
           </div>
         ) : null}
       </dl>
+      )}
     </section>
   );
 }

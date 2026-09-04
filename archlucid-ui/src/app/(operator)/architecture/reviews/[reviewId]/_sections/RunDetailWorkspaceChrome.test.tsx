@@ -81,7 +81,7 @@ const reviewRunId = "851472cf-1234-5678-9abc-def083248324";
 const finalizedRecordId = "9026d565-0000-0000-0000-0000000099e8";
 
 describe("RunDetailWorkspaceHeader", () => {
-  it("renders system title, provenance slots, and full review identifier", () => {
+  it("renders system title, provenance slots, and truncated review identifier with full value on copy", () => {
     render(
       <RunDetailWorkspaceHeader
         runId={reviewRunId}
@@ -105,8 +105,10 @@ describe("RunDetailWorkspaceHeader", () => {
     expect(screen.queryByText("Copy identifiers")).not.toBeInTheDocument();
     expect(screen.getByText("Review ID")).toBeInTheDocument();
     expect(screen.getByText("Finalized review record ID")).toBeInTheDocument();
-    expect(screen.getByText(reviewRunId)).toBeInTheDocument();
-    expect(screen.getByText(finalizedRecordId)).toBeInTheDocument();
+    expect(screen.getByText("851472cf…8324")).toBeInTheDocument();
+    expect(screen.queryByText(reviewRunId)).not.toBeInTheDocument();
+    expect(screen.getByTitle(reviewRunId)).toBeInTheDocument();
+    expect(screen.getByTitle(finalizedRecordId)).toBeInTheDocument();
     expect(
       screen.getByText("Not recorded — this record does not name who recorded the decision"),
     ).toBeInTheDocument();

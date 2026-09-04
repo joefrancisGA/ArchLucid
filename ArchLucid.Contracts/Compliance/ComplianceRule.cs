@@ -55,4 +55,11 @@ public class ComplianceRule
         get;
         set;
     } = null!;
+
+    /// <summary>Optional run-context gates. Null or empty means the rule always applies after governance filtering.</summary>
+    public ComplianceRuleApplicabilityConditions? Applicability
+    {
+        get;
+        set;
+    }
 }

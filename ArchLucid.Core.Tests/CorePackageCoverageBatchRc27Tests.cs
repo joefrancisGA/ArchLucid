@@ -86,6 +86,14 @@ public sealed class CorePackageCoverageBatchRc27Tests
         IntegrationWebhookPayloadSamples.ResolveEventType("  " + eventType + "  ").Should().Be(eventType);
     }
 
+    [Fact]
+    public void ResolveEventType_accepts_uppercase_canonical_event_type()
+    {
+        IntegrationWebhookPayloadSamples.ResolveEventType("COM.ARCHLUCID.AUTHORITY.RUN.COMPLETED")
+            .Should()
+            .Be(IntegrationEventTypes.AuthorityRunCompletedV1);
+    }
+
     [Theory]
     [InlineData(null)]
     [InlineData("")]

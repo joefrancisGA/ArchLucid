@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ReRunReviewButton } from "@/components/runs/ReRunReviewButton";
 import {
+  getInFlightOperations,
   resetInFlightOperationsForTests,
   trackInFlightOperation,
 } from "@/lib/operations/in-flight-operations-store";
@@ -104,6 +105,33 @@ describe("ReRunReviewButton", () => {
       expect(screen.getByTestId("re-run-review-outcome")).toHaveTextContent("Attempt 1 · failed after");
       expect(screen.getByTestId("re-run-review-outcome")).toHaveTextContent("Agent execution failed");
     });
+  });
+
+  it("does not flash the previous failed attempt when a stale terminal operation exists", async () => {
+    trackInFlightOperation({
+      operationId: "run:run-abc",
+      title: "Architecture review analysis",
+      href: "/architecture/reviews/run-abc",
+      runId: "run-abc",
+      stepLabel: "Agent execution failed",
+      state: "Failed",
+      startedAtMs: Date.now() - 251_300_000,
+      heartbeatUtc: new Date(Date.now() - 251_300_000).toISOString(),
+    });
+
+    render(<ReRunReviewButton runId="run-abc" retryCount={0} />);
+
+    fireEvent.click(screen.getByTestId("re-run-review-button"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("re-run-review-outcome")).toHaveTextContent(
+        "Re-run started — attempt 1 · Queued",
+      );
+    });
+
+    expect(screen.getByTestId("re-run-review-outcome")).not.toHaveTextContent("failed after");
+    expect(screen.getByTestId("re-run-review-outcome-detail")).not.toHaveTextContent("251300s ago");
+    expect(getInFlightOperations()[0]?.state).toBe("Pending");
   });
 
   it("renders API errors inline without a success outcome", async () => {

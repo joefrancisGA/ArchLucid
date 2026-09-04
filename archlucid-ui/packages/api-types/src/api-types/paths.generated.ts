@@ -47958,7 +47958,6 @@ export interface paths {
                     };
                     content: {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
-                        "application/zip": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Forbidden */
@@ -47968,7 +47967,6 @@ export interface paths {
                     };
                     content: {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
-                        "application/zip": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Not Found */
@@ -47978,7 +47976,6 @@ export interface paths {
                     };
                     content: {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
-                        "application/zip": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Method Not Allowed. */
@@ -48690,7 +48687,6 @@ export interface paths {
                     };
                     content: {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
-                        "application/zip": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Forbidden */
@@ -48700,7 +48696,6 @@ export interface paths {
                     };
                     content: {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
-                        "application/zip": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Not Found */
@@ -48710,7 +48705,6 @@ export interface paths {
                     };
                     content: {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
-                        "application/zip": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Method Not Allowed. */

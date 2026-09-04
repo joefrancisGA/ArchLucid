@@ -17,7 +17,6 @@ import {
   RunDetailCommitBlockingFindingsBannerDeferred,
   RunDetailCtoDemoReviewRouteGuardDeferred,
   RunDetailDemoMarketingChromeDeferred,
-  RunDetailFirstWeekRouteGuidanceDeferred,
   RunDetailGovernanceAlertsDeferred,
   RunDetailGovernanceCtaDeferred,
   RunDetailOutcomeCardsDeferred,
@@ -29,6 +28,7 @@ import {
   HelpPageSituationRegistrarDeferred,
   ReviewGenerationCreatedNoticeDeferred,
 } from "./run-detail-page-view-deferred-chunks";
+import { RunDetailFirstWeekRouteGuidanceMount } from "./RunDetailFirstWeekRouteGuidanceMount";
 import { RunDetailNextReviewFooterClient } from "./RunDetailNextReviewFooterClient";
 import { RunDetailPageViewCommitted } from "./RunDetailPageViewCommitted";
 import { RunDetailPageViewCreateHome } from "./RunDetailPageViewCreateHome";
@@ -39,6 +39,7 @@ import {
 } from "./RunDetailWorkspaceShell";
 import type { RunDetailPresentation } from "./run-detail-page-presentation";
 import type { RunDetailPageModel } from "./run-detail-page-model";
+import { isReviewPipelineIncomplete } from "@/lib/run-detail-workspace-derive";
 import { analysisStagesCompleteOnSummary } from "./pipeline-complete-on-summary";
 
 export type RunDetailPageViewChrome = {
@@ -221,6 +222,7 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
     architectureEditHref,
     findingCoverageSummary,
   } = presentation;
+  const reviewPipelineIncomplete = isReviewPipelineIncomplete(workspaceStatus);
 
   return (
     <div
@@ -335,13 +337,15 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
           />
         </RunDetailWorkspaceDisclosureProvider>
 
-        <OperatorRelatedSurfacesDisclosure testId="review-detail-related-surfaces-disclosure">
-          <ArchitectureIntelligenceReviewToolStrip
-            runId={m.resolvedDetail.run.runId}
-            currentSurfaceId="review-workspace"
-          />
-          <SignedRecordsReviewDetailVocabularyRail currentSurfaceId="review-detail" />
-        </OperatorRelatedSurfacesDisclosure>
+        {!reviewPipelineIncomplete ? (
+          <OperatorRelatedSurfacesDisclosure testId="review-detail-related-surfaces-disclosure">
+            <ArchitectureIntelligenceReviewToolStrip
+              runId={m.resolvedDetail.run.runId}
+              currentSurfaceId="review-workspace"
+            />
+            <SignedRecordsReviewDetailVocabularyRail currentSurfaceId="review-detail" />
+          </OperatorRelatedSurfacesDisclosure>
+        ) : null}
 
         {showArchitectureCreatedHome ? (
           <RunDetailPageViewCommitted
@@ -353,8 +357,8 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
           />
         ) : null}
 
-        {blockingApprovalCount === 0 ? (
-          <RunDetailFirstWeekRouteGuidanceDeferred
+        {blockingApprovalCount === 0 && !reviewPipelineIncomplete ? (
+          <RunDetailFirstWeekRouteGuidanceMount
             variant={Boolean(m.manifestId) ? "review-detail-committed" : "review-detail-in-progress"}
             pagePrimaryOwnedElsewhere
           />
@@ -370,7 +374,9 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
 
         <RunDetailBuyerPilotConversionSectionDeferred buyerPolishedArtifactTable={m.buyerPolishedArtifactTable} />
 
-        <RunDetailNextReviewFooterClient runId={m.routeRunId} />
+        {!reviewPipelineIncomplete ? (
+          <RunDetailNextReviewFooterClient runId={m.routeRunId} />
+        ) : null}
       </div>
     </div>
   );
