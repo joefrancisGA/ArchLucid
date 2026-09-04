@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useArchitectureDigestsBrowseQuery } from "@/hooks/use-architecture-digests-browse-query";
 import { useDigestDeliveryAttemptsBatchQuery } from "@/hooks/use-digest-delivery-attempts-batch-query";
@@ -20,6 +21,11 @@ import { getArchitectureDigest, listDigestDeliveryAttempts } from "@/lib/api";
 import type { ArchitectureDigest } from "@/types/advisory-scheduling";
 import type { DigestDeliveryAttempt } from "@/types/digest-subscriptions";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
+import {
+  digestsBrowsePreviewHrefFromSearch,
+  parseDigestsBrowsePreviewOpenFromSearch,
+} from "@/lib/digests/digests-browse-preview-url";
+import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 
 const EMPTY_DIGESTS: ArchitectureDigest[] = [];
 
@@ -52,6 +58,10 @@ export function useDigestsBrowseContent(
   options: UseDigestsBrowseContentOptions = {},
 ): UseDigestsBrowseContentResult {
   const { refreshToken = 0, onLoaded, healthSnap = null } = options;
+  const router = useRouter();
+  const pathname = usePathname() ?? DIGESTS_HUB_PATH;
+  const searchParams = useSearchParams();
+  const urlPreviewOpen = parseDigestsBrowsePreviewOpenFromSearch(searchParams.get("preview"));
   const digestsQuery = useArchitectureDigestsBrowseQuery(40);
   const digests = digestsQuery.data ?? EMPTY_DIGESTS;
   const digestIds = useMemo(() => digests.map((digest) => digest.digestId), [digests]);
@@ -62,12 +72,37 @@ export function useDigestsBrowseContent(
   const [selected, setSelected] = useState<ArchitectureDigest | null>(null);
   const [deliveryAttempts, setDeliveryAttempts] = useState<DigestDeliveryAttempt[]>([]);
   const [detailFailure, setDetailFailure] = useState<ApiLoadFailureState | null>(null);
-  const [previewOpen, setPreviewOpen] = useState(true);
+  const [previewOpen, setPreviewOpenState] = useState(urlPreviewOpen);
   const detailPanelRef = useRef<HTMLElement | null>(null);
   const loading = digestsQuery.isLoading;
   const failure =
     detailFailure ??
     (digestsQuery.isError ? toApiLoadFailure(digestsQuery.error) : null);
+
+  const syncPreviewToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(digestsBrowsePreviewHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPreviewOpen = useCallback(
+    (value: boolean | ((prev: boolean) => boolean)) => {
+      setPreviewOpenState((prev) => {
+        const resolved = typeof value === "function" ? value(prev) : value;
+        syncPreviewToUrl(resolved);
+
+        return resolved;
+      });
+    },
+    [syncPreviewToUrl],
+  );
+
+  useEffect(() => {
+    setPreviewOpenState(parseDigestsBrowsePreviewOpenFromSearch(searchParams.get("preview")));
+  }, [searchParams]);
 
   const selectDigest = useCallback(async (digestId: string): Promise<void> => {
     setDetailFailure(null);

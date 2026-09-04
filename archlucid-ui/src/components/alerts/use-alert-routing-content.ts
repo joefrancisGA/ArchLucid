@@ -52,6 +52,10 @@ import {
   presentWebhookConnectionTestRequestFailure,
   presentWebhookConnectionTestToasts,
 } from "@/lib/webhook-subscription-connection-test";
+import {
+  compositeAlertRulesPanelsHrefFromSearch,
+  parseCompositeAlertRulesCreatePanelFromSearch,
+} from "@/lib/alerts/composite-alert-rules-panels-url";
 import type { AlertRoutingDeliveryAttempt } from "@/types/alert-routing";
 import type { AlertRoutingSubscriptionDisableTarget } from "@/app/(operator)/integrations/_sections/AlertRoutingSubscriptionDisableDialog";
 
@@ -60,6 +64,7 @@ export function useAlertRoutingContent() {
   const searchParams = useSearchParams();
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
   const scopedRunFilterActive = scopedRunId.length > 0;
+  const urlShowCreate = parseCompositeAlertRulesCreatePanelFromSearch(searchParams.get("create"));
 
   const onPickReviewForRouting = useCallback(
     (reviewId: string) => {
@@ -175,10 +180,29 @@ export function useAlertRoutingContent() {
     reportTabLoadedRef.current?.("notifications", items.length);
   }, [items.length, loading, routingQuery.failure]);
 
+  const syncCreatePanelToUrl = useCallback(
+    (showCreate: boolean) => {
+      router.replace(compositeAlertRulesPanelsHrefFromSearch(searchParams.toString(), { showCreatePanel: showCreate }), {
+        scroll: false,
+      });
+    },
+    [router, searchParams],
+  );
+
   function scrollToForm() {
     formSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     formSectionRef.current?.focus();
+    syncCreatePanelToUrl(true);
   }
+
+  useEffect(() => {
+    if (!urlShowCreate || !scopedRunFilterActive) {
+      return;
+    }
+
+    formSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    formSectionRef.current?.focus();
+  }, [scopedRunFilterActive, urlShowCreate]);
 
   function validateForm(): boolean {
     const nextErrors: AlertRoutingFieldErrors = {};

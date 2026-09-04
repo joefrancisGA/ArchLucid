@@ -5,7 +5,8 @@ import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/desi
 
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState, type ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from "react";
 
 import {
   DIGEST_SUBSCRIPTION_ATTEMPTS_TAKE,
@@ -51,6 +52,11 @@ import {
   resolveContinueLastDigestSubscription,
   writeDigestSubscriptionLastViewedId,
 } from "@/lib/resolve-continue-last-digest-subscription";
+import {
+  digestSubscriptionsPanelsHrefFromSearch,
+  parseDigestSubscriptionsCreatePanelFromSearch,
+  parseDigestSubscriptionsHistoryFromSearch,
+} from "@/lib/digests/digest-subscriptions-panels-url";
 
 const EMPTY_SUBSCRIPTIONS: DigestSubscription[] = [];
 
@@ -66,6 +72,11 @@ export type DigestSubscriptionsContentProps = {
  */
 export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProps): ReactElement {
   const canMutateSubscriptions: boolean = useOperateCapability();
+  const router = useRouter();
+  const pathname = usePathname() ?? "/architecture/digests";
+  const searchParams = useSearchParams();
+  const urlShowCreate = parseDigestSubscriptionsCreatePanelFromSearch(searchParams.get("create"));
+  const urlHistorySubscriptionId = parseDigestSubscriptionsHistoryFromSearch(searchParams.get("history"));
   const refreshToken = props.refreshToken ?? 0;
   const queryClient = useQueryClient();
   const scope = useOperatorScopeQueryKey();
@@ -77,7 +88,38 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
   );
   const subscriptionIds = useMemo(() => items.map((item) => item.subscriptionId), [items]);
   const { attemptsBySub } = useDigestSubscriptionDeliveryAttemptsQueries(subscriptionIds, refreshToken);
-  const [historyOpenFor, setHistoryOpenFor] = useState<string | null>(null);
+  const [historyOpenFor, setHistoryOpenForState] = useState<string | null>(
+    urlHistorySubscriptionId.length > 0 ? urlHistorySubscriptionId : null,
+  );
+  const syncPanelsToUrl = useCallback(
+    (patch: {
+      readonly showCreatePanel?: boolean;
+      readonly historySubscriptionId?: string | null;
+    }) => {
+      router.replace(digestSubscriptionsPanelsHrefFromSearch(searchParams.toString(), patch, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setHistoryOpenFor = useCallback(
+    (value: string | null | ((prev: string | null) => string | null)) => {
+      setHistoryOpenForState((prev) => {
+        const next = typeof value === "function" ? value(prev) : value;
+        syncPanelsToUrl({ historySubscriptionId: next });
+
+        return next;
+      });
+    },
+    [syncPanelsToUrl],
+  );
+
+  useEffect(() => {
+    const historyId = parseDigestSubscriptionsHistoryFromSearch(searchParams.get("history"));
+    setHistoryOpenForState(historyId.length > 0 ? historyId : null);
+  }, [searchParams]);
+
   const [mutating, setMutating] = useState<boolean>(false);
   const [creating, setCreating] = useState<boolean>(false);
   const [createSuccess, setCreateSuccess] = useState<boolean>(false);
@@ -261,7 +303,16 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
     setPrefillFrom(null);
     setFocusCreateToken((value) => value + 1);
     formCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    syncPanelsToUrl({ showCreatePanel: true });
   }
+
+  useEffect(() => {
+    if (!urlShowCreate) {
+      return;
+    }
+
+    focusCreateForm();
+  }, [urlShowCreate]);
 
   function onPrefillCreate(subscription: DigestSubscription): void {
     rememberSubscription(subscription.subscriptionId);
