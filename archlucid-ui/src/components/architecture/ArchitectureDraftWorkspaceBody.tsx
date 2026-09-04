@@ -109,7 +109,6 @@ export type ArchitectureDraftWorkspaceBodyProps = {
   };
   readonly canStartReview: boolean;
   readonly handleStartReview: () => void | Promise<void>;
-  readonly handleAcknowledgeHandoff: () => void;
   readonly saveDraft: () => Promise<boolean>;
   readonly setExitPending: (pending: boolean) => void;
   readonly hasPersistedDraft: boolean;

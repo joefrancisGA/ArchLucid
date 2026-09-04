@@ -46,5 +46,5 @@ export function GovernanceFindingsQueueQuietEnginesHint(
 
   const show = query.data.analysisComplete && query.data.actorCount === 0;
 
-  return <ActorDependentFindingsQuietEnginesHint show={show} />;
+  return <ActorDependentFindingsQuietEnginesHint show={show} runId={runId} workingMode={isWorkingMode} />;
 }

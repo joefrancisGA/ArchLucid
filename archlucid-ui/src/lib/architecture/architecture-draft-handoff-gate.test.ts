@@ -46,12 +46,13 @@ describe("architecture-draft-handoff-gate", () => {
     expect(architectureDraftSpawnedRunId({ ...draftFixture, spawnedRunId: "  " })).toBeNull();
   });
 
-  it("persists acknowledgment per architecture draft", () => {
-    expect(isArchitectureDraftHandoffAcknowledged("arch-001")).toBe(false);
+  it("clears legacy localStorage ack and keeps spawned drafts locked (RS-04)", () => {
+    window.localStorage.setItem("archlucid.architecture_draft_handoff_ack.v1.arch-001", "1");
 
     acknowledgeArchitectureDraftHandoff("arch-001", "run-001");
 
-    expect(isArchitectureDraftHandoffAcknowledged("arch-001")).toBe(true);
+    expect(isArchitectureDraftHandoffAcknowledged("arch-001")).toBe(false);
+    expect(window.localStorage.getItem("archlucid.architecture_draft_handoff_ack.v1.arch-001")).toBeNull();
 
     clearArchitectureDraftHandoffAcknowledgment("arch-001");
 
