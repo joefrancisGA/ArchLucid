@@ -1,7 +1,7 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -27,6 +27,11 @@ import {
 import { removeArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import {
+  parseArchitectureDraftDeleteConfirmOpenFromSearch,
+  parseArchitectureDraftDeleteIdFromSearch,
+  architectureDraftDeleteConfirmHrefFromSearch,
+} from "@/lib/architecture/architecture-draft-delete-confirm-url";
 
 export type ArchitectureDraftDeleteControlProps = {
   readonly architectureId: string;
@@ -43,12 +48,48 @@ export type ArchitectureDraftDeleteControlProps = {
 /** Confirms and abandons a pre-review architecture draft (irreversible). */
 export function ArchitectureDraftDeleteControl(props: ArchitectureDraftDeleteControlProps): React.JSX.Element | null {
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = usePathname() ?? ARCHITECTURES_LIST_PATH;
+  const searchParams = useSearchParams();
+  const urlDraftDeleteId = parseArchitectureDraftDeleteIdFromSearch(searchParams.get("draftDeleteId"));
+  const urlDraftDeleteConfirm = parseArchitectureDraftDeleteConfirmOpenFromSearch(
+    searchParams.get("draftDeleteConfirm"),
+  );
   const { callerAuthorityRank, currentPrincipal, isAuthorityLoading } = useOperatorNavAuthority();
   const policyQuery = useWorkOwnershipDeletePolicyQuery();
   const canExecute = !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority;
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmOpen, setConfirmOpenState] = useState(
+    urlDraftDeleteConfirm && urlDraftDeleteId === props.architectureId,
+  );
   const [busy, setBusy] = useState(false);
+
+  const syncDeleteConfirmToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        architectureDraftDeleteConfirmHrefFromSearch(
+          searchParams.toString(),
+          {
+            architectureId: open ? props.architectureId : null,
+            confirmOpen: open,
+          },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, props.architectureId, router, searchParams],
+  );
+
+  const setConfirmOpen = useCallback(
+    (open: boolean) => {
+      setConfirmOpenState(open);
+      syncDeleteConfirmToUrl(open);
+    },
+    [syncDeleteConfirmToUrl],
+  );
+
+  useEffect(() => {
+    setConfirmOpenState(urlDraftDeleteConfirm && urlDraftDeleteId === props.architectureId);
+  }, [props.architectureId, urlDraftDeleteConfirm, urlDraftDeleteId]);
 
   const eligible = canDeleteArchitectureDraft({
     linkedReviewId: props.linkedReviewId,
@@ -73,7 +114,7 @@ export function ArchitectureDraftDeleteControl(props: ArchitectureDraftDeleteCon
     }
 
     router.refresh();
-  }, [pathname, props, router]);
+  }, [pathname, props, router, setConfirmOpen]);
 
   const handleConfirm = useCallback(async () => {
     setBusy(true);

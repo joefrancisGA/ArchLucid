@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +13,11 @@ import { AWS_CONNECTION_DISCONNECT_FAILED_ERROR } from "@/lib/aws-cloud-connecti
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { awsConnectionStatusTagKind, formatAwsConnectionTimestamp } from "@/lib/aws-connection-present";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
+import { CLOUD_CONNECTIONS_AWS_PATH } from "@/lib/cloud-connections-paths";
+import {
+  cloudConnectionDisconnectHrefFromSearch,
+  parseCloudConnectionDisconnectIdFromSearch,
+} from "@/lib/integrations/cloud-connection-disconnect-url";
 
 import {
   AwsConnectionDisconnectDialog,
@@ -36,12 +42,63 @@ export function AwsConnectionSection(props: { readonly embedded?: boolean }) {
     setActionMessage,
     triggerRePoll,
   } = useAwsConnectionData();
+  const router = useRouter();
+  const pathname = usePathname() ?? CLOUD_CONNECTIONS_AWS_PATH;
+  const searchParams = useSearchParams();
+  const urlDisconnectId = parseCloudConnectionDisconnectIdFromSearch(searchParams.get("disconnectId"));
   const [isDisconnecting, setIsDisconnecting] = useState(false);
-  const [disconnectTarget, setDisconnectTarget] = useState<AwsConnectionDisconnectTarget | null>(null);
+  const [disconnectTarget, setDisconnectTargetState] = useState<AwsConnectionDisconnectTarget | null>(null);
   const mutationDisabledHintId = "aws-connection-mutate-disabled-hint";
   const mutationDisabledReason = canMutate ? null : whyDisabledEnterpriseMutationControl();
 
   const hasConnection = !isLoading && connections.length > 0;
+
+  const syncDisconnectToUrl = useCallback(
+    (connectionId: string | null) => {
+      router.replace(
+        cloudConnectionDisconnectHrefFromSearch(searchParams.toString(), connectionId, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setDisconnectTarget = useCallback(
+    (value: AwsConnectionDisconnectTarget | null) => {
+      setDisconnectTargetState(value);
+      syncDisconnectToUrl(value?.connectionId ?? null);
+    },
+    [syncDisconnectToUrl],
+  );
+
+  useEffect(() => {
+    if (urlDisconnectId.length === 0) {
+      if (disconnectTarget !== null) {
+        setDisconnectTargetState(null);
+      }
+
+      return;
+    }
+
+    if (connections.length === 0) {
+      return;
+    }
+
+    const connection = connections.find((row) => row.connectionId === urlDisconnectId);
+
+    if (connection === undefined) {
+      return;
+    }
+
+    if (disconnectTarget?.connectionId === urlDisconnectId) {
+      return;
+    }
+
+    setDisconnectTargetState({
+      connectionId: connection.connectionId,
+      accountId: connection.accountId,
+    });
+  }, [connections, disconnectTarget?.connectionId, urlDisconnectId]);
 
   const handleDisconnect = useCallback(
     async (connectionId: string) => {
