@@ -16,10 +16,6 @@ vi.mock("@/hooks/useProductionDeskChrome", () => ({
   useProductionEvalChrome: vi.fn(() => false),
 }));
 
-vi.mock("@/hooks/useProductionDeskChrome", () => ({
-  useProductionEvalChrome: vi.fn(() => false),
-}));
-
 class IntersectionObserverMock {
   observe(): void {}
 
