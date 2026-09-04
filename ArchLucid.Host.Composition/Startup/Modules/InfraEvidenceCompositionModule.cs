@@ -22,6 +22,9 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<IAuditFrameworkImportService, AuditFrameworkImportService>();
         services.AddScoped<IAuditEvidenceSelectionService, AuditEvidenceSelectionService>();
         services.AddScoped<IAuditControlEvaluationService, AuditControlEvaluationService>();
+        services.AddScoped<IAuditEvidenceSnapshotCollectionService, AuditEvidenceSnapshotCollectionService>();
+        services.AddScoped<IAuditEvidenceSnapshotVerificationService, AuditEvidenceSnapshotVerificationService>();
+        services.AddScoped<IAuditEvidenceSnapshotQueryService, AuditEvidenceSnapshotQueryService>();
         services.AddScoped<IAuditEvidenceSelectorRegistry, AuditEvidenceSelectorRegistry>();
         services.AddScoped<InventoryAuditEvidenceSelector>();
         services.AddScoped<IdentityAuditEvidenceSelector>();
