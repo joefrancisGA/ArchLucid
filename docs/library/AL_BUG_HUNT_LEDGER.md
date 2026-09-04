@@ -2688,11 +2688,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 79
-- **bugs-found:** 143
+- **hunts:** 80
+- **bugs-found:** 144
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — inline `#` before same-line array bracket dropped `ipSecurityRestrictions`
+- **last-bug:** 2026-09-04 — inline `//` before `[` and inline `#`/`//` before `{` dropped array/nested-block parsing
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2925,6 +2925,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `BicepResourceBodyParser` — `${...}` interpolation inside nested block bodies may leak partial scalars when closing brace balance is malformed — scalar assignments containing `${` are skipped (`ParseBodyIntoProperties` lines 114–118); malformed references do not emit partial `tf.*` scalars.
 
 2026-09-04 thorough hunt #748: proved inline-hash-before-bracket array header gap; cheap-disproved HCL colon-nested-block and malformed-interpolation candidates.
+
+- [x] (proven) `BicepResourceBodyParser.ArrayAssignmentRegex` — inline `//` comment between `=` and `[` on same-line array header not skipped — **hit 2026-09-04 (#749):** `#748` added `#` probe only; `ipSecurityRestrictions = // legacy [...]` still missed array parsing; fixed with `(?:#[^[]*|//[^[]*)?` before `[` in Bicep/terraform array regexes; regressions in `ParseAsync_InlineSlashSlashCommentBeforeArrayBracket_PreservesIpSecurityRestrictions`.
+- [x] (proven) `BicepResourceBodyParser.NestedBlockStartRegex` — inline `#`/`//` comment between `=` and `{` on same-line nested block header not skipped — **hit 2026-09-04 (#749):** `networkAcls = # deny { ... }` stored scalar `{` after `#746` `=` parity; fixed with `(?:#[^{]*|//[^{]*)?` before `{` (Bicep `:`/`=` headers and terraform `block` headers); regressions in `ParseAsync_InlineHashCommentBeforeNestedBlockBrace_PreservesNetworkAclsBlock` and `ParseAsync_InlineHashCommentBeforeNestedBlockBrace_PreservesRetentionPolicyBlock`.
+- [ ] (candidate) Same-line `/* */` block comment between assignment operator and `[` or `{` — block comments can span; may need dedicated probe beyond EOL `#`/`//` skips.
+- [ ] (candidate) `BicepResourceBodyParser.MultilineArrayAssignmentRegex` — `//` full-line comment between `=` and multiline `[` (multiline probe already skips `//` lines; likely valid-no-repro).
+
+2026-09-04 seed hunt #749: reseeded after #748 hash-before-bracket fix; proved `//`-before-bracket and hash/slash-before-brace nested-header gaps; seeded block-comment-before-delimiter and multiline-`//`-probe candidates.
 
 - [x] (proven) `PlainTextContextDocumentParser` required `REQ:`/`POL:`/`TOP:`/`SEC:` prefix without optional whitespace before colon — **hit 2026-09-02:** `REQ : Must scale` lines were skipped while `REQ: Must scale` parsed; fixed with `TryGetPrefixedBody` accepting optional whitespace before `:` (`PlainTextContextDocumentParserTests.ParseAsync_SpacedPrefixBeforeColon_ExtractsRequirement`).
 - [x] (proven) `BicepResourceBodyParser` treated `key: [` array headers as scalar assignments — **hit 2026-09-02:** `ipSecurityRestrictions: [` stored `tf.ipsecurityrestrictions = "["` and leaked inner object scalars (`tf.name`, `tf.ipaddress`) so App Service network-rule expander never ran; fixed with balanced-bracket extraction and `BicepArrayLiteralConverter` JSON serialization (`BicepInfrastructureDeclarationParserTests.ParseAsync_AppServiceIpSecurityRestrictionsArray_IsPreservedForNetworkExpander`, `ParseAsync_AppServiceIpSecurityRestrictionsArray_ExpandsNetworkBaseline`).

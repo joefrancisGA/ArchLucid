@@ -578,6 +578,50 @@ public sealed class SimpleTerraformDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_InlineSlashSlashCommentBeforeArrayBracket_PreservesIpSecurityRestrictions()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "app.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_linux_web_app" "app" {
+                        ip_security_restrictions = // legacy rules [{ name = "AllowAll", ip_address = "0.0.0.0/0", action = "Allow" }]
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.ip_security_restrictions"].Should().Contain("0.0.0.0/0");
+        result[0].Properties.Should().NotContainKey("tf.name");
+    }
+
+    [Fact]
+    public async Task ParseAsync_InlineHashCommentBeforeNestedBlockBrace_PreservesRetentionPolicyBlock()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "app.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_log_analytics_workspace" "logs" {
+                        retention_policy # keep logs {
+                          days = 30
+                        }
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.retention_policy"].Should().Contain("30");
+        result[0].Properties.Should().NotContainKey("tf.days");
+    }
+
+    [Fact]
     public async Task ParseAsync_NestedSiteConfigWithEscapedQuoteBeforeClosingBrace_StillParsesTrailingScalars()
     {
         InfrastructureDeclarationReference declaration = new()

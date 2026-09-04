@@ -10,13 +10,13 @@ internal static class BicepResourceBodyParser
 {
     private static readonly Regex NestedBlockStartRegex = new(
         """
-        ^\s*(?<block>[A-Za-z0-9_-]+)\s*(?::|=)\s*\{
+        ^\s*(?<block>[A-Za-z0-9_-]+)\s*(?::|=)\s*(?:#[^{]*|//[^{]*)?\{
         """,
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     private static readonly Regex ArrayAssignmentRegex = new(
         """
-        ^\s*(?<key>[A-Za-z0-9_-]+)\s*(?::|=)\s*(?:#[^[]*)?\[
+        ^\s*(?<key>[A-Za-z0-9_-]+)\s*(?::|=)\s*(?:#[^[]*|//[^[]*)?\[
         """,
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
