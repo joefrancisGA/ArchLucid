@@ -11,6 +11,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { buildInviteReviewerHref, INVITE_REVIEWER_PAGE_TITLE } from "@/lib/invite-reviewer-flow";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatWhyDisabledCtaMessage, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 import { cn } from "@/lib/utils";
 
 export type ReviewHeaderShareMenuProps = {
@@ -18,6 +19,8 @@ export type ReviewHeaderShareMenuProps = {
   readonly isCommitted: boolean;
   readonly findingsQueueHref: string;
   readonly canInviteReviewer?: boolean;
+  readonly disabled?: boolean;
+  readonly disabledReason?: WhyDisabledCtaReason | null;
 };
 
 /** Consolidated share and export affordances on the review detail header. */
@@ -28,6 +31,25 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
     runId: props.runId,
     findingsQueueHref: props.findingsQueueHref,
   });
+  const disabledReasonMessage = formatWhyDisabledCtaMessage(props.disabledReason);
+  const shareMenuDisabled = props.disabled === true;
+
+  if (shareMenuDisabled) {
+    return (
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="gap-1.5"
+        disabled
+        aria-label={disabledReasonMessage ?? "Share and export unavailable until the review completes"}
+        data-testid="review-header-share-menu-trigger"
+      >
+        <Share2 className="h-4 w-4" aria-hidden />
+        Share &amp; export
+      </Button>
+    );
+  }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
