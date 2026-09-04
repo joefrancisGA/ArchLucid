@@ -1980,6 +1980,128 @@ describe("wave31 filter url helpers", () => {
   });
 });
 
+describe("wave32 filter url helpers", () => {
+  it("governance bulk disposition, DLQ confirms, invite revoke, and role assignment confirms", async () => {
+    const {
+      governanceFindingsBulkDispositionConfirmHrefFromSearch,
+      governanceAssignedToMeBulkDispositionConfirmHrefFromSearch,
+      governanceFindingsBulkDispositionFromUrlValue,
+      governanceFindingsBulkDispositionToUrlValue,
+      parseGovernanceFindingsBulkDispositionConfirmFromSearch,
+    } = await import("@/lib/governance/governance-findings-bulk-disposition-confirm-url");
+    const {
+      integrationEventsDlqConfirmHrefFromSearch,
+      parseIntegrationEventsDlqBulkRetryConfirmOpenFromSearch,
+      parseIntegrationEventsDlqSuppressIdFromSearch,
+    } = await import("@/lib/internal/integration-events-dlq-confirm-url");
+    const {
+      parseSettingsUsersRevokeInviteIdFromSearch,
+      settingsUsersInviteRevokeHrefFromSearch,
+    } = await import("@/lib/administration/settings-users-invite-revoke-url");
+    const {
+      parseSettingsUsersRoleConfirmNextRoleFromSearch,
+      parseSettingsUsersRoleConfirmPrincipalIdFromSearch,
+      settingsUsersRoleConfirmHrefFromSearch,
+    } = await import("@/lib/administration/settings-users-role-confirm-url");
+
+    expect(parseGovernanceFindingsBulkDispositionConfirmFromSearch("waived")).toBe("waived");
+    expect(governanceFindingsBulkDispositionToUrlValue("Accepted")).toBe("accepted");
+    expect(governanceFindingsBulkDispositionFromUrlValue("deferred")).toBe("Deferred");
+    expect(
+      governanceFindingsBulkDispositionConfirmHrefFromSearch("bulkFindings=f1", "accepted"),
+    ).toBe("/governance/findings?bulkFindings=f1&bulkDispConfirm=accepted");
+    expect(
+      governanceAssignedToMeBulkDispositionConfirmHrefFromSearch("", "waived"),
+    ).toBe("/governance/findings/assigned-to-me?bulkDispConfirm=waived");
+    expect(parseIntegrationEventsDlqBulkRetryConfirmOpenFromSearch("1")).toBe(true);
+    expect(parseIntegrationEventsDlqSuppressIdFromSearch("outbox-1")).toBe("outbox-1");
+    expect(
+      integrationEventsDlqConfirmHrefFromSearch("", {
+        bulkRetryConfirmOpen: true,
+        suppressOutboxId: "outbox-1",
+      }),
+    ).toBe("/internal/failed-integration-messages?dlqBulkRetryConfirm=1&dlqSuppressId=outbox-1");
+    expect(parseSettingsUsersRevokeInviteIdFromSearch("inv-1")).toBe("inv-1");
+    expect(settingsUsersInviteRevokeHrefFromSearch("tab=users", "inv-1")).toBe(
+      "/administration/users?tab=users&revokeInviteId=inv-1",
+    );
+    expect(parseSettingsUsersRoleConfirmPrincipalIdFromSearch("principal-1")).toBe("principal-1");
+    expect(parseSettingsUsersRoleConfirmNextRoleFromSearch("Admin")).toBe("Admin");
+    expect(
+      settingsUsersRoleConfirmHrefFromSearch("", {
+        principalId: "principal-1",
+        nextRole: "Admin",
+      }),
+    ).toBe("/administration/users?roleConfirmPrincipalId=principal-1&roleConfirmNextRole=Admin");
+  });
+
+  it("project delete, policy publish, bundled activation, keyboard triage, and roles matrix confirms", async () => {
+    const {
+      parseProjectDeleteConfirmIdFromSearch,
+      projectDeleteConfirmHrefFromSearch,
+    } = await import("@/lib/administration/project-delete-confirm-url");
+    const {
+      parsePolicyPackPublishConfirmOpenFromSearch,
+      policyPackPublishConfirmHrefFromSearch,
+    } = await import("@/lib/policy/policy-pack-publish-confirm-url");
+    const {
+      parsePlatformBundledPolicyPackActivateFileFromSearch,
+      parsePlatformBundledPolicyPackActivateModeFromSearch,
+      platformBundledPolicyPackActivationConfirmHrefFromSearch,
+    } = await import("@/lib/internal/platform-bundled-policy-pack-activation-confirm-url");
+    const {
+      findingKeyboardTriageConfirmHrefFromSearch,
+      findingKeyboardTriageDispositionToUrlAction,
+      findingKeyboardTriageUrlActionToDisposition,
+      parseFindingKeyboardTriageActionFromSearch,
+      parseFindingKeyboardTriageFindingIdFromSearch,
+    } = await import("@/lib/governance/finding-keyboard-triage-confirm-url");
+    const {
+      parseSettingsRolesMatrixConfirmKindFromSearch,
+      parseSettingsRolesMatrixConfirmRoleNameFromSearch,
+      settingsRolesMatrixConfirmHrefFromSearch,
+    } = await import("@/lib/administration/settings-roles-matrix-confirm-url");
+
+    expect(parseProjectDeleteConfirmIdFromSearch("proj-1")).toBe("proj-1");
+    expect(projectDeleteConfirmHrefFromSearch("", "proj-1")).toBe(
+      "/administration/workspace-settings?deleteProjectId=proj-1",
+    );
+    expect(parsePolicyPackPublishConfirmOpenFromSearch("true")).toBe(true);
+    expect(policyPackPublishConfirmHrefFromSearch("packId=p1", true)).toBe(
+      "/governance/policy-packs?packId=p1&publishConfirm=1",
+    );
+    expect(parsePlatformBundledPolicyPackActivateFileFromSearch("bundles/foo.json")).toBe("bundles/foo.json");
+    expect(parsePlatformBundledPolicyPackActivateModeFromSearch("deactivate")).toBe("deactivate");
+    expect(
+      platformBundledPolicyPackActivationConfirmHrefFromSearch("", {
+        bundleContentFile: "bundles/foo.json",
+        mode: "activate",
+      }),
+    ).toBe(
+      "/internal/platform-bundled-policy-packs?bundleActivateFile=bundles%2Ffoo.json&bundleActivateMode=activate",
+    );
+    expect(parseFindingKeyboardTriageFindingIdFromSearch("finding-1")).toBe("finding-1");
+    expect(parseFindingKeyboardTriageActionFromSearch("remediated")).toBe("remediated");
+    expect(findingKeyboardTriageDispositionToUrlAction("Accepted")).toBe("accepted");
+    expect(findingKeyboardTriageUrlActionToDisposition("rejected")).toBe("RejectedAsNotApplicable");
+    expect(
+      findingKeyboardTriageConfirmHrefFromSearch(
+        "tab=findings",
+        { findingId: "finding-1", action: "accepted" },
+        "/governance/findings",
+      ),
+    ).toBe("/governance/findings?tab=findings&kbDispFindingId=finding-1&kbDispAction=accepted");
+    expect(parseSettingsRolesMatrixConfirmKindFromSearch("save")).toBe("save");
+    expect(parseSettingsRolesMatrixConfirmRoleNameFromSearch("Custom Operator")).toBe("Custom Operator");
+    expect(
+      settingsRolesMatrixConfirmHrefFromSearch("tab=roles", {
+        kind: "create",
+        roleName: "Custom Operator",
+      }),
+    ).toBe("/administration/users?tab=roles&rolesMatrixConfirm=create&rolesMatrixRoleName=Custom+Operator");
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type SetStateAction } from "react";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { listPlatformBundledPolicyPacks, setPlatformBundledPolicyPackActivation } from "@/lib/api";
@@ -12,6 +12,12 @@ import {
   platformBundledPolicyPacksCategoryHrefFromSearch,
   platformBundledPolicyPacksSearchHrefFromSearch,
 } from "@/lib/internal/platform-bundled-policy-packs-filter-url";
+import {
+  parsePlatformBundledPolicyPackActivateFileFromSearch,
+  parsePlatformBundledPolicyPackActivateModeFromSearch,
+  platformBundledPolicyPackActivationConfirmHrefFromSearch,
+  type PlatformBundledPolicyPackActivateMode,
+} from "@/lib/internal/platform-bundled-policy-pack-activation-confirm-url";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
   platformBundledPolicyPackListLoadFailureMessage,
@@ -57,6 +63,10 @@ export function usePlatformBundledPolicyPacksState() {
   const currentSearch = searchParams.toString();
   const urlNameFilter = parsePlatformBundledPolicyPacksSearchFromSearch(searchParams.get("q"));
   const urlCategoryFilter = parsePlatformBundledPolicyPacksCategoryFromSearch(searchParams.get("category"));
+  const bundleActivateFileParam = searchParams.get("bundleActivateFile");
+  const bundleActivateModeParam = searchParams.get("bundleActivateMode");
+  const urlActivateFile = parsePlatformBundledPolicyPackActivateFileFromSearch(bundleActivateFileParam);
+  const urlActivateMode = parsePlatformBundledPolicyPackActivateModeFromSearch(bundleActivateModeParam);
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const isAdmin = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
 
@@ -67,8 +77,66 @@ export function usePlatformBundledPolicyPacksState() {
   const [toggleMessage, setToggleMessage] = useState<string | null>(null);
   const [nameFilter, setNameFilterState] = useState(urlNameFilter);
   const [categoryFilter, setCategoryFilterState] = useState<PlatformBundledPolicyPackCategory>(urlCategoryFilter);
-  const [pendingActivation, setPendingActivation] = useState<PendingPlatformBundledPolicyPackActivation | null>(null);
+  const [pendingActivation, setPendingActivationState] = useState<PendingPlatformBundledPolicyPackActivation | null>(null);
   const [deactivateAcknowledgment, setDeactivateAcknowledgment] = useState("");
+
+  const syncActivationConfirmToUrl = useCallback(
+    (state: { bundleContentFile: string | null; mode: PlatformBundledPolicyPackActivateMode | null }) => {
+      router.replace(
+        platformBundledPolicyPackActivationConfirmHrefFromSearch(searchParams.toString(), state, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPendingActivation = useCallback(
+    (value: SetStateAction<PendingPlatformBundledPolicyPackActivation | null>) => {
+      setPendingActivationState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncActivationConfirmToUrl(
+          next === null
+            ? { bundleContentFile: null, mode: null }
+            : {
+                bundleContentFile: next.row.bundleContentFile,
+                mode: next.nextActive ? "activate" : "deactivate",
+              },
+        );
+
+        return next;
+      });
+    },
+    [syncActivationConfirmToUrl],
+  );
+
+  useEffect(() => {
+    if (urlActivateFile.length === 0 || urlActivateMode === null) {
+      setPendingActivationState(null);
+
+      return;
+    }
+
+    if (rows.length === 0) {
+      return;
+    }
+
+    const row = rows.find((entry) => entry.bundleContentFile === urlActivateFile);
+
+    if (row === undefined) {
+      return;
+    }
+
+    const nextActive = urlActivateMode === "activate";
+
+    if (
+      pendingActivation?.row.bundleContentFile === urlActivateFile
+      && pendingActivation.nextActive === nextActive
+    ) {
+      return;
+    }
+
+    setPendingActivationState({ row, nextActive });
+  }, [pendingActivation?.nextActive, pendingActivation?.row.bundleContentFile, rows, urlActivateFile, urlActivateMode]);
 
   useEffect(() => {
     setNameFilterState(urlNameFilter);
@@ -146,7 +214,7 @@ export function usePlatformBundledPolicyPacksState() {
       row,
       nextActive: !row.isGloballyActive,
     });
-  }, []);
+  }, [setPendingActivation]);
 
   const confirmPendingActivation = useCallback(async () => {
     if (pendingActivation === null || updatingFile !== null) {
@@ -179,14 +247,14 @@ export function usePlatformBundledPolicyPacksState() {
     } finally {
       setUpdatingFile(null);
     }
-  }, [load, pendingActivation, updatingFile]);
+  }, [load, pendingActivation, setPendingActivation, updatingFile]);
 
   const cancelPendingActivation = useCallback(() => {
     if (updatingFile === null) {
       setPendingActivation(null);
       setDeactivateAcknowledgment("");
     }
-  }, [updatingFile]);
+  }, [updatingFile, setPendingActivation]);
 
   return {
     isAuthorityLoading,

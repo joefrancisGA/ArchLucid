@@ -3,7 +3,8 @@
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { PolicyPackChangeImpactNotice } from "@/components/policy/PolicyPackChangeImpactNotice";
 import { PolicyPackContentJsonEditor } from "@/components/policy/PolicyPackContentJsonEditor";
@@ -22,6 +23,10 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  parsePolicyPackPublishConfirmOpenFromSearch,
+  policyPackPublishConfirmHrefFromSearch,
+} from "@/lib/policy/policy-pack-publish-confirm-url";
 import {
   resolvePolicyPackAssignEmphasizedStepId,
   resolvePolicyPackAssignSteps,
@@ -104,7 +109,34 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
   const assignChecklistSteps = resolvePolicyPackAssignSteps(assignChecklistInput);
   const assignChecklistEmphasizedStepId = resolvePolicyPackAssignEmphasizedStepId(assignChecklistInput);
 
-  const [publishConfirmOpen, setPublishConfirmOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? GOVERNANCE_POLICY_PACKS_PATH;
+  const searchParams = useSearchParams();
+  const publishConfirmParam = searchParams.get("publishConfirm");
+  const urlPublishConfirmOpen = parsePolicyPackPublishConfirmOpenFromSearch(publishConfirmParam);
+  const [publishConfirmOpen, setPublishConfirmOpenState] = useState(urlPublishConfirmOpen);
+
+  const syncPublishConfirmToUrl = useCallback(
+    (confirmOpen: boolean) => {
+      router.replace(
+        policyPackPublishConfirmHrefFromSearch(searchParams.toString(), confirmOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPublishConfirmOpen = useCallback(
+    (confirmOpen: boolean) => {
+      setPublishConfirmOpenState(confirmOpen);
+      syncPublishConfirmToUrl(confirmOpen);
+    },
+    [syncPublishConfirmToUrl],
+  );
+
+  useEffect(() => {
+    setPublishConfirmOpenState(parsePolicyPackPublishConfirmOpenFromSearch(publishConfirmParam));
+  }, [publishConfirmParam]);
 
   return (
     <section className="mb-0" aria-labelledby="policy-packs-lifecycle-heading">

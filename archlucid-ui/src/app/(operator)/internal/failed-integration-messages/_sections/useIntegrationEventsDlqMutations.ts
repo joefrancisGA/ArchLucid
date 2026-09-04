@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type SetStateAction } from "react";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showSuccess } from "@/lib/toast";
 import {
@@ -9,18 +10,81 @@ import {
   integrationEventsDlqRetryFailedMessage,
   integrationEventsDlqSuppressFailedMessage,
 } from "@/lib/integration-events-dlq-page-copy";
+import { INTERNAL_INTEGRATION_EVENTS_DLQ_PATH } from "@/lib/internal-ops-route-paths";
+import {
+  integrationEventsDlqConfirmHrefFromSearch,
+  parseIntegrationEventsDlqBulkRetryConfirmOpenFromSearch,
+  parseIntegrationEventsDlqSuppressIdFromSearch,
+} from "@/lib/internal/integration-events-dlq-confirm-url";
 
 const bulkRetryPath = "/api/proxy/v1/internal/integrations/outbox/retry-dead-letter";
 
 type Args = { readonly canMutate: boolean; readonly reload: () => Promise<void> };
 
 export function useIntegrationEventsDlqMutations(args: Args) {
+  const router = useRouter();
+  const pathname = usePathname() ?? INTERNAL_INTEGRATION_EVENTS_DLQ_PATH;
+  const searchParams = useSearchParams();
+  const bulkRetryConfirmParam = searchParams.get("dlqBulkRetryConfirm");
+  const suppressIdParam = searchParams.get("dlqSuppressId");
+  const urlBulkRetryConfirmOpen = parseIntegrationEventsDlqBulkRetryConfirmOpenFromSearch(bulkRetryConfirmParam);
+  const urlSuppressOutboxId = parseIntegrationEventsDlqSuppressIdFromSearch(suppressIdParam);
   const [retryingId, setRetryingId] = useState<string | null>(null);
   const [suppressingId, setSuppressingId] = useState<string | null>(null);
   const [bulkRetrying, setBulkRetrying] = useState(false);
-  const [bulkRetryDialogOpen, setBulkRetryDialogOpen] = useState(false);
+  const [bulkRetryDialogOpen, setBulkRetryDialogOpenState] = useState(urlBulkRetryConfirmOpen);
   const [bulkRetryAcknowledgment, setBulkRetryAcknowledgment] = useState("");
-  const [suppressTargetId, setSuppressTargetId] = useState<string | null>(null);
+  const [suppressTargetId, setSuppressTargetIdState] = useState<string | null>(
+    urlSuppressOutboxId.length > 0 ? urlSuppressOutboxId : null,
+  );
+
+  const syncConfirmToUrl = useCallback(
+    (state: { bulkRetryConfirmOpen: boolean; suppressOutboxId: string | null }) => {
+      router.replace(
+        integrationEventsDlqConfirmHrefFromSearch(searchParams.toString(), state, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setBulkRetryDialogOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setBulkRetryDialogOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncConfirmToUrl({
+          bulkRetryConfirmOpen: next,
+          suppressOutboxId: suppressTargetId,
+        });
+
+        return next;
+      });
+    },
+    [suppressTargetId, syncConfirmToUrl],
+  );
+
+  const setSuppressTargetId = useCallback(
+    (value: SetStateAction<string | null>) => {
+      setSuppressTargetIdState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncConfirmToUrl({
+          bulkRetryConfirmOpen: bulkRetryDialogOpen,
+          suppressOutboxId: next,
+        });
+
+        return next;
+      });
+    },
+    [bulkRetryDialogOpen, syncConfirmToUrl],
+  );
+
+  useEffect(() => {
+    setBulkRetryDialogOpenState(
+      parseIntegrationEventsDlqBulkRetryConfirmOpenFromSearch(bulkRetryConfirmParam),
+    );
+    const suppressId = parseIntegrationEventsDlqSuppressIdFromSearch(suppressIdParam);
+    setSuppressTargetIdState(suppressId.length > 0 ? suppressId : null);
+  }, [bulkRetryConfirmParam, suppressIdParam]);
 
   const copyCurl = useCallback(async (outboxId: string) => {
     try {
@@ -64,7 +128,7 @@ export function useIntegrationEventsDlqMutations(args: Args) {
       showSuccess("Failed message suppressed.");
       await args.reload();
     } finally { setSuppressingId(null); setSuppressTargetId(null); }
-  }, [args]);
+  }, [args, setSuppressTargetId]);
 
   const bulkRetry = useCallback(async () => {
     if (!args.canMutate) return;
@@ -80,7 +144,7 @@ export function useIntegrationEventsDlqMutations(args: Args) {
     } catch (error: unknown) {
       showError("Bulk retry failed", error instanceof Error ? error.message : integrationEventsDlqBulkRetryFailedMessage());
     } finally { setBulkRetrying(false); }
-  }, [args]);
+  }, [args, setBulkRetryDialogOpen]);
 
   return { retryingId, suppressingId, bulkRetrying, bulkRetryDialogOpen, setBulkRetryDialogOpen, bulkRetryAcknowledgment, setBulkRetryAcknowledgment, suppressTargetId, setSuppressTargetId, copyCurl, retry, suppress, bulkRetry };
 }
