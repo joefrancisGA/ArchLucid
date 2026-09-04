@@ -1834,6 +1834,88 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task CreateRiskException_returns_bad_request_when_rationale_exceeds_max_length_and_tenant_missing()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new(MockBehavior.Strict);
+        Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            findingInspect: findingInspect,
+            riskExceptions: riskExceptions,
+            tenantRepository: TenantMissingRepository());
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = "finding-1",
+            RunId = Guid.NewGuid(),
+            OwnerUserId = "owner@contoso.com",
+            Rationale = new string('r', FindingDispositionValidation.MaximumRationaleLength + 1),
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        IActionResult action = await controller.CreateRiskException(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        findingInspect.VerifyNoOtherCalls();
+        riskExceptions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task RecordDisposition_returns_bad_request_when_rationale_exceeds_max_length_before_finding_inspect()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new(MockBehavior.Strict);
+        Mock<IFindingDispositionService> dispositions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            findingInspect: findingInspect,
+            dispositionService: dispositions);
+        SetIdempotencyKey(controller);
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            Disposition = FindingDisposition.Accepted,
+            Rationale = new string('r', FindingDispositionValidation.MaximumRationaleLength + 1),
+            TradeOffAcknowledgment = "accepted after architecture board review",
+        };
+
+        IActionResult action = await controller.RecordDisposition("finding-1", request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        findingInspect.VerifyNoOtherCalls();
+        dispositions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task RecordBulkDisposition_returns_bad_request_when_rationale_exceeds_max_length_before_finding_inspect()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new(MockBehavior.Strict);
+        Mock<IFindingDispositionService> dispositions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController controller = BuildSut(
+            findingInspect: findingInspect,
+            dispositionService: dispositions);
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = ["finding-1"],
+            Disposition = FindingDisposition.Accepted,
+            Rationale = new string('r', FindingDispositionValidation.MaximumRationaleLength + 1),
+            TradeOffAcknowledgment = "accepted after architecture board review",
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        findingInspect.VerifyNoOtherCalls();
+        dispositions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task CreateRiskException_returns_bad_request_when_run_id_is_empty()
     {
         GovernanceStickinessController controller = BuildSut();
@@ -3042,15 +3124,7 @@ public sealed class GovernanceStickinessControllerTests
     {
         Guid sourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
 
-        Mock<IRunRepository> runs = new();
-        runs
-            .Setup(r => r.GetByIdAsync(Scope, sourceRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunRecord
-            {
-                RunId = sourceRunId,
-                ArchitectureId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
-            });
+        Mock<IRunRepository> runs = new(MockBehavior.Strict);
 
         GovernanceStickinessController controller = BuildSut(runRepository: runs);
 
@@ -3066,6 +3140,7 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        runs.VerifyNoOtherCalls();
     }
 
     [Fact]

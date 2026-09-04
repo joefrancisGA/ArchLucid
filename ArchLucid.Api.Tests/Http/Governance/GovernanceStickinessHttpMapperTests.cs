@@ -3,6 +3,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.FindingDisposition;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Manifest;
 
@@ -99,6 +100,55 @@ public sealed class GovernanceStickinessHttpMapperTests
         validation.Should().NotBeNull();
         validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
         validation.Message.Should().Contain(RiskExceptionValidation.EvidenceRefMaxLength.ToString());
+    }
+
+    [Fact]
+    public void ValidateCreateRecurrenceSchedule_rejects_overlong_name()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateCreateRecurrenceSchedule(
+            new CreateArchitectureReviewRecurrenceScheduleRequest
+            {
+                SourceRunId = Guid.NewGuid(),
+                Name = new string('n', RecurrenceScheduleValidation.NameMaxLength + 1),
+                IsEnabled = true,
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain(RecurrenceScheduleValidation.NameMaxLength.ToString());
+    }
+
+    [Fact]
+    public void ValidateRecordDisposition_rejects_overlong_rationale()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRecordDisposition(
+            new RecordFindingDispositionRequest
+            {
+                FindingId = "finding-1",
+                Disposition = FindingDisposition.Accepted,
+                Rationale = new string('r', FindingDispositionValidation.MaximumRationaleLength + 1),
+                TradeOffAcknowledgment = "accepted after architecture board review",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain(FindingDispositionValidation.MaximumRationaleLength.ToString());
+    }
+
+    [Fact]
+    public void ValidateBulkDisposition_rejects_overlong_rationale()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateBulkDisposition(
+            new RecordBulkFindingDispositionRequest
+            {
+                FindingIds = ["finding-1"],
+                Disposition = FindingDisposition.Accepted,
+                Rationale = new string('r', FindingDispositionValidation.MaximumRationaleLength + 1),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain(FindingDispositionValidation.MaximumRationaleLength.ToString());
     }
 
     [Fact]
