@@ -3166,8 +3166,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 142
-- **bugs-found:** 318
+- **hunts:** 143
+- **bugs-found:** 321
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
 - **last-bug:** 2026-09-04 — approval request id max-length validation parity
@@ -3856,6 +3856,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceMutationCorrectionService.RecordAsync` / `GovernanceController.RecordGovernanceMutationCorrection` — approval/promotion/activation correction `subjectId` longer than 64 chars returned HTTP 404 while disposition corrections return HTTP 400 (#678 sibling scoped disposition-only) — **hit 2026-09-04 (#683):** max-length guard on all correction subject ids before trail/workflow lookup; regression in `GovernanceMutationCorrectionServiceTests.RecordAsync_rejects_approval_correction_when_subject_id_exceeds_max_length`.
 
 2026-09-04 seed hunt #683: promoted and proved approval request id max-length validation on approve/reject, batch review, and mutation correction paths.
+
+- [x] (proven) `FindingDispositionValidation.Validate` / `GovernanceStickinessController.RecordDisposition` — overlong `findingId` reached persistence when application validation ran without HTTP route guards (#678 HTTP sibling) — **hit 2026-09-04 (#684):** `MaxFindingIdLength` guard in `Validate`; regression in `FindingDispositionValidationTests.Validate_rejects_overlong_finding_id`.
+
+- [x] (proven) `RiskExceptionValidation.Validate` / `GovernanceStickinessController.CreateRiskException` — overlong `findingId` reached waiver validation when application layer ran without HTTP mapper guard (#678 HTTP sibling) — **hit 2026-09-04 (#684):** `FindingDispositionValidation.MaxFindingIdLength` guard on create; regression in `RiskExceptionValidationTests.Validate_rejects_overlong_finding_id`.
+
+- [x] (proven) `GovernanceStickinessHttpMapper.ValidateDecisionRegisterFilters` / `GovernanceStickinessController.GetDecisionRegister` — `category` query longer than 200 chars returned HTTP 200 empty register instead of HTTP 400 — **hit 2026-09-04 (#684):** `GovernanceRequestValidationRules.DecisionRegisterCategoryMaxLength` guard; regression in `GovernanceStickinessHttpMapperTests.ValidateDecisionRegisterFilters_rejects_overlong_category`.
+
+2026-09-04 seed hunt #684: promoted and proved application-layer finding-id max-length parity and decision-register category filter max-length validation.
 
 2026-09-04 thorough hunt #679: cheap-disproved manifest summary services/datastores cap candidate; proved product-feedback findingRef inspect max-length and mutation-correction rationale max-length parity.
 
