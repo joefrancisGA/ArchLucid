@@ -63,4 +63,17 @@ describe("OperatorHomeWorkspaceMetricsStrip", () => {
     expect(row?.className).toMatch(/border-b/);
     expect(row?.className).not.toMatch(/border-y/);
   });
+
+  it("hides setup readiness in Working mode", () => {
+    useFinishSetupReadinessContext.mockReturnValue({
+      phase: "ready",
+      readyCount: 2,
+      totalCount: 3,
+    });
+
+    render(<OperatorHomeWorkspaceMetricsStrip runsDashboard={buildRunsDashboard()} workingMode />);
+
+    expect(screen.queryByRole("link", { name: /Setup 2\/3/ })).toBeNull();
+    expect(screen.getByRole("link", { name: /1 Active review/ })).toBeInTheDocument();
+  });
 });

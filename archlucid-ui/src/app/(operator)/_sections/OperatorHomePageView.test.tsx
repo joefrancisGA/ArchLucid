@@ -3,6 +3,15 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/",
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => ({
+    mode: "guided",
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  }),
 }));
 
 // Product imports next/dynamic wrappers from deferred-chunks (TB-2145); leaf mocks alone never render.
