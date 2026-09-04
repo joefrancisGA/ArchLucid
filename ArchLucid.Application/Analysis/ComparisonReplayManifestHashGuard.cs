@@ -93,8 +93,11 @@ internal static class ComparisonReplayManifestHashGuard
 
         RunDetailDto? detail = await authorityQueryService.GetRunDetailForManifestCompareAsync(scope, runGuid, cancellationToken);
 
-        if (detail?.GoldenManifest is null)
-            return;
+if (detail?.GoldenManifest is null)
+{
+    throw new ConflictException(
+        $"Comparison replay blocked: run '{runId}' has no committed golden manifest available for sealed manifest hash verification.");
+}
 
         ManifestDecisionReceiptExportBinder.EnsureSealedManifestHashMatchesOrThrow(
             detail.GoldenManifest,
