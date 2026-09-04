@@ -5,5 +5,6 @@ public enum DecisionReceiptRunBuildOutcome
 {
     Success,
     NotFound,
+    SealedReceiptIncomplete,
     SealedHashMismatch,
 }

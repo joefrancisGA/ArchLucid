@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -65,6 +66,8 @@ public sealed class ArchitectureReviewExportServiceTests
         if (scopeContextProvider is not null)
             return new ArchitectureReviewExportService(
                 runDetailQuery,
+                Mock.Of<IAuthorityQueryService>(),
+                new ArchLucid.Decisioning.Services.ManifestHashService(),
                 analysis,
                 scopeContextProvider,
                 tenantRepository ?? Mock.Of<ITenantRepository>(),
@@ -78,6 +81,8 @@ public sealed class ArchitectureReviewExportServiceTests
 
         return new ArchitectureReviewExportService(
             runDetailQuery,
+            Mock.Of<IAuthorityQueryService>(),
+            new ArchLucid.Decisioning.Services.ManifestHashService(),
             analysis,
             scopeContextProvider,
             tenantRepository ?? Mock.Of<ITenantRepository>(),
