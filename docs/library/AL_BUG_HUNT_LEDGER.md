@@ -3187,9 +3187,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 179
+- **hunts:** 180
 - **bugs-found:** 390
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-04
 - **last-bug:** 2026-09-04 — Merge conflict resolve action enum validation ordering before tenant preflight
 - **related-pd-tb:** none
@@ -4093,6 +4093,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.ResolveFindingMergeConflict` / `ResolveFindingMergeConflictRequest.Action` — tenant preflight ran before merge-conflict `action` enum guard, so ghost tenant + unrecognized action (e.g. numeric `99`) returned HTTP 404 instead of 400 (#729 disposition ordering sibling) — **hit 2026-09-04 (#730):** `GovernanceStickinessHttpMapper.ValidateResolveFindingMergeConflict` before `RequireTenantAndWorkspaceOrNotFoundAsync`; regression in `GovernanceStickinessControllerTests.ResolveFindingMergeConflict_returns_bad_request_when_action_is_unrecognized_and_tenant_missing`.
 
 2026-09-04 seed hunt #730 (hit): proved merge conflict resolve action enum validation ordering before tenant preflight.
+
+- [x] (invalid) `GovernanceController.BatchReviewApprovalRequests` / `GovernanceApprovalRequestsHttpMapper.ValidateBatchReviewRequest` — ghost tenant + unrecognized `decision` may return HTTP 404 instead of 400 (#730 merge-conflict action ordering sibling) — **cheap-disproof 2026-09-04 (#731):** batch decision guard runs before `RequireTenantAndWorkspaceOrNotFoundAsync`; regression in `GovernanceControllerRunHistoryScopeTests.BatchReviewApprovalRequests_returns_bad_request_when_decision_is_unrecognized_and_tenant_missing`.
+
+- [x] (invalid) `GovernanceController.RecordGovernanceMutationCorrection` / `GovernanceMutationCorrectionsHttpMapper.ValidateRecordMutationCorrection` — ghost tenant + unsupported `mutationKind` may return HTTP 404 instead of 400 (#701 runId ordering sibling) — **cheap-disproof 2026-09-04 (#731):** `GovernanceMutationCorrectionKinds.IsSupported` runs before tenant lookup; regression in `GovernanceMutationCorrectionsControllerTests.RecordGovernanceMutationCorrection_returns_bad_request_when_mutation_kind_is_unsupported_and_tenant_missing`.
+
+- [x] (invalid) `GovernanceStickinessController.GetDecisionRegister` / `GovernanceStickinessHttpMapper.ValidateBuyerConfidenceSource` — ghost tenant + unknown `buyerConfidenceSource` may return HTTP 404 instead of 400 (#703 posture projectId ordering sibling) — **cheap-disproof 2026-09-04 (#731):** query filter validation runs before `RequireTenantAndWorkspaceOrNotFoundAsync`; regression in `GovernanceStickinessControllerTests.GetDecisionRegister_returns_bad_request_when_buyer_confidence_source_is_unknown_and_tenant_missing`.
+
+- [x] (invalid) `GovernanceController.GetDashboard` — ghost tenant + `maxPending` ≤ 0 may return HTTP 404 instead of 400 (#3388 dashboard bounds sibling) — **cheap-disproof 2026-09-04 (#731):** query bound guards run before tenant lookup; regression in `GovernanceControllerDashboardTests.GetDashboard_returns_bad_request_when_max_pending_is_zero_and_tenant_missing`.
+
+2026-09-04 seed hunt #731 (dry): cheap-disproved four #730 validation-ordering siblings; no new hunt-ready repro in zone.
 
 2026-09-04 thorough hunt #723 (hit): proved SubmitApprovalRequest same-environment validation ordering before tenant preflight.
 
