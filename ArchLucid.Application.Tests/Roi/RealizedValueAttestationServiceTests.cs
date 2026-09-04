@@ -74,6 +74,47 @@ public sealed class RealizedValueAttestationServiceTests
     }
 
     [Fact]
+    public async Task SaveAttestationAsync_preserves_existing_notes_when_partial_body_omits_them()
+    {
+        string existingPayload = JsonSerializer.Serialize(new
+        {
+            AttestedIncidentsAvoided = 3,
+            AttestedRevenueOrRetentionImpact = "Q2 uplift",
+            AttestedReviewerTimeSavedNote = "saved 4h",
+        });
+
+        string? capturedJson = null;
+        Mock<ITenantSettingsRepository> repo = new();
+        repo.Setup(r => r.TryGetAsync(
+                TenantId,
+                $"{TenantSettingKeys.RealizedValueAttestation}.{WorkspaceId:D}",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existingPayload);
+        repo.Setup(r => r.UpsertAsync(
+                TenantId,
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<Guid, string, string, CancellationToken>((_, _, json, _) => capturedJson = json)
+            .Returns(Task.CompletedTask);
+
+        RealizedValueAttestationService sut = new(repo.Object);
+        await sut.SaveAttestationAsync(
+            TenantId,
+            WorkspaceId,
+            new UpsertRealizedValueAttestationRequest { AttestedIncidentsAvoided = 5 },
+            CancellationToken.None);
+
+        capturedJson.Should().NotBeNull();
+        using JsonDocument document = JsonDocument.Parse(capturedJson!);
+        JsonElement root = document.RootElement;
+
+        root.GetProperty("AttestedIncidentsAvoided").GetInt32().Should().Be(5);
+        root.GetProperty("AttestedRevenueOrRetentionImpact").GetString().Should().Be("Q2 uplift");
+        root.GetProperty("AttestedReviewerTimeSavedNote").GetString().Should().Be("saved 4h");
+    }
+
+    [Fact]
     public async Task SaveAttestationAsync_persists_workspace_scoped_setting_key()
     {
         string? capturedKey = null;
