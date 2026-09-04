@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
@@ -209,11 +210,11 @@ public sealed class GovernanceMutationCorrectionService(
             or GovernanceMutationCorrectionKinds.WorkflowApprove)
         {
             if (!string.Equals(approval.Status, GovernanceApprovalStatus.Approved, StringComparison.Ordinal))
-                throw new InvalidOperationException("Corrections can only be recorded after the approval request is approved.");
+                throw new ConflictException("Corrections can only be recorded after the approval request is approved.");
         }
         else if (!string.Equals(approval.Status, GovernanceApprovalStatus.Rejected, StringComparison.Ordinal))
         {
-            throw new InvalidOperationException("Corrections can only be recorded after the approval request is rejected.");
+            throw new ConflictException("Corrections can only be recorded after the approval request is rejected.");
         }
     }
 

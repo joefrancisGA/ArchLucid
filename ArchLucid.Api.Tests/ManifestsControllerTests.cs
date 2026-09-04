@@ -412,6 +412,39 @@ public sealed class ManifestsControllerTests
     }
 
     [Fact]
+    public async Task GetManifestSummary_json_caps_relationships_at_default_max_when_query_param_omitted()
+    {
+        GoldenManifest manifest = CreateManifest(ManifestVersion);
+
+        for (int i = 0; i < ManifestSummaryLimits.MaxRelationships + 1; i++)
+        {
+            manifest.Relationships.Add(new ManifestRelationship
+            {
+                SourceId = $"svc-{i}",
+                TargetId = $"ds-{i}",
+                RelationshipType = RelationshipType.Calls,
+            });
+        }
+
+        Mock<IUnifiedGoldenManifestReader> reader = new();
+        reader
+            .Setup(r => r.GetByVersionAsync(ManifestVersion, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(manifest);
+
+        ManifestsController controller = CreateController(manifestReader: reader.Object);
+
+        IActionResult action = await controller.GetManifestSummary(
+            ManifestVersion,
+            format: "json",
+            cancellationToken: CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        ManifestSummaryJsonResponse body = ok.Value.Should().BeOfType<ManifestSummaryJsonResponse>().Subject;
+        body.RelationshipCount.Should().Be(ManifestSummaryLimits.MaxRelationships + 1);
+        body.Relationships.Should().HaveCount(ManifestSummaryLimits.MaxRelationships);
+    }
+
+    [Fact]
     public async Task GetManifestDiagramV2_returns_mermaid_content()
     {
         ManifestsController controller = CreateController();

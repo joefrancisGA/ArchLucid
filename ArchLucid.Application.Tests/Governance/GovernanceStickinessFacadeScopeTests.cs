@@ -152,6 +152,47 @@ public sealed class GovernanceStickinessFacadeScopeTests
     }
 
     [Fact]
+    public async Task RecordDispositionAsync_throws_when_run_id_omitted_and_finding_has_authority_run()
+    {
+        Guid authorityRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+
+        Mock<IFindingInspectReadRepository> findings = new();
+        findings
+            .Setup(r => r.GetInspectAsync(
+                CallerScope,
+                "finding-1",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse
+            {
+                FindingId = "finding-1",
+                RunId = authorityRunId,
+            });
+
+        Mock<IFindingDispositionService> dispositions = new(MockBehavior.Strict);
+
+        GovernanceStickinessFacade sut = CreateSut(
+            findingInspect: findings.Object,
+            dispositionService: dispositions.Object);
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            RunId = null,
+            Disposition = ArchLucid.Contracts.Findings.FindingDisposition.Accepted,
+            Rationale = "accepted without run binding",
+            TradeOffAcknowledgment = "accepted without run binding",
+        };
+
+        Func<Task> act = () => sut.RecordDispositionAsync(request, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*required*authority run*");
+
+        dispositions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task RecordDispositionAsync_throws_when_run_id_is_out_of_scope()
     {
         Guid foreignRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

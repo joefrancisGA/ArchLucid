@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 134
-- **bugs-found:** 294
+- **hunts:** 135
+- **bugs-found:** 298
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — manifest compare max-length validation; batch review comment cap; approve/reject/promote actor-field validator parity
+- **last-bug:** 2026-09-04 — manifest summary relationship default cap; disposition run binding; renew rationale parity; mutation correction 409
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3786,6 +3786,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.Approve` / `Reject` + `ApproveGovernanceRequestValidator` / `RejectGovernanceRequestValidator` — auto-validation required body `ReviewedBy` while controllers use `actorContext.GetActor()` only — **hit 2026-09-04 (#675):** make `ReviewedBy` optional with max-length when provided; regression in `ApproveGovernanceRequestValidatorTests` and `RejectGovernanceRequestValidatorTests`.
 
 - [x] (proven) `GovernanceController.Promote` + `CreateGovernancePromotionRequestValidator` — auto-validation required body `PromotedBy` while controller uses `actorContext.GetActor()` only — **hit 2026-09-04 (#675):** make `PromotedBy` optional with max-length when provided; regression in `CreateGovernancePromotionRequestValidatorTests.Validate_passes_when_promoted_by_omitted_because_controller_uses_actor_context`.
+
+2026-09-04 seed hunt #675: promoted and proved manifest compare max-length validation, batch review comment cap, and approve/reject/promote actor-field validator parity.
+
+- [x] (proven) `ManifestsController.GetManifestSummary` JSON format — omitted `maxRelationships` returned unbounded `relationships` array while explicit values >1000 returned HTTP 400 — **hit 2026-09-04 (#676):** default omitted query param to `ManifestSummaryLimits.MaxRelationships` (markdown path parity); regression in `ManifestsControllerTests.GetManifestSummary_json_caps_relationships_at_default_max_when_query_param_omitted`.
+
+- [x] (proven) `GovernanceStickinessController.RecordDisposition` / `GovernanceStickinessFacade.EnsureRunMatchesFindingAuthorityRun` — omitted `runId` persisted disposition with null trail run while finding inspect exposed authority `RunId` (create-waiver #563 parity) — **hit 2026-09-04 (#676):** require non-empty `runId` when finding is bound to authority run; regression in `GovernanceStickinessFacadeScopeTests.RecordDispositionAsync_throws_when_run_id_omitted_and_finding_has_authority_run`.
+
+- [x] (proven) `GovernanceStickinessController.RenewRiskException` / `RiskExceptionValidation.ValidateRenew` — optional `rationale` shorter than 10 chars accepted on renew while create path enforces `FindingDispositionValidation.MinimumRationaleLength` — **hit 2026-09-04 (#676):** min-length guard when rationale provided; regression in `RiskExceptionValidationTests.ValidateRenew_rejects_rationale_shorter_than_minimum_length`.
+
+- [x] (proven) `GovernanceController.RecordGovernanceMutationCorrection` / `GovernanceMutationCorrectionService.ValidateApprovalSubjectAsync` — correction on `Submitted` approval returned HTTP 400 `ValidationFailed` while waiver lifecycle conflicts map to HTTP 409 — **hit 2026-09-04 (#676):** throw `ConflictException` for approval status mismatch; controller maps to HTTP 409; regression in `GovernanceMutationCorrectionServiceTests.RecordAsync_throws_conflict_when_approval_request_is_not_yet_approved`.
+
+2026-09-04 seed hunt #676: promoted and proved manifest summary default relationship cap, disposition authority-run binding, renew rationale min-length parity, and mutation-correction lifecycle conflict status mapping.
 
 2026-09-04 seed hunt #675: promoted and proved manifest compare max-length validation, batch review comment cap, and approve/reject/promote actor-field validator parity.
 

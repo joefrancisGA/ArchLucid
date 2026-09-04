@@ -84,10 +84,17 @@ public sealed partial class GovernanceStickinessFacade
 
     private static void EnsureRunMatchesFindingAuthorityRun(Guid? runId, FindingInspectResponse finding)
     {
-        if (runId is not Guid resolvedRunId || resolvedRunId == Guid.Empty)
+        if (finding.RunId == Guid.Empty)
             return;
 
-        if (finding.RunId != Guid.Empty && finding.RunId != resolvedRunId)
+        if (runId is not Guid resolvedRunId || resolvedRunId == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "runId is required when the finding is bound to an authority run.",
+                nameof(runId));
+        }
+
+        if (finding.RunId != resolvedRunId)
         {
             throw new ArgumentException(
                 "runId does not match the finding's authority run.",

@@ -46,7 +46,7 @@ public sealed partial class ManifestsController
                 ProblemTypes.ValidationFailed);
         }
 
-        int? validatedMaxRelationships = maxRelationships;
+        int? validatedMaxRelationships = maxRelationships ?? ManifestSummaryLimits.MaxRelationships;
 
         string canonicalManifestVersion = manifest.Metadata.ManifestVersion;
 

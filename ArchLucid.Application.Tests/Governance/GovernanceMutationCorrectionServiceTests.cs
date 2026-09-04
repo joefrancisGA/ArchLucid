@@ -1,3 +1,4 @@
+using ArchLucid.Application;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
@@ -203,6 +204,42 @@ public sealed class GovernanceMutationCorrectionServiceTests
             CancellationToken.None);
 
         await act.Should().ThrowAsync<KeyNotFoundException>();
+    }
+
+    [Fact]
+    public async Task RecordAsync_throws_conflict_when_approval_request_is_not_yet_approved()
+    {
+        const string runId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+        const string approvalRequestId = "apr-pending-1";
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        approvals
+            .Setup(r => r.GetByIdAsync(approvalRequestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest
+            {
+                ApprovalRequestId = approvalRequestId,
+                RunId = runId,
+                Status = GovernanceApprovalStatus.Submitted,
+            });
+
+        GovernanceMutationCorrectionService sut = CreateSut(
+            approvals.Object,
+            CreateScopedRunRepository(runId).Object,
+            new Mock<IAuditService>().Object);
+
+        Func<Task> act = () => sut.RecordAsync(
+            new RecordGovernanceMutationCorrectionRequest
+            {
+                MutationKind = GovernanceMutationCorrectionKinds.WorkflowApprove,
+                SubjectId = approvalRequestId,
+                RunId = runId,
+                Rationale = "Premature correction attempt.",
+            },
+            Scope,
+            "operator-1",
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ConflictException>();
     }
 
     private static GovernanceMutationCorrectionService CreateSut(

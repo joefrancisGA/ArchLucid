@@ -20,6 +20,7 @@ public sealed partial class GovernanceController
     [ProducesResponseType(typeof(GovernanceMutationCorrectionRecordedDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> RecordGovernanceMutationCorrection(
         [FromBody] RecordGovernanceMutationCorrectionRequest? request,
         CancellationToken cancellationToken)
@@ -54,6 +55,11 @@ public sealed partial class GovernanceController
         {
             logger.LogWarning(ex, "Governance mutation correction failed: validation error.");
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+        catch (ConflictException ex)
+        {
+            logger.LogWarning(ex, "Governance mutation correction failed: lifecycle conflict.");
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {

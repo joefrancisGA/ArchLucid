@@ -1,4 +1,5 @@
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Contracts.Governance;
 
 using FluentAssertions;
@@ -142,5 +143,22 @@ public sealed class RiskExceptionValidationTests
         Action act = () => RiskExceptionValidation.ValidateRenew(request, now);
 
         act.Should().Throw<ArgumentException>().WithMessage($"*at most {RiskExceptionValidation.EvidenceRefMaxLength}*");
+    }
+
+    [Fact]
+    public void ValidateRenew_rejects_rationale_shorter_than_minimum_length()
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        RenewRiskExceptionRequest request = new()
+        {
+            ExpiresAtUtc = now.AddDays(30),
+            Rationale = new string('r', FindingDispositionValidation.MinimumRationaleLength - 1),
+        };
+
+        Action act = () => RiskExceptionValidation.ValidateRenew(request, now);
+
+        act.Should()
+            .Throw<ArgumentException>()
+            .WithMessage($"*at least {FindingDispositionValidation.MinimumRationaleLength}*");
     }
 }
