@@ -375,6 +375,18 @@ describe("run-detail-workspace-derive", () => {
     expect(presentation.eyebrowLabel).toBe("Architecture review");
   });
 
+  it("preserves the full review id for header identifier display", () => {
+    const runId = "851472cf-1234-5678-9abc-def083248324";
+    const presentation = deriveReviewHeaderPresentation({
+      reviewTitle: "Payments platform",
+      systemName: "Payments platform",
+      runId,
+    });
+
+    expect(presentation.reviewIdentifierLabel).toBe(runId);
+    expect(presentation.reviewIdentifierLabel).not.toContain("…");
+  });
+
   it("derives ArchLucid as system name when displayName matches the review headline", () => {
     const systemName = deriveArchitectureSystemName(
       {

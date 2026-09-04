@@ -77,16 +77,19 @@ const executionFailedWorkspaceStatus = {
   statusTagKind: "needs-attention" as const,
 };
 
+const reviewRunId = "851472cf-1234-5678-9abc-def083248324";
+const finalizedRecordId = "9026d565-0000-0000-0000-0000000099e8";
+
 describe("RunDetailWorkspaceHeader", () => {
-  it("renders system title, provenance slots, and review identifier", () => {
+  it("renders system title, provenance slots, and full review identifier", () => {
     render(
       <RunDetailWorkspaceHeader
-        runId="run-1"
+        runId={reviewRunId}
         h1Title="Claims API"
         eyebrowLabel="Claims platform review"
-        reviewIdentifierLabel="run-1"
-        signedReviewRecordId="manifest-9026"
-        signedReviewRecordIdLabel="manifest-9026"
+        reviewIdentifierLabel={reviewRunId}
+        signedReviewRecordId={finalizedRecordId}
+        signedReviewRecordIdLabel={finalizedRecordId}
         workspaceStatus={workspaceStatus}
         reviewOwner={null}
         templateLabel={null}
@@ -98,11 +101,12 @@ describe("RunDetailWorkspaceHeader", () => {
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: "Claims API" })).toBeInTheDocument();
     expect(screen.getByText("Claims platform review")).toBeInTheDocument();
-    expect(screen.getByTestId("run-detail-copy-identifiers-disclosure")).toBeInTheDocument();
-    expect(screen.getByText("Copy identifiers")).toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-review-identifiers")).toBeInTheDocument();
+    expect(screen.queryByText("Copy identifiers")).not.toBeInTheDocument();
     expect(screen.getByText("Review ID")).toBeInTheDocument();
     expect(screen.getByText("Finalized review record ID")).toBeInTheDocument();
-    expect(screen.getByText("run-1")).toBeInTheDocument();
+    expect(screen.getByText(reviewRunId)).toBeInTheDocument();
+    expect(screen.getByText(finalizedRecordId)).toBeInTheDocument();
     expect(
       screen.getByText("Not recorded — this record does not name who recorded the decision"),
     ).toBeInTheDocument();
