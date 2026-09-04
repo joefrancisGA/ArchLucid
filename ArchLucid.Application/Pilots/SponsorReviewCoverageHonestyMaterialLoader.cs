@@ -5,6 +5,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Pilots;
 
