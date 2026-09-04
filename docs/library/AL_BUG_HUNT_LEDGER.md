@@ -3208,11 +3208,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 12
-- **bugs-found:** 21
+- **hunts:** 13
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — knowledge-model clarification answer max length; provenance-node whitespace 404 parity
+- **last-bug:** 2026-09-04 — execute/commit/replay whitespace runId 404 parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3237,6 +3237,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CustomRolesAdminController.UpdateAsync` — omitted `IsValidUnicodeText` surrogate guard present on `CreateAsync` — **hit 2026-09-03 (#546):** reject lone surrogates before service call; regression in `CustomRolesAdminControllerTests`.
 - [x] (proven) `ReviewClarificationQuestionsController.ApplyKnowledgeModelClarificationAnswers` — megabyte answer values reach persistence without per-answer max-length guard — **hit 2026-09-04 (#661):** over-limit answer values reached `ApplyAnswersAsync` while sibling `RephraseClarificationAnswers` enforced `DraftIntakeValidation.MaximumFreeTextIntentLength`; fixed with per-answer guard; regression in `ApplyKnowledgeModelClarificationAnswers_returns_bad_request_when_answer_exceeds_max_length`.
 - [x] (proven) `RunQueryController.GetProvenanceNodeExplanation` — whitespace `runId` still returns 400 while sibling provenance reads return 404 — **hit 2026-09-04 (#661):** removed whitespace `runId` pre-check; rely on `AuthorityRunExistsInScopeAsync` / `AuthorityRunIdentifier.TryParse`; regression in `GetProvenanceNodeExplanation_returns_not_found_for_whitespace_run_id_like_GetArchitectureRunProvenance`.
+- [x] (proven) `RunsController.ExecuteRun` / `ExecuteRunSelective` / `CommitRun` / `ReplayRun` — whitespace or non-GUID `runId` returned 400/`ArgumentException`/NRE while sibling `PinRun` returned 404 — **hit 2026-09-04 (#744):** `NotFoundWhenRunRouteIdInvalid` preflight on mutating authority routes; regression in `RunsControllerTests.ExecuteRun_returns_not_found_for_whitespace_run_id_like_PinRun` and sibling commit/replay/selective tests.
+- [ ] (invalid) `PostFindingFeedback` whitespace `findingId` → 400 — required-field validation on finding route param, not run-id read parity; whitespace is semantically empty finding id.
+- [ ] (invalid) `GetProvenanceNodeExplanation` whitespace `nodeId` → 400 — node id required-field guard before run scope check; distinct from run-id parity fixes.
+- [ ] (invalid) `ConfluencePublishingAdminController` body `RunId` whitespace → 400 — explicit required publish field, not `{runId}` route parity pattern.
+
+2026-09-04 seed hunt #744: proved execute/commit/replay whitespace 404 parity gap; cheap-disproved finding-feedback, provenance-node, and Confluence publish body candidates.
 
 2026-09-04 thorough hunt #661: proved knowledge-model clarification answer max-length gap and provenance-node whitespace 404 parity.
 

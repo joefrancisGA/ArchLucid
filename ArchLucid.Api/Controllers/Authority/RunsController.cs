@@ -104,6 +104,14 @@ public sealed partial class RunsController(
     private static Guid? TryParseRunGuidForAudit(string runId) =>
         TryParseRunGuidForAudit(runId, out Guid g) ? g : null;
 
+    private IActionResult? NotFoundWhenRunRouteIdInvalid(string runId)
+    {
+        if (TryParseRunGuidForAudit(runId, out _))
+            return null;
+
+        return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+    }
+
     private IActionResult MapApplicationServiceFailure(string? error, ApplicationServiceFailureKind? kind,
         string defaultBadRequestDetail)
     {

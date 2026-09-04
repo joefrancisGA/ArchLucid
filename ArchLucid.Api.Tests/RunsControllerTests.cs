@@ -8,6 +8,7 @@ using ArchLucid.Application.Operations;
 using ArchLucid.Application.Planning;
 using ArchLucid.Application.Planning.AdvisoryDraft;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Runs.Query;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Operations;
@@ -541,12 +542,92 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task ExecuteRun_returns_not_found_for_whitespace_run_id_like_PinRun()
+    {
+        Mock<IRunLifecycleCommandService> commands = new();
+        RunsController controller = CreateController(runLifecycleCommandService: commands.Object);
+
+        IActionResult action = await controller.ExecuteRun("   ", CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        commands.Verify(
+            s => s.ExecuteRunAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ExecuteRunSelective_returns_not_found_for_whitespace_run_id_like_PinRun()
+    {
+        Mock<IRunLifecycleCommandService> commands = new();
+        RunsController controller = CreateController(runLifecycleCommandService: commands.Object);
+
+        IActionResult action = await controller.ExecuteRunSelective(
+            "   ",
+            new SelectiveExecuteRunRequest(),
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        commands.Verify(
+            s => s.ExecuteRunSelectiveAsync(
+                It.IsAny<string>(),
+                It.IsAny<SelectiveAgentExecuteRequest>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CommitRun_returns_not_found_for_whitespace_run_id_like_PinRun()
+    {
+        Mock<IRunLifecycleCommandService> commands = new();
+        RunsController controller = CreateController(runLifecycleCommandService: commands.Object);
+
+        IActionResult action = await controller.CommitRun("   ", null, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        commands.Verify(
+            s => s.CommitRunAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<CommitRunRequest>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ReplayRun_returns_not_found_for_whitespace_run_id_like_PinRun()
+    {
+        Mock<IRunLifecycleCommandService> commands = new();
+        RunsController controller = CreateController(runLifecycleCommandService: commands.Object);
+
+        IActionResult action = await controller.ReplayRun(
+            "   ",
+            new ReplayRunRequest(),
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        commands.Verify(
+            s => s.ReplayRunAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<bool>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task ReplayRun_unknown_execution_mode_returns_400_like_async_replay()
     {
+        const string runId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
         Mock<IRunLifecycleCommandService> commands = new();
         commands
             .Setup(s => s.ReplayRunAsync(
-                "run-1",
+                runId,
                 "DestroyEverything",
                 It.IsAny<bool>(),
                 It.IsAny<string?>(),
@@ -556,7 +637,7 @@ public sealed class RunsControllerTests
         RunsController controller = CreateController(runLifecycleCommandService: commands.Object);
 
         IActionResult action = await controller.ReplayRun(
-            "run-1",
+            runId,
             new ReplayRunRequest { ExecutionMode = "DestroyEverything" },
             CancellationToken.None);
 
