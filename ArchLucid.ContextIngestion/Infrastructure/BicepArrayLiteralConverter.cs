@@ -42,9 +42,7 @@ internal static class BicepArrayLiteralConverter
                 break;
 
             Dictionary<string, string> objectProperties = ParseObjectScalars(objectBody);
-
-            if (objectProperties.Count > 0)
-                objects.Add(objectProperties);
+            objects.Add(objectProperties);
 
             searchIndex = openBraceIndex + objectBody.Length;
         }
