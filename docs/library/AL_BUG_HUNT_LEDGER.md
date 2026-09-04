@@ -3020,11 +3020,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 5
-- **bugs-found:** 7
+- **hunts:** 6
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — architecture narrative omitted committed decisions
+- **last-hunt:** 2026-09-04
+- **last-bug:** 2026-09-04 — DOCX export omitted assumptions/constraints and unsanitized posture gaps
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -3039,10 +3039,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FileNameSanitizer` allowed Unicode slash homoglyphs in export paths — **hit 2026-08-24:** fullwidth solidus U+FF0F survived sanitization; regression in `FileNameSanitizer_replaces_invalid_windows_characters` (`..／..／manifest.json`)
 - [x] (proven) `ArchitectureNarrativeArtifactGenerator` omitted `Topology.SelectedPatterns` — **hit 2026-08-25:** narrative listed resources/gaps only while `ReferenceArchitectureMarkdownGenerator` and DOCX export emitted `- Pattern:` lines; regression in `ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_topology_selected_patterns`
 - [x] (proven) `ArchitectureNarrativeArtifactGenerator` omitted `manifest.Decisions` — **hit 2026-09-02 (#536):** narrative jumped from placeholder sections to unresolved issues while `ReferenceArchitectureMarkdownGenerator` and DOCX export listed committed decisions; fixed with `## Decisions` section (`ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_committed_decisions`).
-- [ ] (candidate) `MermaidDiagramArtifactGenerator` ignores typed golden topology — AST built only from `manifest.Decisions`, not `Topology.Services` / `Datastores`
-- [ ] (candidate) `DocxExportService.BuildDocumentAsync` omits Constraints and Assumptions sections present in markdown artifacts
-- [ ] (candidate) `DocxExportService` skips `LlmArtifactFreeTextSanitizer` on manifest posture strings (topology gaps, security/compliance gaps)
+- [x] (invalid) `MermaidDiagramArtifactGenerator` ignores typed golden topology — AST built only from `manifest.Decisions`, not `Topology.Services` / `Datastores` — **cheap-disproof 2026-09-04 (#732):** decision-graph generator by design; `ReferenceArchitectureMarkdownGenerator` also omits typed services/datastores (uses string `Resources` only); regression in `MermaidDiagramArtifactGeneratorTests.GenerateAsync_builds_decision_graph_only_when_typed_topology_services_present`.
+- [x] (proven) `DocxExportService.BuildDocumentAsync` omits Constraints and Assumptions sections present in markdown artifacts — **hit 2026-09-04 (#732):** assumptions/constraints sections added after cost posture (parity with `ReferenceArchitectureMarkdownGenerator` / `ArchitectureNarrativeArtifactGenerator`); regression in `DocxExportServiceGoldenTests.ExportAsync_includes_assumptions_and_constraints_sections`.
+- [x] (proven) `DocxExportService` skips `LlmArtifactFreeTextSanitizer` on manifest posture strings (topology gaps, security/compliance gaps) — **hit 2026-09-04 (#732):** `SanitizeArtifactText` on topology/security/compliance gap lines, resources, patterns, and cost risks/notes; regression in `DocxExportServiceGoldenTests.ExportAsync_strips_control_chars_from_topology_gap_text`.
 - [x] (proven) `ReferenceArchitectureMarkdownGenerator` / `ArchitectureNarrativeArtifactGenerator` hardcoded `## Assumptions` as `Not specified.` — **hit 2026-08-26:** committed `manifest.Assumptions` dropped while Constraints were already emitted from manifest; fixed by listing assumptions or `No assumptions were recorded.` (`ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_committed_assumptions_not_not_specified`, `ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_committed_assumptions_not_not_specified`).
+
+2026-09-04 thorough hunt #732 (hit): proved DOCX assumptions/constraints parity and posture-string sanitization; cheap-disproved mermaid typed-topology candidate.
 
 2026-09-02 thorough hunt #536: proved architecture narrative decisions parity gap vs reference-architecture markdown and DOCX export.
 
