@@ -26,7 +26,7 @@ export function useGovernanceFindingsHideGenericState(): GovernanceFindingsHideG
   const searchParams = useSearchParams();
   const urlHideGeneric = parseGovernanceFindingsHideGenericFromSearch(searchParams.get("hideGeneric"));
   const hasUrlHideGeneric = searchParams.has("hideGeneric");
-  const accountPrefs = readFindingsVisibilityFromStorage();
+  const [accountPrefs] = useState(readFindingsVisibilityFromStorage);
   const [hideGenericLowDensity, setHideGenericLowDensityState] = useState(() =>
     resolveFindingsVisibilityFlag(hasUrlHideGeneric, urlHideGeneric, accountPrefs.hideGenericEnabled),
   );
