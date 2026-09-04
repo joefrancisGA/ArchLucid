@@ -1,5 +1,6 @@
 import { shouldMergeOperatorDemoAlertSample } from "@/lib/operator/operator-static-demo";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
 import type { RunSummary } from "@/types/authority";
 
 /** Sentinel select value for workspace-wide Ask (TB-2200). */
@@ -15,7 +16,11 @@ export function findRunSummaryById(items: readonly RunSummary[], runId: string):
   return items.find((row) => (row.runId ?? "").trim().toLowerCase() === needle);
 }
 
-export function operatorAllowsSyntheticAskRunPick(): boolean {
+export function operatorAllowsSyntheticAskRunPick(workingMode = false): boolean {
+  if (workingMode && isLiveOperatorShellRecoveryContext()) {
+    return false;
+  }
+
   return (
     isBuyerPolishedOperatorShellEnv() ||
     process.env.NEXT_PUBLIC_DEMO_MODE === "true" ||

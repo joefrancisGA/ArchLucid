@@ -1,4 +1,5 @@
 import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { WORKING_NEW_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import {
   COMMAND_PALETTE_ACTIONS,
   type CommandPaletteHrefAction,
@@ -25,6 +26,7 @@ export function resolveVisibleCommandPaletteHrefActions(
     action.id === "action-create-review"
       ? {
           ...action,
+          label: WORKING_NEW_REVIEW_LABEL,
           href: ARCHITECTURES_NEW_PATH,
           searchValue: "action create new review draft editor intake",
         }

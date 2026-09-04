@@ -129,7 +129,7 @@ describe("HelpCliUsageTechnicalReferenceView", () => {
     expect(visibleText).not.toContain("staging.archlucid.net");
     expect(visibleText).toContain("creates a new tenant");
     expect(visibleText).toContain("Set up");
-    expect(visibleText).toContain("ReadAuthority");
+    expect(visibleText).not.toMatch(/ReadAuthority/i);
     expect(screen.getAllByRole("region").length).toBeGreaterThan(0);
     expect(document.querySelectorAll("pre code").length).toBeGreaterThan(0);
     expect(visibleText.match(/dotnet run --project ArchLucid\.Cli/g)?.length ?? 0).toBeLessThanOrEqual(1);
