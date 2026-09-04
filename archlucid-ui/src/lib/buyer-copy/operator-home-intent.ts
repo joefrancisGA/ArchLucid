@@ -138,6 +138,8 @@ export const OPERATOR_HOME_RECOMMENDED_NEXT_HEADING = "Recommended next";
 
 export const OPERATOR_HOME_YOUR_WORK_HEADING = "Your work";
 
+export const OPERATOR_HOME_YOUR_WORK_CONTINUE_REVIEW_CTA = "Continue review";
+
 export const OPERATOR_HOME_YOUR_WORK_COLUMN_NAME = "Name";
 
 export const OPERATOR_HOME_YOUR_WORK_COLUMN_TYPE = "Type";

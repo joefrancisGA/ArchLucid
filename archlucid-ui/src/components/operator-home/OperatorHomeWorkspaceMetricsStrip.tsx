@@ -16,39 +16,50 @@ import {
   OPERATOR_HOME_OPEN_FINDINGS_HREF,
   OPERATOR_HOME_SETUP_READINESS_HREF,
 } from "@/lib/operator/operator-home-metric-hrefs";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  OPERATOR_HOME_METRIC_COUNTER_LABEL,
+  OPERATOR_HOME_METRIC_COUNTER_VALUE,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 
 type OperatorHomeWorkspaceMetricsStripProps = {
   readonly runsDashboard: OperatorHomeRunsDashboardModel;
   readonly workingMode?: boolean;
 };
 
-type MetricTileProps = {
+type MetricCounterProps = {
+  readonly count: number;
   readonly label: string;
   readonly href?: string;
   readonly ariaLabel?: string;
+  readonly testId?: string;
 };
 
-function MetricTile(props: MetricTileProps): React.JSX.Element {
+function MetricCounter(props: MetricCounterProps): React.JSX.Element {
   const content = (
-    <span className="font-medium text-al-text-primary tabular-nums">{props.label}</span>
+    <span className="inline-flex items-baseline gap-1.5">
+      <span className={OPERATOR_HOME_METRIC_COUNTER_VALUE}>{props.count}</span>
+      <span className={OPERATOR_HOME_METRIC_COUNTER_LABEL}>{props.label}</span>
+    </span>
   );
 
-  return (
-    <div className="min-w-0">
-      {props.href !== undefined ? (
-        <Link
-          href={props.href}
-          className={OPERATOR_LINK.inline}
-          aria-label={props.ariaLabel}
-        >
-          {content}
-        </Link>
-      ) : (
-        content
-      )}
-    </div>
-  );
+  if (props.href !== undefined) {
+    return (
+      <Link
+        href={props.href}
+        className={cn(
+          "rounded-sm no-underline transition-colors hover:text-[var(--al-accent-link)]",
+          "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]",
+        )}
+        aria-label={props.ariaLabel}
+        data-testid={props.testId}
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return <div data-testid={props.testId}>{content}</div>;
 }
 
 /** Compact horizontal KPI strip for populated workspaces. */
@@ -66,8 +77,10 @@ export function OperatorHomeWorkspaceMetricsStrip(
   }
 
   const activeReviews = metrics.reviewPackagesActive;
-  const findingsLabel = `${metrics.openFindings} Open finding${metrics.openFindings === 1 ? "" : "s"}`;
-  const warningsLabel = `${metrics.governanceWarnings} Warning${metrics.governanceWarnings === 1 ? "" : "s"}`;
+  const findingsCount = metrics.openFindings;
+  const warningsCount = metrics.governanceWarnings;
+  const findingsLabel = `Open finding${findingsCount === 1 ? "" : "s"}`;
+  const warningsLabel = `Warning${warningsCount === 1 ? "" : "s"}`;
   const setupLabel = readiness.phase === "loading"
     ? "Setup …"
     : `Setup ${readiness.readyCount}/${readiness.totalCount}`;
@@ -87,25 +100,51 @@ export function OperatorHomeWorkspaceMetricsStrip(
       <p className="sr-only">{compactLine}</p>
       <div
         className={cn(
-          "flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-neutral-200 py-3 dark:border-neutral-800",
+          "flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-neutral-200 py-3 dark:border-neutral-800",
           OPERATOR_TYPOGRAPHY.helper,
           "text-al-text-secondary",
         )}
+        role="list"
       >
-        <MetricTile
-          label={`${activeReviews} Active review${activeReviews === 1 ? "" : "s"}`}
+        <MetricCounter
+          count={activeReviews}
+          label={`Active review${activeReviews === 1 ? "" : "s"}`}
           href={OPERATOR_HOME_ARCHITECTURE_PACKAGES_HREF}
+          ariaLabel={`${activeReviews} active review${activeReviews === 1 ? "" : "s"}`}
+          testId="operator-home-metric-active-reviews"
         />
-        <MetricTile label={findingsLabel} href={OPERATOR_HOME_OPEN_FINDINGS_HREF} />
-        <div className="min-w-0">
-          <OperatorHomeGovernanceWarningsMetricLink label={warningsLabel} />
-        </div>
-        {props.workingMode === true ? null : (
-          <MetricTile
-            label={setupLabel}
-            href={readiness.phase === "loading" ? undefined : OPERATOR_HOME_SETUP_READINESS_HREF}
-            ariaLabel={setupAriaLabel}
-          />
+        <MetricCounter
+          count={findingsCount}
+          label={findingsLabel}
+          href={OPERATOR_HOME_OPEN_FINDINGS_HREF}
+          ariaLabel={`${findingsCount} ${findingsLabel.toLowerCase()}`}
+          testId="operator-home-metric-open-findings"
+        />
+        <OperatorHomeGovernanceWarningsMetricLink
+          count={warningsCount}
+          label={warningsLabel}
+        />
+        {props.workingMode === true ? null : readiness.phase === "loading" ? (
+          <div data-testid="operator-home-metric-setup-readiness">
+            <span className={OPERATOR_HOME_METRIC_COUNTER_LABEL}>{setupLabel}</span>
+          </div>
+        ) : (
+          <Link
+            href={OPERATOR_HOME_SETUP_READINESS_HREF}
+            className={cn(
+              "rounded-sm no-underline transition-colors hover:text-[var(--al-accent-link)]",
+              "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]",
+            )}
+            aria-label={setupAriaLabel}
+            data-testid="operator-home-metric-setup-readiness"
+          >
+            <span className="inline-flex items-baseline gap-1.5">
+              <span className={OPERATOR_HOME_METRIC_COUNTER_VALUE}>
+                {readiness.readyCount}/{readiness.totalCount}
+              </span>
+              <span className={OPERATOR_HOME_METRIC_COUNTER_LABEL}>Setup</span>
+            </span>
+          </Link>
         )}
       </div>
     </section>
