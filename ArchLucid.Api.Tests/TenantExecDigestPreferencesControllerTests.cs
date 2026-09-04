@@ -80,6 +80,48 @@ public sealed class TenantExecDigestPreferencesControllerTests
     }
 
     [Fact]
+    public async Task PostExecDigestPreferences_applies_default_timezone_when_iana_time_zone_omitted()
+    {
+        Mock<ITenantExecDigestPreferencesRepository> repository = new();
+        repository
+            .Setup(r => r.UpsertAsync(
+                Scope.TenantId,
+                true,
+                It.IsAny<IReadOnlyList<string>>(),
+                "UTC",
+                1,
+                8,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ExecDigestPreferencesResponse
+            {
+                TenantId = Scope.TenantId,
+                IsConfigured = true,
+                EmailEnabled = true,
+                RecipientEmails = ["exec@contoso.test"],
+                IanaTimeZoneId = "UTC",
+            });
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantExecDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            repository.Object,
+            Mock.Of<IAuditService>());
+
+        ExecDigestPreferencesUpsertRequest body = new()
+        {
+            EmailEnabled = true,
+            RecipientEmails = ["exec@contoso.test"],
+        };
+
+        IActionResult action = await controller.PostExecDigestPreferences(body, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        repository.VerifyAll();
+    }
+
+    [Fact]
     public async Task GetExecDigestPreferences_returns_unconfigured_defaults_when_no_row()
     {
         Mock<ITenantExecDigestPreferencesRepository> repository = new();

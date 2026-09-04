@@ -39,6 +39,48 @@ public sealed class TenantSponsorDigestPreferencesControllerTests
     }
 
     [Fact]
+    public async Task PostSponsorDigestPreferences_applies_default_timezone_when_iana_time_zone_omitted()
+    {
+        Mock<ITenantSponsorDigestPreferencesRepository> repository = new();
+        repository
+            .Setup(r => r.UpsertAsync(
+                Scope.TenantId,
+                true,
+                It.IsAny<IReadOnlyList<string>>(),
+                "UTC",
+                1,
+                8,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SponsorDigestPreferencesResponse
+            {
+                TenantId = Scope.TenantId,
+                IsConfigured = true,
+                EmailEnabled = true,
+                RecipientEmails = ["sponsor@contoso.test"],
+                IanaTimeZoneId = "UTC",
+            });
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantSponsorDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            repository.Object,
+            Mock.Of<IAuditService>());
+
+        SponsorDigestPreferencesUpsertRequest body = new()
+        {
+            EmailEnabled = true,
+            RecipientEmails = ["sponsor@contoso.test"],
+        };
+
+        IActionResult action = await controller.PostSponsorDigestPreferences(body, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        repository.VerifyAll();
+    }
+
+    [Fact]
     public async Task GetSponsorDigestPreferences_returns_unconfigured_defaults_when_no_row()
     {
         Mock<ITenantSponsorDigestPreferencesRepository> repository = new();
