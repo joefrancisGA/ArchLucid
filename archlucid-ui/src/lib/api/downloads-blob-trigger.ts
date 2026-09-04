@@ -9,7 +9,23 @@ import {
 } from "./http";
 
 import type { ConsultingDocxExportBrandingPayload } from "./downloads-blob-urls";
-import { getTerraformAdvisoryExportDownloadUrl } from "./downloads-blob-urls";
+import { getRunExportDownloadUrl, getTerraformAdvisoryExportDownloadUrl } from "./downloads-blob-urls";
+
+/** Wave-21 suggestion 207: reject problem JSON responses masquerading as binary exports. */
+export function assertBinaryDownloadContentType(response: Response, expectedPrefixes: string[]): void {
+  const contentType = response.headers.get("Content-Type")?.toLowerCase() ?? "";
+
+  if (contentType.includes("application/json") || contentType.includes("application/problem+json")) {
+    throw new Error("Download blocked: server returned a problem response instead of a binary export.");
+  }
+
+  if (
+    expectedPrefixes.length > 0
+    && !expectedPrefixes.some((prefix) => contentType.startsWith(prefix.toLowerCase()))
+  ) {
+    throw new Error(`Download blocked: unexpected content type '${contentType || "unknown"}'.`);
+  }
+}
 
 export async function fetchBrowserDownload(
   url: string,
@@ -69,9 +85,51 @@ export async function downloadTerraformAdvisoryExportZip(runId: string): Promise
     throwApiRequestError(response, errText, correlationId);
   }
 
+  assertBinaryDownloadContentType(response, ["application/zip"]);
+
   const fileName =
     parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ??
     `archlucid-terraform-advisory-${runId}.zip`;
+  const blob = await response.blob();
+  await triggerBrowserBlobDownload(blob, fileName);
+}
+
+/**
+ * GET full run export ZIP (`ReadAuthority`). Browser-only download through the BFF proxy.
+ */
+export async function downloadRunExportZip(runId: string): Promise<void> {
+  if (!isBrowser()) {
+    throw new Error("downloadRunExportZip is only supported in the browser.");
+  }
+
+  await ensureOidcBearerReady();
+  const url = getRunExportDownloadUrl(runId);
+  const headers = new Headers();
+  headers.set("Accept", "application/zip, application/json");
+  const bearer = getBearerToken();
+
+  if (bearer) {
+    headers.set("Authorization", `Bearer ${bearer}`);
+  }
+
+  const init = mergeRegistrationScopeForProxy({
+    method: "GET",
+    headers,
+    credentials: "same-origin",
+    cache: "no-store",
+  });
+  const { response, correlationId } = await fetchBrowserDownload(url, { ...init, method: "GET" });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throwApiRequestError(response, errText, correlationId);
+  }
+
+  assertBinaryDownloadContentType(response, ["application/zip"]);
+
+  const fileName =
+    parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ??
+    `archlucid-run-export-${runId}.zip`;
   const blob = await response.blob();
   await triggerBrowserBlobDownload(blob, fileName);
 }

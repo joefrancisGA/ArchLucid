@@ -7,6 +7,7 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Diagrams;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Coordination.Export;
 using ArchLucid.Persistence.Queries;
 
@@ -46,7 +47,8 @@ public sealed partial class ArtifactExportController(
     IRunExportPackageBuilder runExportPackageBuilder,
     IRunExportBlobPushOutboxRepository runExportBlobPushOutbox,
     IRunExportLineageVerifier runExportLineageVerifier,
-    IDecisionReceiptService decisionReceiptService)
+    IDecisionReceiptService decisionReceiptService,
+    IManifestHashService manifestHashService)
     : ControllerBase
 {
 }

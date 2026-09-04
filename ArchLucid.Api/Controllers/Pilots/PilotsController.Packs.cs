@@ -1,6 +1,7 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models.Pilots;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -19,11 +20,18 @@ public sealed partial class PilotsController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetExecutiveReviewPacket(string runId, CancellationToken cancellationToken)
     {
-        string? markdown = await _pilots.TryBuildExecutiveReviewPacketMarkdownAsync(runId, cancellationToken);
+        try
+        {
+            string? markdown = await _pilots.TryBuildExecutiveReviewPacketMarkdownAsync(runId, cancellationToken);
 
-        return markdown is null
-            ? this.NotFoundProblem($"Sponsor review packet is not available for run '{runId}'.", ProblemTypes.RunNotFound)
-            : Content(markdown, "text/markdown; charset=utf-8");
+            return markdown is null
+                ? this.NotFoundProblem($"Sponsor review packet is not available for run '{runId}'.", ProblemTypes.RunNotFound)
+                : Content(markdown, "text/markdown; charset=utf-8");
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.DecisionReceiptSealedIncomplete);
+        }
     }
 
     [HttpGet("runs/{runId}/sponsor-proof-pack.zip")]
