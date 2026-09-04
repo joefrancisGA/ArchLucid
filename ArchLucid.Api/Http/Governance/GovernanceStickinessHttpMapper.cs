@@ -241,6 +241,11 @@ public static class GovernanceStickinessHttpMapper
     {
         ArgumentNullException.ThrowIfNull(request);
 
+        GovernanceHttpValidation? dispositionValidation = ValidateDispositionEnum(request.Disposition);
+
+        if (dispositionValidation is not null)
+            return dispositionValidation;
+
         bool requiresRationale = request.Disposition is FindingDisposition.Accepted
             or FindingDisposition.RejectedAsNotApplicable;
 
@@ -298,6 +303,11 @@ public static class GovernanceStickinessHttpMapper
     public static GovernanceHttpValidation? ValidateBulkDisposition(RecordBulkFindingDispositionRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
+
+        GovernanceHttpValidation? dispositionValidation = ValidateDispositionEnum(request.Disposition);
+
+        if (dispositionValidation is not null)
+            return dispositionValidation;
 
         GovernanceHttpValidation? rationaleValidation =
             ValidateRequiredDispositionText(request.Rationale, "rationale");
@@ -414,6 +424,18 @@ public static class GovernanceStickinessHttpMapper
         {
             return new GovernanceHttpValidation(
                 $"{fieldName} must not exceed {FindingDispositionValidation.MaximumRationaleLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
+    private static GovernanceHttpValidation? ValidateDispositionEnum(FindingDisposition disposition)
+    {
+        if (!Enum.IsDefined(disposition))
+        {
+            return new GovernanceHttpValidation(
+                "disposition is not valid.",
                 ProblemTypes.ValidationFailed);
         }
 
