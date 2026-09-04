@@ -3187,11 +3187,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 174
-- **bugs-found:** 385
+- **hunts:** 175
+- **bugs-found:** 386
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — PolicyPacks Validate content deserialization ordering before tenant preflight
+- **last-bug:** 2026-09-04 — Coverage preview free-text validation ordering before tenant preflight
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4073,6 +4073,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyPacksController.Validate` / `PolicyPackHttpFacade.ValidateContentAsync` — tenant preflight ran before JSON deserialize of policy pack content, so ghost tenant + non-deserializable content (e.g. `complianceRuleIds` string instead of array) returned HTTP 404 instead of 400 — **hit 2026-09-04 (#725):** `PolicyPackValidateContentHttpMapper.Validate` before `_httpFacade.ValidateContentAsync`; regression in `PolicyPacksControllerListScopeTests.Validate_returns_bad_request_when_content_is_not_deserializable_and_tenant_missing`.
 
 2026-09-04 seed hunt #725 (hit): proved PolicyPacks Validate content deserialization ordering before tenant preflight.
+
+- [x] (proven) `GovernanceCoverageController.PreviewCoverage` / `CoveragePreviewMapper.ToInput` — tenant preflight ran before `descriptionText` / `securityIntakeAnswer` max-length guard (`DraftIntakeValidation.MaximumFreeTextIntentLength`), so ghost tenant + overlong intake text returned HTTP 404 instead of 400 — **hit 2026-09-04 (#726):** `CoveragePreviewHttpMapper.Validate` before `TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync`; regression in `GovernanceCoverageControllerScopeTests.PreviewCoverage_returns_bad_request_when_description_text_exceeds_max_length_and_tenant_missing`.
+
+2026-09-04 seed hunt #726 (hit): proved Coverage preview free-text validation ordering before tenant preflight.
 
 2026-09-04 thorough hunt #723 (hit): proved SubmitApprovalRequest same-environment validation ordering before tenant preflight.
 
