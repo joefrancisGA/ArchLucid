@@ -3166,11 +3166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 155
-- **bugs-found:** 365
+- **hunts:** 156
+- **bugs-found:** 366
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — erasure legal-hold validation ordering before tenant lookup
+- **last-bug:** 2026-09-04 — workspace delete/restore route-id validation ordering before tenant lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3960,6 +3960,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantErasureLegalHoldHttpMapper.ValidateSetLegalHold` / `TenantErasureLegalHoldController.SetLegalHoldAsync` — tenant preflight ran before `UntilUtc` and `Reason` validation so ghost tenant + past `untilUtc` or overlong reason returned HTTP 404 instead of 400 (#549/#695 ordering sibling) — **hit 2026-09-04 (#696):** shared legal-hold HTTP validation before tenant lookup; regression in `TenantErasureLegalHoldControllerTests.SetLegalHoldAsync_returns_bad_request_when_until_utc_is_in_the_past_and_tenant_missing` and `SetLegalHoldAsync_returns_bad_request_when_reason_exceeds_max_length_and_tenant_missing`.
 
 2026-09-04 seed hunt #696: promoted and proved erasure legal-hold fail-fast validation ordering.
+
+- [x] (proven) `TenantWorkspacesController.DeleteProjectAsync` / `RestoreProjectAsync` — tenant preflight ran before route `workspaceId`/`projectId` empty-GUID checks so ghost tenant + `Guid.Empty` returned HTTP 404 instead of 400 (#3382 tenant-present parity gap; #695 ordering sibling) — **hit 2026-09-04 (#697):** reject empty route guids before tenant lookup; regression in `TenantWorkspacesControllerTests.DeleteProjectAsync_returns_bad_request_when_workspace_id_is_empty_and_tenant_missing` and `RestoreProjectAsync_returns_bad_request_when_project_id_is_empty_and_tenant_missing`.
+
+2026-09-04 seed hunt #697: promoted and proved workspace project delete/restore fail-fast route-id validation ordering.
 
 2026-09-04 seed hunt #695: promoted and proved attestation upsert HTTP mapper and product-feedback validation ordering.
 
