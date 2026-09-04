@@ -167,6 +167,17 @@ export function AuditPageView(props: AuditPageViewProps) {
               >
                 {props.exporting ? AUDIT_TRAIL_EXPORTING_ACTION : AUDIT_TRAIL_EXPORT_ACTION}
               </Button>
+              {effectiveRunId.trim().length > 0 ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  data-testid="audit-header-open-review-button"
+                >
+                  <Link href={reviewPackageHref}>{AUDIT_TRAIL_OPEN_REVIEW_PACKAGE_ACTION}</Link>
+                </Button>
+              ) : null}
               <CtoDemoAuditIntegrityExportButton />
               <CtoDemoAuditIntegrityVerifyButton />
             </>

@@ -22,6 +22,10 @@ import {
   isFindingApplyChangeDisposition,
 } from "@/lib/findings/finding-apply-change-preview-gate";
 import {
+  EMPTY_FINDING_INSPECT_DISPOSITION_BASELINE,
+  type FindingInspectDispositionBaseline,
+} from "@/lib/findings/finding-inspect-disposition-unsaved";
+import {
   APPROVED_DECISION_OVERRIDE_MESSAGE,
   dispositionRequiresRationale,
   dispositionRequiresTradeOffAcknowledgment,
@@ -91,6 +95,20 @@ export function useFindingInspectGovernanceStickinessDispositions({
   const [showIncrementalRereviewLink, setShowIncrementalRereviewLink] = useState(false);
   const [dispositionLastSavedUtc, setDispositionLastSavedUtc] = useState<string | null>(null);
   const [dispositionInlineSaveError, setDispositionInlineSaveError] = useState<string | null>(null);
+  const [dispositionBaseline, setDispositionBaseline] = useState<FindingInspectDispositionBaseline>(
+    EMPTY_FINDING_INSPECT_DISPOSITION_BASELINE,
+  );
+  const [dispositionHistoryAsOfUtc, setDispositionHistoryAsOfUtc] = useState<string | null>(null);
+
+  function captureDispositionBaseline(): FindingInspectDispositionBaseline {
+    return {
+      disposition,
+      rationale,
+      revisitDueUtc,
+      evidenceRequestText,
+      tradeOffAcknowledgment,
+    };
+  }
 
   const reload = useCallback(async (): Promise<FindingDispositionEvent[]> => {
     const [dispositions, waivers] = await Promise.all([
@@ -102,12 +120,15 @@ export function useFindingInspectGovernanceStickinessDispositions({
     setActiveWaiver(
       waivers.find((w) => w.findingId === findingId && w.status === "Active") ?? null,
     );
+    setDispositionHistoryAsOfUtc(new Date().toISOString());
 
     return dispositions;
   }, [findingId, setActiveWaiver]);
 
   useEffect(() => {
     let canceled = false;
+
+    setDispositionBaseline(EMPTY_FINDING_INSPECT_DISPOSITION_BASELINE);
 
     void (async () => {
       try {
@@ -126,7 +147,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
     return () => {
       canceled = true;
     };
-  }, [buyerPolishedShell, reload, setErrorMessage]);
+  }, [buyerPolishedShell, findingId, reload, setErrorMessage]);
 
   async function submitDisposition(): Promise<void> {
     if (!canMutate || busyAction !== null) {
@@ -158,6 +179,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
       const concurrentNotice = resolveDispositionConcurrentUpdateNotice(saved, refreshed);
 
       setDispositionLastSavedUtc(new Date().toISOString());
+      setDispositionBaseline(captureDispositionBaseline());
       setStatusMessage(concurrentNotice ?? "Disposition recorded.");
     } catch (error: unknown) {
       const message = resolveMutationError(error);
@@ -189,6 +211,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
       const concurrentNotice = resolveDispositionConcurrentUpdateNotice(saved, refreshed);
 
       setDispositionLastSavedUtc(new Date().toISOString());
+      setDispositionBaseline(captureDispositionBaseline());
       setStatusMessage(concurrentNotice ?? "Finding marked as remediated.");
       setShowIncrementalRereviewLink(true);
     } catch (error: unknown) {
@@ -289,5 +312,8 @@ export function useFindingInspectGovernanceStickinessDispositions({
     pendingDispositionBlockedReason,
     dispositionLastSavedUtc,
     dispositionInlineSaveError,
+    dispositionBaseline,
+    dispositionHistoryAsOfUtc,
+    refreshDispositionHistory: reload,
   };
 }
