@@ -9,9 +9,9 @@ public static class HostingEnvironmentNamePatterns
     /// <summary>
     ///     Treats names containing a production-like <c>prod</c> token (case-insensitive) as production-like so
     ///     misnamed hosts (for example <c>PreProduction</c>, <c>staging-prod</c>) cannot rely on Development-only
-    ///     behavior. Excludes <c>non-production</c> / <c>nonproduction</c> and underscore, dot, or space delimiter
-    ///     variants, <c>reproduction</c>, and embedded <c>prod</c> substrings inside unrelated words (for example
-    ///     <c>reproduce</c>, <c>product</c>).
+    ///     behavior. Excludes <c>non-production</c> / <c>nonproduction</c>, underscore/dot/space delimiter variants,
+    ///     common <c>non-prod</c> / <c>non.prod</c> shorthand, <c>reproduction</c>, and embedded <c>prod</c>
+    ///     substrings inside unrelated words (for example <c>reproduce</c>, <c>product</c>).
     /// </summary>
     public static bool EnvironmentNameImpliesProductionLike(string? environmentName)
     {
@@ -41,6 +41,18 @@ public static class HostingEnvironmentNamePatterns
             return true;
 
         if (trimmed.Contains("non production", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (trimmed.Contains("non-prod", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (trimmed.Contains("non.prod", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (trimmed.Contains("non_prod", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (trimmed.Contains("non prod", StringComparison.OrdinalIgnoreCase))
             return true;
 
         return false;

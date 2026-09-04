@@ -91,6 +91,38 @@ public sealed class RequestConstraintClassifierTests
     }
 
     [Fact]
+    public void RequiresSqlCapability_does_not_false_positive_on_nosql_capability_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(capabilities: ["NoSQL document store"]);
+
+        RequestConstraintClassifier.RequiresSqlCapability(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void RequiresSqlCapability_does_not_false_positive_on_mysql_capability_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(capabilities: ["MySQL database"]);
+
+        RequestConstraintClassifier.RequiresSqlCapability(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_non_encryption_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["non-encryption allowed"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_non_encryption_underscore_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["non_encryption required"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
     public void RequiresAiCapability_does_not_false_positive_on_email_capability_phrasing()
     {
         ArchitectureRequest request = CreateRequest(capabilities: ["email notifications"]);

@@ -45,7 +45,7 @@ public static class RequestConstraintClassifier
         ArgumentNullException.ThrowIfNull(request);
 
         return request.Constraints.Any(c =>
-            c.Contains(ConstraintEncryption, StringComparison.OrdinalIgnoreCase));
+            RequestConstraintTokenMatcher.ContainsAffirmativePhrase(c, ConstraintEncryption));
     }
 
     public static bool RequiresSearchCapability(ArchitectureRequest request)
@@ -70,6 +70,6 @@ public static class RequestConstraintClassifier
         ArgumentNullException.ThrowIfNull(request);
 
         return request.RequiredCapabilities.Any(c =>
-            c.Contains(CapabilitySql, StringComparison.OrdinalIgnoreCase));
+            RequestConstraintTokenMatcher.ContainsStandaloneWordToken(c, CapabilitySql));
     }
 }
