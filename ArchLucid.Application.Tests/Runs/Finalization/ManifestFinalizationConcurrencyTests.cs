@@ -184,6 +184,11 @@ public sealed class ManifestFinalizationConcurrencyTests
         IAuditService? audit = null,
         IIntegrationEventOutboxRepository? outbox = null)
     {
+        Mock<IManifestHashService> hasher = new();
+        hasher
+            .Setup(h => h.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns("ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789");
+
         return new ManifestFinalizationService(
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             scopeProvider,
@@ -191,7 +196,7 @@ public sealed class ManifestFinalizationConcurrencyTests
             CreateDefaultFindingsSnapshotRepository(),
             traces ?? Mock.Of<IDecisionTraceRepository>(),
             golden ?? Mock.Of<IGoldenManifestRepository>(),
-            Mock.Of<IManifestHashService>(),
+            hasher.Object,
             audit ?? Mock.Of<IAuditService>(),
             outbox ?? Mock.Of<IIntegrationEventOutboxRepository>(),
             Mock.Of<IManifestFinalizationSqlRepository>(),
