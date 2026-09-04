@@ -1697,6 +1697,126 @@ export interface components {
             /** Format: int32 */
             totalChunks?: number;
         };
+        AzureInventoryBaselineDesignateResult: {
+            /** Format: uuid */
+            baselineId?: null | string;
+            errorMessage?: null | string;
+            succeeded?: boolean;
+        };
+        /** @enum {string} */
+        AzureInventoryBaselineKind: "Approved" | "Architecture" | "Security" | "Release";
+        AzureInventoryBaselineRecord: {
+            /** Format: uuid */
+            baselineId?: string;
+            baselineKind?: components["schemas"]["AzureInventoryBaselineKind"];
+            designatedBy?: string;
+            /** Format: date-time */
+            designatedUtc?: string;
+            notes?: null | string;
+            /** Format: uuid */
+            projectId?: string;
+            /** Format: uuid */
+            snapshotId?: string;
+            subscriptionId?: null | string;
+            /** Format: uuid */
+            tenantId?: string;
+            /** Format: uuid */
+            workspaceId?: string;
+        };
+        AzureInventoryChangeRecord: {
+            architectureSignificance?: null | string;
+            azureResourceId?: null | string;
+            /** Format: uuid */
+            changeId?: string;
+            changeType?: components["schemas"]["AzureInventoryChangeType"];
+            /** Format: uuid */
+            cloudResourceId?: null | string;
+            /** Format: double */
+            confidence?: null | number | string;
+            /** Format: uuid */
+            diffId?: string;
+            evidenceReference?: null | string;
+            newValue?: null | string;
+            oldValue?: null | string;
+            property?: null | string;
+            provenanceKind?: components["schemas"]["ProvenanceKind"];
+            riskClassification?: null | string;
+            securitySignificance?: null | string;
+            /** Format: uuid */
+            snapshotAId?: string;
+            /** Format: uuid */
+            snapshotBId?: string;
+        };
+        /** @enum {string} */
+        AzureInventoryChangeType: "ResourceAdded" | "ResourceRemoved" | "ResourceModified" | "RelationshipAdded" | "RelationshipRemoved" | "IdentityChanged" | "PermissionChanged" | "NetworkExposureChanged" | "SecurityControlChanged" | "LoggingChanged" | "EncryptionChanged" | "TagChanged" | "RegionChanged" | "SkuChanged" | "DependencyChanged" | "PolicyAssignmentChanged" | "Unknown";
+        AzureInventoryClassifiedChangeRecord: {
+            change?: components["schemas"]["AzureInventoryChangeRecord"];
+            classification?: components["schemas"]["AzureInventoryDriftClassification"];
+        };
+        /** @enum {string} */
+        AzureInventoryDiffNarrativeKind: "Material" | "Security" | "Architecture" | "Accidental" | "Investigate";
+        AzureInventoryDiffNarrativeRecord: {
+            citedChangeIds?: string[];
+            /** Format: date-time */
+            createdUtc?: string;
+            /** Format: uuid */
+            diffId?: string;
+            /** Format: uuid */
+            narrativeId?: string;
+            narrativeKind?: components["schemas"]["AzureInventoryDiffNarrativeKind"];
+            narrativeText?: string;
+            provenanceKind?: components["schemas"]["ProvenanceKind"];
+            simulatorLabel?: null | string;
+            /** Format: uuid */
+            tenantId?: string;
+        };
+        AzureInventoryDiffNarrativeResult: {
+            errorMessage?: null | string;
+            narrative?: null | components["schemas"]["AzureInventoryDiffNarrativeRecord"];
+            succeeded?: boolean;
+        };
+        AzureInventoryDiffSummaryRecord: {
+            /** Format: date-time */
+            createdUtc?: string;
+            /** Format: uuid */
+            diffId?: string;
+            /** Format: int32 */
+            loggingRegressionCount?: number;
+            /** Format: int32 */
+            networkExposureChangeCount?: number;
+            /** Format: int32 */
+            newPrivateEndpointCount?: number;
+            /** Format: int32 */
+            permissionChangeCount?: number;
+            /** Format: int32 */
+            relationshipRemovedCount?: number;
+            /** Format: int32 */
+            resourceAddedCount?: number;
+            /** Format: int32 */
+            resourceModifiedCount?: number;
+            /** Format: int32 */
+            resourceRemovedCount?: number;
+            /** Format: uuid */
+            snapshotAId?: string;
+            /** Format: uuid */
+            snapshotBId?: string;
+            subscriptionId?: null | string;
+            /** Format: int32 */
+            totalChanges?: number;
+        };
+        AzureInventoryDriftApprovalCreateResult: {
+            /** Format: uuid */
+            approvalId?: null | string;
+            errorMessage?: null | string;
+            succeeded?: boolean;
+        };
+        /** @enum {string} */
+        AzureInventoryDriftClassification: "Expected" | "Approved" | "Unapproved" | "SecurityRelevant" | "ArchitectureRelevant" | "PotentiallyDangerous" | "Unknown";
+        AzureInventoryDriftReportRecord: {
+            activeBaselines?: components["schemas"]["AzureInventoryBaselineRecord"][];
+            changes?: components["schemas"]["AzureInventoryClassifiedChangeRecord"][];
+            summary?: components["schemas"]["AzureInventoryDiffSummaryRecord"];
+        };
         BackgroundJobInfo: {
             /** Format: date-time */
             completedUtc: null | string;
@@ -1774,6 +1894,10 @@ export interface components {
             /** Format: uuid */
             parentDraftId?: string;
             parentSpawnedRunId?: null | string;
+        };
+        BuildAzureInventoryDiffNarrativeRequest: {
+            narrativeKind?: components["schemas"]["AzureInventoryDiffNarrativeKind"];
+            useSimulator?: boolean;
         };
         BuildInfoResponse: {
             application?: string;
@@ -2519,6 +2643,15 @@ export interface components {
             run?: components["schemas"]["ArchitectureRun"];
             tasks?: components["schemas"]["AgentTask"][];
         };
+        CreateAzureInventoryDriftApprovalRequest: {
+            approver?: string;
+            /** Format: uuid */
+            changeId?: null | string;
+            /** Format: date-time */
+            expirationUtc?: string;
+            reason?: string;
+            ticketReference?: null | string;
+        };
         CreateDraftRequest: {
             freeTextIntent?: string;
             priorRunId?: null | string;
@@ -2924,6 +3057,13 @@ export interface components {
         DemotePolicyPackCatalogEntryRequest: {
             /** Format: uuid */
             policyPackCatalogEntryId?: string;
+        };
+        DesignateAzureInventoryBaselineRequest: {
+            baselineKind?: components["schemas"]["AzureInventoryBaselineKind"];
+            designatedBy?: string;
+            notes?: null | string;
+            /** Format: uuid */
+            snapshotId?: string;
         };
         DeterminismCheckRequest: {
             commitReplays?: boolean;
@@ -6012,6 +6152,7 @@ export interface components {
             blockCommitMinimumSeverity?: null | number;
             blockCommitOnCritical?: boolean;
             isEnabled?: boolean;
+            isOrganizationRequired?: boolean;
             isPinned?: boolean;
             /** Format: uuid */
             policyPackId?: string;
@@ -6614,6 +6755,8 @@ export interface components {
         };
         /** @enum {string} */
         ProvenanceEdgeType: "SupportedBy" | "TriggeredByRule" | "InfluencedByGraphNode" | "ContributedToArtifact" | "ContainedInManifest";
+        /** @enum {string} */
+        ProvenanceKind: "ObservedFact" | "DerivedFact" | "DeterministicInference" | "AiInference" | "HumanAssertion";
         ProvenanceNode: {
             agentExecutionTraceId?: null | string;
             /** Format: uuid */
@@ -8136,6 +8279,9 @@ export interface components {
         };
         SetPolicyPackAssignmentEnabledRequest: {
             isEnabled: boolean;
+        };
+        SetPolicyPackAssignmentOrganizationRequiredRequest: {
+            isOrganizationRequired: boolean;
         };
         SetProfessionalWorkbenchEnabledRequest: {
             enabled?: boolean;
