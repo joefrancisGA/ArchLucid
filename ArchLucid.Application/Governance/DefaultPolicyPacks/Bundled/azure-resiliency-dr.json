@@ -1,37 +1,32 @@
 {
   "complianceRuleIds": [],
   "complianceRuleKeys": [
+    "az-dr-001",
+    "az-dr-002",
     "az-dr-003",
     "az-dr-004",
     "az-dr-005",
+    "az-dr-006",
+    "az-dr-007",
     "az-dr-008",
     "az-dr-009",
-    "az-dr-010",
-    "az-dr-011",
-    "az-dr-019",
-    "az-dr-020",
-    "az-dr-021",
-    "az-dr-024",
-    "az-dr-025",
-    "az-dr-026",
-    "az-dr-027"
+    "az-dr-010"
   ],
   "alertRuleIds": [],
   "compositeAlertRuleIds": [],
   "advisoryDefaults": {
     "severityFloor": "warning",
-    "priorityFloor": "P1",
+    "priorityFloor": "P0",
     "scanDepth": "standard"
   },
   "metadata": {
     "templateId": "azure-resiliency-dr-v1",
     "pack.displayName": "Azure Resiliency & Disaster Recovery",
     "pack.category": "Reliability",
-    "pack.version": "1.1.0",
+    "pack.version": "1.0.0",
     "pack.isDefault": "true",
     "pack.description": "Multi-region, availability zones, RTO/RPO, and backup themes for Azure workloads.",
     "frameworkMappingDisclaimer": "DR mapping is architecture guidance only.",
-    "curatedRulesArtifact": "docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json",
-    "overlayTrimNeutralBaseline": "2026-08-23"
+    "curatedRulesArtifact": "docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json"
   }
 }

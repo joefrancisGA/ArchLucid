@@ -110,7 +110,7 @@
     {
       "id": "eks-004",
       "title": "IRSA (IAM Roles for Service Accounts) for pods",
-      "description": "Applications must use IRSA workload identity federation — not long-lived IAM access keys in Kubernetes secrets.",
+      "description": "Applications must use IRSA workload identity federation \u2014 not long-lived IAM access keys in Kubernetes secrets.",
       "severity": "Critical",
       "priority": "P0",
       "remediationGuidance": "Document IRSA role ARNs in governance.RequiredControls and services[].Tags for EKS workloads.",
@@ -135,17 +135,17 @@
       "frameworkMappings": [
         {
           "framework": "EKS baseline",
-          "theme": "EKS baseline — IRSA workload identity"
+          "theme": "EKS baseline \u2014 IRSA workload identity"
         }
       ]
     },
     {
       "id": "eks-005",
       "title": "RBAC enabled with IAM Identity Center integration",
-      "description": "Kubernetes RBAC must integrate with IAM Identity Center groups — not local cluster-admin accounts for routine ops.",
+      "description": "Kubernetes RBAC must integrate with IAM Identity Center groups \u2014 not local cluster-admin accounts for routine ops.",
       "severity": "Critical",
       "priority": "P0",
-      "remediationGuidance": "Capture IAM Identity Center–integrated RBAC in governance.PolicyConstraints and governance.ComplianceTags.",
+      "remediationGuidance": "Capture IAM Identity Center\u2013integrated RBAC in governance.PolicyConstraints and governance.ComplianceTags.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -167,7 +167,7 @@
       "frameworkMappings": [
         {
           "framework": "EKS baseline",
-          "theme": "EKS baseline — IAM Identity Center RBAC"
+          "theme": "EKS baseline \u2014 IAM Identity Center RBAC"
         }
       ]
     },
@@ -200,7 +200,7 @@
     {
       "id": "eks-007",
       "title": "Container image from trusted registry",
-      "description": "Images must pull from approved ECR or registry with vulnerability scanning — not unvetted public images in prod.",
+      "description": "Images must pull from approved ECR or registry with vulnerability scanning \u2014 not unvetted public images in prod.",
       "severity": "High",
       "priority": "P1",
       "remediationGuidance": "Tag image source on services[].Tags; document ECR linkage in governance.RequiredControls.",
@@ -284,7 +284,7 @@
     {
       "id": "eks-010",
       "title": "Secrets via Secrets Manager CSI or External Secrets",
-      "description": "Application secrets should use AWS Secrets Manager with the CSI driver or External Secrets Operator — not plain Kubernetes secrets for long-lived credentials.",
+      "description": "Application secrets should use AWS Secrets Manager with the CSI driver or External Secrets Operator \u2014 not plain Kubernetes secrets for long-lived credentials.",
       "severity": "High",
       "priority": "P1",
       "remediationGuidance": "Document secret injection pattern in governance.RequiredControls and services[].Tags.",
@@ -309,7 +309,7 @@
       "frameworkMappings": [
         {
           "framework": "EKS baseline",
-          "theme": "EKS baseline — Secrets Manager CSI"
+          "theme": "EKS baseline \u2014 Secrets Manager CSI"
         }
       ]
     },
@@ -714,7 +714,7 @@
     {
       "id": "eks-024",
       "title": "Outbound traffic control (security groups or Network Firewall)",
-      "description": "Egress from cluster should document security groups, NACLs, NAT gateway, or AWS Network Firewall filtering — not unrestricted outbound.",
+      "description": "Egress from cluster should document security groups, NACLs, NAT gateway, or AWS Network Firewall filtering \u2014 not unrestricted outbound.",
       "severity": "High",
       "priority": "P2",
       "remediationGuidance": "Map egress controls in metadata.ChangeDescription; align with awsExtractor route tables.",

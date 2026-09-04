@@ -10,33 +10,14 @@
     "cis-az-007",
     "cis-az-008",
     "cis-az-009",
-    "cis-az-010",
-    "cis-az-011",
-    "cis-az-012",
-    "cis-az-013",
-    "cis-az-014",
-    "cis-az-015",
-    "cis-az-016",
-    "cis-az-017",
-    "cis-az-018",
-    "cis-az-019",
-    "cis-az-020",
-    "cis-az-021",
-    "cis-az-022",
-    "cis-az-023",
-    "cis-az-024",
-    "cis-az-025",
-    "cis-az-026",
-    "cis-az-027",
-    "cis-az-028"
+    "cis-az-010"
   ],
   "alertRuleIds": [],
   "compositeAlertRuleIds": [],
   "advisoryDefaults": {
     "severityFloor": "warning",
     "priorityFloor": "P0",
-    "scanDepth": "standard",
-    "expectation.topologyCategories.add": "identity"
+    "scanDepth": "standard"
   },
   "metadata": {
     "templateId": "cis-azure-foundations-v1",

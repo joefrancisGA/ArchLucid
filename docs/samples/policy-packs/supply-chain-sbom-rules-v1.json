@@ -4,7 +4,7 @@
   "pack": {
     "name": "Software Supply Chain & SBOM",
     "description": "SBOM, artifact signing, and dependency scanning themes for delivery pipelines.",
-    "version": "1.1.0",
+    "version": "1.0.0",
     "category": "DevSecOps",
     "isDefault": true,
     "suggestedPackType": "PlatformDefault",
@@ -13,11 +13,11 @@
   "rules": [
     {
       "id": "supply-chain-001",
-      "title": "SBOM generated for every release artifact",
-      "description": "Build pipelines must produce machine-readable SBOM (SPDX or CycloneDX) per deployable artifact.",
-      "severity": "Critical",
+      "title": "Software Supply Chain & SBOM \u2014 control theme 1",
+      "description": "Architecture manifest and Azure extractor evidence should support: software supply chain & sbom \u2014 control theme 1. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
       "priority": "P0",
-      "remediationGuidance": "Document SBOM generation in governance.RequiredControls and services[].Tags for CI/CD.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -28,17 +28,17 @@
       "frameworkMappings": [
         {
           "framework": "SLSA / SSDF",
-          "theme": "SLSA \u2014 SBOM generation"
+          "theme": "SBOM"
         }
       ]
     },
     {
       "id": "supply-chain-002",
-      "title": "SBOM stored with artifact in registry",
-      "description": "SBOM must be retained alongside container images and packages in ACR or artifact store.",
+      "title": "Software Supply Chain & SBOM \u2014 control theme 2",
+      "description": "Architecture manifest and Azure extractor evidence should support: software supply chain & sbom \u2014 control theme 2. Thematic mapping only \u2014 not certification.",
       "severity": "High",
       "priority": "P0",
-      "remediationGuidance": "Tag sbom-attached on services[].Tags; describe storage in metadata.ChangeDescription.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -49,17 +49,17 @@
       "frameworkMappings": [
         {
           "framework": "SLSA / SSDF",
-          "theme": "SLSA \u2014 SBOM provenance storage"
+          "theme": "Provenance"
         }
       ]
     },
     {
       "id": "supply-chain-003",
-      "title": "Dependency vulnerability scanning in CI",
-      "description": "Third-party dependencies must be scanned on every build with fail thresholds for critical CVEs.",
-      "severity": "Critical",
-      "priority": "P0",
-      "remediationGuidance": "Describe scan gates in governance.RequiredControls.",
+      "title": "Software Supply Chain & SBOM \u2014 control theme 3",
+      "description": "Architecture manifest and Azure extractor evidence should support: software supply chain & sbom \u2014 control theme 3. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -70,44 +70,38 @@
       "frameworkMappings": [
         {
           "framework": "SLSA / SSDF",
-          "theme": "NIST SSDF \u2014 PW.4 vulnerability analysis"
+          "theme": "Vulnerability scanning"
         }
       ]
     },
     {
       "id": "supply-chain-004",
-      "title": "Signed container images",
-      "description": "Production images must document cosign/Notary or ACR content trust signing.",
-      "severity": "Critical",
-      "priority": "P0",
-      "remediationGuidance": "Record image signing in governance.RequiredControls and services[].Tags.",
+      "title": "Software Supply Chain & SBOM \u2014 control theme 4",
+      "description": "Architecture manifest and Azure extractor evidence should support: software supply chain & sbom \u2014 control theme 4. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
         "governance.ComplianceTags",
         "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
+        "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
         {
           "framework": "SLSA / SSDF",
-          "theme": "SLSA \u2014 Signed artifacts"
+          "theme": "SBOM"
         }
       ]
     },
     {
       "id": "supply-chain-005",
-      "title": "SLSA build level target documented",
-      "description": "Pipeline should state target SLSA level (1\u20133) and gaps to next level.",
+      "title": "Software Supply Chain & SBOM \u2014 control theme 5",
+      "description": "Architecture manifest and Azure extractor evidence should support: software supply chain & sbom \u2014 control theme 5. Thematic mapping only \u2014 not certification.",
       "severity": "Medium",
-      "priority": "P0",
-      "remediationGuidance": "Note SLSA level in governance.ComplianceTags.",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -118,17 +112,17 @@
       "frameworkMappings": [
         {
           "framework": "SLSA / SSDF",
-          "theme": "SLSA \u2014 Build levels"
+          "theme": "Provenance"
         }
       ]
     },
     {
       "id": "supply-chain-006",
-      "title": "Hermetic and reproducible builds where feasible",
-      "description": "Build environments must document isolation from developer workstations for production releases.",
+      "title": "Software Supply Chain & SBOM \u2014 control theme 6",
+      "description": "Architecture manifest and Azure extractor evidence should support: software supply chain & sbom \u2014 control theme 6. Thematic mapping only \u2014 not certification.",
       "severity": "Medium",
       "priority": "P1",
-      "remediationGuidance": "Describe hermetic builds in metadata.ChangeDescription.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -139,17 +133,17 @@
       "frameworkMappings": [
         {
           "framework": "SLSA / SSDF",
-          "theme": "SLSA \u2014 Hermetic builds"
+          "theme": "Vulnerability scanning"
         }
       ]
     },
     {
       "id": "supply-chain-007",
-      "title": "Source repository branch protection",
-      "description": "Main/release branches must document required reviews, status checks, and signed commits.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Capture branch protection in governance.PolicyConstraints.",
+      "title": "Software Supply Chain & SBOM \u2014 control theme 7",
+      "description": "Architecture manifest and Azure extractor evidence should support: software supply chain & sbom \u2014 control theme 7. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -160,17 +154,17 @@
       "frameworkMappings": [
         {
           "framework": "SLSA / SSDF",
-          "theme": "NIST SSDF \u2014 PO.3 secure development"
+          "theme": "SBOM"
         }
       ]
     },
     {
       "id": "supply-chain-008",
-      "title": "Secrets not embedded in images or packages",
-      "description": "Build artifacts must not contain API keys or passwords \u2014 scan for secrets in CI.",
-      "severity": "Critical",
-      "priority": "P1",
-      "remediationGuidance": "Document secret scanning in governance.RequiredControls.",
+      "title": "Software Supply Chain & SBOM \u2014 control theme 8",
+      "description": "Architecture manifest and Azure extractor evidence should support: software supply chain & sbom \u2014 control theme 8. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -181,17 +175,17 @@
       "frameworkMappings": [
         {
           "framework": "SLSA / SSDF",
-          "theme": "NIST SSDF \u2014 PW.6 artifact integrity"
+          "theme": "Provenance"
         }
       ]
     },
     {
       "id": "supply-chain-009",
-      "title": "Base image pinning and update policy",
-      "description": "Container base images must pin digests or tags with documented update cadence.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Tag base-image policy on services[].Tags.",
+      "title": "Software Supply Chain & SBOM \u2014 control theme 9",
+      "description": "Architecture manifest and Azure extractor evidence should support: software supply chain & sbom \u2014 control theme 9. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -202,170 +196,17 @@
       "frameworkMappings": [
         {
           "framework": "SLSA / SSDF",
-          "theme": "NIST SSDF \u2014 PW.5 provide toolchain"
+          "theme": "Vulnerability scanning"
         }
       ]
     },
     {
       "id": "supply-chain-010",
-      "title": "Third-party package allowlist",
-      "description": "Package feeds must document approved registries (nuget.org mirror, npm private) \u2014 not arbitrary upstream.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "List approved feeds in governance.PolicyConstraints.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SLSA / SSDF",
-          "theme": "NIST SSDF \u2014 PO.1 secure software practices"
-        }
-      ]
-    },
-    {
-      "id": "supply-chain-011",
-      "title": "License compliance scanning",
-      "description": "OSS licenses must be scanned for copyleft and policy violations before production use.",
-      "severity": "Medium",
-      "priority": "P1",
-      "remediationGuidance": "Note license scanning in governance.ComplianceTags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SLSA / SSDF",
-          "theme": "NIST SSDF \u2014 PO.2 software integrity"
-        }
-      ]
-    },
-    {
-      "id": "supply-chain-012",
-      "title": "Provenance attestation attached to releases",
-      "description": "Build provenance (GitHub attestations, SLSA provenance) must accompany production deploys.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Document attestation in governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SLSA / SSDF",
-          "theme": "SLSA \u2014 Provenance attestations"
-        }
-      ]
-    },
-    {
-      "id": "supply-chain-013",
-      "title": "Deployment only from approved artifact registry",
-      "description": "Production must pull only from approved ACR/production registry \u2014 not developer local builds.",
-      "severity": "Critical",
-      "priority": "P1",
-      "remediationGuidance": "Enforce registry allowlist in governance.PolicyConstraints.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SLSA / SSDF",
-          "theme": "SLSA \u2014 Trusted sources"
-        }
-      ]
-    },
-    {
-      "id": "supply-chain-014",
-      "title": "Infrastructure as Code scanned (Checkov/Terraform)",
-      "description": "IaC templates must document static analysis in pipeline before apply.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Describe IaC scanning in governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SLSA / SSDF",
-          "theme": "NIST SSDF \u2014 PW.1 secure coding"
-        }
-      ]
-    },
-    {
-      "id": "supply-chain-015",
-      "title": "Helm chart provenance and signing",
-      "description": "Kubernetes charts must document chart signing and version pinning.",
-      "severity": "Medium",
-      "priority": "P1",
-      "remediationGuidance": "Record Helm provenance in metadata.ChangeDescription for AKS deployments.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SLSA / SSDF",
-          "theme": "SLSA \u2014 Chart integrity"
-        }
-      ]
-    },
-    {
-      "id": "supply-chain-016",
-      "title": "Binary artifact checksum verification",
-      "description": "Deploy scripts must verify checksums or signatures before promotion.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Document verification step in governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SLSA / SSDF",
-          "theme": "NIST SSDF \u2014 PW.7 artifact repository"
-        }
-      ]
-    },
-    {
-      "id": "supply-chain-017",
-      "title": "Supplier security questionnaire for critical deps",
-      "description": "Critical third-party components must document vendor security review status.",
+      "title": "Software Supply Chain & SBOM \u2014 control theme 10",
+      "description": "Architecture manifest and Azure extractor evidence should support: software supply chain & sbom \u2014 control theme 10. Thematic mapping only \u2014 not certification.",
       "severity": "Medium",
       "priority": "P2",
-      "remediationGuidance": "Tag vendor-review on governance.ComplianceTags for SaaS dependencies.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -376,244 +217,7 @@
       "frameworkMappings": [
         {
           "framework": "SLSA / SSDF",
-          "theme": "NIST SSDF \u2014 PO.4 supplier security"
-        }
-      ]
-    },
-    {
-      "id": "supply-chain-018",
-      "title": "Emergency patch process documented",
-      "description": "Zero-day response must document expedited patch path with risk acceptance.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Describe emergency patch in metadata.ChangeDescription.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SLSA / SSDF",
-          "theme": "NIST SSDF \u2014 RV.1 vulnerability response"
-        }
-      ]
-    },
-    {
-      "id": "supply-chain-019",
-      "title": "Deprecated dependency removal SLA",
-      "description": "End-of-life libraries must have documented removal timeline.",
-      "severity": "Medium",
-      "priority": "P2",
-      "remediationGuidance": "Track EOL deps in governance.ComplianceTags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SLSA / SSDF",
-          "theme": "NIST SSDF \u2014 PW.8 reuse"
-        }
-      ]
-    },
-    {
-      "id": "supply-chain-020",
-      "title": "Fork and internal patch governance",
-      "description": "Forked OSS must document upstream tracking and merge policy.",
-      "severity": "Low",
-      "priority": "P2",
-      "remediationGuidance": "Note fork governance in metadata.ChangeDescription.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SLSA / SSDF",
-          "theme": "NIST SSDF \u2014 PW.9 archive"
-        }
-      ]
-    },
-    {
-      "id": "supply-chain-021",
-      "title": "CI/CD pipeline OIDC federation (no long-lived tokens)",
-      "description": "Pipelines must use OIDC to Azure/GitHub \u2014 not stored service principal secrets.",
-      "severity": "Critical",
-      "priority": "P2",
-      "remediationGuidance": "Document OIDC in governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SLSA / SSDF",
-          "theme": "SLSA \u2014 Ephemeral credentials"
-        }
-      ]
-    },
-    {
-      "id": "supply-chain-022",
-      "title": "Separation of build and deploy roles",
-      "description": "Build systems must not hold production deploy permissions without approval gate.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Describe SoD in governance.PolicyConstraints.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SLSA / SSDF",
-          "theme": "NIST SSDF \u2014 PO.5 secure release"
-        }
-      ]
-    },
-    {
-      "id": "supply-chain-023",
-      "title": "Artifact immutability in registry",
-      "description": "Released tags must be immutable \u2014 no overwrite of production image tags.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Document immutability in governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SLSA / SSDF",
-          "theme": "SLSA \u2014 Non-falsifiable provenance"
-        }
-      ]
-    },
-    {
-      "id": "supply-chain-024",
-      "title": "Software bill of materials diff on upgrade",
-      "description": "Major dependency upgrades must document SBOM diff review before deploy.",
-      "severity": "Medium",
-      "priority": "P2",
-      "remediationGuidance": "Note SBOM diff review in metadata.ChangeDescription.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SLSA / SSDF",
-          "theme": "NIST SSDF \u2014 PW.10 review"
-        }
-      ]
-    },
-    {
-      "id": "supply-chain-025",
-      "title": "Malware scanning on artifacts",
-      "description": "Released packages should pass malware scan (Defender for Containers, third-party).",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "List malware scan in governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SLSA / SSDF",
-          "theme": "NIST SSDF \u2014 PW.11 malware"
-        }
-      ]
-    },
-    {
-      "id": "supply-chain-026",
-      "title": "Private package feed authentication",
-      "description": "Internal feeds must document auth and network restrictions.",
-      "severity": "Medium",
-      "priority": "P2",
-      "remediationGuidance": "Describe feed security in governance.PolicyConstraints.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SLSA / SSDF",
-          "theme": "NIST SSDF \u2014 PO.6 toolchain security"
-        }
-      ]
-    },
-    {
-      "id": "supply-chain-027",
-      "title": "Incident response for supply-chain compromise",
-      "description": "Compromised dependency playbook must document isolation and rollback.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Document supply-chain IR in governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SLSA / SSDF",
-          "theme": "NIST SSDF \u2014 RV.2 incident response"
-        }
-      ]
-    },
-    {
-      "id": "supply-chain-028",
-      "title": "Transparency log or witness for signatures",
-      "description": "Where Sigstore/cosign is used, transparency log verification must be documented.",
-      "severity": "Medium",
-      "priority": "P2",
-      "remediationGuidance": "Note signature verification in metadata.ChangeDescription.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SLSA / SSDF",
-          "theme": "SLSA \u2014 Verifiable signatures"
+          "theme": "SBOM"
         }
       ]
     }
