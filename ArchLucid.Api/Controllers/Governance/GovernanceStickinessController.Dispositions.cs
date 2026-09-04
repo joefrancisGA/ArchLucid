@@ -51,7 +51,7 @@ public sealed partial class GovernanceStickinessController
 
         IActionResult? runIdProblem = null;
 
-        if (request.RunId.HasValue)
+        if (request is not null && request.RunId.HasValue)
         {
             runIdProblem = GovernanceStickinessControllerCore.ValidateRunId(request.RunId)
                 .ToBadRequestProblemOrNull(this);

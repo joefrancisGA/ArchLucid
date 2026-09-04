@@ -5,6 +5,7 @@ using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Decisioning.DecisionTraces;
 using PersistenceDecisionTraceDto = ArchLucid.Contracts.Persistence.DecisionTraces.DecisionTraceDto;
 using ArchLucid.Contracts.Manifest;
@@ -284,6 +285,7 @@ public sealed class ManifestFinalizationConcurrencyTests
                 GenerationStatus = FindingsSnapshotGenerationStatus.Complete,
                 Findings = [],
             },
+            PreloadedScopePolicyPackAssignments = Array.Empty<PolicyPackAssignment>(),
         };
     }
 }

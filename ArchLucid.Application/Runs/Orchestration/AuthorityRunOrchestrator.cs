@@ -1,3 +1,5 @@
+using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Core.Agents;
@@ -10,7 +12,6 @@ using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
-using ArchLucid.Application.Runs.Orchestration.Pipeline;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -35,6 +36,7 @@ public sealed partial class AuthorityRunOrchestrator(
     ITenantAuthorityPipelineConcurrencyGate tenantAuthorityPipelineConcurrencyGate,
     IRunStateTransitionService runStateTransitionService,
     IAgentModelAliasRegistry agentModelAliasRegistry,
+    IRunCreatePinOrchestrator runCreatePinOrchestrator,
     ILogger<AuthorityRunOrchestrator> logger) : IAuthorityRunOrchestrator
 {
     private readonly IRunRepository _runRepository =
@@ -57,6 +59,9 @@ public sealed partial class AuthorityRunOrchestrator(
 
     private readonly IAgentModelAliasRegistry _agentModelAliasRegistry =
         agentModelAliasRegistry ?? throw new ArgumentNullException(nameof(agentModelAliasRegistry));
+
+    private readonly IRunCreatePinOrchestrator _runCreatePinOrchestrator =
+        runCreatePinOrchestrator ?? throw new ArgumentNullException(nameof(runCreatePinOrchestrator));
 
     /// <remarks>
     ///     Persists the run under the current <see cref="ScopeContext" />, records telemetry tags, then chooses one of two
