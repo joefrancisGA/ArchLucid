@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ReviewPackageDoThisNextStrip } from "./ReviewPackageDoThisNextStrip";
+import { RunDetailReviewPackageDecisionReceiptStrip } from "./RunDetailReviewPackageDecisionReceiptStrip";
 import { FinalizeReadinessStrip } from "@/components/reviews/FinalizeReadinessStrip";
 import { RunDetailSealDeskCoverageStrip } from "@/components/reviews/RunDetailSealDeskCoverageStrip";
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
@@ -24,7 +25,7 @@ import type {
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
 import type { RunSummary } from "@/types/authority";
-import type { TransparencyTrail } from "@/types/feasibility-verdict";
+import type { TransparencyTrail, ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
 export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackageDoThisNextInput & {
   readonly hasGoldenManifest: boolean;
@@ -33,6 +34,7 @@ export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackage
   readonly quickDecisionFindings: readonly QuickDecisionFinding[];
   readonly requestAssumptionTexts: readonly string[];
   readonly transparencyTrail?: TransparencyTrail | null;
+  readonly feasibilityVerdict?: ManifestFeasibilityVerdict | null;
   readonly pipelineDiagnosticContext?: ReviewPipelineDiagnosticContext | null;
   readonly lastFailureSummary?: RunDetailLastFailureSummary | null;
   readonly pipelineSummary?: RunSummary | null;
@@ -197,6 +199,12 @@ export function RunDetailReviewPackageDoThisNextResolved(
 
   return (
     <>
+      {props.hasGoldenManifest ? (
+        <RunDetailReviewPackageDecisionReceiptStrip
+          runId={props.runId}
+          feasibilityVerdict={props.feasibilityVerdict ?? null}
+        />
+      ) : null}
       {!props.hasGoldenManifest ? (
         <RunDetailSealDeskCoverageStrip
           runId={props.runId}

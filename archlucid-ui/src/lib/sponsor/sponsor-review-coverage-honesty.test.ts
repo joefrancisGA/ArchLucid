@@ -31,7 +31,7 @@ describe("sponsor-review-coverage-honesty (WA-08)", () => {
     expect(applies).toBe(true);
   });
 
-  it("includes review package honesty in exported markdown", () => {
+  it("includes architecture package honesty in exported markdown", () => {
     const markdown = formatSponsorReviewCoverageHonestyMarkdown({
       runId: "run-abc",
       progressSummary: {
