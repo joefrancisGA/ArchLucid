@@ -50,7 +50,7 @@ internal static class AuthenticationIdentityRepositoryCore
         Clone(existing, disabledUtc: disabledUtc);
 
     public static AuthenticationIdentityRecord WithReEnabled(AuthenticationIdentityRecord existing) =>
-        Clone(existing, disabledUtc: null);
+        Clone(existing, clearDisabledUtc: true);
 
     public static AuthenticationIdentityRecord WithLastAuthenticated(
         AuthenticationIdentityRecord existing,

@@ -734,6 +734,58 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
     }
 
     [Fact]
+    public async Task ComputeQualityGateAcceptedForConfidenceAsync_returns_false_when_recorded_quality_gate_rejected()
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0,
+            StructuralWarnBelow = 1,
+            SemanticWarnBelow = 1,
+            PilotStrictMinStructuralCompleteness = 0,
+            PilotStrictMinSemanticScore = 0,
+            PilotStrictMinEvidenceRefCount = 0,
+            PilotStrictMinAgentResultFaithfulnessSupportRatio = 0,
+        };
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "t1",
+            RunId = "r",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson = MinimalValidTopologyAgentResultJson(),
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+        };
+
+        Dictionary<string, double?> calibratedByTaskId = new(StringComparer.Ordinal)
+        {
+            ["task-1"] = 0.95,
+        };
+
+        DelegatingSemanticEvaluator optimisticHeuristic = new((_, _, _) => new AgentOutputSemanticScore
+        {
+            OverallSemanticScore = 0.95,
+        });
+
+        bool accepted =
+            await AgentOutputTraceQualityEvaluator.ComputeQualityGateAcceptedForConfidenceAsync(
+                trace,
+                options,
+                new AgentOutputEvaluator(),
+                optimisticHeuristic,
+                new AgentOutputQualityGate(Options.Create(options)),
+                CancellationToken.None,
+                calibratedConfidenceByTaskId: calibratedByTaskId);
+
+        accepted.Should().BeFalse(
+            because: "confidence enrichment must honor composite recorder rejection instead of re-accepting via heuristic-only re-evaluation");
+    }
+
+    [Fact]
     public async Task ComputeQualityGateAcceptedForConfidenceAsync_returns_false_when_phase_b_llm_faithfulness_below_reject_floor()
     {
         AgentOutputQualityGateOptions options = new()

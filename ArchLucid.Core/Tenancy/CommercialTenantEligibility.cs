@@ -11,7 +11,7 @@ public static class CommercialTenantEligibility
     {
         ArgumentNullException.ThrowIfNull(tenant);
 
-        if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.OrdinalIgnoreCase)
+        if (TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Active)
             && (int)minimumTier >= (int)TenantTier.Standard)
         {
             return false;
@@ -30,7 +30,7 @@ public static class CommercialTenantEligibility
         if ((int)tenant.Tier < (int)TenantTier.Standard)
             return false;
 
-        if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.OrdinalIgnoreCase))
+        if (TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Active))
             return false;
 
         return true;

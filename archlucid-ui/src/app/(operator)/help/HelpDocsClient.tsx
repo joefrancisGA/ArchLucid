@@ -104,6 +104,14 @@ function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEn
   return merged;
 }
 
+function helpDocCategoriesForDisplay(grouped: Map<string, DocIndexEntry[]>): string[] {
+  const knownCategories = new Set<string>(CATEGORY_ORDER);
+  const extraCategories = [...grouped.keys()].filter((category) => !knownCategories.has(category));
+  extraCategories.sort((left, right) => left.localeCompare(right));
+
+  return [...CATEGORY_ORDER, ...extraCategories];
+}
+
 export function HelpDocsClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -222,7 +230,7 @@ export function HelpDocsClient() {
         <p className={OPERATOR_TYPOGRAPHY.helper}>No results</p>
       ) : null}
 
-      {CATEGORY_ORDER.map((cat) => {
+      {helpDocCategoriesForDisplay(grouped).map((cat) => {
         const rows = grouped.get(cat);
 
         if (!rows || rows.length === 0) {
