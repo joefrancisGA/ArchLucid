@@ -845,3 +845,4 @@
 {"at":"2026-09-04T07:29:07.9112248Z","zoneId":"application-governance-policy","outcome":"hit"}
 {"at":"2026-09-04T07:45:51.5067603Z","zoneId":"ui-oidc","outcome":"hit"}
 {"at":"2026-09-04T07:56:55.8764371Z","zoneId":"itsm-inbound-webhooks","outcome":"hit"}
+{"at":"2026-09-04T08:05:19.7019913Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
