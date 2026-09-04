@@ -3348,11 +3348,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 202
-- **bugs-found:** 424
+- **hunts:** 203
+- **bugs-found:** 425
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — diagram v2 whitespace query silent default
+- **last-bug:** 2026-09-04 — disposition optional revisitDueUtc silent drop
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4342,6 +4342,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-04 seed hunt #784 (hit): proved governance optional comment whitespace silent no-op on approve/reject/batch/submit/promote paths.
 
 - [x] (proven) `ManifestsController.GetManifestDiagramV2` / `ManifestDiagramQueryValidation` — whitespace-only `layout`, `relationshipLabels`, or `groupBy` query values passed HTTP validation and silently defaulted via `ManifestDiagramService.Normalize*` instead of HTTP 400 — **hit 2026-09-04 (#785):** reject explicit empty/whitespace query values while preserving omitted-null defaults (unknown-value #756 parity); regressions in `ValidateLayout_rejects_whitespace_only_layout`, `ValidateRelationshipLabels_rejects_whitespace_only_value`, `ValidateGroupBy_rejects_whitespace_only_value`, and `GetManifestDiagramV2_returns_bad_request_for_whitespace_only_layout`.
+
+2026-09-04 seed hunt #785 (hit): proved diagram v2 whitespace query silent default on layout, relationshipLabels, and groupBy.
+
+- [x] (proven) `GovernanceStickinessController.RecordDisposition` / `RecordBulkDisposition` / `GovernanceStickinessHttpMapper` — non-null `revisitDueUtc` on non-`Deferred` dispositions passed HTTP validation and was silently dropped by `FindingDispositionService` — **hit 2026-09-04 (#786):** `ValidateOptionalDispositionDateWhenNotApplicable` guard on single and bulk paths (optional-field #781 parity); regressions in `ValidateRecordDisposition_rejects_revisit_due_on_non_deferred_disposition`, `ValidateBulkDisposition_rejects_revisit_due_on_non_deferred_disposition`, and `RecordDisposition_returns_bad_request_when_revisit_due_on_non_deferred_disposition`.
+
+2026-09-04 seed hunt #786 (hit): proved disposition optional revisitDueUtc silent drop on non-Deferred paths.
 
 2026-09-04 seed hunt #785 (hit): proved diagram v2 whitespace query silent default on layout, relationshipLabels, and groupBy.
 
