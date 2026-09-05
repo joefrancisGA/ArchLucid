@@ -320,6 +320,8 @@ internal static class RequestConstraintTokenMatcher
             || ContainsPhrase(before, " cannot ensure")
             || ContainsPhrase(before, " should not ensure ")
             || ContainsPhrase(before, " should not ensure")
+            || ContainsPhrase(before, " ought not ensure ")
+            || ContainsPhrase(before, " ought not ensure")
             || ContainsPhrase(before, " must not ")
             || ContainsPhrase(before, " do not ")
             || ContainsPhrase(before, " doesn't require ")
