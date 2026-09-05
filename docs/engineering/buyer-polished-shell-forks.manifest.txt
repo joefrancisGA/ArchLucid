@@ -105,6 +105,8 @@ archlucid-ui/src/app/(operator)/governance/sealed-records/[manifestId]/artifacts
 archlucid-ui/src/app/(operator)/governance/sealed-records/[manifestId]/loading.tsx
 archlucid-ui/src/app/(operator)/governance/standards-and-rules/_sections/use-governance-resolution-page.ts
 archlucid-ui/src/app/(operator)/help/HelpPageView.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpAdminDiagnosticsGuideView.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpAdminDiagnosticsHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpAdvisoryScansGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpApiContractsGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpApiContractsHeaderActions.tsx
