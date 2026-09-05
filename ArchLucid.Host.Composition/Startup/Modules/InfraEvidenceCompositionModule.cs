@@ -1,5 +1,6 @@
 using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Application.InfraEvidence.AuditEvidence;
+using ArchLucid.Application.InfraEvidence.SecurityCrosswalk;
 using ArchLucid.Persistence.InfraEvidence;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -30,16 +31,11 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<IAuditManualEvidenceSubmissionService, AuditManualEvidenceSubmissionService>();
         services.AddScoped<IAuditHybridEvidenceQueryService, AuditHybridEvidenceQueryService>();
         services.AddScoped<IAuditEvidencePackageExportService, AuditEvidencePackageExportService>();
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
         services.AddScoped<IAuditEvidenceLineageService, AuditEvidenceLineageService>();
->>>>>>> origin/master
+        services.AddScoped<ISecurityCrosswalkService, SecurityCrosswalkService>();
         services.AddScoped<IAuditContinuousReadinessService, AuditContinuousReadinessService>();
         services.AddScoped<IAuditEvaluationFindingHandoffService, NoOpAuditEvaluationFindingHandoffService>();
         services.AddScoped<IAzureInventorySnapshotPostMaterializeCoordinator, AzureInventorySnapshotPostMaterializeCoordinator>();
->>>>>>> origin/master
         services.AddScoped<IAuditEvidenceSelectorRegistry, AuditEvidenceSelectorRegistry>();
         services.AddScoped<InventoryAuditEvidenceSelector>();
         services.AddScoped<IdentityAuditEvidenceSelector>();
