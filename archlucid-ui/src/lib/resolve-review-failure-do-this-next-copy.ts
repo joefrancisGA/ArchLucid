@@ -92,3 +92,16 @@ export function shouldShowReviewFailureRecoveryDetail(
 
   return true;
 }
+
+/** When the live probe succeeded, the AI panel owns availability copy — shorten the strip sentence. */
+export function resolveProbeSucceededDoThisNextSentence(
+  guidance: ReviewFailureRecoveryGuidance,
+): string {
+  const headline = normalizeCopy(guidance.headline);
+
+  if (headline.length > 0) {
+    return `${headline} — re-run the review to retry with the same intake.`;
+  }
+
+  return "Execution failed — re-run the review to retry with the same intake.";
+}

@@ -42,18 +42,9 @@ function customerConnectionOutageSteps(canConfigureWorkspaceAi: boolean): readon
   ];
 }
 
-function probeSucceededSteps(reviewTerminalFailure: boolean): readonly string[] {
-  if (reviewTerminalFailure) {
-    return [
-      "The live AI availability probe succeeded — platform AI is ready for this session, but this review still failed for a different reason. See What failed above.",
-      "Click Re-run review to retry the assessment with the same intake.",
-    ];
-  }
-
-  return [
-    "The live AI availability probe succeeded — platform AI is ready for this session.",
-    "Click Re-run review to retry the assessment with the same intake.",
-  ];
+function probeSucceededSteps(): readonly string[] {
+  // AI availability panel and the Re-run CTA already state the outcome — no numbered list.
+  return [];
 }
 
 function probePendingSteps(): readonly string[] {
@@ -78,7 +69,6 @@ function probeErrorSteps(): readonly string[] {
  */
 export function resolveProbeAwareRecoverySteps(input: ProbeAwareRecoveryStepsInput): readonly string[] {
   const { probeState, usesCustomerAiConnection, canConfigureWorkspaceAi } = input;
-  const reviewTerminalFailure = input.reviewTerminalFailure === true;
 
   if (probeState.status === "idle" || probeState.status === "loading") {
     return probePendingSteps();
@@ -89,7 +79,7 @@ export function resolveProbeAwareRecoverySteps(input: ProbeAwareRecoveryStepsInp
   }
 
   if (probeState.result.isAvailable) {
-    return probeSucceededSteps(reviewTerminalFailure);
+    return probeSucceededSteps();
   }
 
   const outageDetail = workspaceAiUnavailableDetail(probeState.result).trim();
