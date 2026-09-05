@@ -25,10 +25,12 @@ import {
 } from "@/lib/architecture/architecture-diagram-selection-url";
 import type { ArchitectureCreationUserAssertions } from "@/lib/architecture/architecture-structured-content-types";
 import { downloadBrowserTextFile, safeGraphExportFilenameSegment } from "@/lib/graph-view-model-export";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { useDocumentDarkMode } from "@/lib/use-document-dark-mode";
 
 export type ArchitectureDiagramPanelProps = {
   readonly runId: string;
+  readonly manifestVersion?: string | null;
   readonly architectureName: string;
   readonly sourceText: string;
   readonly userAssertions: ArchitectureCreationUserAssertions | null;
@@ -64,6 +66,7 @@ export function useArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps
   const [diagramModel, setDiagramModel] = useState<ArchitectureDiagramModel | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState<string | null>(null);
   const [storageWriteFailed, setStorageWriteFailed] = useState(false);
   const [liveModelSynced, setLiveModelSynced] = useState(true);
   const [selectedElementKind, setSelectedElementKind] = useState<ArchitectureDiagramElementKind | null>(null);
@@ -285,26 +288,51 @@ export function useArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps
       return;
     }
 
+    const blockedReason = runCollateralSealedManifestCopyBlockedReason({
+      runId: props.runId,
+      manifestVersion: props.manifestVersion,
+    });
+
+    if (blockedReason !== null) {
+      setCopyError(blockedReason);
+      return;
+    }
+
+    setCopyError(null);
+
     try {
       await navigator.clipboard.writeText(mermaidSource);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 2000);
     } catch {
       setCopied(false);
+      setCopyError("Clipboard unavailable — select the Mermaid source and copy manually.");
     }
-  }, [mermaidSource]);
+  }, [mermaidSource, props.manifestVersion, props.runId]);
 
   const downloadMermaid = useCallback(() => {
     if (mermaidSource === null) {
       return;
     }
 
+    const blockedReason = runCollateralSealedManifestCopyBlockedReason({
+      runId: props.runId,
+      manifestVersion: props.manifestVersion,
+    });
+
+    if (blockedReason !== null) {
+      setCopyError(blockedReason);
+      return;
+    }
+
+    setCopyError(null);
+
     downloadBrowserTextFile(
       `${safeGraphExportFilenameSegment(props.runId)}-architecture-diagram.mmd`,
       mermaidSource,
       "text/plain;charset=utf-8",
     );
-  }, [mermaidSource, props.runId]);
+  }, [mermaidSource, props.manifestVersion, props.runId]);
 
   const handleNodeOverride = useCallback(
     (nodes: readonly ArchitectureDiagramNode[]) => {
@@ -372,6 +400,7 @@ export function useArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps
     editorOpen,
     setEditorOpen: setEditorOpenWithUrl,
     copied,
+    copyError,
     storageWriteFailed,
     selectedElementKind,
     setSelectedElementKind: setSelectedElementKindWithUrl,

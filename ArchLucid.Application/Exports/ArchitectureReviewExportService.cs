@@ -62,6 +62,13 @@ public sealed partial class ArchitectureReviewExportService(
 
         await EnsureSealedDecisionReceiptVerifiedOrThrowAsync(runId.Trim(), cancellationToken);
 
+        await RunExportSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+            runId.Trim(),
+            scopeContextProvider.GetCurrentScope(),
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken);
+
         ArchitectureAnalysisRequest analysisRequest = new()
         {
             RunId = detail.Run.RunId,

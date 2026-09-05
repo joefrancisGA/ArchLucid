@@ -172,6 +172,20 @@ public sealed class DocxExportController(
                 }
             }
 
+            try
+            {
+                await RunExportSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                    compareWithRunId.Value.ToString("N"),
+                    scope,
+                    authorityQueryService,
+                    manifestHashService,
+                    ct);
+            }
+            catch (ConflictException ex)
+            {
+                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            }
+
             manifestComparison = comparisonService.Compare(manifest, targetDetail.GoldenManifest);
         }
 

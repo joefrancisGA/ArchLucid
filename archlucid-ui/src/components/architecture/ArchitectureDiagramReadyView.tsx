@@ -93,6 +93,15 @@ export function ArchitectureDiagramReadyView(props: ArchitectureDiagramReadyView
                 {ARCHITECTURE_DIAGRAM_DOWNLOAD_ACTION}
               </Button>
             </div>
+            {panel.copyError !== null ? (
+              <p
+                role="alert"
+                className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="architecture-diagram-copy-error"
+              >
+                {panel.copyError}
+              </p>
+            ) : null}
           </div>
         </details>
       </div>

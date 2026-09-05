@@ -1,4 +1,5 @@
 using ArchLucid.Application.Drafts;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Architecture;
@@ -111,6 +112,13 @@ public sealed class DecisionReceiptService(
                 Outcome = DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete,
             };
         }
+
+        await RunExportSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+            runId.ToString("N"),
+            scope,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken);
 
         return ManifestDecisionReceiptExportBinder.BuildVerifiedExportReceipt(
             runId,
