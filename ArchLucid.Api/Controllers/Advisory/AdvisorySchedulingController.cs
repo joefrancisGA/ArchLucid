@@ -6,6 +6,7 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Advisory.Scheduling;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Queries;
 
@@ -41,6 +42,7 @@ public sealed partial class AdvisorySchedulingController(
     IAdvisoryScanRunner scanRunner,
     IScanScheduleCalculator scheduleCalculator,
     IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     IAuditService auditService)
     : ControllerBase
 {

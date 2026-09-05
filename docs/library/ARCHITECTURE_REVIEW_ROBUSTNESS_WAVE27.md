@@ -23,4 +23,4 @@ Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave27Arc
 
 **Hasher baseline note:** wave 27 does not bump Hasher A schema version; export gates, compare fingerprints, and finding read/write sync remain on the existing **`v12`** baseline (`tests/manifest-hash/hasher-baseline-v12.json`).
 
-**Deferred to wave 28+:** 281–310 stretch batch from wave-26 planning notes.
+**Deferred to wave 29+:** stretch items beyond 281–310 from wave-26 planning notes. Shipped in [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE28.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE28.md).

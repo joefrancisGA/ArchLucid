@@ -165,7 +165,7 @@ export function RunDetailManifestSummarySection(
               {finiteIntegerCountDisplay(manifestSummary.unresolvedIssueCount)}
             </dd>
           </dl>
-          <ManifestJsonActions runId={manifestSummary.runId} />
+          <ManifestJsonActions runId={manifestSummary.runId} manifestVersion={manifestSummary.manifestVersion} />
         </CardContent>
       </Card>
 

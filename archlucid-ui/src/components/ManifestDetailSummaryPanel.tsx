@@ -47,7 +47,12 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
 
   const manifestJsonActions =
     summary.runId.trim().length > 0 ? (
-      <ManifestJsonActions runId={summary.runId} className="mt-3" buyerPolishedLayout={buyerPolishedLayout} />
+      <ManifestJsonActions
+        runId={summary.runId}
+        manifestVersion={summary.manifestVersion}
+        className="mt-3"
+        buyerPolishedLayout={buyerPolishedLayout}
+      />
     ) : null;
 
   const operatorSummary =

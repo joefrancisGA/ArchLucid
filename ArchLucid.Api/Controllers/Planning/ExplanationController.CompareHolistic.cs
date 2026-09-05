@@ -61,6 +61,9 @@ public sealed partial class ExplanationController
             ManifestCompareLoadOutcome.CommittedArtifactInventoryMismatch => this.ConflictProblem(
                 "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.",
                 ProblemTypes.CommittedArtifactInventoryMismatch),
+            ManifestCompareLoadOutcome.SealedManifestHashMismatch => this.ConflictProblem(
+                "Compare blocked: sealed manifest hash verification failed for one or both selected runs.",
+                ProblemTypes.Conflict),
             _ => throw new InvalidOperationException($"Unexpected manifest compare outcome: {loadResult.Outcome}."),
         };
     }

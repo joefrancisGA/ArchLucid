@@ -16,6 +16,28 @@ public sealed partial class AdvisoryWorkflowFacade
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
+
+        RecommendationRecord? existing =
+            await _recommendationRepository.GetByIdAsync(recommendationId, cancellationToken);
+
+        if (existing is null)
+        {
+            return new ApplyRecommendationActionFacadeResult
+            {
+                Outcome = ApplyRecommendationActionOutcome.NotFound,
+                RecommendationId = recommendationId,
+            };
+        }
+
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        await AdvisoryApplySealedManifestHashGuard.EnsureRecommendationRunSealedOrThrowAsync(
+            existing,
+            request,
+            scope,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken);
+
         RecommendationRecord? updated = await _recommendationWorkflowService.ApplyActionAsync(
             recommendationId,
             userId,
@@ -40,7 +62,6 @@ public sealed partial class AdvisoryWorkflowFacade
                 .ConfigureAwait(false);
             if (_recommendationImproveLoopEvidencePersister is not null)
             {
-                ScopeContext scope = _scopeProvider.GetCurrentScope();
                 await _recommendationImproveLoopEvidencePersister
                     .PersistAsync(scope, updated.RunId, improveLoop, improveLoop?.MergedFindingIds, cancellationToken)
                     .ConfigureAwait(false);

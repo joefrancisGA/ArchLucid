@@ -285,6 +285,8 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
                     integrationEventOutbox ?? CreateIntegrationEventOutbox(),
                     integrationEventPublisher ?? CreateIntegrationEventPublisher(),
                     integrationEventsOptions ?? CreateIntegrationEventsOptionsMonitor(),
+                    Mock.Of<IAuthorityQueryService>(),
+                    Mock.Of<IManifestHashService>(),
                     NullLogger<ArchitectureRunExecuteOutboxPublishHook>.Instance));
         }
 

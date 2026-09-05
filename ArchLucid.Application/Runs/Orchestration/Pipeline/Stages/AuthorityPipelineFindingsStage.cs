@@ -15,8 +15,10 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Findings;
 using ArchLucid.Core.Integration;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
@@ -35,6 +37,8 @@ public sealed class AuthorityPipelineFindingsStage(
     IIntegrationEventPublisher integrationEventPublisher,
     IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     ILogger<AuthorityPipelineFindingsStage> logger,
     IArchitectureIntelligenceAuthorityFindingsContributor? authorityFindingsContributor = null,
     IFindingAnalysisContextBuilder? findingAnalysisContextBuilder = null,
@@ -70,6 +74,12 @@ public sealed class AuthorityPipelineFindingsStage(
 
     private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions =
         publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private readonly ILogger<AuthorityPipelineFindingsStage> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -187,6 +197,8 @@ public sealed class AuthorityPipelineFindingsStage(
                 _logger,
                 findingsSnapshot,
                 scope,
+                _authorityQueryService,
+                _manifestHashService,
                 _publicSiteOptions.CurrentValue.BaseUrl,
                 context.UnitOfWork.SupportsExternalTransaction ? context.UnitOfWork.Connection : null,
                 context.UnitOfWork.SupportsExternalTransaction ? context.UnitOfWork.Transaction : null,
