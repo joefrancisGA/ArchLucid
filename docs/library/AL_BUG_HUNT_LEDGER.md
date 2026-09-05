@@ -3348,11 +3348,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 209
-- **bugs-found:** 431
+- **hunts:** 210
+- **bugs-found:** 432
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — digest whitespace recipientEmails silent wipe
+- **last-bug:** 2026-09-04 — digest empty recipientEmails array silent wipe
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4372,6 +4372,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantExecDigestPreferencesController.PostExecDigestPreferences` / `TenantSponsorDigestPreferencesController.PostSponsorDigestPreferences` / `DigestRecipientEmailsValidator.TryNormalize` — explicit whitespace-only `recipientEmails` bypassed merge-from-existing (#778) and wiped stored recipients on disable-only upsert instead of HTTP 400 — **hit 2026-09-04 (#792):** reject non-null recipient lists whose entries are all empty/whitespace (assign scopeLevel #791 parity); regressions in `PostExecDigestPreferences_returns_bad_request_when_recipient_emails_are_whitespace_only` and `PostSponsorDigestPreferences_returns_bad_request_when_recipient_emails_are_whitespace_only`.
 
 2026-09-04 seed hunt #792 (hit): proved digest whitespace recipientEmails silent wipe on disable-only upsert.
+
+- [x] (proven) `TenantExecDigestPreferencesController.PostExecDigestPreferences` / `TenantSponsorDigestPreferencesController.PostSponsorDigestPreferences` — disable-only POST with explicit empty `recipientEmails` array (`[]`) wiped stored recipients instead of preserving them like omitted field (#778) — **hit 2026-09-04 (#793):** treat null or empty recipient list as omitted when `emailEnabled` is false before merge-from-existing (whitespace #792 parity); regressions in `PostExecDigestPreferences_preserves_recipients_when_disable_only_body_has_empty_recipient_emails_array` and `PostSponsorDigestPreferences_preserves_recipients_when_disable_only_body_has_empty_recipient_emails_array`.
+
+2026-09-04 seed hunt #793 (hit): proved digest empty recipientEmails array silent wipe on disable-only upsert.
 
 2026-09-04 seed hunt #787 (hit): proved disposition inapplicable optional string silent drop beyond whitespace-only cases.
 

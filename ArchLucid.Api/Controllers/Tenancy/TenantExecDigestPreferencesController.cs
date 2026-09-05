@@ -101,7 +101,16 @@ public sealed class TenantExecDigestPreferencesController(
         ExecDigestPreferencesResponse? existingPreferences =
             await _preferencesRepository.GetByTenantAsync(scope.TenantId, cancellationToken);
 
-        IReadOnlyList<string>? recipientEmails = body.RecipientEmails ?? existingPreferences?.RecipientEmails;
+        IReadOnlyList<string>? recipientEmails = body.RecipientEmails;
+
+        if (!body.EmailEnabled && recipientEmails is null or { Count: 0 })
+        {
+            recipientEmails = existingPreferences?.RecipientEmails;
+        }
+        else
+        {
+            recipientEmails ??= existingPreferences?.RecipientEmails;
+        }
 
         string? normalizedTimeZone = IanaTimeZonePreferenceValues.NormalizeOrNull(body.IanaTimeZoneId ?? "UTC");
 
