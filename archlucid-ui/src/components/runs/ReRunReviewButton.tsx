@@ -14,6 +14,7 @@ import type { ButtonProps } from "@/components/ui/button";
 import { awaitMinimumVisibleDuration } from "@/lib/await-minimum-visible-duration";
 import { findInFlightOperationForRun } from "@/lib/operations/find-in-flight-operation-for-run";
 import { isInFlightOperationForAttempt } from "@/lib/operations/is-in-flight-operation-for-attempt";
+import { isStaleFailedOperationForAttempt } from "@/lib/operations/is-stale-rerun-failure-operation-poll";
 import {
   getInFlightOperations,
   subscribeInFlightOperations,
@@ -118,6 +119,10 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
         return;
       }
 
+      if (isStaleFailedOperationForAttempt(latest, active.startedAtMs)) {
+        return;
+      }
+
       const phase = reRunReviewOutcomePhaseFromOperationState(latest.state);
 
       if (phase === null || phase === "running") {
@@ -148,6 +153,10 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
     }
 
     if (!isInFlightOperationForAttempt(trackedOperation, active.startedAtMs)) {
+      return;
+    }
+
+    if (isStaleFailedOperationForAttempt(trackedOperation, active.startedAtMs)) {
       return;
     }
 
