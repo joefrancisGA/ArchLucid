@@ -342,6 +342,20 @@ public sealed class CommittedRunHeaderAnchorGuardTests
         act.Should().NotThrow();
     }
 
+    [Fact]
+    public void EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_numeric_boolean_only_change_on_committed_run()
+    {
+        Guid manifestId = Guid.NewGuid();
+        RunRecord persisted = CreateRun(goldenManifestId: manifestId);
+        persisted.GovernanceScopeJson = """{"enabled":1}""";
+        RunRecord proposed = CreateRun(goldenManifestId: manifestId);
+        proposed.GovernanceScopeJson = """{"enabled":true}""";
+
+        Action act = () => CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, proposed);
+
+        act.Should().NotThrow();
+    }
+
     private static RunRecord CreateRun(Guid? goldenManifestId)
     {
         return new RunRecord

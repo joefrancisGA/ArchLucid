@@ -157,9 +157,14 @@ internal static class RequestConstraintTokenMatcher
         if (before.StartsWith("not required to", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("no requirement to", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("no need to", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("doesn't require", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("doesn't need to", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("won't need to", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("do not", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("do-not", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("don't", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("doesn't", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("shouldn't", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("won't", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("must not", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("never", StringComparison.OrdinalIgnoreCase)
@@ -171,6 +176,8 @@ internal static class RequestConstraintTokenMatcher
             return true;
 
         return before.EndsWith("don't", StringComparison.OrdinalIgnoreCase)
+            || before.EndsWith("doesn't", StringComparison.OrdinalIgnoreCase)
+            || before.EndsWith("shouldn't", StringComparison.OrdinalIgnoreCase)
             || before.EndsWith("won't", StringComparison.OrdinalIgnoreCase)
             || before.EndsWith("never", StringComparison.OrdinalIgnoreCase)
             || before.EndsWith("avoids", StringComparison.OrdinalIgnoreCase)
@@ -181,7 +188,9 @@ internal static class RequestConstraintTokenMatcher
     {
         return ContainsPhrase(before, " do not require ")
             || ContainsPhrase(before, " must not ")
-            || ContainsPhrase(before, " do not ");
+            || ContainsPhrase(before, " do not ")
+            || ContainsPhrase(before, " doesn't require ")
+            || ContainsPhrase(before, " doesn't need ");
     }
 
     private static bool ContainsPhrase(ReadOnlySpan<char> haystack, string phrase)
@@ -229,6 +238,10 @@ internal static class RequestConstraintTokenMatcher
             || after.StartsWith("not necessary", StringComparison.OrdinalIgnoreCase)
             || after.StartsWith("is not required", StringComparison.OrdinalIgnoreCase)
             || after.StartsWith("is not needed", StringComparison.OrdinalIgnoreCase)
+            || after.StartsWith("is not necessary", StringComparison.OrdinalIgnoreCase)
+            || after.StartsWith("is unnecessary", StringComparison.OrdinalIgnoreCase)
+            || after.StartsWith("isn't required", StringComparison.OrdinalIgnoreCase)
+            || after.StartsWith("isn't needed", StringComparison.OrdinalIgnoreCase)
             || after.StartsWith("is optional", StringComparison.OrdinalIgnoreCase);
     }
 }

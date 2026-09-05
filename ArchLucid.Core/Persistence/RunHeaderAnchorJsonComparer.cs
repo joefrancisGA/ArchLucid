@@ -152,6 +152,43 @@ internal static class RunHeaderAnchorJsonComparer
         if (TryNullSingleElementNullArrayEquivalent(left, right))
             return true;
 
+        if (TryNumberBooleanEquivalent(left, right))
+            return true;
+
+        return false;
+    }
+
+    private static bool TryNumberBooleanEquivalent(JsonElement left, JsonElement right)
+    {
+        if (left.ValueKind == JsonValueKind.Number && right.ValueKind is JsonValueKind.True or JsonValueKind.False)
+            return TryReadNumericBoolean(left, out bool leftBoolean) && leftBoolean == right.GetBoolean();
+
+        if (right.ValueKind == JsonValueKind.Number && left.ValueKind is JsonValueKind.True or JsonValueKind.False)
+            return TryReadNumericBoolean(right, out bool rightBoolean) && rightBoolean == left.GetBoolean();
+
+        return false;
+    }
+
+    private static bool TryReadNumericBoolean(JsonElement element, out bool value)
+    {
+        value = false;
+
+        if (element.TryGetInt32(out int numeric))
+        {
+            value = numeric != 0;
+
+            return true;
+        }
+
+        if (element.TryGetDouble(out double wholeNumber)
+            && double.IsFinite(wholeNumber)
+            && wholeNumber == Math.Floor(wholeNumber))
+        {
+            value = wholeNumber != 0;
+
+            return true;
+        }
+
         return false;
     }
 

@@ -86,6 +86,8 @@ public sealed class ConfigurationEffectiveValueResolverTests
     [InlineData("ArchLucid:TokenlessAuth:Mode", "managed-identity")]
     [InlineData("ArchLucid:ApiKeyFreeAuth:Mode", "managed-identity")]
     [InlineData("Features:NonSecretStorage:Bucket", "logs")]
+    [InlineData("ArchLucid:PrivateKeylessAuth:Mode", "managed-identity")]
+    [InlineData("ArchLucid:PrivateKeyizerModule:Name", "module-a")]
   public void Resolve_returns_scalar_for_non_secret_segment_substrings(string configPath, string expectedValue)
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)

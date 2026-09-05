@@ -138,6 +138,13 @@ internal static class ConfigurationSensitiveConfigPathMatcher
                 || segment.Slice(fragmentIndex + fragment.Length).StartsWith("izer", StringComparison.OrdinalIgnoreCase)))
             return true;
 
+        if (fragment.Equals("PrivateKey", StringComparison.OrdinalIgnoreCase)
+            && fragmentIndex + fragment.Length < segment.Length
+            && (segment.Slice(fragmentIndex + fragment.Length).StartsWith("less", StringComparison.OrdinalIgnoreCase)
+                || segment.Slice(fragmentIndex + fragment.Length).StartsWith("free", StringComparison.OrdinalIgnoreCase)
+                || segment.Slice(fragmentIndex + fragment.Length).StartsWith("izer", StringComparison.OrdinalIgnoreCase)))
+            return true;
+
         return false;
     }
 

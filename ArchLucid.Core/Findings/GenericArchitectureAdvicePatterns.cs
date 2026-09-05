@@ -183,7 +183,11 @@ public static partial class GenericArchitectureAdvicePatterns
         return before.EndsWith("do not", StringComparison.Ordinal)
             || before.EndsWith("do-not", StringComparison.Ordinal)
             || before.EndsWith("don't", StringComparison.Ordinal)
+            || before.EndsWith("doesn't", StringComparison.Ordinal)
+            || before.EndsWith("shouldn't", StringComparison.Ordinal)
             || before.EndsWith("won't", StringComparison.Ordinal)
+            || before.EndsWith("won't need to", StringComparison.Ordinal)
+            || before.EndsWith("doesn't need to", StringComparison.Ordinal)
             || before.EndsWith("no requirement to", StringComparison.Ordinal)
             || before.EndsWith("no need to", StringComparison.Ordinal)
             || before.EndsWith("not required to", StringComparison.Ordinal)
@@ -207,6 +211,8 @@ public static partial class GenericArchitectureAdvicePatterns
             || after.StartsWith("is not required", StringComparison.Ordinal)
             || after.StartsWith("is not needed", StringComparison.Ordinal)
             || after.StartsWith("not necessary", StringComparison.Ordinal)
+            || after.StartsWith("is not necessary", StringComparison.Ordinal)
+            || after.StartsWith("is unnecessary", StringComparison.Ordinal)
             || after.StartsWith("is optional", StringComparison.Ordinal);
     }
 
