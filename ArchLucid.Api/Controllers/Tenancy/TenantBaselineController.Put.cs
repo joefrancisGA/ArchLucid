@@ -157,7 +157,7 @@ public sealed partial class TenantBaselineController
             bool firstReviewCycleCapture = existing.BaselineReviewCycleCapturedUtc is null;
             bool isIdenticalReviewRetry = existing.BaselineReviewCycleCapturedUtc is not null
                 && existing.BaselineReviewCycleHours == hours
-                && string.Equals(existing.BaselineReviewCycleSource, persistedSource, StringComparison.Ordinal);
+                && string.Equals(existing.BaselineReviewCycleSource, persistedSource, StringComparison.OrdinalIgnoreCase);
 
             await _tenantRepository.PersistTrialSignupBaselineReviewCycleAsync(
                 scope.TenantId,
@@ -207,7 +207,7 @@ public sealed partial class TenantBaselineController
             bool isIdenticalSourceNoteRetry = string.Equals(
                 existing.BaselineReviewCycleSource,
                 persistedSource,
-                StringComparison.Ordinal);
+                StringComparison.OrdinalIgnoreCase);
 
             if (!isIdenticalSourceNoteRetry)
             {
