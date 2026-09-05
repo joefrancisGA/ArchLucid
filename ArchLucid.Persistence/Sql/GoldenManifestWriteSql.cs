@@ -19,7 +19,7 @@ internal static class GoldenManifestWriteSql
                                      CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
                                      MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
                                      ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
-                                     WarningsJson, ProvenanceJson, ManifestPayloadBlobUri, LifecycleStatus,
+                                     WarningsJson, ProvenanceJson, HasherBoundJson, ManifestPayloadBlobUri, LifecycleStatus,
                                      ContractManifestVersion
                                  )
                                  VALUES
@@ -29,7 +29,7 @@ internal static class GoldenManifestWriteSql
                                      @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
                                      @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
                                      @ConstraintsJson, @UnresolvedIssuesJson, @DecisionsJson, @AssumptionsJson,
-                                     @WarningsJson, @ProvenanceJson, @ManifestPayloadBlobUri, @LifecycleStatus,
+                                     @WarningsJson, @ProvenanceJson, @HasherBoundJson, @ManifestPayloadBlobUri, @LifecycleStatus,
                                      @ContractManifestVersion
                                  );
                                  """;

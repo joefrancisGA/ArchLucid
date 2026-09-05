@@ -53,6 +53,7 @@ public static class TenantSchemaSentinelManifest
             [
                 new SchemaSentinelColumn { ColumnName = "ManifestId", SqlDataType = "uniqueidentifier" },
                 new SchemaSentinelColumn { ColumnName = "RunId", SqlDataType = "uniqueidentifier" },
+                new SchemaSentinelColumn { ColumnName = "HasherBoundJson", SqlDataType = "nvarchar" },
             ],
         },
         new SchemaSentinelExpectation
