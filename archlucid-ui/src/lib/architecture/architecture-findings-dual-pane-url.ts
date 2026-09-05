@@ -1,11 +1,19 @@
+import { REVIEW_DETAIL_FINDING_PARAM } from "@/lib/review-detail-workspace-tabs";
+
+/** Legacy alias — hydrate once into `findingId`, then stop writing this param (LS-01). */
 export const ARCHITECTURE_DIAGRAM_FINDING_PARAM = "diagramFindingId";
 
-export function parseArchitectureDiagramFindingIdFromSearch(raw: string | null | undefined): string {
-  if (raw === null || raw === undefined) {
-    return "";
+export function parseArchitectureDiagramFindingIdFromSearch(
+  findingIdRaw: string | null | undefined,
+  diagramFindingIdRaw?: string | null | undefined,
+): string {
+  const findingId = (findingIdRaw ?? "").trim();
+
+  if (findingId.length > 0) {
+    return findingId;
   }
 
-  return raw.trim();
+  return (diagramFindingIdRaw ?? "").trim();
 }
 
 export function architectureDiagramFindingHrefFromSearch(
@@ -17,9 +25,11 @@ export function architectureDiagramFindingHrefFromSearch(
   const trimmed = (findingId ?? "").trim();
 
   if (trimmed.length === 0) {
+    params.delete(REVIEW_DETAIL_FINDING_PARAM);
     params.delete(ARCHITECTURE_DIAGRAM_FINDING_PARAM);
   } else {
-    params.set(ARCHITECTURE_DIAGRAM_FINDING_PARAM, trimmed);
+    params.set(REVIEW_DETAIL_FINDING_PARAM, trimmed);
+    params.delete(ARCHITECTURE_DIAGRAM_FINDING_PARAM);
   }
 
   const nextQuery = params.toString();

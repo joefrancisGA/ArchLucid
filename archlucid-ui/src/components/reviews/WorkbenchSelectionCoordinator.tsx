@@ -162,6 +162,44 @@ export type WorkbenchLayoutBridgeProps = {
 
 export function WorkbenchLayoutBridge(props: WorkbenchLayoutBridgeProps): React.JSX.Element {
   const selection = useReviewWorkbenchSelection();
+  const [diagramNodes, setDiagramNodes] = useState<readonly ArchitectureFindingsDualPaneDiagramNode[]>([]);
+  const [selectedFindingTitle, setSelectedFindingTitle] = useState<string | null>(null);
+
+  useEffect(() => {
+    const onDiagramNodes = (event: Event) => {
+      const detail = (event as CustomEvent<ReviewWorkbenchDiagramNodesEventDetail>).detail;
+      setDiagramNodes(detail?.nodes ?? []);
+    };
+
+    window.addEventListener(REVIEW_WORKBENCH_DIAGRAM_NODES_EVENT, onDiagramNodes);
+
+    return () => window.removeEventListener(REVIEW_WORKBENCH_DIAGRAM_NODES_EVENT, onDiagramNodes);
+  }, []);
+
+  useEffect(() => {
+    const selectedId = selection?.selectedFindingId?.trim() ?? "";
+
+    if (selectedId.length === 0) {
+      setSelectedFindingTitle(null);
+
+      return;
+    }
+
+    const findingRef = readFindingRefFromDom(selectedId);
+    setSelectedFindingTitle(findingRef.title.length > 0 ? findingRef.title : null);
+  }, [selection?.selectedFindingId]);
+
+  const highlightedNodeLabel = (() => {
+    const nodeId = selection?.highlightedNodeId?.trim() ?? "";
+
+    if (nodeId.length === 0) {
+      return null;
+    }
+
+    const matched = diagramNodes.find((node) => node.id === nodeId);
+
+    return matched?.label ?? nodeId;
+  })();
 
   return (
     <ReviewWorkbenchLayout
@@ -172,7 +210,9 @@ export function WorkbenchLayoutBridge(props: WorkbenchLayoutBridgeProps): React.
       onFocusColumn={props.onFocusColumn}
       onExitWorkbench={props.onExitWorkbench}
       selectedFindingId={selection?.selectedFindingId ?? null}
+      selectedFindingTitle={selectedFindingTitle}
       highlightedNodeId={selection?.highlightedNodeId ?? null}
+      highlightedNodeLabel={highlightedNodeLabel}
     />
   );
 }

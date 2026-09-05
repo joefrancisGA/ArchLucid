@@ -48,4 +48,22 @@ describe("ReviewWorkbenchLayout", () => {
 
     expect(onExitWorkbench).toHaveBeenCalledTimes(1);
   });
+
+  it("keeps the selected finding title visible in the findings column header (LS-10)", () => {
+    render(
+      <ReviewWorkbenchLayout
+        architecture={<div>Architecture panel</div>}
+        findings={<div>Findings panel</div>}
+        evidence={<div>Evidence panel</div>}
+        focusColumn="findings"
+        onFocusColumn={vi.fn()}
+        selectedFindingId="finding-claims"
+        selectedFindingTitle="Claims API latency"
+      />,
+    );
+
+    expect(screen.getByTestId("review-workbench-selected-finding-title")).toHaveTextContent(
+      "Claims API latency",
+    );
+  });
 });
