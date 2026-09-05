@@ -987,3 +987,4 @@
 {"at":"2026-09-05T15:46:25.0877491Z","zoneId":"tenant-erasure","outcome":"dry"}
 {"at":"2026-09-05T15:55:01.380187Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-05T16:03:12.4829387Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-09-05T16:08:12.5866214Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
