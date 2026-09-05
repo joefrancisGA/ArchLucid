@@ -14,4 +14,10 @@ public static partial class AuditEventTypes
 
     /// <summary>Tenant branding profile created or updated.</summary>
     public const string TenantBrandingProfileChanged = "TenantBrandingProfile.Changed";
+
+    /// <summary>Operational security finding ingested or updated from an external source.</summary>
+    public const string OperationalSecurityFindingIngested = "OperationalSecurityFinding.Ingested";
+
+    /// <summary>Operational security finding re-ingested with an identical payload (deduplicated).</summary>
+    public const string OperationalSecurityFindingDeduplicated = "OperationalSecurityFinding.Deduplicated";
 }

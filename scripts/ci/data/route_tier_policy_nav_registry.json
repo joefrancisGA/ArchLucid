@@ -1742,6 +1742,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "OperationalSecurity/OperationalSecurityFindingsController.cs",
+      "class_name": "OperationalSecurityFindingsController",
+      "route_template": "v{version:apiVersion}/operational-security/findings",
+      "normalized_prefix": "/v1/operational-security/findings",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Pilots/PilotsBoardPackController.cs",
       "class_name": "PilotsBoardPackController",
       "route_template": "v{version:apiVersion}/pilots",
