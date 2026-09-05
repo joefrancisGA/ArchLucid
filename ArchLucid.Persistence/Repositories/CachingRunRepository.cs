@@ -123,6 +123,13 @@ public sealed partial class CachingRunRepository(IRunRepository inner, IHotPathR
         => _inner.CountByArchitectureIdAsync(scope, architectureId, ct);
 
     /// <inheritdoc />
+    public Task<IReadOnlyList<RunRecord>> ListWithNullArchitectureIdAsync(
+        ScopeContext scope,
+        int take,
+        CancellationToken ct)
+        => _inner.ListWithNullArchitectureIdAsync(scope, take, ct);
+
+    /// <inheritdoc />
     public Task<Guid?> GetLatestCommittedRunIdByArchitectureVersionIdAsync(
         ScopeContext scope,
         Guid architectureVersionId,

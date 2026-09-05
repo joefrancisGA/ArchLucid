@@ -161,4 +161,59 @@ public sealed partial class DapperDraftRequestRepository
 
         return true;
     }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<DraftRequestResponse>> ListWithNullArchitectureIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        int take,
+        CancellationToken cancellationToken)
+    {
+        if (take <= 0)
+            return [];
+
+        const string sql = """
+                           SELECT TOP (@Take)
+                               DraftId,
+                               TenantId,
+                               WorkspaceId,
+                               ProjectId,
+                               ArchitectureId,
+                               Status,
+                               DocumentJson,
+                               RedirectReason,
+                               SpawnedRunId,
+                               SpawnedArchitectureVersionId,
+                               DocumentContentHashSha256,
+                               SpawnedDocumentContentHashSha256,
+                               CreatedByUserId,
+                               CreatedUtc,
+                               UpdatedUtc
+                           FROM dbo.DraftRequests
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND ArchitectureId IS NULL
+                           ORDER BY CreatedUtc ASC, DraftId ASC;
+                           """;
+
+        await using SqlConnection connection =
+            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        IEnumerable<DraftRequestRow> rows = await connection.QueryAsync<DraftRequestRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    Take = take,
+                },
+                cancellationToken: cancellationToken,
+                commandTimeout: InteractiveDraftCommandTimeoutSeconds));
+
+        return rows.Select(MapRow).ToList();
+    }
 }

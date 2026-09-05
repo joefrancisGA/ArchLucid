@@ -181,4 +181,47 @@ public sealed partial class SqlArchitectureIdentityRepository(ISqlConnectionFact
                 },
                 cancellationToken: cancellationToken)).ConfigureAwait(false);
     }
+
+    public async Task<bool> TryUpdateDisplayNameWhenUntitledAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        string displayName,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(displayName);
+
+        string normalizedDisplayName = ArchitectureIdentityDisplayNameDefaults.Resolve(displayName);
+
+        const string sql = """
+                           UPDATE dbo.Architectures
+                           SET DisplayName = @DisplayName,
+                               UpdatedUtc = @UpdatedUtc
+                           WHERE ArchitectureId = @ArchitectureId
+                             AND TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ScopeProjectId = @ScopeProjectId
+                             AND DisplayName = @UntitledDisplayName;
+                           """;
+
+        await using SqlConnection connection =
+            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        int rows = await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    ArchitectureId = architectureId,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    DisplayName = normalizedDisplayName,
+                    UntitledDisplayName = ArchitectureIdentityDisplayNameDefaults.UntitledArchitecture,
+                    UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                },
+                cancellationToken: cancellationToken)).ConfigureAwait(false);
+
+        return rows > 0;
+    }
 }

@@ -121,4 +121,15 @@ public interface IDraftRequestRepository
         Guid draftId,
         Guid architectureId,
         CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Lists drafts in scope with null <see cref="DraftRequestResponse.ArchitectureId" />,
+    ///     oldest <c>CreatedUtc</c> first (stable backfill order).
+    /// </summary>
+    Task<IReadOnlyList<DraftRequestResponse>> ListWithNullArchitectureIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        int take,
+        CancellationToken cancellationToken);
 }

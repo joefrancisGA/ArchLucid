@@ -92,4 +92,48 @@ public sealed partial class SqlRunRepository
                 },
                 cancellationToken: ct)).ConfigureAwait(false);
     }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<RunRecord>> ListWithNullArchitectureIdAsync(
+        ScopeContext scope,
+        int take,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
+
+        if (take <= 0)
+            return [];
+
+        const string sql = """
+                           SELECT TOP (@Take)
+                                  RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description,
+                                  PackageOrigin, ArchitectureId, ArchitectureVersionId, ArchitectureRequestId,
+                                  KnowledgeModelId, CreatedUtc, UpdatedUtc, ArchivedUtc, LegacyRunStatus,
+                                  CurrentManifestVersion, GoldenManifestId
+                           FROM dbo.Runs
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ScopeProjectId = @ScopeProjectId
+                             AND ArchitectureId IS NULL
+                             AND ArchivedUtc IS NULL
+                           ORDER BY CreatedUtc ASC, RunId ASC;
+                           """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        IEnumerable<RunRecord> rows = await connection.QueryAsync<RunRecord>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    Take = take,
+                },
+                cancellationToken: ct)).ConfigureAwait(false);
+
+        return rows.ToList();
+    }
 }

@@ -324,6 +324,36 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         return Task.FromResult(true);
     }
 
+    /// <inheritdoc />
+    public Task<IReadOnlyList<DraftRequestResponse>> ListWithNullArchitectureIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        int take,
+        CancellationToken cancellationToken)
+    {
+        if (take <= 0)
+            return Task.FromResult<IReadOnlyList<DraftRequestResponse>>([]);
+
+        List<DraftRequestResponse> matches = _drafts.Values
+            .Where(stored =>
+                !stored.ArchitectureId.HasValue
+                && DraftRequestRepositoryCore.MatchesProjectScope(
+                    tenantId,
+                    workspaceId,
+                    projectId,
+                    stored.TenantId,
+                    stored.WorkspaceId,
+                    stored.ProjectId))
+            .OrderBy(stored => stored.CreatedUtc)
+            .ThenBy(stored => stored.DraftId)
+            .Take(take)
+            .Select(Map)
+            .ToList();
+
+        return Task.FromResult<IReadOnlyList<DraftRequestResponse>>(matches);
+    }
+
     private static DraftRequestResponse Map(InMemoryDraftRequestStoredDraft stored) =>
         DraftRequestRepositoryCore.MapInMemoryStoredDraft(stored, JsonOptions);
 }

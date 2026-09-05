@@ -29,6 +29,15 @@ public interface IArchitectureIdentityRepository
         Guid manifestId,
         CancellationToken cancellationToken = default);
 
+    /// <summary>
+    ///     Updates <see cref="ArchitectureIdentityRecord.DisplayName" /> only when it is still the DA-02 untitled default.
+    /// </summary>
+    Task<bool> TryUpdateDisplayNameWhenUntitledAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        string displayName,
+        CancellationToken cancellationToken = default);
+
     Task<PagedResponse<ArchitectureIdentityListItem>> ListAsync(
         ScopeContext scope,
         int page,

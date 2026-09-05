@@ -298,4 +298,13 @@ public interface IRunRepository
         ScopeContext scope,
         Guid architectureId,
         CancellationToken ct);
+
+    /// <summary>
+    ///     Lists non-archived runs in <paramref name="scope" /> with null <see cref="RunRecord.ArchitectureId" />,
+    ///     oldest <c>CreatedUtc</c> first (stable backfill order).
+    /// </summary>
+    Task<IReadOnlyList<RunRecord>> ListWithNullArchitectureIdAsync(
+        ScopeContext scope,
+        int take,
+        CancellationToken ct);
 }

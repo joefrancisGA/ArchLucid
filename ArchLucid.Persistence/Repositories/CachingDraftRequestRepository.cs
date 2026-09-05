@@ -265,6 +265,22 @@ public sealed class CachingDraftRequestRepository(
         return updated;
     }
 
+    /// <inheritdoc />
+    public Task<IReadOnlyList<DraftRequestResponse>> ListWithNullArchitectureIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        int take,
+        CancellationToken cancellationToken)
+    {
+        return _inner.ListWithNullArchitectureIdAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            take,
+            cancellationToken);
+    }
+
     private Task InvalidateDraftAsync(
         Guid tenantId,
         Guid workspaceId,

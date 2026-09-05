@@ -49,4 +49,28 @@ public sealed partial class InMemoryRunRepository
 
         return Task.FromResult(count);
     }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<RunRecord>> ListWithNullArchitectureIdAsync(
+        ScopeContext scope,
+        int take,
+        CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (take <= 0)
+            return Task.FromResult<IReadOnlyList<RunRecord>>([]);
+
+        List<RunRecord> runs = _store.Values
+            .Where(run =>
+                RunRepositoryCore.IsActiveInScope(run, scope)
+                && !run.ArchitectureId.HasValue)
+            .OrderBy(run => run.CreatedUtc)
+            .ThenBy(run => run.RunId)
+            .Take(take)
+            .ToList();
+
+        return Task.FromResult<IReadOnlyList<RunRecord>>(runs);
+    }
 }
