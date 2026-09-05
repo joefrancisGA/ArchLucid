@@ -3,7 +3,6 @@
 import { FilterChip } from "@/components/ui/filter-chip";
 import { useOperatorAttentionSummary } from "@/hooks/use-operator-attention-summary";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   OPERATOR_ATTENTION_KIND_DESTINATIONS,
 } from "@/lib/operator/operator-attention-kind-destinations";
@@ -23,9 +22,6 @@ export type OperatorAttentionKindStripProps = {
   readonly suppressKinds?: readonly OperatorAttentionKindId[];
 };
 
-export const OPERATOR_ATTENTION_KIND_STRIP_HELPER =
-  "Needs-you queues — open a kind to see what needs action:" as const;
-
 /** TB-2353 / TB-2369 — actionable four-kind attention taxonomy for hub pages. */
 export function OperatorAttentionKindStrip(
   props: OperatorAttentionKindStripProps,
@@ -40,15 +36,10 @@ export function OperatorAttentionKindStrip(
 
   return (
     <div
-      className={cn("space-y-2", props.className)}
+      className={props.className}
       data-testid="operator-attention-kind-strip"
       data-variant={variant}
     >
-      {variant === "default" || variant === "compact" ? (
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {OPERATOR_ATTENTION_KIND_STRIP_HELPER}
-        </p>
-      ) : null}
       <ul
         className="m-0 flex list-none flex-wrap gap-1.5 p-0"
         data-testid="operator-attention-kind-chips"

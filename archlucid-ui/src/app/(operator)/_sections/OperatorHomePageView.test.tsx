@@ -98,13 +98,7 @@ vi.mock("@/components/operator-home/OperatorHomeCompactStartingActionsSection", 
 }));
 
 vi.mock("@/components/operator/OperatorAttentionKindStrip", () => ({
-  OPERATOR_ATTENTION_KIND_STRIP_HELPER:
-    "Needs-you queues — open a kind to see what needs action:",
-  OperatorAttentionKindStrip: () => (
-    <div data-testid="operator-attention-kind-strip">
-      <p>Needs-you queues — open a kind to see what needs action:</p>
-    </div>
-  ),
+  OperatorAttentionKindStrip: () => <div data-testid="operator-attention-kind-strip" />,
 }));
 
 vi.mock("@/components/operator-home/OperatorHomeDeferredOnboarding", () => ({
@@ -295,6 +289,5 @@ describe("OperatorHomePageView", () => {
     );
 
     expect(screen.getByTestId("operator-attention-kind-strip")).toBeInTheDocument();
-    expect(screen.getByText(/Needs-you queues/)).toBeInTheDocument();
   });
 });
