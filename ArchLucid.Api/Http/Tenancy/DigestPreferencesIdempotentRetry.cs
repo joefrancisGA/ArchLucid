@@ -1,5 +1,7 @@
 namespace ArchLucid.Api.Http.Tenancy;
 
+using ArchLucid.Contracts.User;
+
 /// <summary>Detects operator-documented-safe-retry no-op upserts for digest preference POST endpoints.</summary>
 internal static class DigestPreferencesIdempotentRetry
 {
@@ -22,7 +24,7 @@ internal static class DigestPreferencesIdempotentRetry
         if (existingEmailEnabled != requestedEmailEnabled
             || existingDayOfWeek != requestedDayOfWeek
             || existingHourOfDay != requestedHourOfDay
-            || !string.Equals(existingIanaTimeZoneId, requestedIanaTimeZoneId, StringComparison.Ordinal))
+            || !IanaTimeZoneIdsMatch(existingIanaTimeZoneId, requestedIanaTimeZoneId))
         {
             return false;
         }
@@ -42,5 +44,13 @@ internal static class DigestPreferencesIdempotentRetry
         }
 
         return true;
+    }
+
+    private static bool IanaTimeZoneIdsMatch(string? existing, string? requested)
+    {
+        string normalizedExisting = IanaTimeZonePreferenceValues.NormalizeOrDefault(existing);
+        string normalizedRequested = IanaTimeZonePreferenceValues.NormalizeOrDefault(requested);
+
+        return string.Equals(normalizedExisting, normalizedRequested, StringComparison.Ordinal);
     }
 }

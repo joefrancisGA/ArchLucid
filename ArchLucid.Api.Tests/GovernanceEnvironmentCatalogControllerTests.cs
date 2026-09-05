@@ -430,6 +430,93 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task Replace_skips_duplicate_audit_when_display_name_differs_only_by_casing()
+    {
+        GovernanceEnvironmentCatalog saved = new()
+        {
+            IsAdministratorConfigured = true,
+            Environments =
+            [
+                new GovernanceEnvironmentDefinition
+                {
+                    Slug = "draft",
+                    DisplayName = "Draft",
+                    SortOrder = 0,
+                    IsActive = true,
+                },
+                new GovernanceEnvironmentDefinition
+                {
+                    Slug = "approved",
+                    DisplayName = "Approved",
+                    SortOrder = 1,
+                    IsActive = true,
+                },
+            ],
+            Transitions =
+            [
+                new GovernanceEnvironmentTransition { SourceSlug = "draft", TargetSlug = "approved" },
+            ],
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+
+        Mock<IGovernanceEnvironmentCatalogService> catalogService = new();
+        catalogService
+            .Setup(service => service.GetCatalogAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(saved);
+        catalogService
+            .Setup(service => service.ReplaceCatalogAsync(It.IsAny<ReplaceGovernanceEnvironmentCatalogRequest>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        GovernanceEnvironmentCatalogController controller = new(
+            scopeProvider.Object,
+            catalogService.Object,
+            auditService.Object,
+            TenantExistsRepository())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        ReplaceGovernanceEnvironmentCatalogRequest exactMatch = ValidReplaceRequest();
+        ReplaceGovernanceEnvironmentCatalogRequest casingVariant = new()
+        {
+            Environments =
+            [
+                new GovernanceEnvironmentDefinition
+                {
+                    Slug = "draft",
+                    DisplayName = "draft",
+                    SortOrder = 0,
+                    IsActive = true,
+                },
+                new GovernanceEnvironmentDefinition
+                {
+                    Slug = "approved",
+                    DisplayName = "approved",
+                    SortOrder = 1,
+                    IsActive = true,
+                },
+            ],
+            Transitions = exactMatch.Transitions,
+        };
+
+        await controller.Replace(exactMatch, CancellationToken.None);
+        await controller.Replace(casingVariant, CancellationToken.None);
+
+        auditService.Verify(
+            service => service.LogAsync(
+                It.Is<AuditEvent>(auditEvent => auditEvent.EventType == AuditEventTypes.GovernanceEnvironmentCatalogReplaced),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static ReplaceGovernanceEnvironmentCatalogRequest ValidReplaceRequest() => new()
     {
         Environments =

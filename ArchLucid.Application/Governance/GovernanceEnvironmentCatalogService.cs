@@ -147,7 +147,7 @@ public sealed class GovernanceEnvironmentCatalogService(
             GovernanceEnvironmentDefinition rightEnvironment = normalizedRight.Environments[index];
 
             if (!string.Equals(leftEnvironment.Slug, rightEnvironment.Slug, StringComparison.OrdinalIgnoreCase)
-                || !string.Equals(leftEnvironment.DisplayName, rightEnvironment.DisplayName, StringComparison.Ordinal)
+                || !string.Equals(leftEnvironment.DisplayName, rightEnvironment.DisplayName, StringComparison.OrdinalIgnoreCase)
                 || leftEnvironment.SortOrder != rightEnvironment.SortOrder
                 || leftEnvironment.IsActive != rightEnvironment.IsActive)
             {
