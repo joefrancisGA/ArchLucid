@@ -3418,11 +3418,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 226
-- **bugs-found:** 445
+- **hunts:** 227
+- **bugs-found:** 446
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — merge-conflict resolve audit emits canonical finding id
+- **last-bug:** 2026-09-05 — policy-pack assign operator retry duplicate assignment
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4502,9 +4502,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-05 seed hunt #827 (seed-only): reseeded post-#826 read-path waiver/disposition parity and create idempotency candidates; cheap-disproved merge-conflict ordinal removal miss from #822 seed.
 
-- [ ] (candidate) `GovernanceStickinessController.RenewRiskException` / `RiskExceptionService.RenewAsync` — operator retry of the same in-scope renew POST (comment `idempotency-posture: operator-documented-safe-retry`, no `[IdempotencyFilter]`) re-applies `IRiskExceptionRepository.RenewAsync` and logs a second `RiskExceptionRenewed` audit while `RevokeRiskException` now returns HTTP 409 on duplicate lifecycle (#570) — identical `ExpiresAtUtc`/`rationale` retry extends waiver expiry twice instead of returning the prior row.
-- [ ] (candidate) `GovernanceController.RecordGovernanceMutationCorrection` / `GovernanceMutationCorrectionService.RecordAsync` — network retry of the same correction body allocates a fresh `correctionId` (`Guid.NewGuid()` at line 143) and appends another `GovernanceMutationCorrectionRecorded` audit row because the route lacks `[IdempotencyFilter]` / `GovernanceIdempotencyKeySupport.ReadRequired` unlike `RecordDisposition` / `RecordBulkDisposition` — duplicate audit corrections for one operator intent.
-- [ ] (candidate) `PolicyPacksController.Assign` / `PolicyPackAssignStage.AssignAsync` — operator retry after HTTP timeout creates a second `PolicyPackAssignment` (`AssignmentId = Guid.NewGuid()`, `assignmentRepository.CreateAsync`) for the same pack/version/scope because assign is `operator-documented-safe-retry` with no duplicate-assignment guard — effective governance may double-count the pack at the same scope tier.
+- [x] (proven) `PolicyPacksController.Assign` / `PolicyPackAssignStage.AssignAsync` — operator retry after HTTP timeout created a second `PolicyPackAssignment` (`AssignmentId = Guid.NewGuid()`, `assignmentRepository.CreateAsync`) for the same pack/version/scope because assign is `operator-documented-safe-retry` with no duplicate-assignment guard — effective governance could double-count the pack at the same scope tier — **hit 2026-09-05 (#833):** return existing non-archived assignment when pack/version/scope/pin/org-required/enabled match; regression in `PolicyPackAssignStageTests.AssignAsync_returns_existing_assignment_when_identical_pack_version_scope_retry`.
+- [x] (invalid) `GovernanceStickinessController.RenewRiskException` / `RiskExceptionService.RenewAsync` — identical `ExpiresAtUtc`/`rationale` retry extends waiver expiry twice — **cheap-disproof 2026-09-05 (#833):** `SqlRiskExceptionRepository.RenewAsync` SETs `ExpiresAtUtc` (does not accumulate); identical retry is a no-op at persistence layer; duplicate `RiskExceptionRenewed` audit remains possible under `operator-documented-safe-retry` posture (#829 create sibling).
+- [x] (invalid) `GovernanceController.RecordGovernanceMutationCorrection` / `GovernanceMutationCorrectionService.RecordAsync` — network retry allocates fresh `correctionId` and appends another audit row — **cheap-disproof 2026-09-05 (#833):** append-only correction log by design (`AUDIT_COVERAGE_MATRIX.md`); each correction is an immutable audit event, not a state mutation requiring `IdempotencyFilter` (#829 posture family).
+
+2026-09-05 thorough hunt #833 (hit): proved policy-pack assign idempotent retry guard; cheap-disproved renew cumulative-expiry and mutation-correction duplicate-audit candidates.
+
+- [ ] (candidate) `GovernanceStickinessController.RenewRiskException` / `RiskExceptionService.RenewAsync` — operator retry logs duplicate `RiskExceptionRenewed` audit without `IdempotencyFilter` (#570 revoke lifecycle parity lens; narrowed after #833 cheap-disproof of cumulative-expiry claim).
 - [x] (proven) `GovernanceStickinessController.ResolveFindingMergeConflict` / `GovernanceStickinessFacade.TryResolveFindingMergeConflictAsync` — route `findingId` differing only by casing from inspect canonical id resolved via case-insensitive snapshot lookup (#819) but audit `FindingMergeConflictResolved` JSON emitted keyboard route casing while disposition/waiver/mutation-correction paths persist canonical ids (#820/#824) — **hit 2026-09-05 (#832):** inspect canonical `FindingId` in audit payload after successful resolve; regression in `GovernanceStickinessFacadeScopeTests.TryResolveFindingMergeConflictAsync_logs_canonical_finding_id_when_route_differs_only_by_casing`.
 
 2026-09-05 thorough hunt #832 (hit): proved merge-conflict resolve audit finding-id casing parity; three idempotency-posture retry candidates remain open.
