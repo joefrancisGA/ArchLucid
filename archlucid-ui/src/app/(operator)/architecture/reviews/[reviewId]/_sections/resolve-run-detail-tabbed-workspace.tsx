@@ -345,6 +345,7 @@ export function resolveRunDetailTabbedWorkspace(
             </Link>
           </p>
           <RunDetailLastFailureCardDeferred
+            runId={m.resolvedDetail.run.runId}
             summary={resolveRunDetailLastFailureSummary(m.resolvedDetail)}
             legacyRunStatus={
               (m.resolvedDetail.run as { legacyRunStatus?: string | null }).legacyRunStatus ?? null

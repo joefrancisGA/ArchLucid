@@ -133,6 +133,7 @@ export function RunDetailCreateHomeActivityPanel(props: RunDetailCreateHomeActiv
         </p>
         <div id="review-failure-details" className="scroll-mt-24">
           <RunDetailLastFailureCard
+            runId={props.runId}
             summary={props.lastFailureSummary ?? null}
             legacyRunStatus={props.legacyRunStatus ?? null}
             failureRecordedAtUtc={props.failureRecordedAtUtc ?? null}

@@ -182,6 +182,7 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
       {buyerFinalizedPackage ? null : showGovernanceCtaCard ? governanceCtaEl : null}
 
       <RunDetailLastFailureCardDeferred
+        runId={m.resolvedDetail.run.runId}
         summary={resolveRunDetailLastFailureSummary(m.resolvedDetail)}
         legacyRunStatus={(m.resolvedDetail.run as { legacyRunStatus?: string | null }).legacyRunStatus ?? null}
       />
