@@ -4,6 +4,7 @@
      casual evaluator.      Wave 7 after CD-01–15 and AD-01–12.
      Grounded in the founding contract (R4 / R13) leftovers AD does not own.
      Wave 8: instrument-spine-00-index.md (IS-01–15) — load-bearing bets.
+     Wave 9: livelihood-spine-00-index.md (LS-01–12).
      Do not implement from this index. -->
 
 # Founding-desk mitigations — Composer prompt set (FD-01–FD-13)
@@ -103,3 +104,4 @@ Prefer **01** first (meeting elicitation). Then **02 / 07 / 13** (chip / clipboa
 Summarize: files changed, tests run, residual risk, Working vs Guided behavior, whether the **product spine** still works without that prompt. Do not mark LI, LD, RS, WA, CD, or AD as undone.
 
 **Wave 8:** [`instrument-spine-00-index.md`](instrument-spine-00-index.md) (**IS-01–15**). Do not fork FD-01 (meeting loop) or FD-12 (wait copy).
+**Wave 9:** [`livelihood-spine-00-index.md`](livelihood-spine-00-index.md) (**LS-01–12**). Do not fork IS.
