@@ -36,6 +36,14 @@ export type UserPreferencesResponse = {
   findingsShowLowConfidenceEnabledIsExplicit: boolean;
   findingsShowAdvisoryEnabled: boolean;
   findingsShowAdvisoryEnabledIsExplicit: boolean;
+  deskContinuity: DeskContinuityDto;
+  deskContinuityIsExplicit: boolean;
+};
+
+export type DeskContinuityDto = {
+  readonly lastOpenReviewId?: string | null;
+  readonly lastOpenDraftId?: string | null;
+  readonly lastVisitWatermarkUtc?: string | null;
 };
 
 export type SetAppearancePreferenceRequest = {
@@ -78,6 +86,10 @@ export type SetFindingsVisibilityPreferencesRequest = {
   hideGenericEnabled: boolean;
   showLowConfidenceEnabled: boolean;
   showAdvisoryEnabled: boolean;
+};
+
+export type SetDeskContinuityRequest = {
+  continuity: DeskContinuityDto;
 };
 
 export type FindingsVisibilityPreferences = {
@@ -124,6 +136,16 @@ export function defaultUserPreferencesResponse(): UserPreferencesResponse {
     findingsShowLowConfidenceEnabledIsExplicit: false,
     findingsShowAdvisoryEnabled: false,
     findingsShowAdvisoryEnabledIsExplicit: false,
+    deskContinuity: defaultDeskContinuityDto(),
+    deskContinuityIsExplicit: false,
+  };
+}
+
+export function defaultDeskContinuityDto(): DeskContinuityDto {
+  return {
+    lastOpenReviewId: null,
+    lastOpenDraftId: null,
+    lastVisitWatermarkUtc: null,
   };
 }
 

@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useState, type SetStateAction } from "react";
 
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorHomeFeaturedSamplePickerDialog } from "@/components/operator-home/OperatorHomeFeaturedSamplePickerDialog";
@@ -16,6 +17,10 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_LINK, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { featuredCompletedSampleReviewHref } from "@/lib/fetch-tenant-homepage-settings-client";
+import {
+  operatorHomeSamplePickerHrefFromSearch,
+  parseOperatorHomeSamplePickerOpenFromSearch,
+} from "@/lib/operator-home/operator-home-sample-picker-url";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { resolveOperatorHomeCompletedSampleFallback } from "@/lib/resolve-operator-home-completed-sample-fallback";
 import { OPERATOR_HOME_OPENING_COMPLETED_REVIEW_LABEL } from "@/lib/review-start-progress-copy";
@@ -34,7 +39,34 @@ export function OperatorHomeCompletedSampleAction(
 ): React.JSX.Element {
   const sampleQuery = useFeaturedCompletedSampleQuery();
   const callerAuthorityRank = useNavCallerAuthorityRank();
-  const [pickerOpen, setPickerOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const samplePickerOpenParam = searchParams.get("samplePickerOpen");
+  const [pickerOpen, setPickerOpenState] = useState(() =>
+    parseOperatorHomeSamplePickerOpenFromSearch(samplePickerOpenParam),
+  );
+
+  const syncSamplePickerOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(operatorHomeSamplePickerHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPickerOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setPickerOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncSamplePickerOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncSamplePickerOpenToUrl],
+  );
 
   const canChooseSample = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const sample = sampleQuery.data;

@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useState, type SetStateAction } from "react";
 
 import { LlmBudgetUtilizationMeter } from "@/components/llm/LlmBudgetUtilizationMeter";
 import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
@@ -19,6 +20,10 @@ import {
 import { resolveEnterpriseStatusKind } from "@/lib/enterprise-status-kind-resolver";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
+import {
+  llmBudgetStatusPillHrefFromSearch,
+  parseLlmBudgetStatusPillOpenFromSearch,
+} from "@/lib/llm/llm-budget-status-pill-url";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 import { enterpriseStatusTagClass, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -64,9 +69,34 @@ function isOperatorShellAuthenticated(): boolean {
 
 /** Compact UTC-month LLM budget indicator for the operator shell top bar. */
 export function LlmBudgetStatusPill() {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const llmBudgetOpenParam = searchParams.get("llmBudgetOpen");
   const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
   const callerAuthorityRank = useNavCallerAuthorityRank();
-  const [open, setOpen] = useState(false);
+  const [open, setOpenState] = useState(() => parseLlmBudgetStatusPillOpenFromSearch(llmBudgetOpenParam));
+
+  const syncLlmBudgetOpenToUrl = useCallback(
+    (popoverOpen: boolean) => {
+      router.replace(llmBudgetStatusPillHrefFromSearch(searchParams.toString(), popoverOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncLlmBudgetOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncLlmBudgetOpenToUrl],
+  );
   const queryEnabled =
     concernFetchEnabled &&
     isOperatorShellAuthenticated() &&

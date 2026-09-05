@@ -168,4 +168,18 @@ public sealed class UserPreferencesResponse
         get;
         set;
     }
+
+    /// <summary>Working desk continuity: last-open review/draft and visit watermark.</summary>
+    public DeskContinuityDto DeskContinuity
+    {
+        get;
+        set;
+    } = DeskContinuityValues.Default;
+
+    /// <summary>True when the user has an explicit stored desk-continuity row.</summary>
+    public bool DeskContinuityIsExplicit
+    {
+        get;
+        set;
+    }
 }
