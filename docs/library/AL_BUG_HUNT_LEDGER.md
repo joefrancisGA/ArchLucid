@@ -3409,11 +3409,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 212
-- **bugs-found:** 434
+- **hunts:** 213
+- **bugs-found:** 435
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — digest enable-only schedule/timezone reset
+- **last-bug:** 2026-09-05 — RecordDisposition route/body findingId mismatch
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4447,6 +4447,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `TenantExecDigestPreferencesController` / `TenantSponsorDigestPreferencesController` lack workspace scope preflight — **cheap-disproof 2026-09-05:** digest prefs are tenant-wide (`GetByTenantAsync`); tenant-scoped weekly delivery intentionally uses primary workspace per ledger #489; unlike workspace-scoped homepage/health reads.
 
 2026-09-05 seed hunt #816 (hit): proved digest enable-only schedule/timezone silent reset; cheap-disproved disable explicit-schedule clobber and digest workspace-preflight candidates.
+
+- [x] (proven) `GovernanceStickinessController.RecordDisposition` — body `findingId` differing from route `findingId` returned HTTP 200 and recorded disposition for route finding only — **hit 2026-09-05 (#817):** `ValidateRecordDispositionRouteFindingId` rejects mismatch before facade call (#571 runId authority parity); regressions in `RecordDisposition_returns_bad_request_when_body_finding_id_differs_from_route` and `ValidateRecordDispositionRouteFindingId_rejects_body_finding_id_mismatch`.
+- [x] (invalid) `GovernanceStickinessController.CreateRecurrenceSchedule` omitted `name`/`cronExpression` apply initializer defaults — **cheap-disproof 2026-09-05:** create semantics mirror cheap-disproved Promote/Activate environment defaults (#778); whitespace-only rejected (#783).
+- [x] (invalid) `GovernancePreCommitSimulationController.SimulateAsync` omitted `syntheticSeverity` defaults to Warning — **cheap-disproof 2026-09-05:** dry-run initializer defaults intentional; enum ordering before tenant preflight fixed (#727).
+- [x] (invalid) `GovernancePreviewController.Preview` omitted `environment` defaults to dev — **cheap-disproof 2026-09-05:** same intentional omission pattern as #778.
+
+2026-09-05 seed hunt #817 (hit): proved RecordDisposition route/body findingId silent mismatch; cheap-disproved recurrence/pre-commit/preview omission-default candidates.
 
 2026-09-04 seed hunt #787 (hit): proved disposition inapplicable optional string silent drop beyond whitespace-only cases.
 
