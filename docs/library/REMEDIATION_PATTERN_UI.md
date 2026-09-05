@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — operate UI for governed remediation pattern lifecycle (IE-14).
+
 # Remediation pattern UI (IE-14)
 
 Operate surface for governed remediation pattern lifecycle.
