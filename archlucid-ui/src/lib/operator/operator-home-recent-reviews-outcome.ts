@@ -8,15 +8,16 @@ import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
 import { isShowcaseSampleOfAnyKind } from "@/lib/demo-run-canonical";
 import type { OperatorHomeWorkspaceMetricsSnapshot } from "@/lib/operator/operator-home-workspace-metrics";
 import type { RunSummary } from "@/types/authority";
-import { projectReviewLifecycleForDisplay } from "@/lib/vocabulary/project-review-lifecycle-for-display";
 
 export type FormatOperatorHomeRecentReviewsOutcomeOptions = {
   /** Demo/seeded or static showcase rows only — not tenant-authored reviews. */
   readonly exampleReviewOnly?: boolean;
+  /** Featured recent-review rows visible in the preview list. */
+  readonly visibleCount?: number;
 };
 
 /**
- * One-line portfolio outcome for Recent reviews — committed/active counts plus finding/warning pressure.
+ * One-line portfolio outcome for Recent reviews — population, lifecycle, pressure, and preview cap.
  */
 export function formatOperatorHomeRecentReviewsOutcome(
   metrics: OperatorHomeWorkspaceMetricsSnapshot,
@@ -30,33 +31,33 @@ export function formatOperatorHomeRecentReviewsOutcome(
     return "No reviews in this workspace yet.";
   }
 
-  const committed = metrics.reviewPackagesCommitted;
-  const active = metrics.reviewPackagesActive;
-  const packagePart =
-    projectReviewLifecycleForDisplay({
-      committedRunsInScope: committed,
-      activeRunsInScope: active,
-    }).committedRunsInScopeLabel ?? `${committed} finalized`;
+  const parts: string[] = [];
+  const total = metrics.reviewPackagesTotal;
+  parts.push(`${total} review${total === 1 ? "" : "s"}`);
 
-  const pressureParts: string[] = [];
+  if (metrics.reviewPackagesCommitted > 0) {
+    parts.push(`${metrics.reviewPackagesCommitted} finalized`);
+  }
+
+  if (metrics.reviewPackagesActive > 0) {
+    parts.push(`${metrics.reviewPackagesActive} active`);
+  }
 
   if (metrics.openFindings > 0) {
-    pressureParts.push(
-      `${metrics.openFindings} open finding${metrics.openFindings === 1 ? "" : "s"}`,
-    );
+    parts.push(`${metrics.openFindings} open finding${metrics.openFindings === 1 ? "" : "s"}`);
+  } else {
+    parts.push("no open findings");
   }
 
   if (metrics.governanceWarnings > 0) {
-    pressureParts.push(
-      `with ${formatOperatorHomeApprovalCheckWarningCount(metrics.governanceWarnings)}`,
-    );
+    parts.push(`with ${formatOperatorHomeApprovalCheckWarningCount(metrics.governanceWarnings)}`);
   }
 
-  if (pressureParts.length === 0) {
-    return `${packagePart} · no open findings`;
+  if (options?.visibleCount !== undefined) {
+    parts.push(`showing ${options.visibleCount}`);
   }
 
-  return `${packagePart} · ${pressureParts.join(" · ")}`;
+  return parts.join(" · ");
 }
 
 /** True when every list row is a demo/seeded inject or the static showcase sample. */

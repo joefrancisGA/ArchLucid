@@ -20,3 +20,5 @@ export const OPERATOR_HOME_SETUP_READINESS_HREF =
   `${FIRST_REVIEW_GUIDE_PATH}#${ONBOARDING_OPTIONAL_SETUP_HEADING_ID}` as const;
 
 export const OPERATOR_HOME_ARCHITECTURE_PACKAGES_HREF = reviewsHubInventoryFilterHref("Active");
+
+export const OPERATOR_HOME_FINALIZED_PACKAGES_HREF = reviewsHubInventoryFilterHref("finalized");
