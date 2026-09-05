@@ -3298,11 +3298,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 14
-- **bugs-found:** 23
+- **hunts:** 15
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — async execute/replay and submit-result whitespace runId 404 parity
+- **last-hunt:** 2026-09-05
+- **last-bug:** 2026-09-05 — export history whitespace runId 404 parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3333,7 +3333,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `ConfluencePublishingAdminController` body `RunId` whitespace → 400 — explicit required publish field, not `{runId}` route parity pattern.
 - [x] (proven) `RunsController.ExecuteRunAsync` / `ReplayRunAsync` — whitespace `runId` returned 400 via `AuthorityRunProblemLadder` (`ParseRunId` `ArgumentException`) while sync `ExecuteRun`/`ReplayRun` returned 404 — **hit 2026-09-04 (#745):** `NotFoundWhenRunRouteIdInvalid` preflight; regression in `ExecuteRunAsync_returns_not_found_for_whitespace_run_id_like_ExecuteRun` and `ReplayRunAsync_returns_not_found_for_whitespace_run_id_like_ReplayRun`.
 - [x] (proven) `RunsController.SubmitAgentResult` — whitespace `runId` returned 400 (`RunId is required`) while sibling `PinRun` returned 404 — **hit 2026-09-04 (#745):** `NotFoundWhenRunRouteIdInvalid` preflight; regression in `SubmitAgentResult_returns_not_found_for_whitespace_run_id_like_PinRun`.
-- [ ] (candidate) `ExportsController.GetRunExportHistory` — whitespace `runId` may throw from `GetRunDetailAsync` `ThrowIfNullOrWhiteSpace` instead of mapping to 404 like export siblings.
+- [x] (proven) `ExportsController.GetRunExportHistory` — whitespace `runId` threw from `GetRunDetailAsync` `ThrowIfNullOrWhiteSpace` instead of mapping to 404 like export siblings — **hit 2026-09-05 (#798):** `RunExportQueryFacade.GetRunExportHistoryAsync` now rejects invalid route ids via `AuthorityRunIdentifier.TryParse` before detail load; regressions in `GetRunExportHistoryAsync_returns_run_not_found_for_whitespace_run_id_without_calling_detail_query` and `GetRunExportHistory_returns_not_found_for_whitespace_run_id_like_export_siblings`.
+
+2026-09-05 thorough hunt #798: proved export history whitespace runId 404 parity.
 
 2026-09-04 thorough hunt #745: closed three stale invalid hypotheses from #744; proved async execute/replay ladder 400 parity and submit-result whitespace 404 gap; seeded export-history candidate.
 
