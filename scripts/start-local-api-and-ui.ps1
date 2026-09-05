@@ -8,6 +8,8 @@
 #
 # Port reference:
 #   Native dev (default): API 5128, UI 3000 — archlucid-ui/.env.local ARCHLUCID_API_BASE_URL=http://localhost:5128
+#   UI spawn sets NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV=true and NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator
+#   so the Internal sidebar is always visible for local engineer shells (independent of appsettings.Pilot.json).
 #   Docker demo stack:    API 5000, UI 3000 — use docker-compose.demo.yml / demo-start-local.ps1
 #
 # Prerequisites:
@@ -258,8 +260,8 @@ if (-not (Wait-HttpStatus -Uri $apiReadyUrl -TimeoutSec 120)) {
 Write-Host "API is ready." -ForegroundColor Green
 
 if (-not $script:SkipUiSpawn) {
-    Write-Host "Starting UI in a new window (npm run dev)..." -ForegroundColor Cyan
-    $uiCmd = "Set-Location -LiteralPath '$UiRoot'; npm run dev"
+    Write-Host "Starting UI in a new window (npm run dev, Internal nav enabled)..." -ForegroundColor Cyan
+    $uiCmd = Get-LocalUiWindowCommand -UiRoot $UiRoot
     Start-Process -FilePath "powershell.exe" -ArgumentList @("-NoExit", "-Command", $uiCmd) | Out-Null
 }
 
