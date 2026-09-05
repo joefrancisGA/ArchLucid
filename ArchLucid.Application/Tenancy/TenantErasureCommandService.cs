@@ -127,6 +127,9 @@ public sealed class TenantErasureCommandService(
         if (requireErasureQuarantine && tenant.OffboardedUtc is null)
             return false;
 
+        if (IsIdenticalLegalHoldRetry(tenant, untilUtc, reason))
+            return true;
+
         DateTimeOffset utcNow = _timeProvider.GetUtcNow();
 
         DateTimeOffset? priorUntil = tenant.LegalHoldUntilUtc;
@@ -171,8 +174,11 @@ public sealed class TenantErasureCommandService(
     {
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
 
-        if (tenant is null || tenant.OffboardedUtc is null || tenant.TenantErasureApprovedUtc is not null)
+        if (tenant is null || tenant.OffboardedUtc is null)
             return false;
+
+        if (tenant.TenantErasureApprovedUtc is not null)
+            return true;
 
         DateTimeOffset now = _timeProvider.GetUtcNow();
 
@@ -223,6 +229,15 @@ public sealed class TenantErasureCommandService(
             cancellationToken);
 
         return true;
+    }
+
+    private static bool IsIdenticalLegalHoldRetry(TenantRecord tenant, DateTimeOffset untilUtc, string? reason)
+    {
+        if (tenant.LegalHoldUntilUtc is null)
+            return false;
+
+        return tenant.LegalHoldUntilUtc == untilUtc
+            && string.Equals(tenant.LegalHoldReason, reason, StringComparison.Ordinal);
     }
 
     private Task AppendPlatformAuditAsync(
