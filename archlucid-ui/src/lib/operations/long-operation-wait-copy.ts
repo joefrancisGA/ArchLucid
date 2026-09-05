@@ -14,7 +14,7 @@ export const LONG_OPERATION_QUEUE_STATUS_REFRESH_HINT =
 
 /** Lets operators leave the review detail page without losing visibility into pipeline state. */
 export const LONG_OPERATION_HOME_PAGE_STATUS_HINT =
-  "Return to Overview if you want to keep working — this review's status stays on your home page.";
+  "Return to Home if you want to keep working — this review's status stays on your home page.";
 
 export type LongOperationEscalationLevel = "quiet" | "after10s" | "after30s" | "timeoutHint";
 

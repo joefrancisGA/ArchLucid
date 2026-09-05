@@ -133,7 +133,7 @@ vi.mock("@/app/(operator)/_sections/operator-home-page-view-deferred-chunks", as
     );
 
     return (
-      <section aria-label="Overview command center" data-testid="operator-home-hero-section">
+      <section aria-label="Home command center" data-testid="operator-home-hero-section">
         <PilotCommandCenterCard
           suppressLeadCopy
           showContextualHelp={false}

@@ -55,7 +55,7 @@ describe("re-run-review-wait-copy", () => {
     expect(copy.detail).toContain("Server last signaled 50s ago");
     expect(copy.queueStatusStageLabel).toBe("Running agents");
     expect(copy.statusRefreshHint).toContain("every 10 seconds");
-    expect(copy.homePageHint).toContain("Overview");
+    expect(copy.homePageHint).toContain("Home");
     expect(copy.level).toBe("after10s");
     expect(copy.stalled).toBe(false);
   });

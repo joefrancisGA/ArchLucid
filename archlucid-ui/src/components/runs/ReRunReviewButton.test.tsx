@@ -76,7 +76,7 @@ describe("ReRunReviewButton", () => {
       expect(screen.getByTestId("re-run-review-queue-status")).toHaveTextContent(
         "Queue status: Compliance agent running",
       );
-      expect(screen.getByTestId("re-run-review-home-page-status-hint")).toHaveTextContent(/Overview/i);
+      expect(screen.getByTestId("re-run-review-home-page-status-hint")).toHaveTextContent(/Home/i);
     });
   });
 
