@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 176
-- **bugs-found:** 408
+- **hunts:** 177
+- **bugs-found:** 416
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — DiskAccessKey/WebAccessKey redaction, need-not-enforce/configure/is-not-necessary-for negation, advice ought-not-need suffix
+- **last-bug:** 2026-09-05 — ManageAccessKey/DfsAccessKey redaction, need-not-apply/provision and should/shall-not-need negation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2404,6 +2404,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `ought not need` suffix gap — **hit 2026-09-05 (#904):** #903 added `ought not require` suffix only; missed trailing `ought not need` on imperative regex matches; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_ought_not_need_suffix_phrasing`).
 
 2026-09-05 seed hunt #904 (hit): reseeded after #903 closure; proved seven hunt-ready rows — DiskAccessKey/WebAccessKey redaction parity, need-not-enforce/configure/is-not-necessary-for constraint negation, and advice ought-not-need suffix.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ManageAccessKey` not redacted — **hit 2026-09-05 (#905):** compound access-key class after #904; embedded `AccessKey`/`accesskey` fragment guard skipped `ManageAccessKey`/`manageaccesskey`; fixed with explicit credential detection (`Resolve_redacts_manage_access_key_config_path`, `IsSensitiveKey_detects_manage_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DfsAccessKey` not redacted — **hit 2026-09-05 (#905):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_dfs_access_key_config_path`, `IsSensitiveKey_detects_dfs_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — `need not apply` prefix negation gap — **hit 2026-09-05 (#905):** prefix list had `need not configure`/`need not enforce` only; missed leading `need not apply {token}`; fixed with prefix negation guard (`HasEncryptionConstraint_does_not_false_positive_on_need_not_apply_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — `need not provision` prefix negation gap — **hit 2026-09-05 (#905):** same prefix family; fixed with prefix negation guard (`HasEncryptionConstraint_does_not_false_positive_on_need_not_provision_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `should not need` negation gap — **hit 2026-09-05 (#905):** #904 added `should not require` only; missed prohibitive `should not need {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_should_not_need_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `shall not need` negation gap — **hit 2026-09-05 (#905):** same mid-sentence family; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_shall_not_need_encryption_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `should not need` suffix gap — **hit 2026-09-05 (#905):** #904 added `ought not need` suffix only; missed trailing `should not need` on imperative regex matches; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_should_not_need_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `shall not need` suffix gap — **hit 2026-09-05 (#905):** same imperative suffix family; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_shall_not_need_suffix_phrasing`).
+
+2026-09-05 seed hunt #905 (hit): reseeded after #904 closure; proved eight hunt-ready rows — ManageAccessKey/DfsAccessKey redaction parity, need-not-apply/provision and should/shall-not-need constraint negation, and advice should/shall-not-need suffix.
 
 2026-09-05 seed hunt #889: reseeded after #888 closure; proved anchor null-object/property-name trim, mid-sentence constraint negation, and Secretizer/Passwordizer redaction parity.
 2026-09-05 seed hunt #888: reseeded after #887 closure; proved ConnectionStringless config redaction, ARM key+free suffix parity, and anchor null array/string coercion.
