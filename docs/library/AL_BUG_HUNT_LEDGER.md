@@ -1847,11 +1847,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 9
-- **bugs-found:** 9
+- **hunts:** 10
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — cross-run diff engines returned zero findings when prior run was bound but revision data was missing
+- **last-hunt:** 2026-09-05
+- **last-bug:** 2026-09-05 — cross-run diff engines suppressed expansion findings when prior revision was empty
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1873,6 +1873,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RequirementCrossRunDiffFindingEngine` / `TopologyCrossRunDiffFindingEngine` with `PriorRunId` set but no prior graph snapshot id and no context prior-name properties — **hit 2026-09-04 (#712):** analyzers returned zero findings instead of failing closed; added `CrossRunDiffFindingPriorGuard.EnsurePriorRevisionResolvableOrThrow`; regression `AnalyzeAsync_when_prior_run_bound_without_revision_data_throws`
 - [x] (valid-no-repro) `DecisionRuleCriteriaEvaluator.TryEvaluate` value mismatch on present field paths — criteria act as a match filter; missing fields warn, value mismatch silently skips the rule by design; regression `TryEvaluate_when_criteria_value_mismatches_present_field_returns_false_without_missing_paths`
 - [x] (valid-no-repro) `PolicyPackCategoryCoverageValidator.GetMissingCategoryViolations` engine-type substring heuristic — built-in engines with `security` in `EngineType` are Security-category engines; successful invocation satisfies coverage intentionally; regression `GetMissingCategoryViolations_treats_successful_security_engine_type_as_security_coverage`
+- [x] (proven) `RequirementCrossRunDiffFindingEngine` / `TopologyCrossRunDiffFindingEngine` returned zero findings when prior graph loaded but prior revision was empty while current graph expanded — **hit 2026-09-05 (#810 seed):** early `Prior*Names/Categories.Count == 0` guard suppressed Info expansion findings; removed guard; regressions `AnalyzeAsync_when_prior_graph_has_no_requirements_but_current_expands_emits_info_coverage_finding` and topology twin
+- [x] (proven) `PolicyPackCategoryCoverageValidator` omitted topology engine-type inference — **hit 2026-09-05 (#810 seed):** clean `topology-structure` runs false-failed `RequiredFindingCategories` Topology coverage; added topology substring credit; regression `GetMissingCategoryViolations_treats_successful_topology_engine_type_as_topology_coverage`
+- [x] (proven) `SecurityDeltaRegressionClassifier` ranked `gap` before `planned` and treated remediation phrases as worst-tier regression — **hit 2026-09-05 (#810 seed):** Compliant→`Gap remediation planned` fired false compliance alerts; rank planned/remediation phrases before bare `gap`; regression `IsRegression_gap_remediation_planned_from_compliant_is_not_regression`
+- [x] (proven) `FindingSnapshotMergeKey.FromFinding` used case-sensitive `PolicyRuleId` — **hit 2026-09-05 (#810 seed):** `SEC-01` vs `sec-01` duplicated ADR-0063 merge keys; lowercased policy rule id segment; regression `Merge_joins_policy_rule_ids_case_insensitively`
+- [ ] (candidate) `DeclarationPremiseConflictClassifier.ContainsAnyPhrase` — leading `"No {phrase}"` prohibitive intent (e.g. `"No private network required"`) may still match affirmative conflict phrases; negation suffix list covers `"No requirement to …"` / `"Do not …"` but not bare leading `"No …"`
+
+2026-09-05 seed hunt #810 (hit): reseeded from zone files; proved empty-prior cross-run expansion suppression, topology category coverage false-fail, gap/planned security delta regression noise, and case-sensitive policy-rule merge keys.
 
 2026-09-04 thorough hunt #712: proved cross-run prior-revision fail-open gap; cheap-disproof on criteria value-mismatch warnings and security substring heuristic.
 

@@ -59,4 +59,17 @@ public sealed class SecurityDeltaRegressionClassifierTests
 
         SecurityDeltaRegressionClassifier.IsRegression(delta).Should().BeFalse();
     }
+
+    [Fact]
+    public void IsRegression_gap_remediation_planned_from_compliant_is_not_regression()
+    {
+        SecurityDelta delta = new()
+        {
+            ControlName = "Encryption",
+            BaseStatus = "Compliant",
+            TargetStatus = "Gap remediation planned",
+        };
+
+        SecurityDeltaRegressionClassifier.IsRegression(delta).Should().BeFalse();
+    }
 }
