@@ -45,7 +45,7 @@ describe("formatOperatorHomeRecentReviewsOutcome", () => {
     );
   });
 
-  it("summarizes committed packages with no open findings", () => {
+  it("summarizes population, lifecycle, and preview cap with no open findings", () => {
     const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
       reviewPackagesTotal: 4,
       reviewPackagesCommitted: 3,
@@ -56,8 +56,8 @@ describe("formatOperatorHomeRecentReviewsOutcome", () => {
       hasReviews: true,
     };
 
-    expect(formatOperatorHomeRecentReviewsOutcome(metrics)).toBe(
-      "3 finalized · 1 active · no open findings",
+    expect(formatOperatorHomeRecentReviewsOutcome(metrics, { visibleCount: 2 })).toBe(
+      "4 reviews · 3 finalized · 1 active · no open findings · showing 2",
     );
   });
 
@@ -72,8 +72,9 @@ describe("formatOperatorHomeRecentReviewsOutcome", () => {
       hasReviews: true,
     };
 
-    expect(formatOperatorHomeRecentReviewsOutcome(metrics)).toBe(
-      "2 finalized · 1 active · 6 open findings · with 1 Approval-check warning",
+    expect(formatOperatorHomeRecentReviewsOutcome(metrics, { visibleCount: 2 })).toBe(
+      "3 reviews · 2 finalized · 1 active · 6 open findings · with 1 Approval-check warning · showing 2",
+    );
     );
   });
 

@@ -9,6 +9,8 @@ import {
   formatMetricCountScopeLabel,
   reviewFindingsGovernanceQueuePresentation,
   workspaceOpenFindingsPresentation,
+  operatorHomeActiveReviewsPresentation,
+  operatorHomeFinalizedPackagesPresentation,
 } from "@/lib/metric-count-presentation";
 
 function sampleRow(
@@ -35,6 +37,16 @@ describe("metric-count-presentation", () => {
     expect(formatMetricCountScopeLabel(presentation.dimensions)).toBe("workspace · open");
     expect(formatMetricCountHeadline(presentation)).toBe("12 open findings · workspace · open");
     expect(presentation.href).toBe("/governance/findings?filter=open");
+  });
+
+  it("formats operator home review inventory scope labels", () => {
+    const active = operatorHomeActiveReviewsPresentation(2);
+    const finalized = operatorHomeFinalizedPackagesPresentation(3);
+
+    expect(formatMetricCountScopeLabel(active.dimensions)).toBe("workspace · active");
+    expect(formatMetricCountScopeLabel(finalized.dimensions)).toBe("workspace · finalized");
+    expect(active.href).toBe("/architecture/reviews?filter=Active");
+    expect(finalized.href).toBe("/architecture/reviews?filter=finalized");
   });
 
   it("builds governance queue hrefs with run scope and filter", () => {

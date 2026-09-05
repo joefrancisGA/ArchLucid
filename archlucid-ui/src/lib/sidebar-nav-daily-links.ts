@@ -138,3 +138,11 @@ export function sidebarMoreLinksLabel(groupLabel: string, count: number, expande
 
   return `${count} more${groupSuffix} links`;
 }
+
+/** Collapse label when the secondary nav disclosure is expanded. */
+export function sidebarMoreLinksCollapseLabel(groupLabel: string): string {
+  const trimmedGroupLabel = groupLabel.trim();
+  const groupSuffix = trimmedGroupLabel.length > 0 ? ` ${trimmedGroupLabel}` : "";
+
+  return `Fewer${groupSuffix} links`;
+}

@@ -43,7 +43,8 @@ describe("OperatorHomePageHeader", () => {
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent("Help");
     expect(screen.getByTestId("operator-home-header-actions")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-data-currency")).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-data-currency").textContent).toMatch(/^Refreshed:/);
+    expect(screen.queryByTestId("operator-home-refresh-button")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-header-actions").textContent).not.toMatch(/Refreshed:/);
 
     const updatedValue = screen.getByTestId("operator-home-data-currency").querySelector("strong");
     expect(updatedValue).not.toBeNull();
@@ -51,7 +52,6 @@ describe("OperatorHomePageHeader", () => {
     expect(screen.getByTestId("operator-home-data-currency").textContent?.toLowerCase()).not.toMatch(/\bnow\b/);
 
     expect(screen.getByTestId("operator-home-refresh-button")).toBeInTheDocument();
-    expect(screen.queryByText("Last refreshed:")).toBeNull();
 
     fireEvent.click(screen.getByTestId("operator-home-refresh-button"));
 
