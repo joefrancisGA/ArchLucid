@@ -16,7 +16,7 @@ import { formatVerboseApiFailureMessage } from "@/lib/resolve-api-error-message"
 export const ARCHITECTURE_DRAFT_CLONE_SNAPSHOT_LABEL = "Start a new draft from this snapshot";
 
 type ArchitectureDraftCloneSnapshotControlProps = {
-  readonly architectureId: string;
+  readonly draftId: string;
   readonly testId?: string;
   readonly variant?: "primary" | "outline";
 };
@@ -38,7 +38,7 @@ export function ArchitectureDraftCloneSnapshotControl(
     setBusy(true);
 
     try {
-      const response = await cloneDraftSnapshot(props.architectureId);
+      const response = await cloneDraftSnapshot(props.draftId);
       upsertArchitectureDraftRegistryEntry(
         buildArchitectureDraftRegistryEntry(response.clone, { linkedReviewId: null }),
       );
@@ -50,7 +50,7 @@ export function ArchitectureDraftCloneSnapshotControl(
     } finally {
       setBusy(false);
     }
-  }, [busy, props.architectureId, router]);
+  }, [busy, props.draftId, router]);
 
   const testId = props.testId ?? "architecture-draft-clone-snapshot";
 

@@ -20,7 +20,7 @@ import type { ArchitectureDraftWorkspaceBodyProps } from "./ArchitectureDraftWor
 
 type ArchitectureDraftWorkspaceHeaderChromeProps = Pick<
   ArchitectureDraftWorkspaceBodyProps,
-  | "architectureId"
+  | "draftId"
   | "isDetailDraft"
   | "buyerPolishedShell"
   | "isNewDraft"
@@ -35,7 +35,7 @@ export function ArchitectureDraftWorkspaceHeaderChrome(
   props: ArchitectureDraftWorkspaceHeaderChromeProps,
 ): React.JSX.Element | null {
   const {
-    architectureId,
+    draftId,
     isDetailDraft,
     buyerPolishedShell,
     isNewDraft,
@@ -71,7 +71,7 @@ export function ArchitectureDraftWorkspaceHeaderChrome(
                   <InlineGuidanceText
                     text={resolveArchitectureDraftRefineGuidanceSentence(reviewReadiness.isValid)}
                   />{" "}
-                  {resolveArchitectureDraftAutosaveSentence(!isNewDraft && architectureId.trim().length > 0)}
+                  {resolveArchitectureDraftAutosaveSentence(!isNewDraft && draftId.trim().length > 0)}
                 </>
               ) : (
                 workspaceLead
@@ -96,7 +96,7 @@ export function ArchitectureDraftWorkspaceHeaderChrome(
           <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
             <PageContextualHelpButton />
             <ArchitectureDraftDeleteControl
-              architectureId={architectureId}
+              draftId={draftId}
               displayName={workspaceHeading}
               linkedReviewId={linkedReviewId}
               serverStatus={draft?.status ?? null}

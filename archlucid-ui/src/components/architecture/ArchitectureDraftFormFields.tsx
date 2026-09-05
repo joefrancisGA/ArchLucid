@@ -41,7 +41,7 @@ type ArchitectureDraftFormFieldsProps = {
   readonly onFieldsChange: Dispatch<SetStateAction<ArchitectureDraftFieldState>>;
   readonly onActorSetChange: (actorSet: ActorSet) => void;
   readonly actorSuggestionGateRequestId?: number;
-  readonly architectureId?: string;
+  readonly draftId?: string;
   readonly onActorSuggestionsUnresolvedChange?: (unresolved: boolean) => void;
 };
 
@@ -57,7 +57,7 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
   const systemNameAvailability = useWorkspaceSystemNameAvailability({
     systemName: props.fields.systemName,
     occupancyKind: "architecture",
-    excludeDraftId: props.architectureId ?? null,
+    excludeDraftId: props.draftId ?? null,
     enabled: props.disabled !== true,
     minTrimmedLength: 1,
   });
@@ -184,7 +184,7 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
         businessOutcome={props.fields.businessOutcome}
         disabled={props.disabled === true}
         blocksLlmExecution={props.blocksLlmExecution === true}
-        architectureId={props.architectureId}
+        architectureId={props.draftId}
         markReviewReadinessInvalid={markInvalid}
         onBriefConfirmOrDeny={() => {
           setBriefConfirmOrDenyCount((current) => current + 1);

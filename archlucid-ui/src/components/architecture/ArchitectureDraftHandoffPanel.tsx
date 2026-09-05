@@ -14,7 +14,7 @@ export const ARCHITECTURE_DRAFT_HANDOFF_LOCK_SENTENCE =
   "This architecture was handed off to a review. The draft stays read-only so the sealed record matches what you started.";
 
 type ArchitectureDraftHandoffPanelProps = {
-  readonly architectureId: string;
+  readonly draftId: string;
   readonly workspaceHeading: string;
   readonly linkedReviewId: string;
   readonly linkedReviewTitle: string;
@@ -67,7 +67,7 @@ export function ArchitectureDraftHandoffPanel(
             >
               <Link href={reviewHref}>Open review — {reviewLabel}</Link>
             </Button>
-            <ArchitectureDraftCloneSnapshotControl architectureId={props.architectureId} variant="outline" />
+            <ArchitectureDraftCloneSnapshotControl architectureId={props.draftId} variant="outline" />
           </div>
 
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
