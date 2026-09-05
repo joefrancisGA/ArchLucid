@@ -49,6 +49,8 @@ public static class DeclarationSecurityPropertyKeyResolver
                 "tf.network_rules",
                 "tf.networkrules",
                 "tf.networkacls",
+                "tf.ipsecurityrestrictions",
+                "tf.ip_security_restrictions",
             ],
         };
 

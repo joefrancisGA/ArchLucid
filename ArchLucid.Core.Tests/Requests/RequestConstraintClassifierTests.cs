@@ -275,6 +275,22 @@ public sealed class RequestConstraintClassifierTests
     }
 
     [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_not_necessary_encryption_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["encryption not necessary for this workload"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasManagedIdentityConstraint_does_not_false_positive_on_no_need_to_managed_identity_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["no need to use managed identity for storage"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
     public void RequiresAiCapability_does_not_false_positive_on_no_ai_capability_phrasing()
     {
         ArchitectureRequest request = CreateRequest(capabilities: ["no-ai inference"]);

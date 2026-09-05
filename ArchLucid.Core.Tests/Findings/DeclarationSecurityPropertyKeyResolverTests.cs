@@ -103,6 +103,25 @@ public sealed class DeclarationSecurityPropertyKeyResolverTests
     }
 
     [Fact]
+    public void TryGet_resolves_tf_ipsecurityrestrictions_for_ingress_blob()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.ipsecurityrestrictions"] = """[{"ipAddress":"0.0.0.0/0","action":"Allow"}]""",
+        };
+
+        bool found = DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.IngressBlob,
+            out string? canonicalKey,
+            out string? value);
+
+        found.Should().BeTrue();
+        canonicalKey.Should().Be("tf.ipsecurityrestrictions");
+        value.Should().Contain("0.0.0.0/0");
+    }
+
+    [Fact]
     public void TryGet_returns_false_for_empty_properties()
     {
         bool found = DeclarationSecurityPropertyKeyResolver.TryGet(

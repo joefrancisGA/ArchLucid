@@ -52,6 +52,24 @@ public sealed class ConfigurationEffectiveValueResolverTests
         v.Should().Be("Sql");
     }
 
+    [Fact]
+    public void Resolve_redacts_private_key_config_paths()
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Trial:LocalIdentity:JwtPrivateKeyPemPath"] = "/secrets/jwt.pem"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            "Trial:LocalIdentity:JwtPrivateKeyPemPath",
+            isSet: true);
+
+        value.Should().Be("***");
+    }
+
     [Theory]
     [InlineData("ArchLucid:PasswordlessAuth:Enabled", "true")]
     [InlineData("ArchLucid:TokenizerModel:Name", "gpt-4.1")]

@@ -19,7 +19,8 @@ internal static class RequestConstraintTokenMatcher
             if (index < 0)
                 return false;
 
-            if (!IsNegatedPhrasePrefix(haystack, index))
+            if (!IsNegatedPhrasePrefix(haystack, index)
+                && !IsNegatedPhraseSuffix(haystack, index, phrase.Length))
                 return true;
 
             index++;
@@ -43,7 +44,8 @@ internal static class RequestConstraintTokenMatcher
                 return false;
 
             if (IsStandaloneWordToken(haystack, index, token.Length)
-                && !IsNegatedPhrasePrefix(haystack, index))
+                && !IsNegatedPhrasePrefix(haystack, index)
+                && !IsNegatedPhraseSuffix(haystack, index, token.Length))
                 return true;
 
             index++;
@@ -67,7 +69,8 @@ internal static class RequestConstraintTokenMatcher
                 return false;
 
             if (IsStandaloneWordToken(haystack, index, "private".Length)
-                && !IsNegatedPhrasePrefix(haystack, index))
+                && !IsNegatedPhrasePrefix(haystack, index)
+                && !IsNegatedPhraseSuffix(haystack, index, "private".Length))
                 return true;
 
             index++;
@@ -153,6 +156,7 @@ internal static class RequestConstraintTokenMatcher
 
         if (before.StartsWith("not required to", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("no requirement to", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("no need to", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("do not", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("do-not", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("don't", StringComparison.OrdinalIgnoreCase)
@@ -211,5 +215,20 @@ internal static class RequestConstraintTokenMatcher
             || before.EndsWith("non_", StringComparison.OrdinalIgnoreCase)
             || before.EndsWith("non.", StringComparison.OrdinalIgnoreCase)
             || before.EndsWith("non ", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsNegatedPhraseSuffix(string haystack, int tokenIndex, int tokenLength)
+    {
+        ReadOnlySpan<char> after = haystack.AsSpan(tokenIndex + tokenLength).TrimStart();
+
+        if (after.Length < 2)
+            return false;
+
+        return after.StartsWith("not required", StringComparison.OrdinalIgnoreCase)
+            || after.StartsWith("not needed", StringComparison.OrdinalIgnoreCase)
+            || after.StartsWith("not necessary", StringComparison.OrdinalIgnoreCase)
+            || after.StartsWith("is not required", StringComparison.OrdinalIgnoreCase)
+            || after.StartsWith("is not needed", StringComparison.OrdinalIgnoreCase)
+            || after.StartsWith("is optional", StringComparison.OrdinalIgnoreCase);
     }
 }

@@ -205,7 +205,9 @@ public static partial class GenericArchitectureAdvicePatterns
         return after.StartsWith("not required", StringComparison.Ordinal)
             || after.StartsWith("not needed", StringComparison.Ordinal)
             || after.StartsWith("is not required", StringComparison.Ordinal)
-            || after.StartsWith("is not needed", StringComparison.Ordinal);
+            || after.StartsWith("is not needed", StringComparison.Ordinal)
+            || after.StartsWith("not necessary", StringComparison.Ordinal)
+            || after.StartsWith("is optional", StringComparison.Ordinal);
     }
 
     /// <summary>

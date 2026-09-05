@@ -12,6 +12,7 @@ internal static class ConfigurationSensitiveConfigPathMatcher
         "Secret",
         "Token",
         "ApiKey",
+        "PrivateKey",
     ];
 
     public static bool IsSensitiveConfigPath(string configPath)
@@ -33,6 +34,10 @@ internal static class ConfigurationSensitiveConfigPathMatcher
         ReadOnlySpan<char> normalized = segment.AsSpan();
 
         if (normalized.Equals("Key", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (normalized.Equals("PrivateKey", StringComparison.OrdinalIgnoreCase)
+            || IsPrivateKeyCredentialSegment(normalized))
             return true;
 
         foreach (string fragment in SensitiveSegmentFragments)
@@ -65,6 +70,18 @@ internal static class ConfigurationSensitiveConfigPathMatcher
         }
 
         return false;
+    }
+
+    private static bool IsPrivateKeyCredentialSegment(ReadOnlySpan<char> segment)
+    {
+        const string privateKeyPemMarker = "PrivateKeyPem";
+
+        int markerIndex = segment.IndexOf(privateKeyPemMarker.AsSpan(), StringComparison.OrdinalIgnoreCase);
+
+        if (markerIndex < 0)
+            return false;
+
+        return !IsNegatedSensitiveFragment(segment, markerIndex, "PrivateKey");
     }
 
     private static bool IsEmbeddedSensitiveFragment(ReadOnlySpan<char> segment, int fragmentIndex)
