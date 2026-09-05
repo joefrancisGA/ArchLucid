@@ -16,6 +16,7 @@ import type { ReviewSubmittedIntakeRecap } from "@/lib/derive-review-submitted-i
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveProbeAwareRecoverySteps } from "@/lib/resolve-probe-aware-recovery-steps";
 import {
+  resolveProbeSucceededDoThisNextSentence,
   resolveReviewFailureWhatFailedLine,
   shouldShowReviewFailureRecoveryDetail,
 } from "@/lib/resolve-review-failure-do-this-next-copy";
@@ -23,13 +24,59 @@ import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detai
 import {
   formatReviewFailureRecordedAtLabel,
 } from "@/components/resolve-run-detail-last-failure-summary";
-import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import type { ReviewFailureAdminHandoff } from "@/lib/review-failure-recovery-role-copy";
 import { cn } from "@/lib/utils";
 
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
 import type { ReviewPackageDoThisNext } from "./resolve-review-package-do-this-next";
+
+function resolveFailureRecoverySteps(
+  failureRecovery: NonNullable<ReviewPackageDoThisNext["failureRecovery"]>,
+  sessionAiReadiness: SessionAiReadinessState,
+  usesCustomerAiConnection: boolean,
+  canConfigureWorkspaceAi: boolean,
+): readonly string[] {
+  const workspaceAiSignal = failureRecovery.workspaceAiConfigurationSignal;
+
+  if (workspaceAiSignal !== null && workspaceAiSignal !== undefined) {
+    return resolveProbeAwareRecoverySteps({
+      baseSteps: failureRecovery.recoverySteps,
+      probeState: sessionAiReadiness.probeState,
+      usesCustomerAiConnection,
+      canConfigureWorkspaceAi,
+      reviewTerminalFailure: true,
+    });
+  }
+
+  return failureRecovery.recoverySteps;
+}
+
+function isLiveAiProbeAvailable(sessionAiReadiness: SessionAiReadinessState): boolean {
+  return (
+    sessionAiReadiness.probeState.status === "loaded"
+    && sessionAiReadiness.probeState.result.isAvailable
+  );
+}
+
+function resolveDisplayedDoThisNextSentence(
+  next: ReviewPackageDoThisNext,
+  sessionAiReadiness: SessionAiReadinessState,
+): string {
+  const failureRecovery = next.failureRecovery;
+
+  if (
+    failureRecovery !== null
+    && failureRecovery !== undefined
+    && failureRecovery.workspaceAiConfigurationSignal !== null
+    && failureRecovery.workspaceAiConfigurationSignal !== undefined
+    && isLiveAiProbeAvailable(sessionAiReadiness)
+  ) {
+    return resolveProbeSucceededDoThisNextSentence(failureRecovery);
+  }
+
+  return next.sentence;
+}
 
 export type ReviewPackageDoThisNextStripProps = {
   readonly next: ReviewPackageDoThisNext;
@@ -169,6 +216,7 @@ function ReviewFailureRecoveryDetails(props: {
   readonly usesCustomerAiConnection: boolean;
   readonly lastFailureSummary?: RunDetailLastFailureSummary | null;
   readonly actionRow: React.ReactNode;
+  readonly showRecoverySteps: boolean;
 }): React.JSX.Element {
   const {
     failureRecovery,
@@ -177,6 +225,7 @@ function ReviewFailureRecoveryDetails(props: {
     usesCustomerAiConnection,
     lastFailureSummary,
     actionRow,
+    showRecoverySteps,
   } = props;
   const Callout =
     failureRecovery.severity === "warning" ? OperatorWarningCallout : OperatorErrorCallout;
@@ -184,16 +233,12 @@ function ReviewFailureRecoveryDetails(props: {
   const showDetail = shouldShowReviewFailureRecoveryDetail(failureRecovery);
   const workspaceAiSignal = failureRecovery.workspaceAiConfigurationSignal;
   const whatFailedLine = resolveReviewFailureWhatFailedLine(lastFailureSummary, failureRecovery);
-  const recoverySteps =
-    workspaceAiSignal !== null && workspaceAiSignal !== undefined
-      ? resolveProbeAwareRecoverySteps({
-          baseSteps: failureRecovery.recoverySteps,
-          probeState: sessionAiReadiness.probeState,
-          usesCustomerAiConnection,
-          canConfigureWorkspaceAi,
-          reviewTerminalFailure: true,
-        })
-      : failureRecovery.recoverySteps;
+  const recoverySteps = resolveFailureRecoverySteps(
+    failureRecovery,
+    sessionAiReadiness,
+    usesCustomerAiConnection,
+    canConfigureWorkspaceAi,
+  );
 
   return (
     <div className="mt-3 space-y-3" data-testid="review-package-failure-recovery">
@@ -229,20 +274,24 @@ function ReviewFailureRecoveryDetails(props: {
         </p>
       ) : null}
 
-      <div data-testid="review-package-failure-recovery-steps">
-        <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-          What to do
-        </p>
-        <ol className={cn("m-0 mt-2 list-decimal space-y-1 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {recoverySteps.map((step) => (
-            <li key={step}>{step}</li>
-          ))}
-        </ol>
-      </div>
+      {showRecoverySteps && recoverySteps.length > 0 ? (
+        <div data-testid="review-package-failure-recovery-steps">
+          <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+            What to do
+          </p>
+          <ol className={cn("m-0 mt-2 list-decimal space-y-1 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {recoverySteps.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
+        </div>
+      ) : null}
 
-      <div className="flex flex-wrap items-center gap-2" data-testid="review-package-do-this-next-action">
-        {actionRow}
-      </div>
+      {showRecoverySteps ? (
+        <div className="flex flex-wrap items-center gap-2" data-testid="review-package-do-this-next-action">
+          {actionRow}
+        </div>
+      ) : null}
 
       {failureRecovery.adminHandoff !== null && failureRecovery.adminHandoff !== undefined ? (
         <ReviewFailureAdminHandoffPanel adminHandoff={failureRecovery.adminHandoff} />
@@ -296,9 +345,6 @@ export function ReviewPackageDoThisNextStrip(
   const buttonVariant = next.buttonVariant ?? "primary";
   const blockRerun = next.kind === "rerun-review" && sessionAiReadiness.blocksExecute;
   const failureRecordedAtLabel = formatReviewFailureRecordedAtLabel(failureRecordedAtUtc);
-  const activityFailureDetailsHref = buildReviewDetailTabHref(runId, "activity", {
-    hash: "review-failure-details",
-  });
 
   const actionRow = (
     <>
@@ -349,6 +395,17 @@ export function ReviewPackageDoThisNextStrip(
   );
 
   const hasFailureRecovery = next.failureRecovery !== null && next.failureRecovery !== undefined;
+  const failureRecoverySteps =
+    hasFailureRecovery
+      ? resolveFailureRecoverySteps(
+          next.failureRecovery,
+          sessionAiReadiness,
+          usesCustomerAiConnection,
+          canConfigureWorkspaceAi,
+        )
+      : [];
+  const showFailureRecoverySteps = failureRecoverySteps.length > 0;
+  const displayedSentence = resolveDisplayedDoThisNextSentence(next, sessionAiReadiness);
 
   return (
     <section
@@ -364,29 +421,21 @@ export function ReviewPackageDoThisNextStrip(
           >
             Do this next
           </h2>
-          {hasFailureRecovery && failureRecordedAtLabel !== null ? (
-            <p
-              className={cn("m-0 shrink-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-              data-testid="review-package-failure-recorded-at"
-            >
-              Failed {failureRecordedAtLabel}
-            </p>
-          ) : null}
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
+            {hasFailureRecovery && !showFailureRecoverySteps ? actionRow : null}
+            {hasFailureRecovery && failureRecordedAtLabel !== null ? (
+              <p
+                className={cn("m-0 shrink-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="review-package-failure-recorded-at"
+              >
+                Failed {failureRecordedAtLabel}
+              </p>
+            ) : null}
+          </div>
         </div>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="review-package-do-this-next-sentence">
-          {next.sentence}
+          {displayedSentence}
         </p>
-        {hasFailureRecovery ? (
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-            <Link
-              href={activityFailureDetailsHref}
-              className={OPERATOR_LINK.nav}
-              data-testid="review-package-view-failure-details-link"
-            >
-              View failure details
-            </Link>
-          </p>
-        ) : null}
       </div>
 
       {!hasFailureRecovery ? (
@@ -407,6 +456,7 @@ export function ReviewPackageDoThisNextStrip(
           usesCustomerAiConnection={usesCustomerAiConnection}
           lastFailureSummary={lastFailureSummary}
           actionRow={actionRow}
+          showRecoverySteps={showFailureRecoverySteps}
         />
       ) : null}
     </section>

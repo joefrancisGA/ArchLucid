@@ -20,7 +20,6 @@ import { useReviewsListReturnNavHref } from "@/hooks/use-reviews-list-return-nav
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { formatActionActorName } from "@/lib/action-actor-display";
 import { CTA_WIDTH, DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { truncateRunId } from "@/components/governance/recurrence-schedules-presentation";
 import { clampReviewWorkspaceH1Title } from "@/lib/review-display-title";
 import {
   deriveReviewRecordMetadataContext,
@@ -168,10 +167,9 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
             <span className="inline-flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
               <span className="font-medium text-neutral-700 dark:text-neutral-300">Review ID</span>
               <code
-                className={cn("max-w-[14rem] truncate font-mono select-all", OPERATOR_TYPOGRAPHY.micro)}
-                title={props.runId}
+                className={cn("break-all font-mono select-all", OPERATOR_TYPOGRAPHY.micro)}
               >
-                {truncateRunId(props.runId)}
+                {props.runId}
               </code>
               <CopyIdButton value={props.runId} aria-label="Copy review ID" />
             </span>
@@ -179,10 +177,9 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
               <span className="inline-flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                 <span className="font-medium text-neutral-700 dark:text-neutral-300">Finalized review record ID</span>
                 <code
-                  className={cn("max-w-[14rem] truncate font-mono select-all", OPERATOR_TYPOGRAPHY.micro)}
-                  title={props.signedReviewRecordId}
+                  className={cn("break-all font-mono select-all", OPERATOR_TYPOGRAPHY.micro)}
                 >
-                  {truncateRunId(props.signedReviewRecordId)}
+                  {props.signedReviewRecordId}
                 </code>
                 <CopyIdButton value={props.signedReviewRecordId} aria-label="Copy finalized review record ID" />
               </span>
