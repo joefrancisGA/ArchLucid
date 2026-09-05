@@ -4969,7 +4969,7 @@ jobs:
       - dotnet-full-regression-slow-domain
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest

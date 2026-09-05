@@ -76,7 +76,7 @@ def _require_private_beta_playwright_timeout_wiring(spec_text: str, client_text:
     if _PRIVATE_BETA_TIMEOUT_FN not in spec_text:
         errors.append(
             f"archlucid-ui/e2e/{_SPEC}: must import and use {_PRIVATE_BETA_TIMEOUT_FN} "
-            "for per-test Playwright timeout (60m job / 45m per-test CI budget)",
+            "for per-test Playwright timeout (120m job / 45m per-test CI budget)",
         )
 
     if f"test.setTimeout({_PRIVATE_BETA_TIMEOUT_FN}())" not in spec_text:
@@ -115,7 +115,7 @@ def _require_private_beta_playwright_timeout_wiring(spec_text: str, client_text:
     if ci_timeout_ms < _MIN_CI_PRIVATE_BETA_PLAYWRIGHT_TIMEOUT_MS:
         errors.append(
             f"{_CLIENT_REL}: {_PRIVATE_BETA_TIMEOUT_FN} CI timeout {ci_timeout_ms}ms is below "
-            f"{_MIN_CI_PRIVATE_BETA_PLAYWRIGHT_TIMEOUT_MS}ms (private-beta job timeout-minutes=60)",
+            f"{_MIN_CI_PRIVATE_BETA_PLAYWRIGHT_TIMEOUT_MS}ms (private-beta job timeout-minutes=120)",
         )
 
 
