@@ -21,6 +21,10 @@ import {
   parseShellInFlightCancelIdFromSearch,
   shellInFlightCancelConfirmHrefFromSearch,
 } from "@/lib/operator/shell-in-flight-cancel-confirm-url";
+import {
+  parseShellInFlightPopoverOpenFromSearch,
+  shellInFlightPopoverHrefFromSearch,
+} from "@/lib/operator/shell-in-flight-popover-url";
 import { enterpriseStatusTagClass, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -33,9 +37,10 @@ export function ShellInFlightOperationsAffordance(): React.JSX.Element | null {
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const inFlightCancelIdParam = searchParams.get("inFlightCancelId");
+  const inFlightOpenParam = searchParams.get("inFlightOpen");
   const operations = useShellInFlightOperations();
   const [nowMs, setNowMs] = useState(() => Date.now());
-  const [open, setOpen] = useState(false);
+  const [open, setOpenState] = useState(() => parseShellInFlightPopoverOpenFromSearch(inFlightOpenParam));
   const [cancellingIds, setCancellingIds] = useState<ReadonlySet<string>>(() => new Set());
   const [pendingCancelOperationId, setPendingCancelOperationIdState] = useState<string | null>(() => {
     const parsed = parseShellInFlightCancelIdFromSearch(inFlightCancelIdParam);
@@ -44,6 +49,27 @@ export function ShellInFlightOperationsAffordance(): React.JSX.Element | null {
   });
   const [cancelFailureMessage, setCancelFailureMessage] = useState<string | null>(null);
   const clarity = buildCancelAbandonInFlightClarity();
+
+  const syncInFlightPopoverOpenToUrl = useCallback(
+    (popoverOpen: boolean) => {
+      router.replace(shellInFlightPopoverHrefFromSearch(searchParams.toString(), popoverOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncInFlightPopoverOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncInFlightPopoverOpenToUrl],
+  );
 
   const syncInFlightCancelIdToUrl = useCallback(
     (operationId: string | null) => {
