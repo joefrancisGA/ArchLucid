@@ -5,6 +5,8 @@
 
 # Hub count parity — Composer prompt set (HCP-01–HCP-05)
 
+**Status:** **Shipped** in PR [#1689](https://github.com/joefrancisGA/ArchLucid/pull/1689) (implementation) and [#1694](https://github.com/joefrancisGA/ArchLucid/pull/1694) (RunsPageView attention tests + doc closure). **Do not re-run this set.**
+
 Home (`/`, workbook **HOM**) already has a counting and resume contract from the 2026-09-04 `/al-ui-rate HOM` passes:
 
 - One tenant-scoped counting snapshot (`deriveOperatorHomeTenantCountingSnapshot`)
@@ -13,9 +15,9 @@ Home (`/`, workbook **HOM**) already has a counting and resume contract from the
 - Attention chips suppress kinds already shown as a primary zone
 - Showcase/demo rows do not inflate live totals
 
-Sibling hubs still violate those rules. This set applies the **contract**, not the Home layout.
+HCP-01–05 applied that contract to Reviews hub, sponsor KPIs, and remaining governance metric strips — not the Home layout.
 
-**Do not implement from this index.** Paste one numbered file per Composer session.
+**Do not implement from this index.** Archive reference only.
 
 **Do not treat this set as a V1 assessment scorecard.** Do not add GTM cohort work (**M-90**, **M-44**, **M-91**, **M-92**) or closed assurance programs (**TB-135** / **TB-136**). **TB-645** vocabulary stays. Do not create new `TB-###` rows unless the owner asks.
 
@@ -30,11 +32,11 @@ Do **not** copy Home section order onto Reviews hub or Sponsor dashboard. Do **n
 | Set / PR | Role | Status |
 |----------|------|--------|
 | HOM `#1539` `#1550` `#1563` | Home counting, resume collapse, KPI cards, chips | **Shipped** — reuse helpers, do not fork |
-| **LS-08** | One resume primary on Working Home | Do not fork — Reviews hub leftover is **HCP-01** |
+| **LS-08** | One resume primary on Working Home | **Shipped** — Reviews hub parity in **HCP-01** |
 | **CD-11** | Home last-open package | Do not fork |
 | **AD-07** | Reviews hub sticky identity columns | Do not fork — this set does not change table columns |
 | Findings queue header | Already `SelfDescribingMetricCount` | **Do not re-open** |
-| **HCP-01–05** | **This set** — hub parity leftovers | Run these |
+| **HCP-01–05** | Hub parity leftovers | **Shipped** `#1689` / `#1694` — do not re-run |
 
 ## Diagnosis classes
 
@@ -68,6 +70,11 @@ Do **not** copy Home section order onto Reviews hub or Sponsor dashboard. Do **n
 | Home tenant counting | `deriveOperatorHomeTenantCountingSnapshot` |
 | Self-describing metric primitive | `SelfDescribingMetricCount` + `metric-count-presentation.ts` |
 | Home attention suppress | `OperatorAttentionKindStrip` `suppressKinds` on Home |
+| Reviews hub resume collapse | `resolveReviewsHubResumeAffordancePlan` |
+| Reviews hub attention suppress | `resolveReviewsHubAttentionSuppressKinds` on **RE** |
+| Reviews hub tenant counting | `filterTenantOverviewRuns` in `deriveReviewsWorkspaceSummary` |
+| Sponsor queue KPI contract | `sponsor-queue-metric-presentations.ts` + `SelfDescribingMetricCount` `executive` variant |
+| Audit buyer header drill-through | `audit-buyer-header-metric-hrefs.ts` |
 | Findings queue header metrics | `GovernanceFindingsQueueHeader.tsx` |
 | Reviews hub sticky title/status | AD-07 / `ReviewsHubInventoryTable.tsx` |
 | Filter chip URL sync | Wave 38 |
