@@ -4,11 +4,22 @@ import { describe, expect, it, vi } from "vitest";
 import { RunDetailOverviewTransparencyTrail } from "./RunDetailOverviewTransparencyTrail";
 
 const workspaceModeMock = vi.hoisted(() => ({ isWorkingMode: true }));
+const navigationMock = vi.hoisted(() => ({
+  pathname: "/architecture/reviews/r1",
+  replace: vi.fn(),
+  search: "",
+}));
 
 vi.mock("@/components/WorkspaceModeProvider", () => ({
   useWorkspaceMode: () => ({
     isWorkingMode: workspaceModeMock.isWorkingMode,
   }),
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => navigationMock.pathname,
+  useRouter: () => ({ replace: navigationMock.replace }),
+  useSearchParams: () => new URLSearchParams(navigationMock.search),
 }));
 
 describe("RunDetailOverviewTransparencyTrail", () => {
