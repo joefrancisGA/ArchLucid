@@ -25,14 +25,7 @@ public sealed class ArchitectureReviewRobustnessWave11ArchitectureTests
     [Fact]
     public void Suggestion102_findings_verify_evidence_pin_at_phi()
     {
-        string findings = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "Pipeline",
-                "FindingAnalysisContextBuilder.cs"));
+        string findings = ArchitectureSourceProbe.ReadFindingAnalysisContextBuilder();
 
         findings.Should().Contain("_runEvidencePackagePinService");
         findings.Should().Contain("VerifyPinIntegrityOrThrowAsync");
@@ -103,7 +96,7 @@ public sealed class ArchitectureReviewRobustnessWave11ArchitectureTests
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "ManifestHashService.cs"));
 
         hasher.Should().Contain("CreateTimeFocusedPilotModeEnabled");
-        hasher.Should().MatchRegex("HasherSchemaVersion = \"v[67]\"");
+        hasher.Should().Contain("HasherSchemaVersion = \"v12\"");
     }
 
     [Fact]
@@ -122,14 +115,7 @@ public sealed class ArchitectureReviewRobustnessWave11ArchitectureTests
     [Fact]
     public void Suggestion108_findings_fail_closed_on_missing_pack_rows()
     {
-        string findings = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "Pipeline",
-                "FindingAnalysisContextBuilder.cs"));
+        string findings = ArchitectureSourceProbe.ReadFindingAnalysisContextBuilder();
 
         findings.Should().Contain("could not be hydrated");
         findings.Should().NotContain("continue;");
@@ -166,7 +152,7 @@ public sealed class ArchitectureReviewRobustnessWave11ArchitectureTests
         string findingsQuery = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "Query", "RunFindingsQueryService.cs"));
 
-        findingsQuery.Should().Contain("AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow");
+        findingsQuery.Should().Contain("IRunFindingsListStage");
 
         string firstValue = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Pilots", "FirstValueReportBuilder.cs"));

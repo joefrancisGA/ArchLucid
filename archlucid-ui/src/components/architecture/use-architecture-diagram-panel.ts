@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { generateArchitectureDiagramAsync } from "@/lib/architecture/architecture-diagram-generate";
 import { architectureDiagramModelToMermaid, isValidMermaidArchitectureDiagram } from "@/lib/architecture/architecture-diagram-mermaid";
@@ -16,6 +17,12 @@ import {
 } from "@/lib/architecture/architecture-diagram-storage";
 import type { ArchitectureDiagramModel, ArchitectureDiagramNode, ArchitectureDiagramVersionSource } from "@/lib/architecture/architecture-diagram-types";
 import type { ArchitectureDiagramElementKind } from "@/lib/architecture/architecture-diagram-provenance";
+import {
+  architectureDiagramSelectionHrefFromSearch,
+  parseArchitectureDiagramEditOpenFromSearch,
+  parseArchitectureDiagramIdFromSearch,
+  parseArchitectureDiagramKindFromSearch,
+} from "@/lib/architecture/architecture-diagram-selection-url";
 import type { ArchitectureCreationUserAssertions } from "@/lib/architecture/architecture-structured-content-types";
 import { downloadBrowserTextFile, safeGraphExportFilenameSegment } from "@/lib/graph-view-model-export";
 import { useDocumentDarkMode } from "@/lib/use-document-dark-mode";
@@ -43,6 +50,12 @@ export type PanelPhase = "idle" | "loading" | "ready" | "insufficient" | "invali
 
 export function useArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps) {
   const variant = props.variant ?? "full";
+  const router = useRouter();
+  const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
+  const searchParams = useSearchParams();
+  const urlDiagramKind = parseArchitectureDiagramKindFromSearch(searchParams.get("diagKind"));
+  const urlDiagramId = parseArchitectureDiagramIdFromSearch(searchParams.get("diagId"));
+  const urlDiagramEditOpen = parseArchitectureDiagramEditOpenFromSearch(searchParams.get("diagEdit"));
   const [phase, setPhase] = useState<PanelPhase>("idle");
   const [mermaidSource, setMermaidSource] = useState<string | null>(null);
   const [textAlternative, setTextAlternative] = useState("");
@@ -60,6 +73,80 @@ export function useArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps
   const dark = useDocumentDarkMode();
   const onDiagramNodesChange = props.onDiagramNodesChange;
   const highlightedNodeId = props.highlightedNodeId;
+
+  const syncDiagramSelectionToUrl = useCallback(
+    (
+      elementKind: ArchitectureDiagramElementKind | null,
+      elementId: string | null,
+      editorOpen: boolean,
+    ): void => {
+      router.replace(
+        architectureDiagramSelectionHrefFromSearch(
+          searchParams.toString(),
+          { elementKind, elementId, editorOpen },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSelectedElementKindWithUrl = useCallback(
+    (kind: ArchitectureDiagramElementKind | null) => {
+      setSelectedElementKind(kind);
+      syncDiagramSelectionToUrl(kind, selectedElementId, editorOpen);
+    },
+    [editorOpen, selectedElementId, syncDiagramSelectionToUrl],
+  );
+
+  const setSelectedElementIdWithUrl = useCallback(
+    (id: string | null) => {
+      setSelectedElementId(id);
+      syncDiagramSelectionToUrl(selectedElementKind, id, editorOpen);
+    },
+    [editorOpen, selectedElementKind, syncDiagramSelectionToUrl],
+  );
+
+  const setEditorOpenWithUrl = useCallback(
+    (open: boolean) => {
+      setEditorOpen(open);
+      syncDiagramSelectionToUrl(selectedElementKind, selectedElementId, open);
+    },
+    [selectedElementId, selectedElementKind, syncDiagramSelectionToUrl],
+  );
+
+  const selectDiagramElementWithUrl = useCallback(
+    (kind: ArchitectureDiagramElementKind | null, id: string | null) => {
+      setSelectedElementKind(kind);
+      setSelectedElementId(id);
+      syncDiagramSelectionToUrl(kind, id, editorOpen);
+    },
+    [editorOpen, syncDiagramSelectionToUrl],
+  );
+
+  useEffect(() => {
+    if (diagramModel === null) {
+      return;
+    }
+
+    if (urlDiagramKind === null || urlDiagramId.length === 0) {
+      return;
+    }
+
+    const elementExists =
+      urlDiagramKind === "node"
+        ? diagramModel.nodes.some((node) => node.id === urlDiagramId && !node.removed)
+        : diagramModel.edges.some((edge) => edge.id === urlDiagramId && !edge.removed);
+
+    if (!elementExists) {
+      return;
+    }
+
+    setSelectedElementKind(urlDiagramKind);
+    setSelectedElementId(urlDiagramId);
+    setEditorOpen(urlDiagramEditOpen);
+  }, [diagramModel, urlDiagramEditOpen, urlDiagramId, urlDiagramKind]);
 
   useEffect(() => {
     if (diagramModel === null) {
@@ -92,7 +179,8 @@ export function useArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps
 
     setSelectedElementKind("node");
     setSelectedElementId(id);
-  }, [diagramModel, highlightedNodeId]);
+    syncDiagramSelectionToUrl("node", id, editorOpen);
+  }, [diagramModel, editorOpen, highlightedNodeId, syncDiagramSelectionToUrl]);
 
   const cache = readArchitectureDiagramCache(props.runId);
   const versions = cache?.versions ?? [];
@@ -282,13 +370,14 @@ export function useArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps
     missingExplanation,
     diagramModel,
     editorOpen,
-    setEditorOpen,
+    setEditorOpen: setEditorOpenWithUrl,
     copied,
     storageWriteFailed,
     selectedElementKind,
-    setSelectedElementKind,
+    setSelectedElementKind: setSelectedElementKindWithUrl,
     selectedElementId,
-    setSelectedElementId,
+    setSelectedElementId: setSelectedElementIdWithUrl,
+    selectDiagramElementWithUrl,
     versions,
     activeVersionId,
     inferredReviewLocked,

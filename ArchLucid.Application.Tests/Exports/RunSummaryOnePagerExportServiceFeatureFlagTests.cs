@@ -2,6 +2,7 @@ using ArchLucid.Application;
 using ArchLucid.Application.Exports;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Llm;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
@@ -28,7 +29,9 @@ public sealed class RunSummaryOnePagerExportServiceFeatureFlagTests
             Mock.Of<IAgentCompletionClient>(),
             options.Object,
             Mock.Of<IScopeContextProvider>(),
-            Mock.Of<ITenantRepository>());
+            Mock.Of<ITenantRepository>(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>());
 
         Func<Task> act = () => sut.GenerateMarkdownAsync("run-1", CancellationToken.None);
 

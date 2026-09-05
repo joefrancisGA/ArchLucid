@@ -1,5 +1,7 @@
 using System.Security.Claims;
 
+using ArchLucid.Api.Http.Governance;
+using ArchLucid.Api.Http.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Tenancy;
@@ -26,8 +28,6 @@ public sealed class TenantErasureLegalHoldController(
     IScopeContextProvider scopeProvider,
     TimeProvider? timeProvider = null) : ControllerBase
 {
-    private const int LegalHoldReasonMaxLength = 500;
-
     private readonly ITenantErasureCommandService _tenantErasureCommands =
         tenantErasureCommands ?? throw new ArgumentNullException(nameof(tenantErasureCommands));
 
@@ -55,6 +55,13 @@ public sealed class TenantErasureLegalHoldController(
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        IActionResult? validationProblem =
+            TenantErasureLegalHoldHttpMapper.ValidateSetLegalHold(body, _timeProvider)
+                .ToBadRequestProblemOrNull(this);
+
+        if (validationProblem is not null)
+            return validationProblem;
+
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
 
@@ -65,33 +72,7 @@ public sealed class TenantErasureLegalHoldController(
                 ProblemTypes.ResourceNotFound);
         }
 
-        if (body.UntilUtc <= _timeProvider.GetUtcNow())
-        {
-            return this.BadRequestProblem(
-                "UntilUtc must be in the future.",
-                ProblemTypes.ValidationFailed);
-        }
-
-        string? legalHoldReason = null;
-
-        if (body.Reason is not null)
-        {
-            legalHoldReason = body.Reason.Trim();
-
-            if (string.IsNullOrWhiteSpace(legalHoldReason))
-            {
-                return this.BadRequestProblem(
-                    "Reason cannot be empty or whitespace.",
-                    ProblemTypes.ValidationFailed);
-            }
-
-            if (legalHoldReason.Length > LegalHoldReasonMaxLength)
-            {
-                return this.BadRequestProblem(
-                    $"Reason must be at most {LegalHoldReasonMaxLength} characters.",
-                    ProblemTypes.ValidationFailed);
-            }
-        }
+        string? legalHoldReason = body.Reason is null ? null : body.Reason.Trim();
 
         ClaimsPrincipal user = User;
         string userId = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "unknown";

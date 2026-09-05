@@ -46,6 +46,8 @@ public sealed class RunOperatorGovernanceDispositionServiceAuditTests
         RunOperatorGovernanceDispositionService sut = new(
             runRepository.Object,
             auditService.Object,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
             NullLogger<RunOperatorGovernanceDispositionService>.Instance);
 
         RecordRunOperatorGovernanceDispositionRequest request = new()

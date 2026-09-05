@@ -11,16 +11,19 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  parseRecommendationLearningWeightSortAscFromSearch,
+  parseRecommendationLearningWeightSortKeyFromSearch,
+  recommendationLearningWeightSortHrefFromSearch,
+  type RecommendationLearningWeightSortKey,
+} from "@/lib/internal/recommendation-learning-weight-sort-url";
 import { cn } from "@/lib/utils";
 import type { RecommendationLearningWeightDelta } from "@/types/recommendation-learning-operational";
-import { useMemo, useState } from "react";
+import { RECOMMENDATION_LEARNING_CANONICAL_PATH } from "@/types/recommendation-learning-operational";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { copyOperationalIdentifier } from "./recommendation-learning-ops-display";
-
-type SortKey = keyof Pick<
-  RecommendationLearningWeightDelta,
-  "featureGroup" | "feature" | "currentWeight" | "proposedWeight" | "absoluteDelta" | "observationCount"
->;
 
 export function RecommendationLearningFieldRow(props: {
   readonly label: string;
@@ -50,8 +53,32 @@ export function RecommendationLearningFieldRow(props: {
 }
 
 export function RecommendationLearningWeightTable(props: { readonly deltas: RecommendationLearningWeightDelta[] }) {
-  const [sortKey, setSortKey] = useState<SortKey>("absoluteDelta");
-  const [sortAsc, setSortAsc] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? RECOMMENDATION_LEARNING_CANONICAL_PATH;
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
+  const urlSortKey = parseRecommendationLearningWeightSortKeyFromSearch(searchParams.get("sort"));
+  const urlSortAsc = parseRecommendationLearningWeightSortAscFromSearch(searchParams.get("dir"));
+  const [sortKey, setSortKey] = useState<RecommendationLearningWeightSortKey>(urlSortKey);
+  const [sortAsc, setSortAsc] = useState(urlSortAsc);
+
+  useEffect(() => {
+    setSortKey(urlSortKey);
+  }, [urlSortKey]);
+
+  useEffect(() => {
+    setSortAsc(urlSortAsc);
+  }, [urlSortAsc]);
+
+  const replaceSortInUrl = useCallback(
+    (nextSortKey: RecommendationLearningWeightSortKey, nextSortAsc: boolean) => {
+      router.replace(
+        recommendationLearningWeightSortHrefFromSearch(currentSearch, nextSortKey, nextSortAsc, pathname),
+        { scroll: false },
+      );
+    },
+    [currentSearch, pathname, router],
+  );
 
   const sorted = useMemo(() => {
     const copy = [...props.deltas];
@@ -72,14 +99,18 @@ export function RecommendationLearningWeightTable(props: { readonly deltas: Reco
     return copy;
   }, [props.deltas, sortAsc, sortKey]);
 
-  function onSort(key: SortKey) {
+  function onSort(key: RecommendationLearningWeightSortKey) {
     if (sortKey === key) {
-      setSortAsc((value) => !value);
+      const nextSortAsc = !sortAsc;
+      setSortAsc(nextSortAsc);
+      replaceSortInUrl(sortKey, nextSortAsc);
+
       return;
     }
 
     setSortKey(key);
     setSortAsc(false);
+    replaceSortInUrl(key, false);
   }
 
   return (
@@ -95,7 +126,7 @@ export function RecommendationLearningWeightTable(props: { readonly deltas: Reco
             ["observationCount", "Obs."],
           ].map(([key, label]) => (
             <EnterpriseTableHeaderCell key={key}>
-              <button type="button" className="hover:underline" onClick={() => onSort(key as SortKey)}>
+              <button type="button" className="hover:underline" onClick={() => onSort(key as RecommendationLearningWeightSortKey)}>
                 {label}
               </button>
             </EnterpriseTableHeaderCell>

@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
 
 import { useReviewStartNavigationProgress } from "@/hooks/use-review-start-navigation-progress";
@@ -19,6 +20,10 @@ import {
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
 import { startReviewFromArchitectureHref } from "@/lib/architecture/architecture-routes";
+import {
+  architectureDraftQualityAttrEncourageConfirmHrefFromSearch,
+  parseArchitectureDraftQualityAttrEncourageOpenFromSearch,
+} from "@/lib/architecture/architecture-draft-quality-attr-encourage-confirm-url";
 import {
   resolveArchitectureDraftStartReviewEmphasizedStepId,
   resolveArchitectureDraftStartReviewSteps,
@@ -50,11 +55,49 @@ type UseArchitectureDraftStartReviewOptions = {
 };
 
 export function useArchitectureDraftStartReview(options: UseArchitectureDraftStartReviewOptions) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const qualityAttrEncourageParam = searchParams.get("qualityAttrEncourage");
   const reviewStartProgress = useReviewStartNavigationProgress();
   const [actorSuggestionsUnresolved, setActorSuggestionsUnresolved] = useState(false);
   const [actorSuggestionGateRequestId, setActorSuggestionGateRequestId] = useState(0);
   const [startReviewError, setStartReviewError] = useState<string | null>(null);
-  const [qualityAttributesEncouragementOpen, setQualityAttributesEncouragementOpen] = useState(false);
+  const [qualityAttributesEncouragementOpen, setQualityAttributesEncouragementOpenState] = useState(
+    () => parseArchitectureDraftQualityAttrEncourageOpenFromSearch(qualityAttrEncourageParam),
+  );
+
+  const syncQualityAttrEncourageToUrl = useCallback(
+    (open: boolean) => {
+      if (pathname.length === 0) {
+        return;
+      }
+
+      router.replace(
+        architectureDraftQualityAttrEncourageConfirmHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setQualityAttributesEncouragementOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setQualityAttributesEncouragementOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncQualityAttrEncourageToUrl(next);
+
+        return next;
+      });
+    },
+    [syncQualityAttrEncourageToUrl],
+  );
+
+  useEffect(() => {
+    setQualityAttributesEncouragementOpenState(
+      parseArchitectureDraftQualityAttrEncourageOpenFromSearch(qualityAttrEncourageParam),
+    );
+  }, [qualityAttrEncourageParam]);
 
   const persistScopeConfirmation = useCallback(
     async (bullets: ScopeUnderstandingBullet[]): Promise<boolean> => {

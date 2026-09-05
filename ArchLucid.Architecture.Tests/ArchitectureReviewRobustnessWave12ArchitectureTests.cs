@@ -149,7 +149,7 @@ public sealed class ArchitectureReviewRobustnessWave12ArchitectureTests
         string hasher = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "ManifestHashService.cs"));
 
-        hasher.Should().Contain("HasherSchemaVersion = \"v7\"");
+        hasher.Should().Contain("HasherSchemaVersion = \"v12\"");
         hasher.Should().Contain("CreateTimePackageOrigin");
 
         string openApi = File.ReadAllText(

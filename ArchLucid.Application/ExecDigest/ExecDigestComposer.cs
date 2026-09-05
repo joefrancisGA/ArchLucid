@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Logging;
@@ -21,6 +22,7 @@ public sealed class ExecDigestComposer(
     IRunDetailQueryService runDetailQueryService,
     IPilotRunDeltaComputer pilotRunDeltaComputer,
     IGovernanceDigestDecisionNeededComposer governanceDigestDecisionNeededComposer,
+    IManifestHashService manifestHashService,
     ILogger<ExecDigestComposer> logger) : IExecDigestComposer
 {
     private const int MaxListRuns = 200;
@@ -35,6 +37,8 @@ public sealed class ExecDigestComposer(
     private readonly ILogger<ExecDigestComposer> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IPilotRunDeltaComputer _pilotRunDeltaComputer = pilotRunDeltaComputer ?? throw new ArgumentNullException(nameof(pilotRunDeltaComputer));
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     /// <inheritdoc/>
     public async Task<ExecDigestComposition> ComposeAsync(Guid tenantId, DateTime weekStartUtcInclusive, DateTime weekEndUtcExclusive,
@@ -138,6 +142,20 @@ public sealed class ExecDigestComposer(
 
                         if (committedUtc < weekStartUtcInclusive || committedUtc >= weekEndUtcExclusive)
                             return null;
+
+                        try
+                        {
+                            await ExecDigestSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                                runId,
+                                authorityScope,
+                                _authorityQueryService,
+                                _manifestHashService,
+                                ct);
+                        }
+                        catch (ConflictException)
+                        {
+                            return null;
+                        }
 
                         PilotRunDeltas deltas = await _pilotRunDeltaComputer.ComputeAsync(detail, ct);
                         int score = deltas.FindingsBySeverity.Sum(static p => p.Value);

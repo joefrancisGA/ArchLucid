@@ -1,9 +1,11 @@
+import { resolveRunHomeStatusTag } from "@/components/operator-home/runs-dashboard-helpers";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import { architectureDraftHasLinkedReview } from "@/lib/architecture/architecture-draft-handoff-gate";
 import { ARCHITECTURE_DRAFT_STATUS_LABELS } from "@/lib/architecture/architecture-draft-status";
 import { architectureDraftPath, reviewDetailPath, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
-import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
+import { isShowcaseSampleOfAnyKind } from "@/lib/demo-run-canonical";
+import { ENTERPRISE_STATUS_LABELS } from "@/lib/design-tokens";
 import { resolveOperatorHomeLatestDraftPrimaryAction } from "@/lib/operator-home-latest-draft-primary-action";
 import { formatRelativeTime } from "@/lib/relative-time";
 import {
@@ -127,7 +129,7 @@ function isExcludedRun(run: RunSummary): boolean {
     return true;
   }
 
-  if (isShowcaseStaticDemoRunId(run.runId ?? "")) {
+  if (isShowcaseSampleOfAnyKind(run.runId ?? "")) {
     return true;
   }
 
@@ -156,6 +158,35 @@ function isMidExecuteRun(run: RunSummary): boolean {
 
 function resolveReviewTitle(run: RunSummary): string {
   return buyerFacingReviewTitleFromSummary(run);
+}
+
+function normalizeUnfinishedWorkRailTitle(title: string): string {
+  return title.trim().toLowerCase();
+}
+
+/** Drops draft rows when an active review row already represents the same lifecycle title. */
+function collapseUnfinishedWorkLifecycleDuplicates(
+  items: readonly UnfinishedWorkRailItem[],
+): UnfinishedWorkRailItem[] {
+  const activeReviewTitles = new Set(
+    items
+      .filter(
+        (item) => item.kind === "review-in-progress" || item.kind === "awaiting-disposition",
+      )
+      .map((item) => normalizeUnfinishedWorkRailTitle(item.title)),
+  );
+
+  if (activeReviewTitles.size === 0) {
+    return [...items];
+  }
+
+  return items.filter((item) => {
+    if (item.kind !== "architecture-draft") {
+      return true;
+    }
+
+    return !activeReviewTitles.has(normalizeUnfinishedWorkRailTitle(item.title));
+  });
 }
 
 function compareRailItems(left: UnfinishedWorkRailItem, right: UnfinishedWorkRailItem): number {
@@ -197,6 +228,12 @@ function buildDraftItems(
     });
 }
 
+function resolveRunRailStatusLabel(run: RunSummary): string {
+  const statusTag = resolveRunHomeStatusTag(run);
+
+  return statusTag.label ?? ENTERPRISE_STATUS_LABELS[statusTag.kind];
+}
+
 function buildRunItems(runs: readonly RunSummary[]): UnfinishedWorkRailItem[] {
   const items: UnfinishedWorkRailItem[] = [];
 
@@ -218,7 +255,7 @@ function buildRunItems(runs: readonly RunSummary[]): UnfinishedWorkRailItem[] {
           kind: "awaiting-disposition",
           title: resolveReviewTitle(run),
           href: reviewDetailPath(runId),
-          statusLabel: UNFINISHED_WORK_RAIL_STATUS_LABELS["awaiting-disposition"],
+          statusLabel: resolveRunRailStatusLabel(run),
           updatedUtc: run.createdUtc ?? null,
         }),
       );
@@ -232,7 +269,7 @@ function buildRunItems(runs: readonly RunSummary[]): UnfinishedWorkRailItem[] {
           kind: "review-in-progress",
           title: resolveReviewTitle(run),
           href: reviewDetailPath(runId),
-          statusLabel: UNFINISHED_WORK_RAIL_STATUS_LABELS["review-in-progress"],
+          statusLabel: resolveRunRailStatusLabel(run),
           updatedUtc: run.createdUtc ?? null,
         }),
       );
@@ -288,11 +325,11 @@ export function summarizeUnfinishedWorkRailItems(
     return { items: [], totalCount: 0, truncated: false };
   }
 
-  const combined = [
+  const combined = collapseUnfinishedWorkLifecycleDuplicates([
     ...buildRunItems(inputs.runs),
     ...buildDraftItems(inputs.drafts),
     ...buildWizardItems(inputs.incompleteWizards),
-  ];
+  ]);
 
   combined.sort(compareRailItems);
 

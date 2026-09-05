@@ -1,9 +1,8 @@
 "use client";
 
-import type { Dispatch, SetStateAction } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -14,6 +13,10 @@ import { OPERATOR_QUERY_GC_MS } from "@/lib/query/operator-query-stale-time";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  auditTrailCursorHrefFromSearch,
+  parseAuditTrailCursorFromSearch,
+} from "@/lib/governance/audit-trail-cursor-url";
 
 import type { AuditFilterFields } from "./audit-page-helpers";
 import { resolveAuditScopedRunId, shouldDeferAuditAutoSearch } from "./audit-page-helpers";
@@ -27,16 +30,19 @@ type UseAuditPageSearchQueryOptions = {
   readonly runId: string;
   readonly currentFilters: () => AuditFilterFields;
   readonly setFailure: (failure: ApiLoadFailureState | null) => void;
+  readonly pathname: string;
+  readonly searchParams: ReturnType<typeof useSearchParams>;
+  readonly router: ReturnType<typeof useRouter>;
 };
 
 export function useAuditPageSearchQuery(options: UseAuditPageSearchQueryOptions) {
-  const { runId, currentFilters, setFailure } = options;
+  const { runId, currentFilters, setFailure, pathname, searchParams, router } = options;
 
   const queryClient = useQueryClient();
   const scope = useOperatorScopeQueryKey();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
   const workspaceRun = useWorkspaceActiveRun();
+  const urlCursor = parseAuditTrailCursorFromSearch(searchParams.get("cursor"));
+  const pendingUrlCursorRef = useRef(urlCursor);
 
   const [events, setEvents] = useState<AuditEvent[]>([]);
   const [hasMoreResults, setHasMoreResults] = useState(false);
@@ -47,6 +53,21 @@ export function useAuditPageSearchQuery(options: UseAuditPageSearchQueryOptions)
 
   const initialAutoSearchPrimedRef = useRef(false);
   const lastAutoSearchUrlRunIdRef = useRef<string | null>(null);
+
+  const syncCursorToUrl = useCallback(
+    (nextCursor: string) => {
+      const nextHref = auditTrailCursorHrefFromSearch(searchParams.toString(), nextCursor, pathname);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    },
+    [pathname, router, searchParams],
+  );
+
+  const clearCursorFromUrl = useCallback(() => {
+    syncCursorToUrl("");
+  }, [syncCursorToUrl]);
 
   const executeSearch = useCallback(
     async (filters: AuditFilterFields, loadMoreCursor?: string | null) => {
@@ -66,14 +87,34 @@ export function useAuditPageSearchQuery(options: UseAuditPageSearchQueryOptions)
     [queryClient, scope, setFailure],
   );
 
-  const applySearchPageToState = useCallback((page: CursorPagedResponse<AuditEvent>, filters: AuditFilterFields) => {
-    const slice = resolveAuditSearchPageForUi(page, filters);
+  const applySearchPageToState = useCallback(
+    (page: CursorPagedResponse<AuditEvent>, filters: AuditFilterFields, options?: { readonly append?: boolean }) => {
+      const slice = resolveAuditSearchPageForUi(page, filters);
 
-    setEvents(slice.events);
-    setHasMoreResults(slice.hasMoreResults);
-    setAuditNextCursor(slice.auditNextCursor);
-    setLastRefreshedAt(new Date());
-  }, []);
+      if (options?.append === true) {
+        setEvents((prev) => {
+          const seen = new Set(prev.map((e) => e.eventId));
+          const merged = [...prev];
+
+          for (const ev of slice.events) {
+            if (!seen.has(ev.eventId)) {
+              merged.push(ev);
+            }
+          }
+
+          return merged;
+        });
+      } else {
+        setEvents(slice.events);
+        clearCursorFromUrl();
+      }
+
+      setHasMoreResults(slice.hasMoreResults);
+      setAuditNextCursor(slice.auditNextCursor);
+      setLastRefreshedAt(new Date());
+    },
+    [clearCursorFromUrl],
+  );
 
   const applyDemoAuditFallback = useCallback(() => {
     setEvents(getDemoSampleAuditTrailEvents());
@@ -85,6 +126,7 @@ export function useAuditPageSearchQuery(options: UseAuditPageSearchQueryOptions)
 
   const runSearch = useCallback(async () => {
     setSearching(true);
+    pendingUrlCursorRef.current = "";
 
     try {
       const filters = currentFilters();
@@ -102,7 +144,7 @@ export function useAuditPageSearchQuery(options: UseAuditPageSearchQueryOptions)
     } finally {
       setSearching(false);
     }
-  }, [applyDemoAuditFallback, applySearchPageToState, currentFilters, executeSearch]);
+  }, [applyDemoAuditFallback, applySearchPageToState, currentFilters, executeSearch, setFailure]);
 
   useEffect(() => {
     const urlRunIdParam = searchParams.get("runId")?.trim() ?? "";
@@ -141,11 +183,14 @@ export function useAuditPageSearchQuery(options: UseAuditPageSearchQueryOptions)
     setLoadingMore(true);
     setFailure(null);
 
+    const consumedCursor = auditNextCursor;
+
     try {
-      const page = await executeSearch(currentFilters(), auditNextCursor);
+      const page = await executeSearch(currentFilters(), consumedCursor);
 
       setHasMoreResults(page.hasMore);
       setAuditNextCursor(page.nextCursor);
+      syncCursorToUrl(page.nextCursor ?? "");
 
       setEvents((prev) => {
         const seen = new Set(prev.map((e) => e.eventId));
@@ -164,7 +209,44 @@ export function useAuditPageSearchQuery(options: UseAuditPageSearchQueryOptions)
     } finally {
       setLoadingMore(false);
     }
-  }, [auditNextCursor, currentFilters, events.length, executeSearch, setFailure]);
+  }, [auditNextCursor, currentFilters, events.length, executeSearch, setFailure, syncCursorToUrl]);
+
+  const restoreUrlCursorPage = useCallback(async () => {
+    const cursor = pendingUrlCursorRef.current.trim();
+
+    if (cursor.length === 0) {
+      return;
+    }
+
+    setLoadingMore(true);
+    setFailure(null);
+
+    try {
+      const page = await executeSearch(currentFilters(), cursor);
+      applySearchPageToState(page, currentFilters(), { append: true });
+      pendingUrlCursorRef.current = "";
+    } catch (e) {
+      setFailure(toApiLoadFailure(e));
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [applySearchPageToState, currentFilters, executeSearch, setFailure]);
+
+  useEffect(() => {
+    pendingUrlCursorRef.current = parseAuditTrailCursorFromSearch(searchParams.get("cursor"));
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (searching || events.length === 0) {
+      return;
+    }
+
+    if (pendingUrlCursorRef.current.trim().length === 0) {
+      return;
+    }
+
+    void restoreUrlCursorPage();
+  }, [events.length, restoreUrlCursorPage, searching]);
 
   return {
     events,

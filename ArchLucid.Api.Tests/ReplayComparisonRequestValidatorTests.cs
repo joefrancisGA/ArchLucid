@@ -1,9 +1,10 @@
-using ArchLucid.Api.Models;
 using ArchLucid.Api.Validators;
 
 using FluentAssertions;
 
 using FluentValidation.Results;
+
+using ApiReplayComparisonRequest = ArchLucid.Api.Models.ReplayComparisonRequest;
 
 namespace ArchLucid.Api.Tests;
 
@@ -16,7 +17,7 @@ public sealed class ReplayComparisonRequestValidatorTests
     [Fact]
     public void Valid_defaults_pass()
     {
-        ReplayComparisonRequest request = new();
+        ApiReplayComparisonRequest request = new();
 
         ValidationResult result = _validator.Validate(request);
 
@@ -26,7 +27,7 @@ public sealed class ReplayComparisonRequestValidatorTests
     [Fact]
     public void Invalid_format_fails()
     {
-        ReplayComparisonRequest request = new() { Format = "pdf" };
+        ApiReplayComparisonRequest request = new() { Format = "pdf" };
 
         ValidationResult result = _validator.Validate(request);
 
@@ -36,7 +37,7 @@ public sealed class ReplayComparisonRequestValidatorTests
     [Fact]
     public void Invalid_replay_mode_fails()
     {
-        ReplayComparisonRequest request = new() { ReplayMode = "unknown" };
+        ApiReplayComparisonRequest request = new() { ReplayMode = "unknown" };
 
         ValidationResult result = _validator.Validate(request);
 
@@ -46,7 +47,7 @@ public sealed class ReplayComparisonRequestValidatorTests
     [Fact]
     public void Invalid_profile_when_set_fails()
     {
-        ReplayComparisonRequest request = new() { Profile = "verbose" };
+        ApiReplayComparisonRequest request = new() { Profile = "verbose" };
 
         ValidationResult result = _validator.Validate(request);
 
@@ -58,7 +59,7 @@ public sealed class ReplayComparisonRequestValidatorTests
     [InlineData("sponsor")]
     public void Valid_profile_passes(string profile)
     {
-        ReplayComparisonRequest request = new() { Profile = profile };
+        ApiReplayComparisonRequest request = new() { Profile = profile };
 
         ValidationResult result = _validator.Validate(request);
 

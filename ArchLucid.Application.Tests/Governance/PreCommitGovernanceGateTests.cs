@@ -151,6 +151,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"), "1.0.0")),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);

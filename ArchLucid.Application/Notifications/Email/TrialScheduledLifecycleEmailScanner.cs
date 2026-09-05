@@ -49,15 +49,22 @@ public sealed class TrialScheduledLifecycleEmailScanner(
         IReadOnlyList<TenantRecord> tenants = await _tenantRepository.ListAsync(cancellationToken).ConfigureAwait(false);
         foreach (TenantRecord tenant in tenants)
         {
-            if (!string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.OrdinalIgnoreCase))
-                continue;
             TenantWorkspaceLink? workspaceLink = await _tenantRepository.GetFirstWorkspaceAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
+
             if (workspaceLink is null)
                 continue;
-            await TryPublishMidTrialAsync(tenant, workspaceLink, utcNow, options, cancellationToken).ConfigureAwait(false);
-            await TryPublishApproachingLimitAsync(tenant, workspaceLink, utcNow, options, cancellationToken).ConfigureAwait(false);
-            await TryPublishExpiringSoonAsync(tenant, workspaceLink, utcNow, options, cancellationToken).ConfigureAwait(false);
-            await TryPublishExpiredAsync(tenant, workspaceLink, utcNow, options, cancellationToken).ConfigureAwait(false);
+
+            if (TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Active))
+            {
+                await TryPublishMidTrialAsync(tenant, workspaceLink, utcNow, options, cancellationToken).ConfigureAwait(false);
+                await TryPublishApproachingLimitAsync(tenant, workspaceLink, utcNow, options, cancellationToken).ConfigureAwait(false);
+                await TryPublishExpiringSoonAsync(tenant, workspaceLink, utcNow, options, cancellationToken).ConfigureAwait(false);
+                await TryPublishExpiredAsync(tenant, workspaceLink, utcNow, options, cancellationToken).ConfigureAwait(false);
+                continue;
+            }
+
+            if (TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Expired))
+                await TryPublishExpiredAsync(tenant, workspaceLink, utcNow, options, cancellationToken).ConfigureAwait(false);
         }
     }
 

@@ -92,7 +92,7 @@ public sealed class CommittedEffectiveGovernanceSnapshotCapturer(
 
             if (focusedPilotMode && !FocusedPilotModePolicyPacks.IsPackAllowedInFocusedReview(
                     pack.Name,
-                    assignment.IsPinned,
+                    PolicyPackAssignmentOrganizationRequired.IsOrganizationRequired(assignment),
                     PlatformOverlayPolicyPacks.IsOverlayDisplayName(
                         pack.Name,
                         focusedPilotCloudProvider)))

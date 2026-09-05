@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { ReportSurfaceCanonicalPointerStrip } from "@/components/reports/ReportSurfaceCanonicalPointerStrip";
 import {
   SponsorDashboardDataProvider,
   useSponsorDashboardData,
@@ -38,6 +39,7 @@ import { SponsorDashboardBaselineWarningBanner } from "./SponsorDashboardBaselin
 import { ArchitectureSponsorDashboardClaimOrientationStrip } from "./ArchitectureSponsorDashboardClaimOrientationStrip";
 import { SponsorDashboardLatestFinalizedReviewStrip } from "./SponsorDashboardLatestFinalizedReviewStrip";
 import { SponsorDashboardPickReviewBeforeKpisStrip } from "./SponsorDashboardPickReviewBeforeKpisStrip";
+import { SponsorDashboardReviewCoverageHonestyStrip } from "@/components/sponsor/SponsorDashboardReviewCoverageHonestyStrip";
 import { SponsorRoiDashboardNextReviewFooterClient } from "./SponsorRoiDashboardNextReviewFooterClient";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import {
@@ -127,6 +129,8 @@ function SponsorRoiDashboardPortfolioSections({
         >
           <SponsorDashboardPageHero dashboardEmpty={dashboardEmpty} />
 
+          <ReportSurfaceCanonicalPointerStrip surfaceId="sponsor-dashboard" />
+
           <div
             id={SPONSOR_DASHBOARD_FIRST_VIEWPORT_ID}
             data-testid={SPONSOR_DASHBOARD_FIRST_VIEWPORT_ID}
@@ -172,6 +176,7 @@ function SponsorRoiDashboardPortfolioSections({
             emphasizedStepId={sponsorDashboardKpiChecklistEmphasizedStepId}
             testIdPrefix="sponsor-dashboard-kpi"
           />
+          <SponsorDashboardReviewCoverageHonestyStrip runId={selectedReviewId} />
         </>
       ) : null}
 
@@ -217,6 +222,7 @@ function SponsorRoiDashboardPortfolioSections({
             loading={summaryLoading}
             summaryError={summaryError}
             surface={surface}
+            scopedReviewId={selectedReviewId}
           />
         </section>
       ) : null}

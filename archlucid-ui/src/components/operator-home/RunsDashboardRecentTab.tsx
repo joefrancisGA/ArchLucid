@@ -3,6 +3,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorHomeRecentReviewsTable } from "@/components/operator-home/OperatorHomeRecentReviewsTable";
 import { OperatorHomeReviewSummaryCard } from "@/components/operator-home/OperatorHomeReviewSummaryCard";
 import { OperatorHomeRunsDashboardListSkeleton } from "@/components/operator-home/OperatorHomeRunsDashboardListSkeleton";
 import { OperatorHomeWorkspaceArchivedEmptyState } from "@/components/operator-home/OperatorHomeWorkspaceArchivedEmptyState";
@@ -252,43 +253,47 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
 
       {(props.phase === "ready" || props.phase === "error") && featuredItems.length > 0 ? (
         <>
-          <ul className="m-0 list-none space-y-0 p-0" data-testid="recent-runs-home-panel">
-            {featuredItems.map((run) => {
-              const requestId = runListPrimaryRequestId(run);
+          {props.pagePrimaryOwnedElsewhere === true ? (
+            <OperatorHomeRecentReviewsTable runs={featuredItems} />
+          ) : (
+            <ul className="m-0 list-none space-y-0 p-0" data-testid="recent-runs-home-panel">
+              {featuredItems.map((run) => {
+                const requestId = runListPrimaryRequestId(run);
 
-              return (
-                <li key={run.runId} className="flex flex-wrap items-start gap-2">
-                  <div className="min-w-0 flex-1">
-                    <OperatorHomeReviewSummaryCard
-                      run={run}
-                      href={`/architecture/reviews/${encodeURIComponent(run.runId)}`}
-                      buyerPolishedShell={props.buyerPolishedShell}
-                      variant={props.pagePrimaryOwnedElsewhere === true ? "compact" : "list"}
-                      siblingRuns={featuredItems}
-                    />
-                  </div>
-                  {props.showArchived && requestId !== null ? (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className={cn("h-7", OPERATOR_TYPOGRAPHY.button)}
-                      disabled={props.restoreBusyRequestId === requestId}
-                      data-testid={`runs-dashboard-restore-${run.runId}`}
-                      onClick={() => {
-                        props.onRestoreArchivedRequest(requestId);
-                      }}
-                    >
-                      {props.restoreBusyRequestId === requestId
-                        ? RUNS_DASHBOARD_LABELS.restoringRequest
-                        : RUNS_DASHBOARD_LABELS.restoreRequest}
-                    </Button>
-                  ) : null}
-                </li>
-              );
-            })}
-          </ul>
-          {hiddenFeaturedCount > 0 ? (
+                return (
+                  <li key={run.runId} className="flex flex-wrap items-start gap-2">
+                    <div className="min-w-0 flex-1">
+                      <OperatorHomeReviewSummaryCard
+                        run={run}
+                        href={`/architecture/reviews/${encodeURIComponent(run.runId)}`}
+                        buyerPolishedShell={props.buyerPolishedShell}
+                        variant="list"
+                        siblingRuns={featuredItems}
+                      />
+                    </div>
+                    {props.showArchived && requestId !== null ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className={cn("h-7", OPERATOR_TYPOGRAPHY.button)}
+                        disabled={props.restoreBusyRequestId === requestId}
+                        data-testid={`runs-dashboard-restore-${run.runId}`}
+                        onClick={() => {
+                          props.onRestoreArchivedRequest(requestId);
+                        }}
+                      >
+                        {props.restoreBusyRequestId === requestId
+                          ? RUNS_DASHBOARD_LABELS.restoringRequest
+                          : RUNS_DASHBOARD_LABELS.restoreRequest}
+                      </Button>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          {hiddenFeaturedCount > 0 && props.pagePrimaryOwnedElsewhere !== true ? (
             <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
               <Link href="/architecture/reviews" className={OPERATOR_LINK.nav}>
                 View all reviews

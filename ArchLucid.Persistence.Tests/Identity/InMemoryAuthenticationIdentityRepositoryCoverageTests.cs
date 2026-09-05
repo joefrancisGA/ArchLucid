@@ -83,6 +83,56 @@ public sealed class InMemoryAuthenticationIdentityRepositoryCoverageTests
     }
 
     [Fact]
+    public async Task InsertAsync_concurrent_same_external_key_activates_only_one_identity()
+    {
+        InMemoryAuthenticationIdentityRepository sut = new();
+        const int attempts = 32;
+        int success = 0;
+        int duplicate = 0;
+        using Barrier barrier = new(attempts);
+
+        Task[] tasks = Enumerable.Range(0, attempts)
+            .Select(_ => Task.Run(async () =>
+            {
+                barrier.SignalAndWait();
+
+                try
+                {
+                    await sut.InsertAsync(
+                        new AuthenticationIdentityInsert
+                        {
+                            UserId = Guid.NewGuid(),
+                            ProviderType = AuthenticationProviderType.MicrosoftIdentity,
+                            NormalizedIssuer = "issuer",
+                            Subject = "concurrent-subject",
+                        },
+                        CancellationToken.None);
+
+                    Interlocked.Increment(ref success);
+                }
+                catch (DuplicateAuthenticationIdentityException)
+                {
+                    Interlocked.Increment(ref duplicate);
+                }
+            }))
+            .ToArray();
+
+        await Task.WhenAll(tasks);
+
+        success.Should().Be(1);
+        duplicate.Should().Be(attempts - 1);
+
+        ExternalIdentityKey key = new()
+        {
+            ProviderType = AuthenticationProviderType.MicrosoftIdentity,
+            NormalizedIssuer = "issuer",
+            Subject = "concurrent-subject",
+        };
+
+        (await sut.FindByExternalKeyAsync(key, CancellationToken.None)).Should().NotBeNull();
+    }
+
+    [Fact]
     public async Task DisableAsync_and_ReEnableAsync_toggle_active_lookup()
     {
         InMemoryAuthenticationIdentityRepository sut = new();

@@ -1,6 +1,6 @@
 "use client";
 
-import { ReviewAssuranceCoverageSection } from "@/components/wizard/ReviewAssuranceCoverageSection";
+import { WizardReviewAssuranceCoverageSection } from "@/components/wizard/WizardReviewAssuranceCoverageSection";
 import { WizardStepConstraints } from "@/components/wizard/steps/WizardStepConstraints";
 import { WizardStepDescription } from "@/components/wizard/steps/WizardStepDescription";
 import { WizardStepEvidenceUpload } from "@/components/wizard/steps/WizardStepEvidenceUpload";
@@ -93,7 +93,7 @@ export function NewRunWizardStepPanels(props: NewRunWizardStepPanelsProps): Reac
   if (props.stepIndex === 2) {
     return (
       <div className={OPERATOR_LAYOUT.sectionStack}>
-        <ReviewAssuranceCoverageSection
+        <WizardReviewAssuranceCoverageSection
           focusedPilotModeEnabled={props.focusedPilotModeEnabled}
           onFocusedPilotModeEnabledChange={props.setFocusedPilotModeEnabled}
         />

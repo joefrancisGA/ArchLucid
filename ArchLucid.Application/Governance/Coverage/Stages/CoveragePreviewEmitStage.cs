@@ -58,7 +58,7 @@ public sealed class CoveragePreviewEmitStage : ICoveragePreviewEmitStage
             if (pack is null)
                 continue;
 
-            if (!assignment.IsPinned)
+            if (!PolicyPackAssignmentOrganizationRequired.IsOrganizationRequired(assignment))
                 continue;
 
             bool included = ResolveIncludedInRunEvaluation(
@@ -249,10 +249,13 @@ public sealed class CoveragePreviewEmitStage : ICoveragePreviewEmitStage
             return assignment.IsEnabled;
         }
 
-        bool isPinned = assignment?.IsPinned == true;
+        bool isOrganizationRequired = PolicyPackAssignmentOrganizationRequired.IsOrganizationRequired(assignment);
         bool isOverlay = PlatformOverlayPolicyPacks.IsOverlayDisplayName(packDisplayName, cloudProvider);
 
-        return FocusedPilotModePolicyPacks.IsPackAllowedInFocusedReview(packDisplayName, isPinned, isOverlay)
+        return FocusedPilotModePolicyPacks.IsPackAllowedInFocusedReview(
+                packDisplayName,
+                isOrganizationRequired,
+                isOverlay)
             || contextualHighConfidence;
     }
 

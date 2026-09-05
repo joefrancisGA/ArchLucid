@@ -29,7 +29,7 @@ describe("OperatorHomeGovernanceWarningsMetricLink", () => {
   it("links to enable warnings when inactive", () => {
     useSearchParams.mockReturnValue(new URLSearchParams());
 
-    render(<OperatorHomeGovernanceWarningsMetricLink label="2 Warnings" />);
+    render(<OperatorHomeGovernanceWarningsMetricLink count={2} label="Warnings" />);
 
     expect(screen.getByTestId("operator-home-governance-warnings-metric")).toHaveAttribute(
       "href",
@@ -39,16 +39,13 @@ describe("OperatorHomeGovernanceWarningsMetricLink", () => {
       "data-active",
       "false",
     );
-    expect(screen.getByTestId("operator-home-governance-warnings-metric").className).toMatch(/underline/);
-    expect(screen.getByTestId("operator-home-governance-warnings-metric").className).not.toMatch(
-      /no-underline/,
-    );
+    expect(screen.getByTestId("operator-home-governance-warnings-metric").className).toMatch(/no-underline/);
   });
 
   it("links to clear warnings when already active", () => {
     useSearchParams.mockReturnValue(new URLSearchParams("warnings=1&tab=attention"));
 
-    render(<OperatorHomeGovernanceWarningsMetricLink label="2 Warnings" />);
+    render(<OperatorHomeGovernanceWarningsMetricLink count={2} label="Warnings" />);
 
     expect(screen.getByTestId("operator-home-governance-warnings-metric")).toHaveAttribute("href", "/?tab=attention");
     expect(screen.getByTestId("operator-home-governance-warnings-metric")).toHaveAttribute(

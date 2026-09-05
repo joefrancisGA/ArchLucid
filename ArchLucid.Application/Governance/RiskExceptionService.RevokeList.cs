@@ -98,11 +98,14 @@ public sealed partial class RiskExceptionService
     }
 
     private async Task AuditExpiredAsync(
-        IReadOnlyList<RiskExceptionRecord> expired,
+        IReadOnlyList<RiskExceptionRecord>? expired,
         CancellationToken cancellationToken)
     {
-        foreach (RiskExceptionRecord record in expired)
+        if (expired is null || expired.Count == 0)
+            return;
 
+        foreach (RiskExceptionRecord record in expired)
+        {
             await auditService.LogAsync(
                 new AuditEvent
                 {
@@ -118,6 +121,7 @@ public sealed partial class RiskExceptionService
                         AuditJsonSerializationOptions.Instance),
                 },
                 cancellationToken);
+        }
     }
 
     private Task LogRequiredAsync(AuditEvent auditEvent, string operationLabel, CancellationToken cancellationToken)

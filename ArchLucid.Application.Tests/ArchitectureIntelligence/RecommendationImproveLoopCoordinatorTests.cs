@@ -1,4 +1,5 @@
 using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Advisory.Workflow;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Common;
@@ -109,7 +110,8 @@ public sealed class RecommendationImproveLoopCoordinatorTests
             substantiationService.Object,
             new MustNotFailEnforcer(),
             new TrustPublishGate(),
-            findingsSnapshotUpdater: null);
+            findingsSnapshotUpdater: null,
+            Mock.Of<IReRunExecuteSealedManifestPinGate>());
 
         RecommendationImproveLoopResult? result = await sut.TryApplyAsync(new RecommendationRecord
         {
@@ -238,6 +240,7 @@ public sealed class RecommendationImproveLoopCoordinatorTests
             new MustNotFailEnforcer(),
             new TrustPublishGate(),
             findingsSnapshotUpdater: null,
+            Mock.Of<IReRunExecuteSealedManifestPinGate>(),
             technologyLedgerRepository: ledgerRepository.Object);
 
         RecommendationImproveLoopResult? result = await sut.TryApplyAsync(new RecommendationRecord

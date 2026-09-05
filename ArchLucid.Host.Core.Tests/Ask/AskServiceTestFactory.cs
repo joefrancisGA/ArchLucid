@@ -5,6 +5,8 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Conversation;
 using ArchLucid.Host.Core.Ask;
 using ArchLucid.Host.Core.Services.Ask;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
@@ -37,7 +39,9 @@ internal static class AskServiceTestFactory
         IOptionsMonitor<AskComparisonNarrativeOptions>? askComparisonNarrativeOptions = null,
         IConversationContextCompressor? conversationContextCompressor = null,
         IOptionsMonitor<ConversationContextOptions>? conversationContextOptions = null,
-        IOptionsMonitor<AskRetrievalOptions>? askRetrievalOptions = null)
+        IOptionsMonitor<AskRetrievalOptions>? askRetrievalOptions = null,
+        IRunRepository? runRepository = null,
+        IManifestHashService? manifestHashService = null)
     {
         IAgentCompletionClient resolvedLlm = llm ?? Mock.Of<IAgentCompletionClient>();
         IConversationService resolvedConversation = conversationService ?? Mock.Of<IConversationService>();
@@ -61,6 +65,10 @@ internal static class AskServiceTestFactory
             askRetrievalOptions ?? MonitorOf(new AskRetrievalOptions());
 
         AskConversationHistoryBuilder historyBuilder = new(resolvedCompressor, resolvedContextOptions);
+        IRunRepository resolvedRunRepository = runRepository ?? AskSealedManifestTestSupport.CreateRunRepository();
+        IManifestHashService resolvedManifestHash =
+            manifestHashService ?? AskSealedManifestTestSupport.CreateManifestHashService();
+
         AskContextPreparer contextPreparer = new(
             resolvedQuery,
             resolvedProvenance,
@@ -69,6 +77,8 @@ internal static class AskServiceTestFactory
             resolvedRetrieval,
             historyBuilder,
             resolvedRetrievalOptions,
+            resolvedRunRepository,
+            resolvedManifestHash,
             NullLogger<AskContextPreparer>.Instance);
         AskComparisonNarrativeBuilder narrativeBuilder = new(
             resolvedLlm,
@@ -84,6 +94,7 @@ internal static class AskServiceTestFactory
             resolvedLlm,
             resolvedConversation,
             resolvedFindings,
+            resolvedQuery,
             contextPreparer,
             narrativeBuilder,
             responseComposer,

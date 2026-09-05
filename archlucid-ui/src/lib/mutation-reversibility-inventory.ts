@@ -25,6 +25,10 @@ export const MUTATION_REVERSIBILITY_GUARDED_CONFIRM_SURFACES: readonly MutationR
       mutationId: "governance_bulk_disposition",
     },
     {
+      sourceRoot: "components/governance/findings/FindingKeyboardTriageHost.tsx",
+      mutationId: "governance_keyboard_finding_disposition",
+    },
+    {
       sourceRoot: "app/(operator)/governance/policy-packs/_sections/PolicyPacksLifecycleSection.tsx",
       mutationId: "governance_policy_pack_publish",
     },

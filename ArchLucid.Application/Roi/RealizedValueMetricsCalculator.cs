@@ -99,11 +99,22 @@ internal static class RealizedValueMetricsCalculator
 
         RealizedValueAttestationUpsertValidation.ValidateOrThrow(request);
 
+        RealizedValueAttestation existing = await LoadAttestationAsync(
+                tenantSettingsRepository,
+                tenantId,
+                workspaceId,
+                cancellationToken)
+            .ConfigureAwait(false);
+
         RealizedValueAttestation attestation = new()
         {
-            AttestedIncidentsAvoided = request.AttestedIncidentsAvoided,
-            AttestedRevenueOrRetentionImpact = NormalizeOptionalText(request.AttestedRevenueOrRetentionImpact),
-            AttestedReviewerTimeSavedNote = NormalizeOptionalText(request.AttestedReviewerTimeSavedNote),
+            AttestedIncidentsAvoided = request.AttestedIncidentsAvoided ?? existing.AttestedIncidentsAvoided,
+            AttestedRevenueOrRetentionImpact = request.AttestedRevenueOrRetentionImpact is null
+                ? existing.AttestedRevenueOrRetentionImpact
+                : NormalizeOptionalText(request.AttestedRevenueOrRetentionImpact),
+            AttestedReviewerTimeSavedNote = request.AttestedReviewerTimeSavedNote is null
+                ? existing.AttestedReviewerTimeSavedNote
+                : NormalizeOptionalText(request.AttestedReviewerTimeSavedNote),
         };
 
         string json = JsonSerializer.Serialize(attestation);

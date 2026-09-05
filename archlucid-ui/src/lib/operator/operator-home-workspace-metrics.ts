@@ -1,4 +1,6 @@
 import { resolveRunFindingCountDisplay } from "@/lib/operator/operator-home-run-list-insight";
+import { formatOperatorHomeApprovalCheckWarningCount } from "@/lib/operator/operator-home-approval-check-warning-copy";
+import { resolveRunHomeStatusTag } from "@/components/operator-home/runs-dashboard-helpers";
 import type { RunSummary } from "@/types/authority";
 
 export const OPERATOR_HOME_WORKSPACE_METRICS_EMPTY_COPY =
@@ -23,6 +25,10 @@ function runHasEvidenceSource(run: RunSummary): boolean {
   );
 }
 
+function isDraftRun(run: RunSummary): boolean {
+  return resolveRunHomeStatusTag(run).kind === "draft";
+}
+
 /** Aggregates workspace metrics from operator-home runs dashboard data already on the page. */
 export function deriveOperatorHomeWorkspaceMetrics(
   items: readonly RunSummary[],
@@ -44,7 +50,7 @@ export function deriveOperatorHomeWorkspaceMetrics(
 
     if (run.hasGoldenManifest === true) {
       reviewPackagesCommitted += 1;
-    } else {
+    } else if (!isDraftRun(run)) {
       reviewPackagesActive += 1;
     }
 
@@ -95,13 +101,22 @@ export function formatOperatorHomeCompactMetricsLine(
 ): string {
   const activeReviews = input.metrics.reviewPackagesActive;
   const activeLabel = `${activeReviews} Active review${activeReviews === 1 ? "" : "s"}`;
+  const finalizedLabel = `${input.metrics.reviewPackagesCommitted} Finalized package${input.metrics.reviewPackagesCommitted === 1 ? "" : "s"}`;
   const findingsLabel = `${input.metrics.openFindings} Open finding${input.metrics.openFindings === 1 ? "" : "s"}`;
-  const warningsLabel = `${input.metrics.governanceWarnings} Warning${input.metrics.governanceWarnings === 1 ? "" : "s"}`;
+  const warningsLabel = formatOperatorHomeApprovalCheckWarningCount(input.metrics.governanceWarnings);
   const setupLabel = input.setupReadinessLoading
     ? "Setup …"
     : formatSetupReadinessCompactLabel(input.setupReadyCount, input.setupTotalCount);
 
-  return [activeLabel, findingsLabel, warningsLabel, setupLabel].join(" · ");
+  const parts = [
+    activeLabel,
+    finalizedLabel,
+    findingsLabel,
+    warningsLabel,
+    setupLabel,
+  ];
+
+  return parts.join(" · ");
 }
 
 export function formatSetupReadinessCompleteLabel(readyCount: number, totalCount: number): string {

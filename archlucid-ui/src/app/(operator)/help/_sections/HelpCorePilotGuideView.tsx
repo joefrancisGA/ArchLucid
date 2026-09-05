@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -14,13 +16,18 @@ import { HelpCorePilotWorkflowStepper } from "@/app/(operator)/help/_sections/He
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import {
   CORE_PILOT_HELP_DISCLOSURE,
   CORE_PILOT_HELP_GUIDE_HEADINGS,
   CORE_PILOT_HELP_PRIMARY_ACTIONS,
-  CORE_PILOT_HELP_SUMMARY_COPY,
-  CORE_PILOT_HELP_SUMMARY_TITLE,
+  resolveCorePilotHelpSummaryCopy,
+  resolveCorePilotHelpSummaryTitle,
 } from "@/lib/core-pilot-help-guide-content";
+import {
+  HELP_EVALUATING_ARCHITECTURE_SECTION_TITLE,
+  resolveHelpWorkingDeskPrimaryActions,
+} from "@/lib/help/help-workspace-mode-copy";
 import { cn } from "@/lib/utils";
 import {
   OPERATOR_LAYOUT,
@@ -65,6 +72,10 @@ function HelpDisclosure(props: {
 /** Guided first-review workflow for `/help/first-architecture-review` — action-oriented, not prose documentation. */
 export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): React.ReactElement {
   const { entry } = props;
+  const { isWorkingMode } = useWorkspaceMode();
+  const summaryTitle = resolveCorePilotHelpSummaryTitle(isWorkingMode);
+  const summaryCopy = resolveCorePilotHelpSummaryCopy(isWorkingMode);
+  const deskPrimaryActions = resolveHelpWorkingDeskPrimaryActions();
   const contentGridClass = resolveHelpPageContentGridClass(CORE_PILOT_HELP_GUIDE_HEADINGS.length);
   const showSectionNav = CORE_PILOT_HELP_GUIDE_HEADINGS.length >= HELP_PAGE_MIN_TOC_HEADINGS;
 
@@ -82,24 +93,42 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
         </div>
       </header>
 
-      <details className={HELP_PAGE_LAYOUT.details} data-testid="core-pilot-guide-vocabulary-disclosure">
-        <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>About this guide</summary>
-        <div className={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-0")}>
-          <PilotGuideGettingStartedFirstReviewVocabularyRail
-            currentSurfaceId="first-architecture-review"
-            variant="full"
-          />
-          <FirstReviewGuideFirstArchitectureReviewVocabularyRail
-            currentSurfaceId="first-architecture-review"
-            variant="full"
-          />
-        </div>
-      </details>
+      {isWorkingMode ? (
+        <details className={HELP_PAGE_LAYOUT.details} data-testid="core-pilot-evaluating-architecture-section">
+          <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            {HELP_EVALUATING_ARCHITECTURE_SECTION_TITLE}
+          </summary>
+          <div className={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-0")}>
+            <PilotGuideGettingStartedFirstReviewVocabularyRail
+              currentSurfaceId="first-architecture-review"
+              variant="full"
+            />
+            <FirstReviewGuideFirstArchitectureReviewVocabularyRail
+              currentSurfaceId="first-architecture-review"
+              variant="full"
+            />
+          </div>
+        </details>
+      ) : (
+        <details className={HELP_PAGE_LAYOUT.details} data-testid="core-pilot-guide-vocabulary-disclosure">
+          <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>About this guide</summary>
+          <div className={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-0")}>
+            <PilotGuideGettingStartedFirstReviewVocabularyRail
+              currentSurfaceId="first-architecture-review"
+              variant="full"
+            />
+            <FirstReviewGuideFirstArchitectureReviewVocabularyRail
+              currentSurfaceId="first-architecture-review"
+              variant="full"
+            />
+          </div>
+        </details>
+      )}
 
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
           <div className="space-y-6" data-testid="core-pilot-first-viewport">
-            <HelpCorePilotJobMatrix />
+            {isWorkingMode ? null : <HelpCorePilotJobMatrix />}
 
             <section
               id="first-review-path"
@@ -114,24 +143,34 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
                 id="core-pilot-summary-heading"
                 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
               >
-                {CORE_PILOT_HELP_SUMMARY_TITLE}
+                {summaryTitle}
               </h2>
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{CORE_PILOT_HELP_SUMMARY_COPY}</p>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{summaryCopy}</p>
               <div className="flex flex-wrap gap-2">
-                <Button asChild size="sm" data-testid="core-pilot-primary-start-cta">
-                  <Link href={CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.href}>
-                    {CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.label}
-                  </Link>
-                </Button>
-                <Button asChild size="sm" variant="outline">
-                  <Link href={CORE_PILOT_HELP_PRIMARY_ACTIONS.sampleReview.href}>
-                    {CORE_PILOT_HELP_PRIMARY_ACTIONS.sampleReview.label}
-                  </Link>
-                </Button>
+                {isWorkingMode ? (
+                  deskPrimaryActions.map((action) => (
+                    <Button key={action.href} asChild size="sm" variant={action.label === "New review" ? "primary" : "outline"}>
+                      <Link href={action.href}>{action.label}</Link>
+                    </Button>
+                  ))
+                ) : (
+                  <>
+                    <Button asChild size="sm" data-testid="core-pilot-primary-start-cta">
+                      <Link href={CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.href}>
+                        {CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.label}
+                      </Link>
+                    </Button>
+                    <Button asChild size="sm" variant="outline">
+                      <Link href={CORE_PILOT_HELP_PRIMARY_ACTIONS.sampleReview.href}>
+                        {CORE_PILOT_HELP_PRIMARY_ACTIONS.sampleReview.label}
+                      </Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </section>
 
-            <HelpCorePilotFirstViewportJobChrome />
+            {isWorkingMode ? null : <HelpCorePilotFirstViewportJobChrome />}
           </div>
 
           <section aria-labelledby="run-the-first-review" className="space-y-3">

@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState, type SetStateAction } from "react";
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
@@ -12,6 +12,12 @@ import {
 import {
   GOVERNANCE_RECURRENCE_SCHEDULES_PATH,
 } from "@/lib/governance/recurrence-schedules-route";
+import {
+  parseRecurrenceSchedulesCreatePanelFromSearch,
+  parseRecurrenceSchedulesDisableIdFromSearch,
+  parseRecurrenceSchedulesEditIdFromSearch,
+  recurrenceSchedulesPanelsHrefFromSearch,
+} from "@/lib/governance/recurrence-schedules-panels-url";
 import {
   resolveContinueLastRecurrenceSchedule,
   writeRecurrenceScheduleLastViewedId,
@@ -73,9 +79,26 @@ export type UseRecurrenceSchedulesClientResult = {
 
 export function useRecurrenceSchedulesClient(): UseRecurrenceSchedulesClientResult {
   const router = useRouter();
+  const pathname = usePathname() ?? GOVERNANCE_RECURRENCE_SCHEDULES_PATH;
   const searchParams = useSearchParams();
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
   const scopedRunFilterActive = scopedRunId.length > 0;
+  const urlShowCreate = parseRecurrenceSchedulesCreatePanelFromSearch(searchParams.get("create"));
+  const urlEditingId = parseRecurrenceSchedulesEditIdFromSearch(searchParams.get("edit"));
+  const urlDisableId = parseRecurrenceSchedulesDisableIdFromSearch(searchParams.get("disableScheduleId"));
+
+  const syncPanelsToUrl = useCallback(
+    (patch: {
+      readonly showCreatePanel?: boolean;
+      readonly editingId?: string | null;
+      readonly disableScheduleId?: string | null;
+    }) => {
+      router.replace(recurrenceSchedulesPanelsHrefFromSearch(searchParams.toString(), patch, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
 
   const onPickReviewForScheduling = useCallback(
     (reviewId: string) => {
@@ -99,12 +122,80 @@ export function useRecurrenceSchedulesClient(): UseRecurrenceSchedulesClientResu
   const [loadError, setLoadError] = useState<string | null>(null);
   const [retryingLoad, setRetryingLoad] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [showCreatePanel, setShowCreatePanel] = useState(false);
+  const [showCreatePanel, setShowCreatePanelState] = useState(urlShowCreate);
   const [createSeed, setCreateSeed] = useState<RecurrenceScheduleExample | null>(null);
   const [createSourceRunId, setCreateSourceRunId] = useState<string | undefined>(undefined);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingId, setEditingIdState] = useState<string | null>(urlEditingId.length > 0 ? urlEditingId : null);
   const [editorState, setEditorState] = useState<RecurrenceScheduleRowEditorState | null>(null);
-  const [pendingDisable, setPendingDisable] = useState<ArchitectureReviewRecurrenceSchedule | null>(null);
+  const [pendingDisable, setPendingDisableState] = useState<ArchitectureReviewRecurrenceSchedule | null>(null);
+
+  const setPendingDisable = useCallback(
+    (value: SetStateAction<ArchitectureReviewRecurrenceSchedule | null>) => {
+      setPendingDisableState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncPanelsToUrl({ disableScheduleId: next?.scheduleId ?? null });
+
+        return next;
+      });
+    },
+    [syncPanelsToUrl],
+  );
+
+  const setShowCreatePanel = useCallback(
+    (value: boolean | ((prev: boolean) => boolean)) => {
+      setShowCreatePanelState((prev) => {
+        const next = typeof value === "function" ? value(prev) : value;
+        syncPanelsToUrl({ showCreatePanel: next, editingId: next ? null : undefined });
+
+        return next;
+      });
+    },
+    [syncPanelsToUrl],
+  );
+
+  const setEditingId = useCallback(
+    (value: string | null | ((prev: string | null) => string | null)) => {
+      setEditingIdState((prev) => {
+        const next = typeof value === "function" ? value(prev) : value;
+        syncPanelsToUrl({ editingId: next, showCreatePanel: next !== null ? false : undefined });
+
+        return next;
+      });
+    },
+    [syncPanelsToUrl],
+  );
+
+  useEffect(() => {
+    setShowCreatePanelState(parseRecurrenceSchedulesCreatePanelFromSearch(searchParams.get("create")));
+    const editId = parseRecurrenceSchedulesEditIdFromSearch(searchParams.get("edit"));
+    setEditingIdState(editId.length > 0 ? editId : null);
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (urlDisableId.length === 0) {
+      if (pendingDisable !== null) {
+        setPendingDisableState(null);
+      }
+
+      return;
+    }
+
+    if (schedules.length === 0) {
+      return;
+    }
+
+    const schedule = schedules.find((row) => row.scheduleId === urlDisableId);
+
+    if (schedule === undefined) {
+      return;
+    }
+
+    if (pendingDisable?.scheduleId === urlDisableId) {
+      return;
+    }
+
+    setPendingDisableState(schedule);
+  }, [pendingDisable?.scheduleId, schedules, urlDisableId]);
 
   function openCreateFromExample(example: RecurrenceScheduleExample): void {
     if (!canMutate) {
@@ -238,6 +329,24 @@ export function useRecurrenceSchedulesClient(): UseRecurrenceSchedulesClientResu
     setEditingId(null);
     setEditorState(null);
   }
+
+  useEffect(() => {
+    if (urlEditingId.length === 0 || schedules.length === 0) {
+      return;
+    }
+
+    const match = schedules.find((schedule) => schedule.scheduleId === urlEditingId);
+
+    if (match === undefined) {
+      return;
+    }
+
+    setEditorState({
+      name: match.name,
+      cronExpression: match.cronExpression,
+      isEnabled: match.isEnabled,
+    });
+  }, [schedules, urlEditingId]);
 
   async function saveEdit(scheduleId: string, isEnabled: boolean): Promise<void> {
     if (!canMutate || editorState === null) {

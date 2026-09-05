@@ -12,6 +12,7 @@
 import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
 import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import {
   FIRST_REVIEW_GUIDE_PATH,
   FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID,
@@ -70,6 +71,10 @@ const CURATED_PALETTE_TASK_SOURCES: readonly CuratedPaletteTaskSource[] = [
   },
   { href: "/governance/policy-packs", searchValue: "task I want policy rules" },
   { href: GOVERNANCE_APPROVAL_QUEUE_PATH, searchValue: "task I want governance approval promotion" },
+  {
+    href: SIGNED_RECORDS_LIST_PATH,
+    searchValue: "task I want sealed review records finalized packages signed decisions",
+  },
 ];
 
 function toCuratedPaletteTask(source: CuratedPaletteTaskSource): CuratedPaletteTask {

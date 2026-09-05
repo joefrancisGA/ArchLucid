@@ -6,6 +6,11 @@ export const OPERATOR_BILLING_SETTINGS_CANONICAL_PATH = "/administration/billing
 
 export const OPERATOR_BILLING_SETTINGS_HELP_TOPIC_LABEL = "How billing and plans work" as const;
 
+export const OPERATOR_BILLING_SETTINGS_CLAIM_DISCIPLINE_HEADING = "What billing and plans is not";
+
+export const OPERATOR_BILLING_SETTINGS_CLAIM_DISCIPLINE =
+  "Plan, usage, and wallet controls on this page reflect workspace subscription state — they are not invoice-accurate financial reporting or a sealed audit export.";
+
 export const OPERATOR_BILLING_SETTINGS_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const OPERATOR_BILLING_SETTINGS_SOURCES_INTRO =

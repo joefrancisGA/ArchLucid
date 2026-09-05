@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type SetStateAction } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
 import { ArchitectureIntelligenceAnalysisDepthSelect } from "@/components/architecture-intelligence/ArchitectureIntelligenceAnalysisDepthSelect";
@@ -38,6 +39,10 @@ import { buildArchitectureIntelligenceRunHref } from "@/lib/architecture/archite
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { whyDisabledLlmBudgetExhausted } from "@/lib/why-disabled-cta";
 import { cn } from "@/lib/utils";
+import {
+  architectureDraftAiRefineFramingSkipConfirmHrefFromSearch,
+  parseArchitectureDraftAiRefineFramingSkipConfirmOpenFromSearch,
+} from "@/lib/architecture/architecture-draft-ai-refine-framing-skip-confirm-url";
 
 export type ArchitectureDraftAiRefinePanelProps = {
   readonly fields: ArchitectureDraftFieldState;
@@ -52,6 +57,10 @@ export type ArchitectureDraftAiRefinePanelProps = {
  */
 export function ArchitectureDraftAiRefinePanel(props: ArchitectureDraftAiRefinePanelProps) {
   const { fields, linkedReviewId = null, disabled = false } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const aiRefineFramingSkipConfirmParam = searchParams.get("aiRefineFramingSkipConfirm");
   const { blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
 
   const [reviewTier, setReviewTier] = useState<ArchitectureIntelligenceReviewTier>("Standard");
@@ -63,7 +72,45 @@ export function ArchitectureDraftAiRefinePanel(props: ArchitectureDraftAiRefineP
   const [skippedFramingQuestionIds, setSkippedFramingQuestionIds] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
-  const [skippedFramingWarningOpen, setSkippedFramingWarningOpen] = useState(false);
+  const [skippedFramingWarningOpen, setSkippedFramingWarningOpenState] = useState(() =>
+    parseArchitectureDraftAiRefineFramingSkipConfirmOpenFromSearch(aiRefineFramingSkipConfirmParam),
+  );
+
+  const syncSkippedFramingWarningToUrl = useCallback(
+    (confirmOpen: boolean) => {
+      if (pathname.length === 0) {
+        return;
+      }
+
+      router.replace(
+        architectureDraftAiRefineFramingSkipConfirmHrefFromSearch(
+          searchParams.toString(),
+          confirmOpen,
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSkippedFramingWarningOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setSkippedFramingWarningOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncSkippedFramingWarningToUrl(next);
+
+        return next;
+      });
+    },
+    [syncSkippedFramingWarningToUrl],
+  );
+
+  useEffect(() => {
+    setSkippedFramingWarningOpenState(
+      parseArchitectureDraftAiRefineFramingSkipConfirmOpenFromSearch(aiRefineFramingSkipConfirmParam),
+    );
+  }, [aiRefineFramingSkipConfirmParam]);
 
   const hydratedSources = useMemo(
     () => buildArchitectureIntelligenceSourcesFromDraftFields(fields),

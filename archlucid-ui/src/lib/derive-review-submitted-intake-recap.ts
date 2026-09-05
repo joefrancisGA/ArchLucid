@@ -49,6 +49,27 @@ function briefBodyWithoutScopeSection(description: string): string {
   return description.slice(0, sectionIndex).trimEnd();
 }
 
+function pushUniqueRecapField(
+  fields: ReviewSubmittedIntakeRecapField[],
+  field: ReviewSubmittedIntakeRecapField,
+): void {
+  const normalizedValue = field.value.trim().toLowerCase();
+
+  if (normalizedValue.length === 0) {
+    return;
+  }
+
+  const duplicateValue = fields.some(
+    (existing) => existing.value.trim().toLowerCase() === normalizedValue,
+  );
+
+  if (duplicateValue) {
+    return;
+  }
+
+  fields.push(field);
+}
+
 function pushScopeLineFields(
   fields: ReviewSubmittedIntakeRecapField[],
   scopeLines: readonly string[],
@@ -57,7 +78,7 @@ function pushScopeLineFields(
     const colonIndex = line.indexOf(":");
 
     if (colonIndex >= 0) {
-      fields.push({
+      pushUniqueRecapField(fields, {
         label: line.slice(0, colonIndex).trim(),
         value: line.slice(colonIndex + 1).trim(),
       });
@@ -65,7 +86,7 @@ function pushScopeLineFields(
       continue;
     }
 
-    fields.push({ label: "In-scope item", value: line.trim() });
+    pushUniqueRecapField(fields, { label: "In-scope item", value: line.trim() });
   }
 }
 
@@ -90,20 +111,20 @@ export function deriveReviewSubmittedIntakeRecap(
     extractGeneratedIntakeBriefTitle(description) ?? (input.systemName?.trim() || null);
 
   if (title !== null && title.length > 0) {
-    fields.push({ label: "Review title", value: title });
+    pushUniqueRecapField(fields, { label: "Review title", value: title });
   }
 
   if (isGeneratedIntakeBrief(description)) {
     const directiveMatch = GENERATED_BRIEF_EVALUATION_DIRECTIVE_PATTERN.exec(description);
 
     if (directiveMatch !== null) {
-      fields.push({ label: "Evaluation directive", value: directiveMatch[0] });
+      pushUniqueRecapField(fields, { label: "Evaluation directive", value: directiveMatch[0] });
     }
   } else {
     const briefBody = briefBodyWithoutScopeSection(description).trim();
 
     if (briefBody.length > 0 && briefBody !== title) {
-      fields.push({ label: "Architecture brief", value: truncateRecapValue(briefBody) });
+      pushUniqueRecapField(fields, { label: "Architecture brief", value: truncateRecapValue(briefBody) });
     }
   }
 
@@ -116,7 +137,10 @@ export function deriveReviewSubmittedIntakeRecap(
       ?.trim();
 
     if (outcome !== undefined && outcome.length > 0) {
-      fields.push({ label: GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL, value: outcome });
+      pushUniqueRecapField(fields, {
+        label: GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL,
+        value: outcome,
+      });
     }
   }
 

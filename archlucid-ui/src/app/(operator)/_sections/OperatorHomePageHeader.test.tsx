@@ -45,9 +45,9 @@ describe("OperatorHomePageHeader", () => {
     expect(screen.getByTestId("operator-home-data-currency")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-data-currency").textContent).toMatch(/^Refreshed:/);
 
-    const updatedPrefix = screen.getByText(`${OPERATOR_HOME_DATA_CURRENCY_PREFIX}:`);
-    expect(updatedPrefix.tagName).toBe("STRONG");
-    expect(updatedPrefix.className).toContain("font-bold");
+    const updatedValue = screen.getByTestId("operator-home-data-currency").querySelector("strong");
+    expect(updatedValue).not.toBeNull();
+    expect(updatedValue?.className).toContain("font-semibold");
     expect(screen.getByTestId("operator-home-data-currency").textContent?.toLowerCase()).not.toMatch(/\bnow\b/);
 
     expect(screen.getByTestId("operator-home-refresh-button")).toBeInTheDocument();
@@ -63,5 +63,16 @@ describe("OperatorHomePageHeader", () => {
 
     expect(screen.queryByTestId("operator-home-page-subtitle")).toBeNull();
     expect(screen.queryByText(BUYER_OPERATOR_HOME_PAGE_SUBTITLE)).toBeNull();
+  });
+
+  it("uses working-desk subtitle copy in Working mode", () => {
+    render(<OperatorHomePageHeader subtitle={operatorHomePageSubtitle(false, true)} />);
+
+    expect(screen.getByTestId("operator-home-page-subtitle")).toHaveTextContent(
+      operatorHomePageSubtitle(false, true),
+    );
+    expect(screen.getByTestId("operator-home-page-subtitle")).not.toHaveTextContent(
+      operatorHomePageSubtitle(false),
+    );
   });
 });

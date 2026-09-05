@@ -27,6 +27,8 @@ export const WEBHOOKS_INTEGRATION_HELP_PRIMARY_ACTION = {
   href: "/integrations/webhooks",
 } as const;
 
+export const WEBHOOKS_INTEGRATION_HELP_START_HERE_CARD_TITLE = "Start here" as const;
+
 export const WEBHOOKS_INTEGRATION_HELP_MUTATION_PREREQUISITE_NOTICE = WEBHOOKS_MUTATION_PREREQUISITE_NOTICE;
 
 export type WebhooksIntegrationHelpItem = {

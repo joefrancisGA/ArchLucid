@@ -1,4 +1,6 @@
 using ArchLucid.Application.Governance;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Persistence.Models;
 
 using FluentAssertions;
 
@@ -51,5 +53,34 @@ public sealed class RecurrenceScheduleValidationTests
             .Throw<ArgumentException>()
             .WithParameterName("cronExpression")
             .WithMessage($"*at most {RecurrenceScheduleValidation.CronExpressionMaxLength}*");
+    }
+
+    [Fact]
+    public void ValidateCommittedSourceRunOrThrow_rejects_ready_for_commit_run()
+    {
+        RunRecord run = new()
+        {
+            LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+        };
+
+        Action act = () => RecurrenceScheduleValidation.ValidateCommittedSourceRunOrThrow(run);
+
+        act.Should()
+            .Throw<ArgumentException>()
+            .WithParameterName("sourceRun")
+            .WithMessage("*committed*");
+    }
+
+    [Fact]
+    public void ValidateCommittedSourceRunOrThrow_accepts_committed_run()
+    {
+        RunRecord run = new()
+        {
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+        };
+
+        Action act = () => RecurrenceScheduleValidation.ValidateCommittedSourceRunOrThrow(run);
+
+        act.Should().NotThrow();
     }
 }

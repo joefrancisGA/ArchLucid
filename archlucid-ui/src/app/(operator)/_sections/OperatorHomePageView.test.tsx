@@ -1,8 +1,23 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+const evalChromeShellState = vi.hoisted(() => ({ current: false }));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => evalChromeShellState.current,
+}));
+
 vi.mock("next/navigation", () => ({
   usePathname: () => "/",
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => ({
+    mode: "guided",
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  }),
 }));
 
 // Product imports next/dynamic wrappers from deferred-chunks (TB-2145); leaf mocks alone never render.
@@ -53,6 +68,11 @@ vi.mock("@/components/operator/OperatorPageContainer", () => ({
 
 vi.mock("@/components/operator-home/operator-home-workspace-activity-context", () => ({
   OperatorHomeWorkspaceActivityProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  useOperatorHomeWorkspaceActivity: () => ({
+    hasReviews: false,
+    hasOverviewReviewRows: false,
+    openFindingsCount: 0,
+  }),
 }));
 
 vi.mock("@/components/operator-home/OperatorHomeDeferredPanels", () => ({
@@ -77,6 +97,10 @@ vi.mock("@/components/operator-home/OperatorHomeCompactStartingActionsSection", 
   OperatorHomeCompactStartingActionsSection: () => <div data-testid="operator-home-start-something" />,
 }));
 
+vi.mock("@/components/operator/OperatorAttentionKindStrip", () => ({
+  OperatorAttentionKindStrip: () => <div data-testid="operator-attention-kind-strip" />,
+}));
+
 vi.mock("@/components/operator-home/OperatorHomeDeferredOnboarding", () => ({
   OperatorHomeDeferredOnboarding: () => null,
   OperatorHomeFirstValueCallout: () => null,
@@ -88,7 +112,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 }));
 
 import { OperatorHomePageView } from "./OperatorHomePageView";
-import { OPERATOR_HOME_PRIMARY_SECTION_HEADING } from "@/lib/design-tokens";
+import { OPERATOR_HOME_SECTION_HEADING } from "@/lib/design-tokens";
 import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator/operator-home-recent-reviews-heading";
 import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
 
@@ -104,10 +128,26 @@ const mockRunsDashboard: OperatorHomePageViewModel["runsDashboard"] = {
   buyerPolishedShell: false,
 };
 
+const sampleRun = {
+  runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+  projectId: "default",
+  createdUtc: "2026-01-01T00:00:00Z",
+  description: "Active review",
+  hasFindingsSnapshot: false,
+  hasGoldenManifest: false,
+} as const;
+
 function mockHomeModel(buyerPolishedShell: boolean): OperatorHomePageViewModel {
+  evalChromeShellState.current = buyerPolishedShell;
+
   return {
     buyerPolishedShell,
-    runsDashboard: { ...mockRunsDashboard, buyerPolishedShell },
+    runsDashboard: {
+      ...mockRunsDashboard,
+      buyerPolishedShell,
+      items: [sampleRun],
+      totalCount: 1,
+    },
   };
 }
 
@@ -128,14 +168,15 @@ describe("OperatorHomePageView", () => {
     expect(screen.queryByTestId("operator-home-scope-details")).toBeNull(); // TB-2093
   });
 
-  it("renders an elevated Recent reviews section heading in buyer-polished home (TB-347)", () => {
+  it("renders Recent reviews as a secondary section heading in buyer-polished home (TB-347)", () => {
     render(<OperatorHomePageView model={mockHomeModel(true)} />);
 
     const heading = screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_RECENT_REVIEWS_HEADING });
 
     expect(heading).toHaveAttribute("id", "operator-home-reviews-heading");
-    expect(heading.className).toContain("font-bold");
-    expect(OPERATOR_HOME_PRIMARY_SECTION_HEADING).toContain("font-bold");
+    expect(heading.className).toContain("font-semibold");
+    expect(OPERATOR_HOME_SECTION_HEADING).toContain("font-semibold");
+    expect(heading.className).not.toContain("font-bold");
   });
 
   it("renders the same Recent reviews heading in full operator home (TB-347)", () => {
@@ -144,29 +185,27 @@ describe("OperatorHomePageView", () => {
     expect(screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_RECENT_REVIEWS_HEADING })).toBeInTheDocument();
   });
 
-  it("orders first-run buyer-polished home as hero, recent reviews, then explore sample without advanced guidance", () => {
+  it("orders populated buyer-polished home as recent reviews, then explore sample without advanced guidance", () => {
     render(<OperatorHomePageView model={mockHomeModel(true)} />);
 
     expect(screen.queryByTestId("operator-home-orientation-top")).toBeNull();
-    expect(screen.getByTestId("operator-home-hero-section")).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-hero-section")).toBeNull();
     expect(screen.getByTestId("home-block-runs-dashboard")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-explore-sample")).toBeInTheDocument();
     expect(screen.queryByTestId("home-block-advanced-guidance")).toBeNull();
     expect(screen.queryByTestId("home-block-workspace-status")).toBeNull();
     expect(screen.queryByTestId("home-block-example-request")).toBeNull();
 
-    const heroSection = screen.getByTestId("operator-home-hero-section");
     const runsDashboard = screen.getByTestId("home-block-runs-dashboard");
     const exploreSample = screen.getByTestId("home-block-explore-sample");
 
-    expect(heroSection.compareDocumentPosition(runsDashboard) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(runsDashboard.compareDocumentPosition(exploreSample) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("keeps operator shell hero, workspace activity, explore sample, workspace context, and advanced guidance in order", () => {
+  it("keeps operator shell workspace activity, explore sample, workspace context, and advanced guidance in order", () => {
     render(<OperatorHomePageView model={mockHomeModel(false)} />);
 
-    expect(screen.getByTestId("home-block-pilot-command-center")).toBeInTheDocument();
+    expect(screen.queryByTestId("home-block-pilot-command-center")).toBeNull();
     expect(screen.getByTestId("home-block-runs-dashboard")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-explore-sample")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-workspace-context")).toBeInTheDocument();
@@ -174,13 +213,11 @@ describe("OperatorHomePageView", () => {
     expect(screen.getByTestId("home-block-advanced-guidance")).toBeInTheDocument();
     expect(screen.queryByTestId("home-block-example-request")).toBeNull();
 
-    const hero = screen.getByTestId("home-block-pilot-command-center");
     const runsDashboard = screen.getByTestId("home-block-runs-dashboard");
     const exploreSample = screen.getByTestId("home-block-explore-sample");
     const workspaceContext = screen.getByTestId("home-block-workspace-context");
     const advancedGuidance = screen.getByTestId("home-block-advanced-guidance");
 
-    expect(hero.compareDocumentPosition(runsDashboard) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(runsDashboard.compareDocumentPosition(exploreSample) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(exploreSample.compareDocumentPosition(workspaceContext) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(workspaceContext.compareDocumentPosition(advancedGuidance) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -189,6 +226,8 @@ describe("OperatorHomePageView", () => {
   it.each([false, true])(
     "does not mount the stickiness cockpit on returning home (buyerPolishedShell=%s)",
     (buyerPolishedShell) => {
+      evalChromeShellState.current = buyerPolishedShell;
+
       render(
         <OperatorHomePageView
           model={{
@@ -228,34 +267,27 @@ describe("OperatorHomePageView", () => {
         return;
       }
 
-      const stickiness = screen.getByTestId("operator-home-stickiness-cockpit");
-
-      expect(stickiness.compareDocumentPosition(quickSwitch) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(screen.queryByTestId("operator-home-stickiness-cockpit")).toBeNull();
       expect(sponsorRoi.compareDocumentPosition(quickSwitch) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     },
   );
 
-  it("does not show the attention kind strip on home (TB-2353)", () => {
+  it("shows the attention kind strip with helper copy on populated operator home (TB-2353)", () => {
+    evalChromeShellState.current = false;
+
     render(
       <OperatorHomePageView
         model={{
           buyerPolishedShell: false,
           runsDashboard: {
             ...mockRunsDashboard,
-            items: [
-              {
-                runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-                projectId: "default",
-                createdUtc: "2026-01-01T00:00:00Z",
-                hasGoldenManifest: false,
-              },
-            ],
+            items: [sampleRun],
             totalCount: 1,
           },
         }}
       />,
     );
 
-    expect(screen.queryByTestId("operator-attention-kind-strip")).not.toBeInTheDocument();
+    expect(screen.getByTestId("operator-attention-kind-strip")).toBeInTheDocument();
   });
 });

@@ -14,8 +14,9 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ReviewPackageDoThisNextStrip } from "./ReviewPackageDoThisNextStrip";
+import { RunDetailReviewPackageStampViewport } from "./RunDetailReviewPackageStampViewport";
 import { FinalizeReadinessStrip } from "@/components/reviews/FinalizeReadinessStrip";
-import { FinalizeSkippedMustStrip } from "@/components/reviews/FinalizeSkippedMustStrip";
+import { resolveReviewFailureRecordedAtUtc } from "@/components/resolve-run-detail-last-failure-summary";
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import type {
   ResolveReviewPackageDoThisNextInput,
@@ -24,7 +25,7 @@ import type {
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
 import type { RunSummary } from "@/types/authority";
-import type { TransparencyTrail } from "@/types/feasibility-verdict";
+import type { TransparencyTrail, ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
 export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackageDoThisNextInput & {
   readonly hasGoldenManifest: boolean;
@@ -33,12 +34,16 @@ export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackage
   readonly quickDecisionFindings: readonly QuickDecisionFinding[];
   readonly requestAssumptionTexts: readonly string[];
   readonly transparencyTrail?: TransparencyTrail | null;
+  readonly feasibilityVerdict?: ManifestFeasibilityVerdict | null;
   readonly pipelineDiagnosticContext?: ReviewPipelineDiagnosticContext | null;
   readonly lastFailureSummary?: RunDetailLastFailureSummary | null;
   readonly pipelineSummary?: RunSummary | null;
+  readonly runCompletedUtc?: string | null;
   readonly intakeDescription?: string | null;
   readonly intakeSystemName?: string | null;
   readonly realModeFellBackToSimulator?: boolean | null;
+  readonly graphSnapshot?: unknown;
+  readonly analysisStagesComplete?: boolean;
 };
 
 function doThisNextLoadingSkeleton(): React.JSX.Element {
@@ -195,10 +200,22 @@ export function RunDetailReviewPackageDoThisNextResolved(
 
   return (
     <>
-      {!props.hasGoldenManifest ? (
-        <FinalizeSkippedMustStrip transparencyTrail={props.transparencyTrail ?? null} className="mb-3" />
-      ) : null}
-      <FinalizeReadinessStrip commitBlockedReason={assumptionAwareCommitBlockedReason} />
+      <RunDetailReviewPackageStampViewport
+        hasGoldenManifest={props.hasGoldenManifest}
+        runId={props.runId}
+        feasibilityVerdict={props.feasibilityVerdict ?? null}
+        runCompleted={props.runCompleted ?? false}
+        analysisStagesComplete={props.analysisStagesComplete}
+        graphSnapshot={props.graphSnapshot}
+        transparencyTrail={props.transparencyTrail ?? null}
+      />
+      <FinalizeReadinessStrip
+        commitBlockedReason={
+          next.failureRecovery !== null && next.failureRecovery !== undefined
+            ? null
+            : assumptionAwareCommitBlockedReason
+        }
+      />
       <ReviewPackageDoThisNextStrip
         next={next}
         runId={props.runId}
@@ -209,6 +226,11 @@ export function RunDetailReviewPackageDoThisNextResolved(
         canConfigureWorkspaceAi={canConfigureWorkspaceAi}
         usesCustomerAiConnection={usesCustomerAiConnection}
         transparencyTrail={props.transparencyTrail ?? null}
+        lastFailureSummary={props.lastFailureSummary ?? null}
+        failureRecordedAtUtc={resolveReviewFailureRecordedAtUtc({
+          pipelineSummary: props.pipelineSummary ?? null,
+          runCompletedUtc: props.runCompletedUtc ?? props.pipelineSummary?.completedUtc ?? null,
+        })}
       />
     </>
   );

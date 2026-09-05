@@ -2,7 +2,9 @@ using System.Text.Json;
 
 using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -473,8 +475,8 @@ public sealed class ComparisonReplayServiceTests
         {
             LeftExportRecordId = "left-export",
             RightExportRecordId = "right-export",
-            LeftRunId = "lr",
-            RightRunId = "rr"
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
         };
     }
 
@@ -523,8 +525,22 @@ public sealed class ComparisonReplayServiceTests
         IExportRecordDiffService? diffService = null,
         IExportRecordDiffSummaryFormatter? diffFormatter = null,
         IExportRecordDiffExportService? diffExport = null,
-        IRunExportRecordRepository? runExports = null)
+        IRunExportRecordRepository? runExports = null,
+        IAuthorityQueryService? authorityQuery = null,
+        IManifestHashService? manifestHash = null,
+        IScopeContextProvider? scopeProvider = null)
     {
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunDetailDto?)null);
+
         return new ComparisonReplayService(
             comparisonRepo ?? Mock.Of<IComparisonRecordRepository>(),
             audit ?? Mock.Of<IComparisonAuditService>(),
@@ -534,7 +550,10 @@ public sealed class ComparisonReplayServiceTests
             diffService ?? Mock.Of<IExportRecordDiffService>(),
             diffFormatter ?? Mock.Of<IExportRecordDiffSummaryFormatter>(),
             diffExport ?? Mock.Of<IExportRecordDiffExportService>(),
-            runExports ?? Mock.Of<IRunExportRecordRepository>());
+            runExports ?? Mock.Of<IRunExportRecordRepository>(),
+            authorityQuery ?? authority.Object,
+            manifestHash ?? Mock.Of<IManifestHashService>(),
+            scopeProvider ?? scope.Object);
     }
 
     private static IComparisonDriftAnalyzer CreateDefaultDriftAnalyzer()

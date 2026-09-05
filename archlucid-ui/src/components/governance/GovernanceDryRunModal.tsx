@@ -2,7 +2,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState, type SetStateAction } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +24,11 @@ import {
   type PolicyPackSimulationSummary,
 } from "@/lib/policy/policy-pack-dry-run-summary";
 import {
+  parsePolicyPackDryRunConfirmOpenFromSearch,
+  policyPackDryRunConfirmHrefFromSearch,
+} from "@/lib/policy/policy-pack-dry-run-confirm-url";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import {
   POLICY_PACK_DRY_RUN_DEFAULT_PAGE_SIZE,
   POLICY_PACK_DRY_RUN_MAX_PAGE_SIZE,
   type PolicyPackDryRunResponse,
@@ -38,7 +44,11 @@ export interface GovernanceDryRunModalProps {
  * fixed at 20 (owner Q38) and the API will clamp anything larger than 100 server-side.
  */
 export function GovernanceDryRunModal({ policyPackId }: GovernanceDryRunModalProps) {
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? GOVERNANCE_POLICY_PACKS_PATH;
+  const searchParams = useSearchParams();
+  const dryRunOpenParam = searchParams.get("dryRunOpen");
+  const [open, setOpenState] = useState(() => parsePolicyPackDryRunConfirmOpenFromSearch(dryRunOpenParam));
   const [thresholdsJson, setThresholdsJson] = useState<string>(
     '{"maxCriticalFindings":"0","maxHighFindings":"3"}',
   );
@@ -54,6 +64,32 @@ export function GovernanceDryRunModal({ policyPackId }: GovernanceDryRunModalPro
     setResult(null);
   }, []);
 
+  const syncDryRunOpenToUrl = useCallback(
+    (nextOpen: boolean) => {
+      router.replace(
+        policyPackDryRunConfirmHrefFromSearch(searchParams.toString(), nextOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncDryRunOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncDryRunOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOpenState(parsePolicyPackDryRunConfirmOpenFromSearch(dryRunOpenParam));
+  }, [dryRunOpenParam]);
+
   const onOpenChange = useCallback(
     (next: boolean) => {
       setOpen(next);
@@ -62,7 +98,7 @@ export function GovernanceDryRunModal({ policyPackId }: GovernanceDryRunModalPro
         reset();
       }
     },
-    [reset],
+    [reset, setOpen],
   );
 
   const onSubmit = useCallback(async () => {

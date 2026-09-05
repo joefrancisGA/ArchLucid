@@ -42,7 +42,8 @@ export function useGuidedIntakeDraftSubmit(options: Options) {
     const filesToUpload = [...form.evidenceFiles];
 
     try {
-      const result = await submitDraftRequest(core.draftId);
+      const draftBeforeSubmit = await getDraftRequest(core.draftId);
+      const result = await submitDraftRequest(core.draftId, draftBeforeSubmit.updatedUtc);
       const submittedDraft = await getDraftRequest(core.draftId);
       core.setDraftStatus(submittedDraft.status);
       core.setLinkedSpawnedRunId(architectureDraftSpawnedRunId(submittedDraft));

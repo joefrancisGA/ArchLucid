@@ -1,6 +1,11 @@
+import {
+  deriveRunsDashboardTabCounts,
+  type RunsDashboardTabCounts,
+} from "@/components/operator-home/runs-dashboard-helpers";
+import { formatOperatorHomeApprovalCheckWarningCount } from "@/lib/operator/operator-home-approval-check-warning-copy";
 import { OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME } from "@/lib/buyer/buyer-polish-copy";
 import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
-import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
+import { isShowcaseSampleOfAnyKind } from "@/lib/demo-run-canonical";
 import type { OperatorHomeWorkspaceMetricsSnapshot } from "@/lib/operator/operator-home-workspace-metrics";
 import type { RunSummary } from "@/types/authority";
 import { projectReviewLifecycleForDisplay } from "@/lib/vocabulary/project-review-lifecycle-for-display";
@@ -43,12 +48,12 @@ export function formatOperatorHomeRecentReviewsOutcome(
 
   if (metrics.governanceWarnings > 0) {
     pressureParts.push(
-      `${metrics.governanceWarnings} with approval-check warnings`,
+      `with ${formatOperatorHomeApprovalCheckWarningCount(metrics.governanceWarnings)}`,
     );
   }
 
   if (pressureParts.length === 0) {
-    return `${packagePart} · no open finding pressure`;
+    return `${packagePart} · no open findings`;
   }
 
   return `${packagePart} · ${pressureParts.join(" · ")}`;
@@ -62,7 +67,7 @@ export function isExampleOnlyOverviewRunList(items: readonly RunSummary[]): bool
 
   return items.every(
     (run) =>
-      isDemoSeededOverviewInjectedRun(run) || isShowcaseStaticDemoRunId(run.runId ?? ""),
+      isDemoSeededOverviewInjectedRun(run) || isShowcaseSampleOfAnyKind(run.runId ?? ""),
   );
 }
 
@@ -70,9 +75,41 @@ export function isExampleOnlyOverviewRunList(items: readonly RunSummary[]): bool
 export function filterTenantOverviewRuns(items: readonly RunSummary[]): RunSummary[] {
   return items.filter(
     (run) =>
-      !isDemoSeededOverviewInjectedRun(run) && !isShowcaseStaticDemoRunId(run.runId ?? ""),
+      !isDemoSeededOverviewInjectedRun(run) && !isShowcaseSampleOfAnyKind(run.runId ?? ""),
   );
 }
 
 /** Featured recent-review rows on Overview (full list lives on Architecture packages). */
 export const OPERATOR_HOME_RECENT_FEATURED_LIMIT = 2;
+
+export type HomePreviewTabCounts = RunsDashboardTabCounts & {
+  readonly recentVisibleCount: number;
+  readonly recentTotalCount: number;
+};
+
+export type DeriveHomePreviewTabCountsInput = {
+  readonly previewItems: readonly RunSummary[];
+  /** When the buyer proof card already names the showcase sample, omit that row from tab counts. */
+  readonly excludeShowcaseRunId?: string | undefined;
+};
+
+/**
+ * Tab counts for the home recent-reviews preview — uses deduped preview rows and caps the
+ * Recent tab at the featured limit so labels read `Recent (2 of N)` instead of a silent cap.
+ */
+export function deriveHomePreviewTabCounts(input: DeriveHomePreviewTabCountsInput): HomePreviewTabCounts {
+  const listItems =
+    input.excludeShowcaseRunId !== undefined
+      ? input.previewItems.filter((run) => run.runId !== input.excludeShowcaseRunId)
+      : input.previewItems;
+  const baseCounts = deriveRunsDashboardTabCounts(listItems);
+  const recentTotalCount = listItems.length;
+  const recentVisibleCount = Math.min(listItems.length, OPERATOR_HOME_RECENT_FEATURED_LIMIT);
+
+  return {
+    ...baseCounts,
+    all: recentVisibleCount,
+    recentVisibleCount,
+    recentTotalCount,
+  };
+}

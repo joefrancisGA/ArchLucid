@@ -25,9 +25,12 @@ import {
   writeWorkItemBodyToClipboard,
   type FindingWorkItemBuildInput,
 } from "@/lib/copy-finding-as-work-item";
+import { resolveFindingWorkItemCoverageHonesty } from "@/lib/copy-finding-as-work-item-coverage-honesty";
+import { findingWorkItemSealedManifestCopyBlockedReason } from "@/lib/findings/finding-work-item-sealed-manifest-guard";
 import { showError, showSuccess } from "@/lib/toast";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 
 /** Target system for pasted body text (Markdown family shares the same builders today). */
 const FORMAT_ITEMS: readonly { readonly value: WorkItemClipboardFormat; readonly label: string }[] = [
@@ -66,11 +69,12 @@ function buildFindingWorkItemInput(
   findingId: string,
   siteOrigin: string,
   payload: FindingInspectPayload,
+  includeCoverageHonesty: boolean,
 ): FindingWorkItemBuildInput {
   const labels = findingInspectPrimaryLabels(payload);
   const narrative = findingInspectNarrativeFields(payload);
-
-  return {
+  const evidenceExcerpts = evidenceLinesFromInspectPayload(payload);
+  const baseInput: FindingWorkItemBuildInput = {
     runId,
     findingId,
     siteOrigin,
@@ -82,9 +86,20 @@ function buildFindingWorkItemInput(
     recommendedAction: labels.recommendedAction,
     decisionRuleId: payload.decisionRuleId,
     decisionRuleName: payload.decisionRuleName,
-    evidenceExcerpts: evidenceLinesFromInspectPayload(payload),
+    evidenceExcerpts,
     trustLabel: payload.trustLabel ?? null,
     trustLabelReason: payload.trustLabelReason ?? null,
+    manifestVersion: payload.manifestVersion ?? null,
+    includeCoverageHonesty,
+  };
+  const coverageHonesty = includeCoverageHonesty
+    ? resolveFindingWorkItemCoverageHonesty(baseInput, payload)
+    : null;
+
+  return {
+    ...baseInput,
+    coverageHonestyLine: coverageHonesty?.line ?? null,
+    coverageHonestyProvenanceKind: coverageHonesty?.provenanceKind ?? null,
   };
 }
 
@@ -194,6 +209,7 @@ export function CopyFindingAsWorkItemButton({
   prominent = false,
   compact = false,
 }: CopyFindingAsWorkItemButtonProps) {
+  const { isWorkingMode } = useWorkspaceMode();
   const [format, setFormat] = useState<WorkItemClipboardFormat>("jiraWiki");
   const [copied, setCopied] = useState<CopyFeedbackKind>("none");
 
@@ -220,19 +236,44 @@ export function CopyFindingAsWorkItemButton({
     [resetCopied],
   );
 
+  const ensureCopyAllowed = useCallback(
+    (input: FindingWorkItemBuildInput): boolean => {
+      const blockedReason = findingWorkItemSealedManifestCopyBlockedReason(input);
+
+      if (blockedReason !== null) {
+        showError(blockedReason);
+
+        return false;
+      }
+
+      return true;
+    },
+    [],
+  );
+
   const onQuickCopyJira = useCallback(async () => {
     const siteOrigin = typeof window !== "undefined" ? window.location.origin : "";
-    const input = buildFindingWorkItemInput(runId, findingId, siteOrigin, payload);
+    const input = buildFindingWorkItemInput(runId, findingId, siteOrigin, payload, isWorkingMode);
+
+    if (!ensureCopyAllowed(input)) {
+      return;
+    }
+
     const text = buildInspectFindingWorkItemBody("jiraWiki", input);
     await copyText(text, "jira");
-  }, [copyText, findingId, payload, runId]);
+  }, [copyText, ensureCopyAllowed, findingId, isWorkingMode, payload, runId]);
 
   const onCopySelectedFormat = useCallback(async () => {
     const siteOrigin = typeof window !== "undefined" ? window.location.origin : "";
-    const input = buildFindingWorkItemInput(runId, findingId, siteOrigin, payload);
+    const input = buildFindingWorkItemInput(runId, findingId, siteOrigin, payload, isWorkingMode);
+
+    if (!ensureCopyAllowed(input)) {
+      return;
+    }
+
     const text = buildInspectFindingWorkItemBody(format, input);
     await copyText(text, "selected");
-  }, [copyText, findingId, format, payload, runId]);
+  }, [copyText, ensureCopyAllowed, findingId, format, isWorkingMode, payload, runId]);
 
   return (
     <WorkItemCopyControls
@@ -258,6 +299,7 @@ export type CopyGovernanceQueueWorkItemButtonProps = {
   severityLabel: string;
   recommendedAction: string;
   statusLabel: string;
+  manifestVersion?: string | null;
   /** Compact layout for queue table cells. */
   compact?: boolean;
 };
@@ -272,6 +314,7 @@ export function CopyGovernanceQueueWorkItemButton({
   severityLabel,
   recommendedAction,
   statusLabel,
+  manifestVersion = null,
   compact = false,
 }: CopyGovernanceQueueWorkItemButtonProps) {
   const [format, setFormat] = useState<WorkItemClipboardFormat>("jiraWiki");
@@ -315,15 +358,35 @@ export function CopyGovernanceQueueWorkItemButton({
     [resetCopied],
   );
 
+  const ensureCopyAllowed = useCallback((): boolean => {
+    const blockedReason = findingWorkItemSealedManifestCopyBlockedReason({ runId, manifestVersion });
+
+    if (blockedReason !== null) {
+      showError(blockedReason);
+
+      return false;
+    }
+
+    return true;
+  }, [manifestVersion, runId]);
+
   const onQuickCopyJira = useCallback(async () => {
+    if (!ensureCopyAllowed()) {
+      return;
+    }
+
     const text = buildTraceRowWorkItemBody("jiraWiki", buildRowInput());
     await copyText(text, "jira");
-  }, [buildRowInput, copyText]);
+  }, [buildRowInput, copyText, ensureCopyAllowed]);
 
   const onCopySelectedFormat = useCallback(async () => {
+    if (!ensureCopyAllowed()) {
+      return;
+    }
+
     const text = buildTraceRowWorkItemBody(format, buildRowInput());
     await copyText(text, "selected");
-  }, [buildRowInput, copyText, format]);
+  }, [buildRowInput, copyText, ensureCopyAllowed, format]);
 
   return (
     <WorkItemCopyControls
@@ -345,12 +408,17 @@ export function CopyGovernanceQueueWorkItemButton({
 export type CopyTraceRowWorkItemButtonProps = {
   runId: string;
   row: FindingTraceConfidenceDto;
+  manifestVersion?: string | null;
 };
 
 /**
  * Minimal copy for [`RunFindingExplainabilityTable`](/components/RunFindingExplainabilityTable) rows (aggregate trace list).
  */
-export function CopyTraceRowWorkItemButton({ runId, row }: CopyTraceRowWorkItemButtonProps) {
+export function CopyTraceRowWorkItemButton({
+  runId,
+  row,
+  manifestVersion = null,
+}: CopyTraceRowWorkItemButtonProps) {
   const [format, setFormat] = useState<WorkItemClipboardFormat>("jiraWiki");
   const [copied, setCopied] = useState<CopyFeedbackKind>("none");
 
@@ -392,15 +460,35 @@ export function CopyTraceRowWorkItemButton({ runId, row }: CopyTraceRowWorkItemB
     [resetCopied],
   );
 
+  const ensureCopyAllowed = useCallback((): boolean => {
+    const blockedReason = findingWorkItemSealedManifestCopyBlockedReason({ runId, manifestVersion });
+
+    if (blockedReason !== null) {
+      showError(blockedReason);
+
+      return false;
+    }
+
+    return true;
+  }, [manifestVersion, runId]);
+
   const onQuickCopyJira = useCallback(async () => {
+    if (!ensureCopyAllowed()) {
+      return;
+    }
+
     const text = buildTraceRowWorkItemBody("jiraWiki", buildRowInput());
     await copyText(text, "jira");
-  }, [buildRowInput, copyText]);
+  }, [buildRowInput, copyText, ensureCopyAllowed]);
 
   const onCopySelectedFormat = useCallback(async () => {
+    if (!ensureCopyAllowed()) {
+      return;
+    }
+
     const text = buildTraceRowWorkItemBody(format, buildRowInput());
     await copyText(text, "selected");
-  }, [buildRowInput, copyText, format]);
+  }, [buildRowInput, copyText, ensureCopyAllowed, format]);
 
   return (
     <WorkItemCopyControls

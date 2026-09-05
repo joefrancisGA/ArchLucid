@@ -35,6 +35,12 @@ public sealed class TopologyCrossRunDiffFindingEngine(
         GraphSnapshot? priorGraph = await TryLoadPriorGraphAsync(analysisContext, ct).ConfigureAwait(false);
         CrossRunDiffFindingPriorGuard.EnsurePriorGraphLoadedOrThrow(analysisContext, priorGraph, EngineType);
         CrossRunDiffFindingPriorGuard.EnsurePriorGraphPinFingerprintsMatchOrThrow(analysisContext, priorGraph, EngineType);
+        CrossRunDiffFindingPriorGuard.EnsurePriorRevisionResolvableOrThrow(
+            analysisContext,
+            priorGraph,
+            graphSnapshot,
+            ContextGraphPropertyKeys.PriorTopologyCategories,
+            EngineType);
         TopologyCategoryDiffResult diff = GraphSnapshotTopologyDiffAnalyzer.AnalyzeCategoryDelta(graphSnapshot, priorGraph);
         List<Finding> findings = [];
         List<string> scopeNodeIds = CrossRunDiffFindingGraphScope.CollectTopologyNodeIds(graphSnapshot);

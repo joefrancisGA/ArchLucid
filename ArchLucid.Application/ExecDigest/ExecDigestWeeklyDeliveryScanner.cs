@@ -5,7 +5,9 @@ using ArchLucid.Contracts.Notifications;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -21,6 +23,8 @@ public sealed class ExecDigestWeeklyDeliveryScanner(
     ITenantTrialEmailContactLookup tenantTrialEmailContactLookup,
     IExecDigestUnsubscribeTokenFactory unsubscribeTokenFactory,
     IExecDigestSponsorDeepLinkTokenFactory sponsorDeepLinkTokenFactory,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor,
     ILogger<ExecDigestWeeklyDeliveryScanner> logger)
 {
@@ -46,6 +50,12 @@ public sealed class ExecDigestWeeklyDeliveryScanner(
 
     private readonly IExecDigestSponsorDeepLinkTokenFactory _sponsorDeepLinkTokenFactory =
         sponsorDeepLinkTokenFactory ?? throw new ArgumentNullException(nameof(sponsorDeepLinkTokenFactory));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     public async Task PublishDueAsync(DateTimeOffset utcNow, CancellationToken cancellationToken)
     {
@@ -136,6 +146,13 @@ public sealed class ExecDigestWeeklyDeliveryScanner(
             tenantId,
             isoKey,
             operatorBase);
+
+        await ExecDigestEmailDispatchSealedManifestHashGuard.EnsureCompositionRunsSealedOrThrowAsync(
+            tokenizedComposition,
+            scope,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken).ConfigureAwait(false);
 
         await _execDigestEmailDispatcher.TryDispatchAsync(
                 tenantId,

@@ -93,6 +93,11 @@ public sealed class AuthorityReplayService(
             return result;
         }
 
+        AuthorityReplaySealedManifestHashGuard.EnsureRunSealedManifestHashOrThrow(
+            original.GoldenManifest,
+            request.RunId.ToString(),
+            manifestHashService);
+
         (ManifestDocument manifest, DecisionTraceDto trace) = await decisionEngine.DecideAsync(
             original.Run.RunId,
             original.ContextSnapshot.SnapshotId,

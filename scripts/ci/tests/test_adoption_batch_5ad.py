@@ -22,8 +22,11 @@ class TestAdoptionBatch5AD(unittest.TestCase):
         self.assertIn("SponsorPacketWriter.WriteAsync", text)
 
     def test_tb_216_try_command_invokes_proof_packet_writer(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Cli" / "Commands" / "SponsorPacketWriter.cs"
-        text = path.read_text(encoding="utf-8")
+        commands_dir = REPO_ROOT / "ArchLucid.Cli" / "Commands"
+        text = "".join(
+            path.read_text(encoding="utf-8")
+            for path in sorted(commands_dir.glob("SponsorPacketWriter*.cs"))
+        )
         self.assertIn("WriteAsync", text)
         self.assertIn("PilotProofPacketCommand.WriteFolderAsync", text)
 

@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
 
+import { buildAuthSignInHref } from "@/lib/navigation/auth-sign-in-href";
+
 import {
   GET_STARTED_GUIDED_WORKSPACE_SIGN_IN_NOTE,
   GET_STARTED_VERTICAL_PRESENTATIONS,
   buildGuidedTrialHref,
+  buildSignInTrialHref,
 } from "./get-started-content";
 import {
   PRIMARY_SHOWCASE_PROOF_HREF,
@@ -27,6 +30,13 @@ describe("get-started-content", () => {
       "/architecture/first-review-guide?source=get-started&vertical=retail",
     );
     expect(buildGuidedTrialHref("retail")).not.toContain("templates");
+  });
+
+  it("buildSignInTrialHref matches buildAuthSignInHref onboarding return path", () => {
+    expect(buildSignInTrialHref()).toBe(buildAuthSignInHref({ returnPath: buildGuidedTrialHref() }));
+    expect(buildSignInTrialHref("retail")).toBe(
+      buildAuthSignInHref({ returnPath: buildGuidedTrialHref("retail") }),
+    );
   });
 
   it("describes guided workspace sign-in without work-identity-only framing", () => {

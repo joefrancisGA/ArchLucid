@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 
 const RECOVERY_SOURCE_FILES = [
   "src/components/ReviewPackageLoadFailureView.tsx",
+  "src/components/runs/RunsListAggregateErrorBoundary.tsx",
 ];
 
 describe("live operator shell recovery inventory", () => {
@@ -43,5 +44,18 @@ describe("live operator shell recovery inventory", () => {
       expect(source).not.toContain("SHOWCASE_STATIC_DEMO_RUN_ID");
       expect(source).not.toContain("SHOWCASE_STATIC_DEMO_MANIFEST_ID");
     }
+  });
+
+  it("gates RunsListAggregateErrorBoundary sample substitution on live shell context", () => {
+    const source = readFileSync(
+      join(process.cwd(), "src/components/runs/RunsListAggregateErrorBoundary.tsx"),
+      "utf8",
+    );
+
+    expect(source).toContain("isLiveOperatorShellRecoveryContext");
+    expect(source).toContain("tryStaticDemoRunSummariesPaged");
+    expect(source).toMatch(
+      /isLiveOperatorShellRecoveryContext\(\)\s*\?\s*null\s*:\s*tryStaticDemoRunSummariesPaged/,
+    );
   });
 });

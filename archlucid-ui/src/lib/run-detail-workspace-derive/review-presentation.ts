@@ -172,14 +172,12 @@ export function deriveReviewHeaderPresentation(input: {
   const templateLabel = input.templateLabel?.trim() ?? "";
   const hasManifest = (input.manifestId ?? "").trim().length > 0;
   const runId = input.runId.trim();
-  const shortReviewId =
-    runId.length > 12 ? `${runId.slice(0, 8)}…${runId.slice(-4)}` : runId;
 
   if (systemName.length > 0) {
     return {
       h1Title: systemName,
       eyebrowLabel: resolveReviewHeaderEyebrow(reviewTitle, systemName),
-      reviewIdentifierLabel: shortReviewId.length > 0 ? shortReviewId : runId,
+      reviewIdentifierLabel: runId,
     };
   }
 
@@ -187,7 +185,7 @@ export function deriveReviewHeaderPresentation(input: {
     return {
       h1Title: reviewTitle,
       eyebrowLabel: "Architecture review",
-      reviewIdentifierLabel: shortReviewId.length > 0 ? shortReviewId : runId,
+      reviewIdentifierLabel: runId,
     };
   }
 
@@ -195,22 +193,22 @@ export function deriveReviewHeaderPresentation(input: {
     return {
       h1Title: templateLabel,
       eyebrowLabel: "Architecture review",
-      reviewIdentifierLabel: shortReviewId.length > 0 ? shortReviewId : runId,
+      reviewIdentifierLabel: runId,
     };
   }
 
   if (reviewTitle.length > 0 && reviewTitle.toLowerCase() === PRODUCT_BRAND_NAME.toLowerCase()) {
     return {
-      h1Title: PRODUCT_BRAND_NAME,
+      h1Title: "Architecture under review",
       eyebrowLabel: "Architecture review",
-      reviewIdentifierLabel: shortReviewId.length > 0 ? shortReviewId : runId,
+      reviewIdentifierLabel: runId,
     };
   }
 
   return {
     h1Title: "Architecture under review",
     eyebrowLabel: "Architecture review",
-    reviewIdentifierLabel: shortReviewId.length > 0 ? shortReviewId : runId,
+    reviewIdentifierLabel: runId,
   };
 }
 export function derivePackageVersionLabel(

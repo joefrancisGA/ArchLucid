@@ -155,7 +155,7 @@ export function HelpPanel(props: HelpPanelProps) {
             <Link href="/architecture/first-review-guide" className={OPERATOR_LINK.nav} onClick={() => onOpenChange(false)}>
               Getting started
             </Link>{" "}
-            (first-review checklist on Overview)
+            (first-review checklist on Home)
           </p>
         </footer>
       </HelpDrawerContent>

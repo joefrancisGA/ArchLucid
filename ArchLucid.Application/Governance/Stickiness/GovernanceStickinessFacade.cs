@@ -4,9 +4,12 @@ using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Governance.Stickiness;
 
@@ -29,7 +32,9 @@ public sealed partial class GovernanceStickinessFacade(
     IReviewsAwaitingActionQueryService reviewsAwaitingActionQueryService,
     IRealizedValueAttestationService attestationService,
     IAuditService auditService,
-    IFindingInspectReadRepository findingInspectReadRepository) : IGovernanceStickinessFacade
+    IFindingInspectReadRepository findingInspectReadRepository,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : IGovernanceStickinessFacade
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -78,6 +83,12 @@ public sealed partial class GovernanceStickinessFacade(
 
     private readonly IFindingInspectReadRepository _findingInspectReadRepository =
         findingInspectReadRepository ?? throw new ArgumentNullException(nameof(findingInspectReadRepository));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     /// <inheritdoc />
     public async Task<ArchitectureRiskRegisterResponse> GetRiskRegisterAsync(

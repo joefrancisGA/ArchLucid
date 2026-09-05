@@ -53,7 +53,13 @@ public sealed class ComplianceDriftTrendServiceTests
         Mock<IPolicyPackChangeLogRepository> repo = new();
         DateTime from = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         DateTime to = from.AddDays(1);
-        repo.Setup(r => r.GetByTenantInRangeAsync(TenantId, from, to, It.IsAny<CancellationToken>()))
+        repo.Setup(r => r.GetByScopeInRangeAsync(
+                TenantId,
+                WorkspaceId,
+                ProjectId,
+                from,
+                to,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         ComplianceDriftTrendService sut = CreateSut(repo);
@@ -110,7 +116,13 @@ public sealed class ComplianceDriftTrendServiceTests
             ChangedUtc = from.AddHours(7),
         };
 
-        repo.Setup(r => r.GetByTenantInRangeAsync(TenantId, from, to, It.IsAny<CancellationToken>()))
+        repo.Setup(r => r.GetByScopeInRangeAsync(
+                TenantId,
+                WorkspaceId,
+                ProjectId,
+                from,
+                to,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([e1, e2, e3]);
 
         ComplianceDriftTrendService sut = CreateSut(repo);
@@ -135,7 +147,13 @@ public sealed class ComplianceDriftTrendServiceTests
         Mock<IPolicyPackChangeLogRepository> repo = new();
         DateTime from = new(2026, 5, 1, 0, 0, 0, DateTimeKind.Utc);
         DateTime to = from.AddDays(1);
-        repo.Setup(r => r.GetByTenantInRangeAsync(TenantId, from, to, It.IsAny<CancellationToken>()))
+        repo.Setup(r => r.GetByScopeInRangeAsync(
+                TenantId,
+                WorkspaceId,
+                ProjectId,
+                from,
+                to,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         Dictionary<DateTime, ComplianceDriftFindingsBucketCounts> findingsBuckets = new()
@@ -176,19 +194,14 @@ public sealed class ComplianceDriftTrendServiceTests
             ChangedUtc = from.AddHours(1),
         };
 
-        PolicyPackChangeLogEntry foreign = new()
-        {
-            PolicyPackId = pack,
-            TenantId = TenantId,
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
-            ChangeType = "Created",
-            ChangedBy = "u2",
-            ChangedUtc = from.AddHours(2),
-        };
-
-        repo.Setup(r => r.GetByTenantInRangeAsync(TenantId, from, to, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([foreign, inScope]);
+        repo.Setup(r => r.GetByScopeInRangeAsync(
+                TenantId,
+                WorkspaceId,
+                ProjectId,
+                from,
+                to,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([inScope]);
 
         ComplianceDriftTrendService sut = CreateSut(repo);
 
@@ -219,5 +232,44 @@ public sealed class ComplianceDriftTrendServiceTests
             CancellationToken.None);
 
         await act.Should().ThrowAsync<ArgumentException>().WithParameterName("tenantId");
+    }
+
+    [SkippableFact]
+    public async Task GetTrendAsync_queries_change_log_by_scope_in_range_not_tenant_wide()
+    {
+        Mock<IPolicyPackChangeLogRepository> repo = new();
+        DateTime from = new(2026, 7, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime to = from.AddHours(12);
+
+        repo.Setup(r => r.GetByScopeInRangeAsync(
+                TenantId,
+                WorkspaceId,
+                ProjectId,
+                from,
+                to,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([])
+            .Verifiable();
+
+        ComplianceDriftTrendService sut = CreateSut(repo);
+
+        await sut.GetTrendAsync(TenantId, from, to, TimeSpan.FromHours(6), CancellationToken.None);
+
+        repo.Verify(
+            r => r.GetByScopeInRangeAsync(
+                TenantId,
+                WorkspaceId,
+                ProjectId,
+                from,
+                to,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        repo.Verify(
+            r => r.GetByTenantInRangeAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 }

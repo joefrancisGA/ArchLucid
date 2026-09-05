@@ -102,7 +102,26 @@ export function formatRunsDashboardTabLabelWithCount(label: string, count: numbe
   return `${label} (${safeCount})`;
 }
 
-function resolveRunsDashboardTabBaseLabel(tabId: RunsDashboardTabId, buyerPolishedShell: boolean): string {
+export function formatRunsDashboardHomePreviewRecentTabLabel(
+  label: string,
+  visibleCount: number,
+  totalCount: number,
+): string {
+  const safeVisible = Number.isFinite(visibleCount) ? Math.max(0, Math.trunc(visibleCount)) : 0;
+  const safeTotal = Number.isFinite(totalCount) ? Math.max(0, Math.trunc(totalCount)) : 0;
+
+  if (safeTotal > safeVisible) {
+    return `${label} (${safeVisible} of ${safeTotal})`;
+  }
+
+  return formatRunsDashboardTabLabelWithCount(label, safeVisible);
+}
+
+function resolveRunsDashboardTabBaseLabel(
+  tabId: RunsDashboardTabId,
+  buyerPolishedShell: boolean,
+  homePreviewMode: boolean,
+): string {
   if (buyerPolishedShell) {
     if (tabId === "all") {
       return BUYER_RUNS_DASHBOARD_FILTER_ALL;
@@ -128,21 +147,44 @@ function resolveRunsDashboardTabBaseLabel(tabId: RunsDashboardTabId, buyerPolish
   }
 
   if (tabId === "attention") {
+    // Home preview only — distinct from the "Awaiting approval" attention chip above.
+    if (homePreviewMode) {
+      return RUNS_DASHBOARD_LABELS.tabOpenFindings;
+    }
+
     return RUNS_DASHBOARD_LABELS.tabNeedsAttention;
   }
 
   return RUNS_DASHBOARD_LABELS.tabOutcomes;
 }
 
+export type RunsDashboardTabLabelOptions = {
+  readonly homePreviewMode?: boolean;
+  readonly recentTotalCount?: number;
+};
+
 export function runsDashboardTabLabel(
   tabId: RunsDashboardTabId,
   buyerPolishedShell: boolean,
   count?: number,
+  options?: RunsDashboardTabLabelOptions,
 ): string {
-  const baseLabel = resolveRunsDashboardTabBaseLabel(tabId, buyerPolishedShell);
+  const baseLabel = resolveRunsDashboardTabBaseLabel(
+    tabId,
+    buyerPolishedShell,
+    options?.homePreviewMode === true,
+  );
 
   if (count === undefined) {
     return baseLabel;
+  }
+
+  if (
+    options?.homePreviewMode === true
+    && tabId === "all"
+    && options.recentTotalCount !== undefined
+  ) {
+    return formatRunsDashboardHomePreviewRecentTabLabel(baseLabel, count, options.recentTotalCount);
   }
 
   return formatRunsDashboardTabLabelWithCount(baseLabel, count);

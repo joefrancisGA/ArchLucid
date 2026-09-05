@@ -6,6 +6,8 @@ export type ProbeAwareRecoveryStepsInput = {
   readonly probeState: WorkspaceAiAvailabilityCheckState;
   readonly usesCustomerAiConnection: boolean;
   readonly canConfigureWorkspaceAi: boolean;
+  /** When true, the review failed for a reason other than live AI unavailability. */
+  readonly reviewTerminalFailure?: boolean;
 };
 
 function managedPlatformOutageSteps(canConfigureWorkspaceAi: boolean): readonly string[] {
@@ -41,10 +43,8 @@ function customerConnectionOutageSteps(canConfigureWorkspaceAi: boolean): readon
 }
 
 function probeSucceededSteps(): readonly string[] {
-  return [
-    "The live AI availability probe succeeded — platform AI is ready for this session.",
-    "Click Re-run review to retry the assessment with the same intake.",
-  ];
+  // AI availability panel and the Re-run CTA already state the outcome — no numbered list.
+  return [];
 }
 
 function probePendingSteps(): readonly string[] {

@@ -9,9 +9,17 @@
 
 **Legacy filename / env:** doc path and `NEXT_PUBLIC_OPERATOR_EXPERIENCE` keep the historical `operator` identifier; product language is **architect workspace**.
 
+## Production default: Working desk (TB-643 history)
+
+**Production identity (2026-09):** authenticated **Working** seats on env-unset builds use **dense architect-workspace chrome** via `resolveProductionDeskChrome()` / `useProductionDeskChrome()`. Demo, static showcase, frictionless trial, and **Guided** mode use eval/teaching chrome via `resolveProductionEvalChrome()`.
+
+`isBuyerPolishedOperatorShellEnv()` is **false** on production Working builds (PT-01). It remains **true** only for demo, static-showcase, and frictionless trial — not for Guided mode (Guided uses workspace mode via the production desk resolver).
+
+**TB-643 history:** deploy docs previously described buyer-oriented chrome as the production default before Working desk landed. Vocabulary (TB-645) stays buyer-polished on all customer surfaces regardless of density.
+
 ## Buyer-default shell (omitted `NEXT_PUBLIC_OPERATOR_EXPERIENCE`)
 
-When **`NEXT_PUBLIC_OPERATOR_EXPERIENCE`** is **unset** or not equal to `operator`, the UI uses the **buyer-oriented** architect workspace: friendlier labels, fewer shortcut chips, and deliverables-first copy on review detail. This is the **default for all authenticated production deploys** (TB-643) — not only demo or trial builds.
+When **`NEXT_PUBLIC_OPERATOR_EXPERIENCE`** is **unset** or not equal to `operator`, production **Working** seats get architect-workspace density (shortcut chips, nav metadata, identifiers behind disclosures) without setting this flag. **Guided** mode and demo/trial/static builds keep eval/teaching chrome.
 
 **Does not change:** API authorization, RBAC, or progressive disclosure toggles in the sidebar footer (`Show analysis & investigation tools`, `Show governance, audit & admin controls`). Those still gate Operate-layer links per [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md).
 

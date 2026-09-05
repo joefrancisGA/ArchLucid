@@ -37,7 +37,7 @@ import {
   formatOperatorHomeRecentReviewsOutcome,
   isExampleOnlyOverviewRunList,
 } from "@/lib/operator/operator-home-recent-reviews-outcome";
-import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
+import { deriveOperatorHomeTenantCountingSnapshot } from "@/lib/operator/operator-home-tenant-counting";
 import { shouldShowRunsDashboardInitialSkeleton } from "@/lib/operator/operator-home-runs-dashboard-client-fetch";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { RunSummary } from "@/types/authority";
@@ -108,13 +108,7 @@ export function useRunsDashboardTabs({
     return displayItems.filter((run) => run.isArchived === true).length;
   }, [archivedFieldSupported, displayItems]);
 
-  const archivedFilterDisabled = !archivedFieldSupported || archivedCount === 0;
-
-  useEffect(() => {
-    if (archivedFilterDisabled && showArchived) {
-      setShowArchived(false);
-    }
-  }, [archivedFilterDisabled, showArchived]);
+  const archivedFilterDisabled = !archivedFieldSupported;
 
   const filteredItems = useMemo(() => {
     let rows = displayItems;
@@ -170,7 +164,32 @@ export function useRunsDashboardTabs({
 
   const homeAttentionPartitionLabel = hideHeading ? operatorAttentionKindLabel("unfinished-work") : undefined;
 
-  const statusTabCounts = useMemo(() => deriveRunsDashboardTabCounts(filteredItems), [filteredItems]);
+  const statusTabCounts = useMemo(() => {
+    if (!hideHeading) {
+      return deriveRunsDashboardTabCounts(filteredItems);
+    }
+
+    const excludeShowcaseRunId =
+      buyerPolishedShell &&
+      showcaseDemoRun !== undefined &&
+      (phase === "ready" || phase === "error")
+        ? showcaseDemoRun.runId
+        : undefined;
+
+    return deriveOperatorHomeTenantCountingSnapshot({
+      displayItems,
+      previewItems: filterTenantOverviewRuns(homeAttentionPreviewItems),
+      excludeShowcaseRunId,
+    }).previewTabCounts;
+  }, [
+    buyerPolishedShell,
+    displayItems,
+    filteredItems,
+    hideHeading,
+    homeAttentionPreviewItems,
+    phase,
+    showcaseDemoRun,
+  ]);
 
   const allTabShowcase = resolveShowcaseDemoRunForItems(filteredItems, showcaseDemoRun);
   const approvedTabShowcase = resolveShowcaseDemoRunForItems(approvedTabItems, showcaseDemoRun);
@@ -200,17 +219,29 @@ export function useRunsDashboardTabs({
     const exampleReviewOnly = hideHeading && !sampleReviewsVisible
       ? false
       : isExampleOnlyOverviewRunList(displayItems);
-    const tenantItems = filterTenantOverviewRuns(displayItems);
-    const metrics = deriveOperatorHomeWorkspaceMetrics(tenantItems, tenantItems.length);
+    const tenantSnapshot = deriveOperatorHomeTenantCountingSnapshot({
+      displayItems,
+      previewItems: displayItems,
+    });
 
-    return formatOperatorHomeRecentReviewsOutcome(metrics, { exampleReviewOnly });
+    return formatOperatorHomeRecentReviewsOutcome(tenantSnapshot.metrics, { exampleReviewOnly });
   }, [displayItems, hideHeading, phase, sampleReviewsVisible]);
 
-  const selectDashboardTab = useCallback((next: RunsDashboardTabId) => {
+  const selectDashboardTab = useCallback((
+    next: RunsDashboardTabId,
+    options?: { readonly preserveShowArchived?: boolean },
+  ) => {
     setTab(next);
-    setShowArchived(false);
+
+    if (!options?.preserveShowArchived) {
+      setShowArchived(false);
+    }
+
     router.replace(
-      runsDashboardHomeHrefFromSearch(searchParams.toString(), { tab: next, showArchived: false }),
+      runsDashboardHomeHrefFromSearch(searchParams.toString(), {
+        tab: next,
+        ...(options?.preserveShowArchived ? {} : { showArchived: false }),
+      }),
       { scroll: false },
     );
   }, [router, searchParams]);

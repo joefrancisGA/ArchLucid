@@ -3,7 +3,11 @@ using System.Data;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Decisioning.DecisionTraces;
 using PersistenceDecisionTraceDto = ArchLucid.Contracts.Persistence.DecisionTraces.DecisionTraceDto;
 using ArchLucid.Contracts.Manifest;
@@ -168,7 +172,8 @@ public sealed class ManifestFinalizationConcurrencyTests
         ScopeProjectId = scope.ProjectId,
         ProjectId = "proj",
         LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
-        FindingsSnapshotId = findingsId
+        FindingsSnapshotId = findingsId,
+        PinnedPolicyPackIdsJson = "[]"
     };
 
     private static ManifestFinalizationService CreateSut(
@@ -179,6 +184,11 @@ public sealed class ManifestFinalizationConcurrencyTests
         IAuditService? audit = null,
         IIntegrationEventOutboxRepository? outbox = null)
     {
+        Mock<IManifestHashService> hasher = new();
+        hasher
+            .Setup(h => h.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns("ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789");
+
         return new ManifestFinalizationService(
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             scopeProvider,
@@ -186,7 +196,7 @@ public sealed class ManifestFinalizationConcurrencyTests
             CreateDefaultFindingsSnapshotRepository(),
             traces ?? Mock.Of<IDecisionTraceRepository>(),
             golden ?? Mock.Of<IGoldenManifestRepository>(),
-            Mock.Of<IManifestHashService>(),
+            hasher.Object,
             audit ?? Mock.Of<IAuditService>(),
             outbox ?? Mock.Of<IIntegrationEventOutboxRepository>(),
             Mock.Of<IManifestFinalizationSqlRepository>(),
@@ -243,6 +253,12 @@ public sealed class ManifestFinalizationConcurrencyTests
             RuleSetId = "rs",
             RuleSetVersion = "1",
             RuleSetHash = "rh",
+            FeasibilityVerdict = new FeasibilityVerdict
+            {
+                Kind = FeasibilityVerdictKind.Feasible,
+                Summary = "Test manifest is feasible.",
+                TransparencyTrail = new TransparencyTrail(),
+            },
         };
 
         return new ManifestFinalizationRequest
@@ -276,6 +292,18 @@ public sealed class ManifestFinalizationConcurrencyTests
                 CreatedUtc = model.CreatedUtc,
             },
             Trace = trace,
+            PreloadedFindingsSnapshot = new FindingsSnapshot
+            {
+                FindingsSnapshotId = findingsId,
+                GenerationStatus = FindingsSnapshotGenerationStatus.Complete,
+                Findings = [],
+            },
+            PreloadedScopePolicyPackAssignments = Array.Empty<PolicyPackAssignment>(),
+            PreloadedArchitectureRequest = new ArchitectureRequest
+            {
+                SystemName = "Sys",
+                CloudProvider = CloudProvider.Azure,
+            },
         };
     }
 }

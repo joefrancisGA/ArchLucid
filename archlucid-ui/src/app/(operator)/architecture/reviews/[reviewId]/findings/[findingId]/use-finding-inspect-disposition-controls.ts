@@ -50,6 +50,8 @@ export type FindingInspectDispositionControlsProps = {
   readonly setPendingDispositionConfirm: (value: PendingDispositionConfirm | null) => void;
   readonly pendingRevokeWaiverConfirm: boolean;
   readonly setPendingRevokeWaiverConfirm: (value: boolean) => void;
+  readonly pendingWaiverCreateConfirm: boolean;
+  readonly setPendingWaiverCreateConfirm: (value: boolean) => void;
   readonly applyChangePreviewOverride: boolean;
   readonly setApplyChangePreviewOverride: (value: boolean) => void;
   readonly tradeOffAcknowledgment: string;
@@ -65,6 +67,10 @@ export type FindingInspectDispositionControlsProps = {
   readonly mutationDisabledReason: WhyDisabledCtaReason | null;
   readonly pendingDispositionKind: FindingDispositionKind;
   readonly pendingDispositionBlockedReason: string | null;
+  readonly remediationLastSavedUtc: string | null;
+  readonly remediationInlineSaveError: string | null;
+  readonly dispositionLastSavedUtc: string | null;
+  readonly dispositionInlineSaveError: string | null;
 };
 
 export function useFindingInspectDispositionControls(props: FindingInspectDispositionControlsProps) {

@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
@@ -14,9 +15,6 @@ import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
 import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
 import { useInAppNavigationGuard } from "@/hooks/use-in-app-navigation-guard";
 import { InAppNavigationGuardDialog } from "@/components/navigation/InAppNavigationGuardDialog";
-import {
-  acknowledgeArchitectureDraftHandoff,
-} from "@/lib/architecture/architecture-draft-handoff-gate";
 import { architectureDraftDisplayName } from "@/lib/architecture/architecture-draft-status";
 import { type ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
 import { architectureDraftDetailPageSubtitle } from "@/lib/architecture/architecture-draft-detail-page-copy";
@@ -28,6 +26,7 @@ import {
 } from "@/lib/architecture/architecture-creation-session";
 import { retargetAdvisoryDraftInFlightArchitecture } from "@/lib/operations/advisory-draft-in-flight";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { parseScopeGateOpenFromSearch, scopeGateHrefFromSearch } from "@/lib/architecture/scope-gate-url";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { reopenDraftRequest } from "@/lib/api/draft-intake-api";
 import {
@@ -55,6 +54,10 @@ type ArchitectureDraftWorkspaceProps = {
 
 /** Long-lived architecture draft editor — save and resume without starting a review. */
 export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProps): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? `/architecture/architectures/${encodeURIComponent(props.architectureId)}`;
+  const searchParams = useSearchParams();
+  const urlScopeGateOpen = parseScopeGateOpenFromSearch(searchParams.get("scopeGate"));
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const draftRegistryEntries = useArchitectureDraftRegistryEntries();
   const acceptServerBaselineRef = useRef<
@@ -75,8 +78,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     setFields,
     actorSet,
     setActorSet,
-    handoffAcknowledged,
-    setHandoffAcknowledged,
     resolvedDraftId,
     setResolvedDraftId,
     linkedReviewId,
@@ -91,8 +92,26 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const [exitPending, setExitPending] = useState(false);
   const [unlockBusy, setUnlockBusy] = useState(false);
   const [unlockError, setUnlockError] = useState<string | null>(null);
-  const [scopeGateOpen, setScopeGateOpen] = useState(false);
+  const [scopeGateOpen, setScopeGateOpenState] = useState(urlScopeGateOpen);
   const [scopeBullets, setScopeBullets] = useState<ScopeUnderstandingBullet[]>([]);
+
+  const setScopeGateOpen = useCallback(
+    (next: boolean | ((open: boolean) => boolean)) => {
+      setScopeGateOpenState((current) => {
+        const resolved = typeof next === "function" ? next(current) : next;
+
+        router.replace(scopeGateHrefFromSearch(searchParams.toString(), resolved, pathname), { scroll: false });
+
+        return resolved;
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    setScopeGateOpenState(urlScopeGateOpen);
+  }, [urlScopeGateOpen]);
+
   const isDetailDraft = !isNewDraft;
   const linkedReviewSummaryQuery = useRunSummaryQuery(linkedReviewId ?? "", {
     enabled: linkedReviewId !== null,
@@ -153,6 +172,14 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     setDraft(loaded);
   }, [setDraft]);
 
+  const handleNewDraftRecoveryHydrated = useCallback(
+    (snapshot: { readonly fields: ArchitectureDraftFieldState; readonly actorSet: ActorSet }) => {
+      setFields(snapshot.fields);
+      setActorSet(snapshot.actorSet);
+    },
+    [setActorSet, setFields],
+  );
+
   const {
     saveState,
     conflictMessage,
@@ -172,6 +199,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       onDraftCreated: isNewDraft ? handleDraftCreated : undefined,
       onDraftLoaded: handleDraftLoaded,
       onImmutableDraftDetected: handleImmutableDraftDetected,
+      onNewDraftRecoveryHydrated: isNewDraft ? handleNewDraftRecoveryHydrated : undefined,
     });
 
   acceptServerBaselineRef.current = acceptServerBaseline;
@@ -265,21 +293,11 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     loading,
     draft,
     linkedReviewId,
-    handoffAcknowledged,
     saveState,
     effectiveArchitectureId,
     applyLoadedDraftToForm,
     acceptServerBaselineRef,
   });
-
-  const handleAcknowledgeHandoff = useCallback(() => {
-    if (linkedReviewId === null) {
-      return;
-    }
-
-    acknowledgeArchitectureDraftHandoff(effectiveArchitectureId, linkedReviewId);
-    setHandoffAcknowledged(true);
-  }, [effectiveArchitectureId, linkedReviewId, setHandoffAcknowledged]);
 
   const handleScopeConfirmed = useCallback(
     async (bullets: ScopeUnderstandingBullet[]) => {
@@ -384,7 +402,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       reviewStartProgress={reviewStartProgress}
       canStartReview={canStartReview}
       handleStartReview={handleStartReview}
-      handleAcknowledgeHandoff={handleAcknowledgeHandoff}
       saveDraft={saveDraft}
       setExitPending={setExitPending}
       hasPersistedDraft={hasPersistedDraft}

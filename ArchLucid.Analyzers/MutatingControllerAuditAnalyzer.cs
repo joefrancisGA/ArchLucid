@@ -311,6 +311,43 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
                 return true;
         }
 
+        if (MethodInheritsTrackedVerbFromInterfaces(methodDeclaredSymbolScoped))
+            return true;
+
+        return false;
+    }
+
+    private static bool MethodInheritsTrackedVerbFromInterfaces(IMethodSymbol methodDeclaredSymbolScoped)
+    {
+        foreach (IMethodSymbol explicitImplementation in methodDeclaredSymbolScoped.ExplicitInterfaceImplementations)
+        {
+            if (MethodHasTrackedVerbAttribute(explicitImplementation))
+                return true;
+        }
+
+        INamedTypeSymbol containingType = methodDeclaredSymbolScoped.ContainingType;
+
+        foreach (INamedTypeSymbol iface in containingType.AllInterfaces)
+        {
+            foreach (ISymbol member in iface.GetMembers())
+            {
+                if (member is not IMethodSymbol interfaceMethod)
+                    continue;
+
+                if (interfaceMethod.MethodKind != MethodKind.Ordinary)
+                    continue;
+
+                IMethodSymbol? implementation =
+                    containingType.FindImplementationForInterfaceMember(interfaceMethod) as IMethodSymbol;
+
+                if (implementation is null || !SymbolEqualityComparer.Default.Equals(implementation, methodDeclaredSymbolScoped))
+                    continue;
+
+                if (MethodHasTrackedVerbAttribute(interfaceMethod))
+                    return true;
+            }
+        }
+
         return false;
     }
 
@@ -425,14 +462,47 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         if (semanticModelSemanticInvocation.GetSymbolInfo(invocationExpressionSyntaxSemantic,
                    cancellationTokenSemantic)
                .Symbol
-               is not IMethodSymbol calleeSemantic)
+           is not IMethodSymbol calleeSemantic)
             return false;
 
         if (!string.Equals(calleeSemantic.Name, "LogAsync", StringComparison.Ordinal))
             return false;
 
-        return SymbolEqualityComparer.Default.Equals(
-            calleeSemantic.ContainingType?.OriginalDefinition,
-            auditInterfaceDeclaredTypeSymbolScopedSemantic.OriginalDefinition);
+        if (SymbolEqualityComparer.Default.Equals(
+                calleeSemantic.ContainingType?.OriginalDefinition,
+                auditInterfaceDeclaredTypeSymbolScopedSemantic.OriginalDefinition))
+            return true;
+
+        INamedTypeSymbol? containingType = calleeSemantic.ContainingType;
+
+        if (containingType is null)
+            return false;
+
+        foreach (INamedTypeSymbol iface in containingType.AllInterfaces)
+        {
+            if (!SymbolEqualityComparer.Default.Equals(
+                    iface.OriginalDefinition,
+                    auditInterfaceDeclaredTypeSymbolScopedSemantic.OriginalDefinition))
+            {
+                continue;
+            }
+
+            foreach (ISymbol member in iface.GetMembers(calleeSemantic.Name))
+            {
+                if (member is not IMethodSymbol interfaceMethod)
+                    continue;
+
+                IMethodSymbol? implementation =
+                    containingType.FindImplementationForInterfaceMember(interfaceMethod) as IMethodSymbol;
+
+                if (implementation is not null &&
+                    SymbolEqualityComparer.Default.Equals(implementation, calleeSemantic))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

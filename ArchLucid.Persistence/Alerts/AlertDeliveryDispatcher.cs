@@ -1,6 +1,8 @@
 using System.Text.Json;
 
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Serialization;
 
 namespace ArchLucid.Persistence.Alerts;
@@ -19,7 +21,9 @@ public sealed class AlertDeliveryDispatcher(
     IEnumerable<IAlertDeliveryChannel> channels,
     IAlertRoutingSubscriptionRepository subscriptionRepository,
     IAlertDeliveryAttemptRepository attemptRepository,
-    IAuditService auditService) : IAlertDeliveryDispatcher
+    IAuditService auditService,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : IAlertDeliveryDispatcher
 {
     private static IAlertDeliveryChannel ResolveChannel(IEnumerable<IAlertDeliveryChannel> channels, string channelType) =>
         channels.FirstOrDefault(x => string.Equals(x.ChannelType, channelType, StringComparison.OrdinalIgnoreCase))
@@ -29,6 +33,12 @@ public sealed class AlertDeliveryDispatcher(
     public async Task DeliverAsync(AlertRecord alert, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(alert);
+
+        await AlertDeliverySealedManifestHashGuard.EnsureAlertRunSealedManifestHashOrThrowAsync(
+            alert,
+            authorityQueryService,
+            manifestHashService,
+            ct);
 
         IReadOnlyList<AlertRoutingSubscription> subscriptions = await subscriptionRepository
             .ListEnabledByScopeAsync(alert.TenantId, alert.WorkspaceId, alert.ProjectId, ct)

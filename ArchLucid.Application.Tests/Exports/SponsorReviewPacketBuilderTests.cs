@@ -11,8 +11,12 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Roi;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -286,11 +290,27 @@ public sealed class SponsorReviewPacketBuilderTests
         scopeMock.Setup(x => x.GetCurrentScope()).Returns(new ScopeContext());
         IScopeContextProvider scopeProvider = scopeContextProvider ?? scopeMock.Object;
 
+        Mock<IAuthorityQueryService> authorityQuery = new();
+        authorityQuery
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunDetailDto?)null);
+
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash
+            .Setup(h => h.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns("SEALED-HASH");
+
         return new SponsorReviewPacketBuilder(
             runDetails,
             roi.Object,
             decisions ?? decisionsMock.Object,
             scopeProvider,
-            tenantRepository ?? Mock.Of<ITenantRepository>());
+            tenantRepository ?? Mock.Of<ITenantRepository>(),
+            authorityQuery.Object,
+            manifestHash.Object,
+            Mock.Of<IGraphSnapshotRepository>());
     }
 }

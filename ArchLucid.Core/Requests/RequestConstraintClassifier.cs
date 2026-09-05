@@ -11,7 +11,6 @@ public static class RequestConstraintClassifier
     private const string ConstraintManagedIdentity = "managed identity";
     private const string ConstraintPrivateEndpoint = "private endpoint";
     private const string ConstraintPrivateNetworking = "private networking";
-    private const string ConstraintPrivate = "private";
     private const string ConstraintEncryption = "encryption";
 
     private const string CapabilitySearch = "search";
@@ -24,7 +23,7 @@ public static class RequestConstraintClassifier
         ArgumentNullException.ThrowIfNull(request);
 
         return request.Constraints.Any(c =>
-            c.Contains(ConstraintManagedIdentity, StringComparison.OrdinalIgnoreCase));
+            RequestConstraintTokenMatcher.ContainsAffirmativePhrase(c, ConstraintManagedIdentity));
     }
 
     /// <summary>
@@ -36,9 +35,9 @@ public static class RequestConstraintClassifier
         ArgumentNullException.ThrowIfNull(request);
 
         return request.Constraints.Any(c =>
-            c.Contains(ConstraintPrivateEndpoint, StringComparison.OrdinalIgnoreCase) ||
-            c.Contains(ConstraintPrivateNetworking, StringComparison.OrdinalIgnoreCase) ||
-            c.Contains(ConstraintPrivate, StringComparison.OrdinalIgnoreCase));
+            RequestConstraintTokenMatcher.ContainsAffirmativePhrase(c, ConstraintPrivateEndpoint) ||
+            RequestConstraintTokenMatcher.ContainsAffirmativePhrase(c, ConstraintPrivateNetworking) ||
+            RequestConstraintTokenMatcher.ContainsAffirmativePrivateWord(c));
     }
 
     public static bool HasEncryptionConstraint(ArchitectureRequest request)
@@ -46,7 +45,7 @@ public static class RequestConstraintClassifier
         ArgumentNullException.ThrowIfNull(request);
 
         return request.Constraints.Any(c =>
-            c.Contains(ConstraintEncryption, StringComparison.OrdinalIgnoreCase));
+            RequestConstraintTokenMatcher.ContainsAffirmativePhrase(c, ConstraintEncryption));
     }
 
     public static bool RequiresSearchCapability(ArchitectureRequest request)
@@ -54,7 +53,7 @@ public static class RequestConstraintClassifier
         ArgumentNullException.ThrowIfNull(request);
 
         return request.RequiredCapabilities.Any(c =>
-            c.Contains(CapabilitySearch, StringComparison.OrdinalIgnoreCase));
+            RequestConstraintTokenMatcher.ContainsStandaloneWordToken(c, CapabilitySearch));
     }
 
     public static bool RequiresAiCapability(ArchitectureRequest request)
@@ -62,8 +61,8 @@ public static class RequestConstraintClassifier
         ArgumentNullException.ThrowIfNull(request);
 
         return request.RequiredCapabilities.Any(c =>
-            c.Contains(CapabilityOpenAi, StringComparison.OrdinalIgnoreCase) ||
-            c.Contains(CapabilityAi, StringComparison.OrdinalIgnoreCase));
+            RequestConstraintTokenMatcher.ContainsAffirmativePhrase(c, CapabilityOpenAi) ||
+            RequestConstraintTokenMatcher.ContainsStandaloneWordToken(c, CapabilityAi));
     }
 
     public static bool RequiresSqlCapability(ArchitectureRequest request)
@@ -71,6 +70,6 @@ public static class RequestConstraintClassifier
         ArgumentNullException.ThrowIfNull(request);
 
         return request.RequiredCapabilities.Any(c =>
-            c.Contains(CapabilitySql, StringComparison.OrdinalIgnoreCase));
+            RequestConstraintTokenMatcher.ContainsStandaloneWordToken(c, CapabilitySql));
     }
 }

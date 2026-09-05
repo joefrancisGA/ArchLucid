@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,12 @@ import {
   type OperatorSavedView,
 } from "@/lib/api/operator-saved-views";
 import type { OperatorSavedViewPayload, OperatorSavedViewSurface } from "@/lib/operator/operator-saved-view-types";
+import {
+  operatorSavedViewHrefFromSearch,
+  operatorSavedViewPanelsHrefFromSearch,
+  parseOperatorSavedViewDeleteConfirmOpenFromSearch,
+  parseOperatorSavedViewIdFromSearch,
+} from "@/lib/operator/operator-saved-view-url";
 
 type UseOperatorSavedViewsOptions = {
   surface: OperatorSavedViewSurface;
@@ -23,12 +30,39 @@ type UseOperatorSavedViewsOptions = {
 /** Loads, creates, and deletes tenant/user-scoped operator saved views for one surface. */
 export function useOperatorSavedViews(options: UseOperatorSavedViewsOptions) {
   const { surface, enabled = true } = options;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
   const [views, setViews] = useState<OperatorSavedView[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
-  const [selectedViewId, setSelectedViewId] = useState("");
+  const [selectedViewId, setSelectedViewIdState] = useState(
+    () => parseOperatorSavedViewIdFromSearch(searchParams.get("viewId")),
+  );
+
+  const syncSelectedViewToUrl = useCallback(
+    (viewId: string) => {
+      router.replace(
+        operatorSavedViewHrefFromSearch(searchParams.toString(), viewId.length > 0 ? viewId : null, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSelectedViewId = useCallback(
+    (viewId: string) => {
+      setSelectedViewIdState(viewId);
+      syncSelectedViewToUrl(viewId);
+    },
+    [syncSelectedViewToUrl],
+  );
+
+  useEffect(() => {
+    setSelectedViewIdState(parseOperatorSavedViewIdFromSearch(searchParams.get("viewId")));
+  }, [searchParams]);
 
   const refresh = useCallback(async () => {
     if (!enabled) {
@@ -121,6 +155,9 @@ export type OperatorSavedViewsBarProps = {
 /** Save, load, and delete controls for operator Audit and Graph saved views. */
 export function OperatorSavedViewsBar(props: OperatorSavedViewsBarProps) {
   const { surface, disabled = false, className, getCurrentPayload, onLoadView } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
   const {
     views,
     loading,
@@ -136,7 +173,33 @@ export function OperatorSavedViewsBar(props: OperatorSavedViewsBarProps) {
   const [saveName, setSaveName] = useState("");
   const [saveShared, setSaveShared] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
-  const [pendingDeleteConfirm, setPendingDeleteConfirm] = useState(false);
+  const [pendingDeleteConfirm, setPendingDeleteConfirmState] = useState(false);
+
+  const syncDeleteConfirmToUrl = useCallback(
+    (confirmOpen: boolean) => {
+      router.replace(
+        operatorSavedViewPanelsHrefFromSearch(
+          searchParams.toString(),
+          { viewId: selectedViewId.length > 0 ? selectedViewId : null, deleteConfirmOpen: confirmOpen },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams, selectedViewId],
+  );
+
+  const setPendingDeleteConfirm = useCallback(
+    (confirmOpen: boolean) => {
+      setPendingDeleteConfirmState(confirmOpen);
+      syncDeleteConfirmToUrl(confirmOpen);
+    },
+    [syncDeleteConfirmToUrl],
+  );
+
+  useEffect(() => {
+    setPendingDeleteConfirmState(parseOperatorSavedViewDeleteConfirmOpenFromSearch(searchParams.get("savedViewDeleteConfirm")));
+  }, [searchParams]);
 
   const myViews = views.filter((view) => view.isOwnedByCurrentUser !== false);
   const sharedViews = views.filter((view) => view.isShared === true && view.isOwnedByCurrentUser === false);

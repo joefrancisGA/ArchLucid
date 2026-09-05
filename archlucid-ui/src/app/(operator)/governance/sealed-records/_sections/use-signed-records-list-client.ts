@@ -34,8 +34,12 @@ export type UseSignedRecordsListClientResult = {
   readonly integrityFilter: SignedRecordsListIntegrityFilter;
   readonly setIntegrityFilter: Dispatch<SetStateAction<SignedRecordsListIntegrityFilter>>;
   readonly dateRangePreset: SignedRecordsListDateRangePreset | null;
+  readonly fromUtc: string;
+  readonly toUtc: string;
   readonly onIntegrityFilterChange: (value: SignedRecordsListIntegrityFilter) => void;
   readonly onDateRangePresetChange: (value: SignedRecordsListDateRangePreset | null) => void;
+  readonly onCustomFromUtcChange: (value: string) => void;
+  readonly onCustomToUtcChange: (value: string) => void;
   readonly page: number;
   readonly cursor: string;
   readonly hasMore: boolean;
@@ -114,8 +118,12 @@ export function useSignedRecordsListClient(): UseSignedRecordsListClientResult {
     integrityFilter: filters.integrityFilter,
     setIntegrityFilter: filters.setIntegrityFilter,
     dateRangePreset: filters.dateRangePreset,
+    fromUtc: filters.fromUtc,
+    toUtc: filters.toUtc,
     onIntegrityFilterChange: filters.onIntegrityFilterChange,
     onDateRangePresetChange: filters.onDateRangePresetChange,
+    onCustomFromUtcChange: filters.onCustomFromUtcChange,
+    onCustomToUtcChange: filters.onCustomToUtcChange,
     page: fetch.page,
     cursor: fetch.cursor,
     hasMore: fetch.hasMore,

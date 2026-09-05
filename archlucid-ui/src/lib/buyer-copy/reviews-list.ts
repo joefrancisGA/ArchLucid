@@ -60,7 +60,7 @@ export const BUYER_ARCHITECTURE_PACKAGE_ORIGIN_REVIEWED_BADGE = "Reviewed";
 export const BUYER_ARCHITECTURE_PACKAGE_ORIGIN_METADATA_LABEL = "Package origin";
 
 export const BUYER_ARCHITECTURE_PACKAGE_ORIGIN_REVIEWED_DISCLOSURE =
-  "Reviewed means the architecture package was assessed in a completed review — not that governance approval are complete.";
+  "Reviewed means the architecture package was assessed in a completed review — not that governance approvals are complete.";
 
 /** Footer navigation on home reviews card — distinct from the All status filter pill. */
 export const BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA = "Open all reviews";

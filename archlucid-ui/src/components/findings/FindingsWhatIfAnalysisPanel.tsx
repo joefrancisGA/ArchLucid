@@ -2,10 +2,16 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { formatUsd } from "@/lib/roi-assumptions";
+import {
+  findingsWhatIfAnalysisHrefFromSearch,
+  parseFindingsWhatIfEnabledFromSearch,
+  parseFindingsWhatIfIdsFromSearch,
+} from "@/lib/findings/findings-what-if-analysis-url";
 import {
   hasFindingsWhatIfAnalysisContent,
   readFindingProjectedImpactInterval,
@@ -23,8 +29,29 @@ export type FindingsWhatIfAnalysisPanelProps = {
 
 /** What-if ROI toggle: subtract selected finding savings from baseline annual cost. */
 export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelProps) {
-  const [enabled, setEnabled] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(() => new Set());
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const urlWhatIfEnabled = parseFindingsWhatIfEnabledFromSearch(searchParams.get("whatIf"));
+  const urlWhatIfIds = parseFindingsWhatIfIdsFromSearch(searchParams.get("whatIfIds"));
+  const [enabled, setEnabled] = useState(urlWhatIfEnabled);
+  const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(() => new Set(urlWhatIfIds));
+
+  const syncWhatIfToUrl = (nextEnabled: boolean, nextSelectedIds: ReadonlySet<string>): void => {
+    router.replace(
+      findingsWhatIfAnalysisHrefFromSearch(
+        searchParams.toString(),
+        { enabled: nextEnabled, findingIds: [...nextSelectedIds] },
+        pathname,
+      ),
+      { scroll: false },
+    );
+  };
+
+  useEffect(() => {
+    setEnabled(urlWhatIfEnabled);
+    setSelectedIds(new Set(urlWhatIfIds));
+  }, [urlWhatIfEnabled, urlWhatIfIds]);
 
   const enriched = useMemo(
     () =>
@@ -56,6 +83,8 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
         next.delete(findingId);
       else
         next.add(findingId);
+
+      syncWhatIfToUrl(enabled, next);
 
       return next;
     });
@@ -92,7 +121,11 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
             id="what-if-enabled"
             type="checkbox"
             checked={enabled}
-            onChange={(event) => setEnabled(event.target.checked)}
+            onChange={(event) => {
+              const nextEnabled = event.target.checked;
+              setEnabled(nextEnabled);
+              syncWhatIfToUrl(nextEnabled, selectedIds);
+            }}
             aria-label="Enable what-if analysis"
           />
           <Label htmlFor="what-if-enabled" className={OPERATOR_TYPOGRAPHY.body}>

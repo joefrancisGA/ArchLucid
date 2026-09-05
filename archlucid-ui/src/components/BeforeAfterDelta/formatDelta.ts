@@ -65,15 +65,13 @@ export function hasMeaningfulSidebarDeltaMedians(data: {
   readonly medianTotalFindings: number | null | undefined;
   readonly medianTimeToCommittedManifestTotalSeconds: number | null | undefined;
 }): boolean {
-  const findings = data.medianTotalFindings;
   const seconds = data.medianTimeToCommittedManifestTotalSeconds;
-  const hasFindings = typeof findings === "number" && Number.isFinite(findings) && findings > 0;
-  const hasTime =
+
+  return (
     typeof seconds === "number" &&
     Number.isFinite(seconds) &&
-    seconds >= MIN_MEANINGFUL_DELTA_TIME_SECONDS;
-
-  return hasFindings || hasTime;
+    seconds >= MIN_MEANINGFUL_DELTA_TIME_SECONDS
+  );
 }
 
 /** Non-negative window size from recent-deltas payloads — null when missing or non-finite; use `< 1` to hide panels. */

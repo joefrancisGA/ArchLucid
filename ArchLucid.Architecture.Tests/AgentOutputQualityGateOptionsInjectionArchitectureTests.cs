@@ -3,6 +3,7 @@ using System.Reflection;
 using ArchLucid.Application.Budgeting;
 using ArchLucid.Application.Configuration;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Application.Runs.Orchestration.Execute;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Configuration;
 
@@ -20,6 +21,9 @@ public sealed class AgentOutputQualityGateOptionsInjectionArchitectureTests
     private static readonly Type[] AllowedOptionsInjectionTypes =
     [
         typeof(ArchitectureRunExecuteOrchestrator),
+        typeof(AgentLoopInvokeStage),
+        typeof(ArchitectureRunExecuteQualityGateRetryStage),
+        typeof(ArchitectureRunExecuteQualityGateStage),
         typeof(TenantAgentOutputQualityGateModeService),
         typeof(AgentOutputQualityGateOptionsResolver),
         typeof(RunScopedLlmBudgetReservationService),

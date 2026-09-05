@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
-import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
+import { formatOperatorHomeApprovalCheckWarningActiveFilterLine } from "@/lib/operator/operator-home-approval-check-warning-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type RunsDashboardGovernanceWarningsActiveFilterProps = {
@@ -26,7 +26,7 @@ export function RunsDashboardGovernanceWarningsActiveFilter(
       role="status"
     >
       <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Showing reviews with {RUNS_DASHBOARD_LABELS.governanceWarningsOnly.toLowerCase()}
+        {formatOperatorHomeApprovalCheckWarningActiveFilterLine()}
       </span>
       <Button
         type="button"

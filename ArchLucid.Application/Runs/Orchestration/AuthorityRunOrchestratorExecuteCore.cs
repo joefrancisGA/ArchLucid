@@ -11,6 +11,7 @@ using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
 using ArchLucid.Application.Agents;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.Persistence.Serialization;
 
@@ -57,6 +58,16 @@ public sealed partial class AuthorityRunOrchestrator
             else
             {
                 run = BuildNewRunRecord(runId, request, scope);
+
+                // Findings analysis verifies create-time pin hash/JSON; ingest create must pin before persist.
+                await _runCreatePinOrchestrator
+                    .ApplyCreateTimePinsAsync(
+                        run,
+                        scope,
+                        ContextIngestionCreateTimePinRequestFactory.FromIngest(request, runId),
+                        pipelineCt)
+                    .ConfigureAwait(false);
+
                 await SaveRunWithTransientRetryAsync(run, uow, pipelineCt);
                 ArchLucidInstrumentation.RunsCreatedTotal.Add(1);
                 LogAgentExecutionStateTransition(run.RunId, "authority_pipeline_start", "run_persisted", "(none)");

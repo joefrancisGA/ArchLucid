@@ -89,6 +89,7 @@ public sealed partial class ArtifactExportController
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(TerraformPrCreatedResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -106,6 +107,11 @@ public sealed partial class ArtifactExportController
             return this.NotFoundProblem(
                 $"Run '{runId}' has no committed golden manifest available for export.",
                 ProblemTypes.ManifestNotFound);
+
+        IActionResult? sealedHashProblem = EnsureSealedManifestHashOrConflict(runDetail.GoldenManifest, runId.ToString("D"));
+
+        if (sealedHashProblem is not null)
+            return sealedHashProblem;
 
         ArtifactPackage package = artifactPackagingService.BuildTerraformAdvisoryPlaceholderExport(runId);
 

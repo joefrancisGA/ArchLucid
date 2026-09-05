@@ -59,6 +59,19 @@ public sealed class CorePackageCoverageBatchRc28cTests
     }
 
     [Fact]
+    public void CommercialTenantEligibility_blocks_padded_active_trial_from_standard_gates()
+    {
+        TenantRecord trial = new()
+        {
+            Tier = TenantTier.Standard,
+            TrialStatus = " active ",
+        };
+
+        CommercialTenantEligibility.MeetsCommercialTenantTierGate(trial, TenantTier.Standard).Should().BeFalse();
+        CommercialTenantEligibility.IsEligibleForWeeklySponsorReport(trial).Should().BeFalse();
+    }
+
+    [Fact]
     public void CommercialTenantEligibility_does_not_special_case_lowercase_converted_or_expired_trial_status()
     {
         TenantRecord converted = new()

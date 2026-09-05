@@ -3,6 +3,7 @@ using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
 
 using FluentAssertions;
 
@@ -207,5 +208,102 @@ public sealed class DeterminismCheckServiceTests
         output.IsDeterministic.Should().BeFalse();
         output.Warnings.Should().ContainSingle().Which.Should().Contain("Determinism check detected replay drift.");
         output.IterationResults[0].MatchesBaselineAgentResults.Should().BeFalse();
+    }
+
+    [SkippableFact]
+    public async Task RunAsync_when_manifest_diff_has_warnings_only_marks_manifest_drift()
+    {
+        GoldenManifest baselineManifest = new() { RunId = "base", SystemName = "Sys" };
+        GoldenManifest iterationManifest = new() { RunId = "iter1", SystemName = "Sys" };
+        List<AgentResult> results =
+        [
+            new()
+            {
+                RunId = "any",
+                TaskId = "t1",
+                AgentType = AgentType.Topology,
+                Confidence = 0.5,
+                ResultId = "res",
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+        ];
+
+        ReplayRunResult baseline = new()
+        {
+            OriginalRunId = "src",
+            ReplayRunId = "base",
+            ExecutionMode = ExecutionModes.Current,
+            Results = results,
+            Manifest = baselineManifest,
+        };
+
+        ReplayRunResult iteration1 = new()
+        {
+            OriginalRunId = "src",
+            ReplayRunId = "iter1",
+            ExecutionMode = ExecutionModes.Current,
+            Results = results,
+            Manifest = iterationManifest,
+        };
+
+        ReplayRunResult iteration2 = new()
+        {
+            OriginalRunId = "src",
+            ReplayRunId = "iter2",
+            ExecutionMode = ExecutionModes.Current,
+            Results = results,
+            Manifest = iterationManifest,
+        };
+
+        int replayCall = 0;
+        Mock<IReplayRunService> replay = new();
+        replay.Setup(x => x.ReplayAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<bool>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(() =>
+            {
+                replayCall++;
+                ReplayRunResult next = replayCall switch
+                {
+                    1 => baseline,
+                    2 => iteration1,
+                    3 => iteration2,
+                    _ => throw new InvalidOperationException($"Unexpected ReplayAsync call #{replayCall}."),
+                };
+
+                return Task.FromResult(next);
+            });
+
+        Mock<IAgentResultDiffService> agentDiff = new();
+        agentDiff
+            .Setup(x => x.Compare(
+                It.IsAny<string>(),
+                It.IsAny<IReadOnlyCollection<AgentResult>>(),
+                It.IsAny<string>(),
+                It.IsAny<IReadOnlyCollection<AgentResult>>()))
+            .Returns(new AgentResultDiffResult { AgentDeltas = [] });
+
+        ManifestDiffResult warningsOnlyDiff = new()
+        {
+            Warnings = ["SystemName differs between compared manifests."],
+        };
+
+        Mock<IManifestDiffService> manifestDiff = new();
+        manifestDiff
+            .Setup(x => x.Compare(baselineManifest, iterationManifest))
+            .Returns(warningsOnlyDiff);
+
+        DeterminismCheckService sut = new(replay.Object, agentDiff.Object, manifestDiff.Object);
+
+        DeterminismCheckResult output = await sut.RunAsync(
+            new DeterminismCheckRequest { RunId = "src", Iterations = 2, ExecutionMode = ExecutionModes.Current },
+            CancellationToken.None);
+
+        output.IsDeterministic.Should().BeFalse();
+        output.IterationResults.Should().OnlyContain(iteration => !iteration.MatchesBaselineManifest);
+        output.IterationResults.Should().OnlyContain(iteration => iteration.ManifestDriftWarnings.Count == 1);
     }
 }

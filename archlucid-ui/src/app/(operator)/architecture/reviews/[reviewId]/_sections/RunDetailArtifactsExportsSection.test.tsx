@@ -167,6 +167,32 @@ describe("RunDetailArtifactsExportsSection", () => {
     expect(screen.getByTestId("run-scoped-audit-export")).toHaveAttribute("data-run-id", "run-1");
   });
 
+  it("uses decision-receipt empty for soft infeasible pre-finalize verdict override", () => {
+    const softInfeasibleVerdict: ManifestFeasibilityVerdict = {
+      kind: "SoftInfeasible",
+      summary: "Remediation required before proceed.",
+    };
+
+    render(
+      <RunDetailArtifactsExportsSection
+        manifestId="manifest-1"
+        runId="run-1"
+        buyerPolishedArtifactTable={false}
+        artifacts={[]}
+        artifactsFailure={null}
+        artifactsMalformed={null}
+        goldenManifestJsonForExport={null}
+        manifestSummaryForUi={null}
+        manifestSummary={null}
+        trustEvidenceCard={null}
+        feasibilityVerdict={softInfeasibleVerdict}
+      />,
+    );
+
+    expect(screen.getByText(/decision delivered — design not feasible/i)).toBeInTheDocument();
+    expect(screen.queryByTestId("run-deliverables-pending-finalize-empty-state")).not.toBeInTheDocument();
+  });
+
   it("demotes pending-finalize deliverables CTA when Do this next owns the page primary", () => {
     const feasibleSummary: ManifestSummary = {
       ...manifestSummary,

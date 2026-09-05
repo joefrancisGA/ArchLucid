@@ -8,8 +8,8 @@ namespace ArchLucid.Api.Security;
 public static class ScopeResolutionGuard
 {
     /// <summary>
-    ///     True when any dimension was resolved from headers, development defaults, or ambient overrides carrying
-    ///     development-default GUIDs.
+    ///     True when any dimension was resolved from headers, development defaults, ambient overrides carrying
+    ///     development-default GUIDs, or any dimension value is <see cref="Guid.Empty" />.
     /// </summary>
     internal static bool RequiresTrustedScopeRejection(ScopeResolution resolution)
     {
@@ -29,6 +29,9 @@ public static class ScopeResolutionGuard
 
     private static bool IsUntrusted(ScopeDimensionResolution dimension)
     {
+        if (dimension.Value == Guid.Empty)
+            return true;
+
         if (dimension.Source is ScopeSource.Header or ScopeSource.Default)
             return true;
 

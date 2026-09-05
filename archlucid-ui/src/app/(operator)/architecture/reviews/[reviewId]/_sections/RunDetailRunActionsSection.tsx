@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import type { ReactElement } from "react";
 
@@ -5,11 +7,12 @@ import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { GenerateSponsorValueReportButton } from "@/components/GenerateSponsorValueReportButton";
 import { ShareReviewPackageButton } from "@/components/ShareReviewPackageButton";
 import { ReviewArchiveControl } from "@/components/reviews/ReviewArchiveControl";
+import { ReviewPackageWhatIfControl } from "@/components/reviews/ReviewPackageWhatIfControl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { getTraceabilityBundleDownloadUrl } from "@/lib/api";
 import { buildCompareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 
 import { RunDetailRunGovernanceDispositionActions } from "@/components/runs/RunDetailRunGovernanceDispositionActions";
 
@@ -22,11 +25,14 @@ type RunDetailRunActionsSectionProps = {
   readonly hasCommitBlockingFailures: boolean;
   readonly operatorGovernanceDecision?: string | null;
   readonly isArchived?: boolean;
+  readonly pipelineInFlight?: boolean;
 };
 
 export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProps): ReactElement {
   const { runId, systemName, manifestId, hasCommitBlockingFailures, operatorGovernanceDecision = null } = props;
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const evalChromeShell = useProductionEvalChrome();
+  const packageCommitted =
+    manifestId !== null && manifestId !== undefined && manifestId.trim().length > 0;
 
   return (
     <section id="run-actions" className="scroll-mt-24">
@@ -53,7 +59,12 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
           <ShareReviewPackageButton
             runId={runId}
             systemName={systemName}
-            committed={manifestId !== null && manifestId !== undefined && manifestId.trim().length > 0}
+            committed={packageCommitted}
+          />
+          <ReviewPackageWhatIfControl
+            runId={runId}
+            packageCommitted={packageCommitted}
+            pipelineInFlight={props.pipelineInFlight === true}
           />
           <div className="flex flex-wrap gap-3">
             <Button variant="secondary" size="sm" asChild>
@@ -61,14 +72,14 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
                 Download evidence bundle (ZIP)
               </ExportTrackedAnchor>
             </Button>
-            {buyerPolishedShell ? null : (
+            {evalChromeShell ? null : (
             <Button variant="outline" size="sm" asChild>
               <Link href={buildCompareTwoReviewsHref({ baseRunId: runId })}>
                 Compare two reviews (baseline = this review)
               </Link>
             </Button>
             )}
-            {manifestId && !buyerPolishedShell ? (
+            {manifestId && !evalChromeShell ? (
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/architecture/reviews/${encodeURIComponent(runId)}`}>Open sponsor report</Link>
               </Button>

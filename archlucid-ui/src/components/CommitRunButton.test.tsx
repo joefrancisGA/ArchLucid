@@ -3,12 +3,16 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
+  const searchParams = new URLSearchParams();
   return {
     ...actual,
-  useRouter: (): { push: (path: string) => void } => ({
-    push: vi.fn(),
-  }),
-  redirect: vi.fn(),
+    usePathname: () => "/architecture/reviews/run-1",
+    useSearchParams: () => searchParams,
+    useRouter: (): { push: (path: string) => void; replace: (path: string) => void } => ({
+      push: vi.fn(),
+      replace: vi.fn(),
+    }),
+    redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
   };
@@ -18,12 +22,29 @@ vi.mock("@/lib/operator/operator-query-invalidation", () => ({
   invalidateOperatorHomeRunsCaches: vi.fn().mockResolvedValue(undefined),
 }));
 
+const pulseOidcSessionKeepaliveMock = vi.hoisted(() => vi.fn(async () => undefined));
+const useOidcSessionKeepaliveMock = vi.hoisted(() => vi.fn());
+const invalidateTenantTrialStatusCacheMock = vi.hoisted(() => vi.fn(async () => undefined));
+
+vi.mock("@/hooks/use-oidc-session-keepalive", () => ({
+  pulseOidcSessionKeepalive: pulseOidcSessionKeepaliveMock,
+  useOidcSessionKeepalive: useOidcSessionKeepaliveMock,
+}));
+
 vi.mock("@/lib/tenant-trial-status-client", () => ({
-  invalidateTenantTrialStatusCache: vi.fn().mockResolvedValue(undefined),
+  invalidateTenantTrialStatusCache: invalidateTenantTrialStatusCacheMock,
 }));
 
 vi.mock("@/lib/architecture/architecture-draft-registry-finalize-sync", () => ({
   syncArchitectureDraftRegistryForFinalizedReview: vi.fn(),
+}));
+
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => ({ isWorkingMode: true, mode: "working" }),
+}));
+
+vi.mock("@/components/governance/GovernanceRecordCorrectionDialog", () => ({
+  GovernanceRecordCorrectionDialog: () => null,
 }));
 
 vi.mock("@/lib/api", () => ({
@@ -35,14 +56,13 @@ import { commitArchitectureRun, getRunSummary } from "@/lib/api";
 import { syncArchitectureDraftRegistryForFinalizedReview } from "@/lib/architecture/architecture-draft-registry-finalize-sync";
 import { ApiRequestError } from "@/lib/api-request-error";
 import { invalidateOperatorHomeRunsCaches } from "@/lib/operator/operator-query-invalidation";
-import { invalidateTenantTrialStatusCache } from "@/lib/tenant-trial-status-client";
 
 import { CommitRunButton } from "./CommitRunButton";
 
 const mockCommit = vi.mocked(commitArchitectureRun);
 const mockGetRunSummary = vi.mocked(getRunSummary);
 const mockInvalidateHomeRuns = vi.mocked(invalidateOperatorHomeRunsCaches);
-const mockInvalidateTrialStatus = vi.mocked(invalidateTenantTrialStatusCache);
+const mockInvalidateTrialStatus = invalidateTenantTrialStatusCacheMock;
 const mockSyncDraftRegistry = vi.mocked(syncArchitectureDraftRegistryForFinalizedReview);
 
 describe("CommitRunButton", () => {
@@ -93,6 +113,8 @@ describe("CommitRunButton", () => {
       });
     });
 
+    expect(pulseOidcSessionKeepaliveMock).toHaveBeenCalled();
+
     await waitFor(() => {
       expect(mockSyncDraftRegistry).toHaveBeenCalledWith("run-1");
       expect(mockInvalidateHomeRuns).toHaveBeenCalled();
@@ -100,6 +122,7 @@ describe("CommitRunButton", () => {
     });
 
     expect(await screen.findByText(/decisions are now searchable in Ask/i)).toBeInTheDocument();
+    expect(screen.getByTestId("commit-run-finalize-record-correction")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /ask memory guide/i })).toHaveAttribute(
       "href",
       "/help/prior-manifest-retrieval",

@@ -6,6 +6,7 @@ using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Clarifications;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Clarifications;
+using ArchLucid.Contracts.Drafts;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -91,6 +92,14 @@ public sealed class ReviewClarificationQuestionsController(
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        foreach (KeyValuePair<string, string> answer in request.Answers)
+        {
+            if (DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(answer.Value))
+                return this.BadRequestProblem(
+                    $"Each answer value must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.",
+                    ProblemTypes.ValidationFailed);
+        }
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
 

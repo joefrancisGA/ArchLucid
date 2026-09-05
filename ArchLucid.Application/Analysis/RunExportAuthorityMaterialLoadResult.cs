@@ -6,6 +6,7 @@ public enum RunExportAuthorityMaterialLoadOutcome
     Success,
     RunNotFound,
     ManifestNotFound,
+    SealedReceiptIncomplete,
     SealedReceiptHashMismatch,
 }
 
@@ -28,6 +29,7 @@ public sealed class RunExportAuthorityMaterialLoadResult
 
     public bool ManifestFound =>
         Outcome is RunExportAuthorityMaterialLoadOutcome.Success
+            or RunExportAuthorityMaterialLoadOutcome.SealedReceiptIncomplete
             or RunExportAuthorityMaterialLoadOutcome.SealedReceiptHashMismatch;
 
     public static RunExportAuthorityMaterialLoadResult Success(RunExportAuthorityMaterial material)
@@ -42,6 +44,9 @@ public sealed class RunExportAuthorityMaterialLoadResult
 
     public static RunExportAuthorityMaterialLoadResult ManifestNotFound() =>
         new(RunExportAuthorityMaterialLoadOutcome.ManifestNotFound, material: null);
+
+    public static RunExportAuthorityMaterialLoadResult SealedReceiptIncomplete() =>
+        new(RunExportAuthorityMaterialLoadOutcome.SealedReceiptIncomplete, material: null);
 
     public static RunExportAuthorityMaterialLoadResult SealedReceiptHashMismatch() =>
         new(RunExportAuthorityMaterialLoadOutcome.SealedReceiptHashMismatch, material: null);

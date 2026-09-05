@@ -5,19 +5,21 @@ import {
   operatorFreshnessMetadataClockValue,
   operatorFreshnessMetadataLabel,
   operatorFreshnessMetadataWithClockLabel,
+  operatorHomeDataCurrencyValue,
   operatorLastRefreshedClockLabel,
   operatorLastRefreshedExactLabel,
   operatorLastRefreshedLabel,
 } from "@/lib/operator/operator-last-refreshed-label";
 
 describe("operatorLastRefreshedClockLabel", () => {
-  it("formats single-digit hours without a leading zero", () => {
+  it("formats single-digit hours without a leading zero and omits seconds", () => {
     const refreshedAt = new Date("2026-01-15T18:07:26.000Z");
     const label = operatorLastRefreshedClockLabel(refreshedAt);
 
     expect(label).not.toBeNull();
-    expect(label).toMatch(/6:07:26/);
-    expect(label).not.toMatch(/06:07:26/);
+    expect(label).toMatch(/6:07/);
+    expect(label).not.toMatch(/6:07:26/);
+    expect(label).not.toMatch(/06:07/);
   });
 });
 
@@ -26,8 +28,28 @@ describe("operatorFreshnessMetadataClockValue", () => {
     const refreshedAt = new Date("2026-01-15T18:07:26.000Z");
     const label = operatorFreshnessMetadataClockValue(refreshedAt);
 
-    expect(label).toMatch(/6:07:26/);
-    expect(label).not.toMatch(/06:07:26/);
+    expect(label).toMatch(/6:07/);
+    expect(label).not.toMatch(/6:07:26/);
+    expect(label).not.toMatch(/06:07/);
+  });
+});
+
+describe("operatorHomeDataCurrencyValue", () => {
+  it("uses minute-precision clock when just refreshed", () => {
+    const refreshedAt = new Date();
+    const label = operatorHomeDataCurrencyValue(refreshedAt);
+
+    expect(label).toMatch(/\d{1,2}:\d{2}/);
+    expect(label).not.toMatch(/:\d{2}:\d{2}/);
+    expect(label.toLowerCase()).not.toMatch(/\bnow\b/);
+  });
+
+  it("uses relative age with a visible clock parenthetical for older refreshes", () => {
+    const refreshedAt = new Date(Date.now() - 2 * 60 * 60 * 1000);
+    const label = operatorHomeDataCurrencyValue(refreshedAt);
+
+    expect(label).toMatch(/hour/);
+    expect(label).toMatch(/\(\d{1,2}:\d{2}/);
   });
 });
 
@@ -107,7 +129,8 @@ describe("operatorFreshnessMetadataWithClockLabel", () => {
     });
 
     expect(label).toMatch(/^Last refreshed: /);
-    expect(label).toMatch(/\(\d{1,2}:\d{2}:\d{2}/);
+    expect(label).toMatch(/\(\d{1,2}:\d{2}/);
+    expect(label).not.toMatch(/\d{1,2}:\d{2}:\d{2}/);
     expect(label).not.toContain("title");
   });
 
@@ -119,7 +142,8 @@ describe("operatorFreshnessMetadataWithClockLabel", () => {
     });
 
     expect(label.toLowerCase()).not.toMatch(/\bnow\b/);
-    expect(label).toMatch(/^Updated: \d{1,2}:\d{2}:\d{2}/);
+    expect(label).toMatch(/^Updated: \d{1,2}:\d{2}/);
+    expect(label).not.toMatch(/:\d{2}:\d{2}/);
   });
 
   it("prefers the in-flight label and omits the clock", () => {

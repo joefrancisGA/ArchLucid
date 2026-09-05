@@ -40,6 +40,7 @@ public sealed class ReplayRunCommitStage(
     IRunPolicyPackPinService runPolicyPackPinService,
     IRunEvidencePackagePinService runEvidencePackagePinService,
     IReplayRunCloneStage cloneStage,
+    IReRunExecuteSealedManifestPinGate reRunExecuteSealedManifestPinGate,
     ILogger<ReplayRunCommitStage> logger) : IReplayRunCommitStage
 {
     private readonly IDecisionEngineService _decisionEngineService =
@@ -84,6 +85,9 @@ public sealed class ReplayRunCommitStage(
     private readonly IReplayRunCloneStage _cloneStage =
         cloneStage ?? throw new ArgumentNullException(nameof(cloneStage));
 
+    private readonly IReRunExecuteSealedManifestPinGate _reRunExecuteSealedManifestPinGate =
+        reRunExecuteSealedManifestPinGate ?? throw new ArgumentNullException(nameof(reRunExecuteSealedManifestPinGate));
+
     private readonly ILogger<ReplayRunCommitStage> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -108,6 +112,11 @@ public sealed class ReplayRunCommitStage(
         ArgumentNullException.ThrowIfNull(results);
         ArgumentNullException.ThrowIfNull(replayEvidence);
         ArgumentNullException.ThrowIfNull(replayTasks);
+
+        await ReplayRunSourceSealedManifestPinGuard.EnsureSourceRunReadyOrThrowAsync(
+            originalRunId,
+            _reRunExecuteSealedManifestPinGate,
+            cancellationToken).ConfigureAwait(false);
 
         string manifestVersion = string.IsNullOrWhiteSpace(manifestVersionOverride)
             ? _cloneStage.BuildReplayManifestVersion(originalRun.CurrentManifestVersion)
@@ -246,6 +255,11 @@ public sealed class ReplayRunCommitStage(
         ArgumentException.ThrowIfNullOrWhiteSpace(preparedReplayRunId);
         ArgumentException.ThrowIfNullOrWhiteSpace(originalRunId);
         ArgumentException.ThrowIfNullOrWhiteSpace(executionMode);
+
+        await ReplayRunSourceSealedManifestPinGuard.EnsureSourceRunReadyOrThrowAsync(
+            originalRunId,
+            _reRunExecuteSealedManifestPinGate,
+            cancellationToken).ConfigureAwait(false);
 
         CommitRunIdempotencyOutcome commitOutcome = await _commitRunIdempotencyCoordinator
             .CommitAsync(

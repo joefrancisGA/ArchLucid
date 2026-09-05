@@ -3,24 +3,26 @@
 import Link from "next/link";
 
 import { OperatorHomeDeferredOnboarding } from "@/components/operator-home/OperatorHomeDeferredOnboarding";
-import { OperatorHomeInFlightReviewsSection } from "@/components/operator-home/OperatorHomeInFlightReviewsSection";
+import { OperatorHomeInFlightSection } from "@/components/operator-home/OperatorHomeInFlightSection";
 import { UnfinishedWorkRail } from "@/components/operator-home/UnfinishedWorkRail";
 import { OperatorHomeWorkspaceMetricsStrip } from "@/components/operator-home/OperatorHomeWorkspaceMetricsStrip";
+import { OperatorHomeWorkspaceActivityProvider } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { OperatorHomeCompactStartingActionsSection } from "@/components/operator-home/OperatorHomeCompactStartingActionsSection";
 import { OperatorAttentionKindStrip } from "@/components/operator/OperatorAttentionKindStrip";
 import {
   OperatorHomeRunsPanel,
 } from "@/components/operator-home/OperatorHomeDeferredPanels";
-import { OperatorHomeWorkspaceActivityProvider } from "@/components/operator-home/operator-home-workspace-activity-context";
+import { WorkspaceModeGuidedWorkingOfferHost } from "@/components/workspace-mode/WorkspaceModeGuidedWorkingOfferHost";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorHomeBuyerChrome } from "@/components/operator-home/OperatorHomeBuyerChrome";
 import {
-  OPERATOR_HOME_PRIMARY_SECTION_HEADING,
   OPERATOR_LAYOUT,
+  OPERATOR_HOME_SECTION_HEADING,
   OPERATOR_LINK,
 } from "@/lib/design-tokens";
 import { BUYER_RUNS_DASHBOARD_OPEN_ALL_REVIEWS_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { deriveOperatorHomeTenantCountingSnapshot } from "@/lib/operator/operator-home-tenant-counting";
 import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
 import { deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns } from "@/lib/resolve-operator-home-workspace-phase";
 import { OperatorHomeRefreshProvider } from "@/lib/operator/operator-home-refresh-context";
@@ -40,16 +42,14 @@ import {
   PilotCommandCenterCardDeferred,
 } from "./operator-home-page-view-deferred-chunks";
 import { OperatorHomePageHeader } from "./OperatorHomePageHeader";
-import { WorkspaceModeGraduationOfferHost } from "@/components/workspace-mode/WorkspaceModeGraduationOfferHost";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import {
   OPERATOR_HOME_PRIMARY_CONTENT_ID,
   OPERATOR_HOME_SKIP_LINK_LABEL,
 } from "./operator-home-page-surface-copy";
 import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
-import {
-  operatorHomePageSubtitle,
-} from "@/lib/operator/operator-home-page-copy";
+import { operatorHomePageSubtitle } from "@/lib/operator/operator-home-page-copy";
 import { cn } from "@/lib/utils";
 
 type OperatorHomePageViewProps = {
@@ -58,16 +58,22 @@ type OperatorHomePageViewProps = {
 
 function HomeSectionHeading(props: { readonly id?: string; readonly children: string }) {
   return (
-    <h2 id={props.id} className={OPERATOR_HOME_PRIMARY_SECTION_HEADING}>
+    <h2 id={props.id} className={OPERATOR_HOME_SECTION_HEADING}>
       {props.children}
     </h2>
   );
 }
 
-function OperatorHomePageChrome(props: { readonly buyerPolishedShell: boolean }): React.JSX.Element {
+function OperatorHomePageChrome(props: {
+  readonly buyerPolishedShell: boolean;
+  readonly workingMode: boolean;
+  readonly workspaceMetrics: ReturnType<typeof deriveOperatorHomeTenantCountingSnapshot>["metrics"];
+}): React.JSX.Element {
   return (
     <>
-      <OperatorHomePageHeader subtitle={operatorHomePageSubtitle(props.buyerPolishedShell) ?? ""} />
+      <OperatorHomePageHeader
+        subtitle={operatorHomePageSubtitle(props.buyerPolishedShell, props.workingMode, props.workspaceMetrics) ?? ""}
+      />
 </>
   );
 }
@@ -83,15 +89,13 @@ function HomeRecentReviewsSection(props: { readonly model: OperatorHomePageViewM
     >
       <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
         <HomeSectionHeading id="operator-home-reviews-heading">{OPERATOR_HOME_RECENT_REVIEWS_HEADING}</HomeSectionHeading>
-        {props.model.buyerPolishedShell ? (
-          <Link
-            href={openAllReviewsHref}
-            className={cn("inline-block shrink-0 font-semibold", OPERATOR_LINK.nav)}
-            data-testid="runs-dashboard-open-all-reviews"
-          >
-            {BUYER_RUNS_DASHBOARD_OPEN_ALL_REVIEWS_CTA}
-          </Link>
-        ) : null}
+        <Link
+          href={openAllReviewsHref}
+          className={cn("inline-block shrink-0 font-semibold", OPERATOR_LINK.nav)}
+          data-testid="runs-dashboard-open-all-reviews"
+        >
+          {BUYER_RUNS_DASHBOARD_OPEN_ALL_REVIEWS_CTA}
+        </Link>
       </div>
       {/* Outcome line renders inside the runs panel from live list rows (avoids empty vs sample mismatch). */}
       <OperatorHomeRunsPanel hideHeading initialModel={props.model.runsDashboard} />
@@ -112,14 +116,24 @@ function renderOperatorHomeSection(input: RenderOperatorHomeSectionInput): React
     case "metrics-strip":
       return (
         <div key={input.section.id} data-testid={input.section.testId}>
-          <OperatorHomeWorkspaceMetricsStrip runsDashboard={input.model.runsDashboard} />
+          <OperatorHomeWorkspaceMetricsStrip
+            runsDashboard={input.model.runsDashboard}
+            workingMode={input.workingMode}
+          />
         </div>
       );
 
     case "attention-taxonomy":
       return (
         <div key={input.section.id} data-testid={input.section.testId}>
-          <OperatorAttentionKindStrip variant="compact" />
+          <OperatorAttentionKindStrip
+            variant="compact"
+            suppressKinds={
+              input.section.suppressAttentionKinds !== undefined
+                ? input.section.suppressAttentionKinds
+                : undefined
+            }
+          />
         </div>
       );
 
@@ -128,6 +142,7 @@ function renderOperatorHomeSection(input: RenderOperatorHomeSectionInput): React
         <div key={input.section.id} data-testid={input.section.testId}>
           <OperatorHomeCompactStartingActionsSection
             hasCommittedManifest={input.workspaceMetrics.reviewPackagesCommitted > 0}
+            hasActiveDeskWork={input.workspaceMetrics.reviewPackagesActive > 0}
             workingMode={input.workingMode}
           />
         </div>
@@ -136,7 +151,7 @@ function renderOperatorHomeSection(input: RenderOperatorHomeSectionInput): React
     case "in-flight":
       return (
         <div key={input.section.id} data-testid={input.section.testId}>
-          <OperatorHomeInFlightReviewsSection />
+          {input.workingMode ? <OperatorHomeInFlightSection runs={input.model.runsDashboard.items} /> : null}
         </div>
       );
 
@@ -159,7 +174,7 @@ function renderOperatorHomeSection(input: RenderOperatorHomeSectionInput): React
       return (
         <section
           key={input.section.id}
-          aria-label="Overview command center"
+          aria-label="Home command center"
           data-testid={input.section.testId}
         >
           <PilotCommandCenterCardDeferred
@@ -207,10 +222,10 @@ function OperatorHomePageBody(props: {
   readonly buyerPolishedShell: boolean;
   readonly workingMode: boolean;
 }): React.JSX.Element {
-  const workspaceMetrics = deriveOperatorHomeWorkspaceMetrics(
-    props.model.runsDashboard.items,
-    props.model.runsDashboard.totalCount,
-  );
+  const workspaceMetrics = deriveOperatorHomeTenantCountingSnapshot({
+    displayItems: props.model.runsDashboard.items,
+    previewItems: props.model.runsDashboard.items,
+  }).metrics;
   const overviewPhaseSignals = deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns(
     props.model.runsDashboard.items,
     props.model.runsDashboard.totalCount,
@@ -235,7 +250,7 @@ function OperatorHomePageBody(props: {
       initialHasOverviewReviewRows={overviewPhaseSignals.hasOverviewReviewRows}
       initialOpenFindingsCount={workspaceMetrics.openFindings}
     >
-      <WorkspaceModeGraduationOfferHost />
+      <WorkspaceModeGuidedWorkingOfferHost />
       {sections.map((section) =>
         renderOperatorHomeSection({
           section,
@@ -252,34 +267,35 @@ function OperatorHomePageBody(props: {
 
 /** Landing page: hero CTA, workspace activity, and collapsed advanced guidance. */
 export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
-  const buyerPolishedShell = model.buyerPolishedShell;
+  const evalChromeShell = useProductionEvalChrome();
   const { isWorkingMode } = useWorkspaceMode();
 
   return (
     <OperatorHomeGateDeferred>
       <OperatorHomeRefreshProvider>
         {isWorkingMode ? null : <OperatorHomeDeferredOnboarding />}
-        {buyerPolishedShell ? (
-          <a
-            href={`#${OPERATOR_HOME_PRIMARY_CONTENT_ID}`}
-            className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        <a
+          href={`#${OPERATOR_HOME_PRIMARY_CONTENT_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {OPERATOR_HOME_SKIP_LINK_LABEL}
+        </a>
+        <OperatorPageContainer variant="dashboard" className="space-y-4">
+          <OperatorHomePageChrome
+            buyerPolishedShell={evalChromeShell}
+            workingMode={isWorkingMode}
+            workspaceMetrics={deriveOperatorHomeTenantCountingSnapshot({
+              displayItems: model.runsDashboard.items,
+              previewItems: model.runsDashboard.items,
+            }).metrics}
+          />
+          <div
+            id={OPERATOR_HOME_PRIMARY_CONTENT_ID}
+            className="scroll-mt-24 space-y-4"
+            data-testid="operator-home-primary-content"
           >
-            {OPERATOR_HOME_SKIP_LINK_LABEL}
-          </a>
-        ) : null}
-        <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.majorSectionGap}>
-          <OperatorHomePageChrome buyerPolishedShell={buyerPolishedShell} />
-          {buyerPolishedShell ? (
-            <div
-              id={OPERATOR_HOME_PRIMARY_CONTENT_ID}
-              className="scroll-mt-24 space-y-4"
-              data-testid="operator-home-primary-content"
-            >
-              <OperatorHomePageBody model={model} buyerPolishedShell workingMode={isWorkingMode} />
-            </div>
-          ) : (
-            <OperatorHomePageBody model={model} buyerPolishedShell={false} workingMode={isWorkingMode} />
-          )}
+            <OperatorHomePageBody model={model} buyerPolishedShell={evalChromeShell} workingMode={isWorkingMode} />
+          </div>
         </OperatorPageContainer>
       </OperatorHomeRefreshProvider>
     </OperatorHomeGateDeferred>

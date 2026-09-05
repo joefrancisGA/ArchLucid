@@ -96,20 +96,27 @@ public sealed class DecisionReceiptService(
             return NotFound();
 
         FeasibilityVerdict? verdict = compareDetail.GoldenManifest.FeasibilityVerdict;
-
-        if (verdict is null)
-            return NotFound();
-
         string? manifestVersion = compareDetail.GoldenManifest.Metadata?.Version;
 
-        if (string.IsNullOrWhiteSpace(manifestVersion))
-            return NotFound();
+        DecisionReceiptRunBuildOutcome? readinessOutcome =
+            ManifestDecisionReceiptExportBinder.TryGetSealedReceiptReadinessOutcome(
+                compareDetail.GoldenManifest,
+                verdict,
+                manifestVersion);
+
+        if (readinessOutcome == DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete)
+        {
+            return new DecisionReceiptRunBuildResult
+            {
+                Outcome = DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete,
+            };
+        }
 
         return ManifestDecisionReceiptExportBinder.BuildVerifiedExportReceipt(
             runId,
             compareDetail.GoldenManifest,
-            verdict,
-            manifestVersion.Trim(),
+            verdict!,
+            manifestVersion!.Trim(),
             _manifestHashService);
     }
 

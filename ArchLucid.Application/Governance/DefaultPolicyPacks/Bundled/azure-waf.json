@@ -24,11 +24,10 @@
     "templateId": "azure-waf-v1",
     "pack.displayName": "Azure Well-Architected Framework",
     "pack.category": "Architecture",
-    "pack.version": "1.1.0",
+    "pack.version": "1.0.0",
     "pack.isDefault": "true",
     "pack.description": "WAF pillar themes grounded in Azure extractor inventory. Not a Microsoft Well-Architected Review.",
     "frameworkMappingDisclaimer": "WAF references are thematic mapping only.",
-    "curatedRulesArtifact": "docs/samples/policy-packs/azure-waf-rules-v1.json",
-    "overlayTrimNeutralBaseline": "2026-08-23"
+    "curatedRulesArtifact": "docs/samples/policy-packs/azure-waf-rules-v1.json"
   }
 }

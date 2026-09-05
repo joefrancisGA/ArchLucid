@@ -1,3 +1,4 @@
+using System.Text.Json;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Coverage;
@@ -47,7 +48,10 @@ public sealed class ExecuteTimeGovernanceScopeCaptureServiceTests
             TenantId = tenantId,
             WorkspaceId = workspaceId,
             ScopeProjectId = projectId,
-            ProjectId = projectId.ToString("N")
+            ProjectId = projectId.ToString("N"),
+            PinnedPolicyPackIdsJson = JsonSerializer.Serialize(
+                new[] { new PinnedPolicyPackRow(packId.ToString("D"), "2.0.0") },
+                ContractJson.CamelCaseIgnoreNullCompact)
         };
 
         Mock<IRunRepository> runs = new();

@@ -1,7 +1,15 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState, type SetStateAction } from "react";
+
+import {
+  parseSsoWizardCancelConfirmOpenFromSearch,
+  parseSsoWizardStepFromSearch,
+  SSO_WIZARD_PATH,
+  ssoWizardHrefFromSearch,
+  ssoWizardStepHrefFromSearch,
+} from "@/lib/administration/sso-wizard-step-url";
 
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import {
@@ -114,11 +122,15 @@ export type UseSsoWizardPageResult = {
 
 export function useSsoWizardPage(): UseSsoWizardPageResult {
   const router = useRouter();
+  const pathname = usePathname() ?? SSO_WIZARD_PATH;
+  const searchParams = useSearchParams();
+  const urlStepIndex = parseSsoWizardStepFromSearch(searchParams.get("step"));
+  const urlCancelConfirm = parseSsoWizardCancelConfirmOpenFromSearch(searchParams.get("ssoCancelConfirm"));
   const [state, setState] = useState<SsoWizardState>(() => createDefaultSsoWizardState());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [pendingCancelConfirm, setPendingCancelConfirm] = useState(false);
+  const [pendingCancelConfirm, setPendingCancelConfirmState] = useState(urlCancelConfirm);
   const [existingConfigSummary, setExistingConfigSummary] = useState<SsoWizardExistingConfigSummaryModel | null>(
     null,
   );
@@ -141,8 +153,56 @@ export function useSsoWizardPage(): UseSsoWizardPageResult {
   } = useSsoWizardStepState({
     state,
     busy,
+    initialStep: urlStepIndex ?? 0,
     onBeforeStepChange: clearNavigationMessages,
   });
+
+  const syncStepToUrl = useCallback(
+    (nextStep: number) => {
+      router.replace(ssoWizardStepHrefFromSearch(searchParams.toString(), nextStep, pathname), { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const syncCancelConfirmToUrl = useCallback(
+    (cancelConfirmOpen: boolean) => {
+      router.replace(
+        ssoWizardHrefFromSearch(searchParams.toString(), { stepIndex: step, cancelConfirmOpen }, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams, step],
+  );
+
+  const setPendingCancelConfirm = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setPendingCancelConfirmState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncCancelConfirmToUrl(next);
+
+        return next;
+      });
+    },
+    [syncCancelConfirmToUrl],
+  );
+
+  useEffect(() => {
+    setPendingCancelConfirmState(parseSsoWizardCancelConfirmOpenFromSearch(searchParams.get("ssoCancelConfirm")));
+  }, [searchParams]);
+
+  useEffect(() => {
+    syncStepToUrl(step);
+  }, [step, syncStepToUrl]);
+
+  useEffect(() => {
+    const nextStep = parseSsoWizardStepFromSearch(searchParams.get("step"));
+
+    if (nextStep === null) {
+      return;
+    }
+
+    setStep(nextStep);
+  }, [searchParams, setStep]);
   const setupChecklistInput = useMemo(
     () => ({
       idpAndProtocolComplete: completedSteps.includes(0) && completedSteps.includes(1),

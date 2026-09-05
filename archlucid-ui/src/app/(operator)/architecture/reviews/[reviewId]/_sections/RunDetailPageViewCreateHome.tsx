@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
+import { resolveReviewFailureRecordedAtUtc } from "@/components/resolve-run-detail-last-failure-summary";
 import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
 import type { RunSummary } from "@/types/authority";
 
@@ -35,6 +36,7 @@ export type RunDetailPageViewCreateHomeProps = {
     readonly pipelineDiagnosticContext: ReviewPipelineDiagnosticContext | null;
     readonly lastFailureSummary: RunDetailLastFailureSummary | null;
     readonly pipelineSummary: RunSummary;
+    readonly runCompletedUtc: string | null;
     readonly intakeDescription: string | null;
     readonly intakeSystemName: string | null;
     readonly realModeFellBackToSimulator: boolean;
@@ -96,6 +98,13 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
           m.manifestSummaryForUi?.feasibilityVerdict?.transparencyTrail ??
           null
         }
+        feasibilityVerdict={
+          m.manifestSummary?.feasibilityVerdict ??
+          m.manifestSummaryForUi?.feasibilityVerdict ??
+          null
+        }
+        graphSnapshot={m.resolvedDetail.graphSnapshot}
+        analysisStagesComplete={createHomeAnalysisStagesComplete}
         {...reviewPackageDoThisNextEvidenceProps}
       />
       {!m.manifestId ? (
@@ -211,6 +220,12 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
                 progressForPipelineUi={m.progressForPipelineUi}
                 pipelineDiagnosticContext={m.pipelineDiagnosticContext}
                 outcomeCards={createHomeActivityOutcomeCardsEl}
+                lastFailureSummary={reviewPackageDoThisNextEvidenceProps.lastFailureSummary}
+                legacyRunStatus={m.resolvedDetail.run.legacyRunStatus ?? null}
+                failureRecordedAtUtc={resolveReviewFailureRecordedAtUtc({
+                  pipelineSummary: m.progressForPipelineUi,
+                  runCompletedUtc: m.resolvedDetail.run.completedUtc ?? null,
+                })}
                 midDeferred={
                   <Suspense fallback={<RunDetailMidDeferredSkeleton />}>
                     <RunDetailMidDeferredSections context={deferredContext} includeSavingsSummary={false} />

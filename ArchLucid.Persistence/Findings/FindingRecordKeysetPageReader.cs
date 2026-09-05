@@ -1,6 +1,7 @@
 using System.Data;
 
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Findings;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Infrastructure;

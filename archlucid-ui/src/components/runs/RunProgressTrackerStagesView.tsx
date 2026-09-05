@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils";
 
-import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
@@ -25,7 +24,6 @@ type RunProgressTrackerStagesViewProps = Pick<
   | "pipelineJobLabel"
   | "completedStages"
   | "totalProgressStages"
-  | "progressValue"
   | "ctx"
   | "graph"
   | "findings"
@@ -39,7 +37,6 @@ export function RunProgressTrackerStagesView({
   pipelineJobLabel,
   completedStages,
   totalProgressStages,
-  progressValue,
   ctx,
   graph,
   findings,
@@ -58,11 +55,6 @@ export function RunProgressTrackerStagesView({
             {completedStages} / {totalProgressStages} stages
           </span>
         </div>
-        <Progress
-          value={progressValue}
-          className="h-2"
-          aria-label={pipelineJobLabel.progressAriaLabel}
-        />
       </div>
 
       <Separator className="my-6" />

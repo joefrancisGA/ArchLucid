@@ -775,6 +775,7 @@ export interface components {
         };
         AgentResultDiffResult: {
             agentDeltas?: components["schemas"]["AgentResultDelta"][];
+            inputFingerprints?: null | components["schemas"]["CompareInputFingerprints"];
             leftRunId?: string;
             rightRunId?: string;
             warnings?: string[];
@@ -1554,7 +1555,7 @@ export interface components {
             value?: string;
         };
         AssignPolicyPackRequest: {
-            isPinned?: boolean;
+            isPinned: boolean;
             scopeLevel?: string;
             version?: string;
         };
@@ -1696,6 +1697,126 @@ export interface components {
             /** Format: int32 */
             totalChunks?: number;
         };
+        AzureInventoryBaselineDesignateResult: {
+            /** Format: uuid */
+            baselineId?: null | string;
+            errorMessage?: null | string;
+            succeeded?: boolean;
+        };
+        /** @enum {string} */
+        AzureInventoryBaselineKind: "Approved" | "Architecture" | "Security" | "Release";
+        AzureInventoryBaselineRecord: {
+            /** Format: uuid */
+            baselineId?: string;
+            baselineKind?: components["schemas"]["AzureInventoryBaselineKind"];
+            designatedBy?: string;
+            /** Format: date-time */
+            designatedUtc?: string;
+            notes?: null | string;
+            /** Format: uuid */
+            projectId?: string;
+            /** Format: uuid */
+            snapshotId?: string;
+            subscriptionId?: null | string;
+            /** Format: uuid */
+            tenantId?: string;
+            /** Format: uuid */
+            workspaceId?: string;
+        };
+        AzureInventoryChangeRecord: {
+            architectureSignificance?: null | string;
+            azureResourceId?: null | string;
+            /** Format: uuid */
+            changeId?: string;
+            changeType?: components["schemas"]["AzureInventoryChangeType"];
+            /** Format: uuid */
+            cloudResourceId?: null | string;
+            /** Format: double */
+            confidence?: null | number | string;
+            /** Format: uuid */
+            diffId?: string;
+            evidenceReference?: null | string;
+            newValue?: null | string;
+            oldValue?: null | string;
+            property?: null | string;
+            provenanceKind?: components["schemas"]["ProvenanceKind"];
+            riskClassification?: null | string;
+            securitySignificance?: null | string;
+            /** Format: uuid */
+            snapshotAId?: string;
+            /** Format: uuid */
+            snapshotBId?: string;
+        };
+        /** @enum {string} */
+        AzureInventoryChangeType: "ResourceAdded" | "ResourceRemoved" | "ResourceModified" | "RelationshipAdded" | "RelationshipRemoved" | "IdentityChanged" | "PermissionChanged" | "NetworkExposureChanged" | "SecurityControlChanged" | "LoggingChanged" | "EncryptionChanged" | "TagChanged" | "RegionChanged" | "SkuChanged" | "DependencyChanged" | "PolicyAssignmentChanged" | "Unknown";
+        AzureInventoryClassifiedChangeRecord: {
+            change?: components["schemas"]["AzureInventoryChangeRecord"];
+            classification?: components["schemas"]["AzureInventoryDriftClassification"];
+        };
+        /** @enum {string} */
+        AzureInventoryDiffNarrativeKind: "Material" | "Security" | "Architecture" | "Accidental" | "Investigate";
+        AzureInventoryDiffNarrativeRecord: {
+            citedChangeIds?: string[];
+            /** Format: date-time */
+            createdUtc?: string;
+            /** Format: uuid */
+            diffId?: string;
+            /** Format: uuid */
+            narrativeId?: string;
+            narrativeKind?: components["schemas"]["AzureInventoryDiffNarrativeKind"];
+            narrativeText?: string;
+            provenanceKind?: components["schemas"]["ProvenanceKind"];
+            simulatorLabel?: null | string;
+            /** Format: uuid */
+            tenantId?: string;
+        };
+        AzureInventoryDiffNarrativeResult: {
+            errorMessage?: null | string;
+            narrative?: null | components["schemas"]["AzureInventoryDiffNarrativeRecord"];
+            succeeded?: boolean;
+        };
+        AzureInventoryDiffSummaryRecord: {
+            /** Format: date-time */
+            createdUtc?: string;
+            /** Format: uuid */
+            diffId?: string;
+            /** Format: int32 */
+            loggingRegressionCount?: number;
+            /** Format: int32 */
+            networkExposureChangeCount?: number;
+            /** Format: int32 */
+            newPrivateEndpointCount?: number;
+            /** Format: int32 */
+            permissionChangeCount?: number;
+            /** Format: int32 */
+            relationshipRemovedCount?: number;
+            /** Format: int32 */
+            resourceAddedCount?: number;
+            /** Format: int32 */
+            resourceModifiedCount?: number;
+            /** Format: int32 */
+            resourceRemovedCount?: number;
+            /** Format: uuid */
+            snapshotAId?: string;
+            /** Format: uuid */
+            snapshotBId?: string;
+            subscriptionId?: null | string;
+            /** Format: int32 */
+            totalChanges?: number;
+        };
+        AzureInventoryDriftApprovalCreateResult: {
+            /** Format: uuid */
+            approvalId?: null | string;
+            errorMessage?: null | string;
+            succeeded?: boolean;
+        };
+        /** @enum {string} */
+        AzureInventoryDriftClassification: "Expected" | "Approved" | "Unapproved" | "SecurityRelevant" | "ArchitectureRelevant" | "PotentiallyDangerous" | "Unknown";
+        AzureInventoryDriftReportRecord: {
+            activeBaselines?: components["schemas"]["AzureInventoryBaselineRecord"][];
+            changes?: components["schemas"]["AzureInventoryClassifiedChangeRecord"][];
+            summary?: components["schemas"]["AzureInventoryDiffSummaryRecord"];
+        };
         BackgroundJobInfo: {
             /** Format: date-time */
             completedUtc: null | string;
@@ -1773,6 +1894,10 @@ export interface components {
             /** Format: uuid */
             parentDraftId?: string;
             parentSpawnedRunId?: null | string;
+        };
+        BuildAzureInventoryDiffNarrativeRequest: {
+            narrativeKind?: components["schemas"]["AzureInventoryDiffNarrativeKind"];
+            useSimulator?: boolean;
         };
         BuildInfoResponse: {
             application?: string;
@@ -1911,6 +2036,12 @@ export interface components {
             stack?: null | string;
             timestampUtc?: null | string;
             userAgent?: null | string;
+        };
+        CloneSnapshotDraftResponse: {
+            clone?: components["schemas"]["DraftRequestResponse"];
+            /** Format: uuid */
+            sourceDraftId?: string;
+            sourceSpawnedRunId?: null | string;
         };
         ClosedLoopReasoningRequest: {
             continueFromExistingRun?: boolean;
@@ -2403,7 +2534,7 @@ export interface components {
         CorePilotChecklistPutRequest: {
             isCompleted: boolean;
             /** Format: int32 */
-            stepIndex?: number;
+            stepIndex: number;
         };
         CorePilotChecklistStepResponse: {
             isCompleted?: boolean;
@@ -2512,6 +2643,15 @@ export interface components {
             run?: components["schemas"]["ArchitectureRun"];
             tasks?: components["schemas"]["AgentTask"][];
         };
+        CreateAzureInventoryDriftApprovalRequest: {
+            approver?: string;
+            /** Format: uuid */
+            changeId?: null | string;
+            /** Format: date-time */
+            expirationUtc?: string;
+            reason?: string;
+            ticketReference?: null | string;
+        };
         CreateDraftRequest: {
             freeTextIntent?: string;
             priorRunId?: null | string;
@@ -2563,7 +2703,7 @@ export interface components {
         };
         CreatePolicyPackRequest: {
             description?: string;
-            initialContentJson?: string;
+            initialContentJson: string;
             name?: string;
             packType?: string;
         };
@@ -2917,6 +3057,13 @@ export interface components {
         DemotePolicyPackCatalogEntryRequest: {
             /** Format: uuid */
             policyPackCatalogEntryId?: string;
+        };
+        DesignateAzureInventoryBaselineRequest: {
+            baselineKind?: components["schemas"]["AzureInventoryBaselineKind"];
+            designatedBy?: string;
+            notes?: null | string;
+            /** Format: uuid */
+            snapshotId?: string;
         };
         DeterminismCheckRequest: {
             commitReplays?: boolean;
@@ -3417,7 +3564,7 @@ export interface components {
         ExecDigestPreferencesUpsertRequest: {
             /** Format: int32 */
             dayOfWeek?: null | number;
-            emailEnabled?: boolean;
+            emailEnabled: boolean;
             /** Format: int32 */
             hourOfDay?: null | number;
             ianaTimeZoneId?: null | string;
@@ -4189,6 +4336,16 @@ export interface components {
             currentManifestVersion?: null | string;
             runId?: string;
             status?: string;
+        };
+        GovernanceMutationCorrectionRecordedDto: {
+            correctionId?: string;
+            mutationKind?: string;
+            rationale?: string;
+            /** Format: date-time */
+            recordedAtUtc?: string;
+            recordedByUserId?: string;
+            runId?: string;
+            subjectId?: string;
         };
         GovernancePreviewResult: {
             currentManifestVersion?: null | string;
@@ -5995,6 +6152,7 @@ export interface components {
             blockCommitMinimumSeverity?: null | number;
             blockCommitOnCritical?: boolean;
             isEnabled?: boolean;
+            isOrganizationRequired?: boolean;
             isPinned?: boolean;
             /** Format: uuid */
             policyPackId?: string;
@@ -6597,6 +6755,8 @@ export interface components {
         };
         /** @enum {string} */
         ProvenanceEdgeType: "SupportedBy" | "TriggeredByRule" | "InfluencedByGraphNode" | "ContributedToArtifact" | "ContainedInManifest";
+        /** @enum {string} */
+        ProvenanceKind: "ObservedFact" | "DerivedFact" | "DeterministicInference" | "AiInference" | "HumanAssertion";
         ProvenanceNode: {
             agentExecutionTraceId?: null | string;
             /** Format: uuid */
@@ -6611,7 +6771,7 @@ export interface components {
         /** @enum {string} */
         ProvenanceNodeType: "Finding" | "Rule" | "Decision" | "GraphNode" | "Artifact" | "Manifest";
         PublishPolicyPackVersionRequest: {
-            contentJson?: string;
+            contentJson: string;
             version?: string;
         };
         QualityGateDefinitionSnapshotDto: {
@@ -6995,6 +7155,12 @@ export interface components {
             runId?: null | string;
             tradeOffAcknowledgment?: null | string;
         };
+        RecordGovernanceMutationCorrectionRequest: {
+            mutationKind?: string;
+            rationale?: string;
+            runId?: string;
+            subjectId?: string;
+        };
         RecordRunOperatorGovernanceDispositionRequest: {
             decision?: components["schemas"]["RunOperatorGovernanceDecision"];
             rationale?: null | string;
@@ -7189,7 +7355,7 @@ export interface components {
             uncovered?: components["schemas"]["RequirementCoverageItem"][];
         };
         ResolveFindingMergeConflictRequest: {
-            action?: components["schemas"]["FindingMergeConflictResolutionAction"];
+            action: components["schemas"]["FindingMergeConflictResolutionAction"];
         };
         ResolvedArchitectureDecision: {
             buyerConfidenceSource?: null | string;
@@ -8100,6 +8266,11 @@ export interface components {
         SetCloudPlatformScopeRequest: {
             scope?: components["schemas"]["CloudPlatformScopeDto"];
         };
+        SetFindingsVisibilityPreferencesRequest: {
+            hideGenericEnabled?: boolean;
+            showAdvisoryEnabled?: boolean;
+            showLowConfidenceEnabled?: boolean;
+        };
         SetIanaTimeZonePreferenceRequest: {
             ianaTimeZoneId?: null | string;
         };
@@ -8107,10 +8278,17 @@ export interface components {
             isGloballyActive?: boolean;
         };
         SetPolicyPackAssignmentEnabledRequest: {
-            isEnabled?: boolean;
+            isEnabled: boolean;
+        };
+        SetPolicyPackAssignmentOrganizationRequiredRequest: {
+            isOrganizationRequired: boolean;
         };
         SetProfessionalWorkbenchEnabledRequest: {
             enabled?: boolean;
+        };
+        SetRoiLoadedHourlyCostUsdRequest: {
+            /** Format: double */
+            hourlyCostUsd?: number | string;
         };
         SetSampleReviewsOnOverviewVisibilityRequest: {
             enabled?: boolean;
@@ -8249,7 +8427,7 @@ export interface components {
         SponsorDigestPreferencesUpsertRequest: {
             /** Format: int32 */
             dayOfWeek?: null | number;
-            emailEnabled?: boolean;
+            emailEnabled: boolean;
             /** Format: int32 */
             hourOfDay?: null | number;
             ianaTimeZoneId?: null | string;
@@ -8490,6 +8668,10 @@ export interface components {
         };
         SubmitAgentResultResponse: {
             resultId?: string;
+        };
+        SubmitDraftPostRequest: {
+            /** Format: date-time */
+            expectedUpdatedUtc?: null | string;
         };
         SubmitDraftResponse: {
             /** Format: uuid */
@@ -8773,9 +8955,9 @@ export interface components {
         };
         TenantCostSettingsPutRequest: {
             /** Format: double */
-            architectHourlyRateUsd?: number | string;
+            architectHourlyRateUsd: number | string;
             /** Format: double */
-            averageIncidentCostUsd?: number | string;
+            averageIncidentCostUsd: number | string;
             /** Format: double */
             eaDiscountMultiplier?: null | number | string;
             /** Format: double */
@@ -8784,7 +8966,7 @@ export interface components {
         TenantErasureLegalHoldRequest: {
             reason?: null | string;
             /** Format: date-time */
-            untilUtc?: string;
+            untilUtc: string;
         };
         TenantErasureOffboardAcceptedResponse: {
             /** Format: date-time */
@@ -8839,7 +9021,7 @@ export interface components {
         };
         TenantHomepageSettingsPutRequest: {
             /** Format: uuid */
-            selectedRunId?: null | string;
+            selectedRunId: null | string;
         };
         /** @enum {string} */
         TenantIdentityProtocol: "Oidc" | "Saml";
@@ -9527,10 +9709,19 @@ export interface components {
             appearancePreferenceIsExplicit?: boolean;
             cloudPlatformScope?: components["schemas"]["CloudPlatformScopeDto"];
             cloudPlatformScopeIsExplicit?: boolean;
+            findingsHideGenericEnabled?: boolean;
+            findingsHideGenericEnabledIsExplicit?: boolean;
+            findingsShowAdvisoryEnabled?: boolean;
+            findingsShowAdvisoryEnabledIsExplicit?: boolean;
+            findingsShowLowConfidenceEnabled?: boolean;
+            findingsShowLowConfidenceEnabledIsExplicit?: boolean;
             ianaTimeZoneId?: string;
             ianaTimeZoneIsExplicit?: boolean;
             professionalWorkbenchEnabled?: boolean;
             professionalWorkbenchEnabledIsExplicit?: boolean;
+            /** Format: double */
+            roiLoadedHourlyCostUsd?: number | string;
+            roiLoadedHourlyCostUsdIsExplicit?: boolean;
             sampleReviewsOnOverviewEnabled?: boolean;
             sampleReviewsOnOverviewIsExplicit?: boolean;
             whereToGoNextEnabled?: boolean;

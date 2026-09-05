@@ -14,6 +14,7 @@ import {
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { evidenceAbsenceFindingLabel } from "@/lib/evidence-absence-finding-copy";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
+import { extractAttachedIntakeFileNames } from "@/lib/intake-attached-file-names";
 import { isGeneratedIntakeBrief, isUnusableReviewTitleCandidate, toReviewDisplayTitle } from "@/lib/review-display-title";
 import {
   isQualityRejectedRunStatus,
@@ -146,6 +147,18 @@ export function deriveSubmittedArchitectureText(run: RunSummary, headline: strin
 
   return description;
 }
+
+/** True when the review has operator-submitted prose or intake-attached documents/diagrams. */
+export function deriveHasSubmittedArchitectureDescription(run: RunSummary, headline: string): boolean {
+  if (deriveSubmittedArchitectureText(run, headline) !== null) {
+    return true;
+  }
+
+  const description = run.description?.trim() ?? "";
+
+  return extractAttachedIntakeFileNames(description).length > 0;
+}
+
 export function deriveReviewOwnerLabel(run: RunDetail["run"]): string | null {
   const decisionBy = run.operatorGovernanceDecisionByUserId?.trim() ?? "";
 

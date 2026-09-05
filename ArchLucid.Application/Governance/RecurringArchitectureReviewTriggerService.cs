@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Application;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Requests;
@@ -23,6 +24,7 @@ public sealed class RecurringArchitectureReviewTriggerService(
     IArchitectureRequestRepository architectureRequestRepository,
     IArchitectureRunCreateOrchestrator createOrchestrator,
     IArchitectureRunExecuteOrchestrator executeOrchestrator,
+    IReRunExecuteSealedManifestPinGate reRunExecuteSealedManifestPinGate,
     IScanScheduleCalculator scheduleCalculator,
     IRecurrenceCompletionNotificationService recurrenceCompletionNotificationService,
     IAuditService auditService,
@@ -59,6 +61,10 @@ public sealed class RecurringArchitectureReviewTriggerService(
 
                 if (string.IsNullOrWhiteSpace(sourceRun.ArchitectureRequestId))
                     throw new InvalidOperationException($"Source run {schedule.SourceRunId:N} has no architecture request to clone.");
+
+                await reRunExecuteSealedManifestPinGate
+                    .EnsureReadyAsync(schedule.SourceRunId.ToString("N"), cancellationToken)
+                    .ConfigureAwait(false);
 
                 ArchitectureRequest? sourceRequest =
                     await architectureRequestRepository.GetByIdAsync(sourceRun.ArchitectureRequestId, cancellationToken);

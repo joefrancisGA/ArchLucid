@@ -11,6 +11,9 @@ import {
   OIDC_ACCESS_TOKEN_KEY,
   OIDC_CODE_VERIFIER_KEY,
   OIDC_EXPIRES_AT_MS_KEY,
+  OIDC_GOOGLE_CODE_VERIFIER_KEY,
+  OIDC_GOOGLE_NONCE_KEY,
+  OIDC_GOOGLE_OAUTH_STATE_KEY,
   OIDC_ID_TOKEN_KEY,
   OIDC_NONCE_KEY,
   OIDC_OAUTH_STATE_KEY,
@@ -21,6 +24,15 @@ import { decodeJwtPayload, pickDisplayNameFromPayload } from "@/lib/oidc/jwt-pay
 import { refreshAccessToken } from "@/lib/oidc/token-client";
 import type { OidcTokenResponse } from "@/lib/oidc/token-client";
 import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
+
+export type OidcPkceFlow = "primary" | "google";
+
+type StoredPkceState = {
+  state: string;
+  codeVerifier: string;
+  nonce: string;
+  flow: OidcPkceFlow;
+};
 
 const EXPIRY_SKEW_MS = 60_000;
 
@@ -132,21 +144,39 @@ export function clearOidcSession(): void {
     OIDC_OAUTH_STATE_KEY,
     OIDC_CODE_VERIFIER_KEY,
     OIDC_NONCE_KEY,
+    OIDC_GOOGLE_OAUTH_STATE_KEY,
+    OIDC_GOOGLE_CODE_VERIFIER_KEY,
+    OIDC_GOOGLE_NONCE_KEY,
     OIDC_POST_SIGN_IN_RETURN_URL_KEY,
   ]);
   clearCachedColorModePreference();
 }
 
-export function storePkceState(state: string, codeVerifier: string, nonce: string): void {
-  sessionStorage.setItem(OIDC_OAUTH_STATE_KEY, state);
-  sessionStorage.setItem(OIDC_CODE_VERIFIER_KEY, codeVerifier);
-  sessionStorage.setItem(OIDC_NONCE_KEY, nonce);
+function pkceStorageKeys(flow: OidcPkceFlow): {
+  stateKey: string;
+  codeVerifierKey: string;
+  nonceKey: string;
+} {
+  if (flow === "google") {
+    return {
+      stateKey: OIDC_GOOGLE_OAUTH_STATE_KEY,
+      codeVerifierKey: OIDC_GOOGLE_CODE_VERIFIER_KEY,
+      nonceKey: OIDC_GOOGLE_NONCE_KEY,
+    };
+  }
+
+  return {
+    stateKey: OIDC_OAUTH_STATE_KEY,
+    codeVerifierKey: OIDC_CODE_VERIFIER_KEY,
+    nonceKey: OIDC_NONCE_KEY,
+  };
 }
 
-export function readPkceState(): { state: string; codeVerifier: string; nonce: string } | null {
-  const state = readSessionKey(OIDC_OAUTH_STATE_KEY);
-  const codeVerifier = readSessionKey(OIDC_CODE_VERIFIER_KEY);
-  const nonce = readSessionKey(OIDC_NONCE_KEY);
+function readPkceStateForFlow(flow: OidcPkceFlow): Omit<StoredPkceState, "flow"> | null {
+  const keys = pkceStorageKeys(flow);
+  const state = readSessionKey(keys.stateKey);
+  const codeVerifier = readSessionKey(keys.codeVerifierKey);
+  const nonce = readSessionKey(keys.nonceKey);
 
   if (!state || !codeVerifier || !nonce) {
     return null;
@@ -155,16 +185,40 @@ export function readPkceState(): { state: string; codeVerifier: string; nonce: s
   return { state, codeVerifier, nonce };
 }
 
-export function consumePkceState(): { state: string; codeVerifier: string; nonce: string } | null {
-  const pair = readPkceState();
+export function storePkceState(
+  state: string,
+  codeVerifier: string,
+  nonce: string,
+  flow: OidcPkceFlow = "primary",
+): void {
+  const keys = pkceStorageKeys(flow);
 
-  if (!pair) {
-    return null;
+  sessionStorage.setItem(keys.stateKey, state);
+  sessionStorage.setItem(keys.codeVerifierKey, codeVerifier);
+  sessionStorage.setItem(keys.nonceKey, nonce);
+}
+
+export function readPkceState(flow: OidcPkceFlow = "primary"): Omit<StoredPkceState, "flow"> | null {
+  return readPkceStateForFlow(flow);
+}
+
+export function consumePkceState(expectedState: string): StoredPkceState | null {
+  const flows: OidcPkceFlow[] = ["primary", "google"];
+
+  for (const flow of flows) {
+    const pair = readPkceStateForFlow(flow);
+
+    if (!pair || pair.state !== expectedState) {
+      continue;
+    }
+
+    const keys = pkceStorageKeys(flow);
+    removeOidcKeys([keys.stateKey, keys.codeVerifierKey, keys.nonceKey]);
+
+    return { ...pair, flow };
   }
 
-  removeOidcKeys([OIDC_OAUTH_STATE_KEY, OIDC_CODE_VERIFIER_KEY, OIDC_NONCE_KEY]);
-
-  return pair;
+  return null;
 }
 
 /**
@@ -248,7 +302,8 @@ export async function ensureAccessTokenFresh(): Promise<void> {
 
   if (!refreshInFlight) {
     const generationAtStart = refreshSessionGeneration;
-    const refreshPromise = (async () => {
+    let activeRefreshPromise: Promise<void> | null = null;
+    activeRefreshPromise = (async () => {
       try {
         const doc = await loadDiscoveryDocument(authority);
         const tokens = await refreshAccessToken({
@@ -268,12 +323,12 @@ export async function ensureAccessTokenFresh(): Promise<void> {
           clearOidcSession();
         }
       } finally {
-        if (generationAtStart === refreshSessionGeneration) {
+        if (refreshInFlight === activeRefreshPromise) {
           refreshInFlight = null;
         }
       }
     })();
-    refreshInFlight = refreshPromise;
+    refreshInFlight = activeRefreshPromise;
   }
 
   await refreshInFlight;

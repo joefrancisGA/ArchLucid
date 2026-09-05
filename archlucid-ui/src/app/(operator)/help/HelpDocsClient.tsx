@@ -34,7 +34,7 @@ const HELP_DOCS_STATIC_ENTRIES: readonly DocIndexEntry[] = [
     category: "Getting Started",
     url: "/help/choose-your-next-step",
   },
-  { title: "Overview (pilot)", summary: "Pilot checklist and recent reviews.", category: "Getting Started", url: "/" },
+  { title: "Home (pilot)", summary: "Pilot checklist and recent reviews.", category: "Getting Started", url: "/" },
   {
     title: "New architecture request",
     summary: "Start a guided architecture review request.",
@@ -62,7 +62,7 @@ const HELP_DOCS_STATIC_ENTRIES: readonly DocIndexEntry[] = [
   },
   {
     title: "Troubleshooting",
-    summary: "Symptom-first architect triage for Overview, reviews, exports, and permissions.",
+    summary: "Symptom-first architect triage for Home, reviews, exports, and permissions.",
     category: "Operations",
     url: "/help/troubleshooting",
   },
@@ -102,6 +102,14 @@ function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEn
   }
 
   return merged;
+}
+
+function helpDocCategoriesForDisplay(grouped: Map<string, DocIndexEntry[]>): string[] {
+  const knownCategories = new Set<string>(CATEGORY_ORDER);
+  const extraCategories = [...grouped.keys()].filter((category) => !knownCategories.has(category));
+  extraCategories.sort((left, right) => left.localeCompare(right));
+
+  return [...CATEGORY_ORDER, ...extraCategories];
 }
 
 export function HelpDocsClient() {
@@ -222,7 +230,7 @@ export function HelpDocsClient() {
         <p className={OPERATOR_TYPOGRAPHY.helper}>No results</p>
       ) : null}
 
-      {CATEGORY_ORDER.map((cat) => {
+      {helpDocCategoriesForDisplay(grouped).map((cat) => {
         const rows = grouped.get(cat);
 
         if (!rows || rows.length === 0) {

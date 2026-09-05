@@ -88,11 +88,12 @@ public sealed class CoordinatorStranglerCompletionArchitectureTests
             RepoRoot,
             "ArchLucid.Host.Composition",
             "Startup",
-            "ServiceCollectionExtensions.CoordinatorAndArtifacts.cs");
+            "Modules",
+            "CoordinatorArtifactsCompositionModule.Coordinator.cs");
 
         string text = File.ReadAllText(coordinatorArtifacts);
 
-        text.Should().Contain("RegisterAuthorityDecisionEngineAndRepositories");
+        text.Should().Contain("RegisterCoordinatorAuthorityAndRepositories");
         text.Should().NotContain(
             "RegisterCoordinatorDecisionEngineAndRepositories",
             "TB-305 / ADR 0042 decision D renamed coordinator-prefixed registration to authority-prefixed");

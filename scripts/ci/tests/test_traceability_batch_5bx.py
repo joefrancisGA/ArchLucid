@@ -22,14 +22,16 @@ class TestTraceabilityBatch5BX(unittest.TestCase):
         self.assertIn("DequeuePendingAsync", text)
 
     def test_tb_251_processor_hosted(self) -> None:
-        path = (
+        registrar_dir = (
             REPO_ROOT
             / "ArchLucid.Host.Composition"
             / "Startup"
             / "Modules"
-            / "OutboxProcessorsCompositionRegistrar.cs"
         )
-        text = path.read_text(encoding="utf-8")
+        text = "".join(
+            path.read_text(encoding="utf-8")
+            for path in sorted(registrar_dir.glob("OutboxProcessorsCompositionRegistrar*.cs"))
+        )
         self.assertIn("IRetrievalIndexingOutboxProcessor", text)
 
 

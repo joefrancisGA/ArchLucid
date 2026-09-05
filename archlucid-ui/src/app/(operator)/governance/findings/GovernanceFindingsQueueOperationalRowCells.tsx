@@ -26,6 +26,10 @@ import {
   governanceQueueGraphEvidenceHref,
 } from "@/components/governance/findings/governance-findings-navigation";
 import { governanceQueueDispositionLabel } from "@/lib/architecture/architecture-risk-register-page";
+import {
+  GOVERNANCE_FINDINGS_QUEUE_SEVERITY_STICKY_CLASS,
+  GOVERNANCE_FINDINGS_QUEUE_TITLE_STICKY_CLASS,
+} from "@/lib/governance/governance-queue-sticky-identity";
 
 import {
   type GovernanceFindingQueueRow,
@@ -115,7 +119,7 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
 
   return (
     <>
-      <EnterpriseTableCell className="font-medium text-al-text-primary">
+      <EnterpriseTableCell className={cn("font-medium text-al-text-primary", GOVERNANCE_FINDINGS_QUEUE_TITLE_STICKY_CLASS)}>
         <Link
           className={OPERATOR_LINK.inline}
           href={governanceFindingInspectHref(row.runId, row.findingId)}
@@ -180,7 +184,9 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
           {row.runLabel}
         </Link>
       </EnterpriseTableCell>
-      <EnterpriseTableCell>{governanceQueueSeverityCell(row, false)}</EnterpriseTableCell>
+      <EnterpriseTableCell className={GOVERNANCE_FINDINGS_QUEUE_SEVERITY_STICKY_CLASS}>
+        {governanceQueueSeverityCell(row, false)}
+      </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
         {row.recordKind === "finding" ? row.ownerUserId ?? " — " : " — "}
       </EnterpriseTableCell>

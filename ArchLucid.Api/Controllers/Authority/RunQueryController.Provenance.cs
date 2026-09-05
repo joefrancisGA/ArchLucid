@@ -73,8 +73,8 @@ public sealed partial class RunQueryController
         [FromRoute] string nodeId,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(runId) || string.IsNullOrWhiteSpace(nodeId))
-            return this.BadRequestProblem("Run id and node id are required.", ProblemTypes.ValidationFailed);
+        if (string.IsNullOrWhiteSpace(nodeId))
+            return this.BadRequestProblem("Node id is required.", ProblemTypes.ValidationFailed);
 
         if (!await runProvenanceQueryService.AuthorityRunExistsInScopeAsync(runId, cancellationToken))
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);

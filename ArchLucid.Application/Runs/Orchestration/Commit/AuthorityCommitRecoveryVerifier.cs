@@ -74,6 +74,10 @@ public static class AuthorityCommitRecoveryVerifier
             header,
             runIdLabel);
 
+        ManifestCommittedArtifactInventoryCapturer.EnsureDecisionTraceInventoryRowPresentOrThrow(
+            persistedManifest,
+            runIdLabel);
+
         if (recomputedMaterial is null)
         {
             throw new ConflictException(

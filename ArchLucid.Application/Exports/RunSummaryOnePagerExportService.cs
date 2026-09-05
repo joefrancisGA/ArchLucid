@@ -2,6 +2,7 @@ using System.Text;
 
 using ArchLucid.Application;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
@@ -11,6 +12,8 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Llm;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Options;
 
@@ -21,7 +24,9 @@ public sealed class RunSummaryOnePagerExportService(
     IAgentCompletionClient completionClient,
     IOptionsMonitor<GenerateRunSummaryOptions> generateRunSummaryOptions,
     IScopeContextProvider scopeContextProvider,
-    ITenantRepository tenantRepository) : IRunSummaryOnePagerExportService
+    ITenantRepository tenantRepository,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : IRunSummaryOnePagerExportService
 {
     private const string SponsorReportPrompt =
         "You are an enterprise architect writing a board-ready brief. "
@@ -43,6 +48,12 @@ public sealed class RunSummaryOnePagerExportService(
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
     public async Task<RunSummaryOnePagerExportResult> GenerateMarkdownAsync(string runId, CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
@@ -63,6 +74,17 @@ public sealed class RunSummaryOnePagerExportService(
             throw new ConflictException("Export requires a finalized review with a committed architecture snapshot.");
 
         AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());
+
+        if (Guid.TryParse(runId.Trim(), out Guid runGuid))
+        {
+            await ManifestDecisionReceiptExportBinder.EnsureSealedExportReceiptVerifiedOrThrowAsync(
+                runGuid,
+                runId.Trim(),
+                _authorityQueryService,
+                _manifestHashService,
+                _scopeContextProvider.GetCurrentScope(),
+                cancellationToken);
+        }
 
         IReadOnlyList<ArchitectureFinding> topFindings =
             ArchitectureReviewBoardExportDocumentFactory.SelectRunSummaryTopFindings(detail, maxCount: 5);

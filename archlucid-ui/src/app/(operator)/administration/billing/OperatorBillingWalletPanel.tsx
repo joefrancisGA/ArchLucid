@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -26,6 +27,11 @@ import { showError, showInfo } from "@/lib/toast";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { OperatorBillingManageBillingAction } from "./OperatorBillingManageBillingAction";
+import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
+import {
+  billingWalletSaveConfirmHrefFromSearch,
+  parseBillingWalletSaveConfirmOpenFromSearch,
+} from "@/lib/administration/billing-wallet-save-confirm-url";
 
 type WalletResponse = {
   balanceUsd: number;
@@ -62,6 +68,10 @@ function resolveWalletAutoReplenishBlockingReason(
 }
 
 export function OperatorBillingWalletPanel() {
+  const router = useRouter();
+  const pathname = usePathname() ?? SETTINGS_BILLING_PATH;
+  const searchParams = useSearchParams();
+  const urlWalletSaveConfirm = parseBillingWalletSaveConfirmOpenFromSearch(searchParams.get("walletSaveConfirm"));
   const canMutate = useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority;
   const [wallet, setWallet] = useState<WalletResponse | null>(null);
   const [monthlyCapUsd, setMonthlyCapUsd] = useState(0);
@@ -69,8 +79,30 @@ export function OperatorBillingWalletPanel() {
   const [loading, setLoading] = useState(true);
   const [walletFetchFailed, setWalletFetchFailed] = useState(false);
   const [saveInlineError, setSaveInlineError] = useState<string | null>(null);
-  const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
+  const [confirmSaveOpen, setConfirmSaveOpenState] = useState(urlWalletSaveConfirm);
   const [saveBusy, setSaveBusy] = useState(false);
+
+  const syncWalletSaveConfirmToUrl = useCallback(
+    (confirmOpen: boolean) => {
+      router.replace(
+        billingWalletSaveConfirmHrefFromSearch(searchParams.toString(), confirmOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setConfirmSaveOpen = useCallback(
+    (confirmOpen: boolean) => {
+      setConfirmSaveOpenState(confirmOpen);
+      syncWalletSaveConfirmToUrl(confirmOpen);
+    },
+    [syncWalletSaveConfirmToUrl],
+  );
+
+  useEffect(() => {
+    setConfirmSaveOpenState(parseBillingWalletSaveConfirmOpenFromSearch(searchParams.get("walletSaveConfirm")));
+  }, [searchParams]);
 
   const loadWallet = useCallback(async () => {
     setLoading(true);

@@ -14,14 +14,25 @@ describe("resolveOperatorHelpRequestForPathname", () => {
     expect(resolveOperatorHelpRequestForPathname("/why-archlucid")).toEqual({
       kind: "drawer",
     });
-    expect(resolveOperatorHelpRequestForPathname("/")).toEqual({
-      kind: "drawer",
-    });
     expect(resolveOperatorHelpRequestForPathname("/architecture/first-review-guide")).toEqual({
       kind: "drawer",
     });
     expect(resolveOperatorHelpRequestForPathname("/administration/settings")).toEqual({
       kind: "drawer",
+    });
+  });
+
+  it("navigates home to first-architecture-review in Guided mode", () => {
+    expect(resolveOperatorHelpRequestForPathname("/")).toEqual({
+      kind: "navigate",
+      href: "/help/first-architecture-review",
+    });
+  });
+
+  it("navigates home to getting-started in Working mode (WA-04)", () => {
+    expect(resolveOperatorHelpRequestForPathname("/", { workingMode: true })).toEqual({
+      kind: "navigate",
+      href: "/help/getting-started",
     });
   });
 

@@ -105,6 +105,25 @@ public sealed partial class ArchitectureReviewPdfBuilder
                     .Italic();
             }
 
+            if (!string.IsNullOrWhiteSpace(cover.SimulatorRehearsalTitle))
+            {
+                column.Item().Height(8);
+                column.Item()
+                    .Text(cover.SimulatorRehearsalTitle)
+                    .FontSize(8)
+                    .FontColor(Colors.Grey.Darken2)
+                    .SemiBold();
+
+                if (!string.IsNullOrWhiteSpace(cover.SimulatorRehearsalBody))
+                {
+                    column.Item()
+                        .Text(cover.SimulatorRehearsalBody)
+                        .FontSize(8)
+                        .FontColor(Colors.Grey.Darken2)
+                        .Italic();
+                }
+            }
+
             column.Item().Height(22);
 
             column.Item().Text($"Review ID: {model.ReviewId:D}").FontSize(8).FontColor(Colors.Grey.Darken2);

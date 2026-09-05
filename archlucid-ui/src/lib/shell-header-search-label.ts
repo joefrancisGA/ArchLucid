@@ -1,5 +1,6 @@
 import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
 import { isSponsorDashboardPath } from "@/lib/sponsor/sponsor-dashboard-route";
+import { resolveCommandPaletteDisplayShortcut } from "@/lib/keyboard-shortcut-display";
 
 import {
   isGovernanceFindingsQueueHeaderSearchPath,
@@ -102,6 +103,10 @@ export function resolveShellHeaderSearchPlaceholder(pathname: string): string {
 
   if (path.startsWith("/signed-records") || path.includes("/architecture")) {
     return "Jump to sponsor report, graph, governance…";
+  }
+
+  if (path === "/" || path === "") {
+    return `Find pages and reviews (${resolveCommandPaletteDisplayShortcut()})…`;
   }
 
   return GLOBAL_FIND_PAGE_SEARCH.placeholder;

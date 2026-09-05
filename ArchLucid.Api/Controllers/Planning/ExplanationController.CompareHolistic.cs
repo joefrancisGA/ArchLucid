@@ -1,4 +1,6 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Explanation.Models;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Core.Audit;
@@ -6,7 +8,6 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Queries;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,22 +24,45 @@ public sealed partial class ExplanationController
     [HttpGet("compare/explain")]
     [ProducesResponseType(typeof(ComparisonExplanationResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ExplainComparison(
         [FromQuery] Guid baseRunId,
         [FromQuery] Guid targetRunId,
         CancellationToken ct = default)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunDetailDto? baseRun = await query.GetRunDetailAsync(scope, baseRunId, ct);
-        RunDetailDto? targetRun = await query.GetRunDetailAsync(scope, targetRunId, ct);
-        if (baseRun?.GoldenManifest is null || targetRun?.GoldenManifest is null)
-            return this.NotFoundProblem(
-                "One or both runs were not found or have no committed manifest in the current scope.",
-                ProblemTypes.RunNotFound);
+        ManifestCompareLoadResult loadResult =
+            await compareRunsFacade.CompareManifestsAsync(baseRunId, targetRunId, ct);
 
-        ComparisonResult comparison1 = comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);
-        ComparisonExplanationResult result = await explanation.ExplainComparisonAsync(comparison1, ct);
-        return Ok(result);
+        return loadResult.Outcome switch
+        {
+            ManifestCompareLoadOutcome.Success => Ok(
+                await explanation.ExplainComparisonAsync(loadResult.Comparison!, ct)),
+            ManifestCompareLoadOutcome.BaseRunNotFound => this.NotFoundProblem(
+                $"Run '{loadResult.RunId}' was not found.",
+                ProblemTypes.RunNotFound),
+            ManifestCompareLoadOutcome.TargetRunNotFound => this.NotFoundProblem(
+                $"Run '{loadResult.RunId}' was not found.",
+                ProblemTypes.RunNotFound),
+            ManifestCompareLoadOutcome.BaseManifestNotFound => this.NotFoundProblem(
+                $"Run '{loadResult.RunId}' does not have a committed golden manifest.",
+                ProblemTypes.ManifestNotFound),
+            ManifestCompareLoadOutcome.TargetManifestNotFound => this.NotFoundProblem(
+                $"Run '{loadResult.RunId}' does not have a committed golden manifest.",
+                ProblemTypes.ManifestNotFound),
+            ManifestCompareLoadOutcome.BaseLifecycleIncomplete => this.ConflictProblem(
+                $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.",
+                ProblemTypes.Conflict),
+            ManifestCompareLoadOutcome.TargetLifecycleIncomplete => this.ConflictProblem(
+                $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.",
+                ProblemTypes.Conflict),
+            ManifestCompareLoadOutcome.PinFingerprintMismatch => this.ConflictProblem(
+                "Compare blocked: create-time pin fingerprints differ between the selected runs.",
+                ProblemTypes.Conflict),
+            ManifestCompareLoadOutcome.CommittedArtifactInventoryMismatch => this.ConflictProblem(
+                "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.",
+                ProblemTypes.CommittedArtifactInventoryMismatch),
+            _ => throw new InvalidOperationException($"Unexpected manifest compare outcome: {loadResult.Outcome}."),
+        };
     }
 
     /// <summary>Unstructured holistic architecture critique (advisory; not persisted as findings).</summary>

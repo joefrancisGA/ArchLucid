@@ -173,6 +173,33 @@ public sealed class GovernanceControllerDashboardTests
     }
 
     [SkippableFact]
+    public async Task GetDashboard_returns_bad_request_when_max_pending_is_zero_and_tenant_missing()
+    {
+        Guid tenantId = Guid.Parse("cccccccc-dddd-eeee-ffff-000011112222");
+
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(DashboardScope(tenantId));
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        Mock<IGovernanceDashboardService> dashboard = new(MockBehavior.Strict);
+
+        GovernanceController sut = GovernanceControllerTestFactory.Create(
+            scopeContextProvider: scope.Object,
+            dashboardService: dashboard.Object,
+            tenantRepository: tenants.Object);
+
+        IActionResult result = await sut.GetDashboard(maxPending: 0, maxDecisions: 20, maxChanges: 20, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        dashboard.VerifyNoOtherCalls();
+    }
+
+    [SkippableFact]
     public async Task GetDashboard_returns_bad_request_when_max_decisions_exceeds_fifty()
     {
         Guid tenantId = Guid.Parse("cccccccc-dddd-eeee-ffff-000011112222");

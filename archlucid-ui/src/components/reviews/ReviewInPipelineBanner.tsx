@@ -3,6 +3,7 @@
 import type { ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import { useReviewPipelineElapsedWaitCopy } from "@/hooks/use-review-pipeline-elapsed-wait-copy";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
@@ -53,12 +54,15 @@ export function ReviewInPipelineBanner(props: ReviewInPipelineBannerProps): Reac
       role="status"
     >
       <div className="space-y-1">
-        <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-          <span className="font-semibold">
-            {buyerLabelsActive ? "Assessment in progress" : "Analysis in progress"}:
-          </span>{" "}
-          {stageLabel}
-        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <StatusTag kind="in-progress" label="In progress" data-testid="review-in-pipeline-status-tag" />
+          <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+            <span className="font-semibold">
+              {buyerLabelsActive ? "Assessment in progress" : "Analysis in progress"}:
+            </span>{" "}
+            {stageLabel}
+          </p>
+        </div>
         {safetyMessage !== null ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{safetyMessage}</p>
         ) : null}

@@ -12,7 +12,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
 import { buyerDemoPackageCardMeta } from "@/lib/buyer/buyer-demo-package-card-meta";
 import { finalizedReviewRecordDisplayLabel } from "@/lib/buyer/finalized-review-record-display-label";
-import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
+import { isShowcaseSampleOfAnyKind } from "@/lib/demo-run-canonical";
 import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
 import { BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK, BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER, formatOperatorHomeFeaturedFindingsSummary } from "@/lib/buyer/buyer-polish-copy";
 import {
@@ -183,7 +183,7 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
   const insightLine = formatRunHomeListInsightLine(props.run);
   const updatedLabel = formatRunHomeListUpdatedLabel(props.run);
   const findingsMetadata = formatFindingsMetadata(props.run);
-  const isShowcaseDemo = isShowcaseStaticDemoRunId(props.run.runId ?? "");
+  const isShowcaseDemo = isShowcaseSampleOfAnyKind(props.run.runId ?? "");
   const isExampleReview =
     isShowcaseDemo || isDemoSeededOverviewInjectedRun(props.run);
   const showcaseProofMetadata = variant === "featured" && isShowcaseDemo;
@@ -197,28 +197,30 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
       >
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0 flex-1 space-y-1">
+            <Link
+              href={props.href}
+              title={title}
+              className={cn("line-clamp-2 min-w-0", OPERATOR_LINK.nav, OPERATOR_TYPE_SCALE.cardTitle)}
+            >
+              {title}
+            </Link>
             <div className="flex flex-wrap items-center gap-2">
-              <Link
-                href={props.href}
-                className={cn("min-w-0", OPERATOR_LINK.nav, OPERATOR_TYPE_SCALE.cardTitle)}
-              >
-                {title}
-              </Link>
               <StatusTag
                 kind={statusTag.kind}
                 label={statusTag.label}
                 data-testid={`run-home-status-tag-${props.run.runId}`}
               />
+              {isExampleReview ? <DemoDataBadge /> : null}
+              {updatedLabel !== null ? (
+                <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>
+                  {updatedLabel}
+                </span>
+              ) : null}
             </div>
             <ArchitecturePackageOriginMetadataLine run={props.run} buyerPolishedShell={props.buyerPolishedShell} />
-            {updatedLabel !== null ? (
-              <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>
-                {updatedLabel}
-              </p>
-            ) : null}
           </div>
           <Link href={props.href} className={cn("shrink-0 font-medium", OPERATOR_LINK.optional)}>
-            Open →
+            Open
           </Link>
         </div>
       </article>

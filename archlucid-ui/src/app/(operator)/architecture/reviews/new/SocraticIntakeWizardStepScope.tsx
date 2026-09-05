@@ -265,6 +265,7 @@ export function SocraticIntakeWizardStepScope({
           onFocusedPilotModeEnabledChange={setFocusedPilotModeEnabled}
           togglePresentation={isCreateArchitectureFlow ? "scope-card" : "checkbox"}
           className={isCreateArchitectureFlow ? "max-w-md" : undefined}
+          descriptionText={freeTextIntent}
         />
         </div>
 

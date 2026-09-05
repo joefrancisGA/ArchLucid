@@ -1,14 +1,35 @@
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Exports;
 
 public sealed partial class ArchitectureReviewExportService
 {
+    private async Task EnsureSealedDecisionReceiptVerifiedOrThrowAsync(
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        if (!TryParseRunGuid(runId, out Guid runGuid))
+            return;
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        await ManifestDecisionReceiptExportBinder.EnsureSealedExportReceiptVerifiedOrThrowAsync(
+            runGuid,
+            runId,
+            _authorityQueryService,
+            _manifestHashService,
+            scope,
+            cancellationToken);
+    }
+
     private async Task<string?> ResolveActiveTrialExportNoticeAsync(CancellationToken cancellationToken)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();

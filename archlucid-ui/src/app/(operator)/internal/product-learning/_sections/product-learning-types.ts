@@ -1,1 +1,1 @@
-export type ProductLearningTimeRangeKey = "all" | "7d" | "30d";
+export type { ProductLearningTimeRangeKey } from "@/lib/internal/product-learning-range-url";

@@ -103,7 +103,7 @@ public sealed class ArchitectureReviewRobustnessWave5ArchitectureTests
     public void Suggestion46_replay_execute_uses_authority_path()
     {
         string replayExecute = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Replay", "ReplayRunCommitStage.cs"));
+            Path.Combine(RepoRoot, "ArchLucid.Application", "Replay", "ReplayRunExecutePreparedStage.cs"));
 
         replayExecute.Should().Contain("ExecuteAuthorityPreparedReplayAsync");
         replayExecute.Should().Contain("AuthorityPipelineComplete");
@@ -154,7 +154,13 @@ public sealed class ArchitectureReviewRobustnessWave5ArchitectureTests
         transitionService.Should().Contain("ShouldSkipLegacyRunStatusPatchAfterAuthorityProgress");
 
         string processor = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Host.Core", "Hosted", "AuthorityPipelineWorkProcessor.cs"));
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Runs",
+                "Orchestration",
+                "Pipeline",
+                "AuthorityPipelineMaterializeWork.cs"));
 
         processor.Should().Contain("ShouldSkipLegacyRunStatusPatchAfterAuthorityProgress");
     }

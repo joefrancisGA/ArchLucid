@@ -10,7 +10,9 @@ const defaultDeferredRevisitDueUtc = vi.fn(() => "2026-10-03T00:00:00.000Z");
 const refresh = vi.fn();
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ refresh }),
+  useRouter: () => ({ refresh, replace: vi.fn() }),
+  usePathname: () => "/governance/findings",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
@@ -89,8 +91,11 @@ describe("GovernanceFindingsBulkActions", () => {
 
     await waitFor(() => {
       expect(onDispositionSucceeded).toHaveBeenCalledWith(
-        "Marked 2 finding(s) as accepted.",
-        expect.any(Function),
+        expect.objectContaining({
+          message: "Marked 2 finding(s) as accepted.",
+          correctionFindingIds: ["f1", "f2"],
+          undo: expect.any(Function),
+        }),
       );
     });
 

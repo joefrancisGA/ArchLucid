@@ -8,7 +8,8 @@ namespace ArchLucid.Application.Drafts;
 public sealed class DraftRequestService(
     IDraftRequestCrudService crudService,
     IDraftAdmissionService admissionService,
-    IDraftBranchingService branchingService) : IDraftRequestService
+    IDraftBranchingService branchingService,
+    IDraftSnapshotCloningService snapshotCloningService) : IDraftRequestService
 {
     private readonly IDraftRequestCrudService _crudService =
         crudService ?? throw new ArgumentNullException(nameof(crudService));
@@ -18,6 +19,9 @@ public sealed class DraftRequestService(
 
     private readonly IDraftBranchingService _branchingService =
         branchingService ?? throw new ArgumentNullException(nameof(branchingService));
+
+    private readonly IDraftSnapshotCloningService _snapshotCloningService =
+        snapshotCloningService ?? throw new ArgumentNullException(nameof(snapshotCloningService));
 
     /// <inheritdoc />
     public Task<DraftRequestResponse> CreateAsync(
@@ -70,8 +74,12 @@ public sealed class DraftRequestService(
         => _admissionService.GetQuestionsAsync(scope, draftId, cancellationToken);
 
     /// <inheritdoc />
-    public Task<SubmitDraftResponse?> SubmitAsync(ScopeContext scope, Guid draftId, CancellationToken cancellationToken)
-        => _admissionService.SubmitAsync(scope, draftId, cancellationToken);
+    public Task<SubmitDraftResponse?> SubmitAsync(
+        ScopeContext scope,
+        Guid draftId,
+        DateTime? expectedUpdatedUtc,
+        CancellationToken cancellationToken)
+        => _admissionService.SubmitAsync(scope, draftId, expectedUpdatedUtc, cancellationToken);
 
     /// <inheritdoc />
     public Task<DraftRequestResponse?> AbandonAsync(ScopeContext scope, Guid draftId, CancellationToken cancellationToken)
@@ -96,6 +104,14 @@ public sealed class DraftRequestService(
         Guid draftId,
         CancellationToken cancellationToken)
         => _branchingService.GetBranchQuotaAsync(scope, draftId, cancellationToken);
+
+    /// <inheritdoc />
+    public Task<CloneSnapshotDraftResponse?> CloneSnapshotAsync(
+        ScopeContext scope,
+        Guid sourceDraftId,
+        string actorUserId,
+        CancellationToken cancellationToken)
+        => _snapshotCloningService.CloneSnapshotAsync(scope, sourceDraftId, actorUserId, cancellationToken);
 
     /// <inheritdoc />
     public Task<PagedResponse<DraftRequestSummaryResponse>> ListAsync(

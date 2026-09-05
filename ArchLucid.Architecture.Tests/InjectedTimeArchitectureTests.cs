@@ -59,9 +59,11 @@ public sealed class InjectedTimeArchitectureTests
     public void LlmTenantWalletService_injects_TimeProvider()
     {
         string root = FindRepoRoot();
-        string path = Path.Combine(root, "ArchLucid.Application", "Budgeting", "LlmTenantWalletService.cs");
-        File.Exists(path).Should().BeTrue();
-        string text = File.ReadAllText(path, Encoding.UTF8);
+        string walletDir = Path.Combine(root, "ArchLucid.Application", "Budgeting", "Wallet");
+        Directory.Exists(walletDir).Should().BeTrue();
+        string text = string.Join(
+            '\n',
+            Directory.EnumerateFiles(walletDir, "*.cs").Select(path => File.ReadAllText(path, Encoding.UTF8)));
 
         text.Should().Contain("TimeProvider timeProvider");
         text.Should().Contain("_timeProvider");

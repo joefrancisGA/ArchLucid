@@ -41,7 +41,8 @@ public static class AgentModelExecutionProfileParser
         }
 
         if (string.Equals(normalized, "high-assurance", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(normalized, "high assurance", StringComparison.OrdinalIgnoreCase))
+            || string.Equals(normalized, "high assurance", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(normalized, "high_assurance", StringComparison.OrdinalIgnoreCase))
         {
             profile = AgentModelExecutionProfile.HighAssurance;
 

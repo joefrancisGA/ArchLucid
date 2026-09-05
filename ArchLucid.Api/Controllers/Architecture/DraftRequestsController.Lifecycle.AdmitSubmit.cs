@@ -1,3 +1,4 @@
+using ArchLucid.Api.Models.Drafts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
@@ -61,13 +62,20 @@ public sealed partial class DraftRequestsController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> SubmitDraft(Guid draftId, CancellationToken cancellationToken)
+    public async Task<IActionResult> SubmitDraft(
+        Guid draftId,
+        [FromBody] SubmitDraftPostRequest? body,
+        CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
         try
         {
-            SubmitDraftResponse? result = await _draftRequestService.SubmitAsync(scope, draftId, cancellationToken);
+            SubmitDraftResponse? result = await _draftRequestService.SubmitAsync(
+                scope,
+                draftId,
+                body?.ExpectedUpdatedUtc,
+                cancellationToken);
 
             if (result is null)
                 return this.NotFoundProblem($"Draft '{draftId}' was not found.", ProblemTypes.ValidationFailed);

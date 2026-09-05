@@ -29,6 +29,14 @@ public sealed class RequiredAuditEventTypesTests
     }
 
     [Fact]
+    public void IsRequired_trims_outer_whitespace_on_wire_values()
+    {
+        RequiredAuditEventTypes.IsRequired($"  {AuditEventTypes.GovernanceApprovalApproved}  ")
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
     public void All_includes_TB953_minimum_governance_and_identity_set()
     {
         RequiredAuditEventTypes.All.Should().Contain(

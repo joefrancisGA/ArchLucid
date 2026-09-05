@@ -3,9 +3,9 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Runs;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
-using ArchLucid.Contracts.Runs;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -16,14 +16,14 @@ namespace ArchLucid.Application.Analysis;
 ///     Thin coordinator that loads run inputs and delegates report assembly to diff slices.
 /// </summary>
 public sealed class EndToEndReplayComparisonService(
-    IRunDetailQueryService runDetailQueryService,
+    ICompareRunsApplicationFacade compareRunsFacade,
     IRunRepository runRepository,
     IRunExportRecordRepository runExportRecordRepository,
     IScopeContextProvider scopeContextProvider,
     EndToEndReplayComparisonReportComposer reportComposer) : IEndToEndReplayComparisonService
 {
-    private readonly IRunDetailQueryService _runDetailQueryService =
-        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+    private readonly ICompareRunsApplicationFacade _compareRunsFacade =
+        compareRunsFacade ?? throw new ArgumentNullException(nameof(compareRunsFacade));
 
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
@@ -47,11 +47,8 @@ public sealed class EndToEndReplayComparisonService(
         ArgumentException.ThrowIfNullOrWhiteSpace(leftRunId);
         ArgumentException.ThrowIfNullOrWhiteSpace(rightRunId);
 
-        Task<ArchitectureRunDetail> leftDetailTask = LoadRunDetailForRollupOrThrow(leftRunId, cancellationToken);
-        Task<ArchitectureRunDetail> rightDetailTask = LoadRunDetailForRollupOrThrow(rightRunId, cancellationToken);
-        await Task.WhenAll(leftDetailTask, rightDetailTask);
-        ArchitectureRunDetail leftDetail = await leftDetailTask;
-        ArchitectureRunDetail rightDetail = await rightDetailTask;
+        (ArchitectureRunDetail leftDetail, ArchitectureRunDetail rightDetail) =
+            await LoadScopedRunPairOrThrowAsync(leftRunId, rightRunId, cancellationToken);
         ArchitectureRun leftRun = leftDetail.Run;
         ArchitectureRun rightRun = rightDetail.Run;
         ReviewRunEngineProvenance? leftEngineProvenance =
@@ -89,6 +86,31 @@ public sealed class EndToEndReplayComparisonService(
         return report;
     }
 
+    private async Task<(ArchitectureRunDetail Left, ArchitectureRunDetail Right)> LoadScopedRunPairOrThrowAsync(
+        string leftRunId,
+        string rightRunId,
+        CancellationToken cancellationToken)
+    {
+        ScopedRunPairLoadResult loadResult =
+            await _compareRunsFacade.LoadScopedRunPairAsync(leftRunId, rightRunId, cancellationToken);
+
+        return loadResult.Outcome switch
+        {
+            ScopedRunPairLoadOutcome.Success => (loadResult.Left!, loadResult.Right!),
+            ScopedRunPairLoadOutcome.LeftRunNotFound => throw new RunNotFoundException(loadResult.MissingRunId ?? leftRunId),
+            ScopedRunPairLoadOutcome.RightRunNotFound => throw new RunNotFoundException(loadResult.MissingRunId ?? rightRunId),
+            ScopedRunPairLoadOutcome.LeftManifestNotFound => throw new RunNotFoundException(
+                loadResult.MissingRunId ?? leftRunId),
+            ScopedRunPairLoadOutcome.RightManifestNotFound => throw new RunNotFoundException(
+                loadResult.MissingRunId ?? rightRunId),
+            ScopedRunPairLoadOutcome.PinFingerprintMismatch => throw new ConflictException(
+                "Compare blocked: create-time pin fingerprints differ between the selected runs."),
+            ScopedRunPairLoadOutcome.CommittedArtifactInventoryMismatch => throw new ConflictException(
+                "Compare blocked: committed artifact inventory fingerprints differ between the selected runs."),
+            _ => throw new InvalidOperationException($"Unexpected run-pair load outcome: {loadResult.Outcome}."),
+        };
+    }
+
     private async Task<ReviewRunEngineProvenance?> TryLoadEngineProvenanceAsync(
         string runId,
         CancellationToken cancellationToken)
@@ -107,14 +129,6 @@ public sealed class EndToEndReplayComparisonService(
     private static bool TryParseRunGuid(string runId, out Guid runGuid)
     {
         return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
-    }
-
-    private async Task<ArchitectureRunDetail> LoadRunDetailForRollupOrThrow(string runId, CancellationToken cancellationToken)
-    {
-        ArchitectureRunDetail? detail =
-            await _runDetailQueryService.GetRunDetailForRollupAsync(runId, cancellationToken);
-
-        return detail ?? throw new RunNotFoundException(runId);
     }
 
     private static RunMetadataDiffResult BuildRunDiff(

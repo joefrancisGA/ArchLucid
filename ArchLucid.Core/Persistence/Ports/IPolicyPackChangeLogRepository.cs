@@ -35,4 +35,12 @@ public interface IPolicyPackChangeLogRepository
         DateTime fromUtc,
         DateTime toUtc,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<PolicyPackChangeLogEntry>> GetByScopeInRangeAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        DateTime fromUtc,
+        DateTime toUtc,
+        CancellationToken cancellationToken = default);
 }

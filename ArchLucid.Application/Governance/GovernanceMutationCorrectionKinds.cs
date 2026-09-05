@@ -13,6 +13,12 @@ public static class GovernanceMutationCorrectionKinds
 
     public const string WorkflowActivate = "governance_workflow_activate";
 
+    public const string BulkDisposition = "governance_bulk_disposition";
+
+    public const string KeyboardFindingDisposition = "governance_keyboard_finding_disposition";
+
+    public const string ArchitectureReviewFinalize = "governance_architecture_review_finalize";
+
     private static readonly HashSet<string> SupportedKinds = new(StringComparer.Ordinal)
     {
         QuickApprove,
@@ -20,6 +26,9 @@ public static class GovernanceMutationCorrectionKinds
         WorkflowReject,
         WorkflowPromote,
         WorkflowActivate,
+        BulkDisposition,
+        KeyboardFindingDisposition,
+        ArchitectureReviewFinalize,
     };
 
     public static bool IsSupported(string? mutationKind) =>

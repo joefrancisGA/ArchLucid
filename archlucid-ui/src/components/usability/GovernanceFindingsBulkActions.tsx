@@ -2,8 +2,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState, type SetStateAction } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -23,15 +23,33 @@ import {
   GOVERNANCE_BULK_DISPOSITION_REASON_REQUIRED,
   governanceBulkDispositionSuccessMessage,
 } from "@/lib/governance/governance-mutation-outcome-copy";
-import { recordBulkFindingDisposition, type FindingDispositionKind } from "@/lib/api/governance-stickiness-api";
+import {
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+  GOVERNANCE_FINDINGS_PATH,
+} from "@/lib/governance/governance-route-paths";
+import {
+  governanceAssignedToMeBulkDispositionConfirmHrefFromSearch,
+  governanceFindingsBulkDispositionConfirmHrefFromSearch,
+  governanceFindingsBulkDispositionFromUrlValue,
+  governanceFindingsBulkDispositionToUrlValue,
+  parseGovernanceFindingsBulkDispositionConfirmFromSearch,
+  type GovernanceFindingsBulkDisposition,
+} from "@/lib/governance/governance-findings-bulk-disposition-confirm-url";
+import { recordBulkFindingDisposition } from "@/lib/api/governance-stickiness-api";
+
+export type BulkDispositionSucceededPayload = {
+  readonly message: string;
+  readonly undo?: () => Promise<void>;
+  readonly correctionFindingIds: readonly string[];
+};
 
 type GovernanceFindingsBulkActionsProps = {
   readonly selectedFindingIds: readonly string[];
   readonly onApplied: () => void;
-  readonly onDispositionSucceeded: (message: string, undo?: () => Promise<void>) => void;
+  readonly onDispositionSucceeded: (payload: BulkDispositionSucceededPayload) => void;
 };
 
-type BulkDisposition = Extract<FindingDispositionKind, "Accepted" | "RejectedAsNotApplicable" | "Deferred">;
+type BulkDisposition = Extract<GovernanceFindingsBulkDisposition, "Accepted" | "RejectedAsNotApplicable" | "Deferred">;
 
 const BULK_DISPOSITION_CONFIRM_LABELS: Record<BulkDisposition, string> = {
   Accepted: "Accept all selected findings",
@@ -39,13 +57,62 @@ const BULK_DISPOSITION_CONFIRM_LABELS: Record<BulkDisposition, string> = {
   Deferred: "Defer all selected findings",
 };
 
+function isAssignedToMeFindingsPath(pathname: string): boolean {
+  return pathname === GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH
+    || pathname.startsWith(`${GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH}/`);
+}
+
 /** Bulk accept / waive / defer for governance findings queue rows. */
 export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActionsProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? GOVERNANCE_FINDINGS_PATH;
+  const searchParams = useSearchParams();
+  const bulkDispConfirmParam = searchParams.get("bulkDispConfirm");
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [inlineErrorMessage, setInlineErrorMessage] = useState<string | null>(null);
-  const [pendingDisposition, setPendingDisposition] = useState<BulkDisposition | null>(null);
-  const router = useRouter();
+  const [pendingDisposition, setPendingDispositionState] = useState<BulkDisposition | null>(() => {
+    const parsed = parseGovernanceFindingsBulkDispositionConfirmFromSearch(bulkDispConfirmParam);
+
+    return parsed === null ? null : governanceFindingsBulkDispositionFromUrlValue(parsed);
+  });
+
+  const syncBulkDispConfirmToUrl = useCallback(
+    (confirm: BulkDisposition | null) => {
+      const nextHref = isAssignedToMeFindingsPath(pathname)
+        ? governanceAssignedToMeBulkDispositionConfirmHrefFromSearch(
+            searchParams.toString(),
+            confirm === null ? null : governanceFindingsBulkDispositionToUrlValue(confirm),
+          )
+        : governanceFindingsBulkDispositionConfirmHrefFromSearch(
+            searchParams.toString(),
+            confirm === null ? null : governanceFindingsBulkDispositionToUrlValue(confirm),
+            pathname,
+          );
+
+      router.replace(nextHref, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPendingDisposition = useCallback(
+    (value: SetStateAction<BulkDisposition | null>) => {
+      setPendingDispositionState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncBulkDispConfirmToUrl(next);
+
+        return next;
+      });
+    },
+    [syncBulkDispConfirmToUrl],
+  );
+
+  useEffect(() => {
+    const parsed = parseGovernanceFindingsBulkDispositionConfirmFromSearch(bulkDispConfirmParam);
+
+    setPendingDispositionState(parsed === null ? null : governanceFindingsBulkDispositionFromUrlValue(parsed));
+  }, [bulkDispConfirmParam]);
+
   const reasonReady = reason.trim().length > 0;
 
   if (props.selectedFindingIds.length === 0) {
@@ -113,23 +180,27 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
 
       const undoRationale = `Undo: deferred for revisit after bulk ${disposition.toLowerCase()}.`;
 
-      props.onDispositionSucceeded(successMessage, async () => {
-        const undoResult = await recordBulkFindingDisposition(
-          {
-            findingIds,
-            disposition: "Deferred",
-            rationale: undoRationale,
-            revisitDueUtc: computeFindingDispositionRevisitDueUtc(),
-          },
-          { idempotencyKey: createGovernanceMutationIdempotencyKey() },
-        );
+      props.onDispositionSucceeded({
+        message: successMessage,
+        undo: async () => {
+          const undoResult = await recordBulkFindingDisposition(
+            {
+              findingIds,
+              disposition: "Deferred",
+              rationale: undoRationale,
+              revisitDueUtc: computeFindingDispositionRevisitDueUtc(),
+            },
+            { idempotencyKey: createGovernanceMutationIdempotencyKey() },
+          );
 
-        if (undoResult.processedCount !== findingIds.length) {
-          throw new Error(GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE);
-        }
+          if (undoResult.processedCount !== findingIds.length) {
+            throw new Error(GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE);
+          }
 
-        props.onApplied();
-        router.refresh();
+          props.onApplied();
+          router.refresh();
+        },
+        correctionFindingIds: findingIds,
       });
       props.onApplied();
       setReason("");

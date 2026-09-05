@@ -5,7 +5,7 @@ import { SignInEmailStep } from "@/app/(operator)/auth/signin/SignInEmailStep";
 import { SignInMethodPicker } from "@/app/(operator)/auth/signin/SignInMethodPicker";
 import { SignInSsoRequiredStep } from "@/app/(operator)/auth/signin/SignInSsoRequiredStep";
 import { AuthErrorPanel } from "@/app/(operator)/auth/signin/AuthErrorPanel";
-import { AuthFlowShell } from "@/components/auth/AuthFlowShell";
+import { SignInBuyerChrome } from "@/app/(operator)/auth/signin/SignInBuyerChrome";
 import { BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE } from "@/lib/buyer/buyer-safe-auth-messages";
 
 import type { SignInFlowState } from "./use-sign-in-flow-state";
@@ -48,36 +48,36 @@ export function SignInFlowPanelShell(props: SignInFlowPanelShellProps): React.JS
 
   if (fatalError) {
     return (
-      <AuthFlowShell hasReturnDestination={hasReturnDestination}>
+      <SignInBuyerChrome hasReturnDestination={hasReturnDestination}>
         <AuthErrorPanel message={fatalError} />
-      </AuthFlowShell>
+      </SignInBuyerChrome>
     );
   }
 
   if (!hasAnySignInMethod) {
     return (
-      <AuthFlowShell hasReturnDestination={hasReturnDestination}>
+      <SignInBuyerChrome hasReturnDestination={hasReturnDestination}>
         <AuthErrorPanel message={BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE} />
-      </AuthFlowShell>
+      </SignInBuyerChrome>
     );
   }
 
   if (step === "options") {
     return (
-      <AuthFlowShell hasReturnDestination={hasReturnDestination}>
+      <SignInBuyerChrome hasReturnDestination={hasReturnDestination}>
         <SignInMethodPicker
           options={methodOptions}
           onWorkSchool={beginWorkSchool}
           onEmailCode={handleBeginEmailCode}
           onSupplemental={beginSupplemental}
         />
-      </AuthFlowShell>
+      </SignInBuyerChrome>
     );
   }
 
   if (step === "email") {
     return (
-      <AuthFlowShell hasReturnDestination={hasReturnDestination}>
+      <SignInBuyerChrome hasReturnDestination={hasReturnDestination}>
         <SignInEmailStep
           email={email}
           pending={emailPending}
@@ -88,24 +88,24 @@ export function SignInFlowPanelShell(props: SignInFlowPanelShellProps): React.JS
           onBack={resetEmailOtpFlow}
           onBotChallengeTokenChange={turnstileRequired ? handleBotChallengeTokenChange : undefined}
         />
-      </AuthFlowShell>
+      </SignInBuyerChrome>
     );
   }
 
   if (step === "sso") {
     return (
-      <AuthFlowShell hasReturnDestination={hasReturnDestination}>
+      <SignInBuyerChrome hasReturnDestination={hasReturnDestination}>
         <SignInSsoRequiredStep
           message={ssoMessage}
           onContinueOrganizationSignIn={beginWorkSchool}
           onUseAnotherEmail={handleUseAnotherEmailFromSso}
         />
-      </AuthFlowShell>
+      </SignInBuyerChrome>
     );
   }
 
   return (
-    <AuthFlowShell hasReturnDestination={hasReturnDestination}>
+    <SignInBuyerChrome hasReturnDestination={hasReturnDestination}>
       <SignInCodeStep
         maskedEmail={maskedEmail}
         code={code}
@@ -124,6 +124,6 @@ export function SignInFlowPanelShell(props: SignInFlowPanelShellProps): React.JS
         onDifferentEmail={handleDifferentEmail}
         onBotChallengeTokenChange={turnstileRequired ? handleBotChallengeTokenChange : undefined}
       />
-    </AuthFlowShell>
+    </SignInBuyerChrome>
   );
 }

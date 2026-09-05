@@ -2,6 +2,9 @@ using System.IO.Compression;
 using System.Text.Json;
 
 using ArchLucid.Application.AzureExtractor;
+using ArchLucid.Application.InfraEvidence;
+using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Application.AzureExtractor.Stages;
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
@@ -259,8 +262,40 @@ public sealed class AzureExtractorIngestServiceTests
             new PassthroughAzureExtractorResultEnricher(),
             Microsoft.Extensions.Options.Options.Create(new AzureExtractorEnrichmentOptions { Enabled = false }),
             NullLogger<AzureExtractorPreparedZipValidateStage>.Instance);
+        Mock<IAzureInventorySnapshotHeaderService> snapshotHeader = new();
+        snapshotHeader
+            .Setup(s => s.TryCreatePendingFromPackageAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<DateTime?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string>(),
+                It.IsAny<bool>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AzureInventorySnapshotHeaderCreateResult { Succeeded = true, SnapshotId = Guid.NewGuid() });
+
+        Mock<IAzureInventorySnapshotMaterializer> snapshotMaterializer = new();
+        snapshotMaterializer
+            .Setup(m => m.TryMaterializePackageAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<byte[]>(),
+                It.IsAny<AzureInventoryCaptureMethod>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AzureInventorySnapshotMaterializeResult
+            {
+                Succeeded = true,
+                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+                ResourceCount = 1,
+            });
+
         AzureExtractorPreparedZipPersistStage persistStage = new(
-            scope.Object, auditService.Object, packageRepo.Object, tasks.Object, evidence.Object,
+            scope.Object, auditService.Object, packageRepo.Object, snapshotHeader.Object, snapshotMaterializer.Object, tasks.Object, evidence.Object,
             NullLogger<AzureExtractorPreparedZipPersistStage>.Instance);
         return new AzureExtractorIngestService(
             scope.Object, actor.Object, auditService.Object,

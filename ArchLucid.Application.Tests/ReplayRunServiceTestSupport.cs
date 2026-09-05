@@ -78,7 +78,8 @@ internal static class ReplayRunServiceTestSupport
             runStageOutcomesRepository ?? EmptyStageOutcomesRepository(),
             Mock.Of<IRunPolicyPackPinService>(),
             Mock.Of<IRunEvidencePackagePinService>(),
-            cloneStage);
+            cloneStage,
+            Mock.Of<IReRunExecuteSealedManifestPinGate>());
         IReplayRunCommitStage commitStage = new ReplayRunCommitStage(
             decisionEngine,
             agentEvaluationService ?? EmptyEvaluationService(),
@@ -94,6 +95,7 @@ internal static class ReplayRunServiceTestSupport
             Mock.Of<IRunPolicyPackPinService>(),
             Mock.Of<IRunEvidencePackagePinService>(),
             cloneStage,
+            Mock.Of<IReRunExecuteSealedManifestPinGate>(),
             NullLogger<ReplayRunCommitStage>.Instance);
         IReplayRunExecutePreparedStage executePreparedStage = new ReplayRunExecutePreparedStage(
             runDetailQuery,
@@ -106,7 +108,8 @@ internal static class ReplayRunServiceTestSupport
             commitStage,
             authorityRunRepository,
             scopeContextProvider,
-            Mock.Of<IRunGovernanceScopePinService>());
+            Mock.Of<IRunGovernanceScopePinService>(),
+            Mock.Of<IReRunExecuteSealedManifestPinGate>());
 
         return new ReplayRunService(prepareStage, executePreparedStage);
     }
@@ -143,7 +146,8 @@ internal static class ReplayRunServiceTestSupport
             runStageOutcomesRepository ?? EmptyStageOutcomesRepository(),
             Mock.Of<IRunPolicyPackPinService>(),
             Mock.Of<IRunEvidencePackagePinService>(),
-            cloneStage);
+            cloneStage,
+            Mock.Of<IReRunExecuteSealedManifestPinGate>());
         IReplayRunCommitStage commitStage = new ReplayRunCommitStage(
             decisionEngine.Object,
             agentEvaluationService ?? EmptyEvaluationService(),
@@ -159,6 +163,7 @@ internal static class ReplayRunServiceTestSupport
             Mock.Of<IRunPolicyPackPinService>(),
             Mock.Of<IRunEvidencePackagePinService>(),
             cloneStage,
+            Mock.Of<IReRunExecuteSealedManifestPinGate>(),
             NullLogger<ReplayRunCommitStage>.Instance);
         IReplayRunExecutePreparedStage executePreparedStage = new ReplayRunExecutePreparedStage(
             runDetailQuery.Object,
@@ -171,7 +176,8 @@ internal static class ReplayRunServiceTestSupport
             commitStage,
             authorityRunRepository.Object,
             scopeProvider.Object,
-            Mock.Of<IRunGovernanceScopePinService>());
+            Mock.Of<IRunGovernanceScopePinService>(),
+            Mock.Of<IReRunExecuteSealedManifestPinGate>());
 
         ReplayRunService service = new(prepareStage, executePreparedStage);
 
@@ -205,6 +211,24 @@ internal static class ReplayRunServiceTestSupport
             .Returns(Task.CompletedTask);
 
         return tasks;
+    }
+
+    internal static RunRecord CreateSourceHeader(Guid runId, ScopeContext scope) => new()
+    {
+        RunId = runId,
+        TenantId = scope.TenantId,
+        WorkspaceId = scope.WorkspaceId,
+        ScopeProjectId = scope.ProjectId,
+        ProjectId = string.Empty,
+        PinnedPolicyPackIdsJson = "[]",
+        LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+    };
+
+    internal static void StubAuthorityRunHeader(Mock<IRunRepository> authorityRuns)
+    {
+        authorityRuns
+            .Setup(x => x.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScopeContext scope, Guid id, CancellationToken _) => CreateSourceHeader(id, scope));
     }
 
     internal static void StubRunDetailForOriginalAndPreparedReplay(

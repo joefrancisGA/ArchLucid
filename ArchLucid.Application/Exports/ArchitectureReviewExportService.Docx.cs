@@ -76,6 +76,20 @@ public sealed partial class ArchitectureReviewExportService
                 $"<p><strong>Trial notice:</strong> {HtmlEncode(activeTrialExportNotice)}</p>");
         }
 
+        if (!string.IsNullOrWhiteSpace(documentModel.SimulatorRehearsalTitle))
+        {
+            html.AppendLine(
+                CultureInfo.InvariantCulture,
+                $"<p><strong>Simulator notice:</strong> {HtmlEncode(documentModel.SimulatorRehearsalTitle.Trim())}</p>");
+
+            if (!string.IsNullOrWhiteSpace(documentModel.SimulatorRehearsalBody))
+            {
+                html.AppendLine(
+                    CultureInfo.InvariantCulture,
+                    $"<p>{HtmlEncode(documentModel.SimulatorRehearsalBody.Trim())}</p>");
+            }
+        }
+
         if (!string.IsNullOrWhiteSpace(documentModel.ExplanationConfidenceCallout))
         {
             html.AppendLine(

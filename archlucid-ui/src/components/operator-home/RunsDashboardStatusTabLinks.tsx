@@ -15,9 +15,12 @@ export type RunsDashboardStatusTabLinksProps = {
   readonly buyerPolishedShell: boolean;
   readonly tab: RunsDashboardTabId;
   readonly statusTabIds: readonly RunsDashboardTabId[];
-  readonly statusTabCounts: Readonly<Record<RunsDashboardTabId, number>>;
+  readonly statusTabCounts: Readonly<Record<RunsDashboardTabId, number>> & {
+    readonly recentTotalCount?: number;
+  };
   readonly currentSearch: string;
   readonly testIdPrefix: string;
+  readonly homePreviewMode?: boolean;
 };
 
 export function RunsDashboardStatusTabLinks(props: RunsDashboardStatusTabLinksProps): React.JSX.Element {
@@ -27,13 +30,16 @@ export function RunsDashboardStatusTabLinks(props: RunsDashboardStatusTabLinksPr
       data-testid="runs-dashboard-status-filters"
       className={cn(
         "flex flex-wrap gap-1.5",
-        props.buyerPolishedShell ? "" : "-mb-px overflow-x-auto border-b border-neutral-200 pb-0 dark:border-neutral-800",
+        props.buyerPolishedShell ? "" : "-mb-px border-b border-neutral-200 pb-0 dark:border-neutral-800",
       )}
     >
       {props.statusTabIds.map((id) => {
         const selected = props.tab === id;
         const disabled = props.statusTabCounts[id] === 0 && id !== "all";
-        const label = runsDashboardTabLabel(id, props.buyerPolishedShell, props.statusTabCounts[id]);
+        const label = runsDashboardTabLabel(id, props.buyerPolishedShell, props.statusTabCounts[id], {
+          homePreviewMode: props.homePreviewMode === true,
+          recentTotalCount: props.statusTabCounts.recentTotalCount,
+        });
         const disabledReasonId = `${props.testIdPrefix}-${id}-disabled-reason`;
 
         if (disabled) {

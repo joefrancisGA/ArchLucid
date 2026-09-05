@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Application.Exports;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Roi;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Value;
@@ -12,7 +13,9 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Pilots;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Pilots;
 
@@ -36,7 +39,9 @@ public sealed class BuyerProofPackBuilder(
     ValueReportBuilder valueReportBuilder,
     IScopeContextProvider scopeContextProvider,
     IPilotBaselineRepository pilotBaselineRepository,
-    RoiCostEvidenceCollectionResolver roiCostEvidenceCollectionResolver) : IBuyerProofPackBuilder
+    RoiCostEvidenceCollectionResolver roiCostEvidenceCollectionResolver,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : IBuyerProofPackBuilder
 {
     private const string PackFormatVersion = "1.0";
 
@@ -69,6 +74,12 @@ public sealed class BuyerProofPackBuilder(
     private readonly RoiCostEvidenceCollectionResolver _roiCostEvidenceCollectionResolver =
         roiCostEvidenceCollectionResolver ?? throw new ArgumentNullException(nameof(roiCostEvidenceCollectionResolver));
 
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
     public async Task<BuyerProofPackBuildResult?> TryBuildZipAsync(
         string runId,
         string baseUrlForLinks,
@@ -86,6 +97,17 @@ public sealed class BuyerProofPackBuilder(
             return null;
 
         AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());
+
+        if (Guid.TryParse(runId.Trim(), out Guid runGuid))
+        {
+            await ManifestDecisionReceiptExportBinder.EnsureSealedExportReceiptVerifiedOrThrowAsync(
+                runGuid,
+                runId.Trim(),
+                _authorityQueryService,
+                _manifestHashService,
+                _scopeContextProvider.GetCurrentScope(),
+                cancellationToken);
+        }
 
         PilotRunDeltas deltas = await _pilotRunDeltaComputer.ComputeAsync(detail, cancellationToken);
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();

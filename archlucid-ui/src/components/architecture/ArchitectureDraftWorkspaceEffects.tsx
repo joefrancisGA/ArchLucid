@@ -14,7 +14,6 @@ import { actorSetFromDraftDocument } from "@/lib/architecture/architecture-creat
 import { getDraftRequest } from "@/lib/api/draft-intake-api";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { OPERATOR_QUERY_STALE_MS } from "@/lib/query/operator-query-stale-time";
-import { trackArchitectureDraftPostSpawnEdit } from "@/lib/architecture/architecture-draft-handoff-gate";
 import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
 
 export type UseArchitectureDraftWorkspaceEffectsArgs = {
@@ -23,7 +22,6 @@ export type UseArchitectureDraftWorkspaceEffectsArgs = {
   readonly loading: boolean;
   readonly draft: DraftRequestResponse | null;
   readonly linkedReviewId: string | null;
-  readonly handoffAcknowledged: boolean;
   readonly saveState: ArchitectureDraftSaveState;
   readonly effectiveArchitectureId: string;
   readonly applyLoadedDraftToForm: (loaded: DraftRequestResponse) => ArchitectureDraftFieldState;
@@ -36,7 +34,6 @@ export function useArchitectureDraftWorkspaceEffects(
   args: UseArchitectureDraftWorkspaceEffectsArgs,
 ): void {
   const queryClient = useQueryClient();
-  const previousSaveStateRef = useRef<ArchitectureDraftSaveState>("saved");
   const syncDraftInFlightRef = useRef<Promise<void> | null>(null);
   const draftLifecycleRef = useRef<{
     status: DraftRequestResponse["status"] | null;
@@ -124,17 +121,4 @@ export function useArchitectureDraftWorkspaceEffects(
       window.removeEventListener("focus", handleResume);
     };
   }, [args.isNewDraft, syncDraftFromServer]);
-
-  useEffect(() => {
-    if (
-      args.linkedReviewId !== null &&
-      args.handoffAcknowledged &&
-      previousSaveStateRef.current === "saving" &&
-      args.saveState === "saved"
-    ) {
-      trackArchitectureDraftPostSpawnEdit(args.effectiveArchitectureId, args.linkedReviewId);
-    }
-
-    previousSaveStateRef.current = args.saveState;
-  }, [args.effectiveArchitectureId, args.handoffAcknowledged, args.linkedReviewId, args.saveState]);
 }

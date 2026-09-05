@@ -33,6 +33,16 @@ describe("insights-finalized-review-prerequisite-empty (TB-2389)", () => {
 
     expect(sampleAction?.variant).toBe("outline");
 
+    const workingAskProps = buildInsightsFinalizedReviewPrerequisiteEmpty({
+      jobId: "ask",
+      finalizedCount: 0,
+      workingMode: true,
+    });
+
+    expect(workingAskProps.actions?.some((action) => action.label === "Load sample workspace")).toBe(false);
+    expect(workingAskProps.actions?.[1]?.label).toBe("New review");
+    expect(workingAskProps.actions?.[1]?.href).toBe("/architecture/architectures/new");
+
     const scorecardProps = buildInsightsFinalizedReviewPrerequisiteEmpty({
       jobId: "scorecard",
       finalizedCount: 0,

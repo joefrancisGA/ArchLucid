@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { DismissControl } from "@/components/usability/DismissControl";
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 import { useLlmMonthlyBudgetStatusQuery } from "@/hooks/use-llm-monthly-budget-status-query";
 import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
@@ -12,6 +13,7 @@ import {
   llmBudgetUtilizationPercent,
   resolveLlmBudgetUtilizationTone,
 } from "@/lib/llm-monthly-budget-status";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
@@ -23,8 +25,10 @@ import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 export function LlmBudgetApproachingLimitBanner() {
   const [dismissed, setDismissed] = useState(false);
   const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
+  const callerAuthorityRank = useNavCallerAuthorityRank();
   const queryEnabled =
     concernFetchEnabled &&
+    callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority &&
     !dismissed &&
     !isNextPublicDemoMode() &&
     !isStaticDemoPayloadFallbackEnabled() &&

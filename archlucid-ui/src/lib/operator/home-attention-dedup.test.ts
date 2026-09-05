@@ -23,13 +23,13 @@ function railItem(kind: UnfinishedWorkRailItem["kind"], id: string): UnfinishedW
 }
 
 describe("home-attention-dedup (TB-2369)", () => {
-  it("lists awaiting-disposition run ids from unfinished-work rail items", () => {
+  it("lists active review run ids from unfinished-work rail items", () => {
     const runIds = listHomeAttentionPreviewExcludedRunIds([
       railItem("awaiting-disposition", "awaiting-disposition:run-1"),
       railItem("review-in-progress", "review-in-progress:run-2"),
     ]);
 
-    expect(runIds).toEqual(["run-1"]);
+    expect(runIds).toEqual(["run-1", "run-2"]);
   });
 
   it("filters home attention preview runs already on unfinished-work rail", () => {

@@ -298,8 +298,7 @@ public sealed class ReplayRunServiceTests
         Mock<IRunRepository> authorityRuns = new();
         authorityRuns.Setup(x => x.SaveAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null))
             .Returns(Task.CompletedTask);
-        authorityRuns.Setup(x => x.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((RunRecord?)null);
+        ReplayRunServiceTestSupport.StubAuthorityRunHeader(authorityRuns);
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(p => p.GetCurrentScope()).Returns(TestScope());
@@ -475,8 +474,7 @@ public sealed class ReplayRunServiceTests
         Mock<IRunRepository> authorityRuns = new();
         authorityRuns.Setup(x => x.SaveAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null))
             .Returns(Task.CompletedTask);
-        authorityRuns.Setup(x => x.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((RunRecord?)null);
+        ReplayRunServiceTestSupport.StubAuthorityRunHeader(authorityRuns);
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(p => p.GetCurrentScope()).Returns(TestScope());
@@ -621,8 +619,7 @@ public sealed class ReplayRunServiceTests
         Mock<IRunRepository> authorityRuns = new();
         authorityRuns.Setup(x => x.SaveAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null))
             .Returns(Task.CompletedTask);
-        authorityRuns.Setup(x => x.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((RunRecord?)null);
+        ReplayRunServiceTestSupport.StubAuthorityRunHeader(authorityRuns);
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(p => p.GetCurrentScope()).Returns(TestScope());

@@ -81,7 +81,7 @@ export const ROI_SUMMARY_HELP_DATA_NEEDS_ITEMS = [
   "Findings with severity counts toward the hours model.",
   "Approval-check blocks or review-time baseline inputs sharpen the estimate.",
   "Loaded hourly cost unlocks a meaningful dollar estimate.",
-  "Loaded hourly cost is saved in this browser only — it is not shared across people or devices.",
+  "Loaded hourly cost is saved on your signed-in account and follows you across browsers after preferences sync.",
 ] as const;
 
 export const ROI_SUMMARY_HELP_METHODOLOGY_SECTION_TITLE = "Basis of estimate";

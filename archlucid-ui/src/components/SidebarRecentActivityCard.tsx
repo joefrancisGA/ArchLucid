@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { hasMeaningfulSidebarDeltaMedians } from "@/components/BeforeAfterDelta/formatDelta";
 import { useDeltaQuery } from "@/components/BeforeAfterDelta/useDeltaQuery";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const RECENT_ACTIVITY_OPEN_KEY = "archlucid_sidebar_recent_activity_open";
@@ -23,6 +24,7 @@ const RECENT_ACTIVITY_OPEN_KEY = "archlucid_sidebar_recent_activity_open";
  * sidebar delta panel) so first-run tenants do not see an empty collapsible.
  */
 export function SidebarRecentActivityCard() {
+  const { isWorkingMode } = useWorkspaceMode();
   const { status, data } = useDeltaQuery({ count: 5 });
   const [open, setOpen] = useState<boolean>(false);
 
@@ -39,6 +41,10 @@ export function SidebarRecentActivityCard() {
       setOpen(false);
     }
   }, []);
+
+  if (isWorkingMode) {
+    return null;
+  }
 
   function persist(next: boolean): void {
     setOpen(next);

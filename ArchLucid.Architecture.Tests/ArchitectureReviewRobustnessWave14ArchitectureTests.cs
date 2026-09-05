@@ -21,9 +21,9 @@ public sealed class ArchitectureReviewRobustnessWave14ArchitectureTests
         composer.Should().Contain("Committed-run decision receipts require a manifest hash binding");
 
         string service = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "DecisionReceiptService.cs"));
+            Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "Finalization", "ManifestDecisionReceiptExportBinder.cs"));
 
-        service.Should().Contain("string.IsNullOrWhiteSpace(manifestSummary!.ManifestHash)");
+        service.Should().Contain("EnsureSealedManifestHashMatchesOrThrow");
     }
 
     [Fact]
@@ -154,9 +154,9 @@ public sealed class ArchitectureReviewRobustnessWave14ArchitectureTests
     public void Suggestion140_manifest_compare_requires_pin_fingerprints()
     {
         string compare = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "ManifestsController.Compare.cs"));
+            Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "CompareRunsApplicationFacade.cs"));
 
-        compare.Should().Contain("EnsureManifestComparePinFingerprintsMatchOrThrowAsync");
+        compare.Should().Contain("EnsureCreateTimePinFingerprintsMatchOrThrow");
         compare.Should().Contain("RunComparePinFingerprintGuard");
     }
 

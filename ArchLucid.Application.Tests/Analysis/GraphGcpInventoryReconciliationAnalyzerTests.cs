@@ -98,6 +98,27 @@ public sealed class GraphGcpInventoryReconciliationAnalyzerTests
         result.InventoryOnlyResourceIds.Should().ContainSingle().Which.Should().Be(InventoryResourceId.ToLowerInvariant());
     }
 
+    [Fact]
+    public void Analyze_ignores_inventory_rows_without_cloud_asset_name_field()
+    {
+        GraphSnapshot graph = CreateGraphWithResourceId(GraphResourceId);
+
+        string resourcesJson =
+            """
+            [
+              {
+                "gcpResourceId": "projects/demo-project/global/networks/live-vpc"
+              }
+            ]
+            """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.GraphOnlyResourceIds.Should().ContainSingle().Which.Should().Be(GraphResourceId.ToLowerInvariant());
+        result.InventoryOnlyResourceIds.Should().BeEmpty();
+    }
+
     private static GraphSnapshot CreateGraphWithResourceId(string resourceId)
     {
         return new GraphSnapshot

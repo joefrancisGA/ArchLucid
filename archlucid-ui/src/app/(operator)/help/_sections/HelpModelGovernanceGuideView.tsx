@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { HelpModelGovernanceHeaderActions } from "@/app/(operator)/help/_sections/HelpModelGovernanceHeaderActions";
+import { HelpModelGovernanceSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpModelGovernanceSourcesOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ModelGovernanceHelpClaimDisciplineStrip } from "@/components/help/ModelGovernanceHelpClaimDisciplineStrip";
 import { ModelGovernanceHelpEvidenceOrientationStrip } from "@/components/help/ModelGovernanceHelpEvidenceOrientationStrip";
@@ -7,7 +9,6 @@ import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHe
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
   OPERATOR_LAYOUT,
@@ -15,6 +16,7 @@ import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import {
   MODEL_GOVERNANCE_HELP_DATA_BOUNDARY_EMBEDDINGS,
@@ -31,7 +33,17 @@ import {
   MODEL_GOVERNANCE_HELP_START_HERE_CARD_TITLE,
   MODEL_GOVERNANCE_HELP_SUBPROCESSORS_HREF,
 } from "@/lib/model-governance-help-guide-content";
-import { MODEL_GOVERNANCE_HELP_CANONICAL_PATH } from "@/lib/model-governance-help-evidence-copy";
+import {
+  MODEL_GOVERNANCE_HELP_CANONICAL_PATH,
+  MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE,
+} from "@/lib/model-governance-help-evidence-copy";
+import {
+  MODEL_GOVERNANCE_HELP_FIRST_VIEWPORT_TEST_ID,
+  MODEL_GOVERNANCE_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  MODEL_GOVERNANCE_HELP_PRIMARY_CONTENT_ID,
+  MODEL_GOVERNANCE_HELP_SKIP_LINK_LABEL,
+  MODEL_GOVERNANCE_HELP_SKIP_TARGET_ID,
+} from "@/lib/model-governance-help-page-copy";
 import { MODEL_GOVERNANCE_HELP_TOPIC_LABEL } from "@/lib/model-governance-settings-evidence-copy";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
@@ -52,9 +64,32 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
   );
 }
 
+function ModelGovernanceStartHereActionPanel(): React.ReactElement {
+  return (
+    <section
+      className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+      data-testid="help-model-governance-action-panel"
+      aria-labelledby="help-model-governance-action-panel-heading"
+    >
+      <h2
+        id="help-model-governance-action-panel-heading"
+        className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+      >
+        {MODEL_GOVERNANCE_HELP_START_HERE_CARD_TITLE}
+      </h2>
+      <Button asChild size="sm" variant="primary" data-testid="help-model-governance-start-here-primary-cta">
+        <Link href={MODEL_GOVERNANCE_HELP_PRIMARY_ACTION.href}>
+          {MODEL_GOVERNANCE_HELP_PRIMARY_ACTION.label}
+        </Link>
+      </Button>
+    </section>
+  );
+}
+
 /** Operator model governance orientation for `/help/model-governance`. */
 export function HelpModelGovernanceGuideView(props: HelpModelGovernanceGuideViewProps): React.ReactElement {
   const { entry } = props;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const guideHeadings = resolveGuideHeadingsForStrip(
     "help-model-governance",
     MODEL_GOVERNANCE_HELP_GUIDE_HEADINGS,
@@ -68,107 +103,128 @@ export function HelpModelGovernanceGuideView(props: HelpModelGovernanceGuideView
       className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-model-governance-guide"
     >
+      {buyerPolishedShell ? (
+        <a href={`#${MODEL_GOVERNANCE_HELP_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+          {MODEL_GOVERNANCE_HELP_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
       <HelpTopicHashScroll />
 
-      <HelpTopicGuidePageHeader
-        title={MODEL_GOVERNANCE_HELP_PAGE_TITLE}
-        titleTestId="help-model-governance-page-title"
-        subtitle={MODEL_GOVERNANCE_HELP_PAGE_SUBTITLE}
-        navHref={MODEL_GOVERNANCE_HELP_CANONICAL_PATH}
-        headingLevel="h1"
-        metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
-        actions={<PageContextualHelpButton />}
-      />
+      <div
+        id={buyerPolishedShell ? MODEL_GOVERNANCE_HELP_PRIMARY_CONTENT_ID : undefined}
+        data-testid={buyerPolishedShell ? MODEL_GOVERNANCE_HELP_PRIMARY_CONTENT_ID : undefined}
+        className={cn(buyerPolishedShell && "scroll-mt-24 space-y-6", buyerPolishedShell && OPERATOR_LAYOUT.sectionStack)}
+      >
+        <HelpTopicGuidePageHeader
+          title={MODEL_GOVERNANCE_HELP_PAGE_TITLE}
+          titleTestId="help-model-governance-page-title"
+          subtitle={MODEL_GOVERNANCE_HELP_PAGE_SUBTITLE}
+          navHref={MODEL_GOVERNANCE_HELP_CANONICAL_PATH}
+          headingLevel="h1"
+          claimDiscipline={buyerPolishedShell ? MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE : undefined}
+          claimDisciplineTestId={
+            buyerPolishedShell ? MODEL_GOVERNANCE_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID : undefined
+          }
+          metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
+          actions={<HelpModelGovernanceHeaderActions />}
+        />
 
-      <ModelGovernanceHelpClaimDisciplineStrip />
+        {buyerPolishedShell ? null : <ModelGovernanceHelpClaimDisciplineStrip />}
 
-      <div className={contentGridClass}>
-        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
-          <ModelGovernanceHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
-
-          <p className={readingBodyClass} data-testid="help-model-governance-overview">
-            {MODEL_GOVERNANCE_HELP_OVERVIEW}
-          </p>
-
-          <section
-            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
-            data-testid="help-model-governance-action-panel"
-            aria-labelledby="help-model-governance-action-panel-heading"
+        {buyerPolishedShell ? (
+          <div
+            id={MODEL_GOVERNANCE_HELP_SKIP_TARGET_ID}
+            data-testid={MODEL_GOVERNANCE_HELP_FIRST_VIEWPORT_TEST_ID}
+            className={cn(
+              "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+              OPERATOR_LAYOUT.sectionStack,
+            )}
           >
-            <h2
-              id="help-model-governance-action-panel-heading"
-              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
-            >
-              {MODEL_GOVERNANCE_HELP_START_HERE_CARD_TITLE}
-            </h2>
-            <Button asChild size="sm" variant="primary">
-              <Link href={MODEL_GOVERNANCE_HELP_PRIMARY_ACTION.href}>
-                {MODEL_GOVERNANCE_HELP_PRIMARY_ACTION.label}
-              </Link>
-            </Button>
-          </section>
+            <ModelGovernanceStartHereActionPanel />
+          </div>
+        ) : null}
 
-          <section
-            aria-labelledby="data-boundary"
-            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="data-boundary">Data boundary</HelpSectionHeading>
-            <p className={readingBodyClass} data-testid="help-model-governance-data-boundary">
-              {MODEL_GOVERNANCE_HELP_DATA_BOUNDARY_LEAD}{" "}
-              <Link className={OPERATOR_LINK.inline} href={MODEL_GOVERNANCE_HELP_SUBPROCESSORS_HREF}>
-                Subprocessors register
-              </Link>{" "}
-              lists disclosed external engines. {MODEL_GOVERNANCE_HELP_DATA_BOUNDARY_EMBEDDINGS}{" "}
-              <Link className={OPERATOR_LINK.inline} href={MODEL_GOVERNANCE_HELP_DATA_HANDLING_HREF}>
-                Data handling help
-              </Link>{" "}
-              covers residency and retention posture.
+        <div className={contentGridClass}>
+          <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+            {buyerPolishedShell ? null : (
+              <ModelGovernanceHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+            )}
+
+            <p className={readingBodyClass} data-testid="help-model-governance-overview">
+              {MODEL_GOVERNANCE_HELP_OVERVIEW}
             </p>
-          </section>
 
-          <section
-            aria-labelledby="what-model-governance-controls"
-            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="what-model-governance-controls">What model governance controls</HelpSectionHeading>
-            <dl
-              className={cn("m-0 grid gap-3 sm:grid-cols-2", HELP_PAGE_LAYOUT.readingBody)}
-              data-testid="help-model-governance-feature-items"
-            >
-              {MODEL_GOVERNANCE_HELP_FEATURE_ITEMS.map((item) => (
-                <div key={item.label}>
-                  <dt className="font-medium text-al-text-primary">
-                    {item.href === undefined ? (
-                      item.label
-                    ) : (
-                      <Link className={OPERATOR_LINK.nav} href={item.href}>
-                        {item.label}
-                      </Link>
-                    )}
-                  </dt>
-                  <dd className="m-0 mt-1 text-al-text-secondary">{item.detail}</dd>
-                </div>
-              ))}
-            </dl>
-          </section>
+            {buyerPolishedShell ? null : <ModelGovernanceStartHereActionPanel />}
 
-          <section
-            aria-labelledby="how-model-governance-works"
-            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="how-model-governance-works">{MODEL_GOVERNANCE_HELP_TOPIC_LABEL}</HelpSectionHeading>
-            <ol
-              className={cn("m-0 list-decimal space-y-2 pl-5", HELP_PAGE_LAYOUT.readingBody)}
-              data-testid="help-model-governance-how-stepper"
+            <section
+              aria-labelledby="data-boundary"
+              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
             >
-              {MODEL_GOVERNANCE_HELP_HOW_TO_READ_STEPS.map((step) => (
-                <li key={step}>{step}</li>
-              ))}
-            </ol>
-          </section>
+              <HelpSectionHeading id="data-boundary">Data boundary</HelpSectionHeading>
+              <p className={readingBodyClass} data-testid="help-model-governance-data-boundary">
+                {MODEL_GOVERNANCE_HELP_DATA_BOUNDARY_LEAD}{" "}
+                <Link className={OPERATOR_LINK.inline} href={MODEL_GOVERNANCE_HELP_SUBPROCESSORS_HREF}>
+                  Subprocessors register
+                </Link>{" "}
+                lists disclosed external engines. {MODEL_GOVERNANCE_HELP_DATA_BOUNDARY_EMBEDDINGS}{" "}
+                <Link className={OPERATOR_LINK.inline} href={MODEL_GOVERNANCE_HELP_DATA_HANDLING_HREF}>
+                  Data handling help
+                </Link>{" "}
+                covers residency and retention posture.
+              </p>
+            </section>
+
+            <section
+              aria-labelledby="what-model-governance-controls"
+              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="what-model-governance-controls">What model governance controls</HelpSectionHeading>
+              <dl
+                className={cn("m-0 grid gap-3 sm:grid-cols-2", HELP_PAGE_LAYOUT.readingBody)}
+                data-testid="help-model-governance-feature-items"
+              >
+                {MODEL_GOVERNANCE_HELP_FEATURE_ITEMS.map((item) => (
+                  <div key={item.label}>
+                    <dt className="font-medium text-al-text-primary">
+                      {item.href === undefined ? (
+                        item.label
+                      ) : (
+                        <Link className={OPERATOR_LINK.nav} href={item.href}>
+                          {item.label}
+                        </Link>
+                      )}
+                    </dt>
+                    <dd className="m-0 mt-1 text-al-text-secondary">{item.detail}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+
+            <section
+              aria-labelledby="how-model-governance-works"
+              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="how-model-governance-works">{MODEL_GOVERNANCE_HELP_TOPIC_LABEL}</HelpSectionHeading>
+              <ol
+                className={cn("m-0 list-decimal space-y-2 pl-5", HELP_PAGE_LAYOUT.readingBody)}
+                data-testid="help-model-governance-how-stepper"
+              >
+                {MODEL_GOVERNANCE_HELP_HOW_TO_READ_STEPS.map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ol>
+            </section>
+          </div>
+
+          {buyerPolishedShell ? null : <HelpTopicTableOfContents headings={guideHeadings} />}
         </div>
 
-        <HelpTopicTableOfContents headings={guideHeadings} />
+        {buyerPolishedShell ? (
+          <div data-testid="help-model-governance-orientation-bottom">
+            <HelpModelGovernanceSourcesOrientationStrip />
+          </div>
+        ) : null}
       </div>
     </article>
   );

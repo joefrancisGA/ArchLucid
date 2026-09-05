@@ -29,11 +29,39 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 }));
 
 vi.mock("@/components/reviews/ReviewHeaderShareMenu", () => ({
-  ReviewHeaderShareMenu: () => <div data-testid="review-header-share-menu" />,
+  ReviewHeaderShareMenu: ({
+    disabled,
+    disabledReason,
+  }: {
+    disabled?: boolean;
+    disabledReason?: { message: string } | null;
+  }) => (
+    <div
+      data-testid="review-header-share-menu"
+      data-disabled={disabled === true ? "true" : "false"}
+      data-disabled-reason={disabledReason?.message ?? ""}
+    />
+  ),
+}));
+
+vi.mock("@/components/reviews/ReviewPresenterHeaderButton", () => ({
+  ReviewPresenterHeaderButton: () => null,
 }));
 
 vi.mock("@/components/reviews/ReviewAskDock", () => ({
-  ReviewAskDock: () => <div data-testid="review-ask-dock" />,
+  ReviewAskDock: ({
+    disabled,
+    disabledReason,
+  }: {
+    disabled?: boolean;
+    disabledReason?: { message: string } | null;
+  }) => (
+    <div
+      data-testid="review-ask-dock"
+      data-disabled={disabled === true ? "true" : "false"}
+      data-disabled-reason={disabledReason?.message ?? ""}
+    />
+  ),
 }));
 
 vi.mock("@/components/CopyIdButton", () => ({
@@ -77,16 +105,19 @@ const executionFailedWorkspaceStatus = {
   statusTagKind: "needs-attention" as const,
 };
 
+const reviewRunId = "851472cf-1234-5678-9abc-def083248324";
+const finalizedRecordId = "9026d565-0000-0000-0000-0000000099e8";
+
 describe("RunDetailWorkspaceHeader", () => {
-  it("renders system title, provenance slots, and review identifier", () => {
+  it("renders system title, provenance slots, and full review identifier with copy control", () => {
     render(
       <RunDetailWorkspaceHeader
-        runId="run-1"
+        runId={reviewRunId}
         h1Title="Claims API"
         eyebrowLabel="Claims platform review"
-        reviewIdentifierLabel="run-1"
-        signedReviewRecordId="manifest-9026"
-        signedReviewRecordIdLabel="manifest-9026"
+        reviewIdentifierLabel={reviewRunId}
+        signedReviewRecordId={finalizedRecordId}
+        signedReviewRecordIdLabel={finalizedRecordId}
         workspaceStatus={workspaceStatus}
         reviewOwner={null}
         templateLabel={null}
@@ -98,11 +129,12 @@ describe("RunDetailWorkspaceHeader", () => {
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: "Claims API" })).toBeInTheDocument();
     expect(screen.getByText("Claims platform review")).toBeInTheDocument();
-    expect(screen.getByTestId("run-detail-copy-identifiers-disclosure")).toBeInTheDocument();
-    expect(screen.getByText("Copy identifiers")).toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-review-identifiers")).toBeInTheDocument();
+    expect(screen.queryByText("Copy identifiers")).not.toBeInTheDocument();
     expect(screen.getByText("Review ID")).toBeInTheDocument();
     expect(screen.getByText("Finalized review record ID")).toBeInTheDocument();
-    expect(screen.getByText("run-1")).toBeInTheDocument();
+    expect(screen.getByText(reviewRunId)).toBeInTheDocument();
+    expect(screen.getByText(finalizedRecordId)).toBeInTheDocument();
     expect(
       screen.getByText("Not recorded — this record does not name who recorded the decision"),
     ).toBeInTheDocument();
@@ -110,8 +142,8 @@ describe("RunDetailWorkspaceHeader", () => {
     expect(screen.getByText("Jan 1, 2026, 12:00 PM")).toBeInTheDocument();
     expect(screen.getByText("v2")).toBeInTheDocument();
     expect(screen.getByTestId("favorite-review-toggle")).toBeInTheDocument();
-    expect(screen.getByTestId("review-header-share-menu")).toBeInTheDocument();
-    expect(screen.getByTestId("review-ask-dock")).toBeInTheDocument();
+    expect(screen.getByTestId("review-header-share-menu")).toHaveAttribute("data-disabled", "false");
+    expect(screen.getByTestId("review-ask-dock")).toHaveAttribute("data-disabled", "false");
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.getByTestId("architecture-object-map-strip")).toBeInTheDocument();
   });
@@ -170,6 +202,12 @@ describe("RunDetailWorkspaceHeader", () => {
     expect(
       screen.queryByText("Not applicable — no approval decision until the review is finalized"),
     ).toBeNull();
+    expect(screen.getByTestId("review-header-share-menu")).toHaveAttribute("data-disabled", "true");
+    expect(screen.getByTestId("review-ask-dock")).toHaveAttribute("data-disabled", "true");
+    expect(screen.getByTestId("review-header-share-menu")).toHaveAttribute(
+      "data-disabled-reason",
+      "Unavailable until the review completes. Resolve the execution failure and re-run the review.",
+    );
   });
 
   it("clamps an oversized h1 title to one line without markdown", () => {

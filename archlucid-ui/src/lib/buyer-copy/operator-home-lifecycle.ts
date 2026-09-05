@@ -10,6 +10,12 @@ export const OPERATOR_HOME_CONTACT_WORKSPACE_OWNER_HINT = "Contact the workspace
 
 export const OPERATOR_HOME_COMPACT_STARTING_ACTIONS_HEADING = "Start something";
 
+/** Heading when resume and new-review actions are both visible on home. */
+export const OPERATOR_HOME_START_OR_RESUME_REVIEW_HEADING = "Start or resume a review";
+
+/** Outline CTA beside resume when desk work already exists. */
+export const OPERATOR_HOME_START_NEW_ARCHITECTURE_REVIEW_CTA = "Start a new architecture review";
+
 /** Collapsed lifecycle entry when a draft/resume primary already owns the first viewport. */
 export const OPERATOR_HOME_LIFECYCLE_ALTERNATIVES_DISCLOSURE_TITLE = "Start something else";
 

@@ -146,6 +146,15 @@ public sealed partial class ArchitectureReviewDocxBuilder
             ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(body, cover.ActiveTrialNotice, "Subtle");
         }
 
+        if (!string.IsNullOrWhiteSpace(cover.SimulatorRehearsalTitle))
+        {
+            ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 1);
+            ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(body, cover.SimulatorRehearsalTitle, "Subtle");
+
+            if (!string.IsNullOrWhiteSpace(cover.SimulatorRehearsalBody))
+                ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(body, cover.SimulatorRehearsalBody, "Subtle");
+        }
+
         ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 3);
         ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(body, $"Review ID: {model.ReviewId:D}", "Subtle");
         ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(body, $"Review (run) ID: {model.RunId.Trim()}",

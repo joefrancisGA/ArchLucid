@@ -15,6 +15,8 @@ public sealed class RunExportPackageBuilder(
     private const string ManifestNotFoundProblemType = "https://archlucid.example.org/errors#manifest-not-found";
     private const string DecisionReceiptSealedHashMismatchProblemType =
         "https://archlucid.example.org/errors#decision-receipt-sealed-hash-mismatch";
+    private const string DecisionReceiptSealedIncompleteProblemType =
+        "https://archlucid.example.org/errors#decision-receipt-sealed-incomplete";
 
     private readonly IRunExportAuthorityMaterialLoader _exportAuthorityMaterialLoader =
         exportAuthorityMaterialLoader ?? throw new ArgumentNullException(nameof(exportAuthorityMaterialLoader));
@@ -45,6 +47,13 @@ public sealed class RunExportPackageBuilder(
             return RunExportPackageResult.Conflict(
                 $"Run '{runId}' export blocked: sealed decision receipt hash verification failed.",
                 DecisionReceiptSealedHashMismatchProblemType);
+        }
+
+        if (materialResult.Outcome == RunExportAuthorityMaterialLoadOutcome.SealedReceiptIncomplete)
+        {
+            return RunExportPackageResult.Conflict(
+                $"Run '{runId}' export blocked: sealed decision receipt fields are incomplete.",
+                DecisionReceiptSealedIncompleteProblemType);
         }
 
         if (materialResult.Outcome != RunExportAuthorityMaterialLoadOutcome.Success || materialResult.Material is null)

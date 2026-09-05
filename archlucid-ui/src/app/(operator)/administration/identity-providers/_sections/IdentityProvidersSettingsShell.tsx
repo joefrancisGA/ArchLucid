@@ -25,6 +25,13 @@ import {
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { IdentityProvidersSettingsPageHeader } from "./IdentityProvidersSettingsPageHeader";
+import {
+  IDENTITY_PROVIDERS_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  IDENTITY_PROVIDERS_SETTINGS_PRIMARY_CONTENT_ID,
+  IDENTITY_PROVIDERS_SETTINGS_SKIP_LINK_LABEL,
+  IDENTITY_PROVIDERS_SETTINGS_SKIP_TARGET_ID,
+} from "./identity-providers-settings-page-copy";
+import { IDENTITY_PROVIDERS_SETTINGS_CLAIM_DISCIPLINE } from "@/lib/identity-providers-settings-evidence-copy";
 const NAV_ITEMS: ReadonlyArray<{ readonly id: IdentityProvidersNavId; readonly label: string; readonly href: string }> = [
   { id: "overview", label: IDENTITY_PROVIDERS_NAV_OVERVIEW, href: "/administration/identity-providers" },
   { id: "saml", label: IDENTITY_PROVIDERS_NAV_SAML, href: "/administration/identity-providers/saml" },
@@ -111,23 +118,42 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
 
   return (
     <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="identity-providers-settings-shell">
-      {props.skipLinkLabel !== undefined && props.primaryContentId !== undefined ? (
-        <a href={`#${props.primaryContentId}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
-          {props.skipLinkLabel}
+      {buyerPolishedShell || (props.skipLinkLabel !== undefined && props.primaryContentId !== undefined) ? (
+        <a
+          href={`#${
+            buyerPolishedShell
+              ? IDENTITY_PROVIDERS_SETTINGS_SKIP_TARGET_ID
+              : (props.primaryContentId ?? IDENTITY_PROVIDERS_SETTINGS_PRIMARY_CONTENT_ID)
+          }`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {props.skipLinkLabel ?? IDENTITY_PROVIDERS_SETTINGS_SKIP_LINK_LABEL}
         </a>
       ) : null}
 
       <div
-        id={props.primaryContentId}
+        id={props.primaryContentId ?? (buyerPolishedShell ? IDENTITY_PROVIDERS_SETTINGS_PRIMARY_CONTENT_ID : undefined)}
         data-testid={
-          props.primaryContentId !== undefined ? "identity-providers-settings-primary-content" : undefined
+          props.primaryContentId !== undefined || buyerPolishedShell
+            ? "identity-providers-settings-primary-content"
+            : undefined
         }
-        className={props.primaryContentId !== undefined ? cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack) : OPERATOR_LAYOUT.sectionStack}
+        className={
+          props.primaryContentId !== undefined || buyerPolishedShell
+            ? cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)
+            : OPERATOR_LAYOUT.sectionStack
+        }
       >
         <IdentityProvidersSettingsPageHeader
           pageTitle={resolvedTitle}
           subtitle={headerSubtitle}
           breadcrumb={props.headerBreadcrumb}
+          claimDiscipline={buyerPolishedShell && isOverviewPage ? IDENTITY_PROVIDERS_SETTINGS_CLAIM_DISCIPLINE : undefined}
+          claimDisciplineTestId={
+            buyerPolishedShell && isOverviewPage
+              ? IDENTITY_PROVIDERS_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID
+              : undefined
+          }
           statusLabel={
             props.statusBadgeReady === false
               || props.diagnosticsDataUnavailable === true

@@ -152,7 +152,7 @@ public sealed class DraftRequestServiceTests
                 CancellationToken.None);
         }
 
-        SubmitDraftResponse? submit = await _service.SubmitAsync(_scope, created.DraftId, CancellationToken.None);
+        SubmitDraftResponse? submit = await _service.SubmitAsync(_scope, created.DraftId, null, CancellationToken.None);
 
         submit.Should().NotBeNull();
         submit!.Status.Should().Be(DraftRequestStatus.RunSpawned);

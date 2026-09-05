@@ -9,6 +9,8 @@ import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 
 type FindingInspectStickinessSummaryProps = {
   readonly recentDispositionActors: readonly CollabRecentActor[];
+  readonly dispositionHistoryAsOfUtc: string | null;
+  readonly onRefreshDispositionHistory: () => void;
   readonly mutationDisabledHintId: string;
   readonly mutationDisabledReason: WhyDisabledCtaReason | null;
   readonly sponsorSynopsisPackageTitle: string;
@@ -21,6 +23,8 @@ type FindingInspectStickinessSummaryProps = {
 export function FindingInspectStickinessSummary(props: FindingInspectStickinessSummaryProps) {
   const {
     recentDispositionActors,
+    dispositionHistoryAsOfUtc,
+    onRefreshDispositionHistory,
     mutationDisabledHintId,
     mutationDisabledReason,
     sponsorSynopsisPackageTitle,
@@ -32,7 +36,11 @@ export function FindingInspectStickinessSummary(props: FindingInspectStickinessS
 
   return (
     <>
-      <CollabRecentActorPresenceStrip recentActors={recentDispositionActors} />
+      <CollabRecentActorPresenceStrip
+        recentActors={recentDispositionActors}
+        asOfUtc={dispositionHistoryAsOfUtc}
+        onRefresh={onRefreshDispositionHistory}
+      />
       <WhyDisabledCtaHint
         id={mutationDisabledHintId}
         reason={mutationDisabledReason}

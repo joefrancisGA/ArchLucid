@@ -7,14 +7,18 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { useDocumentHidden } from "@/lib/document-visibility";
-import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isAzureServiceBusHealthUnhealthy } from "@/lib/health-dashboard-types";
 import { SERVICE_BUS_HEALTH_LABELS } from "@/lib/operator/operator-health-labels";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { shouldPollServiceBusHealthDegradedBanner } from "@/lib/shell-banner-poll-policy";
 
+/**
+ * Demo/static-demo shells may omit live health polling. Paying Working users must see real
+ * degradation — buyer-polish is not a suppress flag (RS-06).
+ */
 function isServiceBusBannerSuppressed(): boolean {
-  return isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || isBuyerPolishedOperatorShellEnv();
+  return isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
 }
 
 /**
@@ -54,16 +58,29 @@ export function ServiceBusHealthBanner() {
       {showWarning ? (
         <>
           <p className="m-0 font-semibold text-amber-900 dark:text-amber-100">{SERVICE_BUS_HEALTH_LABELS.bannerTitle}</p>
-          <p className="m-0 mt-1 leading-snug">
-            {SERVICE_BUS_HEALTH_LABELS.bannerBody}{" "}
+          <p className="m-0 mt-1 leading-snug">{SERVICE_BUS_HEALTH_LABELS.bannerBody}</p>
+          <p className="m-0 mt-2 leading-snug">
             <Link
-              href="/internal/health"
+              href={SERVICE_BUS_HEALTH_LABELS.systemHealthHref}
               className="font-medium text-amber-950 underline underline-offset-2 dark:text-amber-100"
             >
               {SERVICE_BUS_HEALTH_LABELS.systemHealthLink}
             </Link>
             .
           </p>
+          <details className="mt-2">
+            <summary className="cursor-pointer text-sm text-amber-950/90 dark:text-amber-100/90">
+              {SERVICE_BUS_HEALTH_LABELS.technicalProbeDisclosure}
+            </summary>
+            <p className="m-0 mt-1 text-sm leading-snug text-amber-950/90 dark:text-amber-100/90">
+              <Link
+                href={SERVICE_BUS_HEALTH_LABELS.internalHealthHref}
+                className="font-medium text-amber-950 underline underline-offset-2 dark:text-amber-100"
+              >
+                {SERVICE_BUS_HEALTH_LABELS.internalHealthLink}
+              </Link>
+            </p>
+          </details>
         </>
       ) : (
         <>

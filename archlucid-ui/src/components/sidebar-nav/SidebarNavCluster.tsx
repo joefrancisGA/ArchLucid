@@ -204,7 +204,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
                 ) : (
                   <ChevronRight className="h-3 w-3 shrink-0 opacity-80" aria-hidden />
                 )}
-                <span>{sidebarMoreLinksLabel(group.label, more.length)}</span>
+                <span>{sidebarMoreLinksLabel(group.label, more.length, moreOpen)}</span>
               </button>
               {moreOpen ? <div className="flex flex-col gap-0.5">{more.map((link) => renderLink(link))}</div> : null}
             </div>

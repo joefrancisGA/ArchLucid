@@ -3,13 +3,13 @@ namespace ArchLucid.Api.Models.Tenancy;
 /// <summary>Body for <c>PUT /v1/tenant/cost-settings</c>.</summary>
 public sealed class TenantCostSettingsPutRequest
 {
-    public decimal ArchitectHourlyRateUsd
+    public required decimal ArchitectHourlyRateUsd
     {
         get;
         init;
     }
 
-    public decimal AverageIncidentCostUsd
+    public required decimal AverageIncidentCostUsd
     {
         get;
         init;

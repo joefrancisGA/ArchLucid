@@ -1,5 +1,8 @@
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Analysis;
 
@@ -13,7 +16,10 @@ public sealed class ExportReplayService(
     IArchitectureAnalysisService architectureAnalysisService,
     IArchitectureAnalysisDocxExportService analysisDocxExportService,
     IArchitectureAnalysisConsultingDocxExportService consultingDocxExportService,
-    IRunExportAuditService runExportAuditService) : IExportReplayService
+    IRunExportAuditService runExportAuditService,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
+    IScopeContextProvider scopeContextProvider) : IExportReplayService
 {
     private readonly IRunExportRecordRepository _runExportRecordRepository =
         runExportRecordRepository ?? throw new ArgumentNullException(nameof(runExportRecordRepository));
@@ -28,6 +34,15 @@ public sealed class ExportReplayService(
 
     private readonly IArchitectureAnalysisService _architectureAnalysisService =
         architectureAnalysisService ?? throw new ArgumentNullException(nameof(architectureAnalysisService));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     private const string ExportTypeConsultingDocx = "analysis-report-consulting-docx";
 
@@ -53,6 +68,14 @@ public sealed class ExportReplayService(
         RunExportRecord? record = await runExportRecordRepository.GetByIdAsync(request.ExportRecordId, cancellationToken);
         if (record is null)
             throw new InvalidOperationException($"Export record '{request.ExportRecordId}' was not found.");
+
+        await RunExportSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+            record.RunId,
+            _scopeContextProvider.GetCurrentScope(),
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken);
+
         PersistedAnalysisExportRequest persistedRequest = AnalysisExportRequestRehydrator.Rehydrate(record) ??
                                                           throw new InvalidOperationException(
                                                               $"Export record '{request.ExportRecordId}' does not contain a persisted analysis request.");

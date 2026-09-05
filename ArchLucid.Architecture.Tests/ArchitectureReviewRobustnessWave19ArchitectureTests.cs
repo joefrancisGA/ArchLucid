@@ -12,6 +12,15 @@ public sealed class ArchitectureReviewRobustnessWave19ArchitectureTests
     private static string RepoRoot =>
         Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", ".."));
 
+    private static string ReadCompareRunsFacadeSources() =>
+        string.Join(
+            '\n',
+            Directory.GetFiles(
+                    Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis"),
+                    "CompareRunsApplicationFacade*.cs")
+                .OrderBy(static path => path, StringComparer.Ordinal)
+                .Select(File.ReadAllText));
+
     [Fact]
     public void Suggestion181_export_receipt_mismatch_fail_closed()
     {
@@ -64,8 +73,7 @@ public sealed class ArchitectureReviewRobustnessWave19ArchitectureTests
     [Fact]
     public void Suggestion184_version_compare_emits_input_fingerprints()
     {
-        string facade = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "CompareRunsApplicationFacade.cs"));
+        string facade = ReadCompareRunsFacadeSources();
 
         facade.Should().Contain("InputFingerprints = RunComparePinFingerprintGuard.BuildCompareInputFingerprints");
 
@@ -83,8 +91,7 @@ public sealed class ArchitectureReviewRobustnessWave19ArchitectureTests
     [Fact]
     public void Suggestion185_version_compare_diffs_inventory_checked_document()
     {
-        string facade = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "CompareRunsApplicationFacade.cs"));
+        string facade = ReadCompareRunsFacadeSources();
 
         facade.Should().Contain("ProjectCompareManifestAsync(leftDetail.GoldenManifest");
         facade.Should().Contain("IAuthorityCommitProjectionBuilder");
@@ -102,8 +109,7 @@ public sealed class ArchitectureReviewRobustnessWave19ArchitectureTests
     [Fact]
     public void Suggestion187_agent_compare_enforces_pin_and_inventory_fingerprints()
     {
-        string facade = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "CompareRunsApplicationFacade.cs"));
+        string facade = ReadCompareRunsFacadeSources();
 
         int loadIndex = facade.IndexOf("LoadScopedRunPairAsync", StringComparison.Ordinal);
         string loadBody = facade[loadIndex..];

@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -69,9 +70,22 @@ public sealed class AuthorityReplayController(
                 $"Replay mode '{mode}' is not recognized.",
                 ProblemTypes.ValidationFailed);
 
-        ReplayResult? result = await replayService.ReplayAsync(
-            new ReplayRequest { RunId = request.RunId, Mode = mode },
-            ct);
+        ReplayResult? result;
+
+        try
+        {
+            result = await replayService.ReplayAsync(
+                new ReplayRequest { RunId = request.RunId, Mode = mode },
+                ct);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Authority replay blocked", StringComparison.Ordinal))
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         if (result is null)
             return this.NotFoundProblem($"Run '{request.RunId}' was not found.", ProblemTypes.RunNotFound);

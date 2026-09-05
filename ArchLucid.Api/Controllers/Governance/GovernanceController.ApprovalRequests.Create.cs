@@ -31,6 +31,47 @@ public sealed partial class GovernanceController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        IActionResult? runIdProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRouteRunId(request.RunId)
+                .ToBadRequestProblemOrNull(this);
+
+        if (runIdProblem is not null)
+            return runIdProblem;
+
+        IActionResult? manifestVersionProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateManifestVersion(request.ManifestVersion)
+                .ToBadRequestProblemOrNull(this);
+
+        if (manifestVersionProblem is not null)
+            return manifestVersionProblem;
+
+        IActionResult? sourceEnvironmentProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateEnvironmentSlug(request.SourceEnvironment, "SourceEnvironment")
+                .ToBadRequestProblemOrNull(this);
+
+        if (sourceEnvironmentProblem is not null)
+            return sourceEnvironmentProblem;
+
+        IActionResult? targetEnvironmentProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateEnvironmentSlug(request.TargetEnvironment, "TargetEnvironment")
+                .ToBadRequestProblemOrNull(this);
+
+        if (targetEnvironmentProblem is not null)
+            return targetEnvironmentProblem;
+
+        IActionResult? requestCommentProblem =
+            GovernanceApprovalRequestsHttpMapper.ValidateOptionalGovernanceComment(request.RequestComment, "RequestComment")
+                .ToBadRequestProblemOrNull(this);
+
+        if (requestCommentProblem is not null)
+            return requestCommentProblem;
+
+        IActionResult? approvalRequestValidationProblem =
+            GovernanceApprovalRequestHttpMapper.Validate(request).ToBadRequestProblemOrNull(this);
+
+        if (approvalRequestValidationProblem is not null)
+            return approvalRequestValidationProblem;
+
         (IActionResult? idempotencyError, string? idempotencyKey) = ReadGovernanceIdempotencyKey(!dryRun);
 
         if (idempotencyError is not null)

@@ -1,9 +1,20 @@
 "use client";
 
-import { useState, type Dispatch, type SetStateAction } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { compareAlertRuleCandidates, simulateAlertRule } from "@/lib/api";
+import {
+  alertSimulationModeHrefFromSearch,
+  parseAlertSimulationModeFromSearch,
+} from "@/lib/alerts/alert-simulation-mode-url";
+import {
+  alertSimulationScopeHrefFromSearch,
+  parseAlertSimulationCompareRunIdFromSearch,
+  parseAlertSimulationProjectSlugFromSearch,
+  parseAlertSimulationRunIdFromSearch,
+} from "@/lib/alerts/alert-simulation-scope-url";
 import {
   isAlertSimulationRecentCountValid,
   isAlertSimulationThresholdValid,
@@ -17,6 +28,7 @@ import type {
   RuleCandidateComparisonResult,
   RuleSimulationResult,
 } from "@/types/alert-simulation";
+import { GOVERNANCE_ALERT_RULES_PATH } from "@/lib/governance/governance-route-paths";
 
 function parseOptionalGuid(s: string): string | undefined {
   const t = s.trim();
@@ -123,8 +135,32 @@ export type AlertSimulationModel = {
 
 /** Controller: alert simulation form state and run/compare actions. */
 export function useAlertSimulation(): AlertSimulationModel {
+  const router = useRouter();
+  const pathname = usePathname() ?? GOVERNANCE_ALERT_RULES_PATH;
+  const searchParams = useSearchParams();
   const canMutateEnterpriseShell = useOperateCapability();
-  const [tab, setTab] = useState<AlertSimulationModeTabId>("simple");
+  const urlTab = parseAlertSimulationModeFromSearch(searchParams.get("simMode"));
+  const urlRunId = parseAlertSimulationRunIdFromSearch(searchParams.get("simRunId"));
+  const urlCompareRun = parseAlertSimulationCompareRunIdFromSearch(searchParams.get("simCompareRun"));
+  const urlSlug = parseAlertSimulationProjectSlugFromSearch(searchParams.get("simSlug"));
+  const [tab, setTabState] = useState<AlertSimulationModeTabId>(urlTab);
+
+  const setTab: Dispatch<SetStateAction<AlertSimulationModeTabId>> = useCallback(
+    (next) => {
+      setTabState((prev) => {
+        const resolved = typeof next === "function" ? next(prev) : next;
+        router.replace(alertSimulationModeHrefFromSearch(searchParams.toString(), resolved), { scroll: false });
+
+        return resolved;
+      });
+    },
+    [router, searchParams],
+  );
+
+  useEffect(() => {
+    setTabState(parseAlertSimulationModeFromSearch(searchParams.get("simMode")));
+  }, [searchParams]);
+
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [simpleResult, setSimpleResult] = useState<RuleSimulationResult | null>(null);
@@ -137,9 +173,9 @@ export function useAlertSimulation(): AlertSimulationModel {
   const [sSeverity, setSSeverity] = useState("Warning");
   const [sThreshold, setSThreshold] = useState(15);
   const [sRecent, setSRecent] = useState(10);
-  const [sSlug, setSSlug] = useState("");
-  const [sRunId, setSRunId] = useState("");
-  const [sCompareRun, setSCompareRun] = useState("");
+  const [sSlug, setSSlugState] = useState(urlSlug);
+  const [sRunId, setSRunIdState] = useState(urlRunId);
+  const [sCompareRun, setSCompareRunState] = useState(urlCompareRun);
   const [sUseHistory, setSUseHistory] = useState(true);
   const [sRecentTouched, setSRecentTouched] = useState(false);
   const [sThresholdTouched, setSThresholdTouched] = useState(false);
@@ -160,7 +196,7 @@ export function useAlertSimulation(): AlertSimulationModel {
   const [cCooldown, setCCooldown] = useState(60);
   const [cDedupe, setCDedupe] = useState("RuleAndRun");
   const [cRecent, setCRecent] = useState(10);
-  const [cSlug, setCSlug] = useState("");
+  const [cSlug, setCSlugState] = useState(urlSlug);
   const [cM1, setCM1] = useState("CostIncreasePercent");
   const [cO1, setCO1] = useState("GreaterThanOrEqual");
   const [cV1, setCV1] = useState(15);
@@ -175,7 +211,113 @@ export function useAlertSimulation(): AlertSimulationModel {
   const [cmpA, setCmpA] = useState(10);
   const [cmpB, setCmpB] = useState(20);
   const [cmpRecent, setCmpRecent] = useState(10);
-  const [cmpSlug, setCmpSlug] = useState("");
+  const [cmpSlug, setCmpSlugState] = useState(urlSlug);
+
+  const syncScopeToUrlRef = useRef<number | null>(null);
+
+  const syncScopeToUrl = useCallback(
+    (scope: { runId: string; compareRunId: string; projectSlug: string }) => {
+      router.replace(alertSimulationScopeHrefFromSearch(searchParams.toString(), scope, pathname), { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const scheduleScopeSync = useCallback(
+    (scope: { runId: string; compareRunId: string; projectSlug: string }) => {
+      if (syncScopeToUrlRef.current !== null) {
+        window.clearTimeout(syncScopeToUrlRef.current);
+      }
+
+      syncScopeToUrlRef.current = window.setTimeout(() => {
+        syncScopeToUrl(scope);
+      }, 250);
+    },
+    [syncScopeToUrl],
+  );
+
+  const setSRunId: Dispatch<SetStateAction<string>> = useCallback(
+    (next) => {
+      setSRunIdState((prev) => {
+        const resolved = typeof next === "function" ? next(prev) : next;
+        scheduleScopeSync({ runId: resolved, compareRunId: sCompareRun, projectSlug: sSlug });
+
+        return resolved;
+      });
+    },
+    [sCompareRun, sSlug, scheduleScopeSync],
+  );
+
+  const setSCompareRun: Dispatch<SetStateAction<string>> = useCallback(
+    (next) => {
+      setSCompareRunState((prev) => {
+        const resolved = typeof next === "function" ? next(prev) : next;
+        scheduleScopeSync({ runId: sRunId, compareRunId: resolved, projectSlug: sSlug });
+
+        return resolved;
+      });
+    },
+    [sRunId, sSlug, scheduleScopeSync],
+  );
+
+  const setSSlug: Dispatch<SetStateAction<string>> = useCallback(
+    (next) => {
+      setSSlugState((prev) => {
+        const resolved = typeof next === "function" ? next(prev) : next;
+        scheduleScopeSync({ runId: sRunId, compareRunId: sCompareRun, projectSlug: resolved });
+        setCSlugState(resolved);
+        setCmpSlugState(resolved);
+
+        return resolved;
+      });
+    },
+    [sCompareRun, sRunId, scheduleScopeSync],
+  );
+
+  const setCSlug: Dispatch<SetStateAction<string>> = useCallback(
+    (next) => {
+      setCSlugState((prev) => {
+        const resolved = typeof next === "function" ? next(prev) : next;
+        scheduleScopeSync({ runId: sRunId, compareRunId: sCompareRun, projectSlug: resolved });
+        setSSlugState(resolved);
+        setCmpSlugState(resolved);
+
+        return resolved;
+      });
+    },
+    [sCompareRun, sRunId, scheduleScopeSync],
+  );
+
+  const setCmpSlug: Dispatch<SetStateAction<string>> = useCallback(
+    (next) => {
+      setCmpSlugState((prev) => {
+        const resolved = typeof next === "function" ? next(prev) : next;
+        scheduleScopeSync({ runId: sRunId, compareRunId: sCompareRun, projectSlug: resolved });
+        setSSlugState(resolved);
+        setCSlugState(resolved);
+
+        return resolved;
+      });
+    },
+    [sCompareRun, sRunId, scheduleScopeSync],
+  );
+
+  useEffect(() => {
+    setSRunIdState(parseAlertSimulationRunIdFromSearch(searchParams.get("simRunId")));
+    setSCompareRunState(parseAlertSimulationCompareRunIdFromSearch(searchParams.get("simCompareRun")));
+    const slug = parseAlertSimulationProjectSlugFromSearch(searchParams.get("simSlug"));
+    setSSlugState(slug);
+    setCSlugState(slug);
+    setCmpSlugState(slug);
+  }, [searchParams]);
+
+  useEffect(
+    () => () => {
+      if (syncScopeToUrlRef.current !== null) {
+        window.clearTimeout(syncScopeToUrlRef.current);
+      }
+    },
+    [],
+  );
 
   async function runSimple() {
     if (!simpleFormValid) {

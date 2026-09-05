@@ -167,6 +167,16 @@ public sealed class CorePilotTeamChecklistControllerTests
     }
 
     [Theory]
+    [InlineData("{\"isCompleted\":true}", "missing stepIndex is rejected during JSON deserialization")]
+    [InlineData("{\"stepIndex\":null,\"isCompleted\":true}", "null stepIndex is rejected during JSON deserialization")]
+    public void PutRequest_deserialization_rejects_missing_or_null_step_index(string payload, string because)
+    {
+        Action act = () => JsonSerializer.Deserialize<CorePilotChecklistPutRequest>(payload, ArchLucidApiJsonSerializerOptions.Web);
+
+        act.Should().Throw<JsonException>(because);
+    }
+
+    [Theory]
     [InlineData("{\"stepIndex\":1}", "missing isCompleted is rejected during JSON deserialization")]
     [InlineData("{\"stepIndex\":1,\"isCompleted\":null}", "null isCompleted is rejected during JSON deserialization")]
     public void PutRequest_deserialization_rejects_missing_or_null_is_completed(string payload, string because)
@@ -229,6 +239,45 @@ public sealed class CorePilotTeamChecklistControllerTests
         repo.Verify(
             r => r.UpsertAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<int>(),
                 It.IsAny<bool>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task PutAsync_returns_bad_request_when_step_index_invalid_and_tenant_missing()
+    {
+        Mock<ICorePilotTeamChecklistRepository> repo = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+        Mock<IActorContext> actor = new();
+        Mock<IAuditService> audit = new();
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+
+        CorePilotTeamChecklistController sut = BuildSut(
+            repo.Object,
+            scopeProvider.Object,
+            actor.Object,
+            audit.Object,
+            tenants.Object);
+
+        IActionResult result = await sut.PutAsync(
+            new CorePilotChecklistPutRequest { StepIndex = 7, IsCompleted = true },
+            CancellationToken.None);
+
+        ObjectResult bad = result.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        tenants.Verify(
+            r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        repo.Verify(
+            r => r.UpsertAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<int>(),
+                It.IsAny<bool>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 

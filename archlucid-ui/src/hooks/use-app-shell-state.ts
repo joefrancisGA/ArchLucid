@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import type { HelpTabId } from "@/components/HelpPanel";
 import {
@@ -9,17 +9,56 @@ import {
   pathMatchesGovernanceAudit,
   pathMatchesGovernancePolicyPacks,
 } from "@/lib/governance/governance-route-paths";
+import {
+  helpPanelOverlayHrefFromSearch,
+  parseHelpPanelOpenFromSearch,
+  parseHelpPanelTabFromSearch,
+} from "@/lib/help/help-panel-overlay-url";
 import { resolveOperatorHelpRequestForPathname } from "@/lib/usability/resolve-operator-help-request";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 
 export function useAppShellState() {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "/";
   const router = useRouter();
-  const [helpGuidesOpen, setHelpGuidesOpen] = useState(false);
-  const [helpGuidesInitialTab, setHelpGuidesInitialTab] = useState<HelpTabId>("guides");
+  const searchParams = useSearchParams();
+  const { isWorkingMode } = useWorkspaceMode();
+  const urlHelpOpen = parseHelpPanelOpenFromSearch(searchParams.get("help"));
+  const urlHelpTab = parseHelpPanelTabFromSearch(searchParams.get("helpTab"));
+  const [helpGuidesOpen, setHelpGuidesOpenState] = useState(urlHelpOpen);
+  const [helpGuidesInitialTab, setHelpGuidesInitialTab] = useState<HelpTabId>(urlHelpTab ?? "guides");
   const [helpDocSearchOpen, setHelpDocSearchOpen] = useState(false);
 
+  const syncHelpPanelOpenToUrl = useCallback(
+    (open: boolean, tab: HelpTabId = helpGuidesInitialTab) => {
+      router.replace(
+        helpPanelOverlayHrefFromSearch(searchParams.toString(), { open, tab, query: "" }, pathname),
+        { scroll: false },
+      );
+    },
+    [helpGuidesInitialTab, pathname, router, searchParams],
+  );
+
+  const setHelpGuidesOpen = useCallback(
+    (open: boolean) => {
+      setHelpGuidesOpenState(open);
+      syncHelpPanelOpenToUrl(open);
+    },
+    [syncHelpPanelOpenToUrl],
+  );
+
+  useEffect(() => {
+    const open = parseHelpPanelOpenFromSearch(searchParams.get("help"));
+    const tab = parseHelpPanelTabFromSearch(searchParams.get("helpTab"));
+
+    setHelpGuidesOpenState(open);
+
+    if (tab !== null) {
+      setHelpGuidesInitialTab(tab);
+    }
+  }, [searchParams]);
+
   const openHelpSearch = useCallback(() => {
-    const request = resolveOperatorHelpRequestForPathname(pathname ?? "/");
+    const request = resolveOperatorHelpRequestForPathname(pathname ?? "/", { workingMode: isWorkingMode });
 
     if (request.kind === "navigate") {
       router.push(request.href);
@@ -27,12 +66,16 @@ export function useAppShellState() {
     }
 
     setHelpDocSearchOpen(true);
-  }, [pathname, router]);
+  }, [isWorkingMode, pathname, router]);
 
   const openHelpGuidesPanel = useCallback((initialTab: HelpTabId = "guides") => {
     setHelpGuidesInitialTab(initialTab);
-    setHelpGuidesOpen(true);
-  }, []);
+    setHelpGuidesOpenState(true);
+    router.replace(
+      helpPanelOverlayHrefFromSearch(searchParams.toString(), { open: true, tab: initialTab, query: "" }, pathname),
+      { scroll: false },
+    );
+  }, [pathname, router, searchParams]);
 
   const hideWorkspaceHealthFooter =
     pathname === "/" ||

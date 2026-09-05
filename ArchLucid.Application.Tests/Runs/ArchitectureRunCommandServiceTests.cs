@@ -249,6 +249,7 @@ public sealed class ArchitectureRunCommandServiceTests
             Mock.Of<IArchitectureRunBatchCreateOrchestrator>(),
             executeOrchestrator ?? Mock.Of<IArchitectureRunExecuteOrchestrator>(),
             evidenceReadinessGate ?? Mock.Of<IExecuteEvidenceReadinessGate>(),
+            Mock.Of<IReRunExecuteSealedManifestPinGate>(),
             Mock.Of<IArchitectureRunCommitOrchestrator>(),
             Mock.Of<IReplayRunService>(),
             commitCoordinator ?? Mock.Of<ICommitRunIdempotencyCoordinator>(),

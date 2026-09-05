@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Llm;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
@@ -63,7 +64,9 @@ public sealed class RunSummaryOnePagerExportServiceTests
             completion.Object,
             options.Object,
             scope.Object,
-            tenants.Object);
+            tenants.Object,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>());
 
         RunSummaryOnePagerExportResult result = await sut.GenerateMarkdownAsync(runId, CancellationToken.None);
         string markdown = System.Text.Encoding.UTF8.GetString(result.Content);
@@ -102,7 +105,9 @@ public sealed class RunSummaryOnePagerExportServiceTests
             Mock.Of<IAgentCompletionClient>(),
             options.Object,
             Mock.Of<IScopeContextProvider>(),
-            Mock.Of<ITenantRepository>());
+            Mock.Of<ITenantRepository>(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>());
 
         Func<Task> act = () => sut.GenerateMarkdownAsync(runId, CancellationToken.None);
 
@@ -131,7 +136,8 @@ public sealed class RunSummaryOnePagerExportServiceTests
                 CurrentManifestVersion = "v1"
             },
             Manifest = manifest,
-            HasBrokenManifestReference = false
+            HasBrokenManifestReference = false,
+            AuthorityLifecyclePhase = AuthorityRunLifecyclePhase.Complete
         };
     }
 }

@@ -25,10 +25,18 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INTERNAL_OPERATIONAL_ERRORS_PATH } from "@/lib/internal-ops-route-paths";
 import {
   operationalErrorsCategoryHrefFromSearch,
+  operationalErrorsCorrelationHrefFromSearch,
   operationalErrorsStatusHrefFromSearch,
+  operationalErrorsTenantHrefFromSearch,
   parseOperationalErrorsCategoryFromSearch,
+  parseOperationalErrorsCorrelationFromSearch,
   parseOperationalErrorsStatusFromSearch,
+  parseOperationalErrorsTenantFromSearch,
 } from "@/lib/internal/operational-errors-filter-url";
+import {
+  operationalErrorsDetailHrefFromSearch,
+  parseOperationalErrorsDetailIdFromSearch,
+} from "@/lib/internal/operational-errors-detail-url";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { DESIGN_TOKENS } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -62,13 +70,41 @@ export function OperationalErrorsPageClient() {
   const currentSearch = searchParams.toString();
   const urlCategory = parseOperationalErrorsCategoryFromSearch(searchParams.get("category"));
   const urlStatus = parseOperationalErrorsStatusFromSearch(searchParams.get("status"));
+  const urlTenant = parseOperationalErrorsTenantFromSearch(searchParams.get("tenant"));
+  const urlCorrelation = parseOperationalErrorsCorrelationFromSearch(searchParams.get("correlation"));
+  const urlErrorId = parseOperationalErrorsDetailIdFromSearch(searchParams.get("errorId"));
 
   const [state, setState] = useState<LoadState>({ status: "idle" });
   const [categoryFilter, setCategoryFilter] = useState(urlCategory);
   const [statusFilter, setStatusFilter] = useState(urlStatus);
-  const [tenantFilter, setTenantFilter] = useState("");
-  const [correlationFilter, setCorrelationFilter] = useState("");
-  const [selectedRow, setSelectedRow] = useState<OperationalErrorRow | null>(null);
+  const [tenantFilter, setTenantFilter] = useState(urlTenant);
+  const [correlationFilter, setCorrelationFilter] = useState(urlCorrelation);
+  const [selectedRow, setSelectedRowState] = useState<OperationalErrorRow | null>(null);
+
+  const setSelectedRow = useCallback(
+    (row: OperationalErrorRow | null) => {
+      setSelectedRowState(row);
+      router.replace(
+        operationalErrorsDetailHrefFromSearch(currentSearch, row?.id ?? null, pathname),
+        { scroll: false },
+      );
+    },
+    [currentSearch, pathname, router],
+  );
+
+  useEffect(() => {
+    if (state.status !== "ready" || urlErrorId.length === 0) {
+      return;
+    }
+
+    const row = state.rows.find((candidate) => candidate.id === urlErrorId) ?? null;
+
+    if (row === null) {
+      return;
+    }
+
+    setSelectedRowState((current) => (current?.id === row.id ? current : row));
+  }, [state, urlErrorId]);
 
   useEffect(() => {
     setCategoryFilter(urlCategory);
@@ -77,6 +113,33 @@ export function OperationalErrorsPageClient() {
   useEffect(() => {
     setStatusFilter(urlStatus);
   }, [urlStatus]);
+
+  useEffect(() => {
+    setTenantFilter(urlTenant);
+  }, [urlTenant]);
+
+  useEffect(() => {
+    setCorrelationFilter(urlCorrelation);
+  }, [urlCorrelation]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      let nextHref = operationalErrorsTenantHrefFromSearch(searchParams.toString(), tenantFilter, pathname);
+      nextHref = operationalErrorsCorrelationHrefFromSearch(
+        nextHref.includes("?") ? nextHref.split("?")[1] ?? "" : "",
+        correlationFilter,
+        pathname,
+      );
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [correlationFilter, pathname, router, searchParams, tenantFilter]);
 
   const load = useCallback(async () => {
     setState({ status: "loading" });

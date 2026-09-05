@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildLongOperationWaitCopy,
+  formatQueueStatusElapsedSuffix,
   LONG_OPERATION_ESCALATION_10S_MS,
   LONG_OPERATION_ESCALATION_30S_MS,
   LONG_OPERATION_TIMEOUT_HINT_MS,
   resolveLongOperationEscalationLevel,
+  resolveLongOperationQueueStatusValue,
 } from "@/lib/operations/long-operation-wait-copy";
 
 describe("long-operation-wait-copy", () => {
@@ -33,7 +35,7 @@ describe("long-operation-wait-copy", () => {
     });
     expect(after10.level).toBe("after10s");
     expect(after10.detail).toMatch(/still in progress/i);
-    expect(after10.detail).toMatch(/no percent/i);
+    expect(after10.detail).not.toMatch(/Named stages only/i);
 
     const after30 = buildLongOperationWaitCopy({
       operationLabel: "Generating sponsor report",
@@ -51,5 +53,17 @@ describe("long-operation-wait-copy", () => {
     expect(timeout.level).toBe("timeoutHint");
     expect(timeout.detail).toMatch(/longer than usual/i);
     expect(timeout.detail).not.toMatch(/%/);
+  });
+
+  it("appends elapsed queue duration after the first 10s refresh", () => {
+    expect(formatQueueStatusElapsedSuffix(9_999)).toBeNull();
+    expect(formatQueueStatusElapsedSuffix(10_000)).toBe(" (10s)");
+    expect(formatQueueStatusElapsedSuffix(42_000)).toBe(" (42s)");
+    expect(formatQueueStatusElapsedSuffix(65_000)).toBe(" (1m 5s)");
+    expect(formatQueueStatusElapsedSuffix(120_000)).toBe(" (2m)");
+
+    expect(resolveLongOperationQueueStatusValue("Queued", 9_000)).toBe("Queued");
+    expect(resolveLongOperationQueueStatusValue("Queued", 10_000)).toBe("Queued (10s)");
+    expect(resolveLongOperationQueueStatusValue("", 15_000)).toBe("Queued (15s)");
   });
 });

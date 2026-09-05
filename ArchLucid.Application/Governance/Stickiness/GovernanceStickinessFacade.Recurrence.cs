@@ -41,6 +41,15 @@ public sealed partial class GovernanceStickinessFacade
             throw new RunNotFoundException(request.SourceRunId.ToString("D"));
         }
 
+        RecurrenceScheduleValidation.ValidateCommittedSourceRunOrThrow(sourceRun);
+
+        await RecurrenceScheduleCreateSealedManifestHashGuard.EnsureSourceRunSealedManifestHashOrThrowAsync(
+            request.SourceRunId,
+            scope,
+            _authorityQueryService,
+            _manifestHashService,
+            ct);
+
         if (!_recurrenceNextRunCalculator.IsSupportedCronExpression(cronExpression))
             throw new ArgumentException(RecurrenceScheduleCronValidation.InvalidCronMessage);
 
@@ -112,6 +121,8 @@ public sealed partial class GovernanceStickinessFacade
             throw new ArgumentException("Count must be between 1 and 20.");
 
         string cronExpression = (request.CronExpression ?? string.Empty).Trim();
+
+        RecurrenceScheduleValidation.ValidateCronExpressionLengthOrThrow(cronExpression);
 
         if (!_recurrenceNextRunCalculator.IsSupportedCronExpression(cronExpression))
         {

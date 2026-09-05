@@ -9,7 +9,9 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integrations.Itsm;
 using ArchLucid.Core.Persistence.ApplicationPorts.Integrations;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Integrations;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Options;
 
@@ -21,7 +23,9 @@ public sealed class AzureBoardsExternalTicketConnector(
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
     ITenantAzureBoardsOutboundSettingsRepository azureBoardsSettings,
     AzureBoardsOutboundIssueClient azureBoardsClient,
-    IItsmOutboundHttpAuthenticator httpAuthenticator) : ExternalTicketCreatePipeline, IExternalTicketConnector
+    IItsmOutboundHttpAuthenticator httpAuthenticator,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : ExternalTicketCreatePipeline, IExternalTicketConnector
 {
     private const string ProjectNameMissingMessage = "Azure Boards connector not configured: project name required.";
 
@@ -44,6 +48,12 @@ public sealed class AzureBoardsExternalTicketConnector(
 
     private readonly IItsmOutboundHttpAuthenticator _httpAuthenticator =
         httpAuthenticator ?? throw new ArgumentNullException(nameof(httpAuthenticator));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     public ItsmOutboundIssueProvider ProviderId => ItsmOutboundIssueProvider.AzureBoards;
 
@@ -68,6 +78,13 @@ public sealed class AzureBoardsExternalTicketConnector(
         ArgumentNullException.ThrowIfNull(context);
         ScopeContext scope = context.Scope;
         FindingInspectResponse inspect = context.Inspect;
+
+        await AzureBoardsOutboundSealedManifestHashGuard.EnsureFindingRunReadyOrThrowAsync(
+            inspect,
+            scope,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken).ConfigureAwait(false);
 
         ResolvedItsmOutboundCredentials? credentials = await _credentialResolver
             .TryResolveOutboundAsync(scope.TenantId, TenantItsmConnectorProvider.AzureBoards, cancellationToken)

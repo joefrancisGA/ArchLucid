@@ -58,23 +58,27 @@ public sealed class RunExportAuthorityMaterialLoader(
         FeasibilityVerdict? verdict = golden.FeasibilityVerdict;
         string? manifestVersion = golden.Metadata?.Version;
 
-        if (verdict is not null
-            && !string.IsNullOrWhiteSpace(manifestVersion)
-            && !string.IsNullOrWhiteSpace(golden.CommittedDecisionReceiptHashSha256))
-        {
-            DecisionReceiptRunBuildResult receiptResult = ManifestDecisionReceiptExportBinder.BuildVerifiedExportReceipt(
-                runId,
+        DecisionReceiptRunBuildOutcome? readinessOutcome =
+            ManifestDecisionReceiptExportBinder.TryGetSealedReceiptReadinessOutcome(
                 golden,
                 verdict,
-                manifestVersion.Trim(),
-                _manifestHashService);
+                manifestVersion);
 
-            if (receiptResult.Outcome == DecisionReceiptRunBuildOutcome.SealedHashMismatch)
-                return RunExportAuthorityMaterialLoadResult.SealedReceiptHashMismatch();
+        if (readinessOutcome == DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete)
+            return RunExportAuthorityMaterialLoadResult.SealedReceiptIncomplete();
 
-            if (receiptResult.Outcome == DecisionReceiptRunBuildOutcome.NotFound)
-                return RunExportAuthorityMaterialLoadResult.ManifestNotFound();
-        }
+        DecisionReceiptRunBuildResult receiptResult = ManifestDecisionReceiptExportBinder.BuildVerifiedExportReceipt(
+            runId,
+            golden,
+            verdict!,
+            manifestVersion!.Trim(),
+            _manifestHashService);
+
+        if (receiptResult.Outcome == DecisionReceiptRunBuildOutcome.SealedHashMismatch)
+            return RunExportAuthorityMaterialLoadResult.SealedReceiptHashMismatch();
+
+        if (receiptResult.Outcome != DecisionReceiptRunBuildOutcome.Success)
+            return RunExportAuthorityMaterialLoadResult.SealedReceiptIncomplete();
 
         string manifestJson = JsonSerializer.Serialize(golden, ExportJsonOptions);
         string? traceJson = runDetail.AuthorityTrace is null

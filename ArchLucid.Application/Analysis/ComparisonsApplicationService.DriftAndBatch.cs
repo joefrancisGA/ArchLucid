@@ -76,7 +76,9 @@ public sealed partial class ComparisonsApplicationService
         {
             try
             {
-                if (await LoadScopedComparisonRecordAsync(id, ct) is null)
+                ComparisonRecord? scopedRecord = await LoadScopedComparisonRecordAsync(id, ct);
+
+                if (scopedRecord is null)
                 {
                     failed.Add(
                         new ComparisonBatchReplayManifestFailureEntry
@@ -88,6 +90,12 @@ public sealed partial class ComparisonsApplicationService
 
                     continue;
                 }
+
+                await ComparisonBatchReplayPinInventoryGuard.EnsureEndToEndReplayPairReadyOrThrowAsync(
+                    scopedRecord,
+                    replayMode,
+                    _compareRunsFacade,
+                    ct);
 
                 ReplayComparisonResult result = await _comparisonReplayService.ReplayAsync(
                     new ReplayComparisonRequest
@@ -103,6 +111,10 @@ public sealed partial class ComparisonsApplicationService
                 successes.Add((id, result));
             }
             catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (ConflictException)
             {
                 throw;
             }

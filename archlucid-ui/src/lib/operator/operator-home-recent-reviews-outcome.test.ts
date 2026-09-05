@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME } from "@/lib/buyer/buyer-polish-copy";
 import {
+  deriveHomePreviewTabCounts,
   filterTenantOverviewRuns,
   formatOperatorHomeRecentReviewsOutcome,
   isExampleOnlyOverviewRunList,
@@ -44,6 +45,22 @@ describe("formatOperatorHomeRecentReviewsOutcome", () => {
     );
   });
 
+  it("summarizes committed packages with no open findings", () => {
+    const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
+      reviewPackagesTotal: 4,
+      reviewPackagesCommitted: 3,
+      reviewPackagesActive: 1,
+      openFindings: 0,
+      governanceWarnings: 0,
+      evidenceSources: 3,
+      hasReviews: true,
+    };
+
+    expect(formatOperatorHomeRecentReviewsOutcome(metrics)).toBe(
+      "3 finalized · 1 active · no open findings",
+    );
+  });
+
   it("summarizes committed packages with finding pressure", () => {
     const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
       reviewPackagesTotal: 3,
@@ -56,12 +73,33 @@ describe("formatOperatorHomeRecentReviewsOutcome", () => {
     };
 
     expect(formatOperatorHomeRecentReviewsOutcome(metrics)).toBe(
-      "2 finalized · 1 active · 6 open findings · 1 with approval-check warnings",
+      "2 finalized · 1 active · 6 open findings · with 1 Approval-check warning",
     );
   });
 
   it("keeps the featured recent-review limit small", () => {
     expect(OPERATOR_HOME_RECENT_FEATURED_LIMIT).toBe(2);
+  });
+});
+
+describe("deriveHomePreviewTabCounts", () => {
+  it("caps the Recent tab at the featured limit and excludes showcase rows", () => {
+    const items: RunSummary[] = [
+      { runId: "run-1", projectId: "default" },
+      { runId: "run-2", projectId: "default" },
+      { runId: "run-3", projectId: "default" },
+      { runId: "showcase", projectId: "default" },
+    ];
+
+    const counts = deriveHomePreviewTabCounts({
+      previewItems: items,
+      excludeShowcaseRunId: "showcase",
+    });
+
+    expect(counts.all).toBe(2);
+    expect(counts.recentVisibleCount).toBe(2);
+    expect(counts.recentTotalCount).toBe(3);
+    expect(counts.approved).toBe(0);
   });
 });
 

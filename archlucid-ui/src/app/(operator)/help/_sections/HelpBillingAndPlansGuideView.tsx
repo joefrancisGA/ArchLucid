@@ -12,11 +12,13 @@ import {
   type BillingPlanDataLoadState,
 } from "@/app/(operator)/help/_sections/HelpBillingCurrentPlanCard";
 import { HelpBillingAndPlansPageHeader } from "@/app/(operator)/help/_sections/HelpBillingAndPlansPageHeader";
+import { HelpBillingAndPlansHeaderActions } from "@/app/(operator)/help/_sections/HelpBillingAndPlansHeaderActions";
+import { HelpBillingAndPlansSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpBillingAndPlansSourcesOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { BillingAndPlansHelpClaimDisciplineStrip } from "@/components/help/BillingAndPlansHelpClaimDisciplineStrip";
 import { BillingAndPlansHelpEvidenceOrientationStrip } from "@/components/help/BillingAndPlansHelpEvidenceOrientationStrip";
+import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { Button } from "@/components/ui/button";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
@@ -28,16 +30,29 @@ import {
   BILLING_HELP_SUPPORT_ACTION,
   BILLING_HELP_SUPPORT_INTRO,
   billingHelpPageSubtitle,
+  BILLING_HELP_PAGE_DISPLAY_TITLE,
   type BillingHelpFaqItem,
 } from "@/lib/billing-help-guide-content";
-import { BILLING_AND_PLANS_HELP_CLAIM_HEADING_ID } from "@/lib/billing-and-plans-help-evidence-copy";
+import {
+  BILLING_AND_PLANS_HELP_CANONICAL_PATH,
+  BILLING_AND_PLANS_HELP_CLAIM_DISCIPLINE,
+  BILLING_AND_PLANS_HELP_CLAIM_HEADING_ID,
+} from "@/lib/billing-and-plans-help-evidence-copy";
+import {
+  BILLING_HELP_FIRST_VIEWPORT_TEST_ID,
+  BILLING_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  BILLING_HELP_PRIMARY_CONTENT_ID,
+  BILLING_HELP_SKIP_LINK_LABEL,
+  BILLING_HELP_SKIP_TARGET_ID,
+} from "@/lib/billing-and-plans-help-page-copy";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import {
-  DESIGN_TOKENS,
   OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+  OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
@@ -127,6 +142,10 @@ export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideView
     BILLING_AND_PLANS_HELP_CLAIM_HEADING_ID,
   );
 
+  const tocHeadings = buyerPolishedShell
+    ? guideHeadings.filter((heading) => heading.id !== "where-to-go-next")
+    : guideHeadings;
+
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     setRefreshError(null);
@@ -149,96 +168,148 @@ export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideView
       className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-billing-and-plans-guide"
     >
+      <a href={`#${BILLING_HELP_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+        {BILLING_HELP_SKIP_LINK_LABEL}
+      </a>
       <HelpTopicHashScroll />
 
-      <HelpBillingAndPlansPageHeader
-        entry={entry}
-        subtitle={billingHelpPageSubtitle(buyerPolishedShell)}
-        refreshing={refreshing}
-        lastRefreshedAt={lastRefreshedAt}
-        refreshError={refreshError}
-        onRefresh={() => {
-          void onRefresh();
-        }}
-      />
-
-      <BillingAndPlansHelpClaimDisciplineStrip />
-
-      <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <HelpBillingCurrentPlanCard onLoadStateChange={handlePlanLoadStateChange} />
-      </div>
-
-      <div className={contentGridClass}>
-        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "max-w-[75ch] space-y-6 xl:max-w-none")}>
-          <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)} data-testid="help-billing-overview">
-            {BILLING_HELP_OVERVIEW}
-          </p>
-
-          <section
-            aria-labelledby="how-billing-works"
-            className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="how-billing-works">How billing works</HelpSectionHeading>
-            <ul
-              className={cn("m-0 list-none space-y-3 p-0", HELP_PAGE_LAYOUT.readingBody)}
-              data-testid="help-billing-how-it-works"
-            >
-              {BILLING_HELP_HOW_BILLING_WORKS_ITEMS.map((item) => (
-                <li
-                  key={item.id}
-                  className="rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
+      <div
+        id={BILLING_HELP_PRIMARY_CONTENT_ID}
+        data-testid={BILLING_HELP_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24 space-y-6", OPERATOR_LAYOUT.sectionStack)}
+      >
+        {buyerPolishedShell ? (
+          <HelpTopicGuidePageHeader
+            title={BILLING_HELP_PAGE_DISPLAY_TITLE}
+            titleTestId="help-billing-page-title"
+            subtitle={billingHelpPageSubtitle(buyerPolishedShell)}
+            navHref={BILLING_AND_PLANS_HELP_CANONICAL_PATH}
+            headingLevel="h1"
+            claimDiscipline={BILLING_AND_PLANS_HELP_CLAIM_DISCIPLINE}
+            claimDisciplineTestId={BILLING_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+            actions={
+              <HelpBillingAndPlansHeaderActions
+                refreshing={refreshing}
+                onRefresh={() => {
+                  void onRefresh();
+                }}
+              />
+            }
+            metadata={
+              refreshError !== null ? (
+                <span
+                  className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="help-billing-refresh-error"
                 >
-                  <h3 className={cn("m-0", HELP_PAGE_LAYOUT.sectionH3)}>{item.title}</h3>
-                  <p className={cn("m-0 mt-1 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}>{item.body}</p>
-                </li>
-              ))}
-            </ul>
-          </section>
+                  {refreshError}
+                </span>
+              ) : undefined
+            }
+          />
+        ) : (
+          <HelpBillingAndPlansPageHeader
+            entry={entry}
+            subtitle={billingHelpPageSubtitle(buyerPolishedShell)}
+            refreshing={refreshing}
+            lastRefreshedAt={lastRefreshedAt}
+            refreshError={refreshError}
+            onRefresh={() => {
+              void onRefresh();
+            }}
+          />
+        )}
 
-          <section
-            aria-labelledby="common-questions"
-            className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="common-questions">Common questions</HelpSectionHeading>
-            <p className={cn("m-0", HELP_PAGE_LAYOUT.paragraph, "text-al-text-secondary")}>
-              Expand a question for a short answer and where to go next in the product.
-            </p>
-            <div className="space-y-3" data-testid="help-billing-faq-list">
-              {BILLING_HELP_FAQ_ITEMS.map((item) => (
-                <BillingFaqItemCard key={item.id} item={item} />
-              ))}
-            </div>
-          </section>
+        {!buyerPolishedShell ? <BillingAndPlansHelpClaimDisciplineStrip /> : null}
 
-          <section
-            aria-labelledby="support"
-            className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="support">Support</HelpSectionHeading>
-            <div
-              className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
-              data-testid="help-billing-support-card"
-            >
-              <h2 className={cn("m-0", HELP_PAGE_LAYOUT.sectionH3)}>Billing support</h2>
-              <p className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}>
-                {BILLING_HELP_SUPPORT_INTRO}
-              </p>
-              <Button asChild size="sm" variant="outline">
-                <a href={BILLING_HELP_SUPPORT_ACTION.href}>{BILLING_HELP_SUPPORT_ACTION.label}</a>
-              </Button>
-              <Link
-                href="/administration/billing"
-                className={cn("inline-block", OPERATOR_BODY_INLINE_LINK_CLASS)}
-              >
-                Open Billing and plans
-              </Link>
-            </div>
-          </section>
-
-          <BillingAndPlansHelpEvidenceOrientationStrip />
+        <div
+          id={BILLING_HELP_SKIP_TARGET_ID}
+          data-testid={BILLING_HELP_FIRST_VIEWPORT_TEST_ID}
+          className={cn(
+            buyerPolishedShell ? "scroll-mt-24 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800" : "space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            buyerPolishedShell ? OPERATOR_LAYOUT.sectionStack : undefined,
+          )}
+        >
+          <HelpBillingCurrentPlanCard onLoadStateChange={handlePlanLoadStateChange} />
         </div>
 
-        <HelpTopicTableOfContents headings={guideHeadings} />
+        <div className={contentGridClass}>
+          <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "max-w-[75ch] space-y-6 xl:max-w-none")}>
+            <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)} data-testid="help-billing-overview">
+              {BILLING_HELP_OVERVIEW}
+            </p>
+
+            <section
+              aria-labelledby="how-billing-works"
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="how-billing-works">How billing works</HelpSectionHeading>
+              <ul
+                className={cn("m-0 list-none space-y-3 p-0", HELP_PAGE_LAYOUT.readingBody)}
+                data-testid="help-billing-how-it-works"
+              >
+                {BILLING_HELP_HOW_BILLING_WORKS_ITEMS.map((item) => (
+                  <li
+                    key={item.id}
+                    className="rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
+                  >
+                    <h3 className={cn("m-0", HELP_PAGE_LAYOUT.sectionH3)}>{item.title}</h3>
+                    <p className={cn("m-0 mt-1 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}>{item.body}</p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+
+            <section
+              aria-labelledby="common-questions"
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="common-questions">Common questions</HelpSectionHeading>
+              <p className={cn("m-0", HELP_PAGE_LAYOUT.paragraph, "text-al-text-secondary")}>
+                Expand a question for a short answer and where to go next in the product.
+              </p>
+              <div className="space-y-3" data-testid="help-billing-faq-list">
+                {BILLING_HELP_FAQ_ITEMS.map((item) => (
+                  <BillingFaqItemCard key={item.id} item={item} />
+                ))}
+              </div>
+            </section>
+
+            <section
+              aria-labelledby="support"
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="support">Support</HelpSectionHeading>
+              <div
+                className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+                data-testid="help-billing-support-card"
+              >
+                <h2 className={cn("m-0", HELP_PAGE_LAYOUT.sectionH3)}>Billing support</h2>
+                <p className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}>
+                  {BILLING_HELP_SUPPORT_INTRO}
+                </p>
+                <Button asChild size="sm" variant="outline">
+                  <a href={BILLING_HELP_SUPPORT_ACTION.href}>{BILLING_HELP_SUPPORT_ACTION.label}</a>
+                </Button>
+                <Link
+                  href="/administration/billing"
+                  className={cn("inline-block", OPERATOR_BODY_INLINE_LINK_CLASS)}
+                >
+                  Open Billing and plans
+                </Link>
+              </div>
+            </section>
+
+            {!buyerPolishedShell ? <BillingAndPlansHelpEvidenceOrientationStrip /> : null}
+          </div>
+
+          <HelpTopicTableOfContents headings={tocHeadings} />
+        </div>
+
+        {buyerPolishedShell ? (
+          <div data-testid="help-billing-orientation-bottom">
+            <HelpBillingAndPlansSourcesOrientationStrip />
+          </div>
+        ) : null}
       </div>
     </article>
   );

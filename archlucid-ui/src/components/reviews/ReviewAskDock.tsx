@@ -3,9 +3,11 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { MessageCircleQuestion } from "lucide-react";
-import { useCallback, useRef, useState, type ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
 
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
+import { AskRunCoverageHonestyStrip } from "@/components/ask/AskRunCoverageHonestyStrip";
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
@@ -17,6 +19,12 @@ import { useAskStream } from "@/hooks/useAskStream";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  parseReviewAskDockOpenFromSearch,
+  parseReviewAskDockThreadIdFromSearch,
+  reviewAskDockHrefFromSearch,
+} from "@/lib/reviews/review-ask-dock-url";
+import { formatWhyDisabledCtaMessage, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 
 const DEFAULT_REVIEW_QUESTION =
   "What are the top unresolved risks in this review and what evidence supports them?";
@@ -24,6 +32,8 @@ const DEFAULT_REVIEW_QUESTION =
 export type ReviewAskDockProps = {
   readonly runId: string;
   readonly reviewTitle?: string | null;
+  readonly disabled?: boolean;
+  readonly disabledReason?: WhyDisabledCtaReason | null;
 };
 
 type AskTurn = {
@@ -34,10 +44,15 @@ type AskTurn = {
 /** Review-scoped Ask dock: grounded Q&A without leaving the review detail page. */
 export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
   const runId = props.runId.trim();
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? `/architecture/reviews/${encodeURIComponent(runId)}`;
+  const searchParams = useSearchParams();
+  const urlAskDockOpen = parseReviewAskDockOpenFromSearch(searchParams.get("askDock"));
+  const urlAskThreadId = parseReviewAskDockThreadIdFromSearch(searchParams.get("askThread"));
+  const [open, setOpenState] = useState(urlAskDockOpen);
   const [question, setQuestion] = useState(DEFAULT_REVIEW_QUESTION);
   const [turns, setTurns] = useState<AskTurn[]>([]);
-  const [threadId, setThreadId] = useState<string | null>(null);
+  const [threadId, setThreadIdState] = useState<string | null>(urlAskThreadId.length > 0 ? urlAskThreadId : null);
   const [error, setError] = useState<{
     message: string;
     problem: ApiProblemDetails | null;
@@ -45,6 +60,55 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
   } | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const { ask: askStream, isStreaming, tokens: streamingContent, reset: resetStream } = useAskStream();
+  const askDockDisabled = props.disabled === true;
+  const disabledReasonMessage = formatWhyDisabledCtaMessage(props.disabledReason);
+
+  const syncAskDockToUrl = useCallback(
+    (nextOpen: boolean, nextThreadId: string | null) => {
+      router.replace(
+        reviewAskDockHrefFromSearch(
+          searchParams.toString(),
+          { open: nextOpen, threadId: nextThreadId },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (nextOpen: boolean) => {
+      setOpenState(nextOpen);
+      syncAskDockToUrl(nextOpen, threadId);
+    },
+    [syncAskDockToUrl, threadId],
+  );
+
+  const setThreadId = useCallback(
+    (nextThreadId: string | null) => {
+      setThreadIdState(nextThreadId);
+      syncAskDockToUrl(open, nextThreadId);
+    },
+    [open, syncAskDockToUrl],
+  );
+
+  useEffect(() => {
+    if (askDockDisabled) {
+      if (urlAskDockOpen) {
+        setOpenState(false);
+        syncAskDockToUrl(false, threadId);
+      }
+
+      return;
+    }
+
+    setOpenState(urlAskDockOpen);
+
+    if (urlAskThreadId.length > 0) {
+      setThreadIdState(urlAskThreadId);
+    }
+  }, [askDockDisabled, syncAskDockToUrl, threadId, urlAskDockOpen, urlAskThreadId]);
 
   const submitQuestion = useCallback(async (): Promise<void> => {
     const trimmed = question.trim();
@@ -118,7 +182,17 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
         variant="outline"
         size="sm"
         className="gap-1.5"
+        disabled={askDockDisabled}
+        aria-label={
+          askDockDisabled
+            ? disabledReasonMessage ?? "Ask about this review unavailable until the review completes"
+            : undefined
+        }
         onClick={() => {
+          if (askDockDisabled) {
+            return;
+          }
+
           setOpen(true);
         }}
         data-testid="review-ask-dock-trigger"
@@ -145,6 +219,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
           </DialogHeader>
 
           <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-4">
+            <AskRunCoverageHonestyStrip runId={runId} />
             {turns.length > 0 ? (
               <ol className="m-0 list-none space-y-4 p-0">
                 {turns.map((turn, index) => (

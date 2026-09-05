@@ -16,7 +16,7 @@ import {
   PolicyPackVisualBuilderDeferred,
 } from "./policy-packs-authoring-deferred-chunks";
 
-export type AuthoringInputMode = "guided" | "visual" | "ai";
+export type AuthoringInputMode = "guided" | "visual" | "json" | "ai";
 
 export type PolicyRuleAuthoringWizardModesProps = {
   readonly canMutatePacks: boolean;

@@ -14,7 +14,7 @@
     {
       "id": "iam-gcp-001",
       "title": "Single authoritative GCP organization documented",
-      "description": "Architecture must identify the authoritative GCP organization, folder hierarchy, and project scope for the workload — not ambiguous multi-project sprawl.",
+      "description": "Architecture must identify the authoritative GCP organization, folder hierarchy, and project scope for the workload \u2014 not ambiguous multi-project sprawl.",
       "severity": "Critical",
       "priority": "P0",
       "remediationGuidance": "Record organization ID, folder paths, and project IDs in governance.ComplianceTags and metadata.ChangeDescription.",
@@ -39,7 +39,7 @@
       "frameworkMappings": [
         {
           "framework": "GCP Cloud IAM",
-          "theme": "GCP resource hierarchy — Organization authority"
+          "theme": "GCP resource hierarchy \u2014 Organization authority"
         }
       ]
     },
@@ -71,14 +71,14 @@
       "frameworkMappings": [
         {
           "framework": "GCP Cloud IAM",
-          "theme": "Cloud IAM — Org policies and context-aware access"
+          "theme": "Cloud IAM \u2014 Org policies and context-aware access"
         }
       ]
     },
     {
       "id": "iam-gcp-003",
       "title": "Temporary IAM elevation for admin roles",
-      "description": "Standing privileged role assignment should be avoided — document just-in-time elevation, approval, and time-bound access limits.",
+      "description": "Standing privileged role assignment should be avoided \u2014 document just-in-time elevation, approval, and time-bound access limits.",
       "severity": "Critical",
       "priority": "P0",
       "remediationGuidance": "Document temporary elevation controls in governance.RequiredControls and governance.ComplianceTags.",
@@ -103,7 +103,7 @@
       "frameworkMappings": [
         {
           "framework": "GCP Cloud IAM",
-          "theme": "Cloud IAM — Just-in-time admin access"
+          "theme": "Cloud IAM \u2014 Just-in-time admin access"
         }
       ]
     },
@@ -142,7 +142,7 @@
     {
       "id": "iam-gcp-005",
       "title": "Workload Identity Federation preferred over service account keys",
-      "description": "GCP workloads should use Workload Identity Federation or attached service accounts — not downloadable JSON service-account keys.",
+      "description": "GCP workloads should use Workload Identity Federation or attached service accounts \u2014 not downloadable JSON service-account keys.",
       "severity": "Critical",
       "priority": "P0",
       "remediationGuidance": "Tag managed-identity usage on services[].Tags; document exceptions in governance.PolicyConstraints.",
@@ -167,7 +167,7 @@
       "frameworkMappings": [
         {
           "framework": "GCP Cloud IAM",
-          "theme": "Cloud IAM — Workload identity"
+          "theme": "Cloud IAM \u2014 Workload identity"
         }
       ]
     },
@@ -257,7 +257,7 @@
       "frameworkMappings": [
         {
           "framework": "GCP Cloud IAM",
-          "theme": "Cloud IAM — Service account key hygiene"
+          "theme": "Cloud IAM \u2014 Service account key hygiene"
         }
       ]
     },

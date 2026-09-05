@@ -124,4 +124,18 @@ public sealed class ArchitectureReviewBoardExportDocumentModel
         get;
         init;
     }
+
+    /// <summary>Simulator rehearsal title when the run executed in simulator mode.</summary>
+    public string? SimulatorRehearsalTitle
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Simulator rehearsal body when the run executed in simulator mode.</summary>
+    public string? SimulatorRehearsalBody
+    {
+        get;
+        init;
+    }
 }

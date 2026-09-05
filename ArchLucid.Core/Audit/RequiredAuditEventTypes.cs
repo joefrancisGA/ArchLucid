@@ -64,6 +64,7 @@ public static class RequiredAuditEventTypes
         nameof(AuditEventTypes.GovernanceApprovalRejected),
         nameof(AuditEventTypes.GovernanceManifestPromoted),
         nameof(AuditEventTypes.GovernanceEnvironmentActivated),
+        nameof(AuditEventTypes.GovernanceMutationCorrectionRecorded),
         nameof(AuditEventTypes.GovernanceSelfApprovalBlocked),
         nameof(AuditEventTypes.RunOperatorGovernanceDispositionRecorded),
         nameof(AuditEventTypes.RiskExceptionCreated),
@@ -82,9 +83,11 @@ public static class RequiredAuditEventTypes
         if (string.IsNullOrWhiteSpace(eventType))
             return false;
 
+        string normalized = eventType.Trim();
+
         for (int i = 0; i < All.Count; i++)
         {
-            if (string.Equals(All[i], eventType, StringComparison.Ordinal))
+            if (string.Equals(All[i], normalized, StringComparison.Ordinal))
                 return true;
         }
 

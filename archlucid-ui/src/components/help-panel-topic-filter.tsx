@@ -8,6 +8,7 @@ import { matchesShortcutQuery } from "@/components/KeyboardShortcutsHelpContent"
 import {
   ALERTS_PAGE_SHORTCUTS,
   FINDINGS_PAGE_SHORTCUTS,
+  REVIEW_DETAIL_PAGE_SHORTCUTS,
   SHELL_COMMAND_SHORTCUTS,
   SHORTCUTS,
 } from "@/lib/shortcut-registry";
@@ -29,7 +30,7 @@ export const KEY_CONCEPTS: { label: string; text: string }[] = [
 
 /** Every row the Shortcuts tab can render, so a query never hides a shortcut the tab would show. */
 export function allShortcutRowsForSearch(): { key: string; description: string }[] {
-  return [...SHELL_COMMAND_SHORTCUTS, ...SHORTCUTS, ...ALERTS_PAGE_SHORTCUTS, ...FINDINGS_PAGE_SHORTCUTS].map(
+  return [...SHELL_COMMAND_SHORTCUTS, ...SHORTCUTS, ...ALERTS_PAGE_SHORTCUTS, ...FINDINGS_PAGE_SHORTCUTS, ...REVIEW_DETAIL_PAGE_SHORTCUTS].map(
     (entry) => ({ key: entry.key, description: entry.description }),
   );
 }

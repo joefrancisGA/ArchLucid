@@ -1,14 +1,17 @@
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -122,6 +125,53 @@ public sealed class GovernancePreCommitSimulationControllerTests
         ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         checklist.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetChecklist_returns_bad_request_when_run_id_exceeds_max_length()
+    {
+        string overlongRunId = new string('r', GovernanceRequestValidationRules.RunIdMaxLength + 1);
+        Mock<IPreFinalizeChecklistService> checklist = new(MockBehavior.Strict);
+        Mock<IRunRepository> runs = new(MockBehavior.Strict);
+
+        GovernancePreCommitSimulationController sut = CreateController(
+            runRepository: runs.Object,
+            checklistService: checklist.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.GetChecklistAsync(overlongRunId, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        runs.VerifyNoOtherCalls();
+        checklist.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Simulate_returns_bad_request_when_run_id_exceeds_max_length()
+    {
+        string overlongRunId = new string('r', GovernanceRequestValidationRules.RunIdMaxLength + 1);
+        Mock<IPreCommitGovernanceGate> gate = new(MockBehavior.Strict);
+        Mock<IRunRepository> runs = new(MockBehavior.Strict);
+
+        GovernancePreCommitSimulationController sut = CreateController(
+            gate: gate.Object,
+            runRepository: runs.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.SimulateAsync(
+            new PreCommitSyntheticSimulationRequest
+            {
+                RunId = overlongRunId,
+                SyntheticSeverity = FindingSeverity.Critical,
+                SyntheticCount = 1,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        runs.VerifyNoOtherCalls();
+        gate.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -303,6 +353,30 @@ public sealed class GovernancePreCommitSimulationControllerTests
 
         ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task Simulate_returns_bad_request_when_synthetic_severity_is_unrecognized_and_tenant_missing()
+    {
+        Mock<IPreCommitGovernanceGate> gate = new(MockBehavior.Strict);
+
+        GovernancePreCommitSimulationController sut = CreateController(
+            gate: gate.Object,
+            tenantRepository: TenantMissingRepository());
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.SimulateAsync(
+            new PreCommitSyntheticSimulationRequest
+            {
+                RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D"),
+                SyntheticSeverity = (FindingSeverity)99,
+                SyntheticCount = 1,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        gate.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -495,6 +569,8 @@ public sealed class GovernancePreCommitSimulationControllerTests
             Mock.Of<IAuditService>(),
             runRepository ?? Mock.Of<IRunRepository>(),
             scopeProvider ?? scopeMock.Object,
-            tenantRepository ?? TenantExistsRepository());
+            tenantRepository ?? TenantExistsRepository(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>());
     }
 }

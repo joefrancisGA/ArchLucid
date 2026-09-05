@@ -4,10 +4,12 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Application.Governance.Workflow;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +27,7 @@ internal static class GovernanceControllerTestFactory
         IGovernanceApprovalRequestRepository? approvalRepository = null,
         IGovernancePromotionRecordRepository? promotionRepository = null,
         IGovernanceEnvironmentActivationRepository? activationRepository = null,
+        IFindingReviewTrailRepository? findingReviewTrailRepository = null,
         IActorContext? actorContext = null,
         IScopeContextProvider? scopeContextProvider = null,
         IRunRepository? runRepository = null,
@@ -40,6 +43,7 @@ internal static class GovernanceControllerTestFactory
         IPolicyPackDraftService? policyPackDraftService = null,
         IPolicyPackGeneratorService? policyPackGeneratorService = null,
         ITenantRepository? tenantRepository = null,
+        IGovernanceMutationCorrectionService? mutationCorrectionService = null,
         HttpContext? httpContext = null)
     {
         IScopeContextProvider scope = scopeContextProvider ?? Mock.Of<IScopeContextProvider>();
@@ -71,12 +75,16 @@ internal static class GovernanceControllerTestFactory
             scope,
             runs);
 
-        IGovernanceMutationCorrectionService mutationCorrectionService = new GovernanceMutationCorrectionService(
+        IGovernanceMutationCorrectionService mutationCorrection = mutationCorrectionService
+            ?? new GovernanceMutationCorrectionService(
             approvals,
             promotionRepository ?? Mock.Of<IGovernancePromotionRecordRepository>(),
             activationRepository ?? Mock.Of<IGovernanceEnvironmentActivationRepository>(),
+            findingReviewTrailRepository ?? Mock.Of<IFindingReviewTrailRepository>(),
             scope,
             runs,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
             auditService ?? Mock.Of<IAuditService>(),
             NullLogger<GovernanceMutationCorrectionService>.Instance);
 
@@ -84,7 +92,7 @@ internal static class GovernanceControllerTestFactory
             approvalRequestsFacade,
             promotionsActivationsFacade,
             insightsFacade,
-            mutationCorrectionService,
+            mutationCorrection,
             actorContext ?? Mock.Of<IActorContext>(),
             scope,
             policyPackDryRunService ?? Mock.Of<IPolicyPackDryRunService>(),

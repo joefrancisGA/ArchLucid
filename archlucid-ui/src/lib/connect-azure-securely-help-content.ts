@@ -9,6 +9,8 @@ export const CONNECT_AZURE_SECURELY_PAGE_TITLE = "Connect Azure securely";
 export const CONNECT_AZURE_SECURELY_PAGE_LEAD =
   "Connecting Azure adds current resource and cost evidence to architecture reviews. The connection is optional — ArchLucid can still review uploaded documents, briefs, and diagrams without cloud access.";
 
+export const CONNECT_AZURE_SECURELY_HELP_CANONICAL_PATH = "/help/cloud-connections/azure" as const;
+
 export const CONNECT_AZURE_SECURELY_WITHOUT_CONNECTION_NOTE =
   "Reviews can proceed with briefs, diagrams, documents, and uploaded evidence when you choose not to connect.";
 

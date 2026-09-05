@@ -1,10 +1,12 @@
 using ArchLucid.Api.Controllers.Planning;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Explanation.Models;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Explanation;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
@@ -106,7 +108,7 @@ public sealed class ExplanationControllerTests
 
         return new ExplanationController(
             query ?? Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IComparisonService>(),
+            Mock.Of<ICompareRunsApplicationFacade>(),
             Mock.Of<IExplanationService>(),
             Mock.Of<IRunExplanationSummaryService>(),
             Mock.Of<IFindingExplainabilityComposer>(),
@@ -114,6 +116,7 @@ public sealed class ExplanationControllerTests
             Mock.Of<IProvenanceSnapshotRepository>(),
             scopeProvider.Object,
             holisticCritic ?? Mock.Of<IHolisticCriticService>(),
+            Mock.Of<IManifestHashService>(),
             NullLogger<ExplanationController>.Instance)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }

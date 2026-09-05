@@ -1,11 +1,18 @@
 using System.Text.Json;
 
+using ArchLucid.Application;
+using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Finalization;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
@@ -17,8 +24,11 @@ public sealed class GovernanceMutationCorrectionService(
     IGovernanceApprovalRequestRepository approvalRepo,
     IGovernancePromotionRecordRepository promotionRepo,
     IGovernanceEnvironmentActivationRepository activationRepo,
+    IFindingReviewTrailRepository findingReviewTrailRepository,
     IScopeContextProvider scopeContextProvider,
     IRunRepository runRepository,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     IAuditService auditService,
     ILogger<GovernanceMutationCorrectionService> logger) : IGovernanceMutationCorrectionService
 {
@@ -31,11 +41,20 @@ public sealed class GovernanceMutationCorrectionService(
     private readonly IGovernanceEnvironmentActivationRepository _activationRepo =
         activationRepo ?? throw new ArgumentNullException(nameof(activationRepo));
 
+    private readonly IFindingReviewTrailRepository _findingReviewTrailRepository =
+        findingReviewTrailRepository ?? throw new ArgumentNullException(nameof(findingReviewTrailRepository));
+
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
@@ -65,10 +84,31 @@ public sealed class GovernanceMutationCorrectionService(
         if (subjectId.Length == 0)
             throw new ArgumentException("Subject id is required.", nameof(request));
 
+        if (subjectId.Length > FindingDispositionValidation.MaxFindingIdLength)
+        {
+            throw new ArgumentException(
+                $"Subject id must not exceed {FindingDispositionValidation.MaxFindingIdLength} characters.",
+                nameof(request));
+        }
+
         string rationale = request.Rationale?.Trim() ?? string.Empty;
 
         if (rationale.Length == 0)
             throw new ArgumentException("Rationale is required to record a correction.", nameof(request));
+
+        if (rationale.Length < FindingDispositionValidation.MinimumRationaleLength)
+        {
+            throw new ArgumentException(
+                $"Rationale must be at least {FindingDispositionValidation.MinimumRationaleLength} characters.",
+                nameof(request));
+        }
+
+        if (rationale.Length > FindingDispositionValidation.MaximumRationaleLength)
+        {
+            throw new ArgumentException(
+                $"Rationale must not exceed {FindingDispositionValidation.MaximumRationaleLength} characters.",
+                nameof(request));
+        }
 
         string normalizedRunId = await GovernanceRunScope.RequireScopedRunIdAsync(
             _scopeContextProvider,
@@ -76,12 +116,30 @@ public sealed class GovernanceMutationCorrectionService(
             request.RunId,
             cancellationToken);
 
-        await ValidateSubjectAsync(mutationKind, subjectId, normalizedRunId, cancellationToken);
+        if (Guid.TryParse(normalizedRunId, out Guid scopedRunGuid))
+        {
+            ScopeContext scopeForManifest = scope;
+            RunDetailDto? runDetail =
+                await _authorityQueryService.GetRunDetailForManifestCompareAsync(scopeForManifest, scopedRunGuid, cancellationToken);
+
+            if (runDetail?.GoldenManifest is null)
+            {
+                throw new ConflictException(
+                    $"Governance mutation correction blocked for run '{normalizedRunId}': committed golden manifest is missing.");
+            }
+
+            ManifestDecisionReceiptExportBinder.EnsureSealedManifestHashMatchesOrThrow(
+                runDetail.GoldenManifest,
+                normalizedRunId,
+                _manifestHashService);
+        }
+
+        await ValidateSubjectAsync(mutationKind, subjectId, normalizedRunId, scope, cancellationToken);
 
         Guid correctionId = Guid.NewGuid();
         DateTimeOffset recordedAtUtc = TimeProvider.System.GetUtcNow();
         string actor = actorUserId.Trim();
-        Guid? auditRunId = Guid.TryParse(normalizedRunId, out Guid runGuid) ? runGuid : null;
+        Guid? auditRunId = Guid.TryParse(normalizedRunId, out Guid parsedRunGuid) ? parsedRunGuid : null;
 
         AuditEvent auditEvent = scope.CreateAuditEvent(
             AuditEventTypes.GovernanceMutationCorrectionRecorded,
@@ -124,6 +182,7 @@ public sealed class GovernanceMutationCorrectionService(
         string mutationKind,
         string subjectId,
         string normalizedRunId,
+        ScopeContext scope,
         CancellationToken cancellationToken)
     {
         if (mutationKind is GovernanceMutationCorrectionKinds.QuickApprove
@@ -149,7 +208,56 @@ public sealed class GovernanceMutationCorrectionService(
             return;
         }
 
+        if (mutationKind is GovernanceMutationCorrectionKinds.BulkDisposition
+            or GovernanceMutationCorrectionKinds.KeyboardFindingDisposition)
+        {
+            await ValidateFindingDispositionSubjectAsync(subjectId, normalizedRunId, scope, cancellationToken);
+
+            return;
+        }
+
+        if (mutationKind == GovernanceMutationCorrectionKinds.ArchitectureReviewFinalize)
+        {
+            ValidateArchitectureReviewFinalizeSubject(subjectId, normalizedRunId);
+
+            return;
+        }
+
         throw new ArgumentException($"Mutation kind '{mutationKind}' does not support in-product correction.", nameof(mutationKind));
+    }
+
+    private static void ValidateArchitectureReviewFinalizeSubject(string subjectId, string normalizedRunId)
+    {
+        if (!string.Equals(subjectId, normalizedRunId, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new KeyNotFoundException(
+                $"Review finalize correction subject must match run id '{normalizedRunId}'.");
+        }
+    }
+
+    private async Task ValidateFindingDispositionSubjectAsync(
+        string findingId,
+        string normalizedRunId,
+        ScopeContext scope,
+        CancellationToken cancellationToken)
+    {
+        if (scope.TenantId == Guid.Empty)
+            throw new ArgumentException("Tenant id is required.", nameof(scope));
+
+        IReadOnlyList<FindingReviewEventRecord> events =
+            await _findingReviewTrailRepository.ListByFindingAsync(scope.TenantId, findingId, cancellationToken);
+
+        Guid? normalizedRunGuid = Guid.TryParse(normalizedRunId, out Guid parsedRunId) ? parsedRunId : null;
+
+        bool hasDispositionForRun = events.Any(reviewEvent =>
+            reviewEvent.WorkspaceId == scope.WorkspaceId
+            && reviewEvent.ProjectId == scope.ProjectId
+            && reviewEvent.Action == FindingReviewAction.RecordDisposition
+            && reviewEvent.Disposition is not null
+            && reviewEvent.RunId == normalizedRunGuid);
+
+        if (!hasDispositionForRun)
+            throw new KeyNotFoundException($"Finding '{findingId}' has no recorded disposition to correct.");
     }
 
     private async Task ValidateApprovalSubjectAsync(
@@ -170,11 +278,11 @@ public sealed class GovernanceMutationCorrectionService(
             or GovernanceMutationCorrectionKinds.WorkflowApprove)
         {
             if (!string.Equals(approval.Status, GovernanceApprovalStatus.Approved, StringComparison.Ordinal))
-                throw new InvalidOperationException("Corrections can only be recorded after the approval request is approved.");
+                throw new ConflictException("Corrections can only be recorded after the approval request is approved.");
         }
         else if (!string.Equals(approval.Status, GovernanceApprovalStatus.Rejected, StringComparison.Ordinal))
         {
-            throw new InvalidOperationException("Corrections can only be recorded after the approval request is rejected.");
+            throw new ConflictException("Corrections can only be recorded after the approval request is rejected.");
         }
     }
 
@@ -201,10 +309,16 @@ public sealed class GovernanceMutationCorrectionService(
         IReadOnlyList<GovernanceEnvironmentActivation> activations =
             await _activationRepo.GetByRunIdAsync(normalizedRunId, cancellationToken);
 
-        bool found = activations.Any(a =>
+        GovernanceEnvironmentActivation? activation = activations.FirstOrDefault(a =>
             string.Equals(a.ActivationId, activationId, StringComparison.OrdinalIgnoreCase));
 
-        if (!found)
+        if (activation is null)
             throw new KeyNotFoundException($"Environment activation '{activationId}' was not found.");
+
+        if (!activation.IsActive)
+        {
+            throw new ConflictException(
+                "Corrections can only be recorded for the active environment activation.");
+        }
     }
 }

@@ -2,7 +2,9 @@ using ArchLucid.Application.Exports;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Exports;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Runs.Finalization;
 
@@ -13,6 +15,23 @@ namespace ArchLucid.Application.Runs.Finalization;
 /// </summary>
 internal static class ManifestDecisionReceiptExportBinder
 {
+    public static DecisionReceiptRunBuildOutcome? TryGetSealedReceiptReadinessOutcome(
+        ManifestDocument manifest,
+        FeasibilityVerdict? verdict,
+        string? manifestVersion)
+    {
+        ArgumentNullException.ThrowIfNull(manifest);
+
+        if (verdict is null
+            || string.IsNullOrWhiteSpace(manifestVersion)
+            || string.IsNullOrWhiteSpace(manifest.CommittedDecisionReceiptHashSha256))
+        {
+            return DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete;
+        }
+
+        return null;
+    }
+
     public static DecisionReceiptRunBuildResult BuildVerifiedExportReceipt(
         Guid runId,
         ManifestDocument manifest,
@@ -25,11 +44,14 @@ internal static class ManifestDecisionReceiptExportBinder
         ArgumentException.ThrowIfNullOrWhiteSpace(manifestVersion);
         ArgumentNullException.ThrowIfNull(manifestHashService);
 
-        if (string.IsNullOrWhiteSpace(manifest.CommittedDecisionReceiptHashSha256))
+        DecisionReceiptRunBuildOutcome? readinessOutcome =
+            TryGetSealedReceiptReadinessOutcome(manifest, verdict, manifestVersion);
+
+        if (readinessOutcome == DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete)
         {
             return new DecisionReceiptRunBuildResult
             {
-                Outcome = DecisionReceiptRunBuildOutcome.NotFound,
+                Outcome = DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete,
             };
         }
 
@@ -137,5 +159,60 @@ internal static class ManifestDecisionReceiptExportBinder
 
         ManifestDocument scratch = ManifestDocumentHashScratch.WithCommittedDecisionReceiptHashCleared(manifest);
         return manifestHashService.ComputeHash(scratch);
+    }
+
+    /// <summary>Wave-21 suggestion 201 / reused by review-board export: fail-closed when sealed receipt fields are incomplete or mismatched.</summary>
+    public static async Task EnsureSealedExportReceiptVerifiedOrThrowAsync(
+        Guid runId,
+        string runIdLabel,
+        IAuthorityQueryService authorityQuery,
+        IManifestHashService manifestHashService,
+        ScopeContext scope,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runIdLabel);
+        ArgumentNullException.ThrowIfNull(authorityQuery);
+        ArgumentNullException.ThrowIfNull(manifestHashService);
+        ArgumentNullException.ThrowIfNull(scope);
+
+        RunDetailDto? compareDetail =
+            await authorityQuery.GetRunDetailForManifestCompareAsync(scope, runId, cancellationToken);
+
+        if (compareDetail?.GoldenManifest is null)
+            throw new ConflictException($"Export blocked for run '{runIdLabel}': committed golden manifest is missing.");
+
+        DecisionReceiptRunBuildOutcome? readinessOutcome =
+            TryGetSealedReceiptReadinessOutcome(
+                compareDetail.GoldenManifest,
+                compareDetail.GoldenManifest.FeasibilityVerdict,
+                compareDetail.GoldenManifest.Metadata?.Version);
+
+        if (readinessOutcome == DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete)
+        {
+            throw new ConflictException(
+                $"Export blocked for run '{runIdLabel}': sealed decision receipt fields are incomplete.");
+        }
+
+        if (readinessOutcome is not null)
+            return;
+
+        DecisionReceiptRunBuildResult buildResult = BuildVerifiedExportReceipt(
+            runId,
+            compareDetail.GoldenManifest,
+            compareDetail.GoldenManifest.FeasibilityVerdict!,
+            compareDetail.GoldenManifest.Metadata!.Version!.Trim(),
+            manifestHashService);
+
+        if (buildResult.Outcome == DecisionReceiptRunBuildOutcome.SealedHashMismatch)
+        {
+            throw new ConflictException(
+                $"Export blocked for run '{runIdLabel}': sealed decision receipt hash verification failed.");
+        }
+
+        if (buildResult.Outcome != DecisionReceiptRunBuildOutcome.Success)
+        {
+            throw new ConflictException(
+                $"Export blocked for run '{runIdLabel}': sealed decision receipt could not be verified.");
+        }
     }
 }

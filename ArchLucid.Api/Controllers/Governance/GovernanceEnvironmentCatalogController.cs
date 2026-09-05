@@ -81,6 +81,11 @@ public sealed class GovernanceEnvironmentCatalogController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        IActionResult? catalogProblem = BadRequestWhenReplaceCatalogInvalid(request);
+
+        if (catalogProblem is not null)
+            return catalogProblem;
+
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
@@ -120,5 +125,26 @@ public sealed class GovernanceEnvironmentCatalogController(
             cancellationToken).ConfigureAwait(false);
 
         return Ok(catalog);
+    }
+
+    private IActionResult? BadRequestWhenReplaceCatalogInvalid(ReplaceGovernanceEnvironmentCatalogRequest request)
+    {
+        try
+        {
+            GovernanceEnvironmentCatalog normalized = GovernanceEnvironmentCatalogService.NormalizeCatalog(
+                new GovernanceEnvironmentCatalog
+                {
+                    Environments = request.Environments,
+                    Transitions = request.Transitions,
+                });
+
+            GovernanceEnvironmentCatalogService.ValidateCatalogOrThrow(normalized);
+        }
+        catch (ArgumentException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+
+        return null;
     }
 }

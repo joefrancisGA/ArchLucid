@@ -53,7 +53,11 @@ export default function SignedRecordsListClient() {
     setSearchQuery,
     integrityFilter,
     dateRangePreset,
+    fromUtc,
+    toUtc,
     onIntegrityFilterChange,
+    onCustomFromUtcChange,
+    onCustomToUtcChange,
     page,
     cursor,
     hasMore,
@@ -190,9 +194,13 @@ export default function SignedRecordsListClient() {
           searchQuery={searchQuery}
           integrityFilter={integrityFilter}
           dateRangePreset={dateRangePreset}
+          fromUtc={fromUtc}
+          toUtc={toUtc}
           disabled={loading}
           onSearchQueryChange={setSearchQuery}
           onIntegrityFilterChange={onIntegrityFilterChange}
+          onCustomFromUtcChange={onCustomFromUtcChange}
+          onCustomToUtcChange={onCustomToUtcChange}
         />
       ) : null}
 

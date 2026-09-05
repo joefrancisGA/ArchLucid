@@ -9,6 +9,8 @@ import {
   resolveVisibleCommandPaletteHrefActions,
 } from "@/lib/resolve-visible-command-palette-actions";
 import { CommandGroup, CommandItem } from "@/components/ui/command";
+import { useEffectiveNavCommittedArchitectureReview } from "@/hooks/use-effective-nav-committed-architecture-review";
+import { useRoleNavDensityExpanded } from "@/hooks/use-role-nav-density-expanded";
 
 export function CommandPaletteActions({
   pathname,
@@ -21,7 +23,13 @@ export function CommandPaletteActions({
   readonly onNavigate: (href: string) => void;
   readonly onClose: () => void;
 }) {
-  const hrefActions: readonly CommandPaletteHrefAction[] = resolveVisibleCommandPaletteHrefActions(workingMode);
+  const hasCommittedArchitectureReview = useEffectiveNavCommittedArchitectureReview();
+  const { showFullNav } = useRoleNavDensityExpanded();
+  const hrefActions: readonly CommandPaletteHrefAction[] = resolveVisibleCommandPaletteHrefActions({
+    workingMode,
+    hasCommittedArchitectureReview,
+    showFullNav,
+  });
   const handlerActions: readonly CommandPaletteHandlerAction[] =
     resolveVisibleCommandPaletteHandlerActions(pathname, {
       reversibleUndoAvailable: isCommandPaletteReversibleUndoAvailable(),

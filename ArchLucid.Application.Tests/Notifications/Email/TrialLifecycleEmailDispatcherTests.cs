@@ -275,4 +275,121 @@ public sealed class TrialLifecycleEmailDispatcherTests
             Times.Once,
             "lowercase active trial status must not suppress lifecycle email triggers");
     }
+
+    [Fact]
+    public async Task DispatchAsync_sends_welcome_when_padded_active_trial_status()
+    {
+        Guid tenantId = Guid.Parse("3d3d3d3d-3d3d-3d3d-3d3d-3d3d3d3d3d3d");
+        InMemorySentEmailLedger ledger = new();
+
+        Mock<ITenantRepository> tenantRepository = new();
+        tenantRepository.Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord
+            {
+                Id = tenantId,
+                Name = "Acme",
+                TrialStatus = " active ",
+            });
+
+        Mock<ITenantTrialEmailContactLookup> contactLookup = new();
+        contactLookup.Setup(l => l.TryResolveAdminEmailAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync("admin@example.test");
+
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+        provider.Setup(p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("<p>ok</p>");
+        renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("ok");
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
+
+        TrialLifecycleEmailDispatcher sut = new(
+            tenantRepository.Object,
+            contactLookup.Object,
+            renderer.Object,
+            provider.Object,
+            ledger,
+            options.Object,
+            NullLogger<TrialLifecycleEmailDispatcher>.Instance);
+
+        TrialLifecycleEmailIntegrationEnvelope envelope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = Guid.Parse("3e3e3e3e-3e3e-3e3e-3e3e-3e3e3e3e3e3e"),
+            ProjectId = Guid.Parse("3f3f3f3f-3f3f-3f3f-3f3f-3f3f3f3f3f3f"),
+            Trigger = TrialLifecycleEmailTrigger.TrialProvisioned,
+        };
+
+        await sut.DispatchAsync(envelope, CancellationToken.None);
+
+        provider.Verify(
+            p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
+            Times.Once,
+            "padded active trial status must pass the trigger gate like canonical Active");
+    }
+
+    [Fact]
+    public async Task DispatchAsync_sends_expired_email_when_trial_status_already_expired()
+    {
+        Guid tenantId = Guid.Parse("50505050-5050-5050-5050-505050505050");
+        DateTimeOffset utcNow = DateTimeOffset.UtcNow;
+
+        Mock<ITenantRepository> tenantRepository = new();
+        tenantRepository.Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord
+            {
+                Id = tenantId,
+                Name = "Acme",
+                TrialStatus = TrialLifecycleStatus.Expired,
+                TrialExpiresUtc = utcNow.AddDays(-1),
+            });
+
+        Mock<ITenantTrialEmailContactLookup> contactLookup = new();
+        contactLookup.Setup(l => l.TryResolveAdminEmailAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync("admin@example.test");
+
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+        provider.Setup(p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("<p>ok</p>");
+        renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("ok");
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
+
+        TrialLifecycleEmailDispatcher sut = new(
+            tenantRepository.Object,
+            contactLookup.Object,
+            renderer.Object,
+            provider.Object,
+            new InMemorySentEmailLedger(),
+            options.Object,
+            NullLogger<TrialLifecycleEmailDispatcher>.Instance);
+
+        TrialLifecycleEmailIntegrationEnvelope envelope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = Guid.Parse("51515151-5151-5151-5151-515151515151"),
+            ProjectId = Guid.Parse("52525252-5252-5252-5252-525252525252"),
+            Trigger = TrialLifecycleEmailTrigger.Expired,
+        };
+
+        await sut.DispatchAsync(envelope, CancellationToken.None);
+
+        provider.Verify(
+            p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
+            Times.Once,
+            "expired lifecycle mail must still send when lifecycle scheduler advanced status before dispatch");
+    }
 }

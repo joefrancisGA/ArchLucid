@@ -68,6 +68,7 @@ function parsePersistedRow(raw: unknown, nowMs: number): TrackedInFlightOperatio
     startedAtMs,
     stepLabel: readOptionalString(raw.stepLabel) ?? "Queued",
     state: normalizeOperationState(raw.state),
+    heartbeatUtc: readOptionalString(raw.heartbeatUtc),
     runId: readOptionalString(raw.runId),
     architectureId: readOptionalString(raw.architectureId),
     retainUntilConsumed: raw.retainUntilConsumed === true,

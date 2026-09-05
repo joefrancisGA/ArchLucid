@@ -5,6 +5,11 @@ import dynamic from "next/dynamic";
 
 import { ArchitectureDraftDetailLoadFailure } from "@/components/architecture/ArchitectureDraftDetailLoadFailure";
 import { ArchitectureDraftWorkspaceHeaderChrome } from "@/components/architecture/ArchitectureDraftWorkspaceHeaderChrome";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
+import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
+import { OPERATOR_LINK } from "@/lib/design-tokens";
+import Link from "next/link";
 import { ArchitectureDraftFormFields } from "@/components/architecture/ArchitectureDraftFormFields";
 import { ArchitectureDraftNextDraftFooter } from "@/components/architecture/ArchitectureDraftNextDraftFooter";
 import { ArchitectureDraftStartReviewGate } from "@/components/architecture/ArchitectureDraftStartReviewGate";
@@ -109,7 +114,6 @@ export type ArchitectureDraftWorkspaceBodyProps = {
   };
   readonly canStartReview: boolean;
   readonly handleStartReview: () => void | Promise<void>;
-  readonly handleAcknowledgeHandoff: () => void;
   readonly saveDraft: () => Promise<boolean>;
   readonly setExitPending: (pending: boolean) => void;
   readonly hasPersistedDraft: boolean;
@@ -165,14 +169,24 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
       );
     }
 
+    const presentation = errorRecoveryContractForScenario("architecture-draft-load", {
+      failureSummary: loadError,
+    });
+
     return (
       <div className="space-y-3" data-testid="architecture-draft-workspace-error">
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} role="alert">
-          {loadError}
-        </p>
-        <Button type="button" variant="outline" size="sm" onClick={() => void loadDraft()}>
-          Retry
-        </Button>
+        <OperatorErrorRecoveryContract
+          testId="architecture-draft-workspace-load-recovery"
+          presentation={presentation}
+        />
+        <div className="flex flex-wrap items-center gap-2">
+          <Button type="button" variant="outline" size="sm" onClick={() => void loadDraft()}>
+            Retry
+          </Button>
+          <Link href={ARCHITECTURES_LIST_PATH} className={OPERATOR_LINK.nav}>
+            Back to architectures list
+          </Link>
+        </div>
       </div>
     );
   }

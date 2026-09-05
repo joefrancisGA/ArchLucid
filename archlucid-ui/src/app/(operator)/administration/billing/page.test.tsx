@@ -79,20 +79,23 @@ vi.mock("./OperatorBillingUsageSection", () => ({
 vi.mock("@/lib/llm-monthly-budget-status", async (importOriginal) => {
   const mod = await importOriginal<typeof import("@/lib/llm-monthly-budget-status")>();
 
+  const budgetFixture = {
+    monthlyBudgetMonitoringActive: true,
+    blocksAdditionalLlmExecution: false,
+    utcMonth: "2026-06",
+    hardCutoffUsdPerUtcMonth: 100,
+    effectiveHardCapUsd: 100,
+    purchasedCapBumpUsd: null,
+    estimatedUsdPressure: 10,
+    assumedNextCallReservationUsd: null,
+    hardCapUtilizationFraction: 0.25,
+    warnFraction: 0.75,
+  };
+
   return {
     ...mod,
-    fetchLlmMonthlyDollarBudgetStatusCached: vi.fn(async () => ({
-      monthlyBudgetMonitoringActive: true,
-      blocksAdditionalLlmExecution: false,
-      utcMonth: "2026-06",
-      hardCutoffUsdPerUtcMonth: 100,
-      effectiveHardCapUsd: 100,
-      purchasedCapBumpUsd: null,
-      estimatedUsdPressure: 10,
-      assumedNextCallReservationUsd: null,
-      hardCapUtilizationFraction: 0.25,
-      warnFraction: 0.75,
-    })),
+    fetchLlmMonthlyDollarBudgetStatus: vi.fn(async () => budgetFixture),
+    fetchLlmMonthlyDollarBudgetStatusCached: vi.fn(async () => budgetFixture),
   };
 });
 
@@ -243,7 +246,9 @@ describe("BillingSettingsPage", () => {
     expect(screen.getByTestId("billing-tier-team")).toBeInTheDocument();
     expect(screen.getByTestId("billing-tier-enterprise")).toBeInTheDocument();
     expect(screen.getByTestId("operator-billing-current-plan")).toBeInTheDocument();
-    expect(screen.queryByTestId("operator-billing-settings-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.getByTestId("operator-billing-settings-claim-discipline")).toHaveTextContent(
+      /not invoice-accurate financial reporting/i,
+    );
     expect(screen.getByText(/does not have an active paid plan/i)).toBeInTheDocument();
     expect(screen.getByText(/Manage your plan, AI usage credits/i)).toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: /View public pricing/i })[0]).toHaveAttribute("href", "/pricing");
@@ -323,7 +328,9 @@ describe("BillingSettingsPage", () => {
     expect(within(currentPlan).getByTestId("operator-billing-subscription-status")).toHaveTextContent(
       "Active subscription",
     );
-    expect(screen.getByText("Monthly AI budget allowance")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("Monthly AI budget allowance")).toBeInTheDocument();
+    });
     expect(screen.getByText("3 of 5 in use")).toBeInTheDocument();
     expect(within(currentPlan).getByTestId("operator-billing-manage-billing")).toBeInTheDocument();
     expect(screen.getByTestId("billing-plans-collapsible")).not.toHaveAttribute("open");

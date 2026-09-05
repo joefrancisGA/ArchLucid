@@ -16,6 +16,9 @@ import { cn } from "@/lib/utils";
 const SUMMARY_LINE_LIMIT = 5;
 const PREVIEW_LINE_MAX_CHARS = 240;
 
+const ARCHITECTURE_SUMMARY_DOCUMENTS_ONLY_MESSAGE =
+  "A text summary is not available yet. Architecture details are in your submitted documents and diagrams.";
+
 function clampPreviewLine(line: string): string {
   const stripped = stripInlineMarkdownFromReviewText(line);
 
@@ -240,9 +243,9 @@ export function RunDetailArchitectureSummaryCard(
             </p>
           ))}
         </div>
-      ) : !props.hasSubmittedArchitecture ? (
+      ) : props.hasSubmittedArchitecture ? (
         <p className={cn("m-0 mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          No architecture description was submitted with this review.
+          {ARCHITECTURE_SUMMARY_DOCUMENTS_ONLY_MESSAGE}
         </p>
       ) : null}
       {props.hasSubmittedArchitecture ? (

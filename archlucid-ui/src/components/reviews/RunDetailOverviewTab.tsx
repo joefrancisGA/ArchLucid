@@ -2,9 +2,11 @@
 
 
 
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { RunDetailArchitectureSummaryCard } from "@/components/reviews/RunDetailArchitectureSummaryCard";
 
 import type { ArchitectureCreationUserAssertions } from "@/lib/architecture/architecture-structured-content-types";
+import { RUN_DETAIL_INCOMPLETE_OVERVIEW_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 
 import type { RunDetailWorkspaceRecommendedAction } from "@/lib/run-detail-workspace-derive";
 
@@ -36,6 +38,8 @@ export type RunDetailOverviewTabProps = {
 
   readonly proofStatusSlot: React.ReactNode;
 
+  readonly pipelineIncomplete?: boolean;
+
 };
 
 
@@ -43,6 +47,20 @@ export type RunDetailOverviewTabProps = {
 /** Decision-oriented overview — compact summaries; primary next step lives in the sticky CTA above. */
 
 export function RunDetailOverviewTab(props: RunDetailOverviewTabProps): React.JSX.Element {
+
+  if (props.pipelineIncomplete === true) {
+
+    return (
+
+      <div className="min-w-0 space-y-4" data-testid="run-detail-overview-tab">
+
+        <EnterpriseCompactEmptyState {...RUN_DETAIL_INCOMPLETE_OVERVIEW_COMPACT} />
+
+      </div>
+
+    );
+
+  }
 
   return (
 
@@ -73,4 +91,3 @@ export function RunDetailOverviewTab(props: RunDetailOverviewTabProps): React.JS
   );
 
 }
-

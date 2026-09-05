@@ -12,6 +12,7 @@ import {
 describe("mutation-reversibility-registry (TB-2148)", () => {
   it("classifies every governed governance mutation", () => {
     expect(Object.keys(MUTATION_REVERSIBILITY_REGISTRY).sort()).toEqual([
+      "governance_architecture_review_finalize",
       "governance_bulk_disposition",
       "governance_keyboard_finding_disposition",
       "governance_policy_pack_publish",
@@ -36,6 +37,10 @@ describe("mutation-reversibility-registry (TB-2148)", () => {
 
   it("promises record correction only when amend is supported", () => {
     expect(mutationSupportsAmend("governance_quick_approve")).toBe(true);
+    expect(mutationSupportsAmend("governance_bulk_disposition")).toBe(true);
+    expect(mutationSupportsAmend("governance_keyboard_finding_disposition")).toBe(true);
+    expect(mutationSupportsAmend("governance_architecture_review_finalize")).toBe(true);
+    expect(mutationSupportsAmend("platform_bundled_policy_pack_activate")).toBe(false);
     expect(mutationSupportsAmend("governance_policy_pack_publish")).toBe(false);
     expect(mutationReversibilityConfirmationDetail("governance_quick_approve")).toMatch(/record correction/i);
   });

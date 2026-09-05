@@ -162,6 +162,47 @@ public sealed class KnowledgeGraphServiceTests
         snapshot.Warnings.Should().Contain(w => w.Contains("truncated", StringComparison.OrdinalIgnoreCase));
     }
 
+    [Fact]
+    public async Task BuildSnapshotAsync_TruncationRetainsEdgesWhenEndpointCasingDiffersFromKeptNodeId()
+    {
+        ContextSnapshot contextSnapshot = BuildContextSnapshot();
+        GraphBuildResult buildResult = new();
+
+        for (int i = 0; i < 5; i++)
+            buildResult.Nodes.Add(
+                new GraphNode { NodeId = $"n{i}", NodeType = GraphNodeTypes.TopologyResource, Label = $"{i}" });
+
+        buildResult.Edges.Add(
+            new GraphEdge
+            {
+                EdgeId = "e-case",
+                FromNodeId = "N0",
+                ToNodeId = "n1",
+                EdgeType = GraphEdgeTypes.ContainsResource
+            });
+
+        _graphBuilderMock
+            .Setup(b => b.BuildAsync(contextSnapshot, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(buildResult);
+
+        _graphValidatorMock
+            .Setup(v => v.Validate(It.IsAny<GraphSnapshot>()));
+
+        KnowledgeGraphLimitsOptions limits = new() { MaxNodes = 2 };
+        KnowledgeGraphService sut = new(
+            _graphBuilderMock.Object,
+            _graphValidatorMock.Object,
+            Options.Create(limits));
+
+        GraphSnapshot snapshot = await sut.BuildSnapshotAsync(contextSnapshot, CancellationToken.None);
+
+        snapshot.Nodes.Should().HaveCount(2);
+        snapshot.Edges.Should().ContainSingle(e =>
+            e.EdgeId == "e-case"
+            && e.FromNodeId == "N0"
+            && e.ToNodeId == "n1");
+    }
+
     private static ContextSnapshot BuildContextSnapshot()
     {
         return new ContextSnapshot

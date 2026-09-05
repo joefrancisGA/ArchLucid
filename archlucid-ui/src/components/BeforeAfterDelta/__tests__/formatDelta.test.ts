@@ -84,13 +84,13 @@ describe("hasMeaningfulSidebarDeltaMedians", () => {
     ).toBe(false);
   });
 
-  it("accepts a non-zero findings or displayable time median", () => {
+  it("requires displayable finalize time for sidebar medians", () => {
     expect(
       hasMeaningfulSidebarDeltaMedians({
         medianTotalFindings: 2,
         medianTimeToCommittedManifestTotalSeconds: 0,
       }),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       hasMeaningfulSidebarDeltaMedians({
         medianTotalFindings: 0,

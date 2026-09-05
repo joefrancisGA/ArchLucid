@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Integration;
 using ArchLucid.Persistence.Serialization;
 
 namespace ArchLucid.Persistence.Advisory;
@@ -27,6 +28,8 @@ public sealed class DigestDeliveryDispatcher(
     public async Task DeliverAsync(ArchitectureDigest digest, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(digest);
+
+        DigestDeliveryManifestHashGuard.EnsureRunLinkedDigestManifestHashOrThrow(digest);
 
         IReadOnlyList<DigestSubscription> subscriptions = await subscriptionRepository
             .ListEnabledByScopeAsync(digest.TenantId, digest.WorkspaceId, digest.ProjectId, ct)

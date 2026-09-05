@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState, type SetStateAction } from "react";
 import { toast } from "sonner";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
@@ -10,7 +11,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTenantWorkspacesListQuery } from "@/hooks/use-tenant-workspaces-list-query";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { deleteTenantWorkspaceProject } from "@/lib/delete-tenant-workspace-project";
+import {
+  parseProjectDeleteConfirmIdFromSearch,
+  projectDeleteConfirmHrefFromSearch,
+} from "@/lib/administration/project-delete-confirm-url";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SETTINGS_WORKSPACE_SETTINGS_PATH } from "@/lib/settings-admin-route-paths";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 import {
@@ -50,6 +56,10 @@ function resolveDeleteDisabledReason(input: {
 
 /** Lists active projects in the current workspace and soft-deletes via the tenant API (TB-1179). */
 export function TenantWorkspaceProjectsCard(): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? SETTINGS_WORKSPACE_SETTINGS_PATH;
+  const searchParams = useSearchParams();
+  const deleteProjectIdParam = searchParams.get("deleteProjectId");
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const canDelete = !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority;
 
@@ -58,9 +68,71 @@ export function TenantWorkspaceProjectsCard(): React.JSX.Element {
   const activeProjectId = scope["x-project-id"]?.trim() ?? "";
 
   const workspacesQuery = useTenantWorkspacesListQuery();
-  const [pendingDelete, setPendingDelete] = useState<ProjectDeletePending | null>(null);
+  const [pendingDelete, setPendingDeleteState] = useState<ProjectDeletePending | null>(null);
   const [deleteBusyProjectId, setDeleteBusyProjectId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+
+  const syncDeleteConfirmToUrl = useCallback(
+    (projectId: string | null) => {
+      router.replace(
+        projectDeleteConfirmHrefFromSearch(searchParams.toString(), projectId, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPendingDelete = useCallback(
+    (value: SetStateAction<ProjectDeletePending | null>) => {
+      setPendingDeleteState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncDeleteConfirmToUrl(next?.projectId ?? null);
+
+        return next;
+      });
+    },
+    [syncDeleteConfirmToUrl],
+  );
+
+  useEffect(() => {
+    const deleteProjectId = parseProjectDeleteConfirmIdFromSearch(deleteProjectIdParam);
+
+    if (deleteProjectId.length === 0) {
+      setPendingDeleteState(null);
+
+      return;
+    }
+
+    if (pendingDelete?.projectId === deleteProjectId) {
+      return;
+    }
+
+    const payload = workspacesQuery.data;
+
+    if (payload === undefined) {
+      return;
+    }
+
+    const workspace = findTenantWorkspaceRow(payload, workspaceId);
+
+    if (workspace === null) {
+      return;
+    }
+
+    const project = workspace.projects.find((row) => row.projectId === deleteProjectId);
+
+    if (project === undefined) {
+      return;
+    }
+
+    setPendingDeleteState({
+      workspaceId: workspace.workspaceId,
+      workspaceName: workspace.name,
+      projectId: project.projectId,
+      projectName: project.name,
+      isActiveScope: project.projectId === activeProjectId,
+    });
+  }, [activeProjectId, deleteProjectIdParam, pendingDelete?.projectId, workspaceId, workspacesQuery.data]);
 
   const workspaceContext = useMemo(() => {
     const payload = workspacesQuery.data;

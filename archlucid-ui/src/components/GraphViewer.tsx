@@ -1,7 +1,7 @@
 "use client";
 
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import ReactFlow, {
   Background,
   BackgroundVariant,
@@ -38,6 +38,12 @@ import {
 } from "@/lib/graph-buyer-path-filter";
 import { applyGraphSelectionFocus } from "@/lib/graph-selection-highlight";
 import { parseGraphPathOnlyFromSearch, graphPathOnlyHrefFromSearch } from "@/lib/insights/graph-path-only-url";
+import { graphNodeFocusHrefFromSearch } from "@/lib/insights/graph-node-focus-url";
+import {
+  graphEdgeFocusHrefFromSearch,
+  parseGraphEdgeFocusFromSearch,
+} from "@/lib/insights/graph-edge-focus-url";
+import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { useInpOffloadTask } from "@/lib/workers/inp-offload-client";
 
 /**
@@ -69,9 +75,17 @@ export function GraphViewer({
   compactChrome?: boolean;
 }) {
   const router = useRouter();
+  const pathname = usePathname() ?? EVIDENCE_GRAPH_PATH;
   const searchParams = useSearchParams();
   const currentSearch = searchParams.toString();
   const urlPathOnly = parseGraphPathOnlyFromSearch(searchParams.get("pathOnly"));
+  const urlGraphEdgeId = parseGraphEdgeFocusFromSearch(searchParams.get("graphEdgeId"));
+
+  const syncGraphSelectionToUrl = (graphNodeId: string | null, graphEdgeId: string | null): void => {
+    const afterNode = graphNodeFocusHrefFromSearch(currentSearch, graphNodeId, pathname);
+    const nextSearch = afterNode.includes("?") ? afterNode.slice(afterNode.indexOf("?") + 1) : "";
+    router.replace(graphEdgeFocusHrefFromSearch(nextSearch, graphEdgeId, pathname), { scroll: false });
+  };
 
   const deferredTypeFilter = useDeferredValue(typeFilter);
   const filtered = useMemo(
@@ -154,6 +168,21 @@ export function GraphViewer({
   useEffect(() => {
     setShowPathOnly(urlPathOnly);
   }, [urlPathOnly]);
+
+  useEffect(() => {
+    if (urlGraphEdgeId.length === 0) {
+      return;
+    }
+
+    const edge = filtered.edges.find((item) => item.id === urlGraphEdgeId);
+
+    if (edge === undefined) {
+      return;
+    }
+
+    setSelectedEdge(edge);
+    setSelectedNode(null);
+  }, [filtered.edges, urlGraphEdgeId]);
 
   useEffect(() => {
     if (!urlPathOnly || selectedNode === null) {
@@ -296,13 +325,16 @@ export function GraphViewer({
                 setSelectedNode(null);
                 setExplainStatusLine("");
                 setExplainAggregateHref(null);
+                syncGraphSelectionToUrl(null, rawEdge.id ?? null);
               }
             }}
             onNodeClick={(_, node) => {
               setSelectedEdge(null);
               setExplainStatusLine("");
               setExplainAggregateHref(null);
-              setSelectedNode((node.data.raw as GraphNodeVm) ?? null);
+              const nextNode = (node.data.raw as GraphNodeVm) ?? null;
+              setSelectedNode(nextNode);
+              syncGraphSelectionToUrl(nextNode?.id ?? null, null);
             }}
           >
             <GraphFitViewSync

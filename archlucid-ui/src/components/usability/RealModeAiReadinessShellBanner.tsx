@@ -6,18 +6,13 @@ import { WorkspaceAiAvailabilityPanel } from "@/components/reviews/WorkspaceAiAv
 import { useSessionAiReadiness } from "@/hooks/session-ai-readiness-context";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import {
-  OPERATOR_CALLOUT_SUCCESS_CLASS,
   OPERATOR_CALLOUT_WARN_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { resolveShellAiConfigurationSignal } from "@/lib/resolve-shell-ai-configuration-signal";
 import { resolveShellAiReadinessRecoverySteps } from "@/lib/resolve-shell-ai-readiness-recovery-steps";
-import {
-  REAL_MODE_AI_READINESS_BLOCKED_TITLE,
-  REAL_MODE_AI_READINESS_OK_DETAIL,
-  REAL_MODE_AI_READINESS_OK_TITLE,
-} from "@/lib/simulator-mode-chrome-copy";
+import { REAL_MODE_AI_READINESS_BLOCKED_TITLE } from "@/lib/simulator-mode-chrome-copy";
 import { cn } from "@/lib/utils";
 
 type RealModeAiReadinessShellBannerProps = {
@@ -44,37 +39,22 @@ export function RealModeAiReadinessShellBanner(
     return null;
   }
 
-  if (!readiness.isSessionReal) {
+  if (!readiness.isSessionReal || readiness.isReady) {
     return null;
   }
 
   const isChecking = readiness.probeState.status === "loading" || readiness.isLoading;
-  const calloutClassName = readiness.isReady ? OPERATOR_CALLOUT_SUCCESS_CLASS : OPERATOR_CALLOUT_WARN_CLASS;
 
   return (
     <div
-      className={cn(calloutClassName, "mb-3 shadow-sm", props.className)}
+      className={cn(OPERATOR_CALLOUT_WARN_CLASS, "mb-3 shadow-sm", props.className)}
       role="status"
       aria-busy={isChecking}
       data-testid="real-mode-ai-readiness-shell-banner"
     >
-      <p
-        className={cn(
-          "m-0 font-semibold",
-          readiness.isReady ? "text-emerald-950 dark:text-emerald-100" : "text-amber-900 dark:text-amber-100",
-          OPERATOR_TYPOGRAPHY.body,
-        )}
-      >
-        {readiness.isReady ? REAL_MODE_AI_READINESS_OK_TITLE : REAL_MODE_AI_READINESS_BLOCKED_TITLE}
+      <p className={cn("m-0 font-semibold text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>
+        {REAL_MODE_AI_READINESS_BLOCKED_TITLE}
       </p>
-
-      {readiness.isReady ? (
-        <p
-          className={cn("m-0 mt-1 leading-snug text-emerald-950 dark:text-emerald-100", OPERATOR_TYPOGRAPHY.helper)}
-        >
-          {readiness.detail ?? REAL_MODE_AI_READINESS_OK_DETAIL}
-        </p>
-      ) : null}
 
       <div className="mt-3">
         <WorkspaceAiAvailabilityPanel

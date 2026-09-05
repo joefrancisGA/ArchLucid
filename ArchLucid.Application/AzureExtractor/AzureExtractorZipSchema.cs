@@ -1,14 +1,14 @@
 namespace ArchLucid.Application.AzureExtractor;
 
-/// <summary>Supported <c>manifest.json</c> schema versions for customer Azure extractor uploads.</summary>
+/// <summary>Application-layer alias for <see cref="Core.AzureExtractor.AzureExtractorZipSchema" />.</summary>
 public static class AzureExtractorZipSchema
 {
-    /// <summary>Initial shipped schema aligning with <c>Get-ArchLucidAzurePackage.ps1</c> output layout.</summary>
-    public const int SupportedVersion1 = 1;
+    public const int Version1 = Core.AzureExtractor.AzureExtractorZipSchema.Version1;
 
-    /// <inheritdoc cref="SupportedVersion1"/>
-    public static IReadOnlyCollection<int> AllSupportedVersions
-    {
-        get;
-    } = [SupportedVersion1];
+    public const int Version2 = Core.AzureExtractor.AzureExtractorZipSchema.Version2;
+
+    public const int SupportedVersion1 = Version1;
+
+    public static IReadOnlyCollection<int> AllSupportedVersions =>
+        Core.AzureExtractor.AzureExtractorZipSchema.AllSupportedVersions;
 }

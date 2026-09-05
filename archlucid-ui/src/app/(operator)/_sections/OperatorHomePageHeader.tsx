@@ -15,7 +15,7 @@ import { OPERATOR_HOME_PAGE_TITLE } from "@/lib/operator/operator-home-page-copy
 import { useOperatorHomeRefresh } from "@/lib/operator/operator-home-refresh-context";
 import {
   OPERATOR_NOT_REFRESHED_LABEL,
-  operatorFreshnessMetadataClockValue,
+  operatorHomeDataCurrencyValue,
 } from "@/lib/operator/operator-last-refreshed-label";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 
@@ -35,12 +35,12 @@ function operatorHomeFreshnessContent(input: {
     return OPERATOR_NOT_REFRESHED_LABEL;
   }
 
+  const value = operatorHomeDataCurrencyValue(input.lastRefreshedAt);
+
   return (
     <>
-      <strong className="font-bold text-al-text-primary">
-        {OPERATOR_HOME_DATA_CURRENCY_PREFIX}:
-      </strong>{" "}
-      {operatorFreshnessMetadataClockValue(input.lastRefreshedAt)}
+      <span className="text-al-text-secondary">{OPERATOR_HOME_DATA_CURRENCY_PREFIX}: </span>
+      <strong className="font-semibold text-al-text-primary">{value}</strong>
     </>
   );
 }

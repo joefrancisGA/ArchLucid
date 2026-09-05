@@ -5,7 +5,7 @@ namespace ArchLucid.Core.Integration;
 /// <summary>Synthetic integration-event payloads for operator webhook simulation and bridge testing.</summary>
 public static class IntegrationWebhookPayloadSamples
 {
-    private static readonly HashSet<string> KnownEventTypes = new(StringComparer.Ordinal)
+    private static readonly HashSet<string> KnownEventTypes = new(StringComparer.OrdinalIgnoreCase)
     {
         IntegrationEventTypes.AuthorityRunCompletedV1,
         IntegrationEventTypes.AuthorityRunFailedV1,
@@ -66,13 +66,30 @@ public static class IntegrationWebhookPayloadSamples
                 IntegrationEventTypes.ComplianceDriftEscalatedV1,
             "DataConsistencyCheckCompleted" or "data-consistency-check-completed" =>
                 IntegrationEventTypes.DataConsistencyCheckCompletedV1,
-            _ when KnownEventTypes.Contains(normalized) => normalized,
-            _ when KnownEventTypes.Contains(canonicalLegacy) => canonicalLegacy,
+            _ when TryResolveKnownEventType(normalized, out string knownCanonical) => knownCanonical,
+            _ when TryResolveKnownEventType(canonicalLegacy, out string legacyCanonical) => legacyCanonical,
             _ => throw new ArgumentException(
                 $"Unknown event type alias '{eventTypeAlias}'. "
                 + "Try RunCommitted, RunCompleted, ManifestFinalized, or a com.archlucid.* (legacy vendor alias supported) constant.",
                 nameof(eventTypeAlias))
         };
+    }
+
+    private static bool TryResolveKnownEventType(string candidate, out string canonical)
+    {
+        foreach (string known in KnownEventTypes)
+        {
+            if (string.Equals(known, candidate, StringComparison.OrdinalIgnoreCase))
+            {
+                canonical = known;
+
+                return true;
+            }
+        }
+
+        canonical = string.Empty;
+
+        return false;
     }
 
     public static byte[] CreatePayloadUtf8(string resolvedEventType)

@@ -19,7 +19,7 @@ export const GOVERNANCE_ASSIGNED_TO_ME_FOLLOW_UPS_TITLE =
   HUB_SECONDARY_FOLLOW_UPS_TITLES.governanceFindings;
 
 export const GOVERNANCE_ASSIGNED_TO_ME_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
-  "you need the workspace findings register, a review package, or export-ready activity records",
+  "you need the workspace findings register, an architecture package, or export-ready activity records",
 );
 
 /** Operator Sources — no self-href to the assigned-to-me lane. */

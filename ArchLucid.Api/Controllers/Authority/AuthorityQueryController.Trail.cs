@@ -1,7 +1,9 @@
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
+using ArchLucid.Application;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Runs;
@@ -75,6 +77,28 @@ public sealed partial class AuthorityQueryController
 
         if (result is null)
             return this.NotFoundProblem($"Manifest '{manifestId}' was not found.", ProblemTypes.ManifestNotFound);
+
+        RunDetailDto? manifestDetail =
+            await queryService.GetRunDetailForManifestCompareAsync(scope, result.RunId, ct);
+
+        try
+        {
+            if (manifestDetail?.GoldenManifest is null)
+            {
+                return this.ConflictProblem(
+                    $"Manifest '{manifestId}' sealed hash verification is unavailable because the committed golden manifest is missing.",
+                    ProblemTypes.Conflict);
+            }
+
+            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                manifestDetail.GoldenManifest,
+                result.RunId.ToString("D"),
+                manifestHashService);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         return Ok(new ManifestSummaryResponse
         {
@@ -151,6 +175,18 @@ public sealed partial class AuthorityQueryController
             return this.NotFoundProblem(
                 $"Golden manifest for run '{runId}' was not found.",
                 ProblemTypes.ManifestNotFound);
+
+        try
+        {
+            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                detail.GoldenManifest,
+                runId.ToString("D"),
+                manifestHashService);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         await readHandlers.LogRunScopedAuditAsync(
             AuditEventTypes.ManifestViewed,

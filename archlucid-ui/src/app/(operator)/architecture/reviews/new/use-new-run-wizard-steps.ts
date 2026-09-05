@@ -1,9 +1,19 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo } from "react";
 import type { UseFormTrigger } from "react-hook-form";
 
 import { useWizardStepNavigation } from "@/hooks/use-wizard-step-navigation";
+import {
+  clampWizardStepIndex,
+  nextWizardStepIndex,
+  previousWizardStepIndex,
+} from "@/lib/wizard-step-sequence";
+import {
+  newRunWizardStepHrefFromSearch,
+  parseNewRunWizardStepFromSearch,
+} from "@/lib/runs/new-run-wizard-step-url";
 import {
   resolveNewRunWizardCompleteSetupEmphasizedStepId,
   resolveNewRunWizardCompleteSetupSteps,
@@ -43,6 +53,11 @@ export type UseNewRunWizardStepsOptions = {
 };
 
 export function useNewRunWizardSteps(options: UseNewRunWizardStepsOptions) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/architecture/reviews/new";
+  const searchParams = useSearchParams();
+  const urlStepIndex = parseNewRunWizardStepFromSearch(searchParams.get("step"));
+
   const stepDefinitions = options.baselineFirst
     ? WIZARD_STEP_DEFINITIONS_BASELINE
     : WIZARD_STEP_DEFINITIONS_FULL;
@@ -52,7 +67,65 @@ export function useNewRunWizardSteps(options: UseNewRunWizardStepsOptions) {
       steps: stepDefinitions,
       telemetryWizardName: "FullGuided",
       reviewStepIndex: REVIEW_STEP_INDEX,
+      initialStepIndex: urlStepIndex ?? 0,
     });
+
+  const syncStepToUrl = useCallback(
+    (nextStepIndex: number) => {
+      router.replace(newRunWizardStepHrefFromSearch(searchParams.toString(), nextStepIndex, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setStepIndexWithUrl = useCallback(
+    (value: React.SetStateAction<number>) => {
+      setStepIndex((current) => {
+        const resolved = typeof value === "function" ? value(current) : value;
+        syncStepToUrl(resolved);
+
+        return resolved;
+      });
+    },
+    [setStepIndex, syncStepToUrl],
+  );
+
+  const goToStepWithUrl = useCallback(
+    (index: number) => {
+      goToStep(index);
+      syncStepToUrl(index);
+    },
+    [goToStep, syncStepToUrl],
+  );
+
+  const goBackWithUrl = useCallback(() => {
+    setStepIndex((current) => {
+      const next = previousWizardStepIndex(current);
+      syncStepToUrl(next);
+
+      return next;
+    });
+  }, [setStepIndex, syncStepToUrl]);
+
+  const advanceWithUrl = useCallback(() => {
+    setStepIndex((current) => {
+      const next = nextWizardStepIndex(current, stepDefinitions.length);
+      syncStepToUrl(next);
+
+      return next;
+    });
+  }, [setStepIndex, stepDefinitions.length, syncStepToUrl]);
+
+  useEffect(() => {
+    const nextStep = parseNewRunWizardStepFromSearch(searchParams.get("step"));
+
+    if (nextStep === null) {
+      return;
+    }
+
+    goToStep(clampWizardStepIndex(nextStep, stepDefinitions.length));
+  }, [goToStep, searchParams, stepDefinitions.length]);
 
   const macroStep: number = macroWizardStepIndex(stepIndex);
   const completedMacroSteps: number[] = macroCompletedSteps(stepIndex);
@@ -69,7 +142,7 @@ export function useNewRunWizardSteps(options: UseNewRunWizardStepsOptions) {
 
   const goNext = useCallback(async () => {
     if (stepIndex === 0) {
-      advance();
+      advanceWithUrl();
 
       return;
     }
@@ -81,7 +154,7 @@ export function useNewRunWizardSteps(options: UseNewRunWizardStepsOptions) {
         return;
       }
 
-      advance();
+      advanceWithUrl();
 
       return;
     }
@@ -104,8 +177,8 @@ export function useNewRunWizardSteps(options: UseNewRunWizardStepsOptions) {
       }
     }
 
-    advance();
-  }, [advance, options, stepDefinitions, stepIndex]);
+    advanceWithUrl();
+  }, [advanceWithUrl, options, stepDefinitions, stepIndex]);
 
   const showNav: boolean = stepIndex < TRACK_STEP_INDEX;
   const showSimplifiedPilotWizard = options.baselineFirst && options.wizardMode === "quick" && !options.showQuickTrack;
@@ -159,10 +232,10 @@ export function useNewRunWizardSteps(options: UseNewRunWizardStepsOptions) {
   return {
     stepDefinitions,
     stepIndex,
-    setStepIndex,
-    goBack,
-    goToStep,
-    advance,
+    setStepIndex: setStepIndexWithUrl,
+    goBack: goBackWithUrl,
+    goToStep: goToStepWithUrl,
+    advance: advanceWithUrl,
     isFirstStep,
     isReviewStep,
     macroStep,

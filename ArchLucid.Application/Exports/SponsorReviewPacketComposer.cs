@@ -22,7 +22,8 @@ public static partial class SponsorReviewPacketComposer
         DateTime generatedUtc,
         IReadOnlyList<SponsorReviewPacketDecisionRow>? topDecisions = null,
         SponsorReviewPacketPortfolioSignals? portfolioSignals = null,
-        string? activeTrialExportNotice = null)
+        string? activeTrialExportNotice = null,
+        SponsorReviewCoverageHonestyContext? coverageHonesty = null)
     {
         ArgumentNullException.ThrowIfNull(detail);
         ArgumentNullException.ThrowIfNull(SponsorReport);
@@ -38,6 +39,11 @@ public static partial class SponsorReviewPacketComposer
         ExportSafetyNoticeMarkdown.Append(sb, ResolveIsDemoTenant(detail), activeTrialExportNotice);
         sb.AppendLine();
         AppendManifestSummarySection(sb, detail);
+
+        if (coverageHonesty is not null)
+        {
+            SponsorReviewCoverageHonestyMarkdownFormatter.AppendMarkdownSection(sb, coverageHonesty);
+        }
 
         if (detail.Run is not null)
             SponsorExecutionModeMarkdownFormatter.AppendMarkdownSection(sb, detail.Run);

@@ -1,6 +1,8 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
+using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diagrams;
 using ArchLucid.Application.Diffs;
@@ -48,6 +50,7 @@ public sealed partial class ManifestsController(
     IScopeContextProvider scopeContextProvider,
     IRunRepository runRepository,
     IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     ICompareRunsApplicationFacade compareRunsFacade,
     ITenantRepository tenantRepository)
     : ControllerBase
@@ -69,6 +72,9 @@ public sealed partial class ManifestsController(
     private readonly IAuthorityQueryService _authorityQueryService =
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
 
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
     private readonly ICompareRunsApplicationFacade _compareRunsFacade =
         compareRunsFacade ?? throw new ArgumentNullException(nameof(compareRunsFacade));
 
@@ -86,15 +92,34 @@ public sealed partial class ManifestsController(
         return problem;
     }
 
-    private IActionResult? BadRequestWhenManifestVersionEmpty(string manifestVersion)
+    private IActionResult? BadRequestWhenManifestVersionEmpty(string manifestVersion) =>
+        BadRequestWhenManifestVersionInvalid(manifestVersion, "manifestVersion");
+
+    private IActionResult? BadRequestWhenManifestVersionInvalid(string manifestVersion, string fieldName)
     {
         if (string.IsNullOrWhiteSpace(manifestVersion))
         {
             return this.BadRequestProblem(
-                "manifestVersion is required.",
+                $"{fieldName} is required.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (manifestVersion.Trim().Length > GovernanceRequestValidationRules.ManifestVersionMaxLength)
+        {
+            return this.BadRequestProblem(
+                $"{fieldName} must not exceed {GovernanceRequestValidationRules.ManifestVersionMaxLength} characters.",
                 ProblemTypes.ValidationFailed);
         }
 
         return null;
+    }
+
+    private IActionResult GoldenManifestReadConflictProblem(ConflictException ex)
+    {
+        string problemType = ex.Message.Contains("hash", StringComparison.OrdinalIgnoreCase)
+            ? ProblemTypes.DecisionReceiptSealedHashMismatch
+            : ProblemTypes.Conflict;
+
+        return this.ConflictProblem(ex.Message, problemType);
     }
 }

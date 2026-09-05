@@ -1,5 +1,6 @@
 using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Core.Comparison;
 
 namespace ArchLucid.Application.Analysis;
 
@@ -28,5 +29,6 @@ public interface ICompareRunsApplicationFacade
         string leftRunId,
         ArchitectureRunDetail leftDetail,
         string rightRunId,
-        ArchitectureRunDetail rightDetail);
+        ArchitectureRunDetail rightDetail,
+        CompareInputFingerprints? inputFingerprints = null);
 }

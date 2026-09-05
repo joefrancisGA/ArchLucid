@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type SetStateAction } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { DraftIntakeActorSuggestionsGateDialog } from "@/components/draft-intake/DraftIntakeActorSuggestionsGateDialog";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,11 @@ import {
   OPERATOR_FORM_FIELD_STACK_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import type { ActorSet } from "@/types/draft-intake";
+import {
+  draftIntakeActorGateConfirmHrefFromSearch,
+  parseDraftIntakeActorGateConfirmOpenFromSearch,
+} from "@/lib/draft-intake/draft-intake-actor-gate-confirm-url";
+import type { ActorSet } from "@/types/draft-intake-actors";
 
 type DraftIntakeSuggestionPanelProps = {
   readonly actorSet: ActorSet;
@@ -55,9 +60,45 @@ export function DraftIntakeSuggestionPanel(props: DraftIntakeSuggestionPanelProp
     onUnresolvedSuggestionsChange,
   } = props;
 
+  const pathname = usePathname() ?? "";
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const actorGateConfirmParam = searchParams.get("actorGateConfirm");
   const [suggestionPanelOpen, setSuggestionPanelOpen] = useState(false);
-  const [suggestionGateOpen, setSuggestionGateOpen] = useState(false);
+  const [suggestionGateOpen, setSuggestionGateOpenState] = useState(
+    () => parseDraftIntakeActorGateConfirmOpenFromSearch(actorGateConfirmParam),
+  );
   const [selectedSuggestionKeys, setSelectedSuggestionKeys] = useState<ReadonlySet<string>>(() => new Set());
+
+  const syncActorGateToUrl = useCallback(
+    (open: boolean) => {
+      if (pathname.length === 0) {
+        return;
+      }
+
+      router.replace(
+        draftIntakeActorGateConfirmHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSuggestionGateOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setSuggestionGateOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncActorGateToUrl(next);
+
+        return next;
+      });
+    },
+    [syncActorGateToUrl],
+  );
+
+  useEffect(() => {
+    setSuggestionGateOpenState(parseDraftIntakeActorGateConfirmOpenFromSearch(actorGateConfirmParam));
+  }, [actorGateConfirmParam]);
 
   const canSuggestFromIntent = intentText.trim().length >= minIntentChars;
 
@@ -93,7 +134,7 @@ export function DraftIntakeSuggestionPanel(props: DraftIntakeSuggestionPanelProp
     }
 
     setSuggestionGateOpen(true);
-  }, [suggestionGateRequestId, suggestionPanelOpen]);
+  }, [setSuggestionGateOpen, suggestionGateRequestId, suggestionPanelOpen]);
 
   function openSuggestionPanel(): void {
     const freshSuggestions = filterNewActorSuggestions(

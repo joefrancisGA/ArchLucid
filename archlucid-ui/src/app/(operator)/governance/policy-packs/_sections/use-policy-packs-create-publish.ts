@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type SetStateAction } from "react";
 
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
@@ -17,14 +18,32 @@ import type { PolicyPack, PolicyPackContentDocument, PolicyPackVersion } from "@
 import { isBundledPlatformDefaultPackType } from "@/lib/policy/policy-pack-type-label";
 import { DEFAULT_CONTENT } from "./policy-packs-page-constants";
 import type { PolicyPacksAuthoringDeps } from "./policy-packs-authoring-deps";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  parsePolicyPackCompareVersionIdFromSearch,
+  parsePolicyPackVersionDiffOpenFromSearch,
+  policyPackVersionCompareHrefFromSearch,
+} from "@/lib/policy/policy-pack-version-compare-url";
+import {
+  policyPackSelectionHrefFromSearch,
+  parsePolicyPackSelectionFromSearch,
+} from "@/lib/policy/policy-pack-selection-url";
+import { POLICY_PACK_ID_QUERY_PARAM } from "@/lib/policy/policy-packs-deep-link";
 
 export function usePolicyPacksCreatePublish(deps: PolicyPacksAuthoringDeps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? GOVERNANCE_POLICY_PACKS_PATH;
+  const searchParams = useSearchParams();
+  const urlPackId = parsePolicyPackSelectionFromSearch(searchParams.get(POLICY_PACK_ID_QUERY_PARAM));
+  const urlShowVersionDiff = parsePolicyPackVersionDiffOpenFromSearch(searchParams.get("diff"));
+  const urlCompareLeftId = parsePolicyPackCompareVersionIdFromSearch(searchParams.get("compareLeft"));
+  const urlCompareRightId = parsePolicyPackCompareVersionIdFromSearch(searchParams.get("compareRight"));
   const [name, setName] = useState("Baseline governance");
   const [description, setDescription] = useState("");
   const [packType, setPackType] = useState("ProjectCustom");
   const [createJson, setCreateJson] = useState(DEFAULT_CONTENT);
 
-  const [selectedPackId, setSelectedPackId] = useState("");
+  const [selectedPackId, setSelectedPackIdState] = useState(urlPackId);
   const [publishVersion, setPublishVersion] = useState("1.0.0");
   const [publishJson, setPublishJson] = useState(DEFAULT_CONTENT);
 
@@ -35,9 +54,9 @@ export function usePolicyPacksCreatePublish(deps: PolicyPacksAuthoringDeps) {
   const [packVersions, setPackVersions] = useState<PolicyPackVersion[]>([]);
   const [compareLeftDetail, setCompareLeftDetail] = useState<PolicyPackVersion | null>(null);
   const [compareRightDetail, setCompareRightDetail] = useState<PolicyPackVersion | null>(null);
-  const [compareLeftId, setCompareLeftId] = useState("");
-  const [compareRightId, setCompareRightId] = useState("");
-  const [showVersionDiff, setShowVersionDiff] = useState(false);
+  const [compareLeftId, setCompareLeftIdState] = useState(urlCompareLeftId);
+  const [compareRightId, setCompareRightIdState] = useState(urlCompareRightId);
+  const [showVersionDiff, setShowVersionDiffState] = useState(urlShowVersionDiff);
   const [verticalImportSlug, setVerticalImportSlug] = useState<string | null>(null);
   const [publishSuccessMessage, setPublishSuccessMessage] = useState<string | null>(null);
   const packVersionsQuery = usePolicyPackVersionsQuery(selectedPackId, {
@@ -47,6 +66,7 @@ export function usePolicyPacksCreatePublish(deps: PolicyPacksAuthoringDeps) {
   const latestVersionDetailQuery = usePolicyPackVersionDetailQuery(selectedPackId, latestPackVersion, {
     enabled: selectedPackId.length > 0 && latestPackVersion.length > 0,
   });
+  const publishBaselineJson = latestVersionDetailQuery.data?.contentJson ?? null;
   const compareLeftMeta = packVersions.find((version) => version.policyPackVersionId === compareLeftId);
   const compareRightMeta = packVersions.find((version) => version.policyPackVersionId === compareRightId);
   const compareLeftDetailQuery = usePolicyPackVersionDetailQuery(
@@ -73,6 +93,84 @@ export function usePolicyPacksCreatePublish(deps: PolicyPacksAuthoringDeps) {
         compareLeftId !== compareRightId,
     },
   );
+
+  const syncPackSelectionToUrl = useCallback(
+    (packId: string) => {
+      router.replace(policyPackSelectionHrefFromSearch(searchParams.toString(), packId, pathname), { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const syncVersionCompareToUrl = useCallback(
+    (state: { showVersionDiff: boolean; compareLeftId: string; compareRightId: string }) => {
+      router.replace(policyPackVersionCompareHrefFromSearch(searchParams.toString(), state, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSelectedPackId = useCallback(
+    (value: SetStateAction<string>) => {
+      setSelectedPackIdState((current) => {
+        const resolved = typeof value === "function" ? value(current) : value;
+        syncPackSelectionToUrl(resolved);
+
+        return resolved;
+      });
+    },
+    [syncPackSelectionToUrl],
+  );
+
+  const setCompareLeftId = useCallback(
+    (value: SetStateAction<string>) => {
+      setCompareLeftIdState((current) => {
+        const resolved = typeof value === "function" ? value(current) : value;
+        syncVersionCompareToUrl({ showVersionDiff, compareLeftId: resolved, compareRightId });
+
+        return resolved;
+      });
+    },
+    [compareRightId, showVersionDiff, syncVersionCompareToUrl],
+  );
+
+  const setCompareRightId = useCallback(
+    (value: SetStateAction<string>) => {
+      setCompareRightIdState((current) => {
+        const resolved = typeof value === "function" ? value(current) : value;
+        syncVersionCompareToUrl({ showVersionDiff, compareLeftId, compareRightId: resolved });
+
+        return resolved;
+      });
+    },
+    [compareLeftId, showVersionDiff, syncVersionCompareToUrl],
+  );
+
+  const setShowVersionDiff = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setShowVersionDiffState((current) => {
+        const resolved = typeof value === "function" ? value(current) : value;
+        syncVersionCompareToUrl({ showVersionDiff: resolved, compareLeftId, compareRightId });
+
+        return resolved;
+      });
+    },
+    [compareLeftId, compareRightId, syncVersionCompareToUrl],
+  );
+
+  useEffect(() => {
+    const nextPackId = parsePolicyPackSelectionFromSearch(searchParams.get(POLICY_PACK_ID_QUERY_PARAM));
+
+    if (nextPackId.length > 0) {
+      setSelectedPackIdState(nextPackId);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    setShowVersionDiffState(parsePolicyPackVersionDiffOpenFromSearch(searchParams.get("diff")));
+    setCompareLeftIdState(parsePolicyPackCompareVersionIdFromSearch(searchParams.get("compareLeft")));
+    setCompareRightIdState(parsePolicyPackCompareVersionIdFromSearch(searchParams.get("compareRight")));
+  }, [searchParams]);
 
   useEffect(() => {
     if (!selectedPackId) {
@@ -361,6 +459,7 @@ export function usePolicyPacksCreatePublish(deps: PolicyPacksAuthoringDeps) {
     compareRightVersion,
     selectedPackSummary,
     syncPolicyContentJson,
+    publishBaselineJson,
   };
 }
 

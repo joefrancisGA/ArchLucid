@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Stickiness;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Manifest;
@@ -24,7 +25,8 @@ namespace ArchLucid.Api.Controllers.Governance;
 public sealed partial class GovernanceStickinessController(
     IGovernanceStickinessFacade facade,
     IScopeContextProvider scopeContextProvider,
-    ITenantRepository tenantRepository) : ControllerBase
+    ITenantRepository tenantRepository,
+    IArchitectureReviewRecurrenceNextRunCalculator recurrenceNextRunCalculator) : ControllerBase
 {
     private readonly IGovernanceStickinessFacade _facade =
         facade ?? throw new ArgumentNullException(nameof(facade));
@@ -34,6 +36,9 @@ public sealed partial class GovernanceStickinessController(
 
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
+    private readonly IArchitectureReviewRecurrenceNextRunCalculator _recurrenceNextRunCalculator =
+        recurrenceNextRunCalculator ?? throw new ArgumentNullException(nameof(recurrenceNextRunCalculator));
 
     private async Task<IActionResult?> RequireTenantAndWorkspaceOrNotFoundAsync(CancellationToken cancellationToken)
     {

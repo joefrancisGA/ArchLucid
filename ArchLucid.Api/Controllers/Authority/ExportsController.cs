@@ -32,7 +32,8 @@ public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade
 
     [HttpGet("review/{runId}/exports")]
     [ProducesResponseType(typeof(RunExportHistoryResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunExportHistory([FromRoute] string runId, CancellationToken cancellationToken)
     {
         RunExportHistoryQueryResult result = await _runExportQueryFacade.GetRunExportHistoryAsync(runId, cancellationToken);
@@ -40,6 +41,9 @@ public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade
         {
             ExportRecordLoadOutcome.Success => Ok(new RunExportHistoryResponse { Exports = result.Exports!.ToList() }),
             ExportRecordLoadOutcome.RunNotFound => this.NotFoundProblem($"Run '{result.MissingRunId}' was not found.", ProblemTypes.RunNotFound),
+            ExportRecordLoadOutcome.LineageUnverified => this.ConflictProblem(
+                $"Run export history for '{result.MissingRunId}' is blocked until export lineage verification succeeds.",
+                ProblemTypes.Conflict),
             _ => throw new InvalidOperationException($"Unexpected export history outcome: {result.Outcome}."),
         };
     }
@@ -47,6 +51,7 @@ public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade
     [HttpGet("review/exports/{exportRecordId}")]
     [ProducesResponseType(typeof(RunExportRecordResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetExportRecord([FromRoute] string exportRecordId, CancellationToken cancellationToken)
     {
         ScopedExportRecordLoadResult result = await _runExportQueryFacade.GetExportRecordAsync(exportRecordId, cancellationToken);
@@ -54,6 +59,9 @@ public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade
         {
             ExportRecordLoadOutcome.Success => Ok(new RunExportRecordResponse { Record = result.Record! }),
             ExportRecordLoadOutcome.ExportRecordNotFound => this.NotFoundProblem($"Export record '{result.MissingId}' was not found.", ProblemTypes.ResourceNotFound),
+            ExportRecordLoadOutcome.LineageUnverified => this.ConflictProblem(
+                $"Export record '{result.MissingId}' is blocked until export lineage and sealed-manifest verification succeeds.",
+                ProblemTypes.Conflict),
             _ => throw new InvalidOperationException($"Unexpected export record outcome: {result.Outcome}."),
         };
     }
@@ -61,6 +69,7 @@ public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade
     [HttpGet("review/exports/compare")]
     [ProducesResponseType(typeof(ExportRecordDiffResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CompareExportRecords(
         [FromQuery] string leftExportRecordId,
         [FromQuery] string rightExportRecordId,
@@ -73,6 +82,7 @@ public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade
     [MutatingAuditExcluded("Audit: IRunExportQueryFacade.CompareExportRecordsSummaryAsync logs ComparisonSummaryPersisted.")]
     [ProducesResponseType(typeof(ExportRecordDiffSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CompareExportRecordsSummary(
         [FromQuery] string leftExportRecordId,
         [FromQuery] string rightExportRecordId,
@@ -95,6 +105,7 @@ public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ReplayExportRecord(
         [FromRoute] string exportRecordId,
         [FromBody] ApiReplayExportRequest? request,
@@ -105,6 +116,13 @@ public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade
             exportRecordId,
             new AppReplayExportRequest { ExportRecordId = exportRecordId, RecordReplayExport = request.RecordReplayExport },
             cancellationToken);
+        if (result.Outcome is ExportRecordLoadOutcome.LineageUnverified)
+        {
+            return this.ConflictProblem(
+                $"Export replay for '{result.MissingId}' is blocked until export lineage and sealed-manifest verification succeeds.",
+                ProblemTypes.Conflict);
+        }
+
         if (result.Outcome is not ExportRecordLoadOutcome.Success)
             return this.NotFoundProblem($"Export record '{result.MissingId}' was not found.", ProblemTypes.ResourceNotFound);
         return ReplayArtifactResponseFactory.FromExportReplay(Request, result.Replay!);
@@ -116,6 +134,7 @@ public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade
     [ProducesResponseType(typeof(ReplayExportMetadataResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ReplayExportRecordMetadata(
         [FromRoute] string exportRecordId,
         [FromBody] ApiReplayExportRequest? request,
@@ -126,6 +145,13 @@ public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade
             exportRecordId,
             new AppReplayExportRequest { ExportRecordId = exportRecordId, RecordReplayExport = request.RecordReplayExport },
             cancellationToken);
+        if (result.Outcome is ExportRecordLoadOutcome.LineageUnverified)
+        {
+            return this.ConflictProblem(
+                $"Export replay for '{result.MissingId}' is blocked until export lineage verification succeeds.",
+                ProblemTypes.Conflict);
+        }
+
         if (result.Outcome is not ExportRecordLoadOutcome.Success)
             return this.NotFoundProblem($"Export record '{result.MissingId}' was not found.", ProblemTypes.ResourceNotFound);
         ReplayExportResult replay = result.Replay!;
@@ -143,6 +169,9 @@ public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade
         ExportRecordLoadOutcome.RightIdRequired => this.BadRequestProblem("rightExportRecordId is required.", ProblemTypes.ValidationFailed),
         ExportRecordLoadOutcome.LeftNotFound or ExportRecordLoadOutcome.ExportRecordNotFound => this.NotFoundProblem($"Export record '{missingId}' was not found.", ProblemTypes.ResourceNotFound),
         ExportRecordLoadOutcome.RightNotFound => this.NotFoundProblem($"Export record '{missingId}' was not found.", ProblemTypes.ResourceNotFound),
+        ExportRecordLoadOutcome.LineageUnverified => this.ConflictProblem(
+            $"Export record '{missingId}' is blocked until export lineage and sealed-manifest verification succeeds.",
+            ProblemTypes.Conflict),
         _ => throw new InvalidOperationException($"Unexpected export record load outcome: {outcome}."),
     };
 }

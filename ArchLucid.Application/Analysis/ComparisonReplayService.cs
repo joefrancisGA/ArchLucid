@@ -1,5 +1,9 @@
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Analysis;
 
@@ -22,9 +26,15 @@ public sealed class ComparisonReplayService(
     IExportRecordDiffService exportRecordDiffService,
     IExportRecordDiffSummaryFormatter exportRecordDiffSummaryFormatter,
     IExportRecordDiffExportService exportRecordDiffExportService,
-    IRunExportRecordRepository runExportRecordRepository) : IComparisonReplayService
+    IRunExportRecordRepository runExportRecordRepository,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
+    IScopeContextProvider scopeContextProvider) : IComparisonReplayService
 {
     private readonly IRunExportRecordRepository _runExportRecordRepository = runExportRecordRepository.ThrowIfNull();
+    private readonly IAuthorityQueryService _authorityQueryService = authorityQueryService.ThrowIfNull();
+    private readonly IManifestHashService _manifestHashService = manifestHashService.ThrowIfNull();
+    private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider.ThrowIfNull();
     private readonly IExportRecordDiffService _exportRecordDiffService = exportRecordDiffService.ThrowIfNull();
     private readonly IExportRecordDiffExportService _exportRecordDiffExportService = exportRecordDiffExportService.ThrowIfNull();
     private readonly IComparisonRecordRepository _comparisonRecordRepository = comparisonRecordRepository.ThrowIfNull();
@@ -50,6 +60,16 @@ public sealed class ComparisonReplayService(
         string format = ComparisonReplayRequestParsing.NormalizeFormat(request.Format);
         string profile = EndToEndComparisonExportProfile.Normalize(request.Profile);
         ComparisonReplayMode mode = ComparisonReplayRequestParsing.ParseReplayMode(request.ReplayMode);
+
+        await ComparisonReplayManifestHashGuard.EnsureReplaySealedManifestHashesOrThrowAsync(
+            record,
+            mode,
+            _authorityQueryService,
+            _manifestHashService,
+            _scopeContextProvider,
+            _runExportRecordRepository,
+            cancellationToken);
+
         ReplayComparisonResult result = record.ComparisonType switch
         {
             ComparisonTypes.EndToEndReplay => await ReplayEndToEndAsync(record, format, profile, mode, cancellationToken),
@@ -69,6 +89,15 @@ public sealed class ComparisonReplayService(
         ArgumentException.ThrowIfNullOrWhiteSpace(comparisonRecordId);
         ComparisonRecord record = await _comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken) ??
                                   throw new InvalidOperationException($"Comparison record '{comparisonRecordId}' was not found.");
+
+        await ComparisonReplayManifestHashGuard.EnsureDriftAnalyzeSealedManifestHashesOrThrowAsync(
+            record,
+            _authorityQueryService,
+            _manifestHashService,
+            _scopeContextProvider,
+            _runExportRecordRepository,
+            cancellationToken);
+
         return record.ComparisonType switch
         {
             ComparisonTypes.EndToEndReplay => await AnalyzeDriftEndToEndAsync(record, cancellationToken),

@@ -22,7 +22,7 @@ public sealed class InboundWebhookBoundedBodyArchitectureTests
     }
 
     [Theory]
-    [InlineData("ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs", "TryVerifyWebhookSecurity")]
+    [InlineData("ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs", "_webhookFacade.ProcessAsync")]
     [InlineData("ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs", "HandleWebhookAsync")]
     [InlineData("ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs", "HandleWebhookAsync")]
     [InlineData("ArchLucid.Api/Controllers/Integrations/SlackInteractivityController.cs", "Verify(")]

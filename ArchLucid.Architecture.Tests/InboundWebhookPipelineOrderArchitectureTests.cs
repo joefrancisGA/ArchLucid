@@ -25,36 +25,36 @@ public sealed class InboundWebhookPipelineOrderArchitectureTests
     public void ItsmInboundWebhooksController_enforces_verify_and_size_before_Json_parse_with_rate_limiting()
     {
         string root = FindRepoRoot();
-        string path = Path.Combine(root, "ArchLucid.Api", "Controllers", "Integrations", "ItsmInboundWebhooksController.cs");
-        File.Exists(path).Should().BeTrue();
-        string text = File.ReadAllText(path);
+        string controllerPath = Path.Combine(root, "ArchLucid.Api", "Controllers", "Integrations", "ItsmInboundWebhooksController.cs");
+        File.Exists(controllerPath).Should().BeTrue();
+        string controller = File.ReadAllText(controllerPath);
 
-        text.Should().Contain("[EnableRateLimiting(\"fixed\")]");
+        controller.Should().Contain("[EnableRateLimiting(\"fixed\")]");
 
-        AssertMethodOrder(text, "ProcessJiraAsync");
-        AssertMethodOrder(text, "ProcessServiceNowAsync");
-    }
-
-    private static void AssertMethodOrder(string fileText, string methodName)
-    {
-        int methodStart = fileText.IndexOf($"async Task<IActionResult> {methodName}(", StringComparison.Ordinal);
-        methodStart.Should().BeGreaterThan(0, because: $"{methodName} should exist");
-
-        int nextMethod = fileText.IndexOf("private async Task", methodStart + 1, StringComparison.Ordinal);
-        int scopeEnd = nextMethod > 0 ? nextMethod : fileText.Length;
-        string methodBody = fileText[methodStart..scopeEnd];
-
-        int sizeCheck = methodBody.IndexOf("InboundWebhookBoundedBodyReader", StringComparison.Ordinal);
-        int verify = methodBody.IndexOf("TryVerifyWebhookSecurity", StringComparison.Ordinal);
-        int parseCall = methodBody.IndexOf("TryParseWebhookJson", StringComparison.Ordinal);
-        int inlineParse = methodBody.IndexOf("JsonDocument.Parse", StringComparison.Ordinal);
+        int sizeCheck = controller.IndexOf("InboundWebhookBoundedBodyReader", StringComparison.Ordinal);
+        int facadeCall = controller.IndexOf("_webhookFacade.ProcessAsync", StringComparison.Ordinal);
 
         sizeCheck.Should().BeGreaterThan(0);
-        verify.Should().BeGreaterThan(0);
-        (parseCall > 0 || inlineParse > 0).Should().BeTrue(because: $"{methodName} must parse JSON after verify");
+        facadeCall.Should().BeGreaterThan(0);
+        sizeCheck.Should().BeLessThan(facadeCall, because: "bounded size intake must precede facade verify/parse (TB-967)");
 
-        sizeCheck.Should().BeLessThan(verify, because: "bounded size intake must precede verify (TB-967)");
-        verify.Should().BeLessThan(EarliestPositiveIndex(parseCall, inlineParse), because: "signature/security gate must precede schema parse");
+        string facadePath = Path.Combine(
+            root,
+            "ArchLucid.Application",
+            "Integrations",
+            "Itsm",
+            "ItsmInboundWebhookFacade.cs");
+        string facade = File.ReadAllText(facadePath);
+
+        int verify = facade.IndexOf("TryVerifyWebhookSecurity", StringComparison.Ordinal);
+        int parseCall = facade.IndexOf("TryParseWebhookJson", StringComparison.Ordinal);
+        int inlineParse = facade.IndexOf("JsonDocument.Parse", StringComparison.Ordinal);
+
+        verify.Should().BeGreaterThan(0);
+        (parseCall > 0 || inlineParse > 0).Should().BeTrue(because: "facade must parse JSON after verify");
+        verify.Should().BeLessThan(
+            EarliestPositiveIndex(parseCall, inlineParse),
+            because: "signature/security gate must precede schema parse");
     }
 
     private static int EarliestPositiveIndex(int first, int second)

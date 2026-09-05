@@ -20,6 +20,9 @@ import { toReviewsHubReviewRowDisplay } from "./reviews-hub-package-display";
 import { reviewsHubOverallStatusTagKind } from "./reviews-hub-review-status";
 
 const PINNED_COLUMN_CLASS = "w-10 px-2";
+const REVIEW_TITLE_COLUMN_CLASS =
+  "min-w-[12rem] max-w-[18rem] lg:sticky lg:left-10 lg:z-[2] lg:bg-al-surface-raised";
+const STATUS_COLUMN_CLASS = "min-w-[6.5rem] lg:sticky lg:left-[calc(2.5rem+12rem)] lg:z-[2] lg:bg-al-surface-raised";
 
 export type ReviewsHubInventoryRowProps = {
   readonly run: RunSummary;
@@ -39,7 +42,7 @@ export function ReviewsHubInventoryRow(props: ReviewsHubInventoryRowProps): Reac
       <EnterpriseTableCell className={PINNED_COLUMN_CLASS}>
         <FavoriteReviewToggle runId={row.runId} title={row.reviewTitlePrimary} />
       </EnterpriseTableCell>
-      <EnterpriseTableCell>
+      <EnterpriseTableCell className={REVIEW_TITLE_COLUMN_CLASS}>
         <div className="min-w-[12rem]">
           <Link
             href={row.reviewHref}
@@ -64,7 +67,7 @@ export function ReviewsHubInventoryRow(props: ReviewsHubInventoryRowProps): Reac
       <EnterpriseTableCell>
         <span className="font-medium text-al-text-primary">{row.architectureName}</span>
       </EnterpriseTableCell>
-      <EnterpriseTableCell>
+      <EnterpriseTableCell className={STATUS_COLUMN_CLASS}>
         <StatusTag
           kind={reviewsHubOverallStatusTagKind(row.overallStatus, row.needsAttention)}
           label={row.overallStatus}

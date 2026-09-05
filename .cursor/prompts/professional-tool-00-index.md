@@ -2,7 +2,14 @@
      Origin: owner question that ArchLucid is a working-architect tool (all-day use;
      livelihoods may depend on it), not a casual evaluator product.
      Last updated: 2026-09-03 (wave 2 — residual livelihood gaps after PT-01–10).
-     Fifteen-prompt residual set: livelihood-instrument-00-index.md (LI-01–15). -->
+     Fifteen-prompt residual set: livelihood-instrument-00-index.md (LI-01–15).
+     Successor leftovers (2026-09-04): livelihood-desk-00-index.md (LD-01–15) shipped.
+     Wave 3: repeat-seat-00-index.md (RS-01–15) shipped #1457.
+     Wave 4: working-architect-00-index.md (WA-01–24) shipped #1496.
+     Wave 5: career-desk-00-index.md (CD-01–15).
+     Wave 6: all-day-desk-00-index.md (AD-01–12).
+     Wave 7: founding-desk-00-index.md (FD-01–13).
+     Wave 8: instrument-spine-00-index.md (IS-01–15). -->
 
 # Professional-tool mitigations — Composer prompt set
 
@@ -12,7 +19,17 @@ ArchLucid sells a **seat for a repeat professional**. Production UX still treats
 
 **Structural companion (do not implement from this paragraph):** [`working-desk-00-index.md`](working-desk-00-index.md) — twelve prompts for eval-spine identity, finding-desk honesty, in-flight queue, ops leakage, one-lifecycle IA, and eight-hour a11y. Each WD file names the PT owner where it overlaps; do not fork.
 
-**Fifteen-prompt residual set (do not implement from this paragraph):** [`livelihood-instrument-00-index.md`](livelihood-instrument-00-index.md) (**LI-01–15**) — current-code residuals from the 2026-09-03 livelihood diagnosis. If an LI row lists a PT owner, run or extend that PT file; use the LI file only for the leftover *What to build*.
+**Fifteen-prompt residual set (shipped — do not re-run):** [`livelihood-instrument-00-index.md`](livelihood-instrument-00-index.md) (**LI-01–15**, `master` #1397).
+
+**LD-01–15 (shipped):** [`livelihood-desk-00-index.md`](livelihood-desk-00-index.md) — `master` #1421 / #1439. Do not re-run.
+
+**Wave 3 (shipped):** [`repeat-seat-00-index.md`](repeat-seat-00-index.md) (**RS-01–15**, `master` #1457). Do not re-run.
+
+**Wave 4 (shipped #1496):** [`.cursor/prompts/working-architect-00-index.md`](working-architect-00-index.md) (**WA-01–24**). Do not re-run.
+**Wave 5:** [`.cursor/prompts/career-desk-00-index.md`](career-desk-00-index.md) (**CD-01–15**). Do not fork WA.
+**Wave 6:** [`.cursor/prompts/all-day-desk-00-index.md`](all-day-desk-00-index.md) (**AD-01–12**).
+**Wave 7:** [`.cursor/prompts/founding-desk-00-index.md`](founding-desk-00-index.md) (**FD-01–13**). Do not fork AD-09 or AD-10.
+**Wave 8:** [`.cursor/prompts/instrument-spine-00-index.md`](instrument-spine-00-index.md) (**IS-01–15**). Do not re-run PT.
 
 **Do not treat this set as a V1 assessment scorecard.** Do not add GTM cohort work (**M-90**, **M-44**, **M-91**, **M-92**) or closed assurance programs (**TB-645** vocabulary must stay; **TB-135** / **TB-136** stay closed).
 

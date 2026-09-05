@@ -4,7 +4,7 @@ import { isBrowser } from "@/lib/api/http";
 import { fetchRunDetailCriticalPageBundle } from "@/lib/fetch-run-detail-page-bundle-client";
 import { buildAdrGeneratorRunInput } from "@/lib/adr-from-run";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import { isPinnedDemoWorkspaceRunId } from "@/lib/demo-workspace-scope";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { isUsableGoldenManifestExportJson } from "@/lib/export-markdown";
@@ -183,7 +183,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     return { kind: "not-found", reason: "workspace-mismatch" };
   }
 
-  const buyerPolishedArtifactTable = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedArtifactTable = resolveProductionEvalChromeFromStorage();
 
   const manifestId = resolvedDetail.run.goldenManifestId;
 

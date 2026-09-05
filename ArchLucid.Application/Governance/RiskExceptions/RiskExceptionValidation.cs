@@ -1,3 +1,4 @@
+using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Contracts.Governance;
 
 namespace ArchLucid.Application.Governance;
@@ -20,6 +21,15 @@ public static class RiskExceptionValidation
         if (string.IsNullOrWhiteSpace(request.FindingId))
             throw new ArgumentException("Finding id is required.", nameof(request));
 
+        string normalizedFindingId = request.FindingId.Trim();
+
+        if (normalizedFindingId.Length > FindingDispositionValidation.MaxFindingIdLength)
+        {
+            throw new ArgumentException(
+                $"Finding id must not exceed {FindingDispositionValidation.MaxFindingIdLength} characters.",
+                nameof(request));
+        }
+
         if (string.IsNullOrWhiteSpace(request.OwnerUserId))
             throw new ArgumentException("Owner user id is required.", nameof(request));
 
@@ -34,6 +44,20 @@ public static class RiskExceptionValidation
 
         if (string.IsNullOrWhiteSpace(request.Rationale))
             throw new ArgumentException("Rationale is required.", nameof(request));
+
+        if (request.Rationale.Trim().Length < FindingDispositionValidation.MinimumRationaleLength)
+        {
+            throw new ArgumentException(
+                $"Rationale must be at least {FindingDispositionValidation.MinimumRationaleLength} characters.",
+                nameof(request));
+        }
+
+        if (request.Rationale.Trim().Length > FindingDispositionValidation.MaximumRationaleLength)
+        {
+            throw new ArgumentException(
+                $"Rationale must not exceed {FindingDispositionValidation.MaximumRationaleLength} characters.",
+                nameof(request));
+        }
 
         if (string.IsNullOrWhiteSpace(request.EvidenceRef))
             throw new ArgumentException("Evidence reference is required.", nameof(request));
@@ -70,6 +94,32 @@ public static class RiskExceptionValidation
 
         if (request.ExpiresAtUtc > maxExpiry)
             throw new ArgumentException($"Waiver duration cannot exceed {MaxDurationDays} days.", nameof(request));
+
+        if (request.Rationale is not null && string.IsNullOrWhiteSpace(request.Rationale))
+        {
+            throw new ArgumentException("Rationale cannot be empty or whitespace.", nameof(request));
+        }
+
+        if (request.EvidenceRef is not null && string.IsNullOrWhiteSpace(request.EvidenceRef))
+        {
+            throw new ArgumentException("Evidence reference cannot be empty or whitespace.", nameof(request));
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.Rationale)
+            && request.Rationale.Trim().Length < FindingDispositionValidation.MinimumRationaleLength)
+        {
+            throw new ArgumentException(
+                $"Rationale must be at least {FindingDispositionValidation.MinimumRationaleLength} characters.",
+                nameof(request));
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.Rationale)
+            && request.Rationale.Trim().Length > FindingDispositionValidation.MaximumRationaleLength)
+        {
+            throw new ArgumentException(
+                $"Rationale must not exceed {FindingDispositionValidation.MaximumRationaleLength} characters.",
+                nameof(request));
+        }
 
         if (!string.IsNullOrWhiteSpace(request.EvidenceRef))
         {

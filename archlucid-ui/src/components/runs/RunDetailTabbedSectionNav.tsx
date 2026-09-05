@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { RunDetailSectionNav, type RunDetailSection } from "@/components/runs/RunDetailSectionNav";
-import { filterRunDetailNavSectionsForTab } from "@/lib/runs/run-detail-section-tab-map";
+import { filterRunDetailInPageAnchorSectionsForTab } from "@/lib/runs/run-detail-section-tab-map";
 import {
   REVIEW_DETAIL_TAB_PARAM,
   resolveReviewDetailTab,
@@ -25,7 +25,7 @@ export function RunDetailTabbedSectionNav(props: RunDetailTabbedSectionNavProps)
   const activeTab = resolveReviewDetailTab(searchParams.get(REVIEW_DETAIL_TAB_PARAM));
 
   const sectionsForTab = useMemo(
-    () => filterRunDetailNavSectionsForTab(props.sections, activeTab),
+    () => filterRunDetailInPageAnchorSectionsForTab(props.sections, activeTab),
     [props.sections, activeTab],
   );
 
@@ -36,5 +36,5 @@ export function runDetailTabbedSectionNavVisible(
   sections: readonly RunDetailSection[],
   tabId: ReviewDetailTabId,
 ): boolean {
-  return filterRunDetailNavSectionsForTab(sections, tabId).length >= 3;
+  return filterRunDetailInPageAnchorSectionsForTab(sections, tabId).length >= 3;
 }

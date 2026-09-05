@@ -8,9 +8,17 @@ import {
   alertsInboxStatusHrefFromSearch,
   parseAlertsInboxStatusFromSearch,
 } from "@/lib/governance/alerts-inbox-status-url";
+import {
+  alertsInboxCursorHrefFromSearch,
+  parseAlertsInboxCursorFromSearch,
+} from "@/lib/governance/alerts-inbox-cursor-url";
 
 /** Cursor stack: index 0 is always `""` (first page). Later entries are prior `nextCursor` values. */
-function initialCursorStack(initialModel: AlertsInboxPageModel | null): string[] {
+function initialCursorStack(initialModel: AlertsInboxPageModel | null, urlCursor: string): string[] {
+  if (urlCursor.length > 0) {
+    return ["", urlCursor];
+  }
+
   const cursor = initialModel?.cursor ?? "";
 
   if (cursor.length === 0) {
@@ -24,8 +32,19 @@ export function useAlertsInboxPagination(initialModel: AlertsInboxPageModel | nu
   const router = useRouter();
   const searchParams = useSearchParams();
   const urlStatus = parseAlertsInboxStatusFromSearch(searchParams.get("status"));
+  const urlCursor = parseAlertsInboxCursorFromSearch(searchParams.get("cursor"));
   const [status, setStatus] = useState<string>(initialModel?.status ?? urlStatus);
-  const [cursorStack, setCursorStack] = useState<string[]>(() => initialCursorStack(initialModel));
+  const [cursorStack, setCursorStack] = useState<string[]>(() => initialCursorStack(initialModel, urlCursor));
+
+  useEffect(() => {
+    const nextCursor = parseAlertsInboxCursorFromSearch(searchParams.get("cursor"));
+
+    if (nextCursor === (cursorStack[cursorStack.length - 1] ?? "")) {
+      return;
+    }
+
+    setCursorStack(nextCursor.length > 0 ? ["", nextCursor] : [""]);
+  }, [cursorStack, searchParams]);
 
   useEffect(() => {
     if (status === urlStatus) {
@@ -35,6 +54,13 @@ export function useAlertsInboxPagination(initialModel: AlertsInboxPageModel | nu
     setStatus(urlStatus);
     setCursorStack([""]);
   }, [status, urlStatus]);
+
+  const syncCursorToUrl = useCallback(
+    (nextCursor: string) => {
+      router.replace(alertsInboxCursorHrefFromSearch(searchParams.toString(), nextCursor), { scroll: false });
+    },
+    [router, searchParams],
+  );
 
   const cursor = cursorStack[cursorStack.length - 1] ?? "";
   const page = cursorStack.length;
@@ -51,6 +77,7 @@ export function useAlertsInboxPagination(initialModel: AlertsInboxPageModel | nu
 
   function goNextPage(nextCursor: string): void {
     setCursorStack((prev) => [...prev, nextCursor]);
+    syncCursorToUrl(nextCursor);
   }
 
   function goPreviousPage(): void {
@@ -59,13 +86,18 @@ export function useAlertsInboxPagination(initialModel: AlertsInboxPageModel | nu
         return prev;
       }
 
-      return prev.slice(0, -1);
+      const nextStack = prev.slice(0, -1);
+      const previousCursor = nextStack[nextStack.length - 1] ?? "";
+      syncCursorToUrl(previousCursor);
+
+      return nextStack;
     });
   }
 
   const resetCursorStack = useCallback((): void => {
     setCursorStack([""]);
-  }, []);
+    syncCursorToUrl("");
+  }, [syncCursorToUrl]);
 
   return {
     status,

@@ -1,7 +1,5 @@
-using System.Text.Json;
-
-using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
+using ArchLucid.Core.Persistence.DecisionTraces;
 using ArchLucid.Persistence.Serialization;
 
 namespace ArchLucid.Persistence.Repositories;
@@ -38,15 +36,8 @@ public static partial class DecisionTraceRepositoryCore
         });
     }
 
-    public static DecisionTraceDto Clone(DecisionTraceDto source)
-    {
-        ArgumentNullException.ThrowIfNull(source);
-
-        string json = JsonSerializer.Serialize(source, ContractJson.Default);
-        DecisionTraceDto? copy = JsonSerializer.Deserialize<DecisionTraceDto>(json, ContractJson.Default);
-
-        return copy ?? throw new InvalidOperationException("Clone produced null DecisionTraceDto.");
-    }
+    public static DecisionTraceDto Clone(DecisionTraceDto source) =>
+        DecisionTraceStoreRules.Clone(source);
 
     private static List<string> DeserializeStringList(string? json)
     {

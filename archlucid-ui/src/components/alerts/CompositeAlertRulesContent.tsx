@@ -35,6 +35,11 @@ import {
   compositeRulesPageLeadReader,
 } from "@/lib/enterprise-controls-context-copy";
 import {
+  compositeAlertRulesPanelsHrefFromSearch,
+  parseCompositeAlertRulesCreateConfirmOpenFromSearch,
+  parseCompositeAlertRulesCreatePanelFromSearch,
+} from "@/lib/alerts/composite-alert-rules-panels-url";
+import {
   OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -81,8 +86,12 @@ export function CompositeAlertRulesContent() {
   const loading = compositeRulesQuery.loading;
   const [mutationFailure, setMutationFailure] = useState<ApiLoadFailureState | null>(null);
   const failure = compositeRulesQuery.failure ?? mutationFailure;
-  const [showCreatePanel, setShowCreatePanel] = useState(false);
-  const [showCreateConfirmation, setShowCreateConfirmation] = useState(false);
+  const urlShowCreate = parseCompositeAlertRulesCreatePanelFromSearch(searchParams.get("create"));
+  const urlShowCreateConfirm = parseCompositeAlertRulesCreateConfirmOpenFromSearch(
+    searchParams.get("compositeCreateConfirm"),
+  );
+  const [showCreatePanel, setShowCreatePanelState] = useState(urlShowCreate);
+  const [showCreateConfirmation, setShowCreateConfirmationState] = useState(urlShowCreateConfirm);
   const [createBusy, setCreateBusy] = useState(false);
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [ruleSaved, setRuleSaved] = useState(false);
@@ -101,6 +110,56 @@ export function CompositeAlertRulesContent() {
   const [m2, setM2] = useState("NewComplianceGapCount");
   const [o2, setO2] = useState("GreaterThanOrEqual");
   const [v2, setV2] = useState(1);
+
+  const syncCreatePanelToUrl = useCallback(
+    (showCreate: boolean) => {
+      router.replace(compositeAlertRulesPanelsHrefFromSearch(searchParams.toString(), { showCreatePanel: showCreate }), {
+        scroll: false,
+      });
+    },
+    [router, searchParams],
+  );
+
+  const syncCreateConfirmToUrl = useCallback(
+    (confirmOpen: boolean) => {
+      router.replace(
+        compositeAlertRulesPanelsHrefFromSearch(searchParams.toString(), { showCreateConfirm: confirmOpen }),
+        { scroll: false },
+      );
+    },
+    [router, searchParams],
+  );
+
+  const setShowCreateConfirmation = useCallback(
+    (next: boolean | ((prev: boolean) => boolean)) => {
+      setShowCreateConfirmationState((prev) => {
+        const resolved = typeof next === "function" ? next(prev) : next;
+        syncCreateConfirmToUrl(resolved);
+
+        return resolved;
+      });
+    },
+    [syncCreateConfirmToUrl],
+  );
+
+  const setShowCreatePanel = useCallback(
+    (next: boolean | ((prev: boolean) => boolean)) => {
+      setShowCreatePanelState((prev) => {
+        const resolved = typeof next === "function" ? next(prev) : next;
+        syncCreatePanelToUrl(resolved);
+
+        return resolved;
+      });
+    },
+    [syncCreatePanelToUrl],
+  );
+
+  useEffect(() => {
+    setShowCreatePanelState(parseCompositeAlertRulesCreatePanelFromSearch(searchParams.get("create")));
+    setShowCreateConfirmationState(
+      parseCompositeAlertRulesCreateConfirmOpenFromSearch(searchParams.get("compositeCreateConfirm")),
+    );
+  }, [searchParams]);
 
   const formInput = useMemo<CompositeAlertRuleFormInput>(
     () => ({

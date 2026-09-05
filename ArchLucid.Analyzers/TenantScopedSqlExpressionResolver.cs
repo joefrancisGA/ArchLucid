@@ -213,21 +213,32 @@ internal static class TenantScopedSqlExpressionResolver
         if (syntaxReference is null)
             return null;
 
+        SyntaxNode syntax = syntaxReference.GetSyntax();
+        SemanticModel modelForSyntax = GetSemanticModelForSyntax(syntax, semanticModel);
+
         if (symbol is ILocalSymbol or IFieldSymbol &&
-            syntaxReference.GetSyntax() is VariableDeclaratorSyntax declarator &&
+            syntax is VariableDeclaratorSyntax declarator &&
             declarator.Initializer?.Value is ExpressionSyntax declaratorInitializer)
         {
-            return ResolveCore(declaratorInitializer, semanticModel, visitingInterpolatedHole: false);
+            return ResolveCore(declaratorInitializer, modelForSyntax, visitingInterpolatedHole: false);
         }
 
         if (symbol is IPropertySymbol &&
-            syntaxReference.GetSyntax() is PropertyDeclarationSyntax propertyDeclaration &&
+            syntax is PropertyDeclarationSyntax propertyDeclaration &&
             propertyDeclaration.Initializer?.Value is ExpressionSyntax propertyInitializer)
         {
-            return ResolveCore(propertyInitializer, semanticModel, visitingInterpolatedHole: false);
+            return ResolveCore(propertyInitializer, modelForSyntax, visitingInterpolatedHole: false);
         }
 
         return null;
+    }
+
+    private static SemanticModel GetSemanticModelForSyntax(SyntaxNode syntax, SemanticModel semanticModel)
+    {
+        if (ReferenceEquals(syntax.SyntaxTree, semanticModel.SyntaxTree))
+            return semanticModel;
+
+        return semanticModel.Compilation.GetSemanticModel(syntax.SyntaxTree, ignoreAccessibility: false);
     }
 
     private const string RunChildScopeWhereClauseMarker =

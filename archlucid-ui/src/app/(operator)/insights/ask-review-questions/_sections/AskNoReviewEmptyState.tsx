@@ -1,7 +1,17 @@
+"use client";
+
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { ASK_NO_REVIEW_PACKAGE_EMPTY } from "@/lib/ask-conversation-empty-preset";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { buildInsightsFinalizedReviewPrerequisiteEmpty } from "@/lib/insights-finalized-review-prerequisite-empty";
 
 /** Focused Ask page empty state when no reviews are available to scope questions. */
 export function AskNoReviewEmptyState() {
-  return <EnterpriseCompactEmptyState {...ASK_NO_REVIEW_PACKAGE_EMPTY} />;
+  const { isWorkingMode } = useWorkspaceMode();
+  const preset = buildInsightsFinalizedReviewPrerequisiteEmpty({
+    jobId: "ask",
+    finalizedCount: 0,
+    workingMode: isWorkingMode,
+  });
+
+  return <EnterpriseCompactEmptyState {...preset} />;
 }

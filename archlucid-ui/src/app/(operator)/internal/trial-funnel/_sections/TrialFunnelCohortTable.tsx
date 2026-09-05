@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import type { Dispatch, ReactElement, SetStateAction } from "react";
+import type { ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,23 +19,13 @@ import {
 } from "@/components/ui/enterprise-table";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
-import { trialFunnelStageHrefFromSearch } from "@/lib/internal/trial-funnel-filter-url";
+import { trialFunnelStageHrefFromSearch, type TrialFunnelCohortSortKey } from "@/lib/internal/trial-funnel-filter-url";
 import { TRIAL_FUNNEL_CONVERSION_NOTE } from "@/lib/trial-funnel-metric-contract";
 import type { TrialFunnelCohortRow, TrialFunnelOperationalSummary, TrialFunnelPeriodDays } from "@/lib/trial-funnel-ops";
 
 import { formatUtcLabel } from "./trial-funnel-formatters";
 
 type LoadState = "loading" | "ready" | "error";
-
-type CohortSortKey =
-  | "organizationName"
-  | "trialStartedUtc"
-  | "currentStageLabel"
-  | "daysInTrial"
-  | "lastMeaningfulActivityUtc"
-  | "firstReviewStatus"
-  | "conversionStatus"
-  | "estimatedFirstReviewCostUsd";
 
 type Props = {
   readonly data: TrialFunnelOperationalSummary | null;
@@ -47,11 +37,11 @@ type Props = {
   readonly stageFilter: string;
   readonly setStageFilter: (stage: string) => void;
   readonly attentionOnly: boolean;
-  readonly setAttentionOnly: Dispatch<SetStateAction<boolean>>;
-  readonly sortKey: CohortSortKey;
-  readonly setSortKey: Dispatch<SetStateAction<CohortSortKey>>;
+  readonly setAttentionOnly: (attentionOnly: boolean) => void;
+  readonly sortKey: TrialFunnelCohortSortKey;
+  readonly setSortKey: (sortKey: TrialFunnelCohortSortKey) => void;
   readonly sortAsc: boolean;
-  readonly setSortAsc: Dispatch<SetStateAction<boolean>>;
+  readonly setSortAsc: (sortAsc: boolean) => void;
 };
 
 export function TrialFunnelCohortTable(props: Props): ReactElement {
@@ -109,7 +99,11 @@ export function TrialFunnelCohortTable(props: Props): ReactElement {
           </div>
           <div className="flex flex-wrap gap-3">
             <label className={cn("inline-flex items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>
-              <input type="checkbox" checked={attentionOnly} onChange={(event) => setAttentionOnly(event.target.checked)} />
+              <input
+                type="checkbox"
+                checked={attentionOnly}
+                onChange={(event) => setAttentionOnly(event.target.checked)}
+              />
               Needs attention only
             </label>
             <label className={cn("inline-flex items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>
@@ -117,7 +111,7 @@ export function TrialFunnelCohortTable(props: Props): ReactElement {
               <select
                 className="rounded-md border border-neutral-300 bg-white px-2 py-1 text-sm dark:border-neutral-700 dark:bg-neutral-950"
                 value={sortKey}
-                onChange={(event) => setSortKey(event.target.value as CohortSortKey)}
+                onChange={(event) => setSortKey(event.target.value as TrialFunnelCohortSortKey)}
                 aria-label="Sort cohort table"
               >
                 <option value="trialStartedUtc">Trial started</option>
@@ -130,7 +124,7 @@ export function TrialFunnelCohortTable(props: Props): ReactElement {
                 <option value="estimatedFirstReviewCostUsd">First-review AI cost</option>
               </select>
             </label>
-            <Button type="button" variant="outline" size="sm" onClick={() => setSortAsc((value) => !value)}>
+            <Button type="button" variant="outline" size="sm" onClick={() => setSortAsc(!sortAsc)}>
               {sortAsc ? "Ascending" : "Descending"}
             </Button>
           </div>
@@ -216,4 +210,4 @@ export function TrialFunnelCohortTable(props: Props): ReactElement {
   );
 }
 
-export type { CohortSortKey };
+export type { TrialFunnelCohortSortKey };

@@ -154,7 +154,13 @@ public sealed partial class CompareRunsApplicationFacade
             };
         }
 
-        ComparisonResult comparison = _comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);
+        ComparisonResult comparison = _comparison.Compare(
+            ManifestCompareInventoryCheckedDocumentBuilder.ApplyProjectedTopology(
+                baseRun.GoldenManifest,
+                await ProjectCompareManifestAsync(baseRun.GoldenManifest, baseHeader, ct)),
+            ManifestCompareInventoryCheckedDocumentBuilder.ApplyProjectedTopology(
+                targetRun.GoldenManifest,
+                await ProjectCompareManifestAsync(targetRun.GoldenManifest, targetHeader, ct)));
         comparison.InputFingerprints = RunComparePinFingerprintGuard.BuildCompareInputFingerprints(
             baseHeader,
             targetHeader,

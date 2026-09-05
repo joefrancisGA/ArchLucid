@@ -202,6 +202,33 @@ describe("buildUnfinishedWorkRailItems (TB-2209)", () => {
     });
   });
 
+  it("collapses draft rows that duplicate an active review title", () => {
+    const items = buildUnfinishedWorkRailItems({
+      drafts: [
+        draft({
+          architectureId: "arch-1",
+          displayName: "ArchLucid",
+          customerStatus: "ready-for-review",
+        }),
+      ],
+      runs: [
+        run({
+          runId: "run-mid",
+          description: "ArchLucid",
+          hasFindingsSnapshot: false,
+          hasGoldenManifest: false,
+        }),
+      ],
+      incompleteWizards: [],
+    });
+
+    expect(items).toHaveLength(1);
+    expect(items[0]).toMatchObject({
+      kind: "review-in-progress",
+      title: "ArchLucid",
+    });
+  });
+
   it("orders by urgency then recency and respects maxItems", () => {
     const items = buildUnfinishedWorkRailItems({
       drafts: [

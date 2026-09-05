@@ -14,6 +14,7 @@ import {
 } from "./RunDetailTabbedWorkspaceDeferredImports";
 import type { RunDetailPageModel } from "./run-detail-page-model";
 import type { RunDetailPresentation } from "./run-detail-page-presentation";
+import { deriveDecisionSnapshotSuppressedReason, isReviewPipelineIncomplete } from "@/lib/run-detail-workspace-derive";
 
 export type RunDetailTabbedWorkspaceOverviewShellInput = {
   readonly model: RunDetailPageModel;
@@ -70,6 +71,9 @@ export function composeRunDetailTabbedWorkspaceOverviewShell(
     blockingApprovalCount === 0 ? (
       <RunDetailSponsorBottomLineDeferred content={executiveBottomLineContent} />
     ) : null;
+  const runCompleted = m.resolvedDetail.run.legacyRunStatus === "Completed" || Boolean(m.manifestId);
+  const decisionSnapshotSuppressedReason = deriveDecisionSnapshotSuppressedReason(workspaceStatus);
+  const showDetailedOutcomeCards = !isReviewPipelineIncomplete(workspaceStatus);
 
   return (
     <div key="review-detail-overview-panel" className="space-y-4">
@@ -90,6 +94,7 @@ export function composeRunDetailTabbedWorkspaceOverviewShell(
         evidenceCoverageLine={p.evidenceCoverageSummary.summaryLine}
         primaryConcern={reviewStatusSummary.primaryConcern}
         materialSeverityLine={materialSeverityLine}
+        suppressedReason={decisionSnapshotSuppressedReason}
       />
       {executiveBottomLineEl}
       <RunDetailOverviewPanelClientDeferred
@@ -102,6 +107,7 @@ export function composeRunDetailTabbedWorkspaceOverviewShell(
         recommendedActions={recommendedActions}
         criticalCount={severityCounts.critical}
         highCount={severityCounts.high}
+        pipelineIncomplete={!showDetailedOutcomeCards}
         proofStatusSlot={
           <RunDetailFirstScreenProofStatusClient
             key="run-detail-overview-proof-status"
@@ -111,15 +117,21 @@ export function composeRunDetailTabbedWorkspaceOverviewShell(
           />
         }
       />
-      <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" open={false}>
-        <summary className="cursor-pointer font-semibold">Detailed outcome cards</summary>
-        <div className="mt-3">{outcomeCardsEl}</div>
-      </details>
+      {showDetailedOutcomeCards ? (
+        <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" open={false}>
+          <summary className="cursor-pointer font-semibold">Detailed outcome cards</summary>
+          <div className="mt-3">{outcomeCardsEl}</div>
+        </details>
+      ) : null}
       <Suspense fallback={<RunDetailMidDeferredSkeleton />}>
         <RunDetailMidDeferredSections context={deferredContext} />
       </Suspense>
-      {buyerFinalizedPackage ? null : (
-        <RunDetailSponsorReportCtaCardDeferred runId={m.resolvedDetail.run.runId} demoted />
+      {buyerFinalizedPackage || !runCompleted ? null : (
+        <RunDetailSponsorReportCtaCardDeferred
+          runId={m.resolvedDetail.run.runId}
+          manifestId={m.manifestId}
+          demoted
+        />
       )}
     </div>
   );

@@ -68,7 +68,8 @@ public sealed class ArchitectureReviewRobustnessWave7ArchitectureTests
                 "ArchLucid.Application",
                 "Runs",
                 "Query",
-                "RunFindingsQueryService.cs"));
+                "Stages",
+                "RunFindingsCsvExportStage.cs"));
 
         csv.Should().Contain("AuthorityLifecycleCompareExportGuard");
 
@@ -82,23 +83,10 @@ public sealed class ArchitectureReviewRobustnessWave7ArchitectureTests
     public void Suggestion65_ui_uses_authority_lifecycle_phase()
     {
         string compare = File.ReadAllText(
-            Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "compare-baseline-run.ts"));
+            Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "authority-lifecycle-commit-block.ts"));
 
         compare.Should().Contain("authorityLifecyclePhase");
-
-        string hub = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "archlucid-ui",
-                "src",
-                "app",
-                "(operator)",
-                "architecture",
-                "reviews",
-                "_sections",
-                "reviews-hub-package-display.ts"));
-
-        hub.Should().Contain("authorityLifecyclePhaseLabel");
+        compare.Should().Contain("authorityLifecyclePhaseLabel");
     }
 
     [Fact]
@@ -136,7 +124,8 @@ public sealed class ArchitectureReviewRobustnessWave7ArchitectureTests
                 "Findings",
                 "EffectfulFindingEngineEvidenceLoader.cs"));
 
-        loader.Should().Contain("HasCreateTimeEvidencePinCommitment");
+        loader.Should().Contain("EvidencePins");
+        loader.Should().Contain("ResolvePinnedPin");
     }
 
     [Fact]
@@ -161,7 +150,7 @@ public sealed class ArchitectureReviewRobustnessWave7ArchitectureTests
         string hasher = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "ManifestHashService.cs"));
 
-        hasher.Should().Contain("HasherSchemaVersion = \"v4\"");
+        hasher.Should().Contain("HasherSchemaVersion = \"v12\"");
         hasher.Should().Contain("CreateTimeEvidencePackagePinsHashSha256");
     }
 

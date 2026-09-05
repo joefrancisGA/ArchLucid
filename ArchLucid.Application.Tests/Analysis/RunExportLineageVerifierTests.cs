@@ -206,12 +206,40 @@ public sealed class RunExportLineageVerifierTests
 
         result.Status.Should().Be(RunExportLineageVerificationStatus.NotAttested);
         result.RecomputedHash.Should().NotBeNullOrWhiteSpace();
-        result.CommittedHash.Should().BeNull();
+        result.CommittedHash.Should().Be(manifest.ManifestHash);
+    }
+
+    [Fact]
+    public async Task VerifyAsync_mismatch_when_sealed_manifest_hash_differs()
+    {
+        Guid runId = Guid.NewGuid();
+        ManifestDocument manifest = CreateManifest();
+        manifest.ManifestHash = new string('A', 64);
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = runId },
+                GoldenManifest = manifest
+            });
+
+        Mock<IAuditService> audit = new();
+        audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        RunExportLineageVerifier sut = CreateSut(authority.Object, Mock.Of<IAuditRepository>(), audit.Object);
+
+        RunExportLineageVerificationResult result = (await sut.VerifyAsync(Scope, runId, CancellationToken.None))!;
+
+        result.Status.Should().Be(RunExportLineageVerificationStatus.Mismatch);
+        result.CommittedHash.Should().Be(manifest.ManifestHash);
+        result.RecomputedHash.Should().NotBe(manifest.ManifestHash);
     }
 
     private static ManifestDocument CreateManifest()
     {
-        return new ManifestDocument
+        ManifestDocument manifest = new()
         {
             ManifestId = Guid.NewGuid(),
             RunId = Guid.NewGuid(),
@@ -223,6 +251,10 @@ public sealed class RunExportLineageVerifierTests
             RuleSetHash = "rule-hash",
             Metadata = new ManifestMetadata { Name = "demo" }
         };
+
+        manifest.ManifestHash = new ManifestHashService().ComputeHash(manifest);
+
+        return manifest;
     }
 
     private static RunExportLineageVerifier CreateSut(

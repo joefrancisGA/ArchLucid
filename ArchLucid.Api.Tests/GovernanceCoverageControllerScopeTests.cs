@@ -1,6 +1,7 @@
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Models.Coverage;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Drafts;
 using ArchLucid.Application.Governance.Coverage;
 using ArchLucid.Contracts.Governance.Coverage;
 using ArchLucid.Contracts.Governance.PolicyPacks;
@@ -101,6 +102,75 @@ public sealed class GovernanceCoverageControllerScopeTests
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        preview.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task PreviewCoverage_returns_bad_request_when_cloud_provider_is_unrecognized_and_tenant_missing()
+    {
+        Mock<ICoveragePreviewService> preview = new(MockBehavior.Strict);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        GovernanceCoverageController controller = new(
+            Mock.Of<ICoverageQueryService>(),
+            preview.Object,
+            Mock.Of<IPolicyPackRepository>(),
+            scopeProvider.Object,
+            tenants.Object);
+        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        CoveragePreviewRequest request = new()
+        {
+            CloudProvider = (CloudProvider)99,
+            FocusedPilotModeEnabled = true,
+        };
+
+        IActionResult action = await controller.PreviewCoverage(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        preview.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task PreviewCoverage_returns_bad_request_when_description_text_exceeds_max_length_and_tenant_missing()
+    {
+        Mock<ICoveragePreviewService> preview = new(MockBehavior.Strict);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        GovernanceCoverageController controller = new(
+            Mock.Of<ICoverageQueryService>(),
+            preview.Object,
+            Mock.Of<IPolicyPackRepository>(),
+            scopeProvider.Object,
+            tenants.Object);
+        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        CoveragePreviewRequest request = new()
+        {
+            CloudProvider = CloudProvider.Azure,
+            FocusedPilotModeEnabled = true,
+            DescriptionText = new string('x', DraftIntakeValidation.MaximumFreeTextIntentLength + 1),
+        };
+
+        IActionResult action = await controller.PreviewCoverage(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         preview.VerifyNoOtherCalls();
     }
 

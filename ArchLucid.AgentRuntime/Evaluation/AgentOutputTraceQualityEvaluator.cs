@@ -302,6 +302,12 @@ public static class AgentOutputTraceQualityEvaluator
         IAgentOutputFaithfulnessEvaluator? llmFaithfulnessEvaluator,
         AgentOutputLlmFaithfulnessOptions llmFaithfulnessOptions)
     {
+        if (trace.QualityRejected
+            || trace.RecordedQualityGateOutcome == AgentOutputQualityGateOutcome.Rejected)
+        {
+            return false;
+        }
+
         TraceQualityEvaluationResult? result =
             await TryEvaluateTraceAsync(
                 trace,

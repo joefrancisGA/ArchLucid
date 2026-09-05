@@ -4,8 +4,10 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useRef } from "react";
 
-import { Button } from "@/components/ui/button";
+import { FindingDispositionRecordCorrectionControl } from "@/components/governance/findings/FindingDispositionRecordCorrectionControl";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
+import { Button } from "@/components/ui/button";
 import { DispositionExportBeforeAfterPreview } from "@/components/operator/DispositionExportBeforeAfterPreview";
 import { DispositionExportImpactNotice } from "@/components/operator/DispositionExportImpactNotice";
 import { type FindingDispositionKind } from "@/lib/api/governance-stickiness-api";
@@ -29,6 +31,7 @@ import {
   DISPOSITION_RATIONALE_REQUIRED_MESSAGE,
   TRADE_OFF_ACKNOWLEDGMENT_REQUIRED_MESSAGE,
 } from "@/lib/review-quality/finding-governance-gates";
+import { formatLivelihoodLastSavedLabel } from "@/lib/livelihood-last-saved-label";
 
 import type { FindingInspectDispositionControlsViewModel } from "./use-finding-inspect-disposition-controls";
 
@@ -75,6 +78,10 @@ export type FindingInspectDispositionFormProps = Pick<
   | "mutationDisabledReason"
   | "pendingDispositionKind"
   | "pendingDispositionBlockedReason"
+  | "remediationLastSavedUtc"
+  | "remediationInlineSaveError"
+  | "dispositionLastSavedUtc"
+  | "dispositionInlineSaveError"
 >;
 
 export function FindingInspectDispositionForm(props: FindingInspectDispositionFormProps) {
@@ -112,12 +119,16 @@ export function FindingInspectDispositionForm(props: FindingInspectDispositionFo
     mutationDisabledReason,
     pendingDispositionKind,
     pendingDispositionBlockedReason,
+    remediationLastSavedUtc,
+    remediationInlineSaveError,
+    dispositionLastSavedUtc,
+    dispositionInlineSaveError,
   } = props;
   const rationaleRef = useRef<HTMLTextAreaElement | null>(null);
 
   return (
     <>
-      <section className="space-y-3" aria-labelledby="governance-remediation-heading">
+      <section id="finding-inspect-remediation-panel" className="space-y-3" aria-labelledby="governance-remediation-heading">
         <h3 id="governance-remediation-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Remediation assignment
         </h3>
@@ -165,18 +176,38 @@ export function FindingInspectDispositionForm(props: FindingInspectDispositionFo
             data-testid="finding-remediation-save"
             aria-busy={busyAction === "remediation"}
           >
-            {busyAction === "remediation" ? "Saving remediation assignmentâ€¦" : "Save remediation assignment"}
+            {busyAction === "remediation" ? "Saving remediation assignment…" : "Save remediation assignment"}
           </Button>
         </div>
+        {remediationInlineSaveError !== null ? (
+          <OperatorMutationInlineError
+            message={remediationInlineSaveError}
+            testId="finding-remediation-inline-save-error"
+            recoveryScenario="api-problem"
+          />
+        ) : null}
+        {remediationLastSavedUtc !== null ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="finding-remediation-last-saved"
+          >
+            {formatLivelihoodLastSavedLabel(remediationLastSavedUtc)}
+          </p>
+        ) : null}
       </section>
 
-      <section className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800" aria-labelledby="governance-disposition-heading">
+      <section id="finding-inspect-disposition-panel" className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800" aria-labelledby="governance-disposition-heading">
         <h3 id="governance-disposition-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Disposition
         </h3>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Current state: <span className="font-medium text-al-text-primary">{currentDisposition}</span>
         </p>
+        <FindingDispositionRecordCorrectionControl
+          findingId={findingId}
+          runId={runId}
+          hasRecordedDisposition={currentDisposition !== "Open"}
+        />
         {currentDisposition !== "Open" ? (
           <div className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40">
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
@@ -276,7 +307,7 @@ export function FindingInspectDispositionForm(props: FindingInspectDispositionFo
             data-testid="finding-disposition-save"
             aria-busy={busyAction === "disposition"}
           >
-            {busyAction === "disposition" ? "Saving dispositionâ€¦" : "Save disposition"}
+            {busyAction === "disposition" ? "Saving disposition…" : "Save disposition"}
           </Button>
           <Button
             type="button"
@@ -290,9 +321,24 @@ export function FindingInspectDispositionForm(props: FindingInspectDispositionFo
             data-testid="finding-mark-remediated"
             aria-busy={busyAction === "mark-remediated"}
           >
-            {busyAction === "mark-remediated" ? "Marking finding as remediatedâ€¦" : "Mark as remediated"}
+            {busyAction === "mark-remediated" ? "Marking finding as remediated…" : "Mark as remediated"}
           </Button>
         </div>
+        {dispositionInlineSaveError !== null ? (
+          <OperatorMutationInlineError
+            message={dispositionInlineSaveError}
+            testId="finding-disposition-inline-save-error"
+            recoveryScenario="api-problem"
+          />
+        ) : null}
+        {dispositionLastSavedUtc !== null ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="finding-disposition-last-saved"
+          >
+            {formatLivelihoodLastSavedLabel(dispositionLastSavedUtc)}
+          </p>
+        ) : null}
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {markRemediatedTransitionCopy()}
         </p>

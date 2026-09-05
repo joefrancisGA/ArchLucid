@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   BadgeCheck,
@@ -39,6 +40,11 @@ import {
   type WizardEvidenceSourceOption,
 } from "@/lib/wizard-evidence-source-options";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_SELECTION } from "@/lib/design-tokens";
+import {
+  parseWizardEvidenceDemoScenarioFromSearch,
+  parseWizardEvidenceSourceFromSearch,
+  wizardEvidenceSourceHrefFromSearch,
+} from "@/lib/runs/wizard-evidence-source-url";
 
 export type WizardStepEvidenceUploadProps = {
   pendingFile: File | null;
@@ -153,13 +159,45 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
     onTryDemoData,
     onSkipDemoData,
   } = props;
-  const [selectedSourceId, setSelectedSourceId] = useState<WizardEvidenceSourceId>("brief");
-  const [selectedDemoScenarioId, setSelectedDemoScenarioId] = useState<DemoReviewScenarioId>(
-    DEFAULT_DEMO_REVIEW_SCENARIO_ID,
+  const router = useRouter();
+  const pathname = usePathname() ?? "/architecture/reviews/new";
+  const searchParams = useSearchParams();
+  const urlEvidenceSource = parseWizardEvidenceSourceFromSearch(searchParams.get("evidenceSource"));
+  const urlDemoScenario = parseWizardEvidenceDemoScenarioFromSearch(searchParams.get("demoScenario"));
+  const [selectedSourceId, setSelectedSourceIdState] = useState<WizardEvidenceSourceId>(urlEvidenceSource ?? "brief");
+  const [selectedDemoScenarioId, setSelectedDemoScenarioIdState] = useState<DemoReviewScenarioId>(
+    urlDemoScenario ?? DEFAULT_DEMO_REVIEW_SCENARIO_ID,
   );
 
+  const syncEvidenceSourceToUrl = useCallback(
+    (state: { evidenceSourceId: WizardEvidenceSourceId; demoScenarioId: DemoReviewScenarioId }) => {
+      router.replace(
+        wizardEvidenceSourceHrefFromSearch(searchParams.toString(), {
+          evidenceSourceId: state.evidenceSourceId,
+          demoScenarioId: state.demoScenarioId,
+        }, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    const fromSource = parseWizardEvidenceSourceFromSearch(searchParams.get("evidenceSource"));
+    const fromDemo = parseWizardEvidenceDemoScenarioFromSearch(searchParams.get("demoScenario"));
+
+    if (fromSource !== null) {
+      setSelectedSourceIdState(fromSource);
+    }
+
+    if (fromDemo !== null) {
+      setSelectedDemoScenarioIdState(fromDemo);
+    }
+  }, [searchParams]);
+
   const handleSelectSource = (sourceId: WizardEvidenceSourceId) => {
-    setSelectedSourceId(sourceId);
+    setSelectedSourceIdState(sourceId);
+    syncEvidenceSourceToUrl({ evidenceSourceId: sourceId, demoScenarioId: selectedDemoScenarioId });
 
     if (!isTier1InventoryEvidenceSourceId(sourceId) && sourceId !== "demo") {
       onPendingFileChange(null);
@@ -257,7 +295,10 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
             <div className="mt-3">
               <AzureExtractorDemoScenarioPicker
                 selectedScenarioId={selectedDemoScenarioId}
-                onSelectScenario={setSelectedDemoScenarioId}
+                onSelectScenario={(scenarioId) => {
+                  setSelectedDemoScenarioIdState(scenarioId);
+                  syncEvidenceSourceToUrl({ evidenceSourceId: selectedSourceId, demoScenarioId: scenarioId });
+                }}
                 testIdPrefix="wizard-evidence-demo"
               />
             </div>

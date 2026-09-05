@@ -1,13 +1,18 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type SetStateAction } from "react";
 
 import { ArchitectureDraftIntakeModeDialog } from "@/components/architecture/ArchitectureDraftIntakeModeDialog";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { Button } from "@/components/ui/button";
 import { getDraftRequest, reopenDraftRequest } from "@/lib/api/draft-intake-api";
 import { formatVerboseApiFailureMessage } from "@/lib/resolve-api-error-message";
+import {
+  architectureDraftIntakeModeConfirmHrefFromSearch,
+  parseArchitectureDraftIntakeModeConfirmOpenFromSearch,
+  parseArchitectureDraftIntakeModeDraftIdFromSearch,
+} from "@/lib/architecture/architecture-draft-intake-mode-confirm-url";
 import { architectureDraftSpawnedRunId } from "@/lib/architecture/architecture-draft-handoff-gate";
 import {
   architectureDraftAllowsBriefUnlock,
@@ -36,10 +41,82 @@ export function ArchitectureDraftResumeControl(
   props: ArchitectureDraftResumeControlProps,
 ): React.JSX.Element {
   const router = useRouter();
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const intakeModeConfirmParam = searchParams.get("intakeModeConfirm");
+  const intakeModeDraftIdParam = searchParams.get("intakeModeDraftId");
+  const [dialogOpen, setDialogOpenState] = useState(false);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<DraftRequestStatus | null>(null);
   const [inlineError, setInlineError] = useState<string | null>(null);
+
+  const syncIntakeModeConfirmToUrl = useCallback(
+    (open: boolean) => {
+      if (pathname.length === 0) {
+        return;
+      }
+
+      router.replace(
+        architectureDraftIntakeModeConfirmHrefFromSearch(
+          searchParams.toString(),
+          open
+            ? { confirmOpen: true, draftId: props.architectureId }
+            : { confirmOpen: false, draftId: null },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, props.architectureId, router, searchParams],
+  );
+
+  const setDialogOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setDialogOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncIntakeModeConfirmToUrl(next);
+
+        return next;
+      });
+    },
+    [syncIntakeModeConfirmToUrl],
+  );
+
+  useEffect(() => {
+    const confirmOpen = parseArchitectureDraftIntakeModeConfirmOpenFromSearch(intakeModeConfirmParam);
+    const draftId = parseArchitectureDraftIntakeModeDraftIdFromSearch(intakeModeDraftIdParam);
+
+    if (!confirmOpen || draftId.length === 0 || draftId !== props.architectureId) {
+      setDialogOpenState(false);
+
+      return;
+    }
+
+    let cancelled = false;
+
+    void getDraftRequest(props.architectureId)
+      .then((draft) => {
+        if (cancelled) {
+          return;
+        }
+
+        if (!isArchitectureDraftInReviewIntake(draft.status)) {
+          return;
+        }
+
+        setStatus(draft.status);
+        setDialogOpenState(true);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setDialogOpenState(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [intakeModeConfirmParam, intakeModeDraftIdParam, props.architectureId]);
 
   const openDraft = useCallback(() => {
     router.push(architectureDraftPath(props.architectureId));
@@ -83,12 +160,12 @@ export function ArchitectureDraftResumeControl(
     } finally {
       setBusy(false);
     }
-  }, [busy, openDraft, props.architectureId, props.source]);
+  }, [busy, openDraft, props.architectureId, props.source, router, setDialogOpen]);
 
   const handleContinueIntake = useCallback(() => {
     setDialogOpen(false);
     router.push(startReviewFromArchitectureHref(props.architectureId));
-  }, [props.architectureId, router]);
+  }, [props.architectureId, router, setDialogOpen]);
 
   const handleUnlock = useCallback(async () => {
     if (!architectureDraftAllowsBriefUnlock(status)) {
@@ -110,7 +187,7 @@ export function ArchitectureDraftResumeControl(
     } finally {
       setBusy(false);
     }
-  }, [openDraft, props.architectureId, status]);
+  }, [openDraft, props.architectureId, setDialogOpen, status]);
 
   const inlineErrorTestId = props.testId
     ? `${props.testId}-inline-error`

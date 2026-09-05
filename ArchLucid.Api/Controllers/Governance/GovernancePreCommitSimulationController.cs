@@ -2,15 +2,19 @@ using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
+using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Models;
 
 using Asp.Versioning;
@@ -36,8 +40,16 @@ public sealed class GovernancePreCommitSimulationController(
     IAuditService auditService,
     IRunRepository runRepository,
     IScopeContextProvider scopeContextProvider,
-    ITenantRepository tenantRepository) : ControllerBase
+    ITenantRepository tenantRepository,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : ControllerBase
 {
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
@@ -66,8 +78,12 @@ public sealed class GovernancePreCommitSimulationController(
         [FromRoute] string runId,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(runId))
-            return this.BadRequestProblem("Run ID is required.", ProblemTypes.ValidationFailed);
+        IActionResult? runIdValidation =
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRunId(runId)
+                .ToBadRequestProblemOrNull(this);
+
+        if (runIdValidation is not null)
+            return runIdValidation;
 
         if (!TryParseRunId(runId.Trim(), out string runIdNormalized))
             return this.BadRequestProblem($"Run ID '{runId.Trim()}' is not valid.", ProblemTypes.ValidationFailed);
@@ -93,6 +109,20 @@ public sealed class GovernancePreCommitSimulationController(
                 ProblemTypes.RunNotFound);
         }
 
+        try
+        {
+            await PreCommitSimulationSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                runGuid,
+                scope,
+                _authorityQueryService,
+                _manifestHashService,
+                cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+
         PreFinalizeChecklistResult checklist =
             await preFinalizeChecklistService.BuildAsync(runIdNormalized, cancellationToken);
 
@@ -111,8 +141,12 @@ public sealed class GovernancePreCommitSimulationController(
 
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (string.IsNullOrWhiteSpace(body.RunId))
-            return this.BadRequestProblem("Run ID is required.", ProblemTypes.ValidationFailed);
+        IActionResult? runIdValidation =
+            GovernanceApprovalRequestsHttpMapper.ValidateGovernanceRunId(body.RunId)
+                .ToBadRequestProblemOrNull(this);
+
+        if (runIdValidation is not null)
+            return runIdValidation;
 
         if (!TryParseRunId(body.RunId.Trim(), out string runIdNormalized))
             return this.BadRequestProblem(
@@ -132,6 +166,12 @@ public sealed class GovernancePreCommitSimulationController(
                 ProblemTypes.ValidationFailed);
         }
 
+        IActionResult? simulationValidation =
+            PreCommitSyntheticSimulationHttpMapper.Validate(body).ToBadRequestProblemOrNull(this);
+
+        if (simulationValidation is not null)
+            return simulationValidation;
+
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -148,6 +188,20 @@ public sealed class GovernancePreCommitSimulationController(
             return this.NotFoundProblem(
                 $"Run '{runIdNormalized}' was not found.",
                 ProblemTypes.RunNotFound);
+        }
+
+        try
+        {
+            await PreCommitSimulationSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                runGuid,
+                scope,
+                _authorityQueryService,
+                _manifestHashService,
+                cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
 
         PreCommitGateResult outcome = await gate.SimulateSyntheticFindingsAsync(

@@ -8,6 +8,14 @@ export const LONG_OPERATION_ESCALATION_30S_MS = 30_000;
 /** Soft ceiling aligned with UI proxy JSON timeout (~60s) — recovery copy, not a hard abort. */
 export const LONG_OPERATION_TIMEOUT_HINT_MS = 60_000;
 
+/** Operator-facing cadence for queue status on long-running review work. */
+export const LONG_OPERATION_QUEUE_STATUS_REFRESH_HINT =
+  "Queue status refreshes every 10 seconds.";
+
+/** Lets operators leave the review detail page without losing visibility into pipeline state. */
+export const LONG_OPERATION_HOME_PAGE_STATUS_HINT =
+  "Return to Home if you want to keep working — this review's status stays on your home page.";
+
 export type LongOperationEscalationLevel = "quiet" | "after10s" | "after30s" | "timeoutHint";
 
 export type LongOperationWaitCopy = {
@@ -61,7 +69,7 @@ export function buildLongOperationWaitCopy(args: {
     return {
       level,
       headline,
-      detail: `${args.operationLabel} is still in progress. Named stages only — no percent complete.`,
+      detail: `${args.operationLabel} is still in progress.`,
     };
   }
 
@@ -70,4 +78,48 @@ export function buildLongOperationWaitCopy(args: {
     headline,
     detail: `${args.operationLabel} started…`,
   };
+}
+
+/** Sentence-case label for queue status rows in long-operation wait surfaces. */
+export const LONG_OPERATION_QUEUE_STATUS_LABEL = "Queue status:";
+
+/** Elapsed suffix after the first 10s queue-status refresh (e.g. " (14s)"). */
+export function formatQueueStatusElapsedSuffix(elapsedMs: number): string | null {
+  if (elapsedMs < LONG_OPERATION_ESCALATION_10S_MS) {
+    return null;
+  }
+
+  const sec = Math.floor(elapsedMs / 1000);
+
+  if (sec < 60) {
+    return ` (${sec}s)`;
+  }
+
+  const minutes = Math.floor(sec / 60);
+  const seconds = sec % 60;
+
+  if (seconds === 0) {
+    return ` (${minutes}m)`;
+  }
+
+  return ` (${minutes}m ${seconds}s)`;
+}
+
+export function resolveLongOperationQueueStatusValue(
+  stageLabel: string,
+  elapsedMs?: number,
+): string {
+  const label = stageLabel.trim().length > 0 ? stageLabel.trim() : "Queued";
+  const elapsedSuffix =
+    elapsedMs !== undefined ? formatQueueStatusElapsedSuffix(elapsedMs) : null;
+
+  if (elapsedSuffix !== null) {
+    return `${label}${elapsedSuffix}`;
+  }
+
+  return label;
+}
+
+export function formatLongOperationQueueStatusLine(stageLabel: string, elapsedMs?: number): string {
+  return `${LONG_OPERATION_QUEUE_STATUS_LABEL} ${resolveLongOperationQueueStatusValue(stageLabel, elapsedMs)}`;
 }

@@ -46,4 +46,32 @@ public sealed class BillingStripeWebhookReplayHttpTests
 
         secondResponse.StatusCode.Should().Be(HttpStatusCode.OK);
     }
+
+    [SkippableFact]
+    public async Task Duplicate_stripe_signature_headers_use_first_non_empty_value()
+    {
+        await using StripeCheckoutEndToEndWebAppFactory factory = new();
+        HttpClient client = factory.CreateClient();
+
+        Event stripeEvent = new()
+        {
+            Id = "evt_http_replay_ping_dup_sig",
+            Type = "ping",
+            ApiVersion = StripeCheckoutE2EWebhookTestSigning.StripeNetWebhookApiVersion,
+        };
+
+        string json = stripeEvent.ToJson();
+        string signature = StripeCheckoutE2EWebhookTestSigning.BuildStripeV1Signature(
+            StripeCheckoutE2EWebhookTestSigning.WebhookSigningSecret,
+            json);
+
+        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/billing/webhooks/stripe/subscriptions");
+        request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+        request.Headers.TryAddWithoutValidation("Stripe-Signature", " ");
+        request.Headers.TryAddWithoutValidation("Stripe-Signature", signature);
+
+        using HttpResponseMessage response = await client.SendAsync(request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
 }

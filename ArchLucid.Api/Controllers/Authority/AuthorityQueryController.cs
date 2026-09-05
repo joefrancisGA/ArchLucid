@@ -6,9 +6,11 @@ using ArchLucid.Application.Common;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
@@ -42,6 +44,7 @@ public sealed partial class AuthorityQueryController(
     IScopeContextProvider scopeProvider,
     IActorContext actorContext,
     IRunOperatorGovernanceDispositionService runOperatorGovernanceDispositionService,
+    IManifestHashService manifestHashService,
     IConfiguration configuration,
     IEffectiveAgentExecutionModeAccessor effectiveAgentExecutionModeAccessor,
     ILogger<AuthorityQueryController> logger) : ControllerBase

@@ -9,7 +9,9 @@ export type ErrorRecoveryContractScenario =
   | "connectivity"
   | "review-package-load"
   | "review-package-workspace-mismatch"
-  | "governance-mutation";
+  | "governance-mutation"
+  | "architecture-draft-load"
+  | "in-flight-cancel-failure";
 
 export const ERROR_RECOVERY_CONTRACT_MARKERS = {
   root: "operator-error-recovery-contract",
@@ -48,6 +50,25 @@ const GOVERNANCE_MUTATION_RECOVERY: ErrorRecoveryContractPresentation = {
   nextStep: "Review the inline error, fix any required fields, and submit again.",
 };
 
+const ARCHITECTURE_DRAFT_LOAD_RECOVERY: ErrorRecoveryContractPresentation = {
+  whatFailed: "This architecture draft could not be loaded.",
+  whatIsIntact:
+    "Typed work in this browser may still be recoverable from offline recovery until you reload successfully.",
+  nextStep: "Retry loading the draft, or return to the architectures list.",
+};
+
+const IN_FLIGHT_CANCEL_FAILURE_RECOVERY: ErrorRecoveryContractPresentation = {
+  whatFailed: "Could not cancel this in-flight operation.",
+  whatIsIntact: "The operation may still be running on the server until cancel succeeds.",
+  nextStep: "Try cancel again in a moment, or open the operation to check its status.",
+};
+
+export const GOVERNANCE_CONCURRENCY_CONFLICT_RECOVERY: ErrorRecoveryContractPresentation = {
+  whatFailed: "Another session saved a newer version of this record first.",
+  whatIsIntact: "The server copy is unchanged by this attempt; your unsaved form edits are still on screen.",
+  nextStep: "Refresh this page to load the latest server state, then re-apply any changes you still need.",
+};
+
 /** Resolves the three-part operator error recovery copy for a guarded golden-path surface. */
 export function errorRecoveryContractForScenario(
   scenario: ErrorRecoveryContractScenario,
@@ -74,6 +95,30 @@ export function errorRecoveryContractForScenario(
       return REVIEW_PACKAGE_WORKSPACE_MISMATCH_RECOVERY;
     case "governance-mutation":
       return GOVERNANCE_MUTATION_RECOVERY;
+    case "architecture-draft-load": {
+      const summary = context?.failureSummary?.trim() ?? "";
+
+      if (summary.length > 0) {
+        return {
+          ...ARCHITECTURE_DRAFT_LOAD_RECOVERY,
+          whatFailed: summary,
+        };
+      }
+
+      return ARCHITECTURE_DRAFT_LOAD_RECOVERY;
+    }
+    case "in-flight-cancel-failure": {
+      const summary = context?.failureSummary?.trim() ?? "";
+
+      if (summary.length > 0) {
+        return {
+          ...IN_FLIGHT_CANCEL_FAILURE_RECOVERY,
+          nextStep: summary,
+        };
+      }
+
+      return IN_FLIGHT_CANCEL_FAILURE_RECOVERY;
+    }
     default: {
       const exhaustive: never = scenario;
 

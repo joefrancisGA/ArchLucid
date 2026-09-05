@@ -12,7 +12,9 @@ import { FavoriteReviewToggle } from "@/components/reviews/FavoriteReviewToggle"
 import { ArchitectureObjectMapStrip } from "@/components/operator/ArchitectureObjectMapStrip";
 import { ReviewAskDock } from "@/components/reviews/ReviewAskDock";
 import { ReviewHeaderShareMenu } from "@/components/reviews/ReviewHeaderShareMenu";
+import { ReviewPresenterHeaderButton } from "@/components/reviews/ReviewPresenterHeaderButton";
 import { ReviewWorkspaceStaleBanner } from "@/components/reviews/ReviewWorkspaceStaleBanner";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { SampleReviewDemoBanner } from "@/components/reviews/SampleReviewDemoBanner";
 import { useReviewsListReturnNavHref } from "@/hooks/use-reviews-list-return-nav-href";
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
@@ -21,8 +23,10 @@ import { CTA_WIDTH, DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/
 import { clampReviewWorkspaceH1Title } from "@/lib/review-display-title";
 import {
   deriveReviewRecordMetadataContext,
+  isReviewPipelineIncomplete,
   resolveReviewMetadataAbsentReasons,
 } from "@/lib/run-detail-workspace-derive";
+import { whyDisabledReviewHeaderActions } from "@/lib/why-disabled-cta";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 
 type ReviewMetadataField = {
@@ -117,15 +121,6 @@ function resolveMetadataDisclosureSummary(
   return `Record metadata (${unrecordedFieldCount} fields not recorded)`;
 }
 
-function isReviewPipelineIncomplete(workspaceStatus: RunDetailWorkspaceStatus): boolean {
-  return (
-    workspaceStatus.kind === "draft"
-    || workspaceStatus.kind === "analysis-in-progress"
-    || workspaceStatus.kind === "execution-failed"
-    || workspaceStatus.kind === "quality-gate-rejected"
-  );
-}
-
 function shouldShowReviewRecordMetadata(
   metadataContext: ReturnType<typeof deriveReviewRecordMetadataContext>,
   workspaceStatus: RunDetailWorkspaceStatus,
@@ -148,6 +143,8 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
   const unrecordedFieldCount = collapseMetadataFieldSet.filter((field) => field.value === null).length;
   const collapseMetadataFields = unrecordedFieldCount >= 3;
   const showReviewRecordMetadata = shouldShowReviewRecordMetadata(metadataContext, props.workspaceStatus);
+  const reviewPipelineIncomplete = isReviewPipelineIncomplete(props.workspaceStatus);
+  const headerActionDisabledReason = whyDisabledReviewHeaderActions(props.workspaceStatus);
   const metadataDisclosureSummary = resolveMetadataDisclosureSummary(
     unrecordedFieldCount,
     metadataContext,
@@ -163,28 +160,31 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
         headingLevel="h1"
         subtitle={props.eyebrowLabel}
         metadata={
-          <details
-            className="rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800"
-            data-testid="run-detail-copy-identifiers-disclosure"
+          <div
+            className="flex min-w-0 flex-col gap-2"
+            data-testid="run-detail-review-identifiers"
           >
-            <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
-              Copy identifiers
-            </summary>
-            <div className="mt-2 flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
-              <span className="inline-flex min-w-0 items-center gap-1">
-                <span className="font-medium text-neutral-700 dark:text-neutral-300">Review ID</span>
-                <code className="max-w-[14rem] truncate font-mono select-all">{props.reviewIdentifierLabel}</code>
-                <CopyIdButton value={props.runId} aria-label="Copy review ID" />
+            <span className="inline-flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+              <span className="font-medium text-neutral-700 dark:text-neutral-300">Review ID</span>
+              <code
+                className={cn("break-all font-mono select-all", OPERATOR_TYPOGRAPHY.micro)}
+              >
+                {props.runId}
+              </code>
+              <CopyIdButton value={props.runId} aria-label="Copy review ID" />
+            </span>
+            {props.signedReviewRecordId !== null ? (
+              <span className="inline-flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                <span className="font-medium text-neutral-700 dark:text-neutral-300">Finalized review record ID</span>
+                <code
+                  className={cn("break-all font-mono select-all", OPERATOR_TYPOGRAPHY.micro)}
+                >
+                  {props.signedReviewRecordId}
+                </code>
+                <CopyIdButton value={props.signedReviewRecordId} aria-label="Copy finalized review record ID" />
               </span>
-              {props.signedReviewRecordId !== null && props.signedReviewRecordIdLabel !== null ? (
-                <span className="inline-flex min-w-0 items-center gap-1">
-                  <span className="font-medium text-neutral-700 dark:text-neutral-300">Finalized review record ID</span>
-                  <code className="max-w-[14rem] truncate font-mono select-all">{props.signedReviewRecordIdLabel}</code>
-                  <CopyIdButton value={props.signedReviewRecordId} aria-label="Copy finalized review record ID" />
-                </span>
-              ) : null}
-            </div>
-          </details>
+            ) : null}
+          </div>
         }
         actions={
           <>
@@ -192,13 +192,21 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
               runId={props.runId}
               isCommitted={props.signedReviewRecordId !== null}
               findingsQueueHref={`/governance/findings?runId=${encodeURIComponent(props.runId)}`}
+              disabled={reviewPipelineIncomplete}
+              disabledReason={headerActionDisabledReason}
             />
-            <ReviewAskDock runId={props.runId} reviewTitle={h1Title} />
+            <ReviewAskDock
+              runId={props.runId}
+              reviewTitle={h1Title}
+              disabled={reviewPipelineIncomplete}
+              disabledReason={headerActionDisabledReason}
+            />
+            <ReviewPresenterHeaderButton reviewCompleted={!reviewPipelineIncomplete} />
             <FavoriteReviewToggle runId={props.runId} title={h1Title} size="sm" />
           </>
         }
       >
-        <ArchitectureObjectMapStrip focus="review" />
+        {!reviewPipelineIncomplete ? <ArchitectureObjectMapStrip focus="review" /> : null}
         <dl
           className={cn(
             "m-0 grid gap-3 sm:grid-cols-2 lg:grid-cols-3",
@@ -232,6 +240,13 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
           ) : null}
         </dl>
       </OperatorPageHeader>
+      {reviewPipelineIncomplete && headerActionDisabledReason !== null ? (
+        <WhyDisabledCtaHint
+          reason={headerActionDisabledReason}
+          className="mt-2"
+          testId="review-header-actions-disabled-hint"
+        />
+      ) : null}
     </div>
   );
 }
@@ -244,12 +259,16 @@ export type RunDetailWorkspaceSummaryStripProps = {
   readonly evidenceCoverageLine: string;
   readonly primaryConcern: string | null;
   readonly materialSeverityLine?: string | null;
+  /** When set, metrics are hidden because the pipeline has not produced assessable outcomes yet. */
+  readonly suppressedReason?: string | null;
 };
 
 /** Compact first-viewport review status summary near the title. */
 export function RunDetailWorkspaceSummaryStrip(
   props: RunDetailWorkspaceSummaryStripProps,
 ): React.JSX.Element {
+  const suppressedReason = props.suppressedReason?.trim() ?? "";
+
   return (
     <section
       id="review-summary"
@@ -260,7 +279,15 @@ export function RunDetailWorkspaceSummaryStrip(
       <h2 className={cn("m-0 mb-2 text-base font-semibold text-neutral-900 dark:text-neutral-100")}>
         Decision snapshot
       </h2>
-      <dl className={cn("m-0 grid gap-2 sm:grid-cols-2 lg:grid-cols-3", OPERATOR_TYPOGRAPHY.body)}>
+      {suppressedReason.length > 0 ? (
+        <p
+          className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="run-detail-workspace-summary-suppressed"
+        >
+          {suppressedReason}
+        </p>
+      ) : (
+        <dl className={cn("m-0 grid gap-2 sm:grid-cols-2 lg:grid-cols-3", OPERATOR_TYPOGRAPHY.body)}>
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">{props.outcomeHeading}</dt>
           <dd className="m-0 mt-0.5 font-semibold text-neutral-900 dark:text-neutral-100">{props.reviewOutcome}</dd>
@@ -305,6 +332,7 @@ export function RunDetailWorkspaceSummaryStrip(
           </div>
         ) : null}
       </dl>
+      )}
     </section>
   );
 }

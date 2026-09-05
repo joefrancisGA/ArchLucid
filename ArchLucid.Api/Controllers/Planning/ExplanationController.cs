@@ -1,9 +1,10 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Explanation.Models;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Core.Authorization;
-using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Explanation;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Findings;
@@ -33,7 +34,7 @@ namespace ArchLucid.Api.Controllers.Planning;
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed partial class ExplanationController(
     IAuthorityQueryService query,
-    IComparisonService comparison,
+    ICompareRunsApplicationFacade compareRunsFacade,
     IExplanationService explanation,
     IRunExplanationSummaryService runExplanationSummary,
     IFindingExplainabilityComposer findingExplainabilityComposer,
@@ -41,6 +42,7 @@ public sealed partial class ExplanationController(
     IProvenanceSnapshotRepository provenanceRepo,
     IScopeContextProvider scopeProvider,
     IHolisticCriticService holisticCriticService,
+    IManifestHashService manifestHashService,
     ILogger<ExplanationController> logger)
     : ControllerBase
 {

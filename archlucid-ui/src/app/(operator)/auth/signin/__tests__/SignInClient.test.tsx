@@ -92,6 +92,7 @@ vi.mock("@/lib/oidc/build-authorize-url", () => ({
 // -------------------------------------------------------------------
 
 import { SignInClient } from "@/app/(operator)/auth/signin/SignInClient";
+import { SESSION_IDLE_TIMEOUT_MINUTES } from "@/lib/auth/session-idle-timeout";
 import { resolveSignInMethodOptions } from "@/lib/auth/sign-in-method-options";
 
 // -------------------------------------------------------------------
@@ -138,7 +139,11 @@ describe("SignInClient — idle-timeout session-expired view", () => {
 
     render(<SignInClient />);
 
-    expect(screen.getByText(/signed you out after 30 minutes of inactivity/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        new RegExp(`signed you out after ${SESSION_IDLE_TIMEOUT_MINUTES} minutes of inactivity`, "i"),
+      ),
+    ).toBeInTheDocument();
   });
 
   it("does NOT render artifact 404 copy for reason=idle-timeout", () => {

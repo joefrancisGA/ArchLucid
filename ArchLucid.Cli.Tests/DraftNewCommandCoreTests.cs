@@ -256,6 +256,42 @@ public sealed class DraftNewCommandCoreTests
     }
 
     [Fact]
+    public async Task RunCoreAsync_draft_scope_mismatch_after_skip_must_question_returns_operation_failed()
+    {
+        Guid configuredTenantId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        string? previousTenant = Environment.GetEnvironmentVariable("ARCHLUCID_TENANT_ID");
+
+        try
+        {
+            Environment.SetEnvironmentVariable("ARCHLUCID_TENANT_ID", configuredTenantId.ToString("D"));
+
+            DraftNewCommandOptions options = new()
+            {
+                IntentText = ValidDraftIntent,
+                SystemName = "Contoso API",
+                BusinessOutcome = "Ship a governed review package for the architecture board.",
+                SkipMustQuestions = true,
+            };
+
+            ArchLucidApiClient client = CreateDraftFlowClient(new SkipMustQuestionScopeMismatchHandler());
+            DraftNewCommandHooks hooks = ConnectedHooks(client);
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.OperationFailed);
+            error.ToString().Should().Contain("Error skipping question");
+            error.ToString().Should().Contain("does not match configured CLI scope");
+            error.ToString().Should().Contain("x-tenant-id");
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("ARCHLUCID_TENANT_ID", previousTenant);
+        }
+    }
+
+    [Fact]
     public async Task RunCoreAsync_questions_load_failure_writes_operator_hint()
     {
         DraftNewCommandOptions options = new()
@@ -460,6 +496,70 @@ public sealed class DraftNewCommandCoreTests
         };
 
         return new ArchLucidApiClient(http);
+    }
+
+    private sealed class SkipMustQuestionScopeMismatchHandler : DraftFlowHandler
+    {
+        protected override HttpResponseMessage? TryHandle(
+            HttpRequestMessage request,
+            string path)
+        {
+            Guid configuredTenantId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+
+            if (request.Method == HttpMethod.Post && path.EndsWith("/v1/architecture/draft", StringComparison.OrdinalIgnoreCase))
+            {
+                return Json(HttpStatusCode.Created, DraftBody("Drafting", configuredTenantId));
+            }
+
+            if (request.Method == HttpMethod.Patch && path.Contains("/v1/architecture/draft/", StringComparison.OrdinalIgnoreCase))
+            {
+                return Json(HttpStatusCode.OK, DraftBody("Drafting", configuredTenantId));
+            }
+
+            if (request.Method == HttpMethod.Post && path.EndsWith("/admit", StringComparison.OrdinalIgnoreCase))
+            {
+                return Json(HttpStatusCode.OK, new
+                {
+                    admitted = true,
+                    status = "Admitted",
+                    draft = DraftBody("Admitted", configuredTenantId),
+                    pendingMustQuestions = Array.Empty<object>(),
+                });
+            }
+
+            if (request.Method == HttpMethod.Get && path.EndsWith("/questions", StringComparison.OrdinalIgnoreCase))
+            {
+                return Json(HttpStatusCode.OK, new
+                {
+                    draftId = DraftId,
+                    status = "Admitted",
+                    selection = new
+                    {
+                        pendingMustQuestions = new[]
+                        {
+                            new
+                            {
+                                questionKey = "must-data-classification",
+                                prompt = "What is the data classification?",
+                                tier = "Must",
+                                answerKind = "Text",
+                                source = "L0Universal",
+                                ruleKeys = Array.Empty<string>(),
+                            },
+                        },
+                    },
+                });
+            }
+
+            if (request.Method == HttpMethod.Post && path.EndsWith("/skip", StringComparison.OrdinalIgnoreCase))
+            {
+                Guid mismatchedTenantId = Guid.Parse("66666666-6666-6666-6666-666666666666");
+
+                return Json(HttpStatusCode.OK, DraftBody("Admitted", mismatchedTenantId));
+            }
+
+            return null;
+        }
     }
 
     private sealed class AdmitScopeMismatchHandler : DraftFlowHandler

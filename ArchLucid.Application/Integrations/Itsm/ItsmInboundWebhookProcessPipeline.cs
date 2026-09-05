@@ -4,7 +4,11 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Integrations;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -16,6 +20,9 @@ public sealed class ItsmInboundWebhookProcessPipeline(
     ItsmInboundWebhookSyncSupport support,
     IOptionsMonitor<IntegrationsItsmInboundOptions> inboundOptions,
     ItsmInboundDispositionSync dispositionSync,
+    IFindingInspectReadRepository findingInspectReadRepository,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     ILogger<ItsmInboundWebhookProcessPipeline> logger)
 {
     private readonly ItsmInboundWebhookSyncSupport _support =
@@ -26,6 +33,15 @@ public sealed class ItsmInboundWebhookProcessPipeline(
 
     private readonly ItsmInboundDispositionSync _dispositionSync =
         dispositionSync ?? throw new ArgumentNullException(nameof(dispositionSync));
+
+    private readonly IFindingInspectReadRepository _findingInspectReadRepository =
+        findingInspectReadRepository ?? throw new ArgumentNullException(nameof(findingInspectReadRepository));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private readonly ILogger<ItsmInboundWebhookProcessPipeline> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -68,7 +84,16 @@ public sealed class ItsmInboundWebhookProcessPipeline(
         }
 
         IntegrationsItsmInboundOptions options = _inboundOptions.CurrentValue;
+        string effectiveStatusValue = payload.StatusValue;
         (string humanReview, bool mapped) = statusMapper.MapToHumanReview(payload.StatusValue, options);
+
+        if (!mapped && !string.IsNullOrWhiteSpace(payload.AlternateStatusValue))
+        {
+            (humanReview, mapped) = statusMapper.MapToHumanReview(payload.AlternateStatusValue, options);
+
+            if (mapped)
+                effectiveStatusValue = payload.AlternateStatusValue.Trim();
+        }
 
         if (!mapped)
         {
@@ -93,8 +118,15 @@ public sealed class ItsmInboundWebhookProcessPipeline(
 
             return new ItsmInboundWebhookProcessResult(false, null);
 
+        ItsmInboundPayloadReadResult effectivePayload = new()
+        {
+            ExternalKey = payload.ExternalKey,
+            StatusValue = effectiveStatusValue,
+            AlternateStatusValue = payload.AlternateStatusValue,
+        };
+
         ItsmFindingCorrelationRecord? row =
-            await _support.TryResolveCorrelationAsync(descriptor.ProviderName, payload.ExternalKey, authenticatedTenantId, ct).ConfigureAwait(false);
+            await _support.TryResolveCorrelationAsync(descriptor.ProviderName, effectivePayload.ExternalKey, authenticatedTenantId, ct).ConfigureAwait(false);
 
         if (row is null)
         {
@@ -125,14 +157,14 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                     row.WorkspaceId,
                     row.ProjectId,
                     "finding_not_found",
-                    CreateFindingNotFoundPayload(descriptor.ProviderName, payload, row.FindingId)));
+                    CreateFindingNotFoundPayload(descriptor.ProviderName, effectivePayload, row.FindingId)));
         }
 
         string replayEventId = ItsmInboundWebhookReplayEventId.Resolve(
             deliveryId,
             descriptor.ProviderName,
-            payload.ExternalKey,
-            payload.StatusValue);
+            effectivePayload.ExternalKey,
+            effectivePayload.StatusValue);
 
         if (!await _support.TryClaimReplayAsync(row.TenantId, descriptor.ProviderName, replayEventId, ct).ConfigureAwait(false))
         {
@@ -144,7 +176,7 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                     row.WorkspaceId,
                     row.ProjectId,
                     replayEventId,
-                    CreateStatusPayload(descriptor.ProviderName, payload)),
+                    CreateStatusPayload(descriptor.ProviderName, effectivePayload)),
                 ReplayIgnored: true);
         }
 
@@ -163,11 +195,58 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                     LogSanitizer.Sanitize(row.FindingId));
 
             FindingDisposition? mappedDisposition =
-                statusMapper.TryMapToDisposition(payload.StatusValue, options);
+                statusMapper.TryMapToDisposition(effectivePayload.StatusValue, options);
 
+            ScopeContext correlationScope = new()
+            {
+                TenantId = row.TenantId,
+                WorkspaceId = row.WorkspaceId,
+                ProjectId = row.ProjectId,
+            };
+
+            FindingInspectResponse? inspect = await _findingInspectReadRepository
+                .GetInspectAsync(correlationScope, row.FindingId, ct, FindingInspectReadOptions.MetadataOnly)
+                .ConfigureAwait(false);
+
+            if (inspect is null)
+            {
+                return new ItsmInboundWebhookProcessResult(
+                    true,
+                    ItsmInboundWebhookSyncSupport.RejectedAudit(
+                        descriptor.RejectedAuditEventType,
+                        descriptor.WebhookActorId,
+                        row.TenantId,
+                        row.WorkspaceId,
+                        row.ProjectId,
+                        "finding_not_found",
+                        CreateFindingNotFoundPayload(descriptor.ProviderName, effectivePayload, row.FindingId)));
+            }
+
+            try
+            {
+                await ItsmInboundSealedManifestHashGuard.EnsureFindingRunSealedManifestHashOrThrowAsync(
+                    inspect.RunId,
+                    correlationScope,
+                    _authorityQueryService,
+                    _manifestHashService,
+                    ct).ConfigureAwait(false);
+            }
+            catch (ConflictException ex)
+            {
+                return new ItsmInboundWebhookProcessResult(
+                    true,
+                    ItsmInboundWebhookSyncSupport.RejectedAudit(
+                        descriptor.RejectedAuditEventType,
+                        descriptor.WebhookActorId,
+                        row.TenantId,
+                        row.WorkspaceId,
+                        row.ProjectId,
+                        "sealed_manifest_unverified",
+                        new { findingId = row.FindingId, status = CreateStatusPayload(descriptor.ProviderName, effectivePayload), detail = ex.Message }));
+            }
             ItsmInboundDispositionSyncResult dispositionResult =
                 await _dispositionSync
-                    .TryRecordFromWebhookAsync(row, mappedDisposition, payload.StatusValue, descriptor.WebhookActorId, ct)
+                    .TryRecordFromWebhookAsync(row, mappedDisposition, effectivePayload.StatusValue, descriptor.WebhookActorId, ct)
                     .ConfigureAwait(false);
 
             AuditEvent auditEvent = new()
@@ -180,7 +259,7 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                 WorkspaceId = row.WorkspaceId,
                 ProjectId = row.ProjectId,
                 DataJson = JsonSerializer.Serialize(
-                    CreateSyncedAuditPayload(descriptor.ProviderName, payload, replayEventId, humanReview, updated, dispositionResult))
+                    CreateSyncedAuditPayload(descriptor.ProviderName, effectivePayload, replayEventId, humanReview, updated, dispositionResult))
             };
 
             return new ItsmInboundWebhookProcessResult(true, auditEvent);

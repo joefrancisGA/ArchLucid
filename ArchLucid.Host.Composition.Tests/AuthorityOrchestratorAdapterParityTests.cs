@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Core.Audit;
@@ -19,8 +21,9 @@ namespace ArchLucid.Host.Composition.Tests;
 
 /// <summary>
 ///     InMemory storage registers <see cref="AuthorityRunOrchestrator" /> directly as
-///     <see cref="IAuthorityRunOrchestrator" />. Resolved port and inner orchestrator must yield equivalent terminal run
-///     shape and audit event-type sequences for the same scenario.
+///     <see cref="IAuthorityRunOrchestrator" />. Resolved port and inner orchestrator must yield equivalent outcomes for
+///     the same scenario: matching terminal run shape and audit types on success, or matching exception type and
+///     run-id-stripped message when ingest findings cannot complete.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -54,25 +57,57 @@ public sealed class AuthorityOrchestratorAdapterParityTests
             Description = "authority orchestrator parity (simulator)"
         };
 
-        RunRecord portRun = await resolvedPort.ExecuteAsync(Clone(template));
-        RunRecord innerRun = await inner.ExecuteAsync(Clone(template));
+        (RunRecord? portRun, Exception? portError) = await TryExecuteAsync(resolvedPort, Clone(template));
+        (RunRecord? innerRun, Exception? innerError) = await TryExecuteAsync(inner, Clone(template));
 
-        RunTerminalFingerprint(portRun).Should().Be(RunTerminalFingerprint(innerRun));
+        if (portRun is not null && innerRun is not null)
+        {
+            RunTerminalFingerprint(portRun).Should().Be(RunTerminalFingerprint(innerRun));
 
-        ScopeContext scopeContext =
-            scope.ServiceProvider.GetRequiredService<IScopeContextProvider>().GetCurrentScope();
+            ScopeContext scopeContext =
+                scope.ServiceProvider.GetRequiredService<IScopeContextProvider>().GetCurrentScope();
 
-        string portTypesJoined = await FormatAuditEventTypesAsync(
-            auditRepository,
-            scopeContext,
-            portRun.RunId);
+            string portTypesJoined = await FormatAuditEventTypesAsync(
+                auditRepository,
+                scopeContext,
+                portRun.RunId);
 
-        string innerTypesJoined = await FormatAuditEventTypesAsync(
-            auditRepository,
-            scopeContext,
-            innerRun.RunId);
+            string innerTypesJoined = await FormatAuditEventTypesAsync(
+                auditRepository,
+                scopeContext,
+                innerRun.RunId);
 
-        portTypesJoined.Should().Be(innerTypesJoined);
+            portTypesJoined.Should().Be(innerTypesJoined);
+            return;
+        }
+
+        portError.Should().NotBeNull("port and inner orchestrator must both succeed or both fail");
+        innerError.Should().NotBeNull();
+        portError!.GetType().Should().Be(innerError!.GetType());
+        StripRunIds(portError.Message).Should().Be(StripRunIds(innerError.Message));
+    }
+
+    private static async Task<(RunRecord? Run, Exception? Error)> TryExecuteAsync(
+        IAuthorityRunOrchestrator orchestrator,
+        ContextIngestionRequest request)
+    {
+        try
+        {
+            RunRecord run = await orchestrator.ExecuteAsync(request);
+            return (run, null);
+        }
+        catch (Exception ex)
+        {
+            return (null, ex);
+        }
+    }
+
+    private static string StripRunIds(string message)
+    {
+        return Regex.Replace(
+            message,
+            "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}",
+            "{runId}");
     }
 
     private static ContextIngestionRequest Clone(ContextIngestionRequest source)

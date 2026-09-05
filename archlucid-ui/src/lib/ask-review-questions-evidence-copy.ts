@@ -8,6 +8,8 @@ export const ASK_REVIEW_QUESTIONS_CANONICAL_PATH = "/insights/ask-review-questio
 export const ASK_REVIEW_QUESTIONS_CLAIM_DISCIPLINE =
   "Ask review questions grounds answers in a selected finalized review record — not a complete audit export by itself. Open cited findings, Evidence graph, or Audit when you need the full package.";
 
+export const ASK_REVIEW_QUESTIONS_FOLLOW_UPS_TITLE = "Where to go next" as const;
+
 export const ASK_REVIEW_QUESTIONS_SOURCES_INTRO =
   "Use these follow-ups when answers need package context, evidence search, or findings triage.";
 

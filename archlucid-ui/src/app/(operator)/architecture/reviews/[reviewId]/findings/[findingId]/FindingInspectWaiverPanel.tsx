@@ -36,6 +36,8 @@ export type FindingInspectWaiverPanelProps = Pick<
   | "busyAction"
   | "pendingRevokeWaiverConfirm"
   | "setPendingRevokeWaiverConfirm"
+  | "pendingWaiverCreateConfirm"
+  | "setPendingWaiverCreateConfirm"
   | "submitWaiver"
   | "revokeWaiver"
   | "mutationDisabledHintId"
@@ -62,6 +64,8 @@ export function FindingInspectWaiverPanel(props: FindingInspectWaiverPanelProps)
     busyAction,
     pendingRevokeWaiverConfirm,
     setPendingRevokeWaiverConfirm,
+    pendingWaiverCreateConfirm,
+    setPendingWaiverCreateConfirm,
     submitWaiver,
     revokeWaiver,
     mutationDisabledHintId,
@@ -72,7 +76,7 @@ export function FindingInspectWaiverPanel(props: FindingInspectWaiverPanelProps)
 
   return (
     <>
-      <section className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800" aria-labelledby="governance-waiver-heading">
+      <section id="finding-inspect-waiver-panel" className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800" aria-labelledby="governance-waiver-heading">
         <h3 id="governance-waiver-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Risk exception (waiver)
         </h3>
@@ -146,7 +150,9 @@ export function FindingInspectWaiverPanel(props: FindingInspectWaiverPanelProps)
                 variant="outline"
                 disabled={busyAction !== null || !canMutate}
                 aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
-                onClick={() => void submitWaiver()}
+                onClick={() => {
+                  setPendingWaiverCreateConfirm(true);
+                }}
                 data-testid="finding-waiver-create"
                 aria-busy={busyAction === "waiver"}
               >
@@ -188,6 +194,24 @@ export function FindingInspectWaiverPanel(props: FindingInspectWaiverPanelProps)
           </ul>
         </section>
       ) : null}
+
+      <ConfirmationDialog
+        open={pendingWaiverCreateConfirm}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingWaiverCreateConfirm(false);
+          }
+        }}
+        title="Create risk exception?"
+        description="This records a time-bounded waiver on the audit trail. Confirm the owner, rationale, and evidence reference before submitting."
+        confirmLabel="Create waiver"
+        busy={busyAction === "waiver"}
+        onConfirm={() => {
+          void Promise.resolve(submitWaiver()).finally(() => {
+            setPendingWaiverCreateConfirm(false);
+          });
+        }}
+      />
 
       <ConfirmationDialog
         open={pendingRevokeWaiverConfirm}

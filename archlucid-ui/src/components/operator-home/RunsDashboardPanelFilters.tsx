@@ -23,13 +23,18 @@ export type RunsDashboardPanelFiltersProps = {
   readonly tab: RunsDashboardTabId;
   readonly isRecentListTab: boolean;
   readonly statusTabIds: readonly RunsDashboardTabId[];
-  readonly statusTabCounts: Readonly<Record<RunsDashboardTabId, number>>;
+  readonly statusTabCounts: Readonly<Record<RunsDashboardTabId, number>> & {
+    readonly recentTotalCount?: number;
+  };
   readonly archivedFieldSupported: boolean;
   readonly archivedCount: number;
   readonly archivedFilterDisabled: boolean;
   readonly showArchived: boolean;
-  readonly onSelectDashboardTab: (next: RunsDashboardTabId) => void;
-  readonly onToggleShowArchived: () => void;
+  readonly onSelectDashboardTab: (
+    next: RunsDashboardTabId,
+    options?: { readonly preserveShowArchived?: boolean },
+  ) => void;
+  readonly onShowArchivedChange: (value: boolean) => void;
   readonly openAllReviewsHref: string;
 };
 
@@ -45,12 +50,19 @@ export function RunsDashboardPanelFilters({
   archivedFilterDisabled,
   showArchived,
   onSelectDashboardTab,
-  onToggleShowArchived,
+  onShowArchivedChange,
   openAllReviewsHref,
 }: RunsDashboardPanelFiltersProps) {
+  const panelSummaryText = resolveRunsDashboardPanelSummaryText({
+    buyerPolishedShell,
+    hideHeading,
+    isRecentListTab,
+    tab,
+  });
+
   return (
     <CardHeader className={OPERATOR_CARD.header}>
-      {buyerPolishedShell && hideHeading ? null : (
+      {buyerPolishedShell && hideHeading ? null : hideHeading ? null : (
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <CardTitle className={cn(OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>
             {buyerPolishedShell
@@ -85,17 +97,32 @@ export function RunsDashboardPanelFilters({
               data-testid="runs-dashboard-status-filters"
               className="flex flex-wrap gap-1.5"
             >
-              {statusTabIds.map((id) => (
-                <TabsTrigger
-                  key={id}
-                  value={id}
-                  data-testid={`runs-dashboard-filter-${id}`}
-                  className="shrink-0"
-                  disabled={statusTabCounts[id] === 0 && id !== "all"}
-                >
-                  {runsDashboardTabLabel(id, buyerPolishedShell, statusTabCounts[id])}
-                </TabsTrigger>
-              ))}
+              {statusTabIds.map((id) => {
+                const disabled = statusTabCounts[id] === 0 && id !== "all";
+                const label = runsDashboardTabLabel(id, buyerPolishedShell, statusTabCounts[id], {
+                  homePreviewMode: hideHeading,
+                  recentTotalCount:
+                    hideHeading && "recentTotalCount" in statusTabCounts
+                      ? statusTabCounts.recentTotalCount
+                      : undefined,
+                });
+                const disabledReason = disabled
+                  ? `No reviews in the ${label.split(" (")[0]?.toLowerCase() ?? id} view`
+                  : undefined;
+
+                return (
+                  <TabsTrigger
+                    key={id}
+                    value={id}
+                    data-testid={`runs-dashboard-filter-${id}`}
+                    className="shrink-0"
+                    disabled={disabled}
+                    title={disabledReason}
+                  >
+                    {label}
+                  </TabsTrigger>
+                );
+              })}
             </TabsList>
             {archivedFieldSupported ? (
               <FilterChip
@@ -109,8 +136,13 @@ export function RunsDashboardPanelFilters({
                     return;
                   }
 
-                  onSelectDashboardTab("all");
-                  onToggleShowArchived();
+                  const next = !showArchived;
+
+                  if (next && tab !== "all") {
+                    onSelectDashboardTab("all", { preserveShowArchived: true });
+                  }
+
+                  onShowArchivedChange(next);
                 }}
               >
                 Archived {archivedCount}
@@ -121,18 +153,34 @@ export function RunsDashboardPanelFilters({
           <TabsList
             aria-label="Review views"
             data-testid="runs-dashboard-status-filters"
-            className="-mb-px overflow-x-auto"
+            className="-mb-px"
           >
-            {statusTabIds.map((id) => (
-              <TabsTrigger
-                key={id}
-                value={id}
-                data-testid={`runs-dashboard-tab-${id}`}
-                className="shrink-0"
-              >
-                {runsDashboardTabLabel(id, buyerPolishedShell, statusTabCounts[id])}
-              </TabsTrigger>
-            ))}
+            {statusTabIds.map((id) => {
+              const disabled = statusTabCounts[id] === 0 && id !== "all";
+              const label = runsDashboardTabLabel(id, buyerPolishedShell, statusTabCounts[id], {
+                homePreviewMode: hideHeading,
+                recentTotalCount:
+                  hideHeading && "recentTotalCount" in statusTabCounts
+                    ? statusTabCounts.recentTotalCount
+                    : undefined,
+              });
+              const disabledReason = disabled
+                ? `No reviews in the ${label.split(" (")[0]?.toLowerCase() ?? id} view`
+                : undefined;
+
+              return (
+                <TabsTrigger
+                  key={id}
+                  value={id}
+                  data-testid={`runs-dashboard-tab-${id}`}
+                  className="shrink-0"
+                  disabled={disabled}
+                  title={disabledReason}
+                >
+                  {label}
+                </TabsTrigger>
+              );
+            })}
           </TabsList>
         )}
         {buyerPolishedShell && !hideHeading ? (
@@ -145,23 +193,38 @@ export function RunsDashboardPanelFilters({
           </Link>
         ) : null}
       </div>
-      {buyerPolishedShell && hideHeading ? null : (
+      {panelSummaryText !== null ? (
         <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-neutral-600 dark:text-neutral-400")}>
-          {isRecentListTab
-            ? buyerPolishedShell
-              ? BUYER_RUNS_DASHBOARD_RECENT_SUMMARY
-              : RUNS_DASHBOARD_LABELS.recentSummary
-            : null}
-          {!isRecentListTab && tab === "attention"
-            ? buyerPolishedShell
-              ? RUNS_DASHBOARD_LABELS.attentionSummaryBuyer
-              : RUNS_DASHBOARD_LABELS.attentionSummary
-            : null}
-          {!isRecentListTab && tab === "outcomes"
-            ? "Reviews finalized, findings surfaced, and average time to finalization."
-            : null}
+          {panelSummaryText}
         </p>
-      )}
+      ) : null}
     </CardHeader>
   );
+}
+
+function resolveRunsDashboardPanelSummaryText(props: {
+  readonly buyerPolishedShell: boolean;
+  readonly hideHeading: boolean;
+  readonly isRecentListTab: boolean;
+  readonly tab: RunsDashboardTabId;
+}): string | null {
+  if (props.buyerPolishedShell && props.hideHeading) {
+    return null;
+  }
+
+  if (props.isRecentListTab) {
+    return props.buyerPolishedShell ? BUYER_RUNS_DASHBOARD_RECENT_SUMMARY : null;
+  }
+
+  if (props.tab === "attention") {
+    return props.buyerPolishedShell
+      ? RUNS_DASHBOARD_LABELS.attentionSummaryBuyer
+      : RUNS_DASHBOARD_LABELS.attentionSummary;
+  }
+
+  if (props.tab === "outcomes") {
+    return "Reviews finalized, findings surfaced, and average time to finalization.";
+  }
+
+  return null;
 }

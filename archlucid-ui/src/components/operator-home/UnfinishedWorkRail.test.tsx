@@ -147,8 +147,18 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("renders desktop column headers for work type and activity columns", () => {
-    mockDraftEntries = [];
+  it("renders desktop column headers when multiple unfinished items are listed", () => {
+    mockDraftEntries = [
+      {
+        architectureId: "arch-1",
+        displayName: "Payments edge",
+        customerStatus: "draft",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-08-10T12:00:00Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-08-10T12:00:00Z",
+      },
+    ];
     const runs = [
       {
         runId: "run-mid",
@@ -160,7 +170,11 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
       },
     ] as RunSummary[];
 
-    render(<UnfinishedWorkRail runs={runs} />);
+    render(
+      <OperatorHomeWorkspaceActivityProvider initialHasReviews>
+        <UnfinishedWorkRail runs={runs} />
+      </OperatorHomeWorkspaceActivityProvider>,
+    );
 
     expect(screen.getByTestId("unfinished-work-rail-column-headers")).toBeInTheDocument();
     expect(screen.getByText(OPERATOR_HOME_YOUR_WORK_COLUMN_NAME)).toBeInTheDocument();
@@ -208,9 +222,28 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
     );
 
     const list = screen.getByTestId("unfinished-work-rail-list");
+    const secondaryList = list.querySelector("ul");
 
-    expect(list.className).toContain("sm:grid-cols-[minmax(0,1.6fr)_minmax(0,0.9fr)_minmax(0,0.8fr)_auto]");
-    expect(screen.getAllByTestId(/unfinished-work-rail-item-/)[0]?.className).toContain("sm:grid-cols-subgrid");
+    expect(secondaryList?.className).toContain("sm:grid-cols-[minmax(0,1.6fr)_minmax(0,0.9fr)_minmax(0,0.8fr)_auto]");
+    expect(screen.getAllByTestId(/unfinished-work-rail-item-/)[1]?.className).toContain("sm:grid-cols-subgrid");
+  });
+
+  it("renders a primary Continue review button for in-progress reviews", () => {
+    mockDraftEntries = [];
+    const runs = [
+      {
+        runId: "run-mid",
+        projectId: "default",
+        createdUtc: "2026-08-10T11:00:00Z",
+        description: "Edge review in flight",
+        hasFindingsSnapshot: false,
+        hasGoldenManifest: false,
+      },
+    ] as RunSummary[];
+
+    render(<UnfinishedWorkRail runs={runs} />);
+
+    expect(screen.getByRole("link", { name: "Continue review" })).toBeInTheDocument();
   });
 
   it("surfaces mid-execute reviews from runs props", () => {

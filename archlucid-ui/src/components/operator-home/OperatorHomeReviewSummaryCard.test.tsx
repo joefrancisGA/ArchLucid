@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { OperatorHomeReviewSummaryCard } from "@/components/operator-home/OperatorHomeReviewSummaryCard";
+import { runListPrimaryTitle } from "@/components/operator-home/runs-dashboard-helpers";
 import { buyerDemoPackageCardMeta } from "@/lib/buyer/buyer-demo-package-card-meta";
 import {
   SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
@@ -194,5 +195,32 @@ describe("OperatorHomeReviewSummaryCard", () => {
     const origin = screen.getByTestId("architecture-package-origin-reviewed");
 
     expect(origin.textContent).toMatch(/Package origin:\s*Reviewed/);
+  });
+
+  it("renders compact demo badge for showcase reviews", () => {
+    const run: RunSummary = {
+      runId: SHOWCASE_STATIC_DEMO_RUN_ID,
+      projectId: "default",
+      description: "Claims Intake sample",
+      createdUtc: "2026-01-15T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    };
+
+    render(
+      <OperatorHomeReviewSummaryCard
+        run={run}
+        href={`/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`}
+        buyerPolishedShell
+        variant="compact"
+      />,
+    );
+
+    expect(screen.getByTestId("demo-data-badge")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: runListPrimaryTitle(run) })).toHaveAttribute(
+      "title",
+      runListPrimaryTitle(run),
+    );
   });
 });

@@ -1,5 +1,7 @@
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.Core.Audit;
@@ -27,10 +29,22 @@ public sealed partial class ArtifactExportController
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        if (await authorityQueryService.GetManifestSummaryAsync(scope, manifestId, ct) is null)
+        ManifestSummaryDto? summary = await authorityQueryService.GetManifestSummaryAsync(scope, manifestId, ct);
+
+        if (summary is null)
             return this.NotFoundProblem(
                 $"Manifest '{manifestId}' was not found in the current scope.",
                 ProblemTypes.ManifestNotFound);
+
+        RunDetailDto? manifestDetail =
+            await authorityQueryService.GetRunDetailForManifestCompareAsync(scope, summary.RunId, ct);
+
+        IActionResult? sealedHashProblem = EnsureSealedManifestHashOrConflict(
+            manifestDetail?.GoldenManifest,
+            summary.RunId.ToString("D"));
+
+        if (sealedHashProblem is not null)
+            return sealedHashProblem;
 
         IReadOnlyList<ArtifactDescriptor> artifacts =
             await artifactQueryService.ListArtifactsByManifestIdAsync(scope, manifestId, ct);
@@ -58,6 +72,12 @@ public sealed partial class ArtifactExportController
                 $"Run '{runId}' has no golden manifest in the current scope.",
                 ProblemTypes.ManifestNotFound);
 
+        IActionResult? sealedHashProblem =
+            await EnsureRunSealedManifestHashOrConflictAsync(scope, runId, ct);
+
+        if (sealedHashProblem is not null)
+            return sealedHashProblem;
+
         return await ListArtifacts(detail.Run.GoldenManifestId.Value, ct);
     }
 
@@ -82,6 +102,12 @@ public sealed partial class ArtifactExportController
                 $"Run '{runId}' has no golden manifest in the current scope.",
                 ProblemTypes.ManifestNotFound);
 
+        IActionResult? sealedHashProblem =
+            await EnsureRunSealedManifestHashOrConflictAsync(scope, runId, ct);
+
+        if (sealedHashProblem is not null)
+            return sealedHashProblem;
+
         return await DownloadBundle(detail.Run.GoldenManifestId.Value, ct);
     }
 
@@ -105,6 +131,12 @@ public sealed partial class ArtifactExportController
             return this.NotFoundProblem(
                 $"Run '{runId}' has no golden manifest in the current scope.",
                 ProblemTypes.ManifestNotFound);
+
+        IActionResult? sealedHashProblem =
+            await EnsureRunSealedManifestHashOrConflictAsync(scope, runId, ct);
+
+        if (sealedHashProblem is not null)
+            return sealedHashProblem;
 
         return await DownloadArtifact(detail.Run.GoldenManifestId.Value, artifactId, ct);
     }
@@ -158,10 +190,22 @@ public sealed partial class ArtifactExportController
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        if (await authorityQueryService.GetManifestSummaryAsync(scope, manifestId, ct) is null)
+        ManifestSummaryDto? summary = await authorityQueryService.GetManifestSummaryAsync(scope, manifestId, ct);
+
+        if (summary is null)
             return this.NotFoundProblem(
                 $"Manifest '{manifestId}' was not found in the current scope.",
                 ProblemTypes.ManifestNotFound);
+
+        RunDetailDto? manifestDetail =
+            await authorityQueryService.GetRunDetailForManifestCompareAsync(scope, summary.RunId, ct);
+
+        IActionResult? sealedHashProblem = EnsureSealedManifestHashOrConflict(
+            manifestDetail?.GoldenManifest,
+            summary.RunId.ToString("D"));
+
+        if (sealedHashProblem is not null)
+            return sealedHashProblem;
 
         SynthesizedArtifact? artifact =
             await artifactQueryService.GetArtifactByIdAsync(scope, manifestId, artifactId, ct);
@@ -199,10 +243,22 @@ public sealed partial class ArtifactExportController
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        if (await authorityQueryService.GetManifestSummaryAsync(scope, manifestId, ct) is null)
+        ManifestSummaryDto? summary = await authorityQueryService.GetManifestSummaryAsync(scope, manifestId, ct);
+
+        if (summary is null)
             return this.NotFoundProblem(
                 $"Manifest '{manifestId}' was not found in the current scope.",
                 ProblemTypes.ManifestNotFound);
+
+        RunDetailDto? manifestDetail =
+            await authorityQueryService.GetRunDetailForManifestCompareAsync(scope, summary.RunId, ct);
+
+        IActionResult? sealedHashProblem = EnsureSealedManifestHashOrConflict(
+            manifestDetail?.GoldenManifest,
+            summary.RunId.ToString("D"));
+
+        if (sealedHashProblem is not null)
+            return sealedHashProblem;
 
         IReadOnlyList<SynthesizedArtifact> artifacts =
             await artifactQueryService.GetArtifactsByManifestIdAsync(scope, manifestId, ct);

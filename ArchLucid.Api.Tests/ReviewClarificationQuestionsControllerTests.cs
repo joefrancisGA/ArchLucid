@@ -4,6 +4,7 @@ using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Clarifications;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Clarifications;
+using ArchLucid.Contracts.Drafts;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 
@@ -81,6 +82,44 @@ public sealed class ReviewClarificationQuestionsControllerTests
             s => s.ApplyAnswersAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<IReadOnlyDictionary<string, string>>(), It.IsAny<CancellationToken>()),
             Times.Never);
         audit.Verify(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ApplyKnowledgeModelClarificationAnswers_returns_bad_request_when_answer_exceeds_max_length()
+    {
+        Guid runId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        string overLimit = new string('x', DraftIntakeValidation.MaximumFreeTextIntentLength + 1);
+
+        Mock<IReviewClarificationQuestionService> questions = new();
+        questions
+            .Setup(s => s.GetQuestionsAsync(Scope, runId, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ReviewClarificationQuestionsResponse());
+
+        Mock<IKnowledgeModelClarificationAnswerApplicator> applicator = new();
+
+        ReviewClarificationQuestionsController controller = CreateController(
+            questions.Object,
+            applicator.Object);
+
+        ApplyKnowledgeModelClarificationAnswersRequest request = new()
+        {
+            Answers = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["km-q1"] = overLimit,
+            },
+        };
+
+        IActionResult action = await controller.ApplyKnowledgeModelClarificationAnswers(
+            runId,
+            request,
+            CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        applicator.Verify(
+            s => s.ApplyAnswersAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<IReadOnlyDictionary<string, string>>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     private static ReviewClarificationQuestionsController CreateController(

@@ -31,6 +31,8 @@ export const AZURE_BOARDS_HELP_CONNECTION_STATUS_HEADING = "Connection status fo
 export const AZURE_BOARDS_HELP_CLAIM_DISCIPLINE =
   "This Azure Boards integration guide orients architects on work-item creation from ArchLucid findings — help only, not a full audit export from your workspace. Open Azure Boards integration settings or Integration readiness for live connector health.";
 
+export const AZURE_BOARDS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
+
 export const AZURE_BOARDS_HELP_SOURCES_INTRO =
   "Use these follow-ups when Azure Boards vocabulary turns into live connector setup, readiness checks, or sibling ITSM destinations.";
 

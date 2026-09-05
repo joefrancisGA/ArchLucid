@@ -69,6 +69,69 @@ public sealed class PilotValueReportServiceTests
     }
 
     [SkippableFact]
+    public async Task BuildAsync_null_from_clamps_default_window_to_max_days()
+    {
+        DateTime to = new(2026, 4, 20, 0, 0, 0, DateTimeKind.Utc);
+        DateTime tenantCreated = to.AddYears(-2);
+        DateTime expectedFrom = to.AddDays(-PilotValueReportService.DefaultReportWindowMaxDays);
+        TenantRecord tenant = Tenant(new DateTimeOffset(tenantCreated, TimeSpan.Zero));
+
+        Mock<IRunDetailQueryService> runs = new();
+        runs.Setup(r => r.ListRunSummariesKeysetAsync(null, 100, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(([], false, null));
+
+        Mock<IAuditRepository> audit = new();
+        audit.Setup(a => a.GetExportAsync(
+                Scope.TenantId,
+                Scope.WorkspaceId,
+                Scope.ProjectId,
+                expectedFrom,
+                to,
+                PilotValueReportService.AuditExportMaxRows,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        PilotValueReportService sut = CreateSut(tenant, runs.Object, audit.Object, ApprovalsPending(0).Object);
+
+        PilotValueReport? report = await sut.BuildAsync(null, to, CancellationToken.None);
+
+        report.Should().NotBeNull();
+        report!.FromUtc.Should().Be(expectedFrom);
+        report.ToUtc.Should().Be(to);
+        audit.VerifyAll();
+    }
+
+    [SkippableFact]
+    public async Task BuildAsync_collect_committed_runs_stops_at_keyset_max_page_cap()
+    {
+        DateTime from = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime to = new(2026, 4, 20, 0, 0, 0, DateTimeKind.Utc);
+        TenantRecord tenant = Tenant(new DateTimeOffset(from, TimeSpan.Zero));
+
+        RunSummary inRange = Summary(RunA, from.AddDays(1), committed: true);
+
+        Mock<IRunDetailQueryService> runs = new();
+        runs.Setup(r => r.ListRunSummariesKeysetAsync(It.IsAny<string?>(), 100, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(([inRange], true, "next"));
+
+        runs.Setup(r => r.GetRunDetailForRoiAsync(RunA, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Detail(RunA, from.AddDays(1), from.AddDays(1).AddMinutes(30), findings: []));
+
+        Mock<IAuditRepository> audit = new();
+        audit.Setup(a => a.GetExportAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId, from, to, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        PilotValueReportService sut = CreateSut(tenant, runs.Object, audit.Object, ApprovalsPending(0).Object);
+
+        PilotValueReport? report = await sut.BuildAsync(from, to, CancellationToken.None);
+
+        report.Should().NotBeNull();
+        runs.Verify(
+            r => r.ListRunSummariesKeysetAsync(It.IsAny<string?>(), 100, It.IsAny<CancellationToken>()),
+            Times.Exactly(2_000));
+    }
+
+    [SkippableFact]
     public async Task BuildAsync_ReadyForCommitRunWithManifest_IsNotCountedAsCommitted()
     {
         DateTime from = new(2026, 4, 10, 0, 0, 0, DateTimeKind.Utc);

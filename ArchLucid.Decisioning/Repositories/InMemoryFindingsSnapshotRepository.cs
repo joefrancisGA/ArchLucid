@@ -1,10 +1,10 @@
 using System.Data;
 
+using ArchLucid.Core.Findings;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
-using ArchLucid.Persistence.Findings;
 
 namespace ArchLucid.Decisioning.Repositories;
 

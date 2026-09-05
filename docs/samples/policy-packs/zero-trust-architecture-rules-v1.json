@@ -4,7 +4,7 @@
   "pack": {
     "name": "Zero Trust Architecture",
     "description": "Continuous verification, identity perimeter, and micro-segmentation themes. Not a ZTA maturity certification.",
-    "version": "1.1.0",
+    "version": "1.0.0",
     "category": "Security",
     "isDefault": true,
     "suggestedPackType": "PlatformDefault",
@@ -13,11 +13,11 @@
   "rules": [
     {
       "id": "zta-001",
-      "title": "All resources treated as internet-facing",
-      "description": "Architecture must assume no implicit trust based on network location \u2014 every access decision verified explicitly.",
-      "severity": "Critical",
+      "title": "Zero Trust Architecture \u2014 control theme 1",
+      "description": "Architecture manifest and Azure extractor evidence should support: zero trust architecture \u2014 control theme 1. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
       "priority": "P0",
-      "remediationGuidance": "Document verify-explicitly principle in governance.PolicyConstraints and metadata.ChangeDescription.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -28,17 +28,17 @@
       "frameworkMappings": [
         {
           "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 Verify explicitly"
+          "theme": "Verify explicitly"
         }
       ]
     },
     {
       "id": "zta-002",
-      "title": "Identity as primary perimeter",
-      "description": "Access control must center on user and workload identity \u2014 not VPN or datacenter perimeter alone.",
-      "severity": "Critical",
+      "title": "Zero Trust Architecture \u2014 control theme 2",
+      "description": "Architecture manifest and Azure extractor evidence should support: zero trust architecture \u2014 control theme 2. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
       "priority": "P0",
-      "remediationGuidance": "Tag identity-centric access on services[].Tags; document IdP integration in governance.RequiredControls.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -49,44 +49,38 @@
       "frameworkMappings": [
         {
           "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 Identity perimeter"
+          "theme": "Least privilege"
         }
       ]
     },
     {
       "id": "zta-003",
-      "title": "Least-privilege access enforced",
-      "description": "Roles, scopes, and API permissions must document minimum necessary access with periodic rightsizing.",
-      "severity": "Critical",
-      "priority": "P0",
-      "remediationGuidance": "Capture least-privilege policy in governance.PolicyConstraints; align RBAC with azureExtractor assignments.",
+      "title": "Zero Trust Architecture \u2014 control theme 3",
+      "description": "Architecture manifest and Azure extractor evidence should support: zero trust architecture \u2014 control theme 3. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
         "governance.ComplianceTags",
         "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
+        "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
         {
           "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 Least privilege access"
+          "theme": "Assume breach"
         }
       ]
     },
     {
       "id": "zta-004",
-      "title": "Assume breach detection posture",
-      "description": "Architecture must document continuous monitoring, deception, or anomaly detection \u2014 not prevention-only design.",
-      "severity": "High",
-      "priority": "P0",
-      "remediationGuidance": "List detection sources in governance.RequiredControls and security services[].Tags.",
+      "title": "Zero Trust Architecture \u2014 control theme 4",
+      "description": "Architecture manifest and Azure extractor evidence should support: zero trust architecture \u2014 control theme 4. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -97,17 +91,17 @@
       "frameworkMappings": [
         {
           "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 Assume breach"
+          "theme": "Verify explicitly"
         }
       ]
     },
     {
       "id": "zta-005",
-      "title": "Device health and compliance signals",
-      "description": "Access decisions should incorporate device posture (MDM compliance, managed device) where risk warrants.",
-      "severity": "High",
-      "priority": "P0",
-      "remediationGuidance": "Document device compliance conditions in governance.PolicyConstraints and governance.ComplianceTags.",
+      "title": "Zero Trust Architecture \u2014 control theme 5",
+      "description": "Architecture manifest and Azure extractor evidence should support: zero trust architecture \u2014 control theme 5. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -118,17 +112,17 @@
       "frameworkMappings": [
         {
           "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 Device trust signals"
+          "theme": "Least privilege"
         }
       ]
     },
     {
       "id": "zta-006",
-      "title": "Continuous authentication and step-up",
-      "description": "High-risk actions must document step-up authentication or continuous access evaluation \u2014 not single login at session start.",
-      "severity": "High",
+      "title": "Zero Trust Architecture \u2014 control theme 6",
+      "description": "Architecture manifest and Azure extractor evidence should support: zero trust architecture \u2014 control theme 6. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
       "priority": "P1",
-      "remediationGuidance": "Describe step-up triggers in governance.RequiredControls and services[].Tags for admin and data-export APIs.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -139,44 +133,38 @@
       "frameworkMappings": [
         {
           "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 Continuous authentication"
+          "theme": "Assume breach"
         }
       ]
     },
     {
       "id": "zta-007",
-      "title": "Micro-segmentation for workloads",
-      "description": "East-west traffic between services must document segmentation (NSGs, service mesh, private link) with default deny.",
-      "severity": "Critical",
-      "priority": "P1",
-      "remediationGuidance": "Map micro-segments in metadata.ChangeDescription; align subnet and NSG posture with azureExtractor.",
+      "title": "Zero Trust Architecture \u2014 control theme 7",
+      "description": "Architecture manifest and Azure extractor evidence should support: zero trust architecture \u2014 control theme 7. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
         "governance.ComplianceTags",
         "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
+        "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
         {
           "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 Micro-segmentation"
+          "theme": "Verify explicitly"
         }
       ]
     },
     {
       "id": "zta-008",
-      "title": "Encrypted communications everywhere",
-      "description": "All service-to-service and user-to-service paths must document TLS or mTLS \u2014 no trusted-zone plaintext exceptions without approval.",
-      "severity": "Critical",
-      "priority": "P1",
-      "remediationGuidance": "Document TLS/mTLS in governance.PolicyConstraints; map encrypted edges on relationships[].",
+      "title": "Zero Trust Architecture \u2014 control theme 8",
+      "description": "Architecture manifest and Azure extractor evidence should support: zero trust architecture \u2014 control theme 8. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -187,17 +175,17 @@
       "frameworkMappings": [
         {
           "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 Encrypted communications"
+          "theme": "Least privilege"
         }
       ]
     },
     {
       "id": "zta-009",
-      "title": "Policy decision point documented",
-      "description": "Architecture must identify where access policy is evaluated (Entra CA, API gateway, service mesh PDP) per resource type.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "List PDP components in governance.RequiredControls and services[].Tags.",
+      "title": "Zero Trust Architecture \u2014 control theme 9",
+      "description": "Architecture manifest and Azure extractor evidence should support: zero trust architecture \u2014 control theme 9. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -208,176 +196,17 @@
       "frameworkMappings": [
         {
           "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 Policy decision point"
+          "theme": "Assume breach"
         }
       ]
     },
     {
       "id": "zta-010",
-      "title": "Policy enforcement point at data path",
-      "description": "Enforcement (PEP) must sit inline with data access \u2014 not solely at network edge for internal APIs.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Document PEP placement on API gateways and data services in metadata.ChangeDescription.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 Policy enforcement point"
-        }
-      ]
-    },
-    {
-      "id": "zta-011",
-      "title": "Software-defined perimeter for admin access",
-      "description": "Administrative access should use JIT, PIM, or brokered access \u2014 not standing VPN to management networks.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Record JIT/PIM patterns in governance.RequiredControls and governance.ComplianceTags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 Privileged access brokerage"
-        }
-      ]
-    },
-    {
-      "id": "zta-012",
-      "title": "Workload identity for service-to-service auth",
-      "description": "Services must use managed identity, workload identity federation, or mTLS \u2014 not long-lived shared secrets in configuration.",
-      "severity": "Critical",
-      "priority": "P1",
-      "remediationGuidance": "Tag workload-identity usage on services[].Tags; document secret elimination in governance.PolicyConstraints.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 Workload identity"
-        }
-      ]
-    },
-    {
-      "id": "zta-013",
-      "title": "Data-centric protection (classification-driven)",
-      "description": "Protection controls must follow data classification \u2014 encryption, masking, and access scoped to sensitivity labels.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Align classification tags on datastores[].Tags with governance.ComplianceTags and governance.PolicyConstraints.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 Data-centric security"
-        }
-      ]
-    },
-    {
-      "id": "zta-014",
-      "title": "Analytics for user and entity behavior",
-      "description": "UEBA or equivalent anomaly detection should be documented for identity and data-access patterns.",
-      "severity": "Medium",
-      "priority": "P1",
-      "remediationGuidance": "List UEBA integration in governance.RequiredControls and security monitoring services[].Tags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 Analytics and visibility"
-        }
-      ]
-    },
-    {
-      "id": "zta-015",
-      "title": "Automated threat response integration",
-      "description": "SOAR or automated playbooks must document identity disable, session revoke, and network isolation actions.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Describe automated response hooks in metadata.ChangeDescription and governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 Automated orchestration"
-        }
-      ]
-    },
-    {
-      "id": "zta-016",
-      "title": "Third-party access zero-trust patterns",
-      "description": "Partner and vendor access must use federated identity, scoped tokens, and time-bound grants \u2014 not shared VPN accounts.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Document B2B access patterns in governance.PolicyConstraints and external services[] on relationships[].",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 Third-party access"
-        }
-      ]
-    },
-    {
-      "id": "zta-017",
-      "title": "Legacy application ZTNA wrapper",
-      "description": "Legacy apps without native ZTA support must document application proxy or ZTNA gateway with session inspection.",
+      "title": "Zero Trust Architecture \u2014 control theme 10",
+      "description": "Architecture manifest and Azure extractor evidence should support: zero trust architecture \u2014 control theme 10. Thematic mapping only \u2014 not certification.",
       "severity": "Medium",
       "priority": "P2",
-      "remediationGuidance": "Tag legacy-app proxy services in services[].Tags; describe wrapper architecture in metadata.ChangeDescription.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
         "governance.RequiredControls",
@@ -388,250 +217,7 @@
       "frameworkMappings": [
         {
           "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 Legacy application access"
-        }
-      ]
-    },
-    {
-      "id": "zta-018",
-      "title": "API gateway as zero-trust enforcement",
-      "description": "North-south and east-west APIs should route through gateways with authn, authz, rate limits, and WAF.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Document API gateway policy in governance.RequiredControls; tag gateway-protected services.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 API protection"
-        }
-      ]
-    },
-    {
-      "id": "zta-019",
-      "title": "Segmentation for IoT and OT adjacency",
-      "description": "If IoT/OT systems connect, architecture must document isolation from corporate and data tiers.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Describe IoT/OT zones in metadata.ChangeDescription and governance.PolicyConstraints.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 IoT/OT segmentation"
-        }
-      ]
-    },
-    {
-      "id": "zta-020",
-      "title": "Logging of all access decisions",
-      "description": "Policy allow/deny decisions and identity assertions must feed centralized logging for investigation.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "List authz decision logs in governance.RequiredControls; align with azureExtractor diagnostic settings.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 Access decision logging"
-        }
-      ]
-    },
-    {
-      "id": "zta-021",
-      "title": "Phishing-resistant MFA for administrators",
-      "description": "Privileged users must document phishing-resistant MFA (FIDO2, certificate-based) where available.",
-      "severity": "Critical",
-      "priority": "P2",
-      "remediationGuidance": "Record phishing-resistant MFA in governance.RequiredControls and governance.ComplianceTags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 Strong authentication"
-        }
-      ]
-    },
-    {
-      "id": "zta-022",
-      "title": "Session lifetime and re-authentication",
-      "description": "Session tokens must document maximum lifetime, idle timeout, and refresh rotation policies.",
-      "severity": "Medium",
-      "priority": "P2",
-      "remediationGuidance": "Capture session policy in governance.PolicyConstraints and services[].Tags for user-facing apps.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 Session management"
-        }
-      ]
-    },
-    {
-      "id": "zta-023",
-      "title": "Data loss prevention on egress paths",
-      "description": "Outbound flows carrying sensitive data must document DLP inspection or equivalent egress controls.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Tag DLP-enforced egress in services[].Tags and governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 Data exfiltration controls"
-        }
-      ]
-    },
-    {
-      "id": "zta-024",
-      "title": "Zero trust for CI/CD pipelines",
-      "description": "Build and deploy pipelines must document signed commits, OIDC federation, and least-privilege deployment identities.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Describe pipeline identity in governance.RequiredControls; tag CI/CD services with zt-pipeline in services[].Tags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 DevOps zero trust"
-        }
-      ]
-    },
-    {
-      "id": "zta-025",
-      "title": "Multi-cloud identity federation",
-      "description": "Cross-cloud workloads must document centralized IdP and consistent policy \u2014 not siloed local accounts per cloud.",
-      "severity": "Medium",
-      "priority": "P2",
-      "remediationGuidance": "Document federation architecture in metadata.ChangeDescription and governance.ComplianceTags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 Multi-cloud identity"
-        }
-      ]
-    },
-    {
-      "id": "zta-026",
-      "title": "Risk-based adaptive access",
-      "description": "Conditional Access or equivalent must incorporate sign-in risk, location, and device signals for adaptive decisions.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Capture adaptive access policy in governance.PolicyConstraints and governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 Risk-based access"
-        }
-      ]
-    },
-    {
-      "id": "zta-027",
-      "title": "Zero trust maturity roadmap referenced",
-      "description": "Architecture should state current ZTA maturity target and phased rollout \u2014 not claim full ZTA without evidence.",
-      "severity": "Low",
-      "priority": "P2",
-      "remediationGuidance": "Note maturity phase in metadata.ChangeDescription and governance.ComplianceTags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 Maturity and roadmap"
-        }
-      ]
-    },
-    {
-      "id": "zta-028",
-      "title": "Guest and external collaboration zero trust",
-      "description": "External collaboration (Teams, SharePoint, B2B) must document scoped sharing and expiration policies.",
-      "severity": "Medium",
-      "priority": "P2",
-      "remediationGuidance": "Document external sharing controls in governance.PolicyConstraints when M365 collaboration is in scope.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "NIST SP 800-207",
-          "theme": "NIST SP 800-207 \u2014 External collaboration"
+          "theme": "Verify explicitly"
         }
       ]
     }

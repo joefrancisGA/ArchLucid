@@ -59,6 +59,11 @@ public sealed partial class AdvisoryScanRunner
             return;
         }
 
+        AdvisoryScanSealedManifestGuard.EnsureRunSealedManifestHashOrThrow(
+            latestDetail.GoldenManifest,
+            latest.RunId,
+            manifestHashService);
+
         FindingsSnapshot findings = latestDetail.FindingsSnapshot ?? CreateEmptyFindings(latestDetail.GoldenManifest);
         RunSummaryDto? compareTo = ordered.Skip(1).FirstOrDefault();
         ImprovementPlan plan;
@@ -71,6 +76,11 @@ public sealed partial class AdvisoryScanRunner
 
             if (previousDetail?.GoldenManifest is not null)
             {
+                AdvisoryScanCompareToSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrow(
+                    previousDetail.GoldenManifest,
+                    compareTo.RunId,
+                    manifestHashService);
+
                 comparisonResult = comparisonService.Compare(previousDetail.GoldenManifest, latestDetail.GoldenManifest);
                 comparedToRunId = compareTo.RunId;
                 plan = await improvementAdvisorService.GeneratePlanAsync(latestDetail.GoldenManifest, findings, comparisonResult, ct);
@@ -108,7 +118,8 @@ public sealed partial class AdvisoryScanRunner
             comparedToRunId,
             plan,
             digestAlerts,
-            decisionNeededMarkdown);
+            decisionNeededMarkdown,
+            latestDetail.GoldenManifest.ManifestHash);
         await digestRepository.CreateAsync(digest, ct);
         await deliveryDispatcher.DeliverAsync(digest, ct);
         TraceCompletenessSummary traceCompletenessSummary = ExplainabilityTraceCompletenessAnalyzer.AnalyzeSnapshot(findings);
@@ -165,7 +176,15 @@ public sealed partial class AdvisoryScanRunner
                 RunId = latest.RunId,
                 DataJson = JsonSerializer.Serialize(new { digestId = digest.DigestId, scheduleId = schedule.ScheduleId })
             }, ct);
-        await TryPublishAdvisoryScanCompletedAsync(schedule, execution, latest.RunId, comparedToRunId, digest.DigestId, true, ct);
+        await TryPublishAdvisoryScanCompletedAsync(
+            schedule,
+            execution,
+            latest.RunId,
+            comparedToRunId,
+            digest.DigestId,
+            true,
+            latestDetail.GoldenManifest.ManifestHash,
+            ct);
         await AdvanceScheduleAsync(schedule, ct);
     }
 }

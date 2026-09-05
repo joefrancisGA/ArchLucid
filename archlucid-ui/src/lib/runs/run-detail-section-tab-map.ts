@@ -64,3 +64,12 @@ export function filterRunDetailNavSectionsForTab<T extends { readonly id: string
     return ownerTab === tabId;
   });
 }
+
+/** Tabbed workspace: in-page anchors only — tab destinations stay on the tab strip above. */
+export function filterRunDetailInPageAnchorSectionsForTab<
+  T extends { readonly id: string; readonly available: boolean },
+>(sections: readonly T[], tabId: ReviewDetailTabId): T[] {
+  return filterRunDetailNavSectionsForTab(sections, tabId).filter(
+    (section) => !isReviewDetailTabId(section.id),
+  );
+}

@@ -3,10 +3,14 @@ using System.Diagnostics;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Coordination.Export;
 using ArchLucid.Persistence.Coordination.Export;
+using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -56,6 +60,7 @@ public sealed class RunExportBlobPushOutboxProcessorTests
         services.AddScoped(_ => audit.Object);
         services.AddScoped(_ => Mock.Of<IRunExportPackageBuilder>());
         services.AddScoped(_ => Mock.Of<IRunExportBlobPushService>());
+        RegisterSealedManifestGuardServices(services, runId);
         ServiceProvider provider = services.BuildServiceProvider();
 
         RunExportBlobPushOutboxProcessor sut = new(
@@ -110,6 +115,7 @@ public sealed class RunExportBlobPushOutboxProcessorTests
         services.AddScoped(_ => builder.Object);
         services.AddScoped(_ => Mock.Of<IRunExportBlobPushService>());
         services.AddScoped(_ => Mock.Of<IAuditService>());
+        RegisterSealedManifestGuardServices(services, runId);
         ServiceProvider provider = services.BuildServiceProvider();
 
         RunExportBlobPushOutboxProcessor sut = new(
@@ -121,6 +127,60 @@ public sealed class RunExportBlobPushOutboxProcessorTests
         await sut.ProcessPendingBatchAsync(CancellationToken.None);
 
         outbox.Verify(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ProcessPendingBatchAsync_dead_letters_when_export_blocked_by_sealed_receipt_conflict()
+    {
+        Guid outboxId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Mock<IRunExportBlobPushOutboxRepository> outbox = new();
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RunExportBlobPushOutboxEntry
+                {
+                    OutboxId = outboxId,
+                    RunId = runId,
+                    TenantId = Guid.NewGuid(),
+                    WorkspaceId = Guid.NewGuid(),
+                    ProjectId = Guid.NewGuid(),
+                    DestinationSasUrl = "https://acct.blob.core.windows.net/c/b?sas=token",
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
+                }
+            ]);
+        outbox
+            .Setup(o => o.RecordDeadLetterAsync(outboxId, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IRunExportPackageBuilder> builder = new();
+        builder
+            .Setup(b => b.BuildAsync(It.IsAny<ScopeContext>(), runId, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RunExportPackageResult.Conflict(
+                "blocked",
+                "https://archlucid.example.org/errors#decision-receipt-sealed-hash-mismatch"));
+
+        ServiceCollection services = [];
+        services.AddScoped(_ => outbox.Object);
+        services.AddScoped(_ => builder.Object);
+        services.AddScoped(_ => Mock.Of<IRunExportBlobPushService>());
+        services.AddScoped(_ => Mock.Of<IAuditService>());
+        RegisterSealedManifestGuardServices(services, runId);
+        ServiceProvider provider = services.BuildServiceProvider();
+
+        RunExportBlobPushOutboxProcessor sut = new(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(new RunExportBlobPushOutboxProcessorOptions()),
+            TimeProvider.System,
+            NullLogger<RunExportBlobPushOutboxProcessor>.Instance);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        outbox.Verify(
+            o => o.RecordDeadLetterAsync(outboxId, It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+        outbox.Verify(o => o.MarkProcessedAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -165,6 +225,7 @@ public sealed class RunExportBlobPushOutboxProcessorTests
         services.AddScoped(_ => builder.Object);
         services.AddScoped(_ => Mock.Of<IRunExportBlobPushService>());
         services.AddScoped(_ => Mock.Of<IAuditService>());
+        RegisterSealedManifestGuardServices(services, runId);
         ServiceProvider provider = services.BuildServiceProvider();
 
         RunExportBlobPushOutboxProcessor sut = new(
@@ -178,5 +239,35 @@ public sealed class RunExportBlobPushOutboxProcessorTests
         stopped.Should().ContainSingle();
         stopped[0].GetTagItem(ActivityScopeTags.TenantIdTag).Should().Be(tenantId.ToString("D"));
         stopped[0].GetTagItem(ActivityScopeTags.WorkspaceIdTag).Should().Be(workspaceId.ToString("D"));
+    }
+
+    private static void RegisterSealedManifestGuardServices(ServiceCollection services, Guid runId)
+    {
+        ManifestDocument goldenManifest = new()
+        {
+            ManifestId = Guid.NewGuid(),
+            RunId = runId,
+            ManifestHash = "sealed-outbox-test-hash",
+        };
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(query => query.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = runId },
+                GoldenManifest = goldenManifest,
+            });
+
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns(goldenManifest.ManifestHash!);
+
+        services.AddScoped(_ => authority.Object);
+        services.AddScoped(_ => manifestHash.Object);
     }
 }

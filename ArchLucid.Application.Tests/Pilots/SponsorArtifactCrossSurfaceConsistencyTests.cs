@@ -3,13 +3,17 @@ using ArchLucid.Application.Value;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Pilots;
 using ArchLucid.Persistence.Tenancy;
@@ -101,6 +105,13 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
             LlmCallCount = 4,
             TopFindingId = "top-finding-id",
             TopFindingSeverity = "Error",
+            TopFindingEvidenceChain = new FindingEvidenceChainResponse
+            {
+                RunId = "r1",
+                FindingId = "top-finding-id",
+                ManifestVersion = "v2",
+                FindingsSnapshotId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            },
             IsDemoTenant = false,
         };
 
@@ -115,7 +126,10 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
             .Callback<ArchitectureRunDetail, CancellationToken>((d, _) => capturedDetail = d)
             .ReturnsAsync(computed);
 
-        FirstValueReportBuilder markdownBuilder = CreateSut(query.Object, deltas.Object);
+        FirstValueReportBuilder markdownBuilder = CreateSut(
+            query.Object,
+            deltas.Object,
+            sponsorSafeBaselines: true);
         string? markdown = await markdownBuilder.BuildMarkdownAsync("r1", "http://localhost:5000");
 
         markdown.Should().NotBeNullOrWhiteSpace();
@@ -155,7 +169,16 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
         Mock<IOptionsMonitor<PublicSiteOptions>> site = new();
         site.Setup(s => s.CurrentValue).Returns(new PublicSiteOptions { BaseUrl = "https://ui.example" });
 
-        SponsorOnePagerPdfBuilder pdfBuilder = new(query.Object, scorecard, deltas.Object, site.Object);
+        SponsorOnePagerPdfBuilder pdfBuilder = new(
+            query.Object,
+            scorecard,
+            deltas.Object,
+            markdownBuilder,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
+            scope.Object,
+            FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
+            site.Object);
         byte[]? pdf = await pdfBuilder.BuildPdfAsync("r1", "http://localhost:5000");
 
         pdf.Should().NotBeNull();
@@ -168,7 +191,7 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
 
         deltas.Verify(
             d => d.ComputeAsync(It.Is<ArchitectureRunDetail>(x => x.Run.RunId == "r1"), It.IsAny<CancellationToken>()),
-            Times.Exactly(2));
+            Times.Exactly(3));
     }
 
     [Fact]
@@ -337,9 +360,31 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
     private static FirstValueReportBuilder CreateSut(
         IRunDetailQueryService query,
         IPilotRunDeltaComputer deltas,
-        ValueReportRawMetrics? rawMetrics = null)
+        ValueReportRawMetrics? rawMetrics = null,
+        bool sponsorSafeBaselines = false)
     {
         Mock<IValueReportMetricsReader> metrics = new();
+
+        ValueReportRawMetrics baselineRow = rawMetrics ??
+            (sponsorSafeBaselines
+                ? new ValueReportRawMetrics(
+                    [],
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    8m,
+                    "signup",
+                    TimeProvider.System.GetUtcNow(),
+                    6m,
+                    3,
+                    6m,
+                    null,
+                    null)
+                : new ValueReportRawMetrics([], 0, 0, 0, 0, 0, 0, null, null, null, null, 0, null, null, null));
+
         metrics
             .Setup(m => m.ReadAsync(
                 It.IsAny<Guid>(),
@@ -348,7 +393,7 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
                 It.IsAny<DateTimeOffset>(),
                 It.IsAny<DateTimeOffset>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(rawMetrics ?? new ValueReportRawMetrics([], 0, 0, 0, 0, 0, 0, null, null, null, null, 0, null, null, null));
+            .ReturnsAsync(rawMetrics ?? baselineRow);
 
         Mock<IOptionsMonitor<ValueReportComputationOptions>> opt = new();
         opt.Setup(o => o.CurrentValue).Returns(new ValueReportComputationOptions());
@@ -365,7 +410,12 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
             });
 
         IConfigurationRoot configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> { ["AgentExecution:Mode"] = "Simulator" })
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["AgentExecution:Mode"] = "Simulator",
+                    ["AzureOpenAI:DeploymentName"] = sponsorSafeBaselines ? "gpt-test" : null,
+                })
             .Build();
 
         Mock<IOptionsMonitor<PublicSiteOptions>> siteOpts = new();
@@ -379,7 +429,17 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
         Mock<IPilotBaselineRepository> pilotBaselines = new();
         pilotBaselines
             .Setup(b => b.GetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((PilotBaselineRecord?)null);
+            .ReturnsAsync(
+                sponsorSafeBaselines
+                    ? new PilotBaselineRecord
+                    {
+                        TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                        BaselineHoursPerReview = 40m,
+                        BaselineReviewsPerQuarter = 12,
+                        BaselineArchitectHourlyCost = 175m,
+                        UpdatedUtc = DateTimeOffset.UtcNow,
+                    }
+                    : null);
 
         return new FirstValueReportBuilder(
             query,
@@ -393,6 +453,9 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
             pilotBaselines.Object,
             FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
+            FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 }

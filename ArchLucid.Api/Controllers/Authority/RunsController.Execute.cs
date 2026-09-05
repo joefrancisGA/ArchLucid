@@ -36,6 +36,11 @@ public sealed partial class RunsController
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        IActionResult? invalidRun = NotFoundWhenRunRouteIdInvalid(runId);
+
+        if (invalidRun is not null)
+            return invalidRun;
+
         string user = actorContext.GetActor();
         string correlationId = HttpContext.TraceIdentifier;
         bool pilotTryRealMode = IsPilotTryRealModeRequest();
@@ -100,6 +105,11 @@ public sealed partial class RunsController
         [FromBody] SelectiveExecuteRunRequest? body,
         CancellationToken cancellationToken)
     {
+        IActionResult? invalidRun = NotFoundWhenRunRouteIdInvalid(runId);
+
+        if (invalidRun is not null)
+            return invalidRun;
+
         string user = actorContext.GetActor();
         string correlationId = HttpContext.TraceIdentifier;
         SelectiveExecuteRunRequest request = body ?? new SelectiveExecuteRunRequest();

@@ -228,7 +228,28 @@ public sealed class ArchitectureRunAsyncOperationHostedServiceTests
         services.AddSingleton(execute);
         services.AddSingleton(Mock.Of<IReplayRunService>());
         services.AddSingleton<IOperationCancellationRegistry>(new OperationCancellationRegistry());
-        services.AddSingleton(runs ?? Mock.Of<IRunRepository>());
+
+        if (runs is null)
+        {
+            Mock<IRunRepository> runRepo = new();
+            runRepo
+                .Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((ScopeContext scope, Guid id, CancellationToken _) => new RunRecord
+                {
+                    RunId = id,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    ProjectId = scope.ProjectId.ToString("N"),
+                    LegacyRunStatus = nameof(ArchLucid.Contracts.Common.ArchitectureRunStatus.Created)
+                });
+            services.AddSingleton(runRepo.Object);
+        }
+        else
+        {
+            services.AddSingleton(runs);
+        }
+
         services.AddSingleton<OperationRunCancellationMarker>();
         ServiceProvider provider = services.BuildServiceProvider();
 

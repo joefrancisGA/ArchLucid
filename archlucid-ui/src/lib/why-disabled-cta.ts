@@ -1,5 +1,10 @@
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT } from "@/lib/api/downloads-api";
+import {
+  deriveDecisionSnapshotSuppressedReason,
+  isReviewPipelineIncomplete,
+  type RunDetailWorkspaceStatus,
+} from "@/lib/run-detail-workspace-derive";
 
 /**
  * Shared source of truth for explaining why a primary CTA is disabled (TB-2190).
@@ -110,5 +115,25 @@ export function whyDisabledSampleReviewExport(): WhyDisabledCtaReason {
   return {
     kind: "policy",
     message: SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT,
+  };
+}
+
+/** Share and Ask header actions stay off until the review pipeline produces assessable outcomes. */
+export function whyDisabledReviewHeaderActions(
+  workspaceStatus: RunDetailWorkspaceStatus,
+): WhyDisabledCtaReason | null {
+  if (!isReviewPipelineIncomplete(workspaceStatus)) {
+    return null;
+  }
+
+  const message = deriveDecisionSnapshotSuppressedReason(workspaceStatus);
+
+  if (message === null) {
+    return whyDisabledNeedsLifecycle("the review");
+  }
+
+  return {
+    kind: "lifecycle",
+    message,
   };
 }

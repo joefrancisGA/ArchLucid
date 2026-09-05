@@ -1,7 +1,6 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.KnowledgeGraph;
-using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Decisioning.Findings;
 

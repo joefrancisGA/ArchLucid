@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Exports;
 using ArchLucid.ArtifactSynthesis.Models;
@@ -40,6 +41,13 @@ public sealed partial class ArtifactExportController
                 ProblemTypes.DecisionReceiptSealedHashMismatch);
         }
 
+        if (buildResult.Outcome == DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete)
+        {
+            return this.ConflictProblem(
+                $"Decision receipt for run '{runId}' is missing sealed receipt fields required for export.",
+                ProblemTypes.DecisionReceiptSealedIncomplete);
+        }
+
         if (buildResult.Outcome != DecisionReceiptRunBuildOutcome.Success || buildResult.Receipt is null)
         {
             return this.NotFoundProblem(
@@ -72,6 +80,7 @@ public sealed partial class ArtifactExportController
     [Produces("application/zip")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> DownloadRunExport(
@@ -92,6 +101,18 @@ public sealed partial class ArtifactExportController
                         scope,
                         runDetailForDiagram.GoldenManifest.ManifestId,
                         ct);
+
+                try
+                {
+                    MermaidDiagramExportInventoryGuard.EnsureDiagramSourceInventoryBoundOrThrow(
+                        runDetailForDiagram.GoldenManifest,
+                        artifactsForDiagram,
+                        runId.ToString("D"));
+                }
+                catch (ConflictException ex)
+                {
+                    return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+                }
 
                 string? mermaid = MermaidDiagramArtifactExtractor.TryGetDiagramSource(artifactsForDiagram);
 
@@ -132,9 +153,9 @@ public sealed partial class ArtifactExportController
     /// </summary>
     [HttpGet("reviews/{runId:guid}/terraform-advisory-export")]
     [HttpGet("runs/{runId:guid}/terraform-advisory-export")]
-    [Produces("application/zip")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK, "application/zip")]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> DownloadTerraformAdvisoryExport(
@@ -151,6 +172,11 @@ public sealed partial class ArtifactExportController
             return this.NotFoundProblem(
                 $"Run '{runId}' has no committed golden manifest available for export.",
                 ProblemTypes.ManifestNotFound);
+
+        IActionResult? sealedHashProblem = EnsureSealedManifestHashOrConflict(runDetail.GoldenManifest, runId.ToString("D"));
+
+        if (sealedHashProblem is not null)
+            return sealedHashProblem;
 
         ArtifactPackage package = artifactPackagingService.BuildTerraformAdvisoryPlaceholderExport(runId);
 

@@ -201,7 +201,6 @@ describe("nav-config structure", () => {
       "/governance/findings/assigned-to-me",
       "/governance/exceptions",
       "/governance/decision-register",
-      "/governance/sealed-records",
       "/governance/advisory-scans",
       "/governance/audit",
       "/governance/alerts",

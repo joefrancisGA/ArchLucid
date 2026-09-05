@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type SetStateAction } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useAdvisoryRecommendationsQuery } from "@/hooks/use-advisory-recommendations-query";
@@ -29,6 +29,20 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { showSuccess } from "@/lib/toast";
 import { buildAdvisoryHubHref } from "@/lib/advisory-hub-href";
+import {
+  advisoryScansFilterHrefFromSearch,
+  parseAdvisoryScansCompareToFromSearch,
+  parseAdvisoryScansRunIdFromSearch,
+  parseAdvisoryScansSamplePreviewFromSearch,
+} from "@/lib/advisory/advisory-scans-filter-url";
+import {
+  advisoryScansDispositionConfirmHrefFromSearch,
+  advisoryScansDispositionToUrlAction,
+  advisoryScansUrlActionToDisposition,
+  parseAdvisoryScansDispActionFromSearch,
+  parseAdvisoryScansDispRecIdFromSearch,
+} from "@/lib/advisory/advisory-scans-disposition-confirm-url";
+import { GOVERNANCE_ADVISORY_SCANS_PATH } from "@/lib/governance/governance-route-paths";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
@@ -55,10 +69,16 @@ export function dispositionActionLabel(action: string): string {
 
 export function useAdvisoryScansContent(props: AdvisoryScansContentProps = {}) {
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = usePathname() ?? GOVERNANCE_ADVISORY_SCANS_PATH;
+  const searchParams = useSearchParams();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const isAdminCaller = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const bootstrappedRunId = (props.initialRunId ?? "").trim();
+  const urlRunId = parseAdvisoryScansRunIdFromSearch(searchParams.get("runId"));
+  const urlCompareTo = parseAdvisoryScansCompareToFromSearch(searchParams.get("compareTo"));
+  const urlSamplePreview = parseAdvisoryScansSamplePreviewFromSearch(searchParams.get("sample"));
+  const dispRecIdParam = searchParams.get("dispRecId");
+  const dispActionParam = searchParams.get("dispAction");
 
   const onPickReview = useCallback(
     (reviewId: string) => {
@@ -81,17 +101,79 @@ export function useAdvisoryScansContent(props: AdvisoryScansContentProps = {}) {
   const samplePreviewTriggerId = useId();
   const samplePreviewRegionRef = useRef<HTMLDivElement>(null);
 
-  const [runId, setRunId] = useState(bootstrappedRunId);
-  const [compareToRunId, setCompareToRunId] = useState("");
+  const [runId, setRunIdState] = useState(urlRunId.length > 0 ? urlRunId : bootstrappedRunId);
+  const [compareToRunId, setCompareToRunIdState] = useState(urlCompareTo);
   const [planSummary, setPlanSummary] = useState<ImprovementPlan | null>(null);
   const [recommendations, setRecommendations] = useState<RecommendationRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
-  const [showSamplePreview, setShowSamplePreview] = useState(false);
-  const [pendingDisposition, setPendingDisposition] = useState<{
+  const [showSamplePreview, setShowSamplePreviewState] = useState(urlSamplePreview);
+  const [pendingDisposition, setPendingDispositionState] = useState<{
     readonly recommendationId: string;
     readonly action: string;
   } | null>(null);
+  const syncDispositionConfirmToUrl = useCallback(
+    (state: { readonly recommendationId: string; readonly action: string } | null) => {
+      const urlAction = state === null ? null : advisoryScansDispositionToUrlAction(state.action);
+
+      router.replace(
+        advisoryScansDispositionConfirmHrefFromSearch(
+          searchParams.toString(),
+          state === null || urlAction === null
+            ? { recommendationId: null, action: null }
+            : { recommendationId: state.recommendationId, action: urlAction },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPendingDisposition = useCallback(
+    (value: SetStateAction<{ readonly recommendationId: string; readonly action: string } | null>) => {
+      setPendingDispositionState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncDispositionConfirmToUrl(next);
+
+        return next;
+      });
+    },
+    [syncDispositionConfirmToUrl],
+  );
+
+  useEffect(() => {
+    const recommendationId = parseAdvisoryScansDispRecIdFromSearch(dispRecIdParam);
+    const action = parseAdvisoryScansDispActionFromSearch(dispActionParam);
+
+    if (recommendationId.length === 0 || action === null) {
+      setPendingDispositionState(null);
+
+      return;
+    }
+
+    if (recommendations.length === 0) {
+      return;
+    }
+
+    const recommendation = recommendations.find((row) => row.recommendationId === recommendationId);
+
+    if (recommendation === undefined) {
+      return;
+    }
+
+    const apiAction = advisoryScansUrlActionToDisposition(action);
+
+    if (
+      pendingDisposition?.recommendationId === recommendationId
+      && pendingDisposition.action === apiAction
+    ) {
+      return;
+    }
+
+    setPendingDispositionState({ recommendationId, action: apiAction });
+  }, [dispActionParam, dispRecIdParam, pendingDisposition?.action, pendingDisposition?.recommendationId, recommendations]);
+
   const [dispositionBusy, setDispositionBusy] = useState(false);
   const [dispositionError, setDispositionError] = useState<string | null>(null);
   const [lastImproveLoopEvidence, setLastImproveLoopEvidence] =
@@ -101,6 +183,50 @@ export function useAdvisoryScansContent(props: AdvisoryScansContentProps = {}) {
   const bootstrapRecommendationsQuery = useAdvisoryRecommendationsQuery(bootstrappedRunId, {
     enabled: bootstrappedRunId.length > 0,
   });
+
+  const syncScansFiltersToUrl = useCallback(
+    (patch: {
+      readonly runId?: string;
+      readonly compareToRunId?: string;
+      readonly showSamplePreview?: boolean;
+    }) => {
+      router.replace(advisoryScansFilterHrefFromSearch(searchParams.toString(), patch, pathname), { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setRunId = useCallback(
+    (next: string | ((prev: string) => string)) => {
+      setRunIdState((prev) => {
+        const resolved = typeof next === "function" ? next(prev) : next;
+        syncScansFiltersToUrl({ runId: resolved });
+
+        return resolved;
+      });
+    },
+    [syncScansFiltersToUrl],
+  );
+
+  const setCompareToRunId = useCallback(
+    (next: string | ((prev: string) => string)) => {
+      setCompareToRunIdState((prev) => {
+        const resolved = typeof next === "function" ? next(prev) : next;
+        syncScansFiltersToUrl({ compareToRunId: resolved });
+
+        return resolved;
+      });
+    },
+    [syncScansFiltersToUrl],
+  );
+
+  useEffect(() => {
+    if (searchParams.has("runId")) {
+      setRunIdState(parseAdvisoryScansRunIdFromSearch(searchParams.get("runId")));
+    }
+
+    setCompareToRunIdState(parseAdvisoryScansCompareToFromSearch(searchParams.get("compareTo")));
+    setShowSamplePreviewState(parseAdvisoryScansSamplePreviewFromSearch(searchParams.get("sample")));
+  }, [searchParams]);
 
   const syncProjectContext = useCallback(() => {
     const operatorScope = readOperatorScopeFromStorage();
@@ -116,7 +242,8 @@ export function useAdvisoryScansContent(props: AdvisoryScansContentProps = {}) {
       setRecommendations([]);
       setLastLoadedUtc(null);
       setFailure(null);
-      setShowSamplePreview(false);
+      setShowSamplePreviewState(false);
+      syncScansFiltersToUrl({ showSamplePreview: false });
       void queryClient.invalidateQueries({
         queryKey: ["operator", "advisory", "recommendations", scope],
       });
@@ -127,7 +254,7 @@ export function useAdvisoryScansContent(props: AdvisoryScansContentProps = {}) {
     return () => {
       window.removeEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, onScopeChanged);
     };
-  }, [queryClient, scope, syncProjectContext]);
+  }, [queryClient, scope, syncProjectContext, syncScansFiltersToUrl]);
 
   useEffect(() => {
     if (bootstrappedRunId.length === 0) {
@@ -157,9 +284,10 @@ export function useAdvisoryScansContent(props: AdvisoryScansContentProps = {}) {
 
   useEffect(() => {
     if (hasResults) {
-      setShowSamplePreview(false);
+      setShowSamplePreviewState(false);
+      syncScansFiltersToUrl({ showSamplePreview: false });
     }
-  }, [hasResults]);
+  }, [hasResults, syncScansFiltersToUrl]);
 
   useEffect(() => {
     const next = (props.initialRunId ?? "").trim();
@@ -169,7 +297,7 @@ export function useAdvisoryScansContent(props: AdvisoryScansContentProps = {}) {
     }
 
     setRunId(next);
-  }, [props.initialRunId]);
+  }, [props.initialRunId, setRunId]);
 
   useEffect(() => {
     if (bootstrapRecommendationsQuery.data === undefined) {
@@ -329,8 +457,13 @@ export function useAdvisoryScansContent(props: AdvisoryScansContentProps = {}) {
   }, [fetchPersistedRecommendations, runId]);
 
   const toggleSamplePreview = useCallback((): void => {
-    setShowSamplePreview((current) => !current);
-  }, []);
+    setShowSamplePreviewState((current) => {
+      const next = !current;
+      syncScansFiltersToUrl({ showSamplePreview: next });
+
+      return next;
+    });
+  }, [syncScansFiltersToUrl]);
 
   return {
     bootstrappedRunId,

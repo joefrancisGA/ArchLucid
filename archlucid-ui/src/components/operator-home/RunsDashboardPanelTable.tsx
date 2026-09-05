@@ -80,6 +80,7 @@ export function RunsDashboardPanelTable({
       <RunsDashboardFilters
         buyerPolishedShell={buyerPolishedShell}
         governanceWarningsOnly={governanceWarningsOnly}
+        governanceWarningsCount={displayItems.filter((run) => run.hasGovernanceWarnings === true).length}
         showArchived={showArchived}
         onGovernanceWarningsOnlyChange={onGovernanceWarningsOnlyChange}
         onShowArchivedChange={onShowArchivedChange}

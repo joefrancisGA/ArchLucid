@@ -30,7 +30,7 @@ public static class FocusedPilotModePolicyPacks
     /// <summary>Matches bundled platform pack display name for environmental sustainability baseline.</summary>
     public const string SustainabilityAndResourceEfficiencyDisplayName = "Sustainability and Resource Efficiency";
 
-    private static readonly HashSet<string> AllowedDisplayNames = new(StringComparer.Ordinal)
+    private static readonly HashSet<string> AllowedDisplayNames = new(StringComparer.OrdinalIgnoreCase)
     {
         SecurityBaselineDisplayName,
         ReliabilityAndResilienceDisplayName,

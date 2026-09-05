@@ -81,7 +81,7 @@ export const INTERNAL_OPS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
         "Refresh eligibility counts, preview a rebuild when enough outcomes exist, then open Advisory scans or Pilot feedback for live trails.",
       whyEmpty: "A profile appears after eligible accepted, deferred, rejected, or implemented outcomes exist in scope.",
       whereToConfigurePrerequisite:
-        "Preview and rebuild require ExecuteAuthority; this Internal Ops surface typically needs System Admin access.",
+        "Preview and rebuild require permission to execute reviews; this Internal Ops surface typically needs System Admin access.",
       taskSteps: [
         "Refresh eligibility counts for learning outcomes.",
         "Preview a rebuild when enough outcomes exist.",

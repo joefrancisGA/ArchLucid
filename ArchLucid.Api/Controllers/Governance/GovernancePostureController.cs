@@ -45,6 +45,9 @@ public sealed class GovernancePostureController(
         [FromQuery] Guid? projectId,
         CancellationToken cancellationToken)
     {
+        if (GovernanceQueryProjectScope.IsInvalidEmptyProjectQueryId(projectId))
+            return this.BadRequestProblem("projectId must not be empty.", ProblemTypes.ValidationFailed);
+
         (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeContextProvider,
@@ -53,9 +56,6 @@ public sealed class GovernancePostureController(
 
         if (scopeProblem is not null)
             return scopeProblem;
-
-        if (GovernanceQueryProjectScope.IsInvalidEmptyProjectQueryId(projectId))
-            return this.BadRequestProblem("projectId must not be empty.", ProblemTypes.ValidationFailed);
 
         if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
             return Ok(new ArchitecturePostureSummary());

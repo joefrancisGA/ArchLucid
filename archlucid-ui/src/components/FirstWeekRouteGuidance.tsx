@@ -7,7 +7,7 @@ import Link from "next/link";
 import { InlineGuidance } from "@/components/InlineGuidance";
 import { Button } from "@/components/ui/button";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator/operator-home-disclosure-storage";
 import {
   resolveFirstWeekRouteGuidanceForShell,
@@ -74,7 +74,8 @@ export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
     return null;
   }
 
-  const config = resolveFirstWeekRouteGuidanceForShell(props.variant, isBuyerPolishedOperatorShellEnv());
+  const evalChromeShell = useProductionEvalChrome();
+  const config = resolveFirstWeekRouteGuidanceForShell(props.variant, { evalChrome: evalChromeShell });
 
   if (props.variant === "onboarding") {
     return (
