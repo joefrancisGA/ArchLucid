@@ -13,7 +13,7 @@ internal static class RunDetailReadSql
                                             ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
                                             IsDemoWelcomeRun, IsPublicShowcase, IsSample, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                             StructuralExecutionMode,
-                                            RetryCount, LastFailureReason, EngineProvenanceJson, GovernanceScopeJson,
+                                            RetryCount, LastFailureReason, EngineProvenanceJson, GovernanceScopeJson, AcknowledgedCoverageJson,
                                             KnowledgeModelId, CreatedByUserId,
                                             PinnedPolicyPackIdsJson, PinnedPolicyPackIdsHashSha256,
                                             PinnedEvidencePackagePinsJson, PinnedEvidencePackagePinsHashSha256,
