@@ -145,6 +145,7 @@ function resolveRunsDashboardTabBaseLabel(
 
 export type RunsDashboardTabLabelOptions = {
   readonly homePreviewMode?: boolean;
+  readonly recentTotalCount?: number;
 };
 
 export function runsDashboardTabLabel(
@@ -161,6 +162,15 @@ export function runsDashboardTabLabel(
 
   if (count === undefined) {
     return baseLabel;
+  }
+
+  if (
+    tabId === "all" &&
+    options?.homePreviewMode === true &&
+    options.recentTotalCount !== undefined &&
+    options.recentTotalCount > count
+  ) {
+    return `${baseLabel} (${count} of ${options.recentTotalCount})`;
   }
 
   return formatRunsDashboardTabLabelWithCount(baseLabel, count);

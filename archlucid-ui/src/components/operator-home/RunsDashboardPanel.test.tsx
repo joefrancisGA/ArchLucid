@@ -83,7 +83,7 @@ import {
   OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
 import {
-  CUSTOMER_INTAKE_BUYER_REVIEW_TITLE,
+  CUSTOMER_INTAKE_BUYER_REVIEW_PACKAGE_TITLE,
   CUSTOMER_INTAKE_SAMPLE_RUN_ID,
 } from "@/lib/samples/customer-intake-modernization/definition";
 import * as operatorStaticDemo from "@/lib/operator/operator-static-demo";
@@ -414,9 +414,9 @@ describe("RunsDashboardPanel", () => {
       expect(screen.queryByTestId("operator-home-showcase-demo-banner")).toBeNull();
       expect(screen.queryByRole("link", { name: "Jump to review journey" })).toBeNull();
       expect(screen.getByTestId("runs-dashboard-buyer-proof-title")).toHaveTextContent(
-        CUSTOMER_INTAKE_BUYER_REVIEW_TITLE,
+        CUSTOMER_INTAKE_BUYER_REVIEW_PACKAGE_TITLE,
       );
-      expect(screen.getByRole("link", { name: CUSTOMER_INTAKE_BUYER_REVIEW_TITLE })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: CUSTOMER_INTAKE_BUYER_REVIEW_PACKAGE_TITLE })).toBeInTheDocument();
       // Showcase title lives on the proof card — do not repeat it as a trailing list row.
       expect(screen.queryByTestId("recent-runs-home-panel")).toBeNull();
       expect(screen.queryByRole("link", { name: "Signed manifest summary" })).toBeNull();

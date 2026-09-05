@@ -43,14 +43,15 @@ export function SelfDescribingMetricCount(props: SelfDescribingMetricCountProps)
     <div className="min-w-0 space-y-0.5" data-testid={testId}>
       <Link
         href={presentation.href}
-        className={cn("font-medium tabular-nums", OPERATOR_LINK.inline)}
+        className={cn(OPERATOR_TYPOGRAPHY.kpiValue, OPERATOR_LINK.inline)}
         data-testid={testId ? `${testId}-value` : undefined}
         aria-label={headline}
       >
         {showHeadline ? headline : presentation.count}
       </Link>
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        {presentation.noun} · {scopeLabel}
+        {presentation.noun}
+        {scopeLabel.length > 0 ? ` · ${scopeLabel}` : ""}
       </p>
     </div>
   );
