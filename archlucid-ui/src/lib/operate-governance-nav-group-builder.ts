@@ -98,6 +98,14 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
+          href: "/governance/remediation-factory",
+          label: OPERATOR_NAV_LINK_LABELS.remediationFactory,
+          title: "Explainable remediation prioritization, waves, and executive metrics",
+          icon: Layers,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
           href: "/governance/decision-register",
           label: OPERATOR_NAV_LINK_LABELS.decisionRegister,
           title: "Review recorded decisions and governance approval",

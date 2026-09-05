@@ -82,6 +82,8 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<IRemediationPatternRepository, NoOpRemediationPatternRepository>();
         services.AddSingleton<IRemediationPatternMatchRepository, NoOpRemediationPatternMatchRepository>();
         services.AddSingleton<IRemediationInstanceRepository, NoOpRemediationInstanceRepository>();
+        services.AddSingleton<IRemediationPrioritizationRepository, NoOpRemediationPrioritizationRepository>();
+        services.AddSingleton<IRemediationWaveRepository, NoOpRemediationWaveRepository>();
         services.AddSingleton<ITenantBrandingProfileRepository, InMemoryTenantBrandingProfileRepository>();
     }
 }

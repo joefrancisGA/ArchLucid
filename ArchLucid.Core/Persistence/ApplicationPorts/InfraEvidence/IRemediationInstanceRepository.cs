@@ -17,4 +17,8 @@ public interface IRemediationInstanceRepository
         Guid tenantId,
         Guid instanceId,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<RemediationInstanceRecord>> ListByTenantAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default);
 }
