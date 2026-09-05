@@ -1,6 +1,12 @@
 "use client";
 
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+
+import {
+  livelihoodDocumentGuardHrefFromSearch,
+  parseLivelihoodDocumentGuardOpenFromSearch,
+} from "@/lib/operator/livelihood-document-guard-url";
 
 type PendingNavigation = {
   readonly href: string;
@@ -32,14 +38,29 @@ function isInternalAppHref(href: string): boolean {
 
 /** Blocks same-app link navigation when draft edits may be lost (tab close uses beforeunload). */
 export function useInAppNavigationGuard(args: UseInAppNavigationGuardArgs) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const navGuardOpenParam = searchParams.get("navGuardOpen");
   const [pendingNavigation, setPendingNavigation] = useState<PendingNavigation | null>(null);
   const allowNavigationRef = useRef(false);
 
   const dialogMessage = args.message ?? "You have unsaved architecture changes.";
 
+  const syncNavGuardOpenToUrl = useCallback(
+    (guardOpen: boolean) => {
+      router.replace(
+        livelihoodDocumentGuardHrefFromSearch(searchParams.toString(), guardOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
   const cancelLeave = useCallback(() => {
     setPendingNavigation(null);
-  }, []);
+    syncNavGuardOpenToUrl(false);
+  }, [syncNavGuardOpenToUrl]);
 
   const confirmLeave = useCallback(() => {
     if (pendingNavigation === null) {
@@ -47,6 +68,7 @@ export function useInAppNavigationGuard(args: UseInAppNavigationGuardArgs) {
     }
 
     allowNavigationRef.current = true;
+    syncNavGuardOpenToUrl(false);
 
     if (pendingNavigation.kind === "back") {
       window.history.back();
@@ -55,7 +77,18 @@ export function useInAppNavigationGuard(args: UseInAppNavigationGuardArgs) {
     }
 
     setPendingNavigation(null);
-  }, [pendingNavigation]);
+  }, [pendingNavigation, syncNavGuardOpenToUrl]);
+
+  useEffect(() => {
+    const dialogOpen = pendingNavigation !== null;
+    const urlGuardOpen = parseLivelihoodDocumentGuardOpenFromSearch(navGuardOpenParam);
+
+    if (dialogOpen === urlGuardOpen) {
+      return;
+    }
+
+    syncNavGuardOpenToUrl(dialogOpen);
+  }, [navGuardOpenParam, pendingNavigation, syncNavGuardOpenToUrl]);
 
   useEffect(() => {
     if (!args.when) {

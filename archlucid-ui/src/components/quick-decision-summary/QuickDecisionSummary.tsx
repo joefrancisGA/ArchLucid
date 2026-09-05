@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useMemo, useState } from "react";
 import type { ReactElement } from "react";
 
 import type { QuickDecisionWorkspaceCardContext } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
@@ -24,6 +25,10 @@ import {
   sortQuickDecisionFindings,
 } from "@/lib/quick-decision-summary-derive";
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
+import {
+  parseQuickDecisionMuteFindingIdFromSearch,
+  quickDecisionMutePanelsHrefFromSearch,
+} from "@/lib/reviews/quick-decision-mute-panels-url";
 
 import { QuickDecisionSummaryCardView } from "./QuickDecisionSummaryCardView";
 import { QuickDecisionSummaryDialogs } from "./QuickDecisionSummaryDialogs";
@@ -176,26 +181,53 @@ function splitDerivedState(state: QuickDecisionSummaryDerivedState): {
 
 /** Top severity-ranked actionable findings from run detail agent results (no extra API calls). */
 export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
+  const searchParams = useSearchParams();
+  const muteFindingIdParam = searchParams.get("muteFindingId");
   const canMutate = useOperateCapability();
   const derivedState = useQuickDecisionSummaryDerivedData(props);
   const { derived, filters } = splitDerivedState(derivedState);
   const [reasoningOpen, setReasoningOpen] = useState(false);
   const [activeReasoning, setActiveReasoning] = useState<QuickDecisionFinding | null>(null);
-  const [muteOpen, setMuteOpen] = useState(false);
-  const [muteTarget, setMuteTarget] = useState<QuickDecisionFinding | null>(null);
+  const [muteOpen, setMuteOpen] = useState(() => {
+    const urlFindingId = parseQuickDecisionMuteFindingIdFromSearch(muteFindingIdParam);
+
+    return urlFindingId.length > 0;
+  });
+  const [muteTarget, setMuteTarget] = useState<QuickDecisionFinding | null>(() => {
+    const urlFindingId = parseQuickDecisionMuteFindingIdFromSearch(muteFindingIdParam);
+
+    if (urlFindingId.length === 0) {
+      return null;
+    }
+
+    return props.findings.find((finding) => finding.findingId === urlFindingId) ?? null;
+  });
   const [askFindingId, setAskFindingId] = useState<string | null>(null);
+
+  const syncMuteFindingIdToUrl = useCallback(
+    (findingId: string | null) => {
+      router.replace(quickDecisionMutePanelsHrefFromSearch(searchParams.toString(), findingId, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
 
   function handleMuteDialogOpenChange(open: boolean): void {
     setMuteOpen(open);
 
     if (!open) {
       setMuteTarget(null);
+      syncMuteFindingIdToUrl(null);
     }
   }
 
   function openMuteDialog(finding: QuickDecisionFinding): void {
     setMuteTarget(finding);
     setMuteOpen(true);
+    syncMuteFindingIdToUrl(finding.findingId);
   }
 
   function openReasoningDialog(finding: QuickDecisionFinding): void {

@@ -4,6 +4,12 @@ import { describe, expect, it, vi } from "vitest";
 import { GenerateAdrFromRunModal } from "@/components/GenerateAdrFromRunModal";
 import type { AdrGeneratorRunInput } from "@/lib/adr-from-run";
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/architecture/reviews/r1",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 const minimalInput: AdrGeneratorRunInput = {
   runId: "6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501",
   projectId: "p1",
