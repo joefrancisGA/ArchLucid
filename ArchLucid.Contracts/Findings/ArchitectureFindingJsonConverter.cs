@@ -30,8 +30,7 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
             finding.FindingId = findingId.GetString() ?? finding.FindingId;
 
         if (TryGetPropertyIgnoreCase(root, "sourceAgent", out JsonElement sourceAgent) &&
-            sourceAgent.ValueKind == JsonValueKind.String &&
-            Enum.TryParse(sourceAgent.GetString(), ignoreCase: true, out AgentType agentType))
+            TryReadSourceAgent(sourceAgent, out AgentType agentType))
         {
             finding.SourceAgent = agentType;
         }
@@ -149,6 +148,29 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
         WriteOptionalStringProperty(writer, "whyThisIsNotGeneric", value.WhyThisIsNotGeneric);
         WriteOptionalStringProperty(writer, "principalArchitectValue", value.PrincipalArchitectValue);
         WriteOptionalStringProperty(writer, "decisionConsequence", value.DecisionConsequence);
+    }
+
+    private static bool TryReadSourceAgent(JsonElement element, out AgentType agentType)
+    {
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+        {
+
+            if (!Enum.IsDefined(typeof(AgentType), numeric))
+                throw new JsonException($"Unknown source agent value '{numeric}'.");
+
+            agentType = (AgentType)numeric;
+            return true;
+        }
+
+        if (element.ValueKind == JsonValueKind.String &&
+            Enum.TryParse(element.GetString(), ignoreCase: true, out AgentType parsed))
+        {
+            agentType = parsed;
+            return true;
+        }
+
+        agentType = default;
+        return false;
     }
 
     private static bool TryReadFindingTreatment(JsonElement element, out FindingTreatment treatment)

@@ -58,22 +58,31 @@ public sealed partial class TenantCustomerSuccessController
             }
         }
 
-        string? findingRef = string.IsNullOrWhiteSpace(request.FindingRef)
-            ? null
-            : request.FindingRef.Trim();
+        string? findingRef = null;
 
-        if (findingRef is not null)
+        if (!string.IsNullOrWhiteSpace(request.FindingRef))
         {
+            string trimmedFindingRef = request.FindingRef.Trim();
+
             FindingInspectResponse? finding = await _findingInspectReadRepository
-                .GetInspectAsync(scope, findingRef, cancellationToken, FindingInspectReadOptions.MetadataOnly)
+                .GetInspectAsync(scope, trimmedFindingRef, cancellationToken, FindingInspectReadOptions.MetadataOnly)
                 .ConfigureAwait(false);
 
             if (finding is null)
             {
                 return this.NotFoundProblem(
-                    $"Finding '{findingRef}' was not found.",
+                    $"Finding '{trimmedFindingRef}' was not found.",
                     ProblemTypes.ResourceNotFound);
             }
+
+            IActionResult? runBindingProblem =
+                ProductFeedbackHttpMapper.ValidateRunMatchesFindingAuthorityRun(request.RunId, finding)
+                    .ToBadRequestProblemOrNull(this);
+
+            if (runBindingProblem is not null)
+                return runBindingProblem;
+
+            findingRef = finding.FindingId;
         }
 
         string? comment = string.IsNullOrWhiteSpace(request.Comment)

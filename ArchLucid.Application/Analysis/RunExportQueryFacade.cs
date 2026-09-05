@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Manifest;
@@ -42,6 +43,9 @@ public sealed class RunExportQueryFacade(
 
     public async Task<RunExportHistoryQueryResult> GetRunExportHistoryAsync(string runId, CancellationToken cancellationToken = default)
     {
+        if (!AuthorityRunIdentifier.TryParse(runId, out _))
+            return new RunExportHistoryQueryResult { Outcome = ExportRecordLoadOutcome.RunNotFound, MissingRunId = runId };
+
         if (await _runDetailQueryService.GetRunDetailAsync(runId, cancellationToken) is null)
             return new RunExportHistoryQueryResult { Outcome = ExportRecordLoadOutcome.RunNotFound, MissingRunId = runId };
 

@@ -2,6 +2,7 @@ using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Interfaces;
 
 namespace ArchLucid.Application.Governance.Stickiness;
 
@@ -18,8 +19,19 @@ public sealed partial class GovernanceStickinessFacade
         EnsureRunMatchesFindingAuthorityRun(request.RunId, finding);
         await EnsureRunInScopeWhenProvidedAsync(scope, request.RunId, ct);
 
+        RecordFindingDispositionRequest normalized = new()
+        {
+            FindingId = finding.FindingId,
+            RunId = request.RunId,
+            Disposition = request.Disposition,
+            Rationale = request.Rationale,
+            TradeOffAcknowledgment = request.TradeOffAcknowledgment,
+            RevisitDueUtc = request.RevisitDueUtc,
+            EvidenceRequestText = request.EvidenceRequestText,
+        };
+
         return await _findingDispositionService.RecordAsync(
-            request,
+            normalized,
             scope,
             _actorContext.GetActorId(),
             ct);
@@ -101,9 +113,15 @@ public sealed partial class GovernanceStickinessFacade
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-        if (!await IsFindingInScopeAsync(scope, findingId, ct))
+        FindingInspectResponse? finding = await _findingInspectReadRepository.GetInspectAsync(
+            scope,
+            findingId.Trim(),
+            ct,
+            FindingInspectReadOptions.MetadataOnly);
+
+        if (finding is null)
             return [];
 
-        return await _findingDispositionService.ListHistoryAsync(scope, findingId, ct);
+        return await _findingDispositionService.ListHistoryAsync(scope, finding.FindingId, ct);
     }
 }

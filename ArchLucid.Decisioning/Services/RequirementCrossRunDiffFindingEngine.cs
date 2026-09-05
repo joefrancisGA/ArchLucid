@@ -46,9 +46,6 @@ public sealed class RequirementCrossRunDiffFindingEngine(
         List<Finding> findings = [];
         List<string> scopeNodeIds = CrossRunDiffFindingGraphScope.CollectRequirementNodeIds(graphSnapshot);
 
-        if (diff.PriorRequirementNames.Count == 0)
-            return findings;
-
         if (diff.RemovedRequirementNames.Count > 0)
         {
             findings.Add(FindingFactory.CreateRequirementGapFinding(

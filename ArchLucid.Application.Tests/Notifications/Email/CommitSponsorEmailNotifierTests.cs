@@ -103,6 +103,31 @@ public sealed class CommitSponsorEmailNotifierTests
         await act.Should().NotThrowAsync();
     }
 
+    [SkippableFact]
+    public async Task NotifyAfterCommitAsync_when_admin_mailbox_malformed_does_not_send()
+    {
+        Mock<ITenantTrialEmailContactLookup> lookup = new();
+        lookup
+            .Setup(x => x.TryResolveAdminEmailAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync("finance@");
+
+        Mock<IEmailProvider> email = new();
+        IOptionsMonitor<EmailNotificationOptions> options = BuildOptions(
+            new EmailNotificationOptions { ProductDisplayName = "Prod", OperatorBaseUrl = "https://app.example" });
+
+        CommitSponsorEmailNotifier sut = new(
+            lookup.Object,
+            email.Object,
+            options,
+            NullLogger<CommitSponsorEmailNotifier>.Instance);
+
+        await sut.NotifyAfterCommitAsync(TenantId, "run-1", CancellationToken.None);
+
+        email.Verify(
+            x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static IOptionsMonitor<EmailNotificationOptions> BuildOptions(EmailNotificationOptions value)
     {
         Mock<IOptionsMonitor<EmailNotificationOptions>> mock = new();

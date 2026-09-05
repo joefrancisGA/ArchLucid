@@ -21,6 +21,8 @@ public sealed class CreatePolicyPackRequestValidator : AbstractValidator<CreateP
             .MaximumLength(300);
 
         RuleFor(x => x.Description)
+            .Must(description => description.Length == 0 || description.Trim().Length > 0)
+            .WithMessage("Description cannot be empty or whitespace.")
             .MaximumLength(20_000);
 
         RuleFor(x => x.PackType)

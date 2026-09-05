@@ -110,6 +110,19 @@ public sealed class GovernanceMutationCorrectionServiceTests
         const string findingId = "finding-keyboard-1";
         List<AuditEvent> auditEvents = [];
 
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                findingId,
+                It.IsAny<CancellationToken>(),
+                FindingInspectReadOptions.MetadataOnly))
+            .ReturnsAsync(new FindingInspectResponse
+            {
+                FindingId = findingId,
+                RunId = Guid.Parse(runId),
+            });
+
         Mock<IFindingReviewTrailRepository> trail = new();
         trail
             .Setup(r => r.ListByFindingAsync(Scope.TenantId, findingId, It.IsAny<CancellationToken>()))
@@ -141,7 +154,8 @@ public sealed class GovernanceMutationCorrectionServiceTests
             new Mock<IGovernanceApprovalRequestRepository>().Object,
             runs.Object,
             auditService.Object,
-            trail.Object);
+            trail.Object,
+            findingInspect.Object);
 
         GovernanceMutationCorrectionRecordedDto result = await sut.RecordAsync(
             new RecordGovernanceMutationCorrectionRequest
@@ -164,10 +178,44 @@ public sealed class GovernanceMutationCorrectionServiceTests
     }
 
     [Fact]
-    public async Task RecordAsync_appends_correction_for_architecture_review_finalize_without_mutating_sealed_manifest()
+    public async Task RecordAsync_appends_correction_for_keyboard_finding_disposition_when_subject_id_differs_only_by_casing()
     {
         const string runId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+        const string canonicalFindingId = "FIND-KEYBOARD-1";
         List<AuditEvent> auditEvents = [];
+
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                "find-keyboard-1",
+                It.IsAny<CancellationToken>(),
+                FindingInspectReadOptions.MetadataOnly))
+            .ReturnsAsync(new FindingInspectResponse
+            {
+                FindingId = canonicalFindingId,
+                RunId = Guid.Parse(runId),
+            });
+
+        Mock<IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(r => r.ListByFindingAsync(Scope.TenantId, canonicalFindingId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new FindingReviewEventRecord
+                {
+                    EventId = Guid.NewGuid(),
+                    TenantId = Scope.TenantId,
+                    WorkspaceId = Scope.WorkspaceId,
+                    ProjectId = Scope.ProjectId,
+                    FindingId = canonicalFindingId,
+                    ReviewerUserId = "operator-1",
+                    Action = FindingReviewAction.RecordDisposition,
+                    OccurredAtUtc = DateTimeOffset.UtcNow,
+                    RunId = Guid.Parse(runId),
+                    Disposition = ArchLucid.Contracts.Findings.FindingDisposition.Accepted,
+                },
+            ]);
 
         Mock<IRunRepository> runs = CreateScopedRunRepository(runId);
         Mock<IAuditService> auditService = new();
@@ -179,32 +227,35 @@ public sealed class GovernanceMutationCorrectionServiceTests
         GovernanceMutationCorrectionService sut = CreateSut(
             new Mock<IGovernanceApprovalRequestRepository>().Object,
             runs.Object,
-            auditService.Object);
+            auditService.Object,
+            trail.Object,
+            findingInspect.Object);
 
         GovernanceMutationCorrectionRecordedDto result = await sut.RecordAsync(
             new RecordGovernanceMutationCorrectionRequest
             {
-                MutationKind = GovernanceMutationCorrectionKinds.ArchitectureReviewFinalize,
-                SubjectId = runId,
+                MutationKind = GovernanceMutationCorrectionKinds.KeyboardFindingDisposition,
+                SubjectId = "find-keyboard-1",
                 RunId = runId,
-                Rationale = "Finalized the wrong review package in the meeting.",
+                Rationale = "Accepted the wrong finding via keyboard shortcut.",
             },
             Scope,
             "operator-1",
             CancellationToken.None);
 
-        result.MutationKind.Should().Be(GovernanceMutationCorrectionKinds.ArchitectureReviewFinalize);
-        result.SubjectId.Should().Be(runId);
+        result.MutationKind.Should().Be(GovernanceMutationCorrectionKinds.KeyboardFindingDisposition);
+        result.SubjectId.Should().Be(canonicalFindingId);
         auditEvents.Should().ContainSingle();
-        auditEvents[0].EventType.Should().Be(AuditEventTypes.GovernanceMutationCorrectionRecorded);
-        auditEvents[0].DataJson.Should().Contain(runId);
+        auditEvents[0].DataJson.Should().Contain(canonicalFindingId);
+        trail.Verify(r => r.ListByFindingAsync(Scope.TenantId, canonicalFindingId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     private static GovernanceMutationCorrectionService CreateSut(
         IGovernanceApprovalRequestRepository approvalRepo,
         IRunRepository runRepository,
         IAuditService auditService,
-        IFindingReviewTrailRepository? findingReviewTrailRepository = null)
+        IFindingReviewTrailRepository? findingReviewTrailRepository = null,
+        IFindingInspectReadRepository? findingInspectReadRepository = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(p => p.GetCurrentScope()).Returns(Scope);
@@ -214,6 +265,7 @@ public sealed class GovernanceMutationCorrectionServiceTests
             new Mock<IGovernancePromotionRecordRepository>().Object,
             new Mock<IGovernanceEnvironmentActivationRepository>().Object,
             findingReviewTrailRepository ?? new Mock<IFindingReviewTrailRepository>().Object,
+            findingInspectReadRepository ?? new Mock<IFindingInspectReadRepository>().Object,
             scopeProvider.Object,
             runRepository,
             CreateAuthorityQueryService(runRepository).Object,

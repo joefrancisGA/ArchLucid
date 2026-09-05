@@ -13,9 +13,12 @@ const apiMocks = vi.hoisted(() => ({
 }));
 
 const useOperateCapabilityMock = vi.hoisted(() => vi.fn(() => true));
+const routerReplaceMock = vi.hoisted(() => vi.fn());
 
 vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), replace: routerReplaceMock, refresh: vi.fn() }),
   usePathname: () => "/integrations/webhooks",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/hooks/use-operate-capability", () => ({
@@ -624,6 +627,34 @@ describe("WebhooksIntegrationPage", () => {
     await waitFor(() => {
       expect(apiMocks.toggle).toHaveBeenCalledWith(subscriptionId);
     });
+  });
+
+  it("shows enable toggle failure only in the confirmation dialog, not the page alert", async () => {
+    const subscriptionId = "sub-enable-fail-1";
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "PagerDuty alerts",
+        channelType: "OnCallWebhook",
+        destination: "https://example.com/webhooks/archlucid",
+        minimumSeverity: "High",
+        isEnabled: false,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+      },
+    ]);
+    apiMocks.toggle.mockRejectedValue(new Error("routingSubscriptionId missing"));
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${subscriptionId}`));
+    fireEvent.click(screen.getByRole("button", { name: WEBHOOKS_ENABLE_CONFIRM_LABEL }));
+
+    expect(await screen.findByTestId("webhook-subscription-enable-error")).toBeInTheDocument();
+    expect(screen.getAllByRole("alert")).toHaveLength(1);
   });
 
   it("requires confirmation before enabling a disabled webhook subscription", async () => {

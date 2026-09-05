@@ -84,13 +84,17 @@ internal static class ArchLucidSamlInboundClaimsNormalizer
 
         string normalizedSource = sourceClaimType.Trim();
 
-        Claim? incoming = identity.Claims.FirstOrDefault(c =>
-            string.Equals(c.Type, normalizedSource, StringComparison.OrdinalIgnoreCase));
+        List<string> distinctIncomingValues = identity.Claims
+            .Where(c => string.Equals(c.Type, normalizedSource, StringComparison.OrdinalIgnoreCase))
+            .Select(c => c.Value.Trim())
+            .Where(v => v.Length > 0)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
 
-        if (incoming is null || string.IsNullOrWhiteSpace(incoming.Value))
+        if (distinctIncomingValues.Count != 1)
             return;
 
-        string trimmed = incoming.Value.Trim();
+        string trimmed = distinctIncomingValues[0];
 
         if (IsGuidScopeClaimType(targetClaimType) && !Guid.TryParse(trimmed, out _))
             return;
