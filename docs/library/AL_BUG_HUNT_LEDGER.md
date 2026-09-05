@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 157
-- **bugs-found:** 303
+- **hunts:** 158
+- **bugs-found:** 308
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — run-header anchor JSON string whitespace drift
+- **last-bug:** 2026-09-05 — anchor JSON coercion, without constraint negation, PasswordFree redaction, won't advice
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2251,6 +2251,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `ConfigurationSensitiveConfigPathMatcher` — `ConnectionStringFreeSettings` / `NonSecretStorage` segment parity — #881 segment matcher already handles `free` / `non` negation; cheap-disproof via `Resolve_returns_scalar_for_non_secret_segment_substrings` with `ConnectionStringFreeSettings` and `NonSecretStorage` paths (hunt #885).
 - [x] (proven) `RunHeaderAnchorJsonComparer.AreEquivalent` — JSON string whitespace-only drift treated as anchor mutation — **hit 2026-09-05 (#885):** trailing whitespace in `EngineProvenanceJson` string values (`azure-openai` vs `azure-openai `) failed semantic compare and threw `RunEvidenceAnchorImmutableException` on committed runs; fixed with trimmed string compare in `StringsEquivalent` (`EnsureAnchorsUnchangedIfCommitted_allows_engine_provenance_string_whitespace_only_change_on_committed_run`).
 
+- [x] (proven) `RunHeaderAnchorJsonComparer.AreEquivalent` — JSON boolean vs string-encoded boolean (`true` vs `"true"`) treated as anchor mutation — **hit 2026-09-05 (#886):** `GovernanceScopeJson` with boolean vs string-encoded boolean failed semantic compare on committed runs; fixed with cross-kind boolean coercion in `TryCrossKindEquivalent` (`EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_string_encoded_boolean_only_change_on_committed_run`).
+- [x] (proven) `RunHeaderAnchorJsonComparer.AreEquivalent` — numeric JSON vs string-encoded whole number (`1` vs `"1"`) treated as anchor mutation — **hit 2026-09-05 (#886):** after #883 decimal formatting fix, string-encoded schemaVersion still failed kind check; fixed with cross-kind decimal coercion (`EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_string_encoded_number_only_change_on_committed_run`).
+- [x] (proven) `RequestConstraintTokenMatcher` / `RequestConstraintClassifier` — `without {phrase}` negation gap — **hit 2026-09-05 (#886):** #874 `no-`/`not ` parity missed `without encryption` / `without managed identity`; constraint classifier false positives; fixed with `IsWithoutPrefixedNegation` (`HasEncryptionConstraint_does_not_false_positive_on_without_encryption_phrasing`, `HasManagedIdentityConstraint_does_not_false_positive_on_without_managed_identity_phrasing`, `HasPrivateNetworkingConstraint_does_not_false_positive_on_without_private_networking_phrasing`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `Password`+`free` suffix false positive — **hit 2026-09-05 (#886):** #879/#885 guarded `ConnectionString`+`free` only; `PasswordFreeAuth` / `passwordfreeauth` redacted; fixed with `Password`+`free` suffix guard (`Resolve_returns_scalar_for_non_secret_segment_substrings` with `PasswordFreeAuth`, `IsSensitiveKey_detects_secret_like_names` with `passwordfreeauth`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsObviousGenericAdvice` — `won't {phrase}` prohibitive intent still matches affirmative fragments — **hit 2026-09-05 (#886):** #884 `avoid`/`without` parity missed `won't enable mfa`; fixed with `won't` negation prefix (`IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing` with `workload won't enable mfa for service accounts`).
+
+2026-09-05 seed hunt #886: promoted five hunt-ready rows from #885 reseed gap; proved anchor JSON coercion, constraint without negation, PasswordFree redaction parity, and won't advice negation.
 2026-09-05 thorough hunt #885: cheap-disproved config segment parity after #884 seed; proved JSON string whitespace anchor drift; reseeded from #884 candidates.
 2026-09-05 seed hunt #884: reseeded redactor embedded tokens, advice avoid negation, and trial nudge casing after #883; proved three hunt-ready rows; seeded config segment parity and JSON string whitespace anchor candidates.
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
