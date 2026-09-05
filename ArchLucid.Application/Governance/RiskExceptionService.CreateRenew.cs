@@ -195,10 +195,10 @@ public sealed partial class RiskExceptionService
         if (existing.ExpiresAtUtc != expiresAtUtc)
             return false;
 
-        if (rationale is not null && !string.Equals(existing.Rationale, rationale, StringComparison.Ordinal))
+        if (rationale is not null && !string.Equals(existing.Rationale, rationale, StringComparison.OrdinalIgnoreCase))
             return false;
 
-        if (evidenceRef is not null && !string.Equals(existing.EvidenceRef, evidenceRef, StringComparison.Ordinal))
+        if (evidenceRef is not null && !string.Equals(existing.EvidenceRef, evidenceRef, StringComparison.OrdinalIgnoreCase))
             return false;
 
         return true;
