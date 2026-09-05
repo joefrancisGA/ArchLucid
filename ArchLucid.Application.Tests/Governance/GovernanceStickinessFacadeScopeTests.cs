@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
@@ -254,6 +255,7 @@ public sealed class GovernanceStickinessFacadeScopeTests
     public async Task TryResolveFindingMergeConflictAsync_returns_false_when_conflict_not_on_run_snapshot()
     {
         Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        const string sealedManifestHash = "sealed-manifest-hash-for-merge-conflict-negative";
 
         Mock<IRunRepository> runs = new();
         runs
@@ -272,10 +274,33 @@ public sealed class GovernanceStickinessFacadeScopeTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(
+                CallerScope,
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new ArchLucid.Persistence.Models.RunRecord { RunId = runId },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    ManifestHash = sealedManifestHash,
+                },
+            });
+
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns(sealedManifestHash);
+
         GovernanceStickinessFacade sut = CreateSut(
             runRepository: runs.Object,
             findingInspect: findings.Object,
-            mergeConflictResolution: merge.Object);
+            mergeConflictResolution: merge.Object,
+            authorityQuery: authority.Object,
+            manifestHashService: manifestHash.Object);
 
         ResolveFindingMergeConflictRequest request = new()
         {
@@ -290,6 +315,96 @@ public sealed class GovernanceStickinessFacadeScopeTests
 
         resolved.Should().BeFalse();
         findings.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task TryResolveFindingMergeConflictAsync_logs_canonical_finding_id_when_route_differs_only_by_casing()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        const string routeFindingId = "conflict-1";
+        const string canonicalFindingId = "CONFLICT-1";
+        const string sealedManifestHash = "sealed-manifest-hash-for-merge-conflict-audit";
+        List<AuditEvent> auditEvents = [];
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(CallerScope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchLucid.Persistence.Models.RunRecord { RunId = runId });
+
+        Mock<IFindingInspectReadRepository> findings = new();
+        findings
+            .Setup(r => r.GetInspectAsync(
+                CallerScope,
+                routeFindingId,
+                It.IsAny<CancellationToken>(),
+                FindingInspectReadOptions.MetadataOnly))
+            .ReturnsAsync(new FindingInspectResponse
+            {
+                FindingId = canonicalFindingId,
+                RunId = runId,
+            });
+
+        Mock<ArchLucid.Application.Findings.IFindingMergeConflictResolutionService> merge = new();
+        merge
+            .Setup(s => s.TryResolveAsync(
+                CallerScope,
+                runId,
+                routeFindingId,
+                FindingMergeConflictResolutionAction.AcceptPrimary,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(
+                CallerScope,
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new ArchLucid.Persistence.Models.RunRecord { RunId = runId },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    ManifestHash = sealedManifestHash,
+                },
+            });
+
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns(sealedManifestHash);
+
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((auditEvent, _) => auditEvents.Add(auditEvent))
+            .Returns(Task.CompletedTask);
+
+        GovernanceStickinessFacade sut = CreateSut(
+            runRepository: runs.Object,
+            findingInspect: findings.Object,
+            mergeConflictResolution: merge.Object,
+            auditService: auditService.Object,
+            authorityQuery: authority.Object,
+            manifestHashService: manifestHash.Object);
+
+        ResolveFindingMergeConflictRequest request = new()
+        {
+            Action = FindingMergeConflictResolutionAction.AcceptPrimary,
+        };
+
+        bool resolved = await sut.TryResolveFindingMergeConflictAsync(
+            runId,
+            routeFindingId,
+            request,
+            CancellationToken.None);
+
+        resolved.Should().BeTrue();
+        auditEvents.Should().ContainSingle();
+        auditEvents[0].EventType.Should().Be(AuditEventTypes.FindingMergeConflictResolved);
+        auditEvents[0].DataJson.Should().Contain(canonicalFindingId);
+        auditEvents[0].DataJson.Should().NotContain(routeFindingId);
     }
 
     [Fact]
@@ -1230,7 +1345,10 @@ public sealed class GovernanceStickinessFacadeScopeTests
         IRunRepository? runRepository = null,
         ArchLucid.Application.Findings.IFindingMergeConflictResolutionService? mergeConflictResolution = null,
         IActorContext? actor = null,
-        IArchitectureReviewRecurrenceNextRunCalculator? recurrenceCalculator = null)
+        IArchitectureReviewRecurrenceNextRunCalculator? recurrenceCalculator = null,
+        IAuditService? auditService = null,
+        IAuthorityQueryService? authorityQuery = null,
+        IManifestHashService? manifestHashService = null)
     {
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(CallerScope);
@@ -1249,10 +1367,10 @@ public sealed class GovernanceStickinessFacadeScopeTests
             Mock.Of<IGovernanceDigestDecisionNeededComposer>(),
             Mock.Of<IReviewsAwaitingActionQueryService>(),
             Mock.Of<IRealizedValueAttestationService>(),
-            Mock.Of<IAuditService>(),
+            auditService ?? Mock.Of<IAuditService>(),
             findingInspect ?? Mock.Of<IFindingInspectReadRepository>(),
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>());
+            authorityQuery ?? Mock.Of<IAuthorityQueryService>(),
+            manifestHashService ?? Mock.Of<IManifestHashService>());
     }
 
     private static ArchLucid.Persistence.Data.Repositories.IFindingReviewTrailRepository CreateTrailRepositoryReturningForeignAndInScopeEvents(

@@ -36,6 +36,10 @@ public sealed partial class GovernanceStickinessFacade
         if (!resolved)
             return false;
 
+        FindingInspectResponse conflictFinding = await RequireFindingInspectInScopeAsync(scope, findingId, ct);
+        EnsureRunMatchesFindingAuthorityRun(runId, conflictFinding);
+        string canonicalFindingId = conflictFinding.FindingId;
+
         await _auditService.LogAsync(
             new AuditEvent
             {
@@ -43,7 +47,7 @@ public sealed partial class GovernanceStickinessFacade
                 RunId = runId,
                 DataJson = JsonSerializer.Serialize(new
                 {
-                    findingId,
+                    findingId = canonicalFindingId,
                     action = request.Action.ToString(),
                 }),
             },

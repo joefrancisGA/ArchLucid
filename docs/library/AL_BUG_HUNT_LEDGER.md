@@ -3418,11 +3418,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 225
-- **bugs-found:** 444
+- **hunts:** 226
+- **bugs-found:** 445
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — legacy waiver finding-id casing duplicate/guard parity
+- **last-bug:** 2026-09-05 — merge-conflict resolve audit emits canonical finding id
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4505,7 +4505,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `GovernanceStickinessController.RenewRiskException` / `RiskExceptionService.RenewAsync` — operator retry of the same in-scope renew POST (comment `idempotency-posture: operator-documented-safe-retry`, no `[IdempotencyFilter]`) re-applies `IRiskExceptionRepository.RenewAsync` and logs a second `RiskExceptionRenewed` audit while `RevokeRiskException` now returns HTTP 409 on duplicate lifecycle (#570) — identical `ExpiresAtUtc`/`rationale` retry extends waiver expiry twice instead of returning the prior row.
 - [ ] (candidate) `GovernanceController.RecordGovernanceMutationCorrection` / `GovernanceMutationCorrectionService.RecordAsync` — network retry of the same correction body allocates a fresh `correctionId` (`Guid.NewGuid()` at line 143) and appends another `GovernanceMutationCorrectionRecorded` audit row because the route lacks `[IdempotencyFilter]` / `GovernanceIdempotencyKeySupport.ReadRequired` unlike `RecordDisposition` / `RecordBulkDisposition` — duplicate audit corrections for one operator intent.
 - [ ] (candidate) `PolicyPacksController.Assign` / `PolicyPackAssignStage.AssignAsync` — operator retry after HTTP timeout creates a second `PolicyPackAssignment` (`AssignmentId = Guid.NewGuid()`, `assignmentRepository.CreateAsync`) for the same pack/version/scope because assign is `operator-documented-safe-retry` with no duplicate-assignment guard — effective governance may double-count the pack at the same scope tier.
-- [ ] (candidate) `GovernanceStickinessController.ResolveFindingMergeConflict` / `GovernanceStickinessFacade.TryResolveFindingMergeConflictAsync` — route `findingId` differing only by casing from inspect canonical id resolves via case-insensitive snapshot lookup (#819) but audit `FindingMergeConflictResolved` JSON still emits keyboard route casing (`findingId` at lines 44–47) while disposition/waiver/mutation-correction paths now persist canonical ids (#820/#824) — audit correlation and downstream finding-id joins may miss the resolved conflict.
+- [x] (proven) `GovernanceStickinessController.ResolveFindingMergeConflict` / `GovernanceStickinessFacade.TryResolveFindingMergeConflictAsync` — route `findingId` differing only by casing from inspect canonical id resolved via case-insensitive snapshot lookup (#819) but audit `FindingMergeConflictResolved` JSON emitted keyboard route casing while disposition/waiver/mutation-correction paths persist canonical ids (#820/#824) — **hit 2026-09-05 (#832):** inspect canonical `FindingId` in audit payload after successful resolve; regression in `GovernanceStickinessFacadeScopeTests.TryResolveFindingMergeConflictAsync_logs_canonical_finding_id_when_route_differs_only_by_casing`.
+
+2026-09-05 thorough hunt #832 (hit): proved merge-conflict resolve audit finding-id casing parity; three idempotency-posture retry candidates remain open.
 
 2026-09-05 seed hunt #830 (seed-only): reseeded post-#829 idempotency and canonicalization gaps; four new candidates on renew retry, mutation-correction duplicate audit, policy-pack assign retry, and merge-conflict audit finding-id casing.
 
