@@ -66,6 +66,13 @@ public sealed class TenantTrialIdentityHandoffStage(
         if (!hasIdentityPayload || normalizedLocalEmail is null)
             return new TenantTrialLinkEntraResult { Outcome = TenantTrialHttpOutcome.Success };
 
+        TrialIdentityUserRecord? existingIdentity = await _trialIdentityUsers
+            .GetByNormalizedEmailAsync(normalizedLocalEmail, cancellationToken)
+            .ConfigureAwait(false);
+
+        bool identityAlreadyLinked = existingIdentity?.LinkedEntraOid is not null
+            && string.Equals(existingIdentity.LinkedEntraOid, body.EntraOid!.Trim(), StringComparison.Ordinal);
+
         bool identityLinked = await _trialIdentityUsers.TryLinkLocalIdentityToEntraAsync(
             normalizedLocalEmail,
             body.EntraOid!.Trim(),
@@ -81,18 +88,21 @@ public sealed class TenantTrialIdentityHandoffStage(
             };
         }
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.TrialLocalIdentityLinkedToEntra,
-                ActorUserId = actor,
-                ActorUserName = actor,
-                TenantId = tenant.Id,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                DataJson = JsonSerializer.Serialize(new { normalizedEmail = normalizedLocalEmail }),
-            },
-            cancellationToken).ConfigureAwait(false);
+        if (!identityAlreadyLinked)
+        {
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.TrialLocalIdentityLinkedToEntra,
+                    ActorUserId = actor,
+                    ActorUserName = actor,
+                    TenantId = tenant.Id,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    DataJson = JsonSerializer.Serialize(new { normalizedEmail = normalizedLocalEmail }),
+                },
+                cancellationToken).ConfigureAwait(false);
+        }
 
         return new TenantTrialLinkEntraResult { Outcome = TenantTrialHttpOutcome.Success };
     }
