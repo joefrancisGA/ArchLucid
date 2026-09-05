@@ -1,9 +1,17 @@
 "use client";
-import { cn } from "@/lib/utils";
-import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+
+import { useCallback, useEffect, useState } from "react";
 
 import { AssuranceCoveragePreviewPanel } from "@/components/wizard/AssuranceCoveragePreviewPanel";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
+import {
+  setSessionCoveragePackOverrides,
+  upsertCoveragePackOverride,
+  validateCoveragePackOverrides,
+  type CoveragePackOverride,
+} from "@/lib/coverage-pack-overrides";
+import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type ReviewAssuranceCoverageSectionProps = {
   readonly focusedPilotModeEnabled: boolean;
@@ -19,6 +27,16 @@ export type ReviewAssuranceCoverageSectionProps = {
 /** Explainable assurance coverage selection — review scope choice plus optional live preview. */
 export function ReviewAssuranceCoverageSection(props: ReviewAssuranceCoverageSectionProps): React.JSX.Element {
   const showCoveragePreview = props.showCoveragePreview ?? true;
+  const [packOverrides, setPackOverrides] = useState<CoveragePackOverride[]>([]);
+  const overrideValidationMessage = validateCoveragePackOverrides(packOverrides);
+
+  useEffect(() => {
+    setSessionCoveragePackOverrides(packOverrides);
+  }, [packOverrides]);
+
+  const handlePackOverrideChange = useCallback((override: CoveragePackOverride) => {
+    setPackOverrides((current) => upsertCoveragePackOverride(current, override));
+  }, []);
 
   return (
     <div className={cn(OPERATOR_LAYOUT.sectionStack, props.className)} data-testid="review-assurance-coverage-section">
@@ -33,6 +51,9 @@ export function ReviewAssuranceCoverageSection(props: ReviewAssuranceCoverageSec
           cloudProvider={props.cloudProvider}
           securityIntakeAnswer={props.securityIntakeAnswer}
           descriptionText={props.descriptionText}
+          packOverrides={packOverrides}
+          onPackOverrideChange={handlePackOverrideChange}
+          overrideValidationMessage={overrideValidationMessage}
         />
       ) : null}
     </div>

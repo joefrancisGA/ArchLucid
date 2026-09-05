@@ -38,4 +38,7 @@ public static class UserSettingKeys
 
     /// <summary>Whether findings lists show advisory rows: <c>true</c> or <c>false</c>.</summary>
     public const string FindingsShowAdvisoryEnabled = "FindingsShowAdvisoryEnabled";
+
+    /// <summary>JSON blob of Working desk continuity (last-open review/draft and visit watermark).</summary>
+    public const string DeskContinuity = "DeskContinuity";
 }

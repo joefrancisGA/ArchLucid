@@ -1,6 +1,7 @@
 "use client";
 
 import { MoreHorizontal } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -10,11 +11,16 @@ import {
   useState,
   type CSSProperties,
   type ReactNode,
+  type SetStateAction,
 } from "react";
 import { createPortal } from "react-dom";
 
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  parseShellTopBarMoreOpenFromSearch,
+  shellTopBarMoreMenuHrefFromSearch,
+} from "@/lib/operator/shell-top-bar-more-menu-url";
 import { cn } from "@/lib/utils";
 
 const PANEL_GAP_PX = 4;
@@ -47,15 +53,40 @@ type OperatorShellTopBarMoreMenuProps = {
  * pill (warn/critical only) also stays freestanding — do not park them here.
  */
 export function OperatorShellTopBarMoreMenu(props: OperatorShellTopBarMoreMenuProps): React.JSX.Element {
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const shellMoreOpenParam = searchParams.get("shellMoreOpen");
+  const [open, setOpenState] = useState(() => parseShellTopBarMoreOpenFromSearch(shellMoreOpenParam));
   const [panelStyle, setPanelStyle] = useState<CSSProperties | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const panelId = useId();
 
+  const syncShellMoreOpenToUrl = useCallback(
+    (menuOpen: boolean) => {
+      router.replace(shellTopBarMoreMenuHrefFromSearch(searchParams.toString(), menuOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncShellMoreOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncShellMoreOpenToUrl],
+  );
+
   const close = useCallback(() => {
     setOpen(false);
-  }, []);
+  }, [setOpen]);
 
   const syncPosition = useCallback(() => {
     const trigger = triggerRef.current;

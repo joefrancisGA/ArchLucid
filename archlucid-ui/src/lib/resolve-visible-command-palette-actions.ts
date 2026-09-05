@@ -20,6 +20,8 @@ export type ResolveVisibleCommandPaletteHrefActionsInput = {
   readonly workingMode: boolean;
   readonly hasCommittedArchitectureReview?: boolean;
   readonly showFullNav?: boolean;
+  /** Working Start resolver output (IS-03); defaults to draft editor when omitted. */
+  readonly workingStartHref?: string;
 };
 
 const GUIDED_FIRST_SESSION_HIDDEN_HREFS = new Set<string>([
@@ -39,6 +41,8 @@ export function resolveVisibleCommandPaletteHrefActions(
   const hasCommittedArchitectureReview =
     typeof input === "boolean" ? true : input.hasCommittedArchitectureReview === true;
   const showFullNav = typeof input === "boolean" ? true : input.showFullNav === true;
+  const workingStartHref =
+    typeof input === "boolean" ? ARCHITECTURES_NEW_PATH : (input.workingStartHref ?? ARCHITECTURES_NEW_PATH);
 
   let actions: readonly CommandPaletteHrefAction[] = workingMode
     ? COMMAND_PALETTE_ACTIONS.filter((action) => !WORKING_MODE_HIDDEN_ACTION_IDS.has(action.id)).map((action) =>
@@ -46,8 +50,8 @@ export function resolveVisibleCommandPaletteHrefActions(
           ? {
               ...action,
               label: WORKING_NEW_REVIEW_LABEL,
-              href: ARCHITECTURES_NEW_PATH,
-              searchValue: "action create new review draft editor intake",
+              href: workingStartHref,
+              searchValue: "action new work resume draft editor start",
             }
           : action,
       )

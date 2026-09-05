@@ -1,6 +1,9 @@
 using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Roi;
+using ArchLucid.Application.Tests.Exports;
 using ArchLucid.Application.Tests.Roi;
+using ArchLucid.Decisioning.Services;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -62,6 +65,32 @@ public sealed class FirstValueReportBuilderCostEvidenceFreshnessTests
         markdown.Should().NotBeNullOrWhiteSpace();
         markdown.Should().Contain("**Evidence freshness:** **Fresh** (`fresh`)");
         markdown.Should().Contain("**Evidence source:** **Uploaded actual/amortized** (`uploaded-actual-amortized`)");
+    }
+
+    [Fact]
+    public async Task BuildMarkdownAsync_when_run_linked_extractor_is_stale_for_sponsor_handoff_emits_stale_badge_before_ninety_day_window()
+    {
+        DateTime staleCollectionUtc = DateTime.UtcNow.AddDays(-45);
+        ArchitectureRunDetail detail = BuildCommittedDetail(RunId);
+
+        Mock<IRunDetailQueryService> query = new();
+        query.Setup(q => q.GetRunDetailAsync(RunId.ToString(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        PilotRunDeltas computed = CreateSendablePilotRunDeltas(detail);
+
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
+
+        RoiCostEvidenceCollectionResolver collectionResolver =
+            CreateResolverWithRunLinkedTimestamp(RunId, staleCollectionUtc);
+
+        FirstValueReportBuilder sut = CreateSut(query.Object, deltas.Object, collectionResolver);
+        string? markdown = await sut.BuildMarkdownAsync(RunId.ToString(), "http://localhost:5000");
+
+        markdown.Should().NotBeNullOrWhiteSpace();
+        markdown.Should().Contain("**Evidence freshness:** **Stale** (`stale`)");
+        markdown.Should().Contain("**HOLD posture:**");
     }
 
     [Fact]
@@ -199,6 +228,10 @@ public sealed class FirstValueReportBuilderCostEvidenceFreshnessTests
                     UpdatedUtc = DateTimeOffset.UtcNow,
                 });
 
+        ManifestHashService manifestHashService = new();
+        IAuthorityQueryService authorityQuery =
+            SealedExportReceiptTestSupport.CreateAuthorityQueryService(RunId, manifestHashService);
+
         return new FirstValueReportBuilder(
             query,
             deltas,
@@ -211,8 +244,8 @@ public sealed class FirstValueReportBuilderCostEvidenceFreshnessTests
             pilotBaselines.Object,
             collectionResolver,
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>(),
+            authorityQuery,
+            manifestHashService,
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }

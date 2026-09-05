@@ -77,6 +77,25 @@ public sealed class TrialExternalIdJwtBearerSupportTests
         validated.Should().Be("strict-ok");
     }
 
+    [Fact]
+    public void TryAllowConsumerIdentityIssuers_does_not_disable_signature_validation_parameters()
+    {
+        JwtBearerOptions options = new()
+        {
+            TokenValidationParameters = new TokenValidationParameters
+            {
+                IssuerValidator = StrictIssuerValidator,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey("01234567890123456789012345678901"u8.ToArray()),
+            },
+        };
+
+        TrialExternalIdJwtBearerSupport.TryAllowConsumerIdentityIssuers(options, trialExternalIdEnabled: true);
+
+        options.TokenValidationParameters.ValidateIssuerSigningKey.Should().BeTrue();
+        options.TokenValidationParameters.IssuerSigningKey.Should().NotBeNull();
+    }
+
     private static JwtBearerOptions CreateOptionsWithStrictValidator() =>
         new()
         {

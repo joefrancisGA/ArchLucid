@@ -27,6 +27,7 @@ public static class TenantSchemaSentinelManifest
                 new SchemaSentinelColumn { ColumnName = "ArchitectureId", SqlDataType = "uniqueidentifier" },
                 new SchemaSentinelColumn { ColumnName = "ImproveLoopEvidenceJson", SqlDataType = "nvarchar" },
                 new SchemaSentinelColumn { ColumnName = "KnowledgeModelId", SqlDataType = "nvarchar" },
+                new SchemaSentinelColumn { ColumnName = "AcknowledgedCoverageJson", SqlDataType = "nvarchar" },
                 new SchemaSentinelColumn { ColumnName = "PinnedPolicyPackIdsJson", SqlDataType = "nvarchar" },
                 new SchemaSentinelColumn { ColumnName = "PinnedPolicyPackIdsHashSha256", SqlDataType = "varbinary" },
                 new SchemaSentinelColumn { ColumnName = "PinnedEvidencePackagePinsJson", SqlDataType = "nvarchar" },
@@ -53,6 +54,7 @@ public static class TenantSchemaSentinelManifest
             [
                 new SchemaSentinelColumn { ColumnName = "ManifestId", SqlDataType = "uniqueidentifier" },
                 new SchemaSentinelColumn { ColumnName = "RunId", SqlDataType = "uniqueidentifier" },
+                new SchemaSentinelColumn { ColumnName = "HasherBoundJson", SqlDataType = "nvarchar" },
             ],
         },
         new SchemaSentinelExpectation

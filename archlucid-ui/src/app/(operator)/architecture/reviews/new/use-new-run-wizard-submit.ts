@@ -6,6 +6,7 @@ import type { UseFormGetValues, UseFormTrigger } from "react-hook-form";
 import { useReviewCreationProgress } from "@/hooks/use-review-creation-progress";
 import { isArchitectureRequestCreateUnresolvedError } from "@/lib/api/architecture-request-create-unresolved-error";
 import {
+  describeCoveragePackOverrideBlocker,
   evaluateWizardFormCreateRunGates,
   executeWizardFormCreateRun,
   resolveCreateRunFailureMessage,
@@ -84,6 +85,14 @@ export function useNewRunWizardSubmit(options: UseNewRunWizardSubmitOptions) {
           ? `${REVIEW_START_POLICY_CLOUD_MISMATCH_MESSAGE} ${mismatch}`
           : REVIEW_START_POLICY_CLOUD_MISMATCH_MESSAGE,
       );
+
+      return;
+    }
+
+    const overrideBlocker = describeCoveragePackOverrideBlocker();
+
+    if (overrideBlocker !== null) {
+      options.setStepValidationMessage(overrideBlocker);
 
       return;
     }

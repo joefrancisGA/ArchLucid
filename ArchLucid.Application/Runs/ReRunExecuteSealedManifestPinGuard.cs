@@ -43,6 +43,11 @@ public static class ReRunExecuteSealedManifestPinGuard
         if (existingResults.Count == 0)
             return;
 
+        // Incomplete / failed reviews can have agent outputs without a sealed golden manifest.
+        // Re-run is the recovery path for those runs; pin/hash/inventory apply only after commit.
+        if (!header.GoldenManifestId.HasValue)
+            return;
+
         EnsureCreateTimePinFingerprintsPresentOrThrow(header, runId);
 
         RunDetailDto? detail =

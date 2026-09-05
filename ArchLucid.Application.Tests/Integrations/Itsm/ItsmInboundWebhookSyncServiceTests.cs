@@ -3,12 +3,18 @@ using System.Text.Json;
 
 using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Application.Integrations.Itsm;
+using ArchLucid.Application.Tests.Integrations.Itsm.Outbound;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integrations.Itsm;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Integrations;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -34,6 +40,8 @@ public sealed class ItsmInboundWebhookSyncServiceTests
     private static readonly Guid WorkspaceA = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
 
     private static readonly Guid ProjectA = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+    private static readonly Guid DefaultRunId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
 
     [Fact]
     public async Task Jira_uses_configured_status_map_before_defaults()
@@ -890,6 +898,66 @@ public sealed class ItsmInboundWebhookSyncServiceTests
     }
 
     [Fact]
+    public async Task Jira_when_disposition_sync_fails_after_human_review_still_accepts_without_releasing_replay()
+    {
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        correlations
+            .Setup(c => c.TryGetByExternalKeyAsync("Jira", "KK-99", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ItsmFindingCorrelationRecord { TenantId = TenantA, WorkspaceId = WorkspaceA, ProjectId = ProjectA, FindingId = "f-fail" });
+        correlations
+            .Setup(c => c.FindingRecordExistsAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        correlations
+            .Setup(c => c.UpdateHumanReviewStatusForFindingAsync(
+                TenantA,
+                "f-fail",
+                nameof(FindingHumanReviewStatus.Approved),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+        Mock<IFindingDispositionService> dispositionService = new();
+        dispositionService
+            .Setup(s => s.ListHistoryAsync(It.IsAny<ScopeContext>(), "f-fail", It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("history store unavailable"));
+        Mock<IItsmInboundWebhookReplayGuard> replayGuard = new();
+        replayGuard
+            .Setup(g => g.TryClaimAsync(TenantA, "Jira", It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        IntegrationsItsmInboundOptions options = new()
+        {
+            JiraStatusDispositionMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["Done"] = nameof(FindingDisposition.Remediated)
+            }
+        };
+        ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(correlations, options, dispositionService, replayGuard: replayGuard);
+
+        using JsonDocument doc = JsonDocument.Parse(
+            """{"issue":{"key":"KK-99","fields":{"status":{"name":"Done"}}}}""");
+        ItsmInboundWebhookProcessResult r = await sut.TryProcessJiraIssueUpdateAsync(doc.RootElement, CancellationToken.None);
+
+        r.Accepted.Should().BeTrue();
+        r.DurableAuditEvent.Should().NotBeNull();
+        r.DurableAuditEvent!.EventType.Should().Be(AuditEventTypes.IntegrationJiraIssueStatusSynced);
+        JsonDocument payload = JsonDocument.Parse(r.DurableAuditEvent.DataJson);
+        payload.RootElement.GetProperty("humanReviewStatus").GetString().Should().Be(nameof(FindingHumanReviewStatus.Approved));
+        payload.RootElement.GetProperty("dispositionSynced").GetBoolean().Should().BeFalse();
+        payload.RootElement.GetProperty("dispositionSkipReason").GetString().Should().Be("disposition_sync_failed");
+        correlations.Verify(
+            c => c.UpdateHumanReviewStatusForFindingAsync(
+                TenantA,
+                "f-fail",
+                nameof(FindingHumanReviewStatus.Approved),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        replayGuard.Verify(
+            g => g.ReleaseAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task Jira_without_disposition_map_leaves_disposition_sync_skipped_in_audit()
     {
         Mock<IItsmFindingCorrelationRepository> correlations = new();
@@ -1185,14 +1253,37 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         IItsmInboundWebhookReplayGuard replayGuard,
         ILogger<ItsmInboundWebhookProcessPipeline>? pipelineLogger = null)
     {
+        ScopeContext defaultScope = new()
+        {
+            TenantId = TenantA,
+            WorkspaceId = WorkspaceA,
+            ProjectId = ProjectA,
+        };
+        Mock<IFindingInspectReadRepository> inspectRepository = new();
+        inspectRepository
+            .Setup(r => r.GetInspectAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync((ScopeContext _, string findingId, CancellationToken _, FindingInspectReadOptions? __) =>
+                new FindingInspectResponse
+                {
+                    FindingId = findingId,
+                    RunId = DefaultRunId,
+                });
+        IAuthorityQueryService authorityQueryService =
+            ItsmOutboundSealedManifestTestSupport.CreateAuthorityQueryService(defaultScope, DefaultRunId);
+        IManifestHashService manifestHashService =
+            ItsmOutboundSealedManifestTestSupport.CreateManifestHashService();
         ItsmInboundWebhookSyncSupport support = new(correlations, replayGuard);
         ItsmInboundWebhookProcessPipeline pipeline = new(
             support,
             inboundOptions,
             dispositionSync,
-            Mock.Of<ArchLucid.Persistence.Interfaces.IFindingInspectReadRepository>(),
-            Mock.Of<ArchLucid.Persistence.Queries.IAuthorityQueryService>(),
-            Mock.Of<ArchLucid.Core.Manifest.IManifestHashService>(),
+            inspectRepository.Object,
+            authorityQueryService,
+            manifestHashService,
             pipelineLogger ?? NullLogger<ItsmInboundWebhookProcessPipeline>.Instance);
         ItsmInboundJiraWebhookProcessor jiraProcessor = new(
             pipeline,

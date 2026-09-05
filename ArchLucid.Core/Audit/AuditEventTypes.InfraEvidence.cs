@@ -14,4 +14,28 @@ public static partial class AuditEventTypes
 
     /// <summary>Tenant branding profile created or updated.</summary>
     public const string TenantBrandingProfileChanged = "TenantBrandingProfile.Changed";
+
+    /// <summary>Operational security finding ingested or updated from an external source.</summary>
+    public const string OperationalSecurityFindingIngested = "OperationalSecurityFinding.Ingested";
+
+    /// <summary>Operational security finding re-ingested with an identical payload (deduplicated).</summary>
+    public const string OperationalSecurityFindingDeduplicated = "OperationalSecurityFinding.Deduplicated";
+
+    /// <summary>Operational security exception created for a finding, pattern, or cloud resource.</summary>
+    public const string OperationalSecurityExceptionCreated = "OperationalSecurityException.Created";
+
+    /// <summary>Operational security exception revoked before expiration.</summary>
+    public const string OperationalSecurityExceptionRevoked = "OperationalSecurityException.Revoked";
+
+    /// <summary>Operational security exception expired and visibility was reopened.</summary>
+    public const string OperationalSecurityExceptionExpired = "OperationalSecurityException.Expired";
+
+    /// <summary>Remediation instance created from an approved pattern match.</summary>
+    public const string RemediationInstanceCreated = "RemediationInstance.Created";
+
+    /// <summary>Remediation instance executed (advisory emit only; no cloud apply).</summary>
+    public const string RemediationInstanceExecuted = "RemediationInstance.Executed";
+
+    /// <summary>Remediation instance closed after successful verification.</summary>
+    public const string RemediationInstanceClosed = "RemediationInstance.Closed";
 }

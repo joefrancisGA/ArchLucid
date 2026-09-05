@@ -65,6 +65,7 @@ public sealed partial class ManifestFinalizationService
         return new CommittedEffectiveGovernanceSnapshotCaptureOptions
         {
             PreloadedScopePolicyPackAssignments = request.PreloadedScopePolicyPackAssignments,
+            PreloadedArchitectureRequest = request.PreloadedArchitectureRequest,
             PinnedFocusedPilotModeEnabled = request.PinnedFocusedPilotModeEnabled,
             PinnedFocusedPilotCloudProvider = request.PinnedFocusedPilotCloudProvider,
         };

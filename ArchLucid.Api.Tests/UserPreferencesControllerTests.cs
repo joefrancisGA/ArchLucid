@@ -359,6 +359,54 @@ public sealed class UserPreferencesControllerTests
             Times.Once);
     }
 
+    [SkippableFact]
+    public async Task GetPreferences_ReturnsStoredDeskContinuity()
+    {
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
+        repository
+            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.DeskContinuity, It.IsAny<CancellationToken>()))
+            .ReturnsAsync("""{"lastOpenReviewId":"run-9","lastOpenDraftId":"arch-1","lastVisitWatermarkUtc":"2026-09-05T12:00:00Z"}""");
+
+        UserPreferencesController sut = CreateController(repository.Object);
+
+        IActionResult result = await sut.GetPreferences(CancellationToken.None);
+
+        OkObjectResult ok = (OkObjectResult)result;
+        UserPreferencesResponse body = ok.Value.Should().BeOfType<UserPreferencesResponse>().Subject;
+        body.DeskContinuity.LastOpenReviewId.Should().Be("run-9");
+        body.DeskContinuity.LastOpenDraftId.Should().Be("arch-1");
+        body.DeskContinuityIsExplicit.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task SetDeskContinuity_ReturnsNoContentWhenValid()
+    {
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
+        UserPreferencesController sut = CreateController(repository.Object);
+
+        IActionResult result = await sut.SetDeskContinuity(
+            new SetDeskContinuityRequest
+            {
+                Continuity = new DeskContinuityDto
+                {
+                    LastOpenReviewId = "run-42",
+                    LastOpenDraftId = "arch-7",
+                    LastVisitWatermarkUtc = "2026-09-05T12:00:00Z",
+                },
+            },
+            CancellationToken.None);
+
+        result.Should().BeOfType<NoContentResult>();
+
+        repository.Verify(
+            repo => repo.UpsertAsync(
+                "jwt:user-1",
+                UserSettingKeys.DeskContinuity,
+                It.Is<string>(json => json.Contains("run-42") && json.Contains("arch-7")),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     private static Mock<IUserSettingsRepository> CreateRepositoryMock()
     {
         Mock<IUserSettingsRepository> repository = new();
@@ -397,6 +445,9 @@ public sealed class UserPreferencesControllerTests
             .ReturnsAsync((string?)null);
         repository
             .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.FindingsShowAdvisoryEnabled, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string?)null);
+        repository
+            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.DeskContinuity, It.IsAny<CancellationToken>()))
             .ReturnsAsync((string?)null);
 
         return repository;

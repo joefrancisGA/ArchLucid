@@ -7,8 +7,15 @@ public static class ManifestDiagramQueryValidation
 {
     public static GovernanceHttpValidation? ValidateLayout(string? layout)
     {
-        if (string.IsNullOrWhiteSpace(layout))
+        if (layout is null)
             return null;
+
+        if (string.IsNullOrWhiteSpace(layout))
+        {
+            return new GovernanceHttpValidation(
+                "layout cannot be empty or whitespace.",
+                ProblemTypes.ValidationFailed);
+        }
 
         string normalized = layout.Trim();
 
@@ -25,8 +32,15 @@ public static class ManifestDiagramQueryValidation
 
     public static GovernanceHttpValidation? ValidateRelationshipLabels(string? relationshipLabels)
     {
-        if (string.IsNullOrWhiteSpace(relationshipLabels))
+        if (relationshipLabels is null)
             return null;
+
+        if (string.IsNullOrWhiteSpace(relationshipLabels))
+        {
+            return new GovernanceHttpValidation(
+                "relationshipLabels cannot be empty or whitespace.",
+                ProblemTypes.ValidationFailed);
+        }
 
         string normalized = relationshipLabels.Trim();
 
@@ -43,8 +57,15 @@ public static class ManifestDiagramQueryValidation
 
     public static GovernanceHttpValidation? ValidateGroupBy(string? groupBy)
     {
-        if (string.IsNullOrWhiteSpace(groupBy))
+        if (groupBy is null)
             return null;
+
+        if (string.IsNullOrWhiteSpace(groupBy))
+        {
+            return new GovernanceHttpValidation(
+                "groupBy cannot be empty or whitespace.",
+                ProblemTypes.ValidationFailed);
+        }
 
         string normalized = groupBy.Trim();
 

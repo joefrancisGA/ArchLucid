@@ -4,10 +4,14 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
-import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { useWorkingStartHref } from "@/hooks/use-working-start-href";
+import {
+  ARCHITECTURES_LIST_PATH,
+  REVIEWS_LIST_PATH,
+} from "@/lib/architecture/architecture-routes";
 import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { OPERATOR_HOME_START_NEW_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
-import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { resolveOperatorHomeLatestDraftPrimaryAction } from "@/lib/operator-home-latest-draft-primary-action";
 import { cn } from "@/lib/utils";
 
@@ -20,7 +24,7 @@ export type OperatorHomeWorkingPrimaryCtaProps = {
   readonly showNewReviewWhenResuming?: boolean;
 };
 
-/** Working Overview sole primary — resume last draft/review, else new review in the draft editor (LI-06). */
+/** Working Overview sole primary — resume last draft/review, else new work (ADR 0069 / IS-02). */
 export function OperatorHomeWorkingPrimaryCta(
   props: OperatorHomeWorkingPrimaryCtaProps = {},
 ): React.JSX.Element {
@@ -28,22 +32,26 @@ export function OperatorHomeWorkingPrimaryCta(
   const drafts = useArchitectureDraftRegistryEntries();
   const latestDraft = drafts[0] ?? null;
   const resume = resolveOperatorHomeLatestDraftPrimaryAction(latestDraft);
+  const workingStartHref = useWorkingStartHref();
 
   if (resume !== null) {
     return (
-      <div className="flex flex-wrap items-center gap-2" data-testid="operator-home-working-primary-cta">
-        <Button asChild variant={variant} size="sm" className="h-8 w-fit">
-          <Link href={resume.href} data-testid="operator-home-working-resume-primary">
-            {resume.ctaLabel}
-          </Link>
-        </Button>
-        {props.showNewReviewWhenResuming === true ? (
-          <Button asChild variant="outline" size="sm" className="h-8 w-fit">
-            <Link href={ARCHITECTURES_NEW_PATH} data-testid="operator-home-working-new-review-outline">
-              {OPERATOR_HOME_START_NEW_ARCHITECTURE_REVIEW_CTA}
+      <div className="space-y-2" data-testid="operator-home-working-primary-cta">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button asChild variant={variant} size="sm" className="h-8 w-fit">
+            <Link href={resume.href} data-testid="operator-home-working-resume-primary">
+              {resume.ctaLabel}
             </Link>
           </Button>
-        ) : null}
+          {props.showNewReviewWhenResuming === true ? (
+            <Button asChild variant="outline" size="sm" className="h-8 w-fit">
+              <Link href={workingStartHref} data-testid="operator-home-working-new-review-outline">
+                {OPERATOR_HOME_START_NEW_ARCHITECTURE_REVIEW_CTA}
+              </Link>
+            </Button>
+          ) : null}
+        </div>
+        <WorkingCapabilityLinks />
       </div>
     );
   }
@@ -51,13 +59,28 @@ export function OperatorHomeWorkingPrimaryCta(
   return (
     <div className="space-y-2" data-testid="operator-home-working-primary-cta">
       <Button asChild variant={variant} size="sm" className="h-8 w-fit">
-        <Link href={ARCHITECTURES_NEW_PATH} data-testid="operator-home-working-new-review-primary">
+        <Link href={workingStartHref} data-testid="operator-home-working-new-review-primary">
           {START_REVIEW_LABEL}
         </Link>
       </Button>
       <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
         {WORKING_NEW_REVIEW_BRIDGE_COPY}
       </p>
+      <WorkingCapabilityLinks />
     </div>
+  );
+}
+
+function WorkingCapabilityLinks(): React.JSX.Element {
+  return (
+    <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
+      <Link href={ARCHITECTURES_LIST_PATH} className={OPERATOR_LINK.optional} data-testid="operator-home-working-drafts-link">
+        Drafts
+      </Link>
+      <span aria-hidden="true"> · </span>
+      <Link href={REVIEWS_LIST_PATH} className={OPERATOR_LINK.optional} data-testid="operator-home-working-packages-link">
+        Packages
+      </Link>
+    </p>
   );
 }

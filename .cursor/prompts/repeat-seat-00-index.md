@@ -1,11 +1,13 @@
 <!-- Repeat-seat Composer prompts — paste one prompt per session.
      Origin: 2026-09-04 owner diagnosis that ArchLucid is a working-architect
      tool (all-day use; livelihoods may depend on it), not a casual evaluator.
-     Wave 3 after LI-01–15 (#1397) and LD-01–15. Do not implement from this index. -->
+     Wave 3 after LI-01–15 (#1397) and LD-01–15. Do not implement from this index.
+     Wave 8: instrument-spine-00-index.md (IS-01–15).
+     Wave 9: livelihood-spine-00-index.md (LS-01–12). -->
 
 # Repeat-seat mitigations — Composer prompt set (RS-01–RS-15)
 
-ArchLucid sells a **seat for a repeat professional** (`docs/ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md` R13; ADR 0052). **LI-01–15 shipped** (#1397). **LD-01–15 shipped** (#1421 / #1439). This set **shipped** as **RS-01–15** on `master` (#1457). Do not re-run. Wave 4 predicted leftovers: [`working-architect-00-index.md`](working-architect-00-index.md) (**WA-01–24**).
+ArchLucid sells a **seat for a repeat professional** (`docs/ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md` R13; ADR 0052). **LI-01–15 shipped** (#1397). **LD-01–15 shipped** (#1421 / #1439). This set **shipped** as **RS-01–15** on `master` (#1457). Do not re-run. Wave 4 predicted leftovers: [`working-architect-00-index.md`](working-architect-00-index.md) (**WA-01–24**). Wave 8: [`instrument-spine-00-index.md`](instrument-spine-00-index.md) (**IS-01–15**). Wave 9: [`livelihood-spine-00-index.md`](livelihood-spine-00-index.md) (**LS-01–12**).
 
 This set is **wave 3** — leftovers from the same livelihood diagnosis that **LD does not cover** (spawn as two objects, quiet-engine wizard CTA, infeasible pending empty, document-while-running, demo/paying ops inversion, dirty-guard CI inventory, print *opener* keepalive, account-scoped ROI prefs, concurrency as a desk event). Do **not** re-run LI, PT, WD, or LD from this index.
 
@@ -25,6 +27,8 @@ This set is **wave 3** — leftovers from the same livelihood diagnosis that **L
 | **CD-01–15** | Wave 5 unique leftovers | [`career-desk-00-index.md`](career-desk-00-index.md) |
 | **AD-01–12** | Wave 6 all-day desk leftovers | [`all-day-desk-00-index.md`](all-day-desk-00-index.md) |
 | **FD-01–13** | Wave 7 founding leftovers | [`founding-desk-00-index.md`](founding-desk-00-index.md) |
+| **IS-01–15** | Wave 8 load-bearing bets | [`instrument-spine-00-index.md`](instrument-spine-00-index.md) |
+| **LS-01–12** | Wave 9 diagnosis leftovers | [`livelihood-spine-00-index.md`](livelihood-spine-00-index.md) |
 
 If an RS row lists an LD/LI/PT/WD owner, **do not fork** that file. Implement only the leftover in *What to build*.
 
@@ -84,3 +88,5 @@ Summarize: files changed, tests run, residual risk, Working vs Guided behavior. 
 **Wave 5:** [`career-desk-00-index.md`](career-desk-00-index.md) (**CD-01–15**). Do not fork WA.
 **Wave 6:** [`all-day-desk-00-index.md`](all-day-desk-00-index.md) (**AD-01–12**).
 **Wave 7:** [`founding-desk-00-index.md`](founding-desk-00-index.md) (**FD-01–13**).
+**Wave 8:** [`instrument-spine-00-index.md`](instrument-spine-00-index.md) (**IS-01–15**). Do not fork IS.
+**Wave 9:** [`livelihood-spine-00-index.md`](livelihood-spine-00-index.md) (**LS-01–12**). Do not fork IS.

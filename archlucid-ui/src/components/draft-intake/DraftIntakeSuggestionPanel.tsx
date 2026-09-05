@@ -35,6 +35,10 @@ import {
   draftIntakeActorGateConfirmHrefFromSearch,
   parseDraftIntakeActorGateConfirmOpenFromSearch,
 } from "@/lib/draft-intake/draft-intake-actor-gate-confirm-url";
+import {
+  draftIntakeActorSuggestPanelsHrefFromSearch,
+  parseDraftIntakeActorSuggestOpenFromSearch,
+} from "@/lib/draft-intake/draft-intake-actor-suggest-panels-url";
 import type { ActorSet } from "@/types/draft-intake-actors";
 
 type DraftIntakeSuggestionPanelProps = {
@@ -64,7 +68,10 @@ export function DraftIntakeSuggestionPanel(props: DraftIntakeSuggestionPanelProp
   const router = useRouter();
   const searchParams = useSearchParams();
   const actorGateConfirmParam = searchParams.get("actorGateConfirm");
-  const [suggestionPanelOpen, setSuggestionPanelOpen] = useState(false);
+  const actorSuggestOpenParam = searchParams.get("actorSuggestOpen");
+  const [suggestionPanelOpen, setSuggestionPanelOpenState] = useState(() =>
+    parseDraftIntakeActorSuggestOpenFromSearch(actorSuggestOpenParam),
+  );
   const [suggestionGateOpen, setSuggestionGateOpenState] = useState(
     () => parseDraftIntakeActorGateConfirmOpenFromSearch(actorGateConfirmParam),
   );
@@ -96,9 +103,39 @@ export function DraftIntakeSuggestionPanel(props: DraftIntakeSuggestionPanelProp
     [syncActorGateToUrl],
   );
 
+  const syncActorSuggestOpenToUrl = useCallback(
+    (open: boolean) => {
+      if (pathname.length === 0) {
+        return;
+      }
+
+      router.replace(
+        draftIntakeActorSuggestPanelsHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSuggestionPanelOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setSuggestionPanelOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncActorSuggestOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncActorSuggestOpenToUrl],
+  );
+
   useEffect(() => {
     setSuggestionGateOpenState(parseDraftIntakeActorGateConfirmOpenFromSearch(actorGateConfirmParam));
   }, [actorGateConfirmParam]);
+
+  useEffect(() => {
+    setSuggestionPanelOpenState(parseDraftIntakeActorSuggestOpenFromSearch(actorSuggestOpenParam));
+  }, [actorSuggestOpenParam]);
 
   const canSuggestFromIntent = intentText.trim().length >= minIntentChars;
 

@@ -14,9 +14,14 @@ public sealed partial class GovernanceStickinessFacade
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
+        FindingInspectResponse finding = await RequireFindingInspectInScopeAsync(scope, request.FindingId.Trim(), ct);
+        EnsureRunMatchesFindingAuthorityRun(request.RunId, finding);
+        await EnsureRunInScopeWhenProvidedAsync(scope, request.RunId, ct);
+        await EnsureManifestMatchesRunWhenProvidedAsync(scope, request.RunId, request.ManifestId, ct);
+
         CreateRiskExceptionRequest normalized = new()
         {
-            FindingId = request.FindingId.Trim(),
+            FindingId = finding.FindingId,
             RunId = request.RunId,
             ManifestId = request.ManifestId,
             OwnerUserId = request.OwnerUserId,
@@ -24,11 +29,6 @@ public sealed partial class GovernanceStickinessFacade
             EvidenceRef = request.EvidenceRef,
             ExpiresAtUtc = request.ExpiresAtUtc,
         };
-
-        FindingInspectResponse finding = await RequireFindingInspectInScopeAsync(scope, normalized.FindingId, ct);
-        EnsureRunMatchesFindingAuthorityRun(normalized.RunId, finding);
-        await EnsureRunInScopeWhenProvidedAsync(scope, normalized.RunId, ct);
-        await EnsureManifestMatchesRunWhenProvidedAsync(scope, normalized.RunId, normalized.ManifestId, ct);
 
         Guid runIdForGuard = normalized.RunId ?? finding.RunId;
 

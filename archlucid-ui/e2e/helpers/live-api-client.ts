@@ -513,6 +513,19 @@ export function liveE2eArchitectureRunCyclePlaywrightTimeoutMs(): number {
   return process.env.CI ? 600_000 : 300_000;
 }
 
+/**
+ * Playwright per-test timeout for private-beta JwtBearer access-path specs (`live-api-private-beta-access.spec.ts`).
+ * The GitHub job allows 60 minutes; each test runs invite harness + UI + create-run (inline pipeline, up to
+ * {@link liveE2eArchitectureRequestAttemptHttpTimeoutMs} per HTTP attempt with infrastructure retries).
+ */
+export function liveE2ePrivateBetaAccessPlaywrightTimeoutMs(): number {
+  if (process.env.CI) {
+    return 2_700_000;
+  }
+
+  return 600_000;
+}
+
 /** Playwright per-test timeout for lighter live API contract probes (no full architecture run cycle). */
 export function liveE2eApiContractPlaywrightTimeoutMs(): number {
   return process.env.CI ? 120_000 : 60_000;

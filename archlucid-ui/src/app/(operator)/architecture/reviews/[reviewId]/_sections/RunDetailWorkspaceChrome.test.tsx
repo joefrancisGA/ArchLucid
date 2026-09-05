@@ -129,8 +129,8 @@ describe("RunDetailWorkspaceHeader", () => {
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: "Claims API" })).toBeInTheDocument();
     expect(screen.getByText("Claims platform review")).toBeInTheDocument();
-    expect(screen.getByTestId("run-detail-review-identifiers")).toBeInTheDocument();
-    expect(screen.queryByText("Copy identifiers")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("run-detail-review-identifiers")).not.toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-record-metadata-disclosure")).toBeInTheDocument();
     expect(screen.getByText("Review ID")).toBeInTheDocument();
     expect(screen.getByText("Finalized review record ID")).toBeInTheDocument();
     expect(screen.getByText(reviewRunId)).toBeInTheDocument();
@@ -307,7 +307,7 @@ describe("RunDetailWorkspaceStickyActions", () => {
   });
 
   it("demotes sticky primary action when Do this next owns the page primary", () => {
-    render(
+    const { container } = render(
       <RunDetailWorkspaceStickyActions
         runId="run-1"
         primaryAction={{
@@ -332,6 +332,6 @@ describe("RunDetailWorkspaceStickyActions", () => {
       />,
     );
 
-    expect(screen.getByTestId("review-package-primary-action-mock")).toHaveAttribute("data-demoted", "true");
+    expect(container).toBeEmptyDOMElement();
   });
 });

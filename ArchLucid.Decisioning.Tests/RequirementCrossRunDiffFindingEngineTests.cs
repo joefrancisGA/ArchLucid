@@ -228,4 +228,56 @@ public sealed class RequirementCrossRunDiffFindingEngineTests
         findings[0].Severity.Should().Be(FindingSeverity.Info);
         findings[0].Payload.Should().BeOfType<RequirementCoverageFindingPayload>();
     }
+
+    [Fact]
+    public async Task AnalyzeAsync_when_prior_graph_has_no_requirements_but_current_expands_emits_info_coverage_finding()
+    {
+        GraphSnapshot priorGraph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "prior-context",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "prior-context",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                }
+            ]
+        };
+
+        RequirementCrossRunDiffFindingEngine engine = CreateEngine(priorGraph);
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "context-1",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "context",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                },
+                new GraphNode
+                {
+                    NodeId = "req-1",
+                    NodeType = GraphNodeTypes.Requirement,
+                    Label = "availability",
+                    Properties = new()
+                }
+            ]
+        };
+
+        FindingAnalysisContext context = AnalysisContextWithPrior();
+        context.Prior!.PriorGraphSnapshotId = Guid.NewGuid();
+
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(
+            graph,
+            context,
+            CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].Severity.Should().Be(FindingSeverity.Info);
+        findings[0].Payload.Should().BeOfType<RequirementCoverageFindingPayload>();
+    }
 }

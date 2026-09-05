@@ -253,4 +253,35 @@ public sealed partial class UserPreferencesController
 
         return NoContent();
     }
+
+    /// <summary>Persists the authenticated user's Working desk continuity preferences.</summary>
+    [HttpPut("desk-continuity")]
+    [MutatingAuditExcluded("Personal desk continuity stored in dbo.UserSettings; no durable tenant audit row required.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SetDeskContinuity(
+        [FromBody] SetDeskContinuityRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (body is null)
+        {
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        }
+
+        if (body.Continuity is null)
+        {
+            return this.BadRequestProblem("continuity is required.", ProblemTypes.ValidationFailed);
+        }
+
+        string userId = _actorContext.GetActorId();
+        string serialized = DeskContinuityValues.Serialize(body.Continuity);
+
+        await _userSettingsRepository.UpsertAsync(
+            userId,
+            UserSettingKeys.DeskContinuity,
+            serialized,
+            cancellationToken);
+
+        return NoContent();
+    }
 }

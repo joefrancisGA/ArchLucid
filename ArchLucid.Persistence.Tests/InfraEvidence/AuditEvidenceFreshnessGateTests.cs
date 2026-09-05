@@ -236,6 +236,13 @@ public sealed class AuditEvidenceFreshnessGateTests
             AzureInventorySnapshotMaterializeWriteRequest writeRequest,
             CancellationToken cancellationToken = default)
             => Task.CompletedTask;
+
+        public Task<Guid?> TryGetPriorMaterializedSnapshotIdAsync(
+            ScopeContext scope,
+            string subscriptionId,
+            Guid newerSnapshotId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<Guid?>(null);
     }
 
     private sealed class InMemoryAuditEvidenceRequirementRepository : IAuditEvidenceRequirementRepository
@@ -295,6 +302,11 @@ public sealed class AuditEvidenceFreshnessGateTests
             AuditAssessmentStatus status,
             CancellationToken cancellationToken = default)
             => Task.CompletedTask;
+
+        public Task<IReadOnlyList<AuditAssessmentRecord>> ListActiveByTenantAsync(
+            Guid tenantId,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult<IReadOnlyList<AuditAssessmentRecord>>([]);
     }
 
     private sealed class CapturingEvaluationRepository : IAuditControlEvaluationRepository
@@ -308,5 +320,11 @@ public sealed class AuditEvidenceFreshnessGateTests
             Guid snapshotId,
             CancellationToken cancellationToken = default)
             => Task.FromResult<AuditControlEvaluationRecord?>(null);
+
+        public Task<IReadOnlyList<AuditEvidenceItemRecord>> ListEvidenceItemsByEvaluationAsync(
+            Guid tenantId,
+            Guid evaluationId,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult<IReadOnlyList<AuditEvidenceItemRecord>>([]);
     }
 }

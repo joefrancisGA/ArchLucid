@@ -200,6 +200,31 @@ public sealed class PolicyPacksControllerListScopeTests
     }
 
     [Fact]
+    public async Task Create_returns_bad_request_when_description_is_whitespace_only_and_tenant_missing()
+    {
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        PolicyPacksController sut = CreateSut(httpFacade, tenantExists: false);
+
+        IActionResult result = await sut.Create(
+            new CreatePolicyPackRequest
+            {
+                Name = "baseline",
+                Description = "   ",
+                PackType = "TenantCustom",
+                InitialContentJson = "{}",
+            },
+            CancellationToken.None);
+
+        ObjectResult response = result.Should().BeOfType<ObjectResult>().Subject;
+        response.StatusCode.Should().NotBe(StatusCodes.Status404NotFound);
+        sut.ModelState.Should().ContainKey(nameof(CreatePolicyPackRequest.Description));
+        sut.ModelState[nameof(CreatePolicyPackRequest.Description)]!.Errors
+            .Should()
+            .Contain(error => error.ErrorMessage.Contains("whitespace"));
+        httpFacade.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task Create_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
@@ -309,6 +334,31 @@ public sealed class PolicyPacksControllerListScopeTests
 
         ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task Assign_returns_bad_request_when_scope_level_is_whitespace_only_and_tenant_missing()
+    {
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        PolicyPacksController sut = CreateSut(httpFacade, tenantExists: false);
+
+        IActionResult result = await sut.Assign(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            new AssignPolicyPackRequest
+            {
+                Version = "1.0.0",
+                ScopeLevel = "   ",
+                IsPinned = false,
+            },
+            CancellationToken.None);
+
+        ObjectResult response = result.Should().BeOfType<ObjectResult>().Subject;
+        response.StatusCode.Should().NotBe(StatusCodes.Status404NotFound);
+        sut.ModelState.Should().ContainKey(nameof(AssignPolicyPackRequest.ScopeLevel));
+        sut.ModelState[nameof(AssignPolicyPackRequest.ScopeLevel)]!.Errors
+            .Should()
+            .Contain(error => error.ErrorMessage.Contains("whitespace"));
+        httpFacade.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -425,6 +475,25 @@ public sealed class PolicyPacksControllerListScopeTests
             {
                 SourcePolicyPackId = Guid.Empty,
                 Version = "1.0.0",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task PromoteCatalogEntry_returns_bad_request_when_version_is_whitespace_only()
+    {
+        PolicyPacksController sut = CreateSut(
+            httpFacade: new Mock<IPolicyPackHttpFacade>(MockBehavior.Strict),
+            tenantExists: true);
+
+        IActionResult result = await sut.PromoteCatalogEntry(
+            new PromotePolicyPackCatalogEntryRequest
+            {
+                SourcePolicyPackId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                Version = "   ",
             },
             CancellationToken.None);
 

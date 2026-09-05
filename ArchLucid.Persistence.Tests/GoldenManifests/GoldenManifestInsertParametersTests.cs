@@ -40,6 +40,7 @@ public sealed class GoldenManifestInsertParametersTests
 
         Read<string>(parameters, "AssumptionsJson").Should().Be(payload.AssumptionsJson);
         Read<string>(parameters, "AssumptionsJson").Should().Contain("single-region deployment");
+        Read<string>(parameters, "HasherBoundJson").Should().Be(payload.HasherBoundJson);
     }
 
     /// <summary>A null blob URI is what tells the read path the payload is in-row rather than offloaded.</summary>

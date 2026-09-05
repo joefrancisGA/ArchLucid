@@ -22,6 +22,12 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/architecture/reviews",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 const buyerChromeForced = vi.hoisted(() => ({ on: false as boolean }));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {

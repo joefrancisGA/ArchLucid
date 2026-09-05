@@ -64,6 +64,10 @@ public sealed partial class UserPreferencesController
             userId,
             UserSettingKeys.FindingsShowAdvisoryEnabled,
             cancellationToken);
+        string? deskContinuityStored = await _userSettingsRepository.TryGetAsync(
+            userId,
+            UserSettingKeys.DeskContinuity,
+            cancellationToken);
 
         string appearancePreference = AppearancePreferenceValues.NormalizeOrNull(appearanceStored)
             ?? AppearancePreferenceValues.Default;
@@ -78,6 +82,7 @@ public sealed partial class UserPreferencesController
         bool findingsHideGenericEnabled = FindingsVisibilityToggleValues.ParseOrDefault(findingsHideGenericStored);
         bool findingsShowLowConfidenceEnabled = FindingsVisibilityToggleValues.ParseOrDefault(findingsShowLowConfidenceStored);
         bool findingsShowAdvisoryEnabled = FindingsVisibilityToggleValues.ParseOrDefault(findingsShowAdvisoryStored);
+        DeskContinuityDto deskContinuity = DeskContinuityValues.NormalizeOrDefault(deskContinuityStored);
 
         return Ok(new UserPreferencesResponse
         {
@@ -108,6 +113,8 @@ public sealed partial class UserPreferencesController
             FindingsShowLowConfidenceEnabledIsExplicit = FindingsVisibilityToggleValues.IsExplicitValue(findingsShowLowConfidenceStored),
             FindingsShowAdvisoryEnabled = findingsShowAdvisoryEnabled,
             FindingsShowAdvisoryEnabledIsExplicit = FindingsVisibilityToggleValues.IsExplicitValue(findingsShowAdvisoryStored),
+            DeskContinuity = deskContinuity,
+            DeskContinuityIsExplicit = DeskContinuityValues.TryParse(deskContinuityStored) is not null,
         });
     }
 

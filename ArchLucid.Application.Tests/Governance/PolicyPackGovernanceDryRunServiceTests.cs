@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 
+using ArchLucid.Application;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
@@ -7,6 +8,7 @@ using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Llm.Redaction;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -14,6 +16,7 @@ using ArchLucid.Decisioning.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Repositories;
 
 using FluentAssertions;
@@ -404,6 +407,74 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
             check.Contains("pre_commit_severity_gate", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public async Task EvaluateAsync_throws_when_run_golden_manifest_is_unsealed()
+    {
+        Guid runGuid = Guid.NewGuid();
+        Guid snapshotId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runGuid,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                ArchitectureRequestId = "req-dry-unsealed",
+                LegacyRunStatus = "ReadyForCommit",
+                FindingsSnapshotId = snapshotId,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        InMemoryFindingsSnapshotRepository findingsRepo = new();
+        await findingsRepo.SaveAsync(
+            new FindingsSnapshot
+            {
+                FindingsSnapshotId = snapshotId,
+                RunId = runGuid,
+                ContextSnapshotId = Guid.NewGuid(),
+                GraphSnapshotId = Guid.NewGuid(),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                Findings = [],
+            },
+            CancellationToken.None);
+
+        ManifestDocument unsealedManifest = PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateSealedGoldenManifest(
+            TestScope,
+            runGuid);
+        unsealedManifest.ManifestHash = "tampered-hash";
+
+        PolicyPackGovernanceDryRunServiceTestsFixture fixture = CreateSut(
+            runs,
+            findingsRepo,
+            new InMemoryGoldenManifestRepository(),
+            Options.Create(new PreCommitGovernanceGateOptions()),
+            authorityQueryService: PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateAuthorityQueryService(
+                TestScope,
+                runGuid,
+                unsealedManifest),
+            manifestHashService: PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService(
+                PolicyPackGovernanceDryRunSealedManifestTestSupport.SealedManifestHash));
+
+        Func<Task> act = () => fixture.Sut.EvaluateAsync(
+            "{}",
+            runGuid.ToString("N"),
+            null,
+            null,
+            null,
+            null,
+            CancellationToken.None);
+
+        (await act.Should().ThrowAsync<ConflictException>())
+            .Which.Message.Should().Contain("sealed manifest hash does not match");
+
+        fixture.Audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private sealed record PolicyPackGovernanceDryRunServiceTestsFixture(
         PolicyPackGovernanceDryRunService Sut,
         Mock<IAuditService> Audit);
@@ -415,7 +486,9 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
         IOptions<PreCommitGovernanceGateOptions> options,
         ITechnologyLedgerRepository? ledgerRepository = null,
         IOptions<TechnologyConsistencyFindingEngineOptions>? consistencyOptions = null,
-        IOptions<FindingEvidenceLinkageFindingEngineOptions>? linkageOptions = null)
+        IOptions<FindingEvidenceLinkageFindingEngineOptions>? linkageOptions = null,
+        IAuthorityQueryService? authorityQueryService = null,
+        IManifestHashService? manifestHashService = null)
     {
         Mock<IPromptRedactor> redactor = new();
         redactor
@@ -443,6 +516,8 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
             consistencyOptions ?? Options.Create(new TechnologyConsistencyFindingEngineOptions { Enabled = false }),
             new FindingEvidenceLinkageFindingEngine(),
             linkageOptions ?? Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = false }),
+            authorityQueryService ?? PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateAuthorityQueryServiceForAnyRun(TestScope),
+            manifestHashService ?? PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService(),
             NullLogger<PolicyPackGovernanceDryRunService>.Instance);
 
         return new PolicyPackGovernanceDryRunServiceTestsFixture(sut, audit);

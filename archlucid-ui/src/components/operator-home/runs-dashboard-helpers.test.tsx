@@ -5,7 +5,6 @@ import {
   ArchitecturePackageOriginMetadataLine,
   deriveRunsDashboardTabCounts,
   formatRunsDashboardTabLabelWithCount,
-  formatRunsDashboardHomePreviewRecentTabLabel,
   isRunApprovedPackage,
   isRunApprovedWithMonitoringPackage,
   isRunNeedingAttention,
@@ -62,11 +61,8 @@ describe("runsDashboardTabLabel (TB-667)", () => {
     expect(formatRunsDashboardTabLabelWithCount("Monitoring", 2)).toBe("Monitoring (2)");
   });
 
-  it("labels home preview Recent tabs with visible and total counts", () => {
-    expect(
-      runsDashboardTabLabel("all", false, 2, { homePreviewMode: true, recentTotalCount: 5 }),
-    ).toBe("Recent (2 of 5)");
-    expect(formatRunsDashboardHomePreviewRecentTabLabel("Recent", 2, 2)).toBe("Recent (2)");
+  it("labels home preview Recent tabs with visible counts only", () => {
+    expect(runsDashboardTabLabel("all", false, 2, { homePreviewMode: true })).toBe("Recent (2)");
   });
 });
 

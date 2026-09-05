@@ -16,7 +16,7 @@ export const PACKAGE_PRINT_INSTRUCTIONS =
 
 /** Working print: fail-closed coverage honesty when quiet-engine / skipped-MUST detail is not on the summary (CD-06). */
 export const PACKAGE_PRINT_COVERAGE_HONESTY_LINE =
-  "This print summary is not the sealed record. Open the architecture package for typed-engine-protected, quiet-engine, and skipped-MUST coverage before board or procurement use.";
+  "This print summary is not the sealed record. Decision-grade and checklist counts reflect gate classification — open the architecture package for quiet-engine and skipped-MUST coverage before board or procurement use.";
 
 /** Primary CTA on the print page (mirrors help-topic wording). */
 export const PACKAGE_PRINT_BUTTON_LABEL = "Print / Save as PDF";

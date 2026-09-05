@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 352_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 359_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -1828,6 +1828,25 @@ BEGIN
         N'ALTER TABLE ' + @manifestVersionTable + N' ADD ContractManifestVersion NVARCHAR(128) NULL;';
 
     EXEC sp_executesql @addManifestVersionSql;
+END
+
+GO
+
+/* DbUp 354 parity: hasher-bound JSON (Policy, inventory, create-time pins) for sealed ManifestHash round-trip.
+   Resolves the physical table because migration 295 left dbo.GoldenManifests as a synonym. */
+DECLARE @hasherBoundTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.SignedReviewRecords', N'U') IS NOT NULL THEN N'dbo.SignedReviewRecords'
+        WHEN OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL THEN N'dbo.GoldenManifests'
+    END;
+
+IF @hasherBoundTable IS NOT NULL
+   AND COL_LENGTH(@hasherBoundTable, N'HasherBoundJson') IS NULL
+BEGIN
+    DECLARE @addHasherBoundSql NVARCHAR(MAX) =
+        N'ALTER TABLE ' + @hasherBoundTable + N' ADD HasherBoundJson NVARCHAR(MAX) NULL;';
+
+    EXEC sp_executesql @addHasherBoundSql;
 END
 
 GO
@@ -8908,6 +8927,25 @@ END
 
 GO
 
+/* 356/359: Pre-execute coverage acknowledgement JSON (ADR 0064 synonym-safe). */
+DECLARE @acknowledgedCoverageRunTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
+
+DECLARE @acknowledgedCoverageRunSql NVARCHAR(MAX);
+
+IF @acknowledgedCoverageRunTable IS NOT NULL
+   AND COL_LENGTH(@acknowledgedCoverageRunTable, N'AcknowledgedCoverageJson') IS NULL
+BEGIN
+    SET @acknowledgedCoverageRunSql = N'ALTER TABLE ' + @acknowledgedCoverageRunTable + N' ADD AcknowledgedCoverageJson NVARCHAR(MAX) NULL;';
+
+    EXEC sp_executesql @acknowledgedCoverageRunSql;
+END
+
+GO
+
 /* 334: Platform-scoped operational error inbox for internal staff review (HTTP, database, and unhandled exceptions). */
 IF OBJECT_ID(N'dbo.PlatformOperationalErrors', N'U') IS NULL
 BEGIN
@@ -10043,6 +10081,7 @@ BEGIN
     CREATE NONCLUSTERED INDEX IX_AuditManualEvidenceSubmissions_Tenant_Control
         ON dbo.AuditManualEvidenceSubmissions (TenantId, AssessmentId, ControlId);
 END;
+
 GO
 
 IF OBJECT_ID(N'dbo.AuditArchitectureEvidenceLinks', N'U') IS NULL

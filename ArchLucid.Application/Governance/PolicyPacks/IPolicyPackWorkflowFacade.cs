@@ -28,9 +28,12 @@ public interface IPolicyPackWorkflowFacade
         string version,
         string scopeLevel,
         bool isPinned,
+        bool isOrganizationRequired,
         CancellationToken ct);
 
     Task<bool> TryArchiveAssignmentAsync(Guid assignmentId, CancellationToken ct);
+
+    Task<PolicyPackArchiveAssignmentOutcome> TryArchiveAssignmentWithOutcomeAsync(Guid assignmentId, CancellationToken ct);
 
     Task<bool> TrySoftDeletePackAsync(Guid policyPackId, CancellationToken ct);
 

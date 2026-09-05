@@ -7,6 +7,8 @@ const routing = vi.hoisted(() => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => routing.pathname,
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("next/link", () => ({

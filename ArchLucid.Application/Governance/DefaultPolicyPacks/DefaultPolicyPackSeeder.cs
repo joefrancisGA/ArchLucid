@@ -35,6 +35,7 @@ public sealed class DefaultPolicyPackSeeder(
                 workspaceId,
                 projectId,
                 existing,
+                bundle.PackSlug,
                 bundle.DisplayName,
                 bundle.Description,
                 bundle.ContentJson,
@@ -47,12 +48,13 @@ public sealed class DefaultPolicyPackSeeder(
         Guid workspaceId,
         Guid projectId,
         IReadOnlyList<PolicyPack> existing,
+        string packSlug,
         string displayName,
         string description,
         string contentJson,
         CancellationToken ct)
     {
-        if (HasPlatformPack(existing, displayName))
+        if (HasPlatformPack(existing, packSlug, displayName))
             return;
 
         PolicyPack created = await _managementService
@@ -66,6 +68,8 @@ public sealed class DefaultPolicyPackSeeder(
                     contentJson,
                     ct)
             ;
+
+        created.PackSlug = packSlug;
 
         QualityDimension? qualityDimension = DefaultPolicyPackCatalog.TryResolveBaselineQualityDimension(displayName);
 
@@ -85,6 +89,7 @@ public sealed class DefaultPolicyPackSeeder(
             "1.0.0",
             GovernanceScopeLevel.Project,
             isPinned: false,
+            isOrganizationRequired: false,
             isEnabled: true,
             ct);
 
@@ -96,12 +101,15 @@ public sealed class DefaultPolicyPackSeeder(
                 tenantId);
     }
 
-    private static bool HasPlatformPack(IReadOnlyList<PolicyPack> packs, string displayName)
+    private static bool HasPlatformPack(IReadOnlyList<PolicyPack> packs, string packSlug, string displayName)
     {
         foreach (PolicyPack pack in packs)
         {
             if (!string.Equals(pack.PackType, PolicyPackType.PlatformDefault, StringComparison.Ordinal))
                 continue;
+
+            if (string.Equals(pack.PackSlug, packSlug, StringComparison.OrdinalIgnoreCase))
+                return true;
 
             if (string.Equals(pack.Name, displayName, StringComparison.Ordinal))
                 return true;

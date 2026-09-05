@@ -66,6 +66,7 @@ public sealed class PolicyPackWorkspaceSelectionService(
                     CurrentVersion = pack.CurrentVersion,
                     IsEnabled = assignment.IsEnabled,
                     IsGloballyActive = true,
+                    IsOrganizationRequired = assignment.IsOrganizationRequired,
                 });
         }
 

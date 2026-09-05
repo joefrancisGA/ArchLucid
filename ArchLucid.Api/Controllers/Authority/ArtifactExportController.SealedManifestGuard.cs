@@ -1,7 +1,9 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
@@ -27,6 +29,22 @@ public sealed partial class ArtifactExportController
                 manifest,
                 runIdLabel,
                 manifestHashService);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+
+        return null;
+    }
+
+    private IActionResult? EnsureAuthorityLifecycleCompleteOrConflict(RunDetailDto runDetail, Guid runId)
+    {
+        try
+        {
+            AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(
+                AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(runDetail.Run),
+                runId.ToString("D"));
         }
         catch (ConflictException ex)
         {

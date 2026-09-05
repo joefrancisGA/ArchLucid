@@ -21,7 +21,8 @@
   "advisoryDefaults": {
     "severityFloor": "warning",
     "priorityFloor": "P0",
-    "scanDepth": "standard"
+    "scanDepth": "standard",
+    "expectation.topologyCategories.add": "identity"
   },
   "metadata": {
     "templateId": "cis-azure-foundations-v1",

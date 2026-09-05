@@ -76,6 +76,40 @@ public sealed class CreatePolicyPackRequestValidatorTests
     }
 
     [Fact]
+    public void Whitespace_only_description_fails()
+    {
+        CreatePolicyPackRequest request = new()
+        {
+            Name = "Pack",
+            Description = "   ",
+            PackType = PolicyPackType.TenantCustom,
+            InitialContentJson = "{}",
+        };
+
+        ValidationResult result = _validator.Validate(request);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == nameof(CreatePolicyPackRequest.Description));
+        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("whitespace"));
+    }
+
+    [Fact]
+    public void Empty_description_passes()
+    {
+        CreatePolicyPackRequest request = new()
+        {
+            Name = "Pack",
+            Description = string.Empty,
+            PackType = PolicyPackType.TenantCustom,
+            InitialContentJson = "{}",
+        };
+
+        ValidationResult result = _validator.Validate(request);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
     public void Invalid_initial_json_fails()
     {
         CreatePolicyPackRequest request = new()

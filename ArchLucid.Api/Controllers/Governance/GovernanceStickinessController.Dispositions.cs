@@ -42,6 +42,13 @@ public sealed partial class GovernanceStickinessController
         if (findingIdProblem is not null)
             return findingIdProblem;
 
+        IActionResult? routeFindingIdProblem =
+            GovernanceStickinessHttpMapper.ValidateRecordDispositionRouteFindingId(findingId, body)
+                .ToBadRequestProblemOrNull(this);
+
+        if (routeFindingIdProblem is not null)
+            return routeFindingIdProblem;
+
         IActionResult? runIdProblem = null;
 
         if (body.RunId.HasValue)

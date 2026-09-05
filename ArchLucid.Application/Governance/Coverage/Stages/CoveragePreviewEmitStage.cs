@@ -1,3 +1,4 @@
+using ArchLucid.Application.Governance.Coverage;
 using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Governance.DefaultPolicyPacks;
 using ArchLucid.Contracts.Common;
@@ -27,20 +28,23 @@ public sealed class CoveragePreviewEmitStage : ICoveragePreviewEmitStage
                 continue;
 
             PolicyPackAssignment? assignment = load.AssignmentByPackId.GetValueOrDefault(pack.PolicyPackId);
-            bool included = ResolveIncludedInRunEvaluation(
-                pack.Name,
+            bool included = PolicyPackRunEvaluationScope.IsPackIncludedInRunEvaluation(
+                pack,
                 assignment,
                 input.FocusedPilotModeEnabled,
                 input.CloudProvider);
 
             rows.Add(
-                CreatePreviewRow(
+                ApplyPreviewOverride(
+                    input,
                     pack,
-                    assignment,
-                    CoverageType.ProviderNeutralBaseline,
-                    CoverageSelectionState.AlwaysActive,
-                    included,
-                    qualityDimension: baseline.Value));
+                    CreatePreviewRow(
+                        pack,
+                        assignment,
+                        CoverageType.ProviderNeutralBaseline,
+                        CoverageSelectionState.AlwaysActive,
+                        included,
+                        qualityDimension: baseline.Value)));
 
             seenPackIds.Add(pack.PolicyPackId);
         }
@@ -61,19 +65,20 @@ public sealed class CoveragePreviewEmitStage : ICoveragePreviewEmitStage
             if (!PolicyPackAssignmentOrganizationRequired.IsOrganizationRequired(assignment))
                 continue;
 
-            bool included = ResolveIncludedInRunEvaluation(
-                pack.Name,
-                assignment,
-                input.FocusedPilotModeEnabled,
-                input.CloudProvider);
-
             rows.Add(
-                CreatePreviewRow(
+                ApplyPreviewOverride(
+                    input,
                     pack,
-                    assignment,
-                    CoverageType.OrganizationRequired,
-                    CoverageSelectionState.RequiredAndLocked,
-                    included));
+                    CreatePreviewRow(
+                        pack,
+                        assignment,
+                        CoverageType.OrganizationRequired,
+                        CoverageSelectionState.RequiredAndLocked,
+                        PolicyPackRunEvaluationScope.IsPackIncludedInRunEvaluation(
+                            pack,
+                            assignment,
+                            input.FocusedPilotModeEnabled,
+                            input.CloudProvider))));
 
             seenPackIds.Add(pack.PolicyPackId);
         }
@@ -85,7 +90,7 @@ public sealed class CoveragePreviewEmitStage : ICoveragePreviewEmitStage
                 if (pack.IsDeleted || seenPackIds.Contains(pack.PolicyPackId))
                     continue;
 
-                if (!PlatformOverlayPolicyPacks.IsOverlayDisplayName(pack.Name, input.CloudProvider))
+                if (!PlatformOverlayPolicyPacks.IsOverlayPack(pack, input.CloudProvider))
                     continue;
 
                 PolicyPackAssignment? assignment = load.AssignmentByPackId.GetValueOrDefault(pack.PolicyPackId);
@@ -95,23 +100,24 @@ public sealed class CoveragePreviewEmitStage : ICoveragePreviewEmitStage
                 if (!overlayEnabled && assignment is null)
                     continue;
 
-                bool included = ResolveIncludedInRunEvaluation(
-                    pack.Name,
-                    assignment,
-                    input.FocusedPilotModeEnabled,
-                    input.CloudProvider);
-
                 rows.Add(
-                    CreatePreviewRow(
+                    ApplyPreviewOverride(
+                        input,
                         pack,
-                        assignment,
-                        CoverageType.PlatformOverlay,
-                        CoverageSelectionState.RecommendedAndSelected,
-                        included,
-                        recommendationConfidence: RecommendationConfidence.High,
-                        trigger: "intake.cloud-target",
-                        rationale: $"Cloud target {input.CloudProvider} selects this provider overlay.",
-                        evidenceRef: DraftIntakeQuestionKeys.CloudTarget));
+                        CreatePreviewRow(
+                            pack,
+                            assignment,
+                            CoverageType.PlatformOverlay,
+                            CoverageSelectionState.RecommendedAndSelected,
+                            PolicyPackRunEvaluationScope.IsPackIncludedInRunEvaluation(
+                                pack,
+                                assignment,
+                                input.FocusedPilotModeEnabled,
+                                input.CloudProvider),
+                            recommendationConfidence: RecommendationConfidence.High,
+                            trigger: "intake.cloud-target",
+                            rationale: $"Cloud target {input.CloudProvider} selects this provider overlay.",
+                            evidenceRef: DraftIntakeQuestionKeys.CloudTarget)));
 
                 seenPackIds.Add(pack.PolicyPackId);
             }
@@ -130,25 +136,25 @@ public sealed class CoveragePreviewEmitStage : ICoveragePreviewEmitStage
                 ? CoverageSelectionState.RecommendedAndSelected
                 : CoverageSelectionState.OptionalAndNotSelected;
 
-            bool included = selectionState == CoverageSelectionState.RecommendedAndSelected
-                && ResolveIncludedInRunEvaluation(
-                    pack.Name,
-                    assignment,
-                    input.FocusedPilotModeEnabled,
-                    input.CloudProvider,
-                    contextualHighConfidence: true);
-
             rows.Add(
-                CreatePreviewRow(
+                ApplyPreviewOverride(
+                    input,
                     pack,
-                    assignment,
-                    CoverageType.ContextualRecommended,
-                    selectionState,
-                    included,
-                    recommendationConfidence: recommendation.Confidence,
-                    trigger: recommendation.TriggerKey,
-                    rationale: recommendation.Rationale,
-                    evidenceRef: recommendation.TriggeringEvidenceRef));
+                    CreatePreviewRow(
+                        pack,
+                        assignment,
+                        CoverageType.ContextualRecommended,
+                        selectionState,
+                        selectionState == CoverageSelectionState.RecommendedAndSelected
+                            && PolicyPackRunEvaluationScope.IsPackIncludedInRunEvaluation(
+                                pack,
+                                assignment,
+                                input.FocusedPilotModeEnabled,
+                                input.CloudProvider),
+                        recommendationConfidence: recommendation.Confidence,
+                        trigger: recommendation.TriggerKey,
+                        rationale: recommendation.Rationale,
+                        evidenceRef: recommendation.TriggeringEvidenceRef)));
 
             seenPackIds.Add(pack.PolicyPackId);
         }
@@ -172,12 +178,15 @@ public sealed class CoveragePreviewEmitStage : ICoveragePreviewEmitStage
                     continue;
 
                 rows.Add(
-                    CreatePreviewRow(
+                    ApplyPreviewOverride(
+                        input,
                         pack,
-                        assignment,
-                        CoverageType.AdditionalOptional,
-                        CoverageSelectionState.OptionalAndSelected,
-                        includedInRunEvaluation: true));
+                        CreatePreviewRow(
+                            pack,
+                            assignment,
+                            CoverageType.AdditionalOptional,
+                            CoverageSelectionState.OptionalAndSelected,
+                            includedInRunEvaluation: true)));
 
                 seenPackIds.Add(assignment.PolicyPackId);
             }
@@ -208,6 +217,39 @@ public sealed class CoveragePreviewEmitStage : ICoveragePreviewEmitStage
         };
     }
 
+    private static CoveragePreviewAssignment ApplyPreviewOverride(
+        CoveragePreviewInput input,
+        PolicyPack pack,
+        CoveragePreviewAssignment row)
+    {
+        if (!RunCoverageOverrideApplicator.TryGetPreviewExclusion(
+                pack.PolicyPackId,
+                input.UserOverrides,
+                out string? exclusionReason))
+        {
+            return row;
+        }
+
+        if (row.CoverageType == CoverageType.OrganizationRequired)
+            return row;
+
+        return new CoveragePreviewAssignment
+        {
+            PolicyPackId = row.PolicyPackId,
+            PolicyPackDisplayName = row.PolicyPackDisplayName,
+            PolicyPackVersion = row.PolicyPackVersion,
+            CoverageType = row.CoverageType,
+            SelectionState = CoverageSelectionState.RecommendedButExcluded,
+            RecommendationConfidence = row.RecommendationConfidence,
+            RecommendationTrigger = row.RecommendationTrigger,
+            RecommendationRationale = exclusionReason,
+            TriggeringEvidenceRef = row.TriggeringEvidenceRef,
+            QualityDimension = row.QualityDimension,
+            IncludedInRunEvaluation = false,
+            EvaluationVersion = row.EvaluationVersion,
+        };
+    }
+
     private static CoveragePreviewAssignment CreatePreviewRow(
         PolicyPack pack,
         PolicyPackAssignment? assignment,
@@ -233,31 +275,6 @@ public sealed class CoveragePreviewEmitStage : ICoveragePreviewEmitStage
         IncludedInRunEvaluation = includedInRunEvaluation,
         EvaluationVersion = CoverageEvaluationVersions.PreviewV1,
     };
-
-    private static bool ResolveIncludedInRunEvaluation(
-        string packDisplayName,
-        PolicyPackAssignment? assignment,
-        bool focusedPilotModeEnabled,
-        CloudProvider cloudProvider,
-        bool contextualHighConfidence = false)
-    {
-        if (!focusedPilotModeEnabled)
-        {
-            if (assignment is null)
-                return contextualHighConfidence;
-
-            return assignment.IsEnabled;
-        }
-
-        bool isOrganizationRequired = PolicyPackAssignmentOrganizationRequired.IsOrganizationRequired(assignment);
-        bool isOverlay = PlatformOverlayPolicyPacks.IsOverlayDisplayName(packDisplayName, cloudProvider);
-
-        return FocusedPilotModePolicyPacks.IsPackAllowedInFocusedReview(
-                packDisplayName,
-                isOrganizationRequired,
-                isOverlay)
-            || contextualHighConfidence;
-    }
 
     private static string BuildSummaryLine(
         int baselineCount,

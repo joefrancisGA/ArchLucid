@@ -1,5 +1,7 @@
 namespace ArchLucid.Core.Governance.PolicyPacks;
 
+using ArchLucid.Contracts.Governance.PolicyPacks;
+
 /// <summary>
 ///     Focused first-review scope limits effective governance to the six provider-neutral
 ///     architecture-quality baseline packs (security, reliability, cost, performance, operations, sustainability).
@@ -71,7 +73,7 @@ public static class FocusedPilotModePolicyPacks
     ///     Focused first-review scope: six baseline dimensions plus organization-required packs and selected platform overlays.
     /// </summary>
     public static bool IsPackAllowedInFocusedReview(
-        string? displayName,
+        PolicyPack? pack,
         bool isOrganizationRequired,
         bool isPlatformOverlayForRunCloud)
     {
@@ -81,6 +83,23 @@ public static class FocusedPilotModePolicyPacks
         if (isPlatformOverlayForRunCloud)
             return true;
 
-        return IsAllowedPackDisplayName(displayName);
+        string? slug = PolicyPackIdentity.ResolveSlug(pack);
+
+        if (PolicyPackBundledSlugs.IsFocusedPilotBaselineSlug(slug))
+            return true;
+
+        return IsAllowedPackDisplayName(pack?.Name);
     }
+
+    /// <summary>
+    ///     Focused first-review scope: six baseline dimensions plus organization-required packs and selected platform overlays.
+    /// </summary>
+    public static bool IsPackAllowedInFocusedReview(
+        string? displayName,
+        bool isOrganizationRequired,
+        bool isPlatformOverlayForRunCloud) =>
+        IsPackAllowedInFocusedReview(
+            displayName is null ? null : new PolicyPack { Name = displayName },
+            isOrganizationRequired,
+            isPlatformOverlayForRunCloud);
 }

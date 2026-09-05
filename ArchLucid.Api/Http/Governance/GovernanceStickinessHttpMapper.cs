@@ -98,6 +98,11 @@ public static class GovernanceStickinessHttpMapper
                 ProblemTypes.ValidationFailed);
         }
 
+        GovernanceHttpValidation? expiryValidation = ValidateRiskExceptionExpiry(request.ExpiresAtUtc);
+
+        if (expiryValidation is not null)
+            return expiryValidation;
+
         return null;
     }
 
@@ -150,6 +155,11 @@ public static class GovernanceStickinessHttpMapper
             }
         }
 
+        GovernanceHttpValidation? expiryValidation = ValidateRiskExceptionExpiry(request.ExpiresAtUtc);
+
+        if (expiryValidation is not null)
+            return expiryValidation;
+
         return null;
     }
 
@@ -169,7 +179,14 @@ public static class GovernanceStickinessHttpMapper
                 ProblemTypes.ValidationFailed);
         }
 
-        string name = string.IsNullOrWhiteSpace(request.Name) ? "Recurring architecture review" : request.Name.Trim();
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            return new GovernanceHttpValidation(
+                "name cannot be empty or whitespace.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        string name = request.Name.Trim();
 
         if (name.Length > RecurrenceScheduleValidation.NameMaxLength)
         {
@@ -178,9 +195,14 @@ public static class GovernanceStickinessHttpMapper
                 ProblemTypes.ValidationFailed);
         }
 
-        string cronExpression = string.IsNullOrWhiteSpace(request.CronExpression)
-            ? "0 8 * * 1"
-            : request.CronExpression.Trim();
+        if (string.IsNullOrWhiteSpace(request.CronExpression))
+        {
+            return new GovernanceHttpValidation(
+                "cronExpression cannot be empty or whitespace.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        string cronExpression = request.CronExpression.Trim();
 
         if (cronExpression.Length > RecurrenceScheduleValidation.CronExpressionMaxLength)
         {
@@ -359,6 +381,51 @@ public static class GovernanceStickinessHttpMapper
         if (revisitValidation is not null)
             return revisitValidation;
 
+        GovernanceHttpValidation? optionalEvidenceValidation =
+            ValidateOptionalDispositionFieldWhenNotApplicable(
+                request.EvidenceRequestText,
+                "evidenceRequestText",
+                request.Disposition == FindingDisposition.NeedsEvidence);
+
+        if (optionalEvidenceValidation is not null)
+            return optionalEvidenceValidation;
+
+        GovernanceHttpValidation? optionalTradeOffValidation =
+            ValidateOptionalDispositionFieldWhenNotApplicable(
+                request.TradeOffAcknowledgment,
+                "tradeOffAcknowledgment",
+                request.Disposition == FindingDisposition.Accepted);
+
+        if (optionalTradeOffValidation is not null)
+            return optionalTradeOffValidation;
+
+        GovernanceHttpValidation? optionalRevisitValidation =
+            ValidateOptionalDispositionDateWhenNotApplicable(
+                request.RevisitDueUtc,
+                "revisitDueUtc",
+                request.Disposition == FindingDisposition.Deferred);
+
+        if (optionalRevisitValidation is not null)
+            return optionalRevisitValidation;
+
+        return null;
+    }
+
+    public static GovernanceHttpValidation? ValidateRecordDispositionRouteFindingId(
+        string routeFindingId,
+        RecordFindingDispositionRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        string bodyFindingId = request.FindingId?.Trim() ?? "";
+
+        if (!string.Equals(routeFindingId, bodyFindingId, StringComparison.OrdinalIgnoreCase))
+        {
+            return new GovernanceHttpValidation(
+                "findingId must match the route findingId.",
+                ProblemTypes.ValidationFailed);
+        }
+
         return null;
     }
 
@@ -378,7 +445,7 @@ public static class GovernanceStickinessHttpMapper
             return rationaleValidation;
 
         if (request.Disposition == FindingDisposition.Accepted
-            && !string.IsNullOrWhiteSpace(request.TradeOffAcknowledgment))
+            && request.TradeOffAcknowledgment is not null)
         {
             GovernanceHttpValidation? tradeOffValidation =
                 ValidateRequiredDispositionText(request.TradeOffAcknowledgment, "tradeOffAcknowledgment");
@@ -408,6 +475,33 @@ public static class GovernanceStickinessHttpMapper
 
         if (revisitValidation is not null)
             return revisitValidation;
+
+        GovernanceHttpValidation? optionalEvidenceValidation =
+            ValidateOptionalDispositionFieldWhenNotApplicable(
+                request.EvidenceRequestText,
+                "evidenceRequestText",
+                request.Disposition == FindingDisposition.NeedsEvidence);
+
+        if (optionalEvidenceValidation is not null)
+            return optionalEvidenceValidation;
+
+        GovernanceHttpValidation? optionalTradeOffValidation =
+            ValidateOptionalDispositionFieldWhenNotApplicable(
+                request.TradeOffAcknowledgment,
+                "tradeOffAcknowledgment",
+                request.Disposition == FindingDisposition.Accepted);
+
+        if (optionalTradeOffValidation is not null)
+            return optionalTradeOffValidation;
+
+        GovernanceHttpValidation? optionalRevisitValidation =
+            ValidateOptionalDispositionDateWhenNotApplicable(
+                request.RevisitDueUtc,
+                "revisitDueUtc",
+                request.Disposition == FindingDisposition.Deferred);
+
+        if (optionalRevisitValidation is not null)
+            return optionalRevisitValidation;
 
         return null;
     }
@@ -486,8 +580,15 @@ public static class GovernanceStickinessHttpMapper
 
     private static GovernanceHttpValidation? ValidateOptionalDispositionTextMaxLength(string? value, string fieldName)
     {
-        if (string.IsNullOrWhiteSpace(value))
+        if (value is null)
             return null;
+
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return new GovernanceHttpValidation(
+                $"{fieldName} cannot be empty or whitespace.",
+                ProblemTypes.ValidationFailed);
+        }
 
         if (value.Trim().Length > FindingDispositionValidation.MaximumRationaleLength)
         {
@@ -497,6 +598,39 @@ public static class GovernanceStickinessHttpMapper
         }
 
         return null;
+    }
+
+    private static GovernanceHttpValidation? ValidateOptionalDispositionFieldWhenNotApplicable(
+        string? value,
+        string fieldName,
+        bool fieldApplies)
+    {
+        if (value is null || fieldApplies)
+            return null;
+
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return new GovernanceHttpValidation(
+                $"{fieldName} cannot be empty or whitespace.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return new GovernanceHttpValidation(
+            $"{fieldName} is not applicable for this disposition.",
+            ProblemTypes.ValidationFailed);
+    }
+
+    private static GovernanceHttpValidation? ValidateOptionalDispositionDateWhenNotApplicable(
+        DateTimeOffset? value,
+        string fieldName,
+        bool fieldApplies)
+    {
+        if (value is null || fieldApplies)
+            return null;
+
+        return new GovernanceHttpValidation(
+            $"{fieldName} is not applicable for this disposition.",
+            ProblemTypes.ValidationFailed);
     }
 
     private static GovernanceHttpValidation? ValidateDispositionEnum(FindingDisposition disposition)
@@ -648,4 +782,27 @@ public static class GovernanceStickinessHttpMapper
         string.Equals(buyerConfidenceSource, BuyerDecisionConfidenceSource.EvidenceBacked, StringComparison.OrdinalIgnoreCase)
         || string.Equals(buyerConfidenceSource, BuyerDecisionConfidenceSource.ModelAssisted, StringComparison.OrdinalIgnoreCase)
         || string.Equals(buyerConfidenceSource, BuyerDecisionConfidenceSource.Unknown, StringComparison.OrdinalIgnoreCase);
+
+    private static GovernanceHttpValidation? ValidateRiskExceptionExpiry(DateTimeOffset expiresAtUtc)
+    {
+        DateTimeOffset nowUtc = TimeProvider.System.GetUtcNow();
+
+        if (expiresAtUtc <= nowUtc)
+        {
+            return new GovernanceHttpValidation(
+                "Expiration must be in the future.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        DateTimeOffset maxExpiry = nowUtc.AddDays(RiskExceptionValidation.MaxDurationDays);
+
+        if (expiresAtUtc > maxExpiry)
+        {
+            return new GovernanceHttpValidation(
+                $"Waiver duration cannot exceed {RiskExceptionValidation.MaxDurationDays} days.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
 }

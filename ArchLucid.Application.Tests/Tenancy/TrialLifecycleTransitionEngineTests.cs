@@ -121,6 +121,53 @@ public sealed class TrialLifecycleTransitionEngineTests
     }
 
     [Fact]
+    public async Task TryAdvanceTenantAsync_when_trial_status_is_lowercase_active_advances_on_expiry()
+    {
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset anchor = new(2026, 5, 1, 0, 0, 0, TimeSpan.Zero);
+        TenantRecord tenant = new()
+        {
+            Id = tenantId,
+            Name = "n",
+            Slug = "s",
+            Tier = TenantTier.Standard,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
+            TrialStatus = "active",
+            TrialExpiresUtc = anchor,
+        };
+
+        Mock<ITenantRepository> repo = new();
+        repo.Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+        repo.Setup(r => r.GetFirstWorkspaceAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantWorkspaceLink { WorkspaceId = Guid.NewGuid(), DefaultProjectId = Guid.NewGuid() });
+        repo.Setup(r => r.TryRecordTrialLifecycleTransitionAsync(
+                tenantId,
+                TrialLifecycleStatus.Active,
+                TrialLifecycleStatus.Expired,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        Mock<ITenantHardPurgeService> purge = new();
+        Mock<IAuditService> audit = new();
+
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> opts = new();
+        opts.Setup(m => m.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        TrialLifecycleTransitionEngine engine = new(
+            repo.Object,
+            purge.Object,
+            audit.Object,
+            opts.Object,
+            new FixedUtcTimeProvider(anchor),
+            NullLogger<TrialLifecycleTransitionEngine>.Instance);
+
+        bool ok = await engine.TryAdvanceTenantAsync(tenantId, CancellationToken.None);
+
+        ok.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task TryAdvanceTenantAsync_when_tenant_is_offboarded_does_not_advance_or_purge()
     {
         Guid tenantId = Guid.NewGuid();

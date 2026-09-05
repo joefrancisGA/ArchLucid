@@ -30,4 +30,10 @@ public sealed class CoveragePreviewRequest
         get;
         init;
     }
+
+    public IReadOnlyList<CoveragePreviewUserOverrideRequest>? UserOverrides
+    {
+        get;
+        init;
+    }
 }

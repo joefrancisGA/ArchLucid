@@ -208,6 +208,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
         analysisStagesComplete={props.analysisStagesComplete}
         graphSnapshot={props.graphSnapshot}
         transparencyTrail={props.transparencyTrail ?? null}
+        quickDecisionFindings={props.quickDecisionFindings}
       />
       <FinalizeReadinessStrip
         commitBlockedReason={

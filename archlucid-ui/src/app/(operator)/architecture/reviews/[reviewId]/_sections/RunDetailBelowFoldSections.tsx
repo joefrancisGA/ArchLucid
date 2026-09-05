@@ -38,6 +38,7 @@ import {
   RunDetailArchitectureGraphSectionDeferred,
   RunDetailPostCommitHabitLoopCardDeferred,
 } from "./run-detail-tabbed-deferred-chunks";
+import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
 import type { RunDetailDeferredSectionContext, RunDetailPageModel } from "./run-detail-page-model";
 
 export type RunDetailBelowFoldSectionsProps = {
@@ -99,6 +100,8 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
   const m = props.model;
   const findingCoverageSummary = m.resolvedDetail.findingCoverageSummary ?? null;
   const ownedByAnotherTab = props.renderedInsideTabbedWorkspace === true;
+  const terminalFailure = isReviewPipelineTerminalFailure(m.pipelineDiagnosticContext);
+  const hasSealedRecord = Boolean(m.manifestId);
 
   return (
     <>
@@ -139,15 +142,16 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
         ) : null}
       </GovernanceModePresentationGate>
 
-      {!m.buyerPolishedArtifactTable ? (
+      {!m.buyerPolishedArtifactTable && hasSealedRecord ? (
         <RunDetailProvenanceSummaryCard
           runId={m.routeRunId}
           run={m.resolvedDetail.run}
           engineProvenance={m.resolvedDetail.engineProvenance ?? null}
+          manifestId={m.manifestId}
         />
       ) : null}
 
-      {!m.buyerPolishedArtifactTable ? (
+      {!m.buyerPolishedArtifactTable && hasSealedRecord ? (
         <ReviewChainOfCustodySection
           run={m.resolvedDetail.run}
           manifestId={m.manifestId ?? null}
@@ -156,14 +160,16 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
         />
       ) : null}
 
-      {!m.buyerPolishedArtifactTable ? (
+      {!m.buyerPolishedArtifactTable && hasSealedRecord ? (
         <ReviewCliReproduceSection
           runId={m.resolvedDetail.run.runId}
           ruleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
         />
       ) : null}
 
-      {!m.manifestId ? <RunDetailPreFinalizedEmptyState runId={m.routeRunId} /> : null}
+      {!hasSealedRecord ? (
+        <RunDetailPreFinalizedEmptyState runId={m.routeRunId} terminalFailure={terminalFailure} />
+      ) : null}
 
       {ownedByAnotherTab ? null : (
         <RunDetailManifestSummaryAlerts

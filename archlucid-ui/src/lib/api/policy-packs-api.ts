@@ -24,4 +24,5 @@ export {
   listPolicyPackWorkspaceSelection,
   setPlatformBundledPolicyPackActivation,
   setPolicyPackAssignmentEnabled,
+  setPolicyPackAssignmentOrganizationRequired,
 } from "./policy-packs-api-assign";

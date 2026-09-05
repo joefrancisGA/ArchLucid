@@ -1,13 +1,17 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useId, useRef, useState, type SetStateAction } from "react";
 
 import { palettePressUsesPaletteModifier } from "@/components/CommandPalette";
 import { dispatchOpenCommandPalette } from "@/lib/shortcut-registry";
 import { useGlobalSearchMode, useGlobalSearchRouteLocalQuerySync } from "@/components/use-global-search-mode";
 import { useGlobalSearchResults } from "@/components/use-global-search-results";
 import { useReviewPackageSearchScope } from "@/hooks/use-review-package-search-scope";
+import {
+  globalSearchBarOverlayHrefFromSearch,
+  parseGlobalSearchBarOpenFromSearch,
+} from "@/lib/operator/global-search-bar-overlay-url";
 
 export const OPEN_GLOBAL_SEARCH_EVENT = "archlucid-open-global-search";
 export const FOCUS_GLOBAL_SEARCH_EVENT = "archlucid-focus-global-search";
@@ -17,10 +21,34 @@ export type GlobalSearchBarController = ReturnType<typeof useGlobalSearchBar>;
 export function useGlobalSearchBar() {
   const inputId = useId();
   const router = useRouter();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const globalSearchOpenParam = searchParams.get("globalSearchOpen");
   const inputRef = useRef<HTMLInputElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState("");
-  const [open, setOpen] = useState(false);
+  const [open, setOpenState] = useState(() => parseGlobalSearchBarOpenFromSearch(globalSearchOpenParam));
+
+  const syncGlobalSearchOpenToUrl = useCallback(
+    (panelOpen: boolean) => {
+      router.replace(globalSearchBarOverlayHrefFromSearch(searchParams.toString(), panelOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncGlobalSearchOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncGlobalSearchOpenToUrl],
+  );
 
   const {
     routeLocalSearchMode,
@@ -56,7 +84,7 @@ export function useGlobalSearchBar() {
 
   const closePanel = useCallback(() => {
     setOpen(false);
-  }, []);
+  }, [setOpen]);
 
   useEffect(() => {
     function focusInput(): void {
@@ -91,7 +119,7 @@ export function useGlobalSearchBar() {
       window.removeEventListener(FOCUS_GLOBAL_SEARCH_EVENT, onFocus);
       window.removeEventListener("hashchange", focusFromFindAPageHash);
     };
-  }, []);
+  }, [setOpen]);
 
   useEffect(() => {
     function onDocClick(event: MouseEvent) {
@@ -102,7 +130,7 @@ export function useGlobalSearchBar() {
 
     document.addEventListener("mousedown", onDocClick);
     return () => document.removeEventListener("mousedown", onDocClick);
-  }, []);
+  }, [setOpen]);
 
   const showQuickActions = open && searchResults.trimmedQuery.length < 2 && routeLocalSearchMode === null;
   const packageResultsPanelOpen =
@@ -128,12 +156,12 @@ export function useGlobalSearchBar() {
       setQuery(nextQuery);
       setOpen(routeLocalSearchMode === null || routeLocalSearchMode === "review-detail");
     },
-    [routeLocalSearchMode],
+    [routeLocalSearchMode, setOpen],
   );
 
   const handleInputFocus = useCallback(() => {
     setOpen(routeLocalSearchMode === null ? true : open || routeLocalSearchMode === "review-detail");
-  }, [open, routeLocalSearchMode]);
+  }, [open, routeLocalSearchMode, setOpen]);
 
   const handleInputKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -149,7 +177,7 @@ export function useGlobalSearchBar() {
       setOpen(false);
       dispatchOpenCommandPalette(query);
     },
-    [query],
+    [query, setOpen],
   );
 
   const navigateToRun = useCallback(

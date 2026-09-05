@@ -1769,6 +1769,24 @@ BEGIN
 END
 GO
 
+/* DbUp 354 parity: hasher-bound JSON (Policy, inventory, create-time pins) for sealed ManifestHash round-trip.
+   Resolves the physical table because migration 295 left dbo.GoldenManifests as a synonym. */
+DECLARE @hasherBoundTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.SignedReviewRecords', N'U') IS NOT NULL THEN N'dbo.SignedReviewRecords'
+        WHEN OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL THEN N'dbo.GoldenManifests'
+    END;
+
+IF @hasherBoundTable IS NOT NULL
+   AND COL_LENGTH(@hasherBoundTable, N'HasherBoundJson') IS NULL
+BEGIN
+    DECLARE @addHasherBoundSql NVARCHAR(MAX) =
+        N'ALTER TABLE ' + @hasherBoundTable + N' ADD HasherBoundJson NVARCHAR(MAX) NULL;';
+
+    EXEC sp_executesql @addHasherBoundSql;
+END
+GO
+
 -- Phase-1 relational slices for GoldenManifest (dual-write; other sections remain JSON on dbo.GoldenManifests).
 IF OBJECT_ID(N'dbo.GoldenManifestAssumptions', N'U') IS NULL
 BEGIN
@@ -10629,6 +10647,24 @@ BEGIN
 END
 GO
 
+/* 356/359: Pre-execute coverage acknowledgement JSON (ADR 0064 synonym-safe). */
+DECLARE @acknowledgedCoverageRunTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
+
+DECLARE @acknowledgedCoverageRunSql NVARCHAR(MAX);
+
+IF @acknowledgedCoverageRunTable IS NOT NULL
+   AND COL_LENGTH(@acknowledgedCoverageRunTable, N'AcknowledgedCoverageJson') IS NULL
+BEGIN
+    SET @acknowledgedCoverageRunSql = N'ALTER TABLE ' + @acknowledgedCoverageRunTable + N' ADD AcknowledgedCoverageJson NVARCHAR(MAX) NULL;';
+
+    EXEC sp_executesql @acknowledgedCoverageRunSql;
+END
+GO
+
 /* 334: Platform-scoped operational error inbox for internal staff review (HTTP, database, and unhandled exceptions). */
 IF OBJECT_ID(N'dbo.PlatformOperationalErrors', N'U') IS NULL
 BEGIN
@@ -11712,5 +11748,69 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_AuditEvidenceBaselines_Tenant_Assessment
         ON dbo.AuditEvidenceBaselines (TenantId, AssessmentId, DesignatedUtc DESC);
+END;
+GO
+
+/*
+  353: Human-submitted audit evidence and architecture evidence links (AE-07).
+*/
+
+IF OBJECT_ID(N'dbo.AuditManualEvidenceSubmissions', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AuditManualEvidenceSubmissions
+    (
+        SubmissionId            UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AuditManualEvidenceSubmissions PRIMARY KEY CLUSTERED,
+        TenantId                UNIQUEIDENTIFIER NOT NULL,
+        AssessmentId            UNIQUEIDENTIFIER NOT NULL,
+        ControlId               UNIQUEIDENTIFIER NOT NULL,
+        RequirementId           UNIQUEIDENTIFIER NOT NULL,
+        Owner                   NVARCHAR(256)     NOT NULL,
+        SubmittedBy             NVARCHAR(256)     NOT NULL,
+        SubmittedUtc            DATETIME2         NOT NULL,
+        ApplicablePeriodStartUtc DATETIME2        NULL,
+        ApplicablePeriodEndUtc  DATETIME2         NULL,
+        ExpirationUtc           DATETIME2         NULL,
+        DocumentVersion         NVARCHAR(128)     NULL,
+        DocumentKind            NVARCHAR(128)     NOT NULL,
+        EvidenceHashSha256      VARBINARY(32)     NOT NULL,
+        BlobPointer             NVARCHAR(1024)    NOT NULL,
+        ReviewStatus            INT               NOT NULL,
+        ProvenanceKind          INT               NOT NULL,
+        ItsmProvider            NVARCHAR(64)      NULL,
+        ItsmExternalKey         NVARCHAR(256)     NULL,
+        CONSTRAINT FK_AuditManualEvidenceSubmissions_Assessments FOREIGN KEY (AssessmentId) REFERENCES dbo.AuditAssessments (AssessmentId),
+        CONSTRAINT FK_AuditManualEvidenceSubmissions_Requirements FOREIGN KEY (RequirementId) REFERENCES dbo.AuditEvidenceRequirements (RequirementId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AuditManualEvidenceSubmissions_Tenant_Assessment
+        ON dbo.AuditManualEvidenceSubmissions (TenantId, AssessmentId, SubmittedUtc DESC);
+
+    CREATE NONCLUSTERED INDEX IX_AuditManualEvidenceSubmissions_Tenant_Control
+        ON dbo.AuditManualEvidenceSubmissions (TenantId, AssessmentId, ControlId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AuditArchitectureEvidenceLinks', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AuditArchitectureEvidenceLinks
+    (
+        LinkId                  UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AuditArchitectureEvidenceLinks PRIMARY KEY CLUSTERED,
+        TenantId                UNIQUEIDENTIFIER NOT NULL,
+        AssessmentId            UNIQUEIDENTIFIER NOT NULL,
+        ControlId               UNIQUEIDENTIFIER NOT NULL,
+        RequirementId           UNIQUEIDENTIFIER NOT NULL,
+        RunId                   UNIQUEIDENTIFIER NOT NULL,
+        GoldenManifestId        UNIQUEIDENTIFIER NOT NULL,
+        LinkedBy                NVARCHAR(256)     NOT NULL,
+        LinkedUtc               DATETIME2         NOT NULL,
+        CONSTRAINT FK_AuditArchitectureEvidenceLinks_Assessments FOREIGN KEY (AssessmentId) REFERENCES dbo.AuditAssessments (AssessmentId),
+        CONSTRAINT FK_AuditArchitectureEvidenceLinks_Requirements FOREIGN KEY (RequirementId) REFERENCES dbo.AuditEvidenceRequirements (RequirementId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AuditArchitectureEvidenceLinks_Tenant_Assessment
+        ON dbo.AuditArchitectureEvidenceLinks (TenantId, AssessmentId, LinkedUtc DESC);
+
+    CREATE NONCLUSTERED INDEX IX_AuditArchitectureEvidenceLinks_Tenant_Control
+        ON dbo.AuditArchitectureEvidenceLinks (TenantId, AssessmentId, ControlId);
 END;
 GO

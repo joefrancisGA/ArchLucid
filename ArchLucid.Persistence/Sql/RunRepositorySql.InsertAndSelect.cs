@@ -125,6 +125,7 @@ internal static partial class RunRepositorySql
                                      LastFailureReason = @LastFailureReason,
                                      EngineProvenanceJson = @EngineProvenanceJson,
                                      GovernanceScopeJson = @GovernanceScopeJson,
+                                     AcknowledgedCoverageJson = @AcknowledgedCoverageJson,
                                      ImproveLoopEvidenceJson = @ImproveLoopEvidenceJson,
                                      KnowledgeModelId = @KnowledgeModelId,
                                      PackageOrigin = @PackageOrigin,

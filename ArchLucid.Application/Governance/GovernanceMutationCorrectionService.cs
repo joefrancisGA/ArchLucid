@@ -25,6 +25,7 @@ public sealed class GovernanceMutationCorrectionService(
     IGovernancePromotionRecordRepository promotionRepo,
     IGovernanceEnvironmentActivationRepository activationRepo,
     IFindingReviewTrailRepository findingReviewTrailRepository,
+    IFindingInspectReadRepository findingInspectReadRepository,
     IScopeContextProvider scopeContextProvider,
     IRunRepository runRepository,
     IAuthorityQueryService authorityQueryService,
@@ -43,6 +44,9 @@ public sealed class GovernanceMutationCorrectionService(
 
     private readonly IFindingReviewTrailRepository _findingReviewTrailRepository =
         findingReviewTrailRepository ?? throw new ArgumentNullException(nameof(findingReviewTrailRepository));
+
+    private readonly IFindingInspectReadRepository _findingInspectReadRepository =
+        findingInspectReadRepository ?? throw new ArgumentNullException(nameof(findingInspectReadRepository));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -134,7 +138,7 @@ public sealed class GovernanceMutationCorrectionService(
                 _manifestHashService);
         }
 
-        await ValidateSubjectAsync(mutationKind, subjectId, normalizedRunId, scope, cancellationToken);
+        subjectId = await ValidateSubjectAsync(mutationKind, subjectId, normalizedRunId, scope, cancellationToken);
 
         Guid correctionId = Guid.NewGuid();
         DateTimeOffset recordedAtUtc = TimeProvider.System.GetUtcNow();
@@ -178,7 +182,7 @@ public sealed class GovernanceMutationCorrectionService(
         };
     }
 
-    private async Task ValidateSubjectAsync(
+    private async Task<string> ValidateSubjectAsync(
         string mutationKind,
         string subjectId,
         string normalizedRunId,
@@ -191,51 +195,38 @@ public sealed class GovernanceMutationCorrectionService(
         {
             await ValidateApprovalSubjectAsync(mutationKind, subjectId, normalizedRunId, cancellationToken);
 
-            return;
+            return subjectId;
         }
 
         if (mutationKind == GovernanceMutationCorrectionKinds.WorkflowPromote)
         {
             await ValidatePromotionSubjectAsync(subjectId, normalizedRunId, cancellationToken);
 
-            return;
+            return subjectId;
         }
 
         if (mutationKind == GovernanceMutationCorrectionKinds.WorkflowActivate)
         {
             await ValidateActivationSubjectAsync(subjectId, normalizedRunId, cancellationToken);
 
-            return;
+            return subjectId;
         }
 
         if (mutationKind is GovernanceMutationCorrectionKinds.BulkDisposition
             or GovernanceMutationCorrectionKinds.KeyboardFindingDisposition)
         {
-            await ValidateFindingDispositionSubjectAsync(subjectId, normalizedRunId, scope, cancellationToken);
-
-            return;
+            return await ValidateFindingDispositionSubjectAsync(subjectId, normalizedRunId, scope, cancellationToken);
         }
 
         if (mutationKind == GovernanceMutationCorrectionKinds.ArchitectureReviewFinalize)
         {
-            ValidateArchitectureReviewFinalizeSubject(subjectId, normalizedRunId);
-
-            return;
+            return ValidateArchitectureReviewFinalizeSubject(subjectId, normalizedRunId);
         }
 
         throw new ArgumentException($"Mutation kind '{mutationKind}' does not support in-product correction.", nameof(mutationKind));
     }
 
-    private static void ValidateArchitectureReviewFinalizeSubject(string subjectId, string normalizedRunId)
-    {
-        if (!string.Equals(subjectId, normalizedRunId, StringComparison.OrdinalIgnoreCase))
-        {
-            throw new KeyNotFoundException(
-                $"Review finalize correction subject must match run id '{normalizedRunId}'.");
-        }
-    }
-
-    private async Task ValidateFindingDispositionSubjectAsync(
+    private async Task<string> ValidateFindingDispositionSubjectAsync(
         string findingId,
         string normalizedRunId,
         ScopeContext scope,
@@ -244,8 +235,19 @@ public sealed class GovernanceMutationCorrectionService(
         if (scope.TenantId == Guid.Empty)
             throw new ArgumentException("Tenant id is required.", nameof(scope));
 
+        FindingInspectResponse? finding = await _findingInspectReadRepository.GetInspectAsync(
+            scope,
+            findingId.Trim(),
+            cancellationToken,
+            FindingInspectReadOptions.MetadataOnly);
+
+        if (finding is null)
+            throw new KeyNotFoundException($"Finding '{findingId}' has no recorded disposition to correct.");
+
+        string canonicalFindingId = finding.FindingId;
+
         IReadOnlyList<FindingReviewEventRecord> events =
-            await _findingReviewTrailRepository.ListByFindingAsync(scope.TenantId, findingId, cancellationToken);
+            await _findingReviewTrailRepository.ListByFindingAsync(scope.TenantId, canonicalFindingId, cancellationToken);
 
         Guid? normalizedRunGuid = Guid.TryParse(normalizedRunId, out Guid parsedRunId) ? parsedRunId : null;
 
@@ -258,6 +260,8 @@ public sealed class GovernanceMutationCorrectionService(
 
         if (!hasDispositionForRun)
             throw new KeyNotFoundException($"Finding '{findingId}' has no recorded disposition to correct.");
+
+        return canonicalFindingId;
     }
 
     private async Task ValidateApprovalSubjectAsync(
@@ -299,6 +303,17 @@ public sealed class GovernanceMutationCorrectionService(
 
         if (!found)
             throw new KeyNotFoundException($"Promotion record '{promotionRecordId}' was not found.");
+    }
+
+    private static string ValidateArchitectureReviewFinalizeSubject(string subjectId, string normalizedRunId)
+    {
+        if (!string.Equals(subjectId.Trim(), normalizedRunId, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new KeyNotFoundException(
+                $"Architecture review finalize correction subject '{subjectId}' does not match run '{normalizedRunId}'.");
+        }
+
+        return normalizedRunId;
     }
 
     private async Task ValidateActivationSubjectAsync(

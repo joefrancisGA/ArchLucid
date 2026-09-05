@@ -3,6 +3,8 @@ using ArchLucid.Api.Contracts;
 using ArchLucid.Application.Analysis;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Packaging;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
@@ -146,6 +148,56 @@ public sealed class ArtifactExportControllerRunExportTests
     }
 
     [Fact]
+    public async Task PushRunExportToBlob_returns_409_when_authority_lifecycle_not_complete()
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        ArtifactExportController sut = CreateController(
+            out Mock<IAuthorityQueryService> authority,
+            out Mock<IAuditService> audit,
+            out Mock<IRunExportBlobPushOutboxRepository> outbox,
+            scope);
+
+        authority
+            .Setup(q => q.GetRunDetailAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    GoldenManifestId = Guid.NewGuid(),
+                    LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+                },
+                GoldenManifest = new ManifestDocument { ManifestId = Guid.NewGuid() },
+            });
+
+        IActionResult result = await sut.PushRunExportToBlob(
+            runId,
+            new RunExportBlobPushRequest { DestinationSasUrl = ValidDestination },
+            CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        outbox.Verify(
+            o => o.EnqueueAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task PushRunExportToBlob_enqueues_and_returns_202_when_run_is_exportable()
     {
         Guid runId = Guid.NewGuid();
@@ -166,8 +218,13 @@ public sealed class ArtifactExportControllerRunExportTests
             .Setup(q => q.GetRunDetailAsync(scope, runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunDetailDto
             {
-                Run = new RunRecord { RunId = runId },
-                GoldenManifest = new ArchLucid.Core.Manifest.ManifestDocument { ManifestId = Guid.NewGuid() }
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    GoldenManifestId = Guid.NewGuid(),
+                    LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                },
+                GoldenManifest = new ManifestDocument { ManifestId = Guid.NewGuid() }
             });
 
         IActionResult result = await sut.PushRunExportToBlob(

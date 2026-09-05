@@ -38,7 +38,6 @@ export function RunsDashboardStatusTabLinks(props: RunsDashboardStatusTabLinksPr
         const disabled = props.statusTabCounts[id] === 0 && id !== "all";
         const label = runsDashboardTabLabel(id, props.buyerPolishedShell, props.statusTabCounts[id], {
           homePreviewMode: props.homePreviewMode === true,
-          recentTotalCount: props.statusTabCounts.recentTotalCount,
         });
         const disabledReasonId = `${props.testIdPrefix}-${id}-disabled-reason`;
 

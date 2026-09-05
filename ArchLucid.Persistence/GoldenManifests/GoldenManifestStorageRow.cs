@@ -163,6 +163,15 @@ internal sealed class GoldenManifestStorageRow
     } = null!;
 
     /// <summary>
+    ///     Hasher A fields that are not in the original twelve JSON columns (Policy, inventory, create-time pins).
+    /// </summary>
+    public string? HasherBoundJson
+    {
+        get;
+        init;
+    }
+
+    /// <summary>
     ///     Optional pointer to a JSON blob mirroring the manifest section columns (see
     ///     <c>034_LargeArtifactBlobPointers</c>).
     /// </summary>

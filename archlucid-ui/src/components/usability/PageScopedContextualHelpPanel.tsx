@@ -5,7 +5,8 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { CircleHelp } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type SetStateAction } from "react";
 
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import {
@@ -20,6 +21,11 @@ import {
   shouldShowDrawerSupplementDetail,
   type PageHelpDrawerSupplement,
 } from "@/lib/help/page-help-drawer-supplement";
+import {
+  pageContextualHelpPanelHrefFromSearch,
+  parsePageContextualHelpOpenFromSearch,
+  parsePageContextualHelpSectionFromSearch,
+} from "@/lib/help/page-contextual-help-panel-url";
 import { PAGE_CONTEXTUAL_HELP_TRIGGER_CLASSNAME } from "@/components/usability/page-contextual-help-trigger";
 
 export const OPEN_FULL_HELP_PAGE_LABEL = "Open full help page";
@@ -138,10 +144,42 @@ export function PageScopedContextualHelpPanel({
   supplement,
   sectionId,
 }: PageScopedContextualHelpPanelProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const pageHelpOpenParam = searchParams.get("pageHelpOpen");
+  const pageHelpSectionParam = searchParams.get("pageHelpSection");
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const [open, setOpen] = useState(false);
+  const [open, setOpenState] = useState(() => parsePageContextualHelpOpenFromSearch(pageHelpOpenParam));
   const visibleTriggerText = triggerText ?? triggerLabel;
   const dialogLabel = `Help: ${triggerLabel}`;
+  const resolvedSectionId = (sectionId?.trim() ?? parsePageContextualHelpSectionFromSearch(pageHelpSectionParam)) || null;
+
+  const syncPageHelpToUrl = useCallback(
+    (nextOpen: boolean) => {
+      router.replace(
+        pageContextualHelpPanelHrefFromSearch(
+          searchParams.toString(),
+          { open: nextOpen, sectionId: nextOpen ? resolvedSectionId : null },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, resolvedSectionId, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncPageHelpToUrl(next);
+
+        return next;
+      });
+    },
+    [syncPageHelpToUrl],
+  );
   const taskSteps = entry?.taskSteps;
   const supplementDetail =
     supplement?.detail != null &&
@@ -157,11 +195,15 @@ export function PageScopedContextualHelpPanel({
   const supplementRelatedLinks = dedupeDrawerRelatedLinks(supplement?.relatedLinks, existingActionHrefs);
 
   useEffect(() => {
+    setOpenState(parsePageContextualHelpOpenFromSearch(pageHelpOpenParam));
+  }, [pageHelpOpenParam]);
+
+  useEffect(() => {
     if (!open) {
       return;
     }
 
-    const trimmedSectionId = sectionId?.trim() ?? "";
+    const trimmedSectionId = resolvedSectionId ?? "";
 
     if (trimmedSectionId.length === 0) {
       return;
@@ -190,7 +232,7 @@ export function PageScopedContextualHelpPanel({
     return () => {
       window.cancelAnimationFrame(frame);
     };
-  }, [open, sectionId]);
+  }, [open, resolvedSectionId]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen} modal={false}>

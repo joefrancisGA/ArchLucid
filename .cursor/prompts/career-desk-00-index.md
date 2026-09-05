@@ -3,6 +3,7 @@
      tool (all-day use; livelihoods may depend on the sealed record), not a
      casual evaluator. Wave 5 after WA-01–24 shipped (#1496). Wave 6: all-day-desk-00-index.md (AD-01–12).      Wave 7: founding-desk-00-index.md (FD-01–13).
      Wave 8: instrument-spine-00-index.md (IS-01–15).
+     Wave 9: livelihood-spine-00-index.md (LS-01–12).
      Do not implement from this index. -->
 
 # Career-desk mitigations — Composer prompt set (CD-01–CD-15)
@@ -101,4 +102,4 @@ Prefer **01 → 02 → 03** first (teaching/empty/ADR chrome). Then **05 → 06 
 
 Summarize: files changed, tests run, residual risk, Working vs Guided behavior, whether the **product spine** still works without that prompt. Do not mark LI, LD, RS, or WA as undone.
 
-**Wave 6:** [`all-day-desk-00-index.md`](all-day-desk-00-index.md) (**AD-01–12**). **Wave 7:** [`founding-desk-00-index.md`](founding-desk-00-index.md) (**FD-01–13**). **Wave 8:** [`instrument-spine-00-index.md`](instrument-spine-00-index.md) (**IS-01–15**). Do not fork AD-09 or AD-10.
+**Wave 6:** [`all-day-desk-00-index.md`](all-day-desk-00-index.md) (**AD-01–12**). **Wave 7:** [`founding-desk-00-index.md`](founding-desk-00-index.md) (**FD-01–13**). **Wave 8:** [`instrument-spine-00-index.md`](instrument-spine-00-index.md) (**IS-01–15**). **Wave 9:** [`livelihood-spine-00-index.md`](livelihood-spine-00-index.md) (**LS-01–12**). Do not fork AD-09 or AD-10.

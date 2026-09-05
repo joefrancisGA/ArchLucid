@@ -2,8 +2,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState, type SetStateAction } from "react";
 
 import { KeyboardShortcutBadge } from "@/components/KeyboardShortcutBadge";
 import { Button } from "@/components/ui/button";
@@ -60,6 +60,11 @@ import { CommandPaletteReviewActions } from "@/components/CommandPaletteReviewAc
 import { RunIdQuickOpen } from "@/components/RunIdQuickOpen";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
+import {
+  commandPaletteOverlayHrefFromSearch,
+  parseCommandPaletteOpenFromSearch,
+  parseCommandPaletteQueryFromSearch,
+} from "@/lib/operator/command-palette-overlay-url";
 
 /** Buyer-polished header search: route-aware label for the Ctrl+K command palette trigger. */
 function buyerPolishedCommandPaletteLabel(pathname: string): string {
@@ -108,10 +113,13 @@ export type CommandPaletteProps = {
 };
 
 export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
-  const [open, setOpen] = useState(false);
-  const [paletteQuery, setPaletteQuery] = useState("");
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const paletteOpenParam = searchParams.get("paletteOpen");
+  const paletteQueryParam = searchParams.get("paletteQ");
+  const [open, setOpenState] = useState(() => parseCommandPaletteOpenFromSearch(paletteOpenParam));
+  const [paletteQuery, setPaletteQueryState] = useState(() => parseCommandPaletteQueryFromSearch(paletteQueryParam));
   const auditRunId = useOperatorShellAuditRunId();
   // Tier disclosure retired: palette lists every authority-eligible href (same as sidebar).
   const callerAuthorityRank = useNavCallerAuthorityRank();
@@ -162,6 +170,52 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     roleNavDensityShowFullNav,
   ]);
 
+  const syncCommandPaletteToUrl = useCallback(
+    (nextOpen: boolean, nextQuery: string) => {
+      router.replace(
+        commandPaletteOverlayHrefFromSearch(
+          searchParams.toString(),
+          { open: nextOpen, query: nextQuery },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        const nextQuery = next ? paletteQuery : "";
+        syncCommandPaletteToUrl(next, nextQuery);
+
+        if (!next) {
+          setPaletteQueryState("");
+        }
+
+        return next;
+      });
+    },
+    [paletteQuery, syncCommandPaletteToUrl],
+  );
+
+  const setPaletteQuery = useCallback(
+    (value: SetStateAction<string>) => {
+      setPaletteQueryState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+
+        if (open) {
+          syncCommandPaletteToUrl(true, next);
+        }
+
+        return next;
+      });
+    },
+    [open, syncCommandPaletteToUrl],
+  );
+
   useEffect(() => {
     const pending = consumePendingCommandPaletteOpen();
 
@@ -176,9 +230,13 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     }
 
     setOpen(true);
-  }, []);
+  }, [setOpen, setPaletteQuery]);
 
   useEffect(() => {
+    if (!open) {
+      return;
+    }
+
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key?.toLowerCase() !== "k") {
         return;
@@ -197,7 +255,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     return () => {
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [open]);
+  }, [open, setOpen]);
 
   useEffect(() => {
     const onOpenRequest = (event: Event): void => {
@@ -216,13 +274,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     return () => {
       window.removeEventListener(OPEN_COMMAND_PALETTE_EVENT, onOpenRequest);
     };
-  }, []);
-
-  useEffect(() => {
-    if (!open) {
-      setPaletteQuery("");
-    }
-  }, [open]);
+  }, [setOpen, setPaletteQuery]);
 
   const navigate = useCallback(
     (href: string) => {
@@ -230,7 +282,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
       setOpen(false);
       router.push(href);
     },
-    [router],
+    [router, setOpen],
   );
 
   const polishedPaletteLabel = useMemo(() => buyerPolishedCommandPaletteLabel(pathname ?? ""), [pathname]);
@@ -274,7 +326,12 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
           )}
         </Button>
       ) : null}
-      <CommandDialog open={open} onOpenChange={setOpen} searchValue={paletteQuery} onSearchValueChange={setPaletteQuery}>
+      <CommandDialog
+        open={open}
+        onOpenChange={setOpen}
+        searchValue={paletteQuery}
+        onSearchValueChange={setPaletteQuery}
+      >
         <CommandInput
           placeholder={buyerPolishedShell ? polishedPalettePlaceholder : "Search pages or paste a review ID…"}
         />

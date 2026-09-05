@@ -2,7 +2,8 @@
 
 import DOMPurify from "dompurify";
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type SetStateAction } from "react";
 
 import {
   Dialog,
@@ -20,6 +21,10 @@ import {
   ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL,
   ARCHITECTURE_DIAGRAM_ZOOM_OUT_LABEL,
 } from "@/lib/architecture/architecture-diagram-copy";
+import {
+  architectureDiagramFullscreenHrefFromSearch,
+  parseArchitectureDiagramFullscreenOpenFromSearch,
+} from "@/lib/architecture/architecture-diagram-fullscreen-url";
 import { sanitizeMermaidRenderId } from "@/lib/help/help-mermaid";
 import { useDocumentDarkMode } from "@/lib/use-document-dark-mode";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -38,14 +43,41 @@ export type ArchitectureDiagramViewerProps = {
 /** Interactive architecture diagram canvas with zoom, pan, fullscreen, and accessible fallback text. */
 export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps): React.JSX.Element {
   const { mermaidSource, onRenderFailure } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const diagFullscreenParam = searchParams.get("diagFullscreen");
   const reactId = useId();
   const renderId = useMemo(() => sanitizeMermaidRenderId(`arch-diagram-${reactId}`), [reactId]);
   const dark = useDocumentDarkMode();
   const [svgMarkup, setSvgMarkup] = useState<string | null>(null);
   const [renderError, setRenderError] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
-  const [fullscreenOpen, setFullscreenOpen] = useState(false);
+  const [fullscreenOpen, setFullscreenOpenState] = useState(() =>
+    parseArchitectureDiagramFullscreenOpenFromSearch(diagFullscreenParam),
+  );
   const viewportRef = useRef<HTMLDivElement | null>(null);
+
+  const syncDiagramFullscreenToUrl = useCallback(
+    (nextOpen: boolean) => {
+      router.replace(architectureDiagramFullscreenHrefFromSearch(searchParams.toString(), nextOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setFullscreenOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setFullscreenOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncDiagramFullscreenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncDiagramFullscreenToUrl],
+  );
 
   useEffect(() => {
     let canceled = false;

@@ -102,6 +102,16 @@ public sealed class GoldenManifestPayloadBlobEnvelope
         init;
     } = "";
 
+    /// <summary>
+    ///     Hasher A fields that are not in the original twelve JSON columns. Optional so schema v1 blobs still deserialize.
+    /// </summary>
+    [JsonPropertyName("hasherBoundJson")]
+    public string? HasherBoundJson
+    {
+        get;
+        init;
+    }
+
     public static GoldenManifestPayloadBlobEnvelope FromSerializedSlices(
         string metadataJson,
         string requirementsJson,
@@ -114,7 +124,8 @@ public sealed class GoldenManifestPayloadBlobEnvelope
         string decisionsJson,
         string assumptionsJson,
         string warningsJson,
-        string provenanceJson)
+        string provenanceJson,
+        string? hasherBoundJson = null)
     {
         return new GoldenManifestPayloadBlobEnvelope
         {
@@ -130,7 +141,8 @@ public sealed class GoldenManifestPayloadBlobEnvelope
             DecisionsJson = decisionsJson,
             AssumptionsJson = assumptionsJson,
             WarningsJson = warningsJson,
-            ProvenanceJson = provenanceJson
+            ProvenanceJson = provenanceJson,
+            HasherBoundJson = hasherBoundJson
         };
     }
 
@@ -146,7 +158,8 @@ public sealed class GoldenManifestPayloadBlobEnvelope
         string decisionsJson,
         string assumptionsJson,
         string warningsJson,
-        string provenanceJson)
+        string provenanceJson,
+        string? hasherBoundJson = null)
     {
         return metadataJson.Length
                + requirementsJson.Length
@@ -159,7 +172,8 @@ public sealed class GoldenManifestPayloadBlobEnvelope
                + decisionsJson.Length
                + assumptionsJson.Length
                + warningsJson.Length
-               + provenanceJson.Length;
+               + provenanceJson.Length
+               + (hasherBoundJson?.Length ?? 0);
     }
 
     public string ToJson()
@@ -217,6 +231,7 @@ public sealed class GoldenManifestPayloadBlobEnvelope
             AssumptionsJson = envelope.AssumptionsJson,
             WarningsJson = envelope.WarningsJson,
             ProvenanceJson = envelope.ProvenanceJson,
+            HasherBoundJson = envelope.HasherBoundJson ?? row.HasherBoundJson,
             ManifestPayloadBlobUri = row.ManifestPayloadBlobUri,
             ContractManifestVersion = row.ContractManifestVersion
         };

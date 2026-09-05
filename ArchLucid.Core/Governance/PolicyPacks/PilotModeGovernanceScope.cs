@@ -27,16 +27,27 @@ public readonly struct PilotModeGovernanceScope : IDisposable
 
     /// <summary>
     ///     Activates focused pilot governance when <paramref name="policyReferences" /> includes
-    ///     <see cref="FocusedPilotModePolicyPacks.ReferenceToken" />; otherwise returns a no-op disposable.
+    ///     <see cref="FocusedPilotModePolicyPacks.ReferenceToken" />; otherwise pins only the run cloud target when known.
     /// </summary>
     public static IDisposable BeginFromPolicyReferences(
         IEnumerable<string>? policyReferences,
         CloudProvider cloudProvider = CloudProvider.None)
     {
-        if (!FocusedPilotModePolicyPacks.ReferencesIncludeFocusedPilotToken(policyReferences))
-            return NoOpDisposable.Instance;
+        if (FocusedPilotModePolicyPacks.ReferencesIncludeFocusedPilotToken(policyReferences))
+            return Begin(cloudProvider);
 
-        return Begin(cloudProvider);
+        if (cloudProvider != CloudProvider.None)
+            return BeginCloudTarget(cloudProvider);
+
+        return NoOpDisposable.Instance;
+    }
+
+    /// <summary>Pins the run cloud target for applicability filtering without enabling focused pilot mode.</summary>
+    public static IDisposable BeginCloudTarget(CloudProvider cloudProvider)
+    {
+        RunCloudProvider.Value = cloudProvider;
+
+        return CloudTargetScope.Instance;
     }
 
     /// <inheritdoc />
@@ -52,6 +63,16 @@ public readonly struct PilotModeGovernanceScope : IDisposable
 
         public void Dispose()
         {
+        }
+    }
+
+    private sealed class CloudTargetScope : IDisposable
+    {
+        internal static readonly CloudTargetScope Instance = new();
+
+        public void Dispose()
+        {
+            RunCloudProvider.Value = CloudProvider.None;
         }
     }
 }

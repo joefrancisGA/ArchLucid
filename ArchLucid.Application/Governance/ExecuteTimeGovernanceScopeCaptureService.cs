@@ -1,7 +1,7 @@
 using System.Text.Json;
 
-using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance.Coverage;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Governance.Coverage;
 using ArchLucid.Contracts.Governance.Resolution;
@@ -89,6 +89,12 @@ public sealed class ExecuteTimeGovernanceScopeCaptureService(
         if (!string.IsNullOrWhiteSpace(header.GovernanceScopeJson))
             return;
 
+        RunAcknowledgedCoverageDocument? acknowledgedCoverage =
+            RunAcknowledgedCoverageJson.TryDeserialize(header.AcknowledgedCoverageJson);
+
+        IReadOnlyDictionary<Guid, RunCoverageAcknowledgementEntry> acknowledgementMap =
+            RunCoverageOverrideApplicator.ToAcknowledgementMap(acknowledgedCoverage);
+
         EffectiveGovernanceSnapshotResolution resolution = await _snapshotBuilder.ResolveAsync(
             scope,
             request,
@@ -98,7 +104,8 @@ public sealed class ExecuteTimeGovernanceScopeCaptureService(
             preloadedScopePolicyPackAssignments:
                 RunHeaderPinnedPolicyPackAssignmentFactory.ResolveCommitTimeAssignmentsOrThrow(header, scope),
             cancellationToken,
-            _policyPackVersionRepository).ConfigureAwait(false);
+            _policyPackVersionRepository,
+            acknowledgementMap).ConfigureAwait(false);
 
         ExecutedEffectiveGovernanceSnapshotDescriptor snapshot = new()
         {
