@@ -1,6 +1,7 @@
 using System.Text;
 
 using ArchLucid.Application.InfraEvidence.Branding;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Roi;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
@@ -121,12 +122,21 @@ public sealed class FirstValueReportBuilder(
 
             if (Guid.TryParse(runId.Trim(), out Guid runGuid))
             {
+                ScopeContext exportScope = _scopeProvider.GetCurrentScope();
+
+                await RunExportSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                    runId.Trim(),
+                    exportScope,
+                    _authorityQueryService,
+                    _manifestHashService,
+                    cancellationToken);
+
                 await ManifestDecisionReceiptExportBinder.EnsureSealedExportReceiptVerifiedOrThrowAsync(
                     runGuid,
                     runId.Trim(),
                     _authorityQueryService,
                     _manifestHashService,
-                    _scopeProvider.GetCurrentScope(),
+                    exportScope,
                     cancellationToken);
             }
         }

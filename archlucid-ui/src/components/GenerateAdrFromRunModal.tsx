@@ -41,6 +41,7 @@ export function GenerateAdrFromRunModal({ input, buyerPolished = false }: Genera
   const [open, setOpenState] = useState(() => parseReviewGenerateAdrOpenFromSearch(adrOpenParam));
   const [markdown, setMarkdown] = useState<string>("");
   const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState<string | null>(null);
 
   const syncAdrOpenToUrl = useCallback(
     (nextOpen: boolean) => {
@@ -74,6 +75,7 @@ export function GenerateAdrFromRunModal({ input, buyerPolished = false }: Genera
       if (next) {
         seedFromInput();
         setCopied(false);
+        setCopyError(null);
       }
     },
     [seedFromInput],
@@ -86,8 +88,11 @@ export function GenerateAdrFromRunModal({ input, buyerPolished = false }: Genera
     });
 
     if (blockedReason !== null) {
+      setCopyError(blockedReason);
       return;
     }
+
+    setCopyError(null);
 
     try {
       await navigator.clipboard.writeText(markdown);
@@ -96,9 +101,9 @@ export function GenerateAdrFromRunModal({ input, buyerPolished = false }: Genera
         setCopied(false);
       }, 2_000);
     } catch {
-      /* clipboard unavailable */
+      setCopyError("Clipboard unavailable — select the Markdown above and copy manually.");
     }
-  }, [markdown]);
+  }, [input.manifestStatusLabel, input.runId, markdown]);
 
   const onDownload = useCallback(() => {
     const blockedReason = runCollateralSealedManifestCopyBlockedReason({
@@ -107,8 +112,11 @@ export function GenerateAdrFromRunModal({ input, buyerPolished = false }: Genera
     });
 
     if (blockedReason !== null) {
+      setCopyError(blockedReason);
       return;
     }
+
+    setCopyError(null);
 
     const blob = new Blob([markdown], { type: "text/markdown;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -169,6 +177,15 @@ export function GenerateAdrFromRunModal({ input, buyerPolished = false }: Genera
                 Download .md
               </Button>
             </div>
+            {copyError !== null ? (
+              <p
+                role="alert"
+                className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="generate-adr-copy-error"
+              >
+                {copyError}
+              </p>
+            ) : null}
           </DialogFooter>
         </DialogContent>
       </Dialog>

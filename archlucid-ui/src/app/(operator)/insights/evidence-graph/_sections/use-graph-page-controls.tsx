@@ -24,6 +24,7 @@ export function useGraphPageControls(state: GraphPageState) {
     showOperatorControls,
     graphMainColumnMaxClass,
     runId,
+    sealedManifestVersionForExport,
     handleRunIdChange,
     mode,
     setMode,
@@ -177,6 +178,7 @@ export function useGraphPageControls(state: GraphPageState) {
             onTypeFilterChange={handleTypeFilterChange}
             nodeTypes={nodeTypes}
             runId={runId}
+            manifestVersion={sealedManifestVersionForExport}
             mode={mode}
             onModeChange={setMode}
             loading={loading}

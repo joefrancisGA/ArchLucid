@@ -121,6 +121,7 @@ function ReviewFailureAdminHandoffPanel(props: {
 }): React.JSX.Element {
   const { adminHandoff, runId, manifestVersion } = props;
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
+  const [blockedReason, setBlockedReason] = useState<string | null>(null);
 
   useEffect(() => {
     if (copyState !== "copied") {
@@ -137,18 +138,22 @@ function ReviewFailureAdminHandoffPanel(props: {
   }, [copyState]);
 
   async function onCopyHandoff(): Promise<void> {
-    const blockedReason = runCollateralSealedManifestCopyBlockedReason({ runId, manifestVersion });
+    const blocked = runCollateralSealedManifestCopyBlockedReason({ runId, manifestVersion });
 
-    if (blockedReason !== null) {
+    if (blocked !== null) {
+      setBlockedReason(blocked);
       setCopyState("failed");
       return;
     }
+
+    setBlockedReason(null);
 
     try {
       await navigator.clipboard.writeText(adminHandoff.markdown);
       setCopyState("copied");
     } catch {
       setCopyState("failed");
+      setBlockedReason("Clipboard unavailable — select the text above and copy manually.");
     }
   }
 
@@ -186,7 +191,7 @@ function ReviewFailureAdminHandoffPanel(props: {
         </Button>
         {copyState === "failed" ? (
           <span className={cn("text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
-            Clipboard unavailable — select the text above and copy manually.
+            {blockedReason ?? "Clipboard unavailable — select the text above and copy manually."}
           </span>
         ) : null}
       </div>
