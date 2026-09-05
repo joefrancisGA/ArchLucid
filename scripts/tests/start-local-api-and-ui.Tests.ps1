@@ -82,4 +82,19 @@ Describe 'start-local-api-and-ui.helpers.ps1' {
 
         $command | Should -Match "Set-Location -LiteralPath 'C:\\O''Brien\\ArchLucid'"
     }
+
+    It 'builds the UI window command with Internal nav env for local engineer shells' {
+        [string]$command = Get-LocalUiWindowCommand -UiRoot 'C:\ArchLucid\archlucid-ui'
+
+        $command | Should -Match "Set-Location -LiteralPath 'C:\\ArchLucid\\archlucid-ui'"
+        $command | Should -Match '\$env:NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV = ''true'''
+        $command | Should -Match '\$env:NEXT_PUBLIC_OPERATOR_EXPERIENCE = ''operator'''
+        $command | Should -Match 'npm run dev'
+    }
+
+    It 'doubles apostrophes in the UI root for the spawned window command' {
+        [string]$command = Get-LocalUiWindowCommand -UiRoot "C:\O'Brien\archlucid-ui"
+
+        $command | Should -Match "Set-Location -LiteralPath 'C:\\O''Brien\\archlucid-ui'"
+    }
 }
