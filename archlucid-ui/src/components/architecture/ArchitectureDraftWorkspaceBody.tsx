@@ -3,6 +3,7 @@
 import { type Dispatch, type SetStateAction } from "react";
 import dynamic from "next/dynamic";
 
+import { ArchitectureDraftHandoffPanel } from "@/components/architecture/ArchitectureDraftHandoffPanel";
 import { ArchitectureDraftDetailLoadFailure } from "@/components/architecture/ArchitectureDraftDetailLoadFailure";
 import { ArchitectureDraftWorkspaceHeaderChrome } from "@/components/architecture/ArchitectureDraftWorkspaceHeaderChrome";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
@@ -136,8 +137,11 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
     editorLocked,
     handoffEditorLocked,
     blocksLlmExecution,
+    architectureId,
+    workspaceHeading,
     effectiveArchitectureId,
     linkedReviewId,
+    linkedReviewTitle,
     reviewReadiness,
     setActorSuggestionsUnresolved,
     actorSuggestionGateRequestId,
@@ -187,6 +191,21 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
             Back to architectures list
           </Link>
         </div>
+      </div>
+    );
+  }
+
+  if (isWorkingMode && handoffEditorLocked && linkedReviewId !== null) {
+    return (
+      <div className="space-y-4" data-testid="architecture-draft-workspace">
+        <ArchitectureDraftWorkspaceHeaderChrome {...props} />
+        <ArchitectureDraftHandoffPanel
+          architectureId={architectureId}
+          workspaceHeading={workspaceHeading}
+          linkedReviewId={linkedReviewId}
+          linkedReviewTitle={linkedReviewTitle}
+          fields={fields}
+        />
       </div>
     );
   }
