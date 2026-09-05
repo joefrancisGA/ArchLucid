@@ -10,6 +10,10 @@ export type TransparencyTrailPanelProps = {
   readonly missingTrailDefect?: boolean;
   /** Working mode keeps the trail expanded; Guided collapses behind a disclosure. */
   readonly defaultExpanded?: boolean;
+  /** Controlled disclosure open state when `defaultExpanded` is false. */
+  readonly detailsOpen?: boolean;
+  /** Called when the guided-mode disclosure open state changes. */
+  readonly onDetailsOpenChange?: (open: boolean) => void;
 };
 
 function MustSkippedEntries(trail: TransparencyTrail): TransparencyTrail["skipped"] {
@@ -106,10 +110,27 @@ export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): Reac
   );
 
   if (!defaultExpanded) {
+    const detailsOpen = props.detailsOpen;
+    const onDetailsOpenChange = props.onDetailsOpenChange;
+    const isControlled = detailsOpen !== undefined;
+
     return (
       <details
         className={cn("rounded-md border border-neutral-200 p-4 dark:border-neutral-800", props.className)}
         data-testid="transparency-trail-panel"
+        open={isControlled ? detailsOpen : undefined}
+        onToggle={(event) => {
+          const nextOpen = (event.currentTarget as HTMLDetailsElement).open;
+
+          if (isControlled) {
+            event.preventDefault();
+            onDetailsOpenChange?.(!detailsOpen);
+
+            return;
+          }
+
+          onDetailsOpenChange?.(nextOpen);
+        }}
       >
         <summary className={cn("cursor-pointer font-semibold", OPERATOR_TYPOGRAPHY.sectionTitle)}>
           Transparency trail

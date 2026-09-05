@@ -64,6 +64,18 @@ vi.mock("@/lib/execution-mode-top-bar-chip", async (importOriginal) => {
   };
 });
 
+const navigationMock = vi.hoisted(() => ({
+  pathname: "/",
+  replace: vi.fn(),
+  search: "",
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => navigationMock.pathname,
+  useRouter: () => ({ replace: navigationMock.replace }),
+  useSearchParams: () => new URLSearchParams(navigationMock.search),
+}));
+
 describe("SimulatorModeTopBarChip", () => {
   it("renders an explicit analysis-mode button in development", () => {
     modeState.mode = "Simulator";

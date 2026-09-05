@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -9,6 +10,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type SetStateAction,
 } from "react";
 
 import {
@@ -29,6 +31,11 @@ import {
   type ProvenanceNodeFilterCategory,
   provenanceNodeMatchesFilter,
 } from "@/lib/provenance-node-presentation";
+import {
+  parseProvGraphExpandedFromSearch,
+  parseProvGraphLegendOpenFromSearch,
+  provenanceGraphViewportHrefFromSearch,
+} from "@/lib/provenance/provenance-graph-viewport-url";
 import type { ArchitectureLinkageEdge, ArchitectureLinkageNode } from "@/types/architecture-provenance";
 
 function prefersReducedMotion(): boolean {
@@ -50,15 +57,94 @@ export type UseProvenanceGraphViewportOptions = {
   readonly onHighlightEdge: (edgeId: string | null) => void;
 };
 
+function resolveInitialLegendOpen(raw: string | null | undefined): boolean {
+  const parsed = parseProvGraphLegendOpenFromSearch(raw);
+
+  if (parsed === null) {
+    return true;
+  }
+
+  return parsed;
+}
+
 export function useProvenanceGraphViewport(props: UseProvenanceGraphViewportOptions) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const provGraphLegendOpenParam = searchParams.get("provGraphLegendOpen");
+  const provGraphExpandedParam = searchParams.get("provGraphExpanded");
   const containerRef = useRef<HTMLDivElement | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const markerId = useId().replace(/:/g, "");
   const [containerSize, setContainerSize] = useState({ width: 0, height: PROVENANCE_GRAPH_MIN_HEIGHT_PX });
   const [transform, setTransform] = useState<ProvenanceViewportTransform>({ scale: 1, translateX: 0, translateY: 0 });
   const [layoutReady, setLayoutReady] = useState(false);
-  const [legendOpen, setLegendOpen] = useState(true);
-  const [expanded, setExpanded] = useState(false);
+  const [legendOpen, setLegendOpenState] = useState(() => resolveInitialLegendOpen(provGraphLegendOpenParam));
+  const [expanded, setExpandedState] = useState(() => parseProvGraphExpandedFromSearch(provGraphExpandedParam));
+
+  const syncLegendOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        provenanceGraphViewportHrefFromSearch(
+          searchParams.toString(),
+          { legendOpen: open, expanded, syncLegend: true },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [expanded, pathname, router, searchParams],
+  );
+
+  const syncExpandedToUrl = useCallback(
+    (nextExpanded: boolean) => {
+      router.replace(
+        provenanceGraphViewportHrefFromSearch(
+          searchParams.toString(),
+          { legendOpen, expanded: nextExpanded, syncLegend: false },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [legendOpen, pathname, router, searchParams],
+  );
+
+  const setLegendOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setLegendOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncLegendOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncLegendOpenToUrl],
+  );
+
+  const setExpanded = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setExpandedState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncExpandedToUrl(next);
+
+        return next;
+      });
+    },
+    [syncExpandedToUrl],
+  );
+
+  useEffect(() => {
+    if (provGraphLegendOpenParam === null) {
+      return;
+    }
+
+    setLegendOpenState(resolveInitialLegendOpen(provGraphLegendOpenParam));
+  }, [provGraphLegendOpenParam]);
+
+  useEffect(() => {
+    setExpandedState(parseProvGraphExpandedFromSearch(provGraphExpandedParam));
+  }, [provGraphExpandedParam]);
   const [isPanning, setIsPanning] = useState(false);
   const panOrigin = useRef<{ x: number; y: number; transform: ProvenanceViewportTransform } | null>(null);
   const fitScheduled = useRef(false);
