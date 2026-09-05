@@ -3,10 +3,10 @@
 import Link from "next/link";
 
 import { OperatorHomeDeferredOnboarding } from "@/components/operator-home/OperatorHomeDeferredOnboarding";
-import { OperatorHomeContinueLastReviewPackageSection } from "@/components/operator-home/OperatorHomeContinueLastReviewPackageSection";
-import { OperatorHomeInFlightReviewsSection } from "@/components/operator-home/OperatorHomeInFlightReviewsSection";
+import { OperatorHomeInFlightSection } from "@/components/operator-home/OperatorHomeInFlightSection";
 import { UnfinishedWorkRail } from "@/components/operator-home/UnfinishedWorkRail";
 import { OperatorHomeWorkspaceMetricsStrip } from "@/components/operator-home/OperatorHomeWorkspaceMetricsStrip";
+import { OperatorHomeWorkspaceActivityProvider } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { OperatorHomeCompactStartingActionsSection } from "@/components/operator-home/OperatorHomeCompactStartingActionsSection";
 import { OperatorAttentionKindStrip } from "@/components/operator/OperatorAttentionKindStrip";
 import {
@@ -22,6 +22,7 @@ import {
 } from "@/lib/design-tokens";
 import { BUYER_RUNS_DASHBOARD_OPEN_ALL_REVIEWS_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { deriveOperatorHomeTenantCountingSnapshot } from "@/lib/operator/operator-home-tenant-counting";
 import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
 import { deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns } from "@/lib/resolve-operator-home-workspace-phase";
 import { OperatorHomeRefreshProvider } from "@/lib/operator/operator-home-refresh-context";
@@ -148,11 +149,8 @@ function renderOperatorHomeSection(input: RenderOperatorHomeSectionInput): React
 
     case "in-flight":
       return (
-        <div key={input.section.id} data-testid={input.section.testId} className={OPERATOR_LAYOUT.sectionStack}>
-          {input.workingMode ? (
-            <OperatorHomeContinueLastReviewPackageSection runs={input.model.runsDashboard.items} />
-          ) : null}
-          <OperatorHomeInFlightReviewsSection />
+        <div key={input.section.id} data-testid={input.section.testId}>
+          {input.workingMode ? <OperatorHomeInFlightSection runs={input.model.runsDashboard.items} /> : null}
         </div>
       );
 
@@ -223,10 +221,10 @@ function OperatorHomePageBody(props: {
   readonly buyerPolishedShell: boolean;
   readonly workingMode: boolean;
 }): React.JSX.Element {
-  const workspaceMetrics = deriveOperatorHomeWorkspaceMetrics(
-    props.model.runsDashboard.items,
-    props.model.runsDashboard.totalCount,
-  );
+  const workspaceMetrics = deriveOperatorHomeTenantCountingSnapshot({
+    displayItems: props.model.runsDashboard.items,
+    previewItems: props.model.runsDashboard.items,
+  }).metrics;
   const overviewPhaseSignals = deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns(
     props.model.runsDashboard.items,
     props.model.runsDashboard.totalCount,
@@ -283,7 +281,7 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
             {OPERATOR_HOME_SKIP_LINK_LABEL}
           </a>
         ) : null}
-        <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.majorSectionGap}>
+        <OperatorPageContainer variant="dashboard" className="space-y-4">
           <OperatorHomePageChrome buyerPolishedShell={evalChromeShell} workingMode={isWorkingMode} />
           {evalChromeShell ? (
             <div

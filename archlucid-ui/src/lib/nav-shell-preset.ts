@@ -6,7 +6,7 @@ import {
   isOperatorExperienceFullShellEnv,
 } from "@/lib/demo-ui-env";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
-import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
+import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
 import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
@@ -140,7 +140,7 @@ export function applyNavShellPresetPackagingFilter(
 export function isSystemAdministrationNavGroupVisible(
   presetId: NavShellPresetId = resolveNavShellPresetId(),
 ): boolean {
-  if (!isShowSystemAdministrationNavEnabled()) {
+  if (!isArchLucidInternalOperatorShellEnv()) {
     return false;
   }
 

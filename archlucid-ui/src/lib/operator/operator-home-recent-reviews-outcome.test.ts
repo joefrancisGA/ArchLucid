@@ -73,7 +73,7 @@ describe("formatOperatorHomeRecentReviewsOutcome", () => {
     };
 
     expect(formatOperatorHomeRecentReviewsOutcome(metrics)).toBe(
-      "2 finalized · 1 active · 6 open findings · 1 with approval-check warnings",
+      "2 finalized · 1 active · 6 open findings · with 1 approval-check warning",
     );
   });
 
@@ -97,6 +97,8 @@ describe("deriveHomePreviewTabCounts", () => {
     });
 
     expect(counts.all).toBe(2);
+    expect(counts.recentVisibleCount).toBe(2);
+    expect(counts.recentTotalCount).toBe(3);
     expect(counts.approved).toBe(0);
   });
 });

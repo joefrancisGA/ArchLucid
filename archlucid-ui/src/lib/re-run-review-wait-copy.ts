@@ -1,6 +1,5 @@
 import {
   buildLongOperationWaitCopy,
-  formatLongOperationQueueStatusLine,
   LONG_OPERATION_HOME_PAGE_STATUS_HINT,
   LONG_OPERATION_QUEUE_STATUS_REFRESH_HINT,
   LONG_OPERATION_TIMEOUT_HINT_MS,
@@ -22,7 +21,7 @@ const STALE_QUEUED_STEP_LABELS = new Set(["Queued", "Execute failed", "In progre
 export type ReRunReviewRunningProgressCopy = LongOperationWaitCopy & {
   readonly heartbeatLine: string | null;
   readonly stalled: boolean;
-  readonly queueStatusLine: string;
+  readonly queueStatusStageLabel: string;
   readonly statusRefreshHint: string;
   readonly homePageHint: string;
 };
@@ -121,7 +120,7 @@ export function buildReRunReviewRunningProgressCopy(args: {
     detail,
     heartbeatLine,
     stalled,
-    queueStatusLine: formatLongOperationQueueStatusLine(stageLabel),
+    queueStatusStageLabel: stageLabel,
     statusRefreshHint: LONG_OPERATION_QUEUE_STATUS_REFRESH_HINT,
     homePageHint: LONG_OPERATION_HOME_PAGE_STATUS_HINT,
   };

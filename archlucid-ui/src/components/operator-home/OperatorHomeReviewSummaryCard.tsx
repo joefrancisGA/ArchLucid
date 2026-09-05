@@ -199,6 +199,7 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
           <div className="min-w-0 flex-1 space-y-1">
             <Link
               href={props.href}
+              title={title}
               className={cn("line-clamp-2 min-w-0", OPERATOR_LINK.nav, OPERATOR_TYPE_SCALE.cardTitle)}
             >
               {title}
@@ -209,6 +210,7 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
                 label={statusTag.label}
                 data-testid={`run-home-status-tag-${props.run.runId}`}
               />
+              {isExampleReview ? <DemoDataBadge /> : null}
               {updatedLabel !== null ? (
                 <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>
                   {updatedLabel}
@@ -218,7 +220,7 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
             <ArchitecturePackageOriginMetadataLine run={props.run} buyerPolishedShell={props.buyerPolishedShell} />
           </div>
           <Link href={props.href} className={cn("shrink-0 font-medium", OPERATOR_LINK.optional)}>
-            Open →
+            Open
           </Link>
         </div>
       </article>

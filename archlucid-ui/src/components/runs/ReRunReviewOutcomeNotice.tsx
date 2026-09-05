@@ -2,6 +2,7 @@
 
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { OperatorWarningCallout } from "@/components/operator/OperatorShellMessage";
+import { LongOperationQueueStatusLine } from "@/components/operations/LongOperationQueueStatusLine";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReRunReviewOutcomePhase } from "@/lib/re-run-review-outcome-copy";
 import type { ReRunReviewRunningProgressCopy } from "@/lib/re-run-review-wait-copy";
@@ -73,13 +74,12 @@ export function ReRunReviewOutcomeNotice(props: ReRunReviewOutcomeNoticeProps): 
       aria-busy="true"
     >
       <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{runningHeadline}</p>
-      {runningProgress?.queueStatusLine !== undefined ? (
-        <p
-          className={cn("m-0 mt-2 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
-          data-testid="re-run-review-queue-status"
-        >
-          {runningProgress.queueStatusLine}
-        </p>
+      {runningProgress?.queueStatusStageLabel !== undefined ? (
+        <LongOperationQueueStatusLine
+          className="mt-2"
+          stageLabel={runningProgress.queueStatusStageLabel}
+          testId="re-run-review-queue-status"
+        />
       ) : null}
       {runningProgress?.statusRefreshHint !== undefined ? (
         <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
