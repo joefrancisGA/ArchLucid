@@ -66,6 +66,7 @@ public sealed class AuditControlEvaluationServiceTests
             requirementRepository.Object,
             BuildRegistry(),
             evaluationRepository,
+            Mock.Of<IAuditEvidenceSnapshotRepository>(),
             NullLogger<AuditControlEvaluationService>.Instance);
 
         AuditControlEvaluationResult result = await service.TryEvaluateControlAsync(

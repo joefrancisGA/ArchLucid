@@ -304,6 +304,43 @@ public sealed class SqlAuditEvidenceSnapshotRepository(ISqlConnectionFactory con
                 cancellationToken: cancellationToken));
     }
 
+    public async Task UpdateItemFreshnessAsync(
+        Guid tenantId,
+        Guid auditEvidenceSnapshotId,
+        IReadOnlyList<AuditEvidenceFreshnessItemUpdate> updates,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(updates);
+
+        if (updates.Count == 0)
+            return;
+
+        const string sql = """
+                           UPDATE dbo.AuditEvidenceSnapshotItems
+                           SET FreshnessStatus = @FreshnessStatus
+                           WHERE TenantId = @TenantId
+                             AND AuditEvidenceSnapshotId = @AuditEvidenceSnapshotId
+                             AND EvidenceRowId = @EvidenceRowId;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        foreach (AuditEvidenceFreshnessItemUpdate update in updates)
+        {
+            await conn.ExecuteAsync(
+                new CommandDefinition(
+                    sql,
+                    new
+                    {
+                        TenantId = tenantId,
+                        AuditEvidenceSnapshotId = auditEvidenceSnapshotId,
+                        update.EvidenceRowId,
+                        FreshnessStatus = (int)update.FreshnessStatus,
+                    },
+                    cancellationToken: cancellationToken));
+        }
+    }
+
     private static async Task<IReadOnlyList<Guid>> ListInventorySnapshotIdsAsync(
         System.Data.IDbConnection conn,
         Guid tenantId,

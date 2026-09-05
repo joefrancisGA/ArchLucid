@@ -35,12 +35,12 @@ function operatorHomeFreshnessContent(input: {
     return OPERATOR_NOT_REFRESHED_LABEL;
   }
 
+  const value = operatorHomeDataCurrencyValue(input.lastRefreshedAt);
+
   return (
     <>
-      <strong className="font-bold text-al-text-primary">
-        {OPERATOR_HOME_DATA_CURRENCY_PREFIX}:
-      </strong>{" "}
-      {operatorHomeDataCurrencyValue(input.lastRefreshedAt)}
+      <span className="text-al-text-secondary">{OPERATOR_HOME_DATA_CURRENCY_PREFIX}: </span>
+      <strong className="font-semibold text-al-text-primary">{value}</strong>
     </>
   );
 }

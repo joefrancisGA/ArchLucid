@@ -97,23 +97,32 @@ export function RunsDashboardPanelFilters({
               data-testid="runs-dashboard-status-filters"
               className="flex flex-wrap gap-1.5"
             >
-              {statusTabIds.map((id) => (
-                <TabsTrigger
-                  key={id}
-                  value={id}
-                  data-testid={`runs-dashboard-filter-${id}`}
-                  className="shrink-0"
-                  disabled={statusTabCounts[id] === 0 && id !== "all"}
-                >
-                  {runsDashboardTabLabel(id, buyerPolishedShell, statusTabCounts[id], {
-                    homePreviewMode: hideHeading,
-                    recentTotalCount:
-                      hideHeading && "recentTotalCount" in statusTabCounts
-                        ? statusTabCounts.recentTotalCount
-                        : undefined,
-                  })}
-                </TabsTrigger>
-              ))}
+              {statusTabIds.map((id) => {
+                const disabled = statusTabCounts[id] === 0 && id !== "all";
+                const label = runsDashboardTabLabel(id, buyerPolishedShell, statusTabCounts[id], {
+                  homePreviewMode: hideHeading,
+                  recentTotalCount:
+                    hideHeading && "recentTotalCount" in statusTabCounts
+                      ? statusTabCounts.recentTotalCount
+                      : undefined,
+                });
+                const disabledReason = disabled
+                  ? `No reviews in the ${label.split(" (")[0]?.toLowerCase() ?? id} view`
+                  : undefined;
+
+                return (
+                  <TabsTrigger
+                    key={id}
+                    value={id}
+                    data-testid={`runs-dashboard-filter-${id}`}
+                    className="shrink-0"
+                    disabled={disabled}
+                    title={disabledReason}
+                  >
+                    {label}
+                  </TabsTrigger>
+                );
+              })}
             </TabsList>
             {archivedFieldSupported ? (
               <FilterChip
@@ -146,23 +155,32 @@ export function RunsDashboardPanelFilters({
             data-testid="runs-dashboard-status-filters"
             className="-mb-px"
           >
-            {statusTabIds.map((id) => (
-              <TabsTrigger
-                key={id}
-                value={id}
-                data-testid={`runs-dashboard-tab-${id}`}
-                className="shrink-0"
-                disabled={statusTabCounts[id] === 0 && id !== "all"}
-              >
-                {runsDashboardTabLabel(id, buyerPolishedShell, statusTabCounts[id], {
-                  homePreviewMode: hideHeading,
-                  recentTotalCount:
-                    hideHeading && "recentTotalCount" in statusTabCounts
-                      ? statusTabCounts.recentTotalCount
-                      : undefined,
-                })}
-              </TabsTrigger>
-            ))}
+            {statusTabIds.map((id) => {
+              const disabled = statusTabCounts[id] === 0 && id !== "all";
+              const label = runsDashboardTabLabel(id, buyerPolishedShell, statusTabCounts[id], {
+                homePreviewMode: hideHeading,
+                recentTotalCount:
+                  hideHeading && "recentTotalCount" in statusTabCounts
+                    ? statusTabCounts.recentTotalCount
+                    : undefined,
+              });
+              const disabledReason = disabled
+                ? `No reviews in the ${label.split(" (")[0]?.toLowerCase() ?? id} view`
+                : undefined;
+
+              return (
+                <TabsTrigger
+                  key={id}
+                  value={id}
+                  data-testid={`runs-dashboard-tab-${id}`}
+                  className="shrink-0"
+                  disabled={disabled}
+                  title={disabledReason}
+                >
+                  {label}
+                </TabsTrigger>
+              );
+            })}
           </TabsList>
         )}
         {buyerPolishedShell && !hideHeading ? (

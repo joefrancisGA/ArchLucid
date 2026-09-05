@@ -34,4 +34,11 @@ public sealed class NoOpAuditEvidenceSnapshotRepository : IAuditEvidenceSnapshot
         string baselineName,
         CancellationToken cancellationToken = default)
         => Task.FromResult<AuditEvidenceBaselineRecord?>(null);
+
+    public Task UpdateItemFreshnessAsync(
+        Guid tenantId,
+        Guid auditEvidenceSnapshotId,
+        IReadOnlyList<AuditEvidenceFreshnessItemUpdate> updates,
+        CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
 }

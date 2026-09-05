@@ -3,7 +3,8 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { FileDown } from "lucide-react";
-import { useCallback, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useState, type SetStateAction } from "react";
 
 import { Button } from "@/components/ui/button";
 import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer/buyer-polish-copy";
@@ -17,6 +18,10 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { buildMadrMarkdownFromRun, type AdrGeneratorRunInput } from "@/lib/adr-from-run";
+import {
+  parseReviewGenerateAdrOpenFromSearch,
+  reviewGenerateAdrPanelsHrefFromSearch,
+} from "@/lib/reviews/review-generate-adr-panels-url";
 
 export type GenerateAdrFromRunModalProps = {
   input: AdrGeneratorRunInput;
@@ -28,9 +33,34 @@ export type GenerateAdrFromRunModalProps = {
  * Run detail action: drafts a MADR-style ADR in-browser from serialized run + explanation payload (no extra HTTP).
  */
 export function GenerateAdrFromRunModal({ input, buyerPolished = false }: GenerateAdrFromRunModalProps) {
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? `/architecture/reviews/${input.runId}`;
+  const searchParams = useSearchParams();
+  const adrOpenParam = searchParams.get("adrOpen");
+  const [open, setOpenState] = useState(() => parseReviewGenerateAdrOpenFromSearch(adrOpenParam));
   const [markdown, setMarkdown] = useState<string>("");
   const [copied, setCopied] = useState(false);
+
+  const syncAdrOpenToUrl = useCallback(
+    (nextOpen: boolean) => {
+      router.replace(reviewGenerateAdrPanelsHrefFromSearch(searchParams.toString(), nextOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncAdrOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncAdrOpenToUrl],
+  );
 
   const seedFromInput = useCallback(() => {
     setMarkdown(buildMadrMarkdownFromRun(input));
