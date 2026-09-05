@@ -100,7 +100,7 @@ public sealed class DapperPolicyPackVersionRepository(
     }
 
     /// <inheritdoc />
-    /// <remarks>Case-sensitive match on stored version string; API normalizes input via validators.</remarks>
+    /// <remarks>Case-insensitive match on stored version string; canonical stored casing is returned.</remarks>
     public async Task<PolicyPackVersion?> GetByPackAndVersionAsync(
         Guid policyPackId,
         string version,
@@ -111,15 +111,18 @@ public sealed class DapperPolicyPackVersionRepository(
         const string sql = """
                            SELECT PolicyPackVersionId, PolicyPackId, [Version] AS Version, ContentJson, CreatedUtc, IsPublished
                            FROM dbo.PolicyPackVersions
-                           WHERE PolicyPackId = @PolicyPackId AND [Version] = @Ver;
+                           WHERE PolicyPackId = @PolicyPackId;
                            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        return await connection.QueryFirstOrDefaultAsync<PolicyPackVersion>(
+        IReadOnlyList<PolicyPackVersion> rows = (await connection.QueryAsync<PolicyPackVersion>(
             new CommandDefinition(
                 sql,
-                new { PolicyPackId = policyPackId, Ver = version },
-                cancellationToken: ct));
+                new { PolicyPackId = policyPackId },
+                cancellationToken: ct))).ToList();
+
+        return rows.FirstOrDefault(row =>
+            string.Equals(row.Version, version, StringComparison.OrdinalIgnoreCase));
     }
 
     /// <inheritdoc />

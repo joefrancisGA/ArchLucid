@@ -3420,11 +3420,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 261
-- **bugs-found:** 500
+- **hunts:** 262
+- **bugs-found:** 501
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — policy-pack publish version upsert case-insensitive idempotent retry
+- **last-bug:** 2026-09-05 — policy-pack version lookup case-insensitive read after upsert casing fix
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4627,6 +4627,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyPacksController.Publish` / `PolicyPackPublishStage.PublishVersionAsync` / `UpsertPublishedVersionAsync` — operator retry with version label differing only by casing upserted a second version row (`Ordinal` version key in upsert after #868 AppService skip-audit guard resolves lookup case-insensitively) — **hit 2026-09-05 (#869):** case-insensitive version match in `UpsertPublishedVersionAsync` (InMemory + Dapper); regression in `UpsertPublishedVersionAsync_operator_retry_with_version_casing_only_updates_existing_row`.
 
 2026-09-05 thorough hunt #869 (hit): proved publish version upsert case-insensitive idempotent retry seeded in #868.
+
+- [x] (proven) `PolicyPacksController.GetVersion` / `PolicyPackWorkflowFacade.TryGetVersionAsync` / `GetByPackAndVersionAsync` — operator GET or resolver lookup with version label differing only by casing from published row (`v1.0.0` stored, `V1.0.0` request) returned null / HTTP 404 after #869 upsert preserved first-published casing (`Ordinal` get vs `OrdinalIgnoreCase` upsert) — **hit 2026-09-05 (#870):** case-insensitive version match in `GetByPackAndVersionAsync` (InMemory + Dapper); regression in `GetByPackAndVersionAsync_finds_row_with_version_casing_only_difference`.
+
+- [ ] (candidate) `PolicyPacksController.Publish` / `PolicyPackPublishStage.PublishVersionAsync` — content-changing republish with version label differing only by casing updates `pack.CurrentVersion` to request casing while upsert preserves first-published `[Version]` text (metadata/display drift; lookups fixed in #870).
+
+- [ ] (candidate) `GovernanceController.Promote` / `GovernanceWorkflowPromoteValidateStage` / `GovernanceWorkflowActivateStage` — operator retry with `manifestVersion` differing only by casing may fail manifest/run version guard (`Ordinal` compare on `CurrentManifestVersion`).
+
+2026-09-05 seed hunt #870 (hit): reseeded post-#869 policy-pack version casing read gap; proved `GetByPackAndVersionAsync` case-insensitive lookup; seeded publish `CurrentVersion` metadata drift and governance manifest-version casing candidates.
 
 2026-09-05 seed hunt #868 (hit): reseeded post-#867 idempotent-retry casing exhaustion; proved assign version lookup case-insensitive idempotent retry; seeded publish version upsert casing candidate.
 
