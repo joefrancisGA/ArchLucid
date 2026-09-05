@@ -57,6 +57,7 @@ public sealed class ConfigurationEffectiveValueResolverTests
     [InlineData("ArchLucid:TokenizerModel:Name", "gpt-4.1")]
     [InlineData("ArchLucid:ApiKeylessAuth:Mode", "managed-identity")]
     [InlineData("ArchLucid:ConnectionStringFreeSettings:Enabled", "true")]
+    [InlineData("ArchLucid:ConnectionStringlessSettings:Enabled", "true")]
     [InlineData("ArchLucid:PasswordFreeAuth:Mode", "managed-identity")]
     [InlineData("ArchLucid:SecretFreeStorage:Bucket", "logs")]
     [InlineData("ArchLucid:TokenFreeAuth:Mode", "managed-identity")]

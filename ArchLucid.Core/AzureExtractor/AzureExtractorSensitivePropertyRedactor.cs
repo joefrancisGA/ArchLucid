@@ -69,25 +69,8 @@ public static class AzureExtractorSensitivePropertyRedactor
 
         if (fragmentIndex == 0
             && normalized.Length > fragment.Length
-            && normalized.AsSpan(fragment.Length).Equals("less", StringComparison.Ordinal))
-            return true;
-
-        if (string.Equals(fragment, "connectionstring", StringComparison.Ordinal)
-            && fragmentIndex == 0
-            && normalized.Length > fragment.Length
-            && normalized.AsSpan(fragment.Length).StartsWith("free", StringComparison.Ordinal))
-            return true;
-
-        if (string.Equals(fragment, "password", StringComparison.Ordinal)
-            && fragmentIndex == 0
-            && normalized.Length > fragment.Length
-            && normalized.AsSpan(fragment.Length).StartsWith("free", StringComparison.Ordinal))
-            return true;
-
-        if (string.Equals(fragment, "secret", StringComparison.Ordinal)
-            && fragmentIndex == 0
-            && normalized.Length > fragment.Length
-            && normalized.AsSpan(fragment.Length).StartsWith("free", StringComparison.Ordinal))
+            && (normalized.AsSpan(fragment.Length).StartsWith("less", StringComparison.Ordinal)
+                || normalized.AsSpan(fragment.Length).StartsWith("free", StringComparison.Ordinal)))
             return true;
 
         return false;
