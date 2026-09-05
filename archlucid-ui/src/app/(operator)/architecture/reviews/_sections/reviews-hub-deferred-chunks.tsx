@@ -38,13 +38,16 @@ export const ReviewsHubBeforeAfterDeltaPanelDeferred: ComponentType<{
   />
 );
 
-export const ReviewsHubReviewInventoryDeferred: ComponentType<{
+export type ReviewsHubReviewInventoryDeferredProps = {
   readonly runs: readonly RunSummary[];
   readonly summary: ReviewsWorkspaceSummary;
-}> = createDeferredComponentFromManifest("reviews-hub-inventory") as ComponentType<{
-  readonly runs: readonly RunSummary[];
-  readonly summary: ReviewsWorkspaceSummary;
-}>;
+  readonly totalCount: number;
+  readonly pageSize: number;
+  readonly hasMore?: boolean;
+};
+
+export const ReviewsHubReviewInventoryDeferred: ComponentType<ReviewsHubReviewInventoryDeferredProps> =
+  createDeferredComponentFromManifest("reviews-hub-inventory") as ComponentType<ReviewsHubReviewInventoryDeferredProps>;
 
 export const RunsIndexBeforeAfterPanelDeferred: ComponentType<RunsIndexBeforeAfterPanelProps> =
   createDeferredComponentFromManifest("reviews-hub-index-before-after") as ComponentType<RunsIndexBeforeAfterPanelProps>;

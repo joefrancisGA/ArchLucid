@@ -12,7 +12,7 @@ export type ArchitectureDraftSaveState = "idle" | "saved" | "saving" | "unsaved"
 export const ARCHITECTURE_DRAFT_AUTOSAVE_DEBOUNCE_MS = 1500;
 
 export type UseArchitectureDraftAutosaveArgs = {
-  readonly architectureId: string;
+  readonly draftId: string;
   readonly fields: ArchitectureDraftFieldState;
   readonly actorSet: ActorSet;
   readonly enabled?: boolean;

@@ -1,7 +1,14 @@
 const OFFLINE_QUEUE_KEY = "archlucid.architecture-draft-offline-queue.v1";
 
 export type ArchitectureDraftOfflineQueueEntry = {
-  readonly architectureId: string;
+  readonly draftId: string;
+  readonly payloadJson: string;
+  readonly queuedAtUtc: string;
+};
+
+type LegacyArchitectureDraftOfflineQueueEntry = {
+  readonly architectureId?: string;
+  readonly draftId?: string;
   readonly payloadJson: string;
   readonly queuedAtUtc: string;
 };
@@ -18,9 +25,17 @@ function readQueue(): ArchitectureDraftOfflineQueueEntry[] {
       return [];
     }
 
-    const parsed = JSON.parse(raw) as ArchitectureDraftOfflineQueueEntry[];
+    const parsed = JSON.parse(raw) as LegacyArchitectureDraftOfflineQueueEntry[];
 
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed.map((entry) => ({
+      draftId: entry.draftId ?? entry.architectureId ?? "",
+      payloadJson: entry.payloadJson,
+      queuedAtUtc: entry.queuedAtUtc,
+    })).filter((entry) => entry.draftId.length > 0);
   }
   catch {
     return [];
@@ -38,18 +53,18 @@ function writeQueue(entries: readonly ArchitectureDraftOfflineQueueEntry[]): voi
 export function enqueueArchitectureDraftOfflinePatch(
   entry: ArchitectureDraftOfflineQueueEntry,
 ): void {
-  const queue = readQueue().filter((row) => row.architectureId !== entry.architectureId);
+  const queue = readQueue().filter((row) => row.draftId !== entry.draftId);
 
   writeQueue([...queue, entry]);
 }
 
 export function dequeueArchitectureDraftOfflinePatch(
-  architectureId: string,
+  draftId: string,
 ): ArchitectureDraftOfflineQueueEntry | null {
   const queue = readQueue();
-  const match = queue.find((row) => row.architectureId === architectureId) ?? null;
+  const match = queue.find((row) => row.draftId === draftId) ?? null;
 
-  writeQueue(queue.filter((row) => row.architectureId !== architectureId));
+  writeQueue(queue.filter((row) => row.draftId !== draftId));
 
   return match;
 }

@@ -134,7 +134,13 @@ export function RunsPageView(props: Props) {
         >
         {hubLoadOk ? (
           <>
-            <ReviewsHubReviewInventoryDeferred runs={m.runs} summary={workspaceSummary} />
+            <ReviewsHubReviewInventoryDeferred
+              runs={m.runs}
+              summary={workspaceSummary}
+              totalCount={m.totalCount}
+              pageSize={m.pageSize}
+              hasMore={m.totalCount > m.runs.length || m.nextCursorForClient !== null}
+            />
             {continueReviewCandidate !== null ? (
               <ReviewsHubContinueReviewStrip candidate={continueReviewCandidate} />
             ) : null}

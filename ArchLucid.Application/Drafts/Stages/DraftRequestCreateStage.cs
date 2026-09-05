@@ -1,4 +1,5 @@
 using ArchLucid.Application.Architecture;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -8,7 +9,8 @@ namespace ArchLucid.Application.Drafts.Stages;
 /// <inheritdoc cref="IDraftRequestCreateStage" />
 public sealed class DraftRequestCreateStage(
     IDraftRequestRepository draftRepository,
-    IPriorPackageSemanticMergeService priorPackageSemanticMergeService) : IDraftRequestCreateStage
+    IPriorPackageSemanticMergeService priorPackageSemanticMergeService,
+    IArchitectureIdentityService architectureIdentityService) : IDraftRequestCreateStage
 {
     private readonly IDraftRequestRepository _draftRepository =
         draftRepository ?? throw new ArgumentNullException(nameof(draftRepository));
@@ -16,6 +18,9 @@ public sealed class DraftRequestCreateStage(
     private readonly IPriorPackageSemanticMergeService _priorPackageSemanticMergeService =
         priorPackageSemanticMergeService
         ?? throw new ArgumentNullException(nameof(priorPackageSemanticMergeService));
+
+    private readonly IArchitectureIdentityService _architectureIdentityService =
+        architectureIdentityService ?? throw new ArgumentNullException(nameof(architectureIdentityService));
 
     public async Task<DraftRequestResponse> CreateAsync(
         ScopeContext scope,
@@ -54,12 +59,26 @@ public sealed class DraftRequestCreateStage(
                 cancellationToken);
         }
 
-        return await _draftRepository.CreateAsync(
+        DraftRequestResponse created = await _draftRepository.CreateAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
             actorUserId,
             document,
             cancellationToken);
+
+        string displayName = !string.IsNullOrWhiteSpace(document.SystemName)
+            ? document.SystemName
+            : intent;
+
+        ArchitectureIdentityRecord identity = await _architectureIdentityService.EnsureForDraftAsync(
+            scope,
+            created.DraftId,
+            displayName,
+            cancellationToken);
+
+        created.ArchitectureId = identity.ArchitectureId;
+
+        return created;
     }
 }

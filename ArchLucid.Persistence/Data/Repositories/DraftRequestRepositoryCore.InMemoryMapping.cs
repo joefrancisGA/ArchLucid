@@ -19,6 +19,7 @@ internal static partial class DraftRequestRepositoryCore
             TenantId = stored.TenantId,
             WorkspaceId = stored.WorkspaceId,
             ProjectId = stored.ProjectId,
+            ArchitectureId = stored.ArchitectureId,
             Status = stored.Status,
             Document = CloneDocument(stored.Document, jsonOptions),
             RedirectReason = stored.RedirectReason,

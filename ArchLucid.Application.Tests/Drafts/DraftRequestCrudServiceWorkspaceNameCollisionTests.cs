@@ -44,7 +44,10 @@ public sealed class DraftRequestCrudServiceWorkspaceNameCollisionTests
 
         DraftRequestCrudService sut = new(
             repository,
-            new DraftRequestCreateStage(repository, Mock.Of<IPriorPackageSemanticMergeService>()),
+            new DraftRequestCreateStage(
+                repository,
+                Mock.Of<IPriorPackageSemanticMergeService>(),
+                Mock.Of<IArchitectureIdentityService>()),
             new DraftRequestMutateStage(repository, Mock.Of<IQuestionSelectionEngine>(), guard.Object),
             new DraftRequestDeleteStage(repository, Mock.Of<IWorkOwnershipDeleteAuthorizationService>()));
 

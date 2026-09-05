@@ -113,7 +113,7 @@ public sealed class ArchitectureIdentityServiceTests
 
         Mock<IArchitectureIdentityRepository> identityRepository = new();
         identityRepository
-            .Setup(r => r.CreateAsync(Scope, "model-2", It.IsAny<CancellationToken>()))
+            .Setup(r => r.CreateAsync(Scope, It.IsAny<string>(), "model-2", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ArchitectureIdentityRecord
             {
                 ArchitectureId = architectureId,

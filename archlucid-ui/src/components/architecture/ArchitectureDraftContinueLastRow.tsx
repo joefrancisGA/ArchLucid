@@ -42,7 +42,7 @@ export function ArchitectureDraftContinueLastRow(props: ArchitectureDraftContinu
           </p>
         </div>
         <Button type="button" variant="primary" size="sm" asChild data-testid="architecture-draft-continue-last-open">
-          <Link href={architectureDraftPath(entry.architectureId)}>Open</Link>
+          <Link href={architectureDraftPath(entry.draftId)}>Open</Link>
         </Button>
       </div>
     </section>

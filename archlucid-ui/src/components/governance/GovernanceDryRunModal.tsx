@@ -1,6 +1,7 @@
 "use client";
-import { cn } from "@/lib/utils";
+import { formatInventoryShowingLine } from "@/lib/inventory-showing-count";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useEffect, useState, type SetStateAction } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -165,8 +166,9 @@ export function GovernanceDryRunModal({ policyPackId }: GovernanceDryRunModalPro
           <DialogTitle>Policy dry-run</DialogTitle>
           <DialogDescription>
             Simulate proposed threshold changes for this policy pack against historic reviews without
-            persisting changes. Default page size {POLICY_PACK_DRY_RUN_DEFAULT_PAGE_SIZE}, server cap{" "}
-            {POLICY_PACK_DRY_RUN_MAX_PAGE_SIZE}.
+            persisting changes. This preview uses a sample page (default{" "}
+            {POLICY_PACK_DRY_RUN_DEFAULT_PAGE_SIZE}, server cap {POLICY_PACK_DRY_RUN_MAX_PAGE_SIZE}) — not a
+            complete career inventory.
           </DialogDescription>
         </DialogHeader>
 
@@ -258,8 +260,17 @@ export function GovernanceDryRunModal({ policyPackId }: GovernanceDryRunModalPro
               </div>
               <div>
                 Page {result.page} · page size{" "}
-                <span data-testid="dry-run-result-page-size">{result.pageSize}</span> · returned{" "}
-                {result.returnedRuns} of {result.totalRequestedRuns}
+                <span data-testid="dry-run-result-page-size">{result.pageSize}</span>
+                {formatInventoryShowingLine(result.returnedRuns, result.totalRequestedRuns) !== null ? (
+                  <>
+                    {" · "}
+                    <span data-testid="dry-run-result-showing-count">
+                      {formatInventoryShowingLine(result.returnedRuns, result.totalRequestedRuns)}
+                    </span>
+                  </>
+                ) : (
+                  <> · returned {result.returnedRuns} of {result.totalRequestedRuns}</>
+                )}
               </div>
               <div className="grid gap-1">
                 <div className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>

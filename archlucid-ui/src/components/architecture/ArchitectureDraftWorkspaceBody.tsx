@@ -7,7 +7,12 @@ import { ArchitectureDraftHandoffPanel } from "@/components/architecture/Archite
 import { ArchitectureDraftDetailLoadFailure } from "@/components/architecture/ArchitectureDraftDetailLoadFailure";
 import { ArchitectureDraftWorkspaceHeaderChrome } from "@/components/architecture/ArchitectureDraftWorkspaceHeaderChrome";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
-import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { ARCHITECTURE_IDENTITY_DESK_LEGACY_DRAFT_HONESTY } from "@/lib/architecture/architecture-identity-desk-copy";
+import {
+  architectureIdentityPath,
+  ARCHITECTURES_LIST_PATH,
+  reviewDetailPath,
+} from "@/lib/architecture/architecture-routes";
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { OPERATOR_LINK } from "@/lib/design-tokens";
 import Link from "next/link";
@@ -57,7 +62,9 @@ const DraftIntakeReasoningPanel = dynamic(
 );
 
 export type ArchitectureDraftWorkspaceBodyProps = {
-  readonly architectureId: string;
+  readonly draftId: string;
+  readonly parentArchitectureId?: string | null;
+  readonly legacyDraftWithoutIdentity?: boolean;
   readonly loading: boolean;
   readonly loadError: string | null;
   readonly isNewDraft: boolean;
@@ -86,7 +93,7 @@ export type ArchitectureDraftWorkspaceBodyProps = {
   readonly editorLocked: boolean;
   readonly handoffEditorLocked: boolean;
   readonly blocksLlmExecution: boolean;
-  readonly effectiveArchitectureId: string;
+  readonly effectiveDraftId: string;
   readonly reviewReadiness: Parameters<typeof ArchitectureDraftStartReviewGate>[0]["reviewReadiness"];
   readonly needsPersistedDraftBeforeStart: boolean;
   readonly scopeGateOpen: boolean;
@@ -138,9 +145,9 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
     editorLocked,
     handoffEditorLocked,
     blocksLlmExecution,
-    architectureId,
+    draftId,
     workspaceHeading,
-    effectiveArchitectureId,
+    effectiveDraftId,
     linkedReviewId,
     linkedReviewTitle,
     reviewReadiness,
@@ -201,7 +208,7 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
       <div className="space-y-4" data-testid="architecture-draft-workspace">
         <ArchitectureDraftWorkspaceHeaderChrome {...props} />
         <ArchitectureDraftHandoffPanel
-          architectureId={architectureId}
+          draftId={draftId}
           workspaceHeading={workspaceHeading}
           linkedReviewId={linkedReviewId}
           linkedReviewTitle={linkedReviewTitle}
@@ -213,6 +220,21 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
 
   return (
     <div className="space-y-4" data-testid="architecture-draft-workspace">
+      {props.legacyDraftWithoutIdentity === true ? (
+        <p
+          className={cn(OPERATOR_TYPOGRAPHY.body, "rounded-md border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900")}
+          data-testid="architecture-draft-legacy-honesty"
+        >
+          {ARCHITECTURE_IDENTITY_DESK_LEGACY_DRAFT_HONESTY}
+        </p>
+      ) : null}
+      {props.parentArchitectureId !== null && props.parentArchitectureId !== undefined && props.parentArchitectureId.trim().length > 0 ? (
+        <p className={OPERATOR_TYPOGRAPHY.body}>
+          <Link href={architectureIdentityPath(props.parentArchitectureId)} className={OPERATOR_LINK.nav}>
+            Back to architecture desk
+          </Link>
+        </p>
+      ) : null}
       <ArchitectureDraftWorkspaceHeaderChrome {...props} />
       <ArchitectureDraftWorkspaceIntakeStack {...props} />
 
@@ -223,7 +245,7 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
             actorSet={actorSet}
             disabled={editorLocked}
             blocksLlmExecution={blocksLlmExecution}
-            architectureId={effectiveArchitectureId}
+            draftId={effectiveArchitectureId}
             markReviewReadinessInvalid={linkedReviewId === null && !reviewReadiness.isValid}
             actorSuggestionGateRequestId={actorSuggestionGateRequestId}
             onActorSuggestionsUnresolvedChange={setActorSuggestionsUnresolved}

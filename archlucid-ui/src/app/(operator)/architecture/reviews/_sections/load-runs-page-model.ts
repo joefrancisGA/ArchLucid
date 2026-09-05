@@ -10,6 +10,11 @@ import { resolveServerScopeHeadersForProject } from "@/lib/server-run-scope";
 import { tryStaticDemoRunSummariesPaged, isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import type { RunSummary } from "@/types/authority";
 
+import {
+  REVIEWS_HUB_DEFAULT_PAGE_SIZE,
+  REVIEWS_HUB_MAX_PAGE_SIZE,
+} from "@/lib/inventory-showing-count";
+
 import type { RunsPageModel, RunsPageSearchParams } from "./runs-page-model";
 
 /** Operator-facing project label on the reviews list header metadata row. */
@@ -51,8 +56,11 @@ export async function fetchReviewsHubPagedInventory(params: {
 export async function loadRunsPageModel(resolved: RunsPageSearchParams): Promise<RunsPageModel> {
   const projectId = resolved.projectId ?? "default";
   const page = Math.max(1, Number.parseInt(resolved.page ?? "1", 10) || 1);
-  const sizeRaw = resolved.pageSize ?? resolved.take ?? "20";
-  const pageSize = Math.min(200, Math.max(1, Number.parseInt(sizeRaw, 10) || 20));
+  const sizeRaw = resolved.pageSize ?? resolved.take ?? String(REVIEWS_HUB_DEFAULT_PAGE_SIZE);
+  const pageSize = Math.min(
+    REVIEWS_HUB_MAX_PAGE_SIZE,
+    Math.max(1, Number.parseInt(sizeRaw, 10) || REVIEWS_HUB_DEFAULT_PAGE_SIZE),
+  );
   const listAcrossProjectSlugs = shouldListReviewsAcrossProjectSlugs(resolved.projectId);
 
   const cursorParam = resolved.cursor?.trim();

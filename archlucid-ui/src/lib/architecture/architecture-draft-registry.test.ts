@@ -7,10 +7,10 @@ import {
   type ArchitectureDraftRegistryEntry,
 } from "@/lib/architecture/architecture-draft-registry";
 
-function sampleEntry(architectureId: string): ArchitectureDraftRegistryEntry {
+function sampleEntry(draftId: string): ArchitectureDraftRegistryEntry {
   return {
-    architectureId,
-    displayName: `Draft ${architectureId}`,
+    draftId,
+    displayName: `Draft ${draftId}`,
     customerStatus: "draft",
     ownerLabel: "You",
     lastUpdatedUtc: "2026-08-27T12:00:00.000Z",
@@ -46,6 +46,6 @@ describe("architecture draft registry snapshot cache", () => {
     const remaining = getArchitectureDraftRegistrySnapshot();
 
     expect(remaining).toHaveLength(1);
-    expect(remaining[0]?.architectureId).toBe("draft-keep");
+    expect(remaining[0]?.draftId).toBe("draft-keep");
   });
 });

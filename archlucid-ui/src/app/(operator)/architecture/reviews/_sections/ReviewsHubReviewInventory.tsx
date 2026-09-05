@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { InventoryShowingCountBand } from "@/components/usability/InventoryShowingCountBand";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
@@ -65,6 +66,9 @@ import type { ReviewsWorkspaceSummary } from "./reviews-workspace-summary";
 type ReviewsHubReviewInventoryProps = {
   readonly runs: readonly RunSummary[];
   readonly summary: ReviewsWorkspaceSummary;
+  readonly totalCount?: number;
+  readonly pageSize?: number;
+  readonly hasMore?: boolean;
 };
 
 function subscribeOperatorScopeRecord(onStoreChange: () => void): () => void {
@@ -213,6 +217,8 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
     readOperatorScopeFromStorage,
     getServerOperatorScopeRecordSnapshot,
   );
+  const inventoryTotalCount = props.totalCount ?? props.runs.length;
+  const inventoryHasMore = props.hasMore ?? inventoryTotalCount > props.runs.length;
   const showWorkspaceScopeTeaching = shouldShowWorkspaceScopeEmptyTeaching({
     listEmpty: rows.length === 0,
     scopeRecord,
@@ -286,6 +292,13 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
           />
 
           <ReviewsHubSummaryRow summary={props.summary} />
+
+          <InventoryShowingCountBand
+            loaded={props.runs.length}
+            total={inventoryTotalCount}
+            hasMore={inventoryHasMore}
+            testId="reviews-hub-inventory-showing-count"
+          />
 
           {isWorkingMode ? <ReviewsHubInFlightAnalysisDesk rows={inFlightDeskRows} /> : null}
 

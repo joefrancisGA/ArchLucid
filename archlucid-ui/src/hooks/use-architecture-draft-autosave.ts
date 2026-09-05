@@ -43,7 +43,7 @@ export function useArchitectureDraftAutosave(
   const isOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
 
   const hydrate = useArchitectureDraftAutosaveHydrate({
-    architectureId: args.architectureId,
+    draftId: args.draftId,
     fields: args.fields,
     actorSet: args.actorSet,
     deferCreateUntilFirstSave,
@@ -59,7 +59,7 @@ export function useArchitectureDraftAutosave(
       return;
     }
 
-    if (hydrate.resolvedArchitectureIdRef.current !== null) {
+    if (hydrate.resolvedDraftIdRef.current !== null) {
       return;
     }
 
@@ -75,7 +75,7 @@ export function useArchitectureDraftAutosave(
       actorSet: recovery.actorSet,
     });
     setSaveState("offline");
-  }, [args, deferCreateUntilFirstSave, hydrate.resolvedArchitectureIdRef]);
+  }, [args, deferCreateUntilFirstSave, hydrate.resolvedDraftIdRef]);
 
   const markDirty = useCallback(() => {
     if (!enabled) {
@@ -92,7 +92,7 @@ export function useArchitectureDraftAutosave(
   }, [enabled, isOnline]);
 
   const persistDraftBundle = useArchitectureDraftAutosavePersist({
-    architectureId: args.architectureId,
+    draftId: args.draftId,
     enabled,
     deferCreateUntilFirstSave,
     scopeGateOpen: args.scopeGateOpen,
@@ -112,7 +112,7 @@ export function useArchitectureDraftAutosave(
     actorSetRef,
     scopeGateOpenRef,
     scopeBulletsRef,
-    resolvedArchitectureIdRef: hydrate.resolvedArchitectureIdRef,
+    resolvedDraftIdRef: hydrate.resolvedDraftIdRef,
     autosaveBlockedRef,
     markDirty,
   });

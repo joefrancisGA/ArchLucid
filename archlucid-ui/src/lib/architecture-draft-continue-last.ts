@@ -64,7 +64,7 @@ export function resolveContinueLastArchitectureDraftEntry(
 
   if (trimmedServerDraftId.length > 0) {
     const serverMatch = entries.find(
-      (entry) => entry.architectureId === trimmedServerDraftId && isContinuableArchitectureDraftEntry(entry),
+      (entry) => entry.draftId === trimmedServerDraftId && isContinuableArchitectureDraftEntry(entry),
     );
 
     if (serverMatch !== undefined) {
@@ -78,7 +78,7 @@ export function resolveContinueLastArchitectureDraftEntry(
 
   for (const preferredId of preferredIds) {
     const match = entries.find(
-      (entry) => entry.architectureId === preferredId && isContinuableArchitectureDraftEntry(entry),
+      (entry) => entry.draftId === preferredId && isContinuableArchitectureDraftEntry(entry),
     );
 
     if (match !== undefined) {
