@@ -4,8 +4,9 @@
 
 # ADR 0070: Insight density controls typed-engine classification
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-09-05
+- **Implemented:** 2026-09-05 (IS-05)
 
 ## Context
 
@@ -58,4 +59,11 @@ R5 stands: false-hard is worse than noisy coverage — category-protected catego
 
 - **Positive:** Liability stance (R4) matches sealed artifact; density assessment deficiency closes for typed engines.
 - **Negative:** Historical packages re-scored may shift band mix; sponsor PDFs need IS-06 formatter pass.
-- **Follow-ups:** IS-05 gate code; IS-06/07 UI and exports; update `INSIGHT_DENSITY_MISS_CLAUSE.md` forbid-list pointer.
+- **Follow-ups:** IS-06/07 UI and exports; `INSIGHT_DENSITY_MISS_CLAUSE.md` production paragraph.
+
+## Implementation (2026-09-05)
+
+- `ArchLucid.Core/Findings/DeterministicInsightDensityGate.cs` — `typed-engine-scored` telemetry; demotion predicate applies to typed-engine findings.
+- `ArchLucid.Core.Tests/Findings/DeterministicInsightDensityGateTests.cs` — demote/promote matrix for typed engines.
+- `ArchLucid.Decisioning/Findings/InsightDensityEngineDistributionMarkdown.cs` — production demotion header (ADR 0070).
+- `docs/quality/INSIGHT_DENSITY_MISS_CLAUSE.md` — production gate paragraph.

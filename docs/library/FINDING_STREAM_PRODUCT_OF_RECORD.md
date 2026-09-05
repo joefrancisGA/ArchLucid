@@ -47,9 +47,9 @@ Treat **agent findings** as **advisory rehearsal prose** unless:
 
 ---
 
-## Open founder decision (not decided here)
+## Insight-density classification (ADR 0070)
 
-Whether **insight-density scores** should ever demote typed-engine findings — see **ID-11** / `typed-engine-protected` in `DeterministicInsightDensityGate`. This note does **not** change gate behavior.
+Typed-engine and agent findings follow the same demotion predicate in `DeterministicInsightDensityGate`. Rows remain on the package; classification is Decision-grade vs checklist coverage. See `docs/quality/INSIGHT_DENSITY_MISS_CLAUSE.md` — filters cannot raise density.
 
 ---
 
