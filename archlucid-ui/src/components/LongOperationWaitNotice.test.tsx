@@ -28,7 +28,9 @@ describe("LongOperationWaitNotice", () => {
       />,
     );
 
-    expect(screen.getByText("Saving finalized review record")).toBeInTheDocument();
+    expect(screen.getByTestId("long-operation-wait-notice")).toHaveTextContent(
+      "Saving finalized review record",
+    );
     expect(screen.getByTestId("long-operation-queue-status")).toHaveTextContent(
       "Queue status: Saving finalized review record",
     );
