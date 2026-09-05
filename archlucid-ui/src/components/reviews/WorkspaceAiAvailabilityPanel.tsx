@@ -10,6 +10,7 @@ import {
   type WorkspaceAiAvailabilityCheck,
 } from "@/hooks/useWorkspaceAiAvailabilityCheck";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
 import type { WorkspaceAiConfigurationSignal } from "@/lib/review-failure-recovery-role-copy";
 import type { WorkspaceAiAvailabilityResult } from "@/lib/workspace-ai-availability";
 import {
@@ -198,7 +199,7 @@ function WorkspaceAiProbeDiagnostics(props: {
       ) : null}
 
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-package-workspace-ai-as-of">
-        Validated at {new Date(result.asOfUtc).toLocaleString()} · source {result.aiSource}
+        Validated at {formatInstantForLocale(result.asOfUtc)} · source {result.aiSource}
       </p>
     </div>
   );
