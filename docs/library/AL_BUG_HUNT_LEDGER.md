@@ -3420,11 +3420,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 264
-- **bugs-found:** 503
+- **hunts:** 265
+- **bugs-found:** 504
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — governance preview manifest version case-insensitive embedded-run lookup
+- **last-bug:** 2026-09-05 — golden manifest contract version case-insensitive lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4638,9 +4638,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `GovernancePreviewController.Preview` / `GovernancePreviewService.PreviewActivationAsync` — operator preview retry with `manifestVersion` differing only by casing from embedded run `CurrentManifestVersion` skipped fast-path and called `GetByVersionAsync` (`Ordinal` compare after #871 workflow casing fix) — **hit 2026-09-05 (#872):** case-insensitive manifest-version comparison in preview embedded-run fast-path; regression in `PreviewActivationAsync_operator_retry_manifest_version_casing_only_succeeds_when_run_embeds_manifest`.
 
-- [ ] (candidate) `GovernancePreviewController.Preview` / `UnifiedGoldenManifestReader.GetByVersionAsync` — operator preview when run detail has no embedded manifest and `manifestVersion` differs only by casing from authority-stored contract version may return HTTP 404 `ManifestNotFound` (`GetByContractManifestVersionAsync` exact match; #872 fixes embedded-run path only).
+- [x] (proven) `GovernancePreviewController.Preview` / `UnifiedGoldenManifestReader.GetByVersionAsync` / `GetByContractManifestVersionAsync` — operator preview when run detail has no embedded manifest and `manifestVersion` differs only by casing from authority-stored contract version returned HTTP 404 `ManifestNotFound` (`Ordinal` contract-version match after #872 embedded-run fix) — **hit 2026-09-05 (#873):** case-insensitive contract manifest version lookup (InMemory + SQL `COLLATE`); regressions in `GetByContractManifestVersionAsync_finds_row_when_version_differs_only_by_casing` and `GetByVersionAsync_finds_manifest_when_contract_version_differs_only_by_casing`.
 
-- [ ] (candidate) `GovernancePreviewController.CompareEnvironments` / `GovernancePreviewService.LoadManifestForActivationAsync` — active activation `ManifestVersion` casing mismatch against authority manifest store may omit current manifest in comparison notes (`GetByVersionAsync` fallback after #871/#872 workflow/preview fast-path fixes).
+- [x] (proven) `GovernancePreviewController.CompareEnvironments` / `GovernancePreviewService.LoadManifestForActivationAsync` — active activation `ManifestVersion` casing mismatch against authority manifest store omitted current manifest in comparison notes (`GetByVersionAsync` exact match; shared reader path fixed in #873) — **hit 2026-09-05 (#873):** same case-insensitive contract manifest version lookup as preview/activate fallback path.
+
+2026-09-05 thorough hunt #873 (hit): proved both #872 candidates — unified reader contract manifest version case-insensitive lookup.
 
 2026-09-05 seed hunt #872 (hit): reseeded post-#871 governance manifest-version casing; proved preview embedded-run case-insensitive lookup; seeded unified reader and activation-load casing candidates.
 
