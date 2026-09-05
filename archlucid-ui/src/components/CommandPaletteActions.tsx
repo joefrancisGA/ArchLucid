@@ -16,11 +16,13 @@ import { useWorkingStartHref } from "@/hooks/use-working-start-href";
 export function CommandPaletteActions({
   pathname,
   workingMode,
+  visibleNavHrefs,
   onNavigate,
   onClose,
 }: {
   readonly pathname: string;
   readonly workingMode: boolean;
+  readonly visibleNavHrefs?: ReadonlySet<string>;
   readonly onNavigate: (href: string) => void;
   readonly onClose: () => void;
 }) {
@@ -32,6 +34,7 @@ export function CommandPaletteActions({
     hasCommittedArchitectureReview,
     showFullNav,
     workingStartHref,
+    visibleNavHrefs,
   });
   const handlerActions: readonly CommandPaletteHandlerAction[] =
     resolveVisibleCommandPaletteHandlerActions(pathname, {

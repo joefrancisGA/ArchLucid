@@ -59,6 +59,7 @@ import { CommandPaletteFindPageSearch } from "@/components/CommandPaletteFindPag
 import { CommandPaletteReviewActions } from "@/components/CommandPaletteReviewActions";
 import { RunIdQuickOpen } from "@/components/RunIdQuickOpen";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { filterNavGroupsForWorkingProfessionalMode } from "@/lib/workspace-mode/working-mode-nav-filter";
 import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 import {
   commandPaletteOverlayHrefFromSearch,
@@ -150,11 +151,14 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
       roleNavDensityPersona,
       roleNavDensityShowFullNav,
     );
+    const workingFilteredRows = workingMode
+      ? filterNavGroupsForWorkingProfessionalMode(densityFilteredRows)
+      : densityFilteredRows;
 
     return applyPatternLibraryHrefSetGate(
       mergeContextualOnlyOperatorNavHrefsIntoVisibleSet(
         scopeOperatorShellHrefSet(
-          visibleOperatorShellHrefSetFromNavRows(densityFilteredRows),
+          visibleOperatorShellHrefSetFromNavRows(workingFilteredRows),
           auditRunId,
         ),
         callerAuthorityRank,
@@ -168,6 +172,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     patternLibraryNavVisible,
     roleNavDensityPersona,
     roleNavDensityShowFullNav,
+    workingMode,
   ]);
 
   const syncCommandPaletteToUrl = useCallback(
@@ -343,6 +348,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
           <CommandPaletteActions
             pathname={pathname ?? "/"}
             workingMode={workingMode}
+            visibleNavHrefs={visibleHrefs}
             onNavigate={navigate}
             onClose={() => {
               setOpen(false);
