@@ -57,7 +57,7 @@ export function OperatorAttentionKindStrip(
       data-variant={variant}
     >
       <ul
-        className="m-0 flex list-none flex-wrap gap-1.5 p-0"
+        className="m-0 flex list-none flex-wrap items-center gap-1.5 p-0"
         data-testid="operator-attention-kind-chips"
       >
         {visibleKinds.map((kind: OperatorAttentionKindId) => {
@@ -73,12 +73,12 @@ export function OperatorAttentionKindStrip(
           const deEmphasized = count === 0;
 
           return (
-            <li key={kind}>
+            <li key={kind} className="flex items-center">
               {needsAction ? (
                 <Link
                   href={destination.href}
                   className={cn(
-                    "inline-flex max-w-full items-center gap-2 rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 shadow-sm hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-600 dark:bg-neutral-900 dark:hover:bg-neutral-800",
+                    "inline-flex w-fit shrink-0 max-w-full items-center gap-2 rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 shadow-sm hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-600 dark:bg-neutral-900 dark:hover:bg-neutral-800",
                     selected ? "ring-2 ring-teal-600 ring-offset-2 dark:ring-teal-400" : undefined,
                   )}
                   aria-current={selected ? "page" : undefined}
