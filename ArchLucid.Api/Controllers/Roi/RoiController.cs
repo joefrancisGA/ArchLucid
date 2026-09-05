@@ -97,13 +97,20 @@ public sealed class RoiController(
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     public async Task<IActionResult> GetSponsorReportAsync(CancellationToken cancellationToken)
     {
-        SponsorRoiSummaryResponse body = await _sponsorRoiSummaryService.BuildAsync(cancellationToken).ConfigureAwait(false);
-        string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
-            body,
-            ContractJson.CamelCaseIgnoreNullCompact,
-            "roi:sponsor-report");
+        try
+        {
+            SponsorRoiSummaryResponse body = await _sponsorRoiSummaryService.BuildAsync(cancellationToken).ConfigureAwait(false);
+            string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
+                body,
+                ContractJson.CamelCaseIgnoreNullCompact,
+                "roi:sponsor-report");
 
-        return this.OkWithConditionalEtag(body, etag);
+            return this.OkWithConditionalEtag(body, etag);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     /// <summary>One-page Markdown or PDF board pack derived from the sponsor ROI summary (no LLM).</summary>
@@ -180,13 +187,20 @@ public sealed class RoiController(
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     public async Task<IActionResult> GetSponsorReportHistoryAsync(CancellationToken cancellationToken)
     {
-        SponsorRoiHistoryResponse body = await _sponsorRoiSummaryService.BuildHistoryAsync(cancellationToken).ConfigureAwait(false);
-        string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
-            body,
-            ContractJson.CamelCaseIgnoreNullCompact,
-            "roi:sponsor-report:history");
+        try
+        {
+            SponsorRoiHistoryResponse body = await _sponsorRoiSummaryService.BuildHistoryAsync(cancellationToken).ConfigureAwait(false);
+            string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
+                body,
+                ContractJson.CamelCaseIgnoreNullCompact,
+                "roi:sponsor-report:history");
 
-        return this.OkWithConditionalEtag(body, etag);
+            return this.OkWithConditionalEtag(body, etag);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     /// <summary>Deduplicated finding export rows and environment savings slices.</summary>
@@ -196,13 +210,20 @@ public sealed class RoiController(
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     public async Task<IActionResult> GetSponsorReportExportAsync(CancellationToken cancellationToken)
     {
-        SponsorRoiExportResponse body = await _sponsorRoiSummaryService.BuildExportAsync(cancellationToken).ConfigureAwait(false);
-        string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
-            body,
-            ContractJson.CamelCaseIgnoreNullCompact,
-            "roi:sponsor-report:export");
+        try
+        {
+            SponsorRoiExportResponse body = await _sponsorRoiSummaryService.BuildExportAsync(cancellationToken).ConfigureAwait(false);
+            string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
+                body,
+                ContractJson.CamelCaseIgnoreNullCompact,
+                "roi:sponsor-report:export");
 
-        return this.OkWithConditionalEtag(body, etag);
+            return this.OkWithConditionalEtag(body, etag);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     private static bool TryParseBoardPackFormat(string? format, out SponsorRoiBoardPackFormat parsedFormat)

@@ -4,8 +4,10 @@ using System.Text.Json;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Persistence.Alerts.Helpers;
 using ArchLucid.Persistence.IntegrationOutbox;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
@@ -39,6 +41,8 @@ public sealed class CompositeAlertService(
     IIntegrationEventPublisher integrationEventPublisher,
     IIntegrationEventOutboxRepository integrationEventOutbox,
     IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     ILogger<CompositeAlertService> logger) : ICompositeAlertService
 {
     /// <summary>
@@ -57,6 +61,12 @@ public sealed class CompositeAlertService(
 
         try
         {
+            await AlertEvaluateSealedManifestHashGuard.EnsureContextRunSealedManifestHashOrThrowAsync(
+                context,
+                authorityQueryService,
+                manifestHashService,
+                ct);
+
             IReadOnlyList<CompositeAlertRule> rules = await ruleRepository
                 .ListEnabledByScopeAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
                 ;
@@ -129,6 +139,12 @@ public sealed class CompositeAlertService(
                     DeduplicationKey = suppression.DeduplicationKey,
                 };
 
+                await AlertPersistSealedManifestHashGuard.EnsureAlertRunSealedManifestHashOrThrowAsync(
+                    alert,
+                    authorityQueryService,
+                    manifestHashService,
+                    ct);
+
                 await alertRepository.CreateAsync(alert, ct);
                 await alertDeliveryDispatcher.DeliverAsync(alert, ct);
                 created.Add(alert);
@@ -139,6 +155,8 @@ public sealed class CompositeAlertService(
                     integrationEventsOptions,
                     logger,
                     alert,
+                    authorityQueryService,
+                    manifestHashService,
                     ct);
 
                 await auditService.LogAsync(

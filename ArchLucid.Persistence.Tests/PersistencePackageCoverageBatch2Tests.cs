@@ -14,6 +14,7 @@ using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
+using ArchLucid.TestSupport.SealedManifest;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Coordination.Compliance;
 using ArchLucid.Persistence.Data.Infrastructure;
@@ -95,6 +96,8 @@ public sealed class PersistencePackageCoverageBatch2Tests
             integration.Object,
             outbox.Object,
             integrationOptions.Object,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
             NullLogger<AlertService>.Instance);
         AlertEvaluationContext context = new()
         {
@@ -364,6 +367,8 @@ public sealed class PersistencePackageCoverageBatch2Tests
             Mock.Of<IIntegrationEventPublisher>(),
             Mock.Of<IIntegrationEventOutboxRepository>(),
             integrationOptions.Object,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
             NullLogger<AlertService>.Instance);
     }
 }

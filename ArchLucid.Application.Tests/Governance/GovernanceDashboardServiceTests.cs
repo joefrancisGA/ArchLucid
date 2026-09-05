@@ -5,7 +5,8 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Application.Governance;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
@@ -57,7 +58,9 @@ public sealed class GovernanceDashboardServiceTests
             changes.Object,
             runQuery.Object,
             traces.Object,
-            CreateScopeProvider());
+            CreateScopeProvider(),
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateAuthorityQueryServiceForAnyRun(new ScopeContext { TenantId = tenantId }),
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService());
 
         GovernanceDashboardSummary summary = await sut.GetDashboardAsync(tenantId);
 
@@ -90,7 +93,9 @@ public sealed class GovernanceDashboardServiceTests
             changes.Object,
             runQuery.Object,
             traces.Object,
-            CreateScopeProvider());
+            CreateScopeProvider(),
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateAuthorityQueryServiceForAnyRun(new ScopeContext { TenantId = tenantId }),
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService());
 
         GovernanceDashboardSummary summary = await sut.GetDashboardAsync(tenantId);
 
@@ -152,7 +157,9 @@ public sealed class GovernanceDashboardServiceTests
             changes.Object,
             runQuery.Object,
             traces.Object,
-            CreateScopeProvider());
+            CreateScopeProvider(),
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateAuthorityQueryServiceForAnyRun(new ScopeContext { TenantId = tenantId }),
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService());
 
         GovernanceDashboardSummary summary = await sut.GetDashboardAsync(tenantId);
 
@@ -219,7 +226,9 @@ public sealed class GovernanceDashboardServiceTests
             changes.Object,
             runQuery.Object,
             traces.Object,
-            CreateScopeProvider());
+            CreateScopeProvider(),
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateAuthorityQueryServiceForAnyRun(new ScopeContext { TenantId = tenantId }),
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService());
 
         GovernanceDashboardSummary summary = await sut.GetDashboardAsync(tenantId);
 
@@ -270,7 +279,14 @@ public sealed class GovernanceDashboardServiceTests
             changes.Object,
             runQuery.Object,
             traces.Object,
-            scope.Object);
+            scope.Object,
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateAuthorityQueryServiceForAnyRun(new ScopeContext
+            {
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+            }),
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService());
 
         GovernanceDashboardSummary summary = await sut.GetDashboardAsync(tenantId);
 
@@ -320,7 +336,14 @@ public sealed class GovernanceDashboardServiceTests
             changes.Object,
             runQuery.Object,
             traces.Object,
-            scope.Object);
+            scope.Object,
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateAuthorityQueryServiceForAnyRun(new ScopeContext
+            {
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+            }),
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService());
 
         GovernanceDashboardSummary summary = await sut.GetDashboardAsync(
             tenantId,
