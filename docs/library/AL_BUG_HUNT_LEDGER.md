@@ -2040,7 +2040,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 162
+- **hunts:** 163
 - **bugs-found:** 325
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
@@ -2279,6 +2279,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ConfigurationSensitiveConfigPathMatcher` — `ApiKey`/`ConnectionString`+`izer` suffix false positives — **hit 2026-09-05 (#891):** #889 guarded `Secret`/`Password`/`Token`+`izer` only; `ApiKeyizerModule` / `ConnectionStringizerSettings` redacted in operator summary; fixed with `izer` suffix guard parity (`Resolve_returns_scalar_for_non_secret_segment_substrings` with `ApiKeyizerModule` / `ConnectionStringizerSettings`).
 
 2026-09-05 seed hunt #891 (hit): reseeded after #889 closure; proved compliance simulator negation parity, SSL enforcement ARM alias, anchor scalar/array coercion, advice suffix negation, and ApiKey/ConnectionString izer redaction parity.
+
+- [ ] (hunt-ready) `RunHeaderAnchorJsonComparer.TryScalarSingleElementArrayEquivalent` — boolean JSON scalar vs single-element array treated as anchor mutation — **locus:** `ArchLucid.Core/Persistence/RunHeaderAnchorJsonComparer.cs` `TryScalarSingleElementArrayEquivalent` (string-only bridge after #891); **input:** `{"enabled":true}` vs `{"enabled":[true]}` on committed `GovernanceScopeJson`; **wrong outcome:** `RunEvidenceAnchorImmutableException` on lifecycle update despite semantic equivalence; **mechanism:** #891 scalar↔array coercion handles `JsonValueKind.String` only; boolean/number kinds still fail `ElementsEquivalent` kind check.
+- [ ] (hunt-ready) `RunHeaderAnchorJsonComparer.TryScalarSingleElementArrayEquivalent` — numeric JSON scalar vs single-element array treated as anchor mutation — **locus:** same method; **input:** `{"version":1}` vs `{"version":[1]}`; **wrong outcome:** committed anchor guard throws on reload formatting drift; **mechanism:** symmetric gap to #891 string scalar/array fix for `JsonValueKind.Number`.
+- [ ] (hunt-ready) `RunHeaderAnchorJsonComparer.TryParseBooleanString` — `on`/`off` synonym vs JSON boolean treated as anchor mutation — **locus:** `TryBooleanStringEquivalent` / `TryParseBooleanString` (`bool.TryParse` only); **input:** `{"flag":"on"}` vs `{"flag":true}`; **wrong outcome:** anchor mutation false positive on committed runs; **mechanism:** sibling readers (`RunExplanationAggregateJsonReader.TryParseBooleanString`, `FindingJsonStringReaders`) accept on/off/enabled synonyms; anchor comparer does not.
+- [ ] (hunt-ready) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — `no need to {phrase}` prohibitive intent still matches affirmative fragments — **locus:** `IsNegatedAdviceFragment` prefix list; **input:** `no need to enable mfa for service accounts`; **wrong outcome:** architecture-specific finding demoted as generic checklist advice; **mechanism:** #877–#891 added `no requirement to` / suffix `not required` but not the shorter `no need to` prefix.
+- [ ] (hunt-ready) `DeclarationSecurityPropertyKeyResolver.TryGet` — missing `tf.networkacls` alias for `IngressBlob` — **locus:** `LogicalNameToCandidateKeys[IngressBlob]`; **input:** property bag `{"tf.networkacls":"0.0.0.0/0:22"}` from Bicep `networkAcls` ingestion; **wrong outcome:** `DeclarationSecurityBaselineClassifier.HasOpenAdminIngressHeuristic` skips open SSH/RDP ingress signal; **mechanism:** ingestion writes `tf.networkacls` (`BicepInfrastructureDeclarationParserTests`); resolver lists only `tf.ingress` / `tf.network_rules` / `tf.networkrules`.
+
+2026-09-05 seed hunt #892 (seed-only): reseeded after #891 all-hypotheses-closed; promoted five mechanism-backed hunt-ready rows (anchor boolean/number scalar-array, anchor on/off boolean synonym, advice `no need to` negation, IngressBlob `tf.networkacls` alias gap). No failing repro shipped this run.
 
 2026-09-05 seed hunt #889: reseeded after #888 closure; proved anchor null-object/property-name trim, mid-sentence constraint negation, and Secretizer/Passwordizer redaction parity.
 2026-09-05 seed hunt #888: reseeded after #887 closure; proved ConnectionStringless config redaction, ARM key+free suffix parity, and anchor null array/string coercion.
