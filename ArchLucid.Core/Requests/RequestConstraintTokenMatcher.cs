@@ -157,9 +157,13 @@ internal static class RequestConstraintTokenMatcher
             || before.StartsWith("do-not", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("don't", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("won't", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("must not", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("never", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("avoid", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("avoids", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (ContainsMidSentenceNegation(before))
             return true;
 
         return before.EndsWith("don't", StringComparison.OrdinalIgnoreCase)
@@ -167,6 +171,18 @@ internal static class RequestConstraintTokenMatcher
             || before.EndsWith("never", StringComparison.OrdinalIgnoreCase)
             || before.EndsWith("avoids", StringComparison.OrdinalIgnoreCase)
             || before.EndsWith("avoid", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool ContainsMidSentenceNegation(ReadOnlySpan<char> before)
+    {
+        return ContainsPhrase(before, " do not require ")
+            || ContainsPhrase(before, " must not ")
+            || ContainsPhrase(before, " do not ");
+    }
+
+    private static bool ContainsPhrase(ReadOnlySpan<char> haystack, string phrase)
+    {
+        return haystack.IndexOf(phrase.AsSpan(), StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
     private static bool IsWithoutPrefixedNegation(string haystack, int tokenIndex)

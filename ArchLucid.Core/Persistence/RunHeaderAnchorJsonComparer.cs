@@ -67,10 +67,10 @@ internal static class RunHeaderAnchorJsonComparer
         HashSet<string> propertyNames = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (JsonProperty property in left.EnumerateObject())
-            propertyNames.Add(property.Name);
+            propertyNames.Add(property.Name.Trim());
 
         foreach (JsonProperty property in right.EnumerateObject())
-            propertyNames.Add(property.Name);
+            propertyNames.Add(property.Name.Trim());
 
         foreach (string propertyName in propertyNames)
         {
@@ -140,6 +140,20 @@ internal static class RunHeaderAnchorJsonComparer
 
         if (TryNullEmptyStringEquivalent(left, right))
             return true;
+
+        if (TryNullEmptyObjectEquivalent(left, right))
+            return true;
+
+        return false;
+    }
+
+    private static bool TryNullEmptyObjectEquivalent(JsonElement left, JsonElement right)
+    {
+        if (left.ValueKind == JsonValueKind.Null && right.ValueKind == JsonValueKind.Object)
+            return !right.EnumerateObject().Any();
+
+        if (left.ValueKind == JsonValueKind.Object && right.ValueKind == JsonValueKind.Null)
+            return !left.EnumerateObject().Any();
 
         return false;
     }
@@ -239,7 +253,7 @@ internal static class RunHeaderAnchorJsonComparer
     {
         foreach (JsonProperty property in element.EnumerateObject())
         {
-            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(property.Name.Trim(), propertyName.Trim(), StringComparison.OrdinalIgnoreCase))
                 continue;
 
             value = property.Value;

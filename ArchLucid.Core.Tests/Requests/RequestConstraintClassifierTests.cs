@@ -227,6 +227,22 @@ public sealed class RequestConstraintClassifierTests
     }
 
     [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_must_not_encryption_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["must not use encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_do_not_require_encryption_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workflows do not require encryption"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
     public void HasEncryptionConstraint_does_not_false_positive_on_avoid_encryption_phrasing()
     {
         ArchitectureRequest request = CreateRequest(constraints: ["avoid encryption at rest"]);
