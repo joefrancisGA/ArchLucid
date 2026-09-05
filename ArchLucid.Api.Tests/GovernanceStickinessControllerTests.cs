@@ -710,6 +710,7 @@ public sealed class GovernanceStickinessControllerTests
         RiskExceptionService riskExceptionService = new(
             repository.Object,
             Mock.Of<IFindingReviewTrailRepository>(),
+            Mock.Of<IFindingInspectReadRepository>(),
             Mock.Of<IAuditService>(),
             Mock.Of<Microsoft.Extensions.Logging.ILogger<RiskExceptionService>>());
 
@@ -1197,6 +1198,7 @@ public sealed class GovernanceStickinessControllerTests
         RiskExceptionService riskExceptionService = new(
             repository.Object,
             Mock.Of<IFindingReviewTrailRepository>(),
+            Mock.Of<IFindingInspectReadRepository>(),
             Mock.Of<IAuditService>(),
             Mock.Of<Microsoft.Extensions.Logging.ILogger<RiskExceptionService>>());
 
@@ -1292,6 +1294,7 @@ public sealed class GovernanceStickinessControllerTests
         RiskExceptionService riskExceptionService = new(
             repository.Object,
             trail.Object,
+            Mock.Of<IFindingInspectReadRepository>(),
             Mock.Of<IAuditService>(),
             Mock.Of<Microsoft.Extensions.Logging.ILogger<RiskExceptionService>>());
 
@@ -1396,6 +1399,7 @@ public sealed class GovernanceStickinessControllerTests
         RiskExceptionService riskExceptionService = new(
             repository.Object,
             trail.Object,
+            Mock.Of<IFindingInspectReadRepository>(),
             Mock.Of<IAuditService>(),
             Mock.Of<Microsoft.Extensions.Logging.ILogger<RiskExceptionService>>());
 
@@ -1450,6 +1454,7 @@ public sealed class GovernanceStickinessControllerTests
         RiskExceptionService riskExceptionService = new(
             Mock.Of<IRiskExceptionRepository>(),
             Mock.Of<IFindingReviewTrailRepository>(),
+            Mock.Of<IFindingInspectReadRepository>(),
             Mock.Of<IAuditService>(),
             Mock.Of<Microsoft.Extensions.Logging.ILogger<RiskExceptionService>>());
 
@@ -3400,6 +3405,7 @@ public sealed class GovernanceStickinessControllerTests
         RiskExceptionService riskExceptionService = new(
             repository.Object,
             trail.Object,
+            Mock.Of<IFindingInspectReadRepository>(),
             Mock.Of<IAuditService>(),
             Mock.Of<Microsoft.Extensions.Logging.ILogger<RiskExceptionService>>());
 
@@ -3487,6 +3493,7 @@ public sealed class GovernanceStickinessControllerTests
         RiskExceptionService riskExceptionService = new(
             repository.Object,
             trail.Object,
+            Mock.Of<IFindingInspectReadRepository>(),
             Mock.Of<IAuditService>(),
             Mock.Of<Microsoft.Extensions.Logging.ILogger<RiskExceptionService>>());
 
@@ -3540,6 +3547,7 @@ public sealed class GovernanceStickinessControllerTests
         RiskExceptionService riskExceptionService = new(
             Mock.Of<IRiskExceptionRepository>(),
             Mock.Of<IFindingReviewTrailRepository>(),
+            Mock.Of<IFindingInspectReadRepository>(),
             Mock.Of<IAuditService>(),
             Mock.Of<Microsoft.Extensions.Logging.ILogger<RiskExceptionService>>());
 
@@ -3591,6 +3599,7 @@ public sealed class GovernanceStickinessControllerTests
         RiskExceptionService riskExceptionService = new(
             Mock.Of<IRiskExceptionRepository>(),
             Mock.Of<IFindingReviewTrailRepository>(),
+            Mock.Of<IFindingInspectReadRepository>(),
             Mock.Of<IAuditService>(),
             Mock.Of<Microsoft.Extensions.Logging.ILogger<RiskExceptionService>>());
 

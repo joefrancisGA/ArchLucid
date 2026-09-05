@@ -27,6 +27,44 @@ public sealed class RiskExceptionServiceTests
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
     };
 
+    private static void SetupNoActiveWaivers(Mock<IRiskExceptionRepository> repository)
+    {
+        repository
+            .Setup(r => r.ListActiveForTenantAsync(
+                Scope.TenantId,
+                Scope.ProjectId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+    }
+
+    private static void SetupActiveWaivers(
+        Mock<IRiskExceptionRepository> repository,
+        params RiskExceptionRecord[] activeWaivers)
+    {
+        repository
+            .Setup(r => r.ListActiveForTenantAsync(
+                Scope.TenantId,
+                Scope.ProjectId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(activeWaivers);
+    }
+
+    private static Mock<IFindingInspectReadRepository> CreateInspectMock(
+        string requestedFindingId,
+        string canonicalFindingId)
+    {
+        Mock<IFindingInspectReadRepository> inspect = new();
+        inspect
+            .Setup(r => r.GetInspectAsync(
+                It.IsAny<ScopeContext>(),
+                requestedFindingId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = canonicalFindingId });
+
+        return inspect;
+    }
+
     [Fact]
     public async Task CreateAsync_rejects_when_finding_latest_disposition_is_remediated()
     {
@@ -54,6 +92,7 @@ public sealed class RiskExceptionServiceTests
         RiskExceptionService sut = new(
             repository.Object,
             trail.Object,
+            Mock.Of<IFindingInspectReadRepository>(),
             Mock.Of<IAuditService>(),
             Mock.Of<ILogger<RiskExceptionService>>());
 
@@ -87,15 +126,9 @@ public sealed class RiskExceptionServiceTests
         repository
             .Setup(r => r.MarkExpiredAsync(Scope.TenantId, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
-        repository
-            .Setup(r => r.GetActiveForScopeFindingAsync(
-                Scope.TenantId,
-                Scope.WorkspaceId,
-                Scope.ProjectId,
-                findingId,
-                It.IsAny<DateTimeOffset>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RiskExceptionRecord
+        SetupActiveWaivers(
+            repository,
+            new RiskExceptionRecord
             {
                 RiskExceptionId = existingExceptionId,
                 TenantId = Scope.TenantId,
@@ -113,6 +146,7 @@ public sealed class RiskExceptionServiceTests
         RiskExceptionService sut = new(
             repository.Object,
             trail.Object,
+            Mock.Of<IFindingInspectReadRepository>(),
             Mock.Of<IAuditService>(),
             Mock.Of<ILogger<RiskExceptionService>>());
 
@@ -149,15 +183,7 @@ public sealed class RiskExceptionServiceTests
         repository
             .Setup(r => r.MarkExpiredAsync(Scope.TenantId, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
-        repository
-            .Setup(r => r.GetActiveForScopeFindingAsync(
-                Scope.TenantId,
-                Scope.WorkspaceId,
-                Scope.ProjectId,
-                findingId,
-                It.IsAny<DateTimeOffset>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((RiskExceptionRecord?)null);
+        SetupNoActiveWaivers(repository);
         repository
             .Setup(r => r.CreateAsync(It.IsAny<RiskExceptionRecord>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
@@ -165,6 +191,7 @@ public sealed class RiskExceptionServiceTests
         RiskExceptionService sut = new(
             repository.Object,
             trail.Object,
+            Mock.Of<IFindingInspectReadRepository>(),
             Mock.Of<IAuditService>(),
             Mock.Of<ILogger<RiskExceptionService>>());
 
@@ -220,15 +247,9 @@ public sealed class RiskExceptionServiceTests
         repository
             .Setup(r => r.MarkExpiredAsync(Scope.TenantId, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
-        repository
-            .Setup(r => r.GetActiveForScopeFindingAsync(
-                Scope.TenantId,
-                Scope.WorkspaceId,
-                Scope.ProjectId,
-                findingId,
-                It.IsAny<DateTimeOffset>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RiskExceptionRecord
+        SetupActiveWaivers(
+            repository,
+            new RiskExceptionRecord
             {
                 RiskExceptionId = activeExceptionId,
                 TenantId = Scope.TenantId,
@@ -246,6 +267,7 @@ public sealed class RiskExceptionServiceTests
         RiskExceptionService sut = new(
             repository.Object,
             trail.Object,
+            Mock.Of<IFindingInspectReadRepository>(),
             Mock.Of<IAuditService>(),
             Mock.Of<ILogger<RiskExceptionService>>());
 
@@ -306,15 +328,7 @@ public sealed class RiskExceptionServiceTests
         repository
             .Setup(r => r.MarkExpiredAsync(Scope.TenantId, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
-        repository
-            .Setup(r => r.GetActiveForScopeFindingAsync(
-                Scope.TenantId,
-                Scope.WorkspaceId,
-                Scope.ProjectId,
-                findingId,
-                It.IsAny<DateTimeOffset>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((RiskExceptionRecord?)null);
+        SetupNoActiveWaivers(repository);
         repository
             .Setup(r => r.RenewAsync(
                 Scope.TenantId,
@@ -359,6 +373,7 @@ public sealed class RiskExceptionServiceTests
         RiskExceptionService sut = new(
             repository.Object,
             trail.Object,
+            Mock.Of<IFindingInspectReadRepository>(),
             Mock.Of<IAuditService>(),
             Mock.Of<ILogger<RiskExceptionService>>());
 
@@ -387,6 +402,148 @@ public sealed class RiskExceptionServiceTests
                 It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task CreateAsync_throws_conflict_when_active_waiver_finding_id_differs_only_by_casing()
+    {
+        const string canonicalFindingId = "finding-1";
+        const string legacyStoredFindingId = "FINDING-1";
+        Guid existingExceptionId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(repo => repo.ListByFindingAsync(Scope.TenantId, canonicalFindingId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<IRiskExceptionRepository> repository = new();
+        repository
+            .Setup(r => r.MarkExpiredAsync(Scope.TenantId, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        SetupActiveWaivers(
+            repository,
+            new RiskExceptionRecord
+            {
+                RiskExceptionId = existingExceptionId,
+                TenantId = Scope.TenantId,
+                WorkspaceId = Scope.WorkspaceId,
+                ProjectId = Scope.ProjectId,
+                FindingId = legacyStoredFindingId,
+                OwnerUserId = "owner",
+                Rationale = "legacy casing waiver",
+                Status = RiskExceptionStatus.Active,
+                CreatedAtUtc = DateTimeOffset.UtcNow,
+                CreatedByUserId = "creator",
+                ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+            });
+
+        Mock<IFindingInspectReadRepository> inspect = CreateInspectMock(canonicalFindingId, canonicalFindingId);
+
+        RiskExceptionService sut = new(
+            repository.Object,
+            trail.Object,
+            inspect.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<ILogger<RiskExceptionService>>());
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = canonicalFindingId,
+            RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            OwnerUserId = "owner@contoso.com",
+            Rationale = "attempt duplicate under canonical casing",
+            EvidenceRef = "artifact://evidence/1",
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        Func<Task> act = () => sut.CreateAsync(request, Scope, "reviewer@test", CancellationToken.None);
+
+        await act.Should().ThrowAsync<ConflictException>().WithMessage("*active waiver*");
+
+        repository.Verify(
+            r => r.CreateAsync(It.IsAny<RiskExceptionRecord>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task RenewAsync_rejects_when_remediated_trail_finding_id_differs_only_by_casing_from_stored_waiver()
+    {
+        const string canonicalFindingId = "finding-1";
+        const string legacyStoredFindingId = "FINDING-1";
+        Guid expiredExceptionId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+        Mock<IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(repo => repo.ListByFindingAsync(Scope.TenantId, canonicalFindingId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new FindingReviewEventRecord
+                {
+                    EventId = Guid.NewGuid(),
+                    TenantId = Scope.TenantId,
+                    FindingId = canonicalFindingId,
+                    ReviewerUserId = "reviewer",
+                    Action = FindingReviewAction.RecordDisposition,
+                    Disposition = Disposition.Remediated,
+                    OccurredAtUtc = DateTimeOffset.UtcNow,
+                },
+            ]);
+
+        Mock<IRiskExceptionRepository> repository = new();
+        repository
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, expiredExceptionId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RiskExceptionRecord
+            {
+                RiskExceptionId = expiredExceptionId,
+                TenantId = Scope.TenantId,
+                WorkspaceId = Scope.WorkspaceId,
+                ProjectId = Scope.ProjectId,
+                FindingId = legacyStoredFindingId,
+                OwnerUserId = "owner",
+                Rationale = "legacy casing waiver",
+                Status = RiskExceptionStatus.Expired,
+                CreatedAtUtc = DateTimeOffset.UtcNow.AddDays(-60),
+                CreatedByUserId = "creator",
+                ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(-1),
+            });
+        repository
+            .Setup(r => r.MarkExpiredAsync(Scope.TenantId, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        SetupNoActiveWaivers(repository);
+
+        Mock<IFindingInspectReadRepository> inspect = CreateInspectMock(legacyStoredFindingId, canonicalFindingId);
+
+        RiskExceptionService sut = new(
+            repository.Object,
+            trail.Object,
+            inspect.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<ILogger<RiskExceptionService>>());
+
+        RenewRiskExceptionRequest request = new()
+        {
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        Func<Task> act = () => sut.RenewAsync(
+            Scope.TenantId,
+            expiredExceptionId,
+            request,
+            "reviewer@test",
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>().WithMessage("*Remediated*");
+
+        repository.Verify(
+            r => r.RenewAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -422,15 +579,7 @@ public sealed class RiskExceptionServiceTests
         repository
             .Setup(r => r.MarkExpiredAsync(Scope.TenantId, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
-        repository
-            .Setup(r => r.GetActiveForScopeFindingAsync(
-                Scope.TenantId,
-                Scope.WorkspaceId,
-                Scope.ProjectId,
-                findingId,
-                It.IsAny<DateTimeOffset>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((RiskExceptionRecord?)null);
+        SetupNoActiveWaivers(repository);
         repository
             .Setup(r => r.RenewAsync(
                 Scope.TenantId,
@@ -476,6 +625,7 @@ public sealed class RiskExceptionServiceTests
         RiskExceptionService sut = new(
             repository.Object,
             trail.Object,
+            Mock.Of<IFindingInspectReadRepository>(),
             Mock.Of<IAuditService>(),
             Mock.Of<ILogger<RiskExceptionService>>());
 
@@ -530,6 +680,7 @@ public sealed class RiskExceptionServiceTests
         RiskExceptionService sut = new(
             repository.Object,
             Mock.Of<IFindingReviewTrailRepository>(),
+            Mock.Of<IFindingInspectReadRepository>(),
             Mock.Of<IAuditService>(),
             Mock.Of<ILogger<RiskExceptionService>>());
 
@@ -584,6 +735,7 @@ public sealed class RiskExceptionServiceTests
         RiskExceptionService sut = new(
             repository.Object,
             Mock.Of<IFindingReviewTrailRepository>(),
+            Mock.Of<IFindingInspectReadRepository>(),
             Mock.Of<IAuditService>(),
             Mock.Of<ILogger<RiskExceptionService>>());
 
@@ -633,6 +785,7 @@ public sealed class RiskExceptionServiceTests
         RiskExceptionService sut = new(
             repository.Object,
             Mock.Of<IFindingReviewTrailRepository>(),
+            Mock.Of<IFindingInspectReadRepository>(),
             Mock.Of<IAuditService>(),
             Mock.Of<ILogger<RiskExceptionService>>());
 
@@ -698,6 +851,7 @@ public sealed class RiskExceptionServiceTests
         RiskExceptionService sut = new(
             repository.Object,
             Mock.Of<IFindingReviewTrailRepository>(),
+            Mock.Of<IFindingInspectReadRepository>(),
             Mock.Of<IAuditService>(),
             Mock.Of<ILogger<RiskExceptionService>>());
 

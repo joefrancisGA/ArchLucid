@@ -3409,11 +3409,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 221
-- **bugs-found:** 443
+- **hunts:** 222
+- **bugs-found:** 444
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — renew risk exception padded rationale/evidenceRef persistence
+- **last-bug:** 2026-09-05 — legacy waiver finding-id casing duplicate/guard parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4479,8 +4479,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-05 seed hunt #824 (hit): reseeded finding-id case parity surfaces; proved mutation-correction subjectId canonicalization gap promoted from #819 partial fix.
 
 - [x] (proven) `GovernanceStickinessController.RenewRiskException` / `RiskExceptionService.RenewAsync` — optional `rationale` / `evidenceRef` with outer padding passed validation via `Trim().Length` but persisted padded strings while create path trims before SQL — **hit 2026-09-05 (#825):** trim optional renew fields before `IRiskExceptionRepository.RenewAsync` (create parity); regression in `RenewAsync_trims_padded_rationale_and_evidence_ref_before_persist`.
-- [ ] (candidate) `RiskExceptionService.RenewAsync` / `CreateAsync` sibling guard — legacy waiver row `FindingId` casing differs from post-#820 canonical inspect id so `GetActiveForScopeFindingAsync` exact match misses duplicate active waiver or disposition-guard trail lookup.
-- [ ] (candidate) `RiskExceptionDispositionGuard.EnsureWaiverAllowedForFindingAsync` on renew — uses stored `existing.FindingId` without inspect canonicalization; remediated trail under canonical casing may be invisible when waiver row retained legacy casing.
+- [x] (proven) `RiskExceptionService.RenewAsync` / `CreateAsync` sibling guard — legacy waiver row `FindingId` casing differs from post-#820 canonical inspect id so `GetActiveForScopeFindingAsync` exact match missed duplicate active waiver — **hit 2026-09-05 (#826):** case-insensitive active-waiver scan via `ListActiveForTenantAsync` + `OrdinalIgnoreCase`; regression in `CreateAsync_throws_conflict_when_active_waiver_finding_id_differs_only_by_casing`.
+- [x] (proven) `RiskExceptionDispositionGuard.EnsureWaiverAllowedForFindingAsync` on renew — stored `existing.FindingId` without inspect canonicalization let remediated trail under canonical casing stay invisible when waiver row retained legacy casing — **hit 2026-09-05 (#826):** resolve inspect canonical id before disposition guard on create/renew; regression in `RenewAsync_rejects_when_remediated_trail_finding_id_differs_only_by_casing_from_stored_waiver`.
+
+2026-09-05 thorough hunt #826 (hit): proved legacy waiver finding-id casing gaps for duplicate active guard and renew disposition guard seeded in #825.
 
 2026-09-05 seed hunt #825 (hit): reseeded waiver renew/create parity; proved renew padded optional-text persistence gap; seeded legacy finding-id casing sibling/guard candidates.
 
