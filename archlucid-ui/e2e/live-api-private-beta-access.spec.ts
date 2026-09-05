@@ -34,7 +34,7 @@ import {
   createRun,
   enrichArchitectureRequestBody,
   liveE2eArchitectureDescription,
-  liveE2eArchitectureRunCyclePlaywrightTimeoutMs,
+  liveE2ePrivateBetaAccessPlaywrightTimeoutMs,
   resolveLiveJwtMode,
   toRunGuidPathSegment,
   waitForArchitectureRunListIncludesRun,
@@ -65,7 +65,7 @@ test.describe("live-api-private-beta-access", () => {
     request,
     browser,
   }) => {
-    test.setTimeout(liveE2eArchitectureRunCyclePlaywrightTimeoutMs());
+    test.setTimeout(liveE2ePrivateBetaAccessPlaywrightTimeoutMs());
 
     const { accessToken } = requireLivePrivateBetaJwtEnv();
 
@@ -100,11 +100,6 @@ test.describe("live-api-private-beta-access", () => {
     expect(scope.workspaceId.toLowerCase()).toBe(expectedScope.workspaceId.toLowerCase());
     expect(scope.projectId.toLowerCase()).toBe(expectedScope.projectId.toLowerCase());
 
-    await page.goto("/architecture/reviews/new", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("heading", { name: START_REVIEW_LABEL, level: 1 })).toBeVisible({
-      timeout: 60_000,
-    });
-
     const { runId } = await createRun(
       request,
       enrichArchitectureRequestBody({
@@ -122,6 +117,11 @@ test.describe("live-api-private-beta-access", () => {
     );
 
     await waitForArchitectureRunListIncludesRun(request, runId, 120_000, scope);
+
+    await page.goto("/architecture/reviews/new", { waitUntil: "domcontentloaded" });
+    await expect(page.getByRole("heading", { name: START_REVIEW_LABEL, level: 1 })).toBeVisible({
+      timeout: 60_000,
+    });
 
     const reviewPath = `/architecture/reviews/${encodeURIComponent(toRunGuidPathSegment(runId))}`;
 
@@ -176,7 +176,7 @@ test.describe("live-api-private-beta-access", () => {
     page,
     request,
   }) => {
-    test.setTimeout(liveE2eArchitectureRunCyclePlaywrightTimeoutMs());
+    test.setTimeout(liveE2ePrivateBetaAccessPlaywrightTimeoutMs());
 
     requireLivePrivateBetaJwtEnv();
 
@@ -211,11 +211,6 @@ test.describe("live-api-private-beta-access", () => {
     expect(scope.projectId.toLowerCase()).toBe(expectedScope.projectId.toLowerCase());
     expect(roles.map((role) => role.toLowerCase())).toContain("operator");
 
-    await page.goto("/architecture/reviews/new", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("heading", { name: START_REVIEW_LABEL, level: 1 })).toBeVisible({
-      timeout: 60_000,
-    });
-
     const { runId } = await createRun(
       request,
       enrichArchitectureRequestBody({
@@ -229,7 +224,7 @@ test.describe("live-api-private-beta-access", () => {
         assumptions: [] as string[],
         priorManifestVersion: null as string | null,
       }),
-      null,
+      scope,
       inviteeSession.accessToken,
     );
 
@@ -237,9 +232,14 @@ test.describe("live-api-private-beta-access", () => {
       request,
       runId,
       120_000,
-      null,
+      scope,
       inviteeSession.accessToken,
     );
+
+    await page.goto("/architecture/reviews/new", { waitUntil: "domcontentloaded" });
+    await expect(page.getByRole("heading", { name: START_REVIEW_LABEL, level: 1 })).toBeVisible({
+      timeout: 60_000,
+    });
 
     const reviewPath = `/architecture/reviews/${encodeURIComponent(toRunGuidPathSegment(runId))}`;
 
