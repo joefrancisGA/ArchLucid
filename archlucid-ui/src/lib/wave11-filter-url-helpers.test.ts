@@ -2638,6 +2638,90 @@ describe("wave37 filter url helpers", () => {
   });
 });
 
+describe("wave38 filter url helpers", () => {
+  it("llm budget, account menu, wizard help, sample picker, and actor suggest params", async () => {
+    const {
+      llmBudgetStatusPillHrefFromSearch,
+      parseLlmBudgetStatusPillOpenFromSearch,
+    } = await import("@/lib/llm/llm-budget-status-pill-url");
+    const {
+      accountSettingsMenuHrefFromSearch,
+      parseAccountSettingsMenuOpenFromSearch,
+    } = await import("@/lib/operator/account-settings-menu-url");
+    const {
+      architectureRequestWizardHelpDrawerHrefFromSearch,
+      parseArchitectureRequestWizardHelpOpenFromSearch,
+    } = await import("@/lib/wizard/architecture-request-wizard-help-drawer-url");
+    const {
+      operatorHomeSamplePickerHrefFromSearch,
+      parseOperatorHomeSamplePickerOpenFromSearch,
+    } = await import("@/lib/operator-home/operator-home-sample-picker-url");
+    const {
+      draftIntakeActorSuggestPanelsHrefFromSearch,
+      parseDraftIntakeActorSuggestOpenFromSearch,
+    } = await import("@/lib/draft-intake/draft-intake-actor-suggest-panels-url");
+
+    expect(parseLlmBudgetStatusPillOpenFromSearch("1")).toBe(true);
+    expect(llmBudgetStatusPillHrefFromSearch("", true, "/architecture/reviews")).toBe(
+      "/architecture/reviews?llmBudgetOpen=1",
+    );
+    expect(parseAccountSettingsMenuOpenFromSearch("true")).toBe(true);
+    expect(accountSettingsMenuHrefFromSearch("help=1", true, "/")).toBe("/?help=1&accountMenuOpen=1");
+    expect(parseArchitectureRequestWizardHelpOpenFromSearch("1")).toBe(true);
+    expect(
+      architectureRequestWizardHelpDrawerHrefFromSearch("step=2", true, "/architecture/reviews/new"),
+    ).toBe("/architecture/reviews/new?step=2&wizardHelpOpen=1");
+    expect(parseOperatorHomeSamplePickerOpenFromSearch("1")).toBe(true);
+    expect(operatorHomeSamplePickerHrefFromSearch("", true, "/")).toBe("/?samplePickerOpen=1");
+    expect(parseDraftIntakeActorSuggestOpenFromSearch("true")).toBe(true);
+    expect(
+      draftIntakeActorSuggestPanelsHrefFromSearch("actorGateConfirm=1", true, "/architecture/reviews/new"),
+    ).toBe("/architecture/reviews/new?actorGateConfirm=1&actorSuggestOpen=1");
+  });
+
+  it("template preview, data handling, sidebar more, opt-in tour, and simulate rule params", async () => {
+    const {
+      parseSpecialtyWalkthroughTemplatePreviewFromSearch,
+      specialtyWalkthroughTemplatePreviewHrefFromSearch,
+    } = await import("@/lib/help/specialty-walkthrough-template-preview-url");
+    const {
+      ctoDemoDataHandlingDialogHrefFromSearch,
+      parseCtoDemoDataHandlingOpenFromSearch,
+    } = await import("@/lib/cto-demo/cto-demo-data-handling-dialog-url");
+    const {
+      parseSidebarNavMoreGroupFromSearch,
+      sidebarNavMoreDisclosureHrefFromSearch,
+    } = await import("@/lib/sidebar-nav/sidebar-nav-more-disclosure-url");
+    const {
+      optInTourOverlayHrefFromSearch,
+      parseOptInTourOpenFromSearch,
+    } = await import("@/lib/tour/opt-in-tour-overlay-url");
+    const {
+      alertRulesSimulateRuleHrefFromSearch,
+      parseAlertRulesSimulateRuleIdFromSearch,
+    } = await import("@/lib/alerts/alert-rules-simulate-rule-url");
+
+    expect(parseSpecialtyWalkthroughTemplatePreviewFromSearch("saas-readiness")).toBe("saas-readiness");
+    expect(
+      specialtyWalkthroughTemplatePreviewHrefFromSearch("template=saas-readiness", "ai-governance", "/help/specialty-walkthroughs"),
+    ).toBe("/help/specialty-walkthroughs?template=saas-readiness&templatePreview=ai-governance");
+    expect(parseCtoDemoDataHandlingOpenFromSearch("1")).toBe(true);
+    expect(ctoDemoDataHandlingDialogHrefFromSearch("", true, "/architecture/reviews")).toBe(
+      "/architecture/reviews?dataHandlingOpen=1",
+    );
+    expect(parseSidebarNavMoreGroupFromSearch("operate")).toBe("operate");
+    expect(sidebarNavMoreDisclosureHrefFromSearch("reviewTab=overview", "operate", "/architecture/reviews")).toBe(
+      "/architecture/reviews?reviewTab=overview&sidebarMoreGroup=operate",
+    );
+    expect(parseOptInTourOpenFromSearch("true")).toBe(true);
+    expect(optInTourOverlayHrefFromSearch("", true, "/")).toBe("/?optInTourOpen=1");
+    expect(parseAlertRulesSimulateRuleIdFromSearch("rule-1")).toBe("rule-1");
+    expect(alertRulesSimulateRuleHrefFromSearch("tab=rules", "rule-1", "/governance/alerts")).toBe(
+      "/governance/alerts?tab=rules&simulateRule=rule-1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

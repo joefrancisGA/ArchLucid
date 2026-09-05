@@ -3,7 +3,8 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { Shield } from "lucide-react";
-import { cloneElement, isValidElement, useState, type ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { cloneElement, isValidElement, useCallback, useState, type ReactElement, type SetStateAction } from "react";
 
 import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,10 @@ import {
 } from "@/components/ui/dialog";
 import { CtoDemoTenantIsolationProofCallout } from "@/components/cto-demo/CtoDemoTenantIsolationProofCallout";
 import { DATA_HANDLING_MARKDOWN } from "@/lib/how-it-works-markdown";
+import {
+  ctoDemoDataHandlingDialogHrefFromSearch,
+  parseCtoDemoDataHandlingOpenFromSearch,
+} from "@/lib/cto-demo/cto-demo-data-handling-dialog-url";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 const DATA_HANDLING_SLUG = "data-handling";
@@ -29,7 +34,32 @@ export type CtoDemoHowItWorksTriggerProps = {
 
 export function CtoDemoHowItWorksTrigger(props: CtoDemoHowItWorksTriggerProps): React.JSX.Element {
   const { variant = "button", focusSection, trigger: customTrigger } = props;
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const dataHandlingOpenParam = searchParams.get("dataHandlingOpen");
+  const [open, setOpenState] = useState(() => parseCtoDemoDataHandlingOpenFromSearch(dataHandlingOpenParam));
+
+  const syncDataHandlingOpenToUrl = useCallback(
+    (dialogOpen: boolean) => {
+      router.replace(ctoDemoDataHandlingDialogHrefFromSearch(searchParams.toString(), dialogOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncDataHandlingOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncDataHandlingOpenToUrl],
+  );
   const entry = getProductDocumentationEntry(DATA_HANDLING_SLUG);
 
   const defaultTrigger =

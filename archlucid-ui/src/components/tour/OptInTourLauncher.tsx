@@ -2,10 +2,15 @@
 
 import { cn } from "@/lib/utils";
 import { Play } from "lucide-react";
-import { useCallback, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useState, type SetStateAction } from "react";
 
 import { Button } from "@/components/ui/button";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
+import {
+  optInTourOverlayHrefFromSearch,
+  parseOptInTourOpenFromSearch,
+} from "@/lib/tour/opt-in-tour-overlay-url";
 
 import { OptInTour } from "./OptInTour";
 import { useTeachingChromeVisible } from "@/lib/workspace-mode/use-teaching-chrome-visible";
@@ -20,17 +25,42 @@ export type OptInTourLauncherProps = {
  * the tour can re-open it by clicking again.
  */
 export function OptInTourLauncher({ className }: OptInTourLauncherProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const optInTourOpenParam = searchParams.get("optInTourOpen");
+  const [isOpen, setIsOpenState] = useState(() => parseOptInTourOpenFromSearch(optInTourOpenParam));
   const teachingChromeVisible = useTeachingChromeVisible();
+
+  const syncOptInTourOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(optInTourOverlayHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setIsOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setIsOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncOptInTourOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncOptInTourOpenToUrl],
+  );
 
   const handleOpen = useCallback(() => {
     setIsOpen(true);
     recordFirstTenantFunnelEvent("tour_opt_in");
-  }, []);
+  }, [setIsOpen]);
 
   const handleClose = useCallback(() => {
     setIsOpen(false);
-  }, []);
+  }, [setIsOpen]);
 
   if (!teachingChromeVisible) {
     return null;

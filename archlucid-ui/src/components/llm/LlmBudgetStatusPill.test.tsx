@@ -31,6 +31,12 @@ vi.mock("@/lib/auth-config", () => ({
   AUTH_MODE: "development-bypass",
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 describe("LlmBudgetStatusPill", () => {
   beforeEach(() => {
     resetOperatorQueryClientForTests();
