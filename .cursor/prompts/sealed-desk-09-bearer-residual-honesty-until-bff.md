@@ -1,18 +1,20 @@
 # SD-09 — Bearer residual honesty until the BFF (do not implement IS-15)
 
+**Obsolete after wave 12:** LK-05–07 **implement** the BFF. Do not paste this file to “document instead of fix.” If LK-05 has not landed, P0 honesty below remains valid; after P1/P2, replace the residual with closed-for-Working-GA language from those prompts.
+
 **Do not fork IS-15.** **Do not fork ADR 0059** into a new ADR. **Do not implement** HttpOnly BFF, CSRF tokens, or Key Vault session material in this prompt. This file is the **career-defense residual** while Bearer still lives in `sessionStorage`: publish the residual where operators and buyers already look, and apply ADR 0059 **P0** (document + short access-token TTL in staging/prod config) if not already done.
 
 ## Goal
 
-Trust-center (or the canonical identity residual doc) states that the architect SPA still stores access tokens in `sessionStorage` (XSS can steal the session) until IS-15’s BFF. Staging/prod access-token TTL is short per ADR 0059 P0. No customer chrome banner. CLI Bearer remains supported. Do not implement the BFF here.
+Trust-center (or the canonical identity residual doc) states that the architect SPA still stores access tokens in `sessionStorage` (XSS can steal the session) until LK-05–07’s BFF. Staging/prod access-token TTL is short per ADR 0059 P0. No customer chrome banner. CLI Bearer remains supported. Do not implement the BFF here.
 
 ## Why
 
-Livelihoods depending on the sealed record cannot sit on an unpublished XSS = account-takeover story. Implementing the BFF is IS-15 (dedicated PR). Until that lands, silence is a casual-SPA posture.
+Livelihoods depending on the sealed record cannot sit on an unpublished XSS = account-takeover story. Implementing the BFF is LK-05–07 (dedicated PRs). Until that lands, silence is a casual-SPA posture.
 
 ## Context
 
-- `docs/architecture/adrs/0059-spa-bff-http-only-session-plan.md` (still Proposed — leave Proposed until IS-15)
+- `docs/architecture/adrs/0059-spa-bff-http-only-session-plan.md` (still Proposed — leave Proposed until LK-05)
 - `archlucid-ui/src/lib/oidc/session.ts` `sessionStorage.setItem` access/refresh/id tokens
 - `docs/go-to-market/trust-center.md` / identity security narrative (honest residual, not a scare banner on every page)
 - `docs/security/` identity assessment H-10 if that is the canonical residual home
