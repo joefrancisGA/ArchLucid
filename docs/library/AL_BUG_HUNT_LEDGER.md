@@ -1965,11 +1965,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 13
-- **bugs-found:** 17
+- **hunts:** 14
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — supplemental Google OIDC overwrote primary PKCE state; malformed end_session_endpoint passed discovery parse
+- **last-hunt:** 2026-09-05
+- **last-bug:** 2026-09-05 — OIDC authority hash fragment broke discovery URL; javascript: authorization_endpoint passed discovery parse
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1997,7 +1997,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-04 thorough hunt #716 (hit): proved supplemental PKCE overwrite and invalid end_session discovery gap.
 
----
+- [x] (proven) `discoveryUrlForAuthority` appended `/.well-known/openid-configuration` into the authority hash fragment — **hit 2026-09-05 (#805):** authorities like `https://issuer/v2.0#fragment` fetched `https://issuer/v2.0` instead of the well-known document; fixed by normalizing through `URL` origin + pathname (`discovery.test.ts` ignores hash fragments).
+- [x] (proven) `parseDiscoveryDocument` accepted non-http(s) `authorization_endpoint` values such as `javascript:` — **hit 2026-09-05 (#805):** `new URL()` alone allowed script-scheme authorize URLs from a compromised discovery payload; fixed by requiring `http:` or `https:` for required endpoints (`discovery.test.ts` rejects javascript scheme).
+
+2026-09-05 seed hunt #805 (hit): reseeded zone; proved authority hash-fragment discovery URL bug and non-http(s) endpoint scheme gap.
 
 ## Zone: archlucid-core
 
