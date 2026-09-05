@@ -104,7 +104,12 @@ public sealed class GovernanceWorkflowReviewStage(
             cancellationToken);
 
         if (request.Status is not (GovernanceApprovalStatus.Draft or GovernanceApprovalStatus.Submitted))
+        {
+            if (IsIdenticalReviewRetry(request, newStatus, reviewedByActorKey, reviewComment))
+                return request;
+
             throw new GovernanceApprovalReviewConflictException(approvalRequestId, newStatus == GovernanceApprovalStatus.Approved ? "approve" : "reject", request.Status);
+        }
 
         DateTime reviewedUtc = TimeProvider.System.UtcNowDateTime();
         AuditEvent durableAuditEvent = _auditSupport.BuildGovernanceReviewAuditEvent(request, durableAuditEventType, reviewedBy, reviewComment);
@@ -112,7 +117,7 @@ public sealed class GovernanceWorkflowReviewStage(
             ? $"GovernanceApprovalApproved:{LogSanitizer.Sanitize(approvalRequestId)}"
             : $"GovernanceApprovalRejected:{LogSanitizer.Sanitize(approvalRequestId)}";
 
-        await ExecuteGovernanceReviewDispositionAsync(
+        (GovernanceApprovalRequest reviewedRequest, bool wasIdempotentRetry) = await ExecuteGovernanceReviewDispositionAsync(
             approvalRequestId,
             request,
             newStatus,
@@ -125,6 +130,9 @@ public sealed class GovernanceWorkflowReviewStage(
             baselineEventType,
             $"Status={newStatus}",
             cancellationToken);
+
+        if (wasIdempotentRetry)
+            return reviewedRequest;
 
         if (_logger.IsEnabled(LogLevel.Information))
         {
@@ -149,7 +157,30 @@ public sealed class GovernanceWorkflowReviewStage(
         else
             await _integrationEvents.TryPublishApprovalRejectedAsync(request, reviewedBy, reviewedUtc, reviewComment, cancellationToken);
 
-        return request;
+        return reviewedRequest;
+    }
+
+    private static bool IsIdenticalReviewRetry(
+        GovernanceApprovalRequest existing,
+        string targetStatus,
+        string reviewedByActorKey,
+        string? reviewComment)
+    {
+        if (!string.Equals(existing.Status, targetStatus, StringComparison.Ordinal))
+            return false;
+
+        if (!string.Equals(existing.ReviewedByActorKey, reviewedByActorKey, StringComparison.Ordinal))
+            return false;
+
+        return ReviewCommentsMatch(existing.ReviewComment, reviewComment);
+    }
+
+    private static bool ReviewCommentsMatch(string? existingComment, string? requestedComment)
+    {
+        string? normalizedExisting = string.IsNullOrWhiteSpace(existingComment) ? null : existingComment.Trim();
+        string? normalizedRequested = string.IsNullOrWhiteSpace(requestedComment) ? null : requestedComment.Trim();
+
+        return string.Equals(normalizedExisting, normalizedRequested, StringComparison.Ordinal);
     }
 
     private async Task EnforceSegregationOfDutiesForReviewAsync(
@@ -173,7 +204,7 @@ public sealed class GovernanceWorkflowReviewStage(
         throw new GovernanceSelfApprovalException(approvalRequestId, reviewedByDisplay);
     }
 
-    private async Task ExecuteGovernanceReviewDispositionAsync(
+    private async Task<(GovernanceApprovalRequest Request, bool WasIdempotentRetry)> ExecuteGovernanceReviewDispositionAsync(
         string approvalRequestId,
         GovernanceApprovalRequest request,
         string newStatus,
@@ -208,8 +239,17 @@ public sealed class GovernanceWorkflowReviewStage(
                 if (!transitioned)
                 {
                     await uow.RollbackAsync(cancellationToken);
+                    GovernanceApprovalRequest? idempotentRetry = await TryGetIdempotentReviewRetryAsync(
+                        approvalRequestId,
+                        newStatus,
+                        reviewedByActorKey,
+                        reviewComment,
+                        cancellationToken);
+
+                    if (idempotentRetry is not null)
+                        return (idempotentRetry, true);
+
                     await ThrowGovernanceReviewConflictAsync(approvalRequestId, reviewVerb, cancellationToken);
-                    return;
                 }
 
                 await _auditSupport.LogGovernanceDurableWithRetryInUnitOfWorkAsync(
@@ -237,7 +277,19 @@ public sealed class GovernanceWorkflowReviewStage(
                 cancellationToken);
 
             if (!transitioned)
+            {
+                GovernanceApprovalRequest? idempotentRetry = await TryGetIdempotentReviewRetryAsync(
+                    approvalRequestId,
+                    newStatus,
+                    reviewedByActorKey,
+                    reviewComment,
+                    cancellationToken);
+
+                if (idempotentRetry is not null)
+                    return (idempotentRetry, true);
+
                 await ThrowGovernanceReviewConflictAsync(approvalRequestId, reviewVerb, cancellationToken);
+            }
 
             await _auditSupport.LogGovernanceDurableWithRetryAsync(durableAuditEvent, durableAuditOperationLabel, cancellationToken);
         }
@@ -248,6 +300,26 @@ public sealed class GovernanceWorkflowReviewStage(
         request.ReviewComment = reviewComment;
         request.ReviewedUtc = reviewedUtc;
         await _baselineMutationAudit.RecordAsync(baselineEventType, reviewedBy, approvalRequestId, baselineDetail, cancellationToken);
+
+        return (request, false);
+    }
+
+    private async Task<GovernanceApprovalRequest?> TryGetIdempotentReviewRetryAsync(
+        string approvalRequestId,
+        string newStatus,
+        string reviewedByActorKey,
+        string? reviewComment,
+        CancellationToken cancellationToken)
+    {
+        GovernanceApprovalRequest? fresh = await _approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);
+
+        if (fresh is null)
+            return null;
+
+        if (!IsIdenticalReviewRetry(fresh, newStatus, reviewedByActorKey, reviewComment))
+            return null;
+
+        return fresh;
     }
 
     private async Task ThrowGovernanceReviewConflictAsync(string approvalRequestId, string reviewVerb, CancellationToken cancellationToken)

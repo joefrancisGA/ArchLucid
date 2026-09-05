@@ -794,6 +794,57 @@ public sealed class GovernanceWorkflowServiceTests
     }
 
     [SkippableFact]
+    public async Task Reject_returns_existing_approval_without_duplicate_audit_when_identical_operator_retry()
+    {
+        GovernanceApprovalRequest existing = new()
+        {
+            ApprovalRequestId = "apr-rejected-retry",
+            RunId = "run-1",
+            Status = GovernanceApprovalStatus.Rejected,
+            RequestedBy = "alice",
+            ReviewedBy = "bob",
+            ReviewedByActorKey = "bob-id",
+            ReviewComment = "not ready",
+        };
+
+        _approvalRepo.Setup(r => r.GetByIdAsync("apr-rejected-retry", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
+
+        GovernanceApprovalRequest result = await _sut.RejectAsync(
+            "apr-rejected-retry",
+            "bob",
+            "bob-id",
+            "not ready");
+
+        result.Should().BeSameAs(existing);
+        result.Status.Should().Be(GovernanceApprovalStatus.Rejected);
+
+        _approvalRepo.Verify(
+            r => r.TryTransitionFromReviewableAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        _baselineAudit.Verify(
+            a => a.RecordAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        _durableAudit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
     public async Task Reject_AlreadyRejected_ThrowsGovernanceApprovalReviewConflictException()
     {
         GovernanceApprovalRequest existing = new()
