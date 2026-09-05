@@ -3420,11 +3420,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 250
-- **bugs-found:** 486
+- **hunts:** 252
+- **bugs-found:** 489
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — digest timezone UTC alias and environment-catalog display-name idempotent retry
+- **last-bug:** 2026-09-05 — digest non-UTC timezone and governance review actor-key case-insensitive idempotent retry
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4592,6 +4592,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceEnvironmentCatalogController.Replace` / `GovernanceEnvironmentCatalogService.CatalogContentEquals` — operator retry with environment `displayName` differing only by casing logged duplicate `GovernanceEnvironmentCatalogReplaced` audit (`Ordinal` display-name compare after #842 identical-content guard) — **hit 2026-09-05 (#857):** case-insensitive `displayName` comparison in `CatalogContentEquals`; regression in `Replace_skips_duplicate_audit_when_display_name_differs_only_by_casing`.
 
 2026-09-05 thorough hunt #857 (hit): proved both #856 candidates — digest UTC-alias idempotent retry and environment-catalog display-name casing idempotent retry.
+
+- [x] (proven) `GovernanceStickinessController.CreateRecurrenceSchedule` / `UpdateRecurrenceSchedule` / `GovernanceStickinessFacade` create+update dedupe — operator retry with schedule `name` differing only by casing allocated a fresh schedule or logged duplicate `ArchitectureReviewRecurrenceScheduleCreated` / `ArchitectureReviewRecurrenceScheduleUpdated` audit (`StringComparison.Ordinal` on `schedule.Name`; #857 display-name casing sibling) — **hit 2026-09-05 (#858):** case-insensitive name comparison in create dedupe matcher and update `nameChanged` guard; regressions in `CreateRecurrenceScheduleAsync_returns_existing_schedule_when_name_differs_only_by_casing` and `UpdateRecurrenceScheduleAsync_skips_duplicate_audit_when_name_differs_only_by_casing`.
+- [x] (proven) `TenantExecDigestPreferencesController` / `TenantSponsorDigestPreferencesController` / `DigestPreferencesIdempotentRetry.MatchesExisting` — operator retry with non-UTC `ianaTimeZoneId` differing only by casing logged duplicate digest-preferences audit when host `TimeZoneInfo` accepts both forms but persistence stores canonical casing (`Ordinal` compare after normalization; #857 UTC-alias sibling) — **hit 2026-09-05 (#859):** case-insensitive `IanaTimeZoneIdsMatch`; regressions in `PostExecDigestPreferences_skips_duplicate_audit_when_iana_time_zone_differs_only_by_casing` and `PostSponsorDigestPreferences_skips_duplicate_audit_when_iana_time_zone_differs_only_by_casing`.
+- [x] (proven) `GovernanceWorkflowReviewStage.TryGetIdempotentReviewRetryAsync` / `IsIdenticalReviewRetry` — operator retry on finalized approval with `ReviewedByActorKey` differing only by casing surfaced `Conflict` instead of idempotent success (`Ordinal` actor-key compare after #852 review-comment casing fix) — **hit 2026-09-05 (#859):** case-insensitive actor-key comparison in `IsIdenticalReviewRetry`; regressions in `Reject_returns_existing_approval_without_duplicate_audit_when_reviewed_by_actor_key_differs_only_by_casing` and `Approve_returns_existing_approval_without_duplicate_audit_when_reviewed_by_actor_key_differs_only_by_casing`.
+
+2026-09-05 thorough hunt #859 (hit): proved both #858 candidates — digest non-UTC timezone casing idempotent retry and governance review actor-key casing idempotent retry.
+
+2026-09-05 seed hunt #858 (hit): reseeded post-#857 idempotent-retry casing exhaustion; proved recurrence schedule name case-insensitive idempotent retry on create and update; seeded digest non-UTC timezone casing and governance review actor-key casing candidates.
 
 2026-09-05 seed hunt #856 (hit): reseeded post-#854 idempotent-retry casing exhaustion; proved baseline review-cycle source case-insensitive idempotent retry gap; seeded digest timezone and environment-catalog display-name casing candidates.
 

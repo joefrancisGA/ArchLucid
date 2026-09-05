@@ -169,7 +169,7 @@ public sealed class GovernanceWorkflowReviewStage(
         if (!string.Equals(existing.Status, targetStatus, StringComparison.Ordinal))
             return false;
 
-        if (!string.Equals(existing.ReviewedByActorKey, reviewedByActorKey, StringComparison.Ordinal))
+        if (!string.Equals(existing.ReviewedByActorKey, reviewedByActorKey, StringComparison.OrdinalIgnoreCase))
             return false;
 
         return ReviewCommentsMatch(existing.ReviewComment, reviewComment);

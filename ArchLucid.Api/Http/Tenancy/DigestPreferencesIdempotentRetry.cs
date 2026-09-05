@@ -51,6 +51,6 @@ internal static class DigestPreferencesIdempotentRetry
         string normalizedExisting = IanaTimeZonePreferenceValues.NormalizeOrDefault(existing);
         string normalizedRequested = IanaTimeZonePreferenceValues.NormalizeOrDefault(requested);
 
-        return string.Equals(normalizedExisting, normalizedRequested, StringComparison.Ordinal);
+        return string.Equals(normalizedExisting, normalizedRequested, StringComparison.OrdinalIgnoreCase);
     }
 }
