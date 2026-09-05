@@ -14,6 +14,22 @@ public sealed class TrialLifecyclePolicyTests
     private static readonly TrialLifecycleSchedulerOptions DefaultOpts = new();
 
     [SkippableFact]
+    public void TryGetNextAdvancement_active_on_expiry_moves_to_expired_when_trial_status_is_lowercase()
+    {
+        DateTimeOffset anchor = DateTimeOffset.Parse("2026-05-01T00:00:00Z", CultureInfo.InvariantCulture);
+        TenantRecord tenant = MinimalTenant("active", anchor);
+
+        TrialLifecycleAdvancement? adv = TrialLifecyclePolicy.TryGetNextAdvancement(
+            tenant,
+            anchor,
+            DefaultOpts);
+
+        adv.Should().NotBeNull();
+        adv!.FromStatus.Should().Be(TrialLifecycleStatus.Active);
+        adv.ToStatus.Should().Be(TrialLifecycleStatus.Expired);
+    }
+
+    [SkippableFact]
     public void TryGetNextAdvancement_active_before_expiry_returns_null()
     {
         DateTimeOffset anchor = DateTimeOffset.Parse("2026-05-01T00:00:00Z", CultureInfo.InvariantCulture);

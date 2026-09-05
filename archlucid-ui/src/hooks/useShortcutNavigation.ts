@@ -9,6 +9,8 @@ import { SHORTCUTS, resolveShortcutDescription } from "@/lib/shortcut-registry";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 import { buildCompareTwoReviewsHref, readReviewRunIdFromPathname } from "@/lib/compare-two-reviews-route";
+import { readCachedDeskContinuity } from "@/lib/desk-continuity-preference";
+import { resolveOpenPackageRunId } from "@/lib/resolve-open-package-run-id";
 import { useWorkingStartHref } from "@/hooks/use-working-start-href";
 
 import { useKeyboardShortcuts, type KeyboardShortcutsMap } from "./useKeyboardShortcuts";
@@ -34,30 +36,35 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
 
   const map: KeyboardShortcutsMap = useMemo(() => {
     const next: KeyboardShortcutsMap = {};
-    const reviewRunId = readReviewRunIdFromPathname(pathname ?? "");
+    const openPackageRunId = workingMode
+      ? resolveOpenPackageRunId({
+          pathname,
+          lastOpenReviewId: readCachedDeskContinuity().lastOpenReviewId,
+        })
+      : readReviewRunIdFromPathname(pathname ?? "");
 
     for (const entry of SHORTCUTS) {
       if (entry.route !== undefined && entry.route !== "") {
         let route =
           workingMode && entry.key === "alt+n" ? workingStartHref : entry.route;
 
-        if (workingMode && entry.key === "alt+c" && reviewRunId !== null) {
-          route = buildCompareTwoReviewsHref({ baseRunId: reviewRunId });
+        if (workingMode && entry.key === "alt+c" && openPackageRunId !== null) {
+          route = buildCompareTwoReviewsHref({ baseRunId: openPackageRunId });
         }
 
-        if (workingMode && entry.key === "alt+a" && reviewRunId !== null) {
-          route = askReviewQuestionsHref({ runId: reviewRunId });
+        if (workingMode && entry.key === "alt+a" && openPackageRunId !== null) {
+          route = askReviewQuestionsHref({ runId: openPackageRunId });
         }
 
-        if (workingMode && entry.key === "alt+y" && reviewRunId !== null) {
-          route = evidenceGraphHref({ runId: reviewRunId });
+        if (workingMode && entry.key === "alt+y" && openPackageRunId !== null) {
+          route = evidenceGraphHref({ runId: openPackageRunId });
         }
 
         next[entry.key] = {
           handler: () => {
             router.push(route);
           },
-          description: resolveShortcutDescription(entry, workingMode, reviewRunId !== null),
+          description: resolveShortcutDescription(entry, workingMode, openPackageRunId !== null),
         };
       } else if (isHelpShortcutKey(entry.key)) {
         next[entry.key] = {

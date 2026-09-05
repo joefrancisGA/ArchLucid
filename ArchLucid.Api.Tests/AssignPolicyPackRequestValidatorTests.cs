@@ -49,6 +49,18 @@ public sealed class AssignPolicyPackRequestValidatorTests
     }
 
     [Fact]
+    public void Validate_fails_when_scope_level_is_whitespace_only()
+    {
+        AssignPolicyPackRequest request = new() { Version = "1.0.0", ScopeLevel = "   ", IsPinned = false };
+
+        ValidationResult result = _validator.Validate(request);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == nameof(AssignPolicyPackRequest.ScopeLevel));
+        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("whitespace"));
+    }
+
+    [Fact]
     public void Validate_fails_when_scope_level_is_unrecognized()
     {
         AssignPolicyPackRequest request = new() { Version = "1.0.0", ScopeLevel = "Galaxy", IsPinned = false };

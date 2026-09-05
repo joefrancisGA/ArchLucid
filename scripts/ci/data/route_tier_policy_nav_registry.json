@@ -1752,6 +1752,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "OperationalSecurity/RemediationPatternsController.cs",
+      "class_name": "RemediationPatternsController",
+      "route_template": "v{version:apiVersion}/operational-security/remediation-patterns",
+      "normalized_prefix": "/v1/operational-security/remediation-patterns",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Pilots/PilotsBoardPackController.cs",
       "class_name": "PilotsBoardPackController",
       "route_template": "v{version:apiVersion}/pilots",

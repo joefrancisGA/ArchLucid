@@ -125,6 +125,58 @@ public sealed class ItsmInboundDispositionSyncTests
         result.DispositionEventId.Should().Be(Guid.Parse("22222222-2222-2222-2222-222222222222"));
     }
 
+    [Fact]
+    public async Task TryRecordFromWebhookAsync_when_history_lookup_fails_skips_without_throwing()
+    {
+        Mock<IFindingDispositionService> dispositionService = new();
+        dispositionService
+            .Setup(s => s.ListHistoryAsync(It.IsAny<Core.Scoping.ScopeContext>(), "f1", It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("history store unavailable"));
+        ItsmInboundDispositionSync sut =
+            new(dispositionService.Object, NullLogger<ItsmInboundDispositionSync>.Instance);
+
+        ItsmInboundDispositionSyncResult result = await sut.TryRecordFromWebhookAsync(
+            CreateRow(),
+            FindingDisposition.Remediated,
+            "Done",
+            "jira-webhook",
+            CancellationToken.None);
+
+        result.WasRecorded.Should().BeFalse();
+        result.SkipReason.Should().Be("disposition_sync_failed");
+        dispositionService.Verify(
+            s => s.RecordAsync(It.IsAny<RecordFindingDispositionRequest>(), It.IsAny<Core.Scoping.ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task TryRecordFromWebhookAsync_when_record_fails_with_non_argument_exception_skips_without_throwing()
+    {
+        Mock<IFindingDispositionService> dispositionService = new();
+        dispositionService
+            .Setup(s => s.ListHistoryAsync(It.IsAny<Core.Scoping.ScopeContext>(), "f1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<FindingDispositionEventDto>());
+        dispositionService
+            .Setup(s => s.RecordAsync(
+                It.IsAny<RecordFindingDispositionRequest>(),
+                It.IsAny<Core.Scoping.ScopeContext>(),
+                "jira-webhook",
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("record store unavailable"));
+        ItsmInboundDispositionSync sut =
+            new(dispositionService.Object, NullLogger<ItsmInboundDispositionSync>.Instance);
+
+        ItsmInboundDispositionSyncResult result = await sut.TryRecordFromWebhookAsync(
+            CreateRow(),
+            FindingDisposition.Remediated,
+            "Done",
+            "jira-webhook",
+            CancellationToken.None);
+
+        result.WasRecorded.Should().BeFalse();
+        result.SkipReason.Should().Be("disposition_sync_failed");
+    }
+
     private static ItsmFindingCorrelationRecord CreateRow() =>
         new()
         {

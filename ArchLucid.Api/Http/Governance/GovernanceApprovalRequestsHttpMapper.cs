@@ -98,6 +98,13 @@ public static class GovernanceApprovalRequestsHttpMapper
 
     public static GovernanceHttpValidation? ValidateOptionalGovernanceComment(string? value, string fieldName)
     {
+        if (value is not null && string.IsNullOrWhiteSpace(value))
+        {
+            return new GovernanceHttpValidation(
+                $"{fieldName} cannot be empty or whitespace.",
+                ProblemTypes.ValidationFailed);
+        }
+
         if (value is not null && value.Length > GovernanceRequestValidationRules.ReviewCommentMaxLength)
         {
             return new GovernanceHttpValidation(

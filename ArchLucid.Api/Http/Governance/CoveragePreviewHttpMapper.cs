@@ -30,11 +30,20 @@ public static class CoveragePreviewHttpMapper
 
     private static GovernanceHttpValidation? ValidateFreeTextLength(string? text, string fieldName)
     {
-        if (text is null || !DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(text))
-            return null;
+        if (text is not null && string.IsNullOrWhiteSpace(text))
+        {
+            return new GovernanceHttpValidation(
+                $"{fieldName} cannot be empty or whitespace.",
+                ProblemTypes.ValidationFailed);
+        }
 
-        return new GovernanceHttpValidation(
-            $"{fieldName} must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.",
-            ProblemTypes.ValidationFailed);
+        if (text is not null && DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(text))
+        {
+            return new GovernanceHttpValidation(
+                $"{fieldName} must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
     }
 }

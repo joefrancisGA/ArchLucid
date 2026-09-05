@@ -90,6 +90,8 @@ export function useWebhooksSettingsMutations(
   const [pendingEnable, setPendingEnableState] = useState<WebhookEnableTarget | null>(null);
   const [enableBusy, setEnableBusy] = useState(false);
   const [enableErrorMessage, setEnableErrorMessage] = useState<string | null>(null);
+  const previousUrlDisableIdRef = useRef(urlDisableId);
+  const previousUrlEnableIdRef = useRef(urlEnableId);
 
   const syncToggleConfirmToUrl = useCallback(
     (state: { disableId: string | null; enableId: string | null }) => {
@@ -139,15 +141,22 @@ export function useWebhooksSettingsMutations(
   );
 
   useEffect(() => {
+    const disableParamCleared =
+      previousUrlDisableIdRef.current.length > 0 && urlDisableId.length === 0;
+    const enableParamCleared =
+      previousUrlEnableIdRef.current.length > 0 && urlEnableId.length === 0;
+    previousUrlDisableIdRef.current = urlDisableId;
+    previousUrlEnableIdRef.current = urlEnableId;
+
+    if (disableParamCleared && pendingDisable !== null) {
+      setPendingDisableState(null);
+    }
+
+    if (enableParamCleared && pendingEnable !== null) {
+      setPendingEnableState(null);
+    }
+
     if (urlDisableId.length === 0 && urlEnableId.length === 0) {
-      if (pendingDisable !== null) {
-        setPendingDisableState(null);
-      }
-
-      if (pendingEnable !== null) {
-        setPendingEnableState(null);
-      }
-
       return;
     }
 
@@ -229,7 +238,6 @@ export function useWebhooksSettingsMutations(
         return;
       }
 
-      options.setFailure(toApiLoadFailure(error));
       throw error;
     }
   }

@@ -25,4 +25,21 @@ public sealed class PolicyPackCategoryCoverageValidatorTests
 
         violations.Should().BeEmpty();
     }
+
+    [Fact]
+    public void GetMissingCategoryViolations_treats_successful_topology_engine_type_as_topology_coverage()
+    {
+        FindingAnalysisContext context = new()
+        {
+            EnabledPolicyPackIds = ["tenant-topology-pack"],
+            RequiredFindingCategories = ["Topology"],
+        };
+
+        IReadOnlyList<string> violations = PolicyPackCategoryCoverageValidator.GetMissingCategoryViolations(
+            context,
+            findings: [],
+            successfulEngineTypes: new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "topology-structure" });
+
+        violations.Should().BeEmpty();
+    }
 }

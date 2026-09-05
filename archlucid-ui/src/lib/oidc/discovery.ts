@@ -7,6 +7,16 @@ export type OidcDiscoveryDocument = {
 
 const discoveryPromises = new Map<string, Promise<OidcDiscoveryDocument>>();
 
+function isHttpOrHttpsUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 function parseDiscoveryDocument(body: unknown, discoveryUrl: string): OidcDiscoveryDocument {
   if (!body || typeof body !== "object") {
     throw new Error(`OIDC discovery document is not a JSON object: ${discoveryUrl}`);
@@ -35,6 +45,10 @@ function parseDiscoveryDocument(body: unknown, discoveryUrl: string): OidcDiscov
     throw new Error(`OIDC discovery document has invalid endpoint URLs: ${discoveryUrl}`);
   }
 
+  if (!isHttpOrHttpsUrl(authorizationEndpoint) || !isHttpOrHttpsUrl(tokenEndpoint)) {
+    throw new Error(`OIDC discovery document has invalid endpoint URLs: ${discoveryUrl}`);
+  }
+
   const doc: OidcDiscoveryDocument = {
     issuer: issuer.trim(),
     authorization_endpoint: authorizationEndpoint.trim(),
@@ -58,9 +72,10 @@ function parseDiscoveryDocument(body: unknown, discoveryUrl: string): OidcDiscov
 function discoveryUrlForAuthority(authority: string): string {
   const trimmed = authority.trim();
   const withScheme = trimmed.includes("://") ? trimmed : `https://${trimmed}`;
-  const base = withScheme.replace(/\/+$/, "");
+  const parsed = new URL(withScheme);
+  const pathname = parsed.pathname.replace(/\/+$/, "");
 
-  return `${base}/.well-known/openid-configuration`;
+  return `${parsed.origin}${pathname}/.well-known/openid-configuration`;
 }
 
 export function loadDiscoveryDocument(authority: string): Promise<OidcDiscoveryDocument> {

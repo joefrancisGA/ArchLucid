@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import {
@@ -70,6 +70,8 @@ export function useAdminTenantsState(): AdminTenantsState {
   const [loading, setLoading] = useState(true);
   const [mutatingId, setMutatingId] = useState<string | null>(null);
   const [pendingTenantAction, setPendingTenantActionState] = useState<PendingAdminTenantAction | null>(null);
+  const previousUrlTenantActionRef = useRef(urlTenantAction);
+  const previousUrlTenantIdRef = useRef(urlTenantId);
 
   const syncTenantActionToUrl = useCallback(
     (pending: PendingAdminTenantAction | null) => {
@@ -135,11 +137,18 @@ export function useAdminTenantsState(): AdminTenantsState {
   }, [isAdmin, isAuthorityLoading, refresh]);
 
   useEffect(() => {
-    if (urlTenantId.length === 0 || urlTenantAction === null || items.length === 0) {
-      if (urlTenantAction === null && pendingTenantAction !== null) {
-        setPendingTenantActionState(null);
-      }
+    const tenantActionCleared =
+      previousUrlTenantActionRef.current !== null && urlTenantAction === null;
+    const tenantIdCleared =
+      previousUrlTenantIdRef.current.length > 0 && urlTenantId.length === 0;
+    previousUrlTenantActionRef.current = urlTenantAction;
+    previousUrlTenantIdRef.current = urlTenantId;
 
+    if ((tenantActionCleared || tenantIdCleared) && pendingTenantAction !== null) {
+      setPendingTenantActionState(null);
+    }
+
+    if (urlTenantId.length === 0 || urlTenantAction === null || items.length === 0) {
       return;
     }
 

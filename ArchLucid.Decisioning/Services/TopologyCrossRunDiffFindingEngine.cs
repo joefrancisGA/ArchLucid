@@ -45,9 +45,6 @@ public sealed class TopologyCrossRunDiffFindingEngine(
         List<Finding> findings = [];
         List<string> scopeNodeIds = CrossRunDiffFindingGraphScope.CollectTopologyNodeIds(graphSnapshot);
 
-        if (diff.PriorCategories.Count == 0)
-            return findings;
-
         if (diff.RemovedCategories.Count > 0)
         {
             findings.Add(FindingFactory.CreateTopologyGapFinding(

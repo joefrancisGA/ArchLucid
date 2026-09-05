@@ -25,6 +25,7 @@
     <PackageReference Include="Handlebars.Net" />
     <PackageReference Include="QuestPDF" />
     <PackageReference Include="Tomlyn" />
+    <PackageReference Include="YamlDotNet" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Exports\Templates\*.hbs" />

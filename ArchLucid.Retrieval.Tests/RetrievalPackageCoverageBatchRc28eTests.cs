@@ -63,6 +63,46 @@ public sealed class RetrievalPackageCoverageBatchRc28eTests
     }
 
     [Fact]
+    public async Task LexicalOverlapRetrievalReranker_RerankAsync_does_not_apply_policy_pack_boost_without_lexical_overlap()
+    {
+        List<RetrievalHit> candidates =
+        [
+            new()
+            {
+                ChunkId = "manifest",
+                DocumentId = "doc-manifest",
+                SourceType = "Manifest",
+                SourceId = "manifest",
+                Title = "Unrelated topic",
+                Text = "generic platform guidance",
+                Score = 0.99,
+            },
+            new()
+            {
+                ChunkId = "policy",
+                DocumentId = "doc-policy",
+                SourceType = "PolicyPack",
+                SourceId = "pp-1",
+                CorpusKind = nameof(CorpusKind.PolicyPack),
+                Title = "Different controls",
+                Text = "unrelated compliance wording",
+                Score = 0.1,
+            },
+        ];
+
+        LexicalOverlapRetrievalReranker reranker = new();
+
+        IReadOnlyList<RetrievalHit> result = await reranker.RerankAsync(
+            "zztop",
+            candidates,
+            finalTopK: 1,
+            CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].ChunkId.Should().Be("manifest");
+    }
+
+    [Fact]
     public async Task LexicalOverlapRetrievalReranker_RerankAsync_throws_for_blank_query()
     {
         LexicalOverlapRetrievalReranker reranker = new();

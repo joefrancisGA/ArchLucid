@@ -3,7 +3,8 @@
 import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useMemo, useState, type SetStateAction } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { WizardFieldHint } from "@/components/wizard/WizardFieldHint";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import { applySecondRunPasteToWizard } from "@/lib/second-run-paste";
+import {
+  parseWizardPresetImportOpenFromSearch,
+  wizardStepPresetImportHrefFromSearch,
+} from "@/lib/wizard/wizard-step-preset-import-url";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { applyWizardPreset, wizardPresets, type WizardPreset } from "@/lib/wizard-presets";
 import { documentationArchitectureRequestWizardPresets } from "@/lib/docs-architecture-request-presets";
@@ -55,9 +60,34 @@ export type WizardStepPresetProps = {
  */
 export function WizardStepPreset(props: WizardStepPresetProps = {}) {
   const { baselineFirst, onPresetSelect, featuredSampleRunId, onWizardNotice, onStartingPointCommitted } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/architecture/reviews/new";
+  const searchParams = useSearchParams();
+  const wizardImportOpenParam = searchParams.get("wizardImportOpen");
   const { reset, getValues } = useFormContext<WizardFormValues>();
   const [secondRunPaste, setSecondRunPaste] = useState("");
-  const [importOpen, setImportOpen] = useState(false);
+  const [importOpen, setImportOpenState] = useState(() => parseWizardPresetImportOpenFromSearch(wizardImportOpenParam));
+
+  const syncImportOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(wizardStepPresetImportHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setImportOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setImportOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncImportOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncImportOpenToUrl],
+  );
 
   const architectureTemplatesDocHref = useMemo(
     () => getDocHref("docs/templates/architecture-requests/README.md"),

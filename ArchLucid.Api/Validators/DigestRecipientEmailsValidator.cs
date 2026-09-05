@@ -30,6 +30,12 @@ public static partial class DigestRecipientEmailsValidator
             .Select(static e => e.Trim())
             .ToList();
 
+        if (rawRecipients is not null && rawRecipients.Count > 0 && trimmed.Count == 0)
+        {
+            errorMessage = "recipientEmails cannot be empty or whitespace.";
+            return false;
+        }
+
         if (trimmed.Count == 0)
         {
             if (emailEnabled)

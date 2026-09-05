@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 
 using FluentAssertions;
@@ -16,6 +17,7 @@ public sealed class ArchitectureFindingJsonConverterTests
                             {
                               "severity": "High",
                               "category": "Compliance",
+                              "enforcementTier": "PolicyViolation",
                               "description": "Private endpoints required."
                             }
                             """;
@@ -36,6 +38,7 @@ public sealed class ArchitectureFindingJsonConverterTests
                             {
                               "severity": "Warning",
                               "category": "Topology",
+                              "enforcementTier": "PolicyViolation",
                               "message": "Missing subnet for worker pool."
                             }
                             """;
@@ -144,6 +147,7 @@ public sealed class ArchitectureFindingJsonConverterTests
                             {
                               "severity": "Warning",
                               "category": "Compliance",
+                              "enforcementTier": "PolicyViolation",
                               "message": "Policy gap on private endpoints.",
                               "evidenceRefs": [{ "id": "pol-123" }]
                             }
@@ -184,6 +188,7 @@ public sealed class ArchitectureFindingJsonConverterTests
                             {
                               "severity": 99,
                               "category": "Compliance",
+                              "enforcementTier": "PolicyViolation",
                               "message": "Invalid ordinal must not deserialize."
                             }
                             """;
@@ -203,6 +208,7 @@ public sealed class ArchitectureFindingJsonConverterTests
                             {
                               "severity": "Warning",
                               "category": "Security",
+                              "enforcementTier": "PolicyViolation",
                               "message": "Promote candidate with numeric treatment.",
                               "treatment": 0
                             }
@@ -223,6 +229,7 @@ public sealed class ArchitectureFindingJsonConverterTests
                             {
                               "Severity": "Warning",
                               "category": "Security",
+                              "EnforcementTier": "PolicyViolation",
                               "message": "PascalCase treatment must map like enforcement tier.",
                               "Treatment": "Promote"
                             }
@@ -244,6 +251,7 @@ public sealed class ArchitectureFindingJsonConverterTests
                             {
                               "severity": "Warning",
                               "category": "Security",
+                              "enforcementTier": "PolicyViolation",
                               "message": "Invalid treatment ordinal must not deserialize.",
                               "treatment": 99
                             }
@@ -264,6 +272,7 @@ public sealed class ArchitectureFindingJsonConverterTests
                             {
                               "severity": "blocker",
                               "category": "Compliance",
+                              "enforcementTier": "PolicyViolation",
                               "message": "Unknown severity must not downgrade to Info."
                             }
                             """;
@@ -283,6 +292,7 @@ public sealed class ArchitectureFindingJsonConverterTests
                             {
                               "Severity": "High",
                               "Category": "Compliance",
+                              "EnforcementTier": "PolicyViolation",
                               "Description": "Private endpoints required."
                             }
                             """;
@@ -304,6 +314,7 @@ public sealed class ArchitectureFindingJsonConverterTests
                             {
                               "Severity": "Warning",
                               "Category": "Compliance",
+                              "EnforcementTier": "PolicyViolation",
                               "Message": "Policy gap on private endpoints.",
                               "EvidenceRefs": [{ "id": "pol-456" }]
                             }
@@ -315,6 +326,48 @@ public sealed class ArchitectureFindingJsonConverterTests
 
         finding.Should().NotBeNull();
         finding!.EvidenceRefs.Should().ContainSingle().Which.Should().Be("pol-456");
+    }
+
+    [Fact]
+    public void Deserialize_numeric_source_agent_maps_cost_ordinal()
+    {
+        const string json = """
+                            {
+                              "severity": "Warning",
+                              "category": "Cost",
+                              "enforcementTier": "Advisory",
+                              "message": "Reserved capacity recommendation.",
+                              "sourceAgent": 2
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        ArchitectureFinding? finding = JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.SourceAgent.Should().Be(AgentType.Cost);
+    }
+
+    [Fact]
+    public void Deserialize_integer_source_agent_out_of_range_throws()
+    {
+        const string json = """
+                            {
+                              "severity": "Warning",
+                              "category": "Cost",
+                              "enforcementTier": "Advisory",
+                              "message": "Invalid source agent ordinal must not deserialize.",
+                              "sourceAgent": 99
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Action act = () => JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        act.Should().Throw<JsonException>()
+            .WithMessage("*Unknown source agent value*");
     }
 
     private static JsonSerializerOptions CreateOptions()

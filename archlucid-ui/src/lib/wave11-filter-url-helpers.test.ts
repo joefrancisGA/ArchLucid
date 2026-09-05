@@ -1329,7 +1329,7 @@ describe("wave26 filter url helpers", () => {
     expect(parseArchitectureDiagramFindingIdFromSearch("finding-7")).toBe("finding-7");
     expect(
       architectureDiagramFindingHrefFromSearch("tab=architecture", "finding-7", "/architecture/reviews/r1"),
-    ).toBe("/architecture/reviews/r1?tab=architecture&diagramFindingId=finding-7");
+    ).toBe("/architecture/reviews/r1?tab=architecture&findingId=finding-7");
     expect(parseFindingsWhatIfEnabledFromSearch("1")).toBe(true);
     expect(parseFindingsWhatIfIdsFromSearch("f1,f2")).toEqual(["f1", "f2"]);
     expect(
@@ -2719,6 +2719,100 @@ describe("wave38 filter url helpers", () => {
     expect(alertRulesSimulateRuleHrefFromSearch("tab=rules", "rule-1", "/governance/alerts")).toBe(
       "/governance/alerts?tab=rules&simulateRule=rule-1",
     );
+  });
+});
+
+describe("wave39 filter url helpers", () => {
+  it("scope switcher, welcome modal, onboarding tour, shortcuts, and run picker params", async () => {
+    const {
+      parseScopeSwitcherOpenFromSearch,
+      scopeSwitcherHrefFromSearch,
+    } = await import("@/lib/operator/scope-switcher-url");
+    const {
+      operatorWelcomeOnboardingHrefFromSearch,
+      parseOperatorWelcomeOpenFromSearch,
+    } = await import("@/lib/operator/operator-welcome-onboarding-url");
+    const {
+      onboardingTourOverlayHrefFromSearch,
+      parseOnboardingTourOpenFromSearch,
+      parseOnboardingTourStepFromSearch,
+    } = await import("@/lib/tour/onboarding-tour-overlay-url");
+    const {
+      keyboardShortcutsDialogHrefFromSearch,
+      parseKeyboardShortcutsOpenFromSearch,
+    } = await import("@/lib/operator/keyboard-shortcuts-dialog-url");
+    const {
+      parseRunIdPickerOpenFieldFromSearch,
+      parseRunIdPickerQueryFromSearch,
+      runIdPickerOverlayHrefFromSearch,
+    } = await import("@/lib/runs/run-id-picker-overlay-url");
+
+    expect(parseScopeSwitcherOpenFromSearch("1")).toBe(true);
+    expect(scopeSwitcherHrefFromSearch("", true, "/architecture/reviews")).toBe(
+      "/architecture/reviews?scopeOpen=1",
+    );
+    expect(parseOperatorWelcomeOpenFromSearch("true")).toBe(true);
+    expect(operatorWelcomeOnboardingHrefFromSearch("help=1", true, "/")).toBe("/?help=1&welcomeOpen=1");
+    expect(parseOnboardingTourOpenFromSearch("1")).toBe(true);
+    expect(parseOnboardingTourStepFromSearch("2")).toBe(2);
+    expect(
+      onboardingTourOverlayHrefFromSearch("", { open: true, stepIndex: 2 }, "/architecture/reviews"),
+    ).toBe("/architecture/reviews?onboardingTourOpen=1&onboardingTourStep=2");
+    expect(parseKeyboardShortcutsOpenFromSearch("1")).toBe(true);
+    expect(keyboardShortcutsDialogHrefFromSearch("", true, "/")).toBe("/?shortcutsOpen=1");
+    expect(parseRunIdPickerOpenFieldFromSearch("compare-left-run-id")).toBe("compare-left-run-id");
+    expect(parseRunIdPickerQueryFromSearch("alpha")).toBe("alpha");
+    expect(
+      runIdPickerOverlayHrefFromSearch(
+        "compare=1",
+        { open: true, fieldId: "compare-left-run-id", query: "alpha" },
+        "/insights/compare-two-reviews",
+      ),
+    ).toBe("/insights/compare-two-reviews?compare=1&runPickerField=compare-left-run-id&runPickerQ=alpha");
+  });
+
+  it("shell more menu, provenance nav, gov approval tech ref, settings advanced, wizard import params", async () => {
+    const {
+      parseShellTopBarMoreOpenFromSearch,
+      shellTopBarMoreMenuHrefFromSearch,
+    } = await import("@/lib/operator/shell-top-bar-more-menu-url");
+    const {
+      parseProvenanceSectionNavOpenFromSearch,
+      provenanceSectionNavHrefFromSearch,
+    } = await import("@/lib/provenance/provenance-section-nav-url");
+    const {
+      helpGovApprovalTechnicalReferenceHrefFromSearch,
+      parseHelpGovApprovalTechRefOpenFromSearch,
+    } = await import("@/lib/help/help-governance-approval-technical-reference-url");
+    const {
+      parseTenantSettingsQualityAdvancedOpenFromSearch,
+      tenantSettingsQualityAdvancedHrefFromSearch,
+    } = await import("@/lib/administration/tenant-settings-quality-advanced-url");
+    const {
+      parseWizardPresetImportOpenFromSearch,
+      wizardStepPresetImportHrefFromSearch,
+    } = await import("@/lib/wizard/wizard-step-preset-import-url");
+
+    expect(parseShellTopBarMoreOpenFromSearch("1")).toBe(true);
+    expect(shellTopBarMoreMenuHrefFromSearch("", true, "/architecture/reviews")).toBe(
+      "/architecture/reviews?shellMoreOpen=1",
+    );
+    expect(parseProvenanceSectionNavOpenFromSearch("true")).toBe(true);
+    expect(provenanceSectionNavHrefFromSearch("runId=r1", true, "/architecture/reviews/r1/provenance")).toBe(
+      "/architecture/reviews/r1/provenance?runId=r1&provNavOpen=1",
+    );
+    expect(parseHelpGovApprovalTechRefOpenFromSearch("1")).toBe(true);
+    expect(
+      helpGovApprovalTechnicalReferenceHrefFromSearch("", true, "/help/governance-approval"),
+    ).toBe("/help/governance-approval?helpGovApprovalTechRef=1");
+    expect(parseTenantSettingsQualityAdvancedOpenFromSearch("1")).toBe(true);
+    expect(
+      tenantSettingsQualityAdvancedHrefFromSearch("tab=general", true, "/administration/workspace-settings"),
+    ).toBe("/administration/workspace-settings?tab=general&settingsQualityAdvancedOpen=1");
+    expect(parseWizardPresetImportOpenFromSearch("true")).toBe(true);
+    expect(
+      wizardStepPresetImportHrefFromSearch("qsStep=1", true, "/architecture/reviews/new"),
+    ).toBe("/architecture/reviews/new?qsStep=1&wizardImportOpen=1");
   });
 });
 

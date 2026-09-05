@@ -25,7 +25,7 @@ public static class FindingSnapshotMergeKey
         {
             string fingerprint = NormalizeFingerprint(finding.Category, finding.Title);
 
-            return $"{finding.PolicyRuleId.Trim()}:{fingerprint}";
+            return $"{finding.PolicyRuleId.Trim().ToLowerInvariant()}:{fingerprint}";
         }
 
         return NormalizeFuzzyKey(finding.Category, finding.Title);

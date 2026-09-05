@@ -32,6 +32,21 @@ public sealed class PolicyPacksHttpMapperTests
     }
 
     [Fact]
+    public void ValidatePromoteCatalogEntry_rejects_whitespace_only_optional_version()
+    {
+        GovernanceHttpValidation? validation = PolicyPacksHttpMapper.ValidatePromoteCatalogEntry(
+            new PromotePolicyPackCatalogEntryRequest
+            {
+                SourcePolicyPackId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                Version = "   ",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("Version");
+    }
+
+    [Fact]
     public void ValidatePromoteCatalogEntry_rejects_overlong_optional_version()
     {
         GovernanceHttpValidation? validation = PolicyPacksHttpMapper.ValidatePromoteCatalogEntry(

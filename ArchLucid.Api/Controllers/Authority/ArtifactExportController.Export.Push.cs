@@ -29,6 +29,7 @@ public sealed partial class ArtifactExportController
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> PushRunExportToBlob(
@@ -57,6 +58,11 @@ public sealed partial class ArtifactExportController
             return this.NotFoundProblem(
                 $"Run '{runId}' has no committed golden manifest available for export.",
                 ProblemTypes.ManifestNotFound);
+
+        IActionResult? lifecycleProblem = EnsureAuthorityLifecycleCompleteOrConflict(runDetail, runId);
+
+        if (lifecycleProblem is not null)
+            return lifecycleProblem;
 
         await runExportBlobPushOutbox.EnqueueAsync(
             runId,

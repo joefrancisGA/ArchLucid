@@ -1,11 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import type { ReactElement } from "react";
+import { useMemo, type ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
+import { ReviewPackageWhatIfExecutePanel } from "@/components/reviews/ReviewPackageWhatIfExecutePanel";
+import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { useArchitectWorkspaceChrome } from "@/hooks/useArchitectWorkspaceChrome";
 import { buildCompareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
+import { resolveLinkedDraftForReview } from "@/lib/resolve-linked-draft-for-review";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +23,11 @@ export type ReviewPackageWhatIfControlProps = {
  */
 export function ReviewPackageWhatIfControl(props: ReviewPackageWhatIfControlProps): ReactElement | null {
   const architectWorkspaceChrome = useArchitectWorkspaceChrome();
+  const drafts = useArchitectureDraftRegistryEntries();
+  const linkedDraft = useMemo(
+    () => resolveLinkedDraftForReview(props.runId, drafts),
+    [drafts, props.runId],
+  );
   const compareHref = buildCompareTwoReviewsHref({ baseRunId: props.runId });
   const disabled = !props.packageCommitted || props.pipelineInFlight;
   const disabledReason = props.pipelineInFlight
@@ -39,6 +47,17 @@ export function ReviewPackageWhatIfControl(props: ReviewPackageWhatIfControlProp
         Start from this sealed package as the base. A true ceteris-paribus branch is a new architecture review
         with one field changed — it runs as a full billable review, then lands on Compare.
       </p>
+      {linkedDraft !== null ? (
+        <ReviewPackageWhatIfExecutePanel
+          baseRunId={props.runId}
+          linkedDraft={linkedDraft}
+          disabled={disabled}
+        />
+      ) : (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
+          Link this review to an admitted draft to execute a one-field what-if here, or start from snapshot below.
+        </p>
+      )}
       <div className="flex flex-wrap items-center gap-2">
         <Button type="button" size="sm" variant="default" disabled={disabled} asChild={!disabled}>
           {disabled ? (

@@ -2,6 +2,7 @@ using ArchLucid.Api.Models.CustomerSuccess;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
 using ArchLucid.Api.Http.Governance;
+using ArchLucid.Contracts.Findings;
 
 namespace ArchLucid.Api.Http.Tenancy;
 
@@ -46,6 +47,32 @@ internal static class ProductFeedbackHttpMapper
         {
             return new GovernanceHttpValidation(
                 $"Comment exceeds maximum length ({CommentMaxLength}).",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
+    internal static GovernanceHttpValidation? ValidateRunMatchesFindingAuthorityRun(
+        Guid? runId,
+        FindingInspectResponse finding)
+    {
+        ArgumentNullException.ThrowIfNull(finding);
+
+        if (finding.RunId == Guid.Empty)
+            return null;
+
+        if (runId is not Guid resolvedRunId || resolvedRunId == Guid.Empty)
+        {
+            return new GovernanceHttpValidation(
+                "runId is required when the finding is bound to an authority run.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (finding.RunId != resolvedRunId)
+        {
+            return new GovernanceHttpValidation(
+                "runId does not match the finding's authority run.",
                 ProblemTypes.ValidationFailed);
         }
 

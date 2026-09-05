@@ -10,6 +10,7 @@ using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
@@ -43,6 +44,8 @@ public sealed class PolicyPackGovernanceDryRunService(
     IOptions<TechnologyConsistencyFindingEngineOptions> technologyConsistencyFindingEngineOptions,
     IFindingEvidenceLinkageFindingEngine findingEvidenceLinkageFindingEngine,
     IOptions<FindingEvidenceLinkageFindingEngineOptions> findingEvidenceLinkageFindingEngineOptions,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     ILogger<PolicyPackGovernanceDryRunService> logger) : IPolicyPackGovernanceDryRunService
 {
     private static readonly string[] BlockCommitOnCriticalMetadataKeys = ["governance.blockCommitOnCritical", "blockCommitOnCritical"];
@@ -74,6 +77,12 @@ public sealed class PolicyPackGovernanceDryRunService(
 
     private readonly IOptions<FindingEvidenceLinkageFindingEngineOptions> _findingEvidenceLinkageFindingEngineOptions =
         findingEvidenceLinkageFindingEngineOptions ?? throw new ArgumentNullException(nameof(findingEvidenceLinkageFindingEngineOptions));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     /// <inheritdoc/>
     public async Task<PolicyPackGovernanceDryRunResult?> EvaluateAsync(string policyPackContentJson, string? targetRunId, Guid? targetManifestId,
@@ -108,6 +117,15 @@ public sealed class PolicyPackGovernanceDryRunService(
         RunRecord? run = await _runRepository.GetByIdAsync(scope, runKey, cancellationToken).ConfigureAwait(false);
         if (run is null)
             return null;
+
+        RunDetailDto? runDetail =
+            await _authorityQueryService.GetRunDetailForManifestCompareAsync(scope, runKey, cancellationToken)
+                .ConfigureAwait(false);
+        PolicyPackSimulateSealedManifestGuard.EnsureRunSealedManifestHashOrThrow(
+            runDetail?.GoldenManifest,
+            runKey.ToString("D"),
+            _manifestHashService);
+
         List<Finding> findings = [];
         if (run.FindingsSnapshotId is { } snapshotId)
         {

@@ -52,4 +52,15 @@ describe("operator shell stable cache", () => {
     expect(cached?.trialStatus).toBeUndefined();
     expect(cached?.catalogMigration?.inMigration).toBe(false);
   });
+
+  it("does not persist alerts inbox summary without a stable shell snapshot", () => {
+    writeOperatorShellStableCache({
+      trialStatus: { status: "Active", daysRemaining: 5 },
+      alertsInboxSummary: { open: 7, unacknowledged: 3, critical: 1 },
+    });
+
+    const cached = readOperatorShellStableCache();
+
+    expect(cached).toBeNull();
+  });
 });

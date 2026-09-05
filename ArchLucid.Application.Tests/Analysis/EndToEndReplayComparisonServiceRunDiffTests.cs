@@ -270,6 +270,93 @@ public sealed class EndToEndReplayComparisonServiceRunDiffTests
   }
 
   [Fact]
+  public async Task BuildAsync_pairs_export_records_by_compare_run_id_not_creation_order()
+  {
+    RunExportRecord leftPeerA = new()
+    {
+      ExportRecordId = "left-peer-a",
+      RunId = "left-run",
+      ExportType = "analysis-report-markdown",
+      TemplateProfile = "internal",
+      Format = "markdown",
+      CompareRunId = "peer-run-a",
+      CreatedUtc = new DateTime(2026, 1, 1, 8, 0, 0, DateTimeKind.Utc),
+    };
+    RunExportRecord leftPeerB = new()
+    {
+      ExportRecordId = "left-peer-b",
+      RunId = "left-run",
+      ExportType = "analysis-report-markdown",
+      TemplateProfile = "internal",
+      Format = "markdown",
+      CompareRunId = "peer-run-b",
+      CreatedUtc = new DateTime(2026, 1, 1, 9, 0, 0, DateTimeKind.Utc),
+    };
+    RunExportRecord rightPeerB = new()
+    {
+      ExportRecordId = "right-peer-b",
+      RunId = "right-run",
+      ExportType = "analysis-report-markdown",
+      TemplateProfile = "internal",
+      Format = "markdown",
+      CompareRunId = "peer-run-b",
+      CreatedUtc = new DateTime(2026, 1, 2, 8, 0, 0, DateTimeKind.Utc),
+    };
+    RunExportRecord rightPeerA = new()
+    {
+      ExportRecordId = "right-peer-a",
+      RunId = "right-run",
+      ExportType = "analysis-report-markdown",
+      TemplateProfile = "internal",
+      Format = "markdown",
+      CompareRunId = "peer-run-a",
+      CreatedUtc = new DateTime(2026, 1, 2, 9, 0, 0, DateTimeKind.Utc),
+    };
+
+    Mock<IRunDetailQueryService> runDetailQuery = new();
+    runDetailQuery
+      .Setup(s => s.GetRunDetailForRollupAsync("left-run", It.IsAny<CancellationToken>()))
+      .ReturnsAsync(CreateDetail("left-run", null));
+    runDetailQuery
+      .Setup(s => s.GetRunDetailForRollupAsync("right-run", It.IsAny<CancellationToken>()))
+      .ReturnsAsync(CreateDetail("right-run", null));
+
+    Mock<IRunExportRecordRepository> exportRecords = new();
+    exportRecords
+      .Setup(r => r.GetByRunIdAsync("left-run", It.IsAny<CancellationToken>()))
+      .ReturnsAsync([leftPeerA, leftPeerB]);
+    exportRecords
+      .Setup(r => r.GetByRunIdAsync("right-run", It.IsAny<CancellationToken>()))
+      .ReturnsAsync([rightPeerB, rightPeerA]);
+
+    Mock<IExportRecordDiffService> exportDiff = new();
+    exportDiff
+      .Setup(s => s.CompareAsync(It.IsAny<RunExportRecord>(), It.IsAny<RunExportRecord>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new ExportRecordDiffResult());
+
+    EndToEndReplayComparisonService sut = CreateSut(
+      runDetailQuery,
+      exportRecords,
+      new Mock<IManifestDiffService>(),
+      exportDiff);
+
+    await sut.BuildAsync("left-run", "right-run");
+
+    exportDiff.Verify(
+      s => s.CompareAsync(
+        It.Is<RunExportRecord>(record => record.ExportRecordId == "left-peer-a"),
+        It.Is<RunExportRecord>(record => record.ExportRecordId == "right-peer-a"),
+        It.IsAny<CancellationToken>()),
+      Times.Once);
+    exportDiff.Verify(
+      s => s.CompareAsync(
+        It.Is<RunExportRecord>(record => record.ExportRecordId == "left-peer-b"),
+        It.Is<RunExportRecord>(record => record.ExportRecordId == "right-peer-b"),
+        It.IsAny<CancellationToken>()),
+      Times.Once);
+  }
+
+  [Fact]
   public async Task BuildAsync_when_manifest_missing_but_agent_changed_adds_interpretation_note()
   {
     AgentResultDiffResult agentDiff = new()
