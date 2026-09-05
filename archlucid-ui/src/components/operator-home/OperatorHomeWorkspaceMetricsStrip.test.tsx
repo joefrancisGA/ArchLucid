@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
+import { OPERATOR_HOME_FINALIZED_PACKAGES_HREF } from "@/lib/operator/operator-home-metric-hrefs";
 
 import { OperatorHomeWorkspaceMetricsStrip } from "./OperatorHomeWorkspaceMetricsStrip";
 
@@ -50,7 +51,7 @@ function buildRunsDashboard(): OperatorHomeRunsDashboardModel {
 }
 
 describe("OperatorHomeWorkspaceMetricsStrip", () => {
-  it("renders list semantics and counter-style metrics without resting underline affordance", () => {
+  it("renders four bordered metric cards with self-describing counts", () => {
     useFinishSetupReadinessContext.mockReturnValue({
       phase: "ready",
       readyCount: 2,
@@ -79,21 +80,23 @@ describe("OperatorHomeWorkspaceMetricsStrip", () => {
 
     render(<OperatorHomeWorkspaceMetricsStrip runsDashboard={runsDashboard} />);
 
-    const activeReviewLink = screen.getByTestId("operator-home-metric-active-reviews");
-    expect(activeReviewLink.className).toMatch(/no-underline/);
-    expect(activeReviewLink).toHaveTextContent("2");
-    expect(activeReviewLink).toHaveTextContent("Active reviews");
-    expect(screen.getByTestId("operator-home-metric-finalized-packages")).toHaveTextContent("1");
-    expect(screen.getByTestId("operator-home-metric-finalized-packages")).toHaveTextContent(
-      "Finalized package",
-    );
-
     const strip = screen.getByTestId("operator-home-workspace-metrics-strip");
-    expect(strip.querySelector("ul")).toBeInTheDocument();
-    expect(strip.querySelectorAll("li").length).toBeGreaterThan(0);
+    expect(strip.querySelectorAll("li")).toHaveLength(4);
+    expect(strip.querySelectorAll(".rounded-md.border")).toHaveLength(4);
+
+    expect(screen.getByTestId("operator-home-metric-active-reviews-count-value")).toHaveAttribute(
+      "href",
+      "/architecture/reviews?filter=Active",
+    );
+    expect(screen.getByTestId("operator-home-metric-finalized-packages-count-value")).toHaveAttribute(
+      "href",
+      OPERATOR_HOME_FINALIZED_PACKAGES_HREF,
+    );
+    expect(screen.getByText(/active reviews · workspace · active/i)).toBeInTheDocument();
+    expect(screen.getByText(/finalized package · workspace · finalized/i)).toBeInTheDocument();
   });
 
-  it("shows active reviews even when only one in-progress review is surfaced in Your work", () => {
+  it("shows active reviews even when only one in-progress review is surfaced in unfinished work", () => {
     useFinishSetupReadinessContext.mockReturnValue({
       phase: "ready",
       readyCount: 2,
@@ -115,8 +118,8 @@ describe("OperatorHomeWorkspaceMetricsStrip", () => {
 
     render(<OperatorHomeWorkspaceMetricsStrip runsDashboard={runsDashboard} />);
 
-    expect(screen.getByTestId("operator-home-metric-active-reviews")).toHaveTextContent("1");
-    expect(screen.getByTestId("operator-home-metric-open-findings")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-metric-active-reviews-count-value")).toHaveTextContent("1");
+    expect(screen.getByTestId("operator-home-metric-open-findings-count-value")).toBeInTheDocument();
   });
 
   it("hides the strip when every pressure metric is zero", () => {

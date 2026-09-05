@@ -61,15 +61,17 @@ export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): Reac
       subtitle={props.subtitle}
       subtitleClassName="[&_strong]:font-bold"
       subtitleTestId="operator-home-page-subtitle"
+      metadata={
+        <OperatorPageFreshnessMetadata
+          testId="operator-home-data-currency"
+          lastRefreshedAt={refreshing ? null : lastRefreshedAt}
+        >
+          {freshnessContent}
+        </OperatorPageFreshnessMetadata>
+      }
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="operator-home-header-actions">
           <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
-          <OperatorPageFreshnessMetadata
-            testId="operator-home-data-currency"
-            lastRefreshedAt={refreshing ? null : lastRefreshedAt}
-          >
-            {freshnessContent}
-          </OperatorPageFreshnessMetadata>
           <RefreshButton
             data-testid="operator-home-refresh-button"
             busy={refreshing}

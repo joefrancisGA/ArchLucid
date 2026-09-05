@@ -78,6 +78,7 @@ export function ReRunReviewOutcomeNotice(props: ReRunReviewOutcomeNoticeProps): 
         <LongOperationQueueStatusLine
           className="mt-2"
           stageLabel={runningProgress.queueStatusStageLabel}
+          elapsedMs={runningProgress.queueStatusElapsedMs}
           testId="re-run-review-queue-status"
         />
       ) : null}

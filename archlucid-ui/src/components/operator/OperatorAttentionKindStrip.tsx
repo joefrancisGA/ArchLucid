@@ -81,6 +81,11 @@ export function OperatorAttentionKindStrip(
                 aria-label={formatOperatorAttentionChipAriaLabel(label, count)}
                 data-testid={`operator-attention-kind-chip-${kind}`}
               >
+                {needsAction ? (
+                  <span aria-hidden="true" className="font-bold text-al-text-primary">
+                    •
+                  </span>
+                ) : null}
                 <span>{label}</span>
                 <span
                   className={cn(

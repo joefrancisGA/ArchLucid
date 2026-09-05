@@ -17,6 +17,12 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/architecture/reviews/run-1",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 vi.mock("@/components/usability/ShareableReviewLinkButton", () => ({
   ShareableReviewLinkButton: () => <div data-testid="shareable-review-link-button" />,
 }));

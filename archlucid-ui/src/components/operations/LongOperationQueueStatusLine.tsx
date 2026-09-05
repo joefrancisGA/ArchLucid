@@ -7,13 +7,14 @@ import { cn } from "@/lib/utils";
 
 export type LongOperationQueueStatusLineProps = {
   readonly stageLabel: string;
+  readonly elapsedMs?: number;
   readonly className?: string;
   readonly testId?: string;
 };
 
 /** Queue status row — bold label, normal-weight stage value (TB-2078). */
 export function LongOperationQueueStatusLine(props: LongOperationQueueStatusLineProps): React.JSX.Element {
-  const value = resolveLongOperationQueueStatusValue(props.stageLabel);
+  const value = resolveLongOperationQueueStatusValue(props.stageLabel, props.elapsedMs);
 
   return (
     <p

@@ -61,7 +61,7 @@ export function resolvePreferencesSaveSteps(input: {
     },
     {
       id: "sample-reviews-on-overview",
-      label: "Choose sample reviews on Overview",
+      label: "Choose sample reviews on Home",
       status: resolvePreferenceStepStatus(input.sampleReviewsOnOverview),
     },
     {

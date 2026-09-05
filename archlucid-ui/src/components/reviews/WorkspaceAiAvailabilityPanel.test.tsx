@@ -94,6 +94,7 @@ describe("WorkspaceAiAvailabilityPanel", () => {
 
     expect(fetchWorkspaceAiAvailabilityMock).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId("review-package-workspace-ai-vendor-error")).toHaveTextContent("HTTP 401");
+    expect(screen.getByTestId("review-package-workspace-ai-as-of")).toHaveTextContent("Validated at Aug 31, 2026, 6:00 PM UTC");
     expect(screen.getByTestId("review-package-workspace-ai-model")).toHaveTextContent("gpt-4o");
     expect(screen.getByTestId("review-package-workspace-ai-model-provenance")).toHaveTextContent(
       "managed platform",
@@ -124,29 +125,29 @@ describe("WorkspaceAiAvailabilityPanel", () => {
     fireEvent.click(screen.getByTestId("review-package-check-ai-availability-button"));
 
     await waitFor(() => {
-      expect(screen.getByTestId("review-package-workspace-ai-detail")).toHaveTextContent(
-        "We checked AI availability and it is OK.",
-      );
+      expect(screen.getByText("AI checked — OK")).toBeInTheDocument();
     });
 
-    expect(screen.getByText("AI checked — OK")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /^Probe details/ })).toHaveAttribute("aria-expanded", "false");
+    expect(screen.getByTestId("review-package-workspace-ai-checked-at")).toHaveTextContent(
+      "Checked Aug 31, 2026, 6:00 PM UTC",
+    );
+    expect(screen.queryByTestId("review-package-workspace-ai-detail")).not.toBeInTheDocument();
+    expect(screen.getByTestId("review-package-recheck-ai-availability-link")).toHaveTextContent("Re-check");
+    expect(screen.getByRole("button", { name: "Probe details" })).toHaveAttribute("aria-expanded", "false");
     expect(screen.queryByText("Probe checks")).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /^Probe details/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Probe details" }));
 
     await waitFor(() => {
       expect(screen.getByTestId("review-package-workspace-ai-debug")).toBeInTheDocument();
     });
 
     expect(screen.getByTestId("review-package-workspace-ai-model")).toHaveTextContent("gpt-4o");
-    expect(screen.getByTestId("review-package-workspace-ai-model-provenance")).toHaveTextContent(
-      "managed platform",
-    );
+    expect(screen.queryByTestId("review-package-workspace-ai-model-provenance")).not.toBeInTheDocument();
     expect(screen.getByText("Probed deployment:")).toBeInTheDocument();
   });
 
-  it("re-checks availability when the button is clicked again", async () => {
+  it("re-checks availability from the compact header link", async () => {
     fetchWorkspaceAiAvailabilityMock.mockResolvedValue({
       isAvailable: true,
       validated: true,
@@ -170,12 +171,6 @@ describe("WorkspaceAiAvailabilityPanel", () => {
 
     await waitFor(() => {
       expect(fetchWorkspaceAiAvailabilityMock).toHaveBeenCalledTimes(1);
-    });
-
-    fireEvent.click(screen.getByRole("button", { name: /^Probe details/ }));
-
-    await waitFor(() => {
-      expect(screen.getByTestId("review-package-recheck-ai-availability-link")).toBeInTheDocument();
     });
 
     fireEvent.click(screen.getByTestId("review-package-recheck-ai-availability-link"));

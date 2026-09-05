@@ -1,12 +1,27 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactElement } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+const navigationHoisted = vi.hoisted(() => ({
+  searchParams: new URLSearchParams(),
+}));
+
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), back: vi.fn(), forward: vi.fn() }),
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: (href: string) => {
+      const queryIndex = href.indexOf("?");
+
+      navigationHoisted.searchParams =
+        queryIndex >= 0 ? new URLSearchParams(href.slice(queryIndex + 1)) : new URLSearchParams();
+    },
+    refresh: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+  }),
   usePathname: () => "",
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => navigationHoisted.searchParams,
 }));
 
 const apiHoisted = vi.hoisted(() => ({
@@ -76,6 +91,7 @@ import * as operatorStaticDemo from "@/lib/operator/operator-static-demo";
 import { OperatorHomeWorkspaceActivityProvider } from "@/components/operator-home/operator-home-workspace-activity-context";
 
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
+import { getOperatorScopeQueryKeySnapshot } from "@/lib/operator/operator-scope-query-key";
 
 import { RunsDashboardPanel } from "./RunsDashboardPanel";
 
@@ -96,6 +112,7 @@ function buildInitialModel(
     malformedMessage: null,
     usedStaticRunsFallback: false,
     buyerPolishedShell: false,
+    scopeQueryKeySnapshot: getOperatorScopeQueryKeySnapshot(),
     ...overrides,
   };
 }
@@ -143,6 +160,7 @@ function stubFetchForDashboard() {
 describe("RunsDashboardPanel", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    navigationHoisted.searchParams = new URLSearchParams();
   });
 
   afterEach(() => {
@@ -291,9 +309,9 @@ describe("RunsDashboardPanel", () => {
     renderRunsDashboardPanel();
 
     await waitFor(() => {
-      expect(screen.getByRole("tab", { name: /needs attention/i })).toBeInTheDocument();
+      expect(screen.getByTestId("runs-dashboard-tab-attention")).toBeInTheDocument();
     });
-    fireEvent.click(screen.getByRole("tab", { name: /needs attention/i }));
+    fireEvent.click(screen.getByTestId("runs-dashboard-tab-attention"));
 
     expect(
       await screen.findByText("Findings ready · finalize this review to lock export readiness"),
@@ -581,7 +599,7 @@ describe("RunsDashboardPanel", () => {
     renderRunsDashboardPanel();
 
     await waitFor(() => {
-      expect(screen.getByRole("tablist", { name: "Filter reviews" })).toBeInTheDocument();
+      expect(screen.getByRole("group", { name: "Filter reviews" })).toBeInTheDocument();
       expect(screen.getByTestId("runs-dashboard-filter-all")).toHaveTextContent("All (1)");
       expect(screen.getByTestId("runs-dashboard-filter-approved")).toHaveTextContent("Approved (1)");
     });
@@ -711,7 +729,7 @@ describe("RunsDashboardPanel", () => {
     runsDashBuyerPolishedForced.on = false;
   });
 
-  it("operator shell exposes tablist with tabpanels and keyboard navigation when reviews exist (TB-667)", async () => {
+  it("operator shell exposes review filter chips and tabpanels when reviews exist (TB-667)", async () => {
     const activeRun: RunSummary = {
       runId: "66666666-6666-6666-6666-666666666666",
       projectId: "default",
@@ -731,22 +749,34 @@ describe("RunsDashboardPanel", () => {
     });
     stubFetchForDashboard();
 
-    renderRunsDashboardPanel();
+    renderRunsDashboardPanel(
+      <RunsDashboardPanel
+        initialModel={buildInitialModel({
+          buyerPolishedShell: false,
+          items: [activeRun],
+          totalCount: 1,
+        })}
+      />,
+    );
 
     await screen.findByRole("link", { name: "Active review" });
 
     await waitFor(() => {
-      expect(screen.getByRole("tablist", { name: "Review views" })).toBeInTheDocument();
+      expect(screen.getByRole("group", { name: "Review views" })).toBeInTheDocument();
     });
 
-    expect(screen.getByRole("tab", { name: /recent/i })).toHaveAttribute("aria-selected", "true");
-    expect(screen.queryByRole("link", { name: /open all reviews/i })).not.toBeNull();
-    expect(screen.getByTestId("runs-dashboard-status-filters").querySelector("a")).toBeNull();
+    const filterGroup = screen.getByTestId("runs-dashboard-status-filters");
 
-    fireEvent.click(screen.getByRole("tab", { name: /needs attention/i }));
+    expect(within(filterGroup).getByTestId("runs-dashboard-tab-all")).toHaveAttribute("aria-pressed", "true");
+    expect(screen.queryByRole("link", { name: /open all reviews/i })).not.toBeNull();
+
+    fireEvent.click(within(filterGroup).getByTestId("runs-dashboard-tab-attention"));
 
     await waitFor(() => {
-      expect(screen.getByRole("tab", { name: /needs attention/i })).toHaveAttribute("aria-selected", "true");
+      expect(within(filterGroup).getByTestId("runs-dashboard-tab-attention")).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
     });
     expect(screen.getByRole("tabpanel")).toHaveAttribute("data-testid", "runs-dashboard-panel-attention");
   });
@@ -760,6 +790,7 @@ describe("RunsDashboardPanel", () => {
       hasFindingsSnapshot: true,
       hasGoldenManifest: true,
       isArchived: false,
+      hasGovernanceWarnings: true,
     };
     const archivedRun: RunSummary = {
       runId: "77777777-7777-7777-7777-777777777777",

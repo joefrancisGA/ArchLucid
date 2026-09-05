@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { Share2, Users } from "lucide-react";
-import { useState, type ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useState, type ReactElement, type SetStateAction } from "react";
 
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { ShareableReviewLinkButton } from "@/components/usability/ShareableReviewLinkButton";
@@ -12,6 +13,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { buildInviteReviewerHref, INVITE_REVIEWER_PAGE_TITLE } from "@/lib/invite-reviewer-flow";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatWhyDisabledCtaMessage, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
+import {
+  parseReviewHeaderShareMenuOpenFromSearch,
+  reviewHeaderShareMenuHrefFromSearch,
+} from "@/lib/reviews/review-header-share-menu-url";
 import { cn } from "@/lib/utils";
 
 export type ReviewHeaderShareMenuProps = {
@@ -25,7 +30,32 @@ export type ReviewHeaderShareMenuProps = {
 
 /** Consolidated share and export affordances on the review detail header. */
 export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactElement {
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
+  const searchParams = useSearchParams();
+  const shareMenuOpenParam = searchParams.get("shareMenuOpen");
+  const [open, setOpenState] = useState(() => parseReviewHeaderShareMenuOpenFromSearch(shareMenuOpenParam));
+
+  const syncShareMenuOpenToUrl = useCallback(
+    (nextOpen: boolean) => {
+      router.replace(reviewHeaderShareMenuHrefFromSearch(searchParams.toString(), nextOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncShareMenuOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncShareMenuOpenToUrl],
+  );
   const inviteHref = buildInviteReviewerHref(props.runId);
   const exportSteps = buildReviewMeetingPacketSteps({
     runId: props.runId,

@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { Menu } from "lucide-react";
-import { usePathname } from "next/navigation";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useLayoutEffect, useState, type SetStateAction } from "react";
 
 import { SidebarNavCluster } from "@/components/sidebar-nav/SidebarNavCluster";
 import { RoleNavDensityExpandControl } from "@/components/sidebar-nav/RoleNavDensityExpandControl";
@@ -25,15 +25,43 @@ import {
   sidebarNavGroupIsExpanded,
   type SidebarCollapsibleNavGroupId,
 } from "@/lib/sidebar-nav-group-expansion-storage";
+import {
+  mobileNavDrawerHrefFromSearch,
+  parseMobileNavDrawerOpenFromSearch,
+} from "@/lib/operator/mobile-nav-drawer-url";
 
 /**
  * Hamburger + full-height drawer for small screens (sidebar is hidden below `lg`).
  * Uses the same collapsible group model as desktop {@link SidebarNav}.
  */
 export function MobileNavDrawer() {
-  const pathname = usePathname();
-  const [open, setOpen] = useState(false);
+  const pathname = usePathname() ?? "";
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const mobileNavOpenParam = searchParams.get("mobileNavOpen");
+  const [open, setOpenState] = useState(() => parseMobileNavDrawerOpenFromSearch(mobileNavOpenParam));
   const [mounted, setMounted] = useState(false);
+
+  const syncMobileNavOpenToUrl = useCallback(
+    (drawerOpen: boolean) => {
+      router.replace(mobileNavDrawerHrefFromSearch(searchParams.toString(), drawerOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncMobileNavOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncMobileNavOpenToUrl],
+  );
   const { expansion, toggleGroupExpanded, setGroupExpanded } = useSidebarNavGroupExpansion();
   const { isGovernanceModeEnabled } = useGovernanceMode();
   const {

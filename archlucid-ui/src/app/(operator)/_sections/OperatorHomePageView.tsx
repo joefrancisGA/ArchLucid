@@ -174,7 +174,7 @@ function renderOperatorHomeSection(input: RenderOperatorHomeSectionInput): React
       return (
         <section
           key={input.section.id}
-          aria-label="Overview command center"
+          aria-label="Home command center"
           data-testid={input.section.testId}
         >
           <PilotCommandCenterCardDeferred
