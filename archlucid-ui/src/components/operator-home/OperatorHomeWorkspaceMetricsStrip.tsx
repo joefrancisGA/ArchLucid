@@ -108,34 +108,36 @@ export function OperatorHomeWorkspaceMetricsStrip(
           <span className="sr-only"> Workspace: {workspaceName}.</span>
         </p>
       </div>
-      <OperatorHomePrimaryAttentionLead />
       <p className="sr-only">{compactLine}</p>
-      <ul className="m-0 grid list-none grid-cols-2 gap-3 p-0 lg:grid-cols-4">
-        <li className={METRIC_CARD_CLASS} data-testid="operator-home-metric-active-reviews">
-          <SelfDescribingMetricCount
-            presentation={operatorHomeActiveReviewsPresentation(activeReviews)}
-            testId="operator-home-metric-active-reviews-count"
-          />
-        </li>
-        <li className={METRIC_CARD_CLASS} data-testid="operator-home-metric-finalized-packages">
-          <SelfDescribingMetricCount
-            presentation={operatorHomeFinalizedPackagesPresentation(finalizedPackages)}
-            testId="operator-home-metric-finalized-packages-count"
-          />
-        </li>
-        <li className={METRIC_CARD_CLASS} data-testid="operator-home-metric-open-findings">
-          <SelfDescribingMetricCount
-            presentation={workspaceOpenFindingsPresentation(findingsCount)}
-            testId="operator-home-metric-open-findings-count"
-          />
-        </li>
-        <li className={METRIC_CARD_CLASS} data-testid="operator-home-governance-warnings-metric">
-          <SelfDescribingMetricCount
-            presentation={warningsPresentation}
-            testId="operator-home-governance-warnings-metric-count"
-          />
-        </li>
-      </ul>
+      <div className="space-y-4" data-testid="operator-home-workspace-metrics-stack">
+        <OperatorHomePrimaryAttentionLead />
+        <ul className="m-0 grid list-none grid-cols-2 gap-3 p-0 lg:grid-cols-4">
+          <li className={METRIC_CARD_CLASS} data-testid="operator-home-metric-active-reviews">
+            <SelfDescribingMetricCount
+              presentation={operatorHomeActiveReviewsPresentation(activeReviews)}
+              testId="operator-home-metric-active-reviews-count"
+            />
+          </li>
+          <li className={METRIC_CARD_CLASS} data-testid="operator-home-metric-finalized-packages">
+            <SelfDescribingMetricCount
+              presentation={operatorHomeFinalizedPackagesPresentation(finalizedPackages)}
+              testId="operator-home-metric-finalized-packages-count"
+            />
+          </li>
+          <li className={METRIC_CARD_CLASS} data-testid="operator-home-metric-open-findings">
+            <SelfDescribingMetricCount
+              presentation={workspaceOpenFindingsPresentation(findingsCount)}
+              testId="operator-home-metric-open-findings-count"
+            />
+          </li>
+          <li className={METRIC_CARD_CLASS} data-testid="operator-home-governance-warnings-metric">
+            <SelfDescribingMetricCount
+              presentation={warningsPresentation}
+              testId="operator-home-governance-warnings-metric-count"
+            />
+          </li>
+        </ul>
+      </div>
       {warningsCount > 0 ? (
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           <InlineGlossaryChip nounId="governance-approval" pulseOnFirstEncounter>
