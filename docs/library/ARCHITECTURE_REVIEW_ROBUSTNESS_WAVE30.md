@@ -20,4 +20,4 @@ Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave30Arc
 
 **Hasher baseline note:** wave 30 does not bump Hasher A schema version; export gates, compare fingerprints, and finding read/write sync remain on the existing **`v12`** baseline (`tests/manifest-hash/hasher-baseline-v12.json`).
 
-**Deferred:** remediation-instance guards (356–359), remaining UI collateral surfaces (367, 369, 371–374), and compliance-drift outbox metadata (378) remain for wave 31+.
+**Deferred:** compliance-drift escalation scanner/publisher job wiring (378 emitter call sites) remains for a follow-up when threshold scanning ships. Wave 31 Tier 1 continuation: [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE31.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE31.md).

@@ -6,7 +6,9 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -194,7 +196,11 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
             new InMemoryOperationalSecurityExceptionRepository(),
             new InMemorySnapshotRepository(),
             new InMemoryAdvisoryTerraformService(),
-            Mock.Of<IAuditService>());
+            Mock.Of<IAuditService>(),
+            Mock.Of<IOperationalSecurityFindingRepository>(),
+            Mock.Of<IAuditManualEvidenceRepository>(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>());
 
         return new RemediationWaveService(
             waveRepository,

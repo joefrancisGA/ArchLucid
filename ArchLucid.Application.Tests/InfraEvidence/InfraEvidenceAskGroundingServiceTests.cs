@@ -4,7 +4,9 @@ using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.Llm;
 using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -54,6 +56,8 @@ public sealed class InfraEvidenceAskGroundingServiceTests
             collector.Object,
             llm.Object,
             Mock.Of<IPromptRedactor>(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
             NullLogger<InfraEvidenceAskGroundingService>.Instance);
 
         InfraEvidenceAskGroundingResult result = await service.TryAnswerAsync(
@@ -101,6 +105,8 @@ public sealed class InfraEvidenceAskGroundingServiceTests
             collector.Object,
             Mock.Of<IAgentCompletionClient>(),
             Mock.Of<IPromptRedactor>(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
             NullLogger<InfraEvidenceAskGroundingService>.Instance);
 
         InfraEvidenceAskGroundingResult result = await service.TryAnswerAsync(
@@ -159,6 +165,8 @@ public sealed class InfraEvidenceAskGroundingServiceTests
             collector.Object,
             llm.Object,
             redactor.Object,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
             NullLogger<InfraEvidenceAskGroundingService>.Instance);
 
         InfraEvidenceAskGroundingResult result = await service.TryAnswerAsync(
@@ -190,6 +198,8 @@ public sealed class InfraEvidenceAskGroundingServiceTests
             collector.Object,
             Mock.Of<IAgentCompletionClient>(),
             Mock.Of<IPromptRedactor>(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
             NullLogger<InfraEvidenceAskGroundingService>.Instance);
     }
 }
