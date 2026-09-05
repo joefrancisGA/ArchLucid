@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:420 -->
+<!-- audit-core-const-count:422 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -820,7 +820,9 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `IntegrationConfluenceFirstValueReportPublished` | `Integration.ConfluenceFirstValueReportPublished` | `ConfluencePublishingAdminController` (`POST …/admin/integrations/confluence/first-value-report`) |
 | `ArchitectureIntelligenceRunCompleted` | `ArchitectureIntelligence.RunCompleted` | `ArchitectureIntelligenceController` (architecture intelligence run / golden paths) |
 | `ArchitectureIntelligenceGoldenTestCompleted` | `ArchitectureIntelligence.GoldenTestCompleted` | `ArchitectureIntelligenceController` (golden test completion) |
-| `TenantBrandingProfileChanged` | `TenantBrandingProfile.Changed` | `SqlTenantBrandingProfileRepository` (tenant branding profile upsert) |
+| `TenantBrandingProfileChanged` | `TenantBrandingProfile.Changed` | `TenantBrandingAdminController` (`PUT /v1/infra-evidence/branding/admin/draft`); `SqlTenantBrandingProfileRepository` (tenant branding profile upsert) |
+| `TenantBrandingProfileActivated` | `TenantBrandingProfile.Activated` | `TenantBrandingAdminController` (`POST /v1/infra-evidence/branding/admin/activate`) |
+| `TenantBrandingProfileReverted` | `TenantBrandingProfile.Reverted` | `TenantBrandingAdminController` (`POST /v1/infra-evidence/branding/admin/revert`) |
 | `TenantBrandAssetUploaded` | `TenantBrandAsset.Uploaded` | `BrandAssetController` (`POST /v1/infra-evidence/branding/assets`); `POST /v1/infra-evidence/branding/assets` |
 | `TenantCatalogMigrationStarted` | `TenantCatalogMigrationStarted` | `TenantCatalogMigrationOrchestrator` (`POST /v1/admin/tenants/{tenantId}/catalog-migration/start`) |
 | `TenantCatalogMigrationProjectionRefreshCompleted` | `TenantCatalogMigrationProjectionRefreshCompleted` | `TenantCatalogMigrationOrchestrator` (`POST /v1/admin/tenants/{tenantId}/catalog-migration/projection-refresh`) |
