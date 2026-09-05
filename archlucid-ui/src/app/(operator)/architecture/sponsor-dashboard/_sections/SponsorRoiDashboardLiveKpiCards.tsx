@@ -8,6 +8,7 @@ import { useGovernanceDecisionsNeededSummaryQuery } from "@/hooks/use-governance
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { KpiTileDrillThroughLink } from "@/components/KpiTileDrillThroughLink";
+import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SPONSOR_KPI_DRILL_THROUGH } from "@/lib/sponsor-kpi-drill-through-hrefs";
 import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -21,6 +22,12 @@ import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { computePilotDayNumber } from "@/lib/sponsor-pilot-day";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  sponsorDecisionsNeededPresentation,
+  sponsorExpiringWaiversPresentation,
+  sponsorNewlyDiscoveredFindingsPresentation,
+  sponsorStaleArchitectureRisksPresentation,
+} from "@/lib/sponsor/sponsor-queue-metric-presentations";
 
 function KpiFootnote(props: { readonly text: string | null; readonly runbookHref?: string | null }) {
   if (!props.text) {
@@ -172,14 +179,17 @@ export function SponsorRoiDashboardLiveKpiCards({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <KpiTileDrillThroughLink
-            href={SPONSOR_KPI_DRILL_THROUGH.newlyDiscoveredFindings30d}
-            testId="kpi-tile-discovered-30d-link"
-          >
-            <p className={OPERATOR_TYPOGRAPHY.executiveDashboardMetric}>
-              {discovered.display}
-            </p>
-          </KpiTileDrillThroughLink>
+          {loading ? (
+            <p className={OPERATOR_TYPOGRAPHY.executiveDashboardMetric}>{discovered.display}</p>
+          ) : (
+            <SelfDescribingMetricCount
+              variant="executive"
+              presentation={sponsorNewlyDiscoveredFindingsPresentation(
+                resolvedSummary?.newlyDiscoveredFindingsCount30Days ?? 0,
+              )}
+              testId="exec-kpi-discovered-30d-count"
+            />
+          )}
           <KpiFootnote text={discovered.footnote} />
         </CardContent>
       </Card>
@@ -198,14 +208,15 @@ export function SponsorRoiDashboardLiveKpiCards({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <KpiTileDrillThroughLink
-            href={SPONSOR_KPI_DRILL_THROUGH.staleArchitectureRisks}
-            testId="kpi-tile-stale-risks-link"
-          >
-            <p className={OPERATOR_TYPOGRAPHY.executiveDashboardMetric}>
-              {staleRisks.display}
-            </p>
-          </KpiTileDrillThroughLink>
+          {loading ? (
+            <p className={OPERATOR_TYPOGRAPHY.executiveDashboardMetric}>{staleRisks.display}</p>
+          ) : (
+            <SelfDescribingMetricCount
+              variant="executive"
+              presentation={sponsorStaleArchitectureRisksPresentation(staleRiskCount)}
+              testId="exec-kpi-stale-risks-count"
+            />
+          )}
           <KpiFootnote text={staleRisks.footnote} />
         </CardContent>
       </Card>
@@ -226,14 +237,15 @@ export function SponsorRoiDashboardLiveKpiCards({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <KpiTileDrillThroughLink
-            href={SPONSOR_KPI_DRILL_THROUGH.decisionsNeeded}
-            testId="kpi-tile-decisions-needed-link"
-          >
-            <p className={OPERATOR_TYPOGRAPHY.executiveDashboardMetric}>
-              {decisionsNeeded.display}
-            </p>
-          </KpiTileDrillThroughLink>
+          {loading ? (
+            <p className={OPERATOR_TYPOGRAPHY.executiveDashboardMetric}>{decisionsNeeded.display}</p>
+          ) : (
+            <SelfDescribingMetricCount
+              variant="executive"
+              presentation={sponsorDecisionsNeededPresentation(decisionsNeededCount)}
+              testId="exec-kpi-decisions-needed-count"
+            />
+          )}
           <KpiFootnote text={decisionsNeeded.footnote} />
         </CardContent>
       </Card>
@@ -248,14 +260,15 @@ export function SponsorRoiDashboardLiveKpiCards({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <KpiTileDrillThroughLink
-            href={SPONSOR_KPI_DRILL_THROUGH.expiringWaivers}
-            testId="kpi-tile-expiring-waivers-link"
-          >
-            <p className={OPERATOR_TYPOGRAPHY.executiveDashboardMetric}>
-              {expiringWaivers.display}
-            </p>
-          </KpiTileDrillThroughLink>
+          {loading ? (
+            <p className={OPERATOR_TYPOGRAPHY.executiveDashboardMetric}>{expiringWaivers.display}</p>
+          ) : (
+            <SelfDescribingMetricCount
+              variant="executive"
+              presentation={sponsorExpiringWaiversPresentation(expiringWaiversCount)}
+              testId="exec-kpi-expiring-waivers-count"
+            />
+          )}
           <KpiFootnote text={expiringWaivers.footnote} />
         </CardContent>
       </Card>

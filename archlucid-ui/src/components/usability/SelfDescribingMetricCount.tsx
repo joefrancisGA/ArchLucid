@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 export type SelfDescribingMetricCountProps = {
   readonly presentation: MetricCountPresentation;
   readonly testId?: string;
-  readonly variant?: "inline" | "stacked";
+  readonly variant?: "inline" | "stacked" | "executive";
   readonly showHeadline?: boolean;
 };
 
@@ -39,11 +39,16 @@ export function SelfDescribingMetricCount(props: SelfDescribingMetricCountProps)
     );
   }
 
+  const countLinkClassName =
+    variant === "executive"
+      ? cn(OPERATOR_TYPOGRAPHY.executiveDashboardMetric, OPERATOR_LINK.nav)
+      : cn("font-medium tabular-nums", OPERATOR_LINK.inline);
+
   return (
     <div className="min-w-0 space-y-0.5" data-testid={testId}>
       <Link
         href={presentation.href}
-        className={cn("font-medium tabular-nums", OPERATOR_LINK.inline)}
+        className={countLinkClassName}
         data-testid={testId ? `${testId}-value` : undefined}
         aria-label={headline}
       >

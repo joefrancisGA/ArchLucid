@@ -53,6 +53,7 @@ import {
 import { ReviewsHubResumeDrafts } from "./ReviewsHubResumeDrafts";
 import { ReviewsHubContinueReviewStrip } from "./ReviewsHubContinueReviewStrip";
 import { resolveReviewsHubContinueReviewCandidate } from "@/lib/reviews-hub-continue-review";
+import { resolveReviewsHubAttentionSuppressKinds } from "@/lib/reviews-hub-attention-suppress";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import type { RunsPageModel } from "./runs-page-model";
@@ -82,6 +83,11 @@ export function RunsPageView(props: Props) {
   const isDev = process.env.NODE_ENV === "development";
   const workspaceSummary = deriveReviewsWorkspaceSummary(m.runs);
   const continueReviewCandidate = resolveReviewsHubContinueReviewCandidate(m.runs);
+  const attentionSuppressKinds = resolveReviewsHubAttentionSuppressKinds({
+    hasContinueStrip: continueReviewCandidate !== null,
+    hasInProgressInventory: workspaceSummary.inProgress > 0,
+    readyForGovernanceCount: workspaceSummary.readyForGovernance,
+  });
   const hubLoadOk = loadFailure === null && malformedMessage === null;
   const hasReviews = m.runs.length > 0;
   // Advanced aggregate list only when the hub page cannot show the full inventory.
@@ -195,6 +201,7 @@ export function RunsPageView(props: Props) {
                 pageSize={m.pageSize}
                 totalCount={m.totalCount}
                 nextCursor={m.nextCursorForClient}
+                continueStripRunId={continueReviewCandidate?.runId ?? null}
               />
             </div>
           </section>
@@ -207,7 +214,10 @@ export function RunsPageView(props: Props) {
             className={REVIEWS_HUB_GUIDANCE_STACK_CLASS}
             data-testid="reviews-hub-guidance"
           >
-            <OperatorAttentionKindStrip variant="compact" />
+            <OperatorAttentionKindStrip
+              variant="compact"
+              suppressKinds={attentionSuppressKinds.length > 0 ? attentionSuppressKinds : undefined}
+            />
             <ArchitectureObjectMapStrip focus="review" />
             <CollapsibleSection
               title={REVIEWS_HUB_MORE_WAYS_TITLE}

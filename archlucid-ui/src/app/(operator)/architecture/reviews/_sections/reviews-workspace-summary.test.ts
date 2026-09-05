@@ -37,13 +37,15 @@ describe("deriveReviewsWorkspaceSummary", () => {
     expect(summary.readyForGovernance).toBe(1);
   });
 
-  it("uses showcase spine counts for the sample package when wire counts are absent", () => {
+  it("excludes showcase sample rows from live tenant totals", () => {
     const summary = deriveReviewsWorkspaceSummary([
       run({ runId: SHOWCASE_STATIC_DEMO_RUN_ID, hasGoldenManifest: true, hasFindingsSnapshot: true }),
+      run({ runId: "live-in-flight", findingCount: 2 }),
     ]);
 
-    expect(summary.committed).toBe(1);
-    expect(summary.findings).toBeGreaterThan(0);
-    expect(summary.openRisks).toBeGreaterThan(0);
+    expect(summary.inProgress).toBe(1);
+    expect(summary.committed).toBe(0);
+    expect(summary.findings).toBe(2);
+    expect(summary.openRisks).toBe(0);
   });
 });
