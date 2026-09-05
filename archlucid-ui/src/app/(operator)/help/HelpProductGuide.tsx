@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useMemo, useState, useEffect, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
@@ -25,6 +25,10 @@ import {
   helpHubSearchHrefFromSearch,
   parseHelpHubSearchQuery,
 } from "@/lib/help/help-hub-search-url";
+import {
+  helpAdvancedTopicsHrefFromSearch,
+  parseHelpAdvancedTopicsOpenFromSearch,
+} from "@/lib/help/help-advanced-topics-url";
 import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { inAppHelpHref, type ProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -34,17 +38,46 @@ import { inAppHelpHref, type ProductDocumentationEntry } from "@/lib/product-doc
  */
 export function HelpProductGuide() {
   const router = useRouter();
+  const pathname = usePathname() ?? "/help";
   const searchParams = useSearchParams();
   const currentSearch = searchParams.toString();
   const urlTopicQuery = parseHelpHubSearchQuery(searchParams.get("q"));
+  const helpAdvancedTopicsOpenParam = searchParams.get("helpAdvancedTopicsOpen");
   const { callerAuthorityRank } = useOperatorNavAuthority();
   const isAdmin = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showAdvanced, setShowAdvancedState] = useState(() =>
+    parseHelpAdvancedTopicsOpenFromSearch(helpAdvancedTopicsOpenParam),
+  );
   const [topicQuery, setTopicQuery] = useState(urlTopicQuery);
 
   useEffect(() => {
     setTopicQuery(urlTopicQuery);
   }, [urlTopicQuery]);
+
+  const syncShowAdvancedToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(helpAdvancedTopicsHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setShowAdvanced = useCallback(
+    (value: boolean | ((current: boolean) => boolean)) => {
+      setShowAdvancedState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncShowAdvancedToUrl(next);
+
+        return next;
+      });
+    },
+    [syncShowAdvancedToUrl],
+  );
+
+  useEffect(() => {
+    setShowAdvancedState(parseHelpAdvancedTopicsOpenFromSearch(helpAdvancedTopicsOpenParam));
+  }, [helpAdvancedTopicsOpenParam]);
 
   useEffect(() => {
     const handle = window.setTimeout(() => {

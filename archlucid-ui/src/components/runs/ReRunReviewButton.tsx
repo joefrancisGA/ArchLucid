@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type SetStateAction } from "react";
 
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -39,6 +39,10 @@ import {
   type ReRunReviewOutcomePhase,
 } from "@/lib/re-run-review-outcome-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  parseReRunReviewConfirmOpenFromSearch,
+  reRunReviewConfirmHrefFromSearch,
+} from "@/lib/runs/re-run-review-confirm-url";
 import { cn } from "@/lib/utils";
 
 export type ReRunReviewButtonProps = {
@@ -76,8 +80,38 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
     "data-testid": dataTestId = "re-run-review-button",
   } = props;
   const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const reRunConfirmOpenParam = searchParams.get("reRunConfirmOpen");
   const [busy, setBusy] = useState(false);
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmOpen, setConfirmOpenState] = useState(() =>
+    parseReRunReviewConfirmOpenFromSearch(reRunConfirmOpenParam),
+  );
+
+  const syncConfirmOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(reRunReviewConfirmHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setConfirmOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setConfirmOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncConfirmOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncConfirmOpenToUrl],
+  );
+
+  useEffect(() => {
+    setConfirmOpenState(parseReRunReviewConfirmOpenFromSearch(reRunConfirmOpenParam));
+  }, [reRunConfirmOpenParam]);
   const [sessionAttemptOffset, setSessionAttemptOffset] = useState(0);
   const [outcome, setOutcome] = useState<ReRunReviewOutcomeState | null>(null);
   const [error, setError] = useState<{

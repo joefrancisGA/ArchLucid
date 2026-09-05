@@ -22,8 +22,9 @@ vi.mock("@/lib/await-minimum-visible-duration", () => ({
 }));
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ refresh: routerRefresh }),
+  useRouter: () => ({ refresh: routerRefresh, replace: vi.fn() }),
   usePathname: () => "/architecture/reviews/run-abc",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 describe("ReRunReviewButton", () => {
