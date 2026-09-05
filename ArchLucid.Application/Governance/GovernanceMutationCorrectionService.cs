@@ -138,7 +138,7 @@ public sealed class GovernanceMutationCorrectionService(
                 _manifestHashService);
         }
 
-        await ValidateSubjectAsync(mutationKind, subjectId, normalizedRunId, scope, cancellationToken);
+        subjectId = await ValidateSubjectAsync(mutationKind, subjectId, normalizedRunId, scope, cancellationToken);
 
         Guid correctionId = Guid.NewGuid();
         DateTimeOffset recordedAtUtc = TimeProvider.System.GetUtcNow();
@@ -182,7 +182,7 @@ public sealed class GovernanceMutationCorrectionService(
         };
     }
 
-    private async Task ValidateSubjectAsync(
+    private async Task<string> ValidateSubjectAsync(
         string mutationKind,
         string subjectId,
         string normalizedRunId,
@@ -195,35 +195,33 @@ public sealed class GovernanceMutationCorrectionService(
         {
             await ValidateApprovalSubjectAsync(mutationKind, subjectId, normalizedRunId, cancellationToken);
 
-            return;
+            return subjectId;
         }
 
         if (mutationKind == GovernanceMutationCorrectionKinds.WorkflowPromote)
         {
             await ValidatePromotionSubjectAsync(subjectId, normalizedRunId, cancellationToken);
 
-            return;
+            return subjectId;
         }
 
         if (mutationKind == GovernanceMutationCorrectionKinds.WorkflowActivate)
         {
             await ValidateActivationSubjectAsync(subjectId, normalizedRunId, cancellationToken);
 
-            return;
+            return subjectId;
         }
 
         if (mutationKind is GovernanceMutationCorrectionKinds.BulkDisposition
             or GovernanceMutationCorrectionKinds.KeyboardFindingDisposition)
         {
-            await ValidateFindingDispositionSubjectAsync(subjectId, normalizedRunId, scope, cancellationToken);
-
-            return;
+            return await ValidateFindingDispositionSubjectAsync(subjectId, normalizedRunId, scope, cancellationToken);
         }
 
         throw new ArgumentException($"Mutation kind '{mutationKind}' does not support in-product correction.", nameof(mutationKind));
     }
 
-    private async Task ValidateFindingDispositionSubjectAsync(
+    private async Task<string> ValidateFindingDispositionSubjectAsync(
         string findingId,
         string normalizedRunId,
         ScopeContext scope,
@@ -257,6 +255,8 @@ public sealed class GovernanceMutationCorrectionService(
 
         if (!hasDispositionForRun)
             throw new KeyNotFoundException($"Finding '{findingId}' has no recorded disposition to correct.");
+
+        return canonicalFindingId;
     }
 
     private async Task ValidateApprovalSubjectAsync(

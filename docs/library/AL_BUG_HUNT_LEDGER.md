@@ -3409,11 +3409,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 219
-- **bugs-found:** 441
+- **hunts:** 220
+- **bugs-found:** 442
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — merge-conflict member FindingId case mismatch
+- **last-bug:** 2026-09-05 — mutation correction subjectId case canonicalization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4473,6 +4473,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingMergeConflictResolutionService.TryResolveAsync` — conflict lookup is case-insensitive (#819) but `memberFindingIds.Contains(..., Ordinal)` missed snapshot members when rationale ids differed only by casing from stored `FindingId` — **hit 2026-09-05 (#823):** `OrdinalIgnoreCase` member match; regression in `TryResolveAsync_resolves_when_rationale_member_ids_differ_only_by_casing_from_snapshot`.
 
 2026-09-05 thorough hunt #823 (hit): proved merge-conflict member FindingId case mismatch promoted from #822 seed candidate.
+
+- [x] (proven) `GovernanceMutationCorrectionService.RecordAsync` / `GovernanceController.RecordGovernanceMutationCorrection` — keyboard/bulk disposition correction `subjectId` differing only by casing from inspect canonical id persisted keyboard casing in DTO and audit JSON while #819 only canonicalized trail lookup — **hit 2026-09-05 (#824):** `ValidateFindingDispositionSubjectAsync` returns canonical `finding.FindingId` for persisted `SubjectId` (#819/#820 disposition/waiver parity); regression in `RecordAsync_appends_correction_for_keyboard_finding_disposition_when_subject_id_differs_only_by_casing`.
+
+2026-09-05 seed hunt #824 (hit): reseeded finding-id case parity surfaces; proved mutation-correction subjectId canonicalization gap promoted from #819 partial fix.
 
 2026-09-05 seed hunt #822 (hit): proved RecordDisposition route/body case-only mismatch; seeded merge-conflict member id casing candidate.
 

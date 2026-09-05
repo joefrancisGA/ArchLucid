@@ -110,6 +110,19 @@ public sealed class GovernanceMutationCorrectionServiceTests
         const string findingId = "finding-keyboard-1";
         List<AuditEvent> auditEvents = [];
 
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                findingId,
+                It.IsAny<CancellationToken>(),
+                FindingInspectReadOptions.MetadataOnly))
+            .ReturnsAsync(new FindingInspectResponse
+            {
+                FindingId = findingId,
+                RunId = Guid.Parse(runId),
+            });
+
         Mock<IFindingReviewTrailRepository> trail = new();
         trail
             .Setup(r => r.ListByFindingAsync(Scope.TenantId, findingId, It.IsAny<CancellationToken>()))
@@ -141,7 +154,8 @@ public sealed class GovernanceMutationCorrectionServiceTests
             new Mock<IGovernanceApprovalRequestRepository>().Object,
             runs.Object,
             auditService.Object,
-            trail.Object);
+            trail.Object,
+            findingInspect.Object);
 
         GovernanceMutationCorrectionRecordedDto result = await sut.RecordAsync(
             new RecordGovernanceMutationCorrectionRequest
@@ -230,7 +244,9 @@ public sealed class GovernanceMutationCorrectionServiceTests
             CancellationToken.None);
 
         result.MutationKind.Should().Be(GovernanceMutationCorrectionKinds.KeyboardFindingDisposition);
+        result.SubjectId.Should().Be(canonicalFindingId);
         auditEvents.Should().ContainSingle();
+        auditEvents[0].DataJson.Should().Contain(canonicalFindingId);
         trail.Verify(r => r.ListByFindingAsync(Scope.TenantId, canonicalFindingId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
