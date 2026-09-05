@@ -81,27 +81,40 @@ public sealed class PolicyPacksAppService(
             && string.Equals(pack.PackType, PolicyPackType.PlatformDefault, StringComparison.Ordinal))
             throw new InvalidOperationException("Platform-default policy packs cannot be republished via API.");
 
+        string normalizedJson = string.IsNullOrWhiteSpace(contentJson) ? "{}" : contentJson;
+
+        PolicyPackVersion? existingVersion = await versionRepository
+            .GetByPackAndVersionAsync(policyPackId, version, ct)
+            .ConfigureAwait(false);
+
+        bool isIdenticalRetry = existingVersion is not null
+            && existingVersion.IsPublished
+            && string.Equals(existingVersion.ContentJson, normalizedJson, StringComparison.Ordinal);
+
         PolicyPackVersion packVersion = await managementService
                 .PublishVersionAsync(policyPackId, version, contentJson, ct)
             ;
 
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.PolicyPackVersionPublished, DataJson = JsonSerializer.Serialize(new { policyPackId, packVersion.Version }),
-            },
-            ct);
-
-        if (pack is not null)
+        if (!isIdenticalRetry)
         {
-            await PolicyPackIntegrationEventPublishing.TryPublishPublishedAsync(
-                integrationEventOutbox,
-                integrationEventPublisher,
-                integrationEventsOptions,
-                logger,
-                pack,
-                packVersion,
+            await auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.PolicyPackVersionPublished, DataJson = JsonSerializer.Serialize(new { policyPackId, packVersion.Version }),
+                },
                 ct);
+
+            if (pack is not null)
+            {
+                await PolicyPackIntegrationEventPublishing.TryPublishPublishedAsync(
+                    integrationEventOutbox,
+                    integrationEventPublisher,
+                    integrationEventsOptions,
+                    logger,
+                    pack,
+                    packVersion,
+                    ct);
+            }
         }
 
         return packVersion;

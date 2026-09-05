@@ -303,6 +303,60 @@ public sealed class PolicyPacksAppServiceTests
     }
 
     [SkippableFact]
+    public async Task PublishVersionAsync_skips_duplicate_audit_when_identical_operator_retry()
+    {
+        Guid packId = Guid.NewGuid();
+        const string version = "1.0.0";
+        const string contentJson = """{"rules":["a"]}""";
+
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(p => p.GetByIdAsync(packId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PolicyPack
+                {
+                    PolicyPackId = packId,
+                    TenantId = Guid.NewGuid(),
+                    PackType = PolicyPackType.ProjectCustom,
+                    CurrentVersion = version,
+                    Status = PolicyPackStatus.Active,
+                });
+
+        PolicyPackVersion published = new()
+        {
+            PolicyPackId = packId,
+            Version = version,
+            ContentJson = contentJson,
+            IsPublished = true,
+        };
+
+        Mock<IPolicyPackVersionRepository> versions = new();
+        versions
+            .SetupSequence(v => v.GetByPackAndVersionAsync(packId, version, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((PolicyPackVersion?)null)
+            .ReturnsAsync(published);
+
+        Mock<IPolicyPackManagementService> management = new();
+        management
+            .Setup(m => m.PublishVersionAsync(packId, version, contentJson, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(published);
+
+        Mock<IAuditService> audit = new();
+        audit.Setup(x => x.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        PolicyPacksAppService sut = CreateSut(management.Object, packs: packs.Object, versions: versions.Object, audit: audit.Object);
+
+        await sut.PublishVersionAsync(packId, version, contentJson, CancellationToken.None);
+        await sut.PublishVersionAsync(packId, version, contentJson, CancellationToken.None);
+
+        audit.Verify(
+            x => x.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.PolicyPackVersionPublished),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
     public async Task TryDuplicatePackAsync_loads_content_via_get_after_list_omits_body()
     {
         Guid tenantId = Guid.NewGuid();
