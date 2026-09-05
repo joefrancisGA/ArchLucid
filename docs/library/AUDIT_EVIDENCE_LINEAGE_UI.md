@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — infra-evidence audit control lineage UI routes, capabilities, and API constraints.
+
 # Audit evidence lineage UI (AE-10)
 
 Operate surface for deterministic audit control chain of custody.

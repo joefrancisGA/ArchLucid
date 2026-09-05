@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — remediation instance state machine, preflight, execute, and verify workflow (IE-13).
+
 # Remediation instance workflow (IE-13)
 
 Governed remediation instances apply **approved** remediation pattern versions through a state machine. **Execute never mutates customer Azure** — advisory artifacts only.

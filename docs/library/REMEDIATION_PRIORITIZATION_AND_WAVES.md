@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — remediation prioritization, wave assignment, and executive metrics (IE-15).
+
 # Remediation prioritization and waves (IE-15)
 
 Explainable, deterministic remediation prioritization with configurable waves and executive metrics. **No cloud apply.**

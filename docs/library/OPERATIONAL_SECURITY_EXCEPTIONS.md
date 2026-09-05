@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — operational security exception lifecycle (IE-12) for infra-evidence findings, patterns, and cloud resources.
+
 # Operational security exceptions (IE-12)
 
 Time-bounded operational exceptions for infra-evidence findings, patterns, or cloud resources. Distinct from architecture `RiskExceptionRecord` (TB-059).
