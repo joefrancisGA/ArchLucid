@@ -24,7 +24,6 @@ import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detai
 import {
   formatReviewFailureRecordedAtLabel,
 } from "@/components/resolve-run-detail-last-failure-summary";
-import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import type { ReviewFailureAdminHandoff } from "@/lib/review-failure-recovery-role-copy";
 import { cn } from "@/lib/utils";
 
@@ -346,9 +345,6 @@ export function ReviewPackageDoThisNextStrip(
   const buttonVariant = next.buttonVariant ?? "primary";
   const blockRerun = next.kind === "rerun-review" && sessionAiReadiness.blocksExecute;
   const failureRecordedAtLabel = formatReviewFailureRecordedAtLabel(failureRecordedAtUtc);
-  const activityFailureDetailsHref = buildReviewDetailTabHref(runId, "activity", {
-    hash: "review-failure-details",
-  });
 
   const actionRow = (
     <>
@@ -440,17 +436,6 @@ export function ReviewPackageDoThisNextStrip(
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="review-package-do-this-next-sentence">
           {displayedSentence}
         </p>
-        {hasFailureRecovery ? (
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-            <Link
-              href={activityFailureDetailsHref}
-              className={OPERATOR_LINK.nav}
-              data-testid="review-package-view-failure-details-link"
-            >
-              View failure details
-            </Link>
-          </p>
-        ) : null}
       </div>
 
       {!hasFailureRecovery ? (
