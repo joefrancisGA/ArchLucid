@@ -1,10 +1,13 @@
 "use client";
 
-import { useMemo, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { architectureDraftHasLinkedReview } from "@/lib/architecture/architecture-draft-handoff-gate";
 import { resolveContinueLastArchitectureDraftEntry } from "@/lib/architecture-draft-continue-last";
+import { getUserPreferences, readCachedUserPreferencesForMutators } from "@/lib/api/user-preferences";
+import { defaultDeskContinuityDto, type DeskContinuityDto } from "@/lib/api/user-preferences-types";
+import { mergeDeskContinuity, readCachedDeskContinuity } from "@/lib/desk-continuity-preference";
 import { resolveContinueLastReviewPackageTarget } from "@/lib/resolve-continue-last-review-package";
 import {
   getInFlightOperations,
@@ -38,18 +41,49 @@ function getActiveInFlightReviewIdSnapshot(): string | null {
   return resolveActiveInFlightReviewId(getInFlightOperations());
 }
 
-/** Client hook — resolves Working Start / Alt+N href from desk state (IS-03). */
+function resolveDeskContinuityFromPreferences(): DeskContinuityDto {
+  const prefs = readCachedUserPreferencesForMutators();
+
+  if (!prefs.deskContinuityIsExplicit) {
+    return readCachedDeskContinuity();
+  }
+
+  return mergeDeskContinuity(defaultDeskContinuityDto(), prefs.deskContinuity);
+}
+
+/** Client hook — resolves Working Start / Alt+N href from desk state (IS-03 / IS-13). */
 export function useWorkingStartHref(runs: readonly RunSummary[] = []): string {
   const drafts = useArchitectureDraftRegistryEntries();
+  const [deskContinuity, setDeskContinuity] = useState<DeskContinuityDto>(() => resolveDeskContinuityFromPreferences());
   const inFlightReviewId = useSyncExternalStore(
     subscribeInFlight,
     getActiveInFlightReviewIdSnapshot,
     getActiveInFlightReviewIdSnapshot,
   );
 
+  useEffect(() => {
+    void getUserPreferences()
+      .then((prefs) => {
+        if (!prefs.deskContinuityIsExplicit) {
+          return;
+        }
+
+        setDeskContinuity(mergeDeskContinuity(defaultDeskContinuityDto(), prefs.deskContinuity));
+      })
+      .catch(() => {
+        /* offline */
+      });
+  }, []);
+
   return useMemo(() => {
-    const continueLastReview = resolveContinueLastReviewPackageTarget(runs);
-    const continueLastDraft = resolveContinueLastArchitectureDraftEntry(drafts);
+    const continueLastReview = resolveContinueLastReviewPackageTarget(
+      runs,
+      deskContinuity.lastOpenReviewId,
+    );
+    const continueLastDraft = resolveContinueLastArchitectureDraftEntry(
+      drafts,
+      deskContinuity.lastOpenDraftId,
+    );
     const spawnLockedReviewId =
       continueLastDraft !== null && architectureDraftHasLinkedReview(continueLastDraft)
         ? continueLastDraft.linkedReviewId?.trim() ?? null
@@ -61,5 +95,5 @@ export function useWorkingStartHref(runs: readonly RunSummary[] = []): string {
       lastOpenDraftId: continueLastDraft?.architectureId ?? null,
       spawnLockedReviewId,
     }).href;
-  }, [drafts, inFlightReviewId, runs]);
+  }, [deskContinuity.lastOpenDraftId, deskContinuity.lastOpenReviewId, drafts, inFlightReviewId, runs]);
 }
