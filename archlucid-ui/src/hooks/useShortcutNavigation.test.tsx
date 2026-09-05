@@ -29,7 +29,16 @@ vi.mock("@/components/WorkspaceModeProvider", () => ({
   useWorkspaceMode: () => mockWorkspaceMode(),
 }));
 
-import { WORKING_MODE_NEW_REVIEW_ROUTE } from "@/lib/shortcut-registry";
+vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
+  useArchitectureDraftRegistryEntries: () => [],
+}));
+
+vi.mock("@/lib/operations/in-flight-operations-store", () => ({
+  getInFlightOperations: () => [],
+  subscribeInFlightOperations: () => () => {},
+}));
+
+import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
 
 import { useShortcutNavigation } from "./useShortcutNavigation";
 
@@ -58,7 +67,7 @@ describe("useShortcutNavigation", () => {
 
     fireEvent.keyDown(window, { key: "n", altKey: true });
 
-    expect(routerPush).toHaveBeenCalledWith(WORKING_MODE_NEW_REVIEW_ROUTE);
+    expect(routerPush).toHaveBeenCalledWith(ARCHITECTURES_NEW_PATH);
   });
 
   it("opens unscoped Compare from Overview with Alt+C", () => {

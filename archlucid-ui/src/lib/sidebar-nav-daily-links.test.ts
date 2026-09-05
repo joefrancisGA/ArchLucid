@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  sidebarMoreLinksCollapseLabel,
   sidebarMoreLinksLabel,
   splitSidebarLinksDailyVsMore,
 } from "@/lib/sidebar-nav-daily-links";
@@ -161,5 +162,12 @@ describe("sidebarMoreLinksLabel", () => {
     expect(sidebarMoreLinksLabel("Insights", 1)).toBe("1 more Insights link");
     expect(sidebarMoreLinksLabel("Insights", 4)).toBe("4 more Insights links");
     expect(sidebarMoreLinksLabel("Architecture", 5)).toBe("5 more Architecture links");
+  });
+});
+
+describe("sidebarMoreLinksCollapseLabel", () => {
+  it("names the collapse control with the group heading", () => {
+    expect(sidebarMoreLinksCollapseLabel("Insights")).toBe("Fewer Insights links");
+    expect(sidebarMoreLinksCollapseLabel("Governance")).toBe("Fewer Governance links");
   });
 });

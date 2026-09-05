@@ -52,6 +52,8 @@ export type QuickDecisionFinding = {
   assignedToUserId?: string | null;
   /** Normalized `FindingHumanReviewStatus` enum value (0=NotRequired..4=Overridden) when present on the wire. */
   humanReviewStatus?: number | null;
+  /** Gate classification after ADR 0070 — DecisionGradeFinding vs ChecklistCoverage. */
+  classification?: "DecisionGradeFinding" | "ChecklistCoverage" | null;
 };
 
 function normalizeConfidenceLevelFromWire(raw: unknown): FindingConfidenceLevel | null {
@@ -264,6 +266,12 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
 
       const humanReviewStatus = normalizeFindingHumanReviewStatus(fr.humanReviewStatus);
 
+      const classificationRaw = fr.classification;
+      const classification =
+        classificationRaw === "DecisionGradeFinding" || classificationRaw === "ChecklistCoverage"
+          ? classificationRaw
+          : null;
+
       out.push({
         findingId,
         title,
@@ -287,6 +295,7 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         trustLabelReason,
         assignedToUserId,
         humanReviewStatus,
+        classification,
       });
     }
   }

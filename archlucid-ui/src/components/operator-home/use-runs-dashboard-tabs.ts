@@ -36,6 +36,7 @@ import {
   filterTenantOverviewRuns,
   formatOperatorHomeRecentReviewsOutcome,
   isExampleOnlyOverviewRunList,
+  OPERATOR_HOME_RECENT_FEATURED_LIMIT,
 } from "@/lib/operator/operator-home-recent-reviews-outcome";
 import { deriveOperatorHomeTenantCountingSnapshot } from "@/lib/operator/operator-home-tenant-counting";
 import { shouldShowRunsDashboardInitialSkeleton } from "@/lib/operator/operator-home-runs-dashboard-client-fetch";
@@ -224,8 +225,14 @@ export function useRunsDashboardTabs({
       previewItems: displayItems,
     });
 
-    return formatOperatorHomeRecentReviewsOutcome(tenantSnapshot.metrics, { exampleReviewOnly });
-  }, [displayItems, hideHeading, phase, sampleReviewsVisible]);
+    return formatOperatorHomeRecentReviewsOutcome(tenantSnapshot.metrics, {
+      exampleReviewOnly,
+      visibleCount:
+        hideHeading && "recentVisibleCount" in statusTabCounts
+          ? statusTabCounts.recentVisibleCount
+          : undefined,
+    });
+  }, [displayItems, hideHeading, phase, sampleReviewsVisible, statusTabCounts]);
 
   const selectDashboardTab = useCallback((
     next: RunsDashboardTabId,

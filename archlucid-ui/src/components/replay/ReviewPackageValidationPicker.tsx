@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type SetStateAction } from "react";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +17,11 @@ import {
   matchesReviewPackageValidationSearch,
   toReviewPackageValidationRow,
 } from "@/lib/review-package-validation-picker";
+import {
+  parseReplayPickerOpenFromSearch,
+  parseReplayPickerQueryFromSearch,
+  reviewPackageValidationPickerHrefFromSearch,
+} from "@/lib/replay/review-package-validation-picker-url";
 import type { ReplayValidationOutcome } from "@/lib/replay-validation-workflow";
 import type { RunSummary } from "@/types/authority";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
@@ -31,13 +37,59 @@ export type ReviewPackageValidationPickerProps = {
 
 export function ReviewPackageValidationPicker(props: ReviewPackageValidationPickerProps) {
   const { value, onChange, onRunPicked, lastValidationByRunId = {}, inputId, disabled = false } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const replayPickerOpenParam = searchParams.get("replayPickerOpen");
+  const replayPickerQueryParam = searchParams.get("replayPickerQ");
   const generatedId = useId();
   const controlId = inputId ?? `review-package-validation-picker-${generatedId}`;
   const hintId = `${controlId}-hint`;
   const inlineHintId = `${controlId}-inline-hint`;
-  const [query, setQuery] = useState("");
-  const [open, setOpen] = useState(false);
+  const [query, setQueryState] = useState(() => parseReplayPickerQueryFromSearch(replayPickerQueryParam));
+  const [open, setOpenState] = useState(() => parseReplayPickerOpenFromSearch(replayPickerOpenParam));
   const prefillAppliedRef = useRef(false);
+
+  const syncReplayPickerToUrl = useCallback(
+    (nextOpen: boolean, nextQuery: string) => {
+      router.replace(
+        reviewPackageValidationPickerHrefFromSearch(
+          searchParams.toString(),
+          { open: nextOpen, query: nextQuery },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncReplayPickerToUrl(next, query);
+
+        return next;
+      });
+    },
+    [query, syncReplayPickerToUrl],
+  );
+
+  const setQuery = useCallback(
+    (value: SetStateAction<string>) => {
+      setQueryState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+
+        if (open) {
+          syncReplayPickerToUrl(true, next);
+        }
+
+        return next;
+      });
+    },
+    [open, syncReplayPickerToUrl],
+  );
 
   const runsQuery = useAskProjectRunsQuery("default", { committedOnly: true });
   const runs = runsQuery.data?.items ?? [];

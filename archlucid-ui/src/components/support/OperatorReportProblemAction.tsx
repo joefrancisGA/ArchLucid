@@ -1,7 +1,7 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useMemo, useState, type SetStateAction } from "react";
 
 import { ReportProblemDialog } from "@/components/support/ReportProblemDialog";
 import {
@@ -13,6 +13,10 @@ import {
   buildReportProblemContext,
   type BuildReportProblemContextInput,
 } from "@/lib/report-problem-context";
+import {
+  parseReportProblemOpenFromSearch,
+  reportProblemDialogHrefFromSearch,
+} from "@/lib/support/report-problem-dialog-url";
 
 export type OperatorReportProblemActionProps = BuildReportProblemContextInput & {
   readonly enabled: boolean;
@@ -25,8 +29,32 @@ export function OperatorReportProblemAction(
 ): React.JSX.Element | null {
   const { enabled, routePath, reviewId, scope, productVersion, correlationId, clientRequestId, problem, errorCode, errorTitle, httpStatus, submittedAtUtc, triggerVariant } =
     props;
-  const [open, setOpen] = useState(false);
-  const pathname = usePathname();
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const reportProblemOpenParam = searchParams.get("reportProblemOpen");
+  const [open, setOpenState] = useState(() => parseReportProblemOpenFromSearch(reportProblemOpenParam));
+
+  const syncReportProblemOpenToUrl = useCallback(
+    (nextOpen: boolean) => {
+      router.replace(reportProblemDialogHrefFromSearch(searchParams.toString(), nextOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncReportProblemOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncReportProblemOpenToUrl],
+  );
 
   const context = useMemo(
     () =>

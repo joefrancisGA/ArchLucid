@@ -23,6 +23,7 @@ import {
   isSidebarNavLinkAdvancedInDemo,
 } from "@/lib/sidebar-nav-link-filters";
 import {
+  sidebarMoreLinksCollapseLabel,
   sidebarMoreLinksLabel,
   splitSidebarLinksDailyVsMore,
 } from "@/lib/sidebar-nav-daily-links";
@@ -73,7 +74,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
   const contentId = `sidebar-group-${group.id}-content`;
   const headingId = `sidebar-group-heading-${group.id}`;
   const { daily, more } = splitSidebarLinksDailyVsMore(group.id, linksForRender, props.pathname ?? "/");
-  const [moreOpen, setMoreOpen] = useState(() => more.length > 0 && more.length <= 3);
+  const [moreOpen, setMoreOpen] = useState(false);
 
   useEffect(() => {
     if (more.length === 0) {

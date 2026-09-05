@@ -5,16 +5,11 @@ import { describe, expect, it, vi } from "vitest";
 import { RunsDashboardPanelFilters } from "@/components/operator-home/RunsDashboardPanelFilters";
 import { deriveRunsDashboardTabCounts } from "@/components/operator-home/runs-dashboard-helpers";
 import { resolveRunsDashboardStatusTabIds } from "@/components/operator-home/runs-dashboard-panel-presentation";
-import { Tabs } from "@/components/ui/tabs";
 
 function renderPanelFilters(
   props: ComponentProps<typeof RunsDashboardPanelFilters>,
 ) {
-  return render(
-    <Tabs value={props.tab} onValueChange={vi.fn()}>
-      <RunsDashboardPanelFilters {...props} />
-    </Tabs>,
-  );
+  return render(<RunsDashboardPanelFilters {...props} />);
 }
 
 describe("RunsDashboardPanelFilters", () => {
@@ -30,10 +25,10 @@ describe("RunsDashboardPanelFilters", () => {
     },
   ]);
 
-  it("does not apply overflow scrolling to operator review view tabs", () => {
+  it("renders operator review filters as pressed chips without tablist semantics", () => {
     renderPanelFilters({
       buyerPolishedShell: false,
-      hideHeading: false,
+      hideHeading: true,
       tab: "all",
       isRecentListTab: true,
       statusTabIds: resolveRunsDashboardStatusTabIds(false, statusTabCounts),
@@ -47,9 +42,9 @@ describe("RunsDashboardPanelFilters", () => {
       openAllReviewsHref: "/architecture/reviews?projectId=default",
     });
 
-    const tabList = screen.getByTestId("runs-dashboard-status-filters");
-    expect(tabList.className).not.toMatch(/overflow-x-auto/);
-    expect(tabList.className).not.toMatch(/overflow-y-auto/);
+    const filterGroup = screen.getByTestId("runs-dashboard-status-filters");
+    expect(filterGroup).not.toHaveAttribute("role", "tablist");
+    expect(screen.getByTestId("runs-dashboard-tab-all")).toHaveAttribute("aria-pressed", "true");
   });
 
   it("does not render operator recent summary copy under Latest in workspace", () => {
@@ -70,6 +65,34 @@ describe("RunsDashboardPanelFilters", () => {
     });
 
     expect(screen.queryByText("Showing the latest architecture reviews for this workspace.")).toBeNull();
+  });
+
+  it("keeps zero-count review filters selectable in buyer shell", () => {
+    const onSelectDashboardTab = vi.fn();
+
+    renderPanelFilters({
+      buyerPolishedShell: true,
+      hideHeading: true,
+      tab: "all",
+      isRecentListTab: true,
+      statusTabIds: ["all", "approved"],
+      statusTabCounts: { ...statusTabCounts, approved: 0 },
+      archivedFieldSupported: false,
+      archivedCount: 0,
+      archivedFilterDisabled: false,
+      showArchived: false,
+      onSelectDashboardTab,
+      onShowArchivedChange: vi.fn(),
+      openAllReviewsHref: "/architecture/reviews?projectId=default",
+    });
+
+    const approvedFilter = screen.getByTestId("runs-dashboard-filter-approved");
+    expect(approvedFilter).not.toBeDisabled();
+    expect(approvedFilter).toHaveAttribute("aria-pressed", "false");
+
+    fireEvent.click(approvedFilter);
+
+    expect(onSelectDashboardTab).toHaveBeenCalledWith("approved");
   });
 
   it("enables archived chip with zero count and calls onShowArchivedChange(true)", () => {

@@ -5,6 +5,7 @@
 import {
   resolveArchitectureDraftRefineGuidanceSentence,
 } from "@/lib/architecture/architecture-draft-detail-page-copy";
+import { OPERATOR_ATTENTION_KIND_LABELS } from "@/lib/operator/operator-attention-taxonomy";
 
 import { OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA } from "./operator-home-sample";
 
@@ -136,7 +137,7 @@ export function formatOperatorHomeResumeDraftBridge(displayName: string, draftCo
 
 export const OPERATOR_HOME_RECOMMENDED_NEXT_HEADING = "Recommended next";
 
-export const OPERATOR_HOME_YOUR_WORK_HEADING = "Your work";
+export const OPERATOR_HOME_YOUR_WORK_HEADING = OPERATOR_ATTENTION_KIND_LABELS["unfinished-work"];
 
 export const OPERATOR_HOME_YOUR_WORK_CONTINUE_REVIEW_CTA = "Continue review";
 

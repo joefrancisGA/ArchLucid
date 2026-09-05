@@ -43,14 +43,13 @@ describe("findings-snapshot-insight-density", () => {
     expect(view.curation).toEqual({ demotedToChecklistCount: 1, retainedFindingCount: 2 });
   });
 
-  it("formatInsightDensityCurationMessage renders buyer copy without implying typed-engine demotion", () => {
+  it("formatInsightDensityCurationMessage renders buyer copy with gate demotion honesty", () => {
     const message = formatInsightDensityCurationMessage({
       demotedToChecklistCount: 3,
       retainedFindingCount: 2,
     });
 
-    expect(message).toContain("typed-engine-protected");
-    expect(message.indexOf("typed-engine-protected")).toBeLessThan(message.indexOf("decision-grade"));
+    expect(message).toContain("insight-density gate demotes");
     expect(message).toContain("moved 3");
   });
 

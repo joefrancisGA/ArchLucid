@@ -150,7 +150,7 @@ export function formatInsightDensityCurationMessage(curation: InsightDensityCura
   const demoted = curation.demotedToChecklistCount;
   const retained = curation.retainedFindingCount;
   const typedEngineLead =
-    "Typed-engine findings stay on the package regardless of insight-density score (typed-engine-protected).";
+    "Checklist coverage stays on the package when the insight-density gate demotes a finding.";
 
   if (demoted <= 0 && retained <= 0) {
     return "";

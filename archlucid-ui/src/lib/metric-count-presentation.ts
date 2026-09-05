@@ -1,4 +1,6 @@
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+import { reviewsHubInventoryFilterHref } from "@/app/(operator)/architecture/reviews/_sections/reviews-hub-inventory-filters";
+import { OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF } from "@/lib/operator/operator-home-metric-hrefs";
 import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 import {
   matchesGovernanceFindingsRunScope,
@@ -10,11 +12,15 @@ export type MetricCountScopeKind =
   | "workspace"
   | "this-review"
   | "findings-tab"
-  | "governance-filter";
+  | "governance-filter"
+  | "reviews-inventory";
+
+export type ReviewsInventoryFilterScope = "Active" | "finalized";
 
 export type MetricCountScopeDimension = {
   readonly kind: MetricCountScopeKind;
   readonly filter?: RiskRegisterFilter;
+  readonly reviewsFilter?: ReviewsInventoryFilterScope;
 };
 
 export type MetricCountPresentation = {
@@ -29,6 +35,12 @@ const SCOPE_LABELS: Record<MetricCountScopeKind, string> = {
   "this-review": "this review",
   "findings-tab": "findings tab",
   "governance-filter": "findings queue",
+  "reviews-inventory": "reviews list",
+};
+
+const REVIEWS_INVENTORY_SCOPE_LABELS: Record<ReviewsInventoryFilterScope, string> = {
+  Active: "active",
+  finalized: "finalized",
 };
 
 const FILTER_SCOPE_LABELS: Partial<Record<RiskRegisterFilter, string>> = {
@@ -46,6 +58,10 @@ export function formatMetricCountScopeLabel(dimensions: readonly MetricCountScop
   const parts = dimensions.map((dimension) => {
     if (dimension.kind === "governance-filter" && dimension.filter !== undefined) {
       return FILTER_SCOPE_LABELS[dimension.filter] ?? dimension.filter;
+    }
+
+    if (dimension.kind === "reviews-inventory" && dimension.reviewsFilter !== undefined) {
+      return REVIEWS_INVENTORY_SCOPE_LABELS[dimension.reviewsFilter] ?? dimension.reviewsFilter;
     }
 
     return SCOPE_LABELS[dimension.kind];
@@ -141,6 +157,36 @@ export function workspaceOpenFindingsPresentation(count: number): MetricCountPre
     noun: count === 1 ? "open finding" : "open findings",
     dimensions: [{ kind: "workspace" }, { kind: "governance-filter", filter: "open" }],
     href: buildGovernanceFindingsQueueHref({ filter: "open" }),
+  };
+}
+
+export function operatorHomeActiveReviewsPresentation(count: number): MetricCountPresentation {
+  return {
+    count,
+    noun: count === 1 ? "active review" : "active reviews",
+    dimensions: [{ kind: "workspace" }, { kind: "reviews-inventory", reviewsFilter: "Active" }],
+    href: reviewsHubInventoryFilterHref("Active"),
+  };
+}
+
+export function operatorHomeFinalizedPackagesPresentation(count: number): MetricCountPresentation {
+  return {
+    count,
+    noun: count === 1 ? "finalized package" : "finalized packages",
+    dimensions: [{ kind: "workspace" }, { kind: "reviews-inventory", reviewsFilter: "finalized" }],
+    href: reviewsHubInventoryFilterHref("finalized"),
+  };
+}
+
+export function operatorHomeGovernanceWarningsPresentation(
+  count: number,
+  noun: string,
+): MetricCountPresentation {
+  return {
+    count,
+    noun,
+    dimensions: [{ kind: "workspace" }],
+    href: OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF,
   };
 }
 

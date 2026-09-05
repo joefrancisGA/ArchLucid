@@ -27,7 +27,7 @@ export function ReviewPresenterHeaderButton(
       data-testid="review-presenter-enter"
       onClick={presenter.enterPresenter}
     >
-      Presenter
+      Present
     </Button>
   );
 }

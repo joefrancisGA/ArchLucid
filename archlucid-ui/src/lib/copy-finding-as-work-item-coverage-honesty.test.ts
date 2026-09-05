@@ -39,11 +39,11 @@ function inspectPayload(typedPayload: Record<string, unknown>): FindingInspectPa
 }
 
 describe("resolveFindingWorkItemCoverageHonesty (FD-07)", () => {
-  it("includes typed-engine-protected honesty for deterministic rule findings", () => {
+  it("includes typed-engine honesty for deterministic rule findings", () => {
     const honesty = resolveFindingWorkItemCoverageHonesty(baseInput, inspectPayload({}));
 
     expect(honesty).not.toBeNull();
-    expect(honesty?.line).toContain("typed-engine-protected");
+    expect(honesty?.line).toContain("Checklist coverage stays on the package");
     expect(honesty?.typedEngineProtected).toBe(true);
   });
 
@@ -76,9 +76,9 @@ describe("resolveFindingWorkItemCoverageHonestyFromInput", () => {
   it("returns pre-rendered honesty lines from build input", () => {
     const honesty = resolveFindingWorkItemCoverageHonestyFromInput({
       ...baseInput,
-      coverageHonestyLine: "Typed-engine findings stay on the package regardless of insight-density score (typed-engine-protected).",
+      coverageHonestyLine: "Checklist coverage stays on the package when the insight-density gate demotes a finding.",
     });
 
-    expect(honesty?.line).toContain("typed-engine-protected");
+    expect(honesty?.line).toContain("Checklist coverage");
   });
 });

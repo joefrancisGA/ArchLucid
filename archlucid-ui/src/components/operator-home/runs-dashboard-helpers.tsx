@@ -102,21 +102,6 @@ export function formatRunsDashboardTabLabelWithCount(label: string, count: numbe
   return `${label} (${safeCount})`;
 }
 
-export function formatRunsDashboardHomePreviewRecentTabLabel(
-  label: string,
-  visibleCount: number,
-  totalCount: number,
-): string {
-  const safeVisible = Number.isFinite(visibleCount) ? Math.max(0, Math.trunc(visibleCount)) : 0;
-  const safeTotal = Number.isFinite(totalCount) ? Math.max(0, Math.trunc(totalCount)) : 0;
-
-  if (safeTotal > safeVisible) {
-    return `${label} (${safeVisible} of ${safeTotal})`;
-  }
-
-  return formatRunsDashboardTabLabelWithCount(label, safeVisible);
-}
-
 function resolveRunsDashboardTabBaseLabel(
   tabId: RunsDashboardTabId,
   buyerPolishedShell: boolean,
@@ -160,7 +145,6 @@ function resolveRunsDashboardTabBaseLabel(
 
 export type RunsDashboardTabLabelOptions = {
   readonly homePreviewMode?: boolean;
-  readonly recentTotalCount?: number;
 };
 
 export function runsDashboardTabLabel(
@@ -177,14 +161,6 @@ export function runsDashboardTabLabel(
 
   if (count === undefined) {
     return baseLabel;
-  }
-
-  if (
-    options?.homePreviewMode === true
-    && tabId === "all"
-    && options.recentTotalCount !== undefined
-  ) {
-    return formatRunsDashboardHomePreviewRecentTabLabel(baseLabel, count, options.recentTotalCount);
   }
 
   return formatRunsDashboardTabLabelWithCount(baseLabel, count);

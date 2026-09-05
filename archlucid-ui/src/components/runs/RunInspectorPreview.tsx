@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useState, type SetStateAction } from "react";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
@@ -43,6 +44,11 @@ import {
   SHOWCASE_STATIC_DEMO_RUN_ID,
   SHOWCASE_STATIC_DEMO_SPINE_COUNTS,
 } from "@/lib/showcase-static-demo";
+import {
+  parseRunInspectorMoreOpenFromSearch,
+  parseRunInspectorTechOpenFromSearch,
+  runInspectorPreviewPanelsHrefFromSearch,
+} from "@/lib/runs/run-inspector-preview-panels-url";
 import type { RunSummary } from "@/types/authority";
 
 export type RunInspectorPreviewProps = {
@@ -53,8 +59,48 @@ export type RunInspectorPreviewProps = {
  * Read-only run preview for list inspectors — uses only {@link RunSummary} fields from the list payload.
  */
 export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
-  const [moreOpen, setMoreOpen] = useState(false);
-  const [technicalOpen, setTechnicalOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const runInspectorMoreOpenParam = searchParams.get("runInspectorMoreOpen");
+  const runInspectorTechOpenParam = searchParams.get("runInspectorTechOpen");
+  const [moreOpen, setMoreOpenState] = useState(() => parseRunInspectorMoreOpenFromSearch(runInspectorMoreOpenParam));
+  const [technicalOpen, setTechnicalOpenState] = useState(() =>
+    parseRunInspectorTechOpenFromSearch(runInspectorTechOpenParam),
+  );
+
+  const syncInspectorPanelsToUrl = useCallback(
+    (state: { moreOpen: boolean; technicalOpen: boolean }) => {
+      router.replace(runInspectorPreviewPanelsHrefFromSearch(searchParams.toString(), state, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setMoreOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setMoreOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncInspectorPanelsToUrl({ moreOpen: next, technicalOpen });
+
+        return next;
+      });
+    },
+    [syncInspectorPanelsToUrl, technicalOpen],
+  );
+
+  const setTechnicalOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setTechnicalOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncInspectorPanelsToUrl({ moreOpen, technicalOpen: next });
+
+        return next;
+      });
+    },
+    [moreOpen, syncInspectorPanelsToUrl],
+  );
   const demoChrome = isNextPublicDemoMode() || isBuyerSafeDemoMarketingChromeEnv();
   const showcaseStory = canonicalizeDemoRunId(run.runId) === SHOWCASE_STATIC_DEMO_RUN_ID;
   const buyerSafePrimary = isBuyerSafePrimaryReviewNavigationPreferred(run.runId);
