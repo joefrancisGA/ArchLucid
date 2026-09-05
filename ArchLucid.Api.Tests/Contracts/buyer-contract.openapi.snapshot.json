@@ -5417,6 +5417,14 @@
         },
         "type": "object"
       },
+      "AuditEvaluationOutcome": {
+        "enum": [
+          "InsufficientEvidence",
+          "TechnicallySupported",
+          "TechnicallyNotSupported"
+        ],
+        "type": "string"
+      },
       "AuditEvent": {
         "properties": {
           "actorUserId": {
@@ -5492,6 +5500,174 @@
           },
           "exact": {
             "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "AuditEvidenceLineageEvaluationNode": {
+        "properties": {
+          "evaluationId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "exceptionIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "formula": {
+            "type": "string"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/AuditEvaluationOutcome"
+          },
+          "provenanceKind": {
+            "$ref": "#/components/schemas/ProvenanceKind"
+          }
+        },
+        "type": "object"
+      },
+      "AuditEvidenceLineageEvidenceNode": {
+        "properties": {
+          "apiQueryId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "azureResourceId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "cloudResourceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "collectedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "collectorVersion": {
+            "type": "string"
+          },
+          "evaluationEvidenceItemId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "evidenceRowId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "itemHashVerified": {
+            "type": "boolean"
+          },
+          "linkComplete": {
+            "type": "boolean"
+          },
+          "missingLinkKinds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "normalizedPointer": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "rawPointer": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "selectorVersion": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AuditEvidenceLineageRecord": {
+        "properties": {
+          "assessmentId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "auditEvidenceSnapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "brokenLinkReasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "chainComplete": {
+            "type": "boolean"
+          },
+          "controlId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "controlNumber": {
+            "type": "string"
+          },
+          "controlTitle": {
+            "type": "string"
+          },
+          "evaluation": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AuditEvidenceLineageEvaluationNode"
+              }
+            ]
+          },
+          "readyForPositiveCheckbox": {
+            "type": "boolean"
+          },
+          "requirementChains": {
+            "items": {
+              "$ref": "#/components/schemas/AuditEvidenceLineageRequirementChain"
+            },
+            "type": "array"
+          },
+          "snapshotHashVerified": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "AuditEvidenceLineageRequirementChain": {
+        "properties": {
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/AuditEvidenceLineageEvidenceNode"
+            },
+            "type": "array"
+          },
+          "evidenceType": {
+            "type": "string"
+          },
+          "requirementId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "requirementName": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -19226,6 +19402,499 @@
           }
         },
         "type": "object"
+      },
+      "OperationalSecurityFindingBatchIngestResult": {
+        "properties": {
+          "deduplicatedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "failedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "ingestedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/OperationalSecurityFindingIngestItemResult"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "OperationalSecurityFindingDetailResult": {
+        "properties": {
+          "errorMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "finding": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/OperationalSecurityFindingRecord"
+              }
+            ]
+          },
+          "metadata": {
+            "items": {
+              "$ref": "#/components/schemas/OperationalSecurityFindingMetadataRecord"
+            },
+            "type": "array"
+          },
+          "observations": {
+            "items": {
+              "$ref": "#/components/schemas/OperationalSecurityFindingObservationRecord"
+            },
+            "type": "array"
+          },
+          "succeeded": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "OperationalSecurityFindingIngestItemResult": {
+        "properties": {
+          "errorMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "findingId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "index": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "succeeded": {
+            "type": "boolean"
+          },
+          "wasDeduplicated": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "OperationalSecurityFindingIngestRequest": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/OperationalSecurityFindingIngestRequestItem"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "OperationalSecurityFindingIngestRequestItem": {
+        "properties": {
+          "assessmentId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "auditEvidenceSnapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "blastRadius": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "businessCriticality": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "cloudResourceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "controlFramework": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "controlId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "exploitability": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "exposure": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "externalResourceId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "inventoryDiffId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "metadata": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "observedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "provider": {
+            "$ref": "#/components/schemas/CloudProvider"
+          },
+          "rawEvidenceReference": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "resourceType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "riskScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "severity": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "sourceFindingId": {
+            "type": "string"
+          },
+          "sourceSystem": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/OperationalSecurityFindingStatus"
+          },
+          "subscriptionOrAccountId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "OperationalSecurityFindingMetadataRecord": {
+        "properties": {
+          "findingId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "metadataKey": {
+            "type": "string"
+          },
+          "metadataRowId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "metadataValue": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "OperationalSecurityFindingObservationRecord": {
+        "properties": {
+          "findingId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "observationId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "observedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "payloadHashSha256": {
+            "format": "byte",
+            "type": "string"
+          },
+          "riskScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "severity": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "sourceSystem": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/OperationalSecurityFindingStatus"
+          },
+          "summary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "OperationalSecurityFindingRecord": {
+        "properties": {
+          "assessmentId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "auditEvidenceSnapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "blastRadius": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "businessCriticality": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "cloudResourceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "controlFramework": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "controlId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "exploitability": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "exposure": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "externalResourceId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "findingId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "firstObservedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "inventoryDiffId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lastObservedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "payloadHashSha256": {
+            "format": "byte",
+            "type": "string"
+          },
+          "projectId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "provider": {
+            "$ref": "#/components/schemas/CloudProvider"
+          },
+          "rawEvidenceReference": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "resourceType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "riskScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "severity": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "sourceFindingId": {
+            "type": "string"
+          },
+          "sourceSystem": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/OperationalSecurityFindingStatus"
+          },
+          "subscriptionOrAccountId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "workspaceId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "OperationalSecurityFindingStatus": {
+        "enum": [
+          "Open",
+          "Recurred",
+          "Closed",
+          "Exception",
+          "AwaitingVerification"
+        ],
+        "type": "string"
       },
       "OperatorDemoReviewFindingSummary": {
         "properties": {
@@ -40120,6 +40789,9 @@
       "name": "Audit"
     },
     {
+      "name": "AuditEvidenceLineage"
+    },
+    {
       "name": "AuditEvidencePackage"
     },
     {
@@ -40385,6 +41057,9 @@
     },
     {
       "name": "OperationalErrorsAdmin"
+    },
+    {
+      "name": "OperationalSecurityFindings"
     },
     {
       "name": "Operations"

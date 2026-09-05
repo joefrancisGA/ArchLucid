@@ -1566,6 +1566,8 @@ export interface components {
         AsyncJobResponse: {
             jobId?: string;
         };
+        /** @enum {string} */
+        AuditEvaluationOutcome: "InsufficientEvidence" | "TechnicallySupported" | "TechnicallyNotSupported";
         AuditEvent: {
             actorUserId?: string;
             actorUserName?: string;
@@ -1594,6 +1596,56 @@ export interface components {
             /** Format: int32 */
             count?: number;
             exact?: boolean;
+        };
+        AuditEvidenceLineageEvaluationNode: {
+            /** Format: uuid */
+            evaluationId?: string;
+            exceptionIds?: string[];
+            formula?: string;
+            outcome?: components["schemas"]["AuditEvaluationOutcome"];
+            provenanceKind?: components["schemas"]["ProvenanceKind"];
+        };
+        AuditEvidenceLineageEvidenceNode: {
+            apiQueryId?: null | string;
+            azureResourceId?: null | string;
+            /** Format: uuid */
+            cloudResourceId?: null | string;
+            /** Format: date-time */
+            collectedUtc?: string;
+            collectorVersion?: string;
+            /** Format: uuid */
+            evaluationEvidenceItemId?: null | string;
+            /** Format: uuid */
+            evidenceRowId?: string;
+            itemHashVerified?: boolean;
+            linkComplete?: boolean;
+            missingLinkKinds?: string[];
+            normalizedPointer?: null | string;
+            rawPointer?: null | string;
+            selectorVersion?: string;
+        };
+        AuditEvidenceLineageRecord: {
+            /** Format: uuid */
+            assessmentId?: string;
+            /** Format: uuid */
+            auditEvidenceSnapshotId?: string;
+            brokenLinkReasons?: string[];
+            chainComplete?: boolean;
+            /** Format: uuid */
+            controlId?: string;
+            controlNumber?: string;
+            controlTitle?: string;
+            evaluation?: null | components["schemas"]["AuditEvidenceLineageEvaluationNode"];
+            readyForPositiveCheckbox?: boolean;
+            requirementChains?: components["schemas"]["AuditEvidenceLineageRequirementChain"][];
+            snapshotHashVerified?: boolean;
+        };
+        AuditEvidenceLineageRequirementChain: {
+            evidence?: components["schemas"]["AuditEvidenceLineageEvidenceNode"][];
+            evidenceType?: string;
+            /** Format: uuid */
+            requirementId?: string;
+            requirementName?: string;
         };
         AuthDiagnosticEntry: {
             audience?: null | string;
@@ -5538,6 +5590,145 @@ export interface components {
             /** Format: uuid */
             workspaceId?: null | string;
         };
+        OperationalSecurityFindingBatchIngestResult: {
+            /** Format: int32 */
+            deduplicatedCount?: number;
+            /** Format: int32 */
+            failedCount?: number;
+            /** Format: int32 */
+            ingestedCount?: number;
+            items?: components["schemas"]["OperationalSecurityFindingIngestItemResult"][];
+        };
+        OperationalSecurityFindingDetailResult: {
+            errorMessage?: null | string;
+            finding?: null | components["schemas"]["OperationalSecurityFindingRecord"];
+            metadata?: components["schemas"]["OperationalSecurityFindingMetadataRecord"][];
+            observations?: components["schemas"]["OperationalSecurityFindingObservationRecord"][];
+            succeeded?: boolean;
+        };
+        OperationalSecurityFindingIngestItemResult: {
+            errorMessage?: null | string;
+            /** Format: uuid */
+            findingId?: null | string;
+            /** Format: int32 */
+            index?: number;
+            succeeded?: boolean;
+            wasDeduplicated?: boolean;
+        };
+        OperationalSecurityFindingIngestRequest: {
+            items?: components["schemas"]["OperationalSecurityFindingIngestRequestItem"][];
+        };
+        OperationalSecurityFindingIngestRequestItem: {
+            /** Format: uuid */
+            assessmentId?: null | string;
+            /** Format: uuid */
+            auditEvidenceSnapshotId?: null | string;
+            blastRadius?: null | string;
+            businessCriticality?: null | string;
+            /** Format: uuid */
+            cloudResourceId?: null | string;
+            controlFramework?: null | string;
+            controlId?: null | string;
+            description?: null | string;
+            exploitability?: null | string;
+            exposure?: null | string;
+            externalResourceId?: null | string;
+            /** Format: uuid */
+            inventoryDiffId?: null | string;
+            metadata?: {
+                [key: string]: string;
+            };
+            /** Format: date-time */
+            observedUtc?: null | string;
+            provider?: components["schemas"]["CloudProvider"];
+            rawEvidenceReference?: null | string;
+            resourceType?: null | string;
+            /** Format: double */
+            riskScore?: null | number | string;
+            severity?: null | string;
+            sourceFindingId?: string;
+            sourceSystem?: string;
+            status?: components["schemas"]["OperationalSecurityFindingStatus"];
+            subscriptionOrAccountId?: null | string;
+            title?: string;
+        };
+        OperationalSecurityFindingMetadataRecord: {
+            /** Format: uuid */
+            findingId?: string;
+            metadataKey?: string;
+            /** Format: uuid */
+            metadataRowId?: string;
+            metadataValue?: null | string;
+            /** Format: uuid */
+            tenantId?: string;
+        };
+        OperationalSecurityFindingObservationRecord: {
+            /** Format: uuid */
+            findingId?: string;
+            /** Format: uuid */
+            observationId?: string;
+            /** Format: date-time */
+            observedUtc?: string;
+            /** Format: byte */
+            payloadHashSha256?: string;
+            /** Format: double */
+            riskScore?: null | number | string;
+            severity?: null | string;
+            sourceSystem?: string;
+            status?: components["schemas"]["OperationalSecurityFindingStatus"];
+            summary?: null | string;
+            /** Format: uuid */
+            tenantId?: string;
+        };
+        OperationalSecurityFindingRecord: {
+            /** Format: uuid */
+            assessmentId?: null | string;
+            /** Format: uuid */
+            auditEvidenceSnapshotId?: null | string;
+            blastRadius?: null | string;
+            businessCriticality?: null | string;
+            /** Format: uuid */
+            cloudResourceId?: null | string;
+            controlFramework?: null | string;
+            controlId?: null | string;
+            /** Format: date-time */
+            createdUtc?: string;
+            description?: null | string;
+            exploitability?: null | string;
+            exposure?: null | string;
+            externalResourceId?: null | string;
+            /** Format: uuid */
+            findingId?: string;
+            /** Format: date-time */
+            firstObservedUtc?: string;
+            /** Format: uuid */
+            inventoryDiffId?: null | string;
+            /** Format: date-time */
+            lastObservedUtc?: string;
+            /** Format: byte */
+            payloadHashSha256?: string;
+            /** Format: uuid */
+            projectId?: string;
+            provider?: components["schemas"]["CloudProvider"];
+            rawEvidenceReference?: null | string;
+            resourceType?: null | string;
+            /** Format: double */
+            riskScore?: null | number | string;
+            severity?: null | string;
+            sourceFindingId?: string;
+            sourceSystem?: string;
+            status?: components["schemas"]["OperationalSecurityFindingStatus"];
+            subscriptionOrAccountId?: null | string;
+            /** Format: uuid */
+            tenantId?: string;
+            title?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+            /** Format: uuid */
+            workspaceId?: string;
+        };
+        /** @enum {string} */
+        OperationalSecurityFindingStatus: "Open" | "Recurred" | "Closed" | "Exception" | "AwaitingVerification";
         OperatorDemoReviewFindingSummary: {
             policyRuleKey?: null | string;
             severity?: string;
