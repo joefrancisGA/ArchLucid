@@ -58,6 +58,8 @@ function renderReviewFilterChips(props: {
         const empty = props.statusTabCounts[id] === 0;
         const label = runsDashboardTabLabel(id, props.buyerPolishedShell, props.statusTabCounts[id], {
           homePreviewMode: props.hideHeading,
+          recentTotalCount:
+            id === "all" && props.hideHeading ? props.statusTabCounts.recentTotalCount : undefined,
         });
 
         return (

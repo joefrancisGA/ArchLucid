@@ -181,13 +181,17 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
       ? formatRunListTitleWithDisambiguator(props.run, siblingRuns)
       : runListPrimaryTitle(props.run);
   const insightLine = formatRunHomeListInsightLine(props.run);
-  const updatedLabel = formatRunHomeListUpdatedLabel(props.run);
+  const updatedPresentation = formatRunHomeListUpdatedLabel(props.run);
+  const updatedSummaryLabel =
+    updatedPresentation !== null
+      ? `${updatedPresentation.absoluteLabel} · ${updatedPresentation.relativeLabel}`
+      : null;
   const findingsMetadata = formatFindingsMetadata(props.run);
   const isShowcaseDemo = isShowcaseSampleOfAnyKind(props.run.runId ?? "");
   const isExampleReview =
     isShowcaseDemo || isDemoSeededOverviewInjectedRun(props.run);
   const showcaseProofMetadata = variant === "featured" && isShowcaseDemo;
-  const insightText = [insightLine, updatedLabel].filter((part) => part !== null).join(" · ");
+  const insightText = [insightLine, updatedSummaryLabel].filter((part) => part !== null).join(" · ");
 
   if (variant === "compact") {
     return (
@@ -211,9 +215,11 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
                 data-testid={`run-home-status-tag-${props.run.runId}`}
               />
               {isExampleReview ? <DemoDataBadge /> : null}
-              {updatedLabel !== null ? (
+              {updatedPresentation !== null ? (
                 <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>
-                  {updatedLabel}
+                  <time dateTime={updatedPresentation.isoUtc}>{updatedPresentation.absoluteLabel}</time>
+                  {" · "}
+                  {updatedPresentation.relativeLabel}
                 </span>
               ) : null}
             </div>
@@ -270,8 +276,11 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
             {findingsMetadata !== null ? (
               <ReviewSummaryMetadataItem label="Findings" value={findingsMetadata} />
             ) : null}
-            {updatedLabel !== null ? (
-              <ReviewSummaryMetadataItem label="Last updated" value={updatedLabel.replace(/^Updated /, "")} />
+            {updatedPresentation !== null ? (
+              <ReviewSummaryMetadataItem
+                label="Last updated"
+                value={`${updatedPresentation.absoluteLabel} · ${updatedPresentation.relativeLabel}`}
+              />
             ) : null}
           </dl>
 

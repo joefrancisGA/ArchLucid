@@ -64,5 +64,8 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<ResilienceAuditEvidenceSelector>();
         services.AddScoped<IAzureInventoryDiffConsumer, AuditContinuousReadinessDiffConsumer>();
         services.AddScoped<IStructuredDiagramIngestService, StructuredDiagramIngestService>();
+        services.AddScoped<IDiagramInfrastructureReconciliationService, DiagramInfrastructureReconciliationService>();
+        services.AddScoped<IVisionDiagramIngestService, VisionDiagramIngestService>();
+        services.AddScoped<ICloudResourceEvidenceHubService, CloudResourceEvidenceHubService>();
     }
 }

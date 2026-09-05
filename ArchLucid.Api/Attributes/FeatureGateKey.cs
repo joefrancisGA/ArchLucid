@@ -11,5 +11,11 @@ public enum FeatureGateKey
     ///     The route requires <c>Demo:Enabled=true</c> (<see cref="ArchLucid.Core.Configuration.DemoOptions" />).
     ///     Returns <c>404 Not Found</c> on production-like deployments so the demo surface cannot be hit accidentally.
     /// </summary>
-    DemoEnabled = 1
+    DemoEnabled = 1,
+
+    /// <summary>
+    ///     The route requires <c>ArchLucid:DiagramVision:Enabled=true</c>
+    ///     (<see cref="ArchLucid.Core.Configuration.DiagramVisionOptions" />).
+    /// </summary>
+    DiagramVisionEnabled = 2,
 }

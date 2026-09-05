@@ -18,10 +18,14 @@ namespace ArchLucid.Api.Filters;
 /// </remarks>
 public sealed class FeatureGateFilter(
     FeatureGateKey key,
-    IOptions<DemoOptions> demoOptions) : IAsyncActionFilter
+    IOptions<DemoOptions> demoOptions,
+    IOptions<DiagramVisionOptions> diagramVisionOptions) : IAsyncActionFilter
 {
     private readonly IOptions<DemoOptions> _demoOptions =
         demoOptions ?? throw new ArgumentNullException(nameof(demoOptions));
+
+    private readonly IOptions<DiagramVisionOptions> _diagramVisionOptions =
+        diagramVisionOptions ?? throw new ArgumentNullException(nameof(diagramVisionOptions));
 
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
@@ -50,6 +54,7 @@ public sealed class FeatureGateFilter(
         return key switch
         {
             FeatureGateKey.DemoEnabled => _demoOptions.Value.Enabled,
+            FeatureGateKey.DiagramVisionEnabled => _diagramVisionOptions.Value.Enabled,
             _ => false
         };
     }
