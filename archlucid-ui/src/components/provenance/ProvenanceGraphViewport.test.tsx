@@ -4,6 +4,18 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ProvenanceGraphViewport } from "@/components/provenance/ProvenanceGraphViewport";
 import type { ArchitectureLinkageEdge, ArchitectureLinkageNode } from "@/types/architecture-provenance";
 
+const navigationMock = vi.hoisted(() => ({
+  pathname: "/architecture/reviews/r1/provenance",
+  replace: vi.fn(),
+  search: "",
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => navigationMock.pathname,
+  useRouter: () => ({ replace: navigationMock.replace }),
+  useSearchParams: () => new URLSearchParams(navigationMock.search),
+}));
+
 const nodes: ArchitectureLinkageNode[] = [
   { id: "n-ctx", type: "ContextSnapshot", referenceId: "ctx-1", name: "Source context reviewed" },
   { id: "n-find", type: "Finding", referenceId: "f-1", name: "PHI minimization risk" },

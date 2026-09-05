@@ -2,7 +2,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_FORM_CONTROL_DESCRIPTION_GAP_CLASS, OPERATOR_FORM_FIELD_HELPER_CLASS, OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_FORM_FIELD_STACK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -11,6 +12,10 @@ import {
   FOCUSED_PILOT_MODE_CREATION_COPY,
   FOCUSED_PILOT_MODE_PACK_DISPLAY_NAMES,
 } from "@/lib/focused-pilot-mode-policy-packs";
+import {
+  parsePilotPolicyPackExpandedFromSearch,
+  pilotPolicyPackExpandedHrefFromSearch,
+} from "@/lib/wizard/pilot-policy-pack-expanded-url";
 
 type PilotModePolicyPackToggleProps = {
   readonly enabled: boolean;
@@ -83,8 +88,35 @@ function FocusedPilotModeCheckbox(props: PilotModePolicyPackToggleProps): React.
 
 function FocusedPilotModeScopeCard(props: PilotModePolicyPackToggleProps): React.JSX.Element {
   const { enabled, onEnabledChange, className, testId = "pilot-mode-policy-pack-toggle" } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const pilotPolicyPackExpandedParam = searchParams.get("pilotPolicyPackExpanded");
   const inputId = `${testId}-input`;
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpandedState] = useState(() =>
+    parsePilotPolicyPackExpandedFromSearch(pilotPolicyPackExpandedParam),
+  );
+
+  const syncExpandedToUrl = useCallback(
+    (nextExpanded: boolean) => {
+      router.replace(pilotPolicyPackExpandedHrefFromSearch(searchParams.toString(), nextExpanded, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setExpanded = useCallback(
+    (nextExpanded: boolean) => {
+      setExpandedState(nextExpanded);
+      syncExpandedToUrl(nextExpanded);
+    },
+    [syncExpandedToUrl],
+  );
+
+  useEffect(() => {
+    setExpandedState(parsePilotPolicyPackExpandedFromSearch(pilotPolicyPackExpandedParam));
+  }, [pilotPolicyPackExpandedParam]);
 
   return (
     <div

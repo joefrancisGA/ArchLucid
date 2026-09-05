@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactElement, type SetStateAction } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
   AlertDialog,
@@ -35,6 +36,10 @@ import {
   ANALYSIS_MODE_WORKSPACE_SWITCH_TITLE,
   resolveAnalysisModeTopBarButtonLabel,
 } from "@/lib/simulator-mode-chrome-copy";
+import {
+  parseSimulatorModeConfirmOpenFromSearch,
+  simulatorModeConfirmHrefFromSearch,
+} from "@/lib/operator/simulator-mode-confirm-url";
 import { cn } from "@/lib/utils";
 
 export type SimulatorModeTopBarChipProps = {
@@ -45,11 +50,42 @@ export type SimulatorModeTopBarChipProps = {
  * Dev-only analysis mode control — explicit button + confirmation; never styled as passive status.
  */
 export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): ReactElement | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const simulatorModeConfirmOpenParam = searchParams.get("simulatorModeConfirmOpen");
   const { mode, isSimulator, isLoading } = useAgentExecutionMode();
   const readiness = useSessionAiReadiness();
   const healthQuery = useHealthReadySummaryQuery();
   const [devOverride, setDevOverride] = useState<DevAgentExecutionModeOverride | null>(null);
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmOpen, setConfirmOpenState] = useState(() =>
+    parseSimulatorModeConfirmOpenFromSearch(simulatorModeConfirmOpenParam),
+  );
+
+  const syncConfirmOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(simulatorModeConfirmHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setConfirmOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setConfirmOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncConfirmOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncConfirmOpenToUrl],
+  );
+
+  useEffect(() => {
+    setConfirmOpenState(parseSimulatorModeConfirmOpenFromSearch(simulatorModeConfirmOpenParam));
+  }, [simulatorModeConfirmOpenParam]);
 
   useEffect(() => {
     if (!isDevTestingOverridesEnabled()) {
@@ -105,6 +141,7 @@ export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): Re
             <AlertDialogAction
               onClick={() => {
                 toggleDevAgentExecutionModeFromChip(mode);
+                setConfirmOpen(false);
               }}
             >
               Switch to {switchTargetLabel}

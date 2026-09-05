@@ -94,6 +94,8 @@ describe("OperatorHomeWorkspaceMetricsStrip", () => {
     );
     expect(screen.getByText(/^active reviews$/i)).toBeInTheDocument();
     expect(screen.getByText(/^finalized package$/i)).toBeInTheDocument();
+    expect(screen.getByText("Source:")).toHaveClass("font-medium");
+    expect(screen.getByText("reviews in this workspace.")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-workspace-metrics-stack")).toHaveClass("space-y-4");
   });
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import type { ReactElement } from "react";
+import { useCallback, useEffect, useState, type ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { ItsmOutboundQuickActions } from "@/components/itsm/ItsmOutboundQuickActions";
@@ -14,6 +14,10 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buildFindingPolicyEvidenceCitationsFromQuickDecision } from "@/lib/findings/finding-policy-evidence-citations";
 import { quickDecisionWorkItemSeverityLabel } from "@/lib/quick-decision-finding-links";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import {
+  parseWorkspaceIntegrationsFindingIdFromSearch,
+  workspaceIntegrationsDisclosureHrefFromSearch,
+} from "@/lib/findings/workspace-integrations-disclosure-url";
 import { cn } from "@/lib/utils";
 
 /** Architecture-creation context needed by the provider-neutral work-item affordance. */
@@ -43,11 +47,45 @@ export type QuickDecisionWorkspaceFindingSupportingDetailsProps = {
 export function QuickDecisionWorkspaceFindingSupportingDetails(
   props: QuickDecisionWorkspaceFindingSupportingDetailsProps,
 ): ReactElement {
-  // ITSM correlations are only fetched once the operator opens the disclosure.
-  const [integrationsOpen, setIntegrationsOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const workspaceIntegrationsFindingIdParam = searchParams.get("workspaceIntegrationsFindingId");
   const context = props.context;
   const finding = props.finding;
+  // ITSM correlations are only fetched once the operator opens the disclosure.
+  const [integrationsOpen, setIntegrationsOpenState] = useState(
+    () => parseWorkspaceIntegrationsFindingIdFromSearch(workspaceIntegrationsFindingIdParam) === finding.findingId,
+  );
   const citationModel = buildFindingPolicyEvidenceCitationsFromQuickDecision(context.runId, finding);
+
+  const syncIntegrationsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        workspaceIntegrationsDisclosureHrefFromSearch(
+          searchParams.toString(),
+          open ? finding.findingId : null,
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [finding.findingId, pathname, router, searchParams],
+  );
+
+  const setIntegrationsOpen = useCallback(
+    (open: boolean) => {
+      setIntegrationsOpenState(open);
+      syncIntegrationsOpenToUrl(open);
+    },
+    [syncIntegrationsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setIntegrationsOpenState(
+      parseWorkspaceIntegrationsFindingIdFromSearch(workspaceIntegrationsFindingIdParam) === finding.findingId,
+    );
+  }, [finding.findingId, workspaceIntegrationsFindingIdParam]);
 
   function renderIntegrations(): ReactElement | null {
     if (context.packageCommitted === false) {
