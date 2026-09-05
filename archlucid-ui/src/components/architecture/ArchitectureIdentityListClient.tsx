@@ -58,7 +58,7 @@ export function ArchitectureIdentityListClient(): React.JSX.Element {
   }
 
   return (
-    <EnterpriseTable data-testid="architecture-identity-list-table">
+    <EnterpriseTable ariaLabel="Architecture portfolio" data-testid="architecture-identity-list-table">
       <EnterpriseTableHead>
         <EnterpriseTableHeadRow>
           <EnterpriseTableHeaderCell>{ARCHITECTURE_IDENTITY_TABLE_NAME_COLUMN}</EnterpriseTableHeaderCell>

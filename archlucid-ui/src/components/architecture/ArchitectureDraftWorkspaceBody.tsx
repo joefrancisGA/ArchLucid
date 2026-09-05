@@ -245,7 +245,7 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
             actorSet={actorSet}
             disabled={editorLocked}
             blocksLlmExecution={blocksLlmExecution}
-            draftId={effectiveArchitectureId}
+            draftId={effectiveDraftId}
             markReviewReadinessInvalid={linkedReviewId === null && !reviewReadiness.isValid}
             actorSuggestionGateRequestId={actorSuggestionGateRequestId}
             onActorSuggestionsUnresolvedChange={setActorSuggestionsUnresolved}

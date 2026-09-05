@@ -78,7 +78,7 @@ export function ArchitectureCreationLocalDraftsPanel(): React.JSX.Element | null
               </p>
               <div className="mt-2">
                 <ArchitectureDraftResumeControl
-                  architectureId={entry.draftId}
+                  draftId={entry.draftId}
                   label={CONTINUE_DRAFT_LABEL}
                   source="architectures-new"
                   variant="primary"

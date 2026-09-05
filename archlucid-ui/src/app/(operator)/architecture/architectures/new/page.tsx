@@ -33,7 +33,7 @@ export default function NewArchitecturePage(): React.JSX.Element {
         actions={<ArchitecturesNewPageHeaderActions />}
       />
       <ArchitecturesNewBuyerChrome />
-      <ArchitectureDraftWorkspace architectureId={ARCHITECTURE_NEW_DRAFT_SEGMENT} />
+      <ArchitectureDraftWorkspace draftId={ARCHITECTURE_NEW_DRAFT_SEGMENT} />
     </OperatorPageContainer>
   );
 }

@@ -38,7 +38,7 @@ type ArchitectureDraftWorkspaceStartReviewFooterProps = Pick<
   | "saveDraft"
   | "setExitPending"
   | "intakeModeActive"
-  | "effectiveArchitectureId"
+  | "effectiveDraftId"
   | "canStartReview"
   | "reviewStartProgress"
   | "handleStartReview"
@@ -76,7 +76,7 @@ export function ArchitectureDraftWorkspaceStartReviewFooter(
     saveDraft,
     setExitPending,
     intakeModeActive,
-    effectiveArchitectureId,
+    effectiveDraftId,
     canStartReview,
     reviewStartProgress,
     handleStartReview,
@@ -142,7 +142,7 @@ export function ArchitectureDraftWorkspaceStartReviewFooter(
         >
           {intakeModeActive && linkedReviewId === null ? (
             <Button type="button" variant="primary" size="sm" asChild>
-              <Link href={startReviewFromArchitectureHref(effectiveArchitectureId)}>
+              <Link href={startReviewFromArchitectureHref(effectiveDraftId)}>
                 {ARCHITECTURE_DRAFT_INTAKE_MODE_CONTINUE_LABEL}
               </Link>
             </Button>
@@ -178,7 +178,7 @@ export function ArchitectureDraftWorkspaceStartReviewFooter(
         ) : null}
         {reviewStartProgress.stalled ? (
           <ReviewStartNavigationStallNotice
-            href={startReviewFromArchitectureHref(effectiveArchitectureId)}
+            href={startReviewFromArchitectureHref(effectiveDraftId)}
             testId="architecture-start-review-stall"
           />
         ) : null}

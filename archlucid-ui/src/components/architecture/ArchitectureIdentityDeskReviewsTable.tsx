@@ -40,7 +40,7 @@ export function ArchitectureIdentityDeskReviewsTable(
         total={reviewCount}
         testId="architecture-identity-reviews-showing-count"
       />
-      <EnterpriseTable data-testid="architecture-identity-reviews-table">
+      <EnterpriseTable ariaLabel="Architecture reviews" data-testid="architecture-identity-reviews-table">
       <EnterpriseTableHead>
         <EnterpriseTableHeadRow>
           <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>

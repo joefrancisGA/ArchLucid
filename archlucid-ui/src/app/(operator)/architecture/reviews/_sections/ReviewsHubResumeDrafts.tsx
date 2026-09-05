@@ -72,9 +72,9 @@ export function ReviewsHubResumeDrafts(): React.JSX.Element | null {
 
           return (
             <li
-              key={entry.architectureId}
+              key={entry.draftId}
               className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between"
-              data-testid={`reviews-hub-resume-draft-${entry.architectureId}`}
+              data-testid={`reviews-hub-resume-draft-${entry.draftId}`}
             >
               <div className="min-w-0">
                 <p className={cn("m-0 line-clamp-2 break-words font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
@@ -98,19 +98,19 @@ export function ReviewsHubResumeDrafts(): React.JSX.Element | null {
                 {canStartReview ? (
                   <Button variant="default" size="sm" asChild>
                     <Link
-                      href={startReviewFromArchitectureHref(entry.architectureId)}
-                      data-testid={`reviews-hub-resume-draft-start-${entry.architectureId}`}
+                      href={startReviewFromArchitectureHref(entry.draftId)}
+                      data-testid={`reviews-hub-resume-draft-start-${entry.draftId}`}
                     >
                       {REVIEWS_HUB_RESUME_DRAFTS_START_LABEL}
                     </Link>
                   </Button>
                 ) : null}
                 <ArchitectureDraftResumeControl
-                  architectureId={entry.architectureId}
+                  draftId={entry.draftId}
                   label={REVIEWS_HUB_RESUME_DRAFTS_CONTINUE_LABEL}
                   source="reviews-hub"
                   variant={canStartReview ? "outline" : "primary"}
-                  testId={`reviews-hub-resume-draft-continue-${entry.architectureId}`}
+                  testId={`reviews-hub-resume-draft-continue-${entry.draftId}`}
                   ariaLabel={`${REVIEWS_HUB_RESUME_DRAFTS_CONTINUE_LABEL}: ${entry.displayName}`}
                 />
               </div>

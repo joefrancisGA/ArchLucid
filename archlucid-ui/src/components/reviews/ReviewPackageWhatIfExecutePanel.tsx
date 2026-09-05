@@ -19,7 +19,7 @@ export type ReviewPackageWhatIfExecutePanelProps = {
 export function ReviewPackageWhatIfExecutePanel(
   props: ReviewPackageWhatIfExecutePanelProps,
 ): ReactElement | null {
-  const draftQuery = useArchitectureDraftQuery(props.linkedDraft.architectureId);
+  const draftQuery = useArchitectureDraftQuery(props.linkedDraft.draftId);
   const { busy, executeBranch } = useReviewPackageWhatIfExecute(props.baseRunId);
   const draft = draftQuery.data;
 
