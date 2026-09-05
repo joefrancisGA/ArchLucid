@@ -57,7 +57,6 @@ export const SIDEBAR_DAILY_HREFS_BY_GROUP: Readonly<Record<string, readonly stri
     GOVERNANCE_APPROVAL_QUEUE_PATH,
     GOVERNANCE_SETUP_PATH,
     GOVERNANCE_FINDINGS_PATH,
-    SIGNED_RECORDS_LIST_PATH,
     GOVERNANCE_ADVISORY_SCANS_PATH,
     GOVERNANCE_ALERTS_PATH,
   ],
@@ -125,9 +124,13 @@ export function splitSidebarLinksDailyVsMore(
 }
 
 /** Secondary nav rows under a group heading — include the group name so the disclosure is self-explanatory. */
-export function sidebarMoreLinksLabel(groupLabel: string, count: number): string {
+export function sidebarMoreLinksLabel(groupLabel: string, count: number, expanded = false): string {
   const trimmedGroupLabel = groupLabel.trim();
   const groupSuffix = trimmedGroupLabel.length > 0 ? ` ${trimmedGroupLabel}` : "";
+
+  if (expanded) {
+    return `Fewer${groupSuffix} links`;
+  }
 
   if (count === 1) {
     return `1 more${groupSuffix} link`;

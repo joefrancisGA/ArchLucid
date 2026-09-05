@@ -17,6 +17,15 @@ vi.mock("@/hooks/use-operator-attention-summary", () => ({
   }),
 }));
 
+vi.mock("@/hooks/use-attention-partition-previews", () => ({
+  useAttentionPartitionPreviews: () => ({
+    "unfinished-work": "Enterprise platform draft",
+    "assigned-to-me": null,
+    alerts: null,
+    "awaiting-approval": "Claims intake modernization",
+  }),
+}));
+
 const usePathname = vi.fn();
 const useSearchParams = vi.fn();
 
@@ -68,7 +77,18 @@ describe("OperatorAttentionKindStrip (TB-2353)", () => {
     expect(screen.getByTestId("operator-attention-kind-chip-awaiting-approval")).toBeInTheDocument();
   });
 
-  it("emphasizes awaiting-approval chips when the queue has items", () => {
+  it("renders partition preview for the highest non-zero kind", () => {
+    usePathname.mockReturnValue("/");
+    useSearchParams.mockReturnValue(new URLSearchParams());
+
+    render(<OperatorAttentionKindStrip variant="compact" suppressKinds={["unfinished-work"]} />);
+
+    expect(screen.getByTestId("operator-attention-partition-preview-awaiting-approval")).toHaveTextContent(
+      "Claims intake modernization",
+    );
+  });
+
+  it("emphasizes chips when the queue has items", () => {
     usePathname.mockReturnValue("/");
     useSearchParams.mockReturnValue(new URLSearchParams());
 

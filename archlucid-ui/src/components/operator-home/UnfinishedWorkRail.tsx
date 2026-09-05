@@ -26,7 +26,6 @@ import {
 import {
   listIncompleteWizardSignals,
   summarizeUnfinishedWorkRailItems,
-  UNFINISHED_WORK_RAIL_TITLE,
   type UnfinishedWorkRailItem,
   type UnfinishedWorkRailItemKind,
 } from "@/lib/unfinished-work-rail";
@@ -291,9 +290,11 @@ export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.El
       className="space-y-2"
       data-testid="unfinished-work-rail"
       data-attention-partition="unfinished-work"
-      aria-label={UNFINISHED_WORK_RAIL_TITLE}
+      aria-labelledby="operator-home-your-work-heading"
     >
-      <h2 className={OPERATOR_HOME_SECTION_HEADING}>{OPERATOR_HOME_YOUR_WORK_HEADING}</h2>
+      <h2 id="operator-home-your-work-heading" className={OPERATOR_HOME_SECTION_HEADING}>
+        {OPERATOR_HOME_YOUR_WORK_HEADING}
+      </h2>
       <UnfinishedWorkRailList items={items} />
       {railSummary.truncated ? (
         <p className="m-0">

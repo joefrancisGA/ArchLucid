@@ -33,7 +33,7 @@ export function deriveOperatorHomeTenantCountingSnapshot(
   const tenantItems = filterTenantOverviewRuns(input.displayItems);
   const metrics = deriveOperatorHomeWorkspaceMetrics(tenantItems, tenantItems.length);
   const previewTabCounts = deriveHomePreviewTabCounts({
-    previewItems: input.previewItems,
+    previewItems: tenantItems,
     excludeShowcaseRunId: input.excludeShowcaseRunId,
   });
 
