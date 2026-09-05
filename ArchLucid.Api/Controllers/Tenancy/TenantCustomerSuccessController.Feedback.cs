@@ -74,6 +74,13 @@ public sealed partial class TenantCustomerSuccessController
                     $"Finding '{findingRef}' was not found.",
                     ProblemTypes.ResourceNotFound);
             }
+
+            IActionResult? runBindingProblem =
+                ProductFeedbackHttpMapper.ValidateRunMatchesFindingAuthorityRun(request.RunId, finding)
+                    .ToBadRequestProblemOrNull(this);
+
+            if (runBindingProblem is not null)
+                return runBindingProblem;
         }
 
         string? comment = string.IsNullOrWhiteSpace(request.Comment)

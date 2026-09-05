@@ -272,6 +272,94 @@ public sealed class TenantCustomerSuccessControllerTests
     }
 
     [SkippableFact]
+    public async Task PostProductFeedbackAsync_returns_bad_request_when_run_id_does_not_match_finding_authority_run()
+    {
+        Guid authorityRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid otherInScopeRunId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+        Mock<ITenantCustomerSuccessRepository> repo = new(MockBehavior.Strict);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IRunRepository> runs = new(MockBehavior.Strict);
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, otherInScopeRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = otherInScopeRunId });
+
+        Mock<IFindingInspectReadRepository> findingInspect = new(MockBehavior.Strict);
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                "finding-1",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse
+            {
+                FindingId = "finding-1",
+                RunId = authorityRunId,
+            });
+
+        TenantCustomerSuccessController sut = BuildSut(
+            repo.Object,
+            scopeProvider.Object,
+            runs.Object,
+            findingInspect: findingInspect.Object);
+
+        ProductFeedbackRequest request = new()
+        {
+            FindingRef = "finding-1",
+            RunId = otherInScopeRunId,
+            Score = 1,
+        };
+
+        IActionResult result = await sut.PostProductFeedbackAsync(request, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        repo.VerifyNoOtherCalls();
+    }
+
+    [SkippableFact]
+    public async Task PostProductFeedbackAsync_returns_bad_request_when_finding_ref_has_authority_run_and_run_id_omitted()
+    {
+        Guid authorityRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+
+        Mock<ITenantCustomerSuccessRepository> repo = new(MockBehavior.Strict);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IFindingInspectReadRepository> findingInspect = new(MockBehavior.Strict);
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                "finding-1",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse
+            {
+                FindingId = "finding-1",
+                RunId = authorityRunId,
+            });
+
+        TenantCustomerSuccessController sut = BuildSut(
+            repo.Object,
+            scopeProvider.Object,
+            findingInspect: findingInspect.Object);
+
+        ProductFeedbackRequest request = new()
+        {
+            FindingRef = "finding-1",
+            Score = 1,
+        };
+
+        IActionResult result = await sut.PostProductFeedbackAsync(request, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        repo.VerifyNoOtherCalls();
+    }
+
+    [SkippableFact]
     public async Task PostProductFeedbackAsync_returns_bad_request_when_finding_ref_exceeds_max_length()
     {
         string overlongFindingRef = new string('f', 513);
