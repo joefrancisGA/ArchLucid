@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Core.Persistence.Ports;
@@ -26,5 +27,16 @@ public interface IArchitectureIdentityRepository
         ScopeContext scope,
         Guid architectureId,
         Guid manifestId,
+        CancellationToken cancellationToken = default);
+
+    Task<PagedResponse<ArchitectureIdentityListItem>> ListAsync(
+        ScopeContext scope,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default);
+
+    Task<ArchitectureIdentityDetail?> GetDetailAsync(
+        ScopeContext scope,
+        Guid architectureId,
         CancellationToken cancellationToken = default);
 }

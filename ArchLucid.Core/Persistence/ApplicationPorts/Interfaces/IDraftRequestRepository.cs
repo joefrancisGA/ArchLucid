@@ -96,4 +96,29 @@ public interface IDraftRequestRepository
         Guid projectId,
         string spawnedRunId,
         CancellationToken cancellationToken);
+
+    /// <summary>Lists drafts linked to <paramref name="architectureId" /> in scope, newest <c>UpdatedUtc</c> first.</summary>
+    Task<IReadOnlyList<DraftRequestResponse>> ListByArchitectureIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid architectureId,
+        CancellationToken cancellationToken);
+
+    /// <summary>Counts drafts linked to <paramref name="architectureId" /> in scope.</summary>
+    Task<int> CountByArchitectureIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid architectureId,
+        CancellationToken cancellationToken);
+
+    /// <summary>Sets <c>ArchitectureId</c> on a scoped draft when the identity is first ensured.</summary>
+    Task<bool> SetArchitectureIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid draftId,
+        Guid architectureId,
+        CancellationToken cancellationToken);
 }

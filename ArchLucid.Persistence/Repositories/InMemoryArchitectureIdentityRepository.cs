@@ -7,7 +7,7 @@ using ArchLucid.Core.Scoping;
 namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>In-memory <see cref="IArchitectureIdentityRepository" /> for tests and storage mode <c>InMemory</c>.</summary>
-public sealed class InMemoryArchitectureIdentityRepository : IArchitectureIdentityRepository
+public sealed partial class InMemoryArchitectureIdentityRepository : IArchitectureIdentityRepository
 {
     private readonly ConcurrentDictionary<Guid, ArchitectureIdentityRecord> _byId = new();
 

@@ -11,7 +11,7 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Repositories;
 
-public sealed class SqlArchitectureIdentityRepository(ISqlConnectionFactory connectionFactory)
+public sealed partial class SqlArchitectureIdentityRepository(ISqlConnectionFactory connectionFactory)
     : IArchitectureIdentityRepository
 {
     private readonly ISqlConnectionFactory _connectionFactory =
