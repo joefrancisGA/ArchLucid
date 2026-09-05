@@ -300,6 +300,8 @@ public sealed class PolicyPackBeforeAfterDiffDemoTests : VerifyBase
             Options.Create(new TechnologyConsistencyFindingEngineOptions { Enabled = false }),
             new FindingEvidenceLinkageFindingEngine(),
             Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = false }),
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateAuthorityQueryServiceForAnyRun(TestScope),
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService(),
             NullLogger<PolicyPackGovernanceDryRunService>.Instance);
     }
 
