@@ -1072,6 +1072,27 @@ export interface components {
         ArchitectureDecisionRegisterResponse: {
             decisions?: components["schemas"]["ArchitectureDecisionRegisterEntry"][];
         };
+        ArchitectureDiagramEdgeRecord: {
+            id?: string;
+            label?: string;
+            provenance?: string;
+            removed?: boolean;
+            sourceId?: string;
+            targetId?: string;
+        };
+        ArchitectureDiagramModelRecord: {
+            edges?: components["schemas"]["ArchitectureDiagramEdgeRecord"][];
+            nodes?: components["schemas"]["ArchitectureDiagramNodeRecord"][];
+            trustBoundaryLabels?: string[];
+        };
+        ArchitectureDiagramNodeRecord: {
+            accepted?: boolean;
+            id?: string;
+            kind?: string;
+            label?: string;
+            provenance?: string;
+            removed?: boolean;
+        };
         ArchitectureDigest: {
             /** Format: date-time */
             archivedUtc?: null | string;
@@ -3163,10 +3184,46 @@ export interface components {
             catalogName: string;
             demoSeedApplied?: boolean;
         };
+        DiagramInfrastructureCorrespondenceRow: {
+            aiRationale?: null | string;
+            azureResourceId?: null | string;
+            /** Format: uuid */
+            cloudResourceId?: null | string;
+            confidenceBand?: string;
+            correspondenceId?: string;
+            diagramNodeId?: null | string;
+            diagramNodeLabel?: null | string;
+            explainText?: string;
+            matchKind?: string;
+            resourceGroup?: null | string;
+            resourceType?: null | string;
+            securityDiscrepancy?: boolean;
+            terraformAddress?: null | string;
+        };
+        DiagramInfrastructureReconciliationRequest: {
+            /** Format: uuid */
+            snapshotId?: string;
+        };
+        DiagramInfrastructureReconciliationResult: {
+            /** Format: int32 */
+            diagramNodeCount?: number;
+            /** Format: int32 */
+            inventoryResourceCount?: number;
+            rows?: components["schemas"]["DiagramInfrastructureCorrespondenceRow"][];
+            /** Format: uuid */
+            runId?: string;
+            /** Format: uuid */
+            snapshotId?: string;
+        };
         DiagramResponse: {
             diagram?: string;
             format?: string;
             manifestVersion?: string;
+        };
+        DiagramSourceReference: {
+            content?: string;
+            format?: string;
+            name?: string;
         };
         DiffItemResponse: {
             afterValue?: null | string;
@@ -9138,6 +9195,15 @@ export interface components {
         StructuralExecutionMode: "Simulator" | "Real" | "Fallback" | "Mixed";
         /** @enum {string} */
         StructuredBriefSuggestionKind: "Constraint" | "Assumption" | "RequiredCapability";
+        StructuredDiagramIngestRequest: {
+            sources?: components["schemas"]["DiagramSourceReference"][];
+        };
+        StructuredDiagramIngestResult: {
+            extractionMethod?: string;
+            model?: components["schemas"]["ArchitectureDiagramModelRecord"];
+            sourceFingerprints?: string[];
+            warnings?: string[];
+        };
         StructuredExplanation: {
             alternativesConsidered?: null | string[];
             caveats?: null | string[];
@@ -10217,6 +10283,21 @@ export interface components {
             workspaceModeGraduationOffer?: string;
             workspaceModeGraduationOfferIsExplicit?: boolean;
             workspaceModeIsExplicit?: boolean;
+        };
+        VisionDiagramIngestRequest: {
+            contentBase64?: string;
+            format?: string;
+            name?: string;
+            useSimulator?: boolean;
+        };
+        VisionDiagramIngestResult: {
+            extractionMethod?: string;
+            /** Format: double */
+            interpretationConfidence?: null | number | string;
+            interpretationHonestyLabel?: string;
+            model?: components["schemas"]["ArchitectureDiagramModelRecord"];
+            sourceFingerprint?: string;
+            warnings?: string[];
         };
         WeeklyDigestHealthResponse: {
             /** Format: int32 */
