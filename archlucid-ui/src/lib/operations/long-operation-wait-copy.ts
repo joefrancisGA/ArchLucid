@@ -80,8 +80,19 @@ export function buildLongOperationWaitCopy(args: {
   };
 }
 
-export function formatLongOperationQueueStatusLine(stageLabel: string): string {
-  const label = stageLabel.trim().length > 0 ? stageLabel.trim() : "Queued";
+/** Sentence-case label for queue status rows in long-operation wait surfaces. */
+export const LONG_OPERATION_QUEUE_STATUS_LABEL = "Queue status:";
 
-  return `Queue status: ${label}`;
+export function resolveLongOperationQueueStatusValue(stageLabel: string): string {
+  const label = stageLabel.trim();
+
+  if (label.length > 0) {
+    return label;
+  }
+
+  return "Queued";
+}
+
+export function formatLongOperationQueueStatusLine(stageLabel: string): string {
+  return `${LONG_OPERATION_QUEUE_STATUS_LABEL} ${resolveLongOperationQueueStatusValue(stageLabel)}`;
 }
