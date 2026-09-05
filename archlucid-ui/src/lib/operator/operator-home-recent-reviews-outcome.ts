@@ -2,6 +2,7 @@ import {
   deriveRunsDashboardTabCounts,
   type RunsDashboardTabCounts,
 } from "@/components/operator-home/runs-dashboard-helpers";
+import { formatOperatorHomeApprovalCheckWarningCount } from "@/lib/operator/operator-home-approval-check-warning-copy";
 import { OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME } from "@/lib/buyer/buyer-polish-copy";
 import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
@@ -47,7 +48,7 @@ export function formatOperatorHomeRecentReviewsOutcome(
 
   if (metrics.governanceWarnings > 0) {
     pressureParts.push(
-      `${metrics.governanceWarnings} with approval-check warnings`,
+      `with ${formatOperatorHomeApprovalCheckWarningCount(metrics.governanceWarnings)}`,
     );
   }
 
@@ -81,6 +82,11 @@ export function filterTenantOverviewRuns(items: readonly RunSummary[]): RunSumma
 /** Featured recent-review rows on Overview (full list lives on Architecture packages). */
 export const OPERATOR_HOME_RECENT_FEATURED_LIMIT = 2;
 
+export type HomePreviewTabCounts = RunsDashboardTabCounts & {
+  readonly recentVisibleCount: number;
+  readonly recentTotalCount: number;
+};
+
 export type DeriveHomePreviewTabCountsInput = {
   readonly previewItems: readonly RunSummary[];
   /** When the buyer proof card already names the showcase sample, omit that row from tab counts. */
@@ -89,18 +95,21 @@ export type DeriveHomePreviewTabCountsInput = {
 
 /**
  * Tab counts for the home recent-reviews preview — uses deduped preview rows and caps the
- * Recent tab at the featured limit so "(N)" matches what renders below.
+ * Recent tab at the featured limit so labels read `Recent (2 of N)` instead of a silent cap.
  */
-export function deriveHomePreviewTabCounts(input: DeriveHomePreviewTabCountsInput): RunsDashboardTabCounts {
+export function deriveHomePreviewTabCounts(input: DeriveHomePreviewTabCountsInput): HomePreviewTabCounts {
   const listItems =
     input.excludeShowcaseRunId !== undefined
       ? input.previewItems.filter((run) => run.runId !== input.excludeShowcaseRunId)
       : input.previewItems;
   const baseCounts = deriveRunsDashboardTabCounts(listItems);
-  const featuredVisibleCount = Math.min(listItems.length, OPERATOR_HOME_RECENT_FEATURED_LIMIT);
+  const recentTotalCount = listItems.length;
+  const recentVisibleCount = Math.min(listItems.length, OPERATOR_HOME_RECENT_FEATURED_LIMIT);
 
   return {
     ...baseCounts,
-    all: featuredVisibleCount,
+    all: recentVisibleCount,
+    recentVisibleCount,
+    recentTotalCount,
   };
 }

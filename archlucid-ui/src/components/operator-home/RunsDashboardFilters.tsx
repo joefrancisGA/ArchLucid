@@ -1,6 +1,8 @@
 import { cn } from "@/lib/utils";
 
+import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { formatOperatorHomeApprovalCheckWarningFilterLabel } from "@/lib/operator/operator-home-approval-check-warning-copy";
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -25,28 +27,24 @@ export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
       aria-label="Filter reviews"
     >
       <div className="flex items-center gap-2">
-        <input
+        <Checkbox
           id="runs-dashboard-governance-warnings-only"
-          type="checkbox"
-          className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-neutral-400 dark:border-neutral-600"
           checked={props.governanceWarningsOnly}
-          onChange={(e) => {
-            props.onGovernanceWarningsOnlyChange(e.target.checked);
+          onCheckedChange={(checked) => {
+            props.onGovernanceWarningsOnlyChange(checked === true);
           }}
           data-testid="runs-dashboard-governance-warnings-only"
         />
         <Label htmlFor="runs-dashboard-governance-warnings-only" className={cn(OPERATOR_TYPOGRAPHY.helper, "font-medium")}>
-          {RUNS_DASHBOARD_LABELS.governanceWarningsOnly}
+          {formatOperatorHomeApprovalCheckWarningFilterLabel()}
         </Label>
       </div>
       <div className="flex items-center gap-2">
-        <input
+        <Checkbox
           id="runs-dashboard-show-archived"
-          type="checkbox"
-          className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-neutral-400 dark:border-neutral-600"
           checked={props.showArchived}
-          onChange={(e) => {
-            props.onShowArchivedChange(e.target.checked);
+          onCheckedChange={(checked) => {
+            props.onShowArchivedChange(checked === true);
           }}
           data-testid="runs-dashboard-show-archived"
         />

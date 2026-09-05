@@ -27,10 +27,7 @@ export function OperatorHomeCompactStartingActionsSection(
   const hasDeskWork =
     props.hasActiveDeskWork === true ||
     (unfinishedWorkRailCount !== null && unfinishedWorkRailCount > 0);
-
-  if (props.workingMode === true && hasDeskWork) {
-    return null;
-  }
+  const workingCtaVariant = props.workingMode === true && hasDeskWork ? "outline" : "primary";
 
   const showStarterPacks = props.workingMode !== true;
 
@@ -44,7 +41,7 @@ export function OperatorHomeCompactStartingActionsSection(
         <OperatorHomeCardSectionTitle id="operator-home-compact-starting-actions-heading">
           {OPERATOR_HOME_COMPACT_STARTING_ACTIONS_HEADING}
         </OperatorHomeCardSectionTitle>
-        {props.workingMode === true ? <OperatorHomeWorkingPrimaryCta /> : null}
+        {props.workingMode === true ? <OperatorHomeWorkingPrimaryCta variant={workingCtaVariant} /> : null}
         {hideDualPathCards ? null : (
           <OperatorHomeDualPathCards variant="compact" pagePrimaryOwnedElsewhere hideExplorePath />
         )}

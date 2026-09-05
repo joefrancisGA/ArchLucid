@@ -16,6 +16,12 @@ vi.mock("@/components/operator-home/AcceleratorChooserCard", () => ({
   AcceleratorChooserCard: () => <div data-testid="accelerator-chooser-card" />,
 }));
 
+vi.mock("@/components/operator-home/operator-home-workspace-activity-context", () => ({
+  useOperatorHomeWorkspaceActivity: () => ({
+    unfinishedWorkRailCount: 0,
+  }),
+}));
+
 describe("OperatorHomeCompactStartingActionsSection (LD-06)", () => {
   it("shows a single new-review CTA in Working mode without dual-path cards", () => {
     render(<OperatorHomeCompactStartingActionsSection workingMode />);
@@ -32,5 +38,19 @@ describe("OperatorHomeCompactStartingActionsSection (LD-06)", () => {
 
     expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
     expect(screen.queryByTestId("operator-home-working-primary-cta")).toBeNull();
+  });
+
+  it("keeps a reduced-emphasis start-review CTA in Working mode when desk work exists", () => {
+    render(
+      <OperatorHomeCompactStartingActionsSection
+        workingMode
+        hasActiveDeskWork
+      />,
+    );
+
+    expect(screen.getByTestId("operator-home-working-new-review-primary")).toHaveAttribute(
+      "href",
+      ARCHITECTURES_NEW_PATH,
+    );
   });
 });

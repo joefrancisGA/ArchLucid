@@ -13,8 +13,15 @@ import { cn } from "@/lib/utils";
 const WORKING_NEW_REVIEW_BRIDGE_COPY =
   "Open the draft editor to describe your architecture and start a review when ready.";
 
+export type OperatorHomeWorkingPrimaryCtaProps = {
+  readonly variant?: "primary" | "outline";
+};
+
 /** Working Overview sole primary — resume last draft/review, else new review in the draft editor (LI-06). */
-export function OperatorHomeWorkingPrimaryCta(): React.JSX.Element {
+export function OperatorHomeWorkingPrimaryCta(
+  props: OperatorHomeWorkingPrimaryCtaProps = {},
+): React.JSX.Element {
+  const variant = props.variant ?? "primary";
   const drafts = useArchitectureDraftRegistryEntries();
   const latestDraft = drafts[0] ?? null;
   const resume = resolveOperatorHomeLatestDraftPrimaryAction(latestDraft);
@@ -22,7 +29,7 @@ export function OperatorHomeWorkingPrimaryCta(): React.JSX.Element {
   if (resume !== null) {
     return (
       <div className="space-y-2" data-testid="operator-home-working-primary-cta">
-        <Button asChild variant="primary" size="sm" className="h-8 w-fit">
+        <Button asChild variant={variant} size="sm" className="h-8 w-fit">
           <Link href={resume.href} data-testid="operator-home-working-resume-primary">
             {resume.ctaLabel}
           </Link>
@@ -33,7 +40,7 @@ export function OperatorHomeWorkingPrimaryCta(): React.JSX.Element {
 
   return (
     <div className="space-y-2" data-testid="operator-home-working-primary-cta">
-      <Button asChild variant="primary" size="sm" className="h-8 w-fit">
+      <Button asChild variant={variant} size="sm" className="h-8 w-fit">
         <Link href={ARCHITECTURES_NEW_PATH} data-testid="operator-home-working-new-review-primary">
           {START_REVIEW_LABEL}
         </Link>

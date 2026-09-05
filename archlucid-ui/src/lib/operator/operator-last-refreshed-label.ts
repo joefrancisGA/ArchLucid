@@ -111,7 +111,7 @@ export function operatorHomeDataCurrencyValue(lastRefreshedAt: Date): string {
     return clockLabel;
   }
 
-  return relativeLabel;
+  return `${relativeLabel} (${clockLabel})`;
 }
 
 /**
