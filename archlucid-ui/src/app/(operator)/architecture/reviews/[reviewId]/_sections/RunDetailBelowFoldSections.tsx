@@ -167,7 +167,11 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
       ) : null}
 
       {!hasSealedRecord ? (
-        <RunDetailPreFinalizedEmptyState runId={m.routeRunId} terminalFailure={terminalFailure} />
+        <RunDetailPreFinalizedEmptyState
+          runId={m.routeRunId}
+          terminalFailure={terminalFailure}
+          recoveryStepsAvailable={false}
+        />
       ) : null}
 
       {ownedByAnotherTab ? null : (

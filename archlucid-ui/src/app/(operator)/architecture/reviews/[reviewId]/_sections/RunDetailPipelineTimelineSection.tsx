@@ -130,11 +130,11 @@ export function RunDetailPipelineTimelineSection(
     <section
       id="pipeline-timeline"
       className="scroll-mt-24"
-      aria-label={auditTrailLabel}
       aria-labelledby="pipeline-timeline-title"
     >
       <CollapsibleSection
         title={auditTrailLabel}
+        headingLevel={3}
         summaryId="pipeline-timeline-title"
         summaryLine={summaryLine}
         defaultOpen={false}

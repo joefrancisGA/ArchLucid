@@ -13,12 +13,33 @@ import {
   type RunDetailLastFailureSummary,
 } from "@/components/resolve-run-detail-last-failure-summary";
 import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
-import { resolveLastFailureCardCopy } from "@/lib/execution-vs-quality-outcome-copy";
+import {
+  plainLanguageFailureCauseSentence,
+  resolveLastFailureCardCopy,
+} from "@/lib/execution-vs-quality-outcome-copy";
 
 export {
   resolveRunDetailLastFailureSummary,
   type RunDetailLastFailureSummary,
 } from "@/components/resolve-run-detail-last-failure-summary";
+
+function resolveAgentLabel(summary: RunDetailLastFailureSummary): string | null {
+  const rawAgentType =
+    (typeof summary.agentType === "string" && summary.agentType.length > 0
+      ? summary.agentType
+      : null) ??
+    (typeof summary.agentTypeKey === "string" && summary.agentTypeKey.length > 0
+      ? summary.agentTypeKey
+      : null);
+
+  if (rawAgentType === null) {
+    return null;
+  }
+
+  const label = buyerLabelForAgentType(rawAgentType);
+
+  return label === "Unknown agent" ? null : label;
+}
 
 /** Surfaces parsed last agent execution failure on operator run detail (assessment #5 / TB-965). */
 export function RunDetailLastFailureCard(props: {
@@ -26,6 +47,7 @@ export function RunDetailLastFailureCard(props: {
   readonly summary: RunDetailLastFailureSummary | null | undefined;
   readonly legacyRunStatus?: string | null;
   readonly failureRecordedAtUtc?: string | null;
+  readonly hasRecoverySteps?: boolean;
 }): ReactElement | null {
   const summary = props.summary;
   const runId = props.runId?.trim() ?? "";
@@ -39,15 +61,12 @@ export function RunDetailLastFailureCard(props: {
     return null;
   }
 
-  const rawAgentType =
-    (typeof summary.agentType === "string" && summary.agentType.length > 0
-      ? summary.agentType
-      : null) ??
-    (typeof summary.agentTypeKey === "string" && summary.agentTypeKey.length > 0
-      ? summary.agentTypeKey
-      : null);
-
-  const agentLabel = rawAgentType !== null ? buyerLabelForAgentType(rawAgentType) : "Unknown agent";
+  const agentLabel = resolveAgentLabel(summary);
+  const whatFailedLine = plainLanguageFailureCauseSentence({
+    failureClass: summary.failureClass,
+    triageScenarioId: summary.triageScenarioId,
+    reasonCode: summary.reasonCode,
+  });
 
   const copy = resolveLastFailureCardCopy({
     failureClass: summary.failureClass,
@@ -55,6 +74,7 @@ export function RunDetailLastFailureCard(props: {
     triageScenarioId: summary.triageScenarioId,
     rejectReasonCategory: summary.rejectReasonCategory,
     reasonCode: summary.reasonCode,
+    hasRecoverySteps: props.hasRecoverySteps === true,
   });
   const failureRecordedAtLabel = formatReviewFailureRecordedAtLabel(props.failureRecordedAtUtc);
 
@@ -78,6 +98,13 @@ export function RunDetailLastFailureCard(props: {
       ? "text-amber-900/90 dark:text-amber-200/90"
       : "text-red-900/90 dark:text-red-200/90";
 
+  const hasTechnicalDetails =
+    agentLabel !== null
+    || copy.triageTitle !== null
+    || copy.rejectCategoryLabel !== null
+    || (typeof summary.reasonCode === "string" && summary.reasonCode.length > 0)
+    || (typeof props.legacyRunStatus === "string" && props.legacyRunStatus.length > 0);
+
   return (
     <Card
       className={cn(
@@ -99,32 +126,46 @@ export function RunDetailLastFailureCard(props: {
             Failed {failureRecordedAtLabel}
           </p>
         ) : null}
-        <p className="m-0">
-          <span className="font-medium">Agent:</span> {agentLabel}
+        <p className="m-0" data-testid="run-detail-last-failure-cause">
+          <span className="font-medium">What failed:</span> {whatFailedLine}
         </p>
-        <p className="m-0">
-          <span className="font-medium">Failure class:</span> {copy.failureClassLabel}
-        </p>
-        {copy.triageTitle !== null ? (
-          <p className="m-0">
-            <span className="font-medium">Triage:</span> {copy.triageTitle}
-          </p>
-        ) : null}
-        {copy.rejectCategoryLabel !== null ? (
-          <p className="m-0">
-            <span className="font-medium">Reject category:</span> {copy.rejectCategoryLabel}
-          </p>
-        ) : null}
-        {typeof summary.reasonCode === "string" && summary.reasonCode.length > 0 ? (
-          <p className="m-0">
-            <span className="font-medium">Reason code:</span>{" "}
-            <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>{summary.reasonCode}</span>
-          </p>
-        ) : null}
-        {typeof props.legacyRunStatus === "string" && props.legacyRunStatus.length > 0 ? (
-          <p className={cn("m-0", helperClass, OPERATOR_TYPOGRAPHY.helper)}>
-            Run status: {props.legacyRunStatus}
-          </p>
+        {hasTechnicalDetails ? (
+          <details className="rounded-md border border-neutral-200 bg-al-surface-raised p-2 dark:border-neutral-800">
+            <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
+              Technical details
+            </summary>
+            <div className={cn("mt-2 space-y-2", helperClass, OPERATOR_TYPOGRAPHY.helper)}>
+              {agentLabel !== null ? (
+                <p className="m-0">
+                  <span className="font-medium">Agent:</span> {agentLabel}
+                </p>
+              ) : null}
+              <p className="m-0">
+                <span className="font-medium">Failure class:</span> {copy.failureClassLabel}
+              </p>
+              {copy.triageTitle !== null ? (
+                <p className="m-0">
+                  <span className="font-medium">Triage:</span> {copy.triageTitle}
+                </p>
+              ) : null}
+              {copy.rejectCategoryLabel !== null ? (
+                <p className="m-0">
+                  <span className="font-medium">Reject category:</span> {copy.rejectCategoryLabel}
+                </p>
+              ) : null}
+              {typeof summary.reasonCode === "string" && summary.reasonCode.length > 0 ? (
+                <p className="m-0">
+                  <span className="font-medium">Reason code:</span>{" "}
+                  <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>{summary.reasonCode}</span>
+                </p>
+              ) : null}
+              {typeof props.legacyRunStatus === "string" && props.legacyRunStatus.length > 0 ? (
+                <p className="m-0">
+                  Review outcome: {props.legacyRunStatus}
+                </p>
+              ) : null}
+            </div>
+          </details>
         ) : null}
         <p className={cn("m-0", helperClass, OPERATOR_TYPOGRAPHY.helper)}>{copy.remediation}</p>
       </CardContent>

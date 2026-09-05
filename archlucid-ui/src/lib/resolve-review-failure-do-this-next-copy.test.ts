@@ -22,14 +22,21 @@ const preStageGuidance: ReviewFailureRecoveryGuidance = {
 };
 
 describe("resolveReviewFailureDoThisNextSentence", () => {
-  it("combines headline, intact reassurance, and re-run action", () => {
-    const sentence = resolveReviewFailureDoThisNextSentence(preStageGuidance);
+  it("combines headline, intact reassurance, and re-run action when recovery steps exist", () => {
+    const sentence = resolveReviewFailureDoThisNextSentence(preStageGuidance, { hasRecoverySteps: true });
 
     expect(sentence).toContain("Execution failed before the first pipeline stage");
     expect(sentence).toContain("not missing intake fields");
     expect(sentence).toContain("Follow the steps below");
     expect(sentence).not.toContain("Assessment failed");
     expect(sentence).not.toContain("Do this next");
+  });
+
+  it("does not promise numbered steps when recovery steps are absent", () => {
+    const sentence = resolveReviewFailureDoThisNextSentence(preStageGuidance, { hasRecoverySteps: false });
+
+    expect(sentence).not.toContain("steps below");
+    expect(sentence).toContain("Re-run the review with the same intake");
   });
 
   it("includes specific detail when it adds information beyond the headline", () => {

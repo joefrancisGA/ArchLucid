@@ -53,6 +53,23 @@ const REJECT_CATEGORY_LABELS: Record<string, string> = {
   none: "Quality gate",
 };
 
+/** Buyer-visible one-line cause — not raw failureClass labels like "Invalid operation". */
+const FAILURE_CLASS_CAUSE_SENTENCES: Record<string, string> = {
+  timeout: "An agent or LLM call timed out before finishing.",
+  canceled: "The review was canceled before it finished.",
+  parse: "Agent output could not be parsed or did not match the expected schema.",
+  circuitBreaker: "The AI circuit breaker is open — live model calls are temporarily blocked.",
+  quota: "The review hit a token quota limit.",
+  costBudget: "The review hit a run cost budget cutoff.",
+  invalidOperation: "The review invoked an operation that is not valid for this workspace or configuration.",
+  dependency: "A required dependency failed during review execution.",
+  missingCredentials: "Azure OpenAI credentials or deployment configuration is missing.",
+  contentSafety: "Content safety blocked the prompt or model output.",
+  qualityGate: "Output failed the quality gate — enrich evidence and re-execute.",
+  pipelineDeadLetter: "The review pipeline stopped and could not schedule further work.",
+  unknown: "The review failed for a reason that was not classified.",
+};
+
 const TRIAGE_TITLES: Record<string, string> = {
   groundingInsufficiency: "Output failed the grounding / quality bar",
   missingCredentials: "Missing Azure OpenAI credentials or deployment config",
@@ -103,6 +120,37 @@ export function plainLanguageRejectCategoryLabel(category: string | null | undef
   return REJECT_CATEGORY_LABELS[key] ?? `Quality category: ${key}`;
 }
 
+/** Plain-language sentence for "What failed" — prefer triage title, then failure-class cause. */
+export function plainLanguageFailureCauseSentence(args: {
+  readonly failureClass?: string | null;
+  readonly triageScenarioId?: string | null;
+  readonly reasonCode?: string | null;
+}): string {
+  const triageTitle = plainLanguageTriageTitle(args.triageScenarioId);
+
+  if (triageTitle !== null) {
+    return triageTitle;
+  }
+
+  const failureClass = (args.failureClass ?? "").trim();
+
+  if (failureClass.length > 0 && FAILURE_CLASS_CAUSE_SENTENCES[failureClass] !== undefined) {
+    return FAILURE_CLASS_CAUSE_SENTENCES[failureClass];
+  }
+
+  if (failureClass.length > 0) {
+    return `The review failed (${plainLanguageFailureClassLabel(failureClass).toLowerCase()}).`;
+  }
+
+  const reasonCode = (args.reasonCode ?? "").trim();
+
+  if (reasonCode.length > 0) {
+    return `The review failed (reason code ${reasonCode}).`;
+  }
+
+  return FAILURE_CLASS_CAUSE_SENTENCES.unknown;
+}
+
 export function plainLanguageTriageTitle(triageScenarioId: string | null | undefined): string | null {
   const key = (triageScenarioId ?? "").trim();
 
@@ -119,6 +167,7 @@ export function resolveLastFailureCardCopy(args: {
   readonly triageScenarioId?: string | null;
   readonly rejectReasonCategory?: string | null;
   readonly reasonCode?: string | null;
+  readonly hasRecoverySteps?: boolean;
 }): LastFailureCardCopy {
   const axis = resolveExecutionVsQualityAxis(args);
   const failureClassLabel = plainLanguageFailureClassLabel(args.failureClass);
@@ -127,6 +176,7 @@ export function resolveLastFailureCardCopy(args: {
   const reasonCode = (args.reasonCode ?? "").trim();
   const deferredPipeline =
     reasonCode === "NoScheduledAgentTasks" || reasonCode === "MissingArchitectureRequest";
+  const hasRecoverySteps = args.hasRecoverySteps === true;
 
   if (axis === "quality") {
     return {
@@ -145,8 +195,12 @@ export function resolveLastFailureCardCopy(args: {
     title: "Failure details",
     failureClassLabel,
     remediation: deferredPipeline
-      ? "Processing stopped before assessments were scheduled. Recovery steps are in Do this next above."
-      : "See Do this next above for recovery steps. Inspect agent traces below if you need technical detail.",
+      ? hasRecoverySteps
+        ? "Processing stopped before assessments were scheduled. Follow Do this next above, then re-run the review."
+        : "Processing stopped before assessments were scheduled. Use Do this next above, then re-run the review."
+      : hasRecoverySteps
+        ? "Follow Do this next above, then inspect agent traces below if you need technical detail."
+        : "Use Do this next above, then inspect agent traces below if you need technical detail.",
     triageTitle,
     rejectCategoryLabel: null,
   };
