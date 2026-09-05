@@ -1,4 +1,5 @@
 using ArchLucid.Application.InfraEvidence;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Application.InfraEvidence.AuditEvidence;
 using ArchLucid.Application.InfraEvidence.OperationalSecurityFindings;
 using ArchLucid.Application.InfraEvidence.OperationalSecurityExceptions;
@@ -62,5 +63,6 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<PostureAuditEvidenceSelector>();
         services.AddScoped<ResilienceAuditEvidenceSelector>();
         services.AddScoped<IAzureInventoryDiffConsumer, AuditContinuousReadinessDiffConsumer>();
+        services.AddScoped<IStructuredDiagramIngestService, StructuredDiagramIngestService>();
     }
 }

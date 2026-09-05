@@ -3,6 +3,7 @@ using ArchLucid.Application.Provenance;
 using ArchLucid.Core.AwsExtractor;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.GcpExtractor;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Search;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.AwsExtractor;
@@ -13,6 +14,7 @@ using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Search;
 using ArchLucid.Persistence.Tenancy;
 using ArchLucid.Persistence.Value;
+using ArchLucid.Persistence.Architecture;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Provenance;
 
@@ -56,6 +58,7 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<IRemediationInstanceRepository, SqlRemediationInstanceRepository>();
         services.AddScoped<IRemediationPrioritizationRepository, SqlRemediationPrioritizationRepository>();
         services.AddScoped<IRemediationWaveRepository, SqlRemediationWaveRepository>();
+        services.AddScoped<IArchitectureDiagramModelRepository, SqlArchitectureDiagramModelRepository>();
         services.AddScoped<ITenantBrandingProfileRepository, SqlTenantBrandingProfileRepository>();
     }
 }
