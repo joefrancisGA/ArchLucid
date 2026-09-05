@@ -1,10 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import {
-  OPERATOR_ATTENTION_KIND_STRIP_HELPER,
-  OperatorAttentionKindStrip,
-} from "@/components/operator/OperatorAttentionKindStrip";
+import { OperatorAttentionKindStrip } from "@/components/operator/OperatorAttentionKindStrip";
 import { OPERATOR_ATTENTION_KIND_DESTINATIONS } from "@/lib/operator/operator-attention-kind-destinations";
 import { OPERATOR_ATTENTION_KIND_LABELS } from "@/lib/operator/operator-attention-taxonomy";
 
@@ -37,7 +34,6 @@ describe("OperatorAttentionKindStrip (TB-2353)", () => {
 
     const strip = screen.getByTestId("operator-attention-kind-strip");
     expect(strip).toHaveAttribute("data-variant", "default");
-    expect(strip.textContent).toContain(OPERATOR_ATTENTION_KIND_STRIP_HELPER);
     expect(screen.getByTestId("operator-attention-kind-chips")).toBeInTheDocument();
 
     for (const kind of Object.keys(OPERATOR_ATTENTION_KIND_LABELS) as Array<
@@ -52,14 +48,13 @@ describe("OperatorAttentionKindStrip (TB-2353)", () => {
     expect(screen.getByTestId("operator-attention-kind-chip-awaiting-approval")).toHaveTextContent("3");
   });
 
-  it("shows helper text on compact home hub layout", () => {
+  it("renders compact home hub layout", () => {
     usePathname.mockReturnValue("/");
     useSearchParams.mockReturnValue(new URLSearchParams());
 
     render(<OperatorAttentionKindStrip variant="compact" />);
 
     expect(screen.getByTestId("operator-attention-kind-strip")).toHaveAttribute("data-variant", "compact");
-    expect(screen.getByText(OPERATOR_ATTENTION_KIND_STRIP_HELPER)).toBeInTheDocument();
     expect(screen.getByTestId("operator-attention-kind-chips")).toBeInTheDocument();
   });
 
@@ -69,7 +64,6 @@ describe("OperatorAttentionKindStrip (TB-2353)", () => {
 
     render(<OperatorAttentionKindStrip variant="compact" suppressKinds={["unfinished-work"]} />);
 
-    expect(screen.getByText(OPERATOR_ATTENTION_KIND_STRIP_HELPER)).toBeInTheDocument();
     expect(screen.queryByTestId("operator-attention-kind-chip-unfinished-work")).not.toBeInTheDocument();
     expect(screen.getByTestId("operator-attention-kind-chip-awaiting-approval")).toBeInTheDocument();
   });
