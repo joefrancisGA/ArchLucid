@@ -250,6 +250,10 @@ public static partial class GenericArchitectureAdvicePatterns
             || after.StartsWith("will not enforce", StringComparison.Ordinal)
             || after.StartsWith("would not enforce", StringComparison.Ordinal)
             || after.StartsWith("does not ensure", StringComparison.Ordinal)
+            || after.StartsWith("shall not enforce", StringComparison.Ordinal)
+            || after.StartsWith("should not enforce", StringComparison.Ordinal)
+            || after.StartsWith("shall not configure", StringComparison.Ordinal)
+            || after.StartsWith("should not configure", StringComparison.Ordinal)
             || after.StartsWith("cannot require", StringComparison.Ordinal)
             || after.StartsWith("cannot need", StringComparison.Ordinal);
     }

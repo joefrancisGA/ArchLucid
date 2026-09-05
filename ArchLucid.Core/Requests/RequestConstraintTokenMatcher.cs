@@ -197,6 +197,7 @@ internal static class RequestConstraintTokenMatcher
             || before.StartsWith("does not apply", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("does not provision", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("does not ensure", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("does not maintain", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("need not ensure", StringComparison.OrdinalIgnoreCase))
             return true;
 
@@ -261,6 +262,14 @@ internal static class RequestConstraintTokenMatcher
             || ContainsPhrase(before, " shall not configure")
             || ContainsPhrase(before, " cannot mandate ")
             || ContainsPhrase(before, " cannot mandate")
+            || ContainsPhrase(before, " should not enforce ")
+            || ContainsPhrase(before, " should not enforce")
+            || ContainsPhrase(before, " ought not enforce ")
+            || ContainsPhrase(before, " ought not enforce")
+            || ContainsPhrase(before, " cannot enforce ")
+            || ContainsPhrase(before, " cannot enforce")
+            || ContainsPhrase(before, " will not apply ")
+            || ContainsPhrase(before, " will not apply")
             || ContainsPhrase(before, " must not ")
             || ContainsPhrase(before, " do not ")
             || ContainsPhrase(before, " doesn't require ")
