@@ -1,4 +1,5 @@
 using ArchLucid.Application.InfraEvidence;
+using ArchLucid.Application.InfraEvidence.Ask;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Application.InfraEvidence.AuditEvidence;
 using ArchLucid.Application.InfraEvidence.OperationalSecurityFindings;
@@ -67,5 +68,7 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<IDiagramInfrastructureReconciliationService, DiagramInfrastructureReconciliationService>();
         services.AddScoped<IVisionDiagramIngestService, VisionDiagramIngestService>();
         services.AddScoped<ICloudResourceEvidenceHubService, CloudResourceEvidenceHubService>();
+        services.AddScoped<IInfraEvidenceAskEvidenceCollector, InfraEvidenceAskEvidenceCollector>();
+        services.AddScoped<IInfraEvidenceAskGroundingService, InfraEvidenceAskGroundingService>();
     }
 }
