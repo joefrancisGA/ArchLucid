@@ -56,8 +56,8 @@ describe("formatOperatorHomeRecentReviewsOutcome", () => {
       hasReviews: true,
     };
 
-    expect(formatOperatorHomeRecentReviewsOutcome(metrics, { visibleCount: 2 })).toBe(
-      "4 reviews · 3 finalized · 1 active · no open findings · showing 2",
+    expect(formatOperatorHomeRecentReviewsOutcome(metrics, { visibleCount: 2, recentTotalCount: 4 })).toBe(
+      "4 reviews · 3 finalized · 1 active · no open findings · showing 2 of 4",
     );
   });
 
@@ -72,9 +72,8 @@ describe("formatOperatorHomeRecentReviewsOutcome", () => {
       hasReviews: true,
     };
 
-    expect(formatOperatorHomeRecentReviewsOutcome(metrics, { visibleCount: 2 })).toBe(
-      "3 reviews · 2 finalized · 1 active · 6 open findings · with 1 Approval-check warning · showing 2",
-    );
+    expect(formatOperatorHomeRecentReviewsOutcome(metrics, { visibleCount: 2, recentTotalCount: 3 })).toBe(
+      "3 reviews · 2 finalized · 1 active · 6 open findings · with 1 approval-check warning · showing 2 of 3",
     );
   });
 

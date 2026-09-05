@@ -52,7 +52,11 @@ describe("operator-home-run-list-insight", () => {
 
     const run = stubRun({ createdUtc: "2026-06-15T12:00:00Z" });
 
-    expect(formatRunHomeListUpdatedLabel(run)).toMatch(/^Updated .+/);
+    expect(formatRunHomeListUpdatedLabel(run)).toEqual({
+      isoUtc: "2026-06-15T12:00:00Z",
+      absoluteLabel: expect.any(String),
+      relativeLabel: expect.any(String),
+    });
 
     vi.useRealTimers();
   });

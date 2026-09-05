@@ -26,7 +26,7 @@ describe("buyerFacingReviewTitleFromSummary", () => {
       summary({ runId: SHOWCASE_STATIC_DEMO_RUN_ID, description: "Legacy description" }),
     );
 
-    expect(title).toBe(SHOWCASE_BUYER_REVIEW_TITLE);
+    expect(title).toBe(SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE);
   });
 
   it("uses stable title for legacy demo run id aliases", () => {
@@ -34,7 +34,7 @@ describe("buyerFacingReviewTitleFromSummary", () => {
       buyerFacingReviewTitleFromSummary(
         summary({ runId: "customer-intake-modernization-run", description: "Claims Intake Modernization — sample case…" }),
       ),
-    ).toBe(SHOWCASE_BUYER_REVIEW_TITLE);
+    ).toBe(SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE);
   });
 
   it("legacy alias ignores procurement-style package displayName from APIs", () => {
@@ -46,7 +46,7 @@ describe("buyerFacingReviewTitleFromSummary", () => {
           description: "Fallback description",
         }),
       ),
-    ).toBe(SHOWCASE_BUYER_REVIEW_TITLE);
+    ).toBe(SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE);
   });
 
   it("falls back to description then untitled", () => {

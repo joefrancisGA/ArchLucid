@@ -155,6 +155,28 @@ describe("splitSidebarLinksDailyVsMore", () => {
     expect(split.daily.map((row) => row.href)).toContain("/governance/recurrence-schedules");
     expect(split.more.map((row) => row.href)).not.toContain("/governance/recurrence-schedules");
   });
+
+  it("splits Internal ops into daily vs more links", () => {
+    const links = [
+      link("/internal/health", "Diagnostics dashboard"),
+      link("/internal/trial-funnel", "Trial funnel"),
+      link("/internal/fleet-llm-cogs", "Fleet LLM COGS"),
+      link("/internal/agent-model-catalog", "Agent model catalog"),
+      link("/internal/pricing-quote-aging", "Pricing quote follow-up"),
+      link("/internal/tenant-health", "Tenant health"),
+      link("/internal/tenants", "Tenants"),
+    ];
+    const split = splitSidebarLinksDailyVsMore("operator-system-admin", links, "/");
+
+    expect(split.daily.map((row) => row.href)).toEqual([
+      "/internal/health",
+      "/internal/trial-funnel",
+      "/internal/fleet-llm-cogs",
+      "/internal/agent-model-catalog",
+      "/internal/pricing-quote-aging",
+    ]);
+    expect(split.more.map((row) => row.href)).toEqual(["/internal/tenant-health", "/internal/tenants"]);
+  });
 });
 
 describe("sidebarMoreLinksLabel", () => {
