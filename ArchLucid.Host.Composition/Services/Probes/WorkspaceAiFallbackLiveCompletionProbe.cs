@@ -22,9 +22,13 @@ internal static class WorkspaceAiFallbackLiveCompletionProbe
         ArgumentNullException.ThrowIfNull(checks);
         ArgumentNullException.ThrowIfNull(debug);
 
+        string? enabledRaw = configuration[$"{FallbackLlmOptions.SectionName}:Enabled"];
+        bool enabled = string.Equals(enabledRaw, "true", StringComparison.OrdinalIgnoreCase);
+
         FallbackLlmOptions fallbackOpts =
             configuration.GetSection(FallbackLlmOptions.SectionName).Get<FallbackLlmOptions>()
             ?? new FallbackLlmOptions();
+        fallbackOpts.Enabled = enabled || fallbackOpts.Enabled;
 
         debug["fallbackLlmEnabled"] = fallbackOpts.Enabled.ToString();
 

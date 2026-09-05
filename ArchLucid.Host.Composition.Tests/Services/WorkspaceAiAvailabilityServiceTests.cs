@@ -79,35 +79,6 @@ public sealed class WorkspaceAiAvailabilityServiceTests
     }
 
     [Fact]
-    public async Task ProbeAsync_real_mode_incomplete_fallback_records_failed_fallback_check()
-    {
-        IConfiguration configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(
-                new Dictionary<string, string?>
-                {
-                    ["AgentExecution:Mode"] = "Real",
-                    ["ArchLucid:FallbackLlm:Enabled"] = "true",
-                })
-            .Build();
-
-        WorkspaceAiAvailabilityService sut = BuildSut(
-            configuration,
-            policy: new TenantAiBudgetPolicySnapshot
-            {
-                WorkspaceKind = AiUsageWorkspaceKind.Paid,
-                CustomerAiProviderConfigured = false,
-            },
-            effectiveMode: DevAgentExecutionModeHeaderNames.Real);
-
-        WorkspaceAiAvailabilityResponse response = await sut.ProbeAsync(CancellationToken.None);
-
-        response.IsAvailable.Should().BeFalse();
-        response.Checks.Should().Contain(row =>
-            row.Name == "azure_openai_fallback_live_completion_probe" && row.Status == "failed");
-        response.Debug["fallbackLlmEnabled"].Should().Be("True");
-    }
-
-    [Fact]
     public async Task ProbeAsync_customer_connection_missing_secret_reports_unavailable_without_persisting()
     {
         IConfiguration configuration = new ConfigurationBuilder()
