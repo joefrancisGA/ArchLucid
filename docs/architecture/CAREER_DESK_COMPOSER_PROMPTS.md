@@ -5,7 +5,7 @@
 
 # Career-desk Composer prompts (CD-01–CD-15)
 
-**Created:** 2026-09-04 · **Status:** ready to run **after WA-01–24 shipped** · **Do not re-run LI, LD, RS, or WA.** Wave 6: [`ALL_DAY_DESK_COMPOSER_PROMPTS.md`](ALL_DAY_DESK_COMPOSER_PROMPTS.md) (**AD-01–12**). Wave 7: [`FOUNDING_DESK_COMPOSER_PROMPTS.md`](FOUNDING_DESK_COMPOSER_PROMPTS.md) (**FD-01–13**).
+**Created:** 2026-09-04 · **Status:** ready to run **after WA-01–24 shipped** · **Do not re-run LI, LD, RS, or WA.** Wave 6: [`ALL_DAY_DESK_COMPOSER_PROMPTS.md`](ALL_DAY_DESK_COMPOSER_PROMPTS.md) (**AD-01–12**). Wave 7: [`FOUNDING_DESK_COMPOSER_PROMPTS.md`](FOUNDING_DESK_COMPOSER_PROMPTS.md) (**FD-01–13**). Wave 8: [`INSTRUMENT_SPINE_COMPOSER_PROMPTS.md`](INSTRUMENT_SPINE_COMPOSER_PROMPTS.md) (**IS-01–15**).
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record. **WA-01–24 shipped** (#1496): chrome resolver, Working start leftovers, Ask/sponsor/Compare honesty, clone-from-snapshot, Record correction on findings, seal-reason copy, receipt at stamp, prefs/restore/keepalive, list disposition, package search, what-if, presenter quiet, Activity honesty, evidence names, eight-hour zoom.
 

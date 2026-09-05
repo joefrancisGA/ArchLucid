@@ -24,7 +24,7 @@ export function BuyerPolishedHomeHeroSection(props: BuyerPolishedHomeHeroSection
 
   return (
     <section
-      aria-label="Overview command center"
+      aria-label="Home command center"
       data-testid="operator-home-hero-section"
     >
       <PilotCommandCenterCardDeferred

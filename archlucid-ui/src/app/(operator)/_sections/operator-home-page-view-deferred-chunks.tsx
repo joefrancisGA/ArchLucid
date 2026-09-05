@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_SURFACE_CARD_CLASS } from "@/lib/design-tokens";
 
 const pilotCommandCenterLoadingWrapper = (loading: JSX.Element): JSX.Element => (
-  <section aria-label="Overview command center" data-testid="pilot-command-center-card-loading">
+  <section aria-label="Home command center" data-testid="pilot-command-center-card-loading">
     {loading}
   </section>
 );

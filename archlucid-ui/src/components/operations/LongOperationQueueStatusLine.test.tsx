@@ -12,4 +12,12 @@ describe("LongOperationQueueStatusLine", () => {
     expect(line.querySelector("span")).toHaveClass("font-semibold");
     expect(line.querySelector("span")).toHaveTextContent("Queue status:");
   });
+
+  it("appends elapsed duration after the first 10s refresh", () => {
+    render(
+      <LongOperationQueueStatusLine stageLabel="Queued" elapsedMs={12_000} testId="queue-status-line" />,
+    );
+
+    expect(screen.getByTestId("queue-status-line")).toHaveTextContent("Queue status: Queued (12s)");
+  });
 });

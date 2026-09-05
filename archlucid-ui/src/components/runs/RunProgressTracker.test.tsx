@@ -21,14 +21,20 @@ vi.mock("@/hooks/use-review-completion-notification", () => ({
   canPromptForDesktopNotifications: vi.fn(() => false),
 }));
 
+vi.mock("@/hooks/use-review-pipeline-in-flight-for-run", () => ({
+  useReviewPipelineInFlightForRun: vi.fn(() => null),
+}));
+
 import { getRunSummary } from "@/lib/api";
 import { getRunStageTimeline } from "@/lib/api/architecture-runs";
 import { useWorkspaceReviewDurationEstimate } from "@/hooks/use-workspace-review-duration-estimate";
+import { useReviewPipelineInFlightForRun } from "@/hooks/use-review-pipeline-in-flight-for-run";
 import { REVIEW_PIPELINE_BACKGROUND_SAFETY_MESSAGE } from "@/lib/review-execution-background-safety-copy";
 
 const mockGetRunSummary = vi.mocked(getRunSummary);
 const mockGetRunStageTimeline = vi.mocked(getRunStageTimeline);
 const mockUseWorkspaceReviewDurationEstimate = vi.mocked(useWorkspaceReviewDurationEstimate);
+const mockUseReviewPipelineInFlightForRun = vi.mocked(useReviewPipelineInFlightForRun);
 
 const baseSummary: RunSummary = {
   runId: "run-progress-1",
@@ -50,6 +56,7 @@ function committedSummary(runId: string): RunSummary {
 describe("RunProgressTracker", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseReviewPipelineInFlightForRun.mockReturnValue(null);
     mockGetRunStageTimeline.mockResolvedValue([]);
     mockUseWorkspaceReviewDurationEstimate.mockReturnValue({ estimate: null, loading: false });
 
@@ -469,6 +476,50 @@ describe("RunProgressTracker", () => {
 
     expect(mockGetRunStageTimeline).toHaveBeenCalledTimes(1);
     expect(mockGetRunSummary).not.toHaveBeenCalled();
+  });
+
+  it("hides terminal failure re-run actions while a re-run is in flight", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    mockUseReviewPipelineInFlightForRun.mockReturnValue({
+      operationId: "run:failed-1",
+      title: "Architecture review analysis",
+      href: "/architecture/reviews/failed-1",
+      startedAtMs: Date.now(),
+      stepLabel: "Queued",
+      state: "Pending",
+      heartbeatUtc: null,
+      runId: "failed-1",
+      architectureId: null,
+      retainUntilConsumed: false,
+      terminalToastShown: false,
+    });
+
+    mockGetRunSummary.mockResolvedValue({
+      ...baseSummary,
+      runId: "failed-1",
+    });
+
+    render(
+      <RunProgressTracker
+        runId="failed-1"
+        initialSummary={{
+          ...baseSummary,
+          runId: "failed-1",
+        }}
+        diagnosticContext={{ legacyRunStatus: "Failed", lastFailureReason: "authority_pipeline_dead_letter" }}
+        deferFailureRecoveryToDoThisNext
+      />,
+    );
+
+    await act(async () => {
+      await new Promise<void>((resolve) => queueMicrotask(resolve));
+    });
+
+    expect(
+      screen.queryByTestId("run-progress-terminal-failure-actions"),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Re-run review" })).not.toBeInTheDocument();
   });
 
   it("does not refetch stage timeline on every summary poll tick", async () => {

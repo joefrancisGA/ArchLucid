@@ -4,10 +4,11 @@
 > **Shipped predecessors:** LI-01–15 (`master` #1397), LD-01–15 (#1421 / #1439), RS-01–15 (#1457), WA-01–24 (#1496)
 > **Wave 5:** [`CAREER_DESK_COMPOSER_PROMPTS.md`](CAREER_DESK_COMPOSER_PROMPTS.md) (**CD-01–15**) — run first if still open; do not fork.
 > **Wave 7 leftovers:** [`FOUNDING_DESK_COMPOSER_PROMPTS.md`](FOUNDING_DESK_COMPOSER_PROMPTS.md) (**FD-01–13**) — do not fork AD.
+> **Wave 8:** [`INSTRUMENT_SPINE_COMPOSER_PROMPTS.md`](INSTRUMENT_SPINE_COMPOSER_PROMPTS.md) (**IS-01–15**)
 
 # All-day-desk Composer prompts (AD-01–AD-12)
 
-**Created:** 2026-09-04 · **Status:** ready to run **after CD-01–15** (or in parallel except AD-01 vs CD-10 on finding inspect) · **Do not re-run LI, LD, RS, WA, or CD.** Wave 7: [`FOUNDING_DESK_COMPOSER_PROMPTS.md`](FOUNDING_DESK_COMPOSER_PROMPTS.md) (**FD-01–13**).
+**Created:** 2026-09-04 · **Status:** ready to run **after CD-01–15** (or in parallel except AD-01 vs CD-10 on finding inspect) · **Do not re-run LI, LD, RS, WA, or CD.** Wave 7: [`FOUNDING_DESK_COMPOSER_PROMPTS.md`](FOUNDING_DESK_COMPOSER_PROMPTS.md) (**FD-01–13**). Wave 8: [`INSTRUMENT_SPINE_COMPOSER_PROMPTS.md`](INSTRUMENT_SPINE_COMPOSER_PROMPTS.md) (**IS-01–15**).
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record. **CD-01–15** owns eval-first teaching, stamp/print honesty, and remaining amend mounts.
 

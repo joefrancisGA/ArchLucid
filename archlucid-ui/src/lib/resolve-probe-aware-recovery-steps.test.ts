@@ -28,7 +28,7 @@ describe("resolveProbeAwareRecoverySteps", () => {
     expect(idleSteps).not.toEqual(baseSteps);
   });
 
-  it("shows success steps when the live probe succeeds", () => {
+  it("returns no numbered steps when the live probe succeeds", () => {
     const steps = resolveProbeAwareRecoverySteps({
       baseSteps,
       probeState: {
@@ -47,12 +47,10 @@ describe("resolveProbeAwareRecoverySteps", () => {
       canConfigureWorkspaceAi: true,
     });
 
-    expect(steps.join(" ")).toContain("live AI availability probe succeeded");
-    expect(steps.join(" ")).toContain("Re-run review");
-    expect(steps.join(" ")).not.toContain("unavailable right now");
+    expect(steps).toEqual([]);
   });
 
-  it("acknowledges review failure when the probe succeeds but the review still failed", () => {
+  it("returns no numbered steps when the probe succeeds on a terminal review failure", () => {
     const steps = resolveProbeAwareRecoverySteps({
       baseSteps,
       probeState: {
@@ -72,8 +70,7 @@ describe("resolveProbeAwareRecoverySteps", () => {
       reviewTerminalFailure: true,
     });
 
-    expect(steps.join(" ")).toContain("still failed for a different reason");
-    expect(steps.join(" ")).toContain("What failed above");
+    expect(steps).toEqual([]);
   });
 
   it("shows outage steps only after the live probe reports unavailability", () => {
