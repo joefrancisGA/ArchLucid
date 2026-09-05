@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 187
-- **bugs-found:** 522
+- **hunts:** 188
+- **bugs-found:** 534
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — PrimaryStorageAccessKey/SecondaryStorageAccessKey/RotatedAccessKey redaction, would/shall/cannot/should/ought-not-maintain negation, advice would-not-provision and cannot-provision/enforce and need-not-ensure suffix
+- **last-bug:** 2026-09-05 — LegacyAccessKey/StagedAccessKey/ConnectorAccessKey redaction, will/would/shall/cannot/should-not-ensure negation, advice will-not-apply and cannot-apply and shall/should-not-maintain suffix
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2550,6 +2550,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `cannot provision` suffix gap — **hit 2026-09-05 (#915):** #914 added constraint mid-sentence `cannot provision` only; missed imperative-path suffix; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_cannot_provision_suffix_phrasing`).
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `cannot enforce` suffix gap — **hit 2026-09-05 (#915):** #911 added constraint mid-sentence `cannot enforce` only; missed imperative-path suffix; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_cannot_enforce_suffix_phrasing`).
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `need not ensure` suffix gap — **hit 2026-09-05 (#915):** #908 added constraint prefix `need not ensure` only; missed imperative-path suffix; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_need_not_ensure_suffix_phrasing`).
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `LegacyAccessKey` not redacted — **hit 2026-09-05 (#916):** compound access-key class after #915; embedded `AccessKey`/`accesskey` fragment guard skipped `LegacyAccessKey`/`legacyaccesskey`; fixed with explicit credential detection (`Resolve_redacts_legacy_access_key_config_path`, `IsSensitiveKey_detects_legacy_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `StagedAccessKey` not redacted — **hit 2026-09-05 (#916):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_staged_access_key_config_path`, `IsSensitiveKey_detects_staged_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ConnectorAccessKey` not redacted — **hit 2026-09-05 (#916):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_connector_access_key_config_path`, `IsSensitiveKey_detects_connector_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `will not ensure` negation gap — **hit 2026-09-05 (#916):** #915 added `need not ensure` prefix only; missed prohibitive `will not ensure {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_will_not_ensure_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `would not ensure` negation gap — **hit 2026-09-05 (#916):** same mid-sentence family; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_would_not_ensure_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `shall not ensure` negation gap — **hit 2026-09-05 (#916):** same mid-sentence family; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_shall_not_ensure_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `cannot ensure` negation gap — **hit 2026-09-05 (#916):** same mid-sentence family; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_cannot_ensure_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `should not ensure` negation gap — **hit 2026-09-05 (#916):** same mid-sentence family; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_should_not_ensure_encryption_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `will not apply` suffix gap — **hit 2026-09-05 (#916):** #911 added constraint mid-sentence `will not apply` only; missed imperative-path suffix; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_will_not_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `cannot apply` suffix gap — **hit 2026-09-05 (#916):** #912 added constraint mid-sentence `cannot apply` only; missed imperative-path suffix; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_cannot_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `shall not maintain` suffix gap — **hit 2026-09-05 (#916):** #915 added constraint mid-sentence `shall not maintain` only; missed imperative-path suffix; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_shall_not_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `should not maintain` suffix gap — **hit 2026-09-05 (#916):** #915 added constraint mid-sentence `should not maintain` only; missed imperative-path suffix; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_should_not_maintain_suffix_phrasing`).
+
+2026-09-05 seed hunt #916 (hit): reseeded after #915 closure; proved twelve hunt-ready rows — LegacyAccessKey/StagedAccessKey/ConnectorAccessKey redaction parity, will/would/shall/cannot/should-not-ensure constraint negation, and advice will-not-apply and cannot-apply and shall/should-not-maintain suffix.
 
 2026-09-05 seed hunt #915 (hit): reseeded after #914 closure; proved twelve hunt-ready rows — PrimaryStorageAccessKey/SecondaryStorageAccessKey/RotatedAccessKey redaction parity, would/shall/cannot/should/ought-not-maintain constraint negation, and advice would-not-provision and cannot-provision/enforce and need-not-ensure suffix.
 
