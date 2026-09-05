@@ -3420,11 +3420,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 258
-- **bugs-found:** 497
+- **hunts:** 259
+- **bugs-found:** 498
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — duplicate-pack description case-insensitive idempotent retry
+- **last-bug:** 2026-09-05 — policy-pack assign version case-insensitive idempotent retry
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4618,7 +4618,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `PolicyPacksController.DuplicatePack` / `PolicyPacksAppService.TryDuplicatePackAsync` — operator retry with duplicate copy `description` differing only by casing allocated fresh pack row (`Ordinal` description match in duplicate dedupe matcher; #862 create-description casing sibling) — **hit 2026-09-05 (#866):** case-insensitive description comparison in duplicate dedupe matcher; regression in `TryDuplicatePackAsync_returns_existing_copy_and_skips_duplicate_audit_when_description_differs_only_by_casing`.
 
-- [ ] (candidate) `PolicyPacksController.Assign` / `PolicyPackAssignStage.AssignAsync` — operator retry with `version` differing only by casing may allocate fresh assignment row (`Ordinal` version match in assign dedupe matcher; #838 assignment audit skip-audit sibling).
+- [x] (proven) `PolicyPacksController.Assign` / `PolicyPackAssignStage.AssignAsync` — operator retry with `version` differing only by casing allocated fresh assignment row (`Ordinal` version match in assign dedupe matcher; #838 assignment audit skip-audit sibling) — **hit 2026-09-05 (#867):** case-insensitive version comparison in assign dedupe matcher; regression in `AssignAsync_returns_existing_assignment_when_version_differs_only_by_casing`.
+
+2026-09-05 thorough hunt #867 (hit): proved policy-pack assign version case-insensitive idempotent retry seeded in #866.
 
 2026-09-05 seed hunt #866 (hit): reseeded post-#865 idempotent-retry casing exhaustion; proved duplicate-pack description case-insensitive idempotent retry; seeded policy-pack assign version casing candidate.
 

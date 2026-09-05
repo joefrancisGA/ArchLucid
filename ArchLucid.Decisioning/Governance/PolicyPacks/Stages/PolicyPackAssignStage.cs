@@ -54,7 +54,7 @@ public sealed class PolicyPackAssignStage(
         PolicyPackAssignment? matchingAssignment = existingAssignments.FirstOrDefault(assignment =>
             !assignment.ArchivedUtc.HasValue
             && assignment.PolicyPackId == policyPackId
-            && string.Equals(assignment.PolicyPackVersion, version, StringComparison.Ordinal)
+            && string.Equals(assignment.PolicyPackVersion, version, StringComparison.OrdinalIgnoreCase)
             && string.Equals(assignment.ScopeLevel, normalized, StringComparison.Ordinal)
             && assignment.IsPinned == isPinned
             && assignment.IsOrganizationRequired == isOrganizationRequired
