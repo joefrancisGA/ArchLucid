@@ -1945,11 +1945,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 7
-- **bugs-found:** 11
+- **hunts:** 8
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — iterative retrieval merge capped at raw `TopK` above `RetrievalQuery.MaxTopK`
+- **last-hunt:** 2026-09-05
+- **last-bug:** 2026-09-05 — lexical reranker policy-pack boost at zero overlap; Graph-RAG shared neighbor kept first seed score
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1968,12 +1968,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CostRetailGroundingBuilder.ResolveGroundingProvider` matched `aws` inside Azure DR prose — **hit 2026-09-02:** substring scan picked AWS for `"Azure primary (DR on AWS us-east-1)"`; fixed with first word-boundary cloud-token mention (`Build_azure_evidence_with_dr_aws_substring_prefers_azure_not_aws`).
 - [x] (proven) `RetrievalQueryService.ExecuteSearchPassAsync` clamped `TopK` to 25 while HTTP API allows 50 — **hit 2026-09-03 (#587):** `Math.Clamp(query.TopK, 1, 25)` silently capped `RetrievalController` requests above 25; fixed with `RetrievalQuery.MaxTopK` (50) parity (`SearchAsync_RespectsTopK_above_twenty_five_when_reranking_disabled`).
 - [x] (proven) `IterativeRetrievalLoop.MaybeRetryAsync` final merge used raw `query.TopK` above `RetrievalQuery.MaxTopK` — **hit 2026-09-04 (#708):** critique-retry merge could return up to `2 × MaxTopK` unique hits when programmatic callers passed `TopK > 50`; fixed by clamping final `.Take` to `MaxTopK` (`MaybeRetryAsync_clamps_final_merge_to_retrieval_query_max_topk`).
+- [x] (proven) `LexicalOverlapRetrievalReranker.ScoreOverlap` applied `PolicyPackCorpusBoost` when lexical overlap was zero — **hit 2026-09-05 (#814):** policy-pack chunks with no query token overlap ranked above higher-vector manifest hits via unconditional +0.05; fixed by gating boost on `overlap > 0` (`LexicalOverlapRetrievalReranker_RerankAsync_does_not_apply_policy_pack_boost_without_lexical_overlap`).
+- [x] (proven) `GraphRagNeighborExpander.ExpandAsync` skipped score upgrade when the same neighbor was reachable from multiple seeds — **hit 2026-09-05 (#814):** first seed's discounted score was kept even when a later seed had a higher vector score; fixed by upgrading existing neighbor hits on collision (`ExpandAsync_shared_neighbor_uses_highest_seed_score_not_first_seed`).
 - [x] (valid-no-repro) `GraphRagNeighborExpander.ExpandAsync` re-sorts by vector score after lexical rerank — post-expansion score ordering blends neighbor relevance with seed scores by design; lexical fallback reranker does not mutate `RetrievalHit.Score`, so any downstream score sort reflects vector/neighbor scores rather than overlap rank.
 - [x] (valid-no-repro) `InMemoryVectorIndex.UpsertChunksAsync` silently evicts oldest chunks past `MaxChunks` — documented dev/single-node bound (`MaxChunks = 10_000`); production path uses Azure Search, not in-memory eviction.
 
-2026-09-03 thorough hunt #587: proved TopK service/API contract mismatch; cheap-disproved graph-RAG rerank undo and in-memory eviction as intentional design.
+2026-09-05 seed hunt #814 (hit): proved lexical policy-pack zero-overlap boost and Graph-RAG shared-neighbor stale score gaps.
 
 2026-09-04 seed hunt #708 (hit): proved iterative retrieval final merge ignored `RetrievalQuery.MaxTopK` when `query.TopK` exceeded the contract ceiling.
+
+2026-09-03 thorough hunt #587: proved TopK service/API contract mismatch; cheap-disproved graph-RAG rerank undo and in-memory eviction as intentional design.
 
 ---
 
