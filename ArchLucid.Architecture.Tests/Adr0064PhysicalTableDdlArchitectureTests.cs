@@ -129,6 +129,16 @@ public sealed class Adr0064PhysicalTableDdlArchitectureTests
     }
 
     [Fact]
+    public void ArchLucid_sql_adds_acknowledged_coverage_json_on_physical_table()
+    {
+        string ddl = ReadPersistenceSql("Scripts", "ArchLucid.sql");
+
+        ddl.Should().Contain("AcknowledgedCoverageJson");
+        ddl.Should().Contain("@acknowledgedCoverageRunTable");
+        ddl.Should().Contain("sp_executesql");
+    }
+
+    [Fact]
     public void ArchLucid_sql_after_adr0064_synonym_does_not_alter_runs_synonym()
     {
         string ddl = ReadPersistenceSql("Scripts", "ArchLucid.sql");

@@ -3,11 +3,12 @@
 > **Paste-ready files:** [`.cursor/prompts/career-desk-00-index.md`](../../.cursor/prompts/career-desk-00-index.md) (**CD-01–15**)
 > **Wave 8:** [`INSTRUMENT_SPINE_COMPOSER_PROMPTS.md`](INSTRUMENT_SPINE_COMPOSER_PROMPTS.md) (**IS-01–15**)
 > **Wave 9:** [`LIVELIHOOD_SPINE_COMPOSER_PROMPTS.md`](LIVELIHOOD_SPINE_COMPOSER_PROMPTS.md) (**LS-01–12**)
+> **Wave 10 leftovers:** [`SEALED_DESK_COMPOSER_PROMPTS.md`](SEALED_DESK_COMPOSER_PROMPTS.md) (**SD-01–12**)
 > **Shipped predecessors:** LI-01–15 (`master` #1397), LD-01–15 (#1421 / #1439), RS-01–15 (#1457), WA-01–24 (#1496)
 
 # Career-desk Composer prompts (CD-01–CD-15)
 
-**Created:** 2026-09-04 · **Status:** ready to run **after WA-01–24 shipped** · **Do not re-run LI, LD, RS, or WA.** Wave 6: [`ALL_DAY_DESK_COMPOSER_PROMPTS.md`](ALL_DAY_DESK_COMPOSER_PROMPTS.md) (**AD-01–12**). Wave 7: [`FOUNDING_DESK_COMPOSER_PROMPTS.md`](FOUNDING_DESK_COMPOSER_PROMPTS.md) (**FD-01–13**). Wave 8: [`INSTRUMENT_SPINE_COMPOSER_PROMPTS.md`](INSTRUMENT_SPINE_COMPOSER_PROMPTS.md) (**IS-01–15**). Wave 9: [`LIVELIHOOD_SPINE_COMPOSER_PROMPTS.md`](LIVELIHOOD_SPINE_COMPOSER_PROMPTS.md) (**LS-01–12**).
+**Created:** 2026-09-04 · **Status:** ready to run **after WA-01–24 shipped** · **Do not re-run LI, LD, RS, or WA.** Wave 6: [`ALL_DAY_DESK_COMPOSER_PROMPTS.md`](ALL_DAY_DESK_COMPOSER_PROMPTS.md) (**AD-01–12**). Wave 7: [`FOUNDING_DESK_COMPOSER_PROMPTS.md`](FOUNDING_DESK_COMPOSER_PROMPTS.md) (**FD-01–13**). Wave 8: [`INSTRUMENT_SPINE_COMPOSER_PROMPTS.md`](INSTRUMENT_SPINE_COMPOSER_PROMPTS.md) (**IS-01–15**). Wave 9: [`LIVELIHOOD_SPINE_COMPOSER_PROMPTS.md`](LIVELIHOOD_SPINE_COMPOSER_PROMPTS.md) (**LS-01–12**). Wave 10: [`SEALED_DESK_COMPOSER_PROMPTS.md`](SEALED_DESK_COMPOSER_PROMPTS.md) (**SD-01–12**).
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record. **WA-01–24 shipped** (#1496): chrome resolver, Working start leftovers, Ask/sponsor/Compare honesty, clone-from-snapshot, Record correction on findings, seal-reason copy, receipt at stamp, prefs/restore/keepalive, list disposition, package search, what-if, presenter quiet, Activity honesty, evidence names, eight-hour zoom.
 

@@ -4,6 +4,7 @@
      casual evaluator. Wave 8 after FD-01–13. Unlike waves 1–7, this set
      is authorized to change the three load-bearing bets those waves left intact.
      Wave 9 leftovers: livelihood-spine-00-index.md (LS-01–12).
+     Wave 10 leftovers: sealed-desk-00-index.md (SD-01–12).
      Do not implement from this index. -->
 
 # Instrument-spine mitigations — Composer prompt set (IS-01–IS-15)
@@ -50,6 +51,7 @@ Do **not** collapse desktop review tabs behind **More**. Do **not** auto-switch 
 | **FD-01–13** | Wave 7 founding leftovers | **Shipped** #1534 / #1537 — do not re-run |
 | **IS-01–15** | **This set** — wave 8 load-bearing bets | Run these |
 | **LS-01–12** | Wave 9 diagnosis leftovers | [`livelihood-spine-00-index.md`](livelihood-spine-00-index.md) |
+| **SD-01–12** | Wave 10 residuals after IS+LS | [`sealed-desk-00-index.md`](sealed-desk-00-index.md) |
 
 If an IS row lists a CD/AD/FD/WA/WD/PT owner, **do not fork** that file. Implement only the leftover in *What to build*.
 
