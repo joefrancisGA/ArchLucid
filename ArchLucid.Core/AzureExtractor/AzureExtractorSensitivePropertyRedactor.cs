@@ -66,6 +66,7 @@ public static class AzureExtractorSensitivePropertyRedactor
             || normalized.Equals("primaryaccesskey", StringComparison.Ordinal)
             || normalized.Equals("accountsharedaccesskey", StringComparison.Ordinal)
             || normalized.Equals("storageaccountkey", StringComparison.Ordinal)
+            || normalized.Equals("blobaccesskey", StringComparison.Ordinal)
             || normalized.Equals("signingkey", StringComparison.Ordinal)
             || normalized.Equals("signingcertificate", StringComparison.Ordinal)
             || normalized.Equals("signingcertificatepath", StringComparison.Ordinal);

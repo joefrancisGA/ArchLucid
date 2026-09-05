@@ -496,6 +496,34 @@ public sealed class CommittedRunHeaderAnchorGuardTests
         act.Should().NotThrow();
     }
 
+    [Fact]
+    public void EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_omitted_array_equivalent_to_triple_nested_empty_array_on_committed_run()
+    {
+        Guid manifestId = Guid.NewGuid();
+        RunRecord persisted = CreateRun(goldenManifestId: manifestId);
+        persisted.GovernanceScopeJson = """{}""";
+        RunRecord proposed = CreateRun(goldenManifestId: manifestId);
+        proposed.GovernanceScopeJson = """{"packAssignments":[[[]]]}""";
+
+        Action act = () => CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, proposed);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_null_array_equivalent_to_omitted_on_committed_run()
+    {
+        Guid manifestId = Guid.NewGuid();
+        RunRecord persisted = CreateRun(goldenManifestId: manifestId);
+        persisted.GovernanceScopeJson = """{"packAssignments":null}""";
+        RunRecord proposed = CreateRun(goldenManifestId: manifestId);
+        proposed.GovernanceScopeJson = """{}""";
+
+        Action act = () => CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, proposed);
+
+        act.Should().NotThrow();
+    }
+
     private static RunRecord CreateRun(Guid? goldenManifestId)
     {
         return new RunRecord
