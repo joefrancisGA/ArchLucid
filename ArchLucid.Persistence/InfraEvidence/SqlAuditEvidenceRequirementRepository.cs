@@ -34,6 +34,31 @@ public sealed class SqlAuditEvidenceRequirementRepository(ISqlConnectionFactory 
         return rows.Select(Map).ToList();
     }
 
+    public async Task<IReadOnlyList<AuditEvidenceRequirementRecord>> ListByControlIdAsync(
+        Guid tenantId,
+        Guid controlId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT RequirementId, ControlId, FrameworkId, TenantId, Name, Description, EvidenceType,
+                                  RequiredAzureScopes, RequiredResourceTypes, CollectionMethod, Frequency,
+                                  EvaluationMethod, ManualEvidenceAllowed, RequiredFreshness, AutomationClass
+                           FROM dbo.AuditEvidenceRequirements
+                           WHERE TenantId = @TenantId AND ControlId = @ControlId
+                           ORDER BY EvidenceType, Name;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<RequirementRow> rows = await conn.QueryAsync<RequirementRow>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, ControlId = controlId },
+                cancellationToken: cancellationToken));
+
+        return rows.Select(Map).ToList();
+    }
+
     private static AuditEvidenceRequirementRecord Map(RequirementRow row) =>
         new()
         {
