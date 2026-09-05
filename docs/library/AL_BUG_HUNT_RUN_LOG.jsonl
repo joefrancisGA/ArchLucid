@@ -960,4 +960,5 @@
 {"at":"2026-09-05T05:00:02.3043307Z","zoneId":"saml-jwt-bearer","outcome":"dry"}
 {"at":"2026-09-05T05:10:36.3384905Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry"}
 {"at":"2026-09-05T05:26:10.2815123Z","zoneId":"api-governance-tenancy-controllers","outcome":"seed-only"}
-{"at":"2026-09-05T05:31:58.0825140Z","zoneId":"artifact-synthesis","outcome":"seed-only"}
+{"at":"2026-09-05T05:31:58.082514Z","zoneId":"artifact-synthesis","outcome":"seed-only"}
+{"at":"2026-09-05T12:54:37.7339362Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
