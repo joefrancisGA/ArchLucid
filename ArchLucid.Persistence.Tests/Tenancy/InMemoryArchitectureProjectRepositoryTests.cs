@@ -38,6 +38,10 @@ public sealed class InMemoryArchitectureProjectRepositoryTests
 
         (await sut.ListActiveByTenantAsync(tenantId, CancellationToken.None)).Should().ContainSingle();
         (await sut.ListSoftDeletedByTenantAsync(tenantId, CancellationToken.None)).Should().BeEmpty();
+
+        (await sut.TryRestoreAsync(tenantId, workspaceId, projectId, CancellationToken.None))
+            .Should()
+            .Be(ArchitectureProjectRestoreResult.AlreadyActive);
     }
 
     [Fact]

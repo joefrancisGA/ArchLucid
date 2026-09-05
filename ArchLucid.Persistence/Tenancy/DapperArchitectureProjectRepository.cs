@@ -144,7 +144,38 @@ public sealed class DapperArchitectureProjectRepository(ISqlConnectionFactory co
                     cancellationToken: ct));
 
         if (nameRow is null)
-            return ArchitectureProjectRestoreResult.NotFoundOrNotDeleted;
+        {
+            const string activeSql = """
+                                     SELECT CAST(
+                                         CASE WHEN EXISTS (
+                                             SELECT 1
+                                             FROM dbo.Projects
+                                             WHERE TenantId = @TenantId
+                                               AND WorkspaceId = @WorkspaceId
+                                               AND Id = @ProjectId
+                                               AND IsDeleted = 0
+                                         )
+                                         THEN 1
+                                         ELSE 0
+                                         END AS BIT);
+                                     """;
+
+            bool alreadyActive =
+                await connection.QuerySingleAsync<bool>(
+                    new CommandDefinition(
+                        activeSql,
+                        new
+                        {
+                            TenantId = tenantId,
+                            WorkspaceId = workspaceId,
+                            ProjectId = projectId
+                        },
+                        cancellationToken: ct));
+
+            return alreadyActive
+                ? ArchitectureProjectRestoreResult.AlreadyActive
+                : ArchitectureProjectRestoreResult.NotFoundOrNotDeleted;
+        }
 
         const string collisionSql = """
                                     SELECT CAST(

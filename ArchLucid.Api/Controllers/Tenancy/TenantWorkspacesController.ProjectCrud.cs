@@ -134,6 +134,9 @@ public sealed partial class TenantWorkspacesController
         if (outcome == ArchitectureProjectRestoreResult.NotFoundOrNotDeleted)
             return this.NotFoundProblem("Architecture project was not found or is not soft-deleted.", ProblemTypes.ResourceNotFound);
 
+        if (outcome == ArchitectureProjectRestoreResult.AlreadyActive)
+            return NoContent();
+
         if (outcome == ArchitectureProjectRestoreResult.ActiveProjectNameCollision)
         {
             return this.ConflictProblem(

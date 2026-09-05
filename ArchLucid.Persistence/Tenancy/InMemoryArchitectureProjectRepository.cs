@@ -105,8 +105,11 @@ public sealed class InMemoryArchitectureProjectRepository : IArchitectureProject
         if (!_byId.TryGetValue(projectId, out ProjectRow? row))
             return Task.FromResult(ArchitectureProjectRestoreResult.NotFoundOrNotDeleted);
 
-        if (row.TenantId != tenantId || row.WorkspaceId != workspaceId || !row.IsDeleted)
+        if (row.TenantId != tenantId || row.WorkspaceId != workspaceId)
             return Task.FromResult(ArchitectureProjectRestoreResult.NotFoundOrNotDeleted);
+
+        if (!row.IsDeleted)
+            return Task.FromResult(ArchitectureProjectRestoreResult.AlreadyActive);
 
         bool clash = _byId.Values.Any(o =>
             o.WorkspaceId == workspaceId &&
