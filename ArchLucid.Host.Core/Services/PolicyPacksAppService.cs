@@ -2,9 +2,11 @@ using System.Text.Json;
 
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.PolicyPacks;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.IntegrationOutbox;
 
@@ -32,6 +34,7 @@ public sealed class PolicyPacksAppService(
     IPolicyPackManagementService managementService,
     IPolicyPackRepository packRepository,
     IPolicyPackVersionRepository versionRepository,
+    IPolicyPackAssignmentRepository assignmentRepository,
     IAuditService auditService,
     IIntegrationEventOutboxRepository integrationEventOutbox,
     IIntegrationEventPublisher integrationEventPublisher,
@@ -126,6 +129,15 @@ public sealed class PolicyPacksAppService(
         if (packVersion is null)
             return null;
 
+        (Guid scopeWorkspaceId, Guid scopeProjectId) =
+            NormalizeAssignScope(workspaceId, projectId, scopeLevel);
+
+        HashSet<Guid> existingAssignmentIds = (await assignmentRepository
+                .ListByScopeAsync(tenantId, scopeWorkspaceId, scopeProjectId, ct)
+                .ConfigureAwait(false))
+            .Select(assignment => assignment.AssignmentId)
+            .ToHashSet();
+
         PolicyPackAssignment assignment = await managementService
                 .AssignAsync(
                     tenantId,
@@ -140,22 +152,25 @@ public sealed class PolicyPacksAppService(
                     ct)
             ;
 
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.PolicyPackAssignmentCreated,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        assignment.AssignmentId,
-                        policyPackId,
-                        version = assignment.PolicyPackVersion,
-                        assignment.ScopeLevel,
-                        assignment.IsPinned,
-                        assignment.IsOrganizationRequired,
-                    }),
-            },
-            ct);
+        if (!existingAssignmentIds.Contains(assignment.AssignmentId))
+        {
+            await auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.PolicyPackAssignmentCreated,
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            assignment.AssignmentId,
+                            policyPackId,
+                            version = assignment.PolicyPackVersion,
+                            assignment.ScopeLevel,
+                            assignment.IsPinned,
+                            assignment.IsOrganizationRequired,
+                        }),
+                },
+                ct);
+        }
 
         return assignment;
     }
@@ -163,14 +178,22 @@ public sealed class PolicyPacksAppService(
     /// <inheritdoc />
     public async Task<bool> TryArchiveAssignmentAsync(Guid tenantId, Guid assignmentId, CancellationToken ct)
     {
+        PolicyPackAssignment? existing =
+            await assignmentRepository.GetByTenantAndAssignmentIdAsync(tenantId, assignmentId, ct);
+
+        bool wasAlreadyArchived = existing?.ArchivedUtc.HasValue == true;
+
         bool ok = await managementService.TryArchiveAssignmentAsync(tenantId, assignmentId, ct);
 
         if (!ok)
             return false;
 
-        await auditService.LogAsync(
-            new AuditEvent { EventType = AuditEventTypes.PolicyPackAssignmentArchived, DataJson = JsonSerializer.Serialize(new { assignmentId }), },
-            ct);
+        if (!wasAlreadyArchived)
+        {
+            await auditService.LogAsync(
+                new AuditEvent { EventType = AuditEventTypes.PolicyPackAssignmentArchived, DataJson = JsonSerializer.Serialize(new { assignmentId }), },
+                ct);
+        }
 
         return true;
     }
@@ -183,6 +206,9 @@ public sealed class PolicyPacksAppService(
         if (pack is null || pack.TenantId != tenantId)
             return false;
 
+        if (pack.IsDeleted)
+            return true;
+
         pack.IsDeleted = true;
         pack.Status = PolicyPackStatus.Retired;
 
@@ -193,6 +219,22 @@ public sealed class PolicyPacksAppService(
             ct);
 
         return true;
+    }
+
+    private static (Guid WorkspaceId, Guid ProjectId) NormalizeAssignScope(
+        Guid workspaceId,
+        Guid projectId,
+        string scopeLevel)
+    {
+        string normalized = GovernanceScopeLevel.TryNormalize(scopeLevel) ?? GovernanceScopeLevel.Project;
+
+        if (string.Equals(normalized, GovernanceScopeLevel.Tenant, StringComparison.Ordinal))
+            return (Guid.Empty, Guid.Empty);
+
+        if (string.Equals(normalized, GovernanceScopeLevel.Workspace, StringComparison.Ordinal))
+            return (workspaceId, Guid.Empty);
+
+        return (workspaceId, projectId);
     }
 
     /// <inheritdoc />
