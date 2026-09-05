@@ -186,6 +186,18 @@ Deterministic correspondence between ingested diagram nodes and **`AzureInventor
 
 **API:** `POST /v1/architecture/runs/{runId}/diagrams/reconcile` (body: `snapshotId`). **GET** `.../diagrams/reconciliation?snapshotId=` returns persisted rows. Results stored in **`dbo.ArchitectureDiagramReconciliations`** (migration 363).
 
+### Vision diagram ingest (IE-20, gated)
+
+Optional PNG/PDF vision ingest into **`ArchitectureDiagramModel`** with **`ExtractionMethod=VisionAi`**. Default **`ArchLucid:DiagramVision:Enabled=false`** — route returns **404** when disabled (same pattern as demo feature gates). This is **not** a buyer OCR guarantee and does **not** write Azure **`ObservedFact`** rows.
+
+| Setting | Behavior |
+|---|---|
+| `ArchLucid:DiagramVision:Enabled=false` | `POST .../diagrams/vision-ingest` hidden (404) |
+| `Enabled=true`, `useSimulator=true` | Canned low-confidence interpretation (`SimulatorVisionDiagramInterpreter`) |
+| `Enabled=true`, `useSimulator=false` | **409** until a live vision interpreter is configured |
+
+Responses include **`interpretationHonestyLabel`**: *"AI interpretation (not observed Azure state)."* Invalid vision schema is **fail-closed** (`VisionDiagramModelValidator`).
+
 ---
 
 ## Further reading

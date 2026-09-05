@@ -3723,6 +3723,75 @@
         },
         "type": "object"
       },
+      "ArchitectureDiagramEdgeRecord": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "provenance": {
+            "type": "string"
+          },
+          "removed": {
+            "type": "boolean"
+          },
+          "sourceId": {
+            "type": "string"
+          },
+          "targetId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ArchitectureDiagramModelRecord": {
+        "properties": {
+          "edges": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureDiagramEdgeRecord"
+            },
+            "type": "array"
+          },
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureDiagramNodeRecord"
+            },
+            "type": "array"
+          },
+          "trustBoundaryLabels": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "ArchitectureDiagramNodeRecord": {
+        "properties": {
+          "accepted": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "provenance": {
+            "type": "string"
+          },
+          "removed": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "ArchitectureDigest": {
         "properties": {
           "archivedUtc": {
@@ -11014,6 +11083,111 @@
         ],
         "type": "object"
       },
+      "DiagramInfrastructureCorrespondenceRow": {
+        "properties": {
+          "aiRationale": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "azureResourceId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "cloudResourceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "confidenceBand": {
+            "type": "string"
+          },
+          "correspondenceId": {
+            "type": "string"
+          },
+          "diagramNodeId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "diagramNodeLabel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "explainText": {
+            "type": "string"
+          },
+          "matchKind": {
+            "type": "string"
+          },
+          "resourceGroup": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "resourceType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "securityDiscrepancy": {
+            "type": "boolean"
+          },
+          "terraformAddress": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "DiagramInfrastructureReconciliationRequest": {
+        "properties": {
+          "snapshotId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "DiagramInfrastructureReconciliationResult": {
+        "properties": {
+          "diagramNodeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "inventoryResourceCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/DiagramInfrastructureCorrespondenceRow"
+            },
+            "type": "array"
+          },
+          "runId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "DiagramResponse": {
         "properties": {
           "diagram": {
@@ -11023,6 +11197,20 @@
             "type": "string"
           },
           "manifestVersion": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "DiagramSourceReference": {
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string"
+          },
+          "name": {
             "type": "string"
           }
         },
@@ -31447,6 +31635,40 @@
         ],
         "type": "string"
       },
+      "StructuredDiagramIngestRequest": {
+        "properties": {
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/DiagramSourceReference"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "StructuredDiagramIngestResult": {
+        "properties": {
+          "extractionMethod": {
+            "type": "string"
+          },
+          "model": {
+            "$ref": "#/components/schemas/ArchitectureDiagramModelRecord"
+          },
+          "sourceFingerprints": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "StructuredExplanation": {
         "properties": {
           "alternativesConsidered": {
@@ -35207,6 +35429,55 @@
           },
           "workspaceModeIsExplicit": {
             "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "VisionDiagramIngestRequest": {
+        "properties": {
+          "contentBase64": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "useSimulator": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "VisionDiagramIngestResult": {
+        "properties": {
+          "extractionMethod": {
+            "type": "string"
+          },
+          "interpretationConfidence": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "interpretationHonestyLabel": {
+            "type": "string"
+          },
+          "model": {
+            "$ref": "#/components/schemas/ArchitectureDiagramModelRecord"
+          },
+          "sourceFingerprint": {
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -41750,6 +42021,15 @@
     },
     {
       "name": "ArchitectureDefinitionImport"
+    },
+    {
+      "name": "ArchitectureDiagramIngest"
+    },
+    {
+      "name": "ArchitectureDiagramReconciliation"
+    },
+    {
+      "name": "ArchitectureDiagramVisionIngest"
     },
     {
       "name": "ArchitectureExport"

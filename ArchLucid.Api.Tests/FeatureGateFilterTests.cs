@@ -26,7 +26,7 @@ public sealed class FeatureGateFilterTests
     [SkippableFact]
     public async Task DemoEnabled_open_invokes_next_and_does_not_set_result()
     {
-        FeatureGateFilter sut = new(FeatureGateKey.DemoEnabled, Options.Create(new DemoOptions { Enabled = true }));
+        FeatureGateFilter sut = CreateFilter(FeatureGateKey.DemoEnabled, demoEnabled: true);
 
         ActionExecutingContext executing = BuildExecutingContext("/v1/demo/explain");
         bool delegateInvoked = false;
@@ -44,7 +44,7 @@ public sealed class FeatureGateFilterTests
     [SkippableFact]
     public async Task DemoEnabled_closed_short_circuits_with_404_problem_details()
     {
-        FeatureGateFilter sut = new(FeatureGateKey.DemoEnabled, Options.Create(new DemoOptions { Enabled = false }));
+        FeatureGateFilter sut = CreateFilter(FeatureGateKey.DemoEnabled, demoEnabled: false);
 
         ActionExecutingContext executing = BuildExecutingContext("/v1/demo/explain");
         bool delegateInvoked = false;
@@ -71,7 +71,7 @@ public sealed class FeatureGateFilterTests
         // An undefined key (cast forces the discard arm). The filter must err on the side of *closed* so an
         // accidentally added attribute cannot silently expose a route on production.
         const FeatureGateKey unmapped = (FeatureGateKey)int.MaxValue;
-        FeatureGateFilter sut = new(unmapped, Options.Create(new DemoOptions { Enabled = true }));
+        FeatureGateFilter sut = CreateFilter(unmapped, demoEnabled: true);
 
         ActionExecutingContext executing = BuildExecutingContext("/v1/anything");
 
@@ -80,6 +80,15 @@ public sealed class FeatureGateFilterTests
         ObjectResult result = executing.Result.Should().BeOfType<ObjectResult>().Subject;
         result.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
+
+    private static FeatureGateFilter CreateFilter(
+        FeatureGateKey key,
+        bool demoEnabled = false,
+        bool diagramVisionEnabled = false) =>
+        new(
+            key,
+            Options.Create(new DemoOptions { Enabled = demoEnabled }),
+            Options.Create(new DiagramVisionOptions { Enabled = diagramVisionEnabled }));
 
     private static ActionExecutingContext BuildExecutingContext(string requestPath)
     {
