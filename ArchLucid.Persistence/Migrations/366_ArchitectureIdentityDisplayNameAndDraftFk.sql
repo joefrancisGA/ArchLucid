@@ -1,20 +1,26 @@
 /*
   366: ADR 0074 — architecture display name + draft FK to identity (DA-02).
+
+  SQL Server compiles each GO batch against the current catalog. Adding DisplayName
+  and then assigning it in the same batch fails with error 207 (invalid column name)
+  because the column does not exist at compile time — wrapping in IF COL_LENGTH IS NULL
+  does not defer binding. A single NOT NULL ADD with a named default backfills rows.
 */
 
 IF OBJECT_ID(N'dbo.Architectures', N'U') IS NOT NULL
-   AND COL_LENGTH(N'dbo.Architectures', N'DisplayName') IS NULL
 BEGIN
-    ALTER TABLE dbo.Architectures
-        ADD DisplayName NVARCHAR(200) NULL,
-            Description NVARCHAR(500) NULL;
+    IF COL_LENGTH(N'dbo.Architectures', N'DisplayName') IS NULL
+    BEGIN
+        ALTER TABLE dbo.Architectures
+            ADD DisplayName NVARCHAR(200) NOT NULL
+                CONSTRAINT DF_Architectures_DisplayName DEFAULT (N'Untitled architecture');
+    END
 
-    UPDATE dbo.Architectures
-    SET DisplayName = N'Untitled architecture'
-    WHERE DisplayName IS NULL;
-
-    ALTER TABLE dbo.Architectures
-        ALTER COLUMN DisplayName NVARCHAR(200) NOT NULL;
+    IF COL_LENGTH(N'dbo.Architectures', N'Description') IS NULL
+    BEGIN
+        ALTER TABLE dbo.Architectures
+            ADD Description NVARCHAR(500) NULL;
+    END
 END;
 GO
 

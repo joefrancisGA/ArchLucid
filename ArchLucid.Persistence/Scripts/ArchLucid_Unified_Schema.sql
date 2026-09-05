@@ -8815,20 +8815,23 @@ END;
 
 GO
 
-/* Migration 366 parity: ADR 0074 display name + draft FK. */
+/* Migration 366 parity: ADR 0074 display name + draft FK.
+   ADD NOT NULL + named default (not ADD NULL then assign) so SQL Server does not
+   compile a DisplayName reference before the column exists (error 207). */
 IF OBJECT_ID(N'dbo.Architectures', N'U') IS NOT NULL
-   AND COL_LENGTH(N'dbo.Architectures', N'DisplayName') IS NULL
 BEGIN
-    ALTER TABLE dbo.Architectures
-        ADD DisplayName NVARCHAR(200) NULL,
-            Description NVARCHAR(500) NULL;
+    IF COL_LENGTH(N'dbo.Architectures', N'DisplayName') IS NULL
+    BEGIN
+        ALTER TABLE dbo.Architectures
+            ADD DisplayName NVARCHAR(200) NOT NULL
+                CONSTRAINT DF_Architectures_DisplayName DEFAULT (N'Untitled architecture');
+    END
 
-    UPDATE dbo.Architectures
-    SET DisplayName = N'Untitled architecture'
-    WHERE DisplayName IS NULL;
-
-    ALTER TABLE dbo.Architectures
-        ALTER COLUMN DisplayName NVARCHAR(200) NOT NULL;
+    IF COL_LENGTH(N'dbo.Architectures', N'Description') IS NULL
+    BEGIN
+        ALTER TABLE dbo.Architectures
+            ADD Description NVARCHAR(500) NULL;
+    END
 END;
 GO
 
