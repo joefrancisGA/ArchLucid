@@ -29,7 +29,7 @@ import {
   operatorHomeGovernanceWarningsPresentation,
   workspaceOpenFindingsPresentation,
 } from "@/lib/metric-count-presentation";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_LINK } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 type OperatorHomeWorkspaceMetricsStripProps = {
@@ -127,7 +127,7 @@ export function OperatorHomeWorkspaceMetricsStrip(
         <p className="m-0 mt-3" data-testid="operator-home-metric-setup-readiness">
           <Link
             href={OPERATOR_HOME_SETUP_READINESS_HREF}
-            className="font-medium text-al-text-primary no-underline hover:text-[var(--al-accent-link)]"
+            className={cn("font-medium", OPERATOR_LINK.nav)}
             aria-label={`Workspace setup: ${formatSetupReadinessLabel(readiness.readyCount, readiness.totalCount)}`}
           >
             Setup {readiness.readyCount}/{readiness.totalCount}

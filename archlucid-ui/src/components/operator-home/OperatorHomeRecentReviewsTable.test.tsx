@@ -2,6 +2,10 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { OperatorHomeRecentReviewsTable } from "@/components/operator-home/OperatorHomeRecentReviewsTable";
+import {
+  OPERATOR_HOME_OPEN_REVIEW_RECORD_CTA,
+  OPERATOR_HOME_YOUR_WORK_CONTINUE_REVIEW_CTA,
+} from "@/lib/buyer/buyer-polish-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
@@ -64,5 +68,35 @@ describe("OperatorHomeRecentReviewsTable", () => {
         "demo-data-badge",
       ),
     ).toBeNull();
+  });
+
+  it("uses Open review record for finalized packages and Continue review for in-progress rows", () => {
+    const runs: RunSummary[] = [
+      {
+        runId: "approved-run",
+        projectId: "default",
+        hasGoldenManifest: true,
+        createdUtc: "2026-01-01T00:00:00.000Z",
+      },
+      {
+        runId: "active-run",
+        projectId: "default",
+        hasFindingsSnapshot: true,
+        createdUtc: "2026-01-02T00:00:00.000Z",
+      },
+    ];
+
+    render(<OperatorHomeRecentReviewsTable runs={runs} />);
+
+    expect(
+      within(screen.getByTestId("operator-home-recent-review-row-approved-run")).getByRole("link", {
+        name: OPERATOR_HOME_OPEN_REVIEW_RECORD_CTA,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId("operator-home-recent-review-row-active-run")).getByRole("link", {
+        name: OPERATOR_HOME_YOUR_WORK_CONTINUE_REVIEW_CTA,
+      }),
+    ).toBeInTheDocument();
   });
 });

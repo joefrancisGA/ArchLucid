@@ -144,6 +144,7 @@ function renderOperatorHomeSection(input: RenderOperatorHomeSectionInput): React
             hasCommittedManifest={input.workspaceMetrics.reviewPackagesCommitted > 0}
             hasActiveDeskWork={input.workspaceMetrics.reviewPackagesActive > 0}
             workingMode={input.workingMode}
+            pagePrimaryOwnedByHeader
           />
         </div>
       );

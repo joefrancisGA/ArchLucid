@@ -1,7 +1,8 @@
 import { cn } from "@/lib/utils";
 
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { formatOperatorHomeApprovalCheckWarningFilterLabel } from "@/lib/operator/operator-home-approval-check-warning-copy";
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -15,6 +16,8 @@ export type RunsDashboardFiltersProps = {
   readonly onShowArchivedChange: (value: boolean) => void;
 };
 
+const WARNINGS_FILTER_DISABLED_HINT_ID = "runs-dashboard-governance-warnings-filter-hint";
+
 export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
   if (props.buyerPolishedShell) {
     return null;
@@ -24,43 +27,50 @@ export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
   const warningsFilterDisabled = warningsCount === 0;
 
   return (
-    <div
-      className="flex flex-wrap items-center gap-x-2 gap-y-1.5"
-      data-testid="runs-dashboard-filters"
-      role="group"
-      aria-label="Filter reviews"
-    >
-      <div className="flex items-center gap-2">
-        <Checkbox
-          id="runs-dashboard-governance-warnings-only"
-          checked={props.governanceWarningsOnly}
+    <div className="space-y-1.5" data-testid="runs-dashboard-filters">
+      <FilterChipGroup
+        aria-label="Filter reviews"
+        className="flex flex-wrap items-center gap-1.5"
+      >
+        <FilterChip
+          data-testid="runs-dashboard-governance-warnings-only"
+          className={buyerFilterChipClass(
+            props.governanceWarningsOnly,
+            warningsFilterDisabled,
+            warningsCount === 0,
+          )}
+          aria-pressed={props.governanceWarningsOnly}
+          aria-describedby={warningsFilterDisabled ? WARNINGS_FILTER_DISABLED_HINT_ID : undefined}
           disabled={warningsFilterDisabled}
-          onCheckedChange={(checked) => {
+          onClick={() => {
             if (warningsFilterDisabled) {
               return;
             }
 
-            props.onGovernanceWarningsOnlyChange(checked === true);
+            props.onGovernanceWarningsOnlyChange(!props.governanceWarningsOnly);
           }}
-          data-testid="runs-dashboard-governance-warnings-only"
-        />
-        <Label htmlFor="runs-dashboard-governance-warnings-only" className={cn(OPERATOR_TYPOGRAPHY.helper, "font-medium")}>
+        >
           {formatOperatorHomeApprovalCheckWarningFilterLabel()}
-        </Label>
-      </div>
-      <div className="flex items-center gap-2">
-        <Checkbox
-          id="runs-dashboard-show-archived"
-          checked={props.showArchived}
-          onCheckedChange={(checked) => {
-            props.onShowArchivedChange(checked === true);
-          }}
+        </FilterChip>
+        <FilterChip
           data-testid="runs-dashboard-show-archived"
-        />
-        <Label htmlFor="runs-dashboard-show-archived" className={cn(OPERATOR_TYPOGRAPHY.helper, "font-medium")}>
+          className={buyerFilterChipClass(props.showArchived, false, false)}
+          aria-pressed={props.showArchived}
+          onClick={() => {
+            props.onShowArchivedChange(!props.showArchived);
+          }}
+        >
           {RUNS_DASHBOARD_LABELS.showArchived}
-        </Label>
-      </div>
+        </FilterChip>
+      </FilterChipGroup>
+      {warningsFilterDisabled ? (
+        <p
+          id={WARNINGS_FILTER_DISABLED_HINT_ID}
+          className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
+        >
+          No reviews with approval-check warnings in this workspace yet.
+        </p>
+      ) : null}
     </div>
   );
 }

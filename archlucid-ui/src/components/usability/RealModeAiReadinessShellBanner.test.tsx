@@ -67,11 +67,32 @@ describe("RealModeAiReadinessShellBanner", () => {
     expect(readinessState.checkAvailability).toHaveBeenCalledWith({ force: true });
   });
 
-  it("stays visible while a retry probe is in flight", () => {
+  it("hides while the initial live availability check is still running", () => {
     readinessState.isLoading = true;
     readinessState.probeState = { status: "loading" };
 
     render(<RealModeAiReadinessShellBanner />);
+
+    expect(screen.queryByTestId("real-mode-ai-readiness-shell-banner")).not.toBeInTheDocument();
+  });
+
+  it("hides while waiting for API readiness before the probe starts", () => {
+    readinessState.isLoading = true;
+    readinessState.probeState = { status: "idle" };
+
+    render(<RealModeAiReadinessShellBanner />);
+
+    expect(screen.queryByTestId("real-mode-ai-readiness-shell-banner")).not.toBeInTheDocument();
+  });
+
+  it("stays visible while a retry probe is in flight after a failure", () => {
+    const { rerender } = render(<RealModeAiReadinessShellBanner />);
+
+    expect(screen.getByTestId("real-mode-ai-readiness-shell-banner")).toBeInTheDocument();
+
+    readinessState.isLoading = true;
+    readinessState.probeState = { status: "loading" };
+    rerender(<RealModeAiReadinessShellBanner />);
 
     expect(screen.getByTestId("real-mode-ai-readiness-shell-banner")).toBeInTheDocument();
     expect(screen.getByTestId("real-mode-ai-readiness-shell-banner")).toHaveAttribute("aria-busy", "true");

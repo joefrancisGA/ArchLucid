@@ -92,8 +92,8 @@ describe("OperatorHomeWorkspaceMetricsStrip", () => {
       "href",
       OPERATOR_HOME_FINALIZED_PACKAGES_HREF,
     );
-    expect(screen.getByText(/active reviews · workspace · active/i)).toBeInTheDocument();
-    expect(screen.getByText(/finalized package · workspace · finalized/i)).toBeInTheDocument();
+    expect(screen.getByText(/active reviews · active/i)).toBeInTheDocument();
+    expect(screen.getByText(/finalized package · finalized/i)).toBeInTheDocument();
   });
 
   it("shows active reviews even when only one in-progress review is surfaced in unfinished work", () => {

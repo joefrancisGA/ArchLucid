@@ -30,7 +30,23 @@ describe("RunsDashboardFilters", () => {
       />,
     );
 
-    expect(screen.getByTestId("runs-dashboard-show-archived")).toBeChecked();
+    expect(screen.getByTestId("runs-dashboard-show-archived")).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("renders FilterChip filters and explains disabled warnings filter", () => {
+    render(
+      <RunsDashboardFilters
+        buyerPolishedShell={false}
+        governanceWarningsOnly={false}
+        governanceWarningsCount={0}
+        showArchived={false}
+        onGovernanceWarningsOnlyChange={vi.fn()}
+        onShowArchivedChange={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId("runs-dashboard-governance-warnings-only")).toBeDisabled();
+    expect(screen.getByText(/No reviews with approval-check warnings in this workspace yet/i)).toBeInTheDocument();
   });
 
   it("renders nothing in buyer-polished shell", () => {

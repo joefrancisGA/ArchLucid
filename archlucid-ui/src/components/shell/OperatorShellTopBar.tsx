@@ -15,6 +15,7 @@ import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AuthPanel } from "@/components/AuthPanel";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import { CommandPaletteTopBarTrigger } from "@/components/CommandPaletteTopBarTrigger";
+import { OperatorShellDemoWorkspaceTag } from "@/components/shell/OperatorShellDemoWorkspaceTag";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { GuidedModeTopBarChip } from "@/components/workspace-mode/GuidedModeTopBarChip";
 import { SimulatorModeTopBarChip } from "@/components/usability/SimulatorModeTopBarChip";
@@ -99,9 +100,10 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
           >
             <div
               data-testid="app-shell-topbar-context"
-              className="flex min-w-0 flex-nowrap items-center"
+              className="flex min-w-0 flex-nowrap items-center gap-2"
             >
               <ScopeSwitcherDeferred density="compact" />
+              <OperatorShellDemoWorkspaceTag />
             </div>
             <AuthPanel />
             <div className="flex shrink-0 items-center gap-2.5 border-l border-neutral-200 pl-3 dark:border-neutral-700">
