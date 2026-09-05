@@ -151,6 +151,25 @@ Both engines read the same ingested properties; premise-conflict findings requir
 
 ---
 
+## Structured diagram ingest (IE-18)
+
+Structured architecture diagrams (Mermaid, draw.io XML, ArchLucid diagram JSON, SVG metadata) are ingested into a persisted **`ArchitectureDiagramModel`** per run — not browser **`localStorage`**. Vision-based ingest (PNG/PDF) is **IE-20** and is out of scope here.
+
+| Format (`DiagramSourceReference.Format`) | Parser | Notes |
+|---|---|---|
+| `mermaid` | `MermaidDiagramSourceParser` | Node labels in `id["label"]` form; edges `a --> b` or `a -->|"label"| b` |
+| `drawio-xml` | `DrawIoXmlDiagramSourceParser` | `mxCell` vertices and edges |
+| `archlucid-diagram-json` | `ArchLucidDiagramJsonParser` | Direct `ArchitectureDiagramModelRecord` JSON |
+| `svg` | `SvgDiagramSourceParser` | Fail-soft: records a warning; does not throw |
+
+**API:** `POST /v1/architecture/runs/{runId}/diagrams/ingest` (body: `StructuredDiagramIngestRequest` with one or more sources). **GET** `/v1/architecture/runs/{runId}/diagrams/model` returns the merged model. **`ExtractionMethod`** is always **`StructuredParse`**.
+
+Parsers are **fail-soft**: invalid or unrecognized input yields warnings and an empty or partial model; ingest does not throw. Label-only service-type inference uses **`ArchitectureDiagramServiceTypeInferencer`** at confidence **0.7** (`DeterministicInference`).
+
+Structured diagram ingest does **not** create a second **`CanonicalObject`** family and does **not** write Azure **`ObservedFact`** rows. Persisted rows live in **`dbo.ArchitectureDiagramModels`** (migration 362).
+
+---
+
 ## Further reading
 
 - **Typed knowledge graph:** `docs/KNOWLEDGE_GRAPH.md`.
