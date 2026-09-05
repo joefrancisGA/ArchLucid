@@ -3409,11 +3409,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 217
-- **bugs-found:** 439
+- **hunts:** 218
+- **bugs-found:** 440
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — product feedback findingRef case canonicalization
+- **last-bug:** 2026-09-05 — RecordDisposition route/body findingId case-only mismatch
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4468,6 +4468,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — `findingRef` differing only by casing from inspect canonical id persisted keyboard casing after #818 authority-run binding — **hit 2026-09-05 (#821):** persist `finding.FindingId` after inspect (#819/#820 disposition/waiver parity); regression in `PostProductFeedbackAsync_persists_canonical_finding_ref_when_request_differs_only_by_casing`.
 
 2026-09-05 thorough hunt #821 (hit): proved product-feedback findingRef case canonicalization gap promoted from #820 seed candidate.
+
+- [x] (proven) `GovernanceStickinessHttpMapper.ValidateRecordDispositionRouteFindingId` / `GovernanceStickinessController.RecordDisposition` — route `findingId` and body `findingId` differing only by casing returned HTTP 400 while `ListDispositions` accepted case variants after #819 — **hit 2026-09-05 (#822):** `OrdinalIgnoreCase` route/body match (#817 logical-mismatch guard preserved); regressions in `ValidateRecordDispositionRouteFindingId_accepts_body_finding_id_when_differs_only_by_casing` and `RecordDisposition_returns_ok_when_body_finding_id_differs_only_by_casing_from_route`.
+- [ ] (candidate) `FindingMergeConflictResolutionService.TryResolveAsync` — conflict lookup is case-insensitive (#819) but `memberFindingIds.Contains(..., Ordinal)` may miss snapshot members when rationale ids differ only by casing from stored `FindingId`.
+
+2026-09-05 seed hunt #822 (hit): proved RecordDisposition route/body case-only mismatch; seeded merge-conflict member id casing candidate.
 
 2026-09-05 seed hunt #820 (hit): proved CreateRiskException finding-id case canonicalization gap; seeded product-feedback findingRef casing candidate.
 
