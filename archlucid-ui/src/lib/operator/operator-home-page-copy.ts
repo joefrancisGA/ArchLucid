@@ -35,7 +35,7 @@ function formatOperatorHomePressureSubtitle(metrics: OperatorHomeWorkspaceMetric
 
   if (metrics.governanceWarnings > 0) {
     parts.push(
-      `${metrics.governanceWarnings} approval-check warning${metrics.governanceWarnings === 1 ? "" : "s"}`,
+      `${metrics.governanceWarnings} governance approval warning${metrics.governanceWarnings === 1 ? "" : "s"}`,
     );
   }
 
@@ -50,25 +50,34 @@ export function operatorHomePageSubtitle(
   buyerPolishedShell: boolean,
   workingMode = false,
   metrics?: OperatorHomeWorkspaceMetricsSnapshot,
+  workspaceLabel?: string | null,
 ): string | undefined {
+  const workspaceSuffix =
+    workspaceLabel !== null && workspaceLabel !== undefined && workspaceLabel.trim().length > 0
+      ? `Summarizing ${workspaceLabel.trim()}.`
+      : undefined;
+
   if (buyerPolishedShell) {
-    return undefined;
+    return workspaceSuffix;
   }
 
   if (workingMode) {
     const pressureLine = metrics !== undefined ? formatOperatorHomePressureSubtitle(metrics) : null;
+    const base = pressureLine !== null
+      ? `${OPERATOR_HOME_WORKING_PAGE_SUBTITLE} · ${pressureLine}`
+      : OPERATOR_HOME_WORKING_PAGE_SUBTITLE;
 
-    if (pressureLine !== null) {
-      return `${OPERATOR_HOME_WORKING_PAGE_SUBTITLE} · ${pressureLine}`;
-    }
-
-    return OPERATOR_HOME_WORKING_PAGE_SUBTITLE;
+    return workspaceSuffix !== undefined ? `${base} ${workspaceSuffix}` : base;
   }
 
   const pressureLine = metrics !== undefined ? formatOperatorHomePressureSubtitle(metrics) : null;
 
   if (pressureLine !== null) {
-    return pressureLine;
+    return workspaceSuffix !== undefined ? `${pressureLine} ${workspaceSuffix}` : pressureLine;
+  }
+
+  if (workspaceSuffix !== undefined) {
+    return `${OPERATOR_HOME_PAGE_SUBTITLE_OPERATOR} ${workspaceSuffix}`;
   }
 
   return OPERATOR_HOME_PAGE_SUBTITLE_OPERATOR;

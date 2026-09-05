@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 
 import { RunsDashboardPanelFilters } from "@/components/operator-home/RunsDashboardPanelFilters";
+import { OperatorHomeRecentReviewsOutcomeLine } from "@/components/operator-home/OperatorHomeRecentReviewsOutcomeLine";
 import { RunsDashboardGovernanceWarningsActiveFilter } from "@/components/operator-home/RunsDashboardGovernanceWarningsActiveFilter";
 import { RunsDashboardPanelTable } from "@/components/operator-home/RunsDashboardPanelTable";
 import { BUYER_RUNS_DASHBOARD_SECTION_HEADING } from "@/lib/buyer/buyer-polish-copy";
@@ -31,17 +32,12 @@ export function RunsDashboardPanelChrome({ model }: RunsDashboardPanelChromeProp
           {model.buyerPolishedShell ? BUYER_RUNS_DASHBOARD_SECTION_HEADING : RUNS_DASHBOARD_LABELS.sectionHeading}
         </h3>
       ) : null}
-      {model.hideHeading && model.recentReviewsOutcomeLine !== null ? (
-        <p
-          className={cn(
-            "m-0 mb-3 leading-snug",
-            OPERATOR_TYPE_SCALE.helper,
-            "text-al-text-secondary",
-          )}
-          data-testid="operator-home-recent-reviews-outcome"
-        >
-          {model.recentReviewsOutcomeLine}
-        </p>
+      {model.hideHeading && model.recentReviewsOutcomeMetrics !== null && model.recentReviewsOutcomeOptions !== null ? (
+        <OperatorHomeRecentReviewsOutcomeLine
+          metrics={model.recentReviewsOutcomeMetrics}
+          openAllReviewsHref={model.openAllReviewsHref}
+          options={model.recentReviewsOutcomeOptions}
+        />
       ) : null}
       {model.governanceWarningsOnly ? (
         <RunsDashboardGovernanceWarningsActiveFilter
@@ -51,6 +47,7 @@ export function RunsDashboardPanelChrome({ model }: RunsDashboardPanelChromeProp
       ) : null}
       <Tabs
         value={model.tab}
+        variant="line"
         onValueChange={(next) => {
           model.selectDashboardTab(next as RunsDashboardTabId);
         }}

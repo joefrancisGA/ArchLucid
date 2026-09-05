@@ -34,8 +34,8 @@ describe("metric-count-presentation", () => {
   it("formats inline scope labels for workspace open findings", () => {
     const presentation = workspaceOpenFindingsPresentation(12);
 
-    expect(formatMetricCountScopeLabel(presentation.dimensions)).toBe("open");
-    expect(formatMetricCountHeadline(presentation)).toBe("12 open findings · open");
+    expect(formatMetricCountScopeLabel(presentation.dimensions)).toBe("this workspace");
+    expect(formatMetricCountHeadline(presentation)).toBe("12 open findings · this workspace");
     expect(presentation.href).toBe("/governance/findings?filter=open");
   });
 
@@ -43,8 +43,8 @@ describe("metric-count-presentation", () => {
     const active = operatorHomeActiveReviewsPresentation(2);
     const finalized = operatorHomeFinalizedPackagesPresentation(3);
 
-    expect(formatMetricCountScopeLabel(active.dimensions)).toBe("active");
-    expect(formatMetricCountScopeLabel(finalized.dimensions)).toBe("finalized");
+    expect(formatMetricCountScopeLabel(active.dimensions)).toBe("this workspace");
+    expect(formatMetricCountScopeLabel(finalized.dimensions)).toBe("this workspace");
     expect(active.href).toBe("/architecture/reviews?filter=Active");
     expect(finalized.href).toBe("/architecture/reviews?filter=finalized");
   });

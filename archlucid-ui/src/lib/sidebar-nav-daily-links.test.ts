@@ -180,16 +180,16 @@ describe("splitSidebarLinksDailyVsMore", () => {
 });
 
 describe("sidebarMoreLinksLabel", () => {
-  it("pluralizes with the group heading for clarity", () => {
-    expect(sidebarMoreLinksLabel("Insights", 1)).toBe("1 more Insights link");
-    expect(sidebarMoreLinksLabel("Insights", 4)).toBe("4 more Insights links");
-    expect(sidebarMoreLinksLabel("Architecture", 5)).toBe("5 more Architecture links");
+  it("names the destination cluster in the disclosure label", () => {
+    expect(sidebarMoreLinksLabel("operate-governance", 1)).toBe("Show 1 more approval destination");
+    expect(sidebarMoreLinksLabel("operate-governance", 4)).toBe("Show 4 more approval destinations");
+    expect(sidebarMoreLinksLabel("operate-analysis", 5)).toBe("Show 5 more Insights destinations");
   });
 });
 
 describe("sidebarMoreLinksCollapseLabel", () => {
-  it("names the collapse control with the group heading", () => {
-    expect(sidebarMoreLinksCollapseLabel("Insights")).toBe("Fewer Insights links");
-    expect(sidebarMoreLinksCollapseLabel("Governance")).toBe("Fewer Governance links");
+  it("names the destination cluster when collapsed", () => {
+    expect(sidebarMoreLinksCollapseLabel("operate-governance")).toBe("Show fewer approval destinations");
+    expect(sidebarMoreLinksCollapseLabel("operate-analysis")).toBe("Show fewer Insights destinations");
   });
 });

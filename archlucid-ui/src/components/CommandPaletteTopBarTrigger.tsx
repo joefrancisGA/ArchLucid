@@ -1,6 +1,5 @@
 "use client";
 
-import { KeyboardShortcutBadge } from "@/components/KeyboardShortcutBadge";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS } from "@/lib/design-tokens";
 import {
@@ -25,7 +24,6 @@ export function CommandPaletteTopBarTrigger(): React.JSX.Element {
         dispatchOpenCommandPalette();
       }}
     >
-      <KeyboardShortcutBadge className="shrink-0" />
       <span className="hidden sm:inline">Command</span>
     </Button>
   );

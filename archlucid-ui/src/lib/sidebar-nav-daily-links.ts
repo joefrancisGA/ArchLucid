@@ -137,26 +137,34 @@ export function splitSidebarLinksDailyVsMore(
   return { daily, more };
 }
 
-/** Secondary nav rows under a group heading — include the group name so the disclosure is self-explanatory. */
-export function sidebarMoreLinksLabel(groupLabel: string, count: number, expanded = false): string {
-  const trimmedGroupLabel = groupLabel.trim();
-  const groupSuffix = trimmedGroupLabel.length > 0 ? ` ${trimmedGroupLabel}` : "";
+/** Secondary nav rows under a group heading — name what the disclosure reveals. */
+const SIDEBAR_MORE_DISCLOSURE_DESTINATION_LABEL: Readonly<Record<string, string>> = {
+  "operate-analysis": "Insights",
+  "operate-governance": "approval",
+  "operate-policy": "policy",
+  "operator-admin": "administration",
+  "operator-system-admin": "internal",
+};
+
+export function sidebarMoreLinksLabel(groupId: string, count: number, expanded = false): string {
+  const destination =
+    SIDEBAR_MORE_DISCLOSURE_DESTINATION_LABEL[groupId] ?? "sidebar";
 
   if (expanded) {
-    return `Fewer${groupSuffix} links`;
+    return `Show fewer ${destination} destinations`;
   }
 
   if (count === 1) {
-    return `1 more${groupSuffix} link`;
+    return `Show 1 more ${destination} destination`;
   }
 
-  return `${count} more${groupSuffix} links`;
+  return `Show ${count} more ${destination} destinations`;
 }
 
 /** Collapse label when the secondary nav disclosure is expanded. */
-export function sidebarMoreLinksCollapseLabel(groupLabel: string): string {
-  const trimmedGroupLabel = groupLabel.trim();
-  const groupSuffix = trimmedGroupLabel.length > 0 ? ` ${trimmedGroupLabel}` : "";
+export function sidebarMoreLinksCollapseLabel(groupId: string): string {
+  const destination =
+    SIDEBAR_MORE_DISCLOSURE_DESTINATION_LABEL[groupId] ?? "sidebar";
 
-  return `Fewer${groupSuffix} links`;
+  return `Show fewer ${destination} destinations`;
 }

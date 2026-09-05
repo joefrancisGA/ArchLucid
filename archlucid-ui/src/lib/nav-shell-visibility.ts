@@ -1,4 +1,3 @@
-import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 import type { NavGroupConfig, NavLinkItem, NavShellSurface } from "@/lib/nav-config";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { filterNavLinksByAuthority } from "@/lib/nav-authority";
@@ -88,23 +87,33 @@ export function filterNavLinksForOperatorShell(
  * Applies **`filterNavLinksForOperatorShell`** to every configured group and **omits groups with no visible links**.
  * Sidebar, mobile drawer, and command palette should iterate this result so authority + empty-group rules stay aligned.
  */
+export type ListNavGroupsVisibleInOperatorShellOptions = {
+  readonly surfaceFilter?: "all" | NavShellSurface;
+  readonly hasCommittedArchitectureReview?: boolean;
+  readonly hideGettingStartedFromMainNav?: boolean;
+  /** Vendor-staff principal — gates `staffInternalOnly` / system-admin clusters (not workspace mode). */
+  readonly showVendorInternalNav?: boolean;
+};
+
 export function listNavGroupsVisibleInOperatorShell(
   groups: ReadonlyArray<NavGroupConfig>,
   callerAuthorityRank: number,
   surfaceFilter: "all" | NavShellSurface = "all",
   hasCommittedArchitectureReview = true,
   hideGettingStartedFromMainNav = false,
+  options: ListNavGroupsVisibleInOperatorShellOptions = {},
 ): NavGroupWithVisibleLinks[] {
   const presetId = resolveNavShellPresetId();
+  const showVendorInternalNav = options.showVendorInternalNav ?? false;
   const out: NavGroupWithVisibleLinks[] = [];
 
   for (const group of groups) {
-    if (group.staffInternalOnly === true && !isArchLucidInternalOperatorShellEnv()) {
+    if (group.staffInternalOnly === true && !showVendorInternalNav) {
       continue;
     }
 
     if (group.surface === "system-admin") {
-      if (!isSystemAdministrationNavGroupVisible(presetId)) {
+      if (!isSystemAdministrationNavGroupVisible(presetId, showVendorInternalNav)) {
         continue;
       }
     }

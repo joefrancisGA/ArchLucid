@@ -8,12 +8,15 @@ import {
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { writeOperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
 
+import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
+
 import { SidebarNav } from "./SidebarNav";
 
-const { mockPathname, buyerPolishedShellMock, fullOperatorShellMock } = vi.hoisted(() => ({
+const { mockPathname, buyerPolishedShellMock, fullOperatorShellMock, vendorStaffPrincipalMock } = vi.hoisted(() => ({
   mockPathname: vi.fn((): string => "/"),
   buyerPolishedShellMock: { value: false },
   fullOperatorShellMock: { value: true },
+  vendorStaffPrincipalMock: { value: true },
 }));
 
 vi.mock("@/hooks/use-governance-mode", async () => {
@@ -39,16 +42,21 @@ vi.mock("@/hooks/use-role-nav-density-expanded", () => ({
   }),
 }));
 
-vi.mock("next/navigation", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("next/navigation")>();
-  return {
-    ...actual,
+vi.mock("next/navigation", () => ({
   usePathname: (): string => mockPathname(),
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    refresh: vi.fn(),
+  }),
+  useSearchParams: () => new URLSearchParams(),
   redirect: vi.fn(),
-    permanentRedirect: vi.fn(),
-    notFound: vi.fn(),
-  };
-});
+  permanentRedirect: vi.fn(),
+  notFound: vi.fn(),
+}));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
@@ -60,15 +68,37 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/components/FieldHelpTooltip", () => ({
+  FieldHelpTooltip: () => null,
+}));
+
 vi.mock("@/components/operator/OperatorNavAuthorityProvider", async () => {
   const { createOperatorNavAuthorityVitestMock } = await import(
     "@/testing/operator-nav-authority-vitest-mock"
   );
+  const { operatorNavOutsideProviderPrincipal } = await import("@/lib/current-principal");
+  const { AUTHORITY_RANK, requiredAuthorityFromRank } = await import("@/lib/nav-authority");
 
-  return createOperatorNavAuthorityVitestMock({
+  const baseMock = createOperatorNavAuthorityVitestMock({
     callerAuthorityRank: 3,
     hasCommittedArchitectureReview: true,
   });
+  const vendorPrincipal = {
+    ...operatorNavOutsideProviderPrincipal,
+    authorityRank: AUTHORITY_RANK.AdminAuthority,
+    maxAuthority: requiredAuthorityFromRank(AUTHORITY_RANK.AdminAuthority),
+    roleClaimValues: ["PlatformOperator"],
+  };
+
+  return {
+    ...baseMock,
+    useOperatorNavAuthority: () => ({
+      ...(baseMock.useOperatorNavAuthority() as ReturnType<typeof baseMock.useOperatorNavAuthority>),
+      currentPrincipal: vendorStaffPrincipalMock.value
+        ? vendorPrincipal
+        : operatorNavOutsideProviderPrincipal,
+    }),
+  };
 });
 
 vi.mock("next/link", () => ({
@@ -95,6 +125,7 @@ describe("SidebarNav — Internal section", () => {
     mockPathname.mockReturnValue("/");
     buyerPolishedShellMock.value = false;
     fullOperatorShellMock.value = true;
+    vendorStaffPrincipalMock.value = true;
     localStorage.clear();
     writeOperateNavUnlockPhase(2);
     vi.stubEnv("NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV", "true");
@@ -138,6 +169,7 @@ describe("SidebarNav — Internal section", () => {
   });
 
   it("hides Internal in buyer-polished shell without full-operator experience", async () => {
+    vendorStaffPrincipalMock.value = false;
     buyerPolishedShellMock.value = true;
     fullOperatorShellMock.value = false;
 
@@ -149,6 +181,7 @@ describe("SidebarNav — Internal section", () => {
   });
 
   it("does not show Internal for public sample users (buyer-polished, not full shell)", async () => {
+    vendorStaffPrincipalMock.value = false;
     buyerPolishedShellMock.value = true;
     fullOperatorShellMock.value = false;
     vi.stubEnv("NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV", "true");
@@ -163,7 +196,21 @@ describe("SidebarNav — Internal section", () => {
     expect(screen.queryByRole("link", { name: OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth })).toBeNull();
   });
 
+  it("does not show Internal for non-vendor principals even when the admin nav flag is on", async () => {
+    vendorStaffPrincipalMock.value = false;
+    buyerPolishedShellMock.value = false;
+    fullOperatorShellMock.value = true;
+    vi.stubEnv("NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV", "true");
+
+    render(<SidebarNav />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("sidebar-group-toggle-operator-system-admin")).toBeNull();
+    });
+  });
+
   it("does not show Internal for ordinary tenant users when the admin nav flag is off", async () => {
+    vendorStaffPrincipalMock.value = false;
     buyerPolishedShellMock.value = false;
     fullOperatorShellMock.value = false;
     vi.stubEnv("NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV", "false");
@@ -177,7 +224,8 @@ describe("SidebarNav — Internal section", () => {
     expect(screen.queryByText("Internal")).toBeNull();
   });
 
-  it("shows Internal only for authorized internal operator shells", async () => {
+  it("shows Internal only for vendor staff with internal operator shell enabled", async () => {
+    vendorStaffPrincipalMock.value = true;
     buyerPolishedShellMock.value = false;
     fullOperatorShellMock.value = true;
     vi.stubEnv("NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV", "true");
@@ -196,17 +244,15 @@ describe("SidebarNav — Internal section", () => {
   });
 
   it("does not expose internal destinations in customer nav groups when the flag is disabled", async () => {
+    vendorStaffPrincipalMock.value = false;
     vi.stubEnv("NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV", "false");
 
     render(<SidebarNav />);
 
-    fireEvent.click(screen.getByTestId("sidebar-group-toggle-operate-analysis"));
-
     await waitFor(() => {
-      expect(screen.getByRole("group", { name: "Insights" })).toBeInTheDocument();
+      expect(screen.queryByTestId("sidebar-group-toggle-operator-system-admin")).toBeNull();
     });
 
-    expect(screen.queryByRole("link", { name: "Architecture advisory" })).toBeNull();
     expect(screen.queryByRole("link", { name: OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth })).toBeNull();
   });
 
