@@ -3420,11 +3420,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 252
-- **bugs-found:** 489
+- **hunts:** 253
+- **bugs-found:** 490
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — digest non-UTC timezone and governance review actor-key case-insensitive idempotent retry
+- **last-bug:** 2026-09-05 — link-entra entraOid case-insensitive idempotent retry
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4598,6 +4598,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceWorkflowReviewStage.TryGetIdempotentReviewRetryAsync` / `IsIdenticalReviewRetry` — operator retry on finalized approval with `ReviewedByActorKey` differing only by casing surfaced `Conflict` instead of idempotent success (`Ordinal` actor-key compare after #852 review-comment casing fix) — **hit 2026-09-05 (#859):** case-insensitive actor-key comparison in `IsIdenticalReviewRetry`; regressions in `Reject_returns_existing_approval_without_duplicate_audit_when_reviewed_by_actor_key_differs_only_by_casing` and `Approve_returns_existing_approval_without_duplicate_audit_when_reviewed_by_actor_key_differs_only_by_casing`.
 
 2026-09-05 thorough hunt #859 (hit): proved both #858 candidates — digest non-UTC timezone casing idempotent retry and governance review actor-key casing idempotent retry.
+
+- [x] (proven) `TenantTrialController.LinkEntraAsync` / `TenantTrialIdentityHandoffStage.LinkEntraAsync` — operator retry with same `localEmail` + `entraOid` differing only by casing logged duplicate `TrialLocalIdentityLinkedToEntra` audit while `TryLinkLocalIdentityToEntraAsync` succeeded (`Ordinal` OID compare after #841 exact-match skip-audit) — **hit 2026-09-05 (#860):** case-insensitive `LinkedEntraOid` comparison in `identityAlreadyLinked`; regression in `LinkEntraAsync_skips_duplicate_local_identity_linked_audit_when_entra_oid_differs_only_by_casing`.
+- [ ] (candidate) `PolicyPacksController.Create` / `PolicyPacksAppService.CreatePackAsync` — operator retry with pack `name` differing only by casing allocates fresh `PolicyPackId` and logs duplicate `PolicyPackCreated` audit (`Ordinal` name match in create dedupe matcher; #858 recurrence-name casing sibling).
+- [ ] (candidate) `PolicyPacksController.DuplicatePack` / `PolicyPacksAppService.TryDuplicatePackAsync` — operator retry with duplicate copy `name` differing only by casing allocates fresh pack row (`Ordinal` `copyName` match in duplicate dedupe matcher; #860 create-name casing sibling).
+
+2026-09-05 seed hunt #860 (hit): reseeded post-#859 idempotent-retry casing exhaustion; proved link-entra `entraOid` case-insensitive idempotent retry; seeded policy-pack create and duplicate-pack name casing candidates.
 
 2026-09-05 seed hunt #858 (hit): reseeded post-#857 idempotent-retry casing exhaustion; proved recurrence schedule name case-insensitive idempotent retry on create and update; seeded digest non-UTC timezone casing and governance review actor-key casing candidates.
 

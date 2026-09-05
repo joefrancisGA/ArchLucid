@@ -71,7 +71,7 @@ public sealed class TenantTrialIdentityHandoffStage(
             .ConfigureAwait(false);
 
         bool identityAlreadyLinked = existingIdentity?.LinkedEntraOid is not null
-            && string.Equals(existingIdentity.LinkedEntraOid, body.EntraOid!.Trim(), StringComparison.Ordinal);
+            && string.Equals(existingIdentity.LinkedEntraOid, body.EntraOid!.Trim(), StringComparison.OrdinalIgnoreCase);
 
         bool identityLinked = await _trialIdentityUsers.TryLinkLocalIdentityToEntraAsync(
             normalizedLocalEmail,
