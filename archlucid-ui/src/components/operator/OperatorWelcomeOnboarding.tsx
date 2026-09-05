@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type SetStateAction } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { WelcomeModal } from "@/components/ui/welcome-modal";
 import { useRunsByProjectPagedQuery } from "@/hooks/use-runs-by-project-paged-query";
@@ -14,6 +15,10 @@ import {
   persistHasSeenWelcomeOnboarding,
   readHasSeenWelcomeOnboarding,
 } from "@/lib/operator/operator-welcome-onboarding-storage";
+import {
+  operatorWelcomeOnboardingHrefFromSearch,
+  parseOperatorWelcomeOpenFromSearch,
+} from "@/lib/operator/operator-welcome-onboarding-url";
 
 export type OperatorWelcomeOnboardingProps = {
   /**
@@ -31,7 +36,32 @@ const DEFAULT_PROJECT_ID = "default";
  */
 export function OperatorWelcomeOnboarding(props: OperatorWelcomeOnboardingProps) {
   const { serverEligible } = props;
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const welcomeOpenParam = searchParams.get("welcomeOpen");
+  const [open, setOpenState] = useState(() => parseOperatorWelcomeOpenFromSearch(welcomeOpenParam));
+
+  const syncWelcomeOpenToUrl = useCallback(
+    (welcomeOpen: boolean) => {
+      router.replace(operatorWelcomeOnboardingHrefFromSearch(searchParams.toString(), welcomeOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncWelcomeOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncWelcomeOpenToUrl],
+  );
   const runsQuery = useRunsByProjectPagedQuery(
     { projectId: DEFAULT_PROJECT_ID, page: 1, pageSize: 10 },
     {
@@ -70,7 +100,7 @@ export function OperatorWelcomeOnboarding(props: OperatorWelcomeOnboardingProps)
       return;
     }
 
-    if (serverEligible === true) {
+    if (serverEligible === true || parseOperatorWelcomeOpenFromSearch(welcomeOpenParam)) {
       setOpen(true);
 
       return;
@@ -79,12 +109,12 @@ export function OperatorWelcomeOnboarding(props: OperatorWelcomeOnboardingProps)
     if (runsQuery.isSuccess && (((runsQuery.data as { totalCount?: number } | undefined)?.totalCount) ?? 0) === 0) {
       setOpen(true);
     }
-  }, [runsQuery.data, runsQuery.isSuccess, serverEligible]);
+  }, [runsQuery.data, runsQuery.isSuccess, serverEligible, setOpen, welcomeOpenParam]);
 
   const dismiss = useCallback(() => {
     persistHasSeenWelcomeOnboarding();
     setOpen(false);
-  }, []);
+  }, [setOpen]);
 
   const startTour = useCallback(() => {
     dismiss();

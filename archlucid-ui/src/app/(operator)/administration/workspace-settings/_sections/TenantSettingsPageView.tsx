@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type SetStateAction } from "react";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { SETTINGS_WORKSPACE_SETTINGS_PATH } from "@/lib/settings-admin-route-paths";
@@ -18,6 +19,10 @@ import {
   readOperatorScopeFromStorage,
 } from "@/lib/operator/operator-scope-storage";
 import { readActiveTenantContext } from "@/lib/active-tenant-context-display";
+import {
+  parseTenantSettingsQualityAdvancedOpenFromSearch,
+  tenantSettingsQualityAdvancedHrefFromSearch,
+} from "@/lib/administration/tenant-settings-quality-advanced-url";
 import {
   TENANT_SETTINGS_PAGE_SUBTITLE,
   TENANT_SETTINGS_SCOPE_UNRESOLVED_SUMMARY,
@@ -37,11 +42,39 @@ type Props = {
 
 export function TenantSettingsPageView(props: Props) {
   const m = props.model;
+  const router = useRouter();
+  const pathname = usePathname() ?? SETTINGS_WORKSPACE_SETTINGS_PATH;
+  const searchParams = useSearchParams();
+  const settingsQualityAdvancedOpenParam = searchParams.get("settingsQualityAdvancedOpen");
   const scope = getEffectiveBrowserProxyScopeHeaders();
   const [activeScopeSummary, setActiveScopeSummary] = useState<string>(TENANT_SETTINGS_SCOPE_UNRESOLVED_SUMMARY);
   const [callerAuthorityLine, setCallerAuthorityLine] = useState<string | null>(null);
   const [tenantDisplayName, setTenantDisplayName] = useState(() => m.tenantDisplayName);
-  const [advancedQualityOpen, setAdvancedQualityOpen] = useState(false);
+  const [advancedQualityOpen, setAdvancedQualityOpenState] = useState(() =>
+    parseTenantSettingsQualityAdvancedOpenFromSearch(settingsQualityAdvancedOpenParam),
+  );
+
+  const syncAdvancedQualityOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        tenantSettingsQualityAdvancedHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setAdvancedQualityOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setAdvancedQualityOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncAdvancedQualityOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncAdvancedQualityOpenToUrl],
+  );
 
   const refreshScopeBoundUi = useCallback(() => {
     const headers = getEffectiveBrowserProxyScopeHeaders();
