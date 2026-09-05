@@ -86,7 +86,8 @@ public sealed class InMemoryArchitectureProjectRepositoryTests
     {
         InMemoryArchitectureProjectRepository sut = new();
 
-        bool deleted = await sut.TrySoftDeleteAsync(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), CancellationToken.None);
+        ArchitectureProjectSoftDeleteResult deleted =
+            await sut.TrySoftDeleteAsync(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), CancellationToken.None);
 
         deleted.Should().Be(ArchitectureProjectSoftDeleteResult.NotFound);
     }
