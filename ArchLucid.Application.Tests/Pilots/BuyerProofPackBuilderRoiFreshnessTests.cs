@@ -271,6 +271,7 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
             authorityQuery ?? Mock.Of<IAuthorityQueryService>(),
             manifestHashService ?? Mock.Of<IManifestHashService>(),
+            FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 

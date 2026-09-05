@@ -10,8 +10,8 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
+import { ALERTS_HELP_CLAIM_HEADING_ID } from "@/lib/alerts-help-evidence-copy";
 import {
-  ALERTS_HELP_CLAIM_HEADING_ID,
   ALERTS_HELP_DESTINATION_CARDS,
   ALERTS_HELP_GUIDE_HEADINGS,
   ALERTS_HELP_HOW_ALERTS_WORK_STEPS,

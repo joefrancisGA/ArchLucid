@@ -14,6 +14,8 @@ import {
   parseHelpGovApprovalTechRefOpenFromSearch,
 } from "@/lib/help/help-governance-approval-technical-reference-url";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { cn } from "@/lib/utils";
 
 /** Lazy-mounts API detail so collapsed technical reference stays out of primary page text scans. */
 export function HelpGovernanceApprovalTechnicalReference(): ReactElement {

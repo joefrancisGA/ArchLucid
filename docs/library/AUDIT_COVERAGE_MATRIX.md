@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:410 -->
+<!-- audit-core-const-count:413 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -105,6 +105,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Operator saved view create | `OperatorSavedViewsController` (`POST /v1/operator/saved-views`) | `AuditEventTypes.OperatorSavedViewCreated` | Tenant/Workspace/Project from ambient scope | `{ viewId, surface, name, isShared }` — filter JSON not duplicated (may contain operator query terms) |
 | Operator saved view delete | `OperatorSavedViewsController` (`DELETE /v1/operator/saved-views/{viewId}`) | `AuditEventTypes.OperatorSavedViewDeleted` | Tenant/Workspace/Project from ambient scope | `{ viewId }` |
 | Run effective governance scope resolved at execute time | `ExecuteTimeGovernanceScopeCaptureService` (`ArchitectureRunExecuteOrchestrator` execute path) | `AuditEventTypes.RunGovernanceScopeResolved` | RunId | `{ runId, packAssignmentCount, coverageAssignmentCount, notAssessedDimensionCount, conflictCount, focusedPilotModeEnabled, cloudProvider }` |
+| Run coverage acknowledgement (operator per-run exclusions before execute) | `RunCoverageAcknowledgementService` (`RunCoverageController` `PUT /v1/runs/{runId}/coverage/acknowledgement`, `PATCH /v1/runs/{runId}/coverage/{policyPackId}`) | `AuditEventTypes.RunCoverageAcknowledged` | RunId | `{ runId, entryCount, excludedCount }` |
 | Run operator governance disposition (approve / defer / reject) | `AuthorityQueryController` (`POST /v1/authority/runs/{runId}/disposition`); `RunOperatorGovernanceDispositionService` | `AuditEventTypes.RunOperatorGovernanceDispositionRecorded` | RunId | `{ decision, rationale?, actorUserId, occurredUtc }` |
 | Technology Ledger entry approval patch | `TechnologyLedgerController` (`PATCH /v1/runs/{runId}/technology-ledger/{entryId}`) | `AuditEventTypes.TechnologyLedgerEntryUpdated` | RunId | `{ entryId, role, status, isLocked }` |
 | Architect one-click demo review | `ReviewsDemoController` (`POST /v1/reviews/demo`); `OperatorDemoReviewService` | `RunSubmitted`, `RunCompleted` (via service pipeline) | Tenant/Workspace/Project from ambient scope | Built-in flawed brief → finalized architecture package; controller `[MutatingAuditExcluded]` because service emits pipeline audit events |
@@ -213,6 +214,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Tier 2 hosted GCP extractor disconnected | `GcpTier2ConnectionController` (`DELETE /v1/gcp-extractor/connections/{connectionId}`) | `CloudConnectionGcpDisconnected` | Tenant/Workspace/Project from ambient scope | `{ connectionId }` |
 | Tier 2 hosted GCP extractor collection run | `HostedGcpExtractorRunController` (`POST /v1/admin/gcp-extractor/hosted/run`); `HostedGcpExtractorRunService` | `CloudConnectionGcpPolled`, `CloudInventoryExtractorPackageUploaded`, `CloudInventoryExtractorPackageParseFailed`, `CloudInventoryExtractorPackageSchemaRejected`, `CloudInventoryExtractorPackageIngestSucceeded` | Tenant/Workspace/Project; optional `RunId` on success event | Hosted collect → GCP inventory ingest pipeline (`[MutatingAuditExcluded]` on controller) |
 | Azure inventory snapshot header (infra-evidence plane) | `AzureInventorySnapshotHeaderService` (ingest pipeline after extractor package success) | `AzureInventorySnapshotCreated`, `AzureInventorySnapshotFailed` | Tenant/Workspace/Project from ambient scope | `snapshotId`, `packageId`, subscription scope |
+| Operational security finding ingest (infra-evidence plane) | `OperationalSecurityFindingIngestService` (ingest pipeline) | `OperationalSecurityFindingIngested`, `OperationalSecurityFindingDeduplicated` | Tenant/Workspace/Project from ambient scope | `findingId`, `source`, `naturalKey`, `observationCount` |
 | Azure inventory baseline designation (infra-evidence plane) | `InfraEvidenceInventoryController` (`POST /v1/infra-evidence/azure-inventory/baselines`); `AzureInventoryBaselineService` | — | — | Tenant-scoped inventory metadata — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | Azure inventory drift approval (infra-evidence plane) | `InfraEvidenceInventoryController` (`POST /v1/infra-evidence/azure-inventory/diffs/{diffId}/drift-approvals`); `AzureInventoryDriftApprovalService` | — | — | Drift approval records carry approver, reason, and ticket reference inline — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | Azure inventory diff narrative (infra-evidence plane) | `InfraEvidenceInventoryController` (`POST /v1/infra-evidence/azure-inventory/diffs/{diffId}/narratives`); `AzureInventoryDiffNarrativeService` | — | — | Persisted `AiInference` artifacts with cited change ids — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
@@ -466,6 +468,9 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `RunPinStateChanged` | `RunPinStateChanged` | `RunsController` (`PATCH /v1/architecture/run/{runId}/pin`) |
 | `OperatorSavedViewCreated` | `OperatorSavedView.Created` | `OperatorSavedViewsController` (`POST /v1/operator/saved-views`) |
 | `OperatorSavedViewDeleted` | `OperatorSavedView.Deleted` | `OperatorSavedViewsController` (`DELETE /v1/operator/saved-views/{viewId}`) |
+| `OperationalSecurityFindingDeduplicated` | `OperationalSecurityFinding.Deduplicated` | `OperationalSecurityFindingIngestService` |
+| `OperationalSecurityFindingIngested` | `OperationalSecurityFinding.Ingested` | `OperationalSecurityFindingIngestService` |
+| `RunCoverageAcknowledged` | `RunCoverageAcknowledged` | `RunCoverageAcknowledgementService` (`RunCoverageController` `PUT /v1/runs/{runId}/coverage/acknowledgement`, `PATCH /v1/runs/{runId}/coverage/{policyPackId}`) |
 | `RunGovernanceScopeResolved` | `RunGovernanceScopeResolved` | `ExecuteTimeGovernanceScopeCaptureService` (`ArchitectureRunExecuteOrchestrator` execute path) |
 | `RunOperatorGovernanceDispositionRecorded` | `RunOperatorGovernanceDispositionRecorded` | `RunOperatorGovernanceDispositionService` (`AuthorityQueryController` `POST /v1/authority/runs/{runId}/disposition`) |
 | `InternalArchitectureDeterminismCheckExecuted` | `InternalArchitectureDeterminismCheckExecuted` | `InternalArchitectureDiagnosticsController` (`POST …/internal/architecture/runs/{runId}/determinism-check`) |
