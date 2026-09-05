@@ -46,7 +46,7 @@ describe("RunTraceViewerLink", () => {
     render(<RunTraceViewerLink traceId={traceId} />);
 
     expect(screen.queryByRole("link", { name: /view trace/i })).not.toBeInTheDocument();
-    expect(screen.getByText(/Support ref:\s*a1b2c3d4…/)).toBeInTheDocument();
+    expect(screen.getByText(`Support ref: ${traceId}`)).toBeInTheDocument();
   });
 
   it("returns null when traceId is null", () => {
