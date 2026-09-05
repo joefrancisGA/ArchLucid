@@ -411,6 +411,24 @@ public static class GovernanceStickinessHttpMapper
         return null;
     }
 
+    public static GovernanceHttpValidation? ValidateRecordDispositionRouteFindingId(
+        string routeFindingId,
+        RecordFindingDispositionRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        string bodyFindingId = request.FindingId?.Trim() ?? "";
+
+        if (!string.Equals(routeFindingId, bodyFindingId, StringComparison.Ordinal))
+        {
+            return new GovernanceHttpValidation(
+                "findingId must match the route findingId.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
     public static GovernanceHttpValidation? ValidateBulkDisposition(RecordBulkFindingDispositionRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);

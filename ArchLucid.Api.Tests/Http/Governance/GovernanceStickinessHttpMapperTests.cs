@@ -137,6 +137,24 @@ public sealed class GovernanceStickinessHttpMapperTests
     }
 
     [Fact]
+    public void ValidateRecordDispositionRouteFindingId_rejects_body_finding_id_mismatch()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRecordDispositionRouteFindingId(
+            "finding-1",
+            new RecordFindingDispositionRequest
+            {
+                FindingId = "finding-2",
+                Disposition = FindingDisposition.Accepted,
+                Rationale = "rationale",
+                TradeOffAcknowledgment = "trade-off",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("route findingId");
+    }
+
+    [Fact]
     public void ValidateRecordDisposition_rejects_whitespace_only_optional_rationale()
     {
         GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRecordDisposition(
