@@ -453,6 +453,48 @@ public sealed class GovernancePreviewServiceTests
     }
 
     [SkippableFact]
+    public async Task PreviewActivationAsync_operator_retry_manifest_version_casing_only_succeeds_when_run_embeds_manifest()
+    {
+        Mock<IUnifiedGoldenManifestReader> manifests = new(MockBehavior.Strict);
+        ArchitectureRunDetail runDetail = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = RunA,
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                CurrentManifestVersion = "v1",
+            },
+            Manifest = Manifest(RunA, "v1", g => g.RequiredControls.Add("PEP")),
+        };
+
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync(RunA, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(runDetail);
+        _activationRepo.Setup(a => a.GetByEnvironmentAsync("dev", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<GovernanceEnvironmentActivation>());
+
+        GovernancePreviewService sut = new(
+            _activationRepo.Object,
+            _runDetailQueryService.Object,
+            manifests.Object,
+            _scopeProvider.Object,
+            _authority.Object,
+            _manifestHashService);
+
+        GovernancePreviewResult result = await sut.PreviewActivationAsync(new GovernancePreviewRequest
+        {
+            RunId = RunA,
+            ManifestVersion = "V1",
+            Environment = "dev",
+        });
+
+        result.PreviewRunId.Should().Be(RunA);
+        result.PreviewManifestVersion.Should().Be("V1");
+        manifests.VerifyNoOtherCalls();
+    }
+
+    [SkippableFact]
     public async Task PreviewActivationAsync_WhenManifestVersionMissing_ThrowsGoldenManifestVersionNotFoundException()
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync(RunOne, It.IsAny<CancellationToken>()))

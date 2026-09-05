@@ -3420,11 +3420,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 263
-- **bugs-found:** 502
+- **hunts:** 264
+- **bugs-found:** 503
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — governance manifest version case-insensitive promote/activate retry
+- **last-bug:** 2026-09-05 — governance preview manifest version case-insensitive embedded-run lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4635,6 +4635,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.Promote` / `GovernanceWorkflowPromoteValidateStage` / `GovernanceWorkflowActivateStage` / `GovernanceWorkflowSubmitStage` — operator retry with `manifestVersion` differing only by casing failed prod approval linkage or skipped embedded run manifest (`Ordinal` compare on `CurrentManifestVersion` and approval `ManifestVersion`) — **hit 2026-09-05 (#871):** case-insensitive manifest-version comparison in submit/promote/activate stages; regressions in `Promote_ToProd_WithApprovedRequest_operator_retry_manifest_version_casing_only_succeeds` and `Activate_operator_retry_manifest_version_casing_only_succeeds_when_run_embeds_manifest`.
 
 2026-09-05 thorough hunt #871 (hit): cheap-disproved publish `CurrentVersion` metadata drift candidate; proved governance manifest-version case-insensitive operator retry.
+
+- [x] (proven) `GovernancePreviewController.Preview` / `GovernancePreviewService.PreviewActivationAsync` — operator preview retry with `manifestVersion` differing only by casing from embedded run `CurrentManifestVersion` skipped fast-path and called `GetByVersionAsync` (`Ordinal` compare after #871 workflow casing fix) — **hit 2026-09-05 (#872):** case-insensitive manifest-version comparison in preview embedded-run fast-path; regression in `PreviewActivationAsync_operator_retry_manifest_version_casing_only_succeeds_when_run_embeds_manifest`.
+
+- [ ] (candidate) `GovernancePreviewController.Preview` / `UnifiedGoldenManifestReader.GetByVersionAsync` — operator preview when run detail has no embedded manifest and `manifestVersion` differs only by casing from authority-stored contract version may return HTTP 404 `ManifestNotFound` (`GetByContractManifestVersionAsync` exact match; #872 fixes embedded-run path only).
+
+- [ ] (candidate) `GovernancePreviewController.CompareEnvironments` / `GovernancePreviewService.LoadManifestForActivationAsync` — active activation `ManifestVersion` casing mismatch against authority manifest store may omit current manifest in comparison notes (`GetByVersionAsync` fallback after #871/#872 workflow/preview fast-path fixes).
+
+2026-09-05 seed hunt #872 (hit): reseeded post-#871 governance manifest-version casing; proved preview embedded-run case-insensitive lookup; seeded unified reader and activation-load casing candidates.
 
 2026-09-05 seed hunt #870 (hit): reseeded post-#869 policy-pack version casing read gap; proved `GetByPackAndVersionAsync` case-insensitive lookup; seeded publish `CurrentVersion` metadata drift and governance manifest-version casing candidates.
 
