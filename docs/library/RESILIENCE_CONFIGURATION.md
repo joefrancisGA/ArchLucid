@@ -84,11 +84,13 @@ When **`ArchLucid:FallbackLlm:Enabled`** is **`true`**, the host builds a second
 | Setting | Config path | Required when enabled |
 |--------|-------------|------------------------|
 | Enable fallback | `ArchLucid:FallbackLlm:Enabled` | — |
-| Fallback resource endpoint | `ArchLucid:FallbackLlm:Endpoint` | Yes |
-| Chat deployment name | `ArchLucid:FallbackLlm:DeploymentName` | Yes |
-| API key | `ArchLucid:FallbackLlm:ApiKey` | Yes |
+| Ordered endpoints | `ArchLucid:FallbackLlm:Endpoints` | Yes (canonical) |
+| Endpoint URL | `ArchLucid:FallbackLlm:Endpoints[n]:Endpoint` | Yes |
+| Chat deployment name | `ArchLucid:FallbackLlm:Endpoints[n]:DeploymentName` | Yes |
+| Managed identity | `ArchLucid:FallbackLlm:Endpoints[n]:UseManagedIdentity` | Yes on hosted Container Apps (no API key) |
+| API key | `ArchLucid:FallbackLlm:Endpoints[n]:ApiKey` | Yes when `UseManagedIdentity` is false |
 
-If **`Enabled`** is **`true`** but any of **Endpoint**, **DeploymentName**, or **ApiKey** is missing, the host fails at startup with a clear **`InvalidOperationException`**. **`ApiKey`** should be supplied from Key Vault in production (see **`docs/CONFIGURATION_KEY_VAULT.md`**).
+If **`Enabled`** is **`true`** but no complete endpoint row exists, the host fails at startup with a clear **`InvalidOperationException`**. Hosted Terraform sets **`UseManagedIdentity=true`**. API-key rows should use Key Vault (see **`docs/CONFIGURATION_KEY_VAULT.md`**). Legacy flat `ArchLucid:FallbackLlm:Endpoint` / `ApiKey` / `DeploymentName` still bind when `Endpoints` is empty.
 
 **Max completion tokens** for the fallback client reuse **`AzureOpenAI:MaxCompletionTokens`** (same default as the primary **`AzureOpenAiCompletionClient`** when unset).
 
@@ -96,10 +98,12 @@ If **`Enabled`** is **`true`** but any of **Endpoint**, **DeploymentName**, or *
 
 After the **primary** chain returns a terminal failure, **`FallbackAgentCompletionClient`** calls the **secondary** chain only when the primary surfaces:
 
-- **`HttpRequestException`** with **`StatusCode`** **429** (Too Many Requests) or **5xx** (500–599), or
-- **`ClientResultException`** (Azure OpenAI / `System.ClientModel`) with the same HTTP status semantics.
+- **`HttpRequestException`** with **`StatusCode`** **429** or **5xx**, or **no status** (network/DNS),
+- **`ClientResultException`** / **`RequestFailedException`** with the same HTTP status semantics,
+- **`CircuitBreakerOpenException`** (primary gate already open — fallback uses **`OpenAiCompletionFallback`**),
+- **`OperationCanceledException`** / **`TaskCanceledException`** when the **caller token is not canceled** (HTTP timeout after Polly retries).
 
-**User cancellation** (**`OperationCanceledException`**) is **not** eligible: the exception is rethrown and the secondary is not invoked. Other HTTP client errors (e.g. **400**) are rethrown without fallback.
+**User cancellation** (`cancellationToken.IsCancellationRequested`) is **not** eligible. Other HTTP client errors (e.g. **400**) are rethrown without fallback. Cross-engine and BYO → ArchLucid-paid failover remain forbidden (ADR 0065 D12).
 
 ### Decorator ordering
 

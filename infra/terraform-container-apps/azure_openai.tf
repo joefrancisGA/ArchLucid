@@ -16,6 +16,15 @@ locals {
   azure_openai_account_name = try(local.azure_openai_arm_parsed.name, "")
 
   azure_openai_resource_group_name = try(local.azure_openai_arm_parsed.rg, "")
+
+  fallback_llm_app_configured = local.enabled && var.fallback_llm_enabled && (
+    length(trimspace(var.fallback_llm_endpoint)) > 0 &&
+    length(trimspace(var.fallback_llm_deployment_name)) > 0
+  )
+
+  fallback_llm_account_id = trimspace(var.fallback_llm_account_resource_id)
+
+  fallback_llm_account_configured = local.enabled && var.fallback_llm_enabled && length(local.fallback_llm_account_id) > 0
 }
 
 data "azurerm_cognitive_account" "openai_consumed" {
@@ -37,6 +46,22 @@ resource "azurerm_role_assignment" "worker_openai_user" {
   count = local.azure_openai_account_configured ? 1 : 0
 
   scope                = local.azure_openai_arm_id
+  role_definition_name = "Cognitive Services OpenAI User"
+  principal_id         = azurerm_container_app.worker[0].identity[0].principal_id
+}
+
+resource "azurerm_role_assignment" "api_openai_fallback_user" {
+  count = local.fallback_llm_account_configured ? 1 : 0
+
+  scope                = local.fallback_llm_account_id
+  role_definition_name = "Cognitive Services OpenAI User"
+  principal_id         = azurerm_container_app.api[0].identity[0].principal_id
+}
+
+resource "azurerm_role_assignment" "worker_openai_fallback_user" {
+  count = local.fallback_llm_account_configured ? 1 : 0
+
+  scope                = local.fallback_llm_account_id
   role_definition_name = "Cognitive Services OpenAI User"
   principal_id         = azurerm_container_app.worker[0].identity[0].principal_id
 }

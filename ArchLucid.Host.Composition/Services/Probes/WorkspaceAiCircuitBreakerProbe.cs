@@ -15,53 +15,56 @@ internal static class WorkspaceAiCircuitBreakerProbe
         List<WorkspaceAiAvailabilityCheckRow> checks,
         Dictionary<string, string> debug)
     {
-        string[] gateKeys =
-        [
+        ArgumentNullException.ThrowIfNull(serviceProvider);
+        ArgumentNullException.ThrowIfNull(checks);
+        ArgumentNullException.ThrowIfNull(debug);
+
+        bool primaryOpen = false;
+        bool fallbackRegistered = false;
+        bool fallbackOpen = false;
+        bool embeddingRegistered = false;
+        bool embeddingOpen = false;
+        bool anyGate = false;
+
+        AppendGate(
+            serviceProvider,
+            checks,
+            debug,
             OpenAiCircuitBreakerKeys.Completion,
+            isOpen => primaryOpen = isOpen,
+            registered =>
+            {
+                if (registered)
+                    anyGate = true;
+            });
+
+        AppendGate(
+            serviceProvider,
+            checks,
+            debug,
             OpenAiCircuitBreakerKeys.CompletionFallback,
+            isOpen =>
+            {
+                fallbackRegistered = true;
+                fallbackOpen = isOpen;
+                anyGate = true;
+            },
+            registered => { });
+
+        AppendGate(
+            serviceProvider,
+            checks,
+            debug,
             OpenAiCircuitBreakerKeys.Embedding,
-        ];
-
-        bool allClosed = true;
-
-        foreach (string gateKey in gateKeys)
-        {
-            CircuitBreakerGate? gate = serviceProvider.GetKeyedService<CircuitBreakerGate>(gateKey);
-
-            if (gate is null)
+            isOpen =>
             {
-                continue;
-            }
+                embeddingRegistered = true;
+                embeddingOpen = isOpen;
+                anyGate = true;
+            },
+            registered => { });
 
-            string role = OpenAiCircuitBreakerHealthMetadata.ResolveRole(gateKey);
-            debug[$"circuitBreaker.{role}.state"] = gate.CurrentState;
-            debug[$"circuitBreaker.{role}.consecutiveFailures"] =
-                gate.ConsecutiveFailureCount.ToString(CultureInfo.InvariantCulture);
-
-            if (!string.IsNullOrWhiteSpace(gate.LastOpenReason))
-            {
-                debug[$"circuitBreaker.{role}.lastOpenReason"] = gate.LastOpenReason;
-            }
-
-            bool degraded = gate.CurrentState is "Open" or "HalfOpen";
-
-            if (degraded)
-            {
-                allClosed = false;
-            }
-
-            checks.Add(
-                new WorkspaceAiAvailabilityCheckRow
-                {
-                    Name = $"circuit_breaker_{role}",
-                    Status = degraded ? "degraded" : "ok",
-                    Detail = degraded
-                        ? $"Circuit '{role}' is {gate.CurrentState}."
-                        : $"Circuit '{role}' is closed.",
-                });
-        }
-
-        if (checks.All(row => !row.Name.StartsWith("circuit_breaker_", StringComparison.Ordinal)))
+        if (!anyGate)
         {
             checks.Add(
                 new WorkspaceAiAvailabilityCheckRow
@@ -72,6 +75,52 @@ internal static class WorkspaceAiCircuitBreakerProbe
                 });
         }
 
-        return allClosed;
+        return WorkspaceAiCircuitPathHealth.IsReviewPathUsable(
+            primaryOpen,
+            fallbackRegistered,
+            fallbackOpen,
+            embeddingRegistered,
+            embeddingOpen);
+    }
+
+    private static void AppendGate(
+        IServiceProvider serviceProvider,
+        List<WorkspaceAiAvailabilityCheckRow> checks,
+        Dictionary<string, string> debug,
+        string gateKey,
+        Action<bool> onRegisteredOpen,
+        Action<bool> onPresence)
+    {
+        CircuitBreakerGate? gate = serviceProvider.GetKeyedService<CircuitBreakerGate>(gateKey);
+
+        if (gate is null)
+        {
+            onPresence(false);
+            return;
+        }
+
+        onPresence(true);
+
+        string role = OpenAiCircuitBreakerHealthMetadata.ResolveRole(gateKey);
+        debug[$"circuitBreaker.{role}.state"] = gate.CurrentState;
+        debug[$"circuitBreaker.{role}.consecutiveFailures"] =
+            gate.ConsecutiveFailureCount.ToString(CultureInfo.InvariantCulture);
+
+        if (!string.IsNullOrWhiteSpace(gate.LastOpenReason))
+            debug[$"circuitBreaker.{role}.lastOpenReason"] = gate.LastOpenReason;
+
+        bool open = string.Equals(gate.CurrentState, "Open", StringComparison.Ordinal);
+        bool degraded = open || string.Equals(gate.CurrentState, "HalfOpen", StringComparison.Ordinal);
+        onRegisteredOpen(open);
+
+        checks.Add(
+            new WorkspaceAiAvailabilityCheckRow
+            {
+                Name = $"circuit_breaker_{role}",
+                Status = degraded ? "degraded" : "ok",
+                Detail = degraded
+                    ? $"Circuit '{role}' is {gate.CurrentState}."
+                    : $"Circuit '{role}' is closed.",
+            });
     }
 }

@@ -84,7 +84,7 @@ public sealed class FallbackAgentCompletionClient : IAgentStreamingCompletionCli
         {
             return await _primary.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, cancellationToken);
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             throw;
         }
@@ -151,7 +151,7 @@ public sealed class FallbackAgentCompletionClient : IAgentStreamingCompletionCli
             {
                 moved = await primaryEnumerator.MoveNextAsync().ConfigureAwait(false);
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
                 throw;
             }

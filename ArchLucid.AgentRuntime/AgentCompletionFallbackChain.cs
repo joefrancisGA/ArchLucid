@@ -52,7 +52,7 @@ internal sealed class AgentCompletionFallbackChain
 
                 return result;
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
                 throw;
             }
@@ -102,7 +102,7 @@ internal sealed class AgentCompletionFallbackChain
                 {
                     moved = await fallbackEnumerator.MoveNextAsync().ConfigureAwait(false);
                 }
-                catch (OperationCanceledException)
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
                     throw;
                 }

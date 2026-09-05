@@ -50,7 +50,7 @@ Embeddings follow the same idea: `CircuitBreakingOpenAiEmbeddingClient` → retr
 
 **Retry** ( **`LlmCallResilienceDefaults` / Polly** inside **`CircuitBreakingAgentCompletionClient`**) re-invokes the **same** inner **`AzureOpenAiCompletionClient`** (same endpoint and deployment) with backoff. That helps with short-lived **429** / **5xx** bursts on that single route but does not escape quota or outage on that deployment.
 
-**Fallback** (**`FallbackAgentCompletionClient`**, optional) sits **outside** the circuit-breaking decorator: it wraps **two** full stacks (each: accounting/cache → **`CircuitBreakingAgentCompletionClient`** → Azure client) for **primary** and **secondary** configurations. When the **primary** stack throws an eligible **429** or **5xx** ( **`HttpRequestException`** or **`ClientResultException`** ), the fallback issues **one** attempt on the **secondary** endpoint/deployment. **OperationCanceledException** does not trigger fallback.
+**Fallback** (**`FallbackAgentCompletionClient`**, optional) sits **outside** the circuit-breaking decorator: it wraps **two** full stacks (each: accounting/cache → **`CircuitBreakingAgentCompletionClient`** → Azure client) for **primary** and **secondary** configurations. When the **primary** stack throws an eligible **429**, **5xx**, **network** failure, **HTTP timeout**, or **`CircuitBreakerOpenException`**, the fallback issues **one** attempt on the **secondary** endpoint/deployment. **User-requested cancellation** does not trigger fallback.
 
 Configured via **`ArchLucid:FallbackLlm`** (see **`docs/RESILIENCE_CONFIGURATION.md`** § LLM model fallback). Distinct circuit gates (**`OpenAiCompletion`** vs **`OpenAiCompletionFallback`**) keep primary and fallback breaker state independent.
 

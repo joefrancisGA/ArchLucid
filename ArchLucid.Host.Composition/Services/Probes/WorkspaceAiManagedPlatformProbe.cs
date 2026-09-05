@@ -92,6 +92,28 @@ internal sealed class WorkspaceAiManagedPlatformProbe(
 
         checks.Add(WorkspaceAiConnectionProbe.BuildManagedLiveProbeCheckRow(configured, completionSucceeded, completionDetail));
 
+        bool usedFallback = false;
+
+        if (!completionSucceeded)
+        {
+            usedFallback = await WorkspaceAiFallbackLiveCompletionProbe
+                .TryProbeAfterPrimaryFailureAsync(
+                    _configuration,
+                    _completionClientLogger,
+                    checks,
+                    debug,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            if (usedFallback)
+                completionSucceeded = true;
+        }
+        else
+        {
+            debug["fallbackLlmEnabled"] =
+                (_configuration[$"{FallbackLlmOptions.SectionName}:Enabled"] ?? "false");
+        }
+
         bool budgetBlocking = budgetStatus.BlocksAdditionalLlmExecution;
         bool isAvailable = configured && completionSucceeded && circuitHealthy && !budgetBlocking;
 
@@ -109,12 +131,20 @@ internal sealed class WorkspaceAiManagedPlatformProbe(
             ? $" (model {modelId})"
             : string.Empty;
 
+        string probedDeployment = usedFallback && debug.TryGetValue("fallbackProbeDeploymentName", out string? fallbackDep)
+            ? fallbackDep
+            : deployment ?? string.Empty;
+
+        string summary = usedFallback
+            ? $"ArchLucid-managed Azure OpenAI live probe succeeded on fallback deployment '{probedDeployment}'{modelSuffix} because the primary deployment was unavailable."
+            : $"ArchLucid-managed Azure OpenAI live probe succeeded for deployment '{probedDeployment}'{modelSuffix}.";
+
         return new WorkspaceAiAvailabilityResponse
         {
             IsAvailable = true,
             Validated = true,
             AiSource = "managed-platform",
-            Summary = $"ArchLucid-managed Azure OpenAI live probe succeeded for deployment '{deployment}'{modelSuffix}.",
+            Summary = summary,
             AsOfUtc = asOfUtc,
             Checks = checks,
             Debug = debug,
