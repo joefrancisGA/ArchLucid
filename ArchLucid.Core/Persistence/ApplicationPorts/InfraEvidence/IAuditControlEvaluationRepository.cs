@@ -9,4 +9,9 @@ public interface IAuditControlEvaluationRepository
         Guid controlId,
         Guid snapshotId,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<AuditEvidenceItemRecord>> ListEvidenceItemsByEvaluationAsync(
+        Guid tenantId,
+        Guid evaluationId,
+        CancellationToken cancellationToken = default);
 }

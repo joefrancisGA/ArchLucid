@@ -157,6 +157,44 @@ public sealed class SqlAuditControlEvaluationRepository(ISqlConnectionFactory co
         return row is null ? null : Map(row);
     }
 
+    public async Task<IReadOnlyList<AuditEvidenceItemRecord>> ListEvidenceItemsByEvaluationAsync(
+        Guid tenantId,
+        Guid evaluationId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT EvidenceItemId, EvaluationId, RequirementId, TenantId, CloudResourceId,
+                                  AzureResourceId, EvidenceType, Summary, CollectionStatus, ProvenanceKind, CreatedUtc
+                           FROM dbo.AuditEvidenceItems
+                           WHERE TenantId = @TenantId AND EvaluationId = @EvaluationId;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<EvidenceItemRow> rows = await conn.QueryAsync<EvidenceItemRow>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, EvaluationId = evaluationId },
+                cancellationToken: cancellationToken));
+
+        return rows
+            .Select(row => new AuditEvidenceItemRecord
+            {
+                EvidenceItemId = row.EvidenceItemId,
+                EvaluationId = row.EvaluationId,
+                RequirementId = row.RequirementId,
+                TenantId = row.TenantId,
+                CloudResourceId = row.CloudResourceId,
+                AzureResourceId = row.AzureResourceId,
+                EvidenceType = row.EvidenceType,
+                Summary = row.Summary,
+                CollectionStatus = (AuditEvidenceCollectionStatus)row.CollectionStatus,
+                ProvenanceKind = (ProvenanceKind)row.ProvenanceKind,
+                CreatedUtc = row.CreatedUtc,
+            })
+            .ToList();
+    }
+
     private static AuditControlEvaluationRecord Map(EvaluationRow row)
     {
         IReadOnlyList<Guid> requirementIds = [];
@@ -283,6 +321,75 @@ public sealed class SqlAuditControlEvaluationRepository(ISqlConnectionFactory co
         }
 
         public string? Notes
+        {
+            get;
+            init;
+        }
+
+        public DateTime CreatedUtc
+        {
+            get;
+            init;
+        }
+    }
+
+    private sealed class EvidenceItemRow
+    {
+        public Guid EvidenceItemId
+        {
+            get;
+            init;
+        }
+
+        public Guid EvaluationId
+        {
+            get;
+            init;
+        }
+
+        public Guid RequirementId
+        {
+            get;
+            init;
+        }
+
+        public Guid TenantId
+        {
+            get;
+            init;
+        }
+
+        public Guid? CloudResourceId
+        {
+            get;
+            init;
+        }
+
+        public string? AzureResourceId
+        {
+            get;
+            init;
+        }
+
+        public string EvidenceType
+        {
+            get;
+            init;
+        } = string.Empty;
+
+        public string Summary
+        {
+            get;
+            init;
+        } = string.Empty;
+
+        public int CollectionStatus
+        {
+            get;
+            init;
+        }
+
+        public int ProvenanceKind
         {
             get;
             init;
