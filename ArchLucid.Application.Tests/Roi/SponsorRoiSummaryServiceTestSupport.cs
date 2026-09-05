@@ -1,5 +1,6 @@
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
+using ArchLucid.Application.Tests.Governance;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Configuration;
@@ -11,6 +12,7 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Pilots;
 using ArchLucid.Persistence.Roi;
 using ArchLucid.Persistence.Tenancy;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -159,16 +161,24 @@ internal static class SponsorRoiSummaryServiceTestSupport
             tenantSettings.Object,
             runDetailQueryService,
             CreateDefaultPilotScorecardMetricsReader(),
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateAuthorityQueryServiceForAnyRun(resolvedScope),
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService(),
             NullLogger<SponsorRoiSummaryBuilder>.Instance);
 
         SponsorRoiHistoryBuilder historyBuilder = new(
             runCollector,
             runDetailQueryService,
+            scopeProvider.Object,
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateAuthorityQueryServiceForAnyRun(resolvedScope),
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService(),
             NullLogger<SponsorRoiHistoryBuilder>.Instance);
 
         SponsorRoiExportBuilder exportBuilder = new(
             runCollector,
-            pricingLabelResolver);
+            pricingLabelResolver,
+            scopeProvider.Object,
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateAuthorityQueryServiceForAnyRun(resolvedScope),
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService());
 
         CrossTenantPortfolioSummaryBuilder portfolioBuilder = new(
             runCollector,

@@ -154,6 +154,25 @@ public sealed partial class CompareRunsApplicationFacade
             };
         }
 
+        try
+        {
+            await CompareRunsSealedManifestHashGuard.EnsureRunPairSealedManifestHashesOrThrowAsync(
+                baseRunId,
+                targetRunId,
+                scope,
+                _authorityQuery,
+                _manifestHashService,
+                ct);
+        }
+        catch (ConflictException)
+        {
+            return new ManifestCompareLoadResult
+            {
+                Outcome = ManifestCompareLoadOutcome.SealedManifestHashMismatch,
+                RunId = baseRunId,
+            };
+        }
+
         ComparisonResult comparison = _comparison.Compare(
             ManifestCompareInventoryCheckedDocumentBuilder.ApplyProjectedTopology(
                 baseRun.GoldenManifest,

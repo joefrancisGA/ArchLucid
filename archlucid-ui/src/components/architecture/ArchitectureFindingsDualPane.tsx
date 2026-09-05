@@ -22,6 +22,8 @@ import {
   parseArchitectureDiagramFindingIdFromSearch,
 } from "@/lib/architecture/architecture-findings-dual-pane-url";
 import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { useReviewWorkbenchSelection } from "@/components/reviews/ReviewWorkbenchSelectionContext";
+import { REVIEW_DETAIL_FINDING_PARAM } from "@/lib/review-detail-workspace-tabs";
 import {
   severityBadgeLabel,
   severityKindFromNumericValue,
@@ -56,9 +58,15 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
   const router = useRouter();
   const pathname = usePathname() ?? reviewDetailPath(props.runId);
   const searchParams = useSearchParams();
-  const urlFindingId = parseArchitectureDiagramFindingIdFromSearch(searchParams.get("diagramFindingId"));
+  const workbenchSelection = useReviewWorkbenchSelection();
+  const urlFindingId = parseArchitectureDiagramFindingIdFromSearch(
+    searchParams.get(REVIEW_DETAIL_FINDING_PARAM),
+    searchParams.get("diagramFindingId"),
+  );
   const diagramNodes = props.diagramNodes ?? [];
-  const [selectedFindingId, setSelectedFindingId] = useState<string | null>(null);
+  const [localSelectedFindingId, setLocalSelectedFindingId] = useState<string | null>(null);
+  const selectedFindingId =
+    workbenchSelection !== null ? workbenchSelection.selectedFindingId : localSelectedFindingId;
   const findingItemRefs = useRef<Map<string, HTMLLIElement>>(new Map());
 
   const visibleFindings = useMemo(
@@ -92,11 +100,20 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
       return;
     }
 
-    setSelectedFindingId(urlFindingId);
-  }, [urlFindingId, visibleFindings]);
+    if (workbenchSelection !== null) {
+      workbenchSelection.setSelectedFindingId(urlFindingId.length > 0 ? urlFindingId : null);
+    } else {
+      setLocalSelectedFindingId(urlFindingId.length > 0 ? urlFindingId : null);
+    }
+  }, [urlFindingId, visibleFindings, workbenchSelection]);
 
   const selectFindingWithUrl = (findingId: string | null): void => {
-    setSelectedFindingId(findingId);
+    if (workbenchSelection !== null) {
+      workbenchSelection.setSelectedFindingId(findingId);
+    } else {
+      setLocalSelectedFindingId(findingId);
+    }
+
     router.replace(
       architectureDiagramFindingHrefFromSearch(searchParams.toString(), findingId, pathname),
       { scroll: false },
@@ -206,6 +223,8 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
                           : "border-neutral-200 bg-white hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:bg-neutral-900",
                       )}
                       aria-pressed={active}
+                      data-finding-id={finding.findingId}
+                      data-finding-title={finding.title}
                       data-testid={`architecture-findings-dual-pane-finding-${finding.findingId}`}
                       onClick={() => {
                         selectFindingWithUrl(finding.findingId);

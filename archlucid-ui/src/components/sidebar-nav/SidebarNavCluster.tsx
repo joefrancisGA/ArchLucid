@@ -3,15 +3,16 @@
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState, type ReactElement } from "react";
+import { useEffect, useState, type ReactElement } from "react";
 
 import { AlertsOutstandingNavBadge } from "@/components/alerts/AlertsOutstandingNavBadge";
 import { GovernanceAssignedToMeFindingsNavBadge } from "@/components/governance/findings/GovernanceAssignedToMeFindingsNavBadge";
-import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { GovernanceReviewsAwaitingNavBadge } from "@/components/governance/GovernanceReviewsAwaitingNavBadge";
 import { SidebarNavLink } from "@/components/sidebar-nav/SidebarNavLink";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { readCachedDeskContinuity } from "@/lib/desk-continuity-preference";
 import {
   GOVERNANCE_ALERTS_PATH,
   GOVERNANCE_APPROVAL_QUEUE_PATH,
@@ -28,6 +29,8 @@ import {
   sidebarMoreLinksLabel,
   splitSidebarLinksDailyVsMore,
 } from "@/lib/sidebar-nav-daily-links";
+import { resolveWorkingInsightsNavHref } from "@/lib/resolve-working-insights-nav-href";
+import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 import {
   parseSidebarNavMoreGroupFromSearch,
   sidebarNavMoreDisclosureHrefFromSearch,
@@ -70,6 +73,8 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
+  const { mode } = useWorkspaceMode();
+  const workingMode = isWorkingWorkspaceMode(mode);
   const sidebarMoreGroupParam = searchParams.get("sidebarMoreGroup");
   const { group, visibleLinks } = props.row;
   const linksForRender = filterSidebarNavClusterLinks({
@@ -87,37 +92,28 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
     () => parseSidebarNavMoreGroupFromSearch(sidebarMoreGroupParam) === group.id,
   );
 
-  const syncSidebarMoreGroupToUrl = useCallback(
-    (open: boolean) => {
-      router.replace(
-        sidebarNavMoreDisclosureHrefFromSearch(searchParams.toString(), open ? group.id : null, pathname),
-        { scroll: false },
-      );
-    },
-    [group.id, pathname, router, searchParams],
-  );
-
-  const setMoreOpen = useCallback(
-    (value: boolean | ((current: boolean) => boolean)) => {
-      setMoreOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncSidebarMoreGroupToUrl(next);
-
-        return next;
-      });
-    },
-    [syncSidebarMoreGroupToUrl],
-  );
-
   useEffect(() => {
     setMoreOpenState(parseSidebarNavMoreGroupFromSearch(sidebarMoreGroupParam) === group.id);
   }, [group.id, sidebarMoreGroupParam]);
 
   useEffect(() => {
     if (more.length === 0) {
-      setMoreOpen(false);
+      setMoreOpenState(false);
     }
-  }, [more.length, props.pathname, setMoreOpen]);
+  }, [more.length, props.pathname]);
+
+  useEffect(() => {
+    const urlSaysOpen = parseSidebarNavMoreGroupFromSearch(sidebarMoreGroupParam) === group.id;
+
+    if (moreOpen === urlSaysOpen) {
+      return;
+    }
+
+    router.replace(
+      sidebarNavMoreDisclosureHrefFromSearch(searchParams.toString(), moreOpen ? group.id : null, pathname),
+      { scroll: false },
+    );
+  }, [group.id, moreOpen, pathname, router, searchParams, sidebarMoreGroupParam]);
 
   if (linksForRender.length === 0) {
     return <div key={group.id} hidden />;
@@ -133,15 +129,6 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
     "sidebar-disclosure-trigger inline-flex min-w-0 max-w-full items-center gap-2 rounded-md p-0 text-left hover:bg-neutral-50 dark:hover:bg-neutral-800/80",
   );
 
-  const groupHeadingHelpTooltip = group.caption ? (
-    <FieldHelpTooltip
-      label={groupHeadingLabel}
-      hint={group.caption}
-      side="right"
-      className="shrink-0"
-    />
-  ) : null;
-
   const collapsibleChevron = props.isExpanded ? (
     <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
   ) : (
@@ -156,10 +143,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
       {headingLabel}
     </>
   ) : (
-    <span className="inline-flex min-w-0 flex-1 items-center gap-1">
-      {headingLabel}
-      {groupHeadingHelpTooltip}
-    </span>
+    headingLabel
   );
 
   function renderLink(link: (typeof linksForRender)[number]): ReactElement {
@@ -169,18 +153,27 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
       group.surface,
       props.isGovernanceModeEnabled,
     );
+    const resolvedHref = workingMode
+      ? resolveWorkingInsightsNavHref({
+          href: presented.href,
+          pathname,
+          lastOpenReviewId: readCachedDeskContinuity().lastOpenReviewId,
+        })
+      : presented.href;
+    const presentedWithHref =
+      resolvedHref === presented.href ? presented : { ...presented, href: resolvedHref };
 
     return (
       <SidebarNavLink
-        key={presented.href}
-        presented={presented}
-        active={isNavLinkActive(props.pathname, presented.href)}
-        advancedDemo={isSidebarNavLinkAdvancedInDemo(presented.href, demoOrBuyer)}
+        key={presentedWithHref.href}
+        presented={presentedWithHref}
+        active={isNavLinkActive(props.pathname, presentedWithHref.href)}
+        advancedDemo={isSidebarNavLinkAdvancedInDemo(presentedWithHref.href, demoOrBuyer)}
         buyerPolishedShell={props.buyerPolishedShell}
         navGroupId={group.id}
         unlockPhase={props.effectiveOperateUnlockPhase}
         onNavigate={props.onNavLinkNavigate}
-        afterLabel={sidebarNavLinkAfterLabel(presented.href)}
+        afterLabel={sidebarNavLinkAfterLabel(presentedWithHref.href)}
       />
     );
   }
@@ -202,7 +195,6 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
           >
             {headingInner}
           </button>
-          {groupHeadingHelpTooltip}
         </div>
       ) : (
         <div
@@ -228,13 +220,13 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
               <button
                 type="button"
                 className={cn(
-                  "sidebar-disclosure-trigger flex w-full items-center gap-1 rounded-md px-2 py-1 text-left text-al-text-secondary hover:bg-neutral-50 dark:hover:bg-neutral-800/80",
+                  "sidebar-disclosure-trigger flex w-full items-center gap-1 rounded-md px-2 py-1 text-left text-al-text-primary hover:bg-neutral-50 dark:text-neutral-100 dark:hover:bg-neutral-800/80",
                   OPERATOR_TYPOGRAPHY.helper,
                 )}
                 data-testid={`sidebar-group-more-${group.id}`}
                 aria-expanded={moreOpen}
                 onClick={() => {
-                  setMoreOpen((current) => !current);
+                  setMoreOpenState((current) => !current);
                 }}
               >
                 {moreOpen ? (
@@ -242,7 +234,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
                 ) : (
                   <ChevronRight className="h-3 w-3 shrink-0 opacity-80" aria-hidden />
                 )}
-                <span>{sidebarMoreLinksLabel(group.label, more.length, moreOpen)}</span>
+                <span>{sidebarMoreLinksLabel(group.id, more.length, moreOpen)}</span>
               </button>
               {moreOpen ? <div className="flex flex-col gap-0.5">{more.map((link) => renderLink(link))}</div> : null}
             </div>

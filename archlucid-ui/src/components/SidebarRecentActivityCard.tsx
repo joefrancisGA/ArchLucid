@@ -3,13 +3,18 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ChevronDown } from "lucide-react";
-import { useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { hasMeaningfulSidebarDeltaMedians } from "@/components/BeforeAfterDelta/formatDelta";
 import { useDeltaQuery } from "@/components/BeforeAfterDelta/useDeltaQuery";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  parseSidebarRecentActivityOpenFromSearch,
+  sidebarRecentActivityHrefFromSearch,
+} from "@/lib/sidebar-nav/sidebar-recent-activity-url";
 
 const RECENT_ACTIVITY_OPEN_KEY = "archlucid_sidebar_recent_activity_open";
 
@@ -24,11 +29,46 @@ const RECENT_ACTIVITY_OPEN_KEY = "archlucid_sidebar_recent_activity_open";
  * sidebar delta panel) so first-run tenants do not see an empty collapsible.
  */
 export function SidebarRecentActivityCard() {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const sidebarRecentOpenParam = searchParams.get("sidebarRecentOpen");
   const { isWorkingMode } = useWorkspaceMode();
   const { status, data } = useDeltaQuery({ count: 5 });
-  const [open, setOpen] = useState<boolean>(false);
+  const [open, setOpenState] = useState<boolean>(false);
+
+  const syncOpenToUrl = useCallback(
+    (next: boolean) => {
+      router.replace(sidebarRecentActivityHrefFromSearch(searchParams.toString(), next, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const persist = useCallback(
+    (next: boolean): void => {
+      setOpenState(next);
+      syncOpenToUrl(next);
+
+      try {
+        window.localStorage.setItem(RECENT_ACTIVITY_OPEN_KEY, next ? "1" : "0");
+      } catch {
+        /* private mode */
+      }
+    },
+    [syncOpenToUrl],
+  );
 
   useEffect(() => {
+    const fromUrl = parseSidebarRecentActivityOpenFromSearch(sidebarRecentOpenParam);
+
+    if (fromUrl) {
+      setOpenState(true);
+
+      return;
+    }
+
     try {
       if (typeof window === "undefined") {
         return;
@@ -36,24 +76,14 @@ export function SidebarRecentActivityCard() {
 
       const raw = window.localStorage.getItem(RECENT_ACTIVITY_OPEN_KEY);
 
-      setOpen(raw === "1");
+      setOpenState(raw === "1");
     } catch {
-      setOpen(false);
+      setOpenState(false);
     }
-  }, []);
+  }, [sidebarRecentOpenParam]);
 
   if (isWorkingMode) {
     return null;
-  }
-
-  function persist(next: boolean): void {
-    setOpen(next);
-
-    try {
-      window.localStorage.setItem(RECENT_ACTIVITY_OPEN_KEY, next ? "1" : "0");
-    } catch {
-      /* private mode */
-    }
   }
 
   const hasDeltaData =

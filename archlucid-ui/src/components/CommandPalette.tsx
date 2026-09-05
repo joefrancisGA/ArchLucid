@@ -30,6 +30,7 @@ import { NAV_GROUPS } from "@/lib/nav-config";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { mergeContextualOnlyOperatorNavHrefsIntoVisibleSet } from "@/lib/nav-contextual-only-operator-paths";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
+import { isArchLucidVendorStaffPrincipal } from "@/lib/vendor-staff-principal";
 import {
   filterNavGroupsByRoleDensity,
   resolveRoleNavDensityPersona,
@@ -59,6 +60,7 @@ import { CommandPaletteFindPageSearch } from "@/components/CommandPaletteFindPag
 import { CommandPaletteReviewActions } from "@/components/CommandPaletteReviewActions";
 import { RunIdQuickOpen } from "@/components/RunIdQuickOpen";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { filterNavGroupsForWorkingProfessionalMode } from "@/lib/workspace-mode/working-mode-nav-filter";
 import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 import {
   commandPaletteOverlayHrefFromSearch,
@@ -131,6 +133,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   const patternLibraryNavVisible = usePatternLibraryNavVisible();
   const { mode } = useWorkspaceMode();
   const workingMode = isWorkingWorkspaceMode(mode);
+  const showVendorInternalNav = isArchLucidVendorStaffPrincipal(currentPrincipal);
 
   const visibleHrefs = useMemo(() => {
     const shellRows = applyPatternLibraryNavGate(
@@ -140,6 +143,8 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
           callerAuthorityRank,
           "all",
           effectiveHasCommittedArchitectureReview,
+          false,
+          { showVendorInternalNav },
         ),
         auditRunId,
       ),
@@ -150,11 +155,14 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
       roleNavDensityPersona,
       roleNavDensityShowFullNav,
     );
+    const workingFilteredRows = workingMode
+      ? filterNavGroupsForWorkingProfessionalMode(densityFilteredRows)
+      : densityFilteredRows;
 
     return applyPatternLibraryHrefSetGate(
       mergeContextualOnlyOperatorNavHrefsIntoVisibleSet(
         scopeOperatorShellHrefSet(
-          visibleOperatorShellHrefSetFromNavRows(densityFilteredRows),
+          visibleOperatorShellHrefSetFromNavRows(workingFilteredRows),
           auditRunId,
         ),
         callerAuthorityRank,
@@ -168,6 +176,8 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     patternLibraryNavVisible,
     roleNavDensityPersona,
     roleNavDensityShowFullNav,
+    showVendorInternalNav,
+    workingMode,
   ]);
 
   const syncCommandPaletteToUrl = useCallback(
@@ -184,37 +194,37 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     [pathname, router, searchParams],
   );
 
-  const setOpen = useCallback(
-    (value: SetStateAction<boolean>) => {
-      setOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        const nextQuery = next ? paletteQuery : "";
-        syncCommandPaletteToUrl(next, nextQuery);
+  const setOpen = useCallback((value: SetStateAction<boolean>) => {
+    setOpenState((current) => {
+      return typeof value === "function" ? value(current) : value;
+    });
+  }, []);
 
-        if (!next) {
-          setPaletteQueryState("");
-        }
+  const setPaletteQuery = useCallback((value: SetStateAction<string>) => {
+    setPaletteQueryState((current) => {
+      return typeof value === "function" ? value(current) : value;
+    });
+  }, []);
 
-        return next;
-      });
-    },
-    [paletteQuery, syncCommandPaletteToUrl],
-  );
+  useEffect(() => {
+    const queryForUrl = open ? paletteQuery : "";
 
-  const setPaletteQuery = useCallback(
-    (value: SetStateAction<string>) => {
-      setPaletteQueryState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
+    if (!open && paletteQuery !== "") {
+      setPaletteQueryState("");
+    }
 
-        if (open) {
-          syncCommandPaletteToUrl(true, next);
-        }
+    const nextHref = commandPaletteOverlayHrefFromSearch(
+      searchParams.toString(),
+      { open, query: queryForUrl },
+      pathname,
+    );
+    const currentSearch = searchParams.toString();
+    const currentHref = currentSearch.length === 0 ? pathname : `${pathname}?${currentSearch}`;
 
-        return next;
-      });
-    },
-    [open, syncCommandPaletteToUrl],
-  );
+    if (nextHref !== currentHref) {
+      syncCommandPaletteToUrl(open, queryForUrl);
+    }
+  }, [open, paletteQuery, pathname, searchParams, syncCommandPaletteToUrl]);
 
   useEffect(() => {
     const pending = consumePendingCommandPaletteOpen();
@@ -343,6 +353,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
           <CommandPaletteActions
             pathname={pathname ?? "/"}
             workingMode={workingMode}
+            visibleNavHrefs={visibleHrefs}
             onNavigate={navigate}
             onClose={() => {
               setOpen(false);
@@ -376,6 +387,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
             patternLibraryNavVisible={patternLibraryNavVisible}
             roleNavDensityPersona={roleNavDensityPersona}
             roleNavDensityShowFullNav={roleNavDensityShowFullNav}
+            showVendorInternalNav={showVendorInternalNav}
             onNavigate={navigate}
           />
           {buyerPolishedShell ? null : (

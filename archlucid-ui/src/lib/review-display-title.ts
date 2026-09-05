@@ -204,9 +204,16 @@ export function clampReviewWorkspaceH1Title(title: string): string {
   return `${stripped.slice(0, MAX_REVIEW_WORKSPACE_H1_CHARS - 3).trimEnd()}…`;
 }
 
+const SYNTHETIC_SAMPLE_TITLE_SUFFIX_PATTERN =
+  /\s*—\s*born-governed\s+created\s+architecture\s+package\s*\([^)]*\)\s*$/i;
+
+function stripSyntheticSampleTitleSuffix(text: string): string {
+  return text.replace(SYNTHETIC_SAMPLE_TITLE_SUFFIX_PATTERN, "").trim();
+}
+
 /** Turns any run label candidate (display name or description) into a single-line review title. */
 export function toReviewDisplayTitle(candidate: string | null | undefined): string {
-  const trimmed: string = (candidate ?? "").trim();
+  const trimmed: string = stripSyntheticSampleTitleSuffix((candidate ?? "").trim());
 
   if (trimmed.length === 0) {
     return "";

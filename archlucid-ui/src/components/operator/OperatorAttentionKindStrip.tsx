@@ -1,6 +1,9 @@
 "use client";
 
+import Link from "next/link";
+
 import { AttentionLinkChip } from "@/components/operator/AttentionLinkChip";
+import { StatusTag } from "@/components/ui/status-tag";
 import { useAttentionPartitionPreviews } from "@/hooks/use-attention-partition-previews";
 import { useOperatorAttentionSummary } from "@/hooks/use-operator-attention-summary";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
@@ -71,32 +74,42 @@ export function OperatorAttentionKindStrip(
 
           return (
             <li key={kind}>
-              <AttentionLinkChip
-                href={destination.href}
-                className={cn(
-                  buyerFilterChipClass(selected, false, deEmphasized, needsAction && !selected),
-                  deEmphasized ? "opacity-70" : undefined,
-                )}
-                aria-current={selected ? "page" : undefined}
-                aria-label={formatOperatorAttentionChipAriaLabel(label, count)}
-                data-testid={`operator-attention-kind-chip-${kind}`}
-              >
-                {needsAction ? (
-                  <span aria-hidden="true" className="font-bold text-al-text-primary">
-                    •
-                  </span>
-                ) : null}
-                <span>{label}</span>
-                <span
+              {needsAction ? (
+                <Link
+                  href={destination.href}
                   className={cn(
-                    "tabular-nums",
-                    count > 0 ? "text-al-text-primary" : "text-al-text-secondary",
+                    "inline-flex max-w-full items-center gap-2 rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 shadow-sm hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-600 dark:bg-neutral-900 dark:hover:bg-neutral-800",
+                    selected ? "ring-2 ring-teal-600 ring-offset-2 dark:ring-teal-400" : undefined,
                   )}
-                  aria-hidden="true"
+                  aria-current={selected ? "page" : undefined}
+                  aria-label={formatOperatorAttentionChipAriaLabel(label, count)}
+                  data-testid={`operator-attention-kind-chip-${kind}`}
                 >
-                  ({count})
-                </span>
-              </AttentionLinkChip>
+                  <StatusTag kind="needs-attention" label={label} />
+                  <span className={cn("font-mono text-lg font-semibold tabular-nums text-al-text-primary")}>
+                    {count}
+                  </span>
+                </Link>
+              ) : (
+                <AttentionLinkChip
+                  href={destination.href}
+                  className={buyerFilterChipClass(selected, false, deEmphasized, false)}
+                  aria-current={selected ? "page" : undefined}
+                  aria-label={formatOperatorAttentionChipAriaLabel(label, count)}
+                  data-testid={`operator-attention-kind-chip-${kind}`}
+                >
+                  <span>{label}</span>
+                  <span
+                    className={cn(
+                      "tabular-nums",
+                      count > 0 ? "text-al-text-primary" : "text-al-text-secondary",
+                    )}
+                    aria-hidden="true"
+                  >
+                    ({count})
+                  </span>
+                </AttentionLinkChip>
+              )}
             </li>
           );
         })}

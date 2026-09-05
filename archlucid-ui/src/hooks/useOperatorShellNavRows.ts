@@ -12,7 +12,6 @@ import { useEffectiveNavCommittedArchitectureReview } from "@/hooks/use-effectiv
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { usePatternLibraryNavVisible } from "@/hooks/use-pattern-library-nav-visible";
 import { useRoleNavDensityExpanded } from "@/hooks/use-role-nav-density-expanded";
-import { useEffectiveOperatorShellDensity } from "@/hooks/use-effective-operator-shell-density";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
@@ -31,6 +30,7 @@ import {
 import { filterNavGroupsForWorkingProfessionalMode } from "@/lib/workspace-mode/working-mode-nav-filter";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
+import { isArchLucidVendorStaffPrincipal } from "@/lib/vendor-staff-principal";
 
 type UseOperatorShellNavRowsResult = {
   readonly allRows: NavGroupWithVisibleLinks[];
@@ -59,19 +59,22 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
   const effectiveRoleNavDensityShowFullNav = roleNavDensityShowFullNav || ctoDemoNavExpandedEnv || isWorkingMode;
   const effectiveOperateUnlockPhase: OperateNavUnlockPhase = 0;
   const effectiveHasCommittedArchitectureReview = useEffectiveNavCommittedArchitectureReview();
-  const { isFullOperatorShell } = useEffectiveOperatorShellDensity();
   const hideGettingStartedFromMainNav = isWorkingMode;
+  const showVendorInternalNav = isArchLucidVendorStaffPrincipal(currentPrincipal);
   const omitAdminClusters = demoUi && !buyerPolishedShell;
   const omitDuplicateReportingNav = isWorkingMode;
   const patternLibraryNavVisible = usePatternLibraryNavVisible();
 
   return useMemo(() => {
+    const navListOptions = { showVendorInternalNav };
+
     const reviewNavRows = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
       callerAuthorityRank,
       "review-workflow",
       effectiveHasCommittedArchitectureReview,
       hideGettingStartedFromMainNav,
+      navListOptions,
     );
 
     const adminNavRows: NavGroupWithVisibleLinks[] =
@@ -83,14 +86,11 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
             "platform-admin",
             effectiveHasCommittedArchitectureReview,
             hideGettingStartedFromMainNav,
+            navListOptions,
           );
 
-    // Internal Operations is already behind the `isShowSystemAdministrationNavEnabled()` feature
-    // flag — it is an employee-only surface.
-    const hideInternalOperationsNav = buyerPolishedShell && !isFullOperatorShell;
-
     const systemAdminNavRows: NavGroupWithVisibleLinks[] =
-      omitAdminClusters || !isShowSystemAdministrationNavEnabled() || hideInternalOperationsNav
+      omitAdminClusters || !isShowSystemAdministrationNavEnabled() || !showVendorInternalNav
         ? []
         : listNavGroupsVisibleInOperatorShell(
             NAV_GROUPS,
@@ -98,6 +98,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
             "system-admin",
             effectiveHasCommittedArchitectureReview,
             hideGettingStartedFromMainNav,
+            navListOptions,
           );
 
     const scopedRows = applyPatternLibraryNavGate(
@@ -161,8 +162,8 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
     patternLibraryNavVisible,
     roleNavDensityPersona,
     hideGettingStartedFromMainNav,
-    isFullOperatorShell,
     isWorkingMode,
+    showVendorInternalNav,
     omitDuplicateReportingNav,
   ]);
 }

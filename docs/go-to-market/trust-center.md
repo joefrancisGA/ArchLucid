@@ -62,6 +62,18 @@ Production tenant data is isolated with a **database-per-tenant** model (`System
 
 ---
 
+## Architect SPA session residual (until BFF)
+
+The **architect web application** stores OAuth access tokens in browser **`sessionStorage`** so API calls can attach a Bearer token. Any XSS vulnerability in the SPA could read that token and impersonate the signed-in architect until the access token expires. This is a known residual — **not** a claim that the SPA is XSS-safe.
+
+**Mitigations today:** short-lived access tokens in staging and production (see `ArchLucid:Authentication:AccessTokenLifetimeMinutes` in [`CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md)); Working idle timeout (4 hours); Entra/Google IdP session cookies remain separate from API Bearer material.
+
+**Planned bet:** ADR [0059](../architecture/adrs/0059-spa-bff-http-only-session-plan.md) / IS-15 — HttpOnly session cookie via a BFF so tokens are not readable from JavaScript. Until that ships, procurement should treat XSS in the architect SPA as account-takeover risk for the architect seat.
+
+**CLI:** `archlucid` commands that accept `--token` or environment Bearer credentials are intentional for automation — not the browser session model above.
+
+---
+
 ## Posture summary
 
 | Control | Status | Evidence | Last reviewed |

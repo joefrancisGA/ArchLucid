@@ -3,13 +3,16 @@ using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Governance;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Coordination.Compare;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -33,6 +36,8 @@ public sealed class AuthorityCompareController(
     IAuthorityCompareService compareService,
     IGoldenManifestRepository manifestRepository,
     IRunRepository runRepository,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     IScopeContextProvider scopeProvider) : ControllerBase
 {
     /// <summary>Compares two manifests by id in the current scope.</summary>
@@ -66,6 +71,14 @@ public sealed class AuthorityCompareController(
 
         try
         {
+            await AuthorityManifestIdCompareSealedManifestHashGuard.EnsureManifestsSealedOrThrowAsync(
+                left,
+                right,
+                scope,
+                authorityQueryService,
+                manifestHashService,
+                ct);
+
             await AuthorityManifestIdCompareGuard.EnsurePinAndInventoryFingerprintsMatchOrThrowAsync(
                 left,
                 right,

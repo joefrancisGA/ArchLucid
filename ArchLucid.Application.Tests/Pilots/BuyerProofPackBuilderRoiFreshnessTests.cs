@@ -3,7 +3,9 @@ using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Application.Exports;
+using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Application.Pilots;
+using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Application.Roi;
 using ArchLucid.Application.Tests.Exports;
 using ArchLucid.Application.Tests.Roi;
@@ -239,10 +241,9 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
         Mock<IOptionsMonitor<PublicSiteOptions>> siteOpts = new();
         siteOpts.Setup(s => s.CurrentValue).Returns(new PublicSiteOptions { BaseUrl = "https://ui.example" });
 
-        Mock<ITenantFirstValueReportBrandingRepository> branding = new();
-        branding
-            .Setup(b => b.TryGetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((TenantFirstValueReportBrandingRow?)null);
+        ITenantBrandingService branding = FirstValueReportBrandingTestDoubles.CreateProductBrandService().Object;
+        ITenantReportBrandingApplyHelper reportBranding =
+            FirstValueReportBrandingTestDoubles.CreateApplyHelper(branding);
 
         Mock<IPilotBaselineRepository> pilotBaselines = new();
         pilotBaselines
@@ -265,7 +266,7 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
             new ExecutionProvenanceFooterRenderer(),
             configuration,
             siteOpts.Object,
-            branding.Object,
+            reportBranding,
             pilotBaselines.Object,
             collectionResolver ?? FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),

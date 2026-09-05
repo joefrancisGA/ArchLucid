@@ -47,7 +47,7 @@ Premium-tier judge calls are metered and capped. Each judged finding is one Reas
 
 | Key | Default | Purpose |
 |-----|---------|---------|
-| `ArchLucid:Findings:InsightDensityGate:DemotionThreshold` | `50` | Scores below this demote **agent architecture** findings lacking anchors/evidence. Typed engine findings remain protected (`typed-engine-protected`) — the score is advisory for engines, not a production control. |
+| `ArchLucid:Findings:InsightDensityGate:DemotionThreshold` | `50` | Scores below this demote **agent and typed-engine** findings that lack architecture anchor and concrete evidence (ADR 0070). Rows stay on the package as checklist coverage; `typed-engine-scored` is origin telemetry only. The legacy `typed-engine-protected` Promote bypass is superseded — demotion is **advisory** scoring, not a removal gate.
 | `ArchLucid:Findings:InsightDensityGate:EnableLlmJudge` | `false` | Enables Premium judge for **agent architecture** findings (Critic path). |
 | `ArchLucid:Findings:InsightDensityGate:EnableLlmJudgeForEngineFindings` | `false` | When `true` with `EnableLlmJudge`, also judges deterministic engine findings after snapshot build (authority pipeline). |
 | `ArchLucid:Findings:InsightDensityGate:MaxJudgedFindingsPerSnapshot` | `12` | Hard per-snapshot ceiling on judge completions — cost guard for large finding sets. |
@@ -245,8 +245,9 @@ For hosted Azure pilots, pair this with [`MINIMAL_AZURE_PILOT_DEPLOYMENT.md`](..
 | ArchLucid | `ArchLucid:Agents:LlmJudge:Enabled` | appsettings, env | false | Optional | All (Api, Worker, Combined) | Opt-in LLM rubric judge (**Topology, Critic, Cost, Compliance** when enabled). Legacy section **`ArchLucid:AgentOutput:LlmSemanticJudge`** still binds for older configs. |
 | ArchLucid | `ArchLucid:AgentOutput:LlmSemanticJudge` | appsettings, env | (legacy) | Deprecated | All | **Deprecated** binding path for judge options; use **`ArchLucid:Agents:LlmJudge`**. Canonical Agents keys override when both are present. |
 | ArchLucid | `ArchLucid:AgentExecution:QualityGate:Judge` | appsettings, env | (legacy) | Deprecated | All | **Deprecated** judge budget path; use **`ArchLucid:Agents:LlmJudge:Budget`**. |
-| ArchLucid | `ArchLucid:FallbackLlm:Enabled` | appsettings, env, KeyVault | false | Optional (When DR fallback on) | All | Enables secondary Azure OpenAI deployments on primary 429/5xx. Pilot profile keeps **disabled**. |
-| ArchLucid | `ArchLucid:FallbackLlm:Endpoints` | appsettings, env, KeyVault | [] | Optional (When DR fallback on) | All | Ordered fallback Endpoint/ApiKey/DeploymentName rows (canonical). |
+| ArchLucid | `ArchLucid:FallbackLlm:Enabled` | appsettings, env, KeyVault | false | Optional (When DR fallback on) | All | Enables secondary Azure OpenAI deployments on primary 429/5xx/outage. Pilot profile keeps **disabled**. |
+| ArchLucid | `ArchLucid:FallbackLlm:Endpoints` | appsettings, env, KeyVault | [] | Optional (When DR fallback on) | All | Ordered fallback Endpoint/DeploymentName plus ApiKey **or** `UseManagedIdentity`. |
+| ArchLucid | `ArchLucid:FallbackLlm:Endpoints[n]:UseManagedIdentity` | appsettings, env | false | Optional (When DR fallback on) | Hosted | Hosted Container Apps fallback uses workload identity; no API key. |
 | ArchLucid | `ArchLucid:FallbackLlm:Endpoint` | appsettings, env, KeyVault | empty | Deprecated | All | **Deprecated** flat fallback endpoint; use **`ArchLucid:FallbackLlm:Endpoints[n]:Endpoint`**. |
 | ArchLucid | `ArchLucid:FallbackLlm:ApiKey` | env, KeyVault | empty | Deprecated | All | **Deprecated** flat fallback API key; use **`ArchLucid:FallbackLlm:Endpoints[n]:ApiKey`**. |
 | ArchLucid | `ArchLucid:FallbackLlm:DeploymentName` | appsettings, env | empty | Deprecated | All | **Deprecated** flat fallback deployment; use **`ArchLucid:FallbackLlm:Endpoints[n]:DeploymentName`**. |

@@ -25,6 +25,7 @@ import {
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
 } from "@/lib/showcase-static-demo";
 import type { ManifestSummary } from "@/types/authority";
+import { manifestSummarySealedVersionForCopyGuard } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
 export type ManifestDetailSummaryPanelProps = {
   readonly summary: ManifestSummary;
@@ -47,7 +48,12 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
 
   const manifestJsonActions =
     summary.runId.trim().length > 0 ? (
-      <ManifestJsonActions runId={summary.runId} className="mt-3" buyerPolishedLayout={buyerPolishedLayout} />
+      <ManifestJsonActions
+        runId={summary.runId}
+        manifestVersion={manifestSummarySealedVersionForCopyGuard(summary)}
+        className="mt-3"
+        buyerPolishedLayout={buyerPolishedLayout}
+      />
     ) : null;
 
   const operatorSummary =

@@ -51,4 +51,20 @@ public sealed class PatchDraftRequest
         get;
         set;
     }
+
+    /// <summary>Optimistic concurrency token from the last GET (LK-12).</summary>
+    [JsonPropertyName("expectedUpdatedUtc")]
+    public DateTime? ExpectedUpdatedUtc
+    {
+        get;
+        set;
+    }
+
+    /// <summary>When true, skip stale-token check and overwrite the server document (LK-12 keep mine).</summary>
+    [JsonPropertyName("forceOverwrite")]
+    public bool? ForceOverwrite
+    {
+        get;
+        set;
+    }
 }

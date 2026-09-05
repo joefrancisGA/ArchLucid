@@ -2,11 +2,16 @@
 
 import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
-import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useFindingProvenanceQuery } from "@/hooks/use-finding-provenance-query";
 import type { FindingProvenanceStep, FindingProvenanceStepKind } from "@/lib/api/finding-provenance";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  findingProvenancePanelHrefFromSearch,
+  parseFindingProvenanceOpenFromSearch,
+} from "@/lib/findings/finding-provenance-panel-url";
 
 export type FindingProvenancePanelProps = {
   readonly runId: string;
@@ -59,8 +64,39 @@ function ProvenanceStepRow(props: { readonly step: FindingProvenanceStep }): Rea
 }
 
 export function FindingProvenancePanel(props: FindingProvenancePanelProps): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const findingProvenanceOpenParam = searchParams.get("findingProvenanceOpen");
   const { runId, findingId } = props;
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpandedState] = useState(() =>
+    parseFindingProvenanceOpenFromSearch(findingProvenanceOpenParam),
+  );
+
+  const syncExpandedToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(findingProvenancePanelHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setExpanded = useCallback(
+    (value: boolean | ((current: boolean) => boolean)) => {
+      setExpandedState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncExpandedToUrl(next);
+
+        return next;
+      });
+    },
+    [syncExpandedToUrl],
+  );
+
+  useEffect(() => {
+    setExpandedState(parseFindingProvenanceOpenFromSearch(findingProvenanceOpenParam));
+  }, [findingProvenanceOpenParam]);
   const provenanceQuery = useFindingProvenanceQuery(runId, findingId, { enabled: expanded });
   const loading = expanded && provenanceQuery.isPending;
   const steps = useMemo(() => {

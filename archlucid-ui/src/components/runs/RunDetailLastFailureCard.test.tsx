@@ -1,8 +1,14 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 
 import { RunDetailLastFailureCard } from "@/components/runs/RunDetailLastFailureCard";
 import { findForbiddenQualityOutagePhrases } from "@/lib/execution-vs-quality-outcome-copy";
+
+const useReviewPipelineReRunInFlightMock = vi.hoisted(() => vi.fn(() => false));
+
+vi.mock("@/hooks/use-review-pipeline-rerun-in-flight", () => ({
+  useReviewPipelineReRunInFlight: useReviewPipelineReRunInFlightMock,
+}));
 
 describe("RunDetailLastFailureCard (TB-965)", () => {
   it("renders quality-rejected copy without outage phrasing", () => {
@@ -50,5 +56,25 @@ describe("RunDetailLastFailureCard (TB-965)", () => {
       "execution",
     );
     expect(screen.getByText("Failure details")).toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-last-failure-cause")).toHaveTextContent(/timed out/i);
+    expect(screen.getByText("Technical details")).toBeInTheDocument();
+  });
+
+  it("hides stale failure details while a re-run attempt is in flight", () => {
+    useReviewPipelineReRunInFlightMock.mockReturnValue(true);
+
+    render(
+      <RunDetailLastFailureCard
+        runId="failed-1"
+        summary={{
+          agentType: "Topology",
+          failureClass: "timeout",
+          triageScenarioId: "timeout",
+        }}
+        legacyRunStatus="Failed"
+      />,
+    );
+
+    expect(screen.queryByTestId("run-detail-last-failure-card")).not.toBeInTheDocument();
   });
 });

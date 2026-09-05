@@ -2,6 +2,9 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Roi;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Roi;
 
@@ -10,7 +13,10 @@ namespace ArchLucid.Application.Roi;
 /// </summary>
 public sealed class SponsorRoiExportBuilder(
     SponsorRoiRunCollector runCollector,
-    SponsorRoiPricingLabelResolver sponsorRoiPricingLabelResolver)
+    SponsorRoiPricingLabelResolver sponsorRoiPricingLabelResolver,
+    IScopeContextProvider scopeContextProvider,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService)
 {
     private readonly SponsorRoiRunCollector _runCollector =
         runCollector ?? throw new ArgumentNullException(nameof(runCollector));
@@ -18,8 +24,18 @@ public sealed class SponsorRoiExportBuilder(
     private readonly SponsorRoiPricingLabelResolver _sponsorRoiPricingLabelResolver =
         sponsorRoiPricingLabelResolver ?? throw new ArgumentNullException(nameof(sponsorRoiPricingLabelResolver));
 
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
     public async Task<SponsorRoiExportResponse> BuildExportAsync(CancellationToken cancellationToken = default)
     {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         Dictionary<string, RunSummary> latestBySystem =
             await _runCollector.CollectLatestCommittedRunPerSystemAsync(cancellationToken).ConfigureAwait(false);
         List<RunSummary> selectedSummaries = latestBySystem.Values
@@ -29,6 +45,14 @@ public sealed class SponsorRoiExportBuilder(
 
         List<(RunSummary Summary, ArchitectureRunDetail Detail)> loaded =
             await _runCollector.LoadRoiRunDetailsOrderedAsync(selectedSummaries, cancellationToken).ConfigureAwait(false);
+
+        await SponsorRoiBoardPackSealedManifestGuard.EnsureRunIdsSealedOrThrowAsync(
+            loaded.Select(static pair => pair.Summary.RunId),
+            scope,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken).ConfigureAwait(false);
+
         List<ArchitectureRunDetail> latestDetails = loaded.Select(static pair => pair.Detail).ToList();
 
         List<SponsorRoiExportRow> rows = [];

@@ -179,7 +179,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
     latestDraft?.displayName ?? null,
     latestDraft,
   );
-  const draftLastEditedLabel =
+  const draftLastEditedPresentation =
     latestDraft?.lastUpdatedUtc !== undefined && latestDraft.lastUpdatedUtc.trim().length > 0
       ? formatRunHomeListUpdatedLabel({
           runId: latestDraft.architectureId,
@@ -187,6 +187,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
           createdUtc: latestDraft.lastUpdatedUtc,
         })
       : null;
+  const draftLastEditedLabel = draftLastEditedPresentation?.relativeLabel ?? null;
   const draftStatusHeadline =
     workspacePhase === "eval-with-drafts"
       ? formatOperatorHomeDraftStatusHeadline(phaseSignals.draftCount, draftLastEditedLabel)

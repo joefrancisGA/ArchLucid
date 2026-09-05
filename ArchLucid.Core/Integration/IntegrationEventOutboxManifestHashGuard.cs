@@ -12,6 +12,14 @@ public static class IntegrationEventOutboxManifestHashGuard
         IntegrationEventTypes.ManifestFinalizedV1,
         IntegrationEventTypes.AuthorityRunCompletedV1,
         IntegrationEventTypes.AdvisoryScanCompletedV1,
+        IntegrationEventTypes.FindingsHighSeverityCapturedV1,
+        IntegrationEventTypes.GovernanceApprovalSubmittedV1,
+        IntegrationEventTypes.GovernanceApprovalApprovedV1,
+        IntegrationEventTypes.GovernanceApprovalRejectedV1,
+        IntegrationEventTypes.GovernancePromotionActivatedV1,
+        IntegrationEventTypes.AlertFiredV1,
+        IntegrationEventTypes.AlertAcknowledgedV1,
+        IntegrationEventTypes.AlertResolvedV1,
     };
 
     public static void EnsureRunScopedPayloadIncludesManifestHashOrThrow(string eventType, ReadOnlyMemory<byte> payloadUtf8)

@@ -87,7 +87,7 @@ See also [`docs/library/FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md) an
 
 ## Reliability & cost
 
-- **Real** mode: monitor token usage and rate limits; backoff and circuit breakers live in the OpenAI client path.  
+- **Real** mode: monitor token usage and rate limits; backoff and circuit breakers live in the OpenAI client path. Provider outage playbook: [`AI_PROVIDER_OFFLINE.md`](AI_PROVIDER_OFFLINE.md).  
 - **Simulator:** prefer for CI and load tests to avoid spend.
 
 ## Related docs

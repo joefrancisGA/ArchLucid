@@ -52,6 +52,7 @@ describe("api-error-toast-policy", () => {
     const err = new ApiRequestError("ArchLucid API not configured", {
       httpStatus: 503,
       problem: {
+        title: "Invalid upstream API configuration",
         supportHint: "Set ARCHLUCID_API_BASE_URL in archlucid-ui/.env.local.",
       },
       correlationId: null,
@@ -60,6 +61,35 @@ describe("api-error-toast-policy", () => {
     expect(resolveApiRequestErrorToastPlan(err, false)).toMatchObject({
       action: "show",
       title: "API URL not configured",
+      type: "error",
+    });
+  });
+
+  it("does not classify API 503 database outages as missing API URL configuration", () => {
+    expect(
+      classifyApiConnectivityFailure({
+        message: "Service Unavailable: database timeout",
+        httpStatus: 503,
+        problem: {
+          title: "Service Unavailable",
+          supportHint: "Retry after a short wait. If it persists, contact support with your correlation id.",
+        },
+      }),
+    ).toBeNull();
+
+    const err = new ApiRequestError("Service Unavailable: database timeout", {
+      httpStatus: 503,
+      problem: {
+        title: "Service Unavailable",
+        detail: "The database did not respond in time.",
+        supportHint: "Retry after a short wait. If it persists, contact support with your correlation id.",
+      },
+      correlationId: "corr-db",
+    });
+
+    expect(resolveApiRequestErrorToastPlan(err, false)).toMatchObject({
+      action: "show",
+      title: "Service Unavailable",
       type: "error",
     });
   });

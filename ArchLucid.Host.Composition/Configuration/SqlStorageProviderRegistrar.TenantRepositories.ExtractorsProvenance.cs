@@ -3,6 +3,7 @@ using ArchLucid.Application.Provenance;
 using ArchLucid.Core.AwsExtractor;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.GcpExtractor;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Search;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.AwsExtractor;
@@ -13,6 +14,7 @@ using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Search;
 using ArchLucid.Persistence.Tenancy;
 using ArchLucid.Persistence.Value;
+using ArchLucid.Persistence.Architecture;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Provenance;
 
@@ -50,6 +52,19 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<IAuditControlTimelineRepository, SqlAuditControlTimelineRepository>();
         services.AddScoped<ISecurityCrosswalkRepository, SqlSecurityCrosswalkRepository>();
         services.AddScoped<IOperationalSecurityFindingRepository, SqlOperationalSecurityFindingRepository>();
-        services.AddScoped<ITenantBrandingProfileRepository, SqlTenantBrandingProfileRepository>();
+        services.AddScoped<IOperationalSecurityExceptionRepository, SqlOperationalSecurityExceptionRepository>();
+        services.AddScoped<IRemediationPatternRepository, SqlRemediationPatternRepository>();
+        services.AddScoped<IRemediationPatternMatchRepository, SqlRemediationPatternMatchRepository>();
+        services.AddScoped<IRemediationInstanceRepository, SqlRemediationInstanceRepository>();
+        services.AddScoped<IRemediationPrioritizationRepository, SqlRemediationPrioritizationRepository>();
+        services.AddScoped<IRemediationWaveRepository, SqlRemediationWaveRepository>();
+        services.AddScoped<IArchitectureDiagramModelRepository, SqlArchitectureDiagramModelRepository>();
+        services.AddScoped<IArchitectureDiagramReconciliationRepository, SqlArchitectureDiagramReconciliationRepository>();
+        services.AddScoped<SqlTenantBrandingProfileRepository>();
+        services.AddScoped<ITenantBrandingProfileRepository>(static sp =>
+            new TenantBrandingProfileRepositoryWithCacheInvalidation(
+                sp.GetRequiredService<SqlTenantBrandingProfileRepository>(),
+                sp.GetRequiredService<ITenantBrandingCacheInvalidator>()));
+        services.AddScoped<IBrandAssetRepository, SqlBrandAssetRepository>();
     }
 }

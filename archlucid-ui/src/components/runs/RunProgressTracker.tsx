@@ -78,12 +78,6 @@ export function RunProgressTracker({
       <h3 id="run-progress-tracker-title" className={cn("mt-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
         {progressHeading}
       </h3>
-      {tracker.buyerPolished || tracker.buyerAssessmentCopy ? null : (
-        <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          <strong>Review ID:</strong>{" "}
-          <code className={cn("rounded bg-neutral-100 px-1 py-0.5 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>{runId}</code>
-        </p>
-      )}
 
       {tracker.pollEnabled && !tracker.buyerAssessmentCopy && tracker.backgroundSafetyMessage ? (
         <p
@@ -134,7 +128,7 @@ export function RunProgressTracker({
         )
       ) : null}
 
-      {tracker.showPipelineTerminalFailure ? (
+      {tracker.showPipelineTerminalFailure && !deferFailureRecoveryToDoThisNext ? (
         <div className="mt-3 flex flex-wrap items-center gap-2" data-testid="run-progress-terminal-failure-actions">
           <ReRunReviewButton
             runId={runId}
@@ -192,6 +186,8 @@ export function RunProgressTracker({
         manifest={tracker.manifest}
         stageTimeline={tracker.stageTimeline}
         activeSummary={tracker.activeSummary}
+        pipelineTerminalFailure={tracker.showPipelineTerminalFailure}
+        suppressIntakeDescription={deferFailureRecoveryToDoThisNext}
       />
 
       {tracker.pipelineDebugEnabled ? (

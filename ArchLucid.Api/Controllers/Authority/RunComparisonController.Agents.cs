@@ -127,6 +127,13 @@ public sealed partial class RunComparisonController
                 null,
                 null,
                 null),
+            ScopedRunPairLoadOutcome.SealedManifestHashMismatch => (
+                this.ConflictProblem(
+                    "Compare blocked: sealed manifest hash verification failed for one or both selected runs.",
+                    ProblemTypes.Conflict),
+                null,
+                null,
+                null),
             _ => throw new InvalidOperationException($"Unexpected run-pair load outcome: {loadResult.Outcome}."),
         };
     }

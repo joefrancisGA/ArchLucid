@@ -86,6 +86,8 @@ export async function patchDraftRequest(
     focusedPilotModeEnabled?: boolean;
     workflowIntent?: "create-architecture" | "start-review";
     structuredBrief?: DraftRequestDocument["structuredBrief"];
+    expectedUpdatedUtc?: string;
+    forceOverwrite?: boolean;
   },
 ): Promise<DraftRequestResponse> {
   return apiPatchJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}`, body);

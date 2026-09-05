@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildCommittedCoverageScopeLine,
+  buildCommittedCoverageExclusionSummary,
   buildCommittedPolicyPackEvaluationHeadline,
 } from "@/lib/policy/committed-coverage-scope-summary";
 
@@ -43,7 +44,34 @@ describe("committed-coverage-scope-summary", () => {
       ],
     });
 
-    expect(line).toBe("Committed coverage: 1 baseline quality dimension, 1 organization-required pack.");
+    expect(line).toBe(
+      "Assurance scope at commit: 1 core architecture quality area, 1 required organizational standard.",
+    );
+  });
+
+  it("buildCommittedCoverageExclusionSummary lists operator exclusions", () => {
+    const summary = buildCommittedCoverageExclusionSummary({
+      generatedUtc: null,
+      ruleSetHash: null,
+      complianceRuleKeyCount: 0,
+      complianceRuleKeys: [],
+      conflictCount: 0,
+      hasEffectivePolicy: true,
+      packAssignments: [],
+      coverageAssignments: [
+        {
+          policyPackId: "azure-waf",
+          policyPackVersion: "1.0.0",
+          coverageType: "PlatformOverlay",
+          selectionState: "RecommendedButExcluded",
+          qualityDimension: null,
+          exclusionReason: "Pilot excludes cloud overlays",
+        },
+      ],
+    }, (policyPackId, policyPackVersion) => `${policyPackId} v${policyPackVersion}`);
+
+    expect(summary).toContain("excluded from assurance scope");
+    expect(summary).toContain("Pilot excludes cloud overlays");
   });
 
   it("buildCommittedPolicyPackEvaluationHeadline uses multi-pack wording", () => {
@@ -84,7 +112,7 @@ describe("committed-coverage-scope-summary", () => {
     });
 
     expect(headline).toContain("2 committed policy packs");
-    expect(headline).toContain("baseline quality dimension");
-    expect(headline).toContain("platform overlay");
+    expect(headline).toContain("core architecture quality area");
+    expect(headline).toContain("cloud best-practice framework");
   });
 });

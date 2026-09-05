@@ -1,16 +1,16 @@
 /**
- * TB-2305 — Package Activity ≠ Audit trail vocabulary rail.
+ * TB-2305 — Review Activity vs Audit trail vocabulary rail.
  *
  * Why two surfaces exist:
- * - Package Activity (`?archTab=activity` / `?reviewTab=activity`) is assessment
- *   progress for one architecture package — pipeline stages and review activity
+ * - Review Activity (`?archTab=activity` / `?reviewTab=activity`) is assessment
+ *   progress for one architecture package — pipeline stages and review events
  *   on that package.
- * - Audit trail (`/governance/audit`) is the operator activity log for
+ * - Audit trail (`/governance/audit`) is the workspace audit trail for
  *   approval and review events across the workspace (filters, integrity
  *   export/verify).
  *
- * They stay separate because package assessment progress is not the operator
- * audit log. Distinct from Audit trail ≠ Evidence graph / Search (TB-2255).
+ * They stay separate because package assessment progress is not the workspace
+ * audit trail. Distinct from Audit trail ≠ Evidence graph / Search (TB-2255).
  */
 
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
@@ -35,13 +35,13 @@ export type PackageActivityAuditTrailVocabularyModel = {
 };
 
 export const PACKAGE_ACTIVITY_AUDIT_TRAIL_HEADING =
-  "Package Activity and Audit trail serve different purposes" as const;
+  "Review Activity and Audit trail serve different purposes" as const;
 
 export const PACKAGE_ACTIVITY_AUDIT_TRAIL_WHY_TWO =
-  "Package Activity shows progress on one architecture review — pipeline stages and review events on that review. Audit trail is the workspace-wide activity log for approval and review events. Watching one review's progress is not the same as searching the workspace log." as const;
+  "Review Activity shows progress on one architecture review — pipeline stages and review events on that review. Audit trail is the workspace-wide audit trail for approval and review events. Watching one review's progress is not the same as searching the workspace audit trail." as const;
 
 export const PACKAGE_ACTIVITY_AUDIT_TRAIL_COMPACT_LINE =
-  "Package Activity is progress on one review; Audit trail is the workspace activity log." as const;
+  "Review Activity is progress on one review; Audit trail is the workspace audit trail." as const;
 
 /**
  * Peer from Audit trail without a run: Reviews hub, because Activity is
@@ -59,7 +59,7 @@ export const PACKAGE_ACTIVITY_AUDIT_TRAIL_AUDIT_LINK: PackageActivityAuditTrailL
   id: "audit-trail",
   label: "Audit trail",
   href: GOVERNANCE_AUDIT_PATH,
-  whenToUse: "Search the operator activity log for approval and review events.",
+  whenToUse: "Search the workspace audit trail for approval and review events.",
 };
 
 /** Build vocabulary; pass runId when mounting on a package Activity tab. */

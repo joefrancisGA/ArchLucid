@@ -8,7 +8,7 @@ import {
   resolveRequest,
   serverFetchInit,
 } from "./http-proxy";
-import { throwApiRequestError } from "./http-verbs-get";
+import { throwApiRequestError, type ApiGetOptions } from "./http-verbs-get";
 import { notifyIfIdempotencyReplayed } from "./http-verbs-mutate-shared";
 
 /**
@@ -18,7 +18,10 @@ import { notifyIfIdempotencyReplayed } from "./http-verbs-mutate-shared";
 export async function apiPostAcceptedWithLocation(
   path: string,
   body: unknown,
-  options?: { readonly extraHeaders?: Record<string, string> },
+  options?: {
+    readonly extraHeaders?: Record<string, string>;
+    readonly suppressErrorToast?: boolean;
+  },
 ): Promise<{ readonly location: string | null; readonly status: number }> {
   await ensureOidcBearerReady();
   const { url, headers } = await resolveRequest(path);
@@ -38,15 +41,19 @@ export async function apiPostAcceptedWithLocation(
   captureTraceContextFromResponse(response);
   const text = await response.text();
 
+  const errorToastOptions: Pick<ApiGetOptions, "suppressErrorToast"> | undefined =
+    options?.suppressErrorToast === true ? { suppressErrorToast: true } : undefined;
+
   if (response.status !== 202) {
     if (!response.ok) {
-      throwApiRequestError(response, text, correlationId);
+      throwApiRequestError(response, text, correlationId, errorToastOptions);
     }
 
     throwApiRequestError(
       response,
       text.length > 0 ? text : "Expected 202 Accepted with a Location header.",
       correlationId,
+      errorToastOptions,
     );
   }
 

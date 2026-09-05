@@ -41,6 +41,7 @@ public sealed class ArchitecturesPhysicalTableMigrationSqlIntegrationTests
             AssertColumnExists(connection, "dbo.Reviews", "PinnedEvidencePackagePinsHashSha256");
             AssertColumnExists(connection, "dbo.Reviews", "PinnedFocusedPilotModeEnabled");
             AssertColumnExists(connection, "dbo.Reviews", "PinnedFocusedPilotCloudProvider");
+            AssertColumnExists(connection, "dbo.Reviews", "AcknowledgedCoverageJson");
             AssertIndexExists(connection, "dbo.Reviews", "IX_Runs_ArchitectureId");
             AssertColumnExists(connection, "dbo.ArchitectureReviewRecurrenceSchedules", "ArchitectureId");
         }

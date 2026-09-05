@@ -26,6 +26,7 @@ export type ReviewHeaderShareMenuProps = {
   readonly canInviteReviewer?: boolean;
   readonly disabled?: boolean;
   readonly disabledReason?: WhyDisabledCtaReason | null;
+  readonly disabledDescribedById?: string;
 };
 
 /** Consolidated share and export affordances on the review detail header. */
@@ -72,6 +73,7 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
         size="sm"
         className="gap-1.5"
         disabled
+        aria-describedby={props.disabledDescribedById}
         aria-label={disabledReasonMessage ?? "Share and export unavailable until the review completes"}
         data-testid="review-header-share-menu-trigger"
       >

@@ -34,6 +34,10 @@ import {
   parseSettingsUsersRevokeInviteIdFromSearch,
   settingsUsersInviteRevokeHrefFromSearch,
 } from "@/lib/administration/settings-users-invite-revoke-url";
+import {
+  parseSettingsInvitesShowResolvedFromSearch,
+  settingsInvitesShowResolvedHrefFromSearch,
+} from "@/lib/administration/settings-invites-show-resolved-url";
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
 import { showError, showSuccess } from "@/lib/toast";
 
@@ -85,15 +89,44 @@ export function PendingInvitationsPanel({
   const pathname = usePathname() ?? SETTINGS_USERS_PATH;
   const searchParams = useSearchParams();
   const revokeInviteIdParam = searchParams.get("revokeInviteId");
+  const settingsInvitesShowResolvedParam = searchParams.get("settingsInvitesShowResolved");
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<AdminUserInvitationRow[]>([]);
   const [loadFailed, setLoadFailed] = useState(false);
-  const [showResolved, setShowResolved] = useState(false);
+  const [showResolved, setShowResolvedState] = useState(() =>
+    parseSettingsInvitesShowResolvedFromSearch(settingsInvitesShowResolvedParam),
+  );
   const [revokingId, setRevokingId] = useState<string | null>(null);
   const [copiedReferenceId, setCopiedReferenceId] = useState<string | null>(null);
   const [copiedAcceptLinkId, setCopiedAcceptLinkId] = useState<string | null>(null);
   const [pendingRevoke, setPendingRevokeState] = useState<AdminUserInvitationRow | null>(null);
   const [revokeBusy, setRevokeBusy] = useState(false);
+
+  const syncShowResolvedToUrl = useCallback(
+    (resolvedVisible: boolean) => {
+      router.replace(
+        settingsInvitesShowResolvedHrefFromSearch(searchParams.toString(), resolvedVisible, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setShowResolved = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setShowResolvedState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncShowResolvedToUrl(next);
+
+        return next;
+      });
+    },
+    [syncShowResolvedToUrl],
+  );
+
+  useEffect(() => {
+    setShowResolvedState(parseSettingsInvitesShowResolvedFromSearch(settingsInvitesShowResolvedParam));
+  }, [settingsInvitesShowResolvedParam]);
 
   const syncRevokeInviteToUrl = useCallback(
     (invitationId: string | null) => {

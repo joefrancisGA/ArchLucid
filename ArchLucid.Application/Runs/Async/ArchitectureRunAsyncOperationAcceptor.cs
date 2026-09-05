@@ -1,7 +1,9 @@
+using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Operations;
-using ArchLucid.Application.Runs;
-using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Application.Runs.Orchestration.Execute.Hooks;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
@@ -57,7 +59,9 @@ public sealed class ArchitectureRunAsyncOperationAcceptor(
     IArchitectureRunAsyncOperationQueue queue,
     IArchitectureRunAsyncOperationRegistrar registrar,
     IReplayRunService replayRunService,
-    IArchitectureRunAsyncCreateAdmitter createAdmitter) : IArchitectureRunAsyncOperationAcceptor
+    IArchitectureRunAsyncCreateAdmitter createAdmitter,
+    IFailedRunRetryAdmission failedRunRetryAdmission,
+    IArchitectureRunExecuteAuditHook executeAuditHook) : IArchitectureRunAsyncOperationAcceptor
 {
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
@@ -74,6 +78,12 @@ public sealed class ArchitectureRunAsyncOperationAcceptor(
     private readonly IArchitectureRunAsyncCreateAdmitter _createAdmitter =
         createAdmitter ?? throw new ArgumentNullException(nameof(createAdmitter));
 
+    private readonly IFailedRunRetryAdmission _failedRunRetryAdmission =
+        failedRunRetryAdmission ?? throw new ArgumentNullException(nameof(failedRunRetryAdmission));
+
+    private readonly IArchitectureRunExecuteAuditHook _executeAuditHook =
+        executeAuditHook ?? throw new ArgumentNullException(nameof(executeAuditHook));
+
     public async Task<string> AcceptExecuteAsync(
         string runId,
         ScopeContext scope,
@@ -89,6 +99,7 @@ public sealed class ArchitectureRunAsyncOperationAcceptor(
 
         try
         {
+            await AdmitFailedRunRetryAsync(scope, parsedRunId, actor, cancellationToken);
             await _queue.EnqueueAsync(
                 new ArchitectureRunAsyncOperationWorkItem(
                     ArchitectureRunAsyncOperationKind.Execute,
@@ -224,6 +235,39 @@ public sealed class ArchitectureRunAsyncOperationAcceptor(
         RunRecord? header = await _runRepository.GetByIdAsync(scope, runId, cancellationToken);
 
         return ArchitectureRunAsyncCreateCompleteness.IsIncomplete(header);
+    }
+
+    private async Task AdmitFailedRunRetryAsync(
+        ScopeContext scope,
+        Guid runId,
+        string actor,
+        CancellationToken cancellationToken)
+    {
+        RunRecord? header = await _runRepository.GetByIdAsync(scope, runId, cancellationToken);
+
+        if (header is null)
+            return;
+
+        if (!string.Equals(
+                header.LegacyRunStatus,
+                nameof(ArchitectureRunStatus.Failed),
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        ArchitectureRun auditRun = new()
+        {
+            RunId = runId.ToString("D"),
+            Status = ArchitectureRunStatus.Failed
+        };
+
+        await _executeAuditHook.LogFailedRunRetryRequestedAsync(
+            auditRun,
+            runId.ToString("D"),
+            actor,
+            cancellationToken);
+        await _failedRunRetryAdmission.TryMarkRetryingAsync(scope, runId, cancellationToken);
     }
 
     private async Task EnsureRunInScopeAsync(ScopeContext scope, Guid runId, CancellationToken cancellationToken)

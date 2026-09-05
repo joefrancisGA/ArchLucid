@@ -35,6 +35,15 @@ public class PolicyPack
         set;
     } = null!;
 
+    /// <summary>
+    ///     Stable bundled-pack identity (filename stem). Null for custom packs; matching prefers slug over display name.
+    /// </summary>
+    public string? PackSlug
+    {
+        get;
+        set;
+    }
+
     public string Description
     {
         get;

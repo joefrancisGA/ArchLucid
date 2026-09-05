@@ -31,7 +31,7 @@ export type MetricCountPresentation = {
 };
 
 const SCOPE_LABELS: Record<MetricCountScopeKind, string> = {
-  workspace: "workspace",
+  workspace: "this workspace",
   "this-review": "this review",
   "findings-tab": "findings tab",
   "governance-filter": "findings queue",
@@ -155,7 +155,7 @@ export function workspaceOpenFindingsPresentation(count: number): MetricCountPre
   return {
     count,
     noun: count === 1 ? "open finding" : "open findings",
-    dimensions: [{ kind: "workspace" }, { kind: "governance-filter", filter: "open" }],
+    dimensions: [{ kind: "workspace" }],
     href: buildGovernanceFindingsQueueHref({ filter: "open" }),
   };
 }
@@ -164,7 +164,7 @@ export function operatorHomeActiveReviewsPresentation(count: number): MetricCoun
   return {
     count,
     noun: count === 1 ? "active review" : "active reviews",
-    dimensions: [{ kind: "workspace" }, { kind: "reviews-inventory", reviewsFilter: "Active" }],
+    dimensions: [{ kind: "workspace" }],
     href: reviewsHubInventoryFilterHref("Active"),
   };
 }
@@ -173,7 +173,7 @@ export function operatorHomeFinalizedPackagesPresentation(count: number): Metric
   return {
     count,
     noun: count === 1 ? "finalized package" : "finalized packages",
-    dimensions: [{ kind: "workspace" }, { kind: "reviews-inventory", reviewsFilter: "finalized" }],
+    dimensions: [{ kind: "workspace" }],
     href: reviewsHubInventoryFilterHref("finalized"),
   };
 }

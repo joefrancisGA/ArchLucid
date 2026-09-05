@@ -83,7 +83,7 @@ import {
   OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
 import {
-  CUSTOMER_INTAKE_BUYER_REVIEW_TITLE,
+  CUSTOMER_INTAKE_BUYER_REVIEW_PACKAGE_TITLE,
   CUSTOMER_INTAKE_SAMPLE_RUN_ID,
 } from "@/lib/samples/customer-intake-modernization/definition";
 import * as operatorStaticDemo from "@/lib/operator/operator-static-demo";
@@ -414,9 +414,9 @@ describe("RunsDashboardPanel", () => {
       expect(screen.queryByTestId("operator-home-showcase-demo-banner")).toBeNull();
       expect(screen.queryByRole("link", { name: "Jump to review journey" })).toBeNull();
       expect(screen.getByTestId("runs-dashboard-buyer-proof-title")).toHaveTextContent(
-        CUSTOMER_INTAKE_BUYER_REVIEW_TITLE,
+        CUSTOMER_INTAKE_BUYER_REVIEW_PACKAGE_TITLE,
       );
-      expect(screen.getByRole("link", { name: CUSTOMER_INTAKE_BUYER_REVIEW_TITLE })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: CUSTOMER_INTAKE_BUYER_REVIEW_PACKAGE_TITLE })).toBeInTheDocument();
       // Showcase title lives on the proof card — do not repeat it as a trailing list row.
       expect(screen.queryByTestId("recent-runs-home-panel")).toBeNull();
       expect(screen.queryByRole("link", { name: "Signed manifest summary" })).toBeNull();
@@ -599,7 +599,7 @@ describe("RunsDashboardPanel", () => {
     renderRunsDashboardPanel();
 
     await waitFor(() => {
-      expect(screen.getByRole("group", { name: "Filter reviews" })).toBeInTheDocument();
+      expect(screen.getByRole("tablist", { name: "Filter reviews" })).toBeInTheDocument();
       expect(screen.getByTestId("runs-dashboard-filter-all")).toHaveTextContent("All (1)");
       expect(screen.getByTestId("runs-dashboard-filter-approved")).toHaveTextContent("Approved (1)");
     });
@@ -762,19 +762,19 @@ describe("RunsDashboardPanel", () => {
     await screen.findByRole("link", { name: "Active review" });
 
     await waitFor(() => {
-      expect(screen.getByRole("group", { name: "Review views" })).toBeInTheDocument();
+      expect(screen.getByRole("tablist", { name: "Review views" })).toBeInTheDocument();
     });
 
     const filterGroup = screen.getByTestId("runs-dashboard-status-filters");
 
-    expect(within(filterGroup).getByTestId("runs-dashboard-tab-all")).toHaveAttribute("aria-pressed", "true");
+    expect(within(filterGroup).getByTestId("runs-dashboard-tab-all")).toHaveAttribute("aria-selected", "true");
     expect(screen.queryByRole("link", { name: /open all reviews/i })).not.toBeNull();
 
     fireEvent.click(within(filterGroup).getByTestId("runs-dashboard-tab-attention"));
 
     await waitFor(() => {
       expect(within(filterGroup).getByTestId("runs-dashboard-tab-attention")).toHaveAttribute(
-        "aria-pressed",
+        "aria-selected",
         "true",
       );
     });

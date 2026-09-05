@@ -1,6 +1,7 @@
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Http;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
@@ -47,21 +48,29 @@ public sealed partial class GovernanceController
             return tenantProblem;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        GovernanceDashboardSummary summary = await _insightsFacade.GetDashboardAsync(
-            scope.TenantId,
-            maxPending,
-            maxDecisions,
-            maxChanges,
-            cancellationToken);
 
-        string fingerprint =
-            $"dashboard|tenant={scope.TenantId:N}|workspace={scope.WorkspaceId:N}|project={scope.ProjectId:N}|pending={maxPending}|decisions={maxDecisions}|changes={maxChanges}";
-        string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
-            summary,
-            ContractJson.CamelCaseIgnoreNullCompact,
-            fingerprint);
+        try
+        {
+            GovernanceDashboardSummary summary = await _insightsFacade.GetDashboardAsync(
+                scope.TenantId,
+                maxPending,
+                maxDecisions,
+                maxChanges,
+                cancellationToken);
 
-        return this.OkWithConditionalEtag(summary, etag);
+            string fingerprint =
+                $"dashboard|tenant={scope.TenantId:N}|workspace={scope.WorkspaceId:N}|project={scope.ProjectId:N}|pending={maxPending}|decisions={maxDecisions}|changes={maxChanges}";
+            string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
+                summary,
+                ContractJson.CamelCaseIgnoreNullCompact,
+                fingerprint);
+
+            return this.OkWithConditionalEtag(summary, etag);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     [HttpGet("compliance-drift-trend")]

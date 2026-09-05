@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Text.Json;
 
+using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 namespace ArchLucid.Application.Governance.DefaultPolicyPacks;
@@ -69,7 +70,8 @@ public static class DefaultPolicyPackBundledManifest
             string displayName = ResolveMetadata(document, "pack.displayName", fileName);
             string description = ResolveMetadata(document, "pack.description", fileName);
 
-            bundles.Add(new DefaultPolicyPackBundleDefinition(displayName, description, contentJson));
+            string packSlug = PolicyPackBundledSlugs.FromBundledContentFileName(fileName);
+            bundles.Add(new DefaultPolicyPackBundleDefinition(packSlug, displayName, description, contentJson));
         }
 
         return bundles;

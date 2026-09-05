@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useEffect, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { AdminPrerequisitesReadinessBoard } from "@/components/administration/AdminPrerequisitesReadinessBoard";
@@ -35,22 +35,55 @@ import {
   settingsMasterClearSearchHrefFromSearch,
   settingsMasterSearchHrefFromSearch,
 } from "@/lib/administration/settings-master-search-url";
+import {
+  parseSettingsMasterAdvancedOpenFromSearch,
+  settingsMasterAdvancedHrefFromSearch,
+} from "@/lib/administration/settings-master-advanced-url";
 
 export function SettingsPageView() {
   const router = useRouter();
+  const pathname = usePathname() ?? "/administration";
   const searchParams = useSearchParams();
   const currentSearch = searchParams.toString();
   const urlSearchQuery = parseSettingsMasterSearchQuery(searchParams.get("q"));
+  const settingsMasterAdvancedOpenParam = searchParams.get("settingsMasterAdvancedOpen");
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showAdvanced, setShowAdvancedState] = useState(() =>
+    parseSettingsMasterAdvancedOpenFromSearch(settingsMasterAdvancedOpenParam),
+  );
   const scope = useMemo(() => readOperatorScopeFromStorage(), []);
   const environmentLabel = isSelfHostedDeploymentEnv() ? "Self-hosted deployment" : "Managed SaaS";
 
   useEffect(() => {
     setSearchQuery(urlSearchQuery);
   }, [urlSearchQuery]);
+
+  const syncShowAdvancedToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(settingsMasterAdvancedHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setShowAdvanced = useCallback(
+    (value: boolean | ((current: boolean) => boolean)) => {
+      setShowAdvancedState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncShowAdvancedToUrl(next);
+
+        return next;
+      });
+    },
+    [syncShowAdvancedToUrl],
+  );
+
+  useEffect(() => {
+    setShowAdvancedState(parseSettingsMasterAdvancedOpenFromSearch(settingsMasterAdvancedOpenParam));
+  }, [settingsMasterAdvancedOpenParam]);
 
   useEffect(() => {
     const handle = window.setTimeout(() => {

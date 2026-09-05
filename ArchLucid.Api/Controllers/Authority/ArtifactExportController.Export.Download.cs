@@ -4,12 +4,14 @@ using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Application.Exports;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Exports;
 using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagrams;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Queries;
@@ -117,7 +119,20 @@ public sealed partial class ArtifactExportController
                 string? mermaid = MermaidDiagramArtifactExtractor.TryGetDiagramSource(artifactsForDiagram);
 
                 if (!string.IsNullOrWhiteSpace(mermaid))
-                    renderedPng = await diagramImageRenderer.RenderMermaidPngAsync(mermaid, ct);
+                {
+                    string brandedMermaid = await brandedDiagramExportService.DecorateMermaidSourceForExportAsync(
+                        scope.TenantId,
+                        mermaid,
+                        BrandingDisplayContext.ArchitectureDiagram,
+                        ct);
+
+                    renderedPng = await diagramImageRenderer.RenderMermaidPngAsync(brandedMermaid, ct);
+                    renderedPng = await brandedDiagramExportService.WrapRenderedPngForExportAsync(
+                        scope.TenantId,
+                        renderedPng,
+                        BrandingDisplayContext.ArchitectureDiagram,
+                        ct);
+                }
             }
         }
 

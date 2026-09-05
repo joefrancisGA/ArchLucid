@@ -50,6 +50,8 @@ export type UseArchitectureDraftAutosaveResult = {
   /** Align revision tracking after a PATCH from outside this hook (e.g. scope confirmation). */
   readonly syncServerUpdatedUtc: (serverUpdatedUtc: string) => void;
   readonly hasPersistedDraft: boolean;
+  /** LK-12: overwrite server copy with this tab's unsaved edits after a conflict. */
+  readonly keepLocalDraftOnConflict: () => Promise<boolean>;
 };
 
 export function fieldsAreEqual(left: ArchitectureDraftFieldState, right: ArchitectureDraftFieldState): boolean {
@@ -70,7 +72,7 @@ export function fieldsFromDraftDocument(draft: DraftRequestResponse): Architectu
 }
 
 export function isNonRetryableDraftPatchError(error: unknown): boolean {
-  return isApiRequestError(error) && error.httpStatus === 400;
+  return isApiRequestError(error) && (error.httpStatus === 400 || error.httpStatus === 409);
 }
 
 export function createIntentForDeferredDraft(

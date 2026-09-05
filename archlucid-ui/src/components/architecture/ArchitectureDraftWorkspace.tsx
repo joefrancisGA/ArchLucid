@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
+import { useArchitectureDraftDocumentUndo } from "@/hooks/use-architecture-draft-document-undo";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import {
   resolveArchitectureDraftStartReviewChecklistDescription,
@@ -64,9 +65,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     (fields: ArchitectureDraftFieldState, serverUpdatedUtc: string, actorSet: ActorSet) => void
   >(() => undefined);
   const onDraftHydratedRef = useRef<(loaded: DraftRequestResponse, formState: ArchitectureDraftFieldState) => void>(
-    (loaded, formState) => {
-      acceptServerBaselineRef.current(formState, loaded.updatedUtc, actorSetFromDraftDocument(loaded));
-    },
+    () => undefined,
   );
   const {
     isNewDraft,
@@ -164,6 +163,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         loaded.updatedUtc,
         actorSetFromDraftDocument(loaded),
       );
+      onDraftHydratedRef.current(loaded, formState);
     },
     [applyLoadedDraftToForm],
   );
@@ -188,6 +188,8 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     acceptServerBaseline,
     syncServerUpdatedUtc,
     hasPersistedDraft,
+    markDirty,
+    keepLocalDraftOnConflict,
   } = useArchitectureDraftAutosave({
       architectureId: props.architectureId,
       fields,
@@ -203,6 +205,34 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     });
 
   acceptServerBaselineRef.current = acceptServerBaseline;
+
+  const documentUndoEnabled = !handoffEditorLocked && !briefFrozen && !exitPending;
+
+  const { resetStacks: resetDocumentUndoStacks } = useArchitectureDraftDocumentUndo({
+    fields,
+    actorSet,
+    setFields,
+    setActorSet,
+    enabled: documentUndoEnabled,
+    markDirty,
+  });
+
+  const resetDocumentUndoFromLoaded = useCallback(
+    (loaded: DraftRequestResponse, formState: ArchitectureDraftFieldState) => {
+      resetDocumentUndoStacks({
+        fields: formState,
+        actorSet: actorSetFromDraftDocument(loaded),
+      });
+    },
+    [resetDocumentUndoStacks],
+  );
+
+  useEffect(() => {
+    onDraftHydratedRef.current = (loaded, formState) => {
+      acceptServerBaselineRef.current(formState, loaded.updatedUtc, actorSetFromDraftDocument(loaded));
+      resetDocumentUndoFromLoaded(loaded, formState);
+    };
+  }, [resetDocumentUndoFromLoaded]);
 
   const persistedScopeFingerprint = useMemo(() => {
     const persistedLines = extractScopeUnderstandingLinesFromBrief(draft?.document.freeTextIntent);
@@ -371,6 +401,9 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       conflictMessage={conflictMessage}
       onReloadDraft={() => {
         void reloadDraft();
+      }}
+      onKeepLocalDraft={() => {
+        void keepLocalDraftOnConflict();
       }}
       onLoadDraft={loadDraft}
       draftStartReviewChecklistDescription={draftStartReviewChecklistDescription}

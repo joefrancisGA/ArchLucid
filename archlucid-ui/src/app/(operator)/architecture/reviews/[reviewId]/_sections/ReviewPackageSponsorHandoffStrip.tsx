@@ -32,6 +32,7 @@ import {
   RUN_DETAIL_SPONSOR_HANDOFF_MORE_EXPORTS_LABEL,
   RUN_DETAIL_SPONSOR_HANDOFF_TITLE,
 } from "@/lib/runs/run-detail-deliverables-copy";
+import { manifestSummarySealedVersionForCopyGuard } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import {
   EXTRACTION_FIDELITY_GATE_MESSAGE,
   isExtractionFidelityGateSatisfied,
@@ -106,7 +107,10 @@ export function ReviewPackageSponsorHandoffStrip(
         </div>
       ) : null}
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <CopyExecutiveSponsorLinkButton runId={props.runId} />
+        <CopyExecutiveSponsorLinkButton
+          runId={props.runId}
+          manifestVersion={manifestSummarySealedVersionForCopyGuard(props.manifestSummary)}
+        />
         {canInviteReviewer ? (
           <Button variant="outline" size="sm" asChild data-testid="review-package-sponsor-handoff-invite-reviewer">
             <Link href={buildInviteReviewerHref(props.runId)}>{INVITE_REVIEWER_PAGE_TITLE}</Link>

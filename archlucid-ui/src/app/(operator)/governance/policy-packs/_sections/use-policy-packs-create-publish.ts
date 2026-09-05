@@ -59,6 +59,10 @@ export function usePolicyPacksCreatePublish(deps: PolicyPacksAuthoringDeps) {
   const [showVersionDiff, setShowVersionDiffState] = useState(urlShowVersionDiff);
   const [verticalImportSlug, setVerticalImportSlug] = useState<string | null>(null);
   const [publishSuccessMessage, setPublishSuccessMessage] = useState<string | null>(null);
+  const [createLastSavedUtc, setCreateLastSavedUtc] = useState<string | null>(null);
+  const [createInlineSaveError, setCreateInlineSaveError] = useState<string | null>(null);
+  const [publishLastSavedUtc, setPublishLastSavedUtc] = useState<string | null>(null);
+  const [publishInlineSaveError, setPublishInlineSaveError] = useState<string | null>(null);
   const packVersionsQuery = usePolicyPackVersionsQuery(selectedPackId, {
     enabled: selectedPackId.length > 0,
   });
@@ -298,6 +302,7 @@ export function usePolicyPacksCreatePublish(deps: PolicyPacksAuthoringDeps) {
     }
 
     deps.setFailure(null);
+    setCreateInlineSaveError(null);
 
     try {
       JSON.parse(createJson);
@@ -316,10 +321,13 @@ export function usePolicyPacksCreatePublish(deps: PolicyPacksAuthoringDeps) {
         initialContentJson: createJson,
       });
       await deps.load();
+      setCreateLastSavedUtc(new Date().toISOString());
       // Do not rely only on useEffect(packs): it only runs when selectedPackId is empty, and E2E/CI can race renders.
       setSelectedPackId(created.policyPackId);
     } catch (e) {
+      const message = toApiLoadFailure(e).message;
       deps.setFailure(toApiLoadFailure(e));
+      setCreateInlineSaveError(message);
     } finally {
       deps.setLoading(false);
     }
@@ -349,6 +357,7 @@ export function usePolicyPacksCreatePublish(deps: PolicyPacksAuthoringDeps) {
 
     deps.setFailure(null);
     setPublishSuccessMessage(null);
+    setPublishInlineSaveError(null);
 
     try {
       JSON.parse(publishJson);
@@ -364,10 +373,13 @@ export function usePolicyPacksCreatePublish(deps: PolicyPacksAuthoringDeps) {
         version: publishVersion.trim(),
         contentJson: publishJson,
       });
+      setPublishLastSavedUtc(new Date().toISOString());
       setPublishSuccessMessage(policyPackPublishSuccessMessage(publishVersion));
     } catch (e) {
       setPublishSuccessMessage(null);
+      const message = toApiLoadFailure(e).message;
       deps.setFailure(toApiLoadFailure(e));
+      setPublishInlineSaveError(message);
       return;
     } finally {
       deps.setLoading(false);
@@ -455,6 +467,10 @@ export function usePolicyPacksCreatePublish(deps: PolicyPacksAuthoringDeps) {
     onAssign,
     publishSuccessMessage,
     setPublishSuccessMessage,
+    createLastSavedUtc,
+    createInlineSaveError,
+    publishLastSavedUtc,
+    publishInlineSaveError,
     compareLeftVersion,
     compareRightVersion,
     selectedPackSummary,

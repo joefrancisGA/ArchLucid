@@ -10647,6 +10647,24 @@ BEGIN
 END
 GO
 
+/* 356/359: Pre-execute coverage acknowledgement JSON (ADR 0064 synonym-safe). */
+DECLARE @acknowledgedCoverageRunTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
+
+DECLARE @acknowledgedCoverageRunSql NVARCHAR(MAX);
+
+IF @acknowledgedCoverageRunTable IS NOT NULL
+   AND COL_LENGTH(@acknowledgedCoverageRunTable, N'AcknowledgedCoverageJson') IS NULL
+BEGIN
+    SET @acknowledgedCoverageRunSql = N'ALTER TABLE ' + @acknowledgedCoverageRunTable + N' ADD AcknowledgedCoverageJson NVARCHAR(MAX) NULL;';
+
+    EXEC sp_executesql @acknowledgedCoverageRunSql;
+END
+GO
+
 /* 334: Platform-scoped operational error inbox for internal staff review (HTTP, database, and unhandled exceptions). */
 IF OBJECT_ID(N'dbo.PlatformOperationalErrors', N'U') IS NULL
 BEGIN
@@ -11349,7 +11367,8 @@ BEGIN
         CreatedUtc                DATETIME2         NOT NULL,
         UpdatedUtc                DATETIME2         NOT NULL,
         CreatedBy                 NVARCHAR(256)     NULL,
-        UpdatedBy                 NVARCHAR(256)     NULL
+        UpdatedBy                 NVARCHAR(256)     NULL,
+        CoBrandingEnabled         BIT               NOT NULL CONSTRAINT DF_TenantBrandingProfiles_CoBrandingEnabled DEFAULT (0)
     );
 
     CREATE NONCLUSTERED INDEX IX_TenantBrandingProfiles_Tenant_Status
@@ -11794,5 +11813,45 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_AuditArchitectureEvidenceLinks_Tenant_Control
         ON dbo.AuditArchitectureEvidenceLinks (TenantId, AssessmentId, ControlId);
+END;
+GO
+
+/*
+  364: Tenant brand assets (BR-02).
+*/
+
+IF OBJECT_ID(N'dbo.BrandAssets', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.BrandAssets
+    (
+        AssetId            UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_BrandAssets PRIMARY KEY CLUSTERED,
+        TenantId           UNIQUEIDENTIFIER NOT NULL,
+        AssetType          INT               NOT NULL,
+        OriginalFileName   NVARCHAR(512)     NOT NULL,
+        MimeType           NVARCHAR(128)     NOT NULL,
+        Width              INT               NULL,
+        Height             INT               NULL,
+        StorageReference   NVARCHAR(2048)    NOT NULL,
+        ChecksumSha256     VARBINARY(32)     NOT NULL,
+        Status             INT               NOT NULL,
+        CreatedUtc         DATETIME2         NOT NULL,
+        UpdatedUtc         DATETIME2         NOT NULL,
+        CreatedBy          NVARCHAR(256)     NULL
+    );
+
+    CREATE NONCLUSTERED INDEX IX_BrandAssets_Tenant_Status
+        ON dbo.BrandAssets (TenantId, Status);
+END;
+GO
+
+/*
+  365: Tenant branding co-branding flag (BR-04).
+*/
+
+IF COL_LENGTH(N'dbo.TenantBrandingProfiles', N'CoBrandingEnabled') IS NULL
+BEGIN
+    ALTER TABLE dbo.TenantBrandingProfiles
+        ADD CoBrandingEnabled BIT NOT NULL
+            CONSTRAINT DF_TenantBrandingProfiles_CoBrandingEnabled DEFAULT (0);
 END;
 GO

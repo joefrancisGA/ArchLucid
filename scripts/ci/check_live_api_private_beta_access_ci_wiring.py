@@ -11,6 +11,10 @@ from pathlib import Path
 _CI_REL = ".github/workflows/ci.yml"
 _PUSH_REL = ".github/workflows/private-beta-access-on-push.yml"
 _SPEC = "live-api-private-beta-access.spec.ts"
+_CLIENT_REL = "archlucid-ui/e2e/helpers/live-api-client.ts"
+_PRIVATE_BETA_TIMEOUT_FN = "liveE2ePrivateBetaAccessPlaywrightTimeoutMs"
+_LEGACY_RUN_CYCLE_TIMEOUT_FN = "liveE2eArchitectureRunCyclePlaywrightTimeoutMs"
+_MIN_CI_PRIVATE_BETA_PLAYWRIGHT_TIMEOUT_MS = 2_700_000
 _JOB_MARKER = "ui-e2e-live-beta-access"
 _JOB_NAME = "Operator UI: private-beta access-path (JwtBearer)"
 _FULL_REGRESSION_NEED = "dotnet-full-regression-core-complete"
@@ -68,6 +72,53 @@ def _require_live_e2e_build(rel_path: str, text: str, errors: list[str]) -> None
         )
 
 
+def _require_private_beta_playwright_timeout_wiring(spec_text: str, client_text: str, errors: list[str]) -> None:
+    if _PRIVATE_BETA_TIMEOUT_FN not in spec_text:
+        errors.append(
+            f"archlucid-ui/e2e/{_SPEC}: must import and use {_PRIVATE_BETA_TIMEOUT_FN} "
+            "for per-test Playwright timeout (120m job / 45m per-test CI budget)",
+        )
+
+    if f"test.setTimeout({_PRIVATE_BETA_TIMEOUT_FN}())" not in spec_text:
+        errors.append(
+            f"archlucid-ui/e2e/{_SPEC}: each invite-wave test must call "
+            f"test.setTimeout({_PRIVATE_BETA_TIMEOUT_FN}())",
+        )
+
+    if _LEGACY_RUN_CYCLE_TIMEOUT_FN in spec_text:
+        errors.append(
+            f"archlucid-ui/e2e/{_SPEC}: must not use {_LEGACY_RUN_CYCLE_TIMEOUT_FN} "
+            f"(10m CI budget is insufficient for private-beta create-run); use {_PRIVATE_BETA_TIMEOUT_FN}",
+        )
+
+    if _PRIVATE_BETA_TIMEOUT_FN not in client_text:
+        errors.append(f"{_CLIENT_REL}: missing {_PRIVATE_BETA_TIMEOUT_FN} export")
+
+        return
+
+    match = re.search(
+        rf"export function {_PRIVATE_BETA_TIMEOUT_FN}\(\).*?if \(process\.env\.CI\) \{{\s*return ([\d_]+);",
+        client_text,
+        re.DOTALL,
+    )
+
+    if match is None:
+        errors.append(
+            f"{_CLIENT_REL}: {_PRIVATE_BETA_TIMEOUT_FN} must return a numeric CI timeout "
+            f">= {_MIN_CI_PRIVATE_BETA_PLAYWRIGHT_TIMEOUT_MS}",
+        )
+
+        return
+
+    ci_timeout_ms = int(match.group(1).replace("_", ""))
+
+    if ci_timeout_ms < _MIN_CI_PRIVATE_BETA_PLAYWRIGHT_TIMEOUT_MS:
+        errors.append(
+            f"{_CLIENT_REL}: {_PRIVATE_BETA_TIMEOUT_FN} CI timeout {ci_timeout_ms}ms is below "
+            f"{_MIN_CI_PRIVATE_BETA_PLAYWRIGHT_TIMEOUT_MS}ms (private-beta job timeout-minutes=120)",
+        )
+
+
 def _require_private_beta_job_timeout(rel_path: str, text: str, errors: list[str]) -> None:
     job_text = text if rel_path == _PUSH_REL else _extract_yaml_job_block(text, _JOB_MARKER)
 
@@ -100,11 +151,18 @@ def main(argv: list[str] | None = None) -> int:
     ci_path = root / _CI_REL
     push_path = root / _PUSH_REL
     spec_path = root / "archlucid-ui" / "e2e" / _SPEC
+    client_path = root / _CLIENT_REL
 
     errors: list[str] = []
 
     if not spec_path.is_file():
         errors.append(f"missing private-beta access spec: archlucid-ui/e2e/{_SPEC}")
+    elif not client_path.is_file():
+        errors.append(f"missing live API client helper: {_CLIENT_REL}")
+    else:
+        spec_text = spec_path.read_text(encoding="utf-8", errors="replace")
+        client_text = client_path.read_text(encoding="utf-8", errors="replace")
+        _require_private_beta_playwright_timeout_wiring(spec_text, client_text, errors)
 
     if not ci_path.is_file():
         errors.append(f"missing {_CI_REL}")

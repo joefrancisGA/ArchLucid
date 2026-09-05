@@ -1329,7 +1329,7 @@ describe("wave26 filter url helpers", () => {
     expect(parseArchitectureDiagramFindingIdFromSearch("finding-7")).toBe("finding-7");
     expect(
       architectureDiagramFindingHrefFromSearch("tab=architecture", "finding-7", "/architecture/reviews/r1"),
-    ).toBe("/architecture/reviews/r1?tab=architecture&diagramFindingId=finding-7");
+    ).toBe("/architecture/reviews/r1?tab=architecture&findingId=finding-7");
     expect(parseFindingsWhatIfEnabledFromSearch("1")).toBe(true);
     expect(parseFindingsWhatIfIdsFromSearch("f1,f2")).toEqual(["f1", "f2"]);
     expect(
@@ -2604,6 +2604,8 @@ describe("wave37 filter url helpers", () => {
     const {
       parseGlobalSearchBarOpenFromSearch,
       globalSearchBarOverlayHrefFromSearch,
+      isGlobalSearchBarOverlayHrefCurrent,
+      currentPathnameWithSearch,
     } = await import("@/lib/operator/global-search-bar-overlay-url");
     const {
       parseMobileNavDrawerOpenFromSearch,
@@ -2626,6 +2628,9 @@ describe("wave37 filter url helpers", () => {
     );
     expect(parseGlobalSearchBarOpenFromSearch("true")).toBe(true);
     expect(globalSearchBarOverlayHrefFromSearch("help=1", true, "/")).toBe("/?help=1&globalSearchOpen=1");
+    expect(currentPathnameWithSearch("/", "help=1")).toBe("/?help=1");
+    expect(isGlobalSearchBarOverlayHrefCurrent("help=1&globalSearchOpen=1", true, "/")).toBe(true);
+    expect(isGlobalSearchBarOverlayHrefCurrent("help=1", true, "/")).toBe(false);
     expect(parseMobileNavDrawerOpenFromSearch("1")).toBe(true);
     expect(mobileNavDrawerHrefFromSearch("reviewTab=overview", true, "/architecture/reviews/r1")).toBe(
       "/architecture/reviews/r1?reviewTab=overview&mobileNavOpen=1",
@@ -2719,6 +2724,291 @@ describe("wave38 filter url helpers", () => {
     expect(alertRulesSimulateRuleHrefFromSearch("tab=rules", "rule-1", "/governance/alerts")).toBe(
       "/governance/alerts?tab=rules&simulateRule=rule-1",
     );
+  });
+});
+
+describe("wave39 filter url helpers", () => {
+  it("scope switcher, welcome modal, onboarding tour, shortcuts, and run picker params", async () => {
+    const {
+      parseScopeSwitcherOpenFromSearch,
+      scopeSwitcherHrefFromSearch,
+    } = await import("@/lib/operator/scope-switcher-url");
+    const {
+      operatorWelcomeOnboardingHrefFromSearch,
+      parseOperatorWelcomeOpenFromSearch,
+    } = await import("@/lib/operator/operator-welcome-onboarding-url");
+    const {
+      onboardingTourOverlayHrefFromSearch,
+      parseOnboardingTourOpenFromSearch,
+      parseOnboardingTourStepFromSearch,
+    } = await import("@/lib/tour/onboarding-tour-overlay-url");
+    const {
+      keyboardShortcutsDialogHrefFromSearch,
+      parseKeyboardShortcutsOpenFromSearch,
+    } = await import("@/lib/operator/keyboard-shortcuts-dialog-url");
+    const {
+      parseRunIdPickerOpenFieldFromSearch,
+      parseRunIdPickerQueryFromSearch,
+      runIdPickerOverlayHrefFromSearch,
+    } = await import("@/lib/runs/run-id-picker-overlay-url");
+
+    expect(parseScopeSwitcherOpenFromSearch("1")).toBe(true);
+    expect(scopeSwitcherHrefFromSearch("", true, "/architecture/reviews")).toBe(
+      "/architecture/reviews?scopeOpen=1",
+    );
+    expect(parseOperatorWelcomeOpenFromSearch("true")).toBe(true);
+    expect(operatorWelcomeOnboardingHrefFromSearch("help=1", true, "/")).toBe("/?help=1&welcomeOpen=1");
+    expect(parseOnboardingTourOpenFromSearch("1")).toBe(true);
+    expect(parseOnboardingTourStepFromSearch("2")).toBe(2);
+    expect(
+      onboardingTourOverlayHrefFromSearch("", { open: true, stepIndex: 2 }, "/architecture/reviews"),
+    ).toBe("/architecture/reviews?onboardingTourOpen=1&onboardingTourStep=2");
+    expect(parseKeyboardShortcutsOpenFromSearch("1")).toBe(true);
+    expect(keyboardShortcutsDialogHrefFromSearch("", true, "/")).toBe("/?shortcutsOpen=1");
+    expect(parseRunIdPickerOpenFieldFromSearch("compare-left-run-id")).toBe("compare-left-run-id");
+    expect(parseRunIdPickerQueryFromSearch("alpha")).toBe("alpha");
+    expect(
+      runIdPickerOverlayHrefFromSearch(
+        "compare=1",
+        { open: true, fieldId: "compare-left-run-id", query: "alpha" },
+        "/insights/compare-two-reviews",
+      ),
+    ).toBe("/insights/compare-two-reviews?compare=1&runPickerField=compare-left-run-id&runPickerQ=alpha");
+  });
+
+  it("shell more menu, provenance nav, gov approval tech ref, settings advanced, wizard import params", async () => {
+    const {
+      parseShellTopBarMoreOpenFromSearch,
+      shellTopBarMoreMenuHrefFromSearch,
+    } = await import("@/lib/operator/shell-top-bar-more-menu-url");
+    const {
+      parseProvenanceSectionNavOpenFromSearch,
+      provenanceSectionNavHrefFromSearch,
+    } = await import("@/lib/provenance/provenance-section-nav-url");
+    const {
+      helpGovApprovalTechnicalReferenceHrefFromSearch,
+      parseHelpGovApprovalTechRefOpenFromSearch,
+    } = await import("@/lib/help/help-governance-approval-technical-reference-url");
+    const {
+      parseTenantSettingsQualityAdvancedOpenFromSearch,
+      tenantSettingsQualityAdvancedHrefFromSearch,
+    } = await import("@/lib/administration/tenant-settings-quality-advanced-url");
+    const {
+      parseWizardPresetImportOpenFromSearch,
+      wizardStepPresetImportHrefFromSearch,
+    } = await import("@/lib/wizard/wizard-step-preset-import-url");
+
+    expect(parseShellTopBarMoreOpenFromSearch("1")).toBe(true);
+    expect(shellTopBarMoreMenuHrefFromSearch("", true, "/architecture/reviews")).toBe(
+      "/architecture/reviews?shellMoreOpen=1",
+    );
+    expect(parseProvenanceSectionNavOpenFromSearch("true")).toBe(true);
+    expect(provenanceSectionNavHrefFromSearch("runId=r1", true, "/architecture/reviews/r1/provenance")).toBe(
+      "/architecture/reviews/r1/provenance?runId=r1&provNavOpen=1",
+    );
+    expect(parseHelpGovApprovalTechRefOpenFromSearch("1")).toBe(true);
+    expect(
+      helpGovApprovalTechnicalReferenceHrefFromSearch("", true, "/help/governance-approval"),
+    ).toBe("/help/governance-approval?helpGovApprovalTechRef=1");
+    expect(parseTenantSettingsQualityAdvancedOpenFromSearch("1")).toBe(true);
+    expect(
+      tenantSettingsQualityAdvancedHrefFromSearch("tab=general", true, "/administration/workspace-settings"),
+    ).toBe("/administration/workspace-settings?tab=general&settingsQualityAdvancedOpen=1");
+    expect(parseWizardPresetImportOpenFromSearch("true")).toBe(true);
+    expect(
+      wizardStepPresetImportHrefFromSearch("qsStep=1", true, "/architecture/reviews/new"),
+    ).toBe("/architecture/reviews/new?qsStep=1&wizardImportOpen=1");
+  });
+});
+
+describe("wave40 filter url helpers", () => {
+  it("re-run confirm, audit trail tech ref, shortcuts section, and run record metadata params", async () => {
+    const {
+      parseReRunReviewConfirmOpenFromSearch,
+      parseReRunReviewConfirmSourceFromSearch,
+      reRunReviewConfirmHrefFromSearch,
+      resolveReRunReviewConfirmDialogOpenForButton,
+    } = await import("@/lib/runs/re-run-review-confirm-url");
+    const {
+      helpAuditTrailTechnicalReferenceHrefFromSearch,
+      parseHelpAuditTrailTechRefOpenFromSearch,
+    } = await import("@/lib/help/help-audit-trail-technical-reference-url");
+    const {
+      keyboardShortcutsSectionHrefFromSearch,
+      parseKeyboardShortcutsSectionFromSearch,
+    } = await import("@/lib/operator/keyboard-shortcuts-section-url");
+    const {
+      parseRunDetailRecordMetadataOpenFromSearch,
+      runDetailRecordMetadataHrefFromSearch,
+    } = await import("@/lib/runs/run-detail-record-metadata-url");
+
+    expect(parseReRunReviewConfirmOpenFromSearch("1")).toBe(true);
+    expect(parseReRunReviewConfirmSourceFromSearch("review-package-re-run-review")).toBe(
+      "review-package-re-run-review",
+    );
+    expect(
+      reRunReviewConfirmHrefFromSearch(
+        "tab=overview",
+        true,
+        "/architecture/reviews/r1",
+        "review-package-re-run-review",
+      ),
+    ).toBe("/architecture/reviews/r1?tab=overview&reRunConfirmOpen=1&reRunConfirmSource=review-package-re-run-review");
+    expect(
+      resolveReRunReviewConfirmDialogOpenForButton({
+        urlConfirmOpen: true,
+        urlConfirmSource: "review-package-re-run-review",
+        buttonTestId: "run-progress-re-run-review",
+      }),
+    ).toBe(false);
+    expect(parseHelpAuditTrailTechRefOpenFromSearch("true")).toBe(true);
+    expect(
+      helpAuditTrailTechnicalReferenceHrefFromSearch("", true, "/help/audit-trail"),
+    ).toBe("/help/audit-trail?helpAuditTrailTechRef=1");
+    expect(parseKeyboardShortcutsSectionFromSearch("alerts")).toBe("alerts");
+    expect(keyboardShortcutsSectionHrefFromSearch("shortcutsOpen=1", "review", "/help")).toBe(
+      "/help?shortcutsOpen=1&shortcutsSection=review",
+    );
+    expect(parseRunDetailRecordMetadataOpenFromSearch("1")).toBe(true);
+    expect(
+      runDetailRecordMetadataHrefFromSearch("", true, "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?runRecordMetaOpen=1");
+  });
+
+  it("sidebar recent, settings advanced, audit technical details, help advanced, invites, billing addons params", async () => {
+    const {
+      parseSidebarRecentActivityOpenFromSearch,
+      sidebarRecentActivityHrefFromSearch,
+    } = await import("@/lib/sidebar-nav/sidebar-recent-activity-url");
+    const {
+      parseSettingsMasterAdvancedOpenFromSearch,
+      settingsMasterAdvancedHrefFromSearch,
+    } = await import("@/lib/administration/settings-master-advanced-url");
+    const {
+      auditPageTechnicalDetailsHrefFromSearch,
+      parseAuditPageTechnicalDetailsOpenFromSearch,
+    } = await import("@/lib/governance/audit-page-technical-details-url");
+    const {
+      helpAdvancedTopicsHrefFromSearch,
+      parseHelpAdvancedTopicsOpenFromSearch,
+    } = await import("@/lib/help/help-advanced-topics-url");
+    const {
+      parseSettingsInvitesShowResolvedFromSearch,
+      settingsInvitesShowResolvedHrefFromSearch,
+    } = await import("@/lib/administration/settings-invites-show-resolved-url");
+    const {
+      billingPlanAddonsHrefFromSearch,
+      parseBillingPlanAddonsOpenFromSearch,
+    } = await import("@/lib/administration/billing-plan-addons-url");
+
+    expect(parseSidebarRecentActivityOpenFromSearch("1")).toBe(true);
+    expect(sidebarRecentActivityHrefFromSearch("scopeOpen=1", true, "/architecture/reviews")).toBe(
+      "/architecture/reviews?scopeOpen=1&sidebarRecentOpen=1",
+    );
+    expect(parseSettingsMasterAdvancedOpenFromSearch("true")).toBe(true);
+    expect(settingsMasterAdvancedHrefFromSearch("q=api", true)).toBe("/administration?q=api&settingsMasterAdvancedOpen=1");
+    expect(parseAuditPageTechnicalDetailsOpenFromSearch("1")).toBe(true);
+    expect(auditPageTechnicalDetailsHrefFromSearch("runId=r1", true)).toBe(
+      "/governance/audit?runId=r1&auditTechnicalDetailsOpen=1",
+    );
+    expect(parseHelpAdvancedTopicsOpenFromSearch("1")).toBe(true);
+    expect(helpAdvancedTopicsHrefFromSearch("q=sso", true)).toBe("/help?q=sso&helpAdvancedTopicsOpen=1");
+    expect(parseSettingsInvitesShowResolvedFromSearch("1")).toBe(true);
+    expect(settingsInvitesShowResolvedHrefFromSearch("", true)).toBe(
+      "/administration/users?settingsInvitesShowResolved=1",
+    );
+    expect(parseBillingPlanAddonsOpenFromSearch("1")).toBe(true);
+    expect(billingPlanAddonsHrefFromSearch("plan=architect", true)).toBe(
+      "/administration/billing?plan=architect&billingPlanAddonsOpen=1",
+    );
+  });
+});
+
+describe("wave41 filter url helpers", () => {
+  it("lineage chain, wizard inventory/azure advanced, quick review advanced, and muted filter params", async () => {
+    const {
+      auditEvidenceLineageChainHrefFromSearch,
+      parseAuditEvidenceLineageChainOpenFromSearch,
+    } = await import("@/lib/governance/audit-evidence-lineage-chain-url");
+    const {
+      parseWizardInventoryOpenFromSearch,
+      wizardStepCloudInventoryHrefFromSearch,
+    } = await import("@/lib/wizard/wizard-step-cloud-inventory-url");
+    const {
+      parseWizardAzureAdvancedOpenFromSearch,
+      wizardAzureAdvancedHrefFromSearch,
+    } = await import("@/lib/wizard/wizard-azure-advanced-url");
+    const {
+      parseQuickReviewAdvancedOpenFromSearch,
+      quickReviewAdvancedConfigHrefFromSearch,
+    } = await import("@/lib/wizard/quick-review-advanced-config-url");
+    const {
+      parseQuickDecisionShowMutedFromSearch,
+      quickDecisionMutedFilterHrefFromSearch,
+    } = await import("@/lib/reviews/quick-decision-muted-filter-url");
+
+    expect(parseAuditEvidenceLineageChainOpenFromSearch("1")).toBe(true);
+    expect(
+      auditEvidenceLineageChainHrefFromSearch("", true, "/governance/audit-evidence/a/s/c"),
+    ).toBe("/governance/audit-evidence/a/s/c?lineageChainOpen=1");
+    expect(parseWizardInventoryOpenFromSearch("true")).toBe(true);
+    expect(wizardStepCloudInventoryHrefFromSearch("qsStep=2", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?qsStep=2&wizardInventoryOpen=1",
+    );
+    expect(parseWizardAzureAdvancedOpenFromSearch("1")).toBe(true);
+    expect(wizardAzureAdvancedHrefFromSearch("", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?wizardAzureAdvancedOpen=1",
+    );
+    expect(parseQuickReviewAdvancedOpenFromSearch("1")).toBe(true);
+    expect(quickReviewAdvancedConfigHrefFromSearch("", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?quickReviewAdvancedOpen=1",
+    );
+    expect(parseQuickDecisionShowMutedFromSearch("1")).toBe(true);
+    expect(
+      quickDecisionMutedFilterHrefFromSearch("tab=findings", true, "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?tab=findings&showMuted=1");
+  });
+
+  it("compare manifest diff, finding provenance, draft intake reason, submitted brief, home workspace details params", async () => {
+    const {
+      compareManifestDiffHrefFromSearch,
+      parseCompareManifestDiffOpenFromSearch,
+    } = await import("@/lib/compare/compare-manifest-diff-url");
+    const {
+      findingProvenancePanelHrefFromSearch,
+      parseFindingProvenanceOpenFromSearch,
+    } = await import("@/lib/findings/finding-provenance-panel-url");
+    const {
+      draftIntakeReasoningPanelHrefFromSearch,
+      parseDraftIntakeReasonOpenFromSearch,
+    } = await import("@/lib/draft-intake/draft-intake-reasoning-panel-url");
+    const {
+      parseSubmittedBriefOpenFromSearch,
+      submittedBriefDisclosureHrefFromSearch,
+    } = await import("@/lib/architecture/submitted-brief-disclosure-url");
+    const {
+      homeWorkspaceDetailsHrefFromSearch,
+      parseHomeWorkspaceDetailsOpenFromSearch,
+    } = await import("@/lib/operator-home/home-workspace-details-url");
+
+    expect(parseCompareManifestDiffOpenFromSearch("1")).toBe(true);
+    expect(compareManifestDiffHrefFromSearch("compare=1", true, "/insights/compare-two-reviews")).toBe(
+      "/insights/compare-two-reviews?compare=1&compareManifestDiffOpen=1",
+    );
+    expect(parseFindingProvenanceOpenFromSearch("true")).toBe(true);
+    expect(
+      findingProvenancePanelHrefFromSearch("", true, "/architecture/reviews/r1/findings/f1"),
+    ).toBe("/architecture/reviews/r1/findings/f1?findingProvenanceOpen=1");
+    expect(parseDraftIntakeReasonOpenFromSearch("1")).toBe(true);
+    expect(draftIntakeReasoningPanelHrefFromSearch("draftId=d1", true, "/architecture/drafts/d1")).toBe(
+      "/architecture/drafts/d1?draftId=d1&draftIntakeReasonOpen=1",
+    );
+    expect(parseSubmittedBriefOpenFromSearch("1")).toBe(true);
+    expect(
+      submittedBriefDisclosureHrefFromSearch("tab=overview", true, "/architecture/created/a1"),
+    ).toBe("/architecture/created/a1?tab=overview&submittedBriefOpen=1");
+    expect(parseHomeWorkspaceDetailsOpenFromSearch("1")).toBe(true);
+    expect(homeWorkspaceDetailsHrefFromSearch("", true, "/")).toBe("/?homeWorkspaceDetailsOpen=1");
   });
 });
 

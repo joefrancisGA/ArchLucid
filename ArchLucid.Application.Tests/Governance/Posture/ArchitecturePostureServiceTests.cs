@@ -1,6 +1,11 @@
 using ArchLucid.Application.Governance.Posture;
+using ArchLucid.Application.Tests.Governance;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance.Posture;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Governance.Posture;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -23,7 +28,7 @@ public sealed class ArchitecturePostureServiceTests
         reader.Setup(r => r.ReadAsync(TenantId, WorkspaceId, ProjectId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ArchitecturePostureReadModel());
 
-        ArchitecturePostureService sut = new(reader.Object, new ExaminationStateResolver());
+        ArchitecturePostureService sut = CreateSut(reader.Object);
 
         ArchitecturePostureSummary summary = await sut.GetSummaryAsync(
             TenantId,
@@ -76,7 +81,7 @@ public sealed class ArchitecturePostureServiceTests
         reader.Setup(r => r.ReadAsync(TenantId, WorkspaceId, ProjectId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(readModel);
 
-        ArchitecturePostureService sut = new(reader.Object, new ExaminationStateResolver());
+        ArchitecturePostureService sut = CreateSut(reader.Object);
 
         ArchitecturePostureSummary summary = await sut.GetSummaryAsync(
             TenantId,
@@ -100,7 +105,7 @@ public sealed class ArchitecturePostureServiceTests
         reader.Setup(r => r.ReadAsync(TenantId, WorkspaceId, ProjectId, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("database unavailable"));
 
-        ArchitecturePostureService sut = new(reader.Object, new ExaminationStateResolver());
+        ArchitecturePostureService sut = CreateSut(reader.Object);
 
         ArchitecturePostureSummary summary = await sut.GetSummaryAsync(
             TenantId,
@@ -137,7 +142,7 @@ public sealed class ArchitecturePostureServiceTests
         reader.Setup(r => r.ReadAsync(TenantId, WorkspaceId, ProjectId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(readModel);
 
-        ArchitecturePostureService sut = new(reader.Object, new ExaminationStateResolver());
+        ArchitecturePostureService sut = CreateSut(reader.Object);
 
         ArchitecturePostureSummary summary = await sut.GetSummaryAsync(
             TenantId,
@@ -146,5 +151,27 @@ public sealed class ArchitecturePostureServiceTests
             cancellationToken: CancellationToken.None);
 
         summary.PrimaryPillarKey.Should().Be(nameof(ArchitecturePillar.CostEffectiveness));
+    }
+
+    private static ArchitecturePostureService CreateSut(IArchitecturePostureReader reader)
+    {
+        Mock<IRunDetailQueryService> runQuery = new();
+        runQuery
+            .Setup(q => q.ListRunSummariesKeysetAsync(null, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Array.Empty<RunSummary>() as IReadOnlyList<RunSummary>, false, (string?)null));
+
+        ScopeContext scope = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+        };
+
+        return new ArchitecturePostureService(
+            reader,
+            new ExaminationStateResolver(),
+            runQuery.Object,
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateAuthorityQueryServiceForAnyRun(scope),
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService());
     }
 }

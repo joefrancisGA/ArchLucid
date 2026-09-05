@@ -74,6 +74,7 @@ internal static class BuyerProofPackArtifactSummaryBuilder
             builder.AppendLine("| Metric | Value |");
             builder.AppendLine("| --- | ---: |");
             AppendCoverageRow(builder, coverage, "totalDecisionGradeCount", "Total decision-grade findings");
+            AppendCoverageRow(builder, coverage, "totalChecklistCoverageCount", "Checklist coverage findings");
             AppendCoverageRow(builder, coverage, "governedCount", "Governance-blocking");
             AppendCoverageRow(builder, coverage, "advisoryCount", "Advisory-only");
             AppendCoverageRow(builder, coverage, "withPolicyRuleCount", "With policy rule");

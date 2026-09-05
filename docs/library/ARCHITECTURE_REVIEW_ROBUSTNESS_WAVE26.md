@@ -2,7 +2,7 @@
 
 # Architecture create/review robustness — wave 26
 
-Companion to [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE25.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE25.md) (suggestions 241–250).
+Companion to [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE25.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE25.md) (suggestions 241–250). Successor: [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE27.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE27.md) (259–279 carryover batch). Wave-28 stretch batch: [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE28.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE28.md).
 
 | # | Control | Primary wiring |
 |---|---------|----------------|
@@ -29,4 +29,4 @@ Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave26Arc
 
 **Hasher baseline note:** wave 26 does not bump Hasher A schema version; export gates, compare fingerprints, and finding read/write sync remain on the existing **`v12`** baseline (`tests/manifest-hash/hasher-baseline-v12.json`).
 
-**Deferred to wave 27+:** 259–261, 263–267, 272, 277–279 (multi-run aggregation, alert evaluate/persist/outbox metadata, sponsor ROI server exports, governance insights/posture).
+**Deferred to wave 27+:** 259–261, 263–267, 272, 277–279 (multi-run aggregation, alert evaluate/persist/outbox metadata, sponsor ROI server exports, governance insights/posture). Shipped in [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE27.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE27.md).

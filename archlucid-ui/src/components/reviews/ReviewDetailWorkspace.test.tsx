@@ -391,4 +391,28 @@ describe("ReviewDetailWorkspace", () => {
       expect(card).toHaveAttribute("data-workbench-selected", "false");
     });
   });
+
+  it("keeps workbench visible while pipeline is in flight (LS-09)", () => {
+    window.localStorage.setItem(PROFESSIONAL_WORKBENCH_STORAGE_KEY, "1");
+    workspaceModeMock.mode = "working";
+    workspaceModeMock.isWorkingMode = true;
+    window.localStorage.setItem(WORKSPACE_MODE_STORAGE_KEY, "working");
+
+    render(
+      <ReviewDetailWorkspace
+        runId={RUN_ID}
+        tabLifecycle={{
+          manifestId: null,
+          showProgressTracker: true,
+          runCompleted: false,
+        }}
+        inPipelineBanner={<div data-testid="in-pipeline-banner">Analysis running</div>}
+        panels={workspacePanels}
+      />,
+    );
+
+    expect(screen.getByTestId(REVIEW_WORKBENCH_LAYOUT_TEST_ID)).toBeInTheDocument();
+    expect(screen.getAllByTestId("in-pipeline-banner").length).toBeGreaterThan(0);
+    expect(screen.getByRole("tab", { name: /Architecture/i })).toBeInTheDocument();
+  });
 });

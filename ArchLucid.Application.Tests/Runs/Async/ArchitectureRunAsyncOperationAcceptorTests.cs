@@ -2,7 +2,9 @@ using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Async;
+using ArchLucid.Application.Runs.Orchestration.Execute.Hooks;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
@@ -64,6 +66,51 @@ public sealed class ArchitectureRunAsyncOperationAcceptorTests
             CancellationToken.None);
 
         operationId.Should().Be($"run:{runId:D}");
+        queue.Verify(
+            q => q.EnqueueAsync(It.IsAny<ArchitectureRunAsyncOperationWorkItem>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task AcceptExecuteAsync_failed_run_marks_retrying_before_enqueue()
+    {
+        Guid runId = Guid.NewGuid();
+        RunRecord header = new()
+        {
+            RunId = runId,
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Failed),
+            RetryCount = 0,
+            CompletedUtc = TimeProvider.System.UtcNowDateTime()
+        };
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(DefaultScope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(header);
+        Mock<IArchitectureRunAsyncOperationQueue> queue = new();
+        queue
+            .Setup(q => q.EnqueueAsync(It.IsAny<ArchitectureRunAsyncOperationWorkItem>(), It.IsAny<CancellationToken>()))
+            .Returns(ValueTask.CompletedTask);
+        Mock<IArchitectureRunExecuteAuditHook> audit = new();
+        ArchitectureRunAsyncOperationAcceptor sut = CreateSut(runs: runs, queue: queue, audit: audit);
+
+        string operationId = await sut.AcceptExecuteAsync(
+            runId.ToString("D"),
+            DefaultScope,
+            "actor",
+            "corr",
+            CancellationToken.None);
+
+        operationId.Should().Be($"run:{runId:D}");
+        header.LegacyRunStatus.Should().Be(nameof(ArchitectureRunStatus.Retrying));
+        header.RetryCount.Should().Be(1);
+        header.CompletedUtc.Should().BeNull();
+        audit.Verify(
+            a => a.LogFailedRunRetryRequestedAsync(
+                It.Is<ArchitectureRun>(run => run.Status == ArchitectureRunStatus.Failed),
+                runId.ToString("D"),
+                "actor",
+                It.IsAny<CancellationToken>()),
+            Times.Once);
         queue.Verify(
             q => q.EnqueueAsync(It.IsAny<ArchitectureRunAsyncOperationWorkItem>(), It.IsAny<CancellationToken>()),
             Times.Once);
@@ -259,7 +306,8 @@ public sealed class ArchitectureRunAsyncOperationAcceptorTests
         Mock<IArchitectureRunAsyncOperationQueue>? queue = null,
         Mock<IReplayRunService>? replay = null,
         Mock<IArchitectureRunAsyncCreateAdmitter>? admitter = null,
-        ArchitectureRunAsyncOperationRegistrar? registrar = null)
+        ArchitectureRunAsyncOperationRegistrar? registrar = null,
+        Mock<IArchitectureRunExecuteAuditHook>? audit = null)
     {
         Mock<IRunRepository> runRepo = runs ?? new Mock<IRunRepository>();
         Mock<IArchitectureRunAsyncOperationQueue> operationQueue = queue ?? new Mock<IArchitectureRunAsyncOperationQueue>();
@@ -270,6 +318,8 @@ public sealed class ArchitectureRunAsyncOperationAcceptorTests
             operationQueue.Object,
             registrar ?? new ArchitectureRunAsyncOperationRegistrar(),
             replayService.Object,
-            (admitter ?? new Mock<IArchitectureRunAsyncCreateAdmitter>()).Object);
+            (admitter ?? new Mock<IArchitectureRunAsyncCreateAdmitter>()).Object,
+            new FailedRunRetryAdmission(runRepo.Object),
+            (audit ?? new Mock<IArchitectureRunExecuteAuditHook>()).Object);
     }
 }

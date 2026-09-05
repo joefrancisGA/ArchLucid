@@ -44,7 +44,29 @@ vi.mock("@/hooks/use-architecture-draft-autosave", () => ({
     acceptServerBaseline: vi.fn(),
     syncServerUpdatedUtc: vi.fn(),
     hasPersistedDraft: true,
+    markDirty: vi.fn(),
+    keepLocalDraftOnConflict: vi.fn(async () => true),
   })),
+}));
+
+vi.mock("@/hooks/use-architecture-draft-document-undo", () => ({
+  useArchitectureDraftDocumentUndo: vi.fn(() => ({
+    canUndo: false,
+    canRedo: false,
+    undo: vi.fn(() => false),
+    redo: vi.fn(() => false),
+    resetStacks: vi.fn(),
+  })),
+}));
+
+const workspaceModeMock = vi.fn(() => ({
+  mode: "guided" as const,
+  isWorkingMode: false,
+  isGuidedMode: true,
+}));
+
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => workspaceModeMock(),
 }));
 
 vi.mock("@/hooks/use-unsaved-changes-guard", () => ({
@@ -158,6 +180,11 @@ const spawnedDraft = {
 
 beforeEach(() => {
   window.localStorage.removeItem(ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY);
+  workspaceModeMock.mockReturnValue({
+    mode: "guided",
+    isWorkingMode: false,
+    isGuidedMode: true,
+  });
   getDraftRequest.mockReset();
   getRunSummary.mockReset();
   saveDraft.mockReset();
@@ -181,6 +208,8 @@ beforeEach(() => {
     acceptServerBaseline: vi.fn(),
     syncServerUpdatedUtc: vi.fn(),
     hasPersistedDraft: true,
+    markDirty: vi.fn(),
+    keepLocalDraftOnConflict: vi.fn(async () => true),
   });
 });
 
@@ -223,8 +252,10 @@ describe("ArchitectureDraftWorkspace", () => {
       saveDraft,
       reloadDraft,
       acceptServerBaseline: vi.fn(),
-    syncServerUpdatedUtc: vi.fn(),
+      syncServerUpdatedUtc: vi.fn(),
       hasPersistedDraft: false,
+      markDirty: vi.fn(),
+      keepLocalDraftOnConflict: vi.fn(async () => true),
     });
 
     render(<ArchitectureDraftWorkspace architectureId={ARCHITECTURE_NEW_DRAFT_SEGMENT} />);
@@ -514,6 +545,27 @@ describe("ArchitectureDraftWorkspace", () => {
     expect(screen.getByLabelText(/Architecture overview/i)).toBeDisabled();
   });
 
+  it("Working mode renders handoff panel without editable fields when spawn-locked (LK-04)", async () => {
+    workspaceModeMock.mockReturnValue({
+      mode: "working",
+      isWorkingMode: true,
+      isGuidedMode: false,
+    });
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-handoff-panel")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("architecture-draft-handoff-banner")).not.toBeInTheDocument();
+    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-handoff-open-review")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/run-001",
+    );
+  });
+
   it("warns at the top and freezes the form when the draft is already in review intake", async () => {
     getDraftRequest.mockResolvedValue({
       ...spawnedDraft,
@@ -557,6 +609,10 @@ describe("ArchitectureDraftWorkspace", () => {
       expect(screen.getByTestId("architecture-scope-understanding-check")).toBeInTheDocument();
     });
 
+    Object.defineProperty(document, "visibilityState", {
+      configurable: true,
+      value: "visible",
+    });
     document.dispatchEvent(new Event("visibilitychange"));
 
     await waitFor(() => {

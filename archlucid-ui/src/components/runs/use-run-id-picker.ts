@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState, useCallback } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
@@ -8,6 +9,11 @@ import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
+import {
+  parseRunIdPickerOpenFieldFromSearch,
+  parseRunIdPickerQueryFromSearch,
+  runIdPickerOverlayHrefFromSearch,
+} from "@/lib/runs/run-id-picker-overlay-url";
 
 /** Preferred demo run id when multiple rows exist and demo mode is enabled (`NEXT_PUBLIC_DEMO_MODE`). */
 const DEMO_RUN_PREF_ID = SHOWCASE_STATIC_DEMO_RUN_ID;
@@ -69,17 +75,95 @@ export function useRunIdPicker({
   useBuyerFacingRunLabels = false,
   onRunPicked,
 }: UseRunIdPickerOptions) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const urlSyncFieldId = (inputId ?? "").trim();
+  const runPickerFieldParam = searchParams.get("runPickerField");
+  const runPickerQueryParam = searchParams.get("runPickerQ");
+  const pickerOpenFromUrl =
+    urlSyncFieldId.length > 0 && parseRunIdPickerOpenFieldFromSearch(runPickerFieldParam) === urlSyncFieldId;
   const generatedId = useId();
   const controlId = inputId ?? `run-id-picker-${generatedId}`;
   const containerRef = useRef<HTMLDivElement>(null);
   const blurTimerRef = useRef<number | null>(null);
   const [query, setQuery] = useState(value);
-  const [open, setOpen] = useState(false);
+  const [open, setOpenState] = useState(pickerOpenFromUrl);
   const [loadRequested, setLoadRequested] = useState(preferAutoPick);
   const [activeIndex, setActiveIndex] = useState(-1);
   const autoPickAppliedRef = useRef(false);
   const previousValueRef = useRef(value);
-  const [listFilter, setListFilter] = useState("");
+  const [listFilter, setListFilterState] = useState(() => {
+    if (pickerOpenFromUrl) {
+      const urlQuery = parseRunIdPickerQueryFromSearch(runPickerQueryParam);
+
+      if (urlQuery.length > 0) {
+        return urlQuery;
+      }
+    }
+
+    return "";
+  });
+
+  const syncPickerOverlayToUrl = useCallback(
+    (state: { open: boolean; query: string }) => {
+      if (urlSyncFieldId.length === 0) {
+        return;
+      }
+
+      router.replace(
+        runIdPickerOverlayHrefFromSearch(
+          searchParams.toString(),
+          { open: state.open, fieldId: urlSyncFieldId, query: state.query },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams, urlSyncFieldId],
+  );
+
+  const setOpen = useCallback(
+    (next: boolean | ((current: boolean) => boolean)) => {
+      setOpenState((current) => {
+        const resolved = typeof next === "function" ? next(current) : next;
+        syncPickerOverlayToUrl({ open: resolved, query: listFilter });
+
+        return resolved;
+      });
+    },
+    [listFilter, syncPickerOverlayToUrl],
+  );
+
+  const setListFilter = useCallback(
+    (next: string) => {
+      setListFilterState(next);
+
+      if (open && urlSyncFieldId.length > 0) {
+        syncPickerOverlayToUrl({ open: true, query: next });
+      }
+    },
+    [open, syncPickerOverlayToUrl, urlSyncFieldId],
+  );
+
+  useEffect(() => {
+    if (urlSyncFieldId.length === 0) {
+      return;
+    }
+
+    const urlField = parseRunIdPickerOpenFieldFromSearch(runPickerFieldParam);
+    const urlOpen = urlField === urlSyncFieldId;
+
+    setOpenState(urlOpen);
+
+    if (urlOpen) {
+      const urlQuery = parseRunIdPickerQueryFromSearch(runPickerQueryParam);
+
+      if (urlQuery.length > 0) {
+        setListFilterState(urlQuery);
+      }
+    }
+  }, [runPickerFieldParam, runPickerQueryParam, urlSyncFieldId]);
 
   const runsQuery = useAskProjectRunsQuery(projectId, {
     forCompare,

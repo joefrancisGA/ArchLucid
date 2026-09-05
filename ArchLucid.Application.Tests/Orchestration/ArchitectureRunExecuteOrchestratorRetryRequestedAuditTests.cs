@@ -3,6 +3,7 @@ using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Operations;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Async;
 using ArchLucid.Application.Runs.ExecuteOwnership;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.ContextIngestion.Models;
@@ -395,6 +396,7 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
             scopeProvider.Object,
             Mock.Of<IRunGovernanceScopePinService>(),
             new RunStateTransitionService(),
+            new FailedRunRetryAdmission(runRepo.Object),
             NullLogger<IncompleteAuthorityPipelineExecuteHandler>.Instance);
 
         ArchitectureRunExecuteOrchestrator sut = ArchitectureRunExecuteOrchestratorTestFactory.Create(

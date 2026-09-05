@@ -2,11 +2,21 @@
 
 import { useEffect, useMemo, useState, type ReactElement } from "react";
 
-import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
 import { useSessionAiReadiness } from "@/hooks/session-ai-readiness-context";
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
-import { OPERATOR_TYPOGRAPHY, enterpriseStatusTagClass } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   isDevTestingOverridesEnabled,
   readDevAgentExecutionModeOverrideFromDocument,
@@ -17,11 +27,13 @@ import {
   toggleDevAgentExecutionModeFromChip,
 } from "@/lib/execution-mode-top-bar-chip";
 import {
-  REAL_MODE_TOP_BAR_CHIP_DETAIL,
-  REAL_MODE_TOP_BAR_CHIP_LABEL,
-  REAL_MODE_TOP_BAR_CHIP_NOT_READY_DETAIL,
-  SIMULATOR_MODE_TOP_BAR_CHIP_DETAIL,
-  SIMULATOR_MODE_TOP_BAR_CHIP_LABEL,
+  ANALYSIS_MODE_RULE_BASED_LABEL,
+  ANALYSIS_MODE_RULE_BASED_SWITCH_PROMPT,
+  ANALYSIS_MODE_RULE_BASED_SWITCH_TITLE,
+  ANALYSIS_MODE_WORKSPACE_LABEL,
+  ANALYSIS_MODE_WORKSPACE_SWITCH_PROMPT,
+  ANALYSIS_MODE_WORKSPACE_SWITCH_TITLE,
+  resolveAnalysisModeTopBarButtonLabel,
 } from "@/lib/simulator-mode-chrome-copy";
 import { cn } from "@/lib/utils";
 
@@ -30,14 +42,14 @@ export type SimulatorModeTopBarChipProps = {
 };
 
 /**
- * Persistent, intentionally loud execution-mode indicator in the operator shell top bar.
- * Hidden when the host starts in Real mode with no dev override; toggles Simulator ↔ Real in local dev.
+ * Dev-only analysis mode control — explicit button + confirmation; never styled as passive status.
  */
 export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): ReactElement | null {
   const { mode, isSimulator, isLoading } = useAgentExecutionMode();
   const readiness = useSessionAiReadiness();
   const healthQuery = useHealthReadySummaryQuery();
   const [devOverride, setDevOverride] = useState<DevAgentExecutionModeOverride | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
     if (!isDevTestingOverridesEnabled()) {
@@ -57,92 +69,49 @@ export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): Re
     [devOverride, healthQuery.data?.agentExecutionMode, isLoading],
   );
 
-  if (!showChip || mode === null) {
+  if (!showChip || mode === null || !isDevTestingOverridesEnabled()) {
     return null;
   }
 
-  const canToggle = isDevTestingOverridesEnabled();
-  const label = isSimulator ? SIMULATOR_MODE_TOP_BAR_CHIP_LABEL : REAL_MODE_TOP_BAR_CHIP_LABEL;
   const realNotReady = !isSimulator && readiness.isSessionReal && !readiness.isLoading && !readiness.isReady;
-  const detail = isSimulator
-    ? SIMULATOR_MODE_TOP_BAR_CHIP_DETAIL
-    : realNotReady
-      ? REAL_MODE_TOP_BAR_CHIP_NOT_READY_DETAIL
-      : REAL_MODE_TOP_BAR_CHIP_DETAIL;
-
-  const simulatorChipClassName =
-    "border-red-700 bg-red-500 shadow-[0_0_0_2px_rgba(239,68,68,0.55)] dark:border-red-300 dark:bg-red-600";
-  const simulatorDotClassName = "bg-red-100 dark:bg-red-200";
-
-  const realChipClassName = cn(
-    realNotReady ? "border-amber-700 bg-amber-100 dark:border-amber-300 dark:bg-amber-900/40" : enterpriseStatusTagClass("ready"),
-    "border",
-  );
-  const realDotClassName = realNotReady ? "bg-amber-700 dark:bg-amber-300" : "bg-[var(--al-status-ready-fg)]";
-
-  const chipClassName = isSimulator ? simulatorChipClassName : realChipClassName;
-  const dotClassName = isSimulator ? simulatorDotClassName : realDotClassName;
-
-  const sharedChipLayoutClassName = "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1";
-  const simulatorChipTypographyClassName = cn(
-    "animate-pulse font-extrabold uppercase tracking-[0.12em] text-white",
-    OPERATOR_TYPOGRAPHY.badge,
-  );
-  const realChipTypographyClassName = cn("font-medium", OPERATOR_TYPOGRAPHY.badge);
-
-  const chipTypographyClassName = isSimulator ? simulatorChipTypographyClassName : realChipTypographyClassName;
-
-  const chipBody = (
-    <>
-      <span
-        aria-hidden
-        className={cn(
-          "inline-block size-2 shrink-0 rounded-full",
-          isSimulator ? "animate-pulse" : null,
-          dotClassName,
-        )}
-      />
-      {label}
-    </>
-  );
+  const buttonLabel = resolveAnalysisModeTopBarButtonLabel(isSimulator, realNotReady);
+  const switchTitle = isSimulator ? ANALYSIS_MODE_WORKSPACE_SWITCH_TITLE : ANALYSIS_MODE_RULE_BASED_SWITCH_TITLE;
+  const switchPrompt = isSimulator ? ANALYSIS_MODE_WORKSPACE_SWITCH_PROMPT : ANALYSIS_MODE_RULE_BASED_SWITCH_PROMPT;
+  const switchTargetLabel = isSimulator ? ANALYSIS_MODE_WORKSPACE_LABEL : ANALYSIS_MODE_RULE_BASED_LABEL;
 
   return (
-    <span
-      className={cn("inline-flex max-w-[min(100%,14rem)] items-center gap-1.5 sm:max-w-none", props.className)}
-      data-testid="simulator-mode-top-bar-chip"
-    >
-      {canToggle ? (
-        <button
-          type="button"
-          className={cn(
-            "cursor-pointer transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2",
-            isSimulator ? "border-2" : null,
-            sharedChipLayoutClassName,
-            chipClassName,
-            chipTypographyClassName,
-          )}
-          aria-pressed={!isSimulator}
-          aria-label={`${label} mode — click to switch`}
-          data-testid="simulator-mode-top-bar-chip-toggle"
-          onClick={() => {
-            toggleDevAgentExecutionModeFromChip(mode);
-          }}
-        >
-          {chipBody}
-        </button>
-      ) : (
-        <span
-          className={cn(sharedChipLayoutClassName, chipClassName, chipTypographyClassName)}
-          role="status"
-          aria-live="polite"
-          aria-label={`${label} — ${detail}`}
-          title={detail}
-          data-testid="simulator-mode-top-bar-chip-label"
-        >
-          {chipBody}
-        </span>
-      )}
-      <FieldHelpTooltip label={label} hint={detail} />
-    </span>
+    <>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className={cn("h-8 max-w-[min(100%,16rem)] shrink-0 px-2.5", OPERATOR_TYPOGRAPHY.helper, props.className)}
+        data-testid="simulator-mode-top-bar-chip-toggle"
+        aria-haspopup="dialog"
+        onClick={() => {
+          setConfirmOpen(true);
+        }}
+      >
+        {buttonLabel}
+      </Button>
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent data-testid="analysis-mode-switch-dialog">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{switchTitle}</AlertDialogTitle>
+            <AlertDialogDescription>{switchPrompt}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                toggleDevAgentExecutionModeFromChip(mode);
+              }}
+            >
+              Switch to {switchTargetLabel}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

@@ -1,0 +1,32 @@
+using ArchLucid.Core.InfraEvidence;
+
+namespace ArchLucid.Persistence.InfraEvidence;
+
+public sealed class NoOpRemediationInstanceRepository : IRemediationInstanceRepository
+{
+    public Task InsertInstanceAsync(RemediationInstanceRecord instance, CancellationToken cancellationToken = default) =>
+        Task.CompletedTask;
+
+    public Task UpdateInstanceAsync(RemediationInstanceRecord instance, CancellationToken cancellationToken = default) =>
+        Task.CompletedTask;
+
+    public Task<RemediationInstanceRecord?> TryGetByIdAsync(
+        Guid tenantId,
+        Guid instanceId,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult<RemediationInstanceRecord?>(null);
+
+    public Task InsertEvidenceAsync(RemediationEvidenceRecord evidence, CancellationToken cancellationToken = default) =>
+        Task.CompletedTask;
+
+    public Task<IReadOnlyList<RemediationEvidenceRecord>> ListEvidenceByInstanceAsync(
+        Guid tenantId,
+        Guid instanceId,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult<IReadOnlyList<RemediationEvidenceRecord>>([]);
+
+    public Task<IReadOnlyList<RemediationInstanceRecord>> ListByTenantAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult<IReadOnlyList<RemediationInstanceRecord>>([]);
+}

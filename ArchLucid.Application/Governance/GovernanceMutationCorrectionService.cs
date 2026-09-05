@@ -220,21 +220,10 @@ public sealed class GovernanceMutationCorrectionService(
 
         if (mutationKind == GovernanceMutationCorrectionKinds.ArchitectureReviewFinalize)
         {
-            ValidateArchitectureReviewFinalizeSubject(subjectId, normalizedRunId);
-
-            return subjectId;
+            return ValidateArchitectureReviewFinalizeSubject(subjectId, normalizedRunId);
         }
 
         throw new ArgumentException($"Mutation kind '{mutationKind}' does not support in-product correction.", nameof(mutationKind));
-    }
-
-    private static void ValidateArchitectureReviewFinalizeSubject(string subjectId, string normalizedRunId)
-    {
-        if (!string.Equals(subjectId, normalizedRunId, StringComparison.OrdinalIgnoreCase))
-        {
-            throw new KeyNotFoundException(
-                $"Review finalize correction subject must match run id '{normalizedRunId}'.");
-        }
     }
 
     private async Task<string> ValidateFindingDispositionSubjectAsync(
@@ -314,6 +303,17 @@ public sealed class GovernanceMutationCorrectionService(
 
         if (!found)
             throw new KeyNotFoundException($"Promotion record '{promotionRecordId}' was not found.");
+    }
+
+    private static string ValidateArchitectureReviewFinalizeSubject(string subjectId, string normalizedRunId)
+    {
+        if (!string.Equals(subjectId.Trim(), normalizedRunId, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new KeyNotFoundException(
+                $"Architecture review finalize correction subject '{subjectId}' does not match run '{normalizedRunId}'.");
+        }
+
+        return normalizedRunId;
     }
 
     private async Task ValidateActivationSubjectAsync(

@@ -70,22 +70,43 @@ function getIncompleteWizardServerSnapshot(): ReturnType<typeof listIncompleteWi
   return listIncompleteWizardSignals();
 }
 
-function statusTagKindForRailItem(kind: UnfinishedWorkRailItemKind): EnterpriseStatusKind {
-  switch (kind) {
+function resolveRailItemStatusTag(item: UnfinishedWorkRailItem): {
+  readonly kind: EnterpriseStatusKind;
+  readonly label?: string;
+} {
+  switch (item.kind) {
     case "architecture-draft":
-      return "draft";
+      return { kind: "draft", label: "Draft" };
     case "review-in-progress":
-      return "in-progress";
+      return { kind: "in-progress" };
     case "awaiting-disposition":
-      return "needs-attention";
+      return { kind: "needs-attention" };
     case "incomplete-wizard":
-      return "in-progress";
+      return { kind: "in-progress" };
     default: {
-      const _exhaustive: never = kind;
+      const _exhaustive: never = item.kind;
 
       return _exhaustive;
     }
   }
+}
+
+function resolveRailItemStatusTagDisplay(item: UnfinishedWorkRailItem): {
+  readonly kind: EnterpriseStatusKind;
+  readonly label?: string;
+} {
+  const resolved = resolveRailItemStatusTag(item);
+  const statusLabel = item.statusLabel?.trim() ?? "";
+
+  if (item.kind === "architecture-draft") {
+    return { kind: resolved.kind, label: "Draft" };
+  }
+
+  if (statusLabel.length > 0) {
+    return { kind: resolved.kind, label: statusLabel };
+  }
+
+  return resolved;
 }
 
 function resolveContinueCtaLabel(item: UnfinishedWorkRailItem): string {
@@ -140,19 +161,22 @@ function UnfinishedWorkRailPrimaryCard(props: { readonly item: UnfinishedWorkRai
           <div className="flex flex-wrap items-center gap-2">
             <Link
               href={item.href}
-              className={cn("min-w-0 break-words font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+              className={cn("min-w-0 break-words font-semibold", OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.cardTitle)}
               data-testid={`unfinished-work-rail-link-${item.id}`}
             >
               {item.title}
             </Link>
-            <StatusTag kind={statusTagKindForRailItem(item.kind)} label={item.statusLabel} />
+            <StatusTag
+              kind={resolveRailItemStatusTagDisplay(item).kind}
+              label={resolveRailItemStatusTagDisplay(item).label}
+            />
           </div>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             {item.workTypeLabel}
             {item.activityLabel !== null ? ` · ${item.activityLabel}` : ""}
           </p>
         </div>
-        <Button asChild variant="primary" size="sm" className="h-8 shrink-0 self-start sm:self-center">
+        <Button asChild variant="outline" size="sm" className="h-8 shrink-0 self-start sm:self-center">
           <Link href={item.href} data-testid={`unfinished-work-rail-continue-${item.id}`}>
             {continueLabel}
           </Link>
@@ -176,7 +200,7 @@ function UnfinishedWorkRailRow(props: { readonly item: UnfinishedWorkRailItem })
     >
       <Link
         href={item.href}
-        className={cn("min-w-0 break-words font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
+        className={cn("min-w-0 break-words font-medium", OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.body)}
         data-testid={`unfinished-work-rail-link-${item.id}`}
       >
         {item.title}
@@ -188,7 +212,10 @@ function UnfinishedWorkRailRow(props: { readonly item: UnfinishedWorkRailItem })
         {item.activityLabel ?? "—"}
       </span>
       <div className="flex shrink-0 items-center gap-2 sm:justify-end">
-        <StatusTag kind={statusTagKindForRailItem(item.kind)} label={item.statusLabel} />
+        <StatusTag
+          kind={resolveRailItemStatusTagDisplay(item).kind}
+          label={resolveRailItemStatusTagDisplay(item).label}
+        />
         <Button asChild variant="outline" size="sm" className="h-7">
           <Link href={item.href} data-testid={`unfinished-work-rail-continue-${item.id}`}>
             {continueLabel}
@@ -202,11 +229,19 @@ function UnfinishedWorkRailRow(props: { readonly item: UnfinishedWorkRailItem })
 function UnfinishedWorkRailList(props: {
   readonly items: readonly UnfinishedWorkRailItem[];
 }): React.JSX.Element {
-  const [primaryItem, ...secondaryItems] = props.items;
-
-  if (primaryItem === undefined) {
+  if (props.items.length === 0) {
     return <ul className="m-0 list-none p-0" data-testid="unfinished-work-rail-list" />;
   }
+
+  if (props.items.length === 1) {
+    return (
+      <ul className="m-0 mt-2 list-none p-0" data-testid="unfinished-work-rail-list">
+        <UnfinishedWorkRailRow item={props.items[0]!} />
+      </ul>
+    );
+  }
+
+  const [primaryItem, ...secondaryItems] = props.items;
 
   return (
     <div className="mt-2 space-y-3" data-testid="unfinished-work-rail-list">

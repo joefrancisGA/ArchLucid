@@ -1,11 +1,17 @@
 using ArchLucid.Contracts.Governance.Posture;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Governance.Posture;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Governance.Posture;
 
 public sealed class ArchitecturePostureService(
     IArchitecturePostureReader reader,
-    IExaminationStateResolver examinationStateResolver) : IArchitecturePostureService
+    IExaminationStateResolver examinationStateResolver,
+    IRunDetailQueryService runDetailQueryService,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : IArchitecturePostureService
 {
     public const string ReadFailureReason = "Architecture posture data could not be loaded.";
 
@@ -14,6 +20,15 @@ public sealed class ArchitecturePostureService(
 
     private readonly IExaminationStateResolver _examinationStateResolver =
         examinationStateResolver ?? throw new ArgumentNullException(nameof(examinationStateResolver));
+
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     public async Task<ArchitecturePostureSummary> GetSummaryAsync(
         Guid tenantId,
@@ -30,6 +45,15 @@ public sealed class ArchitecturePostureService(
 
         if (projectId == Guid.Empty)
             throw new ArgumentException("Project id is required.", nameof(projectId));
+
+        await GovernancePostureSealedManifestHashGuard.EnsureLatestCommittedRunSealedOrThrowAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            _runDetailQueryService,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken);
 
         ArchitecturePostureReadModel readModel;
 

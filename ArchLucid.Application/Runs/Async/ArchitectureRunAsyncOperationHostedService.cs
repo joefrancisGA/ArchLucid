@@ -1,6 +1,7 @@
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Operations;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Async.Workers;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Common;
@@ -24,8 +25,22 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
 {
     internal const int MaxConcurrentCreateCompletions = ArchitectureRunAsyncOperationCreateCompletionWorker.MaxConcurrentCreateCompletions;
 
-    protected override Task ExecuteAsync(CancellationToken stoppingToken) =>
-        drainWorker.DrainAsync(DispatchAsync, stoppingToken);
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                await drainWorker.DrainAsync(DispatchAsync, stoppingToken);
+                return;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                logger.LogError(ex, "Async run operation drain faulted; restarting.");
+                await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
+            }
+        }
+    }
 
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
@@ -64,6 +79,8 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
 
             if (item.Kind == ArchitectureRunAsyncOperationKind.Create)
                 await TryMarkCreateFailedAsync(item, cancellationToken);
+            else if (item.Kind == ArchitectureRunAsyncOperationKind.Execute)
+                await TryMarkExecuteFailedAsync(item, ex, cancellationToken);
         }
         catch (OperationCanceledException)
         {
@@ -106,6 +123,43 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             logger.LogWarning(ex, "Failed to mark async create run {RunId} as Failed.", item.RunId);
+        }
+    }
+
+    private async Task TryMarkExecuteFailedAsync(
+        ArchitectureRunAsyncOperationWorkItem item,
+        Exception fault,
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(item.RunId, out Guid runId))
+            return;
+
+        try
+        {
+            await using AsyncServiceScope scope = scopeFactory.CreateAsyncScope();
+            IRunRepository runs = scope.ServiceProvider.GetRequiredService<IRunRepository>();
+            RunRecord? header = await runs.GetByIdAsync(item.Scope, runId, cancellationToken);
+
+            if (header is null)
+                return;
+
+            if (string.Equals(
+                    header.LegacyRunStatus,
+                    nameof(ArchitectureRunStatus.Committed),
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            header.LegacyRunStatus = nameof(ArchitectureRunStatus.Failed);
+            header.CompletedUtc = TimeProvider.System.UtcNowDateTime();
+            header.LastFailureReason = AgentExecutionFailureSummaryJson.Serialize(
+                AgentExecutionFailureSummaryFactory.FromException(fault));
+            await runs.UpdateAsync(header, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            logger.LogWarning(ex, "Failed to mark async execute run {RunId} as Failed.", item.RunId);
         }
     }
 

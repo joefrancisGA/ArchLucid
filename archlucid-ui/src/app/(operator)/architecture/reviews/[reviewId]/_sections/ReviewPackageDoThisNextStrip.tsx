@@ -25,7 +25,10 @@ import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detai
 import {
   formatReviewFailureRecordedAtLabel,
 } from "@/components/resolve-run-detail-last-failure-summary";
+import { useReviewPipelineReRunInFlight } from "@/hooks/use-review-pipeline-rerun-in-flight";
+import { REVIEW_PIPELINE_RE_RUN_IN_PROGRESS_DO_THIS_NEXT_SENTENCE } from "@/lib/operations/review-pipeline-rerun-in-flight";
 import type { ReviewFailureAdminHandoff } from "@/lib/review-failure-recovery-role-copy";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { cn } from "@/lib/utils";
 
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
@@ -69,6 +72,7 @@ function isPreStageAiAvailabilityReassurance(
 function resolveDisplayedDoThisNextSentence(
   next: ReviewPackageDoThisNext,
   sessionAiReadiness: SessionAiReadinessState,
+  hasRecoverySteps: boolean,
 ): string {
   const failureRecovery = next.failureRecovery;
 
@@ -81,15 +85,16 @@ function resolveDisplayedDoThisNextSentence(
     return next.sentence;
   }
 
+  if (isLiveAiProbeAvailable(sessionAiReadiness)) {
+    return resolveProbeSucceededDoThisNextSentence(failureRecovery);
+  }
+
   if (isPreStageAiAvailabilityReassurance(failureRecovery)) {
     return resolveProbeAwareReviewFailureDoThisNextSentence(
       failureRecovery,
       sessionAiReadiness.probeState,
+      { hasRecoverySteps },
     );
-  }
-
-  if (isLiveAiProbeAvailable(sessionAiReadiness)) {
-    return resolveProbeSucceededDoThisNextSentence(failureRecovery);
   }
 
   return next.sentence;
@@ -110,9 +115,11 @@ export type ReviewPackageDoThisNextStripProps = {
 };
 
 function ReviewFailureAdminHandoffPanel(props: {
+  readonly runId: string;
+  readonly manifestVersion: string | null;
   readonly adminHandoff: ReviewFailureAdminHandoff;
 }): React.JSX.Element {
-  const { adminHandoff } = props;
+  const { adminHandoff, runId, manifestVersion } = props;
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
 
   useEffect(() => {
@@ -130,6 +137,13 @@ function ReviewFailureAdminHandoffPanel(props: {
   }, [copyState]);
 
   async function onCopyHandoff(): Promise<void> {
+    const blockedReason = runCollateralSealedManifestCopyBlockedReason({ runId, manifestVersion });
+
+    if (blockedReason !== null) {
+      setCopyState("failed");
+      return;
+    }
+
     try {
       await navigator.clipboard.writeText(adminHandoff.markdown);
       setCopyState("copied");
@@ -227,6 +241,8 @@ function ReviewSubmittedIntakeRecapPanel(props: {
 }
 
 function ReviewFailureRecoveryDetails(props: {
+  readonly runId: string;
+  readonly manifestVersion: string | null;
   readonly failureRecovery: NonNullable<ReviewPackageDoThisNext["failureRecovery"]>;
   readonly sessionAiReadiness: SessionAiReadinessState;
   readonly canConfigureWorkspaceAi: boolean;
@@ -236,6 +252,8 @@ function ReviewFailureRecoveryDetails(props: {
   readonly showRecoverySteps: boolean;
 }): React.JSX.Element {
   const {
+    runId,
+    manifestVersion,
     failureRecovery,
     sessionAiReadiness,
     canConfigureWorkspaceAi,
@@ -282,6 +300,8 @@ function ReviewFailureRecoveryDetails(props: {
             state: sessionAiReadiness.probeState,
             checkAvailability: sessionAiReadiness.checkAvailability,
           }}
+          reviewTerminalFailure
+          scopingLabel="Workspace AI check (this review)"
         />
       ) : null}
 
@@ -305,13 +325,20 @@ function ReviewFailureRecoveryDetails(props: {
       ) : null}
 
       {showRecoverySteps ? (
-        <div className="flex flex-wrap items-center gap-2" data-testid="review-package-do-this-next-action">
+        <div
+          className="flex min-w-0 w-full max-w-full flex-col items-start gap-2"
+          data-testid="review-package-do-this-next-action"
+        >
           {actionRow}
         </div>
       ) : null}
 
       {failureRecovery.adminHandoff !== null && failureRecovery.adminHandoff !== undefined ? (
-        <ReviewFailureAdminHandoffPanel adminHandoff={failureRecovery.adminHandoff} />
+        <ReviewFailureAdminHandoffPanel
+          runId={runId}
+          manifestVersion={manifestVersion}
+          adminHandoff={failureRecovery.adminHandoff}
+        />
       ) : null}
 
       {failureRecovery.adminConfigurationHref !== null &&
@@ -361,6 +388,9 @@ export function ReviewPackageDoThisNextStrip(
   } = props;
   const buttonVariant = next.buttonVariant ?? "primary";
   const blockRerun = next.kind === "rerun-review" && sessionAiReadiness.blocksExecute;
+  const reRunInFlight = useReviewPipelineReRunInFlight(runId);
+  const suppressStaleFailureRecovery =
+    reRunInFlight && next.failureRecovery !== null && next.failureRecovery !== undefined;
   const failureRecordedAtLabel = formatReviewFailureRecordedAtLabel(failureRecordedAtUtc);
 
   const actionRow = (
@@ -422,25 +452,46 @@ export function ReviewPackageDoThisNextStrip(
         )
       : [];
   const showFailureRecoverySteps = failureRecoverySteps.length > 0;
-  const displayedSentence = resolveDisplayedDoThisNextSentence(next, sessionAiReadiness);
+  const showHeaderPrimaryAction =
+    hasFailureRecovery && !showFailureRecoverySteps && !suppressStaleFailureRecovery;
+  const displayedSentence = suppressStaleFailureRecovery
+    ? REVIEW_PIPELINE_RE_RUN_IN_PROGRESS_DO_THIS_NEXT_SENTENCE
+    : resolveDisplayedDoThisNextSentence(next, sessionAiReadiness, showFailureRecoverySteps);
+
+  const stripCalloutClass =
+    hasFailureRecovery && !suppressStaleFailureRecovery
+      ? DESIGN_TOKENS.callout.blockedShell
+      : DESIGN_TOKENS.callout.info;
 
   return (
     <section
-      className={cn(DESIGN_TOKENS.callout.info, "flex flex-col gap-3 p-4")}
+      className={cn(stripCalloutClass, "flex min-w-0 max-w-full flex-col gap-3 p-4")}
       data-testid="review-package-do-this-next-strip"
       aria-labelledby="review-package-do-this-next-heading"
     >
-      <div className="min-w-0 space-y-1">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+      <div className="min-w-0 max-w-full space-y-1">
+        <div
+          className={cn(
+            "flex gap-2",
+            showHeaderPrimaryAction
+              ? "flex-col items-stretch"
+              : "flex-col sm:flex-row sm:items-start sm:justify-between",
+          )}
+        >
           <h2
             id="review-package-do-this-next-heading"
             className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
           >
             Do this next
           </h2>
-          <div className="flex shrink-0 flex-wrap items-center gap-2">
-            {hasFailureRecovery && !showFailureRecoverySteps ? actionRow : null}
-            {hasFailureRecovery && failureRecordedAtLabel !== null ? (
+          <div
+            className={cn(
+              "flex min-w-0 max-w-full flex-col items-start gap-2",
+              showHeaderPrimaryAction ? "w-full" : "shrink-0 sm:flex-row sm:flex-wrap sm:items-center",
+            )}
+          >
+            {showHeaderPrimaryAction ? actionRow : null}
+            {hasFailureRecovery && !suppressStaleFailureRecovery && failureRecordedAtLabel !== null ? (
               <p
                 className={cn("m-0 shrink-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="review-package-failure-recorded-at"
@@ -450,14 +501,17 @@ export function ReviewPackageDoThisNextStrip(
             ) : null}
           </div>
         </div>
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="review-package-do-this-next-sentence">
+        <p
+          className={cn("m-0 break-words text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="review-package-do-this-next-sentence"
+        >
           {displayedSentence}
         </p>
       </div>
 
-      {!hasFailureRecovery ? (
+      {!hasFailureRecovery || suppressStaleFailureRecovery ? (
         <div
-          className="flex shrink-0 flex-wrap flex-col items-stretch gap-2 sm:items-end"
+          className="flex min-w-0 w-full max-w-full shrink-0 flex-col items-stretch gap-2 sm:items-end"
           data-testid="review-package-do-this-next-action"
           data-review-package-do-this-next-kind={next.kind}
         >
@@ -465,8 +519,10 @@ export function ReviewPackageDoThisNextStrip(
         </div>
       ) : null}
 
-      {hasFailureRecovery ? (
+      {hasFailureRecovery && !suppressStaleFailureRecovery ? (
         <ReviewFailureRecoveryDetails
+          runId={runId}
+          manifestVersion={hasGoldenManifest ? "committed" : null}
           failureRecovery={next.failureRecovery}
           sessionAiReadiness={sessionAiReadiness}
           canConfigureWorkspaceAi={canConfigureWorkspaceAi}

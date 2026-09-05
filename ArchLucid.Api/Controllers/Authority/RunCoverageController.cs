@@ -27,11 +27,17 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
-public sealed class RunCoverageController(
+public sealed partial class RunCoverageController(
     ICoverageQueryService coverageQueryService,
+    IRunCoverageAcknowledgementService acknowledgementService,
     IPolicyPackRepository policyPackRepository,
     IScopeContextProvider scopeContextProvider) : ControllerBase
 {
+    private readonly IScopeContextProvider scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IRunCoverageAcknowledgementService acknowledgementService =
+        acknowledgementService ?? throw new ArgumentNullException(nameof(acknowledgementService));
     [HttpGet("{runId:guid}/coverage")]
     [ProducesResponseType(typeof(RunCoverageResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

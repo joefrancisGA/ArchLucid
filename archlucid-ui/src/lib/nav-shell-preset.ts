@@ -139,16 +139,17 @@ export function applyNavShellPresetPackagingFilter(
 /** Whether the System Administration nav group should render for the active preset. */
 export function isSystemAdministrationNavGroupVisible(
   presetId: NavShellPresetId = resolveNavShellPresetId(),
+  showVendorInternalNav = false,
 ): boolean {
+  if (!showVendorInternalNav) {
+    return false;
+  }
+
   if (!isArchLucidInternalOperatorShellEnv()) {
     return false;
   }
 
   if (isNextPublicDemoMode()) {
-    return false;
-  }
-
-  if (presetId === "buyer-polished" && !isOperatorExperienceFullShellEnv()) {
     return false;
   }
 

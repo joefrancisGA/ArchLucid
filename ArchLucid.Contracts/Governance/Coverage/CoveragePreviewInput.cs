@@ -31,4 +31,11 @@ public sealed class CoveragePreviewInput
         get;
         set;
     }
+
+    /// <summary>Optional per-pack exclusions applied only to this preview request.</summary>
+    public IReadOnlyList<CoveragePreviewUserOverride>? UserOverrides
+    {
+        get;
+        set;
+    }
 }

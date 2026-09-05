@@ -38,6 +38,10 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
     connectionSaveError,
     saveSuccess,
     connectionSaveSuccess,
+    settingsLastSavedUtc,
+    settingsInlineSaveError,
+    connectionLastSavedUtc,
+    connectionInlineSaveError,
     testError,
     isLoading,
     isSaving,
@@ -126,6 +130,8 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
             connectionProvenance={connectionProvenance}
             connectionSaveError={connectionSaveError}
             connectionSaveSuccess={connectionSaveSuccess}
+            connectionLastSavedUtc={connectionLastSavedUtc}
+            connectionInlineSaveError={connectionInlineSaveError}
             connectionSaveGate={connectionSaveGate}
             isSavingConnection={isSavingConnection}
             onSaveConnection={() => void saveConnection()}
@@ -150,6 +156,8 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
           discoveryError={discoveryError}
           saveError={saveError}
           saveSuccess={saveSuccess}
+          settingsLastSavedUtc={settingsLastSavedUtc}
+          settingsInlineSaveError={settingsInlineSaveError}
           isSaving={isSaving}
           onSaveSettings={() => void saveSettings()}
         />

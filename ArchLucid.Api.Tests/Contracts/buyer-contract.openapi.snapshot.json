@@ -3723,6 +3723,75 @@
         },
         "type": "object"
       },
+      "ArchitectureDiagramEdgeRecord": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "provenance": {
+            "type": "string"
+          },
+          "removed": {
+            "type": "boolean"
+          },
+          "sourceId": {
+            "type": "string"
+          },
+          "targetId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ArchitectureDiagramModelRecord": {
+        "properties": {
+          "edges": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureDiagramEdgeRecord"
+            },
+            "type": "array"
+          },
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureDiagramNodeRecord"
+            },
+            "type": "array"
+          },
+          "trustBoundaryLabels": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "ArchitectureDiagramNodeRecord": {
+        "properties": {
+          "accepted": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "provenance": {
+            "type": "string"
+          },
+          "removed": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "ArchitectureDigest": {
         "properties": {
           "archivedUtc": {
@@ -6710,6 +6779,66 @@
         },
         "type": "object"
       },
+      "BrandAssetResponse": {
+        "properties": {
+          "assetId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "assetType": {
+            "type": "string"
+          },
+          "checksumSha256Hex": {
+            "type": "string"
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "height": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "mimeType": {
+            "type": "string"
+          },
+          "originalFileName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "width": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "BrandAssetType": {
+        "enum": [
+          "LogoPrimary",
+          "LogoSecondary",
+          "LogoSquare",
+          "LogoFavicon",
+          "LogoDark",
+          "LogoLight",
+          "LogoReportCover",
+          "LogoMono",
+          "Other"
+        ],
+        "type": "string"
+      },
       "BuildAzureInventoryDiffNarrativeRequest": {
         "properties": {
           "narrativeKind": {
@@ -7566,6 +7695,340 @@
           "Gcp"
         ],
         "type": "string"
+      },
+      "CloudResourceAuditLineageLink": {
+        "properties": {
+          "available": {
+            "type": "boolean"
+          },
+          "degradedReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "relativePath": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "CloudResourceCurrentConfigurationSection": {
+        "properties": {
+          "azureResourceId": {
+            "type": "string"
+          },
+          "properties": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "region": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "resourceGroup": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "resourceType": {
+            "type": "string"
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "tags": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "CloudResourceEvidenceFindingHubItem": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "severity": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "streamKind": {
+            "type": "string"
+          },
+          "streamLabel": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CloudResourceEvidenceFindingStreamPage": {
+        "properties": {
+          "hasMore": {
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CloudResourceEvidenceFindingHubItem"
+            },
+            "type": "array"
+          },
+          "page": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "streamKind": {
+            "type": "string"
+          },
+          "streamLabel": {
+            "type": "string"
+          },
+          "totalCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "CloudResourceEvidenceHubResponse": {
+        "properties": {
+          "architectureReviewFindings": {
+            "$ref": "#/components/schemas/CloudResourceEvidenceFindingStreamPage"
+          },
+          "auditLineageLink": {
+            "$ref": "#/components/schemas/CloudResourceAuditLineageLink"
+          },
+          "cloudResourceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "currentConfiguration": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CloudResourceCurrentConfigurationSection"
+              }
+            ]
+          },
+          "diagramCorrespondence": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/DiagramInfrastructureCorrespondenceRow"
+              }
+            ]
+          },
+          "evidencePointers": {
+            "items": {
+              "$ref": "#/components/schemas/CloudResourceEvidencePointer"
+            },
+            "type": "array"
+          },
+          "externalResourceId": {
+            "type": "string"
+          },
+          "networkRelationships": {
+            "items": {
+              "$ref": "#/components/schemas/CloudResourceNetworkRelationshipSummary"
+            },
+            "type": "array"
+          },
+          "operationalSecurityFindings": {
+            "$ref": "#/components/schemas/CloudResourceEvidenceFindingStreamPage"
+          },
+          "rbacAssignments": {
+            "items": {
+              "$ref": "#/components/schemas/CloudResourceRbacAssignmentSummary"
+            },
+            "type": "array"
+          },
+          "recentChanges": {
+            "items": {
+              "$ref": "#/components/schemas/CloudResourceInventoryChangeSummary"
+            },
+            "type": "array"
+          },
+          "remediationInstances": {
+            "$ref": "#/components/schemas/CloudResourceRemediationStreamPage"
+          },
+          "resourceType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "terraformAddress": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "terraformGenerationMethod": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "CloudResourceEvidencePointer": {
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "relativePath": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CloudResourceInventoryChangeSummary": {
+        "properties": {
+          "changeId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "changeType": {
+            "type": "string"
+          },
+          "diffId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "newValue": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "oldValue": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "property": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "riskClassification": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "snapshotAId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "snapshotBId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CloudResourceNetworkRelationshipSummary": {
+        "properties": {
+          "fromAzureResourceId": {
+            "type": "string"
+          },
+          "relationshipType": {
+            "type": "string"
+          },
+          "toAzureResourceId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CloudResourceRbacAssignmentSummary": {
+        "properties": {
+          "principalId": {
+            "type": "string"
+          },
+          "roleDefinitionId": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CloudResourceRemediationHubItem": {
+        "properties": {
+          "instanceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "patternKey": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CloudResourceRemediationStreamPage": {
+        "properties": {
+          "hasMore": {
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CloudResourceRemediationHubItem"
+            },
+            "type": "array"
+          },
+          "page": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
       },
       "CommitRunCommittedArtifactInventoryEntry": {
         "properties": {
@@ -9297,6 +9760,15 @@
               "null",
               "string"
             ]
+          },
+          "userOverrides": {
+            "items": {
+              "$ref": "#/components/schemas/CoveragePreviewUserOverrideRequest"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
           }
         },
         "type": "object"
@@ -9333,6 +9805,24 @@
             "type": "integer"
           },
           "summaryLine": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CoveragePreviewUserOverrideRequest": {
+        "properties": {
+          "excluded": {
+            "type": "boolean"
+          },
+          "exclusionReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "policyPackId": {
+            "format": "uuid",
             "type": "string"
           }
         },
@@ -10987,6 +11477,111 @@
         ],
         "type": "object"
       },
+      "DiagramInfrastructureCorrespondenceRow": {
+        "properties": {
+          "aiRationale": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "azureResourceId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "cloudResourceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "confidenceBand": {
+            "type": "string"
+          },
+          "correspondenceId": {
+            "type": "string"
+          },
+          "diagramNodeId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "diagramNodeLabel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "explainText": {
+            "type": "string"
+          },
+          "matchKind": {
+            "type": "string"
+          },
+          "resourceGroup": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "resourceType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "securityDiscrepancy": {
+            "type": "boolean"
+          },
+          "terraformAddress": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "DiagramInfrastructureReconciliationRequest": {
+        "properties": {
+          "snapshotId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "DiagramInfrastructureReconciliationResult": {
+        "properties": {
+          "diagramNodeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "inventoryResourceCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/DiagramInfrastructureCorrespondenceRow"
+            },
+            "type": "array"
+          },
+          "runId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "DiagramResponse": {
         "properties": {
           "diagram": {
@@ -10996,6 +11591,20 @@
             "type": "string"
           },
           "manifestVersion": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "DiagramSourceReference": {
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string"
+          },
+          "name": {
             "type": "string"
           }
         },
@@ -15753,6 +16362,10 @@
           "isAvailable": {
             "type": "boolean"
           },
+          "totalChecklistCoverageCount": {
+            "format": "int32",
+            "type": "integer"
+          },
           "totalDecisionGradeCount": {
             "format": "int32",
             "type": "integer"
@@ -16623,6 +17236,116 @@
             "type": "string"
           },
           "value": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "InfraEvidenceAskCitation": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "label": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "InfraEvidenceAskRequest": {
+        "properties": {
+          "assessmentId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "auditEvidenceSnapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "cloudResourceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "controlId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "diffId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "question": {
+            "type": "string"
+          },
+          "runId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "sinceUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "useSimulator": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "InfraEvidenceAskResponse": {
+        "properties": {
+          "answer": {
+            "type": "string"
+          },
+          "citations": {
+            "items": {
+              "$ref": "#/components/schemas/InfraEvidenceAskCitation"
+            },
+            "type": "array"
+          },
+          "insufficientEvidence": {
+            "type": "boolean"
+          },
+          "simulatorLabel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "topicKind": {
             "type": "string"
           }
         },
@@ -20482,7 +21205,20 @@
               "string"
             ]
           },
+          "expectedUpdatedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "focusedPilotModeEnabled": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "forceOverwrite": {
             "type": [
               "null",
               "boolean"
@@ -20511,6 +21247,20 @@
             ]
           },
           "workflowIntent": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "PatchRunCoveragePackRequest": {
+        "properties": {
+          "excluded": {
+            "type": "boolean"
+          },
+          "exclusionReason": {
             "type": [
               "null",
               "string"
@@ -21825,6 +22575,12 @@
           },
           "name": {
             "type": "string"
+          },
+          "packSlug": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "packType": {
             "type": "string"
@@ -23902,6 +24658,20 @@
         ],
         "type": "object"
       },
+      "PutRunCoverageAcknowledgementRequest": {
+        "properties": {
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/RunCoverageAcknowledgementEntryRequest"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "QualityGateDefinitionSnapshotDto": {
         "properties": {
           "contentHashSha256": {
@@ -25271,6 +26041,862 @@
           "PublishesTo",
           "SubscribesTo",
           "AuthenticatesWith"
+        ],
+        "type": "string"
+      },
+      "RemediationAutomationLevel": {
+        "enum": [
+          "Manual",
+          "Guided",
+          "SemiAutomated",
+          "Automated"
+        ],
+        "type": "string"
+      },
+      "RemediationFactoryMetrics": {
+        "properties": {
+          "automationPercent": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "averageAgeDays": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "businessBlockedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "createdThisWeek": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "criticalExposureCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "exceptionsActive": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "exceptionsExpired": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "exceptionsExpiringSoon": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "netBurn": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "openFindings": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "patternCoverageExactMatchPercent": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "recurrenceCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "remediatedThisWeek": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "riskWeightedOpen": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "topControlIds": {
+            "items": {
+              "$ref": "#/components/schemas/RemediationMetricCount"
+            },
+            "type": "array"
+          },
+          "topPatternKeys": {
+            "items": {
+              "$ref": "#/components/schemas/RemediationMetricCount"
+            },
+            "type": "array"
+          },
+          "verificationFailureCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationMetricCount": {
+        "properties": {
+          "count": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "key": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationPatternBulkImportRequest": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RemediationPatternDraftApiRequest"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationPatternDetailResult": {
+        "properties": {
+          "errorMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "pattern": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RemediationPatternRecord"
+              }
+            ]
+          },
+          "succeeded": {
+            "type": "boolean"
+          },
+          "versions": {
+            "items": {
+              "$ref": "#/components/schemas/RemediationPatternVersionRecord"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationPatternDraftApiRequest": {
+        "properties": {
+          "automationLevel": {
+            "$ref": "#/components/schemas/RemediationAutomationLevel"
+          },
+          "content": {
+            "$ref": "#/components/schemas/RemediationPatternVersionContent"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "matchCriteria": {
+            "$ref": "#/components/schemas/RemediationPatternMatchCriteria"
+          },
+          "patternKey": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationPatternEligibilityDefinition": {
+        "properties": {
+          "expressions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationPatternExceptionPolicyDefinition": {
+        "properties": {
+          "allowTemporaryException": {
+            "type": "boolean"
+          },
+          "maxExceptionDays": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "rationaleRequired": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "RemediationPatternExecutionDefinition": {
+        "properties": {
+          "advisoryTerraformTemplateRef": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runbookRef": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "verificationQueries": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationPatternImportJsonRequest": {
+        "properties": {
+          "json": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationPatternImportYamlRequest": {
+        "properties": {
+          "yaml": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationPatternMatchCriteria": {
+        "properties": {
+          "controlId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "propertyEquals": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CloudProvider"
+              }
+            ]
+          },
+          "resourceType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "severityMin": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "RemediationPatternOperationResult": {
+        "properties": {
+          "errorMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "patternId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RemediationPatternStatus"
+              }
+            ]
+          },
+          "succeeded": {
+            "type": "boolean"
+          },
+          "version": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "RemediationPatternPreflightDefinition": {
+        "properties": {
+          "checks": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationPatternRecord": {
+        "properties": {
+          "createdByActorKey": {
+            "type": "string"
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "currentApprovedVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "patternId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "patternKey": {
+            "type": "string"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationPatternRecurrenceControlDefinition": {
+        "properties": {
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "itsmWorkItemType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "RemediationPatternRollbackDefinition": {
+        "properties": {
+          "advisoryTerraformTemplateRef": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runbookRef": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "RemediationPatternStatus": {
+        "type": "integer"
+      },
+      "RemediationPatternVersionActionRequest": {
+        "properties": {
+          "version": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationPatternVersionContent": {
+        "properties": {
+          "applicableProviders": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "controlObjective": {
+            "type": "string"
+          },
+          "eligibility": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RemediationPatternEligibilityDefinition"
+              }
+            ]
+          },
+          "exceptionPolicy": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RemediationPatternExceptionPolicyDefinition"
+              }
+            ]
+          },
+          "exclusion": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RemediationPatternEligibilityDefinition"
+              }
+            ]
+          },
+          "execution": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RemediationPatternExecutionDefinition"
+              }
+            ]
+          },
+          "preflight": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RemediationPatternPreflightDefinition"
+              }
+            ]
+          },
+          "recurrenceControl": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RemediationPatternRecurrenceControlDefinition"
+              }
+            ]
+          },
+          "requiredApprovals": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "rollback": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RemediationPatternRollbackDefinition"
+              }
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "RemediationPatternVersionRecord": {
+        "properties": {
+          "approvedByActorKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "approvedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "authorActorKey": {
+            "type": "string"
+          },
+          "automationLevel": {
+            "$ref": "#/components/schemas/RemediationAutomationLevel"
+          },
+          "contentJson": {
+            "type": "string"
+          },
+          "controlObjective": {
+            "type": "string"
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "matchControlId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "matchPropertyEqualsJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "matchProvider": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CloudProvider"
+              }
+            ]
+          },
+          "matchResourceType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "matchSeverityMin": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "patternId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RemediationPatternStatus"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "versionId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationPrioritizationExplanation": {
+        "properties": {
+          "breakdownJson": {
+            "type": "string"
+          },
+          "explanationSummary": {
+            "type": "string"
+          },
+          "findingId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "ruleVersion": {
+            "type": "string"
+          },
+          "totalScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "weights": {
+            "additionalProperties": {
+              "format": "double",
+              "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+              "type": [
+                "number",
+                "string"
+              ]
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationPrioritizedFinding": {
+        "properties": {
+          "breakdownJson": {
+            "type": "string"
+          },
+          "cloudResourceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "controlId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "explanationSummary": {
+            "type": "string"
+          },
+          "findingId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "patternKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "totalScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "RemediationWaveCreateRequest": {
+        "properties": {
+          "explicitCloudResourceIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "targetSize": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "RemediationWaveDetail": {
+        "properties": {
+          "members": {
+            "items": {
+              "$ref": "#/components/schemas/RemediationWaveMemberRecord"
+            },
+            "type": "array"
+          },
+          "wave": {
+            "$ref": "#/components/schemas/RemediationWaveRecord"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationWaveMemberRecord": {
+        "properties": {
+          "cloudResourceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "findingId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "instanceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "memberId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "priorityRank": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "priorityScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "waveId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationWaveOperationResult": {
+        "properties": {
+          "errorMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "memberCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "succeeded": {
+            "type": "boolean"
+          },
+          "waveId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "RemediationWaveRecord": {
+        "properties": {
+          "createdByActorKey": {
+            "type": "string"
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "projectId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RemediationWaveStatus"
+          },
+          "targetSize": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "waveId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "workspaceId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationWaveStatus": {
+        "enum": [
+          "Draft",
+          "Active",
+          "Closed"
         ],
         "type": "string"
       },
@@ -26678,6 +28304,27 @@
         },
         "type": "object"
       },
+      "RunAcknowledgedCoverageDocument": {
+        "properties": {
+          "acknowledgedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "actorUserId": {
+            "type": "string"
+          },
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/RunCoverageAcknowledgementEntry"
+            },
+            "type": "array"
+          },
+          "evaluationVersion": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "RunAgentLlmCostEstimateDto": {
         "properties": {
           "costEstimationBasis": {
@@ -26965,6 +28612,42 @@
             "type": "array"
           },
           "topic": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RunCoverageAcknowledgementEntry": {
+        "properties": {
+          "excluded": {
+            "type": "boolean"
+          },
+          "exclusionReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "policyPackId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RunCoverageAcknowledgementEntryRequest": {
+        "properties": {
+          "excluded": {
+            "type": "boolean"
+          },
+          "exclusionReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "policyPackId": {
+            "format": "uuid",
             "type": "string"
           }
         },
@@ -28148,6 +29831,12 @@
       },
       "RunRecord": {
         "properties": {
+          "acknowledgedCoverageJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "architectureId": {
             "format": "uuid",
             "type": [
@@ -30463,6 +32152,40 @@
         ],
         "type": "string"
       },
+      "StructuredDiagramIngestRequest": {
+        "properties": {
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/DiagramSourceReference"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "StructuredDiagramIngestResult": {
+        "properties": {
+          "extractionMethod": {
+            "type": "string"
+          },
+          "model": {
+            "$ref": "#/components/schemas/ArchitectureDiagramModelRecord"
+          },
+          "sourceFingerprints": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "StructuredExplanation": {
         "properties": {
           "alternativesConsidered": {
@@ -31380,6 +33103,86 @@
               "null",
               "integer"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "TenantBrandColorsResponse": {
+        "properties": {
+          "accent": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "background": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "foreground": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "primary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "secondary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "TenantBrandingPresentationResponse": {
+        "properties": {
+          "colors": {
+            "$ref": "#/components/schemas/TenantBrandColorsResponse"
+          },
+          "context": {
+            "type": "string"
+          },
+          "isProductBrand": {
+            "type": "boolean"
+          },
+          "logoAssetId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "logoContentPath": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "logoHttpsUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "mastheadDisplayName": {
+            "type": "string"
+          },
+          "showArchLucidMarkInMasthead": {
+            "type": "boolean"
+          },
+          "showPoweredByArchLucid": {
+            "type": "boolean"
+          },
+          "usesTenantVisualBrand": {
+            "type": "boolean"
           }
         },
         "type": "object"
@@ -34223,6 +36026,55 @@
           },
           "workspaceModeIsExplicit": {
             "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "VisionDiagramIngestRequest": {
+        "properties": {
+          "contentBase64": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "useSimulator": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "VisionDiagramIngestResult": {
+        "properties": {
+          "extractionMethod": {
+            "type": "string"
+          },
+          "interpretationConfidence": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "interpretationHonestyLabel": {
+            "type": "string"
+          },
+          "model": {
+            "$ref": "#/components/schemas/ArchitectureDiagramModelRecord"
+          },
+          "sourceFingerprint": {
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -40768,6 +42620,15 @@
       "name": "ArchitectureDefinitionImport"
     },
     {
+      "name": "ArchitectureDiagramIngest"
+    },
+    {
+      "name": "ArchitectureDiagramReconciliation"
+    },
+    {
+      "name": "ArchitectureDiagramVisionIngest"
+    },
+    {
       "name": "ArchitectureExport"
     },
     {
@@ -40837,10 +42698,16 @@
       "name": "BillingStripeWebhook"
     },
     {
+      "name": "BrandAsset"
+    },
+    {
       "name": "ClientErrorTelemetry"
     },
     {
       "name": "CloudInventoryExtractorUpload"
+    },
+    {
+      "name": "CloudResourceEvidenceHub"
     },
     {
       "name": "Comparison"
@@ -40996,6 +42863,9 @@
       "name": "ImportRequestFile"
     },
     {
+      "name": "InfraEvidenceAsk"
+    },
+    {
       "name": "InfraEvidenceInventory"
     },
     {
@@ -41119,6 +42989,18 @@
       "name": "Registration"
     },
     {
+      "name": "RemediationFactoryMetrics"
+    },
+    {
+      "name": "RemediationPatterns"
+    },
+    {
+      "name": "RemediationPrioritization"
+    },
+    {
+      "name": "RemediationWaves"
+    },
+    {
       "name": "Retrieval"
     },
     {
@@ -41216,6 +43098,9 @@
     },
     {
       "name": "TenantBaseline"
+    },
+    {
+      "name": "TenantBranding"
     },
     {
       "name": "TenantCatalogMigrationStatus"

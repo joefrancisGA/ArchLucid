@@ -4,6 +4,7 @@
      casual evaluator. Wave 5 after WA-01–24 shipped (#1496). Wave 6: all-day-desk-00-index.md (AD-01–12).      Wave 7: founding-desk-00-index.md (FD-01–13).
      Wave 8: instrument-spine-00-index.md (IS-01–15).
      Wave 9: livelihood-spine-00-index.md (LS-01–12).
+     Wave 12 kernel: livelihood-kernel-00-index.md (LK-01–15).
      Do not implement from this index. -->
 
 # Career-desk mitigations — Composer prompt set (CD-01–CD-15)

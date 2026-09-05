@@ -64,7 +64,7 @@ See **[SQL_SCRIPTS.md](../library/SQL_SCRIPTS.md)**.
 
 **Cause:** **`AgentExecution:Mode=Real`** requires endpoint + key/model deployment reachable.
 
-**Resolution:** Prefer **Simulator** for dry runs; configure **`AzureOpenAI`** section (`Endpoint`, **`ApiKey`/managed identity**) or fix network egress / private endpoints.
+**Resolution:** Prefer **Simulator** for dry runs; configure **`AzureOpenAI`** section (`Endpoint`, **`ApiKey`**/managed identity) or fix network egress / private endpoints. Production outage: [`AI_PROVIDER_OFFLINE.md`](AI_PROVIDER_OFFLINE.md) (retry → circuit → optional same-family FallbackLlm; never Simulator-fail-over for buyer Real runs).
 
 **Prevention:** Maintain **[RESILIENCE_CONFIGURATION.md](../library/RESILIENCE_CONFIGURATION.md)** non-default tuned profile per environment.
 

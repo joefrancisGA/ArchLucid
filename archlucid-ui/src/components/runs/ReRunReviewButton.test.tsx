@@ -12,6 +12,7 @@ import { RE_RUN_REVIEW_PROGRESS_TICK_MS } from "@/lib/re-run-review-wait-copy";
 
 const executeArchitectureRunAsync = vi.fn();
 const routerRefresh = vi.fn();
+const routerReplace = vi.fn();
 
 vi.mock("@/lib/api", () => ({
   executeArchitectureRunAsync: (...args: unknown[]) => executeArchitectureRunAsync(...args),
@@ -21,9 +22,12 @@ vi.mock("@/lib/await-minimum-visible-duration", () => ({
   awaitMinimumVisibleDuration: vi.fn(async () => undefined),
 }));
 
+const mockSearchParams = new URLSearchParams();
+
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ refresh: routerRefresh }),
+  useRouter: () => ({ refresh: routerRefresh, replace: routerReplace }),
   usePathname: () => "/architecture/reviews/run-abc",
+  useSearchParams: () => mockSearchParams,
 }));
 
 describe("ReRunReviewButton", () => {
@@ -31,7 +35,65 @@ describe("ReRunReviewButton", () => {
     resetInFlightOperationsForTests();
     executeArchitectureRunAsync.mockReset();
     routerRefresh.mockReset();
+    routerReplace.mockReset();
+    mockSearchParams.forEach((_, key) => {
+      mockSearchParams.delete(key);
+    });
     executeArchitectureRunAsync.mockResolvedValue({ operationId: "run:run-abc", location: null });
+  });
+
+  it("syncs the confirm dialog open state to the URL after render", async () => {
+    render(<ReRunReviewButton runId="run-abc" />);
+
+    fireEvent.click(screen.getByTestId("re-run-review-button"));
+
+    await waitFor(() => {
+      expect(routerReplace).toHaveBeenCalledWith(
+        "/architecture/reviews/run-abc?reRunConfirmOpen=1&reRunConfirmSource=re-run-review-button",
+        {
+          scroll: false,
+        },
+      );
+    });
+  });
+
+  it("opens the confirm dialog when the URL already has reRunConfirmOpen=1 for this button", () => {
+    mockSearchParams.set("reRunConfirmOpen", "1");
+    mockSearchParams.set("reRunConfirmSource", "re-run-review-button");
+
+    render(<ReRunReviewButton runId="run-abc" />);
+
+    expect(screen.getByTestId("re-run-review-confirm-dialog")).toBeInTheDocument();
+  });
+
+  it("does not open a duplicate confirm dialog for another button source", () => {
+    mockSearchParams.set("reRunConfirmOpen", "1");
+    mockSearchParams.set("reRunConfirmSource", "review-package-re-run-review");
+
+    render(<ReRunReviewButton runId="run-abc" />);
+
+    expect(screen.queryByTestId("re-run-review-confirm-dialog")).not.toBeInTheDocument();
+  });
+
+  it("does not fight URL state across multiple mounted buttons", async () => {
+    render(
+      <>
+        <ReRunReviewButton runId="run-abc" data-testid="review-package-re-run-review" />
+        <ReRunReviewButton runId="run-abc" data-testid="run-progress-re-run-review" />
+      </>,
+    );
+
+    fireEvent.click(screen.getByTestId("review-package-re-run-review"));
+
+    await waitFor(() => {
+      expect(routerReplace).toHaveBeenCalledWith(
+        "/architecture/reviews/run-abc?reRunConfirmOpen=1&reRunConfirmSource=review-package-re-run-review",
+        { scroll: false },
+      );
+    });
+
+    expect(screen.getByTestId("re-run-review-confirm-dialog")).toBeInTheDocument();
+    expect(routerReplace).toHaveBeenCalledTimes(1);
   });
 
   it("requires confirmation before spending AI budget", async () => {
@@ -60,6 +122,8 @@ describe("ReRunReviewButton", () => {
       expect(screen.getByTestId("re-run-review-outcome-detail")).toHaveTextContent(
         "Re-running architecture review started",
       );
+      expect(screen.getByTestId("re-run-review-button").parentElement?.className).toContain("flex-col");
+      expect(screen.getByTestId("re-run-review-outcome").className).toContain("break-words");
     });
   });
 

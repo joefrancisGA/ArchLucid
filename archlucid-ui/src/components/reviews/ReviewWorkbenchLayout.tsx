@@ -20,7 +20,9 @@ export type ReviewWorkbenchLayoutProps = {
   readonly onFocusColumn: (column: ReviewWorkbenchColumnId) => void;
   readonly onExitWorkbench?: () => void;
   readonly selectedFindingId?: string | null;
+  readonly selectedFindingTitle?: string | null;
   readonly highlightedNodeId?: string | null;
+  readonly highlightedNodeLabel?: string | null;
 };
 
 function columnLabel(column: ReviewWorkbenchColumnId): string {
@@ -71,7 +73,7 @@ export function ReviewWorkbenchLayout(props: ReviewWorkbenchLayoutProps): React.
       </div>
 
       <div
-        className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,0.9fr)]"
+        className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,0.9fr)]"
         data-testid="review-workbench-columns"
       >
         {columns.map((column) => {
@@ -116,7 +118,31 @@ export function ReviewWorkbenchLayout(props: ReviewWorkbenchLayoutProps): React.
                   Focus
                 </button>
               </div>
-              <div className="min-w-0 overflow-visible">{column.panel}</div>
+              {column.id === "findings" && (props.selectedFindingTitle?.trim() ?? "").length > 0 ? (
+                <p
+                  className={cn(
+                    "sticky top-0 z-10 -mx-1 mb-2 truncate rounded-md border border-neutral-200 bg-white px-2 py-1 text-al-text-primary dark:border-neutral-700 dark:bg-neutral-950",
+                    OPERATOR_TYPOGRAPHY.body,
+                  )}
+                  data-testid="review-workbench-selected-finding-title"
+                  title={props.selectedFindingTitle ?? undefined}
+                >
+                  {props.selectedFindingTitle}
+                </p>
+              ) : null}
+              {column.id === "architecture" && (props.highlightedNodeLabel?.trim() ?? "").length > 0 ? (
+                <p
+                  className={cn(
+                    "sticky top-0 z-10 -mx-1 mb-2 truncate rounded-md border border-neutral-200 bg-white px-2 py-1 text-al-text-secondary dark:border-neutral-700 dark:bg-neutral-950",
+                    OPERATOR_TYPOGRAPHY.helper,
+                  )}
+                  data-testid="review-workbench-highlighted-node-label"
+                  title={props.highlightedNodeLabel ?? undefined}
+                >
+                  {props.highlightedNodeLabel}
+                </p>
+              ) : null}
+              <div className="min-w-0 max-w-full overflow-x-auto overflow-y-visible">{column.panel}</div>
             </div>
           );
         })}

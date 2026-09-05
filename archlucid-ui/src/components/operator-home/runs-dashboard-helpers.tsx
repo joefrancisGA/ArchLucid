@@ -132,7 +132,7 @@ function resolveRunsDashboardTabBaseLabel(
   }
 
   if (tabId === "attention") {
-    // Home preview only — distinct from the "Awaiting approval" attention chip above.
+    // Home preview — label matches Approval > Findings in the sidebar.
     if (homePreviewMode) {
       return RUNS_DASHBOARD_LABELS.tabOpenFindings;
     }
@@ -140,11 +140,16 @@ function resolveRunsDashboardTabBaseLabel(
     return RUNS_DASHBOARD_LABELS.tabNeedsAttention;
   }
 
+  if (homePreviewMode) {
+    return RUNS_DASHBOARD_LABELS.tabMonitoring;
+  }
+
   return RUNS_DASHBOARD_LABELS.tabOutcomes;
 }
 
 export type RunsDashboardTabLabelOptions = {
   readonly homePreviewMode?: boolean;
+  readonly recentTotalCount?: number;
 };
 
 export function runsDashboardTabLabel(
@@ -161,6 +166,15 @@ export function runsDashboardTabLabel(
 
   if (count === undefined) {
     return baseLabel;
+  }
+
+  if (
+    tabId === "all" &&
+    options?.homePreviewMode === true &&
+    options.recentTotalCount !== undefined &&
+    options.recentTotalCount > count
+  ) {
+    return `${baseLabel} (${count} of ${options.recentTotalCount})`;
   }
 
   return formatRunsDashboardTabLabelWithCount(baseLabel, count);

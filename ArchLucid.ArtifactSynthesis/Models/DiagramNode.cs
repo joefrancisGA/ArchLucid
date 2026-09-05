@@ -19,4 +19,22 @@ public class DiagramNode
         get;
         set;
     } = null!;
+
+    public string? SubgraphId
+    {
+        get;
+        set;
+    }
+
+    public int OrderKey
+    {
+        get;
+        set;
+    }
+
+    public Guid? CloudResourceId
+    {
+        get;
+        set;
+    }
 }

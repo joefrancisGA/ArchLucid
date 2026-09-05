@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS } from "@/lib/design-tokens";
 
 import { ChevronsUpDown } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -11,6 +12,7 @@ import {
   useRef,
   useState,
   type CSSProperties,
+  type SetStateAction,
 } from "react";
 import { createPortal } from "react-dom";
 
@@ -52,6 +54,10 @@ import {
   shouldUseSampleWorkspaceFallback,
   WORKSPACES_PATH,
 } from "@/components/scope-switcher-workspace-list";
+import {
+  parseScopeSwitcherOpenFromSearch,
+  scopeSwitcherHrefFromSearch,
+} from "@/lib/operator/scope-switcher-url";
 
 type ScopeSwitcherProps = {
   readonly density?: "default" | "compact";
@@ -63,8 +69,12 @@ type ScopeSwitcherProps = {
  */
 export function ScopeSwitcher(props: ScopeSwitcherProps) {
   const density = props.density ?? "default";
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const scopeOpenParam = searchParams.get("scopeOpen");
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
-  const [open, setOpen] = useState(false);
+  const [open, setOpenState] = useState(() => parseScopeSwitcherOpenFromSearch(scopeOpenParam));
   const [tick, setTick] = useState(0);
   const [listLoading, setListLoading] = useState(false);
   const [listError, setListError] = useState<string | null>(null);
@@ -72,6 +82,27 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
   const [panelStyle, setPanelStyle] = useState<CSSProperties | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+
+  const syncScopeOpenToUrl = useCallback(
+    (popoverOpen: boolean) => {
+      router.replace(scopeSwitcherHrefFromSearch(searchParams.toString(), popoverOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncScopeOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncScopeOpenToUrl],
+  );
 
   const effective = useMemo(() => {
     void tick;
@@ -258,7 +289,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("pointerdown", onPointerDown, true);
     };
-  }, [open]);
+  }, [open, setOpen]);
 
   const applyScope = useCallback(
     (row: OperatorScopeRecord) => {
@@ -266,19 +297,19 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
       setTick((n) => n + 1);
       setOpen(false);
     },
-    [],
+    [setOpen],
   );
 
   const closePanel = useCallback(() => {
     setOpen(false);
     triggerRef.current?.focus();
-  }, []);
+  }, [setOpen]);
 
   const clearCustomScope = useCallback(() => {
     clearOperatorScopeStorage();
     setTick((n) => n + 1);
     setOpen(false);
-  }, []);
+  }, [setOpen]);
 
   if (!canShow) {
     return null;

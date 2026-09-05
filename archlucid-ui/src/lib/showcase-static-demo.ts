@@ -45,6 +45,9 @@ import {
 
 export const SHOWCASE_STATIC_DEMO_RUN_ID = CUSTOMER_INTAKE_SAMPLE_RUN_ID;
 
+/** Static demo primary-finding node id in the curated provenance graph (`operator-static-demo`). */
+export const SHOWCASE_PHI_FINDING_GRAPH_NODE_ID = "n-phi";
+
 export const CANONICAL_ANONYMOUS_PROOF_HREF = PRIMARY_SHOWCASE_PROOF_HREF;
 
 export { SECONDARY_CLAIMS_PROOF_HREF };

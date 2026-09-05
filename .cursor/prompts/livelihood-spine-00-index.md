@@ -3,6 +3,9 @@
      tool (all-day use; livelihoods may depend on the sealed record), not a
      casual evaluator. Owner authorized spine changes.
      Wave 9 after instrument-spine-00-index.md (IS-01–15).
+     Wave 10 leftovers: sealed-desk-00-index.md (SD-01–12).
+     Wave 11 leftovers: career-record-00-index.md (CR-01–12).
+     Wave 12 kernel: livelihood-kernel-00-index.md (LK-01–15).
      Do not implement from this index. -->
 
 # Livelihood-spine leftovers — Composer prompt set (LS-01–LS-12)
@@ -42,6 +45,9 @@ Do **not** collapse desktop review tabs behind **More**. Do **not** auto-switch 
 | **IS-01–15** | Wave 8 load-bearing bets | **Run first** — do not fork |
 | **FD / AD / CD / WA / RS / LD / LI / PT / WD** | Overlays and leftovers | Do not re-run / do not fork |
 | **LS-01–12** | **This set** — wave 9 diagnosis leftovers | Run these after IS |
+| **SD-01–12** | Wave 10 residuals | [`sealed-desk-00-index.md`](sealed-desk-00-index.md) |
+| **LK-01–15** | Wave 12 kernel | [`livelihood-kernel-00-index.md`](livelihood-kernel-00-index.md) |
+| **CR-01–12** | Wave 11 residuals | [`career-record-00-index.md`](career-record-00-index.md) |
 
 If an LS row lists an IS/AD/RS/WA owner, **do not fork** that file. Implement only the leftover in *What to build*.
 
@@ -104,3 +110,6 @@ If an LS row lists an IS/AD/RS/WA owner, **do not fork** that file. Implement on
 ## After each prompt
 
 Summarize: files changed, tests run, residual risk, Working vs Guided behavior, whether **IS-01–15** still owns the spine, and whether Guided/demo/trial still work without that prompt. Do not mark IS, FD, AD, CD, WA, RS, LD, or LI as undone.
+
+**Wave 11 leftovers:** [`career-record-00-index.md`](career-record-00-index.md) (**CR-01–12**). Do not fork IS/LS/SD.
+**Wave 12 kernel:** [`livelihood-kernel-00-index.md`](livelihood-kernel-00-index.md) (**LK-01–15**).
