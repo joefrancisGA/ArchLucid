@@ -1072,6 +1072,27 @@ export interface components {
         ArchitectureDecisionRegisterResponse: {
             decisions?: components["schemas"]["ArchitectureDecisionRegisterEntry"][];
         };
+        ArchitectureDiagramEdgeRecord: {
+            id?: string;
+            label?: string;
+            provenance?: string;
+            removed?: boolean;
+            sourceId?: string;
+            targetId?: string;
+        };
+        ArchitectureDiagramModelRecord: {
+            edges?: components["schemas"]["ArchitectureDiagramEdgeRecord"][];
+            nodes?: components["schemas"]["ArchitectureDiagramNodeRecord"][];
+            trustBoundaryLabels?: string[];
+        };
+        ArchitectureDiagramNodeRecord: {
+            accepted?: boolean;
+            id?: string;
+            kind?: string;
+            label?: string;
+            provenance?: string;
+            removed?: boolean;
+        };
         ArchitectureDigest: {
             /** Format: date-time */
             archivedUtc?: null | string;
@@ -3167,6 +3188,11 @@ export interface components {
             diagram?: string;
             format?: string;
             manifestVersion?: string;
+        };
+        DiagramSourceReference: {
+            content?: string;
+            format?: string;
+            name?: string;
         };
         DiffItemResponse: {
             afterValue?: null | string;
@@ -9138,6 +9164,15 @@ export interface components {
         StructuralExecutionMode: "Simulator" | "Real" | "Fallback" | "Mixed";
         /** @enum {string} */
         StructuredBriefSuggestionKind: "Constraint" | "Assumption" | "RequiredCapability";
+        StructuredDiagramIngestRequest: {
+            sources?: components["schemas"]["DiagramSourceReference"][];
+        };
+        StructuredDiagramIngestResult: {
+            extractionMethod?: string;
+            model?: components["schemas"]["ArchitectureDiagramModelRecord"];
+            sourceFingerprints?: string[];
+            warnings?: string[];
+        };
         StructuredExplanation: {
             alternativesConsidered?: null | string[];
             caveats?: null | string[];
