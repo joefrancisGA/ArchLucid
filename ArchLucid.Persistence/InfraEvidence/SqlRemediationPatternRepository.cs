@@ -219,6 +219,97 @@ public sealed class SqlRemediationPatternRepository(ISqlConnectionFactory connec
         return rows.Select(MapVersion).ToList();
     }
 
+    public async Task<IReadOnlyList<RemediationPatternApprovedVersionRecord>> ListApprovedVersionsForTenantAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT v.VersionId, v.PatternId, v.TenantId, v.Version, v.Status, v.ControlObjective, v.ContentJson,
+                                  v.MatchProvider, v.MatchResourceType, v.MatchControlId, v.MatchSeverityMin, v.MatchPropertyEqualsJson,
+                                  v.AutomationLevel, v.AuthorActorKey, v.ApprovedByActorKey, v.ApprovedUtc, v.CreatedUtc, v.UpdatedUtc,
+                                  p.PatternKey, p.DisplayName, p.Description, p.CurrentApprovedVersion, p.CreatedByActorKey,
+                                  p.CreatedUtc AS PatternCreatedUtc, p.UpdatedUtc AS PatternUpdatedUtc
+                           FROM dbo.RemediationPatternVersions v
+                           INNER JOIN dbo.RemediationPatterns p
+                               ON p.TenantId = v.TenantId AND p.PatternId = v.PatternId
+                           WHERE v.TenantId = @TenantId AND v.Status = @ApprovedStatus
+                           ORDER BY p.PatternKey, v.Version;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<ApprovedVersionRow> rows = await conn.QueryAsync<ApprovedVersionRow>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, ApprovedStatus = (int)RemediationPatternStatus.Approved },
+                cancellationToken: cancellationToken));
+
+        return rows.Select(MapApprovedVersion).ToList();
+    }
+
+    private static RemediationPatternApprovedVersionRecord MapApprovedVersion(ApprovedVersionRow row) =>
+        new()
+        {
+            Pattern = new RemediationPatternRecord
+            {
+                PatternId = row.PatternId,
+                TenantId = row.TenantId,
+                PatternKey = row.PatternKey,
+                DisplayName = row.DisplayName,
+                Description = row.Description,
+                CurrentApprovedVersion = row.CurrentApprovedVersion,
+                CreatedByActorKey = row.CreatedByActorKey,
+                CreatedUtc = row.PatternCreatedUtc,
+                UpdatedUtc = row.PatternUpdatedUtc,
+            },
+            Version = MapVersion(row),
+        };
+
+    private sealed class ApprovedVersionRow : VersionRow
+    {
+        public string PatternKey
+        {
+            get;
+            init;
+        } = string.Empty;
+
+        public string DisplayName
+        {
+            get;
+            init;
+        } = string.Empty;
+
+        public string? Description
+        {
+            get;
+            init;
+        }
+
+        public string? CurrentApprovedVersion
+        {
+            get;
+            init;
+        }
+
+        public string CreatedByActorKey
+        {
+            get;
+            init;
+        } = string.Empty;
+
+        public DateTime PatternCreatedUtc
+        {
+            get;
+            init;
+        }
+
+        public DateTime PatternUpdatedUtc
+        {
+            get;
+            init;
+        }
+    }
+
     private static object MapVersionParameters(RemediationPatternVersionRecord version) =>
         new
         {
@@ -336,7 +427,7 @@ public sealed class SqlRemediationPatternRepository(ISqlConnectionFactory connec
         }
     }
 
-    private sealed class VersionRow
+    private class VersionRow
     {
         public Guid VersionId
         {

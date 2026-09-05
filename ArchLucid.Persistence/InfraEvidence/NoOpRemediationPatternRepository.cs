@@ -46,4 +46,9 @@ public sealed class NoOpRemediationPatternRepository : IRemediationPatternReposi
         Guid patternId,
         CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<RemediationPatternVersionRecord>>([]);
+
+    public Task<IReadOnlyList<RemediationPatternApprovedVersionRecord>> ListApprovedVersionsForTenantAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<RemediationPatternApprovedVersionRecord>>([]);
 }
