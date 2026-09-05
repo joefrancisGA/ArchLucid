@@ -220,9 +220,12 @@ public sealed class ArchitectureReviewRobustnessWave28ArchitectureTests
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "CopyManifestButton.tsx"));
         string copyAi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "CopyForAiAssistantButton.tsx"));
+        string sponsorLink = File.ReadAllText(
+            Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "reviews", "CopyExecutiveSponsorLinkButton.tsx"));
 
         guard.Should().Contain("runCollateralSealedManifestCopyBlockedReason");
         copyManifest.Should().Contain("runCollateralSealedManifestCopyBlockedReason");
         copyAi.Should().Contain("runCollateralSealedManifestCopyBlockedReason");
+        sponsorLink.Should().Contain("runCollateralSealedManifestCopyBlockedReason");
     }
 }
