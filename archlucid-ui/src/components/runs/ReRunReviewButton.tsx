@@ -318,7 +318,7 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
           });
 
   return (
-    <div className={className}>
+    <div className={cn("flex min-w-0 w-full max-w-full flex-col items-start gap-2", className)}>
       <Button
         type="button"
         variant={variant}
