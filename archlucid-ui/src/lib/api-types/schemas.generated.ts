@@ -9622,6 +9622,26 @@ export interface components {
             /** Format: int32 */
             peoplePerReview?: null | number;
         };
+        TenantBrandColorsResponse: {
+            accent?: null | string;
+            background?: null | string;
+            foreground?: null | string;
+            primary?: null | string;
+            secondary?: null | string;
+        };
+        TenantBrandingPresentationResponse: {
+            colors?: components["schemas"]["TenantBrandColorsResponse"];
+            context?: string;
+            isProductBrand?: boolean;
+            /** Format: uuid */
+            logoAssetId?: null | string;
+            logoContentPath?: null | string;
+            logoHttpsUrl?: null | string;
+            mastheadDisplayName?: string;
+            showArchLucidMarkInMasthead?: boolean;
+            showPoweredByArchLucid?: boolean;
+            usesTenantVisualBrand?: boolean;
+        };
         TenantCatalogMigrationScopeRequest: {
             /** Format: uuid */
             projectId?: string;

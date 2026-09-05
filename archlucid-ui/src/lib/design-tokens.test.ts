@@ -219,4 +219,12 @@ describe("design-tokens TB-2276–TB-2280 color hierarchy", () => {
     expect(OPERATOR_SELECTION.tile).not.toMatch(/teal/);
     expect(OPERATOR_SELECTION.row).toContain("bg-al-surface-raised");
   });
+
+  it("BR-07 registers tenant brand CSS variables without changing status tokens", () => {
+    expect(globalsCss).toContain("--brand-primary:");
+    expect(globalsCss).toContain("--brand-foreground:");
+    expect(globalsCss).toMatch(/\.dark\s*\{[\s\S]*--brand-primary:/);
+    expect(enterpriseStatusTagClass("blocked")).toContain("--al-status-blocked-bg");
+    expect(enterpriseStatusTagClass("ready")).toContain("--al-status-ready-bg");
+  });
 });
