@@ -27,4 +27,11 @@ public sealed class AssignPolicyPackRequest
         get;
         set;
     }
+
+    /// <summary>When true, locks the assignment as organization-required for coverage scope.</summary>
+    public bool IsOrganizationRequired
+    {
+        get;
+        set;
+    }
 }

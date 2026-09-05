@@ -1555,6 +1555,7 @@ export interface components {
             value?: string;
         };
         AssignPolicyPackRequest: {
+            isOrganizationRequired?: boolean;
             isPinned: boolean;
             scopeLevel?: string;
             version?: string;
@@ -6413,6 +6414,7 @@ export interface components {
             description?: string;
             isEnabled?: boolean;
             isGloballyActive?: boolean;
+            isOrganizationRequired?: boolean;
             name?: string;
             packType?: string;
             /** Format: uuid */

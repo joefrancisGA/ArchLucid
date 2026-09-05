@@ -39,7 +39,7 @@ export type RunDetailWorkspaceStickyActionsProps = {
  */
 export function RunDetailWorkspaceStickyActions(
   props: RunDetailWorkspaceStickyActionsProps,
-): React.JSX.Element {
+): React.JSX.Element | null {
   const searchParams = useSearchParams();
   const activeTab = resolveReviewDetailTab(searchParams.get(REVIEW_DETAIL_TAB_PARAM));
   const blockerKind = resolveReviewPackageApprovalBlockerKind({
@@ -63,6 +63,14 @@ export function RunDetailWorkspaceStickyActions(
     contextualPrimaryAction.kind === "finalize-package"
       ? props.commitBlockedReason ?? (blockerKind !== "none" ? blockingHelperText : null)
       : props.commitBlockedReason;
+
+  const hasLeftColumnContent =
+    (blockerKind !== "none" && blockingHelperText !== null)
+    || (props.manifestId && activeTab !== "decisions-remediation");
+
+  if (props.pagePrimaryOwnedElsewhere === true && !hasLeftColumnContent) {
+    return null;
+  }
 
   return (
     <div

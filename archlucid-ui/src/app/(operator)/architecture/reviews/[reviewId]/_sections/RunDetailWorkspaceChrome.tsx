@@ -89,6 +89,12 @@ function buildCollapseMetadataFields(
   absentReasons: ReturnType<typeof resolveReviewMetadataAbsentReasons>,
 ): readonly ReviewMetadataField[] {
   return [
+    {
+      key: "review-id",
+      label: "Review ID",
+      value: props.runId,
+      absentReason: "Not recorded — review ID missing",
+    },
     ...buildReviewMetadataFields(props, absentReasons),
     {
       key: "signed-review-record-id",
@@ -99,12 +105,38 @@ function buildCollapseMetadataFields(
   ];
 }
 
-function renderMetadataField(field: ReviewMetadataField): React.JSX.Element {
+function renderMetadataField(
+  field: ReviewMetadataField,
+  signedReviewRecordId: string | null,
+): React.JSX.Element {
+  const copyableId =
+    field.key === "review-id" && field.value !== null
+      ? field.value
+      : field.key === "signed-review-record-id" && signedReviewRecordId !== null
+        ? signedReviewRecordId
+        : null;
+
   return (
     <div key={field.key}>
       <dt className="font-medium text-neutral-500 dark:text-neutral-400">{field.label}</dt>
       <dd className="m-0 mt-1 text-neutral-800 dark:text-neutral-200">
-        {field.value ?? field.absentReason}
+        {field.value !== null ? (
+          copyableId !== null ? (
+            <span className="inline-flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+              <code className={cn("break-all font-mono select-all", OPERATOR_TYPOGRAPHY.micro)}>
+                {field.value}
+              </code>
+              <CopyIdButton
+                value={copyableId}
+                aria-label={field.key === "review-id" ? "Copy review ID" : "Copy finalized review record ID"}
+              />
+            </span>
+          ) : (
+            field.value
+          )
+        ) : (
+          field.absentReason
+        )}
       </dd>
     </div>
   );
@@ -138,10 +170,8 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
   const reviewsListNavHref = useReviewsListReturnNavHref(REVIEWS_LIST_PATH);
   const metadataContext = deriveReviewRecordMetadataContext(props.signedReviewRecordId);
   const absentReasons = resolveReviewMetadataAbsentReasons(metadataContext);
-  const metadataFields = buildReviewMetadataFields(props, absentReasons);
   const collapseMetadataFieldSet = buildCollapseMetadataFields(props, absentReasons);
   const unrecordedFieldCount = collapseMetadataFieldSet.filter((field) => field.value === null).length;
-  const collapseMetadataFields = unrecordedFieldCount >= 3;
   const showReviewRecordMetadata = shouldShowReviewRecordMetadata(metadataContext, props.workspaceStatus);
   const reviewPipelineIncomplete = isReviewPipelineIncomplete(props.workspaceStatus);
   const headerActionDisabledReason = whyDisabledReviewHeaderActions(props.workspaceStatus);
@@ -159,33 +189,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
         title={h1Title}
         headingLevel="h1"
         subtitle={props.eyebrowLabel}
-        metadata={
-          <div
-            className="flex min-w-0 flex-col gap-2"
-            data-testid="run-detail-review-identifiers"
-          >
-            <span className="inline-flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-              <span className="font-medium text-neutral-700 dark:text-neutral-300">Review ID</span>
-              <code
-                className={cn("break-all font-mono select-all", OPERATOR_TYPOGRAPHY.micro)}
-              >
-                {props.runId}
-              </code>
-              <CopyIdButton value={props.runId} aria-label="Copy review ID" />
-            </span>
-            {props.signedReviewRecordId !== null ? (
-              <span className="inline-flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-                <span className="font-medium text-neutral-700 dark:text-neutral-300">Finalized review record ID</span>
-                <code
-                  className={cn("break-all font-mono select-all", OPERATOR_TYPOGRAPHY.micro)}
-                >
-                  {props.signedReviewRecordId}
-                </code>
-                <CopyIdButton value={props.signedReviewRecordId} aria-label="Copy finalized review record ID" />
-              </span>
-            ) : null}
-          </div>
-        }
+        metadata={null}
         actions={
           <>
             <ReviewHeaderShareMenu
@@ -220,23 +224,21 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
             </dd>
           </div>
           {showReviewRecordMetadata ? (
-            collapseMetadataFields ? (
-              <div className="sm:col-span-2 lg:col-span-2">
-                <details
-                  className="rounded-lg border border-neutral-200 dark:border-neutral-800"
-                  data-testid="run-detail-record-metadata-disclosure"
-                >
-                  <summary className={cn("cursor-pointer px-4 py-2", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                    {metadataDisclosureSummary}
-                  </summary>
-                  <div className="grid gap-3 border-t border-neutral-200 px-4 py-3 dark:border-neutral-800 sm:grid-cols-2">
-                    {collapseMetadataFieldSet.map(renderMetadataField)}
-                  </div>
-                </details>
-              </div>
-            ) : (
-              metadataFields.map(renderMetadataField)
-            )
+            <div className="sm:col-span-2 lg:col-span-3">
+              <details
+                className="rounded-lg border border-neutral-200 dark:border-neutral-800"
+                data-testid="run-detail-record-metadata-disclosure"
+              >
+                <summary className={cn("cursor-pointer px-4 py-2", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                  {metadataDisclosureSummary}
+                </summary>
+                <div className="grid gap-3 border-t border-neutral-200 px-4 py-3 dark:border-neutral-800 sm:grid-cols-2">
+                  {collapseMetadataFieldSet.map((field) =>
+                    renderMetadataField(field, props.signedReviewRecordId),
+                  )}
+                </div>
+              </details>
+            </div>
           ) : null}
         </dl>
       </OperatorPageHeader>

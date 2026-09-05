@@ -29,7 +29,7 @@ function panelWithInPipelineBanner(
   panel: ReactNode,
   inPipelineBanner: ReactNode | null | undefined,
 ): ReactNode {
-  if (inPipelineBanner === null || inPipelineBanner === undefined || tabId === "activity") {
+  if (tabId === "activity" || inPipelineBanner === null || inPipelineBanner === undefined) {
     return panel;
   }
 
@@ -70,6 +70,7 @@ export function ReviewDetailWorkspaceTabShell({
     inPipelineBanner,
     counts,
   } = tabs;
+  const activePanelLead = props.activePanelLead ?? null;
 
   return (
     <div className="min-w-0 space-y-4" data-testid="review-detail-workspace">
@@ -88,6 +89,10 @@ export function ReviewDetailWorkspaceTabShell({
       />
 
       {props.tabSectionNav ?? null}
+
+      {activePanelLead !== null ? (
+        <div data-testid="review-detail-active-panel-lead">{activePanelLead}</div>
+      ) : null}
 
       {workbenchVisible ? (
         <WorkbenchLayoutBridge

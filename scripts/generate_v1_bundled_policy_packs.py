@@ -83,18 +83,22 @@ def build_curated(pack: dict, rules: list[dict]) -> dict:
     }
 
 
-def build_content(pack: dict, rule_ids: list[str]) -> dict:
+def build_content(pack: dict, rule_ids: list[str], existing_content: dict | None = None) -> dict:
     slug = pack["slug"]
+    advisory_defaults = {
+        "severityFloor": "warning",
+        "priorityFloor": "P0",
+        "scanDepth": "standard",
+    }
+    if existing_content and isinstance(existing_content.get("advisoryDefaults"), dict):
+        advisory_defaults.update(existing_content["advisoryDefaults"])
+
     return {
         "complianceRuleIds": [],
         "complianceRuleKeys": rule_ids,
         "alertRuleIds": [],
         "compositeAlertRuleIds": [],
-        "advisoryDefaults": {
-            "severityFloor": "warning",
-            "priorityFloor": "P0",
-            "scanDepth": "standard",
-        },
+        "advisoryDefaults": advisory_defaults,
         "metadata": {
             "templateId": f"{slug}-v1",
             "pack.displayName": pack["displayName"],
@@ -594,7 +598,11 @@ def main() -> None:
 
         priority_by_id = {r["id"]: r.get("priority", "P1") for r in json.loads(rules_path.read_text(encoding="utf-8"))["rules"]}
 
-        content = build_content(pack, rule_ids)
+        existing_content = None
+        if content_path.exists():
+            existing_content = json.loads(content_path.read_text(encoding="utf-8"))
+
+        content = build_content(pack, rule_ids, existing_content)
         text = json.dumps(content, indent=2) + "\n"
         content_path.write_text(text, encoding="utf-8")
         bundled_path.write_text(text, encoding="utf-8")

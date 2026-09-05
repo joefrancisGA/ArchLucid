@@ -92,7 +92,7 @@ export function GuidedModeTopBarChip(props: GuidedModeTopBarChipProps): ReactEle
         >
           <span
             aria-hidden
-            className="inline-block size-2 shrink-0 rounded-full bg-sky-700 dark:bg-sky-300"
+            className="inline-block size-2 shrink-0 rounded-full bg-[var(--al-accent-interactive)]"
           />
           {WORKSPACE_MODE_GUIDED_TOP_BAR_CHIP_LABEL}
         </button>
