@@ -175,6 +175,26 @@ describe("operator-scope-storage", () => {
     expect(queryClient.getQueryData(operatorQueryKeys.userAttentionSummary)).toBeUndefined();
   });
 
+  it("writeOperatorScopeToStorage_clears_core_pilot_commit_context_cache", () => {
+    const queryClient = getOperatorQueryClient();
+    queryClient.setQueryData(operatorQueryKeys.corePilotCommitContext, {
+      hasCommittedRun: true,
+      committedRunCount: 3,
+      firstCommitUtc: "2026-01-01T00:00:00Z",
+      trialAnchored: false,
+    });
+
+    writeOperatorScopeToStorage({
+      tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      workspaceId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      projectId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      workspaceLabel: "WS",
+      projectLabel: "PR",
+    });
+
+    expect(queryClient.getQueryData(operatorQueryKeys.corePilotCommitContext)).toBeUndefined();
+  });
+
   it("writeOperatorScopeToStorage_clears_welcome_onboarding_dismissal", () => {
     localStorage.setItem(HAS_SEEN_ONBOARDING_STORAGE_KEY, "true");
 
