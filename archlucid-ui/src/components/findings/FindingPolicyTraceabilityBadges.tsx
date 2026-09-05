@@ -1,8 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useState } from "react";
-import type { ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type ReactElement, type SetStateAction } from "react";
 
 import { FindingPolicyPackBadge } from "@/components/findings/FindingPolicyPackBadge";
 import { FindingPolicyRuleBadge } from "@/components/findings/FindingPolicyRuleBadge";
@@ -11,6 +11,10 @@ import type {
   FindingPolicyCitationLink,
   FindingPolicyPackCitationLink,
 } from "@/lib/findings/finding-policy-evidence-citations";
+import {
+  parsePolicyRulePreviewIdFromSearch,
+  policyRulePreviewPanelsHrefFromSearch,
+} from "@/lib/policy/policy-rule-preview-panels-url";
 
 export type FindingPolicyTraceabilityBadgesProps = {
   readonly pack?: FindingPolicyPackCitationLink | null;
@@ -20,16 +24,59 @@ export type FindingPolicyTraceabilityBadgesProps = {
 
 /** Prominent pack + rule badges that open an inline policy rule preview dialog. */
 export function FindingPolicyTraceabilityBadges(props: FindingPolicyTraceabilityBadgesProps): ReactElement | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const rulePreviewIdParam = searchParams.get("rulePreviewId");
   const pack = props.pack ?? null;
   const policy = props.policy ?? null;
-  const [previewOpen, setPreviewOpen] = useState(false);
+  const ruleId = policy?.ruleId ?? "";
+  const ruleLabel = policy?.ruleLabel ?? null;
+  const [previewOpen, setPreviewOpenState] = useState(() => {
+    const urlRuleId = parsePolicyRulePreviewIdFromSearch(rulePreviewIdParam);
+
+    return urlRuleId.length > 0 && urlRuleId === ruleId.trim();
+  });
+
+  const syncRulePreviewIdToUrl = useCallback(
+    (nextRuleId: string | null) => {
+      router.replace(policyRulePreviewPanelsHrefFromSearch(searchParams.toString(), nextRuleId, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPreviewOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setPreviewOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncRulePreviewIdToUrl(next && ruleId.trim().length > 0 ? ruleId : null);
+
+        return next;
+      });
+    },
+    [ruleId, syncRulePreviewIdToUrl],
+  );
+
+  useEffect(() => {
+    const urlRuleId = parsePolicyRulePreviewIdFromSearch(rulePreviewIdParam);
+    const trimmedRuleId = ruleId.trim();
+
+    if (urlRuleId.length > 0 && urlRuleId === trimmedRuleId) {
+      setPreviewOpenState(true);
+
+      return;
+    }
+
+    if (urlRuleId.length === 0) {
+      setPreviewOpenState(false);
+    }
+  }, [ruleId, rulePreviewIdParam]);
 
   if (pack === null && policy === null) {
     return null;
   }
-
-  const ruleId = policy?.ruleId ?? "";
-  const ruleLabel = policy?.ruleLabel ?? null;
 
   return (
     <>
