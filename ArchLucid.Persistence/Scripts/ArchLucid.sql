@@ -10647,6 +10647,24 @@ BEGIN
 END
 GO
 
+/* 356/359: Pre-execute coverage acknowledgement JSON (ADR 0064 synonym-safe). */
+DECLARE @acknowledgedCoverageRunTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
+
+DECLARE @acknowledgedCoverageRunSql NVARCHAR(MAX);
+
+IF @acknowledgedCoverageRunTable IS NOT NULL
+   AND COL_LENGTH(@acknowledgedCoverageRunTable, N'AcknowledgedCoverageJson') IS NULL
+BEGIN
+    SET @acknowledgedCoverageRunSql = N'ALTER TABLE ' + @acknowledgedCoverageRunTable + N' ADD AcknowledgedCoverageJson NVARCHAR(MAX) NULL;';
+
+    EXEC sp_executesql @acknowledgedCoverageRunSql;
+END
+GO
+
 /* 334: Platform-scoped operational error inbox for internal staff review (HTTP, database, and unhandled exceptions). */
 IF OBJECT_ID(N'dbo.PlatformOperationalErrors', N'U') IS NULL
 BEGIN
