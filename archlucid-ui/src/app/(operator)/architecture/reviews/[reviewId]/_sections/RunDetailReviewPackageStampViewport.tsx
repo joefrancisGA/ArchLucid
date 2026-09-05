@@ -6,6 +6,7 @@ import { RunDetailSealDeskCoverageStrip } from "@/components/reviews/RunDetailSe
 
 import { RunDetailReviewPackageClassificationSummary } from "./RunDetailReviewPackageClassificationSummary";
 import { RunDetailReviewPackageDecisionReceiptStrip } from "./RunDetailReviewPackageDecisionReceiptStrip";
+import { RunDetailInsightDensityMeasurementDenominatorStrip } from "@/components/reviews/RunDetailInsightDensityMeasurementDenominatorStrip";
 import type { ManifestFeasibilityVerdict, TransparencyTrail } from "@/types/feasibility-verdict";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 
@@ -35,6 +36,7 @@ export function RunDetailReviewPackageStampViewport(
     return (
       <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
         <RunDetailReviewPackageClassificationSummary findings={props.quickDecisionFindings ?? []} />
+        <RunDetailInsightDensityMeasurementDenominatorStrip />
         <RunDetailReviewPackageDecisionReceiptStrip
           runId={props.runId}
           feasibilityVerdict={feasibilityVerdict}
@@ -52,6 +54,7 @@ export function RunDetailReviewPackageStampViewport(
   return (
     <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
       <RunDetailReviewPackageClassificationSummary findings={props.quickDecisionFindings ?? []} />
+      <RunDetailInsightDensityMeasurementDenominatorStrip />
       <RunDetailOverviewTransparencyTrail
         feasibilityVerdict={feasibilityVerdict}
         runCompleted={props.runCompleted}
