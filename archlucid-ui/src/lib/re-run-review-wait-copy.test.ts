@@ -54,6 +54,7 @@ describe("re-run-review-wait-copy", () => {
     expect(copy.detail).toContain("Re-running architecture review is still in progress");
     expect(copy.detail).toContain("Server last signaled 50s ago");
     expect(copy.queueStatusStageLabel).toBe("Running agents");
+    expect(copy.queueStatusElapsedMs).toBe(12_000);
     expect(copy.statusRefreshHint).toContain("every 10 seconds");
     expect(copy.homePageHint).toContain("Overview");
     expect(copy.level).toBe("after10s");

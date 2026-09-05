@@ -7,6 +7,7 @@ import {
   resetInFlightOperationsForTests,
   trackInFlightOperation,
 } from "@/lib/operations/in-flight-operations-store";
+import { RE_RUN_REVIEW_PROGRESS_TICK_MS } from "@/lib/re-run-review-wait-copy";
 
 const executeArchitectureRunAsync = vi.fn();
 const routerRefresh = vi.fn();
@@ -77,6 +78,30 @@ describe("ReRunReviewButton", () => {
       );
       expect(screen.getByTestId("re-run-review-home-page-status-hint")).toHaveTextContent(/Overview/i);
     });
+  });
+
+  it("shows how long the review has been queued after the first 10s refresh", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    render(<ReRunReviewButton runId="run-abc" />);
+
+    fireEvent.click(screen.getByTestId("re-run-review-button"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("re-run-review-queue-status")).toHaveTextContent("Queue status: Queued");
+    });
+
+    expect(screen.getByTestId("re-run-review-queue-status")).not.toHaveTextContent("(10s)");
+
+    await act(async () => {
+      vi.advanceTimersByTime(RE_RUN_REVIEW_PROGRESS_TICK_MS);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("re-run-review-queue-status")).toHaveTextContent("Queue status: Queued (10s)");
+    });
+
+    vi.useRealTimers();
   });
 
   it("updates the outcome when the shell operation reaches a terminal state", async () => {
