@@ -31,6 +31,7 @@ public sealed class OperationalSecurityFindingsController(
 {
     [HttpPost("ingest")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    // idempotency-posture: audit-exempt
     [MutatingAuditExcluded("Audit: OperationalSecurityFindingIngestService logs Ingested/Deduplicated via IAuditService.")]
     [ProducesResponseType(typeof(OperationalSecurityFindingBatchIngestResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

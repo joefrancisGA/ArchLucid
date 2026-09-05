@@ -1452,6 +1452,26 @@
       "nav_operator_href": "/governance/policy-packs"
     },
     {
+      "controller_file": "InfraEvidence/AuditEvidenceLineageController.cs",
+      "class_name": "AuditEvidenceLineageController",
+      "route_template": "v{version:apiVersion}/infra-evidence/audit-assessments",
+      "normalized_prefix": "/v1/infra-evidence/audit-assessments",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "InfraEvidence/AuditEvidencePackageController.cs",
+      "class_name": "AuditEvidencePackageController",
+      "route_template": "v{version:apiVersion}/infra-evidence/audit-assessments",
+      "normalized_prefix": "/v1/infra-evidence/audit-assessments",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "InfraEvidence/InfraEvidenceInventoryController.cs",
       "class_name": "InfraEvidenceInventoryController",
       "route_template": "v{version:apiVersion}/infra-evidence/azure-inventory",
@@ -1722,26 +1742,6 @@
       "nav_operator_href": null
     },
     {
-      "controller_file": "Operator/OperatorSavedViewsController.cs",
-      "class_name": "OperatorSavedViewsController",
-      "route_template": "v{version:apiVersion}/operator/saved-views",
-      "normalized_prefix": "/v1/operator/saved-views",
-      "commercial_tier": "standard",
-      "class_policy": "AuthenticatedUserOnly",
-      "exemption": null,
-      "nav_operator_href": null
-    },
-    {
-      "controller_file": "Operator/OperatorShellStatusController.cs",
-      "class_name": "OperatorShellStatusController",
-      "route_template": "v{version:apiVersion}/operator/shell-status",
-      "normalized_prefix": "/v1/operator/shell-status",
-      "commercial_tier": "standard",
-      "class_policy": "AuthenticatedUserOnly",
-      "exemption": null,
-      "nav_operator_href": null
-    },
-    {
       "controller_file": "OperationalSecurity/OperationalSecurityFindingsController.cs",
       "class_name": "OperationalSecurityFindingsController",
       "route_template": "v{version:apiVersion}/operational-security/findings",
@@ -1758,6 +1758,26 @@
       "normalized_prefix": "/v1/operational-security/remediation-patterns",
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Operator/OperatorSavedViewsController.cs",
+      "class_name": "OperatorSavedViewsController",
+      "route_template": "v{version:apiVersion}/operator/saved-views",
+      "normalized_prefix": "/v1/operator/saved-views",
+      "commercial_tier": "standard",
+      "class_policy": "AuthenticatedUserOnly",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Operator/OperatorShellStatusController.cs",
+      "class_name": "OperatorShellStatusController",
+      "route_template": "v{version:apiVersion}/operator/shell-status",
+      "normalized_prefix": "/v1/operator/shell-status",
+      "commercial_tier": "standard",
+      "class_policy": "AuthenticatedUserOnly",
       "exemption": null,
       "nav_operator_href": null
     },

@@ -1566,6 +1566,8 @@ export interface components {
         AsyncJobResponse: {
             jobId?: string;
         };
+        /** @enum {string} */
+        AuditEvaluationOutcome: "InsufficientEvidence" | "TechnicallySupported" | "TechnicallyNotSupported";
         AuditEvent: {
             actorUserId?: string;
             actorUserName?: string;
@@ -1594,6 +1596,56 @@ export interface components {
             /** Format: int32 */
             count?: number;
             exact?: boolean;
+        };
+        AuditEvidenceLineageEvaluationNode: {
+            /** Format: uuid */
+            evaluationId?: string;
+            exceptionIds?: string[];
+            formula?: string;
+            outcome?: components["schemas"]["AuditEvaluationOutcome"];
+            provenanceKind?: components["schemas"]["ProvenanceKind"];
+        };
+        AuditEvidenceLineageEvidenceNode: {
+            apiQueryId?: null | string;
+            azureResourceId?: null | string;
+            /** Format: uuid */
+            cloudResourceId?: null | string;
+            /** Format: date-time */
+            collectedUtc?: string;
+            collectorVersion?: string;
+            /** Format: uuid */
+            evaluationEvidenceItemId?: null | string;
+            /** Format: uuid */
+            evidenceRowId?: string;
+            itemHashVerified?: boolean;
+            linkComplete?: boolean;
+            missingLinkKinds?: string[];
+            normalizedPointer?: null | string;
+            rawPointer?: null | string;
+            selectorVersion?: string;
+        };
+        AuditEvidenceLineageRecord: {
+            /** Format: uuid */
+            assessmentId?: string;
+            /** Format: uuid */
+            auditEvidenceSnapshotId?: string;
+            brokenLinkReasons?: string[];
+            chainComplete?: boolean;
+            /** Format: uuid */
+            controlId?: string;
+            controlNumber?: string;
+            controlTitle?: string;
+            evaluation?: null | components["schemas"]["AuditEvidenceLineageEvaluationNode"];
+            readyForPositiveCheckbox?: boolean;
+            requirementChains?: components["schemas"]["AuditEvidenceLineageRequirementChain"][];
+            snapshotHashVerified?: boolean;
+        };
+        AuditEvidenceLineageRequirementChain: {
+            evidence?: components["schemas"]["AuditEvidenceLineageEvidenceNode"][];
+            evidenceType?: string;
+            /** Format: uuid */
+            requirementId?: string;
+            requirementName?: string;
         };
         AuthDiagnosticEntry: {
             audience?: null | string;
@@ -2598,6 +2650,7 @@ export interface components {
             descriptionText?: null | string;
             focusedPilotModeEnabled?: boolean;
             securityIntakeAnswer?: null | string;
+            userOverrides?: null | components["schemas"]["CoveragePreviewUserOverrideRequest"][];
         };
         CoveragePreviewResponse: {
             /** Format: int32 */
@@ -2613,6 +2666,12 @@ export interface components {
             /** Format: int32 */
             providerNeutralBaselineCount?: number;
             summaryLine?: string;
+        };
+        CoveragePreviewUserOverrideRequest: {
+            excluded?: boolean;
+            exclusionReason?: null | string;
+            /** Format: uuid */
+            policyPackId?: string;
         };
         /** @enum {string} */
         CoverageSelectionState: "AlwaysActive" | "RequiredAndLocked" | "RecommendedAndSelected" | "RecommendedButExcluded" | "OptionalAndSelected" | "OptionalAndNotSelected" | "NotApplicable" | "Retired";
@@ -5538,6 +5597,145 @@ export interface components {
             /** Format: uuid */
             workspaceId?: null | string;
         };
+        OperationalSecurityFindingBatchIngestResult: {
+            /** Format: int32 */
+            deduplicatedCount?: number;
+            /** Format: int32 */
+            failedCount?: number;
+            /** Format: int32 */
+            ingestedCount?: number;
+            items?: components["schemas"]["OperationalSecurityFindingIngestItemResult"][];
+        };
+        OperationalSecurityFindingDetailResult: {
+            errorMessage?: null | string;
+            finding?: null | components["schemas"]["OperationalSecurityFindingRecord"];
+            metadata?: components["schemas"]["OperationalSecurityFindingMetadataRecord"][];
+            observations?: components["schemas"]["OperationalSecurityFindingObservationRecord"][];
+            succeeded?: boolean;
+        };
+        OperationalSecurityFindingIngestItemResult: {
+            errorMessage?: null | string;
+            /** Format: uuid */
+            findingId?: null | string;
+            /** Format: int32 */
+            index?: number;
+            succeeded?: boolean;
+            wasDeduplicated?: boolean;
+        };
+        OperationalSecurityFindingIngestRequest: {
+            items?: components["schemas"]["OperationalSecurityFindingIngestRequestItem"][];
+        };
+        OperationalSecurityFindingIngestRequestItem: {
+            /** Format: uuid */
+            assessmentId?: null | string;
+            /** Format: uuid */
+            auditEvidenceSnapshotId?: null | string;
+            blastRadius?: null | string;
+            businessCriticality?: null | string;
+            /** Format: uuid */
+            cloudResourceId?: null | string;
+            controlFramework?: null | string;
+            controlId?: null | string;
+            description?: null | string;
+            exploitability?: null | string;
+            exposure?: null | string;
+            externalResourceId?: null | string;
+            /** Format: uuid */
+            inventoryDiffId?: null | string;
+            metadata?: {
+                [key: string]: string;
+            };
+            /** Format: date-time */
+            observedUtc?: null | string;
+            provider?: components["schemas"]["CloudProvider"];
+            rawEvidenceReference?: null | string;
+            resourceType?: null | string;
+            /** Format: double */
+            riskScore?: null | number | string;
+            severity?: null | string;
+            sourceFindingId?: string;
+            sourceSystem?: string;
+            status?: components["schemas"]["OperationalSecurityFindingStatus"];
+            subscriptionOrAccountId?: null | string;
+            title?: string;
+        };
+        OperationalSecurityFindingMetadataRecord: {
+            /** Format: uuid */
+            findingId?: string;
+            metadataKey?: string;
+            /** Format: uuid */
+            metadataRowId?: string;
+            metadataValue?: null | string;
+            /** Format: uuid */
+            tenantId?: string;
+        };
+        OperationalSecurityFindingObservationRecord: {
+            /** Format: uuid */
+            findingId?: string;
+            /** Format: uuid */
+            observationId?: string;
+            /** Format: date-time */
+            observedUtc?: string;
+            /** Format: byte */
+            payloadHashSha256?: string;
+            /** Format: double */
+            riskScore?: null | number | string;
+            severity?: null | string;
+            sourceSystem?: string;
+            status?: components["schemas"]["OperationalSecurityFindingStatus"];
+            summary?: null | string;
+            /** Format: uuid */
+            tenantId?: string;
+        };
+        OperationalSecurityFindingRecord: {
+            /** Format: uuid */
+            assessmentId?: null | string;
+            /** Format: uuid */
+            auditEvidenceSnapshotId?: null | string;
+            blastRadius?: null | string;
+            businessCriticality?: null | string;
+            /** Format: uuid */
+            cloudResourceId?: null | string;
+            controlFramework?: null | string;
+            controlId?: null | string;
+            /** Format: date-time */
+            createdUtc?: string;
+            description?: null | string;
+            exploitability?: null | string;
+            exposure?: null | string;
+            externalResourceId?: null | string;
+            /** Format: uuid */
+            findingId?: string;
+            /** Format: date-time */
+            firstObservedUtc?: string;
+            /** Format: uuid */
+            inventoryDiffId?: null | string;
+            /** Format: date-time */
+            lastObservedUtc?: string;
+            /** Format: byte */
+            payloadHashSha256?: string;
+            /** Format: uuid */
+            projectId?: string;
+            provider?: components["schemas"]["CloudProvider"];
+            rawEvidenceReference?: null | string;
+            resourceType?: null | string;
+            /** Format: double */
+            riskScore?: null | number | string;
+            severity?: null | string;
+            sourceFindingId?: string;
+            sourceSystem?: string;
+            status?: components["schemas"]["OperationalSecurityFindingStatus"];
+            subscriptionOrAccountId?: null | string;
+            /** Format: uuid */
+            tenantId?: string;
+            title?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+            /** Format: uuid */
+            workspaceId?: string;
+        };
+        /** @enum {string} */
+        OperationalSecurityFindingStatus: "Open" | "Recurred" | "Closed" | "Exception" | "AwaitingVerification";
         OperatorDemoReviewFindingSummary: {
             policyRuleKey?: null | string;
             severity?: string;
@@ -5713,6 +5911,10 @@ export interface components {
             structuredBrief?: null | components["schemas"]["ArchitectureDraftStructuredBrief"];
             systemName?: null | string;
             workflowIntent?: null | string;
+        };
+        PatchRunCoveragePackRequest: {
+            excluded?: boolean;
+            exclusionReason?: null | string;
         };
         PatchTechnologyLedgerEntryRequest: {
             isLocked?: null | boolean;
@@ -6135,6 +6337,7 @@ export interface components {
             distributionScope?: string;
             isDeleted?: boolean;
             name?: string;
+            packSlug?: null | string;
             packType?: string;
             /** Format: uuid */
             policyPackId?: string;
@@ -6781,6 +6984,9 @@ export interface components {
             contentJson: string;
             version?: string;
         };
+        PutRunCoverageAcknowledgementRequest: {
+            entries?: null | components["schemas"]["RunCoverageAcknowledgementEntryRequest"][];
+        };
         QualityGateDefinitionSnapshotDto: {
             contentHashSha256: string;
             definitionVersion: string;
@@ -7198,6 +7404,131 @@ export interface components {
         };
         /** @enum {string} */
         RelationshipType: "Calls" | "ReadsFrom" | "WritesTo" | "PublishesTo" | "SubscribesTo" | "AuthenticatesWith";
+        /** @enum {string} */
+        RemediationAutomationLevel: "Manual" | "Guided" | "SemiAutomated" | "Automated";
+        RemediationPatternBulkImportRequest: {
+            items?: components["schemas"]["RemediationPatternDraftApiRequest"][];
+        };
+        RemediationPatternDetailResult: {
+            errorMessage?: null | string;
+            pattern?: null | components["schemas"]["RemediationPatternRecord"];
+            succeeded?: boolean;
+            versions?: components["schemas"]["RemediationPatternVersionRecord"][];
+        };
+        RemediationPatternDraftApiRequest: {
+            automationLevel?: components["schemas"]["RemediationAutomationLevel"];
+            content?: components["schemas"]["RemediationPatternVersionContent"];
+            description?: null | string;
+            displayName?: string;
+            matchCriteria?: components["schemas"]["RemediationPatternMatchCriteria"];
+            patternKey?: string;
+            version?: string;
+        };
+        RemediationPatternEligibilityDefinition: {
+            expressions?: string[];
+        };
+        RemediationPatternExceptionPolicyDefinition: {
+            allowTemporaryException?: boolean;
+            /** Format: int32 */
+            maxExceptionDays?: null | number;
+            rationaleRequired?: null | string;
+        };
+        RemediationPatternExecutionDefinition: {
+            advisoryTerraformTemplateRef?: null | string;
+            runbookRef?: null | string;
+            verificationQueries?: string[];
+        };
+        RemediationPatternImportJsonRequest: {
+            json?: string;
+        };
+        RemediationPatternImportYamlRequest: {
+            yaml?: string;
+        };
+        RemediationPatternMatchCriteria: {
+            controlId?: null | string;
+            propertyEquals?: {
+                [key: string]: string;
+            };
+            provider?: null | components["schemas"]["CloudProvider"];
+            resourceType?: null | string;
+            severityMin?: null | string;
+        };
+        RemediationPatternOperationResult: {
+            errorMessage?: null | string;
+            /** Format: uuid */
+            patternId?: null | string;
+            status?: null | components["schemas"]["RemediationPatternStatus"];
+            succeeded?: boolean;
+            version?: null | string;
+        };
+        RemediationPatternPreflightDefinition: {
+            checks?: string[];
+        };
+        RemediationPatternRecord: {
+            createdByActorKey?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            currentApprovedVersion?: null | string;
+            description?: null | string;
+            displayName?: string;
+            /** Format: uuid */
+            patternId?: string;
+            patternKey?: string;
+            /** Format: uuid */
+            tenantId?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+        };
+        RemediationPatternRecurrenceControlDefinition: {
+            description?: null | string;
+            itsmWorkItemType?: null | string;
+        };
+        RemediationPatternRollbackDefinition: {
+            advisoryTerraformTemplateRef?: null | string;
+            runbookRef?: null | string;
+        };
+        RemediationPatternStatus: number;
+        RemediationPatternVersionActionRequest: {
+            version?: string;
+        };
+        RemediationPatternVersionContent: {
+            applicableProviders?: string[];
+            controlObjective?: string;
+            eligibility?: null | components["schemas"]["RemediationPatternEligibilityDefinition"];
+            exceptionPolicy?: null | components["schemas"]["RemediationPatternExceptionPolicyDefinition"];
+            exclusion?: null | components["schemas"]["RemediationPatternEligibilityDefinition"];
+            execution?: null | components["schemas"]["RemediationPatternExecutionDefinition"];
+            preflight?: null | components["schemas"]["RemediationPatternPreflightDefinition"];
+            recurrenceControl?: null | components["schemas"]["RemediationPatternRecurrenceControlDefinition"];
+            requiredApprovals?: string[];
+            rollback?: null | components["schemas"]["RemediationPatternRollbackDefinition"];
+        };
+        RemediationPatternVersionRecord: {
+            approvedByActorKey?: null | string;
+            /** Format: date-time */
+            approvedUtc?: null | string;
+            authorActorKey?: string;
+            automationLevel?: components["schemas"]["RemediationAutomationLevel"];
+            contentJson?: string;
+            controlObjective?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            matchControlId?: null | string;
+            matchPropertyEqualsJson?: null | string;
+            matchProvider?: null | components["schemas"]["CloudProvider"];
+            matchResourceType?: null | string;
+            matchSeverityMin?: null | string;
+            /** Format: uuid */
+            patternId?: string;
+            status?: components["schemas"]["RemediationPatternStatus"];
+            /** Format: uuid */
+            tenantId?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+            version?: string;
+            /** Format: uuid */
+            versionId?: string;
+        };
         RenewRiskExceptionRequest: {
             evidenceRef?: null | string;
             /** Format: date-time */
@@ -7583,6 +7914,13 @@ export interface components {
             /** Format: int32 */
             wouldSuppressCount?: number;
         };
+        RunAcknowledgedCoverageDocument: {
+            /** Format: date-time */
+            acknowledgedUtc?: string;
+            actorUserId?: string;
+            entries?: components["schemas"]["RunCoverageAcknowledgementEntry"][];
+            evaluationVersion?: string;
+        };
         RunAgentLlmCostEstimateDto: {
             costEstimationBasis?: string;
             /** Format: double */
@@ -7668,6 +8006,18 @@ export interface components {
             selectedOptionId?: null | string;
             supportingEvaluationIds?: string[];
             topic?: string;
+        };
+        RunCoverageAcknowledgementEntry: {
+            excluded?: boolean;
+            exclusionReason?: null | string;
+            /** Format: uuid */
+            policyPackId?: string;
+        };
+        RunCoverageAcknowledgementEntryRequest: {
+            excluded?: boolean;
+            exclusionReason?: null | string;
+            /** Format: uuid */
+            policyPackId?: string;
         };
         RunCoverageResponse: {
             runId?: string;
@@ -7972,6 +8322,7 @@ export interface components {
             summary?: string;
         };
         RunRecord: {
+            acknowledgedCoverageJson?: null | string;
             /** Format: uuid */
             architectureId?: null | string;
             architectureRequestId?: null | string;

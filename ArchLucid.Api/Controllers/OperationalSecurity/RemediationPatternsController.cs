@@ -29,6 +29,7 @@ public sealed class RemediationPatternsController(
 {
     [HttpPost("draft")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    // idempotency-posture: operator-documented-safe-retry
     [MutatingAuditExcluded("Remediation pattern draft is tenant-scoped registry metadata.")]
     [ProducesResponseType(typeof(RemediationPatternOperationResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -55,6 +56,7 @@ public sealed class RemediationPatternsController(
 
     [HttpPost("{patternId:guid}/submit")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    // idempotency-posture: operator-documented-safe-retry
     [MutatingAuditExcluded("Remediation pattern submit transitions version status only.")]
     public async Task<IActionResult> SubmitForReview(
         Guid patternId,
@@ -81,6 +83,7 @@ public sealed class RemediationPatternsController(
 
     [HttpPost("{patternId:guid}/approve")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    // idempotency-posture: operator-documented-safe-retry
     [MutatingAuditExcluded("Remediation pattern approval enforces SoD in service layer.")]
     public async Task<IActionResult> Approve(
         Guid patternId,
@@ -107,6 +110,7 @@ public sealed class RemediationPatternsController(
 
     [HttpPost("{patternId:guid}/deprecate")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    // idempotency-posture: operator-documented-safe-retry
     [MutatingAuditExcluded("Remediation pattern deprecation transitions version status only.")]
     public async Task<IActionResult> Deprecate(
         Guid patternId,
@@ -133,6 +137,7 @@ public sealed class RemediationPatternsController(
 
     [HttpPost("{patternId:guid}/retire")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    // idempotency-posture: operator-documented-safe-retry
     [MutatingAuditExcluded("Remediation pattern retirement transitions version status only.")]
     public async Task<IActionResult> Retire(
         Guid patternId,
@@ -183,6 +188,7 @@ public sealed class RemediationPatternsController(
 
     [HttpPost("import/yaml")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    // idempotency-posture: operator-documented-safe-retry
     [MutatingAuditExcluded("Remediation pattern YAML import creates Draft versions.")]
     public async Task<IActionResult> ImportYaml(
         [FromBody] RemediationPatternImportYamlRequest? request,
@@ -207,6 +213,7 @@ public sealed class RemediationPatternsController(
 
     [HttpPost("import/json")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    // idempotency-posture: operator-documented-safe-retry
     [MutatingAuditExcluded("Remediation pattern JSON import creates Draft versions.")]
     public async Task<IActionResult> ImportJson(
         [FromBody] RemediationPatternImportJsonRequest? request,
@@ -231,6 +238,7 @@ public sealed class RemediationPatternsController(
 
     [HttpPost("import/bulk")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    // idempotency-posture: operator-documented-safe-retry
     [MutatingAuditExcluded("Remediation pattern bulk import reports per-item errors.")]
     public async Task<IActionResult> ImportBulk(
         [FromBody] RemediationPatternBulkImportRequest? request,

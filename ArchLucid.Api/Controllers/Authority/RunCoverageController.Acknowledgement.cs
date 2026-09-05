@@ -39,6 +39,7 @@ public sealed partial class RunCoverageController
 
     [HttpPut("{runId:guid}/coverage/acknowledgement")]
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
+    // idempotency-posture: operator-documented-safe-retry
     [MutatingAuditExcluded("Audit: RunCoverageAcknowledgementService persists acknowledgement and logs RunCoverageAcknowledged.")]
     [ProducesResponseType(typeof(RunAcknowledgedCoverageDocument), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
