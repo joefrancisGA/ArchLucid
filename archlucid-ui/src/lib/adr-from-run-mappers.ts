@@ -93,10 +93,15 @@ export function buildAdrGeneratorRunInput(args: {
   manifestCounts: import("./adr-from-run-slices").AdrGeneratorManifestCounts | null;
   explanationSummary: RunExplanationSummary | null;
   quickDecisionFindings: readonly QuickDecisionFinding[];
-  maxFindings?: number;
+  maxFindings?: number | null;
   severityLabelForFinding: (severityValue: number) => string;
 }): AdrGeneratorRunInput {
-  const maxFindings = typeof args.maxFindings === "number" && Number.isFinite(args.maxFindings) ? args.maxFindings : DEFAULT_MAX_FINDINGS;
+  const maxFindings =
+    args.maxFindings === null
+      ? Number.POSITIVE_INFINITY
+      : typeof args.maxFindings === "number" && Number.isFinite(args.maxFindings)
+        ? args.maxFindings
+        : DEFAULT_MAX_FINDINGS;
   const explanation = buildAdrExplanationSlice(args.explanationSummary);
   const sorted = sortQuickDecisionFindings(args.quickDecisionFindings).filter((f) => f.isMuted !== true);
   const capped = sorted.slice(0, Math.max(0, Math.trunc(maxFindings)));

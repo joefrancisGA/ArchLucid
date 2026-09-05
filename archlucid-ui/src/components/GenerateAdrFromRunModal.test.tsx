@@ -10,12 +10,16 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => true,
+}));
+
 const minimalInput: AdrGeneratorRunInput = {
   runId: "6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501",
   projectId: "p1",
   reviewTitle: "Test review",
   createdUtc: "2026-05-11T00:00:00.000Z",
-  manifestStatusLabel: null,
+  manifestStatusLabel: "manifest-v1",
   policyPackLabel: null,
   manifestCounts: null,
   explanation: null,
