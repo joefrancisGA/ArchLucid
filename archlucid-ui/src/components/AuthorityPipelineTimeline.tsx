@@ -120,7 +120,7 @@ function renderTechnicalDetails(row: PipelineTimelineItem, eventLabel: string): 
   );
 }
 
-/** Read-only audit trail table for one architecture review (oldest first). */
+/** Read-only audit trail table for one architecture review (newest first). */
 export function AuthorityPipelineTimeline({
   items,
   loadErrorMessage,
@@ -153,10 +153,12 @@ export function AuthorityPipelineTimeline({
     );
   }
 
-  const visibleItems =
+  const visibleChronologicalItems =
     maxVisibleItems !== undefined && maxVisibleItems > 0 && items.length > maxVisibleItems
       ? items.slice(-maxVisibleItems)
       : items;
+
+  const visibleItems = [...visibleChronologicalItems].reverse();
 
   return (
     <EnterpriseTable ariaLabel={auditTrailLabel}>
