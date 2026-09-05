@@ -4,7 +4,7 @@ using ArchLucid.Persistence.Serialization;
 namespace ArchLucid.Persistence.GoldenManifests;
 
 /// <summary>
-///     The twelve serialized manifest payload slices written to <c>dbo.GoldenManifests</c>.
+///     The JSON payload slices written to <c>dbo.GoldenManifests</c> (twelve section columns plus hasher-bound fields).
 /// </summary>
 /// <remarks>
 ///     Serialization happens once and is reused for the size check, the optional blob envelope, and the insert
@@ -22,7 +22,8 @@ internal sealed record GoldenManifestSerializedPayload(
     string DecisionsJson,
     string AssumptionsJson,
     string WarningsJson,
-    string ProvenanceJson)
+    string ProvenanceJson,
+    string HasherBoundJson)
 {
     public static GoldenManifestSerializedPayload FromDocument(ManifestDocument manifest)
     {
@@ -40,7 +41,8 @@ internal sealed record GoldenManifestSerializedPayload(
             JsonEntitySerializer.Serialize(manifest.Decisions),
             JsonEntitySerializer.Serialize(manifest.Assumptions),
             JsonEntitySerializer.Serialize(manifest.Warnings),
-            JsonEntitySerializer.Serialize(manifest.Provenance));
+            JsonEntitySerializer.Serialize(manifest.Provenance),
+            GoldenManifestHasherBoundPayload.SerializeFromDocument(manifest));
     }
 
     /// <summary>Combined UTF-16 length, compared against the offload threshold before writing in-row JSON.</summary>
@@ -56,7 +58,8 @@ internal sealed record GoldenManifestSerializedPayload(
         DecisionsJson,
         AssumptionsJson,
         WarningsJson,
-        ProvenanceJson);
+        ProvenanceJson,
+        HasherBoundJson);
 
     public GoldenManifestPayloadBlobEnvelope ToBlobEnvelope() =>
         GoldenManifestPayloadBlobEnvelope.FromSerializedSlices(
@@ -71,5 +74,6 @@ internal sealed record GoldenManifestSerializedPayload(
             DecisionsJson,
             AssumptionsJson,
             WarningsJson,
-            ProvenanceJson);
+            ProvenanceJson,
+            HasherBoundJson);
 }

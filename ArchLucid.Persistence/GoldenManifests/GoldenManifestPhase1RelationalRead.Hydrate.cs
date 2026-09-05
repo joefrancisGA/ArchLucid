@@ -45,7 +45,7 @@ internal static partial class GoldenManifestPhase1RelationalRead
             ? await LoadDecisionsRelationalAsync(connection, manifestId, ct)
             : FallbackDeserializeDecisions(row.DecisionsJson);
 
-        return new ManifestDocument
+        ManifestDocument document = new()
         {
             TenantId = row.TenantId,
             WorkspaceId = row.WorkspaceId,
@@ -85,6 +85,9 @@ internal static partial class GoldenManifestPhase1RelationalRead
             Warnings = warnings,
             Provenance = provenance
         };
+
+        GoldenManifestHasherBoundPayload.ApplyJsonToDocument(row.HasherBoundJson, document);
+        return document;
     }
 
     /// <summary>Shared JSON section deserialize used by full hydrate and prior-retrieval slim hydrate.</summary>
