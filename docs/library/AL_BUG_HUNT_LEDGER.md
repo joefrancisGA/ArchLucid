@@ -1339,9 +1339,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 6
+- **hunts:** 7
 - **bugs-found:** 11
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-05
 - **last-bug:** 2026-09-05 — SAML ambiguous multi-valued scope attributes promoted first value; custom-role permissions resolved via `sub` instead of `oid`; unparseable `auth_time` fell through to fresh `iat` for step-up
 - **related-pd-tb:** none
@@ -1363,8 +1363,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArchLucidSamlInboundClaimsNormalizer.PromoteSingleValueIfMissing` promoted the first of multiple distinct inbound scope source values — **hit 2026-09-05 (#812):** duplicate IdP tenant attributes with different GUIDs bound scope order-dependently via `FirstOrDefault`; fixed by skipping promotion when more than one distinct non-empty source value exists (`ArchLucidSamlInboundClaimsNormalizerTests.Apply_skips_ambiguous_multi_valued_scope_source_claims`).
 - [x] (proven) `CustomRoleClaimsTransformation.TryResolveScimUserIdAsync` preferred `sub` over `oid` — **hit 2026-09-05 (#812):** Entra-style principals with mismatched `oid`/`sub` grafted another user's custom-role permissions while `RoleSyncService` bound roles via `oid`; fixed by preferring `RoleSyncService.TryDirectoryObjectKey` (`CustomRoleClaimsTransformationTests.TransformAsync_prefers_oid_over_sub_when_resolving_scim_user`).
 - [x] (proven) `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` fell back to `iat` when `auth_time` was present but unparseable — **hit 2026-09-05 (#812):** step-up accepted fresh token issue time despite garbage `auth_time`; fixed by failing closed when `auth_time` claim exists but does not parse (`RecentAuthenticationEvaluatorTests.HasRecentAuthentication_returns_false_when_auth_time_is_present_but_unparseable`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator.MatchesLocalIssuer` — issuer string must match configured value exactly; cheap-disproof suggests JwtBearer rejects issuer mismatch before validator runs (no bypass reachable).
-- [ ] (candidate) `TrialExternalIdJwtBearerSupport.TryAllowConsumerIdentityIssuers` — forged CIAM issuer acceptance; cheap-disproof suggests signature validation still applies.
+- [x] (invalid) `PlatformUserAuthVersionValidator.MatchesLocalIssuer` — issuer string must match configured value exactly; cheap-disproof suggests JwtBearer rejects issuer mismatch before validator runs (no bypass reachable) — **cheap-disproof 2026-09-05 (#828):** ordinal `MatchesLocalIssuer` skips stamp in isolation but `ArchLucidJwtBearerConfiguration` sets `ValidIssuer` with ordinal match so case-variant tokens fail at JwtBearer before `OnTokenValidated`; regressions in `ValidateAsync_skips_auth_version_when_local_issuer_differs_only_by_casing` and `AddArchLucidAuth_local_pem_rejects_token_when_issuer_differs_only_by_casing`.
+- [x] (invalid) `TrialExternalIdJwtBearerSupport.TryAllowConsumerIdentityIssuers` — forged CIAM issuer acceptance; cheap-disproof suggests signature validation still applies — **cheap-disproof 2026-09-05 (#828):** wrapper only short-circuits `IssuerValidator` for `ExternalIdIssuerPatterns` matches; `ValidateIssuerSigningKey` / signing key material unchanged; regression in `TryAllowConsumerIdentityIssuers_does_not_disable_signature_validation_parameters`.
+
+2026-09-05 thorough hunt #828 (dry): cheap-disproved both open JWT/SAML bearer candidates; no new hunt-ready repro.
 
 2026-09-05 seed hunt #812 (hit): reseeded SAML scope ambiguity, custom-role oid/sub alignment, and step-up `auth_time` parse fail-closed gaps.
 
