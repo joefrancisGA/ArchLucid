@@ -29,4 +29,13 @@ public static partial class AuditEventTypes
 
     /// <summary>Operational security exception expired and visibility was reopened.</summary>
     public const string OperationalSecurityExceptionExpired = "OperationalSecurityException.Expired";
+
+    /// <summary>Remediation instance created from an approved pattern match.</summary>
+    public const string RemediationInstanceCreated = "RemediationInstance.Created";
+
+    /// <summary>Remediation instance executed (advisory emit only; no cloud apply).</summary>
+    public const string RemediationInstanceExecuted = "RemediationInstance.Executed";
+
+    /// <summary>Remediation instance closed after successful verification.</summary>
+    public const string RemediationInstanceClosed = "RemediationInstance.Closed";
 }
