@@ -4731,11 +4731,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 14
-- **bugs-found:** 22
+- **hunts:** 15
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — archived runs inflated attention committed counts; userAttentionSummary cache survived scope switch
+- **last-hunt:** 2026-09-05
+- **last-bug:** 2026-09-05 — stable-cache alerts-only persistence; lifecycle invalidation omitted userAttentionSummary; corePilotCommitContext survived scope switch
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4772,11 +4772,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `deriveAttentionSurfaceCounts` — archived committed/in-progress runs inflated `run-work-queue-committed` / `run-work-queue-in-progress` attention surface counts while Reviews hub excludes archived inventory — **hit 2026-09-04 (#666):** `partitionRunsIntoWorkQueueSections` counted archived rows; sibling `deriveOperatorHomeWorkspaceMetrics` already skips `isArchived`; fixed by filtering active runs before partition (`derive-attention-surface-counts.test.ts`).
 - [x] (proven) `userAttentionSummary` TanStack cache survived tenant switch — **hit 2026-09-04 (#666):** scope-agnostic `operatorQueryKeys.userAttentionSummary` omitted from `OPERATOR_SHELL_STATUS_SCOPE_AGNOSTIC_QUERY_KEYS`; attention badges could show prior-tenant counts after scope change; fixed via scope-change cache clear (`operator-scope-storage.test.ts`).
-- [ ] (candidate) `writeOperatorShellStableCache` — `alertsInboxSummary` persisted without `isStable*` gate unlike trial/catalog/budget snapshots; hydrate may seed stale open-count badges before shell-status refetch.
-- [ ] (candidate) `invalidateOperatorHomeRunsCaches` — lifecycle invalidation omits `userAttentionSummary`; post-commit attention badges may stay stale until 30s `staleTime` expires.
-- [ ] (candidate) `corePilotCommitContext` — scope-agnostic TanStack key cleared on lifecycle invalidation but not `notifyOperatorScopeChanged`; tenant switch may show prior tenant commit context until refetch.
+- [x] (proven) `writeOperatorShellStableCache` — `alertsInboxSummary` persisted without `isStable*` gate unlike trial/catalog/budget snapshots; hydrate may seed stale open-count badges before shell-status refetch — **hit 2026-09-05 (#800):** alerts-only payload written when trial lifecycle unstable; fixed by requiring `hasStableSnapshot` before any session write (`operator-shell-stable-cache.test.ts`).
+- [x] (proven) `invalidateOperatorHomeRunsCaches` — lifecycle invalidation omits `userAttentionSummary`; post-commit attention badges may stay stale until 30s `staleTime` expires — **hit 2026-09-05 (#800):** added `userAttentionSummary` invalidation alongside home runs caches (`operator-query-invalidation.test.ts`).
+- [x] (proven) `corePilotCommitContext` — scope-agnostic TanStack key cleared on lifecycle invalidation but not `notifyOperatorScopeChanged`; tenant switch may show prior tenant commit context until refetch — **hit 2026-09-05 (#800):** added to `OPERATOR_SHELL_STATUS_SCOPE_AGNOSTIC_QUERY_KEYS` (`operator-scope-storage.test.ts`).
 
-2026-09-04 seed hunt #666: proved archived-run attention surface inflation and userAttentionSummary scope-cache leak; reseeded stable-cache alerts, lifecycle invalidation, and corePilotCommitContext candidates.
+2026-09-05 thorough hunt #800: proved stable-cache alerts-only persistence, lifecycle userAttentionSummary invalidation gap, and corePilotCommitContext scope-cache leak.
 
 2026-09-03 thorough hunt #544: proved OPERATOR_HOME_RUNS_STALE leaked across tenant switch; cheap-disproved homepage flag omission, empty project scope match, and colon-in-UUID scope parsing.
 
