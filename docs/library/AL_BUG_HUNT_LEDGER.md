@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 155
-- **bugs-found:** 299
+- **hunts:** 156
+- **bugs-found:** 302
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — keyless redactor suffix guards and JSON numeric anchor equivalence
+- **last-bug:** 2026-09-05 — keyless redactor embedded tokens, avoid advice negation, trial nudge casing
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2244,6 +2244,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RunHeaderAnchorJsonComparer.AreEquivalent` — JSON number formatting drift (`1` vs `1.0`) treated as anchor mutation — **hit 2026-09-05 (#883):** `GetRawText()` ordinal compare threw `RunEvidenceAnchorImmutableException` on committed lifecycle updates when governance JSON differed only by whole-number decimal formatting; fixed with decimal semantic numeric compare (`EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_numeric_formatting_only_change_on_committed_run`).
 
 2026-09-05 thorough hunt #883: proved both #882 candidate rows; primary/secondary keyless suffix guards and JSON numeric anchor equivalence added.
+
+- [x] (proven) `AzureExtractorSensitivePropertyRedactor.IsSensitiveKey` — `accountkeyless` / `clientsecretless` / `privatekeyless` suffix and embedded-token false positives — **hit 2026-09-05 (#884):** #883 per-fragment `less` guards missed remaining `*keyless` compounds and `secret` embedded in `clientsecretless`; benign ARM metadata redacted; fixed with generic prefix `less` suffix guard and embedded-fragment skip (`IsSensitiveKey_detects_secret_like_names` with `accountkeyless` / `clientsecretless` / `privatekeyless`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsObviousGenericAdvice` — `avoid` / `avoids {phrase}` prohibitive intent still matches affirmative fragments — **hit 2026-09-05 (#884):** #882 `without` negation missed `policy avoids enable mfa`; architecture-specific findings demoted as generic checklist advice; fixed with `avoid` / `avoids` negation prefixes (`IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing` with `policy avoids enable mfa for batch workloads`).
+- [x] (proven) `ArchLucidGrowthFunnelMeters.NormalizeTrialUpgradeNudgeTrigger` / `NormalizeTeamExpansionNudgeTrigger` — case-sensitive trigger labels bucketed as `unknown` — **hit 2026-09-05 (#884):** PascalCase `Runs` / `WORKSPACES` telemetry normalized to `trigger=unknown`; fixed with case-insensitive canonical trigger matching (`TrialUpgradeNudgeShownTotal_normalizes_trigger_case_insensitively`, `TeamExpansionNudgeShownTotal_normalizes_trigger_case_insensitively`).
+- [ ] (candidate) `ConfigurationSensitiveConfigPathMatcher` — `ConnectionStringFreeSettings` / `NonSecretStorage` segment parity — verify #881 segment matcher already handles `free` / `non` negation before repro.
+- [ ] (candidate) `RunHeaderAnchorJsonComparer.AreEquivalent` — JSON string whitespace-only drift treated as anchor mutation — may need trimmed string compare on governance/provenance anchors.
+
+2026-09-05 seed hunt #884: reseeded redactor embedded tokens, advice avoid negation, and trial nudge casing after #883; proved three hunt-ready rows; seeded config segment parity and JSON string whitespace anchor candidates.
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
 - [x] (valid-no-repro) Tenant scope model treats empty workspace as a wildcard — `ActivityScopeTags` rejects `Guid.Empty` workspace ids; no wildcard semantics in Core tenancy models.
