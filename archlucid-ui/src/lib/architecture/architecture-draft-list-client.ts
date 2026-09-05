@@ -26,7 +26,7 @@ export function removeArchitectureDraftFromListCache(architectureId: string): vo
       return current;
     }
 
-    return current.filter((entry) => entry.architectureId !== trimmedId);
+    return current.filter((entry) => entry.draftId !== trimmedId);
   });
 }
 

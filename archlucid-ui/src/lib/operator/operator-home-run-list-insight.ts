@@ -1,5 +1,5 @@
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
-import { formatRelativeTime } from "@/lib/relative-time";
+import { formatAbsoluteUpdatedAtTitle, formatRelativeTime } from "@/lib/relative-time";
 import { SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
@@ -39,14 +39,24 @@ export function resolveRunWarningCountDisplay(run: RunSummary): number | null {
   return null;
 }
 
-export function formatRunHomeListUpdatedLabel(run: RunSummary): string | null {
+export type RunHomeListUpdatedPresentation = {
+  readonly relativeLabel: string;
+  readonly absoluteLabel: string;
+  readonly isoUtc: string;
+};
+
+export function formatRunHomeListUpdatedLabel(run: RunSummary): RunHomeListUpdatedPresentation | null {
   const createdUtc = run.createdUtc?.trim() ?? "";
 
   if (createdUtc.length === 0) {
     return null;
   }
 
-  return `Updated ${formatRelativeTime(createdUtc)}`;
+  return {
+    isoUtc: createdUtc,
+    relativeLabel: formatRelativeTime(createdUtc),
+    absoluteLabel: formatAbsoluteUpdatedAtTitle(createdUtc),
+  };
 }
 
 export function formatRunHomeListInsightLine(run: RunSummary): string | null {

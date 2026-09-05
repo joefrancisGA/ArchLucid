@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Http.Tenancy;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
 using ArchLucid.Contracts.Notifications;
@@ -144,6 +145,19 @@ public sealed class TenantExecDigestPreferencesController(
             return this.BadRequestProblem(recipientError!, ProblemTypes.ValidationFailed);
         }
 
+        bool isIdenticalRetry = DigestPreferencesIdempotentRetry.MatchesExisting(
+            existingPreferences?.IsConfigured == true,
+            existingPreferences?.EmailEnabled ?? false,
+            existingPreferences?.RecipientEmails ?? [],
+            existingPreferences?.IanaTimeZoneId ?? "UTC",
+            existingPreferences?.DayOfWeek ?? 1,
+            existingPreferences?.HourOfDay ?? 8,
+            body.EmailEnabled,
+            recipients,
+            normalizedTimeZone,
+            dow,
+            hour);
+
         ExecDigestPreferencesResponse? saved = await _preferencesRepository.UpsertAsync(
             scope.TenantId,
             body.EmailEnabled,
@@ -160,7 +174,9 @@ public sealed class TenantExecDigestPreferencesController(
                 ProblemTypes.ResourceNotFound);
         }
 
-        await _auditService.LogAsync(
+        if (!isIdenticalRetry)
+        {
+            await _auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.ExecDigestPreferencesUpdated,
@@ -180,6 +196,7 @@ public sealed class TenantExecDigestPreferencesController(
                     })
             },
             cancellationToken);
+        }
 
         return Ok(saved);
     }

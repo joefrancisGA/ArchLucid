@@ -27,6 +27,7 @@ public sealed class RemediationPatternsController(
     IScopeContextProvider scopeProvider,
     IActorContext actorContext) : ControllerBase
 {
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("draft")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation pattern draft is tenant-scoped registry metadata.")]
@@ -53,6 +54,7 @@ public sealed class RemediationPatternsController(
         return Ok(result);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{patternId:guid}/submit")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation pattern submit transitions version status only.")]
@@ -79,6 +81,7 @@ public sealed class RemediationPatternsController(
         return Ok(result);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{patternId:guid}/approve")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation pattern approval enforces SoD in service layer.")]
@@ -105,6 +108,7 @@ public sealed class RemediationPatternsController(
         return Ok(result);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{patternId:guid}/deprecate")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation pattern deprecation transitions version status only.")]
@@ -131,6 +135,7 @@ public sealed class RemediationPatternsController(
         return Ok(result);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{patternId:guid}/retire")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation pattern retirement transitions version status only.")]
@@ -181,6 +186,7 @@ public sealed class RemediationPatternsController(
         return Ok(result);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("import/yaml")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation pattern YAML import creates Draft versions.")]
@@ -205,6 +211,7 @@ public sealed class RemediationPatternsController(
         return Ok(result);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("import/json")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation pattern JSON import creates Draft versions.")]
@@ -229,6 +236,7 @@ public sealed class RemediationPatternsController(
         return Ok(result);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("import/bulk")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation pattern bulk import reports per-item errors.")]

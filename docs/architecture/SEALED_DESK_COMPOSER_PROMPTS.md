@@ -3,17 +3,19 @@
 > **Paste-ready files:** [`.cursor/prompts/sealed-desk-00-index.md`](../../.cursor/prompts/sealed-desk-00-index.md) (**SD-01–12**)
 > **Wave 8 (run first):** [`INSTRUMENT_SPINE_COMPOSER_PROMPTS.md`](INSTRUMENT_SPINE_COMPOSER_PROMPTS.md) (**IS-01–15**)
 > **Wave 9 (run second):** [`LIVELIHOOD_SPINE_COMPOSER_PROMPTS.md`](LIVELIHOOD_SPINE_COMPOSER_PROMPTS.md) (**LS-01–12**)
+> **Wave 11 leftovers:** [`CAREER_RECORD_COMPOSER_PROMPTS.md`](CAREER_RECORD_COMPOSER_PROMPTS.md) (**CR-01–12**) — do not fork IS/LS/SD
+> **Wave 12:** [`LIVELIHOOD_KERNEL_COMPOSER_PROMPTS.md`](LIVELIHOOD_KERNEL_COMPOSER_PROMPTS.md) (**LK-01–15**) — BFF + ADR 0071–0073; do not paste IS-15
 > **Shipped predecessors:** LI-01–15 (`master` #1397), LD-01–15 (#1421 / #1439), RS-01–15 (#1457), WA-01–24 (#1496), FD-01–13 (#1534 / #1537)
 
 # Sealed-desk Composer prompts (SD-01–SD-12)
 
-**Created:** 2026-09-05 · **Status:** ready to run **after IS-01–15 and LS-01–12** · **Do not re-run LI, LD, RS, WA, CD, AD, FD, IS, or LS.**
+**Created:** 2026-09-05 · **Status:** ready to run **after IS-01–15 and LS-01–12** · **Do not re-run LI, LD, RS, WA, CD, AD, FD, IS, or LS.** Wave 11: [`CAREER_RECORD_COMPOSER_PROMPTS.md`](CAREER_RECORD_COMPOSER_PROMPTS.md) (**CR-01–12**). Wave 12: [`LIVELIHOOD_KERNEL_COMPOSER_PROMPTS.md`](LIVELIHOOD_KERNEL_COMPOSER_PROMPTS.md) (**LK-01–15**) implements BFF and remaining kernel ADRs — **do not paste IS-15; SD-09 is obsolete after LK-05–07.**
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record. Waves 8–9 own the load-bearing bets and the 2026-09-05 diagnosis leftovers (one work object, density as a control, wait as background, dual-pane selection, Ask/Compare scoped to the open package, R12 execute, BFF session).
 
 This set is **wave 10** — residuals a 2026-09-05 livelihood restatement still finds **after naming those owners**: library and generated docs that still describe the old gate, ADRs left Proposed after code moved, a golden harness that does not bound most engines, mock CI that trains buyer-polish as the operator identity, spawn-locked drafts that remain a second workspace, and all-day leftovers WA/IS did not finish (hub restore, remaining last-saved, Bearer residual honesty until BFF).
 
-It does **not** rewrite the product spine. It does **not** change `DeterministicInsightDensityGate` (IS-05). It does **not** implement the BFF (IS-15). It does **not** fork dual-pane selection (LS-01) or what-if execute (LS-06). It does **not** collapse desktop review tabs.
+It does **not** rewrite the product spine. It does **not** change `DeterministicInsightDensityGate` (IS-05). It does **not** implement the BFF (**LK-05–07** supersede IS-15). It does **not** fork dual-pane selection (LS-01) or what-if execute (LS-06). It does **not** collapse desktop review tabs.
 
 Paste **one** `.cursor/prompts/sealed-desk-NN-*.md` file per Composer session. Do not implement from this document’s tables.
 
@@ -23,7 +25,7 @@ Casual tools optimize first-run success, sample recovery, wizard collapse, wait-
 
 Livelihood tools optimize resume, keyboard work, in-flight as background, amendable writes, honest coverage, a cited “no,” a trail at the stamp, and a meeting that survives token refresh.
 
-After IS/LS, the remaining failures are: **the written contract still recites `typed-engine-protected` Promote**, **the career-bounding corpus still misses most engines**, **eval chrome is still the default mock identity**, **a spawn-locked draft URL is still an editor**, and **all-day continuity leftovers** (hub F5, remaining last-saved, XSS-Bearer honesty until IS-15).
+After IS/LS, the remaining failures are: **the written contract still recites `typed-engine-protected` Promote**, **the career-bounding corpus still misses most engines**, **eval chrome is still the default mock identity**, **a spawn-locked draft URL is still an editor**, and **all-day continuity leftovers** (hub F5, remaining last-saved, XSS-Bearer honesty until LK-05–07).
 
 ## Diagnosis → prompt
 
@@ -37,7 +39,7 @@ After IS/LS, the remaining failures are: **the written contract still recites `t
 | Eval-first spine | **SD-06** | Remaining help topics still lead with first-session as the job |
 | Continuity | **SD-07** | Reviews hub / governance queue F5 still drops filters (WA-15 was review-detail) |
 | Continuity | **SD-08** | Remaining livelihood editors still save without last-saved / retry |
-| Career defense | **SD-09** | ADR 0059 residual: trust-center / JWT TTL honesty until IS-15 BFF |
+| Career defense | **SD-09** | ADR 0059 residual: trust-center / JWT TTL honesty until LK-05–07 BFF |
 | One work object | **SD-10** | Spawn-locked draft URL is still a live workspace, not a handoff |
 | Eval-first spine | **SD-11** | Palette / help still list destinations Working nav hides |
 | False confidence | **SD-12** | Remaining Decision-grade `StatusTag kind="ready"` and CLI grade dumps |
@@ -76,3 +78,4 @@ See [`.cursor/prompts/sealed-desk-00-index.md`](../../.cursor/prompts/sealed-des
 - **FD-01–13** / **AD-01–12** / **CD-01–15**
 - **WA-01–24** / **RS-01–15** / **LD-01–15** / **LI-01–15**
 - **PT-01–20** / **WD-01–12** / **DD-01–10**
+- **CR-01–12** — wave 11 leftovers; do not implement from SD files

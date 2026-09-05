@@ -1,4 +1,5 @@
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Async;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Common;
@@ -269,6 +270,7 @@ public sealed class IncompleteAuthorityPipelineExecuteHandlerTests
             scope.Object,
             Mock.Of<IRunGovernanceScopePinService>(),
             new RunStateTransitionService(),
+            new FailedRunRetryAdmission(runs),
             NullLogger<IncompleteAuthorityPipelineExecuteHandler>.Instance);
     }
 

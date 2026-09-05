@@ -6,6 +6,7 @@ using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
@@ -102,6 +103,7 @@ public sealed class CompareRunsApplicationFacadeTests
             new Mock<IAuthorityCommitProjectionBuilder>().Object,
             comparison ?? new Mock<IComparisonService>().Object,
             agentResultDiff ?? new Mock<IAgentResultDiffService>().Object,
-            scopeProvider.Object);
+            scopeProvider.Object,
+            Mock.Of<IManifestHashService>());
     }
 }

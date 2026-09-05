@@ -62,6 +62,22 @@ public sealed partial class GovernanceStickinessFacade
         string name = string.IsNullOrWhiteSpace(request.Name) ? "Recurring architecture review" : request.Name.Trim();
         RecurrenceScheduleValidation.ValidateNameOrThrow(name);
 
+        IReadOnlyList<ArchitectureReviewRecurrenceSchedule> existingSchedules =
+            await _recurrenceScheduleRepository.ListByScopeAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                ct);
+
+        ArchitectureReviewRecurrenceSchedule? matchingSchedule = existingSchedules.FirstOrDefault(schedule =>
+            schedule.SourceRunId == request.SourceRunId
+            && string.Equals(schedule.CronExpression, cronExpression, StringComparison.OrdinalIgnoreCase)
+            && schedule.IsEnabled == request.IsEnabled.Value
+            && string.Equals(schedule.Name, name, StringComparison.OrdinalIgnoreCase));
+
+        if (matchingSchedule is not null)
+            return matchingSchedule;
+
         ArchitectureReviewRecurrenceSchedule schedule = new()
         {
             ScheduleId = Guid.NewGuid(),
@@ -178,6 +194,16 @@ public sealed partial class GovernanceStickinessFacade
 
         bool originalIsEnabled = existing.IsEnabled;
         string originalCron = existing.CronExpression;
+        string originalName = existing.Name;
+
+        bool isEnabledChanged = request.IsEnabled.HasValue && request.IsEnabled.Value != originalIsEnabled;
+        bool cronChanged = !string.IsNullOrWhiteSpace(request.CronExpression)
+            && !string.Equals(request.CronExpression.Trim(), originalCron, StringComparison.OrdinalIgnoreCase);
+        bool nameChanged = !string.IsNullOrWhiteSpace(request.Name)
+            && !string.Equals(request.Name.Trim(), originalName, StringComparison.OrdinalIgnoreCase);
+
+        if (!isEnabledChanged && !cronChanged && !nameChanged)
+            return new RecurrenceScheduleUpdateResult(RecurrenceScheduleUpdateOutcome.Updated, existing);
 
         if (request.IsEnabled.HasValue)
             existing.IsEnabled = request.IsEnabled.Value;
@@ -202,8 +228,7 @@ public sealed partial class GovernanceStickinessFacade
             existing.CronExpression = cron;
         }
 
-        bool scheduleTimingChanged = (request.IsEnabled.HasValue && request.IsEnabled.Value != originalIsEnabled)
-            || (!string.IsNullOrWhiteSpace(request.CronExpression) && request.CronExpression.Trim() != originalCron);
+        bool scheduleTimingChanged = isEnabledChanged || cronChanged;
 
         if (scheduleTimingChanged)
         {

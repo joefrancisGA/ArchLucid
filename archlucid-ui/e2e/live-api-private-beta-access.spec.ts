@@ -18,6 +18,7 @@ import {
   listPendingInvitations,
   provisionE2ePlatformUserPreAuth,
   readRoleClaims,
+  stubEmptyArchitectureDraftListRoute,
   validateInvitationToken,
   LIVE_E2E_DEFAULT_PROJECT_ID,
   LIVE_E2E_DEFAULT_TENANT_ID,
@@ -33,10 +34,12 @@ import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import {
   createRun,
   enrichArchitectureRequestBody,
+  liveApiBase,
   liveE2eArchitectureDescription,
   liveE2ePrivateBetaAccessPlaywrightTimeoutMs,
   resolveLiveJwtMode,
   toRunGuidPathSegment,
+  liveJsonHeaders,
   waitForArchitectureRunListIncludesRun,
   waitForLiveApiReady,
 } from "./helpers/live-api-client";
@@ -52,6 +55,26 @@ test.describe("live-api-private-beta-access", () => {
 
   test.beforeAll(async ({ request }) => {
     await waitForLiveApiReady(request);
+
+    requireLivePrivateBetaJwtEnv();
+
+    // CI stubs draft inventory in-browser; cold SQL can hang direct API draft-list for minutes.
+    if (process.env.LIVE_E2E_PRIVATE_BETA_ACCESS === "1") {
+      return;
+    }
+
+    const draftListRes = await request.get(
+      `${liveApiBase}/v1/architecture/draft?mine=true&page=1&pageSize=1`,
+      { headers: liveJsonHeaders(), timeout: 120_000 },
+    );
+
+    if (!draftListRes.ok()) {
+      const body = await draftListRes.text();
+
+      throw new Error(
+        `GET /v1/architecture/draft warm-up failed ${draftListRes.status()}: ${body.slice(0, 400)}`,
+      );
+    }
   });
 
   test("JwtBearer rejects forged x-tenant-id on scope and invitations (TB-925)", async ({ request }) => {
@@ -60,11 +83,16 @@ test.describe("live-api-private-beta-access", () => {
     await assertJwtScopeBindingRejectsForgedTenantHeader(request);
   });
 
-  test("invite → auth session → tenant scope → review → expiry recovery → deep-link round-trip", async ({
-    page,
-    request,
-    browser,
-  }) => {
+  test.describe("browser journeys", () => {
+    test.beforeEach(async ({ page }) => {
+      await stubEmptyArchitectureDraftListRoute(page);
+    });
+
+    test("invite → auth session → tenant scope → review → expiry recovery → deep-link round-trip", async ({
+      page,
+      request,
+      browser,
+    }) => {
     test.setTimeout(liveE2ePrivateBetaAccessPlaywrightTimeoutMs());
 
     const { accessToken } = requireLivePrivateBetaJwtEnv();
@@ -152,6 +180,7 @@ test.describe("live-api-private-beta-access", () => {
     const signedOutPage = await signedOutContext.newPage();
 
     try {
+      await stubEmptyArchitectureDraftListRoute(signedOutPage);
       await signedOutPage.goto(reviewPath, { waitUntil: "domcontentloaded" });
 
       await expect(signedOutPage).toHaveURL(/\/auth\/signin(\?|$)/, { timeout: 60_000 });
@@ -170,12 +199,12 @@ test.describe("live-api-private-beta-access", () => {
 
     test.info().annotations.push({ type: "e2e-beta-access-run-id", description: runId });
     test.info().annotations.push({ type: "e2e-beta-access-invite-id", description: invite.id });
-  });
+    });
 
-  test("invitee Operator accept → session → create review under invitee principal (TB-927)", async ({
-    page,
-    request,
-  }) => {
+    test("invitee Operator accept → session → create review under invitee principal (TB-927)", async ({
+      page,
+      request,
+    }) => {
     test.setTimeout(liveE2ePrivateBetaAccessPlaywrightTimeoutMs());
 
     requireLivePrivateBetaJwtEnv();
@@ -259,5 +288,6 @@ test.describe("live-api-private-beta-access", () => {
 
     test.info().annotations.push({ type: "e2e-beta-invitee-run-id", description: runId });
     test.info().annotations.push({ type: "e2e-beta-invitee-platform-user-id", description: preAuth.platformUserId });
+    });
   });
 });

@@ -3,11 +3,13 @@ using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Operations;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Async;
 using ArchLucid.Application.Runs.ExecuteOwnership;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Persistence.Decisions;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
@@ -164,7 +166,7 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
 
         Func<Task> act = async () => await sut.ExecuteRunAsync(runId);
 
-        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*No tasks found*");
+        await act.Should().ThrowAsync<NoScheduledAgentTasksException>().WithMessage("*No tasks found*");
 
         capturedRetry.Should().NotBeNull();
         capturedRetry!.EventType.Should().Be(AuditEventTypes.Run.RetryRequested);
@@ -297,7 +299,7 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
 
         Func<Task> act = async () => await sut.ExecuteRunAsync(runId);
 
-        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*No tasks found*");
+        await act.Should().ThrowAsync<NoScheduledAgentTasksException>().WithMessage("*No tasks found*");
 
         auditService.Verify(
             a => a.LogAsync(It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.Run.RetryRequested), It.IsAny<CancellationToken>()),
@@ -305,7 +307,7 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
     }
 
     [SkippableFact]
-    public async Task ExecuteRunAsync_when_failed_deferred_run_resumes_authority_pipeline_instead_of_no_tasks()
+    public async Task ExecuteRunAsync_when_failed_deferred_run_resumes_authority_pipeline_then_runs_agent_batch()
     {
         Guid runGuid = Guid.Parse("851472cf-81fa-4314-9679-1ab899ae8324");
         string runId = runGuid.ToString("N");
@@ -345,12 +347,73 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
         Mock<IArchitectureRequestRepository> requestRepo = new();
         requestRepo.Setup(r => r.GetByIdAsync(requestId, It.IsAny<CancellationToken>())).ReturnsAsync(request);
 
-        Mock<IAgentTaskRepository> taskRepo = new();
-        taskRepo.Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        AgentTask topologyTask = new()
+        {
+            RunId = runId,
+            AgentType = AgentType.Topology,
+            TaskId = Guid.NewGuid().ToString("N"),
+        };
 
-        Mock<IAgentExecutor> executor = new(MockBehavior.Strict);
+        bool authorityPipelineCompleted = false;
+
+        Mock<IAgentTaskRepository> taskRepo = new();
+        taskRepo
+            .Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => authorityPipelineCompleted ? (IReadOnlyList<AgentTask>)[topologyTask] : []);
+
+        IReadOnlyList<AgentResult> fourResults =
+        [
+            new AgentResult
+            {
+                RunId = runId,
+                AgentType = AgentType.Topology,
+                TaskId = topologyTask.TaskId,
+                Claims = ["c"],
+                EvidenceRefs = ["e"],
+                Confidence = 0.9,
+            },
+        ];
+
+        Mock<IAgentExecutor> executor = new();
+        executor
+            .Setup(e => e.ExecuteAsync(
+                runId,
+                request,
+                It.IsAny<AgentEvidencePackage>(),
+                It.IsAny<IReadOnlyCollection<AgentTask>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(fourResults);
+
+        Mock<IAgentEvaluationService> evaluationService = new();
+        evaluationService
+            .Setup(e => e.EvaluateAsync(
+                runId,
+                request,
+                It.IsAny<AgentEvidencePackage>(),
+                It.IsAny<IReadOnlyCollection<AgentTask>>(),
+                It.IsAny<IReadOnlyCollection<AgentResult>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
         Mock<IAgentResultRepository> resultRepo = new();
         resultRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>(), null, null)).ReturnsAsync([]);
+        resultRepo
+            .Setup(r => r.CreateManyAsync(It.IsAny<IReadOnlyList<AgentResult>>(), It.IsAny<CancellationToken>(), null, null))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAgentEvaluationRepository> evalRepo = new();
+        evalRepo
+            .Setup(r => r.CreateManyAsync(
+                It.IsAny<IReadOnlyCollection<AgentEvaluationRecord>>(),
+                It.IsAny<CancellationToken>(),
+                null,
+                null))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAgentEvidencePackageRepository> evidenceRepo = new();
+        evidenceRepo
+            .Setup(r => r.CreateAsync(It.IsAny<AgentEvidencePackage>(), It.IsAny<CancellationToken>(), null, null))
+            .Returns(Task.CompletedTask);
 
         Mock<IBaselineMutationAuditService> baselineAudit = new();
         baselineAudit
@@ -375,18 +438,20 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
             .Setup(p => p.EvaluateAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RequestContentSafetyResult { IsAllowed = true });
 
+        Mock<IUnifiedGoldenManifestReader> manifestReader = new(MockBehavior.Strict);
+
         Mock<IAuthorityRunOrchestrator> authority = new();
         authority
             .Setup(a => a.CompleteQueuedAuthorityPipelineAsync(
                 It.IsAny<ContextIngestionRequest>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunRecord
+            .Callback<ContextIngestionRequest, CancellationToken>((_, _) =>
             {
-                RunId = runGuid,
-                ProjectId = "ArchLucid",
-                ContextSnapshotId = Guid.NewGuid(),
-                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
-            });
+                authorityPipelineCompleted = true;
+                header.ContextSnapshotId = Guid.NewGuid();
+                header.LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated);
+            })
+            .ReturnsAsync(() => header);
 
         IncompleteAuthorityPipelineExecuteHandler resumeHandler = new(
             authority.Object,
@@ -395,6 +460,7 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
             scopeProvider.Object,
             Mock.Of<IRunGovernanceScopePinService>(),
             new RunStateTransitionService(),
+            new FailedRunRetryAdmission(runRepo.Object),
             NullLogger<IncompleteAuthorityPipelineExecuteHandler>.Instance);
 
         ArchitectureRunExecuteOrchestrator sut = ArchitectureRunExecuteOrchestratorTestFactory.Create(
@@ -405,11 +471,11 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
             executor.Object,
             new ArchitectureRunExecuteOrchestratorCreateArgs
             {
-                AgentEvaluationService = Mock.Of<IAgentEvaluationService>(),
+                AgentEvaluationService = evaluationService.Object,
                 AgentResultRepository = resultRepo.Object,
-                AgentEvaluationRepository = Mock.Of<IAgentEvaluationRepository>(),
-                AgentEvidencePackageRepository = Mock.Of<IAgentEvidencePackageRepository>(),
-                EvidenceBuilder = new DefaultEvidenceBuilder(Mock.Of<IUnifiedGoldenManifestReader>()),
+                AgentEvaluationRepository = evalRepo.Object,
+                AgentEvidencePackageRepository = evidenceRepo.Object,
+                EvidenceBuilder = new DefaultEvidenceBuilder(manifestReader.Object),
                 ActorContext = actorContext.Object,
                 BaselineMutationAuditService = baselineAudit.Object,
                 PostExecuteHooks = ArchitectureRunExecuteOrchestratorTestFactory.CreatePostExecuteHooks(
@@ -417,10 +483,15 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
                     scopeProvider.Object,
                     baselineAudit.Object,
                     runRepo.Object),
+                UnitOfWorkFactory = ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+                OutputTraceEvaluationHook = new NoOpAgentOutputTraceEvaluationHook(),
                 AgentResultPostExecutionEnricher = new ArchLucid.Application.Agents.Evidence.NoOpAgentResultPostExecutionEnricher(),
                 EvidencePackageInjectionMitigator = new NoOpEvidencePackageInjectionMitigator(),
                 AgentEvidenceUntrustedInputSanitizer = new NoOpAgentEvidenceUntrustedInputSanitizer(),
                 RequestContentSafetyPrecheck = contentSafety.Object,
+                AgentExecutionOptions = Microsoft.Extensions.Options.Options.Create(new AgentExecutionOptions()),
+                EffectiveAgentExecutionModeAccessor = new FixedEffectiveAgentExecutionModeAccessor(),
+                AgentOutputQualityGateOptions = Microsoft.Extensions.Options.Options.Create(new AgentOutputQualityGateOptions()),
                 RunStateTransitionService = new RunStateTransitionService(),
                 RunEngineProvenanceCaptureService = Mock.Of<IRunEngineProvenanceCaptureService>(),
                 ExecuteTimeGovernanceScopeCaptureService = Mock.Of<IExecuteTimeGovernanceScopeCaptureService>(),
@@ -439,7 +510,7 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
         ExecuteRunResult result = await sut.ExecuteRunAsync(runId);
 
         result.RunId.Should().Be(runId);
-        result.Results.Should().BeEmpty();
+        result.Results.Should().BeEquivalentTo(fourResults);
         authority.Verify(
             a => a.CompleteQueuedAuthorityPipelineAsync(
                 It.Is<ContextIngestionRequest>(r => r.RunId == runGuid),
@@ -447,11 +518,11 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
             Times.Once);
         executor.Verify(
             e => e.ExecuteAsync(
-                It.IsAny<string>(),
-                It.IsAny<ArchitectureRequest>(),
+                runId,
+                request,
                 It.IsAny<AgentEvidencePackage>(),
                 It.IsAny<IReadOnlyCollection<AgentTask>>(),
                 It.IsAny<CancellationToken>()),
-            Times.Never);
+            Times.Once);
     }
 }

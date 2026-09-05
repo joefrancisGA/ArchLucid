@@ -17,6 +17,8 @@ import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 export type RunDetailPreFinalizedEmptyStateProps = {
   readonly runId: string;
   readonly terminalFailure?: boolean;
+  /** When true, copy may reference numbered recovery steps in Do this next. */
+  readonly recoveryStepsAvailable?: boolean;
 };
 
 function focusAuditTrailAfterJump(): void {
@@ -39,6 +41,7 @@ export function RunDetailPreFinalizedEmptyState(props: RunDetailPreFinalizedEmpt
   const corePilot = useCorePilotDerivedStepStatus();
   const showFirstReviewGuide = !corePilot.isPending && corePilot.nextStepIndex !== null;
   const terminalFailure = props.terminalFailure === true;
+  const recoveryStepsAvailable = props.recoveryStepsAvailable === true;
   const auditTrailHref = buildReviewDetailTabHref(props.runId, "activity", { hash: "pipeline-timeline" });
 
   const actions: EnterpriseCompactEmptyStateAction[] = [];
@@ -54,8 +57,11 @@ export function RunDetailPreFinalizedEmptyState(props: RunDetailPreFinalizedEmpt
   const title = terminalFailure ? "Review did not finalize" : "Review not ready yet";
   const description = terminalFailure ? (
     <p className="m-0">
-      This architecture review stopped before a sealed review record was produced. Use the recovery steps above to
-      address what failed, then re-run the review. Exports and custody records appear only after finalization.
+      This architecture review stopped before a sealed review record was produced.{" "}
+      {recoveryStepsAvailable
+        ? "Follow the recovery steps in Do this next above, then re-run the review."
+        : "Use Do this next above to address what failed, then re-run the review."}{" "}
+      Exports and custody records appear only after finalization.
     </p>
   ) : (
     <p className="m-0">

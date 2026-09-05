@@ -24,6 +24,16 @@ describe("resolveWorkingStartHref (IS-03 / ADR 0069)", () => {
     expect(result.href).toBe("/architecture/reviews/run-linked");
   });
 
+  it("opens last-open architecture before last-open draft", () => {
+    const result = resolveWorkingStartHref({
+      lastOpenArchitectureId: "arch-identity-1",
+      lastOpenDraftId: "draft-42",
+    });
+
+    expect(result.reason).toBe("last-open-architecture");
+    expect(result.href).toBe("/architecture/architectures/arch-identity-1");
+  });
+
   it("resumes last-open draft when no review is active", () => {
     const result = resolveWorkingStartHref({
       lastOpenDraftId: "draft-42",

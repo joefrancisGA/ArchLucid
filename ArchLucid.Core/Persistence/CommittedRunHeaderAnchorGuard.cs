@@ -64,19 +64,19 @@ public static class CommittedRunHeaderAnchorGuard
         if (persisted.ArtifactBundleId != proposed.ArtifactBundleId)
             return true;
 
-        if (!string.Equals(persisted.CurrentManifestVersion, proposed.CurrentManifestVersion, StringComparison.Ordinal))
+        if (!string.Equals(persisted.CurrentManifestVersion, proposed.CurrentManifestVersion, StringComparison.OrdinalIgnoreCase))
             return true;
 
         if (persisted.StructuralExecutionMode != proposed.StructuralExecutionMode)
             return true;
 
-        if (!string.Equals(persisted.OtelTraceId, proposed.OtelTraceId, StringComparison.Ordinal))
+        if (!string.Equals(persisted.OtelTraceId, proposed.OtelTraceId, StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (!string.Equals(persisted.EngineProvenanceJson, proposed.EngineProvenanceJson, StringComparison.Ordinal))
+        if (!RunHeaderAnchorJsonComparer.AreEquivalent(persisted.EngineProvenanceJson, proposed.EngineProvenanceJson))
             return true;
 
-        if (!string.Equals(persisted.GovernanceScopeJson, proposed.GovernanceScopeJson, StringComparison.Ordinal))
+        if (!RunHeaderAnchorJsonComparer.AreEquivalent(persisted.GovernanceScopeJson, proposed.GovernanceScopeJson))
             return true;
 
         return false;

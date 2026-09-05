@@ -1,8 +1,5 @@
-import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
-import {
-  plainLanguageFailureClassLabel,
-  plainLanguageTriageTitle,
-} from "@/lib/execution-vs-quality-outcome-copy";
+import { plainLanguageFailureCauseSentence } from "@/lib/execution-vs-quality-outcome-copy";
+import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import type { RunDetail } from "@/types/authority";
 import type { RunSummary } from "@/types/authority";
 
@@ -15,18 +12,6 @@ export type RunDetailLastFailureSummary = {
   readonly rejectReasonCategory?: string | null;
 };
 
-function resolveAgentLabel(summary: RunDetailLastFailureSummary): string {
-  const rawAgentType =
-    (typeof summary.agentType === "string" && summary.agentType.length > 0
-      ? summary.agentType
-      : null) ??
-    (typeof summary.agentTypeKey === "string" && summary.agentTypeKey.length > 0
-      ? summary.agentTypeKey
-      : null);
-
-  return rawAgentType !== null ? buyerLabelForAgentType(rawAgentType) : "Unknown agent";
-}
-
 /** Buyer-safe one-line cause from recorded last-agent failure metadata. */
 export function formatReviewLastFailureCauseLine(
   summary: RunDetailLastFailureSummary | null | undefined,
@@ -35,27 +20,11 @@ export function formatReviewLastFailureCauseLine(
     return null;
   }
 
-  const parts: string[] = [resolveAgentLabel(summary)];
-
-  const triageTitle = plainLanguageTriageTitle(summary.triageScenarioId);
-
-  if (triageTitle !== null) {
-    parts.push(triageTitle);
-  } else {
-    const failureClassLabel = plainLanguageFailureClassLabel(summary.failureClass);
-
-    if (failureClassLabel.length > 0 && failureClassLabel !== "Unknown") {
-      parts.push(failureClassLabel);
-    }
-  }
-
-  const reasonCode = (summary.reasonCode ?? "").trim();
-
-  if (reasonCode.length > 0) {
-    parts.push(`reason code ${reasonCode}`);
-  }
-
-  return parts.length > 0 ? parts.join(" · ") : null;
+  return plainLanguageFailureCauseSentence({
+    failureClass: summary.failureClass,
+    triageScenarioId: summary.triageScenarioId,
+    reasonCode: summary.reasonCode,
+  });
 }
 
 export function resolveReviewFailureRecordedAtUtc(input: {
@@ -74,13 +43,13 @@ export function formatReviewFailureRecordedAtLabel(recordedAtUtc: string | null 
     return null;
   }
 
-  const parsed = new Date(normalized);
+  const formatted = formatIsoUtcForDisplay(normalized);
 
-  if (Number.isNaN(parsed.getTime())) {
+  if (formatted === normalized && Number.isNaN(Date.parse(normalized))) {
     return null;
   }
 
-  return parsed.toLocaleString();
+  return formatted;
 }
 
 /** Reads optional last-agent-failure projection without importing the card UI module (TB-933 / TB-965). */

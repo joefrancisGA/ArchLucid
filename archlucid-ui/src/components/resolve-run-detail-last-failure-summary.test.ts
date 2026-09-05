@@ -7,16 +7,16 @@ import {
 } from "@/components/resolve-run-detail-last-failure-summary";
 
 describe("resolve-run-detail-last-failure-summary helpers", () => {
-  it("formats recorded failure cause with agent, class, and reason code", () => {
+  it("formats recorded failure cause as a plain-language sentence", () => {
     const line = formatReviewLastFailureCauseLine({
       agentType: "HolisticCritic",
       failureClass: "parse",
       reasonCode: "SchemaViolation",
     });
 
-    expect(line).toContain("Agent (HolisticCritic)");
-    expect(line).toContain("Parse / schema failure");
-    expect(line).toContain("reason code SchemaViolation");
+    expect(line).toContain("parsed");
+    expect(line).not.toContain("Unknown agent");
+    expect(line).not.toContain("Invalid operation");
   });
 
   it("resolves failure recorded time from pipeline summary", () => {
@@ -36,7 +36,7 @@ describe("resolve-run-detail-last-failure-summary helpers", () => {
     ).toBe("2026-09-02T08:30:00.000Z");
   });
 
-  it("formats failure recorded time for display", () => {
-    expect(formatReviewFailureRecordedAtLabel("2026-09-01T12:00:00.000Z")).not.toBeNull();
+  it("formats failure recorded time for display with UTC suffix", () => {
+    expect(formatReviewFailureRecordedAtLabel("2026-09-01T12:00:00.000Z")).toContain("UTC");
   });
 });

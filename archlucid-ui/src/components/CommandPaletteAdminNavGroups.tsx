@@ -18,6 +18,7 @@ export function CommandPaletteAdminNavGroups({
   patternLibraryNavVisible,
   roleNavDensityPersona,
   roleNavDensityShowFullNav,
+  showVendorInternalNav,
   onNavigate,
 }: {
   callerAuthorityRank: number;
@@ -26,6 +27,7 @@ export function CommandPaletteAdminNavGroups({
   patternLibraryNavVisible: boolean;
   roleNavDensityPersona: ReturnType<typeof resolveRoleNavDensityPersona>;
   roleNavDensityShowFullNav: boolean;
+  showVendorInternalNav: boolean;
   onNavigate: (href: string) => void;
 }) {
   const search = useCommandState((state) => state.search);
@@ -43,6 +45,8 @@ export function CommandPaletteAdminNavGroups({
           callerAuthorityRank,
           "platform-admin",
           hasCommittedArchitectureReview,
+          false,
+          { showVendorInternalNav },
         ),
         auditRunId,
       ),
@@ -59,6 +63,8 @@ export function CommandPaletteAdminNavGroups({
           callerAuthorityRank,
           "system-admin",
           hasCommittedArchitectureReview,
+          false,
+          { showVendorInternalNav },
         )
       : [],
     roleNavDensityPersona,

@@ -1,7 +1,9 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Roi;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Logging;
 
@@ -13,6 +15,9 @@ namespace ArchLucid.Application.Roi;
 public sealed class SponsorRoiHistoryBuilder(
     SponsorRoiRunCollector runCollector,
     IRunDetailQueryService runDetailQueryService,
+    IScopeContextProvider scopeContextProvider,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     ILogger<SponsorRoiHistoryBuilder> logger)
 {
     private readonly SponsorRoiRunCollector _runCollector =
@@ -21,10 +26,20 @@ public sealed class SponsorRoiHistoryBuilder(
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
 
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
     private readonly ILogger<SponsorRoiHistoryBuilder> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     public async Task<SponsorRoiHistoryResponse> BuildHistoryAsync(CancellationToken cancellationToken = default)
     {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
         DateTime windowStart = utcNow.AddMonths(-6);
 
@@ -67,6 +82,14 @@ public sealed class SponsorRoiHistoryBuilder(
 
             List<(RunSummary Summary, ArchitectureRunDetail Detail)> loaded =
                 await _runCollector.LoadRoiRunDetailsOrderedAsync(pageCandidates, cancellationToken).ConfigureAwait(false);
+
+            await SponsorRoiBoardPackSealedManifestGuard.EnsureRunIdsSealedOrThrowAsync(
+                loaded.Select(static pair => pair.Summary.RunId),
+                scope,
+                _authorityQueryService,
+                _manifestHashService,
+                cancellationToken).ConfigureAwait(false);
+
             List<ArchitectureRunDetail> pageDetails = loaded.Select(static pair => pair.Detail).ToList();
             decimal?[] savingsSlots =
                 await _runCollector.ResolveEstimatedUsdSavingsOrderedAsync(pageDetails, cancellationToken).ConfigureAwait(false);

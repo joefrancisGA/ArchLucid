@@ -4,8 +4,9 @@
 
 # ADR 0069: Working desk is one work object
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-09-05
+- **Implemented:** 2026-09-05 (IS-01 / IS-02 / IS-03)
 
 ## Context
 
@@ -58,4 +59,12 @@ ADR 0068's two kernels (synthesis ≠ review execute) are unchanged. Draft and s
 
 - **Positive:** Paying desk identity matches livelihood use; eval seats keep explicit two-job teaching.
 - **Negative:** Marketing screenshots must label Working vs Guided; residual buyer-polish call sites still need IS-08 inventory pass.
-- **Follow-ups:** IS-02/03 product wiring; IS-13 server continuity for last-open across devices; IS-14 drafts/sealed IA findability.
+- **Follow-ups:** IS-13 server continuity for last-open across devices; IS-14 drafts/sealed IA findability.
+
+## Implementation (2026-09-05)
+
+- `archlucid-ui/src/lib/working-start-route.ts` — `resolveWorkingStartHref` (in-flight review → spawn-locked review → last-open draft → new draft).
+- `archlucid-ui/src/hooks/use-working-start-href.ts` — Working Home / palette / Alt+N resolver wiring.
+- `archlucid-ui/src/lib/resolve-visible-command-palette-actions.ts` — Working `action-create-review` maps to `workingStartHref`, not `/architecture/reviews/new`.
+- `archlucid-ui/src/lib/resolve-visible-command-palette-actions.test.ts` — Working vs Guided create-action fixtures.
+- `archlucid-ui/src/lib/working-start-route.test.ts` — spawn-locked review routes away from draft editor.

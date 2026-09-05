@@ -19,6 +19,7 @@ import {
   isUsableGoldenManifestExportJson,
   triggerGoldenManifestMarkdownDownload,
 } from "@/lib/export-markdown";
+import { manifestSummarySealedVersionForCopyGuard, runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { EXPORT_FORMAT_MARKDOWN } from "@/lib/export-format-when-to-use";
 import { recordFirstExportOpenedOnce } from "@/lib/first-tenant-funnel-telemetry";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
@@ -63,6 +64,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
     markdownDownloadTestId = "golden-manifest-markdown-download-button",
   } = props;
   const [exportMenuKey, setExportMenuKey] = useState(0);
+  const [exportError, setExportError] = useState<string | null>(null);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   const canExport: boolean =
@@ -73,6 +75,18 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
   }
 
   function downloadMarkdownSummary(): void {
+    const blockedReason = runCollateralSealedManifestCopyBlockedReason({
+      runId,
+      manifestVersion: manifestSummarySealedVersionForCopyGuard(manifestSummary),
+    });
+
+    if (blockedReason !== null) {
+      setExportError(blockedReason);
+      return;
+    }
+
+    setExportError(null);
+
     const markdown: string = formatGoldenManifestMarkdown(goldenManifestJson, {
       runId,
       manifestSummaryFallback: manifestSummary,
@@ -105,11 +119,21 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
           {markdownOptionLabel}
         </Button>
         <ExportFormatWhenToUseHint format="markdown" />
+        {exportError !== null ? (
+          <p
+            role="alert"
+            className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="golden-manifest-export-error"
+          >
+            {exportError}
+          </p>
+        ) : null}
       </div>
     );
   }
 
   return (
+    <div className="flex max-w-xs flex-col gap-1">
     <Select
       key={exportMenuKey}
       onValueChange={(value: string) => {
@@ -145,5 +169,15 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         </SelectItem>
       </SelectContent>
     </Select>
+      {exportError !== null ? (
+        <p
+          role="alert"
+          className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="golden-manifest-export-error"
+        >
+          {exportError}
+        </p>
+      ) : null}
+    </div>
   );
 }

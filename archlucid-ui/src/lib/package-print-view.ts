@@ -3,6 +3,7 @@
  * Dedicated print route keeps shell chrome out of the PDF without export-format roulette.
  */
 
+import { formatInventoryShowingLine } from "@/lib/inventory-showing-count";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { RunSummary } from "@/types/authority";
@@ -77,6 +78,8 @@ export type PackagePrintPresentation = {
   readonly statusLabel: PackagePrintStatusLabel;
   readonly statusKind: EnterpriseStatusKind;
   readonly findingsSummary: string;
+  readonly findingsListedCount?: number | null;
+  readonly findingsTotalCount?: number | null;
   readonly sponsorSynopsis: string | null;
   readonly createdUtc: string;
   readonly runId: string;
@@ -195,14 +198,31 @@ export function buildPackagePrintSponsorSynopsis(summary: RunSummary): string | 
 }
 
 /** Maps a run summary into the print view presentation model. */
-export function buildPackagePrintPresentation(summary: RunSummary): PackagePrintPresentation {
+export function buildPackagePrintPresentation(
+  summary: RunSummary,
+  options?: { readonly findingsListedCount?: number | null },
+): PackagePrintPresentation {
   const statusLabel = resolvePackagePrintStatusLabel(summary);
+  const findingsTotalCount = finiteCount(summary.findingCount);
+  const findingsListedCount =
+    options?.findingsListedCount === undefined || options?.findingsListedCount === null
+      ? findingsTotalCount
+      : finiteCount(options.findingsListedCount);
+  const baseSummary = buildPackagePrintFindingsSummary(summary);
+  const inventoryLine =
+    findingsListedCount !== null &&
+    findingsTotalCount !== null &&
+    findingsListedCount < findingsTotalCount
+      ? formatInventoryShowingLine(findingsListedCount, findingsTotalCount)
+      : null;
 
   return {
     title: buyerFacingReviewTitleFromSummary(summary),
     statusLabel,
     statusKind: resolvePackagePrintStatusKind(statusLabel),
-    findingsSummary: buildPackagePrintFindingsSummary(summary),
+    findingsSummary: inventoryLine !== null ? `${baseSummary} ${inventoryLine}.` : baseSummary,
+    findingsListedCount,
+    findingsTotalCount,
     sponsorSynopsis: buildPackagePrintSponsorSynopsis(summary),
     createdUtc: summary.createdUtc,
     runId: summary.runId,

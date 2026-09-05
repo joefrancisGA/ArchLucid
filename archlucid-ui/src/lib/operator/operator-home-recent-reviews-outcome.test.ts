@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME } from "@/lib/buyer/buyer-polish-copy";
 import {
+  buildOperatorHomeRecentReviewsOutcomeParts,
   deriveHomePreviewTabCounts,
   filterTenantOverviewRuns,
   formatOperatorHomeRecentReviewsOutcome,
@@ -56,8 +57,8 @@ describe("formatOperatorHomeRecentReviewsOutcome", () => {
       hasReviews: true,
     };
 
-    expect(formatOperatorHomeRecentReviewsOutcome(metrics, { visibleCount: 2 })).toBe(
-      "4 reviews · 3 finalized · 1 active · no open findings · showing 2",
+    expect(formatOperatorHomeRecentReviewsOutcome(metrics, { visibleCount: 2, recentTotalCount: 4 })).toBe(
+      "4 reviews · 3 finalized · 1 active · 0 open findings · showing 2 of 4",
     );
   });
 
@@ -72,14 +73,36 @@ describe("formatOperatorHomeRecentReviewsOutcome", () => {
       hasReviews: true,
     };
 
-    expect(formatOperatorHomeRecentReviewsOutcome(metrics, { visibleCount: 2 })).toBe(
-      "3 reviews · 2 finalized · 1 active · 6 open findings · with 1 Approval-check warning · showing 2",
-    );
+    expect(formatOperatorHomeRecentReviewsOutcome(metrics, { visibleCount: 2, recentTotalCount: 3 })).toBe(
+      "3 reviews · 2 finalized · 1 active · 6 open findings · with 1 governance approval warning · showing 2 of 3",
     );
   });
 
   it("keeps the featured recent-review limit small", () => {
     expect(OPERATOR_HOME_RECENT_FEATURED_LIMIT).toBe(2);
+  });
+});
+
+describe("buildOperatorHomeRecentReviewsOutcomeParts", () => {
+  it("routes finalized counts to the reviews list instead of a hidden approved tab", () => {
+    const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
+      reviewPackagesTotal: 4,
+      reviewPackagesCommitted: 3,
+      reviewPackagesActive: 1,
+      openFindings: 0,
+      governanceWarnings: 0,
+      evidenceSources: 3,
+      hasReviews: true,
+    };
+
+    const parts = buildOperatorHomeRecentReviewsOutcomeParts(metrics);
+
+    expect(parts.find((part) => part.key === "finalized")).toEqual({
+      key: "finalized",
+      text: "3 finalized",
+      hrefKind: "all-reviews",
+    });
+    expect(parts.find((part) => part.key === "open-findings")?.tabId).toBe("attention");
   });
 });
 

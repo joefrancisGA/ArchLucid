@@ -84,16 +84,19 @@ describe("OperatorHomeWorkspaceMetricsStrip", () => {
     expect(strip.querySelectorAll("li")).toHaveLength(4);
     expect(strip.querySelectorAll(".rounded-md.border")).toHaveLength(4);
 
-    expect(screen.getByTestId("operator-home-metric-active-reviews-count-value")).toHaveAttribute(
+    expect(screen.getByTestId("operator-home-metric-active-reviews-count")).toHaveAttribute(
       "href",
       "/architecture/reviews?filter=Active",
     );
-    expect(screen.getByTestId("operator-home-metric-finalized-packages-count-value")).toHaveAttribute(
+    expect(screen.getByTestId("operator-home-metric-finalized-packages-count")).toHaveAttribute(
       "href",
       OPERATOR_HOME_FINALIZED_PACKAGES_HREF,
     );
-    expect(screen.getByText(/active reviews · workspace · active/i)).toBeInTheDocument();
-    expect(screen.getByText(/finalized package · workspace · finalized/i)).toBeInTheDocument();
+    expect(screen.getByText(/^active reviews$/i)).toBeInTheDocument();
+    expect(screen.getByText(/^finalized package$/i)).toBeInTheDocument();
+    expect(screen.getByText("Source:")).toHaveClass("font-medium");
+    expect(screen.getByText("reviews in this workspace.")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-workspace-metrics-stack")).toHaveClass("space-y-4");
   });
 
   it("shows active reviews even when only one in-progress review is surfaced in unfinished work", () => {

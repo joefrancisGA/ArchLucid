@@ -11,7 +11,7 @@ import type { DraftRequestResponse, DraftRequestStatus } from "@/types/draft-int
 const STORAGE_KEY = "archlucid_architecture_draft_registry_v1";
 
 export type ArchitectureDraftRegistryEntry = {
-  readonly architectureId: string;
+  readonly draftId: string;
   readonly displayName: string;
   readonly customerStatus: ArchitectureDraftCustomerStatus;
   readonly ownerLabel: string;
@@ -50,7 +50,17 @@ function readSnapshot(): ArchitectureDraftRegistrySnapshot {
       return { entries: [] };
     }
 
-    return parsed as ArchitectureDraftRegistrySnapshot;
+    const snapshot = parsed as ArchitectureDraftRegistrySnapshot;
+
+    return {
+      entries: snapshot.entries.map((entry) => ({
+        ...entry,
+        draftId:
+          typeof (entry as { draftId?: string }).draftId === "string"
+            ? (entry as { draftId: string }).draftId
+            : (entry as { architectureId?: string }).architectureId ?? "",
+      })),
+    };
   } catch {
     return { entries: [] };
   }
@@ -76,7 +86,7 @@ function architectureDraftRegistrySignature(entries: readonly ArchitectureDraftR
   return entries
     .map(
       (entry) =>
-        `${entry.architectureId}:${entry.lastUpdatedUtc}:${entry.customerStatus}:${entry.linkedReviewId ?? ""}:${entry.serverDraftStatus ?? ""}:${entry.displayName}:${entry.ownerLabel}`,
+        `${entry.draftId}:${entry.lastUpdatedUtc}:${entry.customerStatus}:${entry.linkedReviewId ?? ""}:${entry.serverDraftStatus ?? ""}:${entry.displayName}:${entry.ownerLabel}`,
     )
     .join("|");
 }
@@ -144,17 +154,17 @@ export function upsertArchitectureDraftRegistryEntry(
   entry: ArchitectureDraftRegistryEntry,
 ): ArchitectureDraftRegistryEntry {
   const snapshot = readSnapshot();
-  const nextEntries = snapshot.entries.filter((row) => row.architectureId !== entry.architectureId);
+  const nextEntries = snapshot.entries.filter((row) => row.draftId !== entry.draftId);
   nextEntries.unshift(entry);
   writeSnapshot({ entries: nextEntries });
 
   return entry;
 }
 
-export function removeArchitectureDraftRegistryEntry(architectureId: string): void {
+export function removeArchitectureDraftRegistryEntry(draftId: string): void {
   const snapshot = readSnapshot();
   writeSnapshot({
-    entries: snapshot.entries.filter((row) => row.architectureId !== architectureId),
+    entries: snapshot.entries.filter((row) => row.draftId !== draftId),
   });
 }
 
@@ -199,7 +209,7 @@ export function buildArchitectureDraftRegistryEntry(
   const linkedReviewId = options.linkedReviewId ?? architectureDraftSpawnedRunId(draft);
 
   return {
-    architectureId: draft.draftId,
+    draftId: draft.draftId,
     displayName: architectureDraftDisplayName(draft.document.systemName, draft.document.freeTextIntent),
     customerStatus: deriveRegistryCustomerStatus(draft, options),
     ownerLabel: options.ownerLabel ?? "You",

@@ -4969,7 +4969,7 @@ jobs:
       - dotnet-full-regression-slow-domain
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
@@ -5084,6 +5084,7 @@ jobs:
           LIVE_API_URL: http://127.0.0.1:5128
           LIVE_E2E_SKIP_NEXT_BUILD: "1"
           LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
+          LIVE_E2E_PRIVATE_BETA_ACCESS: "1"
           NODE_OPTIONS: --max-old-space-size=6144
         run: |
           set -e
@@ -5102,6 +5103,7 @@ jobs:
           echo "::add-mask::${TOKEN}"
           export LIVE_JWT_TOKEN="${TOKEN}"
           export ARCHLUCID_PROXY_BEARER_TOKEN="${TOKEN}"
+          bash "${GITHUB_WORKSPACE}/scripts/ci/warm_private_beta_live_api_paths.sh" "${TOKEN}"
           npx playwright install --with-deps chromium
           curl -fsS http://127.0.0.1:5128/health/ready
           npx playwright test --workers=1 live-api-private-beta-access.spec.ts

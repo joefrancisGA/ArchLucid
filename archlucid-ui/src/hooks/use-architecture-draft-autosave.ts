@@ -43,7 +43,7 @@ export function useArchitectureDraftAutosave(
   const isOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
 
   const hydrate = useArchitectureDraftAutosaveHydrate({
-    architectureId: args.architectureId,
+    draftId: args.draftId,
     fields: args.fields,
     actorSet: args.actorSet,
     deferCreateUntilFirstSave,
@@ -59,7 +59,7 @@ export function useArchitectureDraftAutosave(
       return;
     }
 
-    if (hydrate.resolvedArchitectureIdRef.current !== null) {
+    if (hydrate.resolvedDraftIdRef.current !== null) {
       return;
     }
 
@@ -75,7 +75,7 @@ export function useArchitectureDraftAutosave(
       actorSet: recovery.actorSet,
     });
     setSaveState("offline");
-  }, [args, deferCreateUntilFirstSave, hydrate.resolvedArchitectureIdRef]);
+  }, [args, deferCreateUntilFirstSave, hydrate.resolvedDraftIdRef]);
 
   const markDirty = useCallback(() => {
     if (!enabled) {
@@ -91,8 +91,8 @@ export function useArchitectureDraftAutosave(
     setSaveState("unsaved");
   }, [enabled, isOnline]);
 
-  const persistDraft = useArchitectureDraftAutosavePersist({
-    architectureId: args.architectureId,
+  const persistDraftBundle = useArchitectureDraftAutosavePersist({
+    draftId: args.draftId,
     enabled,
     deferCreateUntilFirstSave,
     scopeGateOpen: args.scopeGateOpen,
@@ -112,7 +112,7 @@ export function useArchitectureDraftAutosave(
     actorSetRef,
     scopeGateOpenRef,
     scopeBulletsRef,
-    resolvedArchitectureIdRef: hydrate.resolvedArchitectureIdRef,
+    resolvedDraftIdRef: hydrate.resolvedDraftIdRef,
     autosaveBlockedRef,
     markDirty,
   });
@@ -121,11 +121,12 @@ export function useArchitectureDraftAutosave(
     saveState,
     lastSavedUtc,
     conflictMessage,
-    saveDraft: persistDraft,
+    saveDraft: persistDraftBundle.persistDraft,
     markDirty,
     reloadDraft: hydrate.reloadDraft,
     acceptServerBaseline: hydrate.acceptServerBaseline,
     syncServerUpdatedUtc: hydrate.syncServerUpdatedUtc,
     hasPersistedDraft,
+    keepLocalDraftOnConflict: persistDraftBundle.keepLocalDraftOnConflict,
   };
 }

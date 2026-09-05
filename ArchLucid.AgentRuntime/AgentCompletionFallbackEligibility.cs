@@ -1,29 +1,36 @@
 using System.ClientModel;
 
+using ArchLucid.Core.Resilience;
+
 using Azure;
 
 namespace ArchLucid.AgentRuntime;
 
-/// <summary>Fallback eligibility rules for transient LLM completion failures.</summary>
+/// <summary>Fallback eligibility rules for transient LLM completion failures, including provider outages.</summary>
 internal static class AgentCompletionFallbackEligibility
 {
-    /// <summary>True when <paramref name="ex" /> carries status 429 or a 5xx server error.</summary>
+    /// <summary>
+    ///     True when <paramref name="ex" /> is a same-family failover candidate: 429/5xx, network failure,
+    ///     HTTP timeout, or an open primary circuit breaker. User cancellation is excluded by callers.
+    /// </summary>
     internal static bool IsFallbackEligible(Exception ex)
     {
+        ArgumentNullException.ThrowIfNull(ex);
+
+        if (ex is CircuitBreakerOpenException)
+            return true;
+
+        if (ex is OperationCanceledException)
+            return true;
+
         if (ex is HttpRequestException http)
-        {
             return IsFallbackTrigger(http);
-        }
 
         if (ex is ClientResultException cre)
-        {
             return IsClientResultFallbackTrigger(cre);
-        }
 
         if (ex is RequestFailedException rfe)
-        {
             return IsRequestFailedFallbackTrigger(rfe);
-        }
 
         return false;
     }
@@ -31,9 +38,7 @@ internal static class AgentCompletionFallbackEligibility
     private static bool IsFallbackTrigger(HttpRequestException ex)
     {
         if (ex.StatusCode is not { } statusCode)
-        {
-            return false;
-        }
+            return true;
 
         int code = (int)statusCode;
 

@@ -1,3 +1,4 @@
+using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Contracts.Pilots;
 
 namespace ArchLucid.Application.Pilots;
@@ -7,5 +8,5 @@ public sealed record FirstValueReportBuildResult(
     string Markdown,
     FirstValueEvidenceCompletenessLevel EvidenceCompleteness,
     SponsorProofReadinessClassification SponsorProofReadiness,
-    TenantFirstValueReportBrandingForExport? TenantFirstValueReportBranding = null,
+    TenantReportBrandingForExport? TenantReportBranding = null,
     ProofPackageCompletenessResponse? ProofPackageCompleteness = null);

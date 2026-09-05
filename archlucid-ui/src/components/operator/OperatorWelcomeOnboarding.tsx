@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { WelcomeModal } from "@/components/ui/welcome-modal";
 import { useRunsByProjectPagedQuery } from "@/hooks/use-runs-by-project-paged-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
 import { dispatchOnboardingTourStart } from "@/lib/onboarding-tour";
 import {
   setWelcomeModalVisible,
@@ -17,6 +18,7 @@ import {
 } from "@/lib/operator/operator-welcome-onboarding-storage";
 import {
   operatorWelcomeOnboardingHrefFromSearch,
+  operatorWelcomeOnboardingUrlAlreadyMatches,
   parseOperatorWelcomeOpenFromSearch,
 } from "@/lib/operator/operator-welcome-onboarding-url";
 
@@ -44,9 +46,16 @@ export function OperatorWelcomeOnboarding(props: OperatorWelcomeOnboardingProps)
 
   const syncWelcomeOpenToUrl = useCallback(
     (welcomeOpen: boolean) => {
-      router.replace(operatorWelcomeOnboardingHrefFromSearch(searchParams.toString(), welcomeOpen, pathname), {
-        scroll: false,
-      });
+      const currentSearch = searchParams.toString();
+
+      if (operatorWelcomeOnboardingUrlAlreadyMatches(currentSearch, welcomeOpen)) {
+        return;
+      }
+
+      replaceIfHrefChanged(
+        router,
+        operatorWelcomeOnboardingHrefFromSearch(currentSearch, welcomeOpen, pathname),
+      );
     },
     [pathname, router, searchParams],
   );
@@ -55,13 +64,17 @@ export function OperatorWelcomeOnboarding(props: OperatorWelcomeOnboardingProps)
     (value: SetStateAction<boolean>) => {
       setOpenState((current) => {
         const next = typeof value === "function" ? value(current) : value;
-        syncWelcomeOpenToUrl(next);
+
+        if (next !== current) {
+          syncWelcomeOpenToUrl(next);
+        }
 
         return next;
       });
     },
     [syncWelcomeOpenToUrl],
   );
+
   const runsQuery = useRunsByProjectPagedQuery(
     { projectId: DEFAULT_PROJECT_ID, page: 1, pageSize: 10 },
     {

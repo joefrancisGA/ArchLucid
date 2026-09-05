@@ -7,21 +7,30 @@ import { useState, type ReactElement } from "react";
 import { Button } from "@/components/ui/button";
 import { BUYER_COPY_REVIEW_RECORD_JSON } from "@/lib/buyer/buyer-polish-copy";
 import { fetchManifestJsonText } from "@/lib/manifest-json-fetch";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
 type CopyManifestButtonProps = {
   readonly runId: string;
+  readonly manifestVersion?: string | null;
   readonly className?: string;
   readonly buyerPolishedLayout?: boolean;
 };
 
 /** One-click copy of the committed golden manifest JSON to the clipboard. */
 export function CopyManifestButton(props: CopyManifestButtonProps): ReactElement {
-  const { runId, className, buyerPolishedLayout } = props;
+  const { runId, manifestVersion, className, buyerPolishedLayout } = props;
   const [copying, setCopying] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const onCopy = async (): Promise<void> => {
+    const blockedReason = runCollateralSealedManifestCopyBlockedReason({ runId, manifestVersion });
+
+    if (blockedReason !== null) {
+      setError(blockedReason);
+      return;
+    }
+
     setCopying(true);
     setError(null);
 

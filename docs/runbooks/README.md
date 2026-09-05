@@ -47,7 +47,7 @@ Tags are **guidance for paging and training**; they do not replace your org’s 
 | **P2** | [DATA_ARCHIVAL_HEALTH.md](./DATA_ARCHIVAL_HEALTH.md) | `data_archival` health degraded or archival host errors. |
 | **P2** | [PROVENANCE_INDEXING.md](./PROVENANCE_INDEXING.md) | Provenance indexing lag or failures. |
 | **P2** | [../library/OBSERVABILITY.md](../library/OBSERVABILITY.md#authority-pipeline-remediation-runbook) | Grafana / Prometheus: authority outbox backlog, stale rows, data-consistency counters vs alerts; scale and SQL triage. |
-| **P1** | [STALE_IN_FLIGHT_RUNS.md](./STALE_IN_FLIGHT_RUNS.md) | TB-958: fleet-wide stuck-run P0 (`archlucid_runs_stale_in_flight_*`); triage TenantId/RunId from logs. |
+| **P1** | [AI_PROVIDER_OFFLINE.md](./AI_PROVIDER_OFFLINE.md) | Azure OpenAI / catalog-engine outage: retry, circuit breaker, optional same-family FallbackLlm, user-facing block. Do not Simulator-fail-over in production. |
 | **P1** | [REVIEW_PATH_CANARY.md](./REVIEW_PATH_CANARY.md) | TB-959: create→execute→commit canary that pages founder (PagerDuty / webhook). |
 | **P2** | [FIELD_WEB_VITALS_TRIAGE.md](./FIELD_WEB_VITALS_TRIAGE.md) | TB-2031: field `WebVitalsMetric` triage → TB-2021/2022/2023/935 before next UI cut. |
 | **P2** | [../library/SCALE_THRESHOLD_RUNBOOK.md](../library/SCALE_THRESHOLD_RUNBOOK.md) | When to enable Redis, read replicas, worker split, outbox scaling, and query p95 triage for hosted SaaS. |

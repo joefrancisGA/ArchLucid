@@ -90,3 +90,9 @@ tags = {
 # azure_openai_chat_deployment_name    = "gpt-4o"
 # azure_openai_embedding_deployment_name = "text-embedding-3-small"
 # azure_openai_expected_location       = "eastus"
+
+# Optional same-family FallbackLlm (second Azure OpenAI resource in another region). Default off.
+# fallback_llm_enabled                 = true
+# fallback_llm_endpoint                = "https://your-fallback-account.openai.azure.com/"
+# fallback_llm_deployment_name         = "gpt-4o"
+# fallback_llm_account_resource_id     = "/subscriptions/.../resourceGroups/.../providers/Microsoft.CognitiveServices/accounts/..."

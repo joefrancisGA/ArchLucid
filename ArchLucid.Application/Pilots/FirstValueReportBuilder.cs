@@ -1,5 +1,7 @@
 using System.Text;
 
+using ArchLucid.Application.InfraEvidence.Branding;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Roi;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
@@ -17,7 +19,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Pilots;
 using ArchLucid.Persistence.Queries;
-using ArchLucid.Persistence.Tenancy;
+using ArchLucid.Core.InfraEvidence;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -45,7 +47,7 @@ public sealed class FirstValueReportBuilder(
     IExecutionProvenanceFooterRenderer executionProvenanceFooter,
     IConfiguration configuration,
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
-    ITenantFirstValueReportBrandingRepository tenantFirstValueReportBrandingRepository,
+    ITenantReportBrandingApplyHelper reportBrandingApplyHelper,
     IPilotBaselineRepository pilotBaselineRepository,
     RoiCostEvidenceCollectionResolver roiCostEvidenceCollectionResolver,
     IOptions<RoiCostEvidenceFreshnessOptions> roiCostEvidenceFreshnessOptions,
@@ -62,8 +64,8 @@ public sealed class FirstValueReportBuilder(
     private readonly IExecutionProvenanceFooterRenderer _executionProvenanceFooter =
         executionProvenanceFooter ?? throw new ArgumentNullException(nameof(executionProvenanceFooter));
 
-    private readonly ITenantFirstValueReportBrandingRepository _tenantFirstValueReportBrandingRepository =
-        tenantFirstValueReportBrandingRepository ?? throw new ArgumentNullException(nameof(tenantFirstValueReportBrandingRepository));
+    private readonly ITenantReportBrandingApplyHelper _reportBrandingApplyHelper =
+        reportBrandingApplyHelper ?? throw new ArgumentNullException(nameof(reportBrandingApplyHelper));
 
     private readonly IPilotBaselineRepository _pilotBaselineRepository =
         pilotBaselineRepository ?? throw new ArgumentNullException(nameof(pilotBaselineRepository));
@@ -120,12 +122,21 @@ public sealed class FirstValueReportBuilder(
 
             if (Guid.TryParse(runId.Trim(), out Guid runGuid))
             {
+                ScopeContext exportScope = _scopeProvider.GetCurrentScope();
+
+                await RunExportSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                    runId.Trim(),
+                    exportScope,
+                    _authorityQueryService,
+                    _manifestHashService,
+                    cancellationToken);
+
                 await ManifestDecisionReceiptExportBinder.EnsureSealedExportReceiptVerifiedOrThrowAsync(
                     runGuid,
                     runId.Trim(),
                     _authorityQueryService,
                     _manifestHashService,
-                    _scopeProvider.GetCurrentScope(),
+                    exportScope,
                     cancellationToken);
             }
         }
@@ -152,9 +163,13 @@ public sealed class FirstValueReportBuilder(
         StringBuilder sb = new();
         sb.AppendLine("# ArchLucid — first value report (pilot)");
         sb.AppendLine();
-        TenantFirstValueReportBrandingForExport? tenantBranding =
-            await TryResolveTenantBrandingAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
-        AppendTenantFirstValueBrandingMarkdown(sb, tenantBranding);
+        TenantReportBrandingForExport? tenantBranding =
+            await _reportBrandingApplyHelper.ResolveForExportAsync(
+                scope.TenantId,
+                BrandingDisplayContext.ReportCover,
+                baseUrl,
+                cancellationToken).ConfigureAwait(false);
+        TenantReportBrandingApplier.AppendFirstValueReportMarkdownPreamble(sb, tenantBranding);
         sb.AppendLine(
             "This one-page summary is generated from committed run data in ArchLucid. The **computed deltas** below replace the legacy baseline placeholders for the numbers ArchLucid can derive on its own; the qualitative baseline table at the bottom is still operator-filled. See repository `docs/PILOT_ROI_MODEL.md` Â§4 for the full metric catalog.");
         sb.AppendLine();
@@ -253,38 +268,6 @@ public sealed class FirstValueReportBuilder(
             SponsorProofReadinessClassifier.Classify(deltas, buyerSafeGate),
             tenantBranding,
             proofCompleteness);
-    }
-
-    private async Task<TenantFirstValueReportBrandingForExport?> TryResolveTenantBrandingAsync(
-        Guid tenantId,
-        CancellationToken cancellationToken)
-    {
-        TenantFirstValueReportBrandingRow? raw =
-            await _tenantFirstValueReportBrandingRepository.TryGetAsync(tenantId, cancellationToken).ConfigureAwait(false);
-        if (raw is null)
-            return null;
-
-        return FirstValueReportBrandingSanitizer.TryBuildExportModel(raw.BrandingLogoUrl, raw.BrandingCompanyName);
-    }
-
-    private static void AppendTenantFirstValueBrandingMarkdown(
-        StringBuilder sb,
-        TenantFirstValueReportBrandingForExport? tenantBranding)
-    {
-        if (tenantBranding is null)
-            return;
-
-        if (!string.IsNullOrWhiteSpace(tenantBranding.CompanyDisplayName))
-        {
-            sb.AppendLine($"> Prepared for: {tenantBranding.CompanyDisplayName}");
-            sb.AppendLine();
-        }
-
-        if (!string.IsNullOrWhiteSpace(tenantBranding.LogoHttpsUrl))
-        {
-            sb.AppendLine($"![Tenant logo]({tenantBranding.LogoHttpsUrl})");
-            sb.AppendLine();
-        }
     }
 
     private ExecutionProvenanceFooterInput BuildProvenanceInput(ArchitectureRun run, PilotRunDeltas deltas)

@@ -123,7 +123,7 @@ export function MobileNavDrawer() {
             <DialogTitle className={cn("text-left font-semibold", OPERATOR_TYPOGRAPHY.body)}>Navigation</DialogTitle>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto px-2 py-3">
-            {allRows.map((row) => {
+            {open ? allRows.map((row) => {
               const collapsible = isSidebarCollapsibleNavGroupId(row.group.id);
               const isExpanded = mounted
                 ? sidebarNavGroupIsExpanded(row.group.id, expansion)
@@ -151,12 +151,14 @@ export function MobileNavDrawer() {
                   }
                 />
               );
-            })}
+            }) : null}
+            {open ? (
             <RoleNavDensityExpandControl
               hiddenGroupCount={roleNavDensityHiddenGroupCount}
               showFullNav={roleNavDensityShowFullNav}
               onToggle={toggleRoleNavDensityShowFullNav}
             />
+            ) : null}
           </div>
         </DialogContent>
       </Dialog>

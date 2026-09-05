@@ -319,7 +319,7 @@ describe("listNavGroupsVisibleInOperatorShell — system-admin surface", () => {
     vi.unstubAllEnvs();
   });
 
-  it("omits internal sales-ops nav unless NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR is set", () => {
+  it("omits internal sales-ops nav unless vendor staff and NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR are set", () => {
     vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR", "");
 
     const hidden = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.AdminAuthority, "all", true);
@@ -328,7 +328,23 @@ describe("listNavGroupsVisibleInOperatorShell — system-admin surface", () => {
 
     vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR", "true");
 
-    const visible = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.AdminAuthority, "system-admin", true);
+    const tenantAdminVisible = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      AUTHORITY_RANK.AdminAuthority,
+      "system-admin",
+      true,
+    );
+
+    expect(tenantAdminVisible.map((r) => r.group.id)).toEqual([]);
+
+    const visible = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      AUTHORITY_RANK.AdminAuthority,
+      "system-admin",
+      true,
+      false,
+      { showVendorInternalNav: true },
+    );
 
     expect(visible.map((r) => r.group.id)).toEqual(["operator-system-admin"]);
     expect(visible[0]!.visibleLinks.map((l) => l.href)).toContain("/internal/pricing-quote-aging");
@@ -337,11 +353,18 @@ describe("listNavGroupsVisibleInOperatorShell — system-admin surface", () => {
     expect(visible[0]!.visibleLinks.map((l) => l.href)).toContain("/internal/validate-route");
   });
 
-  it("omits internal operations in public demo mode even when internal operator flag is set", () => {
+  it("omits internal operations in public demo mode even when vendor staff and the internal operator flag are set", () => {
     vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR", "true");
     vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "true");
 
-    const visible = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.AdminAuthority, "all", true);
+    const visible = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      AUTHORITY_RANK.AdminAuthority,
+      "all",
+      true,
+      false,
+      { showVendorInternalNav: true },
+    );
 
     expect(visible.some((row) => row.group.id === "operator-system-admin")).toBe(false);
   });

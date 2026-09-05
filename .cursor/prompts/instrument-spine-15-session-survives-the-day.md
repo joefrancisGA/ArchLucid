@@ -1,5 +1,7 @@
 # IS-15 — Session survives the day (ADR 0059 P1 then P2)
 
+**Execution superseded (2026-09-05):** do **not** paste this file after wave 12 exists. Implement [`.cursor/prompts/livelihood-kernel-05-adr-0059-bff-p1.md`](livelihood-kernel-05-adr-0059-bff-p1.md), [`livelihood-kernel-06-bff-p2-no-js-bearer.md`](livelihood-kernel-06-bff-p2-no-js-bearer.md), and [`livelihood-kernel-07-bff-idle-csrf-meeting.md`](livelihood-kernel-07-bff-idle-csrf-meeting.md) instead. This file remains the historical IS pointer.
+
 **Do not fork PT-19 / RS-09** for presenter/print activity heartbeats. Those keep idle from dumping a meeting while tokens stay in `sessionStorage`. This file is the load-bearing security bet: **implement ADR 0059** for the architect workspace so XSS cannot steal the Bearer and a long ARB does not depend on a two-minute expiry warning.
 
 **Dedicated PR.** Do not mix with IS-01–14 copy/gate work.

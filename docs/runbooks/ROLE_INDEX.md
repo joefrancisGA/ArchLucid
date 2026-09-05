@@ -52,6 +52,7 @@ Use when a committed architecture review and sponsor handoff are the goal.
 | SQL / migration / health not ready | [`SQL_SCRIPTS.md`](../library/SQL_SCRIPTS.md) · platform engineer preflight |
 | Sponsor handoff HOLD or proof gaps | [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md) · re-run proof collector |
 | Agent execute fails | [`AGENT_EXECUTION_FAILURES.md`](AGENT_EXECUTION_FAILURES.md) |
+| Real-mode AI provider offline / circuit open | [`AI_PROVIDER_OFFLINE.md`](AI_PROVIDER_OFFLINE.md) |
 
 ---
 
@@ -74,6 +75,7 @@ Use before operators open Phase B of the operator path.
 |---------|-------------------|
 | Config lint BLOCK rows | [`CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md) · `artifacts/release-readiness/config-lint-production-like-hosted-pilot.md` |
 | Terraform / APIM / private endpoint issues | [`INFRASTRUCTURE_OPS.md`](INFRASTRUCTURE_OPS.md) |
+| Azure OpenAI / AI provider outage | [`AI_PROVIDER_OFFLINE.md`](AI_PROVIDER_OFFLINE.md) · [`RESILIENCE_CONFIGURATION.md`](../library/RESILIENCE_CONFIGURATION.md) |
 | SQL HA / failover questions | [`DATABASE_FAILOVER.md`](DATABASE_FAILOVER.md) · [`RTO_RPO_TARGETS.md`](../library/RTO_RPO_TARGETS.md) |
 | Secret or cert rotation | [`SECRET_AND_CERT_ROTATION.md`](SECRET_AND_CERT_ROTATION.md) |
 | Health ready degraded | [`BUILD.md`](../engineering/BUILD.md) health model · [`TROUBLESHOOTING.md`](./TROUBLESHOOTING.md) |

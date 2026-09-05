@@ -15,6 +15,15 @@ public static partial class AuditEventTypes
     /// <summary>Tenant branding profile created or updated.</summary>
     public const string TenantBrandingProfileChanged = "TenantBrandingProfile.Changed";
 
+    /// <summary>Tenant branding draft activated for operator surfaces and exports.</summary>
+    public const string TenantBrandingProfileActivated = "TenantBrandingProfile.Activated";
+
+    /// <summary>Tenant branding reverted to ArchLucid product defaults.</summary>
+    public const string TenantBrandingProfileReverted = "TenantBrandingProfile.Reverted";
+
+    /// <summary>Tenant brand asset uploaded (SVG/PNG/JPEG).</summary>
+    public const string TenantBrandAssetUploaded = "TenantBrandAsset.Uploaded";
+
     /// <summary>Operational security finding ingested or updated from an external source.</summary>
     public const string OperationalSecurityFindingIngested = "OperationalSecurityFinding.Ingested";
 

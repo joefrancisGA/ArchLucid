@@ -151,6 +151,88 @@ Both engines read the same ingested properties; premise-conflict findings requir
 
 ---
 
+## Structured diagram ingest (IE-18)
+
+Structured architecture diagrams (Mermaid, draw.io XML, ArchLucid diagram JSON, SVG metadata) are ingested into a persisted **`ArchitectureDiagramModel`** per run — not browser **`localStorage`**. Vision-based ingest (PNG/PDF) is **IE-20** and is out of scope here.
+
+| Format (`DiagramSourceReference.Format`) | Parser | Notes |
+|---|---|---|
+| `mermaid` | `MermaidDiagramSourceParser` | Node labels in `id["label"]` form; edges `a --> b` or `a -->|"label"| b` |
+| `drawio-xml` | `DrawIoXmlDiagramSourceParser` | `mxCell` vertices and edges |
+| `archlucid-diagram-json` | `ArchLucidDiagramJsonParser` | Direct `ArchitectureDiagramModelRecord` JSON |
+| `svg` | `SvgDiagramSourceParser` | Fail-soft: records a warning; does not throw |
+
+**API:** `POST /v1/architecture/runs/{runId}/diagrams/ingest` (body: `StructuredDiagramIngestRequest` with one or more sources). **GET** `/v1/architecture/runs/{runId}/diagrams/model` returns the merged model. **`ExtractionMethod`** is always **`StructuredParse`**.
+
+Parsers are **fail-soft**: invalid or unrecognized input yields warnings and an empty or partial model; ingest does not throw. Label-only service-type inference uses **`ArchitectureDiagramServiceTypeInferencer`** at confidence **0.7** (`DeterministicInference`).
+
+Structured diagram ingest does **not** create a second **`CanonicalObject`** family and does **not** write Azure **`ObservedFact`** rows. Persisted rows live in **`dbo.ArchitectureDiagramModels`** (migration 362).
+
+### Diagram ↔ inventory reconciliation (IE-19)
+
+Deterministic correspondence between ingested diagram nodes and **`AzureInventorySnapshot`** resources for a run:
+
+| `MatchKind` | Meaning |
+|---|---|
+| `Exact` | Name, resource group, and compatible type |
+| `Probable` | Name plus RG or type |
+| `Possible` | Name-only partial match |
+| `DiagramOnly` | Diagram node with no inventory match |
+| `InfrastructureOnly` | Inventory resource with no diagram node |
+| `Conflict` | Multiple candidates or security discrepancy |
+| `Unknown` | Unclassifiable diagram node |
+
+**Confidence bands:** `Confirmed`, `Likely`, `Possible`, `InsufficientEvidence`. AI rationale (when added) cannot promote `InsufficientEvidence` to `Confirmed`. Public IP / public network access vs diagram labels implying private exposure yields at least **`Likely`** with `SecurityDiscrepancy=true`.
+
+**API:** `POST /v1/architecture/runs/{runId}/diagrams/reconcile` (body: `snapshotId`). **GET** `.../diagrams/reconciliation?snapshotId=` returns persisted rows. Results stored in **`dbo.ArchitectureDiagramReconciliations`** (migration 363).
+
+### Vision diagram ingest (IE-20, gated)
+
+Optional PNG/PDF vision ingest into **`ArchitectureDiagramModel`** with **`ExtractionMethod=VisionAi`**. Default **`ArchLucid:DiagramVision:Enabled=false`** — route returns **404** when disabled (same pattern as demo feature gates). This is **not** a buyer OCR guarantee and does **not** write Azure **`ObservedFact`** rows.
+
+| Setting | Behavior |
+|---|---|
+| `ArchLucid:DiagramVision:Enabled=false` | `POST .../diagrams/vision-ingest` hidden (404) |
+| `Enabled=true`, `useSimulator=true` | Canned low-confidence interpretation (`SimulatorVisionDiagramInterpreter`) |
+| `Enabled=true`, `useSimulator=false` | **409** until a live vision interpreter is configured |
+
+Responses include **`interpretationHonestyLabel`**: *"AI interpretation (not observed Azure state)."* Invalid vision schema is **fail-closed** (`VisionDiagramModelValidator`).
+
+### Cloud resource evidence hub (IE-21)
+
+`GET /v1/infra-evidence/cloud-resources/{cloudResourceId}/hub` joins existing infra-evidence tables for one stable **`CloudResourceId`**:
+
+| Section | Source |
+|---|---|
+| Current configuration | Latest (or `snapshotId`) inventory snapshot |
+| Terraform mapping | `AdvisoryTerraformResourceMappings` |
+| Diagram correspondence | IE-19 reconciliation when `runId` + `snapshotId` provided |
+| Operational security findings | `OperationalSecurityFindings` — labeled stream |
+| Architecture review findings | Run findings when `runId` provided — separate labeled stream |
+| Remediation instances | `RemediationInstances` filtered by resource |
+| RBAC / network | Snapshot role assignments and relationships |
+| Recent changes | Latest diff for prior→current snapshot pair |
+| Audit lineage link | AE-10 relative path when `assessmentId`, `auditEvidenceSnapshotId`, and `controlId` query params are set |
+
+Finding and remediation streams honor **`PaginationDefaults`** (`page`, `pageSize`; max 200). Unknown `CloudResourceId` returns **404**. Streams are never mixed without `streamKind` / `streamLabel`.
+
+### Infra-evidence Ask grounding (IE-22)
+
+`POST /v1/infra-evidence/ask` answers subscription-change, drift, diagram-gap, pattern-coverage, architecture-as-of-date, and audit-control-evidence questions from **structured rows with citations**. When no rows are in range, the response sets **`insufficientEvidence: true`** and does not call the LLM.
+
+| Topic | Evidence source |
+|---|---|
+| Subscription change / since-date | Hub recent changes filtered by `sinceUtc` (IE-06) |
+| Drift | Diff report changes (IE-07) |
+| Diagram gap | IE-19 `InfrastructureOnly` correspondence rows |
+| Pattern coverage | Remediation pattern keys on hub |
+| Architecture as of date | Snapshot `CapturedUtc` header |
+| Audit control evidence | AE-10 lineage chains when assessment query params provided |
+
+LLM path uses **`IPromptRedactor`** before completion. **`useSimulator: true`** returns a deterministic template with **`SIMULATOR`** label. Answers cite only allowed `kind:id` citation keys from collected rows — no invented ARM ids.
+
+---
+
 ## Further reading
 
 - **Typed knowledge graph:** `docs/KNOWLEDGE_GRAPH.md`.

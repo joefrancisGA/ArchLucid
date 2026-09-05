@@ -319,6 +319,80 @@ public sealed class PolicyPackManagementServiceTests
     }
 
     [Fact]
+    public async Task PublishVersion_skips_change_log_when_identical_operator_retry()
+    {
+        Guid packId = Guid.NewGuid();
+        const string version = "1.0.0";
+        const string contentJson = """{"k":1}""";
+
+        PolicyPackVersion publishedRow = new()
+        {
+            PolicyPackVersionId = Guid.NewGuid(),
+            PolicyPackId = packId,
+            Version = version,
+            ContentJson = contentJson,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            IsPublished = true,
+        };
+
+        Mock<IPolicyPackVersionRepository> versionRepo = new();
+        versionRepo.Setup(
+                v => v.UpsertPublishedVersionAsync(
+                    packId,
+                    version,
+                    contentJson,
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync((publishedRow, contentJson));
+
+        Mock<IPolicyPackRepository> packRepo = new();
+        packRepo.Setup(p => p.GetByIdAsync(packId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PolicyPack
+                {
+                    PolicyPackId = packId,
+                    TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                    WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                    ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                    Name = "n",
+                    Description = "",
+                    PackType = PolicyPackType.BuiltIn,
+                    Status = PolicyPackStatus.Active,
+                    CurrentVersion = version,
+                });
+        packRepo.Setup(p => p.UpdateAsync(It.IsAny<PolicyPack>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IPolicyPackChangeLogRepository> changeLog = new();
+        changeLog
+            .Setup(
+                c => c.AppendAsync(
+                    It.IsAny<PolicyPackChangeLogEntry>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<IDbConnection?>(),
+                    It.IsAny<IDbTransaction?>()))
+            .Returns(Task.CompletedTask);
+
+        PolicyPackManagementService sut = PolicyPackManagementServiceComposer.Compose(
+            packRepo.Object,
+            versionRepo.Object,
+            new Mock<IPolicyPackAssignmentRepository>().Object,
+            changeLog.Object,
+            new Mock<IArchLucidUnitOfWorkFactory>().Object,
+            new Mock<IPolicyPackResolverCacheInvalidator>().Object);
+
+        await sut.PublishVersionAsync(packId, version, contentJson, CancellationToken.None);
+
+        changeLog.Verify(
+            c => c.AppendAsync(
+                It.Is<PolicyPackChangeLogEntry>(e => e.ChangeType == PolicyPackChangeTypes.VersionPublished),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection?>(),
+                It.IsAny<IDbTransaction?>()),
+            Times.Never);
+        packRepo.Verify(p => p.UpdateAsync(It.IsAny<PolicyPack>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
     public async Task Assign_InvalidatesPolicyPackResolverCacheForTenant()
     {
         Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");

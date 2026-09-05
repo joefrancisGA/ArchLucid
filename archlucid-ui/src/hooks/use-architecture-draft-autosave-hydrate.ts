@@ -13,7 +13,7 @@ import {
 } from "@/hooks/architecture-draft-autosave-shared";
 
 type UseArchitectureDraftAutosaveHydrateArgs = {
-  readonly architectureId: string;
+  readonly draftId: string;
   readonly fields: ArchitectureDraftFieldState;
   readonly actorSet: ActorSet;
   readonly deferCreateUntilFirstSave: boolean;
@@ -29,8 +29,8 @@ export function useArchitectureDraftAutosaveHydrate(args: UseArchitectureDraftAu
   const persistedFieldsRef = useRef(args.fields);
   const persistedActorSetRef = useRef(args.actorSet);
   const serverUpdatedUtcRef = useRef<string | null>(null);
-  const resolvedArchitectureIdRef = useRef<string | null>(
-    args.deferCreateUntilFirstSave ? null : args.architectureId,
+  const resolvedDraftIdRef = useRef<string | null>(
+    args.deferCreateUntilFirstSave ? null : args.draftId,
   );
 
   const hasUnsavedChanges = useMemo(
@@ -67,8 +67,8 @@ export function useArchitectureDraftAutosaveHydrate(args: UseArchitectureDraftAu
   );
 
   const reloadDraft = useCallback(async () => {
-    const architectureId = resolvedArchitectureIdRef.current ?? args.architectureId;
-    const draft = await getDraftRequest(architectureId);
+    const draftId = resolvedDraftIdRef.current ?? args.draftId;
+    const draft = await getDraftRequest(draftId);
     args.onDraftLoaded?.(draft);
   }, [args]);
 
@@ -79,6 +79,6 @@ export function useArchitectureDraftAutosaveHydrate(args: UseArchitectureDraftAu
     syncServerUpdatedUtc,
     reloadDraft,
     serverUpdatedUtcRef,
-    resolvedArchitectureIdRef,
+    resolvedDraftIdRef,
   };
 }

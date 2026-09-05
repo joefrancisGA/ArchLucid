@@ -32,7 +32,7 @@ When **`OrchestratorHealthCheck`** reports **Degraded** or **Unhealthy** on **`G
 
 Cross-links: [`ORCHESTRATOR_RETRIES.md`](../library/ORCHESTRATOR_RETRIES.md), [`../library/BACKGROUND_JOB_CORRELATION.md`](../library/BACKGROUND_JOB_CORRELATION.md).
 
-**OpenAI / embedding failures:** With reader credentials, **`GET /health`** includes **`circuit_breakers`**. **`state` = `Open`** means the breaker tripped; after **`DurationOfBreakSeconds`** (see **`AzureOpenAI:CircuitBreaker:*`** in [RESILIENCE_CONFIGURATION.md](../library/RESILIENCE_CONFIGURATION.md)) the gate allows a single half-open probe before closing or re-opening.
+**OpenAI / embedding failures:** With reader credentials, **`GET /health`** includes **`circuit_breakers`**. **`state` = `Open`** means the breaker tripped; after **`DurationOfBreakSeconds`** (see **`AzureOpenAI:CircuitBreaker:*`** in [RESILIENCE_CONFIGURATION.md](../library/RESILIENCE_CONFIGURATION.md)) the gate allows a single half-open probe before closing or re-opening. Full operator playbook: [AI_PROVIDER_OFFLINE.md](AI_PROVIDER_OFFLINE.md).
 
 ---
 

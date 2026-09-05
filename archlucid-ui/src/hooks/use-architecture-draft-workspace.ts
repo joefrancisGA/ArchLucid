@@ -31,13 +31,13 @@ export type ArchitectureDraftHydratedHandler = (
 ) => void;
 
 type UseArchitectureDraftWorkspaceOptions = {
-  readonly architectureId: string;
+  readonly draftId: string;
   readonly onDraftHydratedRef?: MutableRefObject<ArchitectureDraftHydratedHandler | undefined>;
 };
 
 export function useArchitectureDraftWorkspace(options: UseArchitectureDraftWorkspaceOptions) {
   const queryClient = useQueryClient();
-  const isNewDraft = isArchitectureNewDraftSegment(options.architectureId);
+  const isNewDraft = isArchitectureNewDraftSegment(options.draftId);
   const { blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
 
   const [loading, setLoading] = useState(!isNewDraft);
@@ -80,8 +80,8 @@ export function useArchitectureDraftWorkspace(options: UseArchitectureDraftWorks
 
       try {
         const loaded = await queryClient.fetchQuery({
-          queryKey: operatorQueryKeys.architectureDraft(options.architectureId),
-          queryFn: () => getDraftRequest(options.architectureId),
+          queryKey: operatorQueryKeys.architectureDraft(options.draftId),
+          queryFn: () => getDraftRequest(options.draftId),
           staleTime: OPERATOR_QUERY_STALE_MS,
         });
 
@@ -118,7 +118,7 @@ export function useArchitectureDraftWorkspace(options: UseArchitectureDraftWorks
         loadDraftInFlightRef.current = null;
       }
     }
-  }, [applyLoadedDraftToForm, isNewDraft, options.architectureId, options.onDraftHydratedRef, queryClient]);
+  }, [applyLoadedDraftToForm, isNewDraft, options.draftId, options.onDraftHydratedRef, queryClient]);
 
   useEffect(() => {
     if (isNewDraft) {

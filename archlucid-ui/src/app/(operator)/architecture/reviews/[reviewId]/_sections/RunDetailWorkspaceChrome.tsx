@@ -16,6 +16,9 @@ import { ReviewPresenterHeaderButton } from "@/components/reviews/ReviewPresente
 import { ReviewWorkspaceStaleBanner } from "@/components/reviews/ReviewWorkspaceStaleBanner";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { SampleReviewDemoBanner } from "@/components/reviews/SampleReviewDemoBanner";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+
 import { useReviewsListReturnNavHref } from "@/hooks/use-reviews-list-return-nav-href";
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { formatActionActorName } from "@/lib/action-actor-display";
@@ -28,6 +31,10 @@ import {
 } from "@/lib/run-detail-workspace-derive";
 import { whyDisabledReviewHeaderActions } from "@/lib/why-disabled-cta";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
+import {
+  parseRunDetailRecordMetadataOpenFromSearch,
+  runDetailRecordMetadataHrefFromSearch,
+} from "@/lib/runs/run-detail-record-metadata-url";
 
 type ReviewMetadataField = {
   readonly key: string;
@@ -166,8 +173,37 @@ function shouldShowReviewRecordMetadata(
 
 /** Customer-facing review header — title and review identity without repeating sponsor metrics. */
 export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const runRecordMetaOpenParam = searchParams.get("runRecordMetaOpen");
   const h1Title = clampReviewWorkspaceH1Title(props.h1Title);
   const reviewsListNavHref = useReviewsListReturnNavHref(REVIEWS_LIST_PATH);
+  const [recordMetadataOpen, setRecordMetadataOpenState] = useState(() =>
+    parseRunDetailRecordMetadataOpenFromSearch(runRecordMetaOpenParam),
+  );
+
+  const syncRecordMetadataOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        runDetailRecordMetadataHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setRecordMetadataOpen = useCallback(
+    (open: boolean) => {
+      setRecordMetadataOpenState(open);
+      syncRecordMetadataOpenToUrl(open);
+    },
+    [syncRecordMetadataOpenToUrl],
+  );
+
+  useEffect(() => {
+    setRecordMetadataOpenState(parseRunDetailRecordMetadataOpenFromSearch(runRecordMetaOpenParam));
+  }, [runRecordMetaOpenParam]);
   const metadataContext = deriveReviewRecordMetadataContext(props.signedReviewRecordId);
   const absentReasons = resolveReviewMetadataAbsentReasons(metadataContext);
   const collapseMetadataFieldSet = buildCollapseMetadataFields(props, absentReasons);
@@ -179,6 +215,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
     unrecordedFieldCount,
     metadataContext,
   );
+  const headerActionsDisabledHintId = "review-header-actions-disabled-hint";
 
   return (
     <div data-testid="run-detail-workspace-header">
@@ -191,23 +228,43 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
         subtitle={props.eyebrowLabel}
         metadata={null}
         actions={
-          <>
-            <ReviewHeaderShareMenu
-              runId={props.runId}
-              isCommitted={props.signedReviewRecordId !== null}
-              findingsQueueHref={`/governance/findings?runId=${encodeURIComponent(props.runId)}`}
-              disabled={reviewPipelineIncomplete}
-              disabledReason={headerActionDisabledReason}
-            />
-            <ReviewAskDock
-              runId={props.runId}
-              reviewTitle={h1Title}
-              disabled={reviewPipelineIncomplete}
-              disabledReason={headerActionDisabledReason}
-            />
-            <ReviewPresenterHeaderButton reviewCompleted={!reviewPipelineIncomplete} />
-            <FavoriteReviewToggle runId={props.runId} title={h1Title} size="sm" />
-          </>
+          <div className="flex min-w-0 flex-col items-end gap-2">
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <ReviewHeaderShareMenu
+                runId={props.runId}
+                isCommitted={props.signedReviewRecordId !== null}
+                manifestVersion={props.signedReviewRecordId}
+                findingsQueueHref={`/governance/findings?runId=${encodeURIComponent(props.runId)}`}
+                disabled={reviewPipelineIncomplete}
+                disabledReason={headerActionDisabledReason}
+                disabledDescribedById={
+                  reviewPipelineIncomplete && headerActionDisabledReason !== null
+                    ? headerActionsDisabledHintId
+                    : undefined
+                }
+              />
+              <ReviewAskDock
+                runId={props.runId}
+                reviewTitle={h1Title}
+                disabled={reviewPipelineIncomplete}
+                disabledReason={headerActionDisabledReason}
+                disabledDescribedById={
+                  reviewPipelineIncomplete && headerActionDisabledReason !== null
+                    ? headerActionsDisabledHintId
+                    : undefined
+                }
+              />
+              <ReviewPresenterHeaderButton reviewCompleted={!reviewPipelineIncomplete} />
+              <FavoriteReviewToggle runId={props.runId} title={h1Title} size="sm" />
+            </div>
+            {reviewPipelineIncomplete && headerActionDisabledReason !== null ? (
+              <WhyDisabledCtaHint
+                id={headerActionsDisabledHintId}
+                reason={headerActionDisabledReason}
+                testId="review-header-actions-disabled-hint"
+              />
+            ) : null}
+          </div>
         }
       >
         {!reviewPipelineIncomplete ? <ArchitectureObjectMapStrip focus="review" /> : null}
@@ -228,6 +285,10 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
               <details
                 className="rounded-lg border border-neutral-200 dark:border-neutral-800"
                 data-testid="run-detail-record-metadata-disclosure"
+                open={recordMetadataOpen}
+                onToggle={(event) => {
+                  setRecordMetadataOpen((event.currentTarget as HTMLDetailsElement).open);
+                }}
               >
                 <summary className={cn("cursor-pointer px-4 py-2", OPERATOR_TYPOGRAPHY.cardTitle)}>
                   {metadataDisclosureSummary}
@@ -242,13 +303,6 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
           ) : null}
         </dl>
       </OperatorPageHeader>
-      {reviewPipelineIncomplete && headerActionDisabledReason !== null ? (
-        <WhyDisabledCtaHint
-          reason={headerActionDisabledReason}
-          className="mt-2"
-          testId="review-header-actions-disabled-hint"
-        />
-      ) : null}
     </div>
   );
 }

@@ -1,4 +1,8 @@
+"use client";
+
 import type { ReactElement } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -17,6 +21,14 @@ import type { RunExplanationSummary } from "@/types/explanation";
 import { RunDecisionExplainabilitySection } from "@/components/runs/RunDecisionExplainabilitySection";
 import type { RunDecisionExplainabilityModel } from "@/lib/runs/run-decision-explainability-from-detail";
 import { cn } from "@/lib/utils";
+import {
+  parseRunAssessmentNarrativeOpenFromSearch,
+  runAssessmentNarrativeHrefFromSearch,
+} from "@/lib/reviews/run-assessment-narrative-url";
+import {
+  parseRunCoverageCurationOpenFromSearch,
+  runCoverageCurationDisclosureHrefFromSearch,
+} from "@/lib/reviews/run-coverage-curation-disclosure-url";
 
 import { RunDetailSponsorModeExplanationCard } from "./RunDetailSponsorModeExplanationCard";
 import {
@@ -85,12 +97,65 @@ export function RunDetailRunExplanationCollapsible(
     triageVisibleCount,
     graphSnapshot,
   } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const runAssessmentNarrativeOpenParam = searchParams.get("runAssessmentNarrativeOpen");
+  const runCoverageCurationOpenParam = searchParams.get("runCoverageCurationOpen");
+  const [assessmentNarrativeOpen, setAssessmentNarrativeOpenState] = useState(() =>
+    parseRunAssessmentNarrativeOpenFromSearch(runAssessmentNarrativeOpenParam),
+  );
+  const [coverageCurationOpen, setCoverageCurationOpenState] = useState(() =>
+    parseRunCoverageCurationOpenFromSearch(runCoverageCurationOpenParam),
+  );
   const findingTitlesById = buildFindingTitlesById(quickDecisionFindings);
   const showCoverageAndCuration = hasFindingsSnapshotInsightDensityContent(insightDensityView);
   const showImpactAnalysis = hasFindingsWhatIfAnalysisContent(
     quickDecisionFindings,
     baselineAnnualCostUsd,
   );
+
+  const syncAssessmentNarrativeOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(runAssessmentNarrativeHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setAssessmentNarrativeOpen = useCallback(
+    (open: boolean) => {
+      setAssessmentNarrativeOpenState(open);
+      syncAssessmentNarrativeOpenToUrl(open);
+    },
+    [syncAssessmentNarrativeOpenToUrl],
+  );
+
+  const syncCoverageCurationOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(runCoverageCurationDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setCoverageCurationOpen = useCallback(
+    (open: boolean) => {
+      setCoverageCurationOpenState(open);
+      syncCoverageCurationOpenToUrl(open);
+    },
+    [syncCoverageCurationOpenToUrl],
+  );
+
+  useEffect(() => {
+    setAssessmentNarrativeOpenState(parseRunAssessmentNarrativeOpenFromSearch(runAssessmentNarrativeOpenParam));
+  }, [runAssessmentNarrativeOpenParam]);
+
+  useEffect(() => {
+    setCoverageCurationOpenState(parseRunCoverageCurationOpenFromSearch(runCoverageCurationOpenParam));
+  }, [runCoverageCurationOpenParam]);
 
   return (
     <section id="run-explanation" className="scroll-mt-24 space-y-4">
@@ -118,6 +183,10 @@ export function RunDetailRunExplanationCollapsible(
             className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
             data-workspace-disclosure
             data-testid="run-detail-coverage-curation-disclosure"
+            open={coverageCurationOpen}
+            onToggle={(event) => {
+              setCoverageCurationOpen((event.currentTarget as HTMLDetailsElement).open);
+            }}
           >
             <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.body)}>
               Finding coverage and curation
@@ -151,7 +220,8 @@ export function RunDetailRunExplanationCollapsible(
 
       <CollapsibleSection
         title="Assessment narrative"
-        defaultOpen={false}
+        open={assessmentNarrativeOpen}
+        onToggle={setAssessmentNarrativeOpen}
         sectionTestId="run-detail-assessment-narrative"
       >
         <RunDetailSponsorModeExplanationCard

@@ -1,6 +1,6 @@
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
 
-const WORKING_MODE_SECONDARY_REPORTING_HREFS = new Set<string>([
+export const WORKING_MODE_SECONDARY_REPORTING_HREFS = new Set<string>([
   "/insights/architecture-scorecard",
   "/insights/roi-summary",
 ]);

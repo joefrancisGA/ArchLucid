@@ -43,14 +43,11 @@ export function RunTraceViewerLink({ traceId }: RunTraceViewerLinkProps) {
     return null;
   }
 
-  const preview =
-    traceId.length > 8 ? `${traceId.slice(0, 8)}…` : traceId;
-
   if (!isAdmin) {
     return (
       <div className={cn("mt-1 flex flex-wrap items-center gap-2", OPERATOR_TYPOGRAPHY.helper)}>
         <span className="font-mono break-all text-neutral-500 dark:text-neutral-400" aria-label={`Support reference: ${traceId}`}>
-          Support ref: {preview}
+          Support ref: {traceId}
         </span>
         <Button
           type="button"
@@ -84,7 +81,7 @@ export function RunTraceViewerLink({ traceId }: RunTraceViewerLinkProps) {
         </a>
       ) : null}
       <span className="font-mono break-all text-neutral-600 dark:text-neutral-400" aria-label={`Support reference: ${traceId}`}>
-        Support ref: {preview}
+        Support ref: {traceId}
       </span>
       <Button
         type="button"

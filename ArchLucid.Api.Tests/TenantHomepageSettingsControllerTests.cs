@@ -137,6 +137,15 @@ public sealed class TenantHomepageSettingsControllerTests
     {
         Mock<IFeaturedCompletedSampleService> service = new();
         service
+            .Setup(s => s.GetSnapshotAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new FeaturedCompletedSampleSnapshot
+                {
+                    IsConfigured = true,
+                    IsAvailable = true,
+                    SelectedRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                });
+        service
             .Setup(s => s.ClearSelectionAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FeaturedCompletedSampleSnapshot
             {
@@ -152,7 +161,7 @@ public sealed class TenantHomepageSettingsControllerTests
 
         action.Should().BeOfType<OkObjectResult>();
         service.Verify(s => s.ClearSelectionAsync(It.IsAny<CancellationToken>()), Times.Once);
-        service.VerifyNoOtherCalls();
+        service.Verify(s => s.GetSnapshotAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Theory]
@@ -267,10 +276,65 @@ public sealed class TenantHomepageSettingsControllerTests
         service.VerifyNoOtherCalls();
     }
 
+    [Fact]
+    public async Task PutAsync_skips_duplicate_audit_when_selected_run_id_unchanged_retry()
+    {
+        Guid selectedRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IFeaturedCompletedSampleService> service = new();
+        service
+            .SetupSequence(s => s.GetSnapshotAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new FeaturedCompletedSampleSnapshot
+                {
+                    IsConfigured = false,
+                    IsAvailable = false,
+                })
+            .ReturnsAsync(
+                new FeaturedCompletedSampleSnapshot
+                {
+                    IsConfigured = true,
+                    IsAvailable = true,
+                    SelectedRunId = selectedRunId,
+                    IsSampleApproved = true,
+                });
+        service
+            .Setup(s => s.SetSelectedRunIdAsync(selectedRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new FeaturedCompletedSampleSnapshot
+                {
+                    IsConfigured = true,
+                    IsAvailable = true,
+                    SelectedRunId = selectedRunId,
+                    IsSampleApproved = true,
+                });
+
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        TenantHomepageSettingsController controller = CreateController(service.Object, audit: audit.Object);
+
+        await controller.PutAsync(
+            new TenantHomepageSettingsPutRequest { SelectedRunId = selectedRunId },
+            CancellationToken.None);
+        await controller.PutAsync(
+            new TenantHomepageSettingsPutRequest { SelectedRunId = selectedRunId },
+            CancellationToken.None);
+
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.TenantHomepageSettingsUpdated),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     private static TenantHomepageSettingsController CreateController(
         IFeaturedCompletedSampleService service,
         bool tenantExists = true,
-        Guid? workspaceId = null)
+        Guid? workspaceId = null,
+        IAuditService? audit = null)
     {
         Guid resolvedWorkspaceId = workspaceId ?? Scope.WorkspaceId;
 
@@ -314,7 +378,7 @@ public sealed class TenantHomepageSettingsControllerTests
         TenantHomepageSettingsController controller = new(
             service,
             scopeProvider.Object,
-            Mock.Of<IAuditService>(),
+            audit ?? Mock.Of<IAuditService>(),
             tenants.Object);
         controller.ControllerContext = new ControllerContext
         {

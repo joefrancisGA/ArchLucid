@@ -42,6 +42,9 @@ internal static class ComparisonBatchReplayPinInventoryGuard
             case ScopedRunPairLoadOutcome.CommittedArtifactInventoryMismatch:
                 throw new ConflictException(
                     "Batch replay blocked: committed artifact inventory fingerprints differ between the selected runs.");
+            case ScopedRunPairLoadOutcome.SealedManifestHashMismatch:
+                throw new ConflictException(
+                    "Batch replay blocked: sealed manifest hash verification failed for one or both selected runs.");
             default:
                 throw new ConflictException(
                     $"Batch replay blocked for comparison '{record.ComparisonRecordId}': run pair is not inventory-checked ({loadResult.Outcome}).");

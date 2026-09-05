@@ -139,7 +139,7 @@ Authoring checklist and local commands: **`tests/technology-consistency-corpus/R
 |---------|---------|
 | **`docs/quality/insight-density-engine-distribution.md`** | Per-engine min/median/max scores from the sixteen-engine golden corpus harness |
 
-**claimBoundary:** Advisory-only — `DeterministicInsightDensityGate` never demotes typed-engine findings (`typed-engine-protected`). The table covers engines that produced ≥1 finding across case-01..case-35; the harness registers **16** engines and **23** built-in product engines are absent from that slice. `WouldDemoteIfUnprotectedCount` is a counterfactual, not production demotion behavior.
+**claimBoundary:** Production gate (ADR 0070) — `DeterministicInsightDensityGate` applies the demotion predicate to typed-engine and agent findings. The legacy `typed-engine-protected` Promote short-circuit is superseded. The table covers engines that produced ≥1 finding across case-01..case-35; the harness registers **16** engines and **23** built-in product engines are absent from that slice. `WouldDemoteIfUnprotectedCount` matches production demotion when the predicate applies.
 
 Local commands:
 

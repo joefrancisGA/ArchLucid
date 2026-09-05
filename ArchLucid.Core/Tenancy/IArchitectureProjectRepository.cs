@@ -13,8 +13,7 @@ public interface IArchitectureProjectRepository
     Task<IReadOnlyList<ArchitectureProjectRecord>> ListSoftDeletedByTenantAsync(Guid tenantId, CancellationToken ct);
 
     /// <summary>Soft-delete (<c>IsDeleted</c> 0→1) for a project in the workspace scope.</summary>
-    /// <returns><c>true</c> when exactly one row was updated.</returns>
-    Task<bool> TrySoftDeleteAsync(Guid tenantId, Guid workspaceId, Guid projectId, CancellationToken ct);
+    Task<ArchitectureProjectSoftDeleteResult> TrySoftDeleteAsync(Guid tenantId, Guid workspaceId, Guid projectId, CancellationToken ct);
 
     /// <summary>Restores a soft-deleted project when workspace name uniqueness permits.</summary>
     Task<ArchitectureProjectRestoreResult> TryRestoreAsync(Guid tenantId, Guid workspaceId, Guid projectId, CancellationToken ct);

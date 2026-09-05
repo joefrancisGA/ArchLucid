@@ -5,6 +5,7 @@ import {
   globalSearchInputTitle,
 } from "@/lib/keyboard-shortcut-display";
 import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
+import { KeyboardShortcutBadge } from "@/components/KeyboardShortcutBadge";
 import { Input } from "@/components/ui/input";
 import { GlobalSearchGlobalResultsPanel } from "@/components/GlobalSearchGlobalResultsPanel";
 import { GlobalSearchPackageResultsPanel } from "@/components/GlobalSearchPackageResultsPanel";
@@ -57,27 +58,35 @@ export function GlobalSearchBarShell(props: GlobalSearchBarShellProps) {
         {GLOBAL_FIND_PAGE_SEARCH.helper}
       </p>
 
-      <Input
-        ref={inputRef}
-        id={inputId}
-        type="search"
-        placeholder={searchPlaceholder}
-        title={globalSearchInputTitle()}
-        value={query}
-        onChange={(event) => handleQueryChange(event.target.value)}
-        onFocus={handleInputFocus}
-        onKeyDown={handleInputKeyDown}
-        role="combobox"
-        aria-autocomplete="list"
-        aria-haspopup={resultsPanelOpen ? "listbox" : quickActionsPanelOpen ? "dialog" : undefined}
-        aria-expanded={resultsPanelOpen || quickActionsPanelOpen}
-        aria-controls={resultsPanelOpen || quickActionsPanelOpen ? `${inputId}-results` : undefined}
-        aria-label={searchAriaLabel}
-        aria-describedby={`${inputId}-helper`}
-        aria-keyshortcuts={COMMAND_PALETTE_ARIA_KEYSHORTCUTS}
-        autoComplete="off"
-        className="h-8 border-neutral-300 bg-white text-al-text-primary placeholder:text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900 dark:placeholder:text-neutral-400"
-      />
+      <div className="relative">
+        <Input
+          ref={inputRef}
+          id={inputId}
+          type="search"
+          placeholder={searchPlaceholder}
+          title={globalSearchInputTitle()}
+          value={query}
+          onChange={(event) => handleQueryChange(event.target.value)}
+          onFocus={handleInputFocus}
+          onKeyDown={handleInputKeyDown}
+          role="combobox"
+          aria-autocomplete="list"
+          aria-haspopup={resultsPanelOpen ? "listbox" : quickActionsPanelOpen ? "dialog" : undefined}
+          aria-expanded={resultsPanelOpen || quickActionsPanelOpen}
+          aria-controls={resultsPanelOpen || quickActionsPanelOpen ? `${inputId}-results` : undefined}
+          aria-label={searchAriaLabel}
+          aria-describedby={`${inputId}-helper`}
+          aria-keyshortcuts={COMMAND_PALETTE_ARIA_KEYSHORTCUTS}
+          autoComplete="off"
+          className="h-8 border-neutral-300 bg-white pr-14 text-al-text-primary placeholder:text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900 dark:placeholder:text-neutral-400"
+        />
+        <div
+          className="pointer-events-none absolute inset-y-0 right-2 flex items-center"
+          aria-hidden="true"
+        >
+          <KeyboardShortcutBadge className="shrink-0" />
+        </div>
+      </div>
 
       {packageSearchScope.packageScopeAvailable ? (
         <FilterChipGroup

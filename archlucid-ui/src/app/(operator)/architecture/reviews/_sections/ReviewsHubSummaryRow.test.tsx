@@ -35,7 +35,7 @@ describe("ReviewsHubSummaryRow", () => {
     );
     expect(screen.getByTestId("reviews-hub-summary-in-progress-value")).toHaveAttribute(
       "aria-label",
-      "2 active reviews · workspace · active",
+      "2 active reviews",
     );
     expect(screen.getByTestId("reviews-hub-summary-committed-value")).toHaveAttribute(
       "href",

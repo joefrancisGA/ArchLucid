@@ -88,6 +88,24 @@ public sealed class IntegrationEventTypesTests
     }
 
     [Fact]
+    public void AreEquivalent_matches_uppercase_canonical_to_canonical()
+    {
+        IntegrationEventTypes.AreEquivalent(
+                IntegrationEventTypes.AlertFiredV1.ToUpperInvariant(),
+                IntegrationEventTypes.AlertFiredV1)
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
+    public void MapToCanonical_normalizes_uppercase_canonical_input()
+    {
+        IntegrationEventTypes.MapToCanonical(IntegrationEventTypes.AlertFiredV1.ToUpperInvariant())
+            .Should()
+            .Be(IntegrationEventTypes.AlertFiredV1);
+    }
+
+    [Fact]
     public void AreEquivalent_false_for_unrelated_types()
     {
         IntegrationEventTypes.AreEquivalent(

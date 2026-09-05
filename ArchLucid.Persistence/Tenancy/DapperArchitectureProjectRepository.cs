@@ -84,7 +84,7 @@ public sealed class DapperArchitectureProjectRepository(ISqlConnectionFactory co
     }
 
     /// <inheritdoc />
-    public async Task<bool> TrySoftDeleteAsync(Guid tenantId, Guid workspaceId, Guid projectId, CancellationToken ct)
+    public async Task<ArchitectureProjectSoftDeleteResult> TrySoftDeleteAsync(Guid tenantId, Guid workspaceId, Guid projectId, CancellationToken ct)
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
@@ -109,7 +109,39 @@ public sealed class DapperArchitectureProjectRepository(ISqlConnectionFactory co
                 },
                 cancellationToken: ct));
 
-        return affected == 1;
+        if (affected == 1)
+            return ArchitectureProjectSoftDeleteResult.Deleted;
+
+        const string alreadyDeletedSql = """
+                                         SELECT CAST(
+                                             CASE WHEN EXISTS (
+                                                 SELECT 1
+                                                 FROM dbo.Projects
+                                                 WHERE TenantId = @TenantId
+                                                   AND WorkspaceId = @WorkspaceId
+                                                   AND Id = @ProjectId
+                                                   AND IsDeleted = 1
+                                             )
+                                             THEN 1
+                                             ELSE 0
+                                             END AS BIT);
+                                         """;
+
+        bool alreadyDeleted =
+            await connection.QuerySingleAsync<bool>(
+                new CommandDefinition(
+                    alreadyDeletedSql,
+                    new
+                    {
+                        TenantId = tenantId,
+                        WorkspaceId = workspaceId,
+                        ProjectId = projectId
+                    },
+                    cancellationToken: ct));
+
+        return alreadyDeleted
+            ? ArchitectureProjectSoftDeleteResult.AlreadyDeleted
+            : ArchitectureProjectSoftDeleteResult.NotFound;
     }
 
     /// <inheritdoc />
@@ -144,7 +176,38 @@ public sealed class DapperArchitectureProjectRepository(ISqlConnectionFactory co
                     cancellationToken: ct));
 
         if (nameRow is null)
-            return ArchitectureProjectRestoreResult.NotFoundOrNotDeleted;
+        {
+            const string activeSql = """
+                                     SELECT CAST(
+                                         CASE WHEN EXISTS (
+                                             SELECT 1
+                                             FROM dbo.Projects
+                                             WHERE TenantId = @TenantId
+                                               AND WorkspaceId = @WorkspaceId
+                                               AND Id = @ProjectId
+                                               AND IsDeleted = 0
+                                         )
+                                         THEN 1
+                                         ELSE 0
+                                         END AS BIT);
+                                     """;
+
+            bool alreadyActive =
+                await connection.QuerySingleAsync<bool>(
+                    new CommandDefinition(
+                        activeSql,
+                        new
+                        {
+                            TenantId = tenantId,
+                            WorkspaceId = workspaceId,
+                            ProjectId = projectId
+                        },
+                        cancellationToken: ct));
+
+            return alreadyActive
+                ? ArchitectureProjectRestoreResult.AlreadyActive
+                : ArchitectureProjectRestoreResult.NotFoundOrNotDeleted;
+        }
 
         const string collisionSql = """
                                     SELECT CAST(

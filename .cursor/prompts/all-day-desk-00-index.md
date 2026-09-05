@@ -7,6 +7,8 @@
      Wave 8: instrument-spine-00-index.md (IS-01–15).
      Wave 9: livelihood-spine-00-index.md (LS-01–12).
      Wave 10 leftovers: sealed-desk-00-index.md (SD-01–12).
+     Wave 11 leftovers: career-record-00-index.md (CR-01–12).
+     Wave 12 kernel: livelihood-kernel-00-index.md (LK-01–15).
      Do not implement from this index. -->
 
 # All-day-desk mitigations — Composer prompt set (AD-01–AD-12)

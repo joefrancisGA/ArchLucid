@@ -16,3 +16,13 @@ check "azure_openai_consumed_location" {
     error_message = "Consumed Azure OpenAI account region must match azure_openai_expected_location (pilot default: eastus)."
   }
 }
+
+check "fallback_llm_app_config_contract" {
+  assert {
+    condition = !local.enabled || !var.fallback_llm_enabled || (
+      length(trimspace(var.fallback_llm_endpoint)) > 0 &&
+      length(trimspace(var.fallback_llm_deployment_name)) > 0
+    )
+    error_message = "When fallback_llm_enabled is true, also set fallback_llm_endpoint and fallback_llm_deployment_name."
+  }
+}

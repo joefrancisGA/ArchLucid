@@ -5,6 +5,7 @@
      Grounded in the founding contract (R4 / R13) leftovers AD does not own.
      Wave 8: instrument-spine-00-index.md (IS-01–15) — load-bearing bets.
      Wave 9: livelihood-spine-00-index.md (LS-01–12).
+     Wave 12 kernel: livelihood-kernel-00-index.md (LK-01–15).
      Do not implement from this index. -->
 
 # Founding-desk mitigations — Composer prompt set (FD-01–FD-13)

@@ -7,6 +7,7 @@ import {
   GETTING_STARTED_HELP_WORKING_QUICK_START_COPY,
   GETTING_STARTED_HELP_WORKING_QUICK_START_TITLE,
 } from "@/lib/getting-started-help-guide-content";
+import { HELP_DOC_SEARCH_RECORDS } from "@/lib/help/help-index.generated";
 import {
   HELP_FIRST_SESSION_LEAD_MARKERS,
   HELP_WORKING_DESK_QUICK_START_COPY,
@@ -14,6 +15,7 @@ import {
   WORKING_HOME_HELP_SEARCH_EXCLUDED_TOPIC_IDS,
   WORKING_HOME_OPERATOR_HELP_SLUG,
 } from "@/lib/help/help-workspace-mode-copy";
+import { recommendedHelpSearchPanelTopicIds } from "@/lib/help/help-search-panel-catalog-recommend";
 
 const HELP_GETTING_STARTED_VIEW_PATH =
   "src/app/(operator)/help/_sections/HelpGettingStartedGuideView.tsx";
@@ -55,5 +57,25 @@ describe("help working desk copy guard (WA-04)", () => {
     expect(corePilotSource).toContain("useWorkspaceMode");
     expect(corePilotSource).toContain("resolveCorePilotHelpSummaryTitle");
     expect(corePilotSource).toContain("resolveHelpWorkingDeskPrimaryActions");
+  });
+
+  it("keeps CORE_PILOT help search excerpts free of first-session lead markers (SD-06)", () => {
+    const corePilotRecords = HELP_DOC_SEARCH_RECORDS.filter((record) =>
+      record.docPath.replace(/\\/g, "/").endsWith("docs/CORE_PILOT.md"),
+    );
+
+    expect(corePilotRecords.length).toBeGreaterThan(0);
+
+    for (const record of corePilotRecords) {
+      expect(record.excerpt, record.sectionHeading).not.toMatch(HELP_FIRST_SESSION_LEAD_MARKERS);
+    }
+  });
+
+  it("filters first-session help recommendations on core-pilot routes in Working mode (SD-06)", () => {
+    expect(recommendedHelpSearchPanelTopicIds("/help/first-architecture-review", null, true)).toEqual([
+      "upload-evidence",
+      "cloud-connections",
+      "troubleshoot",
+    ]);
   });
 });

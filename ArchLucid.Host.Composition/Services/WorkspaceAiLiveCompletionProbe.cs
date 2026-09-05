@@ -66,6 +66,39 @@ public static class WorkspaceAiLiveCompletionProbe
             llmTelemetryOptions: null);
     }
 
+    /// <summary>Builds a same-family fallback completion client for availability probes (not tenant-metered).</summary>
+    public static AzureOpenAiCompletionClient? TryCreateFallbackClient(
+        FallbackLlmResolvedEndpoint row,
+        ILogger<AzureOpenAiCompletionClient>? logger = null)
+    {
+        ArgumentNullException.ThrowIfNull(row);
+
+        int maxTokens = WorkspaceAiAvailabilityProbeLimits.MaxCompletionTokens;
+
+        if (row.UseManagedIdentity)
+        {
+            return AzureOpenAiCompletionClient.CreateWithManagedIdentity(
+                row.Endpoint,
+                row.DeploymentName,
+                maxTokens,
+                structuredOutputAgentResultSchema: null,
+                logger,
+                llmTelemetryOptions: null);
+        }
+
+        if (string.IsNullOrWhiteSpace(row.ApiKey))
+            return null;
+
+        return new AzureOpenAiCompletionClient(
+            row.Endpoint,
+            row.ApiKey,
+            row.DeploymentName,
+            maxTokens,
+            structuredOutputAgentResultSchema: null,
+            logger,
+            llmTelemetryOptions: null);
+    }
+
     public static async Task<(AzureOpenAiCompletionClient Client, string DeploymentName)?> TryCreateCustomerConnectionClientAsync(
         TenantAzureOpenAiConnectionRecord row,
         ISecretProvider secretProvider,

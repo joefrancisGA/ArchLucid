@@ -81,8 +81,23 @@ public sealed class ArchitectureRunAsyncOperationCreateCompletionWorker : IArchi
 {
     internal const int MaxConcurrentCreateCompletions = 4;
 
+    internal static readonly TimeSpan DefaultCreateWaitTimeout = TimeSpan.FromSeconds(60);
+
     private readonly SemaphoreSlim _createGate = new(MaxConcurrentCreateCompletions);
     private readonly ConcurrentDictionary<string, TaskCompletionSource> _createCompleted = new(StringComparer.Ordinal);
+    private readonly TimeSpan _createWaitTimeout;
+
+    public ArchitectureRunAsyncOperationCreateCompletionWorker()
+        : this(DefaultCreateWaitTimeout)
+    {
+    }
+
+    internal ArchitectureRunAsyncOperationCreateCompletionWorker(TimeSpan createWaitTimeout)
+    {
+        _createWaitTimeout = createWaitTimeout <= TimeSpan.Zero
+            ? DefaultCreateWaitTimeout
+            : createWaitTimeout;
+    }
 
     public async Task ProcessCreateBoundedAsync(
         ArchitectureRunAsyncOperationWorkItem item,
@@ -121,15 +136,17 @@ public sealed class ArchitectureRunAsyncOperationCreateCompletionWorker : IArchi
         IArchitectureRunAsyncOperationRegistrar registrar,
         CancellationToken cancellationToken)
     {
-        string key = BuildKey(item.Scope, item.RunId);
-
-        if (!registrar.IsRegistered(item.Scope, item.RunId, ArchitectureRunAsyncOperationKind.Create)
-            && !_createCompleted.ContainsKey(key))
-        {
+        if (!registrar.IsRegistered(item.Scope, item.RunId, ArchitectureRunAsyncOperationKind.Create))
             return;
-        }
 
-        await GetCreateCompletion(item).Task.WaitAsync(cancellationToken);
+        try
+        {
+            await GetCreateCompletion(item).Task.WaitAsync(_createWaitTimeout, cancellationToken);
+        }
+        catch (TimeoutException)
+        {
+            // Create worker may be stuck; execute can still resume a deferred pipeline.
+        }
     }
 
     private TaskCompletionSource GetCreateCompletion(ArchitectureRunAsyncOperationWorkItem item) =>
@@ -155,7 +172,9 @@ public interface IArchitectureRunAsyncOperationExecuteReplayWorker
 
 public sealed class ArchitectureRunAsyncOperationExecuteReplayWorker : IArchitectureRunAsyncOperationExecuteReplayWorker
 {
-    private readonly SemaphoreSlim _gate = new(1);
+    internal const int MaxConcurrentExecuteReplays = 4;
+
+    private readonly SemaphoreSlim _gate = new(MaxConcurrentExecuteReplays);
 
     public async Task ProcessExecuteOrReplayAsync(
         ArchitectureRunAsyncOperationWorkItem item,

@@ -118,6 +118,18 @@ Shell and page-local **breadcrumb trails are removed** (**TB-2090**). Primary wa
 - **`nav-route-namespace.test.ts`** — every nav **`href`** matches its group canonical prefix or **`NAV_ROUTE_NAMESPACE_EXCEPTIONS`** (TB-404).
 - **`authority-shaped-layout-regression.test.tsx`** — **inspect-first** DOM when mutation hook is false (parallel to tier→authority story; still **UI only**).
 
+## Operator home view tabs vs sidebar sections
+
+Home recent-reviews preview tabs (`RunsDashboardPanelFilters` line tabs on `/`) map to sidebar groups as follows — tab labels were renamed to match nav vocabulary (not review-workspace tabs):
+
+| Home tab (`hideHeading`) | Sidebar group | Primary nav destination |
+|--------------------------|---------------|-------------------------|
+| **Recent** | Architecture (`pilot`) | `/architecture/reviews` |
+| **Findings** | Approval (`operate-governance`) | `/governance/findings` (open-finding pressure) |
+| **Monitoring** | Approval (`operate-governance`) | Governance approval queue / warning-filtered reviews |
+
+Do not collapse these preview tabs into a **More** menu on desktop; they are distinct from sidebar cluster **Show N more … destinations** disclosures.
+
 ## `layer-guidance.ts` / `LayerHeader`
 
 **Operate · governance** route families use **`LAYER_PAGE_GUIDANCE`** rows with **`enterpriseFootnote`** (see **`authority-seam-regression.test.ts`** — Operate analysis vs governance footnote contract). That strip is **cognitive packaging only**; it does not replace **`requiredAuthority`** in nav config or **`[Authorize]`** on the API.

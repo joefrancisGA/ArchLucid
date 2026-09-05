@@ -127,6 +127,49 @@ public sealed class GovernanceEnvironmentCatalogService(
         };
     }
 
+    public static bool CatalogContentEquals(GovernanceEnvironmentCatalog left, GovernanceEnvironmentCatalog right)
+    {
+        ArgumentNullException.ThrowIfNull(left);
+        ArgumentNullException.ThrowIfNull(right);
+
+        GovernanceEnvironmentCatalog normalizedLeft = NormalizeCatalog(left);
+        GovernanceEnvironmentCatalog normalizedRight = NormalizeCatalog(right);
+
+        if (normalizedLeft.Environments.Count != normalizedRight.Environments.Count
+            || normalizedLeft.Transitions.Count != normalizedRight.Transitions.Count)
+        {
+            return false;
+        }
+
+        for (int index = 0; index < normalizedLeft.Environments.Count; index++)
+        {
+            GovernanceEnvironmentDefinition leftEnvironment = normalizedLeft.Environments[index];
+            GovernanceEnvironmentDefinition rightEnvironment = normalizedRight.Environments[index];
+
+            if (!string.Equals(leftEnvironment.Slug, rightEnvironment.Slug, StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(leftEnvironment.DisplayName, rightEnvironment.DisplayName, StringComparison.OrdinalIgnoreCase)
+                || leftEnvironment.SortOrder != rightEnvironment.SortOrder
+                || leftEnvironment.IsActive != rightEnvironment.IsActive)
+            {
+                return false;
+            }
+        }
+
+        for (int index = 0; index < normalizedLeft.Transitions.Count; index++)
+        {
+            GovernanceEnvironmentTransition leftTransition = normalizedLeft.Transitions[index];
+            GovernanceEnvironmentTransition rightTransition = normalizedRight.Transitions[index];
+
+            if (!string.Equals(leftTransition.SourceSlug, rightTransition.SourceSlug, StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(leftTransition.TargetSlug, rightTransition.TargetSlug, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public static void ValidateCatalogOrThrow(GovernanceEnvironmentCatalog catalog)
     {
         if (catalog.Environments.Count == 0)

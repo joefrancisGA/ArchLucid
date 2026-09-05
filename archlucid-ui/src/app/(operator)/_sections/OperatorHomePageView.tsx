@@ -44,6 +44,7 @@ import {
 import { OperatorHomePageHeader } from "./OperatorHomePageHeader";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
 import {
   OPERATOR_HOME_PRIMARY_CONTENT_ID,
   OPERATOR_HOME_SKIP_LINK_LABEL,
@@ -68,11 +69,19 @@ function OperatorHomePageChrome(props: {
   readonly buyerPolishedShell: boolean;
   readonly workingMode: boolean;
   readonly workspaceMetrics: ReturnType<typeof deriveOperatorHomeTenantCountingSnapshot>["metrics"];
+  readonly workspaceLabel: string | null;
 }): React.JSX.Element {
   return (
     <>
       <OperatorHomePageHeader
-        subtitle={operatorHomePageSubtitle(props.buyerPolishedShell, props.workingMode, props.workspaceMetrics) ?? ""}
+        subtitle={
+          operatorHomePageSubtitle(
+            props.buyerPolishedShell,
+            props.workingMode,
+            props.workspaceMetrics,
+            props.workspaceLabel,
+          ) ?? ""
+        }
       />
 </>
   );
@@ -144,6 +153,7 @@ function renderOperatorHomeSection(input: RenderOperatorHomeSectionInput): React
             hasCommittedManifest={input.workspaceMetrics.reviewPackagesCommitted > 0}
             hasActiveDeskWork={input.workspaceMetrics.reviewPackagesActive > 0}
             workingMode={input.workingMode}
+            pagePrimaryOwnedByHeader
           />
         </div>
       );
@@ -270,6 +280,8 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
   const evalChromeShell = useProductionEvalChrome();
   const { isWorkingMode } = useWorkspaceMode();
 
+  const scope = useOperatorScopeRecord();
+
   return (
     <OperatorHomeGateDeferred>
       <OperatorHomeRefreshProvider>
@@ -280,7 +292,7 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
         >
           {OPERATOR_HOME_SKIP_LINK_LABEL}
         </a>
-        <OperatorPageContainer variant="dashboard" className="space-y-4">
+        <OperatorPageContainer variant="full" className="space-y-4">
           <OperatorHomePageChrome
             buyerPolishedShell={evalChromeShell}
             workingMode={isWorkingMode}
@@ -288,6 +300,7 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
               displayItems: model.runsDashboard.items,
               previewItems: model.runsDashboard.items,
             }).metrics}
+            workspaceLabel={scope?.workspaceLabel ?? null}
           />
           <div
             id={OPERATOR_HOME_PRIMARY_CONTENT_ID}

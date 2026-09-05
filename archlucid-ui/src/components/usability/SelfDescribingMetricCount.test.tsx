@@ -13,10 +13,10 @@ describe("SelfDescribingMetricCount", () => {
       />,
     );
 
-    expect(screen.getByTestId("home-open-findings-metric-value")).toHaveAttribute(
+    expect(screen.getByTestId("home-open-findings-metric")).toHaveAttribute(
       "href",
       "/governance/findings?filter=open",
     );
-    expect(screen.getByText(/open findings · workspace · open/)).toBeInTheDocument();
+    expect(screen.getByText(/^open findings$/)).toBeInTheDocument();
   });
 });

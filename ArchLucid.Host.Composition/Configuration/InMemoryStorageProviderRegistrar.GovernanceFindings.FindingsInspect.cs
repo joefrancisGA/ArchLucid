@@ -6,6 +6,7 @@ using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Feedback;
 using ArchLucid.Core.GoToMarket;
 using ArchLucid.Core.Persistence.ApplicationPorts.Agents;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Persistence.ApplicationPorts.Findings;
 using ArchLucid.Core.Persistence.ApplicationPorts.Integrations;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
@@ -16,6 +17,7 @@ using ArchLucid.Decisioning.Repositories;
 using ArchLucid.Host.Composition.GoToMarket;
 using ArchLucid.Persistence.AdminNotifications;
 using ArchLucid.Persistence.Agents;
+using ArchLucid.Persistence.Architecture;
 using ArchLucid.Persistence.AzureExtractor;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Feedback;
@@ -82,6 +84,15 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<IRemediationPatternRepository, NoOpRemediationPatternRepository>();
         services.AddSingleton<IRemediationPatternMatchRepository, NoOpRemediationPatternMatchRepository>();
         services.AddSingleton<IRemediationInstanceRepository, NoOpRemediationInstanceRepository>();
-        services.AddSingleton<ITenantBrandingProfileRepository, InMemoryTenantBrandingProfileRepository>();
+        services.AddSingleton<IRemediationPrioritizationRepository, NoOpRemediationPrioritizationRepository>();
+        services.AddSingleton<IRemediationWaveRepository, NoOpRemediationWaveRepository>();
+        services.AddSingleton<IArchitectureDiagramModelRepository, NoOpArchitectureDiagramModelRepository>();
+        services.AddSingleton<IArchitectureDiagramReconciliationRepository, NoOpArchitectureDiagramReconciliationRepository>();
+        services.AddSingleton<InMemoryTenantBrandingProfileRepository>();
+        services.AddSingleton<ITenantBrandingProfileRepository>(static sp =>
+            new TenantBrandingProfileRepositoryWithCacheInvalidation(
+                sp.GetRequiredService<InMemoryTenantBrandingProfileRepository>(),
+                sp.GetRequiredService<ITenantBrandingCacheInvalidator>()));
+        services.AddSingleton<IBrandAssetRepository, InMemoryBrandAssetRepository>();
     }
 }

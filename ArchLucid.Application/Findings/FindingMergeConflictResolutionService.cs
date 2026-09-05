@@ -10,7 +10,7 @@ namespace ArchLucid.Application.Findings;
 
 public interface IFindingMergeConflictResolutionService
 {
-    Task<bool> TryResolveAsync(
+    Task<FindingMergeConflictResolveResult> TryResolveAsync(
         ScopeContext scope,
         Guid runId,
         string conflictFindingId,
@@ -23,10 +23,12 @@ public sealed partial class FindingMergeConflictResolutionService(
     IFindingsSnapshotRepository findingsSnapshotRepository) : IFindingMergeConflictResolutionService
 {
     private const string ConflictFindingType = "FindingMergeConflict";
+    private const string ResolvedConflictFindingType = "FindingMergeConflictResolved";
     private const string ConflictEngineType = "finding-merge-conflict";
+    private const string ResolutionActionPropertyKey = "findingMerge.resolutionAction";
     private static readonly Regex MemberFindingIdsRegex = MemberFindingIdsPattern();
 
-    public async Task<bool> TryResolveAsync(
+    public async Task<FindingMergeConflictResolveResult> TryResolveAsync(
         ScopeContext scope,
         Guid runId,
         string conflictFindingId,
@@ -39,44 +41,48 @@ public sealed partial class FindingMergeConflictResolutionService(
         RunRecord? run = await runRepository.GetByIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
 
         if (run?.FindingsSnapshotId is not Guid snapshotId)
-            return false;
+            return FindingMergeConflictResolveResult.NotFound;
 
         FindingsSnapshot? snapshot = await findingsSnapshotRepository
             .GetByIdAsync(scope, snapshotId, cancellationToken)
             .ConfigureAwait(false);
 
         if (snapshot?.Findings is not { Count: > 0 } findings)
-            return false;
+            return FindingMergeConflictResolveResult.NotFound;
 
-        Finding? conflictFinding = findings
+        Finding? existingConflictRow = findings
             .FirstOrDefault(finding =>
-                string.Equals(finding.FindingId, conflictFindingId, StringComparison.OrdinalIgnoreCase)
-                && string.Equals(finding.FindingType, ConflictFindingType, StringComparison.Ordinal));
+                string.Equals(finding.FindingId, conflictFindingId, StringComparison.OrdinalIgnoreCase));
 
-        if (conflictFinding is null)
-            return false;
+        if (existingConflictRow is null)
+            return FindingMergeConflictResolveResult.NotFound;
+
+        if (string.Equals(existingConflictRow.FindingType, ResolvedConflictFindingType, StringComparison.Ordinal))
+            return FindingMergeConflictResolveResult.AlreadyResolved;
+
+        if (!string.Equals(existingConflictRow.FindingType, ConflictFindingType, StringComparison.Ordinal))
+            return FindingMergeConflictResolveResult.NotFound;
+
+        Finding conflictFinding = existingConflictRow;
 
         List<string> memberFindingIds = ExtractMemberFindingIds(conflictFinding);
 
         if (memberFindingIds.Count == 0)
-            return false;
+            return FindingMergeConflictResolveResult.NotFound;
 
         List<Finding> members = findings
             .Where(finding => memberFindingIds.Contains(finding.FindingId ?? string.Empty, StringComparer.OrdinalIgnoreCase))
             .ToList();
 
         if (members.Count == 0)
-            return false;
+            return FindingMergeConflictResolveResult.NotFound;
 
         Finding primary = members
             .OrderBy(static finding => finding.EngineType ?? string.Empty, StringComparer.Ordinal)
             .ThenBy(static finding => finding.FindingId ?? string.Empty, StringComparer.Ordinal)
             .First();
 
-        HashSet<string> idsToRemove = new(StringComparer.Ordinal)
-        {
-            conflictFinding.FindingId ?? string.Empty,
-        };
+        HashSet<string> idsToRemove = new(StringComparer.Ordinal);
 
         if (action == FindingMergeConflictResolutionAction.AcceptPrimary)
         {
@@ -99,9 +105,22 @@ public sealed partial class FindingMergeConflictResolutionService(
             }
         }
 
-        snapshot.Findings = findings
+        List<Finding> updatedFindings = findings
             .Where(finding => !idsToRemove.Contains(finding.FindingId ?? string.Empty))
             .ToList();
+
+        Finding? resolvedConflict = updatedFindings
+            .FirstOrDefault(finding =>
+                string.Equals(finding.FindingId, conflictFinding.FindingId, StringComparison.OrdinalIgnoreCase));
+
+        if (resolvedConflict is null)
+            return FindingMergeConflictResolveResult.NotFound;
+
+        resolvedConflict.FindingType = ResolvedConflictFindingType;
+        resolvedConflict.Properties ??= new Dictionary<string, string>(StringComparer.Ordinal);
+        resolvedConflict.Properties[ResolutionActionPropertyKey] = action.ToString();
+
+        snapshot.Findings = updatedFindings;
 
         snapshot.EngineFailures = snapshot.EngineFailures
             .Where(failure => !string.Equals(failure.EngineType, ConflictEngineType, StringComparison.Ordinal))
@@ -109,7 +128,7 @@ public sealed partial class FindingMergeConflictResolutionService(
 
         await findingsSnapshotRepository.SaveAsync(snapshot, cancellationToken).ConfigureAwait(false);
 
-        return true;
+        return FindingMergeConflictResolveResult.Resolved;
     }
 
     private static List<string> ExtractMemberFindingIds(Finding conflictFinding)

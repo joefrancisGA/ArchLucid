@@ -112,10 +112,13 @@ public sealed class GovernanceStickinessControllerTests
         Mock<IFindingInspectReadRepository>? findingInspect = null,
         Mock<IRunRepository>? runRepository = null,
         IRealizedValueAttestationService? attestationService = null,
-        ITenantRepository? tenantRepository = null)
+        ITenantRepository? tenantRepository = null,
+        Mock<IReviewsAwaitingActionQueryService>? reviewsAwaiting = null)
     {
         Mock<IScopeContextProvider> scope = scopeProvider ?? new Mock<IScopeContextProvider>();
-        scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        if (scopeProvider is null)
+            scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
         Mock<IActorContext> actor = new();
         actor.Setup(a => a.GetActorId()).Returns("reviewer@test");
@@ -193,10 +196,13 @@ public sealed class GovernanceStickinessControllerTests
             .Setup(c => c.BuildSummaryAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GovernanceDecisionsNeededSummaryResponse());
 
-        Mock<IReviewsAwaitingActionQueryService> reviewsAwaiting = new();
-        reviewsAwaiting
-            .Setup(r => r.ListAsync(Scope, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GovernanceReviewsAwaitingActionResponse());
+        Mock<IReviewsAwaitingActionQueryService> reviewsAwaitingService = reviewsAwaiting ?? new Mock<IReviewsAwaitingActionQueryService>();
+        if (reviewsAwaiting is null)
+        {
+            reviewsAwaitingService
+                .Setup(r => r.ListAsync(Scope, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new GovernanceReviewsAwaitingActionResponse());
+        }
 
         Mock<IAuditService> audit = new();
         audit
@@ -216,7 +222,7 @@ public sealed class GovernanceStickinessControllerTests
                     runRepository?.Object ?? Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
                     Mock.Of<ArchLucid.Application.Findings.IFindingMergeConflictResolutionService>(),
                     digestComposer.Object,
-                    reviewsAwaiting.Object,
+                    reviewsAwaitingService.Object,
                     attestationService ?? Mock.Of<IRealizedValueAttestationService>(),
                     audit.Object,
                     findingInspect?.Object ?? Mock.Of<IFindingInspectReadRepository>(),
@@ -560,6 +566,159 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task GetReviewsAwaitingAction_returns_ok_when_scope_changes_despite_matching_empty_body_etag()
+    {
+        Guid tenantId = Scope.TenantId;
+        Guid projectId = Scope.ProjectId;
+        Guid workspaceA = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid workspaceB = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        ITenantRepository tenants = TenantExistsRepository(tenantId, workspaceA, workspaceB);
+
+        GovernanceStickinessController controllerA = BuildReviewsAwaitingController(
+            tenantId,
+            workspaceA,
+            projectId,
+            tenants);
+        IActionResult first = await controllerA.GetReviewsAwaitingAction(CancellationToken.None);
+        first.Should().BeOfType<OkObjectResult>();
+        string etag = controllerA.Response.Headers.ETag.ToString();
+        etag.Should().NotBeNullOrWhiteSpace();
+
+        GovernanceStickinessController controllerB = BuildReviewsAwaitingController(
+            tenantId,
+            workspaceB,
+            projectId,
+            tenants);
+        controllerB.ControllerContext.HttpContext.Request.Headers.IfNoneMatch = etag;
+
+        IActionResult second = await controllerB.GetReviewsAwaitingAction(CancellationToken.None);
+
+        second.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
+    public async Task GetDecisionsNeededSummary_returns_ok_when_workspace_changes_despite_matching_empty_body_etag()
+    {
+        Guid tenantId = Scope.TenantId;
+        Guid projectId = Scope.ProjectId;
+        Guid workspaceA = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid workspaceB = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        ITenantRepository tenants = TenantExistsRepository(tenantId, workspaceA, workspaceB);
+
+        GovernanceStickinessController controllerA = BuildDecisionsNeededSummaryController(
+            tenantId,
+            workspaceA,
+            projectId,
+            tenants);
+        IActionResult first = await controllerA.GetDecisionsNeededSummary(projectId: null, CancellationToken.None);
+        first.Should().BeOfType<OkObjectResult>();
+        string etag = controllerA.Response.Headers.ETag.ToString();
+        etag.Should().NotBeNullOrWhiteSpace();
+
+        GovernanceStickinessController controllerB = BuildDecisionsNeededSummaryController(
+            tenantId,
+            workspaceB,
+            projectId,
+            tenants);
+        controllerB.ControllerContext.HttpContext.Request.Headers.IfNoneMatch = etag;
+
+        IActionResult second = await controllerB.GetDecisionsNeededSummary(projectId: null, CancellationToken.None);
+
+        second.Should().BeOfType<OkObjectResult>();
+    }
+
+    private static ITenantRepository TenantExistsRepository(
+        Guid tenantId,
+        params Guid[] workspaceIds)
+    {
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = tenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(workspaceIds.Select(id => new TenantWorkspaceListItem
+            {
+                WorkspaceId = id,
+                Name = "workspace",
+            }).ToList());
+
+        return tenants.Object;
+    }
+
+    private static GovernanceStickinessController BuildReviewsAwaitingController(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        ITenantRepository? tenantRepository = null)
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        Mock<IReviewsAwaitingActionQueryService> reviewsAwaiting = new();
+        reviewsAwaiting
+            .Setup(r => r.ListAsync(scope, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceReviewsAwaitingActionResponse());
+
+        return BuildSut(
+            scopeProvider: scopeProvider,
+            reviewsAwaiting: reviewsAwaiting,
+            tenantRepository: tenantRepository ?? TenantExistsRepository());
+    }
+
+    private static GovernanceStickinessController BuildDecisionsNeededSummaryController(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        ITenantRepository? tenantRepository = null)
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        Mock<IGovernanceDigestDecisionNeededComposer> digestComposer = new();
+        digestComposer
+            .Setup(c => c.BuildSummaryAsync(tenantId, workspaceId, projectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceDecisionsNeededSummaryResponse());
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActorId()).Returns("reviewer@test");
+
+        Mock<IArchitectureRiskRegisterService> riskRegister = new();
+        riskRegister
+            .Setup(r => r.GetRegisterAsync(
+                tenantId,
+                workspaceId,
+                projectId,
+                It.IsAny<int>(),
+                It.IsAny<ArchitectureRiskRegisterListOptions?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRiskRegisterResponse());
+
+        return BuildController(
+            scopeProvider.Object,
+            actor.Object,
+            riskRegister.Object,
+            digestComposer.Object,
+            tenantRepository: tenantRepository ?? TenantExistsRepository());
+    }
+
+    [Fact]
     public async Task GetFindingsRegistersBundle_returns_not_found_when_tenant_missing()
     {
         GovernanceStickinessController sut = BuildSut(tenantRepository: TenantMissingRepository());
@@ -720,7 +879,7 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
-    public async Task RevokeRiskException_returns_conflict_when_waiver_is_already_revoked()
+    public async Task RevokeRiskException_returns_no_content_without_duplicate_audit_when_already_revoked_retry()
     {
         Guid exceptionId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
 
@@ -742,6 +901,9 @@ public sealed class GovernanceStickinessControllerTests
         repository
             .Setup(r => r.GetByIdAsync(Scope.TenantId, exceptionId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(revokedRecord);
+        repository
+            .Setup(r => r.MarkExpiredAsync(Scope.TenantId, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
 
         RiskExceptionService riskExceptionService = new(
             repository.Object,
@@ -771,8 +933,7 @@ public sealed class GovernanceStickinessControllerTests
 
         IActionResult action = await controller.RevokeRiskException(exceptionId, CancellationToken.None);
 
-        ObjectResult conflict = action.Should().BeOfType<ObjectResult>().Subject;
-        conflict.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        action.Should().BeOfType<NoContentResult>();
     }
 
     [Fact]

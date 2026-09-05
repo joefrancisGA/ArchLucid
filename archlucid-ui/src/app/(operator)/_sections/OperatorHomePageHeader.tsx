@@ -2,22 +2,20 @@
 
 import type { ReactNode } from "react";
 
+import { OperatorHomeWorkingPrimaryCta } from "@/components/operator-home/OperatorHomeWorkingPrimaryCta";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { RefreshButton } from "@/components/ui/refresh-button";
-import {
-  PageContextualHelpButton,
-  PAGE_HELP_SHORT_TRIGGER_TEXT,
-} from "@/components/usability/PageContextualHelpButton";
-import {
-  OPERATOR_HOME_DATA_CURRENCY_PREFIX,
-} from "@/lib/buyer/buyer-polish-copy";
+import { OPERATOR_HOME_DATA_CURRENCY_PREFIX } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_HOME_PAGE_TITLE } from "@/lib/operator/operator-home-page-copy";
 import { useOperatorHomeRefresh } from "@/lib/operator/operator-home-refresh-context";
 import {
   OPERATOR_NOT_REFRESHED_LABEL,
+  operatorHomeDataCurrencyStaleCue,
   operatorHomeDataCurrencyValue,
 } from "@/lib/operator/operator-last-refreshed-label";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 
 export type OperatorHomePageHeaderProps = {
   readonly subtitle: string;
@@ -36,18 +34,25 @@ function operatorHomeFreshnessContent(input: {
   }
 
   const value = operatorHomeDataCurrencyValue(input.lastRefreshedAt);
+  const staleCue = operatorHomeDataCurrencyStaleCue(input.lastRefreshedAt);
 
   return (
     <>
       <span className="text-al-text-secondary">{OPERATOR_HOME_DATA_CURRENCY_PREFIX}: </span>
       <strong className="font-semibold text-al-text-primary">{value}</strong>
+      {staleCue !== null ? (
+        <span className="ml-1 font-medium text-[var(--al-status-needs-attention-fg)]" data-testid="operator-home-data-stale-cue">
+          {staleCue}
+        </span>
+      ) : null}
     </>
   );
 }
 
-/** Shared `/` Overview hero — title, lead, contextual help, refresh, and data-currency timestamp. */
+/** Shared `/` Overview hero — title, lead, refresh, data-currency timestamp, and resume/start primary. */
 export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): React.JSX.Element {
   const { refreshing, lastRefreshedAt, requestRefresh } = useOperatorHomeRefresh();
+  const { isWorkingMode } = useWorkspaceMode();
   const freshnessContent = operatorHomeFreshnessContent({
     lastRefreshedAt: refreshing ? null : lastRefreshedAt,
     refreshing,
@@ -71,7 +76,7 @@ export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): Reac
       }
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="operator-home-header-actions">
-          <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+          <PageContextualHelpButton />
           <RefreshButton
             data-testid="operator-home-refresh-button"
             busy={refreshing}
@@ -79,6 +84,11 @@ export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): Reac
           />
         </div>
       }
-    />
+    >
+      <OperatorHomeWorkingPrimaryCta
+        variant="primary"
+        showNewReviewWhenResuming={isWorkingMode}
+      />
+    </OperatorPageHeader>
   );
 }

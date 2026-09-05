@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { FilterChip } from "@/components/ui/filter-chip";
@@ -25,6 +26,7 @@ import {
 } from "@/lib/graph-view-model-export";
 import { graphViewModelFilteredByNodeType } from "@/lib/graph-view-model-type-filter";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { graphScopeModeHrefFromSearch } from "@/lib/insights/graph-scope-mode-url";
 import { graphNodeTypeHrefFromSearch } from "@/lib/insights/graph-node-type-url";
@@ -43,6 +45,7 @@ export type GraphLoadedExperienceProps = {
   onTypeFilterChange: (value: string) => void;
   nodeTypes: string[];
   runId: string;
+  manifestVersion?: string | null;
   mode: GraphMode;
   onModeChange: (mode: GraphMode) => void;
   loading: boolean;
@@ -69,6 +72,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
     onTypeFilterChange,
     nodeTypes,
     runId,
+    manifestVersion = null,
     mode,
     onModeChange,
     loading,
@@ -84,12 +88,28 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
 
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
+  const [exportError, setExportError] = useState<string | null>(null);
   const currentSearch = searchParams.toString();
   const runTrim = runId.trim();
   const showcaseRun = canonicalizeDemoRunId(runTrim) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
   const buyerTrailPresentation = demoUi || (buyerPolishedShell && showcaseRun);
   const reviewPackageHref =
     runTrim.length > 0 ? `/architecture/reviews/${encodeURIComponent(runTrim)}` : "/architecture/reviews";
+
+  function ensureGraphExportAllowed(): boolean {
+    const blockedReason = runCollateralSealedManifestCopyBlockedReason({
+      runId: runTrim,
+      manifestVersion,
+    });
+
+    if (blockedReason !== null) {
+      setExportError(blockedReason);
+      return false;
+    }
+
+    setExportError(null);
+    return true;
+  }
 
   const operatorGraphCanvas = (
     <>
@@ -125,6 +145,10 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
             size="sm"
             aria-label="Download the visible graph as JSON"
             onClick={() => {
+              if (!ensureGraphExportAllowed()) {
+                return;
+              }
+
               const slug = safeGraphExportFilenameSegment(runTrim);
               const stamp = new Date().toISOString().replace(/[:.]/g, "-");
               const metaUtc = new Date().toISOString();
@@ -151,6 +175,10 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
             size="sm"
             aria-label="Download a Mermaid flowchart for the visible graph"
             onClick={() => {
+              if (!ensureGraphExportAllowed()) {
+                return;
+              }
+
               const slug = safeGraphExportFilenameSegment(runTrim);
               const stamp = new Date().toISOString().replace(/[:.]/g, "-");
               const snapshot = graphViewModelFilteredByNodeType(graph, typeFilter);
@@ -170,6 +198,10 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
             size="sm"
             aria-label="Download the visible graph as PNG"
             onClick={async () => {
+              if (!ensureGraphExportAllowed()) {
+                return;
+              }
+
               const element = document.getElementById("knowledge-graph-canvas");
 
               if (element) {
@@ -190,6 +222,15 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
             Export PNG
           </Button>
         </div>
+        {exportError !== null ? (
+          <p
+            role="alert"
+            className={cn("m-0 w-full text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="graph-export-error"
+          >
+            {exportError}
+          </p>
+        ) : null}
       </div>
       <GraphInteractiveCanvas
         graphSurfaceKey={graphSurfaceKey}

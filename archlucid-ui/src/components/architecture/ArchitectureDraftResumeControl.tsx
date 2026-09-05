@@ -28,7 +28,7 @@ import { architectureDraftPath, startReviewFromArchitectureHref } from "@/lib/ar
 import type { DraftRequestStatus } from "@/types/draft-intake";
 
 type ArchitectureDraftResumeControlProps = {
-  readonly architectureId: string;
+  readonly draftId: string;
   readonly label: string;
   readonly source: ArchitectureDraftResumeSource;
   readonly testId?: string;
@@ -60,14 +60,14 @@ export function ArchitectureDraftResumeControl(
         architectureDraftIntakeModeConfirmHrefFromSearch(
           searchParams.toString(),
           open
-            ? { confirmOpen: true, draftId: props.architectureId }
+            ? { confirmOpen: true, draftId: props.draftId }
             : { confirmOpen: false, draftId: null },
           pathname,
         ),
         { scroll: false },
       );
     },
-    [pathname, props.architectureId, router, searchParams],
+    [pathname, props.draftId, router, searchParams],
   );
 
   const setDialogOpen = useCallback(
@@ -86,7 +86,7 @@ export function ArchitectureDraftResumeControl(
     const confirmOpen = parseArchitectureDraftIntakeModeConfirmOpenFromSearch(intakeModeConfirmParam);
     const draftId = parseArchitectureDraftIntakeModeDraftIdFromSearch(intakeModeDraftIdParam);
 
-    if (!confirmOpen || draftId.length === 0 || draftId !== props.architectureId) {
+    if (!confirmOpen || draftId.length === 0 || draftId !== props.draftId) {
       setDialogOpenState(false);
 
       return;
@@ -94,7 +94,7 @@ export function ArchitectureDraftResumeControl(
 
     let cancelled = false;
 
-    void getDraftRequest(props.architectureId)
+    void getDraftRequest(props.draftId)
       .then((draft) => {
         if (cancelled) {
           return;
@@ -116,28 +116,28 @@ export function ArchitectureDraftResumeControl(
     return () => {
       cancelled = true;
     };
-  }, [intakeModeConfirmParam, intakeModeDraftIdParam, props.architectureId]);
+  }, [intakeModeConfirmParam, intakeModeDraftIdParam, props.draftId]);
 
   const openDraft = useCallback(() => {
-    router.push(architectureDraftPath(props.architectureId));
-  }, [props.architectureId, router]);
+    router.push(architectureDraftPath(props.draftId));
+  }, [props.draftId, router]);
 
   const handleClick = useCallback(async () => {
     if (busy) {
       return;
     }
 
-    trackArchitectureDraftResumeClick(props.source, props.architectureId);
+    trackArchitectureDraftResumeClick(props.source, props.draftId);
     setInlineError(null);
     setBusy(true);
 
     try {
-      const draft = await getDraftRequest(props.architectureId);
+      const draft = await getDraftRequest(props.draftId);
 
       if (isGuidedIntakeAccessBlocked(draft.status)) {
         router.push(
           resolveGuidedIntakeBlockedRedirectHref(
-            props.architectureId,
+            props.draftId,
             architectureDraftSpawnedRunId(draft),
           ),
         );
@@ -160,12 +160,12 @@ export function ArchitectureDraftResumeControl(
     } finally {
       setBusy(false);
     }
-  }, [busy, openDraft, props.architectureId, props.source, router, setDialogOpen]);
+  }, [busy, openDraft, props.draftId, props.source, router, setDialogOpen]);
 
   const handleContinueIntake = useCallback(() => {
     setDialogOpen(false);
-    router.push(startReviewFromArchitectureHref(props.architectureId));
-  }, [props.architectureId, router, setDialogOpen]);
+    router.push(startReviewFromArchitectureHref(props.draftId));
+  }, [props.draftId, router, setDialogOpen]);
 
   const handleUnlock = useCallback(async () => {
     if (!architectureDraftAllowsBriefUnlock(status)) {
@@ -176,7 +176,7 @@ export function ArchitectureDraftResumeControl(
     setBusy(true);
 
     try {
-      await reopenDraftRequest(props.architectureId);
+      await reopenDraftRequest(props.draftId);
       setDialogOpen(false);
       openDraft();
     } catch (error) {
@@ -187,7 +187,7 @@ export function ArchitectureDraftResumeControl(
     } finally {
       setBusy(false);
     }
-  }, [openDraft, props.architectureId, setDialogOpen, status]);
+  }, [openDraft, props.draftId, setDialogOpen, status]);
 
   const inlineErrorTestId = props.testId
     ? `${props.testId}-inline-error`

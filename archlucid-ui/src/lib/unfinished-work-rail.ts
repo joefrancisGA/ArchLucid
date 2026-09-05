@@ -208,7 +208,7 @@ function buildDraftItems(
   return drafts
     .filter((entry) => entry.customerStatus !== "archived")
     .filter((entry) => !architectureDraftHasLinkedReview(entry))
-    .filter((entry) => (entry.architectureId?.trim().length ?? 0) > 0)
+    .filter((entry) => (entry.draftId?.trim().length ?? 0) > 0)
     .map((entry) => {
       const statusLabel =
         entry.customerStatus === "draft"
@@ -218,10 +218,10 @@ function buildDraftItems(
       const draftPrimary = resolveOperatorHomeLatestDraftPrimaryAction(entry);
 
       return buildRailItemBase({
-        id: `architecture-draft:${entry.architectureId}`,
+        id: `architecture-draft:${entry.draftId}`,
         kind: "architecture-draft" as const,
         title: entry.displayName.trim().length > 0 ? entry.displayName : "Untitled architecture",
-        href: draftPrimary?.href ?? architectureDraftPath(entry.architectureId),
+        href: draftPrimary?.href ?? architectureDraftPath(entry.draftId),
         statusLabel,
         updatedUtc: entry.lastUpdatedUtc,
       });
@@ -255,7 +255,7 @@ function buildRunItems(runs: readonly RunSummary[]): UnfinishedWorkRailItem[] {
           kind: "awaiting-disposition",
           title: resolveReviewTitle(run),
           href: reviewDetailPath(runId),
-          statusLabel: resolveRunRailStatusLabel(run),
+          statusLabel: UNFINISHED_WORK_RAIL_STATUS_LABELS["awaiting-disposition"],
           updatedUtc: run.createdUtc ?? null,
         }),
       );
@@ -269,7 +269,7 @@ function buildRunItems(runs: readonly RunSummary[]): UnfinishedWorkRailItem[] {
           kind: "review-in-progress",
           title: resolveReviewTitle(run),
           href: reviewDetailPath(runId),
-          statusLabel: resolveRunRailStatusLabel(run),
+          statusLabel: UNFINISHED_WORK_RAIL_STATUS_LABELS["review-in-progress"],
           updatedUtc: run.createdUtc ?? null,
         }),
       );

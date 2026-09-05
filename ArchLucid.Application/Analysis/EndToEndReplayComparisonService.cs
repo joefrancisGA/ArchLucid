@@ -107,6 +107,8 @@ public sealed class EndToEndReplayComparisonService(
                 "Compare blocked: create-time pin fingerprints differ between the selected runs."),
             ScopedRunPairLoadOutcome.CommittedArtifactInventoryMismatch => throw new ConflictException(
                 "Compare blocked: committed artifact inventory fingerprints differ between the selected runs."),
+            ScopedRunPairLoadOutcome.SealedManifestHashMismatch => throw new ConflictException(
+                "Compare blocked: sealed manifest hash verification failed for one or both selected runs."),
             _ => throw new InvalidOperationException($"Unexpected run-pair load outcome: {loadResult.Outcome}."),
         };
     }

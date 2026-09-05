@@ -50,6 +50,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<TemplateProvider>();
         services.AddSingleton(TimeProvider.System);
         services.Configure<DemoOptions>(configuration.GetSection(DemoOptions.SectionName));
+        services.Configure<DiagramVisionOptions>(configuration.GetSection(DiagramVisionOptions.SectionName));
         services.Configure<OutboundExternalHttpResilienceOptions>(
             configuration.GetSection(OutboundExternalHttpResilienceOptions.SectionName));
         services.PostConfigure<OutboundExternalHttpResilienceOptions>(static o => o.Normalize());
@@ -119,6 +120,7 @@ public static partial class ServiceCollectionExtensions
         RegisterIntegrationEventPublishing(services, configuration);
         AlertsCompositionModule.Register(services, configuration);
         PipelineCompositionModule.Register(services, configuration);
+        InfraEvidenceCompositionModule.Register(services);
         RegisterDecisioningEngines(services, configuration);
         CoordinatorArtifactsCompositionModule.Register(services, configuration);
         AgentCompositionModule.Register(services, configuration);

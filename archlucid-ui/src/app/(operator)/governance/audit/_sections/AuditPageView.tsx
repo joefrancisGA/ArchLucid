@@ -55,6 +55,7 @@ import { AuditResultsSection } from "./AuditResultsSection";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { AuditPickReviewBeforeSearchStrip } from "./AuditPickReviewBeforeSearchStrip";
 import { AuditNextReviewFooterClient } from "./AuditNextReviewFooterClient";
+import { AuditPageTechnicalDetailsDisclosure } from "./AuditPageTechnicalDetailsDisclosure";
 import { AuditSaveViewCoach } from "./AuditSaveViewCoach";
 import { AuditSearchSection } from "./AuditSearchSection";
 import type { AuditPageViewProps } from "./audit-page-view-props";
@@ -126,14 +127,10 @@ export function AuditPageView(props: AuditPageViewProps) {
         breadcrumb={buyerPolishedShell ? <AuditPageBreadcrumb /> : undefined}
         metadata={
           buyerPolishedShell && isTechnicalAuditRunIdentifier(effectiveRunId) ? (
-            <details data-testid="audit-page-technical-details">
-              <summary className={cn("cursor-pointer", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
-                {AUDIT_TRAIL_TECHNICAL_DETAILS_TITLE}
-              </summary>
-              <span className={cn("mt-1 block", OPERATOR_TYPOGRAPHY.helper)}>
-                Review id: <code>{effectiveRunId}</code>
-              </span>
-            </details>
+            <AuditPageTechnicalDetailsDisclosure
+              title={AUDIT_TRAIL_TECHNICAL_DETAILS_TITLE}
+              runId={effectiveRunId}
+            />
           ) : null
         }
         actions={

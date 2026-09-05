@@ -45,7 +45,7 @@ export function resolveOperatorHomeLatestDraftPrimaryAction(
     return null;
   }
 
-  const architectureId = entry.architectureId.trim();
+  const architectureId = entry.draftId.trim();
 
   if (architectureId.length === 0) {
     return null;

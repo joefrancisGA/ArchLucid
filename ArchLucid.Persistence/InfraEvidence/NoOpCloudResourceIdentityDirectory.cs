@@ -48,6 +48,12 @@ public sealed class NoOpCloudResourceIdentityDirectory : ICloudResourceIdentityD
         CancellationToken cancellationToken = default)
         => Task.FromResult<CloudResourceIdentityRecord?>(null);
 
+    public Task<CloudResourceIdentityRecord?> TryGetByCloudResourceIdAsync(
+        ScopeContext scope,
+        Guid cloudResourceId,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<CloudResourceIdentityRecord?>(null);
+
     public Task UpdateResourceCloudResourceIdAsync(
         ScopeContext scope,
         Guid resourceRowId,

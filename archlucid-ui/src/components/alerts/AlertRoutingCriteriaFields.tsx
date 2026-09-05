@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useId, useState } from "react";
+import { useId, useState, useCallback, useEffect } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import type { AlertRoutingCriteria } from "@/lib/alert-routing-criteria";
 import { ALERT_ROUTING_SEVERITY_OPTIONS } from "@/lib/alert-routing-criteria";
@@ -12,6 +13,11 @@ import {
 } from "@/lib/alert-routing-finding-type-labels";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { ReviewLabelTokenInput } from "@/components/alerts/ReviewLabelTokenInput";
+import {
+  alertRoutingCriteriaHrefFromSearch,
+  parseAlertRoutingAdvancedOpenFromSearch,
+  parseAlertRoutingExactSeveritiesOpenFromSearch,
+} from "@/lib/alerts/alert-routing-criteria-url";
 
 export type AlertRoutingCriteriaFieldsProps = {
   criteria: AlertRoutingCriteria;
@@ -84,10 +90,57 @@ export function AlertRoutingCriteriaFields({
   disabled = false,
   disabledTitle,
 }: AlertRoutingCriteriaFieldsProps) {
-  const [showAdvancedCategories, setShowAdvancedCategories] = useState(false);
-  const [showExactSeverities, setShowExactSeverities] = useState(criteria.severities.length > 0);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const alertRoutingAdvancedOpenParam = searchParams.get("alertRoutingAdvancedOpen");
+  const alertRoutingExactSeveritiesOpenParam = searchParams.get("alertRoutingExactSeveritiesOpen");
+  const [showAdvancedCategories, setShowAdvancedCategoriesState] = useState(() =>
+    parseAlertRoutingAdvancedOpenFromSearch(alertRoutingAdvancedOpenParam),
+  );
+  const [showExactSeverities, setShowExactSeveritiesState] = useState(
+    () =>
+      parseAlertRoutingExactSeveritiesOpenFromSearch(alertRoutingExactSeveritiesOpenParam) ||
+      criteria.severities.length > 0,
+  );
   const reviewLabelsHelperId = useId();
   const reviewLabelsInputId = useId();
+
+  const syncCriteriaPanelsToUrl = useCallback(
+    (next: { showAdvancedCategories: boolean; showExactSeverities: boolean }) => {
+      router.replace(
+        alertRoutingCriteriaHrefFromSearch(searchParams.toString(), next, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setShowAdvancedCategories = useCallback(
+    (value: boolean) => {
+      setShowAdvancedCategoriesState(value);
+      syncCriteriaPanelsToUrl({ showAdvancedCategories: value, showExactSeverities });
+    },
+    [showExactSeverities, syncCriteriaPanelsToUrl],
+  );
+
+  const setShowExactSeverities = useCallback(
+    (value: boolean) => {
+      setShowExactSeveritiesState(value);
+      syncCriteriaPanelsToUrl({ showAdvancedCategories, showExactSeverities: value });
+    },
+    [showAdvancedCategories, syncCriteriaPanelsToUrl],
+  );
+
+  useEffect(() => {
+    setShowAdvancedCategoriesState(parseAlertRoutingAdvancedOpenFromSearch(alertRoutingAdvancedOpenParam));
+  }, [alertRoutingAdvancedOpenParam]);
+
+  useEffect(() => {
+    if (alertRoutingExactSeveritiesOpenParam !== null) {
+      setShowExactSeveritiesState(parseAlertRoutingExactSeveritiesOpenFromSearch(alertRoutingExactSeveritiesOpenParam));
+    }
+  }, [alertRoutingExactSeveritiesOpenParam]);
 
   return (
     <div className="space-y-5">

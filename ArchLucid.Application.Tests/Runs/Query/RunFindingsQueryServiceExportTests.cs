@@ -98,6 +98,8 @@ public sealed class RunFindingsQueryServiceExportTests
                         Jira = new JiraItsmOutboundOptions { CloudBaseUrl = "https://example.atlassian.net" }
                     })),
                 scopeProvider.Object,
+                Mock.Of<IAuthorityQueryService>(),
+                Mock.Of<IManifestHashService>(),
                 new ExportFormatterService()),
             new RunFindingsInspectStage(
                 Mock.Of<IRunRepository>(),

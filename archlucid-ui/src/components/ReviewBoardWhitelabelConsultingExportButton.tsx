@@ -29,9 +29,11 @@ import {
   parseReviewConsultingExportOpenFromSearch,
   reviewConsultingExportPanelsHrefFromSearch,
 } from "@/lib/reviews/review-consulting-export-panels-url";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
 export type ReviewBoardWhitelabelConsultingExportButtonProps = {
   runId: string;
+  readonly manifestVersion?: string | null;
 };
 
 async function readImageFileAsRawBase64(file: File): Promise<string> {
@@ -67,7 +69,7 @@ async function readImageFileAsRawBase64(file: File): Promise<string> {
 export function ReviewBoardWhitelabelConsultingExportButton(
   props: ReviewBoardWhitelabelConsultingExportButtonProps,
 ): ReactElement | null {
-  const { runId } = props;
+  const { runId, manifestVersion = null } = props;
   const { currentPrincipal } = useOperatorNavAuthority();
   const router = useRouter();
   const pathname = usePathname() ?? `/architecture/reviews/${runId}`;
@@ -80,6 +82,10 @@ export function ReviewBoardWhitelabelConsultingExportButton(
   const [firmDisplayName, setFirmDisplayName] = useState("");
   const [engagementTitle, setEngagementTitle] = useState("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
+    runId,
+    manifestVersion,
+  });
 
   const resetForm = useCallback(() => {
     setFirmDisplayName("");
@@ -125,6 +131,10 @@ export function ReviewBoardWhitelabelConsultingExportButton(
   }
 
   async function onConfirmExport(): Promise<void> {
+    if (sealedManifestBlockedReason !== null) {
+      return;
+    }
+
     recordFirstExportOpenedOnce();
     setBusy(true);
 
@@ -164,18 +174,30 @@ export function ReviewBoardWhitelabelConsultingExportButton(
 
   return (
     <>
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        data-testid="open-whitelabel-consulting-export"
-        className="h-9"
-        onClick={() => {
-          setOpen(true);
-        }}
-      >
-        Firm-branded consulting export
-      </Button>
+      <div className="flex flex-col gap-1">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          data-testid="open-whitelabel-consulting-export"
+          className="h-9"
+          disabled={sealedManifestBlockedReason !== null}
+          onClick={() => {
+            setOpen(true);
+          }}
+        >
+          Firm-branded consulting export
+        </Button>
+        {sealedManifestBlockedReason !== null ? (
+          <p
+            role="alert"
+            className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="whitelabel-consulting-export-blocked-reason"
+          >
+            {sealedManifestBlockedReason}
+          </p>
+        ) : null}
+      </div>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-lg gap-4" data-testid="whitelabel-export-modal">
           <DialogHeader>

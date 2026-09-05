@@ -270,6 +270,110 @@
           "Azure"
         ]
       }
+    },
+    {
+      "id": "cis-az-012",
+      "title": "SQL public network access restricted",
+      "description": "SQL endpoints must not expose public network access (PP-01 Option B pilot catalog extension). Thematic mapping only — not certification.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CIS Azure Foundations Benchmark",
+          "theme": "Networking"
+        }
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Azure"
+        ]
+      }
+    },
+    {
+      "id": "cis-az-018",
+      "title": "Key Vault network access restricted",
+      "description": "Key Vault must restrict public network access (PP-01 Option B pilot catalog extension). Thematic mapping only — not certification.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CIS Azure Foundations Benchmark",
+          "theme": "Networking"
+        }
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Azure"
+        ]
+      }
+    },
+    {
+      "id": "cis-az-025",
+      "title": "App Service HTTPS only and TLS minimum",
+      "description": "App Service must enforce HTTPS-only and minimum TLS (PP-01 Option B pilot catalog extension). Thematic mapping only — not certification.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CIS Azure Foundations Benchmark",
+          "theme": "Networking"
+        }
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Azure"
+        ]
+      }
+    },
+    {
+      "id": "cis-az-027",
+      "title": "Container registry public access disabled",
+      "description": "Container registries must disable anonymous public pull (PP-01 Option B pilot catalog extension). Thematic mapping only — not certification.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CIS Azure Foundations Benchmark",
+          "theme": "Security"
+        }
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Azure"
+        ]
+      }
     }
   ]
 }

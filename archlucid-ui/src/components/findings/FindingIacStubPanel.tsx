@@ -11,10 +11,12 @@ import { getRunDetail } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { coerceRunDetail } from "@/lib/operator/operator-response-guards";
 import { extractIacStubForFinding } from "@/lib/quick-decision-summary-derive";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
 type FindingIacStubPanelProps = {
   readonly runId: string;
   readonly findingId: string;
+  readonly manifestVersion?: string | null;
   readonly initialIacStub?: string | null;
 };
 
@@ -34,6 +36,7 @@ export function FindingIacStubPanel(props: FindingIacStubPanelProps) {
   const [error, setError] = useState<{ message: string; correlationId: string | null } | null>(null);
 
   const [hasCopied, setHasCopied] = useState(false);
+  const [copyError, setCopyError] = useState<string | null>(null);
 
   async function loadStub(): Promise<void> {
     if (loaded || busy) {
@@ -110,9 +113,23 @@ export function FindingIacStubPanel(props: FindingIacStubPanelProps) {
             variant="outline"
             size="sm"
             onClick={() => {
+              const blockedReason = runCollateralSealedManifestCopyBlockedReason({
+                runId: props.runId,
+                manifestVersion: props.manifestVersion,
+              });
+
+              if (blockedReason !== null) {
+                setCopyError(blockedReason);
+                return;
+              }
+
+              setCopyError(null);
+
               void navigator.clipboard.writeText(iacStub).then(() => {
                 setHasCopied(true);
                 setTimeout(() => setHasCopied(false), 2000);
+              }).catch(() => {
+                setCopyError("Clipboard unavailable — select the stub above and copy manually.");
               });
             }}
           >
@@ -138,6 +155,15 @@ export function FindingIacStubPanel(props: FindingIacStubPanelProps) {
               "Copy to Clipboard"
             )}
           </Button>
+          {copyError !== null ? (
+            <p
+              role="alert"
+              className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="finding-iac-stub-copy-error"
+            >
+              {copyError}
+            </p>
+          ) : null}
         </div>
       ) : null}
 

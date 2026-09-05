@@ -5,12 +5,12 @@ import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architec
 import { writeArchitectureCreationDraftId } from "@/lib/architecture/architecture-creation-session";
 
 function entry(
-  architectureId: string,
+  draftId: string,
   status: ArchitectureDraftRegistryEntry["customerStatus"] = "draft",
 ): ArchitectureDraftRegistryEntry {
   return {
-    architectureId,
-    displayName: `Draft ${architectureId}`,
+    draftId,
+    displayName: `Draft ${draftId}`,
     customerStatus: status,
     ownerLabel: "Owner",
     lastUpdatedUtc: "2026-01-02T00:00:00.000Z",
@@ -27,7 +27,7 @@ describe("architecture-draft-continue-last", () => {
       resolveContinueLastArchitectureDraftEntry([
         entry("draft-other"),
         entry("draft-session"),
-      ])?.architectureId,
+      ])?.draftId,
     ).toBe("draft-session");
   });
 
@@ -35,7 +35,7 @@ describe("architecture-draft-continue-last", () => {
     const newer = entry("draft-newer");
     const older = { ...entry("draft-older"), lastUpdatedUtc: "2026-01-01T00:00:00.000Z" };
 
-    expect(resolveContinueLastArchitectureDraftEntry([older, newer])?.architectureId).toBe("draft-newer");
+    expect(resolveContinueLastArchitectureDraftEntry([older, newer])?.draftId).toBe("draft-newer");
   });
 
   it("ignores archived drafts remembered in session when no active drafts remain", () => {
@@ -51,7 +51,7 @@ describe("architecture-draft-continue-last", () => {
       resolveContinueLastArchitectureDraftEntry([
         entry("draft-archived", "archived"),
         entry("draft-active"),
-      ])?.architectureId,
+      ])?.draftId,
     ).toBe("draft-active");
   });
 });

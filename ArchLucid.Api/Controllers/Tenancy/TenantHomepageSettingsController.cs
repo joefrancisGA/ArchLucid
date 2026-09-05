@@ -122,23 +122,28 @@ public sealed class TenantHomepageSettingsController(
 
         string actor = User?.Identity?.Name ?? "operator";
         FeaturedCompletedSampleSnapshot snapshot;
+        FeaturedCompletedSampleSnapshot before =
+            await _featuredCompletedSampleService.GetSnapshotAsync(cancellationToken).ConfigureAwait(false);
 
         if (!body.SelectedRunId.HasValue)
         {
             snapshot = await _featuredCompletedSampleService.ClearSelectionAsync(cancellationToken).ConfigureAwait(false);
 
-            await _auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.TenantHomepageSettingsUpdated,
-                    ActorUserId = actor,
-                    ActorUserName = actor,
-                    TenantId = scope.TenantId,
-                    WorkspaceId = scope.WorkspaceId,
-                    ProjectId = scope.ProjectId,
-                    DataJson = JsonSerializer.Serialize(new { selectedRunId = (Guid?)null, cleared = true }),
-                },
-                cancellationToken).ConfigureAwait(false);
+            if (before.IsConfigured)
+            {
+                await _auditService.LogAsync(
+                    new AuditEvent
+                    {
+                        EventType = AuditEventTypes.TenantHomepageSettingsUpdated,
+                        ActorUserId = actor,
+                        ActorUserName = actor,
+                        TenantId = scope.TenantId,
+                        WorkspaceId = scope.WorkspaceId,
+                        ProjectId = scope.ProjectId,
+                        DataJson = JsonSerializer.Serialize(new { selectedRunId = (Guid?)null, cleared = true }),
+                    },
+                    cancellationToken).ConfigureAwait(false);
+            }
 
             return Ok(ProjectResponse(snapshot));
         }
@@ -158,24 +163,29 @@ public sealed class TenantHomepageSettingsController(
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.TenantHomepageSettingsUpdated,
-                ActorUserId = actor,
-                ActorUserName = actor,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        selectedRunId = snapshot.SelectedRunId,
-                        isAvailable = snapshot.IsAvailable,
-                        isSampleApproved = snapshot.IsSampleApproved,
-                    }),
-            },
-            cancellationToken).ConfigureAwait(false);
+        bool isIdenticalRetry = before.IsConfigured && before.SelectedRunId == body.SelectedRunId.Value;
+
+        if (!isIdenticalRetry)
+        {
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.TenantHomepageSettingsUpdated,
+                    ActorUserId = actor,
+                    ActorUserName = actor,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            selectedRunId = snapshot.SelectedRunId,
+                            isAvailable = snapshot.IsAvailable,
+                            isSampleApproved = snapshot.IsSampleApproved,
+                        }),
+                },
+                cancellationToken).ConfigureAwait(false);
+        }
 
         return Ok(ProjectResponse(snapshot));
     }

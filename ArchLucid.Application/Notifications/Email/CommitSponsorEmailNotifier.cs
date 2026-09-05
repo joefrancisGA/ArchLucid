@@ -1,10 +1,13 @@
 using System.Net;
 
+using ArchLucid.Application;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.Notifications.Email;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -15,6 +18,8 @@ public sealed class CommitSponsorEmailNotifier(
     ITenantTrialEmailContactLookup contactLookup,
     IEmailProvider emailProvider,
     IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     ILogger<CommitSponsorEmailNotifier> logger) : ICommitSponsorEmailNotifier
 {
     private const string DefaultProductName = "ArchLucid";
@@ -25,6 +30,13 @@ public sealed class CommitSponsorEmailNotifier(
         emailOptionsMonitor ?? throw new ArgumentNullException(nameof(emailOptionsMonitor));
 
     private readonly IEmailProvider _emailProvider = emailProvider ?? throw new ArgumentNullException(nameof(emailProvider));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
     private readonly ILogger<CommitSponsorEmailNotifier> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc/>
@@ -46,6 +58,27 @@ public sealed class CommitSponsorEmailNotifier(
         }
 
         string trimmedRunId = runId.Trim();
+
+        try
+        {
+            await CommitSponsorEmailDispatchSealedManifestHashGuard.EnsureRunSealedOrThrowAsync(
+                tenantId,
+                trimmedRunId,
+                _authorityQueryService,
+                _manifestHashService,
+                cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+                _logger.LogWarning(
+                    ex,
+                    "Commit sponsor email skipped: sealed manifest hash verification failed for tenant {TenantId}, run {RunId}.",
+                    tenantId,
+                    LogSanitizer.Sanitize(trimmedRunId));
+            return;
+        }
+
         string? to = await _contactLookup.TryResolveAdminEmailAsync(tenantId, cancellationToken).ConfigureAwait(false);
 
         if (string.IsNullOrWhiteSpace(to)

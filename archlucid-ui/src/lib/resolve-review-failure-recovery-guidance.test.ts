@@ -143,15 +143,16 @@ describe("resolveReviewFailureRecoveryGuidance", () => {
     expect(guidance?.adminHandoff).toBeNull();
   });
 
-  it("returns quality-gate recovery steps for quality-rejected runs", () => {
+  it("returns circuit-breaker recovery that matches the hosted break duration", () => {
     const guidance = resolveReviewFailureRecoveryGuidance({
-      diagnosticContext: { legacyRunStatus: "ExecutionCompletedQualityRejected" },
-      lastFailureSummary: { failureClass: "qualityGate", triageScenarioId: "groundingInsufficiency" },
+      diagnosticContext: { legacyRunStatus: "Failed" },
+      lastFailureSummary: { failureClass: "circuitBreaker" },
       summary: null,
+      canConfigureWorkspaceAi: true,
     });
 
-    expect(guidance?.severity).toBe("warning");
-    expect(guidance?.recoverySteps.join(" ")).toContain("Evidence tab");
-    expect(guidance?.adminHandoff).toBeNull();
+    expect(guidance?.recoverySteps.join(" ")).toContain("Wait about one minute");
+    expect(guidance?.recoverySteps.join(" ")).toContain("AI provider may be offline");
+    expect(guidance?.suggestSupportTicket).toBe(false);
   });
 });

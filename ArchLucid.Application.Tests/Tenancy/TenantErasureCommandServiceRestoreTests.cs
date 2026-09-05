@@ -57,6 +57,43 @@ public sealed class TenantErasureCommandServiceRestoreTests
         tenant.TenantErasureApprovedByUserId.Should().BeNull();
     }
 
+    [Fact]
+    public async Task TryRestoreQuarantineAsync_clears_suspend_set_during_offboard()
+    {
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset now = new(2026, 8, 23, 12, 0, 0, TimeSpan.Zero);
+        FakeTimeProvider clock = new(now);
+
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            tenantId,
+            "Restore Tenant",
+            "restore-" + Guid.NewGuid().ToString("N")[..8],
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+
+        TenantErasureCommandService sut = CreateSut(tenants, clock);
+
+        (await sut.TryOffboardTenantAsync(tenantId, "admin", "Admin", "corr", CancellationToken.None))
+            .Should()
+            .NotBeNull();
+
+        TenantRecord? offboarded = await tenants.GetByIdAsync(tenantId, CancellationToken.None);
+        offboarded.Should().NotBeNull();
+        offboarded!.SuspendedUtc.Should().NotBeNull();
+
+        (await sut.TryRestoreQuarantineAsync(tenantId, "admin", "Admin", "corr", CancellationToken.None))
+            .Should()
+            .BeTrue();
+
+        TenantRecord? restored = await tenants.GetByIdAsync(tenantId, CancellationToken.None);
+        restored.Should().NotBeNull();
+        restored!.OffboardedUtc.Should().BeNull();
+        restored.SuspendedUtc.Should().BeNull();
+    }
+
     private static TenantErasureCommandService CreateSut(InMemoryTenantRepository tenants, TimeProvider clock)
     {
         Mock<IPlatformAuditRepository> audit = new();

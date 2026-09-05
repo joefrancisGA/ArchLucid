@@ -1,5 +1,8 @@
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import type { FindingConfidenceLevel } from "@/types/explanation";
+import type { components } from "@/lib/api-types/schemas.generated";
+
+type FindingClassification = components["schemas"]["FindingClassification"];
 
 /** Distinguishes explainability-backed findings from recorded architecture decisions in the mixed queue. */
 export type GovernanceFindingQueueRecordKind = "finding" | "decision";
@@ -38,6 +41,8 @@ export type GovernanceFindingQueueRow = {
   resourceId?: string | null;
   /** Advisory insight-density score when returned by explainability (sort only; never demotes). */
   insightDensityScore?: number | null;
+  /** Gate classification after ADR 0070 when returned by explainability. */
+  classification?: FindingClassification | null;
 };
 
 export function formatGovernanceQueueRecordKind(

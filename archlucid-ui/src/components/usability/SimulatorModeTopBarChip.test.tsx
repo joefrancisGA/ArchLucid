@@ -3,8 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import { SimulatorModeTopBarChip } from "@/components/usability/SimulatorModeTopBarChip";
 import {
-  REAL_MODE_TOP_BAR_CHIP_LABEL,
-  SIMULATOR_MODE_TOP_BAR_CHIP_LABEL,
+  ANALYSIS_MODE_RULE_BASED_LABEL,
+  ANALYSIS_MODE_WORKSPACE_LABEL,
 } from "@/lib/simulator-mode-chrome-copy";
 
 const modeState = vi.hoisted(() => ({
@@ -28,6 +28,14 @@ vi.mock("@/hooks/use-agent-execution-mode", () => ({
     mode: modeState.mode,
     isSimulator: modeState.isSimulator,
     isLoading: modeState.isLoading,
+  }),
+}));
+
+vi.mock("@/hooks/session-ai-readiness-context", () => ({
+  useSessionAiReadiness: () => ({
+    isSessionReal: true,
+    isLoading: false,
+    isReady: true,
   }),
 }));
 
@@ -56,43 +64,36 @@ vi.mock("@/lib/execution-mode-top-bar-chip", async (importOriginal) => {
   };
 });
 
+const navigationMock = vi.hoisted(() => ({
+  pathname: "/",
+  replace: vi.fn(),
+  search: "",
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => navigationMock.pathname,
+  useRouter: () => ({ replace: navigationMock.replace }),
+  useSearchParams: () => new URLSearchParams(navigationMock.search),
+}));
+
 describe("SimulatorModeTopBarChip", () => {
-  it("renders a loud red chip when simulator mode is active", () => {
+  it("renders an explicit analysis-mode button in development", () => {
     modeState.mode = "Simulator";
     modeState.isSimulator = true;
     modeState.isLoading = false;
     healthState.agentExecutionMode = "Simulator";
     devOverrides.override = null;
+    devOverrides.devEnabled = true;
 
     render(<SimulatorModeTopBarChip />);
 
-    const toggle = screen.getByTestId("simulator-mode-top-bar-chip-toggle");
-
-    expect(toggle).toHaveTextContent(SIMULATOR_MODE_TOP_BAR_CHIP_LABEL);
-    expect(toggle.className).toContain("animate-pulse");
-    expect(toggle.className).toContain("bg-red-500");
-    expect(toggle).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByTestId("simulator-mode-top-bar-chip-toggle")).toHaveTextContent(
+      `Analysis: ${ANALYSIS_MODE_RULE_BASED_LABEL}`,
+    );
+    expect(screen.getByTestId("simulator-mode-top-bar-chip-toggle")).not.toHaveAttribute("aria-pressed");
   });
 
-  it("renders a quiet ready-style chip when real mode is active after leaving simulator", () => {
-    modeState.mode = "Real";
-    modeState.isSimulator = false;
-    modeState.isLoading = false;
-    healthState.agentExecutionMode = "Simulator";
-    devOverrides.override = "Real";
-
-    render(<SimulatorModeTopBarChip />);
-
-    const toggle = screen.getByTestId("simulator-mode-top-bar-chip-toggle");
-
-    expect(toggle).toHaveTextContent(REAL_MODE_TOP_BAR_CHIP_LABEL);
-    expect(toggle.className).toContain("var(--al-status-ready-bg)");
-    expect(toggle.className).not.toContain("animate-pulse");
-    expect(toggle.className).not.toContain("bg-emerald-500");
-    expect(toggle).toHaveAttribute("aria-pressed", "true");
-  });
-
-  it("toggles execution mode when clicked in development", () => {
+  it("requires confirmation before switching analysis mode", () => {
     modeState.mode = "Simulator";
     modeState.isSimulator = true;
     modeState.isLoading = false;
@@ -103,45 +104,29 @@ describe("SimulatorModeTopBarChip", () => {
     render(<SimulatorModeTopBarChip />);
 
     fireEvent.click(screen.getByTestId("simulator-mode-top-bar-chip-toggle"));
+    expect(screen.getByTestId("analysis-mode-switch-dialog")).toBeInTheDocument();
 
+    fireEvent.click(screen.getByRole("button", { name: `Switch to ${ANALYSIS_MODE_WORKSPACE_LABEL}` }));
     expect(devOverrides.toggle).toHaveBeenCalledWith("Simulator");
   });
 
-  it("hides while loading or when the host starts in real mode", () => {
+  it("hides while loading or when dev overrides are disabled", () => {
     modeState.mode = "Real";
     modeState.isSimulator = false;
     modeState.isLoading = true;
     healthState.agentExecutionMode = "Real";
     devOverrides.override = null;
+    devOverrides.devEnabled = true;
 
     const { rerender } = render(<SimulatorModeTopBarChip />);
 
-    expect(screen.queryByTestId("simulator-mode-top-bar-chip")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("simulator-mode-top-bar-chip-toggle")).not.toBeInTheDocument();
 
     modeState.isLoading = false;
+    devOverrides.devEnabled = false;
     rerender(<SimulatorModeTopBarChip />);
 
-    expect(screen.queryByTestId("simulator-mode-top-bar-chip")).not.toBeInTheDocument();
-  });
-
-  it("renders a non-interactive status chip outside development", () => {
-    modeState.mode = "Simulator";
-    modeState.isSimulator = true;
-    modeState.isLoading = false;
-    healthState.agentExecutionMode = "Simulator";
-    devOverrides.override = null;
-    devOverrides.devEnabled = false;
-
-    render(<SimulatorModeTopBarChip />);
-
     expect(screen.queryByTestId("simulator-mode-top-bar-chip-toggle")).not.toBeInTheDocument();
-    expect(screen.getByTestId("simulator-mode-top-bar-chip-label")).toHaveTextContent(
-      SIMULATOR_MODE_TOP_BAR_CHIP_LABEL,
-    );
-    expect(screen.getByRole("status")).toHaveAttribute(
-      "aria-label",
-      expect.stringContaining(SIMULATOR_MODE_TOP_BAR_CHIP_LABEL),
-    );
 
     devOverrides.devEnabled = true;
   });

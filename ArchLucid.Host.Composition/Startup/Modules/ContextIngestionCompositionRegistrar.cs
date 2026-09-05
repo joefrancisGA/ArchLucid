@@ -3,6 +3,7 @@
 using ArchLucid.Core.Configuration;
 using ArchLucid.ContextIngestion.Canonicalization;
 using ArchLucid.ContextIngestion.Connectors;
+using ArchLucid.ContextIngestion.Diagram;
 using ArchLucid.ContextIngestion.ConnectorStages;
 using ArchLucid.ContextIngestion.Contracts;
 using ArchLucid.ContextIngestion.Delta;
@@ -97,6 +98,13 @@ internal static class ContextIngestionCompositionRegistrar
         services.AddSingleton<IInfrastructureDeclarationParser, ArmJsonInfrastructureDeclarationParser>();
         services.AddSingleton<IInfrastructureDeclarationParser, KubernetesJsonInfrastructureDeclarationParser>();
         services.AddSingleton<IInfrastructureDeclarationParser, KubernetesYamlInfrastructureDeclarationParser>();
+
+        services.AddSingleton<IDiagramSourceParser, MermaidDiagramSourceParser>();
+        services.AddSingleton<IDiagramSourceParser, ArchLucidDiagramJsonParser>();
+        services.AddSingleton<IDiagramSourceParser, DrawIoXmlDiagramSourceParser>();
+        services.AddSingleton<IDiagramSourceParser, SvgDiagramSourceParser>();
+        services.AddSingleton<SimulatorVisionDiagramInterpreter>();
+        services.AddSingleton<StructuredDiagramParseRouter>();
 
         // Typed connector stages (Phase 1 — composable extract + normalize; connectors remain IContextConnector facades).
         services.AddSingleton<IConnectorInput<StaticRequestPayload>, StaticRequestPayloadExtractor>();

@@ -282,6 +282,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
         : null,
     explanationSummary,
     quickDecisionFindings: quickDecisionFindingsForAdr,
+    maxFindings: null,
     severityLabelForFinding: severityBadgeLabel,
   });
 

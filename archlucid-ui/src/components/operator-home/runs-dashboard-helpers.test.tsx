@@ -45,7 +45,7 @@ describe("runsDashboardTabLabel (TB-667)", () => {
   });
 
   it("renames the attention tab on home preview to avoid clashing with approval chips", () => {
-    expect(runsDashboardTabLabel("attention", false, 0, { homePreviewMode: true })).toBe("Open findings (0)");
+    expect(runsDashboardTabLabel("attention", false, 0, { homePreviewMode: true })).toBe("Findings (0)");
   });
 
   it("uses buyer-polished vocabulary in buyer shell", () => {
@@ -61,7 +61,10 @@ describe("runsDashboardTabLabel (TB-667)", () => {
     expect(formatRunsDashboardTabLabelWithCount("Monitoring", 2)).toBe("Monitoring (2)");
   });
 
-  it("labels home preview Recent tabs with visible counts only", () => {
+  it("labels home preview Recent tabs with visible and total counts", () => {
+    expect(
+      runsDashboardTabLabel("all", false, 2, { homePreviewMode: true, recentTotalCount: 4 }),
+    ).toBe("Recent (2 of 4)");
     expect(runsDashboardTabLabel("all", false, 2, { homePreviewMode: true })).toBe("Recent (2)");
   });
 });

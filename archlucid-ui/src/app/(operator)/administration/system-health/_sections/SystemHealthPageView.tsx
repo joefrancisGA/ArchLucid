@@ -1,5 +1,7 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 import { ConfigurationSystemHealthVocabularyRail } from "@/components/ConfigurationSystemHealthVocabularyRail";
@@ -46,6 +48,10 @@ import { groupReadinessRows, presentReadinessRow, resolveOverallHealthHeadline }
 import type { SystemHealthPageViewModel } from "./system-health-page-view-model";
 import { SystemHealthDemoPageView } from "./SystemHealthDemoPageView";
 import { SystemHealthPageHeader } from "./SystemHealthPageHeader";
+import {
+  parseSystemHealthClaimScopeOpenFromSearch,
+  systemHealthClaimScopeHrefFromSearch,
+} from "@/lib/administration/system-health-claim-scope-url";
 
 type Props = {
   readonly model: SystemHealthPageViewModel;
@@ -59,8 +65,36 @@ const INTERNAL_DIAGNOSTICS_LINK = {
 } as const;
 
 export function SystemHealthPageView(props: Props) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/administration/system-health";
+  const searchParams = useSearchParams();
+  const systemHealthClaimScopeOpenParam = searchParams.get("systemHealthClaimScopeOpen");
   const m = props.model;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const [claimScopeOpen, setClaimScopeOpenState] = useState(() =>
+    parseSystemHealthClaimScopeOpenFromSearch(systemHealthClaimScopeOpenParam),
+  );
+
+  const syncClaimScopeOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(systemHealthClaimScopeHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setClaimScopeOpen = useCallback(
+    (open: boolean) => {
+      setClaimScopeOpenState(open);
+      syncClaimScopeOpenToUrl(open);
+    },
+    [syncClaimScopeOpenToUrl],
+  );
+
+  useEffect(() => {
+    setClaimScopeOpenState(parseSystemHealthClaimScopeOpenFromSearch(systemHealthClaimScopeOpenParam));
+  }, [systemHealthClaimScopeOpenParam]);
 
   if (m.showDemoWorkspaceDashboard) {
     return (
@@ -230,7 +264,8 @@ export function SystemHealthPageView(props: Props) {
       {!buyerPolishedShell ? (
         <CollapsibleSection
           title={SYSTEM_HEALTH_CLAIM_SCOPE_SUMMARY}
-          defaultOpen={false}
+          open={claimScopeOpen}
+          onToggle={setClaimScopeOpen}
           sectionTestId="system-health-operator-claim-scope"
         >
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>

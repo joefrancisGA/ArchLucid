@@ -292,20 +292,20 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
 
               return (
                 <EnterpriseTableRow
-                  key={entry.architectureId}
-                  data-testid={`architecture-draft-row-${entry.architectureId}`}
+                  key={entry.draftId}
+                  data-testid={`architecture-draft-row-${entry.draftId}`}
                 >
                   <EnterpriseTableCell>
                     <div className="space-y-1">
                       <Link
-                        href={architectureDraftPath(entry.architectureId)}
+                        href={architectureDraftPath(entry.draftId)}
                         className={OPERATOR_LINK.nav}
                       >
                         {entry.displayName}
                       </Link>
                       {buyerPolishedShell ? (
-                        <div data-testid={`architecture-draft-id-${entry.architectureId}`}>
-                          <TechnicalIdDisclosure label="Draft id" value={entry.architectureId} />
+                        <div data-testid={`architecture-draft-id-${entry.draftId}`}>
+                          <TechnicalIdDisclosure label="Draft id" value={entry.draftId} />
                         </div>
                       ) : null}
                     </div>
@@ -342,31 +342,31 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
                         </Button>
                       ) : (
                         <ArchitectureDraftResumeControl
-                          architectureId={entry.architectureId}
+                          architectureId={entry.draftId}
                           label="Continue editing"
                           source="architectures-list"
-                          testId={`architecture-draft-continue-${entry.architectureId}`}
+                          testId={`architecture-draft-continue-${entry.draftId}`}
                           ariaLabel={`Continue editing ${entry.displayName}`}
                         />
                       )}
                       {entry.linkedReviewId !== null ? (
                         <ArchitectureDraftCloneSnapshotControl
-                          architectureId={entry.architectureId}
-                          testId={`architecture-draft-clone-snapshot-${entry.architectureId}`}
+                          architectureId={entry.draftId}
+                          testId={`architecture-draft-clone-snapshot-${entry.draftId}`}
                         />
                       ) : null}
                       {entry.linkedReviewId === null && entry.customerStatus !== "archived" ? (
                         <Button type="button" variant="primary" size="sm" asChild>
-                          <Link href={startReviewFromArchitectureHref(entry.architectureId)}>Start review</Link>
+                          <Link href={startReviewFromArchitectureHref(entry.draftId)}>Start review</Link>
                         </Button>
                       ) : null}
                       <ArchitectureDraftDeleteControl
-                        architectureId={entry.architectureId}
+                        architectureId={entry.draftId}
                         displayName={entry.displayName}
                         linkedReviewId={entry.linkedReviewId}
                         customerStatus={entry.customerStatus}
                         createdByUserId={entry.createdByUserId ?? null}
-                        testId={`architecture-draft-delete-${entry.architectureId}`}
+                        testId={`architecture-draft-delete-${entry.draftId}`}
                       />
                     </div>
                   </EnterpriseTableCell>

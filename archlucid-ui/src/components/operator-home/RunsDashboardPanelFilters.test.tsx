@@ -5,11 +5,16 @@ import { describe, expect, it, vi } from "vitest";
 import { RunsDashboardPanelFilters } from "@/components/operator-home/RunsDashboardPanelFilters";
 import { deriveRunsDashboardTabCounts } from "@/components/operator-home/runs-dashboard-helpers";
 import { resolveRunsDashboardStatusTabIds } from "@/components/operator-home/runs-dashboard-panel-presentation";
+import { Tabs } from "@/components/ui/tabs";
 
 function renderPanelFilters(
   props: ComponentProps<typeof RunsDashboardPanelFilters>,
 ) {
-  return render(<RunsDashboardPanelFilters {...props} />);
+  return render(
+    <Tabs value={props.tab} variant="line" onValueChange={vi.fn()}>
+      <RunsDashboardPanelFilters {...props} />
+    </Tabs>,
+  );
 }
 
 describe("RunsDashboardPanelFilters", () => {
@@ -25,7 +30,7 @@ describe("RunsDashboardPanelFilters", () => {
     },
   ]);
 
-  it("renders operator review filters as pressed chips without tablist semantics", () => {
+  it("renders operator review views as line tabs", () => {
     renderPanelFilters({
       buyerPolishedShell: false,
       hideHeading: true,
@@ -43,8 +48,8 @@ describe("RunsDashboardPanelFilters", () => {
     });
 
     const filterGroup = screen.getByTestId("runs-dashboard-status-filters");
-    expect(filterGroup).not.toHaveAttribute("role", "tablist");
-    expect(screen.getByTestId("runs-dashboard-tab-all")).toHaveAttribute("aria-pressed", "true");
+    expect(filterGroup).toHaveAttribute("role", "tablist");
+    expect(screen.getByTestId("runs-dashboard-tab-all")).toHaveAttribute("aria-selected", "true");
   });
 
   it("does not render operator recent summary copy under Latest in workspace", () => {
@@ -67,32 +72,26 @@ describe("RunsDashboardPanelFilters", () => {
     expect(screen.queryByText("Showing the latest architecture reviews for this workspace.")).toBeNull();
   });
 
-  it("keeps zero-count review filters selectable in buyer shell", () => {
-    const onSelectDashboardTab = vi.fn();
-
+  it("shows visible helper text when a zero-count operator tab is selected", () => {
     renderPanelFilters({
-      buyerPolishedShell: true,
+      buyerPolishedShell: false,
       hideHeading: true,
-      tab: "all",
-      isRecentListTab: true,
-      statusTabIds: ["all", "approved"],
-      statusTabCounts: { ...statusTabCounts, approved: 0 },
-      archivedFieldSupported: false,
+      tab: "attention",
+      isRecentListTab: false,
+      statusTabIds: resolveRunsDashboardStatusTabIds(false, { ...statusTabCounts, attention: 0 }),
+      statusTabCounts: { ...statusTabCounts, attention: 0 },
+      archivedFieldSupported: true,
       archivedCount: 0,
       archivedFilterDisabled: false,
       showArchived: false,
-      onSelectDashboardTab,
+      onSelectDashboardTab: vi.fn(),
       onShowArchivedChange: vi.fn(),
       openAllReviewsHref: "/architecture/reviews?projectId=default",
     });
 
-    const approvedFilter = screen.getByTestId("runs-dashboard-filter-approved");
-    expect(approvedFilter).not.toBeDisabled();
-    expect(approvedFilter).toHaveAttribute("aria-pressed", "false");
-
-    fireEvent.click(approvedFilter);
-
-    expect(onSelectDashboardTab).toHaveBeenCalledWith("approved");
+    expect(screen.getByTestId("runs-dashboard-selected-tab-empty-reason")).toHaveTextContent(
+      /need attention/i,
+    );
   });
 
   it("enables archived chip with zero count and calls onShowArchivedChange(true)", () => {
