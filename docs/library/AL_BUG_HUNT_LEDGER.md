@@ -3418,11 +3418,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 243
-- **bugs-found:** 478
+- **hunts:** 244
+- **bugs-found:** 479
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — governance approval reject idempotent retry success
+- **last-bug:** 2026-09-05 — merge-conflict resolve idempotent retry success
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4574,9 +4574,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-05 seed hunt #848 (hit): reseeded post-#847 idempotent-retry exhaustion; proved erasure approve idempotent-success and legal-hold duplicate-audit gaps.
 
 - [x] (proven) `GovernanceController.Reject` / `GovernanceWorkflowReviewStage.RejectAsync` — `operator-documented-safe-retry` retry after successful reject returns HTTP 409 (`GovernanceApprovalReviewConflictException`) instead of idempotent HTTP 200 (`#836` trial-convert parity) — **hit 2026-09-05 (#849):** return existing approval without transition, audit, baseline mutation, or integration event when status, `ReviewedByActorKey`, and `ReviewComment` already match; regression in `Reject_returns_existing_approval_without_duplicate_audit_when_identical_operator_retry`.
-- [ ] (candidate) `GovernanceStickinessController.ResolveFindingMergeConflict` / `FindingMergeConflictResolutionService.TryResolveAsync` — `operator-documented-safe-retry` sibling: already-resolved retry returns HTTP 404 because conflict finding row was removed from snapshot on first success (#847 delete/restore parity).
+- [x] (proven) `GovernanceStickinessController.ResolveFindingMergeConflict` / `FindingMergeConflictResolutionService.TryResolveAsync` — `operator-documented-safe-retry` sibling: already-resolved retry returns HTTP 404 because conflict finding row was removed from snapshot on first success (#847 delete/restore parity) — **hit 2026-09-05 (#850):** retain resolved conflict tombstone (`FindingMergeConflictResolved`) and return `AlreadyResolved` without duplicate `FindingMergeConflictResolved` audit; regressions in `TryResolveAsync_returns_already_resolved_without_mutating_snapshot_on_operator_retry` and `TryResolveFindingMergeConflictAsync_returns_true_without_duplicate_audit_when_already_resolved_retry`.
 
-2026-09-05 seed hunt #849 (hit): reseeded post-#848 idempotent-retry exhaustion; proved governance reject idempotent-success gap; seeded merge-conflict resolve idempotent-success candidate.
+2026-09-05 thorough hunt #850 (hit): proved merge-conflict resolve idempotent-success gap seeded in #849.
 
 2026-09-05 seed hunt #845 (hit): reseeded post-#844 idempotent-retry exhaustion; proved core-pilot checklist and tenant baseline duplicate-audit gaps; seeded restore idempotent-success and governance-resolution read-audit retry candidates.
 
