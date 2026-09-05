@@ -73,7 +73,7 @@ public sealed partial class GovernanceStickinessFacade
             schedule.SourceRunId == request.SourceRunId
             && string.Equals(schedule.CronExpression, cronExpression, StringComparison.Ordinal)
             && schedule.IsEnabled == request.IsEnabled.Value
-            && string.Equals(schedule.Name, name, StringComparison.Ordinal));
+            && string.Equals(schedule.Name, name, StringComparison.OrdinalIgnoreCase));
 
         if (matchingSchedule is not null)
             return matchingSchedule;
@@ -200,7 +200,7 @@ public sealed partial class GovernanceStickinessFacade
         bool cronChanged = !string.IsNullOrWhiteSpace(request.CronExpression)
             && !string.Equals(request.CronExpression.Trim(), originalCron, StringComparison.Ordinal);
         bool nameChanged = !string.IsNullOrWhiteSpace(request.Name)
-            && !string.Equals(request.Name.Trim(), originalName, StringComparison.Ordinal);
+            && !string.Equals(request.Name.Trim(), originalName, StringComparison.OrdinalIgnoreCase);
 
         if (!isEnabledChanged && !cronChanged && !nameChanged)
             return new RecurrenceScheduleUpdateResult(RecurrenceScheduleUpdateOutcome.Updated, existing);

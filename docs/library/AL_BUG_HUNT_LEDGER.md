@@ -3420,11 +3420,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 249
-- **bugs-found:** 484
+- **hunts:** 250
+- **bugs-found:** 486
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — baseline review-cycle source case-insensitive idempotent retry
+- **last-bug:** 2026-09-05 — digest timezone UTC alias and environment-catalog display-name idempotent retry
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4588,8 +4588,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `TenantErasureLegalHoldController.SetLegalHoldAsync` / `TenantErasureCommandService.IsIdenticalLegalHoldRetry` — operator retry with `reason` differing only by casing re-upserted legal hold and logged duplicate `TenantErasureLegalHoldSet` audit (`StringComparison.Ordinal` on reason; #852/#853 text-field parity) — **hit 2026-09-05 (#854):** case-insensitive reason comparison in `IsIdenticalLegalHoldRetry`; regression in `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_reason_differs_only_by_casing`.
 - [x] (proven) `TenantBaselineController.PutAsync` — operator retry with `baselineReviewCycleSourceNote` differing only by casing re-upserted review-cycle source and logged duplicate `TrialBaselineReviewCycleUpdated` audit (`StringComparison.Ordinal` on persisted `baseline_settings:` source; #845/#854 text-field parity) — **hit 2026-09-05 (#856):** case-insensitive comparison in `isIdenticalReviewRetry` / `isIdenticalSourceNoteRetry`; regressions in `PutAsync_skips_duplicate_audit_when_review_cycle_source_note_differs_only_by_casing` and `PutAsync_skips_duplicate_audit_when_review_cycle_hours_retry_source_note_differs_only_by_casing`.
-- [ ] (candidate) `TenantExecDigestPreferencesController` / `TenantSponsorDigestPreferencesController` / `DigestPreferencesIdempotentRetry.MatchesExisting` — operator retry with `ianaTimeZoneId` differing only by casing or UTC alias (`UTC` vs `Etc/UTC`) may log duplicate digest-preferences audit while `IanaTimeZonePreferenceValues.NormalizeOrNull` canonicalizes on write (#856 baseline source-note casing sibling).
-- [ ] (candidate) `GovernanceEnvironmentCatalogController.Replace` / `GovernanceEnvironmentCatalogService.CatalogContentEquals` — operator retry with environment `displayName` differing only by casing may log duplicate `GovernanceEnvironmentCatalogReplaced` audit (`Ordinal` display-name compare after #842 identical-content guard).
+- [x] (proven) `TenantExecDigestPreferencesController` / `TenantSponsorDigestPreferencesController` / `DigestPreferencesIdempotentRetry.MatchesExisting` — operator retry with `ianaTimeZoneId` differing only by UTC alias (`Etc/UTC` stored vs `UTC` request) logged duplicate digest-preferences audit while `IanaTimeZonePreferenceValues.NormalizeOrNull` canonicalizes on write (`Ordinal` compare in `MatchesExisting`; #856 baseline source-note casing sibling) — **hit 2026-09-05 (#857):** compare normalized IANA ids via `IanaTimeZoneIdsMatch`; regressions in `PostExecDigestPreferences_skips_duplicate_audit_when_iana_time_zone_differs_only_by_utc_alias` and `PostSponsorDigestPreferences_skips_duplicate_audit_when_iana_time_zone_differs_only_by_utc_alias`.
+- [x] (proven) `GovernanceEnvironmentCatalogController.Replace` / `GovernanceEnvironmentCatalogService.CatalogContentEquals` — operator retry with environment `displayName` differing only by casing logged duplicate `GovernanceEnvironmentCatalogReplaced` audit (`Ordinal` display-name compare after #842 identical-content guard) — **hit 2026-09-05 (#857):** case-insensitive `displayName` comparison in `CatalogContentEquals`; regression in `Replace_skips_duplicate_audit_when_display_name_differs_only_by_casing`.
+
+2026-09-05 thorough hunt #857 (hit): proved both #856 candidates — digest UTC-alias idempotent retry and environment-catalog display-name casing idempotent retry.
 
 2026-09-05 seed hunt #856 (hit): reseeded post-#854 idempotent-retry casing exhaustion; proved baseline review-cycle source case-insensitive idempotent retry gap; seeded digest timezone and environment-catalog display-name casing candidates.
 
