@@ -23,6 +23,7 @@ import {
   readArchitectureNewDraftRecovery,
   writeArchitectureNewDraftRecovery,
 } from "@/lib/architecture/architecture-new-draft-recovery";
+import { isApiRequestError } from "@/lib/api-request-error";
 import { createDraftRequest, getDraftRequest, patchDraftRequest } from "@/lib/api/draft-intake-api";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
@@ -76,7 +77,9 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
   const trailingSaveNeededRef = useRef(false);
   const persistDraftRef = useRef<() => Promise<boolean>>(async () => false);
 
-  const persistDraft = useCallback(async (): Promise<boolean> => {
+  const persistDraft = useCallback(async (options?: { readonly forceOverwrite?: boolean }): Promise<boolean> => {
+    const forceOverwrite = options?.forceOverwrite === true;
+
     if (!enabled) return true;
     if (!isOnline) {
       const architectureId = args.resolvedArchitectureIdRef.current ?? args.architectureId;
@@ -165,25 +168,32 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
         }
 
         if (
+          !forceOverwrite &&
           args.serverUpdatedUtcRef.current !== null &&
           latestServer.updatedUtc !== args.serverUpdatedUtcRef.current
         ) {
           args.setConflictMessage(
-            "This architecture was updated in another session. Refresh to load the latest version before saving again.",
+            "This architecture was updated in another session. Keep your edits or load the server copy before saving again.",
           );
           args.setSaveState("error");
           patchFailedNonRetryable = true;
           return false;
         }
 
-        const patched = await patchDraftRequest(
-          architectureId,
-          buildArchitectureDraftPatchPayload(
-            args.fieldsRef.current,
-            args.actorSetRef.current,
-            args.scopeGateOpenRef.current ? args.scopeBulletsRef.current : undefined,
-          ),
+        const patchPayload = buildArchitectureDraftPatchPayload(
+          args.fieldsRef.current,
+          args.actorSetRef.current,
+          args.scopeGateOpenRef.current ? args.scopeBulletsRef.current : undefined,
         );
+
+        const patched = await patchDraftRequest(architectureId, {
+          ...patchPayload,
+          ...(forceOverwrite
+            ? { forceOverwrite: true }
+            : args.serverUpdatedUtcRef.current !== null
+              ? { expectedUpdatedUtc: args.serverUpdatedUtcRef.current }
+              : {}),
+        });
 
         if (sequence !== saveSequenceRef.current) return false;
 
@@ -195,7 +205,16 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
         args.setSaveState("saved");
         return true;
       } catch (error) {
-        if (sequence === saveSequenceRef.current) args.setSaveState("error");
+        if (sequence === saveSequenceRef.current) {
+          args.setSaveState("error");
+
+          if (isApiRequestError(error) && error.httpStatus === 409) {
+            args.setConflictMessage(
+              "This architecture was updated in another session. Keep your edits or load the server copy before saving again.",
+            );
+          }
+        }
+
         patchFailedNonRetryable = isNonRetryableDraftPatchError(error);
         if (patchFailedNonRetryable) args.autosaveBlockedRef.current = true;
         return false;
@@ -213,7 +232,14 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
     return savePromise;
   }, [args, deferCreateUntilFirstSave, enabled, isOnline]);
 
-  persistDraftRef.current = persistDraft;
+  persistDraftRef.current = () => persistDraft();
+
+  const keepLocalDraftOnConflict = useCallback(async (): Promise<boolean> => {
+    args.autosaveBlockedRef.current = false;
+    args.setConflictMessage(null);
+
+    return persistDraft({ forceOverwrite: true });
+  }, [args, persistDraft]);
 
   useEffect(() => {
     args.autosaveBlockedRef.current = false;
@@ -267,5 +293,5 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
     };
   }, [args, args.fields, args.actorSet, args.hasUnsavedChanges, persistDraft]);
 
-  return persistDraft;
+  return { persistDraft, keepLocalDraftOnConflict };
 }

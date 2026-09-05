@@ -91,7 +91,7 @@ export function useArchitectureDraftAutosave(
     setSaveState("unsaved");
   }, [enabled, isOnline]);
 
-  const persistDraft = useArchitectureDraftAutosavePersist({
+  const persistDraftBundle = useArchitectureDraftAutosavePersist({
     architectureId: args.architectureId,
     enabled,
     deferCreateUntilFirstSave,
@@ -121,11 +121,12 @@ export function useArchitectureDraftAutosave(
     saveState,
     lastSavedUtc,
     conflictMessage,
-    saveDraft: persistDraft,
+    saveDraft: persistDraftBundle.persistDraft,
     markDirty,
     reloadDraft: hydrate.reloadDraft,
     acceptServerBaseline: hydrate.acceptServerBaseline,
     syncServerUpdatedUtc: hydrate.syncServerUpdatedUtc,
     hasPersistedDraft,
+    keepLocalDraftOnConflict: persistDraftBundle.keepLocalDraftOnConflict,
   };
 }

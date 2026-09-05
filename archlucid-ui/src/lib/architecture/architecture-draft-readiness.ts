@@ -74,6 +74,8 @@ export type ArchitectureDraftPatchPayload = {
   readonly actorSet: ActorSet;
   readonly workflowIntent: typeof CREATE_ARCHITECTURE_INTENT;
   readonly structuredBrief: ReturnType<typeof structuredBriefToPatchPayload>;
+  readonly expectedUpdatedUtc?: string;
+  readonly forceOverwrite?: boolean;
 };
 
 /**
