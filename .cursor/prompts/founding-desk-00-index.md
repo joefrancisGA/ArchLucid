@@ -1,8 +1,9 @@
 <!-- Founding-desk Composer prompts — paste one prompt per session.
      Origin: 2026-09-04 owner diagnosis that ArchLucid is a working-architect
      tool (all-day use; livelihoods may depend on the sealed record), not a
-     casual evaluator. Wave 7 after CD-01–15 and AD-01–12.
+     casual evaluator.      Wave 7 after CD-01–15 and AD-01–12.
      Grounded in the founding contract (R4 / R13) leftovers AD does not own.
+     Wave 8: instrument-spine-00-index.md (IS-01–15) — load-bearing bets.
      Do not implement from this index. -->
 
 # Founding-desk mitigations — Composer prompt set (FD-01–FD-13)
@@ -35,6 +36,7 @@ Do **not** merge draft+review in the database, collapse desktop review tabs, aut
 | **CD-01–15** | Wave 5 unique leftovers | [`career-desk-00-index.md`](career-desk-00-index.md) |
 | **AD-01–12** | Wave 6 all-day operational leftovers | [`all-day-desk-00-index.md`](all-day-desk-00-index.md) |
 | **FD-01–13** | **This set** — wave 7 founding leftovers | **Shipped** PR #1534 — reassessment [`docs/architecture/FOUNDING_DESK_ASSESSMENT_2026-09-04.md`](../../docs/architecture/FOUNDING_DESK_ASSESSMENT_2026-09-04.md) |
+| **IS-01–15** | Wave 8 load-bearing bets | [`instrument-spine-00-index.md`](instrument-spine-00-index.md) |
 
 If an FD row lists a CD/AD/WA/RS/LD/WD/PT owner, **do not fork** that file. Implement only the leftover in *What to build*.
 
@@ -99,3 +101,5 @@ Prefer **01** first (meeting elicitation). Then **02 / 07 / 13** (chip / clipboa
 ## After each prompt
 
 Summarize: files changed, tests run, residual risk, Working vs Guided behavior, whether the **product spine** still works without that prompt. Do not mark LI, LD, RS, WA, CD, or AD as undone.
+
+**Wave 8:** [`instrument-spine-00-index.md`](instrument-spine-00-index.md) (**IS-01–15**). Do not fork FD-01 (meeting loop) or FD-12 (wait copy).

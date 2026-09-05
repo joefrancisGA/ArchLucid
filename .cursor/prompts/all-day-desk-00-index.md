@@ -4,6 +4,7 @@
      casual evaluator.      Wave 6 after CD-01–15. Grounded in the 2026-09-04
      livelihood-grade UX audit of the architect workspace.
      Wave 7: founding-desk-00-index.md (FD-01–13).
+     Wave 8: instrument-spine-00-index.md (IS-01–15).
      Do not implement from this index. -->
 
 # All-day-desk mitigations — Composer prompt set (AD-01–AD-12)
@@ -45,6 +46,7 @@ Do **not** merge draft+review in the database, collapse desktop review tabs, inv
 | **CD-01–15** | Wave 5 eval/honesty leftovers | Run first if still open — do not fork |
 | **AD-01–12** | **This set** — wave 6 all-day desk | Run these |
 | **FD-01–13** | Wave 7 founding leftovers | [`founding-desk-00-index.md`](founding-desk-00-index.md) |
+| **IS-01–15** | Wave 8 load-bearing bets | [`instrument-spine-00-index.md`](instrument-spine-00-index.md) |
 
 If an AD row lists a CD/WA/LD/RS/LI owner, **do not fork** that file. Implement only the leftover in *What to build*.
 
@@ -111,3 +113,4 @@ Prefer **01 → 09** (dirty finding + remaining deferred form) then **02** (canc
 Summarize: files changed, tests run, residual risk, Working vs Guided behavior, whether the **product spine** still works without that prompt. Do not mark LI, LD, RS, WA, or CD as undone.
 
 **Wave 7:** [`founding-desk-00-index.md`](founding-desk-00-index.md) (**FD-01–13**). Do not fork AD-09 (Azure Boards dirty) or AD-10 (keyboard docs).
+**Wave 8:** [`instrument-spine-00-index.md`](instrument-spine-00-index.md) (**IS-01–15**). Do not fork AD-05 (watermark honesty) or AD-02 (cancel confirm).
