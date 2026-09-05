@@ -3420,11 +3420,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 256
-- **bugs-found:** 495
+- **hunts:** 257
+- **bugs-found:** 496
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — recurrence cron and catalog promote snapshot-version case-insensitive idempotent retry
+- **last-bug:** 2026-09-05 — policy-pack create packType case-insensitive idempotent retry
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4610,6 +4610,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyPacksController.PromoteCatalogEntry` / `PolicyPackWorkflowFacade.TryPromoteCatalogEntryAsync` — operator retry with `snapshotVersion` differing only by casing logged duplicate `PolicyPackCatalogPromoted` audit (`Ordinal` version compare in `wasNewPromotion` guard; #839 promote skip-audit sibling) — **hit 2026-09-05 (#863):** case-insensitive `SnapshotVersion` comparison in `wasNewPromotion` guard; regression in `TryPromoteCatalogEntryAsync_skips_duplicate_audit_when_snapshot_version_differs_only_by_casing`.
 
 2026-09-05 thorough hunt #863 (hit): proved both #862 candidates — recurrence cron and catalog promote snapshot-version case-insensitive idempotent retry.
+
+- [x] (proven) `PolicyPacksController.Create` / `PolicyPacksAppService.CreatePackAsync` — operator retry with pack `packType` differing only by casing allocated fresh `PolicyPackId` and logged duplicate `PolicyPackCreated` audit (`Ordinal` packType match in create dedupe matcher; API accepts case-insensitive pack types via `ValidPackTypes`) — **hit 2026-09-05 (#865):** case-insensitive packType comparison in create dedupe matcher; regression in `CreatePackAsync_returns_existing_pack_and_skips_duplicate_audit_when_pack_type_differs_only_by_casing`.
+- [x] (invalid) `PolicyPacksController.DuplicatePack` / `PolicyPacksAppService.TryDuplicatePackAsync` — operator retry with duplicate copy `packType` differing only by casing — **cheap-disproof 2026-09-05 (#865):** dedupe compares `pack.PackType` to `sourcePack.PackType`; both are persisted values and the copy is always created with the source's pack type verbatim, so casing divergence cannot occur on operator retry.
+
+2026-09-05 thorough hunt #865 (hit): proved create-pack packType case-insensitive idempotent retry; cheap-disproved duplicate-pack packType casing candidate.
 
 2026-09-05 seed hunt #862 (hit): reseeded post-#861 idempotent-retry casing exhaustion; proved policy-pack create description case-insensitive idempotent retry; seeded recurrence cron and catalog promote snapshot-version casing candidates.
 
