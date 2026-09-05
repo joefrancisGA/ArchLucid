@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 146
-- **bugs-found:** 275
+- **hunts:** 147
+- **bugs-found:** 277
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — `no-`/`not ` constraint negation and audit event type casing gaps
+- **last-bug:** 2026-09-05 — uppercase integration event types bypass manifest-hash gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2197,6 +2197,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RequiredAuditEventTypes.IsRequired` — lowercase governance audit wire values rejected after #735 trim fix; external emitters with mis-cased strings may skip fail-closed routing — **hit 2026-09-05 (#874):** `IsRequired` used `Ordinal` after #735 trim fix; lowercase/uppercase wire values from external emitters skipped fail-closed `LogOrThrowAsync` routing; fixed with `OrdinalIgnoreCase` (`IsRequired_matches_wire_values_case_insensitively`).
 
 2026-09-05 thorough hunt #874: proved `no-`/`not ` constraint negation and required-audit casing gaps from #801 seed candidates.
+
+- [x] (proven) `IntegrationEventTypes.MapToCanonical` / `AreEquivalent` — uppercase canonical event types not normalized — **hit 2026-09-05 (#875):** `MapToCanonical` only mapped legacy `com.archiforge.*` aliases case-insensitively; uppercase `COM.ARCHLUCID.*` passed through unchanged so `AreEquivalent` returned false and `IntegrationEventServiceBusApplicationProperties` skipped alert/promotion property extraction; fixed with case-insensitive canonical type lookup (`MapToCanonical_normalizes_uppercase_canonical_input`, `AreEquivalent_matches_uppercase_canonical_to_canonical`).
+- [x] (proven) `IntegrationEventOutboxManifestHashGuard` — mis-cased `eventType` bypasses manifest-hash gate — **hit 2026-09-05 (#875):** `RunScopedArchitectureEventTypes` used `StringComparer.Ordinal`; uppercase `COM.ARCHLUCID.AUTHORITY.RUN.COMPLETED` with hashless payload exited early after #801 PascalCase JSON fix; fixed by normalizing via `MapToCanonical` before membership check (`EnsureRunScopedPayloadIncludesManifestHashOrThrow_blocks_uppercase_event_type_without_manifest_hash`, `EnsureRunScopedPayloadIncludesManifestHashOrThrow_accepts_uppercase_event_type_with_manifest_hash`).
+- [ ] (candidate) `AzureExtractorSensitivePropertyRedactor.IsSensitiveKey` — `nonsecret` / `passwordless` substring false positives after delimiter strip; unbounded `Contains(fragment)` matches embedded secret/password fragments.
+- [ ] (candidate) `AuthEmailDomainNormalizer.TryNormalize` — `sub..example.com` accepted because `Split(RemoveEmptyEntries)` collapses empty DNS labels.
+- [ ] (candidate) `MarketingAttributionBucketMapper.MapCoarseMedium` — `paid-search` / `social_paid` delimiter variants map to `unknown` while `paidsearch` maps to `paid_direct`.
+
+2026-09-05 seed hunt #875: reseeded integration event casing and manifest-hash guard; proved uppercase canonical normalization and mis-cased outbox gate bypass; reseeded redactor, email domain, and attribution delimiter candidates.
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
 - [x] (valid-no-repro) Tenant scope model treats empty workspace as a wildcard — `ActivityScopeTags` rejects `Guid.Empty` workspace ids; no wildcard semantics in Core tenancy models.
