@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 354_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 359_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -8923,6 +8923,25 @@ BEGIN
     SET @createdByUserRunSql = N'ALTER TABLE ' + @createdByUserRunTable + N' ADD CreatedByUserId NVARCHAR(256) NULL;';
 
     EXEC sp_executesql @createdByUserRunSql;
+END
+
+GO
+
+/* 356/359: Pre-execute coverage acknowledgement JSON (ADR 0064 synonym-safe). */
+DECLARE @acknowledgedCoverageRunTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
+
+DECLARE @acknowledgedCoverageRunSql NVARCHAR(MAX);
+
+IF @acknowledgedCoverageRunTable IS NOT NULL
+   AND COL_LENGTH(@acknowledgedCoverageRunTable, N'AcknowledgedCoverageJson') IS NULL
+BEGIN
+    SET @acknowledgedCoverageRunSql = N'ALTER TABLE ' + @acknowledgedCoverageRunTable + N' ADD AcknowledgedCoverageJson NVARCHAR(MAX) NULL;';
+
+    EXEC sp_executesql @acknowledgedCoverageRunSql;
 END
 
 GO
