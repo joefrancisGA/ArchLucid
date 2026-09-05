@@ -76,6 +76,14 @@ Prevent accidental HTTP surface changes: the generated OpenAPI document for **v1
 1. **Automatic (same-repo PRs):** Push API-surface changes; workflow **Refresh OpenAPI v1 snapshot** (`.github/workflows/openapi-snapshot-refresh.yml`) runs on pull requests when OpenAPI-relevant paths change, regenerates the CI baseline on Linux, and commits back to the PR branch when needed.
 2. **Manual:** Actions → **Refresh OpenAPI v1 snapshot** → **Run workflow** on your branch. Push/PR refreshes also regenerate split TypeScript api-types (`archlucid-ui/src/lib/api-types/`). Manual dispatch defaults that on (`regenerate_ui_api_types`); the .NET NSwag client is always regenerated (gitignored).
 
+**Trunk push when direct commit is blocked (ruleset):** The refresh workflow pushes `chore/openapi-snapshot-<sha>` and opens a PR. If org policy blocks `GitHub Actions` from creating pull requests, the workflow still pushes the branch and emits a **manual compare URL** (`::warning::` in the job log). Owner steps:
+
+1. Settings → Actions → General → **Allow GitHub Actions to create and approve pull requests** (preferred), or
+2. Open the compare URL from the failed/successful refresh job log and merge manually, or
+3. List orphan branches: `bash scripts/ci/list_stale_openapi_snapshot_branches.sh`
+
+Merge the PR (or cherry-pick the snapshot commit) after push corset is green on `master`.
+
 **Local regenerate (after you intentionally change routes or OpenAPI metadata):**
 
 ```bash
