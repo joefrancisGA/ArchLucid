@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState, type SetStateAction } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -33,6 +34,10 @@ import {
   type CuratedRuleSeverity,
   serializeCuratedRulesDocument,
 } from "@/lib/policy/policy-pack-curated-rules-v1";
+import {
+  curatedRulesAuthoringDialogHrefFromSearch,
+  parseCuratedRuleEditIdFromSearch,
+} from "@/lib/policy/curated-rules-authoring-dialog-url";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type CuratedRulesAuthoringSectionProps = {
@@ -65,9 +70,44 @@ export function CuratedRulesAuthoringSection(props: CuratedRulesAuthoringSection
     packType,
     highlightRuleId,
   } = props;
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/governance/policy-packs";
+  const searchParams = useSearchParams();
+  const curatedRuleEditParam = searchParams.get("curatedRuleEdit");
+  const [dialogOpen, setDialogOpenState] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [draft, setDraft] = useState<CuratedRuleRow>(() => createEmptyCuratedRuleRow());
+  const hydratedFromUrlRef = useRef(false);
+
+  const syncCuratedRuleEditToUrl = useCallback(
+    (ruleId: string | null) => {
+      router.replace(curatedRulesAuthoringDialogHrefFromSearch(searchParams.toString(), ruleId, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setDialogOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setDialogOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+
+        if (!next) {
+          syncCuratedRuleEditToUrl(null);
+        } else if (editIndex !== null) {
+          const row = curatedDoc.rules[editIndex];
+
+          if (row !== undefined && row.id.trim().length > 0) {
+            syncCuratedRuleEditToUrl(row.id);
+          }
+        }
+
+        return next;
+      });
+    },
+    [curatedDoc.rules, editIndex, syncCuratedRuleEditToUrl],
+  );
 
   const previewDoc: CuratedRulesDocument = useMemo(
     () => ({
@@ -85,10 +125,39 @@ export function CuratedRulesAuthoringSection(props: CuratedRulesAuthoringSection
 
   const previewJson: string = useMemo(() => serializeCuratedRulesDocument(previewDoc), [previewDoc]);
 
+  useEffect(() => {
+    if (hydratedFromUrlRef.current) {
+      return;
+    }
+
+    const ruleId = parseCuratedRuleEditIdFromSearch(curatedRuleEditParam);
+
+    if (ruleId.length === 0) {
+      hydratedFromUrlRef.current = true;
+
+      return;
+    }
+
+    const index = curatedDoc.rules.findIndex((row) => row.id.trim() === ruleId);
+
+    if (index >= 0) {
+      const row = curatedDoc.rules[index];
+
+      if (row !== undefined) {
+        setDraft(cloneRule(row));
+        setEditIndex(index);
+        setDialogOpenState(true);
+      }
+    }
+
+    hydratedFromUrlRef.current = true;
+  }, [curatedDoc.rules, curatedRuleEditParam]);
+
   function openAdd(): void {
     setDraft(createEmptyCuratedRuleRow());
     setEditIndex(null);
-    setDialogOpen(true);
+    setDialogOpenState(true);
+    syncCuratedRuleEditToUrl(null);
   }
 
   function openEdit(index: number): void {
@@ -100,7 +169,8 @@ export function CuratedRulesAuthoringSection(props: CuratedRulesAuthoringSection
 
     setDraft(cloneRule(row));
     setEditIndex(index);
-    setDialogOpen(true);
+    setDialogOpenState(true);
+    syncCuratedRuleEditToUrl(row.id.trim().length > 0 ? row.id : null);
   }
 
   function removeRule(index: number): void {
@@ -118,7 +188,8 @@ export function CuratedRulesAuthoringSection(props: CuratedRulesAuthoringSection
       onCuratedDocChange({ ...curatedDoc, rules: next });
     }
 
-    setDialogOpen(false);
+    setDialogOpenState(false);
+    syncCuratedRuleEditToUrl(null);
   }
 
   function setDraftEvidenceHint(index: number, value: string): void {

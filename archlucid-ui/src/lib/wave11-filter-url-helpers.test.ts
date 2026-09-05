@@ -2448,6 +2448,106 @@ describe("wave35 filter url helpers", () => {
   });
 });
 
+describe("wave36 filter url helpers", () => {
+  it("share menu, more tabs, rule preview, diagram fullscreen, and curated rule edit params", async () => {
+    const {
+      parseReviewHeaderShareMenuOpenFromSearch,
+      reviewHeaderShareMenuHrefFromSearch,
+    } = await import("@/lib/reviews/review-header-share-menu-url");
+    const {
+      parseReviewWorkspaceMoreTabsOpenFromSearch,
+      reviewWorkspaceMoreTabsHrefFromSearch,
+    } = await import("@/lib/reviews/review-workspace-more-tabs-url");
+    const {
+      parsePolicyRulePreviewIdFromSearch,
+      policyRulePreviewPanelsHrefFromSearch,
+    } = await import("@/lib/policy/policy-rule-preview-panels-url");
+    const {
+      parseArchitectureDiagramFullscreenOpenFromSearch,
+      architectureDiagramFullscreenHrefFromSearch,
+    } = await import("@/lib/architecture/architecture-diagram-fullscreen-url");
+    const {
+      curatedRulesAuthoringDialogHrefFromSearch,
+      parseCuratedRuleEditIdFromSearch,
+    } = await import("@/lib/policy/curated-rules-authoring-dialog-url");
+
+    expect(parseReviewHeaderShareMenuOpenFromSearch("1")).toBe(true);
+    expect(
+      reviewHeaderShareMenuHrefFromSearch("reviewTab=overview", true, "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?reviewTab=overview&shareMenuOpen=1");
+    expect(parseReviewWorkspaceMoreTabsOpenFromSearch("true")).toBe(true);
+    expect(
+      reviewWorkspaceMoreTabsHrefFromSearch("reviewTab=overview", true, "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?reviewTab=overview&reviewMoreTabsOpen=1");
+    expect(parsePolicyRulePreviewIdFromSearch("rule-1")).toBe("rule-1");
+    expect(
+      policyRulePreviewPanelsHrefFromSearch("govPanel=waiver", "rule-1", "/architecture/reviews/r1/findings/f1/inspect"),
+    ).toBe("/architecture/reviews/r1/findings/f1/inspect?govPanel=waiver&rulePreviewId=rule-1");
+    expect(parseArchitectureDiagramFullscreenOpenFromSearch("1")).toBe(true);
+    expect(
+      architectureDiagramFullscreenHrefFromSearch("reviewTab=architecture", true, "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?reviewTab=architecture&diagFullscreen=1");
+    expect(parseCuratedRuleEditIdFromSearch("curated-rule-1")).toBe("curated-rule-1");
+    expect(
+      curatedRulesAuthoringDialogHrefFromSearch("tab=author&packId=p1", "curated-rule-1", "/governance/policy-packs"),
+    ).toBe("/governance/policy-packs?tab=author&packId=p1&curatedRuleEdit=curated-rule-1");
+  });
+
+  it("provenance explain, command palette, help search, report problem, and page help params", async () => {
+    const {
+      parseProvenanceExplainNodeIdFromSearch,
+      provenanceNodeExplainPanelsHrefFromSearch,
+    } = await import("@/lib/provenance/provenance-node-explain-panels-url");
+    const {
+      commandPaletteOverlayHrefFromSearch,
+      parseCommandPaletteOpenFromSearch,
+      parseCommandPaletteQueryFromSearch,
+    } = await import("@/lib/operator/command-palette-overlay-url");
+    const {
+      helpDocSearchPanelHrefFromSearch,
+      parseHelpDocSearchOpenFromSearch,
+      parseHelpDocSearchQueryFromSearch,
+    } = await import("@/lib/help/help-doc-search-panel-url");
+    const {
+      parseReportProblemOpenFromSearch,
+      reportProblemDialogHrefFromSearch,
+    } = await import("@/lib/support/report-problem-dialog-url");
+    const {
+      pageContextualHelpPanelHrefFromSearch,
+      parsePageContextualHelpOpenFromSearch,
+      parsePageContextualHelpSectionFromSearch,
+    } = await import("@/lib/help/page-contextual-help-panel-url");
+
+    expect(parseProvenanceExplainNodeIdFromSearch("node-1")).toBe("node-1");
+    expect(
+      provenanceNodeExplainPanelsHrefFromSearch("view=table", "node-1", "/architecture/reviews/r1/provenance"),
+    ).toBe("/architecture/reviews/r1/provenance?view=table&provExplainNodeId=node-1");
+    expect(parseCommandPaletteOpenFromSearch("1")).toBe(true);
+    expect(parseCommandPaletteQueryFromSearch("export")).toBe("export");
+    expect(
+      commandPaletteOverlayHrefFromSearch("", { open: true, query: "export" }, "/architecture/reviews"),
+    ).toBe("/architecture/reviews?paletteOpen=1&paletteQ=export");
+    expect(parseHelpDocSearchOpenFromSearch("true")).toBe(true);
+    expect(parseHelpDocSearchQueryFromSearch("workspace")).toBe("workspace");
+    expect(
+      helpDocSearchPanelHrefFromSearch("help=1", { open: true, query: "workspace" }, "/architecture/reviews"),
+    ).toBe("/architecture/reviews?help=1&helpSearchOpen=1&helpSearchQ=workspace");
+    expect(parseReportProblemOpenFromSearch("1")).toBe(true);
+    expect(reportProblemDialogHrefFromSearch("reviewTab=overview", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?reviewTab=overview&reportProblemOpen=1",
+    );
+    expect(parsePageContextualHelpOpenFromSearch("1")).toBe(true);
+    expect(parsePageContextualHelpSectionFromSearch("what-to-do-next")).toBe("what-to-do-next");
+    expect(
+      pageContextualHelpPanelHrefFromSearch(
+        "",
+        { open: true, sectionId: "what-to-do-next" },
+        "/governance/findings",
+      ),
+    ).toBe("/governance/findings?pageHelpOpen=1&pageHelpSection=what-to-do-next");
+  });
+});
+
 describe("wave37 filter url helpers", () => {
   it("quick decision reasoning/ask, meeting packet, and run inspector preview params", async () => {
     const {

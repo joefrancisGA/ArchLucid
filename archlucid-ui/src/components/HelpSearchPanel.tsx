@@ -48,6 +48,10 @@ import {
   parseHelpDocSearchConceptsOpenFromSearch,
   parseHelpDocSearchFeedbackOpenFromSearch,
 } from "@/lib/help/help-doc-search-nested-panels-url";
+import {
+  helpDocSearchPanelHrefFromSearch,
+  parseHelpDocSearchQueryFromSearch,
+} from "@/lib/help/help-doc-search-panel-url";
 
 export type HelpSearchPanelProps = {
   open: boolean;
@@ -63,13 +67,14 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
+  const helpSearchQueryParam = searchParams.get("helpSearchQ");
   const helpConceptsOpenParam = searchParams.get("helpConceptsOpen");
   const helpFeedbackOpenParam = searchParams.get("helpFeedbackOpen");
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const { isWorkingMode } = useWorkspaceMode();
   const isAdmin = !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
 
-  const [query, setQuery] = useState("");
+  const [query, setQueryState] = useState(() => parseHelpDocSearchQueryFromSearch(helpSearchQueryParam));
   const [highlightedRowId, setHighlightedRowId] = useState("");
   const [article, setArticle] = useState<HelpSearchPanelArticleState>({ status: "idle" });
   const [conceptsDialogOpen, setConceptsDialogOpenState] = useState(() =>
@@ -81,6 +86,16 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
   const searchInputRef = useRef<HTMLInputElement>(null);
   const topicListRef = useRef<HTMLDivElement>(null);
 
+  const syncHelpSearchQueryToUrl = useCallback(
+    (nextQuery: string) => {
+      router.replace(
+        helpDocSearchPanelHrefFromSearch(searchParams.toString(), { open: true, query: nextQuery }, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
   const syncNestedHelpPanelsToUrl = useCallback(
     (state: { conceptsOpen: boolean; feedbackOpen: boolean }) => {
       router.replace(helpDocSearchNestedPanelsHrefFromSearch(searchParams.toString(), state, pathname), {
@@ -89,6 +104,31 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
     },
     [pathname, router, searchParams],
   );
+
+  const setQuery = useCallback(
+    (value: string) => {
+      setQueryState(value);
+
+      if (open) {
+        syncHelpSearchQueryToUrl(value);
+      }
+    },
+    [open, syncHelpSearchQueryToUrl],
+  );
+
+  useEffect(() => {
+    if (!open) {
+      setQueryState("");
+
+      return;
+    }
+
+    const urlQuery = parseHelpDocSearchQueryFromSearch(helpSearchQueryParam);
+
+    if (urlQuery.length > 0) {
+      setQueryState(urlQuery);
+    }
+  }, [helpSearchQueryParam, open]);
 
   const setConceptsDialogOpen = useCallback(
     (value: SetStateAction<boolean>) => {
@@ -198,7 +238,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
     return () => {
       window.cancelAnimationFrame(frame);
     };
-  }, [open]);
+  }, [open, syncNestedHelpPanelsToUrl]);
 
   useEffect(() => {
     setHighlightedRowId((current) => {

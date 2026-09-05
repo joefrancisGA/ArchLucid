@@ -1,13 +1,18 @@
 "use client";
 
 import { ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useState, type SetStateAction } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { resolveReviewWorkspaceTabLabel } from "@/lib/resolve-review-workspace-tab-label";
 import type { ReviewWorkspaceLifecycle } from "@/lib/resolve-review-workspace-lifecycle";
 import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
+import {
+  parseReviewWorkspaceMoreTabsOpenFromSearch,
+  reviewWorkspaceMoreTabsHrefFromSearch,
+} from "@/lib/reviews/review-workspace-more-tabs-url";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -22,7 +27,32 @@ export type ReviewWorkspaceMoreTabsMenuProps = {
 
 /** Secondary review workspace tabs behind a single More sections affordance. */
 export function ReviewWorkspaceMoreTabsMenu(props: ReviewWorkspaceMoreTabsMenuProps): React.JSX.Element | null {
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const reviewMoreTabsOpenParam = searchParams.get("reviewMoreTabsOpen");
+  const [open, setOpenState] = useState(() => parseReviewWorkspaceMoreTabsOpenFromSearch(reviewMoreTabsOpenParam));
+
+  const syncMoreTabsOpenToUrl = useCallback(
+    (nextOpen: boolean) => {
+      router.replace(reviewWorkspaceMoreTabsHrefFromSearch(searchParams.toString(), nextOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncMoreTabsOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncMoreTabsOpenToUrl],
+  );
 
   if (props.moreTabIds.length === 0) {
     return null;
