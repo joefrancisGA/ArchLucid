@@ -3184,6 +3184,37 @@ export interface components {
             catalogName: string;
             demoSeedApplied?: boolean;
         };
+        DiagramInfrastructureCorrespondenceRow: {
+            aiRationale?: null | string;
+            azureResourceId?: null | string;
+            /** Format: uuid */
+            cloudResourceId?: null | string;
+            confidenceBand?: string;
+            correspondenceId?: string;
+            diagramNodeId?: null | string;
+            diagramNodeLabel?: null | string;
+            explainText?: string;
+            matchKind?: string;
+            resourceGroup?: null | string;
+            resourceType?: null | string;
+            securityDiscrepancy?: boolean;
+            terraformAddress?: null | string;
+        };
+        DiagramInfrastructureReconciliationRequest: {
+            /** Format: uuid */
+            snapshotId?: string;
+        };
+        DiagramInfrastructureReconciliationResult: {
+            /** Format: int32 */
+            diagramNodeCount?: number;
+            /** Format: int32 */
+            inventoryResourceCount?: number;
+            rows?: components["schemas"]["DiagramInfrastructureCorrespondenceRow"][];
+            /** Format: uuid */
+            runId?: string;
+            /** Format: uuid */
+            snapshotId?: string;
+        };
         DiagramResponse: {
             diagram?: string;
             format?: string;
@@ -10252,6 +10283,21 @@ export interface components {
             workspaceModeGraduationOffer?: string;
             workspaceModeGraduationOfferIsExplicit?: boolean;
             workspaceModeIsExplicit?: boolean;
+        };
+        VisionDiagramIngestRequest: {
+            contentBase64?: string;
+            format?: string;
+            name?: string;
+            useSimulator?: boolean;
+        };
+        VisionDiagramIngestResult: {
+            extractionMethod?: string;
+            /** Format: double */
+            interpretationConfidence?: null | number | string;
+            interpretationHonestyLabel?: string;
+            model?: components["schemas"]["ArchitectureDiagramModelRecord"];
+            sourceFingerprint?: string;
+            warnings?: string[];
         };
         WeeklyDigestHealthResponse: {
             /** Format: int32 */

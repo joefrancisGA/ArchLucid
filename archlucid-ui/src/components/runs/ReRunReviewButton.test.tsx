@@ -12,6 +12,7 @@ import { RE_RUN_REVIEW_PROGRESS_TICK_MS } from "@/lib/re-run-review-wait-copy";
 
 const executeArchitectureRunAsync = vi.fn();
 const routerRefresh = vi.fn();
+const routerReplace = vi.fn();
 
 vi.mock("@/lib/api", () => ({
   executeArchitectureRunAsync: (...args: unknown[]) => executeArchitectureRunAsync(...args),
@@ -21,10 +22,12 @@ vi.mock("@/lib/await-minimum-visible-duration", () => ({
   awaitMinimumVisibleDuration: vi.fn(async () => undefined),
 }));
 
+const mockSearchParams = new URLSearchParams();
+
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ refresh: routerRefresh, replace: vi.fn() }),
+  useRouter: () => ({ refresh: routerRefresh, replace: routerReplace }),
   usePathname: () => "/architecture/reviews/run-abc",
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => mockSearchParams,
 }));
 
 describe("ReRunReviewButton", () => {
@@ -32,7 +35,31 @@ describe("ReRunReviewButton", () => {
     resetInFlightOperationsForTests();
     executeArchitectureRunAsync.mockReset();
     routerRefresh.mockReset();
+    routerReplace.mockReset();
+    mockSearchParams.forEach((_, key) => {
+      mockSearchParams.delete(key);
+    });
     executeArchitectureRunAsync.mockResolvedValue({ operationId: "run:run-abc", location: null });
+  });
+
+  it("syncs the confirm dialog open state to the URL after render", async () => {
+    render(<ReRunReviewButton runId="run-abc" />);
+
+    fireEvent.click(screen.getByTestId("re-run-review-button"));
+
+    await waitFor(() => {
+      expect(routerReplace).toHaveBeenCalledWith("/architecture/reviews/run-abc?reRunConfirmOpen=1", {
+        scroll: false,
+      });
+    });
+  });
+
+  it("opens the confirm dialog when the URL already has reRunConfirmOpen=1", () => {
+    mockSearchParams.set("reRunConfirmOpen", "1");
+
+    render(<ReRunReviewButton runId="run-abc" />);
+
+    expect(screen.getByTestId("re-run-review-confirm-dialog")).toBeInTheDocument();
   });
 
   it("requires confirmation before spending AI budget", async () => {

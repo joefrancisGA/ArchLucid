@@ -103,6 +103,7 @@ internal static class ContextIngestionCompositionRegistrar
         services.AddSingleton<IDiagramSourceParser, ArchLucidDiagramJsonParser>();
         services.AddSingleton<IDiagramSourceParser, DrawIoXmlDiagramSourceParser>();
         services.AddSingleton<IDiagramSourceParser, SvgDiagramSourceParser>();
+        services.AddSingleton<SimulatorVisionDiagramInterpreter>();
         services.AddSingleton<StructuredDiagramParseRouter>();
 
         // Typed connector stages (Phase 1 — composable extract + normalize; connectors remain IContextConnector facades).
