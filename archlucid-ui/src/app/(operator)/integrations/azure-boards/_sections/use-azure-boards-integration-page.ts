@@ -37,6 +37,10 @@ export type UseAzureBoardsIntegrationPageResult = {
   readonly connectionSaveError: string | null;
   readonly saveSuccess: string | null;
   readonly connectionSaveSuccess: string | null;
+  readonly settingsLastSavedUtc: string | null;
+  readonly settingsInlineSaveError: string | null;
+  readonly connectionLastSavedUtc: string | null;
+  readonly connectionInlineSaveError: string | null;
   readonly testError: string | null;
   readonly isLoading: boolean;
   readonly isSaving: boolean;
@@ -260,6 +264,10 @@ export function useAzureBoardsIntegrationPage(): UseAzureBoardsIntegrationPageRe
     connectionSaveError: mutations.connectionSaveError,
     saveSuccess: mutations.saveSuccess,
     connectionSaveSuccess: mutations.connectionSaveSuccess,
+    settingsLastSavedUtc: mutations.settingsLastSavedUtc,
+    settingsInlineSaveError: mutations.settingsInlineSaveError,
+    connectionLastSavedUtc: mutations.connectionLastSavedUtc,
+    connectionInlineSaveError: mutations.connectionInlineSaveError,
     testError: connectionTest.testError,
     isLoading,
     isSaving: mutations.isSaving,

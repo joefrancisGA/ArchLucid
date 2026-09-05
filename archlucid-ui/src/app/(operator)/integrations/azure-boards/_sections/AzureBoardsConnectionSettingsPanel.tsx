@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { LivelihoodPersistSaveStatus } from "@/components/operator/LivelihoodPersistSaveStatus";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,6 +39,8 @@ export type AzureBoardsConnectionSettingsPanelProps = {
   readonly connectionProvenance: string;
   readonly connectionSaveError: string | null;
   readonly connectionSaveSuccess: string | null;
+  readonly connectionLastSavedUtc: string | null;
+  readonly connectionInlineSaveError: string | null;
   readonly connectionSaveGate: ReturnType<typeof resolveAzureBoardsConnectionSaveGate>;
   readonly isSavingConnection: boolean;
   readonly onSaveConnection: () => void;
@@ -55,6 +58,8 @@ export function AzureBoardsConnectionSettingsPanel({
   connectionProvenance,
   connectionSaveError,
   connectionSaveSuccess,
+  connectionLastSavedUtc,
+  connectionInlineSaveError,
   connectionSaveGate,
   isSavingConnection,
   onSaveConnection,
@@ -86,6 +91,12 @@ export function AzureBoardsConnectionSettingsPanel({
           {connectionSaveSuccess}
         </p>
       ) : null}
+
+      <LivelihoodPersistSaveStatus
+        lastSavedUtc={connectionLastSavedUtc}
+        inlineSaveError={connectionInlineSaveError}
+        testId="azure-boards-connection-save-status"
+      />
 
       <div className="grid max-w-2xl gap-4">
         <div className="space-y-2">
