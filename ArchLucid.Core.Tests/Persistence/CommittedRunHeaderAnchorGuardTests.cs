@@ -286,6 +286,48 @@ public sealed class CommittedRunHeaderAnchorGuardTests
         act.Should().NotThrow();
     }
 
+    [Fact]
+    public void EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_boolean_scalar_equivalent_to_single_element_array_on_committed_run()
+    {
+        Guid manifestId = Guid.NewGuid();
+        RunRecord persisted = CreateRun(goldenManifestId: manifestId);
+        persisted.GovernanceScopeJson = """{"enabled":true}""";
+        RunRecord proposed = CreateRun(goldenManifestId: manifestId);
+        proposed.GovernanceScopeJson = """{"enabled":[true]}""";
+
+        Action act = () => CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, proposed);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_number_scalar_equivalent_to_single_element_array_on_committed_run()
+    {
+        Guid manifestId = Guid.NewGuid();
+        RunRecord persisted = CreateRun(goldenManifestId: manifestId);
+        persisted.GovernanceScopeJson = """{"version":1}""";
+        RunRecord proposed = CreateRun(goldenManifestId: manifestId);
+        proposed.GovernanceScopeJson = """{"version":[1]}""";
+
+        Action act = () => CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, proposed);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_on_synonym_boolean_only_change_on_committed_run()
+    {
+        Guid manifestId = Guid.NewGuid();
+        RunRecord persisted = CreateRun(goldenManifestId: manifestId);
+        persisted.GovernanceScopeJson = """{"flag":"on"}""";
+        RunRecord proposed = CreateRun(goldenManifestId: manifestId);
+        proposed.GovernanceScopeJson = """{"flag":true}""";
+
+        Action act = () => CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, proposed);
+
+        act.Should().NotThrow();
+    }
+
     private static RunRecord CreateRun(Guid? goldenManifestId)
     {
         return new RunRecord

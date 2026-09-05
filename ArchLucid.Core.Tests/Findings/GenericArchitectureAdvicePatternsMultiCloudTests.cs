@@ -49,6 +49,7 @@ public sealed class GenericArchitectureAdvicePatternsMultiCloudTests
     [InlineData("workload without enable mfa for service accounts")]
     [InlineData("policy avoids enable mfa for batch workloads")]
     [InlineData("enable mfa not required for batch service accounts")]
+    [InlineData("no need to enable mfa for this workload")]
     public void IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing(string message)
     {
         GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(message).Should().BeFalse();

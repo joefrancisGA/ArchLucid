@@ -48,6 +48,7 @@ public static class DeclarationSecurityPropertyKeyResolver
                 "tf.ingress",
                 "tf.network_rules",
                 "tf.networkrules",
+                "tf.networkacls",
             ],
         };
 

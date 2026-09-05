@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.Core.Explanation;
+
 namespace ArchLucid.Core.Persistence;
 
 /// <summary>
@@ -152,7 +154,7 @@ internal static class RunHeaderAnchorJsonComparer
 
     private static bool TryScalarSingleElementArrayEquivalent(JsonElement left, JsonElement right)
     {
-        if (left.ValueKind == JsonValueKind.String && right.ValueKind == JsonValueKind.Array)
+        if (IsScalarJsonKind(left.ValueKind) && right.ValueKind == JsonValueKind.Array)
         {
             if (right.GetArrayLength() != 1)
                 return false;
@@ -160,7 +162,7 @@ internal static class RunHeaderAnchorJsonComparer
             return ElementsEquivalent(left, right[0]);
         }
 
-        if (left.ValueKind == JsonValueKind.Array && right.ValueKind == JsonValueKind.String)
+        if (left.ValueKind == JsonValueKind.Array && IsScalarJsonKind(right.ValueKind))
         {
             if (left.GetArrayLength() != 1)
                 return false;
@@ -169,6 +171,14 @@ internal static class RunHeaderAnchorJsonComparer
         }
 
         return false;
+    }
+
+    private static bool IsScalarJsonKind(JsonValueKind kind)
+    {
+        return kind is JsonValueKind.String
+            or JsonValueKind.Number
+            or JsonValueKind.True
+            or JsonValueKind.False;
     }
 
     private static bool TryNullEmptyObjectEquivalent(JsonElement left, JsonElement right)
@@ -224,7 +234,7 @@ internal static class RunHeaderAnchorJsonComparer
         if (text is null)
             return false;
 
-        return bool.TryParse(text, out value);
+        return RunExplanationAggregateJsonReader.TryParseBooleanString(text, out value);
     }
 
     private static bool TryNumberStringEquivalent(JsonElement left, JsonElement right)
