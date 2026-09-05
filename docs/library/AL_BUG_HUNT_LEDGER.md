@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 172
-- **bugs-found:** 381
+- **hunts:** 173
+- **bugs-found:** 388
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — absent nested-empty array bridge, AccountSharedAccessKey/StorageAccountKey redaction, will/would/does-not-need negation, advice shall/will-not-require suffix
+- **last-bug:** 2026-09-05 — BlobAccessKey redaction, will/would-not-need and is-not-required-to/need-not-adopt negation, advice would/does-not-require suffix
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2365,6 +2365,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `will not require` suffix gap — **hit 2026-09-05 (#900):** same imperative suffix family; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_will_not_require_suffix_phrasing`).
 
 2026-09-05 seed hunt #900 (hit): reseeded after #899 closure; proved eight hunt-ready rows — absent nested-empty array bridge, AccountSharedAccessKey/StorageAccountKey redaction parity, will/would/does-not-need constraint negation, and advice shall/will-not-require suffix; cheap-disproved nested empty-object array bridge (already recurses via `TryObjectSingleElementArrayEquivalent`).
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BlobAccessKey` not redacted — **hit 2026-09-05 (#901):** compound access-key class after #900; embedded `AccessKey`/`accesskey` fragment guard skipped `BlobAccessKey`/`blobaccesskey`; fixed with explicit credential detection (`Resolve_redacts_blob_access_key_config_path`, `IsSensitiveKey_detects_blob_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `will not need` negation gap — **hit 2026-09-05 (#901):** #900 added `will not require` only; missed prohibitive `will not need {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_will_not_need_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `would not need` negation gap — **hit 2026-09-05 (#901):** same mid-sentence family as `will not need`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_would_not_need_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — `need not adopt` prefix negation gap — **hit 2026-09-05 (#901):** prefix list had `need not use`/`need not have` only; missed leading `need not adopt {token}`; fixed with prefix negation guard (`HasEncryptionConstraint_does_not_false_positive_on_need_not_adopt_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — `is not required to` prefix negation gap — **hit 2026-09-05 (#901):** prefix list had `not required to` only; missed leading `is not required to {token}` phrasing; fixed with prefix negation guard (`HasEncryptionConstraint_does_not_false_positive_on_is_not_required_to_use_encryption_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `would not require` suffix gap — **hit 2026-09-05 (#901):** #900 added `will not require` suffix only; missed trailing `would not require` on imperative regex matches; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_would_not_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `does not require` suffix gap — **hit 2026-09-05 (#901):** same imperative suffix family; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_does_not_require_suffix_phrasing`).
+
+2026-09-05 seed hunt #901 (hit): reseeded after #900 closure; proved eight hunt-ready rows — BlobAccessKey redaction parity, will/would-not-need and is-not-required-to/need-not-adopt constraint negation, and advice would/does-not-require suffix; cheap-disproved absent triple-nested-empty and null-vs-omitted anchor parity (already covered by #899–#900 bridges).
 
 2026-09-05 seed hunt #889: reseeded after #888 closure; proved anchor null-object/property-name trim, mid-sentence constraint negation, and Secretizer/Passwordizer redaction parity.
 2026-09-05 seed hunt #888: reseeded after #887 closure; proved ConnectionStringless config redaction, ARM key+free suffix parity, and anchor null array/string coercion.
