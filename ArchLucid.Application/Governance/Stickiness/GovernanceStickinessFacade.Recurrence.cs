@@ -194,6 +194,16 @@ public sealed partial class GovernanceStickinessFacade
 
         bool originalIsEnabled = existing.IsEnabled;
         string originalCron = existing.CronExpression;
+        string originalName = existing.Name;
+
+        bool isEnabledChanged = request.IsEnabled.HasValue && request.IsEnabled.Value != originalIsEnabled;
+        bool cronChanged = !string.IsNullOrWhiteSpace(request.CronExpression)
+            && !string.Equals(request.CronExpression.Trim(), originalCron, StringComparison.Ordinal);
+        bool nameChanged = !string.IsNullOrWhiteSpace(request.Name)
+            && !string.Equals(request.Name.Trim(), originalName, StringComparison.Ordinal);
+
+        if (!isEnabledChanged && !cronChanged && !nameChanged)
+            return new RecurrenceScheduleUpdateResult(RecurrenceScheduleUpdateOutcome.Updated, existing);
 
         if (request.IsEnabled.HasValue)
             existing.IsEnabled = request.IsEnabled.Value;
@@ -218,8 +228,7 @@ public sealed partial class GovernanceStickinessFacade
             existing.CronExpression = cron;
         }
 
-        bool scheduleTimingChanged = (request.IsEnabled.HasValue && request.IsEnabled.Value != originalIsEnabled)
-            || (!string.IsNullOrWhiteSpace(request.CronExpression) && request.CronExpression.Trim() != originalCron);
+        bool scheduleTimingChanged = isEnabledChanged || cronChanged;
 
         if (scheduleTimingChanged)
         {

@@ -71,6 +71,12 @@ public sealed partial class PolicyPackWorkflowFacade
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
+        IReadOnlyList<PolicyPackCatalogListItem> promotedBefore =
+            await _policyPackCatalogRepository.ListPromotedAsync(ct);
+
+        PolicyPackCatalogListItem? existingPromoted = promotedBefore
+            .FirstOrDefault(entry => entry.SourcePolicyPackId == sourcePolicyPackId);
+
         PolicyPackCatalogEntryDetail? row = await _policyPackCatalogAdminService.TryPromoteFromSourcePackAsync(
             scope,
             sourcePolicyPackId,
@@ -80,19 +86,26 @@ public sealed partial class PolicyPackWorkflowFacade
         if (row is null)
             return null;
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.PolicyPackCatalogPromoted,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        policyPackCatalogEntryId = row.PolicyPackCatalogEntryId,
-                        sourcePolicyPackId = row.SourcePolicyPackId,
-                        snapshotVersion = row.SnapshotVersion,
-                    }),
-            },
-            ct);
+        bool wasNewPromotion = existingPromoted is null
+            || existingPromoted.PolicyPackCatalogEntryId != row.PolicyPackCatalogEntryId
+            || !string.Equals(existingPromoted.SnapshotVersion, row.SnapshotVersion, StringComparison.Ordinal);
+
+        if (wasNewPromotion)
+        {
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.PolicyPackCatalogPromoted,
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            policyPackCatalogEntryId = row.PolicyPackCatalogEntryId,
+                            sourcePolicyPackId = row.SourcePolicyPackId,
+                            snapshotVersion = row.SnapshotVersion,
+                        }),
+                },
+                ct);
+        }
 
         return row;
     }
