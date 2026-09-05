@@ -3409,11 +3409,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 214
-- **bugs-found:** 436
+- **hunts:** 215
+- **bugs-found:** 437
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — product feedback runId/findingRef authority mismatch
+- **last-bug:** 2026-09-05 — finding ID case canonicalization for disposition trail/correction paths
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4459,6 +4459,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Digest enable-only POST with explicit empty `recipientEmails: []` wipes stored recipients — **cheap-disproof 2026-09-05:** `DigestRecipientEmailsValidator` rejects empty recipient list when `emailEnabled` is true (disable-only #793 parity does not apply to enable path).
 
 2026-09-05 seed hunt #818 (hit): proved product-feedback finding authority-run binding gap; cheap-disproved digest enable empty-recipient wipe candidate.
+
+- [x] (proven) `GovernanceStickinessFacade.ListDispositionsAsync` / `RecordDispositionAsync` / `GovernanceMutationCorrectionService.ValidateFindingDispositionSubjectAsync` / `FindingMergeConflictResolutionService` — route or subject `findingId` differing only by casing from inspect canonical id returned HTTP 200 `[]`, failed correction lookup, or missed merge-conflict member — **hit 2026-09-05 (#819):** resolve canonical `finding.FindingId` via inspect before trail/snapshot SQL (`ListDispositionsAsync_returns_history_when_finding_id_differs_only_by_casing`, `RecordAsync_appends_correction_for_keyboard_finding_disposition_when_subject_id_differs_only_by_casing`); merge-conflict lookup uses `OrdinalIgnoreCase`.
+
+2026-09-05 seed hunt #819 (hit): proved finding-id case canonicalization gap on disposition history, mutation correction, and merge-conflict resolution paths.
 
 2026-09-04 seed hunt #787 (hit): proved disposition inapplicable optional string silent drop beyond whitespace-only cases.
 

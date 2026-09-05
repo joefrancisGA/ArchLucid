@@ -25,6 +25,7 @@ public sealed class GovernanceMutationCorrectionService(
     IGovernancePromotionRecordRepository promotionRepo,
     IGovernanceEnvironmentActivationRepository activationRepo,
     IFindingReviewTrailRepository findingReviewTrailRepository,
+    IFindingInspectReadRepository findingInspectReadRepository,
     IScopeContextProvider scopeContextProvider,
     IRunRepository runRepository,
     IAuthorityQueryService authorityQueryService,
@@ -43,6 +44,9 @@ public sealed class GovernanceMutationCorrectionService(
 
     private readonly IFindingReviewTrailRepository _findingReviewTrailRepository =
         findingReviewTrailRepository ?? throw new ArgumentNullException(nameof(findingReviewTrailRepository));
+
+    private readonly IFindingInspectReadRepository _findingInspectReadRepository =
+        findingInspectReadRepository ?? throw new ArgumentNullException(nameof(findingInspectReadRepository));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -228,8 +232,19 @@ public sealed class GovernanceMutationCorrectionService(
         if (scope.TenantId == Guid.Empty)
             throw new ArgumentException("Tenant id is required.", nameof(scope));
 
+        FindingInspectResponse? finding = await _findingInspectReadRepository.GetInspectAsync(
+            scope,
+            findingId.Trim(),
+            cancellationToken,
+            FindingInspectReadOptions.MetadataOnly);
+
+        if (finding is null)
+            throw new KeyNotFoundException($"Finding '{findingId}' has no recorded disposition to correct.");
+
+        string canonicalFindingId = finding.FindingId;
+
         IReadOnlyList<FindingReviewEventRecord> events =
-            await _findingReviewTrailRepository.ListByFindingAsync(scope.TenantId, findingId, cancellationToken);
+            await _findingReviewTrailRepository.ListByFindingAsync(scope.TenantId, canonicalFindingId, cancellationToken);
 
         Guid? normalizedRunGuid = Guid.TryParse(normalizedRunId, out Guid parsedRunId) ? parsedRunId : null;
 

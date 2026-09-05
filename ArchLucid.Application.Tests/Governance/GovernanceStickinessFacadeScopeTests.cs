@@ -349,6 +349,52 @@ public sealed class GovernanceStickinessFacadeScopeTests
     }
 
     [Fact]
+    public async Task ListDispositionsAsync_returns_history_when_finding_id_differs_only_by_casing()
+    {
+        Mock<IFindingInspectReadRepository> findings = new();
+        findings
+            .Setup(r => r.GetInspectAsync(
+                CallerScope,
+                "find-abc",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = "FIND-ABC" });
+
+        Mock<ArchLucid.Persistence.Data.Repositories.IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(t => t.ListByFindingAsync(CallerScope.TenantId, "FIND-ABC", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new FindingReviewEventRecord
+                {
+                    EventId = Guid.NewGuid(),
+                    TenantId = CallerScope.TenantId,
+                    WorkspaceId = CallerScope.WorkspaceId,
+                    ProjectId = CallerScope.ProjectId,
+                    FindingId = "FIND-ABC",
+                    ReviewerUserId = "reviewer-in-scope",
+                    Action = FindingReviewAction.RecordDisposition,
+                    Disposition = ArchLucid.Contracts.Findings.FindingDisposition.Accepted,
+                    OccurredAtUtc = DateTimeOffset.UtcNow,
+                },
+            ]);
+
+        FindingDispositionService dispositionService = new(
+            Mock.Of<ArchLucid.Application.Governance.FindingReview.IFindingReviewTrailAppendService>(),
+            trail.Object);
+
+        GovernanceStickinessFacade sut = CreateSut(
+            findingInspect: findings.Object,
+            dispositionService: dispositionService);
+
+        IReadOnlyList<FindingDispositionEventDto> history =
+            await sut.ListDispositionsAsync("find-abc", CancellationToken.None);
+
+        history.Should().ContainSingle();
+        history[0].FindingId.Should().Be("FIND-ABC");
+    }
+
+    [Fact]
     public async Task GetRiskRegisterAsync_passes_caller_workspace_to_risk_register_service()
     {
         Guid? capturedWorkspaceId = null;
