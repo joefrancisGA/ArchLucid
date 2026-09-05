@@ -41,6 +41,7 @@ public static class DeclarationSecurityPropertyKeyResolver
             [
                 "tf.ssl_enforcement_enabled",
                 "tf.sslenforcementenabled",
+                "sslEnforcementEnabled",
             ],
             [DeclarationSecurityPropertyLogicalNames.IngressBlob] =
             [

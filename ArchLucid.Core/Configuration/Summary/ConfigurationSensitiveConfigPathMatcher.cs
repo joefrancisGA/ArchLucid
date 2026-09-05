@@ -96,7 +96,8 @@ internal static class ConfigurationSensitiveConfigPathMatcher
         if (fragment.Equals("ConnectionString", StringComparison.OrdinalIgnoreCase)
             && fragmentIndex + fragment.Length < segment.Length
             && (segment.Slice(fragmentIndex + fragment.Length).StartsWith("free", StringComparison.OrdinalIgnoreCase)
-                || segment.Slice(fragmentIndex + fragment.Length).StartsWith("less", StringComparison.OrdinalIgnoreCase)))
+                || segment.Slice(fragmentIndex + fragment.Length).StartsWith("less", StringComparison.OrdinalIgnoreCase)
+                || segment.Slice(fragmentIndex + fragment.Length).StartsWith("izer", StringComparison.OrdinalIgnoreCase)))
             return true;
 
         if (fragment.Equals("Secret", StringComparison.OrdinalIgnoreCase)
@@ -116,7 +117,8 @@ internal static class ConfigurationSensitiveConfigPathMatcher
         if (fragment.Equals("ApiKey", StringComparison.OrdinalIgnoreCase)
             && fragmentIndex + fragment.Length < segment.Length
             && (segment.Slice(fragmentIndex + fragment.Length).StartsWith("less", StringComparison.OrdinalIgnoreCase)
-                || segment.Slice(fragmentIndex + fragment.Length).StartsWith("free", StringComparison.OrdinalIgnoreCase)))
+                || segment.Slice(fragmentIndex + fragment.Length).StartsWith("free", StringComparison.OrdinalIgnoreCase)
+                || segment.Slice(fragmentIndex + fragment.Length).StartsWith("izer", StringComparison.OrdinalIgnoreCase)))
             return true;
 
         return false;

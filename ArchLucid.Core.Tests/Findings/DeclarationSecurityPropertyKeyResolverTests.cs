@@ -65,6 +65,25 @@ public sealed class DeclarationSecurityPropertyKeyResolverTests
     }
 
     [Fact]
+    public void TryGet_resolves_arm_sslEnforcementEnabled()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["sslEnforcementEnabled"] = "Enabled",
+        };
+
+        bool found = DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.SslEnforcementEnabled,
+            out string? canonicalKey,
+            out string? value);
+
+        found.Should().BeTrue();
+        canonicalKey.Should().Be("sslEnforcementEnabled");
+        value.Should().Be("Enabled");
+    }
+
+    [Fact]
     public void TryGet_returns_false_for_empty_properties()
     {
         bool found = DeclarationSecurityPropertyKeyResolver.TryGet(

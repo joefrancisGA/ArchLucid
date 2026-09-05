@@ -136,7 +136,8 @@ public static partial class GenericArchitectureAdvicePatterns
                 return true;
         }
 
-        if (ImperativeGenericAdvice().IsMatch(normalized))
+        if (ImperativeGenericAdvice().Match(normalized) is { Success: true } imperativeMatch
+            && !IsSuffixNegatedAdviceFragment(normalized, imperativeMatch.Index, imperativeMatch.Length))
             return true;
 
         return false;
@@ -154,6 +155,7 @@ public static partial class GenericArchitectureAdvicePatterns
                 return false;
 
             if (!IsNegatedAdviceFragment(normalized, index)
+                && !IsSuffixNegatedAdviceFragment(normalized, index, fragment.Length)
                 && !IsEmbeddedAdviceFragment(normalized, index))
                 return true;
 
@@ -190,6 +192,19 @@ public static partial class GenericArchitectureAdvicePatterns
             || before.EndsWith("avoid", StringComparison.Ordinal)
             || before.EndsWith("not", StringComparison.Ordinal)
             || before.EndsWith("no", StringComparison.Ordinal);
+    }
+
+    private static bool IsSuffixNegatedAdviceFragment(string normalized, int fragmentIndex, int fragmentLength)
+    {
+        ReadOnlySpan<char> after = normalized.AsSpan(fragmentIndex + fragmentLength).TrimStart();
+
+        if (after.Length < 2)
+            return false;
+
+        return after.StartsWith("not required", StringComparison.Ordinal)
+            || after.StartsWith("not needed", StringComparison.Ordinal)
+            || after.StartsWith("is not required", StringComparison.Ordinal)
+            || after.StartsWith("is not needed", StringComparison.Ordinal);
     }
 
     /// <summary>

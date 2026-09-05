@@ -59,6 +59,8 @@ public sealed class ConfigurationEffectiveValueResolverTests
     [InlineData("ArchLucid:ConnectionStringFreeSettings:Enabled", "true")]
     [InlineData("ArchLucid:ConnectionStringlessSettings:Enabled", "true")]
     [InlineData("ArchLucid:SecretizerModule:Name", "module-a")]
+    [InlineData("ArchLucid:ApiKeyizerModule:Name", "module-a")]
+    [InlineData("ArchLucid:ConnectionStringizerSettings:Enabled", "true")]
     [InlineData("ArchLucid:PasswordizerAuth:Mode", "managed-identity")]
     [InlineData("ArchLucid:PasswordFreeAuth:Mode", "managed-identity")]
     [InlineData("ArchLucid:SecretFreeStorage:Bucket", "logs")]

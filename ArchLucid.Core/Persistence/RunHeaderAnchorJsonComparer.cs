@@ -144,6 +144,30 @@ internal static class RunHeaderAnchorJsonComparer
         if (TryNullEmptyObjectEquivalent(left, right))
             return true;
 
+        if (TryScalarSingleElementArrayEquivalent(left, right))
+            return true;
+
+        return false;
+    }
+
+    private static bool TryScalarSingleElementArrayEquivalent(JsonElement left, JsonElement right)
+    {
+        if (left.ValueKind == JsonValueKind.String && right.ValueKind == JsonValueKind.Array)
+        {
+            if (right.GetArrayLength() != 1)
+                return false;
+
+            return ElementsEquivalent(left, right[0]);
+        }
+
+        if (left.ValueKind == JsonValueKind.Array && right.ValueKind == JsonValueKind.String)
+        {
+            if (left.GetArrayLength() != 1)
+                return false;
+
+            return ElementsEquivalent(left[0], right);
+        }
+
         return false;
     }
 
