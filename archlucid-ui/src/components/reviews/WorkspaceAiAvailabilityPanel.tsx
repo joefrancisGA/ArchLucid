@@ -10,6 +10,7 @@ import {
   type WorkspaceAiAvailabilityCheck,
 } from "@/hooks/useWorkspaceAiAvailabilityCheck";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
 import type { WorkspaceAiConfigurationSignal } from "@/lib/review-failure-recovery-role-copy";
 import type { WorkspaceAiAvailabilityResult } from "@/lib/workspace-ai-availability";
 import {
@@ -70,13 +71,13 @@ function formatProbeFreshnessLabel(asOfUtc: string): string | null {
     return null;
   }
 
-  const parsed = new Date(normalized);
+  const formatted = formatInstantForLocale(normalized);
 
-  if (Number.isNaN(parsed.getTime())) {
+  if (formatted === " — ") {
     return null;
   }
 
-  return parsed.toLocaleString();
+  return formatted;
 }
 
 function buildProbeDetailsTriggerLabel(result: WorkspaceAiAvailabilityResult, compact: boolean): string {
@@ -240,7 +241,7 @@ function WorkspaceAiProbeDiagnostics(props: {
 
       {!compact ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-package-workspace-ai-as-of">
-          Validated at {new Date(result.asOfUtc).toLocaleString()} · source {result.aiSource}
+          Validated at {formatInstantForLocale(result.asOfUtc)} · source {result.aiSource}
         </p>
       ) : null}
     </div>
