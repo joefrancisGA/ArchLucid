@@ -125,6 +125,25 @@ public sealed partial class CompareRunsApplicationFacade
 
         try
         {
+            await CompareRunsSealedManifestHashGuard.EnsureRunPairSealedManifestHashesOrThrowAsync(
+                leftGuid,
+                rightGuid,
+                scope,
+                _authorityQuery,
+                _manifestHashService,
+                ct);
+        }
+        catch (ConflictException)
+        {
+            return new ScopedRunPairLoadResult
+            {
+                Outcome = ScopedRunPairLoadOutcome.SealedManifestHashMismatch,
+                RunId = leftGuid,
+            };
+        }
+
+        try
+        {
             RunComparePinFingerprintGuard.EnsureCommittedArtifactInventoryFingerprintsMatchOrThrow(
                 CommittedArtifactInventoryCompareFingerprint.ComputeHashSha256(
                     leftCompare.GoldenManifest.CommittedArtifactInventory),

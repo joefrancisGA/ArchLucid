@@ -1,10 +1,13 @@
 using System.Data;
 
+using ArchLucid.Application.Integration;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.IntegrationOutbox;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -14,13 +17,15 @@ namespace ArchLucid.Application.Runs.Orchestration.Pipeline;
 /// <summary>Publishes batched high-severity findings integration events when a snapshot is sealed.</summary>
 internal static class FindingsIntegrationEventPublishing
 {
-    internal static Task TryPublishHighSeverityCapturedAsync(
+    internal static async Task TryPublishHighSeverityCapturedAsync(
         IIntegrationEventOutboxRepository integrationEventOutbox,
         IIntegrationEventPublisher integrationEventPublisher,
         IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
         ILogger logger,
         FindingsSnapshot findingsSnapshot,
         ScopeContext scope,
+        IAuthorityQueryService authorityQueryService,
+        IManifestHashService manifestHashService,
         string publicBaseUrl,
         IDbConnection? connection,
         IDbTransaction? transaction,
@@ -32,13 +37,22 @@ internal static class FindingsIntegrationEventPublishing
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentNullException.ThrowIfNull(findingsSnapshot);
         ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(authorityQueryService);
+        ArgumentNullException.ThrowIfNull(manifestHashService);
 
         List<Finding> highSeverityFindings = findingsSnapshot.Findings
             .Where(f => IsHighSeverity(f.Severity))
             .ToList();
 
         if (highSeverityFindings.Count == 0)
-            return Task.CompletedTask;
+            return;
+
+        string? manifestHash = await RunIntegrationEventManifestHashResolver.TryResolveVerifiedManifestHashAsync(
+            findingsSnapshot.RunId,
+            scope,
+            authorityQueryService,
+            manifestHashService,
+            cancellationToken);
 
         string normalizedBaseUrl = NormalizePublicSiteBaseUrl(publicBaseUrl);
         object[] findingRows = BuildFindingRows(findingsSnapshot.RunId, highSeverityFindings, normalizedBaseUrl);
@@ -52,13 +66,14 @@ internal static class FindingsIntegrationEventPublishing
             runId = findingsSnapshot.RunId,
             findingsSnapshotId = findingsSnapshot.FindingsSnapshotId,
             highSeverityCount = highSeverityFindings.Count,
+            manifestHash,
             findings = findingRows,
         };
 
         string messageId =
             $"{findingsSnapshot.RunId:D}:{findingsSnapshot.FindingsSnapshotId:D}:{IntegrationEventTypes.FindingsHighSeverityCapturedV1}";
 
-        return OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
+        await OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
             integrationEventOutbox,
             integrationEventPublisher,
             integrationEventsOptions.CurrentValue,

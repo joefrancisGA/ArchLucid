@@ -25,9 +25,11 @@ import {
   resolvePilotRoiValidationVerdict,
   type PilotRoiValidationVerdict,
 } from "@/lib/pilot-roi-validation-handoff";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
 export type PilotRoiValidationHandoffCardProps = {
   readonly runId: string;
+  readonly manifestVersion?: string | null;
   readonly payload: PilotRunDeltasProofSummaryJson | null;
   readonly curatedSampleRun?: boolean;
   readonly className?: string;
@@ -58,7 +60,7 @@ function verdictBorderClass(verdict: PilotRoiValidationVerdict): string {
 }
 
 export function PilotRoiValidationHandoffCard(props: PilotRoiValidationHandoffCardProps) {
-  const { runId, payload, curatedSampleRun = false, className } = props;
+  const { runId, manifestVersion, payload, curatedSampleRun = false, className } = props;
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const verdictCopy = resolvePilotRoiValidationVerdict(payload, { curatedSampleRun });
@@ -88,6 +90,13 @@ export function PilotRoiValidationHandoffCard(props: PilotRoiValidationHandoffCa
   }, [copyState]);
 
   async function onCopyChecklist(): Promise<void> {
+    const blockedReason = runCollateralSealedManifestCopyBlockedReason({ runId, manifestVersion });
+
+    if (blockedReason !== null) {
+      setCopyState("failed");
+      return;
+    }
+
     try {
       await navigator.clipboard.writeText(buildPilotRoiValidationChecklistMarkdown(runId, payload));
       setCopyState("copied");

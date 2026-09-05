@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Http;
 using ArchLucid.Application.Reporting;
@@ -9,7 +10,9 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Runs.Query.Stages;
 
@@ -18,6 +21,8 @@ public sealed class RunFindingsCsvExportStage(
     IRunRepository authorityRunRepository,
     RunFindingExternalTrackingEnrichmentService runFindingExternalTrackingEnrichmentService,
     IScopeContextProvider scopeContextProvider,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     ExportFormatterService exportFormatter) : IRunFindingsCsvExportStage
 {
     public async Task<RunFindingsCsvExportQueryResult> ExportRunFindingsCsvAsync(
@@ -67,6 +72,24 @@ public sealed class RunFindingsCsvExportStage(
         }
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        try
+        {
+            await RunExportSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                runId,
+                scope,
+                authorityQueryService,
+                manifestHashService,
+                cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return new RunFindingsCsvExportQueryResult
+            {
+                Outcome = RunFindingsQueryOutcome.Conflict,
+                ProblemDetail = ex.Message
+            };
+        }
         Guid? findingsSnapshotId = null;
 
         if (AuthorityRunIdentifier.TryParse(runId, out Guid runGuidForSnapshot))

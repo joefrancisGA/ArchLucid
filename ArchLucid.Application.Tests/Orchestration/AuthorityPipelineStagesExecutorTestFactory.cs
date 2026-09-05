@@ -14,6 +14,7 @@ using ArchLucid.Core.Authority;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Findings;
 using ArchLucid.Core.Integration;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
@@ -23,6 +24,7 @@ using ArchLucid.Persistence.Cosmos;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -324,6 +326,8 @@ internal static class AuthorityPipelineStagesExecutorTestFactory
                 Mock.Of<IIntegrationEventPublisher>(),
                 integrationEventsOptions,
                 publicSiteOptions,
+                Mock.Of<IAuthorityQueryService>(),
+                Mock.Of<IManifestHashService>(),
                 NullLogger<AuthorityPipelineFindingsStage>.Instance),
             new AuthorityPipelineDecisioningStage(
                 decision.Object,

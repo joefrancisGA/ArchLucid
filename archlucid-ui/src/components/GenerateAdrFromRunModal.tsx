@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { buildMadrMarkdownFromRun, type AdrGeneratorRunInput } from "@/lib/adr-from-run";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import {
   parseReviewGenerateAdrOpenFromSearch,
   reviewGenerateAdrPanelsHrefFromSearch,
@@ -79,6 +80,15 @@ export function GenerateAdrFromRunModal({ input, buyerPolished = false }: Genera
   );
 
   const onCopy = useCallback(async () => {
+    const blockedReason = runCollateralSealedManifestCopyBlockedReason({
+      runId: input.runId,
+      manifestVersion: input.manifestStatusLabel,
+    });
+
+    if (blockedReason !== null) {
+      return;
+    }
+
     try {
       await navigator.clipboard.writeText(markdown);
       setCopied(true);
@@ -91,6 +101,15 @@ export function GenerateAdrFromRunModal({ input, buyerPolished = false }: Genera
   }, [markdown]);
 
   const onDownload = useCallback(() => {
+    const blockedReason = runCollateralSealedManifestCopyBlockedReason({
+      runId: input.runId,
+      manifestVersion: input.manifestStatusLabel,
+    });
+
+    if (blockedReason !== null) {
+      return;
+    }
+
     const blob = new Blob([markdown], { type: "text/markdown;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
