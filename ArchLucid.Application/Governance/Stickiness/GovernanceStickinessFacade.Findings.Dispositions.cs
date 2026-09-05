@@ -19,6 +19,16 @@ public sealed partial class GovernanceStickinessFacade
         EnsureRunMatchesFindingAuthorityRun(request.RunId, finding);
         await EnsureRunInScopeWhenProvidedAsync(scope, request.RunId, ct);
 
+        if (request.RunId.HasValue && request.RunId.Value != Guid.Empty)
+        {
+            await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                request.RunId.Value,
+                scope,
+                _authorityQueryService,
+                _manifestHashService,
+                ct);
+        }
+
         RecordFindingDispositionRequest normalized = new()
         {
             FindingId = finding.FindingId,
@@ -61,6 +71,21 @@ public sealed partial class GovernanceStickinessFacade
                 finding);
             await EnsureRunInScopeWhenProvidedAsync(scope, authorityRunId == Guid.Empty ? null : authorityRunId, ct);
             findingsInScope.Add(finding);
+        }
+
+        HashSet<Guid> sealedRunIds = findingsInScope
+            .Select(static finding => finding.RunId)
+            .Where(static runId => runId != Guid.Empty)
+            .ToHashSet();
+
+        foreach (Guid runId in sealedRunIds)
+        {
+            await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                runId,
+                scope,
+                _authorityQueryService,
+                _manifestHashService,
+                ct);
         }
 
         foreach (FindingInspectResponse finding in findingsInScope)

@@ -24,7 +24,8 @@ export function useGlobalSearchBar() {
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
-  const globalSearchOpenParam = searchParams.get("globalSearchOpen");
+  const currentSearch = searchParams?.toString() ?? "";
+  const globalSearchOpenParam = searchParams?.get("globalSearchOpen") ?? null;
   const urlOpen = parseGlobalSearchBarOpenFromSearch(globalSearchOpenParam);
   const inputRef = useRef<HTMLInputElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -34,8 +35,6 @@ export function useGlobalSearchBar() {
 
   const syncGlobalSearchOpenToUrl = useCallback(
     (panelOpen: boolean) => {
-      const currentSearch = searchParams.toString();
-
       if (isGlobalSearchBarOverlayHrefCurrent(currentSearch, panelOpen, pathname)) {
         return;
       }
@@ -44,7 +43,7 @@ export function useGlobalSearchBar() {
         scroll: false,
       });
     },
-    [pathname, router, searchParams],
+    [currentSearch, pathname, router],
   );
 
   const setOpen = useCallback((value: SetStateAction<boolean>) => {
@@ -54,6 +53,8 @@ export function useGlobalSearchBar() {
   useEffect(() => {
     // Keep router.replace out of the open-state updater. React runs updaters during
     // render, and replacing the URL would update Router while GlobalSearchBar renders.
+    // Depend on the parsed flag, not searchParams identity, so a new params object
+    // cannot look like an external close and collapse the panel.
 
     if (previousUrlOpenRef.current !== urlOpen) {
       previousUrlOpenRef.current = urlOpen;
@@ -70,7 +71,6 @@ export function useGlobalSearchBar() {
     }
 
     syncGlobalSearchOpenToUrl(open);
-    previousUrlOpenRef.current = open;
   }, [open, syncGlobalSearchOpenToUrl, urlOpen]);
 
   const {

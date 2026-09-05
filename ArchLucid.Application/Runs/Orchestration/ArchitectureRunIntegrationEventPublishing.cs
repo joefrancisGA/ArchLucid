@@ -1,9 +1,12 @@
+using ArchLucid.Application.Integration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.IntegrationOutbox;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -13,7 +16,7 @@ namespace ArchLucid.Application.Runs.Orchestration;
 /// <summary>Publishes authority run failure integration events after execute orchestration marks a run failed.</summary>
 internal static class ArchitectureRunIntegrationEventPublishing
 {
-    internal static Task TryPublishRunFailedAsync(
+    internal static async Task TryPublishRunFailedAsync(
         IIntegrationEventOutboxRepository integrationEventOutbox,
         IIntegrationEventPublisher integrationEventPublisher,
         IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
@@ -21,6 +24,8 @@ internal static class ArchitectureRunIntegrationEventPublishing
         Guid runId,
         ScopeContext scope,
         AgentExecutionFailureSummary failureSummary,
+        IAuthorityQueryService authorityQueryService,
+        IManifestHashService manifestHashService,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(integrationEventOutbox);
@@ -29,6 +34,15 @@ internal static class ArchitectureRunIntegrationEventPublishing
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(failureSummary);
+        ArgumentNullException.ThrowIfNull(authorityQueryService);
+        ArgumentNullException.ThrowIfNull(manifestHashService);
+
+        string? manifestHash = await RunIntegrationEventManifestHashResolver.TryResolveVerifiedManifestHashOrNullAsync(
+            runId,
+            scope,
+            authorityQueryService,
+            manifestHashService,
+            cancellationToken);
 
         object payload = new
         {
@@ -37,6 +51,7 @@ internal static class ArchitectureRunIntegrationEventPublishing
             workspaceId = scope.WorkspaceId,
             projectId = scope.ProjectId,
             runId,
+            manifestHash,
             failureClass = failureSummary.FailureClass,
             agentType = failureSummary.AgentType,
             agentTypeKey = failureSummary.AgentTypeKey,
@@ -46,7 +61,7 @@ internal static class ArchitectureRunIntegrationEventPublishing
 
         string messageId = $"{runId:D}:{IntegrationEventTypes.AuthorityRunFailedV1}";
 
-        return OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
+        await OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
             integrationEventOutbox,
             integrationEventPublisher,
             integrationEventsOptions.CurrentValue,
@@ -63,7 +78,7 @@ internal static class ArchitectureRunIntegrationEventPublishing
             cancellationToken);
     }
 
-    internal static Task TryPublishQualityGateRejectedAsync(
+    internal static async Task TryPublishQualityGateRejectedAsync(
         IIntegrationEventOutboxRepository integrationEventOutbox,
         IIntegrationEventPublisher integrationEventPublisher,
         IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
@@ -71,6 +86,8 @@ internal static class ArchitectureRunIntegrationEventPublishing
         Guid runId,
         ScopeContext scope,
         AgentOutputQualityGateRejectedException rejection,
+        IAuthorityQueryService authorityQueryService,
+        IManifestHashService manifestHashService,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(integrationEventOutbox);
@@ -79,6 +96,15 @@ internal static class ArchitectureRunIntegrationEventPublishing
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(rejection);
+        ArgumentNullException.ThrowIfNull(authorityQueryService);
+        ArgumentNullException.ThrowIfNull(manifestHashService);
+
+        string? manifestHash = await RunIntegrationEventManifestHashResolver.TryResolveVerifiedManifestHashOrNullAsync(
+            runId,
+            scope,
+            authorityQueryService,
+            manifestHashService,
+            cancellationToken);
 
         object payload = new
         {
@@ -87,6 +113,7 @@ internal static class ArchitectureRunIntegrationEventPublishing
             workspaceId = scope.WorkspaceId,
             projectId = scope.ProjectId,
             runId,
+            manifestHash,
             traceId = rejection.TraceId,
             agentLabel = rejection.AgentLabel,
             evaluationReason = rejection.EvaluationReason,
@@ -100,7 +127,7 @@ internal static class ArchitectureRunIntegrationEventPublishing
 
         string messageId = $"{runId:D}:{IntegrationEventTypes.AuthorityRunQualityGateRejectedV1}";
 
-        return OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
+        await OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
             integrationEventOutbox,
             integrationEventPublisher,
             integrationEventsOptions.CurrentValue,

@@ -41,7 +41,7 @@ export function deriveAuditLineageCheckboxPresentation(
 
   if (lineage.evaluation?.outcome === "InsufficientEvidence") {
     return {
-      kind: "warning",
+      kind: "needs-attention",
       label: "Insufficient evidence",
       detail: "Evaluation did not reach technical support.",
     };

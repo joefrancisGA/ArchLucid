@@ -9,11 +9,13 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.IntegrationOutbox;
+using ArchLucid.Persistence.Queries;
 
 using Moq;
 
@@ -144,6 +146,8 @@ public static class GovernanceWorkflowTestComposition
             integrationEventOutbox,
             integrationEventPublisher,
             integrationEventsOptions,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
             NullLogger<GovernanceWorkflowIntegrationEventSupport>.Instance);
 
         return (auditSupport, integrationEvents);

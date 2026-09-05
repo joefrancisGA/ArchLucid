@@ -3,11 +3,12 @@
 > **Paste-ready files:** [`.cursor/prompts/sealed-desk-00-index.md`](../../.cursor/prompts/sealed-desk-00-index.md) (**SD-01–12**)
 > **Wave 8 (run first):** [`INSTRUMENT_SPINE_COMPOSER_PROMPTS.md`](INSTRUMENT_SPINE_COMPOSER_PROMPTS.md) (**IS-01–15**)
 > **Wave 9 (run second):** [`LIVELIHOOD_SPINE_COMPOSER_PROMPTS.md`](LIVELIHOOD_SPINE_COMPOSER_PROMPTS.md) (**LS-01–12**)
+> **Wave 11 leftovers:** [`CAREER_RECORD_COMPOSER_PROMPTS.md`](CAREER_RECORD_COMPOSER_PROMPTS.md) (**CR-01–12**) — do not fork IS/LS/SD
 > **Shipped predecessors:** LI-01–15 (`master` #1397), LD-01–15 (#1421 / #1439), RS-01–15 (#1457), WA-01–24 (#1496), FD-01–13 (#1534 / #1537)
 
 # Sealed-desk Composer prompts (SD-01–SD-12)
 
-**Created:** 2026-09-05 · **Status:** ready to run **after IS-01–15 and LS-01–12** · **Do not re-run LI, LD, RS, WA, CD, AD, FD, IS, or LS.**
+**Created:** 2026-09-05 · **Status:** ready to run **after IS-01–15 and LS-01–12** · **Do not re-run LI, LD, RS, WA, CD, AD, FD, IS, or LS.** Wave 11: [`CAREER_RECORD_COMPOSER_PROMPTS.md`](CAREER_RECORD_COMPOSER_PROMPTS.md) (**CR-01–12**).
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record. Waves 8–9 own the load-bearing bets and the 2026-09-05 diagnosis leftovers (one work object, density as a control, wait as background, dual-pane selection, Ask/Compare scoped to the open package, R12 execute, BFF session).
 
@@ -76,3 +77,4 @@ See [`.cursor/prompts/sealed-desk-00-index.md`](../../.cursor/prompts/sealed-des
 - **FD-01–13** / **AD-01–12** / **CD-01–15**
 - **WA-01–24** / **RS-01–15** / **LD-01–15** / **LI-01–15**
 - **PT-01–20** / **WD-01–12** / **DD-01–10**
+- **CR-01–12** — wave 11 leftovers; do not implement from SD files

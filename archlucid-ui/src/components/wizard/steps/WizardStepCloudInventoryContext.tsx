@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -22,6 +23,10 @@ import {
 } from "@/lib/cloud-neutral-primary-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { WizardFormValues } from "@/lib/wizard-schema";
+import {
+  parseWizardInventoryOpenFromSearch,
+  wizardStepCloudInventoryHrefFromSearch,
+} from "@/lib/wizard/wizard-step-cloud-inventory-url";
 
 const WIZARD_INVENTORY_CLOUD_TARGETS = [
   { value: "Azure", label: WIZARD_CLOUD_PROVIDER_OPTIONS.azure },
@@ -63,10 +68,37 @@ export function WizardStepCloudInventoryContext({
   pendingFile,
   onPendingFileChange,
 }: WizardStepCloudInventoryContextProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const wizardInventoryOpenParam = searchParams.get("wizardInventoryOpen");
   const { watch, control, clearErrors } = useFormContext<WizardFormValues>();
   const cloudProvider = watch("cloudProvider");
   const inventoryPlatform = resolveInventoryPlatform(cloudProvider);
-  const [inventoryOpen, setInventoryOpen] = useState(false);
+  const [inventoryOpen, setInventoryOpenState] = useState(() =>
+    parseWizardInventoryOpenFromSearch(wizardInventoryOpenParam),
+  );
+
+  const syncInventoryOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(wizardStepCloudInventoryHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setInventoryOpen = useCallback(
+    (open: boolean) => {
+      setInventoryOpenState(open);
+      syncInventoryOpenToUrl(open);
+    },
+    [syncInventoryOpenToUrl],
+  );
+
+  useEffect(() => {
+    setInventoryOpenState(parseWizardInventoryOpenFromSearch(wizardInventoryOpenParam));
+  }, [wizardInventoryOpenParam]);
 
   return (
     <section className="space-y-4" aria-labelledby="wizard-cloud-inventory-ingest-heading">

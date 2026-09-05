@@ -5,6 +5,7 @@
      is authorized to change the three load-bearing bets those waves left intact.
      Wave 9 leftovers: livelihood-spine-00-index.md (LS-01–12).
      Wave 10 leftovers: sealed-desk-00-index.md (SD-01–12).
+     Wave 11 leftovers: career-record-00-index.md (CR-01–12).
      Do not implement from this index. -->
 
 # Instrument-spine mitigations — Composer prompt set (IS-01–IS-15)
@@ -52,6 +53,7 @@ Do **not** collapse desktop review tabs behind **More**. Do **not** auto-switch 
 | **IS-01–15** | **This set** — wave 8 load-bearing bets | Run these |
 | **LS-01–12** | Wave 9 diagnosis leftovers | [`livelihood-spine-00-index.md`](livelihood-spine-00-index.md) |
 | **SD-01–12** | Wave 10 residuals after IS+LS | [`sealed-desk-00-index.md`](sealed-desk-00-index.md) |
+| **CR-01–12** | Wave 11 residuals after IS+LS+SD | [`career-record-00-index.md`](career-record-00-index.md) |
 
 If an IS row lists a CD/AD/FD/WA/WD/PT owner, **do not fork** that file. Implement only the leftover in *What to build*.
 
@@ -121,3 +123,5 @@ Insight-density measurement (ID-01–10) is **shipped and advisory**. This set *
 Summarize: files changed, tests run, residual risk, Working vs Guided behavior, **which load-bearing bet moved**, and whether Guided/demo/trial still work without that prompt. Do not mark LI, LD, RS, WA, CD, AD, or FD as undone.
 
 **Wave 9:** [`livelihood-spine-00-index.md`](livelihood-spine-00-index.md) (**LS-01–12**). Do not fork IS-01–15.
+**Wave 10:** [`sealed-desk-00-index.md`](sealed-desk-00-index.md) (**SD-01–12**).
+**Wave 11:** [`career-record-00-index.md`](career-record-00-index.md) (**CR-01–12**). Do not fork IS/LS/SD.

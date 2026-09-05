@@ -1,4 +1,6 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Advisory;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Scheduling;
@@ -23,7 +25,8 @@ public sealed partial class AdvisorySchedulingController
     /// </remarks>
     [HttpGet("digests")]
     [ProducesResponseType(typeof(IReadOnlyList<ArchitectureDigest>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IReadOnlyList<ArchitectureDigest>>> ListDigests(
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> ListDigests(
         [FromQuery] int take = 20,
         CancellationToken ct = default)
     {
@@ -37,6 +40,23 @@ public sealed partial class AdvisorySchedulingController
             take,
             ct);
 
+        foreach (ArchitectureDigest digest in digests)
+        {
+            try
+            {
+                await AdvisoryDigestReadSealedManifestHashGuard.EnsureDigestRunSealedOrThrowAsync(
+                    digest,
+                    scope,
+                    authorityQueryService,
+                    manifestHashService,
+                    ct);
+            }
+            catch (ConflictException ex)
+            {
+                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            }
+        }
+
         return Ok(digests);
     }
 
@@ -48,6 +68,7 @@ public sealed partial class AdvisorySchedulingController
     [HttpGet("digests/{digestId:guid}")]
     [ProducesResponseType(typeof(ArchitectureDigest), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetDigest(Guid digestId, CancellationToken ct = default)
     {
         ArchitectureDigest? digest = await digestRepository.GetByIdAsync(digestId, ct);
@@ -60,6 +81,20 @@ public sealed partial class AdvisorySchedulingController
             digest.ProjectId != scope.ProjectId)
             return this.NotFoundProblem($"Digest '{digestId}' was not found in the current scope.",
                 ProblemTypes.ResourceNotFound);
+
+        try
+        {
+            await AdvisoryDigestReadSealedManifestHashGuard.EnsureDigestRunSealedOrThrowAsync(
+                digest,
+                scope,
+                authorityQueryService,
+                manifestHashService,
+                ct);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         return Ok(digest);
     }

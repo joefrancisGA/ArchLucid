@@ -14,6 +14,7 @@ public enum ScopedRunPairLoadOutcome
     RightManifestNotFound,
     PinFingerprintMismatch,
     CommittedArtifactInventoryMismatch,
+    SealedManifestHashMismatch,
 }
 
 /// <summary>Loaded scoped run pair for agent-result comparison.</summary>
@@ -44,6 +45,7 @@ public enum ManifestCompareLoadOutcome
     TargetLifecycleIncomplete,
     PinFingerprintMismatch,
     CommittedArtifactInventoryMismatch,
+    SealedManifestHashMismatch,
 }
 
 /// <summary>Manifest comparison result or a not-found reason.</summary>

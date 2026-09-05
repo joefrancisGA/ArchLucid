@@ -3,6 +3,7 @@ using ArchLucid.Application.Runs;
 using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Coordination.Compare;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -98,6 +99,8 @@ public sealed class AuthorityCompareControllerTests
             compare.Object,
             manifests.Object,
             runs.Object,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
             scopes.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }

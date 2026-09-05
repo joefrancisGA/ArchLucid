@@ -15,6 +15,12 @@ export type QuickDecisionSummaryAdvisoryVisibility = {
   readonly managedExternally: true;
 };
 
+export type QuickDecisionSummaryMutedVisibility = {
+  readonly showMuted: boolean;
+  readonly onShowMutedChange: (value: boolean) => void;
+  readonly managedExternally: true;
+};
+
 export type QuickDecisionSummaryProps = {
   readonly runId: string;
   readonly findings: readonly QuickDecisionFinding[];
@@ -38,6 +44,8 @@ export type QuickDecisionSummaryProps = {
   readonly confidenceVisibility?: QuickDecisionSummaryConfidenceVisibility;
   /** When set, advisory-note expansion is owned by the parent (review detail findings workspace). */
   readonly advisoryVisibility?: QuickDecisionSummaryAdvisoryVisibility;
+  /** When set, muted-finding visibility is owned by the parent (URL-synced on review detail). */
+  readonly mutedVisibility?: QuickDecisionSummaryMutedVisibility;
   /** Create-home: assessment pipeline stages finished (distinct from in-flight tracker). */
   readonly analysisStagesComplete?: boolean;
   /** Create-home: navigate to Activity tab from in-progress empty state. */

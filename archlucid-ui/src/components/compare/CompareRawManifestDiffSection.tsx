@@ -2,7 +2,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ArchitectureManifestUnifiedDiffView } from "@/components/compare/ArchitectureManifestUnifiedDiffView";
 import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
@@ -22,6 +23,10 @@ import {
   resolveArchitectureManifestJsonForDiff,
 } from "@/lib/resolve-architecture-manifest-json-for-diff";
 import type { RunSummary } from "@/types/authority";
+import {
+  compareManifestDiffHrefFromSearch,
+  parseCompareManifestDiffOpenFromSearch,
+} from "@/lib/compare/compare-manifest-diff-url";
 
 const sectionCls =
   "mt-6 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950";
@@ -38,8 +43,33 @@ export type CompareRawManifestDiffSectionProps = {
  * Lazy-loads finalized manifest documents and shows a scroll-contained unified JSON line diff.
  */
 export function CompareRawManifestDiffSection(props: CompareRawManifestDiffSectionProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const compareManifestDiffOpenParam = searchParams.get("compareManifestDiffOpen");
   const buyerPolished = props.buyerPolished === true || isBuyerPolishedOperatorShellEnv();
-  const [open, setOpen] = useState(false);
+  const [open, setOpenState] = useState(() => parseCompareManifestDiffOpenFromSearch(compareManifestDiffOpenParam));
+
+  const syncOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      router.replace(compareManifestDiffHrefFromSearch(searchParams.toString(), detailsOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (detailsOpen: boolean) => {
+      setOpenState(detailsOpen);
+      syncOpenToUrl(detailsOpen);
+    },
+    [syncOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOpenState(parseCompareManifestDiffOpenFromSearch(compareManifestDiffOpenParam));
+  }, [compareManifestDiffOpenParam]);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [beforeText, setBeforeText] = useState<string | null>(null);
