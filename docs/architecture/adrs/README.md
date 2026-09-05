@@ -64,6 +64,8 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0065](0065-curated-multi-engine-model-catalog.md) | Multi-engine model catalog — informed user choice with evaluation evidence **attached not gating**, fail-closed capability ladder + data boundary, two-tier selection authority; **supersedes ADR 0060 D1** (**Status: Accepted** 2026-08-07; TB-2103–TB-2110) |
 | [0067](0067-create-architecture-and-review-co-equal-entry-points.md) | **Create architecture** and **Review** as co-equal entry points — no ordinal/funnel framing on the pair, symmetric CTA-inventory guard coverage; parity of entry points **not** of artifacts (**Status: Accepted** 2026-08-12) |
 | [0068](0068-architecture-synthesis-and-review-evaluation-kernels.md) | Architecture synthesis and review evaluation are **two kernels** (Option K) — synthesis is not `IAgentExecutor` execute; review remains `AuthorityPipelineStagesExecutor`; amends ADR 0067 implementation standing only (**Status: Accepted** 2026-08-17) |
+| [0069](0069-working-desk-one-work-object.md) | Working desk is **one resumable work object** — supersedes ADR 0067 peer start CTAs for Working only; Guided keeps co-equal Create + Review (**Status: Proposed** 2026-09-05) |
+| [0070](0070-insight-density-controls-typed-engines.md) | Insight-density score **controls** typed-engine `FindingClassification` — demotion to checklist when predicate fails; R5 category-protect unchanged (**Status: Proposed** 2026-09-05) |
 | [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 
