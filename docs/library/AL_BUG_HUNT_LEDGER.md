@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 170
-- **bugs-found:** 366
+- **hunts:** 171
+- **bugs-found:** 373
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — anchor deep nested-empty/null bridges, SecondaryAccessKey/signingKey/signingCertificatePath redaction, constraint/advice need-not negation
+- **last-bug:** 2026-09-05 — null vs nested-empty array bridge, PrimaryAccessKey redaction, shall/does/need-not constraint negation, advice should-not-require suffix
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2344,6 +2344,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `need not` suffix gap — **hit 2026-09-05 (#898):** #896/#897 added constraint suffix parity; advice imperative path still lacked `need not` / `need not be` suffix guards; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_need_not_suffix_phrasing`).
 
 2026-09-05 seed hunt #898 (hit): reseeded after #897 closure; proved seven hunt-ready rows — anchor deep nested-empty/null bridges, SecondaryAccessKey/signingKey/signingCertificatePath redaction parity, and constraint/advice `need not` negation gaps; cheap-disproved resolver snake_case aliases already working and `shall not require` mid-sentence negation (same family as `should not require`).
+
+- [x] (proven) `RunHeaderAnchorJsonComparer.TryNullEmptyArrayEquivalent` — null scalar vs single-element nested empty array treated as anchor mutation — **hit 2026-09-05 (#899):** #898 deep-empty bridge handled `[]` ↔ `[[]]` only; `{"packAssignments":null}` vs `{"packAssignments":[[]]}` threw on committed lifecycle retry; fixed by extending null↔empty-array bridge with `IsDeeplyNestedEmptyArray` parity (`EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_null_scalar_equivalent_to_single_element_empty_array_on_committed_run`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` — `PrimaryAccessKey` compound credential segment not redacted — **hit 2026-09-05 (#899):** same compound-segment class as #897–#898 access-key fixes; embedded `AccessKey` fragment guard skipped `PrimaryAccessKey`; fixed with explicit primary-access-key credential detection (`Resolve_redacts_primary_access_key_config_path`).
+- [x] (proven) `AzureExtractorSensitivePropertyRedactor.IsSensitiveKey` — `PrimaryAccessKey` not redacted vs config explicit credential segment — **hit 2026-09-05 (#899):** Azure explicit list lacked `primaryaccesskey` while config redacted `PrimaryAccessKey`; fixed with explicit credential parity (`IsSensitiveKey_detects_primary_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — `shall not require` mid-sentence negation gap — **hit 2026-09-05 (#899):** #898 added `should not require` only; missed prohibitive `shall not require {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_shall_not_require_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — `does not require` prefix negation gap — **hit 2026-09-05 (#899):** prefix list had `doesn't require` contraction only; missed expanded `does not require {token}`; fixed with prefix negation guard (`HasEncryptionConstraint_does_not_false_positive_on_does_not_require_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — `need not have` prefix negation gap — **hit 2026-09-05 (#899):** #897–#898 added `need not enable`/`need not use` only; missed leading `need not have {token}`; fixed with prefix negation guard (`HasEncryptionConstraint_does_not_false_positive_on_need_not_have_encryption_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `should not require` suffix gap — **hit 2026-09-05 (#899):** #898 added `need not` suffix only; missed trailing `should not require` on imperative regex matches; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_should_not_require_suffix_phrasing`).
+
+2026-09-05 seed hunt #899 (hit): reseeded after #898 closure; proved seven hunt-ready rows — null vs nested-empty array bridge, PrimaryAccessKey redaction parity, shall/does/need-not-have constraint negation, and advice should-not-require suffix; cheap-disproved double-nested object/scalar array bridges (already recurse via `ElementsEquivalent`).
 
 2026-09-05 seed hunt #889: reseeded after #888 closure; proved anchor null-object/property-name trim, mid-sentence constraint negation, and Secretizer/Passwordizer redaction parity.
 2026-09-05 seed hunt #888: reseeded after #887 closure; proved ConnectionStringless config redaction, ARM key+free suffix parity, and anchor null array/string coercion.
