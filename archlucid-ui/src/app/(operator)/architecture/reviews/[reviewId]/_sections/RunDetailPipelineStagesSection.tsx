@@ -14,8 +14,6 @@ import {
 import type { StageTimelineSummary } from "@/types/stage-timeline";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
-
 type RunDetailPipelineStagesSectionProps = {
   readonly stageTimeline: StageTimelineSummary[];
   readonly otelTraceId?: string | null;
@@ -34,17 +32,16 @@ export function RunDetailPipelineStagesSection({
   return (
     <section
       id="pipeline-stages"
-      className="mb-6"
+      className="mb-6 scroll-mt-24"
       data-testid="run-detail-pipeline-stages"
     >
-      <h2 className={runDetailSectionHeadingClass}>Review progress</h2>
       <CollapsibleSection
-        title="Stage timing and outcomes"
+        title="Analysis stages"
         defaultOpen={false}
         sectionTestId="run-detail-pipeline-stages-collapsible"
       >
         <p className={cn("mb-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Stages for this review from evidence intake through the signed package. Open technical
+          Stages for this review from evidence intake through the sealed review record. Open technical
           details for per-stage timing and distributed trace spans.
         </p>
         <ul className="mb-3 space-y-2" data-testid="run-detail-pipeline-stages-list">

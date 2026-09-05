@@ -68,6 +68,7 @@ public sealed partial class PolicyPackHttpFacade
             versionKey,
             scopeLevel,
             request.IsPinned,
+            request.IsOrganizationRequired,
             ct).ConfigureAwait(false);
 
         return assignResult.Outcome switch

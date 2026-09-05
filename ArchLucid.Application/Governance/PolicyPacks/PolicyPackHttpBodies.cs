@@ -25,6 +25,8 @@ public sealed class PolicyPackAssignBody
     public string? ScopeLevel { get; init; }
 
     public bool IsPinned { get; init; }
+
+    public bool IsOrganizationRequired { get; init; }
 }
 
 public sealed class PolicyPackPromoteCatalogBody

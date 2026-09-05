@@ -16,5 +16,5 @@ export function RunDetailTabbedWorkspace(props: RunDetailTabbedWorkspaceProps): 
     return null;
   }
 
-  return <RunDetailTabbedWorkspaceShell model={props.model} resolved={resolved} />;
+  return <RunDetailTabbedWorkspaceShell model={props.model} presentation={props.presentation} resolved={resolved} />;
 }

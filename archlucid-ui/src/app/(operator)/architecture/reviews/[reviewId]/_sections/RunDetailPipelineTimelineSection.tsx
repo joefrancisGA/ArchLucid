@@ -5,14 +5,14 @@ import type { ReactElement } from "react";
 import { AuthorityPipelineTimeline } from "@/components/AuthorityPipelineTimeline";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorSectionRetryButton } from "@/components/operator/OperatorSectionRetryButton";
-import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { PipelineTimelineItem } from "@/types/authority";
 
-import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
+const OPERATOR_INLINE_AUDIT_EVENT_LIMIT = 5;
 
 type RunDetailPipelineTimelineSectionProps = {
   readonly runId: string;
@@ -21,7 +21,9 @@ type RunDetailPipelineTimelineSectionProps = {
   readonly pipelineTimelineForUi: PipelineTimelineItem[] | null;
 };
 
-function pipelineTimelineDescription(runId: string, buyerPolishedArtifactTable: boolean): ReactElement {
+function auditTrailDescription(runId: string, buyerPolishedArtifactTable: boolean): ReactElement {
+  const auditTrailLabel = BUYER_SURFACE_VOCABULARY.auditTrail;
+
   if (buyerPolishedArtifactTable) {
     return (
       <>
@@ -30,18 +32,43 @@ function pipelineTimelineDescription(runId: string, buyerPolishedArtifactTable: 
           className={OPERATOR_LINK.nav}
           href={auditTrailNavHref(runId)}
         >
-          {BUYER_SURFACE_VOCABULARY.auditTrail}
+          {auditTrailLabel}
         </Link>
         .
       </>
     );
   }
 
-  return <>Audit events for this review, oldest first. When all steps complete, the review is ready to finalize.</>;
+  return (
+    <>
+      Recorded events for this review, oldest first. Open the full{" "}
+      <Link className={OPERATOR_LINK.nav} href={auditTrailNavHref(runId)}>
+        {auditTrailLabel.toLowerCase()}
+      </Link>{" "}
+      for every milestone and timestamp.
+    </>
+  );
+}
+
+function buildAuditTrailSummaryLine(items: PipelineTimelineItem[] | null): string | undefined {
+  if (items === null || items.length === 0) {
+    return undefined;
+  }
+
+  const lastEvent = items[items.length - 1]!;
+  const lastLabel = formatIsoUtcForDisplay(lastEvent.occurredUtc);
+  const countLabel = items.length === 1 ? "1 event" : `${items.length} events`;
+
+  return `${countLabel} · last ${lastLabel}`;
 }
 
 function pipelineTimelineBody(props: RunDetailPipelineTimelineSectionProps): ReactElement {
   const { runId, buyerPolishedArtifactTable, pipelineTimelineFailure, pipelineTimelineForUi } = props;
+  const totalCount = pipelineTimelineForUi?.length ?? 0;
+  const showFullTrailLink =
+    !buyerPolishedArtifactTable
+    && !pipelineTimelineFailure
+    && totalCount > OPERATOR_INLINE_AUDIT_EVENT_LIMIT;
 
   return (
     <>
@@ -52,19 +79,29 @@ function pipelineTimelineBody(props: RunDetailPipelineTimelineSectionProps): Rea
             loadErrorMessage={pipelineTimelineFailure.message}
             omitEventTechnicalDetails={buyerPolishedArtifactTable}
           />
-          <OperatorSectionRetryButton label="Retry loading timeline" />
+          <OperatorSectionRetryButton label="Retry loading audit trail" />
         </>
       ) : (
         <AuthorityPipelineTimeline
           items={pipelineTimelineForUi}
           omitEventTechnicalDetails={buyerPolishedArtifactTable}
+          maxVisibleItems={buyerPolishedArtifactTable ? undefined : OPERATOR_INLINE_AUDIT_EVENT_LIMIT}
         />
       )}
-      {buyerPolishedArtifactTable &&
-      !pipelineTimelineFailure &&
-      pipelineTimelineForUi !== null &&
-      pipelineTimelineForUi.length > 0 &&
-      pipelineTimelineForUi.length < 3 ? (
+      {showFullTrailLink ? (
+        <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          Showing the {OPERATOR_INLINE_AUDIT_EVENT_LIMIT} most recent events. Open the full{" "}
+          <Link className={OPERATOR_LINK.nav} href={auditTrailNavHref(runId)}>
+            {BUYER_SURFACE_VOCABULARY.auditTrail}
+          </Link>{" "}
+          for all {totalCount} recorded events.
+        </p>
+      ) : null}
+      {buyerPolishedArtifactTable
+      && !pipelineTimelineFailure
+      && pipelineTimelineForUi !== null
+      && pipelineTimelineForUi.length > 0
+      && pipelineTimelineForUi.length < 3 ? (
         <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           For the full {BUYER_SURFACE_VOCABULARY.auditTrail.toLowerCase()} with every recorded milestone, open{" "}
           <Link
@@ -84,43 +121,30 @@ export function RunDetailPipelineTimelineSection(
   props: RunDetailPipelineTimelineSectionProps,
 ): ReactElement {
   const { runId, buyerPolishedArtifactTable, pipelineTimelineFailure, pipelineTimelineForUi } = props;
-
-  if (buyerPolishedArtifactTable) {
-    return (
-      <section id="pipeline-timeline" className="scroll-mt-24" aria-labelledby="pipeline-timeline-title">
-        <CollapsibleSection
-          title="Recent lifecycle events"
-          summaryId="pipeline-timeline-title"
-          defaultOpen={false}
-          sectionTestId="run-pipeline-timeline-collapsible"
-        >
-          <p className={cn("m-0 mb-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            {pipelineTimelineDescription(runId, buyerPolishedArtifactTable)}
-          </p>
-          {pipelineTimelineBody(props)}
-        </CollapsibleSection>
-      </section>
-    );
-  }
+  const auditTrailLabel = BUYER_SURFACE_VOCABULARY.auditTrail;
+  const summaryLine = buildAuditTrailSummaryLine(
+    pipelineTimelineFailure ? null : pipelineTimelineForUi,
+  );
 
   return (
-    <section id="pipeline-timeline" className="scroll-mt-24" aria-labelledby="pipeline-timeline-title">
-      <Card>
-        <CardHeader>
-          <h3 id="pipeline-timeline-title" className={runDetailSectionHeadingClass}>
-            Pipeline timeline
-          </h3>
-          <CardDescription>{pipelineTimelineDescription(runId, buyerPolishedArtifactTable)}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {pipelineTimelineBody({
-            runId,
-            buyerPolishedArtifactTable,
-            pipelineTimelineFailure,
-            pipelineTimelineForUi,
-          })}
-        </CardContent>
-      </Card>
+    <section
+      id="pipeline-timeline"
+      className="scroll-mt-24"
+      aria-label={auditTrailLabel}
+      aria-labelledby="pipeline-timeline-title"
+    >
+      <CollapsibleSection
+        title={auditTrailLabel}
+        summaryId="pipeline-timeline-title"
+        summaryLine={summaryLine}
+        defaultOpen={false}
+        sectionTestId="run-pipeline-timeline-collapsible"
+      >
+        <p className={cn("m-0 mb-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          {auditTrailDescription(runId, buyerPolishedArtifactTable)}
+        </p>
+        {pipelineTimelineBody(props)}
+      </CollapsibleSection>
     </section>
   );
 }

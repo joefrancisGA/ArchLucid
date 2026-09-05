@@ -10,18 +10,15 @@
     "cis-az-007",
     "cis-az-008",
     "cis-az-009",
-    "cis-az-010",
-    "cis-az-012",
-    "cis-az-018",
-    "cis-az-025",
-    "cis-az-027"
+    "cis-az-010"
   ],
   "alertRuleIds": [],
   "compositeAlertRuleIds": [],
   "advisoryDefaults": {
     "severityFloor": "warning",
     "priorityFloor": "P0",
-    "scanDepth": "standard"
+    "scanDepth": "standard",
+    "expectation.topologyCategories.add": "identity"
   },
   "metadata": {
     "templateId": "cis-azure-foundations-v1",

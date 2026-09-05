@@ -38,6 +38,7 @@ import {
   isExampleOnlyOverviewRunList,
   OPERATOR_HOME_RECENT_FEATURED_LIMIT,
 } from "@/lib/operator/operator-home-recent-reviews-outcome";
+import type { HomePreviewTabCounts } from "@/lib/operator/operator-home-tenant-counting";
 import { deriveOperatorHomeTenantCountingSnapshot } from "@/lib/operator/operator-home-tenant-counting";
 import { shouldShowRunsDashboardInitialSkeleton } from "@/lib/operator/operator-home-runs-dashboard-client-fetch";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -225,12 +226,13 @@ export function useRunsDashboardTabs({
       previewItems: displayItems,
     });
 
+    const visibleCount = hideHeading
+      ? (statusTabCounts as HomePreviewTabCounts).recentVisibleCount
+      : undefined;
+
     return formatOperatorHomeRecentReviewsOutcome(tenantSnapshot.metrics, {
       exampleReviewOnly,
-      visibleCount:
-        hideHeading && "recentVisibleCount" in statusTabCounts
-          ? statusTabCounts.recentVisibleCount
-          : undefined,
+      visibleCount,
     });
   }, [displayItems, hideHeading, phase, sampleReviewsVisible, statusTabCounts]);
 

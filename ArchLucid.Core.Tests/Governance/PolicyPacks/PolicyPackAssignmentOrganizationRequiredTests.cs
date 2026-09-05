@@ -23,10 +23,10 @@ public sealed class PolicyPackAssignmentOrganizationRequiredTests
     }
 
     [Fact]
-    public void IsOrganizationRequired_returns_true_when_legacy_IsPinned_is_set()
+    public void IsOrganizationRequired_returns_false_when_IsPinned_is_set_without_org_required_flag()
     {
         PolicyPackAssignment assignment = new() { IsOrganizationRequired = false, IsPinned = true };
 
-        PolicyPackAssignmentOrganizationRequired.IsOrganizationRequired(assignment).Should().BeTrue();
+        PolicyPackAssignmentOrganizationRequired.IsOrganizationRequired(assignment).Should().BeFalse();
     }
 }

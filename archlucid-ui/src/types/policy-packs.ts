@@ -17,5 +17,5 @@ export type ElicitationQuestion = ElicitationQuestionSchema & Required<Pick<Elic
 export type PolicyPackCatalogListItem = components["schemas"]["PolicyPackCatalogListItem"];
 export type PolicyPackCatalogEntryDetail = components["schemas"]["PolicyPackCatalogEntryDetail"];
 type PolicyPackWorkspaceSelectionItemSchema = components["schemas"]["PolicyPackWorkspaceSelectionItem"];
-export type PolicyPackWorkspaceSelectionItem = PolicyPackWorkspaceSelectionItemSchema & Required<Pick<PolicyPackWorkspaceSelectionItemSchema, "policyPackId" | "assignmentId" | "name" | "description" | "packType" | "currentVersion" | "isEnabled" | "isGloballyActive">>;
+export type PolicyPackWorkspaceSelectionItem = PolicyPackWorkspaceSelectionItemSchema & Required<Pick<PolicyPackWorkspaceSelectionItemSchema, "policyPackId" | "assignmentId" | "name" | "description" | "packType" | "currentVersion" | "isEnabled" | "isGloballyActive" | "isOrganizationRequired">>;
 export type PlatformBundledPolicyPackRegistryEntry = { bundleContentFile: string; displayName: string; isGloballyActive: boolean; updatedUtc: string };

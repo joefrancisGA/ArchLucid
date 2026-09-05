@@ -1555,6 +1555,7 @@ export interface components {
             value?: string;
         };
         AssignPolicyPackRequest: {
+            isOrganizationRequired?: boolean;
             isPinned: boolean;
             scopeLevel?: string;
             version?: string;
@@ -3064,6 +3065,11 @@ export interface components {
             notes?: null | string;
             /** Format: uuid */
             snapshotId?: string;
+        };
+        DeskContinuityDto: {
+            lastOpenDraftId?: null | string;
+            lastOpenReviewId?: null | string;
+            lastVisitWatermarkUtc?: null | string;
         };
         DeterminismCheckRequest: {
             commitReplays?: boolean;
@@ -6408,6 +6414,7 @@ export interface components {
             description?: string;
             isEnabled?: boolean;
             isGloballyActive?: boolean;
+            isOrganizationRequired?: boolean;
             name?: string;
             packType?: string;
             /** Format: uuid */
@@ -8266,6 +8273,9 @@ export interface components {
         SetCloudPlatformScopeRequest: {
             scope?: components["schemas"]["CloudPlatformScopeDto"];
         };
+        SetDeskContinuityRequest: {
+            continuity?: components["schemas"]["DeskContinuityDto"];
+        };
         SetFindingsVisibilityPreferencesRequest: {
             hideGenericEnabled?: boolean;
             showAdvisoryEnabled?: boolean;
@@ -9709,6 +9719,8 @@ export interface components {
             appearancePreferenceIsExplicit?: boolean;
             cloudPlatformScope?: components["schemas"]["CloudPlatformScopeDto"];
             cloudPlatformScopeIsExplicit?: boolean;
+            deskContinuity?: components["schemas"]["DeskContinuityDto"];
+            deskContinuityIsExplicit?: boolean;
             findingsHideGenericEnabled?: boolean;
             findingsHideGenericEnabledIsExplicit?: boolean;
             findingsShowAdvisoryEnabled?: boolean;

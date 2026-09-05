@@ -62,6 +62,7 @@ export type RunDetailPresentation = {
   readonly blockingApprovalCount: number;
   readonly lowExtractionConfidenceCount: number;
   readonly workspaceStatus: RunDetailWorkspaceStatus;
+  readonly reviewPipelineIncomplete: boolean;
   readonly recommendedActions: readonly RunDetailWorkspaceRecommendedAction[];
   readonly reviewStatusSummary: ReviewStatusSummary;
   readonly governanceDecisionLabel: string;
@@ -126,6 +127,7 @@ export async function buildRunDetailPresentation(
     deriveReviewStatusSummary,
     deriveReviewTemplateLabel,
     deriveRunDetailWorkspaceStatus,
+    isReviewPipelineIncomplete,
     deriveSignedReviewRecordIdLabel,
     deriveSponsorBottomLineContent,
     deriveArchitectureSystemName,
@@ -251,6 +253,7 @@ export async function buildRunDetailPresentation(
 
     overallPosture,
     workspaceStatus,
+    reviewPipelineIncomplete: isReviewPipelineIncomplete(workspaceStatus),
     recommendedActions,
     reviewStatusSummary,
     governanceDecisionLabel: governancePresentation.governanceDecisionLabel,

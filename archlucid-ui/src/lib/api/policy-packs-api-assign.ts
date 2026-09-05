@@ -9,7 +9,7 @@ import { apiGet, apiPostJson, apiPutJson, apiPutNoContent } from "./http";
 /** Assigns a specific policy pack version to the current scope (project/workspace/tenant). */
 export async function assignPolicyPack(
   policyPackId: string,
-  body: { version: string; scopeLevel?: string; isPinned?: boolean },
+  body: { version: string; scopeLevel?: string; isPinned?: boolean; isOrganizationRequired?: boolean },
 ): Promise<PolicyPackAssignment> {
   return apiPostJson<PolicyPackAssignment>(
     `/${ApiV1Routes.policyPacks}/${encodeURIComponent(policyPackId)}/assign`,
@@ -27,6 +27,17 @@ export async function setPolicyPackAssignmentEnabled(assignmentId: string, isEna
   await apiPutNoContent(
     `/${ApiV1Routes.policyPacks}/assignments/${encodeURIComponent(assignmentId)}/enabled`,
     { isEnabled },
+  );
+}
+
+/** Marks or clears organization-required lock on one policy pack assignment. */
+export async function setPolicyPackAssignmentOrganizationRequired(
+  assignmentId: string,
+  isOrganizationRequired: boolean,
+): Promise<void> {
+  await apiPutNoContent(
+    `/${ApiV1Routes.policyPacks}/assignments/${encodeURIComponent(assignmentId)}/organization-required`,
+    { isOrganizationRequired },
   );
 }
 
