@@ -63,6 +63,7 @@ concurrency:
 
 permissions:
   contents: write
+  pull-requests: write
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -140,6 +141,7 @@ jobs:
             ArchLucid.Api.Tests/Contracts/buyer-contract.openapi.snapshot.json
             archlucid-ui/src/lib/api-types.generated.ts
             archlucid-ui/src/lib/api-types
+            archlucid-ui/packages/api-types/src/api-types
           )
 
           changed=0
@@ -155,6 +157,21 @@ jobs:
             exit 0
           fi
 
-          git commit -m "chore: refresh OpenAPI v1 contract snapshot"
+          commit_message="chore: refresh OpenAPI v1 contract snapshot"
+          git commit -m "${commit_message}"
+
+          # Default-branch pushes are ruleset-protected; open a PR instead of direct push (#1635).
+          if [ "${{ github.event_name }}" = "push" ] && { [ "${{ github.ref_name }}" = "master" ] || [ "${{ github.ref_name }}" = "main" ]; }; then
+            branch_name="chore/openapi-snapshot-${GITHUB_SHA::12}"
+            git checkout -b "${branch_name}"
+            git push -u origin "HEAD:${branch_name}"
+            gh pr create \
+              --base "${{ github.ref_name }}" \
+              --head "${branch_name}" \
+              --title "${commit_message}" \
+              --body "Automated OpenAPI v1 + buyer snapshot refresh from \`${GITHUB_SHA}\`. Direct pushes to the default branch are blocked by repository rules; merge this PR after corset is green."
+            exit 0
+          fi
+
           git pull --rebase origin "${PUSH_REF}"
           git push origin "HEAD:${PUSH_REF}"
