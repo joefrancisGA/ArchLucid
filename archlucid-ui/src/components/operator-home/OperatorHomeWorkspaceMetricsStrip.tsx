@@ -45,7 +45,8 @@ const METRIC_CARD_CLASS =
   "min-w-0 flex-1 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-900";
 
 const OPERATOR_HOME_WORKSPACE_METRICS_SECTION_TITLE = "Workspace summary";
-const OPERATOR_HOME_WORKSPACE_METRICS_SCOPE_LINE = "Source: reviews in this workspace.";
+const OPERATOR_HOME_WORKSPACE_METRICS_SCOPE_LABEL = "Source:";
+const OPERATOR_HOME_WORKSPACE_METRICS_SCOPE_VALUE = "reviews in this workspace.";
 
 /** Compact KPI strip for populated workspaces. */
 export function OperatorHomeWorkspaceMetricsStrip(
@@ -102,7 +103,8 @@ export function OperatorHomeWorkspaceMetricsStrip(
       <div className="mb-3 space-y-1">
         <h2 className={OPERATOR_HOME_SECTION_HEADING}>{OPERATOR_HOME_WORKSPACE_METRICS_SECTION_TITLE}</h2>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {OPERATOR_HOME_WORKSPACE_METRICS_SCOPE_LINE}
+          <span className="font-medium text-al-text-primary">{OPERATOR_HOME_WORKSPACE_METRICS_SCOPE_LABEL}</span>{" "}
+          {OPERATOR_HOME_WORKSPACE_METRICS_SCOPE_VALUE}
           <span className="sr-only"> Workspace: {workspaceName}.</span>
         </p>
       </div>

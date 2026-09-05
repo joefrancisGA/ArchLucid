@@ -94,6 +94,8 @@ describe("OperatorHomeWorkspaceMetricsStrip", () => {
     );
     expect(screen.getByText(/^active reviews$/i)).toBeInTheDocument();
     expect(screen.getByText(/^finalized package$/i)).toBeInTheDocument();
+    expect(screen.getByText("Source:")).toHaveClass("font-medium");
+    expect(screen.getByText("reviews in this workspace.")).toBeInTheDocument();
   });
 
   it("shows active reviews even when only one in-progress review is surfaced in unfinished work", () => {
