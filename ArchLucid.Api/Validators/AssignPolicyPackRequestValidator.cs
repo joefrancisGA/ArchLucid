@@ -16,8 +16,8 @@ namespace ArchLucid.Api.Validators;
 public sealed class AssignPolicyPackRequestValidator : AbstractValidator<AssignPolicyPackRequest>
 {
     /// <summary>
-    ///     Registers SemVer for <c>Version</c> and whitelist for <c>ScopeLevel</c> via
-    ///     <see cref="GovernanceScopeLevel.TryNormalize" />.
+    ///     Registers SemVer for <c>Version</c> and an explicit whitelist for <c>ScopeLevel</c> (omitted JSON still binds
+    ///     the model default <c>Project</c>; whitespace-only explicit values are rejected).
     /// </summary>
     public AssignPolicyPackRequestValidator()
     {
@@ -30,7 +30,9 @@ public sealed class AssignPolicyPackRequestValidator : AbstractValidator<AssignP
             .WithMessage("Version must be SemVer 2 style (e.g. 1.0.0, 2.1.0-rc.1, optional leading 'v').");
 
         RuleFor(x => x.ScopeLevel)
-            .Must(sl => GovernanceScopeLevel.TryNormalize(sl) is not null)
+            .Must(sl => !string.IsNullOrWhiteSpace(sl))
+            .WithMessage("ScopeLevel cannot be empty or whitespace.")
+            .Must(sl => GovernanceScopeLevel.All.Any(level => string.Equals(sl, level, StringComparison.OrdinalIgnoreCase)))
             .WithMessage($"ScopeLevel must be one of: {string.Join(", ", GovernanceScopeLevel.All)}.");
     }
 }

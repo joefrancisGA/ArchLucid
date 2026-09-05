@@ -13,6 +13,7 @@ partial class RunLifecycleOrchestrationCompositionRegistrar
     private static void RegisterCoverage(IServiceCollection services)
     {
         services.AddScoped<ICoverageQueryService, CoverageQueryService>();
+        services.AddScoped<IRunCoverageAcknowledgementService, RunCoverageAcknowledgementService>();
         services.AddScoped<ICoveragePreviewLoadStage, CoveragePreviewLoadStage>();
         services.AddScoped<ICoveragePreviewEmitStage, CoveragePreviewEmitStage>();
         services.AddScoped<ICoveragePreviewService, CoveragePreviewService>();

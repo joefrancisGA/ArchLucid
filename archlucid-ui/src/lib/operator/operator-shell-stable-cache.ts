@@ -103,8 +103,12 @@ export function writeOperatorShellStableCache(args: {
   const stableTrial = isStableTrialStatus(args.trialStatus);
   const stableMigration = isStableCatalogMigration(args.catalogMigration);
   const stableBudget = isStableLlmBudgetStatus(args.llmMonthlyBudgetStatus);
+  const hasStableSnapshot =
+    (stableTrial && args.trialStatus !== undefined) ||
+    (stableMigration && args.catalogMigration !== undefined) ||
+    (stableBudget && args.llmMonthlyBudgetStatus !== undefined);
 
-  if (!stableTrial && !stableMigration && !stableBudget && args.alertsInboxSummary === undefined) {
+  if (!hasStableSnapshot) {
     return;
   }
 
@@ -119,7 +123,9 @@ export function writeOperatorShellStableCache(args: {
     ...(stableBudget && args.llmMonthlyBudgetStatus !== undefined
       ? { llmMonthlyBudgetStatus: args.llmMonthlyBudgetStatus }
       : {}),
-    ...(args.alertsInboxSummary !== undefined ? { alertsInboxSummary: args.alertsInboxSummary } : {}),
+    ...(hasStableSnapshot && args.alertsInboxSummary !== undefined
+      ? { alertsInboxSummary: args.alertsInboxSummary }
+      : {}),
   };
 
   try {

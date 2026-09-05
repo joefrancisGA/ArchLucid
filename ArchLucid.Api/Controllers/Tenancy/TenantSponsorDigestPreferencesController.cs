@@ -81,8 +81,27 @@ public sealed class TenantSponsorDigestPreferencesController(
                 ProblemTypes.ValidationFailed);
         }
 
-        int dow = body.DayOfWeek ?? 1;
-        int hour = body.HourOfDay ?? 8;
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        SponsorDigestPreferencesResponse? existingPreferences =
+            await _preferencesRepository.GetByTenantAsync(scope.TenantId, cancellationToken);
+
+        int dow;
+        int hour;
+        string? timeZoneInput;
+
+        if (!body.EmailEnabled)
+        {
+            dow = body.DayOfWeek ?? existingPreferences?.DayOfWeek ?? 1;
+            hour = body.HourOfDay ?? existingPreferences?.HourOfDay ?? 8;
+            timeZoneInput = body.IanaTimeZoneId ?? existingPreferences?.IanaTimeZoneId ?? "UTC";
+        }
+        else
+        {
+            dow = body.DayOfWeek ?? existingPreferences?.DayOfWeek ?? 1;
+            hour = body.HourOfDay ?? existingPreferences?.HourOfDay ?? 8;
+            timeZoneInput = body.IanaTimeZoneId ?? existingPreferences?.IanaTimeZoneId ?? "UTC";
+        }
 
         if (dow is < 0 or > 6)
         {
@@ -96,14 +115,18 @@ public sealed class TenantSponsorDigestPreferencesController(
             return this.BadRequestProblem("hourOfDay must be between 0 and 23.", ProblemTypes.ValidationFailed);
         }
 
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        IReadOnlyList<string>? recipientEmails = body.RecipientEmails;
 
-        SponsorDigestPreferencesResponse? existingPreferences =
-            await _preferencesRepository.GetByTenantAsync(scope.TenantId, cancellationToken);
+        if (!body.EmailEnabled && recipientEmails is null or { Count: 0 })
+        {
+            recipientEmails = existingPreferences?.RecipientEmails;
+        }
+        else
+        {
+            recipientEmails ??= existingPreferences?.RecipientEmails;
+        }
 
-        IReadOnlyList<string>? recipientEmails = body.RecipientEmails ?? existingPreferences?.RecipientEmails;
-
-        string? normalizedTimeZone = IanaTimeZonePreferenceValues.NormalizeOrNull(body.IanaTimeZoneId ?? "UTC");
+        string? normalizedTimeZone = IanaTimeZonePreferenceValues.NormalizeOrNull(timeZoneInput);
 
         if (normalizedTimeZone is null)
         {

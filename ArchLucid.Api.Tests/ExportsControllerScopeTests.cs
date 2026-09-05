@@ -157,6 +157,25 @@ public sealed class ExportsControllerScopeTests
         result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
     }
 
+    [Fact]
+    public async Task GetRunExportHistory_returns_not_found_for_whitespace_run_id_like_export_siblings()
+    {
+        ExportsController sut = CreateController(
+            out Mock<IRunExportRecordRepository> exports,
+            out Mock<IRunDetailQueryService> runDetails);
+
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new ArgumentException("Value cannot be null or whitespace.", "runId"));
+
+        IActionResult result = await sut.GetRunExportHistory("   ", CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        runDetails.Verify(
+            r => r.GetRunDetailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static ExportsController CreateController(
         out Mock<IRunExportRecordRepository> exports,
         out Mock<IRunDetailQueryService> runDetails)

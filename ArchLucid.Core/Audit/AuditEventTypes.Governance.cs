@@ -106,6 +106,9 @@ public static partial class AuditEventTypes
     /// </summary>
     public const string RunGovernanceScopeResolved = "RunGovernanceScopeResolved";
 
+    /// <summary>Operator pinned or updated pre-execute coverage acknowledgement on <c>dbo.Runs.AcknowledgedCoverageJson</c>.</summary>
+    public const string RunCoverageAcknowledged = "RunCoverageAcknowledged";
+
     /// <summary>
     ///     Stable namespaced strings for trusted-baseline mutation audit (<c>IBaselineMutationAuditService</c> → structured
     ///     <c>ILogger</c> only).

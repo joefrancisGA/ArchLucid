@@ -174,4 +174,62 @@ public sealed class AuthServiceCollectionExtensionsTests
             }
         }
     }
+
+    [Fact]
+    public void AddArchLucidAuth_local_pem_rejects_token_when_issuer_differs_only_by_casing()
+    {
+        using RSA rsa = RSA.Create(2048);
+        string privatePem = rsa.ExportPkcs8PrivateKeyPem();
+        string publicPemPath = Path.Combine(Path.GetTempPath(), $"archlucid-auth-case-pem-{Guid.NewGuid():N}.pem");
+
+        try
+        {
+            File.WriteAllText(publicPemPath, rsa.ExportSubjectPublicKeyInfoPem(), System.Text.Encoding.UTF8);
+
+            IConfiguration configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(
+                    new Dictionary<string, string?>
+                    {
+                        ["ArchLucidAuth:Mode"] = "JwtBearer",
+                        ["ArchLucidAuth:JwtSigningPublicKeyPemPath"] = publicPemPath,
+                        ["ArchLucidAuth:JwtLocalIssuer"] = JwtLocalSigningWebAppFactory.JwtLocalTestIssuer,
+                        ["ArchLucidAuth:JwtLocalAudience"] = JwtLocalSigningWebAppFactory.JwtLocalTestAudience
+                    })
+                .Build();
+
+            ServiceCollection services = new();
+            services.AddLogging();
+            services.AddArchLucidAuth(configuration);
+
+            using ServiceProvider serviceProvider = services.BuildServiceProvider();
+            IOptionsMonitor<JwtBearerOptions> optionsMonitor =
+                serviceProvider.GetRequiredService<IOptionsMonitor<JwtBearerOptions>>();
+            TokenValidationParameters parameters =
+                optionsMonitor.Get(JwtBearerDefaults.AuthenticationScheme).TokenValidationParameters;
+
+            string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
+                privatePem,
+                JwtLocalSigningWebAppFactory.JwtLocalTestIssuer.ToUpperInvariant(),
+                JwtLocalSigningWebAppFactory.JwtLocalTestAudience,
+                "OperatorUser",
+                [ArchLucidRoles.Operator]);
+
+            JwtSecurityTokenHandler handler = new();
+            handler.Invoking(h => h.ValidateToken(token, parameters, out _))
+                .Should()
+                .Throw<SecurityTokenInvalidIssuerException>();
+        }
+        finally
+        {
+            try
+            {
+                if (File.Exists(publicPemPath))
+                    File.Delete(publicPemPath);
+            }
+            catch
+            {
+                // Best-effort — temp cleanup on build agents.
+            }
+        }
+    }
 }

@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Contracts.Advisory.Scheduling;
+using ArchLucid.Core.Explanation;
 
 namespace ArchLucid.Core.Integration;
 
@@ -36,7 +37,7 @@ public static class DigestDeliveryManifestHashGuard
         {
             JsonElement root = document.RootElement;
 
-            if (root.TryGetProperty("manifestHash", out JsonElement hashElement)
+            if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "manifestHash", out JsonElement hashElement)
                 && hashElement.ValueKind == JsonValueKind.String
                 && !string.IsNullOrWhiteSpace(hashElement.GetString()))
             {

@@ -392,4 +392,58 @@ public sealed class TrialLifecycleEmailDispatcherTests
             Times.Once,
             "expired lifecycle mail must still send when lifecycle scheduler advanced status before dispatch");
     }
+
+    [Fact]
+    public async Task DispatchAsync_skips_send_when_admin_mailbox_is_malformed()
+    {
+        Guid tenantId = Guid.Parse("51515151-5151-5151-5151-515151515151");
+
+        Mock<ITenantRepository> tenantRepository = new();
+        tenantRepository.Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord
+            {
+                Id = tenantId,
+                Name = "Acme",
+                TrialStatus = TrialLifecycleStatus.Active,
+            });
+
+        Mock<ITenantTrialEmailContactLookup> contactLookup = new();
+        contactLookup.Setup(l => l.TryResolveAdminEmailAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync("finance@");
+
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("<p>ok</p>");
+        renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("ok");
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
+
+        TrialLifecycleEmailDispatcher sut = new(
+            tenantRepository.Object,
+            contactLookup.Object,
+            renderer.Object,
+            provider.Object,
+            new InMemorySentEmailLedger(),
+            options.Object,
+            NullLogger<TrialLifecycleEmailDispatcher>.Instance);
+
+        TrialLifecycleEmailIntegrationEnvelope envelope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = Guid.Parse("52525252-5252-5252-5252-525252525252"),
+            ProjectId = Guid.Parse("53535353-5353-5353-5353-535353535353"),
+            Trigger = TrialLifecycleEmailTrigger.TrialProvisioned,
+        };
+
+        await sut.DispatchAsync(envelope, CancellationToken.None);
+
+        provider.Verify(
+            p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }

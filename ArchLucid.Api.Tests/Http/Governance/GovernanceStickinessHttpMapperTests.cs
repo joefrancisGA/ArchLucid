@@ -85,6 +85,192 @@ public sealed class GovernanceStickinessHttpMapperTests
     }
 
     [Fact]
+    public void ValidateCreateRiskException_rejects_past_expires_at_utc()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateCreateRiskException(
+            new CreateRiskExceptionRequest
+            {
+                RunId = Guid.NewGuid(),
+                FindingId = "finding-1",
+                OwnerUserId = "owner",
+                Rationale = "accepted risk rationale",
+                EvidenceRef = "artifact://evidence/1",
+                ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(-1),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("future");
+    }
+
+    [Fact]
+    public void ValidateCreateRiskException_rejects_expires_at_utc_beyond_max_duration()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateCreateRiskException(
+            new CreateRiskExceptionRequest
+            {
+                RunId = Guid.NewGuid(),
+                FindingId = "finding-1",
+                OwnerUserId = "owner",
+                Rationale = "accepted risk rationale",
+                EvidenceRef = "artifact://evidence/1",
+                ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(RiskExceptionValidation.MaxDurationDays + 1),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain(RiskExceptionValidation.MaxDurationDays.ToString());
+    }
+
+    [Fact]
+    public void ValidateRenewRiskException_rejects_past_expires_at_utc()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRenewRiskException(
+            new RenewRiskExceptionRequest
+            {
+                ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(-1),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("future");
+    }
+
+    [Fact]
+    public void ValidateRecordDispositionRouteFindingId_rejects_body_finding_id_mismatch()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRecordDispositionRouteFindingId(
+            "finding-1",
+            new RecordFindingDispositionRequest
+            {
+                FindingId = "finding-2",
+                Disposition = FindingDisposition.Accepted,
+                Rationale = "rationale",
+                TradeOffAcknowledgment = "trade-off",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("route findingId");
+    }
+
+    [Fact]
+    public void ValidateRecordDispositionRouteFindingId_accepts_body_finding_id_when_differs_only_by_casing()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRecordDispositionRouteFindingId(
+            "FIND-ABC",
+            new RecordFindingDispositionRequest
+            {
+                FindingId = "find-abc",
+                Disposition = FindingDisposition.Accepted,
+                Rationale = "rationale",
+                TradeOffAcknowledgment = "trade-off",
+            });
+
+        validation.Should().BeNull();
+    }
+
+    [Fact]
+    public void ValidateRecordDisposition_rejects_whitespace_only_optional_rationale()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRecordDisposition(
+            new RecordFindingDispositionRequest
+            {
+                FindingId = "finding-1",
+                Disposition = FindingDisposition.Remediated,
+                Rationale = "   ",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("rationale");
+    }
+
+    [Fact]
+    public void ValidateRecordDisposition_rejects_optional_evidence_request_text_on_non_needs_evidence_disposition()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRecordDisposition(
+            new RecordFindingDispositionRequest
+            {
+                FindingId = "finding-1",
+                Disposition = FindingDisposition.Remediated,
+                EvidenceRequestText = "please provide staging evidence logs",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("evidenceRequestText");
+        validation.Message.Should().Contain("not applicable");
+    }
+
+    [Fact]
+    public void ValidateRecordDisposition_rejects_whitespace_only_optional_evidence_request_text()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRecordDisposition(
+            new RecordFindingDispositionRequest
+            {
+                FindingId = "finding-1",
+                Disposition = FindingDisposition.Remediated,
+                EvidenceRequestText = "   ",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("evidenceRequestText");
+    }
+
+    [Fact]
+    public void ValidateRecordDisposition_rejects_revisit_due_on_non_deferred_disposition()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRecordDisposition(
+            new RecordFindingDispositionRequest
+            {
+                FindingId = "finding-1",
+                Disposition = FindingDisposition.Remediated,
+                RevisitDueUtc = DateTimeOffset.UtcNow.AddDays(30),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("revisitDueUtc");
+    }
+
+    [Fact]
+    public void ValidateRecordDisposition_rejects_optional_trade_off_acknowledgment_on_non_accepted_disposition()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRecordDisposition(
+            new RecordFindingDispositionRequest
+            {
+                FindingId = "finding-1",
+                Disposition = FindingDisposition.Deferred,
+                RevisitDueUtc = DateTimeOffset.UtcNow.AddDays(30),
+                TradeOffAcknowledgment = "accepting latency trade-off for lower cost",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("tradeOffAcknowledgment");
+        validation.Message.Should().Contain("not applicable");
+    }
+
+    [Fact]
+    public void ValidateRecordDisposition_rejects_whitespace_only_optional_trade_off_acknowledgment()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateRecordDisposition(
+            new RecordFindingDispositionRequest
+            {
+                FindingId = "finding-1",
+                Disposition = FindingDisposition.Deferred,
+                RevisitDueUtc = DateTimeOffset.UtcNow.AddDays(30),
+                TradeOffAcknowledgment = "   ",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("tradeOffAcknowledgment");
+    }
+
+    [Fact]
     public void ValidateCreateRiskException_rejects_overlong_owner_user_id()
     {
         string overlongOwnerUserId = new string('o', RiskExceptionValidation.OwnerUserIdMaxLength + 1);
@@ -122,6 +308,38 @@ public sealed class GovernanceStickinessHttpMapperTests
         validation.Should().NotBeNull();
         validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
         validation.Message.Should().Contain(RiskExceptionValidation.EvidenceRefMaxLength.ToString());
+    }
+
+    [Fact]
+    public void ValidateCreateRecurrenceSchedule_rejects_whitespace_only_name()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateCreateRecurrenceSchedule(
+            new CreateArchitectureReviewRecurrenceScheduleRequest
+            {
+                SourceRunId = Guid.NewGuid(),
+                Name = "   ",
+                IsEnabled = true,
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("whitespace");
+    }
+
+    [Fact]
+    public void ValidateCreateRecurrenceSchedule_rejects_whitespace_only_cron_expression()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateCreateRecurrenceSchedule(
+            new CreateArchitectureReviewRecurrenceScheduleRequest
+            {
+                SourceRunId = Guid.NewGuid(),
+                CronExpression = "   ",
+                IsEnabled = true,
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("whitespace");
     }
 
     [Fact]
@@ -333,6 +551,110 @@ public sealed class GovernanceStickinessHttpMapperTests
         validation.Should().NotBeNull();
         validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
         validation.Message.Should().Contain(FindingDispositionValidation.MaximumRationaleLength.ToString());
+    }
+
+    [Fact]
+    public void ValidateBulkDisposition_rejects_optional_evidence_request_text_on_non_needs_evidence_disposition()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateBulkDisposition(
+            new RecordBulkFindingDispositionRequest
+            {
+                FindingIds = ["finding-1"],
+                Disposition = FindingDisposition.Remediated,
+                Rationale = "bulk remediated with enough chars",
+                EvidenceRequestText = "please provide staging evidence logs",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("evidenceRequestText");
+        validation.Message.Should().Contain("not applicable");
+    }
+
+    [Fact]
+    public void ValidateBulkDisposition_rejects_whitespace_only_optional_evidence_request_text()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateBulkDisposition(
+            new RecordBulkFindingDispositionRequest
+            {
+                FindingIds = ["finding-1"],
+                Disposition = FindingDisposition.Remediated,
+                Rationale = "bulk remediated with enough chars",
+                EvidenceRequestText = "   ",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("evidenceRequestText");
+    }
+
+    [Fact]
+    public void ValidateBulkDisposition_rejects_whitespace_only_trade_off_acknowledgment_on_accepted()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateBulkDisposition(
+            new RecordBulkFindingDispositionRequest
+            {
+                FindingIds = ["finding-1"],
+                Disposition = FindingDisposition.Accepted,
+                Rationale = "accepting residual risk with rationale",
+                TradeOffAcknowledgment = "   ",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("tradeOffAcknowledgment");
+    }
+
+    [Fact]
+    public void ValidateBulkDisposition_rejects_revisit_due_on_non_deferred_disposition()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateBulkDisposition(
+            new RecordBulkFindingDispositionRequest
+            {
+                FindingIds = ["finding-1"],
+                Disposition = FindingDisposition.Remediated,
+                Rationale = "bulk remediated with enough chars",
+                RevisitDueUtc = DateTimeOffset.UtcNow.AddDays(30),
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("revisitDueUtc");
+    }
+
+    [Fact]
+    public void ValidateBulkDisposition_rejects_optional_trade_off_acknowledgment_on_non_accepted_disposition()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateBulkDisposition(
+            new RecordBulkFindingDispositionRequest
+            {
+                FindingIds = ["finding-1"],
+                Disposition = FindingDisposition.Remediated,
+                Rationale = "bulk remediated with enough chars",
+                TradeOffAcknowledgment = "accepting latency trade-off for lower cost",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("tradeOffAcknowledgment");
+        validation.Message.Should().Contain("not applicable");
+    }
+
+    [Fact]
+    public void ValidateBulkDisposition_rejects_whitespace_only_optional_trade_off_acknowledgment()
+    {
+        GovernanceHttpValidation? validation = GovernanceStickinessHttpMapper.ValidateBulkDisposition(
+            new RecordBulkFindingDispositionRequest
+            {
+                FindingIds = ["finding-1"],
+                Disposition = FindingDisposition.Remediated,
+                Rationale = "bulk remediated with enough chars",
+                TradeOffAcknowledgment = "   ",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("tradeOffAcknowledgment");
     }
 
     [Fact]

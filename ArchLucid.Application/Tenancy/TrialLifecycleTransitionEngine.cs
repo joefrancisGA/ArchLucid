@@ -43,7 +43,7 @@ public sealed class TrialLifecycleTransitionEngine(
             return false;
 
         TrialLifecycleSchedulerOptions options = _lifecycleOptions.CurrentValue;
-        if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Deleted, StringComparison.Ordinal))
+        if (TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Deleted))
         {
             TenantHardPurgeResult retry = await _tenantHardPurgeService.PurgeTenantAsync(tenantId,
                 new TenantHardPurgeOptions { DryRun = false, MaxRowsPerStatement = options.HardPurgeMaxRowsPerStatement }, cancellationToken);

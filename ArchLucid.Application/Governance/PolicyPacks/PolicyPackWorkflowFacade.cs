@@ -150,19 +150,29 @@ public sealed partial class PolicyPackWorkflowFacade(
     }
 
     /// <inheritdoc />
-    public async Task<bool> TryArchiveAssignmentAsync(Guid assignmentId, CancellationToken ct)
+    public async Task<bool> TryArchiveAssignmentAsync(Guid assignmentId, CancellationToken ct) =>
+        await TryArchiveAssignmentWithOutcomeAsync(assignmentId, ct) == PolicyPackArchiveAssignmentOutcome.Archived;
+
+    /// <inheritdoc />
+    public async Task<PolicyPackArchiveAssignmentOutcome> TryArchiveAssignmentWithOutcomeAsync(
+        Guid assignmentId,
+        CancellationToken ct)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         PolicyPackAssignment? assignment =
             await _assignmentRepository.GetByTenantAndAssignmentIdAsync(scope.TenantId, assignmentId, ct);
 
         if (!PolicyPackAssignmentScope.IsVisibleInScope(assignment, scope))
-            return false;
+            return PolicyPackArchiveAssignmentOutcome.NotFound;
 
         if (PolicyPackAssignmentOrganizationRequired.IsOrganizationRequired(assignment))
-            return false;
+            return PolicyPackArchiveAssignmentOutcome.OrganizationRequiredLock;
 
-        return await _policyPacksApp.TryArchiveAssignmentAsync(scope.TenantId, assignmentId, ct);
+        bool archived = await _policyPacksApp.TryArchiveAssignmentAsync(scope.TenantId, assignmentId, ct);
+
+        return archived
+            ? PolicyPackArchiveAssignmentOutcome.Archived
+            : PolicyPackArchiveAssignmentOutcome.NotFound;
     }
 
     /// <inheritdoc />

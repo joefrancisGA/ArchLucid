@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.Core.Explanation;
+
 namespace ArchLucid.Core.Integration;
 
 /// <summary>Wave-22 suggestion 219: integration outbox publish fail-closed when run-scoped payload omits manifestHash.</summary>
@@ -60,7 +62,7 @@ public static class IntegrationEventOutboxManifestHashGuard
     {
         runId = Guid.Empty;
 
-        if (root.TryGetProperty("runId", out JsonElement runElement)
+        if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "runId", out JsonElement runElement)
             && runElement.ValueKind == JsonValueKind.String
             && Guid.TryParse(runElement.GetString(), out Guid parsed))
         {
@@ -75,14 +77,14 @@ public static class IntegrationEventOutboxManifestHashGuard
     {
         manifestHash = null;
 
-        if (root.TryGetProperty("manifestHash", out JsonElement hashElement)
+        if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "manifestHash", out JsonElement hashElement)
             && hashElement.ValueKind == JsonValueKind.String)
         {
             manifestHash = hashElement.GetString();
             return true;
         }
 
-        if (root.TryGetProperty("manifestHashSha256", out JsonElement shaElement)
+        if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "manifestHashSha256", out JsonElement shaElement)
             && shaElement.ValueKind == JsonValueKind.String)
         {
             manifestHash = shaElement.GetString();

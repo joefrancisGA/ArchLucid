@@ -17,6 +17,8 @@ import {
   DIGEST_SPONSOR_SIGN_IN_WORKSPACE_LABEL,
   DIGEST_SPONSOR_SKIP_LINK_LABEL,
 } from "@/lib/marketing/digest-sponsor-page-copy";
+import { DIGEST_SPONSOR_CANONICAL_PATH } from "@/lib/marketing/digest-sponsor-evidence-copy";
+import { buildAuthSignInHref } from "@/lib/navigation/auth-sign-in-href";
 import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
 import { cn } from "@/lib/utils";
 
@@ -126,7 +128,10 @@ export function ExecDigestSponsorDeepLinkPanel(props: ExecDigestSponsorDeepLinkV
         )}
 
         <p className={MARKETING_TYPOGRAPHY.body}>
-          <Link className={MARKETING_SURFACES.inlineLink} href={view.signInUrl}>
+          <Link
+            className={MARKETING_SURFACES.inlineLink}
+            href={buildAuthSignInHref({ returnPath: DIGEST_SPONSOR_CANONICAL_PATH })}
+          >
             {DIGEST_SPONSOR_SIGN_IN_WORKSPACE_LABEL}
           </Link>
         </p>

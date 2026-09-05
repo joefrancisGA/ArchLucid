@@ -44,6 +44,9 @@ public static class PolicyPackCategoryCoverageValidator
             if (engineType.Contains("requirement", StringComparison.OrdinalIgnoreCase))
                 coveredCategories.Add("Requirement");
 
+            if (engineType.Contains("topology", StringComparison.OrdinalIgnoreCase))
+                coveredCategories.Add("Topology");
+
             if (engineType.Contains("policy", StringComparison.OrdinalIgnoreCase)
                 || engineType.Contains("compliance", StringComparison.OrdinalIgnoreCase))
                 coveredCategories.Add("Policy");

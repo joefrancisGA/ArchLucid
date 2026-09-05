@@ -38,27 +38,27 @@ public sealed class ItsmInboundDispositionSync(
             ProjectId = row.ProjectId,
         };
 
-        IReadOnlyList<FindingDispositionEventDto> history =
-            await _dispositionService
-                .ListHistoryAsync(scope, row.FindingId, cancellationToken)
-                .ConfigureAwait(false);
-
-        FindingDispositionEventDto? latestEvent = history
-            .OrderByDescending(static e => e.OccurredAtUtc)
-            .FirstOrDefault();
-
-        if (latestEvent?.Disposition == mappedDisposition)
-            return ItsmInboundDispositionSyncResult.Skipped("disposition_unchanged", mappedDisposition);
-
-        RecordFindingDispositionRequest request = new()
-        {
-            FindingId = row.FindingId,
-            Disposition = mappedDisposition.Value,
-            Rationale = $"{InboundSyncRationalePrefix}: external status '{externalStatusLabel.Trim()}'.",
-        };
-
         try
         {
+            IReadOnlyList<FindingDispositionEventDto> history =
+                await _dispositionService
+                    .ListHistoryAsync(scope, row.FindingId, cancellationToken)
+                    .ConfigureAwait(false);
+
+            FindingDispositionEventDto? latestEvent = history
+                .OrderByDescending(static e => e.OccurredAtUtc)
+                .FirstOrDefault();
+
+            if (latestEvent?.Disposition == mappedDisposition)
+                return ItsmInboundDispositionSyncResult.Skipped("disposition_unchanged", mappedDisposition);
+
+            RecordFindingDispositionRequest request = new()
+            {
+                FindingId = row.FindingId,
+                Disposition = mappedDisposition.Value,
+                Rationale = $"{InboundSyncRationalePrefix}: external status '{externalStatusLabel.Trim()}'.",
+            };
+
             FindingDispositionEventDto recorded =
                 await _dispositionService
                     .RecordAsync(request, scope, integrationActor, cancellationToken)
@@ -76,6 +76,17 @@ public sealed class ItsmInboundDispositionSync(
                 mappedDisposition);
 
             return ItsmInboundDispositionSyncResult.Skipped("disposition_validation_failed", mappedDisposition);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogWarning(
+                ex,
+                "ITSM inbound disposition sync skipped for tenant {TenantId} finding {FindingId}: disposition service failed for disposition {Disposition}.",
+                row.TenantId,
+                row.FindingId,
+                mappedDisposition);
+
+            return ItsmInboundDispositionSyncResult.Skipped("disposition_sync_failed", mappedDisposition);
         }
     }
 }

@@ -1,3 +1,4 @@
+using ArchLucid.Application.Governance.Coverage;
 using ArchLucid.Application.Governance.DefaultPolicyPacks;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance.Coverage;
@@ -72,7 +73,8 @@ public sealed class EffectiveGovernanceSnapshotBuilder
         IPolicyPackRepository policyPackRepository,
         IReadOnlyList<PolicyPackAssignment>? preloadedScopePolicyPackAssignments,
         CancellationToken cancellationToken,
-        IPolicyPackVersionRepository? policyPackVersionRepository = null)
+        IPolicyPackVersionRepository? policyPackVersionRepository = null,
+        IReadOnlyDictionary<Guid, RunCoverageAcknowledgementEntry>? runCoverageAcknowledgements = null)
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(request);
@@ -117,9 +119,9 @@ public sealed class EffectiveGovernanceSnapshotBuilder
                 continue;
 
             if (focusedPilotMode && !FocusedPilotModePolicyPacks.IsPackAllowedInFocusedReview(
-                    pack.Name,
+                    pack,
                     PolicyPackAssignmentOrganizationRequired.IsOrganizationRequired(assignment),
-                    PlatformOverlayPolicyPacks.IsOverlayDisplayName(pack.Name, request.CloudProvider)))
+                    PlatformOverlayPolicyPacks.IsOverlayPack(pack, request.CloudProvider)))
             {
                 coverageRows.Add(
                     BuildCoverageSnapshot(
@@ -145,30 +147,46 @@ public sealed class EffectiveGovernanceSnapshotBuilder
                 continue;
             }
 
-            evaluatedPackIds.Add(assignment.PolicyPackId);
-            List<string> packComplianceRuleKeys = policyPackVersionRepository is null
-                ? []
-                : await PolicyPackAssignmentComplianceRuleKeysResolver.ResolveForAssignmentAsync(
-                    policyPackVersionRepository,
-                    assignment,
-                    cancellationToken);
+            CoverageType coverageType = ResolveCoverageType(pack, assignment);
+            CoverageSelectionState selectionState = ResolveSelectedState(pack, assignment);
+            string? exclusionReason = null;
 
-            packRows.Add(
-                new CommittedGovernancePackAssignmentSnapshot
-                {
-                    PolicyPackId = assignment.PolicyPackId,
-                    PolicyPackVersion = assignment.PolicyPackVersion,
-                    ScopeLevel = GovernanceScopeLevel.TryNormalize(assignment.ScopeLevel) ?? GovernanceScopeLevel.Project,
-                    ComplianceRuleKeys = packComplianceRuleKeys,
-                });
+            if (RunCoverageOverrideApplicator.TryGetUserExclusion(
+                    assignment.PolicyPackId,
+                    runCoverageAcknowledgements,
+                    out string? userExclusionReason))
+            {
+                selectionState = CoverageSelectionState.RecommendedButExcluded;
+                exclusionReason = userExclusionReason;
+            }
+
+            if (selectionState != CoverageSelectionState.RecommendedButExcluded)
+            {
+                evaluatedPackIds.Add(assignment.PolicyPackId);
+                List<string> packComplianceRuleKeys = policyPackVersionRepository is null
+                    ? []
+                    : await PolicyPackAssignmentComplianceRuleKeysResolver.ResolveForAssignmentAsync(
+                        policyPackVersionRepository,
+                        assignment,
+                        cancellationToken);
+
+                packRows.Add(
+                    new CommittedGovernancePackAssignmentSnapshot
+                    {
+                        PolicyPackId = assignment.PolicyPackId,
+                        PolicyPackVersion = assignment.PolicyPackVersion,
+                        ScopeLevel = GovernanceScopeLevel.TryNormalize(assignment.ScopeLevel) ?? GovernanceScopeLevel.Project,
+                        ComplianceRuleKeys = packComplianceRuleKeys,
+                    });
+            }
 
             coverageRows.Add(
                 BuildCoverageSnapshot(
                     assignment,
                     pack,
-                    ResolveCoverageType(pack, assignment),
-                    ResolveSelectedState(pack, assignment),
-                    exclusionReason: null));
+                    coverageType,
+                    selectionState,
+                    exclusionReason: exclusionReason));
         }
 
         packRows = packRows

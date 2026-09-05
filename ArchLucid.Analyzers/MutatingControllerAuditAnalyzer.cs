@@ -417,6 +417,59 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             nestedTypeWalker = nestedTypeWalker.ContainingType;
         }
 
+        if (MethodInheritsMutatingAuditExcludeFromInterfaces(exclusionAttributeSymbolScoped, methodDeclaredSymbolScoped))
+            return true;
+
+        return false;
+    }
+
+    private static bool MethodInheritsMutatingAuditExcludeFromInterfaces(
+        INamedTypeSymbol exclusionAttributeSymbolScoped,
+        IMethodSymbol methodDeclaredSymbolScoped)
+    {
+        foreach (IMethodSymbol explicitImplementation in methodDeclaredSymbolScoped.ExplicitInterfaceImplementations)
+        {
+            if (MethodHasMutatingAuditExcludeAttribute(explicitImplementation, exclusionAttributeSymbolScoped))
+                return true;
+        }
+
+        INamedTypeSymbol containingType = methodDeclaredSymbolScoped.ContainingType;
+
+        foreach (INamedTypeSymbol iface in containingType.AllInterfaces)
+        {
+            foreach (ISymbol member in iface.GetMembers())
+            {
+                if (member is not IMethodSymbol interfaceMethod)
+                    continue;
+
+                if (interfaceMethod.MethodKind != MethodKind.Ordinary)
+                    continue;
+
+                IMethodSymbol? implementation =
+                    containingType.FindImplementationForInterfaceMember(interfaceMethod) as IMethodSymbol;
+
+                if (implementation is null || !SymbolEqualityComparer.Default.Equals(implementation, methodDeclaredSymbolScoped))
+                    continue;
+
+                if (MethodHasMutatingAuditExcludeAttribute(interfaceMethod, exclusionAttributeSymbolScoped))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool MethodHasMutatingAuditExcludeAttribute(
+        IMethodSymbol methodDeclaredSymbolScoped,
+        INamedTypeSymbol exclusionAttributeSymbolScoped)
+    {
+        foreach (AttributeData attributeDataExcluded in methodDeclaredSymbolScoped.GetAttributes())
+        {
+            if (SymbolEqualityComparer.Default.Equals(attributeDataExcluded.AttributeClass,
+                    exclusionAttributeSymbolScoped))
+                return true;
+        }
+
         return false;
     }
 

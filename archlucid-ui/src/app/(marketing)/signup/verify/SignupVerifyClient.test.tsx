@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 
 import { SIGNUP_VERIFY_BANNED_CUSTOMER_STRINGS } from "@/lib/signup-verify-present";
@@ -164,6 +164,35 @@ describe("SignupVerifyClient", () => {
     await waitFor(() => {
       expect(screen.getByRole("heading", { name: SIGNUP_VERIFY_PAGE_COPY.deliveryFailedHeading })).toBeInTheDocument();
     });
+  });
+
+  it("does not show delivery failure when a background status poll errors after pending", async () => {
+    vi.useFakeTimers();
+
+    try {
+      vi.mocked(fetchSignupVerifyTrialStatus)
+        .mockResolvedValueOnce({ kind: "pending", payload: { status: "None" } })
+        .mockResolvedValueOnce({ kind: "error" });
+
+      render(<SignupVerifyClient />);
+
+      await act(async () => {
+        await Promise.resolve();
+      });
+
+      expect(screen.getByRole("heading", { name: SIGNUP_VERIFY_PAGE_COPY.checkInboxHeading })).toBeInTheDocument();
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(25_000);
+        await Promise.resolve();
+      });
+
+      expect(fetchSignupVerifyTrialStatus).toHaveBeenCalledTimes(2);
+      expect(screen.queryByRole("heading", { name: SIGNUP_VERIFY_PAGE_COPY.deliveryFailedHeading })).not.toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: SIGNUP_VERIFY_PAGE_COPY.checkInboxHeading })).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("handles resend pending label", async () => {

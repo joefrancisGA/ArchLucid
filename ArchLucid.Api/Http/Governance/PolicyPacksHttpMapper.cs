@@ -51,7 +51,7 @@ public static class PolicyPacksHttpMapper
                 ProblemTypes.ValidationFailed);
         }
 
-        if (!string.IsNullOrWhiteSpace(request.Version))
+        if (request.Version is not null)
         {
             GovernanceHttpValidation? versionValidation = ValidatePackVersion(request.Version);
 

@@ -32,6 +32,14 @@ internal static class CoveragePreviewMapper
             FocusedPilotModeEnabled = request.FocusedPilotModeEnabled,
             SecurityIntakeAnswer = request.SecurityIntakeAnswer,
             DescriptionText = request.DescriptionText,
+            UserOverrides = request.UserOverrides?
+                .Select(static row => new CoveragePreviewUserOverride
+                {
+                    PolicyPackId = row.PolicyPackId,
+                    Excluded = row.Excluded,
+                    ExclusionReason = row.ExclusionReason,
+                })
+                .ToList(),
         };
     }
 

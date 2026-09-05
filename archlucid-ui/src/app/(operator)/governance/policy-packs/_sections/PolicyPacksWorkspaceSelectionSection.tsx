@@ -35,7 +35,7 @@ export function PolicyPacksWorkspaceSelectionSection(props: PolicyPacksWorkspace
       </h3>
       <p className={cn("mb-3 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         All bundled packs start selected for this workspace. Turn packs off when you do not want their rules applied to
-        reviews here. Lock a pack as organization-required when every review in this scope must include it.
+        reviews here. Use organization-required (not legacy pin) when every review in this scope must include a pack.
       </p>
 
       {loading && items.length === 0 ? (

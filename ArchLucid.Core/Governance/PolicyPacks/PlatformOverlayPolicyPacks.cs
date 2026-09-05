@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Governance.PolicyPacks;
 
 namespace ArchLucid.Core.Governance.PolicyPacks;
 
@@ -50,5 +51,15 @@ public static class PlatformOverlayPolicyPacks
             default:
                 throw new ArgumentOutOfRangeException(nameof(cloudProvider), cloudProvider, "Unsupported cloud provider.");
         }
+    }
+
+    public static bool IsOverlayPack(PolicyPack? pack, CloudProvider cloudProvider)
+    {
+        string? slug = PolicyPackIdentity.ResolveSlug(pack);
+
+        if (PolicyPackBundledSlugs.IsOverlaySlug(slug, cloudProvider))
+            return true;
+
+        return IsOverlayDisplayName(pack?.Name, cloudProvider);
     }
 }
