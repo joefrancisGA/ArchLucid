@@ -234,7 +234,6 @@ export function RunDetailReviewPackageDoThisNextResolved(
         })}
         pipelineDiagnosticContext={props.pipelineDiagnosticContext ?? null}
         pipelineSummary={props.pipelineSummary ?? null}
-        retryCount={props.pipelineDiagnosticContext?.retryCount ?? props.pipelineSummary?.retryCount ?? null}
       />
     </>
   );
