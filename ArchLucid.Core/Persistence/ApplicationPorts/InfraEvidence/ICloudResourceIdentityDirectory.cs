@@ -24,6 +24,11 @@ public interface ICloudResourceIdentityDirectory
         string externalResourceId,
         CancellationToken cancellationToken = default);
 
+    Task<CloudResourceIdentityRecord?> TryGetByCloudResourceIdAsync(
+        ScopeContext scope,
+        Guid cloudResourceId,
+        CancellationToken cancellationToken = default);
+
     Task UpdateResourceCloudResourceIdAsync(
         ScopeContext scope,
         Guid resourceRowId,
