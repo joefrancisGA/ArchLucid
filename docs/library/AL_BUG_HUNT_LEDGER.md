@@ -3409,11 +3409,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 220
-- **bugs-found:** 442
+- **hunts:** 221
+- **bugs-found:** 443
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — mutation correction subjectId case canonicalization
+- **last-bug:** 2026-09-05 — renew risk exception padded rationale/evidenceRef persistence
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4477,6 +4477,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceMutationCorrectionService.RecordAsync` / `GovernanceController.RecordGovernanceMutationCorrection` — keyboard/bulk disposition correction `subjectId` differing only by casing from inspect canonical id persisted keyboard casing in DTO and audit JSON while #819 only canonicalized trail lookup — **hit 2026-09-05 (#824):** `ValidateFindingDispositionSubjectAsync` returns canonical `finding.FindingId` for persisted `SubjectId` (#819/#820 disposition/waiver parity); regression in `RecordAsync_appends_correction_for_keyboard_finding_disposition_when_subject_id_differs_only_by_casing`.
 
 2026-09-05 seed hunt #824 (hit): reseeded finding-id case parity surfaces; proved mutation-correction subjectId canonicalization gap promoted from #819 partial fix.
+
+- [x] (proven) `GovernanceStickinessController.RenewRiskException` / `RiskExceptionService.RenewAsync` — optional `rationale` / `evidenceRef` with outer padding passed validation via `Trim().Length` but persisted padded strings while create path trims before SQL — **hit 2026-09-05 (#825):** trim optional renew fields before `IRiskExceptionRepository.RenewAsync` (create parity); regression in `RenewAsync_trims_padded_rationale_and_evidence_ref_before_persist`.
+- [ ] (candidate) `RiskExceptionService.RenewAsync` / `CreateAsync` sibling guard — legacy waiver row `FindingId` casing differs from post-#820 canonical inspect id so `GetActiveForScopeFindingAsync` exact match misses duplicate active waiver or disposition-guard trail lookup.
+- [ ] (candidate) `RiskExceptionDispositionGuard.EnsureWaiverAllowedForFindingAsync` on renew — uses stored `existing.FindingId` without inspect canonicalization; remediated trail under canonical casing may be invisible when waiver row retained legacy casing.
+
+2026-09-05 seed hunt #825 (hit): reseeded waiver renew/create parity; proved renew padded optional-text persistence gap; seeded legacy finding-id casing sibling/guard candidates.
 
 2026-09-05 seed hunt #822 (hit): proved RecordDisposition route/body case-only mismatch; seeded merge-conflict member id casing candidate.
 
