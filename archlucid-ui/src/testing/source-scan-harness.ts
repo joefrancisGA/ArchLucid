@@ -14,6 +14,24 @@ export function readRegisteredSource(targetId: SourceScanTargetId): string {
   return readFileSync(resolveSourceScanTargetPath(targetId), "utf8");
 }
 
+/** Page-view composition root plus the shell that owns first-screen chrome. */
+export function readRunDetailPageViewFamilySource(): string {
+  return [
+    readRegisteredSource("run-detail-page-view"),
+    readRegisteredSource("run-detail-page-view-shell"),
+  ].join("\n");
+}
+
+/** Tabbed workspace wrapper plus the shell and panel resolver that own tab markup. */
+export function readRunDetailTabbedWorkspaceFamilySource(): string {
+  return [
+    readRegisteredSource("run-detail-tabbed-workspace"),
+    readRegisteredSource("run-detail-tabbed-workspace-shell"),
+    readRegisteredSource("run-detail-tabbed-workspace-resolve"),
+    readRegisteredSource("run-detail-tabbed-workspace-overview-shell"),
+  ].join("\n");
+}
+
 /**
  * Reads a file next to the calling test module.
  * Prefer {@link readRegisteredSource} when multiple tests scan the same product file.

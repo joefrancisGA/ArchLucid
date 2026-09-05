@@ -71,7 +71,7 @@ export function enterpriseStatusMetadataFillClass(kind: EnterpriseStatusKind): s
       return "bg-[var(--al-status-approved-monitoring-bg)] text-[var(--al-status-approved-monitoring-fg)]";
 
     case "in-progress":
-      return "bg-sky-100 text-sky-950 dark:bg-sky-950/60 dark:text-sky-100";
+      return "bg-al-surface-raised text-[var(--al-accent-interactive)]";
 
     case "draft":
     case "neutral":
@@ -98,7 +98,7 @@ function enterpriseStatusTagAccentBorderClass(kind: EnterpriseStatusKind): strin
       return "border-l-cyan-800 dark:border-l-cyan-500";
 
     case "in-progress":
-      return "border-l-sky-700 dark:border-l-sky-500";
+      return "border-l-[var(--al-accent-interactive)]";
 
     case "draft":
     case "neutral":

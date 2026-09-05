@@ -89,6 +89,19 @@ describe("ReviewDetailWorkspace", () => {
     searchParamsMock.value = new URLSearchParams("reviewTab=overview");
   });
 
+  it("renders recovery lead once under the tab strip", () => {
+    render(
+      <ReviewDetailWorkspace
+        runId={RUN_ID}
+        panels={workspacePanels}
+        activePanelLead={<div data-testid="do-this-next-lead">Do this next</div>}
+      />,
+    );
+
+    expect(screen.getAllByTestId("review-detail-active-panel-lead")).toHaveLength(1);
+    expect(screen.getByTestId("do-this-next-lead")).toBeInTheDocument();
+  });
+
   it("renders tab list and overview panel by default", () => {
     render(
       <ReviewDetailWorkspace

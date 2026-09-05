@@ -31,7 +31,11 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<IAuditHybridEvidenceQueryService, AuditHybridEvidenceQueryService>();
         services.AddScoped<IAuditEvidencePackageExportService, AuditEvidencePackageExportService>();
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+        services.AddScoped<IAuditEvidenceLineageService, AuditEvidenceLineageService>();
+>>>>>>> origin/master
         services.AddScoped<IAuditContinuousReadinessService, AuditContinuousReadinessService>();
         services.AddScoped<IAuditEvaluationFindingHandoffService, NoOpAuditEvaluationFindingHandoffService>();
         services.AddScoped<IAzureInventorySnapshotPostMaterializeCoordinator, AzureInventorySnapshotPostMaterializeCoordinator>();

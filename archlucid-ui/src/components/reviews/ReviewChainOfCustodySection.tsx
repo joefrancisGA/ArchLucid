@@ -8,6 +8,7 @@ import type { RunDetail } from "@/types/authority";
 
 import { runDetailSectionHeadingClass } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/run-detail-section-heading";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 
 export type ReviewChainOfCustodySectionProps = {
   readonly run: RunDetail["run"];
@@ -16,12 +17,6 @@ export type ReviewChainOfCustodySectionProps = {
   readonly ruleSetVersion?: string | null;
   readonly triggerSource?: "ui" | "api" | "ci" | null;
 };
-
-function formatUtc(utc: string | null | undefined): string {
-  if (!utc) return " — ";
-
-  return new Date(utc).toISOString().replace("T", " ").replace(/\.\d{3}Z$/, " UTC");
-}
 
 function triggerSourceLabel(source: "ui" | "api" | "ci" | null | undefined): string {
   if (source === "api") return "API";
@@ -46,10 +41,10 @@ export function ReviewChainOfCustodySection({
       ? run.architectureRequestId
       : null;
 
-  const createdLabel = formatUtc(run.createdUtc);
+  const createdLabel = formatIsoUtcForDisplay(run.createdUtc);
   const completedLabel =
     "completedUtc" in run && typeof run.completedUtc === "string"
-      ? formatUtc(run.completedUtc)
+      ? formatIsoUtcForDisplay(run.completedUtc)
       : null;
 
   const policyPackLabel =
@@ -76,12 +71,12 @@ export function ReviewChainOfCustodySection({
               </div>
               <div>
                 <dt className={cn("font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Analysis started</dt>
-                <dd className={cn("mt-0.5 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>{createdLabel}</dd>
+                <dd className={cn("mt-0.5 font-mono tabular-nums text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>{createdLabel}</dd>
               </div>
               {completedLabel !== null ? (
                 <div>
                   <dt className={cn("font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Analysis completed</dt>
-                  <dd className={cn("mt-0.5 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>{completedLabel}</dd>
+                  <dd className={cn("mt-0.5 font-mono tabular-nums text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>{completedLabel}</dd>
                 </div>
               ) : null}
               <div>
