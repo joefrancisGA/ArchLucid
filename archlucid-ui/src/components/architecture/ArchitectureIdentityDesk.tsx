@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { useArchitectureIdentityQuery } from "@/hooks/use-architecture-identity-query";
+import { useRehydrateInFlightOperationsFromArchitecture } from "@/hooks/use-rehydrate-in-flight-from-architecture";
 import { ArchitectureIdentityDeskReviewsTable } from "@/components/architecture/ArchitectureIdentityDeskReviewsTable";
 import { ArchitectureIdentityDeskSkeleton } from "@/components/architecture/ArchitectureIdentityDeskSkeleton";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ type ArchitectureIdentityDeskProps = {
 
 export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): React.JSX.Element {
   const query = useArchitectureIdentityQuery(props.architectureId);
+  useRehydrateInFlightOperationsFromArchitecture(props.architectureId);
   const identity = query.data;
 
   if (query.isLoading) {
@@ -57,6 +59,7 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
     identity.reviews.length >= 2
       ? buildCompareTwoReviewsHref({
           baseRunId: identity.reviews[0]?.runId ?? identity.latestReviewId ?? "",
+          architectureId: identity.architectureId,
         })
       : null;
 
@@ -128,7 +131,11 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
             </Link>
           ) : null}
         </div>
-        <ArchitectureIdentityDeskReviewsTable reviews={identity.reviews} architectureId={identity.architectureId} />
+        <ArchitectureIdentityDeskReviewsTable
+          reviews={identity.reviews}
+          architectureId={identity.architectureId}
+          reviewCount={identity.reviewCount}
+        />
       </section>
 
       <p className="sr-only" data-testid="architecture-identity-desk-path">
