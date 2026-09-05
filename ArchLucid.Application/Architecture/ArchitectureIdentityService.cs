@@ -76,7 +76,11 @@ public sealed class ArchitectureIdentityService(
         }
 
         ArchitectureIdentityRecord identity = await _architectureIdentityRepository
-            .CreateAsync(scope, knowledgeModelId, cancellationToken)
+            .CreateAsync(
+                scope,
+                ArchitectureIdentityDisplayNameDefaults.Resolve(run.Description),
+                knowledgeModelId,
+                cancellationToken)
             .ConfigureAwait(false);
 
         run.ArchitectureId = identity.ArchitectureId;

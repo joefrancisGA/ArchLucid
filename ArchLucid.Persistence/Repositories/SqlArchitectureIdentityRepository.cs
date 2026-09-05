@@ -19,11 +19,14 @@ public sealed class SqlArchitectureIdentityRepository(ISqlConnectionFactory conn
 
     public async Task<ArchitectureIdentityRecord> CreateAsync(
         ScopeContext scope,
+        string displayName,
         string? currentModelId,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(displayName);
 
+        string normalizedDisplayName = ArchitectureIdentityDisplayNameDefaults.Resolve(displayName);
         Guid architectureId = Guid.NewGuid();
         DateTime nowUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
 
@@ -31,12 +34,12 @@ public sealed class SqlArchitectureIdentityRepository(ISqlConnectionFactory conn
                            INSERT INTO dbo.Architectures
                            (
                                ArchitectureId, TenantId, WorkspaceId, ScopeProjectId,
-                               CurrentModelId, CreatedUtc, UpdatedUtc
+                               DisplayName, CurrentModelId, CreatedUtc, UpdatedUtc
                            )
                            VALUES
                            (
                                @ArchitectureId, @TenantId, @WorkspaceId, @ScopeProjectId,
-                               @CurrentModelId, @CreatedUtc, @UpdatedUtc
+                               @DisplayName, @CurrentModelId, @CreatedUtc, @UpdatedUtc
                            );
                            """;
 
@@ -52,6 +55,7 @@ public sealed class SqlArchitectureIdentityRepository(ISqlConnectionFactory conn
                     TenantId = scope.TenantId,
                     WorkspaceId = scope.WorkspaceId,
                     ScopeProjectId = scope.ProjectId,
+                    DisplayName = normalizedDisplayName,
                     CurrentModelId = currentModelId,
                     CreatedUtc = nowUtc,
                     UpdatedUtc = nowUtc,
@@ -64,6 +68,7 @@ public sealed class SqlArchitectureIdentityRepository(ISqlConnectionFactory conn
             TenantId = scope.TenantId,
             WorkspaceId = scope.WorkspaceId,
             ScopeProjectId = scope.ProjectId,
+            DisplayName = normalizedDisplayName,
             CurrentModelId = currentModelId,
             CreatedUtc = nowUtc,
             UpdatedUtc = nowUtc,
@@ -79,7 +84,8 @@ public sealed class SqlArchitectureIdentityRepository(ISqlConnectionFactory conn
 
         const string sql = """
                            SELECT ArchitectureId, TenantId, WorkspaceId, ScopeProjectId,
-                                  CurrentModelId, LatestSealedManifestId, CreatedUtc, UpdatedUtc
+                                  DisplayName, Description, CurrentModelId, LatestSealedManifestId,
+                                  CreatedUtc, UpdatedUtc
                            FROM dbo.Architectures
                            WHERE ArchitectureId = @ArchitectureId
                              AND TenantId = @TenantId

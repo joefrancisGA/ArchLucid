@@ -13,12 +13,15 @@ public sealed class InMemoryArchitectureIdentityRepository : IArchitectureIdenti
 
     public Task<ArchitectureIdentityRecord> CreateAsync(
         ScopeContext scope,
+        string displayName,
         string? currentModelId,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(displayName);
         _ = cancellationToken;
 
+        string normalizedDisplayName = ArchitectureIdentityDisplayNameDefaults.Resolve(displayName);
         Guid architectureId = Guid.NewGuid();
         DateTime nowUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
 
@@ -28,6 +31,7 @@ public sealed class InMemoryArchitectureIdentityRepository : IArchitectureIdenti
             TenantId = scope.TenantId,
             WorkspaceId = scope.WorkspaceId,
             ScopeProjectId = scope.ProjectId,
+            DisplayName = normalizedDisplayName,
             CurrentModelId = currentModelId,
             CreatedUtc = nowUtc,
             UpdatedUtc = nowUtc,

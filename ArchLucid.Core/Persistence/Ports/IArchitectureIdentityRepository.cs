@@ -7,6 +7,7 @@ public interface IArchitectureIdentityRepository
 {
     Task<ArchitectureIdentityRecord> CreateAsync(
         ScopeContext scope,
+        string displayName,
         string? currentModelId,
         CancellationToken cancellationToken = default);
 
