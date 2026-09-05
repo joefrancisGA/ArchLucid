@@ -15,7 +15,7 @@ export type InsightDensityBandPresentation = {
 };
 
 export const INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE =
-  "Advisory — typed-engine scores do not hide findings." as const;
+  "Checklist coverage stays on the package when the insight-density gate demotes a finding." as const;
 
 const BAND_PRESENTATIONS: Readonly<Record<InsightDensityBandId, InsightDensityBandPresentation>> = {
   "decision-grade": {

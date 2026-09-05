@@ -12,8 +12,8 @@ export type FindingWorkItemCoverageHonesty = {
   readonly typedEngineProtected: boolean;
 };
 
-const TYPED_ENGINE_PROTECTED_CLIPBOARD_LINE =
-  "Typed-engine findings stay on the package regardless of insight-density score (typed-engine-protected)." as const;
+const TYPED_ENGINE_CLIPBOARD_LINE =
+  "Checklist coverage stays on the package when the insight-density gate demotes a finding." as const;
 
 function readTypedPayloadRecord(payload: FindingInspectPayload | null | undefined): Record<string, unknown> | null {
   const value = payload?.typedPayload;
@@ -42,13 +42,19 @@ function typedPayloadIncludesTypedEngineProtected(record: Record<string, unknown
 
   const penaltyReasons = typedPayloadStringArray(record, "penaltyReasons");
 
-  if (penaltyReasons.some((reason) => reason.trim().toLowerCase() === "typed-engine-protected")) {
+  if (penaltyReasons.some((reason) => isTypedEnginePenaltyReason(reason))) {
     return true;
   }
 
   const insightDensityPenaltyReasons = typedPayloadStringArray(record, "insightDensityPenaltyReasons");
 
-  return insightDensityPenaltyReasons.some((reason) => reason.trim().toLowerCase() === "typed-engine-protected");
+  return insightDensityPenaltyReasons.some((reason) => isTypedEnginePenaltyReason(reason));
+}
+
+function isTypedEnginePenaltyReason(reason: string): boolean {
+  const normalized = reason.trim().toLowerCase();
+
+  return normalized === "typed-engine-scored" || normalized === "typed-engine-protected";
 }
 
 function resolveTypedEngineProtected(input: FindingWorkItemBuildInput, payload: FindingInspectPayload | null): boolean {
@@ -147,7 +153,7 @@ export function resolveFindingWorkItemCoverageHonesty(
   const segments: string[] = [];
 
   if (typedEngineProtected) {
-    segments.push(TYPED_ENGINE_PROTECTED_CLIPBOARD_LINE);
+    segments.push(TYPED_ENGINE_CLIPBOARD_LINE);
   }
 
   if (provenanceKind !== null) {
@@ -175,7 +181,7 @@ export function resolveFindingWorkItemCoverageHonestyFromInput(
       return {
         line: trimmed,
         provenanceKind: input.coverageHonestyProvenanceKind ?? undefined,
-        typedEngineProtected: trimmed.toLowerCase().includes("typed-engine-protected"),
+        typedEngineProtected: trimmed.toLowerCase().includes("checklist coverage"),
       };
     }
   }
