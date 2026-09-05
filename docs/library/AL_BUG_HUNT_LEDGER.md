@@ -4648,11 +4648,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 10
-- **bugs-found:** 10
+- **hunts:** 11
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — product-learning and planning export anchors omitted operator scope on `/api/proxy` GET downloads
+- **last-hunt:** 2026-09-05
+- **last-bug:** 2026-09-05 — compare deep-link auto-compare skipped when client-navigating to a new URL run pair; admin tenants shut-off confirm cleared before `router.replace` completed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4670,6 +4670,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `architecture-intelligence-api.ts` `getJson`/`postJson` omitted `mergeRegistrationScopeForProxy` while `architecture-intelligence-client-api.ts` was scoped — **hit 2026-09-02:** `RunDetailAiRefinePanel`, `ArchitectureDraftAiRefinePanel`, and `useArchitectureIntelligenceSourceContextQuery` still called unscoped lib helpers for product source-context GET and reasoning POST, so refine/publish and hydrated intake hit proxy dev-default tenant after scope switch; fixed by wrapping lib fetch with `mergeRegistrationScopeForProxy` (`architecture-intelligence-api.test.ts`).
 - [x] (proven) `save-tenant-review-cycle-baseline.ts` GET/PUT `/api/proxy/v1/tenant/baseline` omitted `mergeRegistrationScopeForProxy` while `use-baseline-settings.ts` was scoped — **hit 2026-09-03:** new-run wizard baseline step (`useWizardBaselineMetricsActions`) read/persisted review-cycle hours on proxy dev-default tenant after scope switch; fixed by wrapping GET/PUT with `mergeRegistrationScopeForProxy` (`save-tenant-review-cycle-baseline.test.ts`).
 - [x] (proven) `ProductLearningPageView` / `PlanningExportReadinessNote` export anchors used raw `/api/proxy` hrefs without `mergeRegistrationScopeForProxy` while dashboard loads used scoped `apiGet` — **hit 2026-09-04 (#714):** markdown/JSON export and open-in-tab actions hit proxy dev-default tenant after scope switch; fixed with scoped fetch downloads via `downloadScopedProxyFileGet` (`product-learning-report-download.test.ts`, `learning-planning-report-download.test.ts`).
+- [x] (proven) `useCompareFormUrlSync` auto-compare effect used a one-shot ref — **hit 2026-09-05 (#811):** client navigation from one complete `priorRunId`/`laterRunId` pair to another skipped `runCompareForPair`; fixed by keying last auto-compared pair (`use-compare-form-url-sync.test.ts`).
+- [x] (proven) `useAdminTenantsState` URL-sync effect cleared `pendingTenantAction` whenever URL params were empty — **hit 2026-09-05 (#811):** shut-off/turn-on confirm dialog vanished before `router.replace` wrote `tenantAction`/`tenantId`; fixed by clearing only on set→cleared URL transitions (`AdminTenantsPageClient.test.tsx`).
+- [ ] (candidate) Operational-errors detail panel may survive a filter change that hides the selected row — needs locus + repro in `archlucid-ui/src/app/(operator)/`.
+- [ ] (candidate) Ask page stale `thread` search param may block resume after navigation — needs locus + repro in `archlucid-ui/src/app/(operator)/`.
+
+2026-09-05 seed hunt #811 (hit): proved compare URL auto-compare one-shot gap and admin tenants pending-action URL-sync race; seeded operational-errors filter/detail and ask thread-resume candidates.
 
 2026-09-04 seed hunt #714 (hit): reseeded proxy-scope audit on tenant-scoped export anchors; proved product-learning and planning report download/open gaps.
 
