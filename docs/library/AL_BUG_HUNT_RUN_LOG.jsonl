@@ -957,3 +957,4 @@
 {"at":"2026-09-05T04:33:48.1292237Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-05T04:46:14.9347238Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-09-05T04:53:27.6110028Z","zoneId":"api-governance-tenancy-controllers","outcome":"seed-only"}
+{"at":"2026-09-05T05:00:02.3043307Z","zoneId":"saml-jwt-bearer","outcome":"dry"}
