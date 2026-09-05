@@ -3,6 +3,7 @@
      tool (all-day use; livelihoods may depend on the sealed record), not a
      casual evaluator. Owner authorized spine changes.
      Wave 9 after instrument-spine-00-index.md (IS-01–15).
+     Wave 10 leftovers: sealed-desk-00-index.md (SD-01–12).
      Do not implement from this index. -->
 
 # Livelihood-spine leftovers — Composer prompt set (LS-01–LS-12)
@@ -42,6 +43,7 @@ Do **not** collapse desktop review tabs behind **More**. Do **not** auto-switch 
 | **IS-01–15** | Wave 8 load-bearing bets | **Run first** — do not fork |
 | **FD / AD / CD / WA / RS / LD / LI / PT / WD** | Overlays and leftovers | Do not re-run / do not fork |
 | **LS-01–12** | **This set** — wave 9 diagnosis leftovers | Run these after IS |
+| **SD-01–12** | Wave 10 residuals | [`sealed-desk-00-index.md`](sealed-desk-00-index.md) |
 
 If an LS row lists an IS/AD/RS/WA owner, **do not fork** that file. Implement only the leftover in *What to build*.
 

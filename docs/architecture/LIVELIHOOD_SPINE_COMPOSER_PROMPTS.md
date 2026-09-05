@@ -2,11 +2,12 @@
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Founding contract:** [`ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) R4 / R13 · **UI standard:** [`../library/UI_DESIGN_SYSTEM.md`](../library/UI_DESIGN_SYSTEM.md)
 > **Paste-ready files:** [`.cursor/prompts/livelihood-spine-00-index.md`](../../.cursor/prompts/livelihood-spine-00-index.md) (**LS-01–12**)
 > **Wave 8 (run first):** [`INSTRUMENT_SPINE_COMPOSER_PROMPTS.md`](INSTRUMENT_SPINE_COMPOSER_PROMPTS.md) (**IS-01–15**)
+> **Wave 10 leftovers:** [`SEALED_DESK_COMPOSER_PROMPTS.md`](SEALED_DESK_COMPOSER_PROMPTS.md) (**SD-01–12**) — do not fork IS or LS
 > **Shipped predecessors:** LI-01–15 (`master` #1397), LD-01–15 (#1421 / #1439), RS-01–15 (#1457), WA-01–24 (#1496), FD-01–13 (#1534 / #1537)
 
 # Livelihood-spine Composer prompts (LS-01–LS-12)
 
-**Created:** 2026-09-05 · **Status:** ready to run **after IS-01–15** · **Do not re-run LI, LD, RS, WA, CD, AD, FD, or IS.**
+**Created:** 2026-09-05 · **Status:** ready to run **after IS-01–15** · **Do not re-run LI, LD, RS, WA, CD, AD, FD, or IS.** Wave 10: [`SEALED_DESK_COMPOSER_PROMPTS.md`](SEALED_DESK_COMPOSER_PROMPTS.md) (**SD-01–12**).
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record. Wave 8 owns the three load-bearing bets (one Working work object, density as a control, instrument-first spine). This set is **wave 9** — leftovers the 2026-09-05 owner restatement still finds in code: unlinked Architecture dual-pane, infeasible copy that reads as pending success, density strings that still say the score is advisory, remaining chooser surfaces, empty insights tools, R12 what-if execute, and eight-hour workbench scan.
 
@@ -67,3 +68,4 @@ See [`.cursor/prompts/livelihood-spine-00-index.md`](../../.cursor/prompts/livel
 - **FD-01–13** / **AD-01–12** / **CD-01–15**
 - **WA-01–24** / **RS-01–15** / **LD-01–15** / **LI-01–15**
 - **PT-01–20** / **WD-01–12** / **DD-01–10**
+- **SD-01–12** — wave 10 leftovers; do not implement from LS files
