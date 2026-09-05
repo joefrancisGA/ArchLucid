@@ -1,3 +1,4 @@
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.ArtifactSynthesis.Generators;
 using ArchLucid.ArtifactSynthesis.Interfaces;
@@ -25,6 +26,7 @@ partial class CoordinatorArtifactsCompositionModule
         services.AddSingleton<IArtifactBundleValidator, ArtifactBundleValidator>();
         services.AddSingleton<ITechnologyLedgerArtifactLinter, TechnologyLedgerArtifactLinter>();
         services.AddSingleton<IDiagramRenderer, MermaidDiagramRenderer>();
+        services.AddSingleton<IDiagramAstFromGraphCompiler, DiagramAstFromGraphCompiler>();
         services.AddScoped<IArtifactGenerator, ReferenceArchitectureMarkdownGenerator>();
         services.AddScoped<IArtifactGenerator, ArchitectureNarrativeArtifactGenerator>();
         services.AddScoped<IArtifactGenerator, ComplianceMatrixArtifactGenerator>();
