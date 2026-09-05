@@ -1549,7 +1549,7 @@
       "commercial_tier": "standard",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/administration/branding"
+      "nav_operator_href": null
     },
     {
       "controller_file": "InfraEvidence/TenantBrandingController.cs",
