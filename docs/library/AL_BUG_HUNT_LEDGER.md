@@ -3418,11 +3418,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 240
-- **bugs-found:** 474
+- **hunts:** 241
+- **bugs-found:** 475
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — architecture project restore idempotent retry success
+- **last-bug:** 2026-09-05 — architecture project soft-delete idempotent retry success
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4564,7 +4564,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-05 thorough hunt #846 (hit): proved restore idempotent-success gap seeded in #845; cheap-disproved governance-resolution read-audit candidate (intentional telemetry).
 
-- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — `operator-documented-safe-retry` sibling: already-soft-deleted retry returns HTTP 404 instead of idempotent HTTP 204 (`TrySoftDeleteAsync` false path; #846 restore parity).
+- [x] (proven) `TenantWorkspacesController.DeleteProjectAsync` — `operator-documented-safe-retry` sibling: already-soft-deleted retry returns HTTP 404 instead of idempotent HTTP 204 (`TrySoftDeleteAsync` false path; #846 restore parity) — **hit 2026-09-05 (#847):** `ArchitectureProjectSoftDeleteResult.AlreadyDeleted` returns HTTP 204 without duplicate `ArchitectureProjectSoftDeleted` audit; regression in `DeleteProjectAsync_returns_no_content_without_duplicate_audit_when_already_deleted_retry`.
+
+2026-09-05 thorough hunt #847 (hit): proved soft-delete idempotent-success gap seeded in #846.
 
 2026-09-05 seed hunt #845 (hit): reseeded post-#844 idempotent-retry exhaustion; proved core-pilot checklist and tenant baseline duplicate-audit gaps; seeded restore idempotent-success and governance-resolution read-audit retry candidates.
 
