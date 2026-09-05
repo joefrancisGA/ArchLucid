@@ -7,9 +7,12 @@ const apiMocks = vi.hoisted(() => ({
 }));
 
 const useOperateCapabilityMock = vi.hoisted(() => vi.fn(() => true));
+const routerReplaceMock = vi.hoisted(() => vi.fn());
 
 vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), replace: routerReplaceMock, refresh: vi.fn() }),
   usePathname: () => "/integrations/webhooks",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/hooks/use-operate-capability", () => ({

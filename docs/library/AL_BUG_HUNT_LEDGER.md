@@ -1047,11 +1047,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 4
-- **bugs-found:** 4
+- **hunts:** 5
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — stale enable/disable toggle failure surfaced in new workspace after scope switch
+- **last-hunt:** 2026-09-05
+- **last-bug:** 2026-09-05 — Wave 30 URL-sync effect closed enable/disable dialogs before router.replace updated search params
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -1063,6 +1063,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) In-flight webhook test or save state survives operator scope switch — **hit 2026-08-21:** scope `useEffect` cleared form rows but not `testingId`/`isSaving`; stale async completions could disable tests or show save success in the new workspace.
 - [x] (proven) Stale subscription list from a previous workspace overwrites rows after scope switch — **hit 2026-08-23:** `load()` in `use-webhooks-settings.ts` lacked `scopeGenerationRef` guards; an in-flight `listAlertRoutingSubscriptions` completion could call `setItems` with the prior workspace's subscriptions after the operator switched scope.
 - [x] (proven) `confirmEnableSubscription` / `confirmDisableSubscription` lacked `scopeGenerationRef` guards on toggle completion — **hit 2026-08-26:** in-flight `toggleAlertRoutingSubscription` could call `setFailure` in the new workspace after scope switch; fixed by threading generation through `executeToggle` and guarding enable/disable busy and error state (`page.test.tsx` `does not show toggle failure in a new workspace when enable completes after scope switch`).
+- [x] (proven) Wave 30 URL-sync effect cleared pending enable/disable dialogs whenever search params were empty — **hit 2026-09-05:** `use-webhooks-settings-mutations` closed dialogs on empty URL before `router.replace` applied `webhookEnableId`/`webhookDisableId`, so confirmation never opened from row actions; fixed by clearing pending state only when URL params transition from set to cleared (`page.test.tsx` enable/disable confirm tests).
+- [x] (proven) `executeToggle` duplicated toggle failures as page-level `failure` and dialog error — **hit 2026-09-05:** enable/disable confirm already sets dialog-specific errors; `executeToggle` also called `setFailure`, surfacing twin alerts; fixed by removing page-level failure from toggle catch (`page.test.tsx` `shows enable toggle failure only in the confirmation dialog, not the page alert`).
+
+2026-09-05 seed hunt #807 (hit): proved Wave 30 URL-sync dialog race and duplicate toggle failure surfaces.
 
 ---
 
