@@ -51,4 +51,21 @@ public sealed class ConfigurationEffectiveValueResolverTests
 
         v.Should().Be("Sql");
     }
+
+    [Theory]
+    [InlineData("ArchLucid:PasswordlessAuth:Enabled", "true")]
+    [InlineData("ArchLucid:TokenizerModel:Name", "gpt-4.1")]
+  public void Resolve_returns_scalar_for_non_secret_segment_substrings(string configPath, string expectedValue)
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = expectedValue
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? v = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        v.Should().Be(expectedValue);
+    }
 }

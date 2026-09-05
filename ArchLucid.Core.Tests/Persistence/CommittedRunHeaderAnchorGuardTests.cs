@@ -118,6 +118,34 @@ public sealed class CommittedRunHeaderAnchorGuardTests
             .Which.RunId.Should().Be(persisted.RunId);
     }
 
+    [Fact]
+    public void EnsureAnchorsUnchangedIfCommitted_allows_engine_provenance_property_order_only_change_on_committed_run()
+    {
+        Guid manifestId = Guid.NewGuid();
+        RunRecord persisted = CreateRun(goldenManifestId: manifestId);
+        persisted.EngineProvenanceJson = """{"providerKind":"azure-openai","modelId":"gpt-4"}""";
+        RunRecord proposed = CreateRun(goldenManifestId: manifestId);
+        proposed.EngineProvenanceJson = """{"modelId":"gpt-4","providerKind":"azure-openai"}""";
+
+        Action act = () => CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, proposed);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_property_name_casing_only_change_on_committed_run()
+    {
+        Guid manifestId = Guid.NewGuid();
+        RunRecord persisted = CreateRun(goldenManifestId: manifestId);
+        persisted.GovernanceScopeJson = """{"packAssignments":[]}""";
+        RunRecord proposed = CreateRun(goldenManifestId: manifestId);
+        proposed.GovernanceScopeJson = """{"PackAssignments":[]}""";
+
+        Action act = () => CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, proposed);
+
+        act.Should().NotThrow();
+    }
+
     private static RunRecord CreateRun(Guid? goldenManifestId)
     {
         return new RunRecord

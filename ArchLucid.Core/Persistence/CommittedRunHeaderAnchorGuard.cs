@@ -73,10 +73,10 @@ public static class CommittedRunHeaderAnchorGuard
         if (!string.Equals(persisted.OtelTraceId, proposed.OtelTraceId, StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (!string.Equals(persisted.EngineProvenanceJson, proposed.EngineProvenanceJson, StringComparison.Ordinal))
+        if (!RunHeaderAnchorJsonComparer.AreEquivalent(persisted.EngineProvenanceJson, proposed.EngineProvenanceJson))
             return true;
 
-        if (!string.Equals(persisted.GovernanceScopeJson, proposed.GovernanceScopeJson, StringComparison.Ordinal))
+        if (!RunHeaderAnchorJsonComparer.AreEquivalent(persisted.GovernanceScopeJson, proposed.GovernanceScopeJson))
             return true;
 
         return false;
