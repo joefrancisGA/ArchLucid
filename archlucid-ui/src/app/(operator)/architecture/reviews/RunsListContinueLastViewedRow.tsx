@@ -10,12 +10,14 @@ import type { RunSummary } from "@/types/authority";
 
 export type RunsListContinueLastViewedRowProps = {
   readonly run: RunSummary;
+  readonly variant?: "primary" | "outline";
 };
 
 /** Pinned continue row for the most recently viewed architecture review. */
 export function RunsListContinueLastViewedRow(props: RunsListContinueLastViewedRowProps): React.JSX.Element {
   const href = `/architecture/reviews/${encodeURIComponent(props.run.runId)}`;
   const title = buyerFacingReviewTitleFromSummary(props.run);
+  const buttonVariant = props.variant ?? "primary";
 
   return (
     <section
@@ -35,7 +37,7 @@ export function RunsListContinueLastViewedRow(props: RunsListContinueLastViewedR
             <span className="font-medium text-al-text-primary">{title}</span>
           </p>
         </div>
-        <Button type="button" variant="primary" size="sm" asChild data-testid="runs-list-continue-last-viewed-open">
+        <Button type="button" variant={buttonVariant} size="sm" asChild data-testid="runs-list-continue-last-viewed-open">
           <Link href={href}>Open review</Link>
         </Button>
       </div>

@@ -26,6 +26,7 @@ import { RunsListCompareSelectionBar } from "@/components/usability/RunsListComp
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY, OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { resolveContinueLastRunsListRow } from "@/lib/resolve-continue-last-runs-list-row";
+import { resolveReviewsHubResumeAffordancePlan } from "@/lib/reviews-hub-resume-affordance";
 import {
   parseRunsListSortFromSearch,
   runsListSortHrefFromSearch,
@@ -86,6 +87,14 @@ export function RunsListClient(props: RunsListClientProps) {
   const continueLastViewedRun = useMemo(
     () => resolveContinueLastRunsListRow(props.runs),
     [props.runs],
+  );
+  const continueLastResumePlan = useMemo(
+    () =>
+      resolveReviewsHubResumeAffordancePlan({
+        continueStripRunId: props.continueStripRunId ?? null,
+        continueLastViewedRunId: continueLastViewedRun?.runId ?? null,
+      }),
+    [continueLastViewedRun?.runId, props.continueStripRunId],
   );
 
   const inspectorBody =
@@ -260,7 +269,12 @@ export function RunsListClient(props: RunsListClientProps) {
       <div className={cn("pt-4", !viewportNarrow && "lg:flex lg:items-stretch lg:gap-4")}>
         <div className={cn("min-w-0 flex-1 space-y-4", !viewportNarrow && "lg:min-w-0")}>
           <div className="space-y-4">
-            {continueLastViewedRun !== null ? <RunsListContinueLastViewedRow run={continueLastViewedRun} /> : null}
+            {continueLastViewedRun !== null && continueLastResumePlan.showContinueLastViewed ? (
+              <RunsListContinueLastViewedRow
+                run={continueLastViewedRun}
+                variant={continueLastResumePlan.continueLastViewedVariant}
+              />
+            ) : null}
             {showCompareSelection ? (
               <RunsListCompareSelectionBar
                 selectedRunIds={compareSelection}
