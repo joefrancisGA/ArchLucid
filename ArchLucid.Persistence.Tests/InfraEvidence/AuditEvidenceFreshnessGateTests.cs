@@ -236,6 +236,13 @@ public sealed class AuditEvidenceFreshnessGateTests
             AzureInventorySnapshotMaterializeWriteRequest writeRequest,
             CancellationToken cancellationToken = default)
             => Task.CompletedTask;
+
+        public Task<Guid?> TryGetPriorMaterializedSnapshotIdAsync(
+            ScopeContext scope,
+            string subscriptionId,
+            Guid newerSnapshotId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<Guid?>(null);
     }
 
     private sealed class InMemoryAuditEvidenceRequirementRepository : IAuditEvidenceRequirementRepository

@@ -316,6 +316,13 @@ public sealed class AuditEvidenceSnapshotCollectionServiceTests
             AzureInventorySnapshotMaterializeWriteRequest writeRequest,
             CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
+
+        public Task<Guid?> TryGetPriorMaterializedSnapshotIdAsync(
+            ScopeContext scope,
+            string subscriptionId,
+            Guid newerSnapshotId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<Guid?>(null);
     }
 
     internal sealed class InMemoryAuditEvidenceRequirementRepository : IAuditEvidenceRequirementRepository

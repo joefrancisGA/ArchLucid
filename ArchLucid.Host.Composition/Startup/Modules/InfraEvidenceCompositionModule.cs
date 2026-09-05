@@ -1,6 +1,7 @@
 using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Application.InfraEvidence.AuditEvidence;
 using ArchLucid.Application.InfraEvidence.OperationalSecurityFindings;
+using ArchLucid.Application.InfraEvidence.OperationalSecurityExceptions;
 using ArchLucid.Application.InfraEvidence.RemediationPatterns;
 using ArchLucid.Application.InfraEvidence.SecurityCrosswalk;
 using ArchLucid.Persistence.InfraEvidence;
@@ -36,6 +37,7 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<IAuditEvidenceLineageService, AuditEvidenceLineageService>();
         services.AddScoped<ISecurityCrosswalkService, SecurityCrosswalkService>();
         services.AddScoped<IOperationalSecurityFindingIngestService, OperationalSecurityFindingIngestService>();
+        services.AddScoped<IOperationalSecurityExceptionService, OperationalSecurityExceptionService>();
         services.AddScoped<IRemediationPatternService, RemediationPatternService>();
         services.AddScoped<IRemediationPatternMatcherService, RemediationPatternMatcherService>();
         services.AddScoped<IAuditContinuousReadinessService, AuditContinuousReadinessService>();
