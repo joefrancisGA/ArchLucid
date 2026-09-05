@@ -239,7 +239,9 @@ public sealed class GovernanceWorkflowReviewStage(
                 if (!transitioned)
                 {
                     await uow.RollbackAsync(cancellationToken);
-                    GovernanceApprovalRequest? idempotentRetry = await TryGetIdempotentReviewRetryAsync(
+                    GovernanceApprovalRequest? idempotentRetry;
+                    GovernanceApprovalRequest? competingState;
+                    (idempotentRetry, competingState) = await ResolveAfterFailedTransitionAsync(
                         approvalRequestId,
                         newStatus,
                         reviewedByActorKey,
@@ -249,7 +251,7 @@ public sealed class GovernanceWorkflowReviewStage(
                     if (idempotentRetry is not null)
                         return (idempotentRetry, true);
 
-                    await ThrowGovernanceReviewConflictAsync(approvalRequestId, reviewVerb, cancellationToken);
+                    ThrowGovernanceReviewConflict(approvalRequestId, reviewVerb, competingState);
                 }
 
                 await _auditSupport.LogGovernanceDurableWithRetryInUnitOfWorkAsync(
@@ -278,7 +280,9 @@ public sealed class GovernanceWorkflowReviewStage(
 
             if (!transitioned)
             {
-                GovernanceApprovalRequest? idempotentRetry = await TryGetIdempotentReviewRetryAsync(
+                GovernanceApprovalRequest? idempotentRetry;
+                GovernanceApprovalRequest? competingState;
+                (idempotentRetry, competingState) = await ResolveAfterFailedTransitionAsync(
                     approvalRequestId,
                     newStatus,
                     reviewedByActorKey,
@@ -288,7 +292,7 @@ public sealed class GovernanceWorkflowReviewStage(
                 if (idempotentRetry is not null)
                     return (idempotentRetry, true);
 
-                await ThrowGovernanceReviewConflictAsync(approvalRequestId, reviewVerb, cancellationToken);
+                ThrowGovernanceReviewConflict(approvalRequestId, reviewVerb, competingState);
             }
 
             await _auditSupport.LogGovernanceDurableWithRetryAsync(durableAuditEvent, durableAuditOperationLabel, cancellationToken);
@@ -304,7 +308,8 @@ public sealed class GovernanceWorkflowReviewStage(
         return (request, false);
     }
 
-    private async Task<GovernanceApprovalRequest?> TryGetIdempotentReviewRetryAsync(
+    private async Task<(GovernanceApprovalRequest? IdempotentRetry, GovernanceApprovalRequest? CompetingState)>
+        ResolveAfterFailedTransitionAsync(
         string approvalRequestId,
         string newStatus,
         string reviewedByActorKey,
@@ -314,19 +319,22 @@ public sealed class GovernanceWorkflowReviewStage(
         GovernanceApprovalRequest? fresh = await _approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);
 
         if (fresh is null)
-            return null;
+            return (null, null);
 
-        if (!IsIdenticalReviewRetry(fresh, newStatus, reviewedByActorKey, reviewComment))
-            return null;
+        if (IsIdenticalReviewRetry(fresh, newStatus, reviewedByActorKey, reviewComment))
+            return (fresh, fresh);
 
-        return fresh;
+        return (null, fresh);
     }
 
-    private async Task ThrowGovernanceReviewConflictAsync(string approvalRequestId, string reviewVerb, CancellationToken cancellationToken)
+    private static void ThrowGovernanceReviewConflict(
+        string approvalRequestId,
+        string reviewVerb,
+        GovernanceApprovalRequest? competingState)
     {
-        GovernanceApprovalRequest? fresh = await _approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);
-        if (fresh is null)
+        if (competingState is null)
             throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
-        throw new GovernanceApprovalReviewConflictException(approvalRequestId, reviewVerb, fresh.Status);
+
+        throw new GovernanceApprovalReviewConflictException(approvalRequestId, reviewVerb, competingState.Status);
     }
 }

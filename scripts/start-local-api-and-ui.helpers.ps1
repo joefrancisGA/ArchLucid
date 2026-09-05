@@ -141,3 +141,20 @@ function Get-LocalApiWindowCommand {
 
     return ($lines -join '; ')
 }
+
+function Get-LocalUiWindowCommand {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $UiRoot
+    )
+
+    [string] $quotedRoot = ConvertTo-PowerShellSingleQuotedLiteral -Value $UiRoot
+    [System.Collections.Generic.List[string]] $lines = [System.Collections.Generic.List[string]]::new()
+    $lines.Add("Set-Location -LiteralPath $quotedRoot")
+    # Engineer-local shell: show Internal nav (operator-system-admin) even when .env.local follows pilot API posture.
+    $lines.Add('$env:NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV = ''true''')
+    $lines.Add('$env:NEXT_PUBLIC_OPERATOR_EXPERIENCE = ''operator''')
+    $lines.Add('npm run dev')
+
+    return ($lines -join '; ')
+}

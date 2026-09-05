@@ -16,6 +16,9 @@
 
   After ui-typecheck-on-push adds a new required job (for example jwt-bearer production build),
   re-run this script so the ruleset JSON and live GitHub ruleset stay aligned.
+
+  Do NOT add Operator UI: private-beta access-path (JwtBearer) until private-beta-access-on-push
+  has at least one green master run (see .github/BRANCH_PROTECTION.md).
 #>
 [CmdletBinding()]
 param(

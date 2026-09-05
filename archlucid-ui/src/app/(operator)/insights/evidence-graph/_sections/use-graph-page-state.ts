@@ -3,6 +3,9 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, startTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { getRunDetail } from "@/lib/api";
+import { coerceRunDetail } from "@/lib/operator/operator-response-guards";
+
 import { useGraphPageUrlState } from "@/app/(operator)/insights/evidence-graph/_sections/use-graph-page-url-state";
 import { useGraphPageFetch } from "@/app/(operator)/insights/evidence-graph/_sections/use-graph-page-fetch";
 import { useGraphPageBuyerShell } from "@/app/(operator)/insights/evidence-graph/_sections/use-graph-page-buyer-shell";
@@ -53,6 +56,7 @@ export function useGraphPageState() {
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [runId, setRunId] = useState("");
+  const [sealedManifestVersionForExport, setSealedManifestVersionForExport] = useState<string | null>(null);
   const [graphLoadRequested, setGraphLoadRequestedState] = useState(false);
   const { urlRunId, urlGraphNodeId } = useGraphPageUrlState({
     setRunId,
@@ -180,6 +184,47 @@ export function useGraphPageState() {
     setGraph(null);
   }, [runId, setGraph]);
 
+  useEffect(() => {
+    const rid = runId.trim();
+
+    if (rid.length === 0) {
+      setSealedManifestVersionForExport(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        const envelope = await getRunDetail(rid);
+        const coerced = coerceRunDetail(envelope.data);
+
+        if (cancelled) {
+          return;
+        }
+
+        if (!coerced.ok) {
+          setSealedManifestVersionForExport(null);
+          return;
+        }
+
+        const runWire = coerced.value.run as { goldenManifestId?: string | null };
+        const manifestId =
+          typeof runWire.goldenManifestId === "string" ? runWire.goldenManifestId.trim() : "";
+
+        setSealedManifestVersionForExport(manifestId.length > 0 ? manifestId : null);
+      } catch {
+        if (!cancelled) {
+          setSealedManifestVersionForExport(null);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [runId]);
+
   const graphSurfaceKey = useMemo(() => {
     if (effectiveGraph === null) {
       return "";
@@ -271,6 +316,7 @@ export function useGraphPageState() {
     showOperatorControls: buyerShell.showOperatorControls,
     showReviewPickerBeforeCanvas: buyerShell.showReviewPickerBeforeCanvas,
     runId,
+    sealedManifestVersionForExport,
     handleRunIdChange,
     graphInspectSteps: buyerShell.graphInspectSteps,
     graphInspectEmphasizedStepId: buyerShell.graphInspectEmphasizedStepId,

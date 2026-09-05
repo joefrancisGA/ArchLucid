@@ -4,7 +4,9 @@ using ArchLucid.Application.InfraEvidence.DiagramReconciliation;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.InfraEvidence;
 
@@ -19,15 +21,21 @@ public sealed class DiagramInfrastructureReconciliationService : IDiagramInfrast
     private readonly IStructuredDiagramIngestService diagramIngestService;
     private readonly IAzureInventorySnapshotRepository snapshotRepository;
     private readonly IArchitectureDiagramReconciliationRepository reconciliationRepository;
+    private readonly IAuthorityQueryService authorityQueryService;
+    private readonly IManifestHashService manifestHashService;
 
     public DiagramInfrastructureReconciliationService(
         IStructuredDiagramIngestService diagramIngestService,
         IAzureInventorySnapshotRepository snapshotRepository,
-        IArchitectureDiagramReconciliationRepository reconciliationRepository)
+        IArchitectureDiagramReconciliationRepository reconciliationRepository,
+        IAuthorityQueryService authorityQueryService,
+        IManifestHashService manifestHashService)
     {
         this.diagramIngestService = diagramIngestService;
         this.snapshotRepository = snapshotRepository;
         this.reconciliationRepository = reconciliationRepository;
+        this.authorityQueryService = authorityQueryService;
+        this.manifestHashService = manifestHashService;
     }
 
     public async Task<DiagramInfrastructureReconciliationResult> ReconcileAsync(
@@ -43,6 +51,13 @@ public sealed class DiagramInfrastructureReconciliationService : IDiagramInfrast
         {
             throw new ArgumentException("SnapshotId is required.", nameof(request));
         }
+
+        await DiagramInfrastructureReconciliationSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+            runId,
+            scope,
+            this.authorityQueryService,
+            this.manifestHashService,
+            cancellationToken);
 
         ArchitectureDiagramModelRecord? diagram = await this.diagramIngestService.TryGetModelAsync(
             scope,

@@ -32,7 +32,7 @@ import {
   RUN_DETAIL_SPONSOR_HANDOFF_MORE_EXPORTS_LABEL,
   RUN_DETAIL_SPONSOR_HANDOFF_TITLE,
 } from "@/lib/runs/run-detail-deliverables-copy";
-import { manifestSummarySealedVersionForCopyGuard } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import { manifestSummarySealedVersionForCopyGuard, runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import {
   EXTRACTION_FIDELITY_GATE_MESSAGE,
   isExtractionFidelityGateSatisfied,
@@ -62,6 +62,12 @@ export function ReviewPackageSponsorHandoffStrip(
     lowConfidenceCriticalFieldCount: lowExtractionConfidenceCount,
     extractionCaveatAcknowledged,
   });
+  const sealedManifestVersion = manifestSummarySealedVersionForCopyGuard(props.manifestSummary);
+  const collateralExportBlockedReason = runCollateralSealedManifestCopyBlockedReason({
+    runId: props.runId,
+    manifestVersion: sealedManifestVersion,
+  });
+  const docxExportAllowed = extractionGateSatisfied && collateralExportBlockedReason === null;
   const { callerAuthorityRank } = useOperatorNavAuthority();
   const canInviteReviewer = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
 
@@ -133,21 +139,32 @@ export function ReviewPackageSponsorHandoffStrip(
             />
           </div>
         ) : (
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={!extractionGateSatisfied}
-            asChild={extractionGateSatisfied}
-            data-testid="review-package-sponsor-handoff-docx"
-          >
-            {extractionGateSatisfied ? (
-              <ExportTrackedAnchor href={getRunPackageExportUrl(props.runId, "docx")}>
-                Download architecture review report (DOCX)
-              </ExportTrackedAnchor>
-            ) : (
-              <span>Download architecture review report (DOCX)</span>
-            )}
-          </Button>
+          <div className={cn("flex flex-col gap-1.5", OPERATOR_SHORT_HELPER_MEASURE_CLASS)}>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!docxExportAllowed}
+              asChild={docxExportAllowed}
+              data-testid="review-package-sponsor-handoff-docx"
+            >
+              {docxExportAllowed ? (
+                <ExportTrackedAnchor href={getRunPackageExportUrl(props.runId, "docx")}>
+                  Download architecture review report (DOCX)
+                </ExportTrackedAnchor>
+              ) : (
+                <span>Download architecture review report (DOCX)</span>
+              )}
+            </Button>
+            {!docxExportAllowed && collateralExportBlockedReason !== null ? (
+              <p
+                role="alert"
+                className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="review-package-sponsor-handoff-docx-blocked-reason"
+              >
+                {collateralExportBlockedReason}
+              </p>
+            ) : null}
+          </div>
         )}
       </div>
       <details

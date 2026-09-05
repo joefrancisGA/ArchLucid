@@ -242,6 +242,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
                 editHref={architectureEditHref}
                 useStructuredPresentation={false}
                 runId={m.resolvedDetail.run.runId}
+                manifestVersion={m.manifestId}
                 sectionTitle="Submitted brief"
               />
             ),

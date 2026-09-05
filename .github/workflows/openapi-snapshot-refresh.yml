@@ -130,6 +130,7 @@ jobs:
           || github.event_name == 'push'
         env:
           PUSH_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
 
@@ -165,11 +166,16 @@ jobs:
             branch_name="chore/openapi-snapshot-${GITHUB_SHA::12}"
             git checkout -b "${branch_name}"
             git push -u origin "HEAD:${branch_name}"
-            gh pr create \
+            pr_url="https://github.com/${GITHUB_REPOSITORY}/compare/${{ github.ref_name }}...${branch_name}?expand=1"
+            if gh pr create \
               --base "${{ github.ref_name }}" \
               --head "${branch_name}" \
               --title "${commit_message}" \
-              --body "Automated OpenAPI v1 + buyer snapshot refresh from \`${GITHUB_SHA}\`. Direct pushes to the default branch are blocked by repository rules; merge this PR after corset is green."
+              --body "Automated OpenAPI v1 + buyer snapshot refresh from \`${GITHUB_SHA}\`. Direct pushes to the default branch are blocked by repository rules; merge this PR after corset is green."; then
+              echo "Opened OpenAPI snapshot PR for ${branch_name}."
+            else
+              echo "::warning::OpenAPI snapshot branch ${branch_name} pushed but gh pr create failed (enable Settings → Actions → Workflow permissions → Allow GitHub Actions to create pull requests). Open manually: ${pr_url}"
+            fi
             exit 0
           fi
 

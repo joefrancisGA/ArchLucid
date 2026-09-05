@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +16,10 @@ import {
   type JiraIssueTypeBySeverityLevel,
   type JiraIssueTypeBySeverityMap,
 } from "./jira-issue-type-by-severity";
+import {
+  jiraIssueTypeAdvancedHrefFromSearch,
+  parseJiraIssueTypeAdvancedOpenFromSearch,
+} from "@/lib/integrations/jira-issue-type-advanced-url";
 
 export type JiraIssueTypeBySeverityFieldProps = {
   readonly value: string;
@@ -24,10 +29,29 @@ export type JiraIssueTypeBySeverityFieldProps = {
 
 export function JiraIssueTypeBySeverityField(props: JiraIssueTypeBySeverityFieldProps): React.ReactElement {
   const { value, onChange, disabled = false } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const jiraIssueTypeAdvancedOpenParam = searchParams.get("jiraIssueTypeAdvancedOpen");
   const baseId = useId();
   const [rows, setRows] = useState<JiraIssueTypeBySeverityMap>(() => parseJiraIssueTypeBySeverityJson(value).map);
   const [advancedJson, setAdvancedJson] = useState(value);
-  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [advancedOpen, setAdvancedOpenState] = useState(() =>
+    parseJiraIssueTypeAdvancedOpenFromSearch(jiraIssueTypeAdvancedOpenParam),
+  );
+
+  const syncAdvancedOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(jiraIssueTypeAdvancedHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    setAdvancedOpenState(parseJiraIssueTypeAdvancedOpenFromSearch(jiraIssueTypeAdvancedOpenParam));
+  }, [jiraIssueTypeAdvancedOpenParam]);
 
   useEffect(() => {
     const parsed = parseJiraIssueTypeBySeverityJson(value);
@@ -63,7 +87,8 @@ export function JiraIssueTypeBySeverityField(props: JiraIssueTypeBySeverityField
       }
     }
 
-    setAdvancedOpen(open);
+    setAdvancedOpenState(open);
+    syncAdvancedOpenToUrl(open);
   };
 
   return (

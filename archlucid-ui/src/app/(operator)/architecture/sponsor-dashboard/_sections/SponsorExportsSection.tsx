@@ -17,9 +17,11 @@ import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer/buyer-demo-content-gating";
 import { filterCommittedRunsForPicker } from "@/lib/committed-run-picker";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
 type SponsorDocxTarget = {
   readonly runId: string;
+  readonly manifestVersion: string;
 };
 
 type SponsorExportOutputCardProps = {
@@ -119,7 +121,12 @@ export function SponsorExportsSection({
     const committed = filterCommittedRunsForPicker(runsQuery.data.items);
     const first = committed[0];
 
-    return first !== undefined ? { runId: first.runId } : null;
+    return first !== undefined
+      ? {
+          runId: first.runId,
+          manifestVersion: first.goldenManifestId?.trim() || first.currentManifestVersion?.trim() || first.runId,
+        }
+      : null;
   }, [runsQuery.data]);
 
   return (
@@ -143,7 +150,12 @@ export function SponsorExportsSection({
           <SponsorExportOutputCard
             title={v.sponsorExportsDocxTitle}
             description={v.sponsorExportsDocxDescription}
-            locked={false}
+            locked={
+              runCollateralSealedManifestCopyBlockedReason({
+                runId: sponsorDocx.runId,
+                manifestVersion: sponsorDocx.manifestVersion,
+              }) !== null
+            }
             primaryActionLabel={v.sponsorExportsDocxAction}
             externalHref={getRunPackageExportUrl(sponsorDocx.runId, "docx")}
             testId="sponsor-exports-docx-download"

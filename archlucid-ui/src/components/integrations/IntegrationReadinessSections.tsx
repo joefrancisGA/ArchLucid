@@ -4,7 +4,8 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import type { ReactElement, ReactNode } from "react";
-import { useState } from "react";
+import { useCallback, type ReactElement, type ReactNode } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +29,10 @@ import type {
 import { INTEGRATION_READINESS_OPTIONAL_SUPPORTING_COPY } from "@/lib/connector-readiness-summary";
 import { formatIntegrationReadinessLastChecked } from "@/lib/integration-readiness-present";
 import { CTA_WIDTH, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
+import {
+  integrationReadinessTechnicalDetailsHrefFromSearch,
+  parseIntegrationReadinessTechIdFromSearch,
+} from "@/lib/integrations/integration-readiness-technical-details-url";
 
 function summaryTileSurfaceClass(tone: IntegrationReadinessSummaryTile["tone"]): string {
   switch (tone) {
@@ -128,10 +133,30 @@ export function IntegrationRecommendedFirstSetupCard(props: IntegrationRecommend
 }
 
 function IntegrationReadinessTechnicalDetails(props: {
+  readonly connectorKey: string;
   readonly label: string;
   readonly children: ReactNode;
 }): ReactElement {
-  const [expanded, setExpanded] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const integrationReadinessTechIdParam = searchParams.get("integrationReadinessTechId");
+  const urlTechId = parseIntegrationReadinessTechIdFromSearch(integrationReadinessTechIdParam);
+  const expanded = urlTechId === props.connectorKey;
+
+  const syncExpandedToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        integrationReadinessTechnicalDetailsHrefFromSearch(
+          searchParams.toString(),
+          open ? props.connectorKey : null,
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, props.connectorKey, router, searchParams],
+  );
 
   return (
     <div className="mt-2">
@@ -142,7 +167,9 @@ function IntegrationReadinessTechnicalDetails(props: {
           OPERATOR_TYPOGRAPHY.helper,
         )}
         aria-expanded={expanded}
-        onClick={() => setExpanded((current) => !current)}
+        onClick={() => {
+          syncExpandedToUrl(!expanded);
+        }}
       >
         <ChevronDown
           className={cn("h-4 w-4 shrink-0 transition-transform", expanded ? "rotate-180" : "")}
@@ -210,7 +237,7 @@ export function IntegrationConnectorInventoryTable(props: IntegrationConnectorIn
                   </p>
                 ) : null}
                 {row.technicalDetails.trim().length > 0 && row.detailsLabel ? (
-                  <IntegrationReadinessTechnicalDetails label={row.detailsLabel}>
+                  <IntegrationReadinessTechnicalDetails connectorKey={row.key} label={row.detailsLabel}>
                     {row.technicalDetails}
                   </IntegrationReadinessTechnicalDetails>
                 ) : null}

@@ -1,5 +1,7 @@
 using ArchLucid.Api.Formatters;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -53,6 +55,23 @@ public sealed partial class AuditController
 
         int exportMaxRows = Math.Clamp(maxRows <= 0 ? 10_000 : maxRows, 1, 10_000);
         ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        if (runId is not null && runId.Value != Guid.Empty)
+        {
+            try
+            {
+                await RunExportSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                    runId.Value.ToString("N"),
+                    scope,
+                    authorityQueryService,
+                    manifestHashService,
+                    ct);
+            }
+            catch (ConflictException ex)
+            {
+                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            }
+        }
 
         AuditEventFilter filter = new()
         {

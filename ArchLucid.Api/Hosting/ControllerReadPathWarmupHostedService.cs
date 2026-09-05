@@ -26,6 +26,7 @@ public sealed class ControllerReadPathWarmupHostedService(
     internal static readonly string[] WarmupRelativePaths =
     [
         "/v1/learning/plans?maxPlans=1",
+        "/v1/architecture/draft?mine=true&page=1&pageSize=1",
         "/v1/architecture/draft/00000000-0000-0000-0000-000000000001"
     ];
 
@@ -137,8 +138,12 @@ public sealed class ControllerReadPathWarmupHostedService(
         if (relativePath.StartsWith("/v1/learning/plans", StringComparison.OrdinalIgnoreCase))
             return statusCode == HttpStatusCode.OK;
 
-        if (relativePath.StartsWith("/v1/architecture/draft/", StringComparison.OrdinalIgnoreCase))
-            return statusCode is HttpStatusCode.OK or HttpStatusCode.NotFound;
+        if (relativePath.StartsWith("/v1/architecture/draft", StringComparison.OrdinalIgnoreCase))
+        {
+            return statusCode is HttpStatusCode.OK
+                or HttpStatusCode.NotFound
+                or HttpStatusCode.Unauthorized;
+        }
 
         return statusCode == HttpStatusCode.OK;
     }

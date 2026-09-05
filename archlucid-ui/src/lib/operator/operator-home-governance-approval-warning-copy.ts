@@ -13,8 +13,11 @@ export function formatOperatorHomeGovernanceApprovalWarningCount(count: number):
   return `${safeCount} ${OPERATOR_HOME_GOVERNANCE_APPROVAL_WARNING_PLURAL}`;
 }
 
+/** Home Recent reviews filter chip — shorter than metric vocabulary. */
+export const OPERATOR_HOME_GOVERNANCE_APPROVAL_WARNING_FILTER_LABEL = "Has approval warnings" as const;
+
 export function formatOperatorHomeGovernanceApprovalWarningFilterLabel(): string {
-  return `Has ${OPERATOR_HOME_GOVERNANCE_APPROVAL_WARNING_PLURAL}`;
+  return OPERATOR_HOME_GOVERNANCE_APPROVAL_WARNING_FILTER_LABEL;
 }
 
 export function formatOperatorHomeGovernanceApprovalWarningActiveFilterLine(): string {

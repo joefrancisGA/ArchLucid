@@ -233,6 +233,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
               <ReviewHeaderShareMenu
                 runId={props.runId}
                 isCommitted={props.signedReviewRecordId !== null}
+                manifestVersion={props.signedReviewRecordId}
                 findingsQueueHref={`/governance/findings?runId=${encodeURIComponent(props.runId)}`}
                 disabled={reviewPipelineIncomplete}
                 disabledReason={headerActionDisabledReason}

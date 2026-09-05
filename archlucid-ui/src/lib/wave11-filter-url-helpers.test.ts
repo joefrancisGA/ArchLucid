@@ -3012,6 +3012,99 @@ describe("wave41 filter url helpers", () => {
   });
 });
 
+describe("wave42 filter url helpers", () => {
+  it("alert routing, integration readiness tech id, jira advanced, and pilot policy pack params", async () => {
+    const {
+      alertRoutingCriteriaHrefFromSearch,
+      parseAlertRoutingAdvancedOpenFromSearch,
+      parseAlertRoutingExactSeveritiesOpenFromSearch,
+    } = await import("@/lib/alerts/alert-routing-criteria-url");
+    const {
+      integrationReadinessTechnicalDetailsHrefFromSearch,
+      parseIntegrationReadinessTechIdFromSearch,
+    } = await import("@/lib/integrations/integration-readiness-technical-details-url");
+    const {
+      jiraIssueTypeAdvancedHrefFromSearch,
+      parseJiraIssueTypeAdvancedOpenFromSearch,
+    } = await import("@/lib/integrations/jira-issue-type-advanced-url");
+    const {
+      parsePilotPolicyPackExpandedFromSearch,
+      pilotPolicyPackExpandedHrefFromSearch,
+    } = await import("@/lib/wizard/pilot-policy-pack-expanded-url");
+
+    expect(parseAlertRoutingAdvancedOpenFromSearch("1")).toBe(true);
+    expect(alertRoutingCriteriaHrefFromSearch("", { showAdvancedCategories: true, showExactSeverities: false }, "/alerts/routing")).toBe(
+      "/alerts/routing?alertRoutingAdvancedOpen=1",
+    );
+    expect(parseAlertRoutingExactSeveritiesOpenFromSearch("true")).toBe(true);
+    expect(
+      alertRoutingCriteriaHrefFromSearch("alertRoutingAdvancedOpen=1", { showAdvancedCategories: true, showExactSeverities: true }, "/alerts/routing"),
+    ).toBe("/alerts/routing?alertRoutingAdvancedOpen=1&alertRoutingExactSeveritiesOpen=1");
+    expect(parseIntegrationReadinessTechIdFromSearch("jira")).toBe("jira");
+    expect(
+      integrationReadinessTechnicalDetailsHrefFromSearch("", "jira", "/integrations/readiness"),
+    ).toBe("/integrations/readiness?integrationReadinessTechId=jira");
+    expect(parseJiraIssueTypeAdvancedOpenFromSearch("1")).toBe(true);
+    expect(jiraIssueTypeAdvancedHrefFromSearch("", true, "/integrations/itsm")).toBe(
+      "/integrations/itsm?jiraIssueTypeAdvancedOpen=1",
+    );
+    expect(parsePilotPolicyPackExpandedFromSearch("1")).toBe(true);
+    expect(pilotPolicyPackExpandedHrefFromSearch("wizardStep=3", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?wizardStep=3&pilotPolicyPackExpanded=1",
+    );
+  });
+
+  it("workspace integrations finding id, provenance graph, simulator confirm, transparency trail, glossary, and claim scope params", async () => {
+    const {
+      parseWorkspaceIntegrationsFindingIdFromSearch,
+      workspaceIntegrationsDisclosureHrefFromSearch,
+    } = await import("@/lib/findings/workspace-integrations-disclosure-url");
+    const {
+      parseProvGraphExpandedFromSearch,
+      parseProvGraphLegendOpenFromSearch,
+      provenanceGraphViewportHrefFromSearch,
+    } = await import("@/lib/provenance/provenance-graph-viewport-url");
+    const {
+      parseSimulatorModeConfirmOpenFromSearch,
+      simulatorModeConfirmHrefFromSearch,
+    } = await import("@/lib/operator/simulator-mode-confirm-url");
+    const {
+      parseTransparencyTrailOpenFromSearch,
+      transparencyTrailHrefFromSearch,
+    } = await import("@/lib/reviews/transparency-trail-open-url");
+    const {
+      parseProductConceptsGlossaryOpenFromSearch,
+      productConceptsGlossaryHrefFromSearch,
+    } = await import("@/lib/operator/product-concepts-glossary-url");
+    const {
+      parseSystemHealthClaimScopeOpenFromSearch,
+      systemHealthClaimScopeHrefFromSearch,
+    } = await import("@/lib/administration/system-health-claim-scope-url");
+
+    expect(parseWorkspaceIntegrationsFindingIdFromSearch("finding-42")).toBe("finding-42");
+    expect(
+      workspaceIntegrationsDisclosureHrefFromSearch("tab=findings", "finding-42", "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?tab=findings&workspaceIntegrationsFindingId=finding-42");
+    expect(parseProvGraphLegendOpenFromSearch("0")).toBe(false);
+    expect(
+      provenanceGraphViewportHrefFromSearch("", { legendOpen: false, expanded: true, syncLegend: true }, "/architecture/reviews/r1/provenance"),
+    ).toBe("/architecture/reviews/r1/provenance?provGraphLegendOpen=0&provGraphExpanded=1");
+    expect(parseProvGraphExpandedFromSearch("1")).toBe(true);
+    expect(parseSimulatorModeConfirmOpenFromSearch("true")).toBe(true);
+    expect(simulatorModeConfirmHrefFromSearch("", true, "/")).toBe("/?simulatorModeConfirmOpen=1");
+    expect(parseTransparencyTrailOpenFromSearch("1")).toBe(true);
+    expect(transparencyTrailHrefFromSearch("tab=overview", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?tab=overview&transparencyTrailOpen=1",
+    );
+    expect(parseProductConceptsGlossaryOpenFromSearch("1")).toBe(true);
+    expect(productConceptsGlossaryHrefFromSearch("", true, "/help")).toBe("/help?productConceptsGlossaryOpen=1");
+    expect(parseSystemHealthClaimScopeOpenFromSearch("1")).toBe(true);
+    expect(systemHealthClaimScopeHrefFromSearch("", true)).toBe(
+      "/administration/system-health?systemHealthClaimScopeOpen=1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

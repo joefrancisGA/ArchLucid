@@ -123,6 +123,7 @@ export function resolveRunDetailTabbedWorkspace(
       editHref={architectureEditHref}
       useStructuredPresentation
       runId={m.resolvedDetail.run.runId}
+      manifestVersion={m.manifestId}
       helperText="Source material submitted for this review — distinct from ArchLucid analysis in other tabs."
     />
   );
