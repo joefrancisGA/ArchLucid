@@ -15,7 +15,7 @@ describe("CopyManifestButton", () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     vi.stubGlobal("navigator", { clipboard: { writeText } });
 
-    render(<CopyManifestButton runId="run-abc-123" />);
+    render(<CopyManifestButton runId="run-abc-123" manifestVersion="v12" />);
 
     fireEvent.click(screen.getByTestId("copy-manifest-json-button"));
 
@@ -32,10 +32,20 @@ describe("CopyManifestButton", () => {
   it("surfaces fetch failures", async () => {
     vi.mocked(fetchManifestJsonText).mockRejectedValue(new Error("Review not found"));
 
-    render(<CopyManifestButton runId="missing-run" />);
+    render(<CopyManifestButton runId="missing-run" manifestVersion="v12" />);
 
     fireEvent.click(screen.getByTestId("copy-manifest-json-button"));
 
     expect(await screen.findByTestId("copy-manifest-json-error")).toHaveTextContent("Review not found");
+  });
+
+  it("blocks copy when manifest version is missing", async () => {
+    render(<CopyManifestButton runId="run-abc-123" />);
+
+    fireEvent.click(screen.getByTestId("copy-manifest-json-button"));
+
+    expect(await screen.findByTestId("copy-manifest-json-error")).toHaveTextContent(
+      "committed sealed manifest version",
+    );
   });
 });

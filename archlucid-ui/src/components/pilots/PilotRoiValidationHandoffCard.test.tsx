@@ -45,7 +45,9 @@ describe("PilotRoiValidationHandoffCard", () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.assign(navigator, { clipboard: { writeText } });
 
-    render(<PilotRoiValidationHandoffCard runId="run-copy" payload={strongRealPayload} />);
+    render(
+      <PilotRoiValidationHandoffCard runId="run-copy" manifestVersion="v12" payload={strongRealPayload} />,
+    );
 
     fireEvent.click(screen.getByRole("button", { name: /Copy validation notes/i }));
 
