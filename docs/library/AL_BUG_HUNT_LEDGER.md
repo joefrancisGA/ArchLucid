@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 169
-- **bugs-found:** 359
+- **hunts:** 170
+- **bugs-found:** 366
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — anchor object/array nested-empty bridges, SharedAccessKey/certificate thumbprint/signingCertificate redaction, constraint/advice `cannot require` negation
+- **last-bug:** 2026-09-05 — anchor deep nested-empty/null bridges, SecondaryAccessKey/signingKey/signingCertificatePath redaction, constraint/advice need-not negation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2334,6 +2334,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `cannot require` suffix gap — **hit 2026-09-05 (#897):** #896 `must not be required` suffix missed trailing `cannot require` on imperative regex matches; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_cannot_negated_checklist_phrasing`).
 
 2026-09-05 seed hunt #897 (hit): reseeded after #896 closure; proved seven hunt-ready rows — anchor object/array nested-empty bridges, SharedAccessKey/certificate thumbprint/signingCertificate redaction parity, and constraint/advice `cannot require` negation gaps; cheap-disproved certificateless auth segments (both matchers), `tf.ip_security_restrictions` / `tf.network_rules` resolver aliases (already listed), and `must not require managed identity` mid-sentence negation (already covered by ` must not ` guard).
+
+- [x] (proven) `RunHeaderAnchorJsonComparer.TryNestedEmptyArrayEquivalent` — double-nested empty array vs `[]` treated as anchor mutation — **hit 2026-09-05 (#898):** #897 bridged `[]` ↔ `[[]]` only; `{"packAssignments":[]}` vs `{"packAssignments":[[[]]]}` threw on committed lifecycle retry; fixed with recursive `IsDeeplyNestedEmptyArray` bridge (`EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_empty_array_equivalent_to_double_nested_empty_array_on_committed_run`).
+- [x] (proven) `RunHeaderAnchorJsonComparer.TryNullSingleElementNullArrayEquivalent` — null scalar vs double-nested `[[null]]` treated as anchor mutation — **hit 2026-09-05 (#898):** null bridge handled `null` ↔ `[null]` only; `{"packSlug":null}` vs `{"packSlug":[[null]]}` threw; fixed with recursive `IsDeeplyNestedNullScalar` bridge (`EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_null_scalar_equivalent_to_double_nested_null_array_on_committed_run`).
+- [x] (proven) `AzureExtractorSensitivePropertyRedactor.IsSensitiveKey` — `SigningKey` not redacted vs config explicit credential segment — **hit 2026-09-05 (#898):** #897 added config `SigningKey` explicit segment; Azure explicit list lacked `signingkey`; fixed with explicit credential parity (`IsSensitiveKey_detects_signing_key_property_names_matching_config_redactor`).
+- [x] (proven) `AzureExtractorSensitivePropertyRedactor.IsSensitiveKey` — `SigningCertificatePath` not redacted vs config explicit credential segment — **hit 2026-09-05 (#898):** embedded `certificate` fragment guard skipped `signingCertificatePath`; fixed with explicit signing-certificate-path credential parity (`IsSensitiveKey_detects_signing_certificate_path_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` — `SecondaryAccessKey` compound credential segment not redacted — **hit 2026-09-05 (#898):** same compound-segment class as #897 `SharedAccessKey`; embedded `AccessKey` fragment guard skipped `SecondaryAccessKey`; fixed with explicit secondary-access-key credential detection (`Resolve_redacts_secondary_access_key_config_path`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — `need not use` and `should not require` negation gaps — **hit 2026-09-05 (#898):** #897 added `need not enable`/`cannot require` only; missed leading `need not use {token}` and mid-sentence `should not require {token}`; fixed with prefix and mid-sentence negation guards (`HasEncryptionConstraint_does_not_false_positive_on_need_not_use_encryption_phrasing`, `HasEncryptionConstraint_does_not_false_positive_on_should_not_require_encryption_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `need not` suffix gap — **hit 2026-09-05 (#898):** #896/#897 added constraint suffix parity; advice imperative path still lacked `need not` / `need not be` suffix guards; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_need_not_suffix_phrasing`).
+
+2026-09-05 seed hunt #898 (hit): reseeded after #897 closure; proved seven hunt-ready rows — anchor deep nested-empty/null bridges, SecondaryAccessKey/signingKey/signingCertificatePath redaction parity, and constraint/advice `need not` negation gaps; cheap-disproved resolver snake_case aliases already working and `shall not require` mid-sentence negation (same family as `should not require`).
 
 2026-09-05 seed hunt #889: reseeded after #888 closure; proved anchor null-object/property-name trim, mid-sentence constraint negation, and Secretizer/Passwordizer redaction parity.
 2026-09-05 seed hunt #888: reseeded after #887 closure; proved ConnectionStringless config redaction, ARM key+free suffix parity, and anchor null array/string coercion.
