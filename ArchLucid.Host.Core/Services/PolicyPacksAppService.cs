@@ -53,6 +53,32 @@ public sealed class PolicyPacksAppService(
         string initialContentJson,
         CancellationToken ct)
     {
+        string normalizedContent = string.IsNullOrWhiteSpace(initialContentJson) ? "{}" : initialContentJson;
+
+        IReadOnlyList<PolicyPack> packsInScope = await packRepository
+            .ListByScopeAsync(tenantId, workspaceId, projectId, ct)
+            .ConfigureAwait(false);
+
+        PolicyPack? existingPack = packsInScope.FirstOrDefault(
+            pack =>
+                !pack.IsDeleted
+                && string.Equals(pack.Name, name, StringComparison.Ordinal)
+                && string.Equals(pack.Description, description, StringComparison.Ordinal)
+                && string.Equals(pack.PackType, packType, StringComparison.Ordinal));
+
+        if (existingPack is not null)
+        {
+            PolicyPackVersion? existingVersion = await versionRepository
+                .GetByPackAndVersionAsync(existingPack.PolicyPackId, existingPack.CurrentVersion, ct)
+                .ConfigureAwait(false);
+
+            if (existingVersion is not null
+                && string.Equals(existingVersion.ContentJson, normalizedContent, StringComparison.Ordinal))
+            {
+                return existingPack;
+            }
+        }
+
         PolicyPack pack = await managementService
                 .CreatePackAsync(tenantId, workspaceId, projectId, name, description, packType, initialContentJson, ct)
             ;

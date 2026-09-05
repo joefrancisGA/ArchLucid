@@ -3418,11 +3418,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 237
-- **bugs-found:** 469
+- **hunts:** 238
+- **bugs-found:** 471
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — exec/sponsor digest preferences idempotent retry audit guards
+- **last-bug:** 2026-09-05 — cost settings and policy-pack create idempotent retry guards
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
