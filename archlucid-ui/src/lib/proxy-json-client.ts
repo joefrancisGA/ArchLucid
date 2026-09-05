@@ -86,3 +86,8 @@ export function proxyJsonGet<T>(path: string, init?: ProxyJsonRequestInit): Prom
 export function proxyJsonPut<T>(path: string, body: unknown, init?: ProxyJsonRequestInit): Promise<T> {
   return proxyJsonFetch<T>(path, "PUT", init, JSON.stringify(body));
 }
+
+/** POST JSON to same-origin `/api/proxy/*` with scope headers and {@link ApiLoadFailureState} failures. */
+export function proxyJsonPost<T>(path: string, body?: unknown, init?: ProxyJsonRequestInit): Promise<T> {
+  return proxyJsonFetch<T>(path, "POST", init, body === undefined ? undefined : JSON.stringify(body));
+}

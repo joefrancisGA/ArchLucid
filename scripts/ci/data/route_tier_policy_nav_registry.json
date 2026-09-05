@@ -1542,6 +1542,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "InfraEvidence/TenantBrandingAdminController.cs",
+      "class_name": "TenantBrandingAdminController",
+      "route_template": "v{version:apiVersion}/infra-evidence/branding/admin",
+      "normalized_prefix": "/v1/infra-evidence/branding/admin",
+      "commercial_tier": "standard",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": "/administration/branding"
+    },
+    {
       "controller_file": "InfraEvidence/TenantBrandingController.cs",
       "class_name": "TenantBrandingController",
       "route_template": "v{version:apiVersion}/infra-evidence/branding",
