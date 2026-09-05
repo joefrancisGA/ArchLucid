@@ -52,4 +52,20 @@ public sealed class RecentAuthenticationEvaluatorTests
 
         Assert.False(RecentAuthenticationEvaluator.HasRecentAuthentication(principal, TimeProvider.System));
     }
+
+    [Fact]
+    public void HasRecentAuthentication_returns_false_when_auth_time_is_present_but_unparseable()
+    {
+        long iat = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        ClaimsPrincipal principal = new(
+            new ClaimsIdentity(
+            [
+                new Claim("auth_time", "not-a-number"),
+                new Claim("iat", iat.ToString()),
+            ],
+            "Bearer"));
+
+        Assert.False(RecentAuthenticationEvaluator.HasRecentAuthentication(principal, TimeProvider.System));
+    }
 }

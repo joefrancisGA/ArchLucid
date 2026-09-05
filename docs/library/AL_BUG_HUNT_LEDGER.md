@@ -1339,11 +1339,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 5
-- **bugs-found:** 8
+- **hunts:** 6
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — SAML scope promotion duplicated conflicting tenant_id claims
+- **last-hunt:** 2026-09-05
+- **last-bug:** 2026-09-05 — SAML ambiguous multi-valued scope attributes promoted first value; custom-role permissions resolved via `sub` instead of `oid`; unparseable `auth_time` fell through to fresh `iat` for step-up
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -1360,6 +1360,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) SAML IdP metadata binder picked first SSO endpoint regardless of HTTPS or Redirect binding — **hit 2026-08-24:** `SingleSignOnServices.First()` could select cleartext HTTP-POST before HTTPS Redirect; fixed with ordered selection (`ArchLucidSaml2IdpMetadataBinderTests`).
 - [x] (proven) SAML IdP metadata binder picked first SingleLogoutService regardless of HTTPS or Redirect binding — **hit 2026-08-25:** `SingleLogoutServices.First()` could select cleartext HTTP-POST before HTTPS Redirect; fixed with ordered selection mirroring SSO (`ApplyResolvedEntity_prefers_https_single_logout_endpoint_over_http_post_listed_first`).
 - [x] (proven) `ArchLucidSamlInboundClaimsNormalizer.PromoteSingleValueIfMissing` appended duplicate scope claims when a conflicting canonical value already existed — **hit 2026-08-26:** pre-existing `tenant_id`/`workspace_id` with wrong GUID plus configured IdP attribute produced two claims and `FindFirst` kept the wrong scope; fixed by removing conflicting canonical claims before promoting mapped source values (`ArchLucidSamlInboundClaimsNormalizerTests.Apply_replaces_conflicting_scope_claim_with_configured_source_value`).
+- [x] (proven) `ArchLucidSamlInboundClaimsNormalizer.PromoteSingleValueIfMissing` promoted the first of multiple distinct inbound scope source values — **hit 2026-09-05 (#812):** duplicate IdP tenant attributes with different GUIDs bound scope order-dependently via `FirstOrDefault`; fixed by skipping promotion when more than one distinct non-empty source value exists (`ArchLucidSamlInboundClaimsNormalizerTests.Apply_skips_ambiguous_multi_valued_scope_source_claims`).
+- [x] (proven) `CustomRoleClaimsTransformation.TryResolveScimUserIdAsync` preferred `sub` over `oid` — **hit 2026-09-05 (#812):** Entra-style principals with mismatched `oid`/`sub` grafted another user's custom-role permissions while `RoleSyncService` bound roles via `oid`; fixed by preferring `RoleSyncService.TryDirectoryObjectKey` (`CustomRoleClaimsTransformationTests.TransformAsync_prefers_oid_over_sub_when_resolving_scim_user`).
+- [x] (proven) `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` fell back to `iat` when `auth_time` was present but unparseable — **hit 2026-09-05 (#812):** step-up accepted fresh token issue time despite garbage `auth_time`; fixed by failing closed when `auth_time` claim exists but does not parse (`RecentAuthenticationEvaluatorTests.HasRecentAuthentication_returns_false_when_auth_time_is_present_but_unparseable`).
+- [ ] (candidate) `PlatformUserAuthVersionValidator.MatchesLocalIssuer` — issuer string must match configured value exactly; cheap-disproof suggests JwtBearer rejects issuer mismatch before validator runs (no bypass reachable).
+- [ ] (candidate) `TrialExternalIdJwtBearerSupport.TryAllowConsumerIdentityIssuers` — forged CIAM issuer acceptance; cheap-disproof suggests signature validation still applies.
+
+2026-09-05 seed hunt #812 (hit): reseeded SAML scope ambiguity, custom-role oid/sub alignment, and step-up `auth_time` parse fail-closed gaps.
 
 ---
 

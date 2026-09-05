@@ -14,9 +14,14 @@ public static class RecentAuthenticationEvaluator
 
         string? authTime = principal.FindFirst("auth_time")?.Value;
 
-        if (long.TryParse(authTime, out long authTimeSeconds))
+        if (authTime is not null)
         {
-            return DateTimeOffset.FromUnixTimeSeconds(authTimeSeconds);
+            if (long.TryParse(authTime, out long authTimeSeconds))
+            {
+                return DateTimeOffset.FromUnixTimeSeconds(authTimeSeconds);
+            }
+
+            return null;
         }
 
         string? iat = principal.FindFirst(JwtRegisteredClaimNames.Iat)?.Value;
