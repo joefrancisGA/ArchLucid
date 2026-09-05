@@ -2248,6 +2248,8 @@ export interface components {
             relativePath?: string;
         };
         CloudResourceInventoryChangeSummary: {
+            /** Format: uuid */
+            changeId?: string;
             changeType?: string;
             /** Format: uuid */
             diffId?: string;
@@ -4936,6 +4938,38 @@ export interface components {
             confidence?: number;
             key?: string;
             value?: string;
+        };
+        InfraEvidenceAskCitation: {
+            id?: string;
+            kind?: string;
+            label?: null | string;
+        };
+        InfraEvidenceAskRequest: {
+            /** Format: uuid */
+            assessmentId?: null | string;
+            /** Format: uuid */
+            auditEvidenceSnapshotId?: null | string;
+            /** Format: uuid */
+            cloudResourceId?: null | string;
+            /** Format: uuid */
+            controlId?: null | string;
+            /** Format: uuid */
+            diffId?: null | string;
+            question?: string;
+            /** Format: uuid */
+            runId?: null | string;
+            /** Format: date-time */
+            sinceUtc?: null | string;
+            /** Format: uuid */
+            snapshotId?: null | string;
+            useSimulator?: boolean;
+        };
+        InfraEvidenceAskResponse: {
+            answer?: string;
+            citations?: components["schemas"]["InfraEvidenceAskCitation"][];
+            insufficientEvidence?: boolean;
+            simulatorLabel?: null | string;
+            topicKind?: string;
         };
         InfrastructureDeclarationRequest: {
             content?: string;
