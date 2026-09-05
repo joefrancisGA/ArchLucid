@@ -94,10 +94,14 @@ export const operatorQueryKeys = {
   ) =>
     ["operator", "digests", "subscription-attempts", scope, subscriptionId, refreshToken] as const,
   helpTopicMarkdown: (slug: string) => ["operator", "help", "topic-markdown", slug] as const,
-  architectureDraft: (architectureId: string) =>
-    ["operator", "architecture", "draft", architectureId] as const,
+  architectureDraft: (draftId: string) =>
+    ["operator", "architecture", "draft", draftId] as const,
   architectureDraftList: (scopeKey: string) =>
     ["operator", "architecture", "draft-list", scopeKey] as const,
+  architectureIdentity: (architectureId: string) =>
+    ["operator", "architecture", "identity", architectureId] as const,
+  architectureIdentityList: (scopeKey: string, page: number, pageSize: number) =>
+    ["operator", "architecture", "identity-list", scopeKey, { page, pageSize }] as const,
   helpDocsIndex: ["operator", "help", "docs-index"] as const,
   marketingPublicPricing: ["marketing", "pricing-json"] as const,
   pilotOutcomeSummary: ["operator", "pilots", "outcome-summary"] as const,
