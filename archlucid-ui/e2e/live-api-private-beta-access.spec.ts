@@ -18,6 +18,7 @@ import {
   listPendingInvitations,
   provisionE2ePlatformUserPreAuth,
   readRoleClaims,
+  stubEmptyArchitectureDraftListRoute,
   validateInvitationToken,
   LIVE_E2E_DEFAULT_PROJECT_ID,
   LIVE_E2E_DEFAULT_TENANT_ID,
@@ -33,10 +34,12 @@ import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import {
   createRun,
   enrichArchitectureRequestBody,
+  liveApiBase,
   liveE2eArchitectureDescription,
   liveE2ePrivateBetaAccessPlaywrightTimeoutMs,
   resolveLiveJwtMode,
   toRunGuidPathSegment,
+  liveJsonHeaders,
   waitForArchitectureRunListIncludesRun,
   waitForLiveApiReady,
 } from "./helpers/live-api-client";
@@ -52,6 +55,22 @@ test.describe("live-api-private-beta-access", () => {
 
   test.beforeAll(async ({ request }) => {
     await waitForLiveApiReady(request);
+
+    requireLivePrivateBetaJwtEnv();
+
+    // JIT SQL + controller paths before browser proxy navigation (draft inventory is mounted on home/reviews hub).
+    const draftListRes = await request.get(
+      `${liveApiBase}/v1/architecture/draft?mine=true&page=1&pageSize=1`,
+      { headers: liveJsonHeaders(), timeout: 120_000 },
+    );
+
+    if (!draftListRes.ok()) {
+      const body = await draftListRes.text();
+
+      throw new Error(
+        `GET /v1/architecture/draft warm-up failed ${draftListRes.status()}: ${body.slice(0, 400)}`,
+      );
+    }
   });
 
   test("JwtBearer rejects forged x-tenant-id on scope and invitations (TB-925)", async ({ request }) => {
@@ -90,6 +109,7 @@ test.describe("live-api-private-beta-access", () => {
 
     expect(pendingMatch).toBe(true);
 
+    await stubEmptyArchitectureDraftListRoute(page);
     await primeJwtBrowserSession(page, accessToken);
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
@@ -198,6 +218,7 @@ test.describe("live-api-private-beta-access", () => {
 
     expect(inviteeSession.redirectPath).toBe("/architecture/first-review-guide?source=invitation");
 
+    await stubEmptyArchitectureDraftListRoute(page);
     await primeJwtBrowserSession(page, inviteeSession.accessToken);
     await page.goto(inviteeSession.redirectPath, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/architecture\/first-review-guide\?source=invitation/);
