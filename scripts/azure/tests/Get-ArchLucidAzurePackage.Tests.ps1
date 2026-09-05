@@ -39,7 +39,7 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
         $PSModuleAutoLoadingPreference = $script:previousModuleAutoLoadingPreference
     }
 
-    It 'writes a schema-version-1 ZIP with manifest.json and resources.json from mocked ARM inventory' {
+    It 'writes a schema-version-2 ZIP with manifest.json and resources.json from mocked ARM inventory' {
         [object[]]$fixtureResources =
             @(Get-Content -LiteralPath $script:armFixturePath -Raw -Encoding Utf8 | ConvertFrom-Json)
 
@@ -111,7 +111,7 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
 
                 [object]$manifest = Get-Content -LiteralPath $manifestPath -Raw -Encoding Utf8 | ConvertFrom-Json
 
-                $manifest.schemaVersion | Should -Be 1
+                $manifest.schemaVersion | Should -Be 2
                 $manifest.subscriptionId | Should -Be 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'
                 [string]::IsNullOrWhiteSpace($( $manifest.scriptVersion )) | Should -Be $false
                 $manifest.extractionTelemetry | Should -Not -BeNullOrEmpty
