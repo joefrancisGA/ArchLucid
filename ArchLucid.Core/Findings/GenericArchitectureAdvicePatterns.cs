@@ -270,6 +270,10 @@ public static partial class GenericArchitectureAdvicePatterns
             || after.StartsWith("cannot provision", StringComparison.Ordinal)
             || after.StartsWith("cannot enforce", StringComparison.Ordinal)
             || after.StartsWith("need not ensure", StringComparison.Ordinal)
+            || after.StartsWith("will not apply", StringComparison.Ordinal)
+            || after.StartsWith("cannot apply", StringComparison.Ordinal)
+            || after.StartsWith("shall not maintain", StringComparison.Ordinal)
+            || after.StartsWith("should not maintain", StringComparison.Ordinal)
             || after.StartsWith("cannot require", StringComparison.Ordinal)
             || after.StartsWith("cannot need", StringComparison.Ordinal);
     }
