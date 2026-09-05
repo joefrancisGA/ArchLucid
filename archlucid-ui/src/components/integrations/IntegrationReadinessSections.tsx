@@ -3,7 +3,6 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
-import type { ReactElement, ReactNode } from "react";
 import { useCallback, type ReactElement, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 

@@ -84,11 +84,11 @@ function resolveAgentLabel(summary: RunDetailLastFailureSummary | null | undefin
     return null;
   }
 
-  const rawAgentType =
+  const rawAgentType: string | null =
     normalize(summary.agentType).length > 0
-      ? summary.agentType
+      ? (summary.agentType ?? null)
       : normalize(summary.agentTypeKey).length > 0
-        ? summary.agentTypeKey
+        ? (summary.agentTypeKey ?? null)
         : null;
 
   if (rawAgentType === null) {
