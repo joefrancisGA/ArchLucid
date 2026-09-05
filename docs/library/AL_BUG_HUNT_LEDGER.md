@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 153
-- **bugs-found:** 293
+- **hunts:** 154
+- **bugs-found:** 297
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — config summary path substring redaction and JSON anchor equivalence
+- **last-bug:** 2026-09-05 — simulator compliance negation parity and suffix/without false positives
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2235,6 +2235,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CommittedRunHeaderAnchorGuard.HasAnchorMutation` — `EngineProvenanceJson` / `GovernanceScopeJson` JSON property-order or property-name casing drift treated as anchor mutation — **hit 2026-09-05 (#881):** `Ordinal` string compare threw `RunEvidenceAnchorImmutableException` on committed lifecycle updates when JSON was semantically identical but property order or PascalCase names differed; fixed with `RunHeaderAnchorJsonComparer` semantic equivalence (`EnsureAnchorsUnchangedIfCommitted_allows_engine_provenance_property_order_only_change_on_committed_run`, `EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_property_name_casing_only_change_on_committed_run`).
 
 2026-09-05 thorough hunt #881: proved both #880 candidate rows; config summary path matcher and JSON anchor equivalence comparer added.
+
+- [x] (proven) `FakeScenarioFactory.CreateComplianceResult` — negated `encryption` constraint still adds `Encryption At Rest` control — **hit 2026-09-05 (#882):** raw `Contains("encryption")` ignored `non-encryption` negation already handled by `RequestConstraintClassifier.HasEncryptionConstraint`; simulator compliance proposals overstated required controls; fixed by reusing classifier (`CreateComplianceResult_does_not_add_encryption_control_for_negated_constraint`).
+- [x] (proven) `AzureExtractorSensitivePropertyRedactor.IsSensitiveKey` — `accesskeyless` substring false positive — **hit 2026-09-05 (#882):** #880 `secretless` suffix guard missed `accesskey`+`less`; benign ARM metadata redacted; fixed with `accesskeyless` suffix guard (`IsSensitiveKey_detects_secret_like_names` with `accesskeyless`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher.IsSensitiveConfigPath` — `ApiKeylessAuth` segment substring false positive — **hit 2026-09-05 (#882):** #881 segment matcher missed `ApiKey`+`less` suffix on config paths; operator summary redacted `ApiKeylessAuth` to `***`; fixed with `ApiKeyless` suffix guard (`Resolve_returns_scalar_for_non_secret_segment_substrings` with `ArchLucid:ApiKeylessAuth:Mode`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsObviousGenericAdvice` — `without {phrase}` prohibitive intent still matches affirmative fragments — **hit 2026-09-05 (#882):** #880 `not required to` negation missed `without enable mfa`; architecture-specific findings demoted as generic checklist advice; fixed with `without` negation prefix (`IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing` with `workload without enable mfa for service accounts`).
+- [ ] (candidate) `AzureExtractorSensitivePropertyRedactor.IsSensitiveKey` — `primarykeyless` / `secondarykeyless` suffix false positives — sibling to #882 `accesskeyless` guard; verify before repro.
+- [ ] (candidate) `RunHeaderAnchorJsonComparer.AreEquivalent` — JSON number formatting drift (`1` vs `1.0`) treated as anchor mutation — may need numeric semantic compare on governance/provenance anchors.
+
+2026-09-05 seed hunt #882: reseeded simulator compliance, redactor suffix, config ApiKeyless, and advice `without` negation after #881; proved four hunt-ready rows; seeded primarykeyless redactor and JSON numeric anchor candidates.
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
 - [x] (valid-no-repro) Tenant scope model treats empty workspace as a wildcard — `ActivityScopeTags` rejects `Guid.Empty` workspace ids; no wildcard semantics in Core tenancy models.
