@@ -428,25 +428,10 @@ public sealed class FirstValueReportBuilderTests
         Mock<IPilotRunDeltaComputer> deltas = new();
         deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
 
-        Mock<ITenantBrandingService> branding = new();
+        Mock<ITenantBrandingService> branding =
+            FirstValueReportBrandingTestDoubles.CreateActiveTenantBrandService(
+                logoHttpsUrl: "https://cdn.example/logo.png");
         Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
-
-        branding
-            .Setup(b => b.GetBrandingProfileAsync(tenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ResolvedTenantBrandingProfile
-            {
-                TenantId = tenantId,
-                IsProductBrand = false,
-                CompanyDisplayName = "Fabrikam Holdings",
-            });
-
-        branding
-            .Setup(b => b.GetLogoAsync(tenantId, BrandingDisplayContext.ReportCover, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new TenantBrandingLogo
-            {
-                IsProductBrand = false,
-                HttpsUrl = "https://cdn.example/logo.png",
-            });
 
         FirstValueReportBuilder sut = CreateSut(query.Object, deltas.Object, brandingService: branding.Object);
 
@@ -562,6 +547,8 @@ public sealed class FirstValueReportBuilderTests
         siteOpts.Setup(s => s.CurrentValue).Returns(new PublicSiteOptions { BaseUrl = "https://ui.example" });
 
         ITenantBrandingService branding = brandingService ?? FirstValueReportBrandingTestDoubles.CreateProductBrandService().Object;
+        ITenantReportBrandingApplyHelper reportBranding =
+            FirstValueReportBrandingTestDoubles.CreateApplyHelper(branding);
 
         Mock<IPilotBaselineRepository> pilotBaselines = new();
         pilotBaselines
@@ -576,7 +563,7 @@ public sealed class FirstValueReportBuilderTests
             new ExecutionProvenanceFooterRenderer(),
             configuration,
             siteOpts.Object,
-            branding,
+            reportBranding,
             pilotBaselines.Object,
             FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),

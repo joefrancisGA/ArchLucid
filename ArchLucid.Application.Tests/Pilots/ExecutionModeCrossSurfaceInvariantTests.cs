@@ -1,7 +1,8 @@
 using ArchLucid.Application.Explanation;
+using ArchLucid.Application.InfraEvidence.Branding;
+using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Tests.Exports;
 using ArchLucid.Core.Explanation;
-using ArchLucid.Application.Pilots;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Trust;
@@ -326,6 +327,8 @@ public sealed class ExecutionModeCrossSurfaceInvariantTests
         siteOpts.Setup(s => s.CurrentValue).Returns(new PublicSiteOptions { BaseUrl = "https://ui.example" });
 
         ITenantBrandingService branding = FirstValueReportBrandingTestDoubles.CreateProductBrandService().Object;
+        ITenantReportBrandingApplyHelper reportBranding =
+            FirstValueReportBrandingTestDoubles.CreateApplyHelper(branding);
 
         Mock<IPilotBaselineRepository> pilotBaselines = new();
         pilotBaselines
@@ -340,7 +343,7 @@ public sealed class ExecutionModeCrossSurfaceInvariantTests
             new ExecutionProvenanceFooterRenderer(),
             configuration,
             siteOpts.Object,
-            branding,
+            reportBranding,
             pilotBaselines.Object,
             FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
