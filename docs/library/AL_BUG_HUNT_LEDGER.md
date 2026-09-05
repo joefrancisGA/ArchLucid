@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 159
-- **bugs-found:** 312
+- **hunts:** 160
+- **bugs-found:** 316
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — constraint advice negation, SecretFree/TokenFree redaction, anchor null property
+- **last-bug:** 2026-09-05 — ConnectionStringless config, ARM key+free, anchor null array/string coercion
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2262,6 +2262,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AzureExtractorSensitivePropertyRedactor.IsSensitiveKey` — `secret`+`free` compound false positive — **hit 2026-09-05 (#887):** #886 `passwordfreeauth` parity missed `secretfreeauth`; fixed with `secret`+`free` suffix guard (`IsSensitiveKey_detects_secret_like_names` with `secretfreeauth`).
 - [x] (proven) `RunHeaderAnchorJsonComparer.AreEquivalent` — explicit JSON `null` property vs omitted property treated as anchor mutation — **hit 2026-09-05 (#887):** property-count compare failed when reload added `"optional":null`; committed lifecycle updates threw `RunEvidenceAnchorImmutableException`; fixed by union property compare treating absent/null as equivalent (`EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_null_property_equivalent_to_omitted_on_committed_run`).
 
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` — `ConnectionString`+`less` suffix false positive — **hit 2026-09-05 (#888):** #887 guarded `ConnectionString`+`free` only; `ConnectionStringlessSettings` redacted in operator summary; fixed with `less` suffix guard parity (`Resolve_returns_scalar_for_non_secret_segment_substrings` with `ConnectionStringlessSettings`).
+- [x] (proven) `AzureExtractorSensitivePropertyRedactor.IsSensitiveKey` — `*key`+`free` compound false positives — **hit 2026-09-05 (#888):** #887 `password`/`secret`+`free` parity missed `apikeyfreeauth` / `accesskeyfreeauth`; fixed with generic index-0 `free` suffix guard alongside existing `less` guard (`IsSensitiveKey_detects_secret_like_names` with `apikeyfreeauth`, `accesskeyfreeauth`).
+- [x] (proven) `RunHeaderAnchorJsonComparer.AreEquivalent` — JSON `null` array vs empty array treated as anchor mutation — **hit 2026-09-05 (#888):** `packAssignments:null` vs `[]` failed kind check on committed runs; fixed with cross-kind null/empty-array coercion (`EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_null_array_equivalent_to_empty_on_committed_run`).
+- [x] (proven) `RunHeaderAnchorJsonComparer.AreEquivalent` — JSON `null` string vs empty string treated as anchor mutation — **hit 2026-09-05 (#888):** after #887 null/omitted property fix, `label:null` vs `label:""` still failed semantic compare; fixed with cross-kind null/empty-string coercion (`EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_null_string_equivalent_to_empty_on_committed_run`).
+
+2026-09-05 seed hunt #888: reseeded after #887 closure; proved ConnectionStringless config redaction, ARM key+free suffix parity, and anchor null array/string coercion.
 2026-09-05 seed hunt #887: reseeded after #886 closure; proved constraint advice negation, SecretFree/TokenFree config redaction, secretfreeauth ARM redaction, and anchor null-vs-omitted parity.
 2026-09-05 seed hunt #886: promoted five hunt-ready rows from #885 reseed gap; proved anchor JSON coercion, constraint without negation, PasswordFree redaction parity, and won't advice negation.
 2026-09-05 thorough hunt #885: cheap-disproved config segment parity after #884 seed; proved JSON string whitespace anchor drift; reseeded from #884 candidates.
