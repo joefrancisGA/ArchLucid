@@ -51,6 +51,15 @@
       "parity": "unmapped"
     },
     {
+      "nav_href": "/administration/branding",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operator/operator-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
       "nav_href": "/administration/connection-status",
       "nav_required_authority": "AdminAuthority",
       "nav_source_file": "operator/operator-admin-nav-group-builder.ts",
