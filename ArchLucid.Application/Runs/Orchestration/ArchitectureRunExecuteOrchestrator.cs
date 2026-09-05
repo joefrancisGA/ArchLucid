@@ -236,12 +236,34 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             await _incompleteAuthorityPipelineExecuteHandler.TryResumeAsync(run, runId, cancellationToken);
 
         if (resumed is not null)
-            return resumed;
+        {
+            ArchitectureRun? reloadedRun =
+                await ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync(
+                    runRepository,
+                    scopeContextProvider,
+                    taskRepository,
+                    runId,
+                    cancellationToken);
+
+            if (reloadedRun is null)
+                throw new RunNotFoundException(runId);
+
+            run = reloadedRun;
+            await _scopeResolveStage.ThrowIfAuthorityPipelineCompleteAsync(run, runId, cancellationToken);
+        }
 
         ExecuteRunResult? idempotent = await _preExecuteStage.TryReturnExistingExecuteResultsAsync(run, runId, cancellationToken);
 
         if (idempotent is not null)
             return idempotent;
+
+        if ((run.TaskIds?.Count ?? 0) == 0
+            && string.IsNullOrWhiteSpace(run.ContextSnapshotId)
+            && run.Status is not ArchitectureRunStatus.Committed
+            and not ArchitectureRunStatus.ReadyForCommit)
+        {
+            throw new NoScheduledAgentTasksException(runId);
+        }
 
         await _tailHooksStage.EnsurePreAgentLoopExecuteAllowedAsync(runId, actor, cancellationToken);
 
