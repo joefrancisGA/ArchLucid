@@ -3420,11 +3420,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 253
-- **bugs-found:** 490
+- **hunts:** 254
+- **bugs-found:** 492
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — link-entra entraOid case-insensitive idempotent retry
+- **last-bug:** 2026-09-05 — policy-pack create and duplicate-pack name case-insensitive idempotent retry
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4600,8 +4600,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-05 thorough hunt #859 (hit): proved both #858 candidates — digest non-UTC timezone casing idempotent retry and governance review actor-key casing idempotent retry.
 
 - [x] (proven) `TenantTrialController.LinkEntraAsync` / `TenantTrialIdentityHandoffStage.LinkEntraAsync` — operator retry with same `localEmail` + `entraOid` differing only by casing logged duplicate `TrialLocalIdentityLinkedToEntra` audit while `TryLinkLocalIdentityToEntraAsync` succeeded (`Ordinal` OID compare after #841 exact-match skip-audit) — **hit 2026-09-05 (#860):** case-insensitive `LinkedEntraOid` comparison in `identityAlreadyLinked`; regression in `LinkEntraAsync_skips_duplicate_local_identity_linked_audit_when_entra_oid_differs_only_by_casing`.
-- [ ] (candidate) `PolicyPacksController.Create` / `PolicyPacksAppService.CreatePackAsync` — operator retry with pack `name` differing only by casing allocates fresh `PolicyPackId` and logs duplicate `PolicyPackCreated` audit (`Ordinal` name match in create dedupe matcher; #858 recurrence-name casing sibling).
-- [ ] (candidate) `PolicyPacksController.DuplicatePack` / `PolicyPacksAppService.TryDuplicatePackAsync` — operator retry with duplicate copy `name` differing only by casing allocates fresh pack row (`Ordinal` `copyName` match in duplicate dedupe matcher; #860 create-name casing sibling).
+- [x] (proven) `PolicyPacksController.Create` / `PolicyPacksAppService.CreatePackAsync` — operator retry with pack `name` differing only by casing allocated fresh `PolicyPackId` and logged duplicate `PolicyPackCreated` audit (`Ordinal` name match in create dedupe matcher; #858 recurrence-name casing sibling) — **hit 2026-09-05 (#861):** case-insensitive name comparison in create dedupe matcher; regression in `CreatePackAsync_returns_existing_pack_and_skips_duplicate_audit_when_name_differs_only_by_casing`.
+- [x] (proven) `PolicyPacksController.DuplicatePack` / `PolicyPacksAppService.TryDuplicatePackAsync` — operator retry with duplicate copy `name` differing only by casing allocated fresh pack row (`Ordinal` `copyName` match in duplicate dedupe matcher; #860 create-name casing sibling) — **hit 2026-09-05 (#861):** case-insensitive copy-name comparison in duplicate dedupe matcher; regression in `TryDuplicatePackAsync_returns_existing_copy_and_skips_duplicate_audit_when_copy_name_differs_only_by_casing`.
+
+2026-09-05 thorough hunt #861 (hit): proved both #860 candidates — policy-pack create and duplicate-pack name case-insensitive idempotent retry.
 
 2026-09-05 seed hunt #860 (hit): reseeded post-#859 idempotent-retry casing exhaustion; proved link-entra `entraOid` case-insensitive idempotent retry; seeded policy-pack create and duplicate-pack name casing candidates.
 

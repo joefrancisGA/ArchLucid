@@ -62,7 +62,7 @@ public sealed class PolicyPacksAppService(
         PolicyPack? existingPack = packsInScope.FirstOrDefault(
             pack =>
                 !pack.IsDeleted
-                && string.Equals(pack.Name, name, StringComparison.Ordinal)
+                && string.Equals(pack.Name, name, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(pack.Description, description, StringComparison.Ordinal)
                 && string.Equals(pack.PackType, packType, StringComparison.Ordinal));
 
@@ -311,7 +311,7 @@ public sealed class PolicyPacksAppService(
         PolicyPack? existingDuplicate = packsInScope.FirstOrDefault(
             pack =>
                 !pack.IsDeleted
-                && string.Equals(pack.Name, copyName, StringComparison.Ordinal)
+                && string.Equals(pack.Name, copyName, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(pack.Description, sourcePack.Description, StringComparison.Ordinal)
                 && string.Equals(pack.PackType, sourcePack.PackType, StringComparison.Ordinal));
 

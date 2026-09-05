@@ -167,6 +167,106 @@ public sealed class PolicyPacksAppServiceTests
     }
 
     [SkippableFact]
+    public async Task CreatePackAsync_returns_existing_pack_and_skips_duplicate_audit_when_name_differs_only_by_casing()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid existingPackId = Guid.NewGuid();
+        const string body = """{"complianceRuleKeys":["a"]}""";
+
+        PolicyPack existingPack = new()
+        {
+            PolicyPackId = existingPackId,
+            TenantId = tenantId,
+            Name = "pack-a",
+            Description = "d",
+            PackType = PolicyPackType.ProjectCustom,
+            IsDeleted = false,
+            CurrentVersion = "1.0.0",
+        };
+
+        PolicyPack created = new()
+        {
+            PolicyPackId = Guid.NewGuid(),
+            Name = "pack-a",
+            PackType = PolicyPackType.ProjectCustom,
+        };
+
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .SetupSequence(p => p.ListByScopeAsync(tenantId, workspaceId, projectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<PolicyPack>())
+            .ReturnsAsync(new[] { existingPack });
+
+        Mock<IPolicyPackVersionRepository> versions = new();
+        versions
+            .Setup(v => v.GetByPackAndVersionAsync(existingPackId, "1.0.0", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PolicyPackVersion
+                {
+                    PolicyPackId = existingPackId,
+                    Version = "1.0.0",
+                    ContentJson = body,
+                });
+
+        Mock<IPolicyPackManagementService> management = new();
+        management
+            .Setup(m => m.CreatePackAsync(
+                tenantId,
+                workspaceId,
+                projectId,
+                "pack-a",
+                "d",
+                PolicyPackType.ProjectCustom,
+                body,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(created);
+
+        Mock<IAuditService> audit = new();
+        audit.Setup(x => x.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        PolicyPacksAppService sut = CreateSut(management.Object, packs: packs.Object, versions: versions.Object, audit: audit.Object);
+
+        await sut.CreatePackAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            "pack-a",
+            "d",
+            PolicyPackType.ProjectCustom,
+            body,
+            CancellationToken.None);
+        PolicyPack second = await sut.CreatePackAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            "PACK-A",
+            "d",
+            PolicyPackType.ProjectCustom,
+            body,
+            CancellationToken.None);
+
+        second.Should().BeSameAs(existingPack);
+        management.Verify(
+            m => m.CreatePackAsync(
+                tenantId,
+                workspaceId,
+                projectId,
+                It.IsAny<string>(),
+                "d",
+                PolicyPackType.ProjectCustom,
+                body,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        audit.Verify(
+            x => x.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.PolicyPackCreated),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
     public async Task TryAssignAsync_WhenVersionMissing_ReturnsNullWithoutAssignOrAudit()
     {
         Guid packId = Guid.NewGuid();
@@ -655,6 +755,106 @@ public sealed class PolicyPacksAppServiceTests
                 It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.PolicyPackDuplicated),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task TryDuplicatePackAsync_returns_existing_copy_and_skips_duplicate_audit_when_copy_name_differs_only_by_casing()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid packId = Guid.NewGuid();
+        Guid existingCopyId = Guid.NewGuid();
+        const string body = """{"complianceRuleKeys":["a"]}""";
+
+        PolicyPack sourcePack = new()
+        {
+            PolicyPackId = packId,
+            TenantId = tenantId,
+            Name = "Source",
+            Description = "d",
+            PackType = PolicyPackType.ProjectCustom,
+            IsDeleted = false,
+            CurrentVersion = "1.2.0",
+        };
+
+        PolicyPack existingCopy = new()
+        {
+            PolicyPackId = existingCopyId,
+            TenantId = tenantId,
+            Name = "source (copy)",
+            Description = "d",
+            PackType = PolicyPackType.ProjectCustom,
+            IsDeleted = false,
+            CurrentVersion = "1.0.0",
+        };
+
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(p => p.GetByIdAsync(packId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(sourcePack);
+        packs
+            .Setup(p => p.ListByScopeAsync(tenantId, workspaceId, projectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new[] { existingCopy });
+
+        Mock<IPolicyPackVersionRepository> versions = new();
+        versions
+            .Setup(v => v.ListByPackAsync(packId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new PolicyPackVersion
+                {
+                    PolicyPackId = packId,
+                    Version = "1.2.0",
+                    ContentJson = string.Empty,
+                    IsPublished = true,
+                },
+            ]);
+        versions
+            .Setup(v => v.GetByPackAndVersionAsync(packId, "1.2.0", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PolicyPackVersion
+                {
+                    PolicyPackId = packId,
+                    Version = "1.2.0",
+                    ContentJson = body,
+                    IsPublished = true,
+                });
+        versions
+            .Setup(v => v.GetByPackAndVersionAsync(existingCopyId, "1.0.0", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PolicyPackVersion
+                {
+                    PolicyPackId = existingCopyId,
+                    Version = "1.0.0",
+                    ContentJson = body,
+                    IsPublished = false,
+                });
+
+        Mock<IPolicyPackManagementService> management = new(MockBehavior.Strict);
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
+
+        PolicyPacksAppService sut = CreateSut(management.Object, packs: packs.Object, versions: versions.Object, audit: audit.Object);
+
+        PolicyPack? result = await sut.TryDuplicatePackAsync(tenantId, workspaceId, projectId, packId, CancellationToken.None);
+
+        result.Should().BeSameAs(existingCopy);
+        management.Verify(
+            m => m.CreatePackAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(
+            x => x.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.PolicyPackDuplicated),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     private static PolicyPacksAppService CreateSut(
