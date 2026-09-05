@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — deterministic remediation pattern matching rules (IE-11).
+
 # Remediation pattern matching (IE-11)
 
 Deterministic matcher from `OperationalSecurityFinding` to **Approved** `RemediationPattern` versions. AI may propose `PossibleMatch` only; it cannot record `ExactMatch`.

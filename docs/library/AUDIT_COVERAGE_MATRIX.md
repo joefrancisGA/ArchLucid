@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:410 -->
+<!-- audit-core-const-count:419 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -421,6 +421,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 |----------|-------|---------------------------|
 | `RunStarted` | `RunStarted` | `AuthorityRunOrchestrator` |
 | `RunCompleted` | `RunCompleted` | `AuthorityRunOrchestrator` |
+| `RunCoverageAcknowledged` | `RunCoverageAcknowledged` | `RunCoverageAcknowledgementService` (`RunCoverageController` PUT/PATCH acknowledgement) |
 | `ManifestGenerated` | `ManifestGenerated` | `AuthorityPipelineStagesExecutor` |
 | `ManifestFinalized` | `ManifestFinalized` | `ManifestFinalizationService` (`sp_FinalizeManifest` transactional path — see `MANIFEST_FINALIZATION_TRANSACTION.md`) |
 | `RunSubmitted` | `RunSubmitted` | `RunsController` (`POST /v1/architecture/run/{runId}/execute`) |
@@ -511,6 +512,14 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `AzureExtractorPackageChunkSessionStarted` | `AzureExtractorPackage.ChunkSessionStarted` | `AzureExtractorUploadController` (`POST …/azure-extractor/upload-sessions`) |
 | `AzureInventorySnapshotCreated` | `AzureInventorySnapshot.Created` | `AzureInventorySnapshotHeaderService` |
 | `AzureInventorySnapshotFailed` | `AzureInventorySnapshot.Failed` | `AzureInventorySnapshotHeaderService` |
+| `OperationalSecurityFindingDeduplicated` | `OperationalSecurityFinding.Deduplicated` | `OperationalSecurityFindingIngestService` |
+| `OperationalSecurityFindingIngested` | `OperationalSecurityFinding.Ingested` | `OperationalSecurityFindingIngestService` |
+| `OperationalSecurityExceptionCreated` | `OperationalSecurityException.Created` | `OperationalSecurityExceptionService` |
+| `OperationalSecurityExceptionExpired` | `OperationalSecurityException.Expired` | `OperationalSecurityExceptionService` (`SweepExpiredAsync`) |
+| `OperationalSecurityExceptionRevoked` | `OperationalSecurityException.Revoked` | `OperationalSecurityExceptionService` |
+| `RemediationInstanceClosed` | `RemediationInstance.Closed` | `RemediationInstanceService` |
+| `RemediationInstanceCreated` | `RemediationInstance.Created` | `RemediationInstanceService` |
+| `RemediationInstanceExecuted` | `RemediationInstance.Executed` | `RemediationInstanceService` |
 | `ValueReportGenerated` | `ValueReportGenerated` | `ValueReportController`, `InMemoryValueReportJobQueue` |
 | `ReplayExportRecorded` | `ReplayExportRecorded` | `ExportsController` |
 | `ComparisonSummaryPersisted` | `ComparisonSummaryPersisted` | `ExportsController` |

@@ -1072,6 +1072,27 @@ export interface components {
         ArchitectureDecisionRegisterResponse: {
             decisions?: components["schemas"]["ArchitectureDecisionRegisterEntry"][];
         };
+        ArchitectureDiagramEdgeRecord: {
+            id?: string;
+            label?: string;
+            provenance?: string;
+            removed?: boolean;
+            sourceId?: string;
+            targetId?: string;
+        };
+        ArchitectureDiagramModelRecord: {
+            edges?: components["schemas"]["ArchitectureDiagramEdgeRecord"][];
+            nodes?: components["schemas"]["ArchitectureDiagramNodeRecord"][];
+            trustBoundaryLabels?: string[];
+        };
+        ArchitectureDiagramNodeRecord: {
+            accepted?: boolean;
+            id?: string;
+            kind?: string;
+            label?: string;
+            provenance?: string;
+            removed?: boolean;
+        };
         ArchitectureDigest: {
             /** Format: date-time */
             archivedUtc?: null | string;
@@ -3168,6 +3189,11 @@ export interface components {
             format?: string;
             manifestVersion?: string;
         };
+        DiagramSourceReference: {
+            content?: string;
+            format?: string;
+            name?: string;
+        };
         DiffItemResponse: {
             afterValue?: null | string;
             beforeValue?: null | string;
@@ -4500,6 +4526,8 @@ export interface components {
             /** Format: double */
             governedPercentage?: null | number | string;
             isAvailable?: boolean;
+            /** Format: int32 */
+            totalChecklistCoverageCount?: number;
             /** Format: int32 */
             totalDecisionGradeCount?: number;
             /** Format: int32 */
@@ -7406,6 +7434,45 @@ export interface components {
         RelationshipType: "Calls" | "ReadsFrom" | "WritesTo" | "PublishesTo" | "SubscribesTo" | "AuthenticatesWith";
         /** @enum {string} */
         RemediationAutomationLevel: "Manual" | "Guided" | "SemiAutomated" | "Automated";
+        RemediationFactoryMetrics: {
+            /** Format: double */
+            automationPercent?: number | string;
+            /** Format: double */
+            averageAgeDays?: number | string;
+            /** Format: int32 */
+            businessBlockedCount?: number;
+            /** Format: int32 */
+            createdThisWeek?: number;
+            /** Format: int32 */
+            criticalExposureCount?: number;
+            /** Format: int32 */
+            exceptionsActive?: number;
+            /** Format: int32 */
+            exceptionsExpired?: number;
+            /** Format: int32 */
+            exceptionsExpiringSoon?: number;
+            /** Format: int32 */
+            netBurn?: number;
+            /** Format: int32 */
+            openFindings?: number;
+            /** Format: double */
+            patternCoverageExactMatchPercent?: number | string;
+            /** Format: int32 */
+            recurrenceCount?: number;
+            /** Format: int32 */
+            remediatedThisWeek?: number;
+            /** Format: double */
+            riskWeightedOpen?: number | string;
+            topControlIds?: components["schemas"]["RemediationMetricCount"][];
+            topPatternKeys?: components["schemas"]["RemediationMetricCount"][];
+            /** Format: int32 */
+            verificationFailureCount?: number;
+        };
+        RemediationMetricCount: {
+            /** Format: int32 */
+            count?: number;
+            key?: string;
+        };
         RemediationPatternBulkImportRequest: {
             items?: components["schemas"]["RemediationPatternDraftApiRequest"][];
         };
@@ -7529,6 +7596,89 @@ export interface components {
             /** Format: uuid */
             versionId?: string;
         };
+        RemediationPrioritizationExplanation: {
+            breakdownJson?: string;
+            explanationSummary?: string;
+            /** Format: uuid */
+            findingId?: string;
+            ruleVersion?: string;
+            /** Format: double */
+            totalScore?: number | string;
+            weights?: {
+                [key: string]: number | string;
+            };
+        };
+        RemediationPrioritizedFinding: {
+            breakdownJson?: string;
+            /** Format: uuid */
+            cloudResourceId?: null | string;
+            controlId?: null | string;
+            explanationSummary?: string;
+            /** Format: uuid */
+            findingId?: string;
+            patternKey?: null | string;
+            /** Format: double */
+            totalScore?: number | string;
+        };
+        RemediationWaveCreateRequest: {
+            explicitCloudResourceIds?: null | string[];
+            name?: string;
+            /** Format: int32 */
+            targetSize?: null | number;
+        };
+        RemediationWaveDetail: {
+            members?: components["schemas"]["RemediationWaveMemberRecord"][];
+            wave?: components["schemas"]["RemediationWaveRecord"];
+        };
+        RemediationWaveMemberRecord: {
+            /** Format: uuid */
+            cloudResourceId?: null | string;
+            /** Format: date-time */
+            createdUtc?: string;
+            /** Format: uuid */
+            findingId?: string;
+            /** Format: uuid */
+            instanceId?: null | string;
+            /** Format: uuid */
+            memberId?: string;
+            /** Format: int32 */
+            priorityRank?: number;
+            /** Format: double */
+            priorityScore?: number | string;
+            /** Format: uuid */
+            tenantId?: string;
+            /** Format: uuid */
+            waveId?: string;
+        };
+        RemediationWaveOperationResult: {
+            errorMessage?: null | string;
+            /** Format: int32 */
+            memberCount?: number;
+            succeeded?: boolean;
+            /** Format: uuid */
+            waveId?: null | string;
+        };
+        RemediationWaveRecord: {
+            createdByActorKey?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            name?: string;
+            /** Format: uuid */
+            projectId?: string;
+            status?: components["schemas"]["RemediationWaveStatus"];
+            /** Format: int32 */
+            targetSize?: null | number;
+            /** Format: uuid */
+            tenantId?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+            /** Format: uuid */
+            waveId?: string;
+            /** Format: uuid */
+            workspaceId?: string;
+        };
+        /** @enum {string} */
+        RemediationWaveStatus: "Draft" | "Active" | "Closed";
         RenewRiskExceptionRequest: {
             evidenceRef?: null | string;
             /** Format: date-time */
@@ -9014,6 +9164,15 @@ export interface components {
         StructuralExecutionMode: "Simulator" | "Real" | "Fallback" | "Mixed";
         /** @enum {string} */
         StructuredBriefSuggestionKind: "Constraint" | "Assumption" | "RequiredCapability";
+        StructuredDiagramIngestRequest: {
+            sources?: components["schemas"]["DiagramSourceReference"][];
+        };
+        StructuredDiagramIngestResult: {
+            extractionMethod?: string;
+            model?: components["schemas"]["ArchitectureDiagramModelRecord"];
+            sourceFingerprints?: string[];
+            warnings?: string[];
+        };
         StructuredExplanation: {
             alternativesConsidered?: null | string[];
             caveats?: null | string[];
