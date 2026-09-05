@@ -1,5 +1,7 @@
 import type { WorkspaceAiAvailabilityCheckState } from "@/hooks/useWorkspaceAiAvailabilityCheck";
 import type { ReviewFailureRecoveryGuidance } from "@/lib/resolve-review-failure-recovery-guidance";
+import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
+import { formatReviewLastFailureCauseLine } from "@/components/resolve-run-detail-last-failure-summary";
 
 const PRE_STAGE_GENERIC_DETAIL =
   "The review stopped before processing began. This is usually a configuration or infrastructure issue — not missing intake fields. Check AI configuration, then re-run the review.";
@@ -84,6 +86,28 @@ export function resolveProbeAwareReviewFailureDoThisNextSentence(
   return baseSentence;
 }
 
+/** Visible "What failed" line for terminal-failure Overview when probe corroboration differs from review outcome. */
+export function resolveReviewFailureWhatFailedLine(
+  lastFailureSummary: RunDetailLastFailureSummary | null | undefined,
+  guidance: ReviewFailureRecoveryGuidance | null | undefined,
+): string | null {
+  const recordedCause = formatReviewLastFailureCauseLine(lastFailureSummary);
+
+  if (recordedCause !== null) {
+    return recordedCause;
+  }
+
+  const headline = normalizeCopy(guidance?.headline);
+
+  if (headline.length > 0) {
+    return headline;
+  }
+
+  const detail = normalizeCopy(guidance?.detail);
+
+  return detail.length > 0 ? detail : null;
+}
+
 /** Finalize strip copy when execution failed — no cross-reference to the Do this next heading. */
 export function resolveReviewFailureCommitBlockedReason(
   guidance: ReviewFailureRecoveryGuidance | null | undefined,
@@ -117,4 +141,17 @@ export function shouldShowReviewFailureRecoveryDetail(
   }
 
   return true;
+}
+
+/** When the live probe succeeded, the AI panel owns availability copy — shorten the strip sentence. */
+export function resolveProbeSucceededDoThisNextSentence(
+  guidance: ReviewFailureRecoveryGuidance,
+): string {
+  const headline = normalizeCopy(guidance.headline);
+
+  if (headline.length > 0) {
+    return `${headline} — re-run the review to retry with the same intake.`;
+  }
+
+  return "Execution failed — re-run the review to retry with the same intake.";
 }

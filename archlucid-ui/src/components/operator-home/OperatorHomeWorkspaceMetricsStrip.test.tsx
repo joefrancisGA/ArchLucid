@@ -42,6 +42,7 @@ function buildRunsDashboard(): OperatorHomeRunsDashboardModel {
         runId: "run-1",
         displayTitle: "Enterprise platform",
         customerStatus: "in_progress",
+        hasFindingsSnapshot: true,
         updatedAtUtc: "2026-01-15T12:00:00.000Z",
       },
     ],
@@ -70,6 +71,7 @@ describe("OperatorHomeWorkspaceMetricsStrip", () => {
         runId: "run-2",
         displayTitle: "Payments platform",
         customerStatus: "in_progress",
+        hasFindingsSnapshot: true,
         updatedAtUtc: "2026-01-14T12:00:00.000Z",
       },
     ] as OperatorHomeRunsDashboardModel["items"];
@@ -162,6 +164,7 @@ describe("OperatorHomeWorkspaceMetricsStrip", () => {
         runId: "run-2",
         displayTitle: "Payments platform",
         customerStatus: "in_progress",
+        hasFindingsSnapshot: true,
         updatedAtUtc: "2026-01-14T12:00:00.000Z",
       },
     ] as OperatorHomeRunsDashboardModel["items"];

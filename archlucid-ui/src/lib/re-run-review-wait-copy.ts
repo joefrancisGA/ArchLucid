@@ -22,6 +22,7 @@ export type ReRunReviewRunningProgressCopy = LongOperationWaitCopy & {
   readonly heartbeatLine: string | null;
   readonly stalled: boolean;
   readonly queueStatusStageLabel: string;
+  readonly queueStatusElapsedMs: number;
   readonly statusRefreshHint: string;
   readonly homePageHint: string;
 };
@@ -121,6 +122,7 @@ export function buildReRunReviewRunningProgressCopy(args: {
     heartbeatLine,
     stalled,
     queueStatusStageLabel: stageLabel,
+    queueStatusElapsedMs: args.elapsedMs,
     statusRefreshHint: LONG_OPERATION_QUEUE_STATUS_REFRESH_HINT,
     homePageHint: LONG_OPERATION_HOME_PAGE_STATUS_HINT,
   };

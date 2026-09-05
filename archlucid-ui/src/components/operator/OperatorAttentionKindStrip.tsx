@@ -1,18 +1,24 @@
 "use client";
 
-import { FilterChip } from "@/components/ui/filter-chip";
+import { AttentionLinkChip } from "@/components/operator/AttentionLinkChip";
+import { useAttentionPartitionPreviews } from "@/hooks/use-attention-partition-previews";
 import { useOperatorAttentionSummary } from "@/hooks/use-operator-attention-summary";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   OPERATOR_ATTENTION_KIND_DESTINATIONS,
 } from "@/lib/operator/operator-attention-kind-destinations";
 import { isOperatorAttentionKindDestinationActive } from "@/lib/operator/operator-attention-kind-chip-selected";
 import {
+  formatOperatorAttentionChipAriaLabel,
+  operatorAttentionChipNeedsAction,
+  resolveHighestNonZeroAttentionKind,
+} from "@/lib/operator/operator-attention-chip-needs-action";
+import {
   OPERATOR_ATTENTION_KIND_IDS,
   OPERATOR_ATTENTION_KIND_LABELS,
   type OperatorAttentionKindId,
 } from "@/lib/operator/operator-attention-taxonomy";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { usePathname, useSearchParams } from "next/navigation";
 
@@ -23,9 +29,6 @@ export type OperatorAttentionKindStripProps = {
   readonly suppressKinds?: readonly OperatorAttentionKindId[];
 };
 
-export const OPERATOR_ATTENTION_KIND_STRIP_HELPER =
-  "Needs-you queues — open a kind to see what needs action:" as const;
-
 /** TB-2353 / TB-2369 — actionable four-kind attention taxonomy for hub pages. */
 export function OperatorAttentionKindStrip(
   props: OperatorAttentionKindStripProps,
@@ -35,43 +38,47 @@ export function OperatorAttentionKindStrip(
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const { summaries } = useOperatorAttentionSummary();
+  const partitionPreviews = useAttentionPartitionPreviews();
   const summaryByPartition = new Map(summaries.map((summary) => [summary.partition, summary]));
   const visibleKinds = OPERATOR_ATTENTION_KIND_IDS.filter((kind) => !suppressKinds.has(kind));
+  const countsByKind = Object.fromEntries(
+    visibleKinds.map((kind) => [kind, summaryByPartition.get(kind)?.totalCount ?? 0]),
+  ) as Partial<Record<OperatorAttentionKindId, number>>;
+  const previewKind = resolveHighestNonZeroAttentionKind(countsByKind, visibleKinds);
+  const previewLine = previewKind !== null ? partitionPreviews[previewKind] : null;
 
   return (
     <div
-      className={cn("space-y-2", props.className)}
+      className={props.className}
       data-testid="operator-attention-kind-strip"
       data-variant={variant}
     >
-      {variant === "default" || variant === "compact" ? (
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {OPERATOR_ATTENTION_KIND_STRIP_HELPER}
-        </p>
-      ) : null}
       <ul
         className="m-0 flex list-none flex-wrap gap-1.5 p-0"
         data-testid="operator-attention-kind-chips"
       >
         {visibleKinds.map((kind: OperatorAttentionKindId) => {
           const destination = OPERATOR_ATTENTION_KIND_DESTINATIONS[kind];
-          const count = summaryByPartition.get(kind)?.totalCount ?? 0;
+          const count = countsByKind[kind] ?? 0;
           const label = OPERATOR_ATTENTION_KIND_LABELS[kind];
           const selected = isOperatorAttentionKindDestinationActive(
             pathname,
             searchParams,
             destination.href,
           );
-
-          const needsAction = kind === "awaiting-approval" && count > 0 && !selected;
+          const needsAction = operatorAttentionChipNeedsAction(count);
+          const deEmphasized = count === 0;
 
           return (
             <li key={kind}>
-              <FilterChip
+              <AttentionLinkChip
                 href={destination.href}
-                className={cn("gap-1", buyerFilterChipClass(selected, false, count === 0, needsAction))}
+                className={cn(
+                  buyerFilterChipClass(selected, false, deEmphasized, needsAction && !selected),
+                  deEmphasized ? "opacity-70" : undefined,
+                )}
                 aria-current={selected ? "page" : undefined}
-                aria-label={`${label}: ${count} items`}
+                aria-label={formatOperatorAttentionChipAriaLabel(label, count)}
                 data-testid={`operator-attention-kind-chip-${kind}`}
               >
                 <span>{label}</span>
@@ -84,11 +91,20 @@ export function OperatorAttentionKindStrip(
                 >
                   ({count})
                 </span>
-              </FilterChip>
+              </AttentionLinkChip>
             </li>
           );
         })}
       </ul>
+      {previewLine !== null && previewKind !== null ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid={`operator-attention-partition-preview-${previewKind}`}
+        >
+          <span className="font-medium text-al-text-primary">{OPERATOR_ATTENTION_KIND_LABELS[previewKind]}:</span>{" "}
+          {previewLine}
+        </p>
+      ) : null}
     </div>
   );
 }

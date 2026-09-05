@@ -359,7 +359,7 @@ export function CorePilotWizardLauncher() {
               </label>
             ) : (
               <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                Close anytime — progress saves in this browser. Reopen from Help, Onboarding, or the Core Pilot checklist on Overview.
+                Close anytime — progress saves in this browser. Reopen from Help, Onboarding, or the Core Pilot checklist on Home.
               </span>
             )}
             <div className="flex flex-col gap-2 sm:flex-row">

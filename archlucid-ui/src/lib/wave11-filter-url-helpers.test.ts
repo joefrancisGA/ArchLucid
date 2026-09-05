@@ -2352,6 +2352,102 @@ describe("wave34 filter url helpers", () => {
   });
 });
 
+describe("wave35 filter url helpers", () => {
+  it("generate adr, share link, export deliverable, and presenter elicitation params", async () => {
+    const {
+      parseReviewGenerateAdrOpenFromSearch,
+      reviewGenerateAdrPanelsHrefFromSearch,
+    } = await import("@/lib/reviews/review-generate-adr-panels-url");
+    const {
+      parseReviewShareLinkOpenFromSearch,
+      reviewShareLinkPanelsHrefFromSearch,
+    } = await import("@/lib/reviews/review-share-link-panels-url");
+    const {
+      parseReviewDeliverableAudienceFromSearch,
+      parseReviewDeliverableOpenFromSearch,
+      reviewExportDeliverablePanelsHrefFromSearch,
+    } = await import("@/lib/reviews/review-export-deliverable-panels-url");
+    const {
+      parseReviewPresenterQuestionIdFromSearch,
+      reviewPresenterElicitationHrefFromSearch,
+    } = await import("@/lib/reviews/review-presenter-elicitation-url");
+
+    expect(parseReviewGenerateAdrOpenFromSearch("1")).toBe(true);
+    expect(
+      reviewGenerateAdrPanelsHrefFromSearch("reviewTab=overview", true, "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?reviewTab=overview&adrOpen=1");
+    expect(parseReviewShareLinkOpenFromSearch("true")).toBe(true);
+    expect(
+      reviewShareLinkPanelsHrefFromSearch("reviewTab=overview", true, "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?reviewTab=overview&shareLinkOpen=1");
+    expect(parseReviewDeliverableOpenFromSearch("1")).toBe(true);
+    expect(parseReviewDeliverableAudienceFromSearch("grc")).toBe("grc");
+    expect(
+      reviewExportDeliverablePanelsHrefFromSearch(
+        "reviewTab=overview",
+        { open: true, audience: "board" },
+        "/architecture/reviews/r1",
+      ),
+    ).toBe("/architecture/reviews/r1?reviewTab=overview&deliverableOpen=1&deliverableAudience=board");
+    expect(parseReviewPresenterQuestionIdFromSearch("latency")).toBe("latency");
+    expect(
+      reviewPresenterElicitationHrefFromSearch("presenter=1", "latency", "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?presenter=1&presenterQuestionId=latency");
+  });
+
+  it("governance triage, nav guard, replay modify, graduation offer, mute, and in-flight cancel params", async () => {
+    const {
+      governanceFindingTriagePanelsHrefFromSearch,
+      parseGovernanceFindingTriageFocusedFindingIdFromSearch,
+    } = await import("@/lib/governance/governance-finding-triage-panels-url");
+    const {
+      livelihoodDocumentGuardHrefFromSearch,
+      parseLivelihoodDocumentGuardOpenFromSearch,
+    } = await import("@/lib/operator/livelihood-document-guard-url");
+    const {
+      parseReplayModifyConfirmOpenFromSearch,
+      replayModifyConfirmHrefFromSearch,
+    } = await import("@/lib/replay/replay-modify-confirm-url");
+    const {
+      parseWorkspaceModeGraduationOfferOpenFromSearch,
+      workspaceModeGraduationOfferPanelsHrefFromSearch,
+    } = await import("@/lib/operator/workspace-mode-graduation-offer-panels-url");
+    const {
+      parseQuickDecisionMuteFindingIdFromSearch,
+      quickDecisionMutePanelsHrefFromSearch,
+    } = await import("@/lib/reviews/quick-decision-mute-panels-url");
+    const {
+      parseShellInFlightCancelIdFromSearch,
+      shellInFlightCancelConfirmHrefFromSearch,
+    } = await import("@/lib/operator/shell-in-flight-cancel-confirm-url");
+
+    expect(parseGovernanceFindingTriageFocusedFindingIdFromSearch("finding-1")).toBe("finding-1");
+    expect(governanceFindingTriagePanelsHrefFromSearch("severity=high", "finding-1")).toBe(
+      "/governance/findings?severity=high&focusedFinding=finding-1",
+    );
+    expect(parseLivelihoodDocumentGuardOpenFromSearch("1")).toBe(true);
+    expect(livelihoodDocumentGuardHrefFromSearch("step=2", true, "/administration/identity/sso-wizard")).toBe(
+      "/administration/identity/sso-wizard?step=2&navGuardOpen=1",
+    );
+    expect(parseReplayModifyConfirmOpenFromSearch("true")).toBe(true);
+    expect(replayModifyConfirmHrefFromSearch("runId=r1", true)).toBe(
+      "/internal/validate-route?runId=r1&replayModifyConfirm=1",
+    );
+    expect(parseWorkspaceModeGraduationOfferOpenFromSearch("1")).toBe(true);
+    expect(
+      workspaceModeGraduationOfferPanelsHrefFromSearch("help=1", true, "/architecture/reviews"),
+    ).toBe("/architecture/reviews?help=1&graduationOfferOpen=1");
+    expect(parseQuickDecisionMuteFindingIdFromSearch("finding-2")).toBe("finding-2");
+    expect(
+      quickDecisionMutePanelsHrefFromSearch("reviewTab=findings", "finding-2", "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?reviewTab=findings&muteFindingId=finding-2");
+    expect(parseShellInFlightCancelIdFromSearch("op-1")).toBe("op-1");
+    expect(shellInFlightCancelConfirmHrefFromSearch("", "op-1", "/architecture/reviews")).toBe(
+      "/architecture/reviews?inFlightCancelId=op-1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

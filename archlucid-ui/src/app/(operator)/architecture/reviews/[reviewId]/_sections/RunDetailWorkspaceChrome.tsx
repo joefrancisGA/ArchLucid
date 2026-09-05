@@ -12,13 +12,14 @@ import { FavoriteReviewToggle } from "@/components/reviews/FavoriteReviewToggle"
 import { ArchitectureObjectMapStrip } from "@/components/operator/ArchitectureObjectMapStrip";
 import { ReviewAskDock } from "@/components/reviews/ReviewAskDock";
 import { ReviewHeaderShareMenu } from "@/components/reviews/ReviewHeaderShareMenu";
+import { ReviewPresenterHeaderButton } from "@/components/reviews/ReviewPresenterHeaderButton";
 import { ReviewWorkspaceStaleBanner } from "@/components/reviews/ReviewWorkspaceStaleBanner";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { SampleReviewDemoBanner } from "@/components/reviews/SampleReviewDemoBanner";
 import { useReviewsListReturnNavHref } from "@/hooks/use-reviews-list-return-nav-href";
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { formatActionActorName } from "@/lib/action-actor-display";
 import { CTA_WIDTH, DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { truncateRunId } from "@/components/governance/recurrence-schedules-presentation";
 import { clampReviewWorkspaceH1Title } from "@/lib/review-display-title";
 import {
   deriveReviewRecordMetadataContext,
@@ -166,10 +167,9 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
             <span className="inline-flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
               <span className="font-medium text-neutral-700 dark:text-neutral-300">Review ID</span>
               <code
-                className={cn("max-w-[14rem] truncate font-mono select-all", OPERATOR_TYPOGRAPHY.micro)}
-                title={props.runId}
+                className={cn("break-all font-mono select-all", OPERATOR_TYPOGRAPHY.micro)}
               >
-                {truncateRunId(props.runId)}
+                {props.runId}
               </code>
               <CopyIdButton value={props.runId} aria-label="Copy review ID" />
             </span>
@@ -177,10 +177,9 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
               <span className="inline-flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                 <span className="font-medium text-neutral-700 dark:text-neutral-300">Finalized review record ID</span>
                 <code
-                  className={cn("max-w-[14rem] truncate font-mono select-all", OPERATOR_TYPOGRAPHY.micro)}
-                  title={props.signedReviewRecordId}
+                  className={cn("break-all font-mono select-all", OPERATOR_TYPOGRAPHY.micro)}
                 >
-                  {truncateRunId(props.signedReviewRecordId)}
+                  {props.signedReviewRecordId}
                 </code>
                 <CopyIdButton value={props.signedReviewRecordId} aria-label="Copy finalized review record ID" />
               </span>
@@ -202,11 +201,12 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
               disabled={reviewPipelineIncomplete}
               disabledReason={headerActionDisabledReason}
             />
+            <ReviewPresenterHeaderButton reviewCompleted={!reviewPipelineIncomplete} />
             <FavoriteReviewToggle runId={props.runId} title={h1Title} size="sm" />
           </>
         }
       >
-        <ArchitectureObjectMapStrip focus="review" />
+        {!reviewPipelineIncomplete ? <ArchitectureObjectMapStrip focus="review" /> : null}
         <dl
           className={cn(
             "m-0 grid gap-3 sm:grid-cols-2 lg:grid-cols-3",
@@ -240,6 +240,13 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
           ) : null}
         </dl>
       </OperatorPageHeader>
+      {reviewPipelineIncomplete && headerActionDisabledReason !== null ? (
+        <WhyDisabledCtaHint
+          reason={headerActionDisabledReason}
+          className="mt-2"
+          testId="review-header-actions-disabled-hint"
+        />
+      ) : null}
     </div>
   );
 }

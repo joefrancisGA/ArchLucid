@@ -49,7 +49,7 @@ function resolveOpenFindingsAction(): PilotNextBestAction {
     label: "Review open findings",
     href: "/governance/findings?filter=open",
     bridgeCopy:
-      "Prioritize material findings from your finalized architecture reviews — the fastest path from Overview to action.",
+      "Prioritize material findings from your finalized architecture reviews — the fastest path from Home to action.",
   };
 }
 

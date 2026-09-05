@@ -202,6 +202,15 @@ export const SPONSOR_REVIEWS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   ],
 };
 
+/** Run detail overview when the review pipeline has not produced assessable outcomes yet. */
+export const RUN_DETAIL_INCOMPLETE_OVERVIEW_COMPACT: EnterpriseCompactEmptyStateProps =
+  buildOperatorPrerequisiteEmptyCompact("a completed review assessment", {
+    testId: "run-detail-incomplete-overview-empty-state",
+    description:
+      "Findings, evidence coverage, and sponsor-ready summaries appear after the assessment completes. Follow Do this next above to recover or re-run the review.",
+    actions: [],
+  });
+
 /** Run detail deliverables panel before the review is finalized. */
 export const RUN_DELIVERABLES_PENDING_FINALIZE_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "run-deliverables-pending-finalize-empty-state",

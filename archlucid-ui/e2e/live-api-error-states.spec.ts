@@ -59,7 +59,7 @@ test.describe("live-api-error-states", () => {
       timeout: 15_000,
     });
 
-    await expect(page.getByRole("link", { name: /ArchLucid|go to overview/i }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: /ArchLucid|go to home/i }).first()).toBeVisible();
   });
 
   test("audit search with non-existent run id shows no-results, not a crash", async ({ page }) => {

@@ -12,6 +12,15 @@ public interface IAuditControlEvaluationService
         IReadOnlyList<string> approvedExceptionIds,
         IReadOnlyList<string> failingAzureResourceIds,
         CancellationToken cancellationToken = default);
+
+    Task<AuditControlEvaluationResult> TryEvaluateControlForCurrentAssessmentAsync(
+        ScopeContext scope,
+        Guid auditEvidenceSnapshotId,
+        Guid frameworkId,
+        Guid controlId,
+        IReadOnlyList<string> approvedExceptionIds,
+        IReadOnlyList<string> failingAzureResourceIds,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed class AuditControlEvaluationResult

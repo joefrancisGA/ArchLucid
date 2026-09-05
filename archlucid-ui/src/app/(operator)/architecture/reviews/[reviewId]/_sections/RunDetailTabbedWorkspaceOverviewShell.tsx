@@ -71,6 +71,7 @@ export function composeRunDetailTabbedWorkspaceOverviewShell(
     blockingApprovalCount === 0 ? (
       <RunDetailSponsorBottomLineDeferred content={executiveBottomLineContent} />
     ) : null;
+  const runCompleted = m.resolvedDetail.run.legacyRunStatus === "Completed" || Boolean(m.manifestId);
   const decisionSnapshotSuppressedReason = deriveDecisionSnapshotSuppressedReason(workspaceStatus);
   const showDetailedOutcomeCards = !isReviewPipelineIncomplete(workspaceStatus);
 
@@ -106,6 +107,7 @@ export function composeRunDetailTabbedWorkspaceOverviewShell(
         recommendedActions={recommendedActions}
         criticalCount={severityCounts.critical}
         highCount={severityCounts.high}
+        pipelineIncomplete={!showDetailedOutcomeCards}
         proofStatusSlot={
           <RunDetailFirstScreenProofStatusClient
             key="run-detail-overview-proof-status"
@@ -124,8 +126,12 @@ export function composeRunDetailTabbedWorkspaceOverviewShell(
       <Suspense fallback={<RunDetailMidDeferredSkeleton />}>
         <RunDetailMidDeferredSections context={deferredContext} />
       </Suspense>
-      {buyerFinalizedPackage ? null : (
-        <RunDetailSponsorReportCtaCardDeferred runId={m.resolvedDetail.run.runId} demoted />
+      {buyerFinalizedPackage || !runCompleted ? null : (
+        <RunDetailSponsorReportCtaCardDeferred
+          runId={m.resolvedDetail.run.runId}
+          manifestId={m.manifestId}
+          demoted
+        />
       )}
     </div>
   );

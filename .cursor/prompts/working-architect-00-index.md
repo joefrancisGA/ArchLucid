@@ -8,7 +8,7 @@
 
 ArchLucid sells a **seat for a repeat professional** (`docs/ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md` R4 / R13; ADR 0052). People will sit in it much of the day; livelihoods may depend on the sealed record.
 
-**LI, LD, RS, and this set shipped** on `master` (#1496). Do not re-run. Wave 5 unique leftovers: [`career-desk-00-index.md`](career-desk-00-index.md) (**CD-01–15**). Wave 6: [`all-day-desk-00-index.md`](all-day-desk-00-index.md) (**AD-01–12**). Wave 7: [`founding-desk-00-index.md`](founding-desk-00-index.md) (**FD-01–13**).
+**LI, LD, RS, and this set shipped** on `master` (#1496). Do not re-run. Wave 5 unique leftovers: [`career-desk-00-index.md`](career-desk-00-index.md) (**CD-01–15**). Wave 6: [`all-day-desk-00-index.md`](all-day-desk-00-index.md) (**AD-01–12**). Wave 7: [`founding-desk-00-index.md`](founding-desk-00-index.md) (**FD-01–13**). Wave 8: [`instrument-spine-00-index.md`](instrument-spine-00-index.md) (**IS-01–15**).
 
 This is **iterative**. These 24 will not perfect the working-architect paradigm. They close the next predicted residuals without rewriting the product spine.
 
@@ -34,6 +34,7 @@ The leftover is the **chrome-decision spine** (eval vs desk) plus a few **edges*
 | **CD-01–15** | Wave 5 unique leftovers | [`career-desk-00-index.md`](career-desk-00-index.md) |
 | **AD-01–12** | Wave 6 all-day desk leftovers | [`all-day-desk-00-index.md`](all-day-desk-00-index.md) |
 | **FD-01–13** | Wave 7 founding leftovers | [`founding-desk-00-index.md`](founding-desk-00-index.md) |
+| **IS-01–15** | Wave 8 load-bearing bets | [`instrument-spine-00-index.md`](instrument-spine-00-index.md) |
 
 If a WA row lists an LD/RS/LI/PT/WD owner, **do not fork** that file. Implement only the leftover in *What to build*.
 

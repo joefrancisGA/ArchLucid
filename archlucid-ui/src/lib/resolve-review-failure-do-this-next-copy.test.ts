@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { ReviewFailureRecoveryGuidance } from "@/lib/resolve-review-failure-recovery-guidance";
 import {
   resolveProbeAwareReviewFailureDoThisNextSentence,
+  resolveProbeSucceededDoThisNextSentence,
   resolveReviewFailureCommitBlockedReason,
   resolveReviewFailureDoThisNextSentence,
   shouldShowReviewFailureRecoveryDetail,
@@ -86,6 +87,17 @@ describe("resolveProbeAwareReviewFailureDoThisNextSentence", () => {
     });
 
     expect(sentence).toContain("usually platform AI availability");
+  });
+});
+
+describe("resolveProbeSucceededDoThisNextSentence", () => {
+  it("drops follow-the-steps wording once the live probe succeeded", () => {
+    const sentence = resolveProbeSucceededDoThisNextSentence(preStageGuidance);
+
+    expect(sentence).toContain("Execution failed before the first pipeline stage");
+    expect(sentence).toContain("re-run the review");
+    expect(sentence).not.toContain("Follow the steps below");
+    expect(sentence).not.toContain("platform AI availability");
   });
 });
 

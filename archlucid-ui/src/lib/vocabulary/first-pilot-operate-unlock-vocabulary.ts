@@ -56,7 +56,7 @@ export const FIRST_PILOT_OPERATE_UNLOCK_FIRST_PILOT_LINK: FirstPilotOperateUnloc
   id: "first-pilot",
   label: "First pilot",
   href: FIRST_PILOT_SURFACE_PATH,
-  whenToUse: "Follow the Overview command center next-best-action for your first review.",
+  whenToUse: "Follow the Home command center next-best-action for your first review.",
 };
 
 export const FIRST_PILOT_OPERATE_UNLOCK_OPERATE_UNLOCK_LINK: FirstPilotOperateUnlockLink = {

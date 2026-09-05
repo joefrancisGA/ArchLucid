@@ -58,6 +58,7 @@ export function LongOperationWaitNotice(props: LongOperationWaitNoticeProps): Re
         <LongOperationQueueStatusLine
           className="mt-2"
           stageLabel={stageLabel}
+          elapsedMs={wait.elapsedMs}
           testId="long-operation-queue-status"
         />
       ) : null}

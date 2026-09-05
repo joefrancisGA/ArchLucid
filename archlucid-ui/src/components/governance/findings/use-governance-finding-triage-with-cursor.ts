@@ -1,20 +1,24 @@
 "use client";
 
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import type { ReadonlyURLSearchParams } from "next/navigation";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import { useGovernanceFindingTriage } from "@/components/governance/findings/use-governance-finding-triage";
 import {
-  readGovernanceQueueFocusedFindingId,
-  writeGovernanceQueueFocusedFindingId,
-} from "@/lib/governance/governance-findings-queue-selection";
+  governanceFindingTriagePanelsHrefFromSearch,
+  parseGovernanceFindingTriageFocusedFindingIdFromSearch,
+} from "@/lib/governance/governance-finding-triage-panels-url";
 
 /** Triage panel state with durable `focusedFinding` URL cursor for Working-mode queue navigation. */
 export function useGovernanceFindingTriageWithCursor(
   displayedRows: readonly GovernanceFindingQueueRow[],
   searchParams: ReadonlyURLSearchParams,
 ) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/governance/findings";
+  const focusedFindingParam = searchParams.get("focusedFinding");
   const triage = useGovernanceFindingTriage(displayedRows);
   const { openForRow, activeRow, open } = triage;
   const hydratedFromUrlRef = useRef(false);
@@ -24,9 +28,9 @@ export function useGovernanceFindingTriageWithCursor(
       return;
     }
 
-    const focusedFindingId = readGovernanceQueueFocusedFindingId(searchParams);
+    const focusedFindingId = parseGovernanceFindingTriageFocusedFindingIdFromSearch(focusedFindingParam);
 
-    if (focusedFindingId === null) {
+    if (focusedFindingId.length === 0) {
       hydratedFromUrlRef.current = true;
 
       return;
@@ -42,17 +46,22 @@ export function useGovernanceFindingTriageWithCursor(
     }
 
     hydratedFromUrlRef.current = true;
-  }, [displayedRows, openForRow, searchParams]);
+  }, [displayedRows, focusedFindingParam, openForRow]);
 
   useEffect(() => {
-    if (!open || activeRow === null) {
-      writeGovernanceQueueFocusedFindingId(null);
+    const nextFindingId = open && activeRow !== null ? activeRow.findingId : null;
+    const currentFindingId = parseGovernanceFindingTriageFocusedFindingIdFromSearch(focusedFindingParam);
+    const normalizedNext = nextFindingId ?? "";
 
+    if (currentFindingId === normalizedNext) {
       return;
     }
 
-    writeGovernanceQueueFocusedFindingId(activeRow.findingId);
-  }, [activeRow?.findingId, open]);
+    router.replace(
+      governanceFindingTriagePanelsHrefFromSearch(searchParams.toString(), nextFindingId, pathname),
+      { scroll: false },
+    );
+  }, [activeRow?.findingId, focusedFindingParam, open, pathname, router, searchParams]);
 
   return triage;
 }

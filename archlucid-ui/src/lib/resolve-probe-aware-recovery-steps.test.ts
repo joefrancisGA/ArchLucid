@@ -28,7 +28,7 @@ describe("resolveProbeAwareRecoverySteps", () => {
     expect(idleSteps).not.toEqual(baseSteps);
   });
 
-  it("shows success steps when the live probe succeeds", () => {
+  it("returns no numbered steps when the live probe succeeds", () => {
     const steps = resolveProbeAwareRecoverySteps({
       baseSteps,
       probeState: {
@@ -47,9 +47,30 @@ describe("resolveProbeAwareRecoverySteps", () => {
       canConfigureWorkspaceAi: true,
     });
 
-    expect(steps.join(" ")).toContain("live AI availability probe succeeded");
-    expect(steps.join(" ")).toContain("Re-run review");
-    expect(steps.join(" ")).not.toContain("unavailable right now");
+    expect(steps).toEqual([]);
+  });
+
+  it("returns no numbered steps when the probe succeeds on a terminal review failure", () => {
+    const steps = resolveProbeAwareRecoverySteps({
+      baseSteps,
+      probeState: {
+        status: "loaded",
+        result: {
+          isAvailable: true,
+          validated: true,
+          aiSource: "managed-platform",
+          summary: "ArchLucid-managed Azure OpenAI live probe succeeded.",
+          asOfUtc: "2026-09-01T11:24:56.000Z",
+          checks: [],
+          debug: {},
+        },
+      },
+      usesCustomerAiConnection: false,
+      canConfigureWorkspaceAi: true,
+      reviewTerminalFailure: true,
+    });
+
+    expect(steps).toEqual([]);
   });
 
   it("shows outage steps only after the live probe reports unavailability", () => {

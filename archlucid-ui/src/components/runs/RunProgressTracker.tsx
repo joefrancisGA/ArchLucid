@@ -11,6 +11,7 @@ import {
   REVIEW_PIPELINE_NOTIFICATIONS_ENABLED_LABEL,
 } from "@/lib/review-execution-background-safety-copy";
 import { LongOperationQueueStatusLine } from "@/components/operations/LongOperationQueueStatusLine";
+import { useQueueStatusElapsed } from "@/hooks/use-queue-status-elapsed";
 import {
   LONG_OPERATION_QUEUE_STATUS_REFRESH_HINT,
 } from "@/lib/operations/long-operation-wait-copy";
@@ -57,6 +58,10 @@ export function RunProgressTracker({
     diagnosticContext,
     deferFailureRecoveryToDoThisNext,
   });
+  const queueStatusElapsedMs = useQueueStatusElapsed({
+    active: tracker.pollEnabled && tracker.clientPhase === "polling",
+    stageLabel: tracker.currentStageLabel,
+  });
 
   if (!tracker.shouldRender) {
     return null;
@@ -101,7 +106,10 @@ export function RunProgressTracker({
 
       {tracker.pollEnabled && tracker.clientPhase === "polling" ? (
         <div className="mt-3" data-testid="run-progress-queue-status">
-          <LongOperationQueueStatusLine stageLabel={tracker.currentStageLabel} />
+          <LongOperationQueueStatusLine
+            stageLabel={tracker.currentStageLabel}
+            elapsedMs={queueStatusElapsedMs}
+          />
           <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {LONG_OPERATION_QUEUE_STATUS_REFRESH_HINT}
           </p>
@@ -126,7 +134,7 @@ export function RunProgressTracker({
         )
       ) : null}
 
-      {tracker.pipelineTerminalFailure ? (
+      {tracker.showPipelineTerminalFailure ? (
         <div className="mt-3 flex flex-wrap items-center gap-2" data-testid="run-progress-terminal-failure-actions">
           <ReRunReviewButton
             runId={runId}

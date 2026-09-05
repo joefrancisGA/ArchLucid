@@ -34,7 +34,7 @@ const HELP_DOCS_STATIC_ENTRIES: readonly DocIndexEntry[] = [
     category: "Getting Started",
     url: "/help/choose-your-next-step",
   },
-  { title: "Overview (pilot)", summary: "Pilot checklist and recent reviews.", category: "Getting Started", url: "/" },
+  { title: "Home (pilot)", summary: "Pilot checklist and recent reviews.", category: "Getting Started", url: "/" },
   {
     title: "New architecture request",
     summary: "Start a guided architecture review request.",
@@ -62,7 +62,7 @@ const HELP_DOCS_STATIC_ENTRIES: readonly DocIndexEntry[] = [
   },
   {
     title: "Troubleshooting",
-    summary: "Symptom-first architect triage for Overview, reviews, exports, and permissions.",
+    summary: "Symptom-first architect triage for Home, reviews, exports, and permissions.",
     category: "Operations",
     url: "/help/troubleshooting",
   },

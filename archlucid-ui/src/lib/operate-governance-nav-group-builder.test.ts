@@ -3,12 +3,12 @@ import { describe, expect, it } from "vitest";
 import { OperateGovernanceNavGroupBuilder } from "@/lib/operate-governance-nav-group-builder";
 
 describe("OperateGovernanceNavGroupBuilder", () => {
-  it("labels /governance first link Approval queue (TB-526)", () => {
+  it("labels /governance first link Needs attention inbox", () => {
     const group = new OperateGovernanceNavGroupBuilder().build();
     const workflowLink = group.links[0];
 
-    expect(workflowLink?.href).toBe("/governance/approval-queue");
-    expect(workflowLink?.label).toBe("Approval queue");
+    expect(workflowLink?.href).toBe("/governance/needs-attention");
+    expect(workflowLink?.label).toBe("Needs attention");
   });
 
   it("includes Approval setup in Approval nav (TB-520 / TB-1135)", () => {
@@ -25,13 +25,14 @@ describe("OperateGovernanceNavGroupBuilder", () => {
     const group = new OperateGovernanceNavGroupBuilder().build();
 
     expect(group.links.map((link) => link.href)).toEqual([
+      "/governance/needs-attention",
       "/governance/approval-queue",
       "/governance/setup",
+      "/governance/environments",
       "/governance/findings",
       "/governance/findings/assigned-to-me",
       "/governance/exceptions",
       "/governance/decision-register",
-      "/governance/sealed-records",
       "/governance/advisory-scans",
       "/governance/audit",
       "/governance/alerts",

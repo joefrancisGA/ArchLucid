@@ -148,6 +148,7 @@ public sealed class AuditEvidenceSnapshotCollectionService(
                 .ToDictionary(descriptor => descriptor.CollectorId, descriptor => descriptor.Version, StringComparer.Ordinal);
 
             List<AuditEvidenceSnapshotItemRecord> items = [];
+            Dictionary<Guid, string?> requiredFreshnessByRequirementId = [];
             List<string> failures = [];
             List<string> warnings = [];
             HashSet<string> subscriptionIds = new(StringComparer.OrdinalIgnoreCase);
@@ -187,6 +188,8 @@ public sealed class AuditEvidenceSnapshotCollectionService(
                 foreach (AuditEvidenceRequirementSelectionRecord requirementSelection in selection.Selections)
                 {
                     totalRequirementCount++;
+                    requiredFreshnessByRequirementId[requirementSelection.Requirement.RequirementId] =
+                        requirementSelection.Requirement.RequiredFreshness;
 
                     if (requirementSelection.CollectionStatus != AuditEvidenceCollectionStatus.Collected)
                     {
@@ -234,8 +237,10 @@ public sealed class AuditEvidenceSnapshotCollectionService(
                 ? 0m
                 : Math.Round((decimal)collectedRequirementCount / totalRequirementCount, 4);
 
-            byte[] rootHash = AuditEvidenceSnapshotHasher.ComputeRootHash(items);
             DateTime collectionCompletedUtc = TimeProvider.System.UtcNowDateTime();
+            items = ApplyFreshnessToItems(items, requiredFreshnessByRequirementId, collectionCompletedUtc);
+
+            byte[] rootHash = AuditEvidenceSnapshotHasher.ComputeRootHash(items);
 
             AuditEvidenceSnapshotHeaderRecord header = new()
             {
@@ -362,6 +367,53 @@ public sealed class AuditEvidenceSnapshotCollectionService(
 
         return CopyItemWithHash(item, AuditEvidenceSnapshotHasher.ComputeItemHash(item));
     }
+
+    private static List<AuditEvidenceSnapshotItemRecord> ApplyFreshnessToItems(
+        List<AuditEvidenceSnapshotItemRecord> items,
+        IReadOnlyDictionary<Guid, string?> requiredFreshnessByRequirementId,
+        DateTime referenceUtc)
+    {
+        List<AuditEvidenceSnapshotItemRecord> refreshed = [];
+
+        foreach (AuditEvidenceSnapshotItemRecord item in items)
+        {
+            requiredFreshnessByRequirementId.TryGetValue(item.RequirementId, out string? requiredFreshness);
+            AuditEvidenceFreshnessPolicy policy = AuditEvidenceFreshnessParser.Parse(requiredFreshness);
+            AuditEvidenceFreshnessStatus freshness =
+                AuditEvidenceFreshnessClassifier.Classify(item.CollectedUtc, referenceUtc, policy);
+
+            refreshed.Add(CopyItemWithFreshness(item, freshness));
+        }
+
+        return refreshed;
+    }
+
+    private static AuditEvidenceSnapshotItemRecord CopyItemWithFreshness(
+        AuditEvidenceSnapshotItemRecord source,
+        AuditEvidenceFreshnessStatus freshnessStatus) =>
+        new()
+        {
+            EvidenceRowId = source.EvidenceRowId,
+            AuditEvidenceSnapshotId = source.AuditEvidenceSnapshotId,
+            RequirementId = source.RequirementId,
+            TenantId = source.TenantId,
+            CloudResourceId = source.CloudResourceId,
+            AzureResourceId = source.AzureResourceId,
+            EvidenceType = source.EvidenceType,
+            CollectedUtc = source.CollectedUtc,
+            CollectorVersion = source.CollectorVersion,
+            NormalizedPointer = source.NormalizedPointer,
+            RawPointer = source.RawPointer,
+            EvidenceHashSha256 = source.EvidenceHashSha256,
+            CollectionStatus = source.CollectionStatus,
+            FreshnessStatus = freshnessStatus,
+            Confidence = source.Confidence,
+            Summary = source.Summary,
+            ProvenanceKind = source.ProvenanceKind,
+            SelectorVersion = source.SelectorVersion,
+            AzureScope = source.AzureScope,
+            ApiQueryId = source.ApiQueryId,
+        };
 
     private static AuditEvidenceSnapshotItemRecord CopyItemWithHash(
         AuditEvidenceSnapshotItemRecord source,

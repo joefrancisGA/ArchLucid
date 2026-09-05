@@ -5,7 +5,7 @@ import {
 import { formatOperatorHomeApprovalCheckWarningCount } from "@/lib/operator/operator-home-approval-check-warning-copy";
 import { OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME } from "@/lib/buyer/buyer-polish-copy";
 import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
-import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
+import { isShowcaseSampleOfAnyKind } from "@/lib/demo-run-canonical";
 import type { OperatorHomeWorkspaceMetricsSnapshot } from "@/lib/operator/operator-home-workspace-metrics";
 import type { RunSummary } from "@/types/authority";
 import { projectReviewLifecycleForDisplay } from "@/lib/vocabulary/project-review-lifecycle-for-display";
@@ -67,7 +67,7 @@ export function isExampleOnlyOverviewRunList(items: readonly RunSummary[]): bool
 
   return items.every(
     (run) =>
-      isDemoSeededOverviewInjectedRun(run) || isShowcaseStaticDemoRunId(run.runId ?? ""),
+      isDemoSeededOverviewInjectedRun(run) || isShowcaseSampleOfAnyKind(run.runId ?? ""),
   );
 }
 
@@ -75,7 +75,7 @@ export function isExampleOnlyOverviewRunList(items: readonly RunSummary[]): bool
 export function filterTenantOverviewRuns(items: readonly RunSummary[]): RunSummary[] {
   return items.filter(
     (run) =>
-      !isDemoSeededOverviewInjectedRun(run) && !isShowcaseStaticDemoRunId(run.runId ?? ""),
+      !isDemoSeededOverviewInjectedRun(run) && !isShowcaseSampleOfAnyKind(run.runId ?? ""),
   );
 }
 
