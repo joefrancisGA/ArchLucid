@@ -2767,11 +2767,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 81
-- **bugs-found:** 144
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — inline `//` before `[` and inline `#`/`//` before `{` dropped array/nested-block parsing
+- **hunts:** 82
+- **bugs-found:** 145
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-05
+- **last-bug:** 2026-09-05 — multiline nested-block headers flattened inner scalars to parent tf.*
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3011,6 +3011,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `BicepResourceBodyParser.MultilineArrayAssignmentRegex` — `//` full-line comment between `=` and multiline `[` — **cheap-disproof 2026-09-04 (#753):** `TryConsumeMultilineArrayAssignment` probe loop already skips `//` lines (hash #741 parity); regression in `ParseAsync_MultilineIpSecurityRestrictionsArrayWithSlashSlashCommentLine_PreservesRulesForNetworkExpander`.
 
 2026-09-04 thorough hunt #753 (dry): cheap-disproved two #749 block-comment and multiline-`//` candidates; added inline-block and multiline-`//` regression coverage; no new hunt-ready repro in zone.
+
+- [x] (proven) `BicepResourceBodyParser` / `SimpleTerraformResourceBlockParser` — multiline nested-block headers (`key =` newline `{`) flattened inner scalars to parent `tf.*` — **hit 2026-09-05 (#803):** `#527` multiline-array parity gap for `{` delimiters; `networkAcls =` / `retention_policy =` on own line skipped `NestedBlockStartRegex` and leaked `defaultAction`/`days` as top-level keys; fixed with `TryConsumeMultilineNestedBlockAssignment` (`ParseAsync_MultilineNestedBlockHeader_PreservesNetworkAclsBlock`, `ParseAsync_MultilineNestedBlockHeader_PreservesRetentionPolicyBlock`).
+- [ ] (candidate) `KubernetesManifestCanonicalObjectMapper.ProjectContainerSecurityContext` — snake_case `security_context` fields not projected; `TryGetPropertyIgnoreCase` does not bridge naming-convention variants.
+- [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser.TryAddResource` — `values` loop skips `ShouldRedactKey` when `sensitive_values` absent; plaintext `connection_string` may leak into `tf.*` properties.
+
+2026-09-05 seed hunt #803: reseeded after dry #753; proved multiline nested-block header gap; reseeded K8s snake_case security_context and terraform-show-json redaction candidates.
 
 2026-09-04 seed hunt #749: reseeded after #748 hash-before-bracket fix; proved `//`-before-bracket and hash/slash-before-brace nested-header gaps; seeded block-comment-before-delimiter and multiline-`//`-probe candidates.
 
