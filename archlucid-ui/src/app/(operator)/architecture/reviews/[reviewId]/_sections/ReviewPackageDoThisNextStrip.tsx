@@ -15,7 +15,10 @@ import type { SessionAiReadinessState } from "@/hooks/use-session-ai-readiness";
 import type { ReviewSubmittedIntakeRecap } from "@/lib/derive-review-submitted-intake-recap";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveProbeAwareRecoverySteps } from "@/lib/resolve-probe-aware-recovery-steps";
-import { shouldShowReviewFailureRecoveryDetail } from "@/lib/resolve-review-failure-do-this-next-copy";
+import {
+  resolveProbeAwareReviewFailureDoThisNextSentence,
+  shouldShowReviewFailureRecoveryDetail,
+} from "@/lib/resolve-review-failure-do-this-next-copy";
 import type { ReviewFailureAdminHandoff } from "@/lib/review-failure-recovery-role-copy";
 import { cn } from "@/lib/utils";
 
@@ -259,6 +262,14 @@ export function ReviewPackageDoThisNextStrip(
   } = props;
   const buttonVariant = next.buttonVariant ?? "primary";
   const blockRerun = next.kind === "rerun-review" && sessionAiReadiness.blocksExecute;
+  const displaySentence =
+    next.failureRecovery?.workspaceAiConfigurationSignal !== null &&
+    next.failureRecovery?.workspaceAiConfigurationSignal !== undefined
+      ? resolveProbeAwareReviewFailureDoThisNextSentence(
+          next.failureRecovery,
+          sessionAiReadiness.probeState,
+        )
+      : next.sentence;
 
   return (
     <section
@@ -275,7 +286,7 @@ export function ReviewPackageDoThisNextStrip(
             Do this next
           </h2>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="review-package-do-this-next-sentence">
-            {next.sentence}
+            {displaySentence}
           </p>
         </div>
 

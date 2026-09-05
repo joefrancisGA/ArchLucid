@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { ReviewFailureRecoveryGuidance } from "@/lib/resolve-review-failure-recovery-guidance";
 import {
+  resolveProbeAwareReviewFailureDoThisNextSentence,
   resolveReviewFailureCommitBlockedReason,
   resolveReviewFailureDoThisNextSentence,
   shouldShowReviewFailureRecoveryDetail,
@@ -38,6 +39,53 @@ describe("resolveReviewFailureDoThisNextSentence", () => {
     });
 
     expect(sentence).toContain("Missing Azure OpenAI deployment configuration");
+  });
+});
+
+describe("resolveProbeAwareReviewFailureDoThisNextSentence", () => {
+  it("replaces AI availability blame when the live probe succeeded", () => {
+    const sentence = resolveProbeAwareReviewFailureDoThisNextSentence(preStageGuidance, {
+      status: "loaded",
+      result: {
+        isAvailable: true,
+        validated: true,
+        aiSource: "managed-platform",
+        summary: "ArchLucid-managed Azure OpenAI live probe succeeded.",
+        asOfUtc: "2026-09-01T11:24:56.000Z",
+        checks: [],
+        debug: {},
+      },
+    });
+
+    expect(sentence).toContain("platform AI is ready for this session");
+    expect(sentence).toContain("failed for a different reason");
+    expect(sentence).not.toContain("usually platform AI availability");
+  });
+
+  it("uses pending copy while the live probe is still running", () => {
+    const sentence = resolveProbeAwareReviewFailureDoThisNextSentence(preStageGuidance, {
+      status: "loading",
+    });
+
+    expect(sentence).toContain("checking platform AI availability automatically");
+    expect(sentence).not.toContain("usually platform AI availability");
+  });
+
+  it("keeps AI availability messaging when the live probe reports an outage", () => {
+    const sentence = resolveProbeAwareReviewFailureDoThisNextSentence(preStageGuidance, {
+      status: "loaded",
+      result: {
+        isAvailable: false,
+        validated: true,
+        aiSource: "managed-platform",
+        summary: "ArchLucid-managed AI is unavailable",
+        asOfUtc: "2026-09-01T11:24:56.000Z",
+        checks: [],
+        debug: {},
+      },
+    });
+
+    expect(sentence).toContain("usually platform AI availability");
   });
 });
 

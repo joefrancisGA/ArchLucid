@@ -1,7 +1,20 @@
+import type { WorkspaceAiAvailabilityCheckState } from "@/hooks/useWorkspaceAiAvailabilityCheck";
 import type { ReviewFailureRecoveryGuidance } from "@/lib/resolve-review-failure-recovery-guidance";
 
 const PRE_STAGE_GENERIC_DETAIL =
   "The review stopped before processing began. This is usually a configuration or infrastructure issue — not missing intake fields. Check AI configuration, then re-run the review.";
+
+/** Reassurance clause used when a pre-stage failure might be AI availability (before live probe). */
+export const REVIEW_PRE_STAGE_AI_AVAILABILITY_REASSURANCE =
+  "this is usually platform AI availability, not missing intake fields.";
+
+/** Reassurance clause after the live probe confirms platform AI is healthy. */
+export const REVIEW_PRE_STAGE_AI_AVAILABLE_REASSURANCE =
+  "platform AI is ready for this session, but this review failed for a different reason";
+
+/** Reassurance clause while the automatic live probe is still running. */
+export const REVIEW_PRE_STAGE_AI_PROBE_PENDING_REASSURANCE =
+  "checking platform AI availability automatically — do not assume AI is down until the check finishes";
 
 function normalizeCopy(value: string | null | undefined): string {
   return (value ?? "").trim();
@@ -32,6 +45,43 @@ export function resolveReviewFailureDoThisNextSentence(
   }
 
   return `${headline} — follow the steps below, then re-run the review with the same intake.`;
+}
+
+function isPreStageAiAvailabilityReassurance(guidance: ReviewFailureRecoveryGuidance): boolean {
+  const intactSummary = normalizeCopy(guidance.intactSummary);
+
+  return intactSummary.includes("platform AI availability");
+}
+
+/**
+ * Adjusts pre-stage failure copy once the live AI availability probe has a result.
+ * Avoids blaming platform AI when the probe already succeeded.
+ */
+export function resolveProbeAwareReviewFailureDoThisNextSentence(
+  guidance: ReviewFailureRecoveryGuidance,
+  probeState: WorkspaceAiAvailabilityCheckState,
+): string {
+  const baseSentence = resolveReviewFailureDoThisNextSentence(guidance);
+
+  if (!isPreStageAiAvailabilityReassurance(guidance)) {
+    return baseSentence;
+  }
+
+  const headline = normalizeCopy(guidance.headline);
+
+  if (probeState.status === "loaded" && probeState.result.isAvailable) {
+    return `${headline} — ${REVIEW_PRE_STAGE_AI_AVAILABLE_REASSURANCE}. Follow the steps below, then re-run the review.`;
+  }
+
+  if (probeState.status === "idle" || probeState.status === "loading") {
+    return `${headline} — ${REVIEW_PRE_STAGE_AI_PROBE_PENDING_REASSURANCE}. Follow the steps below, then re-run the review.`;
+  }
+
+  if (probeState.status === "error") {
+    return `${headline} — your submitted intake package was recorded. Follow the steps below, then re-run the review.`;
+  }
+
+  return baseSentence;
 }
 
 /** Finalize strip copy when execution failed — no cross-reference to the Do this next heading. */
