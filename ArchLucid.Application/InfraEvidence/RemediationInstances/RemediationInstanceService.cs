@@ -4,7 +4,9 @@ using ArchLucid.Application.InfraEvidence.RemediationPatterns;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Serialization;
 
 namespace ArchLucid.Application.InfraEvidence.RemediationInstances;
@@ -16,7 +18,11 @@ public sealed class RemediationInstanceService(
     IOperationalSecurityExceptionRepository exceptionRepository,
     IAzureInventorySnapshotRepository snapshotRepository,
     IAdvisoryTerraformRepresentationService advisoryTerraformService,
-    IAuditService auditService) : IRemediationInstanceService
+    IAuditService auditService,
+    IOperationalSecurityFindingRepository operationalFindingRepository,
+    IAuditManualEvidenceRepository auditManualEvidenceRepository,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : IRemediationInstanceService
 {
     public async Task<RemediationInstanceOperationResult> CreateFromMatchAsync(
         ScopeContext scope,
@@ -30,6 +36,12 @@ public sealed class RemediationInstanceService(
         {
             return Failed("ActorKey is required.");
         }
+
+        RemediationInstanceOperationResult? sealedManifestFailure =
+            await TryEnsureSealedManifestForFindingAsync(scope, findingId, cancellationToken);
+
+        if (sealedManifestFailure is not null)
+            return sealedManifestFailure;
 
         RemediationPatternMatchResultRecord? activeMatch =
             await matchRepository.TryGetActiveMatchAsync(scope.TenantId, findingId, cancellationToken);
@@ -91,6 +103,12 @@ public sealed class RemediationInstanceService(
 
         if (instance is null)
             return Failed("Remediation instance was not found.");
+
+        RemediationInstanceOperationResult? sealedManifestFailure =
+            await TryEnsureSealedManifestForFindingAsync(scope, instance.FindingId, cancellationToken);
+
+        if (sealedManifestFailure is not null)
+            return sealedManifestFailure;
 
         if (instance.Status != RemediationInstanceStatus.Classified)
             return Failed("Preflight is only available while the instance is Classified.");
@@ -157,6 +175,12 @@ public sealed class RemediationInstanceService(
         if (instance is null)
             return Failed("Remediation instance was not found.");
 
+        RemediationInstanceOperationResult? sealedManifestFailure =
+            await TryEnsureSealedManifestForFindingAsync(scope, instance.FindingId, cancellationToken);
+
+        if (sealedManifestFailure is not null)
+            return sealedManifestFailure;
+
         if (instance.Status != RemediationInstanceStatus.PreflightPassed)
             return Failed("Only preflight-passed instances may be approved.");
 
@@ -200,6 +224,12 @@ public sealed class RemediationInstanceService(
         if (instance is null)
             return Failed("Remediation instance was not found.");
 
+        RemediationInstanceOperationResult? sealedManifestFailure =
+            await TryEnsureSealedManifestForFindingAsync(scope, instance.FindingId, cancellationToken);
+
+        if (sealedManifestFailure is not null)
+            return sealedManifestFailure;
+
         if (instance.Status != RemediationInstanceStatus.Approved)
             return Failed("Only approved instances may be assigned to a wave.");
 
@@ -239,6 +269,12 @@ public sealed class RemediationInstanceService(
 
         if (instance is null)
             return Failed("Remediation instance was not found.");
+
+        RemediationInstanceOperationResult? sealedManifestFailure =
+            await TryEnsureSealedManifestForFindingAsync(scope, instance.FindingId, cancellationToken);
+
+        if (sealedManifestFailure is not null)
+            return sealedManifestFailure;
 
         if (instance.Status != RemediationInstanceStatus.WaveAssigned)
             return Failed("Only wave-assigned instances may be executed.");
@@ -354,6 +390,12 @@ public sealed class RemediationInstanceService(
         if (instance is null)
             return Failed("Remediation instance was not found.");
 
+        RemediationInstanceOperationResult? sealedManifestFailure =
+            await TryEnsureSealedManifestForFindingAsync(scope, instance.FindingId, cancellationToken);
+
+        if (sealedManifestFailure is not null)
+            return sealedManifestFailure;
+
         if (instance.Status != RemediationInstanceStatus.Executed)
             return Failed("Only executed instances may be verified.");
 
@@ -426,6 +468,12 @@ public sealed class RemediationInstanceService(
         if (instance is null)
             return Failed("Remediation instance was not found.");
 
+        RemediationInstanceOperationResult? sealedManifestFailure =
+            await TryEnsureSealedManifestForFindingAsync(scope, instance.FindingId, cancellationToken);
+
+        if (sealedManifestFailure is not null)
+            return sealedManifestFailure;
+
         if (instance.Status != RemediationInstanceStatus.Verified)
             return Failed("Only verified instances may be closed.");
 
@@ -452,6 +500,30 @@ public sealed class RemediationInstanceService(
         Guid instanceId,
         CancellationToken cancellationToken) =>
         await instanceRepository.TryGetByIdAsync(scope.TenantId, instanceId, cancellationToken);
+
+    private async Task<RemediationInstanceOperationResult?> TryEnsureSealedManifestForFindingAsync(
+        ScopeContext scope,
+        Guid findingId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await RemediationInstanceSealedManifestHashGuard.EnsureFindingLinkedRunSealedManifestHashOrThrowAsync(
+                findingId,
+                scope,
+                operationalFindingRepository,
+                auditManualEvidenceRepository,
+                authorityQueryService,
+                manifestHashService,
+                cancellationToken);
+
+            return null;
+        }
+        catch (ConflictException ex)
+        {
+            return Failed(ex.Message);
+        }
+    }
 
     private async Task<RemediationPatternVersionRecord?> LoadFrozenVersionAsync(
         Guid tenantId,

@@ -4,7 +4,9 @@ using ArchLucid.Application.InfraEvidence.RemediationInstances;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -188,7 +190,11 @@ public sealed class RemediationInstanceServiceTests
             exceptionRepository ?? new InMemoryOperationalSecurityExceptionRepository(),
             snapshotRepository ?? new InMemorySnapshotRepository(),
             Mock.Of<IAdvisoryTerraformRepresentationService>(),
-            Mock.Of<IAuditService>());
+            Mock.Of<IAuditService>(),
+            Mock.Of<IOperationalSecurityFindingRepository>(),
+            Mock.Of<IAuditManualEvidenceRepository>(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>());
 
     private static ScopeContext CreateScope() =>
         new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };

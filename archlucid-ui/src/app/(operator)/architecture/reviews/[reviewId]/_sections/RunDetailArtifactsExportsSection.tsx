@@ -43,7 +43,7 @@ import {
   RUN_DETAIL_DELIVERABLES_BUYER_TABLE_LEAD,
   RUN_DETAIL_DELIVERABLES_INTRO,
 } from "@/lib/runs/run-detail-deliverables-copy";
-import { manifestSummarySealedVersionForCopyGuard } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import { manifestSummarySealedVersionForCopyGuard, runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
 export type RunDetailArtifactsExportsSectionProps = {
   readonly manifestId: string;
@@ -107,6 +107,11 @@ export function RunDetailArtifactsExportsSection(
     manifestSummary,
     feasibilityVerdictOverride,
   );
+  const sealedManifestVersion = manifestSummarySealedVersionForCopyGuard(manifestSummaryForUi ?? manifestSummary);
+  const collateralExportBlockedReason = runCollateralSealedManifestCopyBlockedReason({
+    runId,
+    manifestVersion: sealedManifestVersion,
+  });
   const showDecisionReceipt =
     feasibilityVerdict !== null && isExportableDecisionVerdict(feasibilityVerdict.kind);
   const deliverablesSectionDefaultOpen =
@@ -130,7 +135,7 @@ export function RunDetailArtifactsExportsSection(
                   runId,
                   verdict: feasibilityVerdict,
                 }}
-                manifestVersion={manifestSummarySealedVersionForCopyGuard(manifestSummaryForUi ?? manifestSummary)}
+                manifestVersion={sealedManifestVersion}
               />
             ) : null}
             {/* Exports stay secondary — the review's recommended next step owns the only primary affordance. */}
@@ -145,6 +150,20 @@ export function RunDetailArtifactsExportsSection(
                   className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 >
                   {SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT}
+                </p>
+              </div>
+            ) : collateralExportBlockedReason !== null ? (
+              <div className={cn("flex flex-col gap-1.5", OPERATOR_SHORT_HELPER_MEASURE_CLASS)}>
+                <Button variant="outline" disabled data-testid="run-detail-docx-export-blocked">
+                  Download architecture review report (DOCX)
+                </Button>
+                <ExportFormatWhenToUseHint format="docx" />
+                <p
+                  role="alert"
+                  className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="run-detail-docx-export-blocked-reason"
+                >
+                  {collateralExportBlockedReason}
                 </p>
               </div>
             ) : (
@@ -244,7 +263,7 @@ export function RunDetailArtifactsExportsSection(
                       runId,
                       verdict: feasibilityVerdict,
                     }}
-                    manifestVersion={manifestSummarySealedVersionForCopyGuard(manifestSummaryForUi ?? manifestSummary)}
+                    manifestVersion={sealedManifestVersion}
                   />
                 }
               />
@@ -283,12 +302,27 @@ export function RunDetailArtifactsExportsSection(
             {buyerPolishedArtifactTable ? (
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex max-w-[14rem] flex-col gap-1">
-                  <ExportTrackedAnchor
-                    className={buttonVariants({ variant: "outline", size: "sm" })}
-                    href={getBundleDownloadUrl(manifestId)}
-                  >
-                    Download evidence bundle
-                  </ExportTrackedAnchor>
+                  {collateralExportBlockedReason !== null ? (
+                    <>
+                      <Button variant="outline" size="sm" disabled data-testid="run-detail-evidence-bundle-export-blocked">
+                        Download evidence bundle
+                      </Button>
+                      <p
+                        role="alert"
+                        className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid="run-detail-evidence-bundle-export-blocked-reason"
+                      >
+                        {collateralExportBlockedReason}
+                      </p>
+                    </>
+                  ) : (
+                    <ExportTrackedAnchor
+                      className={buttonVariants({ variant: "outline", size: "sm" })}
+                      href={getBundleDownloadUrl(manifestId)}
+                    >
+                      Download evidence bundle
+                    </ExportTrackedAnchor>
+                  )}
                   <ExportFormatWhenToUseHint format="zip" />
                 </div>
                 <GoldenManifestExportMenu
@@ -310,33 +344,63 @@ export function RunDetailArtifactsExportsSection(
                   trustEvidenceCard={trustEvidenceCard ?? null}
                 />
                 <div className="flex max-w-[14rem] flex-col gap-1">
-                  <ExportTrackedAnchor
-                    className={buttonVariants({ variant: "outline", size: "sm" })}
-                    href={getBundleDownloadUrl(manifestId)}
-                  >
-                    Download bundle (ZIP)
-                  </ExportTrackedAnchor>
+                  {collateralExportBlockedReason !== null ? (
+                    <>
+                      <Button variant="outline" size="sm" disabled data-testid="run-detail-bundle-export-blocked">
+                        Download bundle (ZIP)
+                      </Button>
+                      <p
+                        role="alert"
+                        className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid="run-detail-bundle-export-blocked-reason"
+                      >
+                        {collateralExportBlockedReason}
+                      </p>
+                    </>
+                  ) : (
+                    <ExportTrackedAnchor
+                      className={buttonVariants({ variant: "outline", size: "sm" })}
+                      href={getBundleDownloadUrl(manifestId)}
+                    >
+                      Download bundle (ZIP)
+                    </ExportTrackedAnchor>
+                  )}
                   <ExportFormatWhenToUseHint format="zip" />
                 </div>
-                <ConsultingDocxExportButton runId={runId} />
-                <ReviewBoardWhitelabelConsultingExportButton runId={runId} />
-                <ExportTerraformAdvisoryButton runId={runId} />
+                <ConsultingDocxExportButton runId={runId} manifestVersion={sealedManifestVersion} />
+                <ReviewBoardWhitelabelConsultingExportButton runId={runId} manifestVersion={sealedManifestVersion} />
+                <ExportTerraformAdvisoryButton runId={runId} manifestVersion={sealedManifestVersion} />
               </div>
             )}
             {buyerPolishedArtifactTable ? null : (
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex max-w-[14rem] flex-col gap-1">
-                  <ExportTrackedAnchor
-                    className={buttonVariants({ variant: "outline", size: "sm" })}
-                    href={getRunExportDownloadUrl(runId)}
-                  >
-                    Download review export (ZIP)
-                  </ExportTrackedAnchor>
+                  {collateralExportBlockedReason !== null ? (
+                    <>
+                      <Button variant="outline" size="sm" disabled data-testid="run-detail-review-export-blocked">
+                        Download review export (ZIP)
+                      </Button>
+                      <p
+                        role="alert"
+                        className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid="run-detail-review-export-blocked-reason"
+                      >
+                        {collateralExportBlockedReason}
+                      </p>
+                    </>
+                  ) : (
+                    <ExportTrackedAnchor
+                      className={buttonVariants({ variant: "outline", size: "sm" })}
+                      href={getRunExportDownloadUrl(runId)}
+                    >
+                      Download review export (ZIP)
+                    </ExportTrackedAnchor>
+                  )}
                   <ExportFormatWhenToUseHint format="zip" />
                 </div>
                 <RunScopedAuditExportButton
                   runId={runId}
-                  manifestVersion={manifestSummarySealedVersionForCopyGuard(manifestSummaryForUi ?? manifestSummary)}
+                  manifestVersion={sealedManifestVersion}
                 />
                 <Link
                   className={cn(buttonVariants({ variant: "outline", size: "sm" }), OPERATOR_LINK.nav)}
