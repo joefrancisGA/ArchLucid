@@ -3223,7 +3223,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 6
+- **hunts:** 7
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-04
@@ -3246,6 +3246,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `DocxExportService.BuildDocumentAsync` omits Constraints and Assumptions sections present in markdown artifacts — **hit 2026-09-04 (#732):** assumptions/constraints sections added after cost posture (parity with `ReferenceArchitectureMarkdownGenerator` / `ArchitectureNarrativeArtifactGenerator`); regression in `DocxExportServiceGoldenTests.ExportAsync_includes_assumptions_and_constraints_sections`.
 - [x] (proven) `DocxExportService` skips `LlmArtifactFreeTextSanitizer` on manifest posture strings (topology gaps, security/compliance gaps) — **hit 2026-09-04 (#732):** `SanitizeArtifactText` on topology/security/compliance gap lines, resources, patterns, and cost risks/notes; regression in `DocxExportServiceGoldenTests.ExportAsync_strips_control_chars_from_topology_gap_text`.
 - [x] (proven) `ReferenceArchitectureMarkdownGenerator` / `ArchitectureNarrativeArtifactGenerator` hardcoded `## Assumptions` as `Not specified.` — **hit 2026-08-26:** committed `manifest.Assumptions` dropped while Constraints were already emitted from manifest; fixed by listing assumptions or `No assumptions were recorded.` (`ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_committed_assumptions_not_not_specified`, `ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_committed_assumptions_not_not_specified`).
+
+- [ ] (candidate) `MermaidDiagramRenderer.Render` / `MermaidDiagramArtifactGenerator.GenerateAsync` — `DecisionId` or `Title` containing whitespace, `]`, or embedded newlines is interpolated into `flowchart TD` node lines with quote-only label escaping (`node.NodeId` unquoted; labels only replace `"`) — **wrong outcome:** malformed `architecture.mmd` and `DocxExportService` Mermaid CLI rasterization falls back to truncated monospace embed — **mechanism:** `decision_{decision.DecisionId}` node id is not sanitized; `Render` does not escape `]`, newlines, or bracket characters in labels beyond double-quote substitution.
+- [ ] (candidate) `DocxExportService.BuildDocumentAsync` — security/compliance posture **table** cells (`ControlId`, `ControlName`, `Status`, `Impact`, `AppliesToCategory`) pass raw manifest strings into `WordDocumentBuilder.AddFourColumnTable` while sibling gap lines use `SanitizeArtifactText` (#732) — **wrong outcome:** C0 control or bidi override characters from committed manifest control rows reach architecture-package DOCX tables unchanged.
+- [ ] (candidate) `DocxExportService.Sections.AppendRunExplanation` / `AppendComparisonExplanation` — `KeyDrivers`, `RiskImplications`, `CostImplications`, `ComplianceImplications`, `MajorChanges`, and `KeyTradeoffs` bullet lists bypass `SanitizeArtifactText` while `Summary` / `DetailedNarrative` / `Narrative` prose blocks are sanitized — **wrong outcome:** LLM-origin control/bidi text in sponsor narrative bullets reaches exported DOCX when `request.RunExplanation` or `request.ComparisonExplanation` is populated.
+- [ ] (candidate) `MermaidDiagramArtifactGenerator.GenerateAsync` — builds decision-only `DiagramAst` while sibling `DiagramAstGenerator` materializes `manifest.UnresolvedIssues.Items` as `issue-{i}` nodes with `flags` edges — **wrong outcome:** `diagram-ast.json` contains open-issue nodes but `architecture.mmd` omits them, so bundle/DOCX Mermaid consumers show an incomplete graph versus the AST artifact — **mechanism:** `DiagramAstGenerator` loops issues (lines 32–39); `MermaidDiagramArtifactGenerator` loops decisions only (distinct from closed typed-topology #732 candidate).
+
+2026-09-05 seed hunt #831 (seed-only): reseeded post-#732 DOCX/Mermaid parity gaps; four new candidates on Mermaid syntax sanitization, posture table sanitization, explanation bullet sanitization, and unresolved-issue diagram parity.
 
 2026-09-04 thorough hunt #732 (hit): proved DOCX assumptions/constraints parity and posture-string sanitization; cheap-disproved mermaid typed-topology candidate.
 
