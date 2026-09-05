@@ -24,7 +24,7 @@ The distribution report lists engine types that produced findings on the golden 
 - Adding a 40th coverage-shaped engine from weakness remediation prompts — see [`HOLD_NO_COVERAGE_ENGINES.md`](HOLD_NO_COVERAGE_ENGINES.md)
 - Checking in fake frontier LLM transcripts (`tests/eval-corpus/insight-density-frontier-delta/`)
 
-**Superseded:** Applying `DemotionThreshold` to typed-engine findings was forbidden until ADR 0070; implementation is IS-05.
+**Superseded:** The `typed-engine-protected` Promote short-circuit (always Promote regardless of score) was forbidden until ADR 0070; production now applies `DemotionThreshold` to typed-engine findings (IS-05).
 
 ## Related
 

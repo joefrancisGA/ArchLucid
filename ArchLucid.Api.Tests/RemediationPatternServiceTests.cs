@@ -231,5 +231,32 @@ public sealed class RemediationPatternServiceTests
             CancellationToken cancellationToken = default) =>
             Task.FromResult<IReadOnlyList<RemediationPatternVersionRecord>>(
                 Versions.Where(row => row.TenantId == tenantId && row.PatternId == patternId).ToList());
+
+        public Task<IReadOnlyList<RemediationPatternApprovedVersionRecord>> ListApprovedVersionsForTenantAsync(
+            Guid tenantId,
+            CancellationToken cancellationToken = default)
+        {
+            List<RemediationPatternApprovedVersionRecord> approved = Versions
+                .Where(version => version.TenantId == tenantId && version.Status == RemediationPatternStatus.Approved)
+                .Select(version =>
+                {
+                    RemediationPatternRecord? pattern = Patterns.FirstOrDefault(row =>
+                        row.TenantId == tenantId && row.PatternId == version.PatternId);
+
+                    if (pattern is null)
+                        return null;
+
+                    return new RemediationPatternApprovedVersionRecord
+                    {
+                        Pattern = pattern,
+                        Version = version,
+                    };
+                })
+                .Where(row => row is not null)
+                .Select(row => row!)
+                .ToList();
+
+            return Task.FromResult<IReadOnlyList<RemediationPatternApprovedVersionRecord>>(approved);
+        }
     }
 }
