@@ -20,4 +20,13 @@ public static partial class AuditEventTypes
 
     /// <summary>Operational security finding re-ingested with an identical payload (deduplicated).</summary>
     public const string OperationalSecurityFindingDeduplicated = "OperationalSecurityFinding.Deduplicated";
+
+    /// <summary>Operational security exception created for a finding, pattern, or cloud resource.</summary>
+    public const string OperationalSecurityExceptionCreated = "OperationalSecurityException.Created";
+
+    /// <summary>Operational security exception revoked before expiration.</summary>
+    public const string OperationalSecurityExceptionRevoked = "OperationalSecurityException.Revoked";
+
+    /// <summary>Operational security exception expired and visibility was reopened.</summary>
+    public const string OperationalSecurityExceptionExpired = "OperationalSecurityException.Expired";
 }
