@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type SetStateAction } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -88,30 +88,25 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
     parseReRunReviewConfirmOpenFromSearch(reRunConfirmOpenParam),
   );
 
-  const syncConfirmOpenToUrl = useCallback(
-    (open: boolean) => {
-      router.replace(reRunReviewConfirmHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
-    },
-    [pathname, router, searchParams],
-  );
-
-  const setConfirmOpen = useCallback(
-    (value: SetStateAction<boolean>) => {
-      setConfirmOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncConfirmOpenToUrl(next);
-
-        return next;
-      });
-    },
-    [syncConfirmOpenToUrl],
-  );
+  const setConfirmOpen = useCallback((open: boolean) => {
+    setConfirmOpenState(open);
+  }, []);
 
   useEffect(() => {
     setConfirmOpenState(parseReRunReviewConfirmOpenFromSearch(reRunConfirmOpenParam));
   }, [reRunConfirmOpenParam]);
+
+  useEffect(() => {
+    const urlConfirmOpen = parseReRunReviewConfirmOpenFromSearch(reRunConfirmOpenParam);
+
+    if (urlConfirmOpen === confirmOpen) {
+      return;
+    }
+
+    router.replace(reRunReviewConfirmHrefFromSearch(searchParams.toString(), confirmOpen, pathname), {
+      scroll: false,
+    });
+  }, [confirmOpen, pathname, reRunConfirmOpenParam, router, searchParams]);
   const [sessionAttemptOffset, setSessionAttemptOffset] = useState(0);
   const [outcome, setOutcome] = useState<ReRunReviewOutcomeState | null>(null);
   const [error, setError] = useState<{
