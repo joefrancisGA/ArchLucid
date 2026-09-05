@@ -16,6 +16,7 @@ import type { ReviewSubmittedIntakeRecap } from "@/lib/derive-review-submitted-i
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveProbeAwareRecoverySteps } from "@/lib/resolve-probe-aware-recovery-steps";
 import {
+  resolveProbeAwareReviewFailureDoThisNextSentence,
   resolveProbeSucceededDoThisNextSentence,
   resolveReviewFailureWhatFailedLine,
   shouldShowReviewFailureRecoveryDetail,
@@ -59,6 +60,12 @@ function isLiveAiProbeAvailable(sessionAiReadiness: SessionAiReadinessState): bo
   );
 }
 
+function isPreStageAiAvailabilityReassurance(
+  failureRecovery: NonNullable<ReviewPackageDoThisNext["failureRecovery"]>,
+): boolean {
+  return (failureRecovery.intactSummary ?? "").includes("platform AI availability");
+}
+
 function resolveDisplayedDoThisNextSentence(
   next: ReviewPackageDoThisNext,
   sessionAiReadiness: SessionAiReadinessState,
@@ -66,12 +73,22 @@ function resolveDisplayedDoThisNextSentence(
   const failureRecovery = next.failureRecovery;
 
   if (
-    failureRecovery !== null
-    && failureRecovery !== undefined
-    && failureRecovery.workspaceAiConfigurationSignal !== null
-    && failureRecovery.workspaceAiConfigurationSignal !== undefined
-    && isLiveAiProbeAvailable(sessionAiReadiness)
+    failureRecovery === null
+    || failureRecovery === undefined
+    || failureRecovery.workspaceAiConfigurationSignal === null
+    || failureRecovery.workspaceAiConfigurationSignal === undefined
   ) {
+    return next.sentence;
+  }
+
+  if (isPreStageAiAvailabilityReassurance(failureRecovery)) {
+    return resolveProbeAwareReviewFailureDoThisNextSentence(
+      failureRecovery,
+      sessionAiReadiness.probeState,
+    );
+  }
+
+  if (isLiveAiProbeAvailable(sessionAiReadiness)) {
     return resolveProbeSucceededDoThisNextSentence(failureRecovery);
   }
 
