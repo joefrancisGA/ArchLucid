@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState, type ReactElement } from "react";
+import { useEffect, useState, type ReactElement } from "react";
 
 import { AlertsOutstandingNavBadge } from "@/components/alerts/AlertsOutstandingNavBadge";
 import { GovernanceAssignedToMeFindingsNavBadge } from "@/components/governance/findings/GovernanceAssignedToMeFindingsNavBadge";
@@ -93,37 +93,28 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
     () => parseSidebarNavMoreGroupFromSearch(sidebarMoreGroupParam) === group.id,
   );
 
-  const syncSidebarMoreGroupToUrl = useCallback(
-    (open: boolean) => {
-      router.replace(
-        sidebarNavMoreDisclosureHrefFromSearch(searchParams.toString(), open ? group.id : null, pathname),
-        { scroll: false },
-      );
-    },
-    [group.id, pathname, router, searchParams],
-  );
-
-  const setMoreOpen = useCallback(
-    (value: boolean | ((current: boolean) => boolean)) => {
-      setMoreOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncSidebarMoreGroupToUrl(next);
-
-        return next;
-      });
-    },
-    [syncSidebarMoreGroupToUrl],
-  );
-
   useEffect(() => {
     setMoreOpenState(parseSidebarNavMoreGroupFromSearch(sidebarMoreGroupParam) === group.id);
   }, [group.id, sidebarMoreGroupParam]);
 
   useEffect(() => {
     if (more.length === 0) {
-      setMoreOpen(false);
+      setMoreOpenState(false);
     }
-  }, [more.length, props.pathname, setMoreOpen]);
+  }, [more.length, props.pathname]);
+
+  useEffect(() => {
+    const urlSaysOpen = parseSidebarNavMoreGroupFromSearch(sidebarMoreGroupParam) === group.id;
+
+    if (moreOpen === urlSaysOpen) {
+      return;
+    }
+
+    router.replace(
+      sidebarNavMoreDisclosureHrefFromSearch(searchParams.toString(), moreOpen ? group.id : null, pathname),
+      { scroll: false },
+    );
+  }, [group.id, moreOpen, pathname, router, searchParams, sidebarMoreGroupParam]);
 
   if (linksForRender.length === 0) {
     return <div key={group.id} hidden />;
@@ -249,7 +240,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
                 data-testid={`sidebar-group-more-${group.id}`}
                 aria-expanded={moreOpen}
                 onClick={() => {
-                  setMoreOpen((current) => !current);
+                  setMoreOpenState((current) => !current);
                 }}
               >
                 {moreOpen ? (
