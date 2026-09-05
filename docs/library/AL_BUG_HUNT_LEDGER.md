@@ -511,10 +511,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 3
-- **bugs-found:** 3
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
+- **hunts:** 249
+- **bugs-found:** 483
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-05
 - **last-bug:** 2026-08-24
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -526,9 +526,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Restore quarantine leaves stale `TenantErasureApprovedUtc` on in-memory tenants — **hit 2026-08-23:** `InMemoryTenantRepository` `CopyTenant(clearErasureQuarantine: true)` kept prior approval, so a restored tenant could be hard-purged after re-offboard without a fresh admin approval; aligned with Dapper restore SQL that nulls approval columns
 - [x] (invalid) Erasure command deletes another tenant's rows when ids collide in cache — `TenantGetByIdRequestCache` keys by `Guid` tenant id; no cross-tenant alias path in this zone
 - [x] (proven) Quarantine middleware blocked tenant erasure lifecycle APIs — **hit 2026-08-24:** offboarded tenants received 403 on `POST /v1/tenant/erasure/approve` and `/legal-hold`, so `TenantErasureApprovedUtc` could never be set and hard purge stalled; fixed by allowlisting `/v1/tenant/erasure` in `TenantErasureQuarantineMiddleware.Skip`
-- [ ] (hunt-ready) `TenantErasureQuarantineMiddleware.InvokeAsync` with authenticated tenant scope but `ITenantGetByIdRequestCache.GetByIdAsync` returning null — `tenant is null` bypasses quarantine and calls `next`, allowing API access for a tenant id that should be blocked when the record is missing or evicted.
-- [ ] (hunt-ready) `TenantErasureQuarantineMiddleware.InvokeAsync` with `context.User.Identity?.IsAuthenticated != true` — unauthenticated requests always pass through, so tenant-scoped anonymous routes that resolve `scope.TenantId` without auth are not quarantine-gated.
-- [ ] (hunt-ready) `TenantErasureCommandService.TryRestoreQuarantineAsync` after `TryOffboardTenantAsync` (which calls `SuspendTenantAsync`) — restore clears offboard/eligible timestamps via repository only and never reverses suspend, leaving a restored tenant still suspended while middleware stops blocking login/API quarantine.
+- [x] (invalid) `TenantErasureQuarantineMiddleware.InvokeAsync` with authenticated tenant scope but `ITenantGetByIdRequestCache.GetByIdAsync` returning null — `tenant is null` bypasses quarantine and calls `next` — **cheap-disproof 2026-09-05 (#855):** request-scoped cache does not evict; null means tenant row absent so no `OffboardedUtc` to enforce; downstream controllers return 404 for ghost tenants; regression in `Erasure_quarantine_passes_through_when_tenant_record_missing`.
+- [x] (invalid) `TenantErasureQuarantineMiddleware.InvokeAsync` with `context.User.Identity?.IsAuthenticated != true` — unauthenticated requests always pass through — **cheap-disproof 2026-09-05 (#855):** intentional skip; tenant-scoped operator routes require `[Authorize]` so unauthenticated callers never reach quarantine-gated business logic; regression in `Erasure_quarantine_skips_unauthenticated_tenant_scoped_routes`.
+- [x] (invalid) `TenantErasureCommandService.TryRestoreQuarantineAsync` after `TryOffboardTenantAsync` (which calls `SuspendTenantAsync`) — restore clears offboard/eligible timestamps via repository only and never reverses suspend — **cheap-disproof 2026-09-05 (#855):** `TryRestoreTenantErasureQuarantineAsync` SQL and `CopyTenant(clearErasureQuarantine: true)` clear `SuspendedUtc`; regression in `TryRestoreQuarantineAsync_clears_suspend_set_during_offboard` (see also tenancy-zone row 2026-09-03).
+
+2026-09-05 thorough hunt #855 (dry): cheap-disproved all three hunt-ready quarantine/restore hypotheses with regression tests; zone candidate backlog cleared.
 
 ---
 
