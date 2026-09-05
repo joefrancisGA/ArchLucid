@@ -44,6 +44,13 @@ public static class DigestDeliveryManifestHashGuard
                 return;
             }
 
+            if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "manifestHashSha256", out JsonElement shaElement)
+                && shaElement.ValueKind == JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(shaElement.GetString()))
+            {
+                return;
+            }
+
             throw new InvalidOperationException(
                 $"Digest delivery blocked for digest '{digest.DigestId:D}': manifestHash metadata is required when RunId is set.");
         }

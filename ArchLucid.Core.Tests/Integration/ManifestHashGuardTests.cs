@@ -28,6 +28,21 @@ public sealed class ManifestHashGuardTests
     }
 
     [Fact]
+    public void EnsureRunLinkedDigestManifestHashOrThrow_accepts_manifestHashSha256_metadata_alias()
+    {
+        ArchitectureDigest digest = new()
+        {
+            DigestId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            RunId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            MetadataJson = """{"manifestHashSha256":"deadbeef"}""",
+        };
+
+        Action act = () => DigestDeliveryManifestHashGuard.EnsureRunLinkedDigestManifestHashOrThrow(digest);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
     public void EnsureRunScopedPayloadIncludesManifestHashOrThrow_accepts_PascalCase_ManifestHash()
     {
         byte[] payload = Encoding.UTF8.GetBytes(
