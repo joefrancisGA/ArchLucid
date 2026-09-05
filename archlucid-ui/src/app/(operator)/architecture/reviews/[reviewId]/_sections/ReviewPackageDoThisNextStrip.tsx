@@ -72,6 +72,7 @@ function isPreStageAiAvailabilityReassurance(
 function resolveDisplayedDoThisNextSentence(
   next: ReviewPackageDoThisNext,
   sessionAiReadiness: SessionAiReadinessState,
+  hasRecoverySteps: boolean,
 ): string {
   const failureRecovery = next.failureRecovery;
 
@@ -84,15 +85,16 @@ function resolveDisplayedDoThisNextSentence(
     return next.sentence;
   }
 
+  if (isLiveAiProbeAvailable(sessionAiReadiness)) {
+    return resolveProbeSucceededDoThisNextSentence(failureRecovery);
+  }
+
   if (isPreStageAiAvailabilityReassurance(failureRecovery)) {
     return resolveProbeAwareReviewFailureDoThisNextSentence(
       failureRecovery,
       sessionAiReadiness.probeState,
+      { hasRecoverySteps },
     );
-  }
-
-  if (isLiveAiProbeAvailable(sessionAiReadiness)) {
-    return resolveProbeSucceededDoThisNextSentence(failureRecovery);
   }
 
   return next.sentence;
@@ -298,6 +300,8 @@ function ReviewFailureRecoveryDetails(props: {
             state: sessionAiReadiness.probeState,
             checkAvailability: sessionAiReadiness.checkAvailability,
           }}
+          reviewTerminalFailure
+          scopingLabel="Workspace AI check (this review)"
         />
       ) : null}
 
@@ -452,11 +456,16 @@ export function ReviewPackageDoThisNextStrip(
     hasFailureRecovery && !showFailureRecoverySteps && !suppressStaleFailureRecovery;
   const displayedSentence = suppressStaleFailureRecovery
     ? REVIEW_PIPELINE_RE_RUN_IN_PROGRESS_DO_THIS_NEXT_SENTENCE
-    : resolveDisplayedDoThisNextSentence(next, sessionAiReadiness);
+    : resolveDisplayedDoThisNextSentence(next, sessionAiReadiness, showFailureRecoverySteps);
+
+  const stripCalloutClass =
+    hasFailureRecovery && !suppressStaleFailureRecovery
+      ? DESIGN_TOKENS.callout.blockedShell
+      : DESIGN_TOKENS.callout.info;
 
   return (
     <section
-      className={cn(DESIGN_TOKENS.callout.info, "flex min-w-0 max-w-full flex-col gap-3 p-4")}
+      className={cn(stripCalloutClass, "flex min-w-0 max-w-full flex-col gap-3 p-4")}
       data-testid="review-package-do-this-next-strip"
       aria-labelledby="review-package-do-this-next-heading"
     >

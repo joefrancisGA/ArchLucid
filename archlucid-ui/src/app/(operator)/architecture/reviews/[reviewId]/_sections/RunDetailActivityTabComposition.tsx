@@ -6,6 +6,7 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { RunDetailActivityTabSectionNav } from "@/components/runs/RunDetailActivityTabSectionNav";
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import type { RunDetailDeferredSectionContext, RunDetailPageModel } from "./run-detail-page-model";
+import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
 import {
   RunDetailBelowFoldDeferredSkeleton,
   RunDetailBelowFoldSectionsDeferred,
@@ -23,6 +24,8 @@ export function composeRunDetailActivityTab(
   input: RunDetailActivityTabCompositionInput,
 ): React.JSX.Element {
   const m = input.model;
+  const terminalFailure = isReviewPipelineTerminalFailure(m.pipelineDiagnosticContext);
+  const doThisNextOwnsFailureRecovery = terminalFailure && !m.manifestId;
 
   return (
     <div className="space-y-4">
@@ -53,33 +56,43 @@ export function composeRunDetailActivityTab(
           Full provenance view
         </Link>
       </p>
-      <div id="review-failure-details" className="scroll-mt-24">
-        <RunDetailLastFailureCardDeferred
-          runId={m.resolvedDetail.run.runId}
-          summary={resolveRunDetailLastFailureSummary(m.resolvedDetail)}
-          legacyRunStatus={
-            (m.resolvedDetail.run as { legacyRunStatus?: string | null }).legacyRunStatus ?? null
-          }
-          failureRecordedAtUtc={m.progressForPipelineUi?.completedUtc ?? m.resolvedDetail.run.completedUtc ?? null}
-        />
-      </div>
-      {!m.buyerPolishedArtifactTable ? (
-        <RunDetailOperatorTechnicalForensicsPanelDeferred
-          agentExecutionLlmCostEstimate={m.resolvedDetail.agentExecutionLlmCostEstimate}
-          results={m.resolvedDetail.results}
-          agentExecutionOutcomes={m.resolvedDetail.agentExecutionOutcomes}
-          retrievalGroundingSummary={m.resolvedDetail.retrievalGroundingSummary}
-          run={m.resolvedDetail.run}
-          runDetailTraceId={m.runDetailTraceId}
-        />
-      ) : null}
-      <Suspense fallback={<RunDetailBelowFoldDeferredSkeleton />}>
-        <RunDetailBelowFoldSectionsDeferred
-          model={m}
-          context={input.deferredContext}
-          renderedInsideTabbedWorkspace
-        />
-      </Suspense>
+      <section className="space-y-4" aria-labelledby="records-and-diagnostics-heading">
+        <h2
+          id="records-and-diagnostics-heading"
+          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+        >
+          Records and diagnostics
+        </h2>
+        {!doThisNextOwnsFailureRecovery ? (
+          <div id="review-failure-details" className="scroll-mt-24">
+            <RunDetailLastFailureCardDeferred
+              runId={m.resolvedDetail.run.runId}
+              summary={resolveRunDetailLastFailureSummary(m.resolvedDetail)}
+              legacyRunStatus={
+                (m.resolvedDetail.run as { legacyRunStatus?: string | null }).legacyRunStatus ?? null
+              }
+              failureRecordedAtUtc={m.progressForPipelineUi?.completedUtc ?? m.resolvedDetail.run.completedUtc ?? null}
+            />
+          </div>
+        ) : null}
+        {!m.buyerPolishedArtifactTable ? (
+          <RunDetailOperatorTechnicalForensicsPanelDeferred
+            agentExecutionLlmCostEstimate={m.resolvedDetail.agentExecutionLlmCostEstimate}
+            results={m.resolvedDetail.results}
+            agentExecutionOutcomes={m.resolvedDetail.agentExecutionOutcomes}
+            retrievalGroundingSummary={m.resolvedDetail.retrievalGroundingSummary}
+            run={m.resolvedDetail.run}
+            runDetailTraceId={m.runDetailTraceId}
+          />
+        ) : null}
+        <Suspense fallback={<RunDetailBelowFoldDeferredSkeleton />}>
+          <RunDetailBelowFoldSectionsDeferred
+            model={m}
+            context={input.deferredContext}
+            renderedInsideTabbedWorkspace
+          />
+        </Suspense>
+      </section>
     </div>
   );
 }

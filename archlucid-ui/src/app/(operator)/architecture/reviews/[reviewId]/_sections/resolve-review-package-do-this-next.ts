@@ -287,8 +287,10 @@ export function resolveReviewPackageDoThisNext(
       kind: "rerun-review",
       sentence:
         failureRecovery !== null
-          ? resolveReviewFailureDoThisNextSentence(failureRecovery)
-          : "Execution failed — follow the steps below, then re-run the review with the same intake.",
+          ? resolveReviewFailureDoThisNextSentence(failureRecovery, {
+              hasRecoverySteps: (failureRecovery.recoverySteps?.length ?? 0) > 0,
+            })
+          : "Execution failed — re-run the review with the same intake.",
       actionLabel: "Re-run review",
       href: resolveRerunHref(input),
       failureRecovery,

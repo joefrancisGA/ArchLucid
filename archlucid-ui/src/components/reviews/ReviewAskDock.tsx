@@ -34,6 +34,7 @@ export type ReviewAskDockProps = {
   readonly reviewTitle?: string | null;
   readonly disabled?: boolean;
   readonly disabledReason?: WhyDisabledCtaReason | null;
+  readonly disabledDescribedById?: string;
 };
 
 type AskTurn = {
@@ -183,6 +184,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
         size="sm"
         className="gap-1.5"
         disabled={askDockDisabled}
+        aria-describedby={askDockDisabled ? props.disabledDescribedById : undefined}
         aria-label={
           askDockDisabled
             ? disabledReasonMessage ?? "Ask about this review unavailable until the review completes"

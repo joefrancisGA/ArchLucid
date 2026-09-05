@@ -11,6 +11,7 @@ import {
 } from "@/lib/runs/run-detail-create-home-activity-copy";
 import type { RunSummary } from "@/types/authority";
 import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
+import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
 import { cn } from "@/lib/utils";
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import { RunDetailLastFailureCard } from "@/components/runs/RunDetailLastFailureCard";
@@ -132,12 +133,15 @@ export function RunDetailCreateHomeActivityPanel(props: RunDetailCreateHomeActiv
           ) : null}
         </p>
         <div id="review-failure-details" className="scroll-mt-24">
-          <RunDetailLastFailureCard
-            runId={props.runId}
-            summary={props.lastFailureSummary ?? null}
-            legacyRunStatus={props.legacyRunStatus ?? null}
-            failureRecordedAtUtc={props.failureRecordedAtUtc ?? null}
-          />
+          {!props.pipelineDiagnosticContext ||
+          !isReviewPipelineTerminalFailure(props.pipelineDiagnosticContext) ? (
+            <RunDetailLastFailureCard
+              runId={props.runId}
+              summary={props.lastFailureSummary ?? null}
+              legacyRunStatus={props.legacyRunStatus ?? null}
+              failureRecordedAtUtc={props.failureRecordedAtUtc ?? null}
+            />
+          ) : null}
         </div>
       </div>
 

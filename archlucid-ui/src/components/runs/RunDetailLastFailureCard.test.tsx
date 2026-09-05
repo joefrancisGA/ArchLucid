@@ -56,6 +56,8 @@ describe("RunDetailLastFailureCard (TB-965)", () => {
       "execution",
     );
     expect(screen.getByText("Failure details")).toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-last-failure-cause")).toHaveTextContent(/timed out/i);
+    expect(screen.getByText("Technical details")).toBeInTheDocument();
   });
 
   it("hides stale failure details while a re-run attempt is in flight", () => {

@@ -1,7 +1,7 @@
 import type { WorkspaceAiAvailabilityCheckState } from "@/hooks/useWorkspaceAiAvailabilityCheck";
 import type { ReviewFailureRecoveryGuidance } from "@/lib/resolve-review-failure-recovery-guidance";
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
-import { formatReviewLastFailureCauseLine } from "@/components/resolve-run-detail-last-failure-summary";
+import { plainLanguageFailureCauseSentence } from "@/lib/execution-vs-quality-outcome-copy";
 
 const PRE_STAGE_GENERIC_DETAIL =
   "The review stopped before processing began. This is usually a configuration or infrastructure issue — not missing intake fields. Check AI configuration, then re-run the review.";
@@ -22,6 +22,17 @@ function normalizeCopy(value: string | null | undefined): string {
   return (value ?? "").trim();
 }
 
+/** Matches the on-page section heading in ReviewPackageDoThisNextStrip. */
+const DO_THIS_NEXT_RE_RUN_SUFFIX = " Re-run the review with the same intake.";
+
+function resolveRecoveryActionSuffix(hasRecoverySteps: boolean): string {
+  if (hasRecoverySteps) {
+    return " Follow the steps below, then re-run the review.";
+  }
+
+  return DO_THIS_NEXT_RE_RUN_SUFFIX;
+}
+
 /**
  * One above-fold sentence for ReviewPackageDoThisNextStrip — merges execution-failure headline,
  * reassurance, and the re-run CTA so operators are not asked to map "Assessment failed" to
@@ -29,7 +40,10 @@ function normalizeCopy(value: string | null | undefined): string {
  */
 export function resolveReviewFailureDoThisNextSentence(
   guidance: ReviewFailureRecoveryGuidance,
+  options?: { readonly hasRecoverySteps?: boolean },
 ): string {
+  const hasRecoverySteps = options?.hasRecoverySteps === true;
+  const actionSuffix = resolveRecoveryActionSuffix(hasRecoverySteps);
   const headline = normalizeCopy(guidance.headline);
   const intactSummary = normalizeCopy(guidance.intactSummary);
   const detail = normalizeCopy(guidance.detail);
@@ -39,14 +53,14 @@ export function resolveReviewFailureDoThisNextSentence(
       ? intactSummary.slice(intactSummary.indexOf("—") + 1).trim()
       : intactSummary;
 
-    return `${headline} — ${reassurance} Follow the steps below, then re-run the review.`;
+    return `${headline} — ${reassurance}${actionSuffix}`;
   }
 
   if (detail.length > 0 && detail !== PRE_STAGE_GENERIC_DETAIL) {
-    return `${headline} — ${detail} Follow the steps below, then re-run the review.`;
+    return `${headline} — ${detail}${actionSuffix}`;
   }
 
-  return `${headline} — follow the steps below, then re-run the review with the same intake.`;
+  return `${headline} — follow Do this next above, then re-run the review with the same intake.`;
 }
 
 function isPreStageAiAvailabilityReassurance(guidance: ReviewFailureRecoveryGuidance): boolean {
@@ -62,8 +76,11 @@ function isPreStageAiAvailabilityReassurance(guidance: ReviewFailureRecoveryGuid
 export function resolveProbeAwareReviewFailureDoThisNextSentence(
   guidance: ReviewFailureRecoveryGuidance,
   probeState: WorkspaceAiAvailabilityCheckState,
+  options?: { readonly hasRecoverySteps?: boolean },
 ): string {
-  const baseSentence = resolveReviewFailureDoThisNextSentence(guidance);
+  const hasRecoverySteps = options?.hasRecoverySteps === true;
+  const actionSuffix = resolveRecoveryActionSuffix(hasRecoverySteps);
+  const baseSentence = resolveReviewFailureDoThisNextSentence(guidance, { hasRecoverySteps });
 
   if (!isPreStageAiAvailabilityReassurance(guidance)) {
     return baseSentence;
@@ -72,15 +89,15 @@ export function resolveProbeAwareReviewFailureDoThisNextSentence(
   const headline = normalizeCopy(guidance.headline);
 
   if (probeState.status === "loaded" && probeState.result.isAvailable) {
-    return `${headline} — ${REVIEW_PRE_STAGE_AI_AVAILABLE_REASSURANCE}. Follow the steps below, then re-run the review.`;
+    return `${headline} — ${REVIEW_PRE_STAGE_AI_AVAILABLE_REASSURANCE}.${actionSuffix}`;
   }
 
   if (probeState.status === "idle" || probeState.status === "loading") {
-    return `${headline} — ${REVIEW_PRE_STAGE_AI_PROBE_PENDING_REASSURANCE}. Follow the steps below, then re-run the review.`;
+    return `${headline} — ${REVIEW_PRE_STAGE_AI_PROBE_PENDING_REASSURANCE}.${actionSuffix}`;
   }
 
   if (probeState.status === "error") {
-    return `${headline} — your submitted intake package was recorded. Follow the steps below, then re-run the review.`;
+    return `${headline} — your submitted intake package was recorded.${actionSuffix}`;
   }
 
   return baseSentence;
@@ -91,10 +108,12 @@ export function resolveReviewFailureWhatFailedLine(
   lastFailureSummary: RunDetailLastFailureSummary | null | undefined,
   guidance: ReviewFailureRecoveryGuidance | null | undefined,
 ): string | null {
-  const recordedCause = formatReviewLastFailureCauseLine(lastFailureSummary);
-
-  if (recordedCause !== null) {
-    return recordedCause;
+  if (lastFailureSummary !== null && lastFailureSummary !== undefined) {
+    return plainLanguageFailureCauseSentence({
+      failureClass: lastFailureSummary.failureClass,
+      triageScenarioId: lastFailureSummary.triageScenarioId,
+      reasonCode: lastFailureSummary.reasonCode,
+    });
   }
 
   const headline = normalizeCopy(guidance?.headline);

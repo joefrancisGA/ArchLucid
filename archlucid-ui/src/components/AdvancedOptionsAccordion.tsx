@@ -2,11 +2,10 @@
 
 import { cn } from "@/lib/utils";
 import { useId, useState, type ReactNode } from "react";
-import { ChevronDown } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { OPERATOR_DISCLOSURE_TRIGGER_CLASS } from "@/lib/design-tokens";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type AdvancedOptionsAccordionProps = {
   children: ReactNode;
@@ -49,30 +48,21 @@ export function AdvancedOptionsAccordion({
       open={open}
       onOpenChange={handleOpenChange}
       className={cn(
-        "rounded-lg border border-neutral-200 bg-neutral-50/70 dark:border-neutral-700 dark:bg-neutral-900/40",
+        "group rounded-lg border border-neutral-200 bg-neutral-50/70 dark:border-neutral-700 dark:bg-neutral-900/40",
         className,
       )}
     >
-      <CollapsibleTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          className={cn(
-            "h-auto w-full justify-between gap-2 px-4 py-3 text-left hover:bg-neutral-100/80 dark:hover:bg-neutral-800/60",
-            OPERATOR_DISCLOSURE_TRIGGER_CLASS,
-          )}
-          aria-expanded={open}
-          aria-controls={panelId}
-        >
-          <span>{triggerLabel ?? "Advanced Options"}</span>
-          <ChevronDown
-            className={cn(
-              "h-4 w-4 shrink-0 text-neutral-600 transition-transform dark:text-neutral-400",
-              open && "rotate-180",
-            )}
-            aria-hidden
-          />
-        </Button>
+      <CollapsibleTrigger
+        className={cn(
+          "flex w-full cursor-pointer select-none items-center gap-x-2 px-4 py-3 text-left text-al-text-primary",
+          OPERATOR_DISCLOSURE_TRIGGER_CLASS,
+          OPERATOR_TYPOGRAPHY.cardTitle,
+        )}
+        aria-expanded={open}
+        aria-controls={panelId}
+      >
+        <DisclosureTriangleIndicator />
+        <span className="min-w-0 flex-1 font-semibold">{triggerLabel ?? "Advanced Options"}</span>
       </CollapsibleTrigger>
       <CollapsibleContent>
         <div id={panelId} className="border-t border-neutral-200 px-4 pb-4 pt-3 dark:border-neutral-700">

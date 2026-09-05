@@ -338,7 +338,7 @@ describe("ReviewPackageDoThisNextStrip", () => {
 
     expect(screen.getByTestId("review-package-re-run-review")).toBeInTheDocument();
     expect(screen.getByTestId("review-package-do-this-next-sentence")).toHaveTextContent(
-      "platform AI is ready for this session",
+      "re-run the review to retry with the same intake",
     );
     expect(screen.getByTestId("review-package-do-this-next-sentence")).not.toHaveTextContent(
       "usually platform AI availability",

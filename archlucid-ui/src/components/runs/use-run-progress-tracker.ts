@@ -244,7 +244,7 @@ export function useRunProgressTracker({
     if (showPipelineTerminalFailure) {
       return deferFailureRecoveryToDoThisNext
         ? "Assessment did not finish — see Do this next above for what happened and how to recover."
-        : "Assessment did not finish — recovery steps are shown in Do this next above.";
+        : "Assessment did not finish — use Do this next above to recover.";
     }
 
     if (buyerAssessmentCopy) {

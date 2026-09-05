@@ -1,11 +1,17 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi, afterEach } from "vitest";
 
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { INTERNAL_DEMO_READINESS_PAGE_TITLE } from "@/lib/demo-readiness-evidence-copy";
 import { OperatorSystemAdminNavGroupBuilder } from "@/lib/operator/operator-system-admin-nav-group-builder";
 
 describe("OperatorSystemAdminNavGroupBuilder", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it("gates internal telemetry links at AdminAuthority (TB-648)", () => {
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR", "true");
+
     const group = new OperatorSystemAdminNavGroupBuilder().build();
     const gatedHrefs = new Set([
       "/internal/trial-funnel",
@@ -23,6 +29,8 @@ describe("OperatorSystemAdminNavGroupBuilder", () => {
   });
 
   it("uses buyer-facing labels for knowledge index and failed integration nav (TB-648)", () => {
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR", "true");
+
     const group = new OperatorSystemAdminNavGroupBuilder().build();
     const ragLink = group.links.find((link) => link.href === "/internal/rag-health");
     const dlqLink = group.links.find((link) => link.href === "/internal/failed-integration-messages");
@@ -34,6 +42,8 @@ describe("OperatorSystemAdminNavGroupBuilder", () => {
   });
 
   it("includes demo readiness under Internal Operations for administrators", () => {
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR", "true");
+
     const group = new OperatorSystemAdminNavGroupBuilder().build();
     const demoReadiness = group.links.find((link) => link.href === "/internal/demo-readiness");
 
@@ -42,7 +52,17 @@ describe("OperatorSystemAdminNavGroupBuilder", () => {
     expect(demoReadiness?.tier).toBe("advanced");
   });
 
+  it("returns no links in customer-facing shells without internal operator access", () => {
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR", "");
+
+    const group = new OperatorSystemAdminNavGroupBuilder().build();
+
+    expect(group.links).toEqual([]);
+  });
+
   it("includes Review feedback under Internal Operations", () => {
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR", "true");
+
     const group = new OperatorSystemAdminNavGroupBuilder().build();
     const reviewFeedback = group.links.find((link) => link.href === "/internal/product-learning");
 

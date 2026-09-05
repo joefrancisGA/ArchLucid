@@ -467,15 +467,37 @@ describe("RunProgressTracker", () => {
     ).toBeInTheDocument();
     expect(screen.queryByText(/Execution failed before the first pipeline stage/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/authority_pipeline_dead_letter/i)).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Re-run review" })).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Re-run review" })).toBeNull();
+    expect(
+      screen.queryByTestId("run-progress-terminal-failure-actions"),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Re-run review" })).not.toBeInTheDocument();
+  });
 
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(30_000);
+  it("shows terminal failure re-run actions when Do this next does not own recovery", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    mockGetRunSummary.mockResolvedValue({
+      ...baseSummary,
+      runId: "failed-1",
     });
 
-    expect(mockGetRunStageTimeline).toHaveBeenCalledTimes(1);
-    expect(mockGetRunSummary).not.toHaveBeenCalled();
+    render(
+      <RunProgressTracker
+        runId="failed-1"
+        initialSummary={{
+          ...baseSummary,
+          runId: "failed-1",
+        }}
+        diagnosticContext={{ legacyRunStatus: "Failed", lastFailureReason: "authority_pipeline_dead_letter" }}
+      />,
+    );
+
+    await act(async () => {
+      await new Promise<void>((resolve) => queueMicrotask(resolve));
+    });
+
+    expect(screen.getByTestId("run-progress-terminal-failure-actions")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Re-run review" })).toBeInTheDocument();
   });
 
   it("hides terminal failure re-run actions while a re-run is in flight", async () => {
