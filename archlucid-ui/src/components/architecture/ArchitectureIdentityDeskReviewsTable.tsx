@@ -1,3 +1,4 @@
+import { InventoryShowingCountBand } from "@/components/usability/InventoryShowingCountBand";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -16,6 +17,7 @@ import Link from "next/link";
 type ArchitectureIdentityDeskReviewsTableProps = {
   readonly architectureId: string;
   readonly reviews: readonly ArchitectureIdentityChildReviewSummary[];
+  readonly reviewCount?: number;
 };
 
 export function ArchitectureIdentityDeskReviewsTable(
@@ -29,8 +31,16 @@ export function ArchitectureIdentityDeskReviewsTable(
     );
   }
 
+  const reviewCount = props.reviewCount ?? props.reviews.length;
+
   return (
-    <EnterpriseTable data-testid="architecture-identity-reviews-table">
+    <div className="space-y-2">
+      <InventoryShowingCountBand
+        loaded={props.reviews.length}
+        total={reviewCount}
+        testId="architecture-identity-reviews-showing-count"
+      />
+      <EnterpriseTable data-testid="architecture-identity-reviews-table">
       <EnterpriseTableHead>
         <EnterpriseTableHeadRow>
           <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
@@ -54,5 +64,6 @@ export function ArchitectureIdentityDeskReviewsTable(
         })}
       </EnterpriseTableBody>
     </EnterpriseTable>
+    </div>
   );
 }
