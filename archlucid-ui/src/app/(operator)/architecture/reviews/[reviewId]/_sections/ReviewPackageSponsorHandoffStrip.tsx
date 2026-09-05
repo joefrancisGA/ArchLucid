@@ -106,7 +106,10 @@ export function ReviewPackageSponsorHandoffStrip(
         </div>
       ) : null}
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <CopyExecutiveSponsorLinkButton runId={props.runId} />
+        <CopyExecutiveSponsorLinkButton
+          runId={props.runId}
+          manifestVersion={props.manifestSummary?.manifestVersion ?? null}
+        />
         {canInviteReviewer ? (
           <Button variant="outline" size="sm" asChild data-testid="review-package-sponsor-handoff-invite-reviewer">
             <Link href={buildInviteReviewerHref(props.runId)}>{INVITE_REVIEWER_PAGE_TITLE}</Link>

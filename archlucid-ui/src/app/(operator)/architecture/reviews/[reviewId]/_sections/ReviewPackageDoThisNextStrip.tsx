@@ -26,6 +26,7 @@ import {
   formatReviewFailureRecordedAtLabel,
 } from "@/components/resolve-run-detail-last-failure-summary";
 import type { ReviewFailureAdminHandoff } from "@/lib/review-failure-recovery-role-copy";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { cn } from "@/lib/utils";
 
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
@@ -110,9 +111,11 @@ export type ReviewPackageDoThisNextStripProps = {
 };
 
 function ReviewFailureAdminHandoffPanel(props: {
+  readonly runId: string;
+  readonly manifestVersion: string | null;
   readonly adminHandoff: ReviewFailureAdminHandoff;
 }): React.JSX.Element {
-  const { adminHandoff } = props;
+  const { adminHandoff, runId, manifestVersion } = props;
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
 
   useEffect(() => {
@@ -130,6 +133,13 @@ function ReviewFailureAdminHandoffPanel(props: {
   }, [copyState]);
 
   async function onCopyHandoff(): Promise<void> {
+    const blockedReason = runCollateralSealedManifestCopyBlockedReason({ runId, manifestVersion });
+
+    if (blockedReason !== null) {
+      setCopyState("failed");
+      return;
+    }
+
     try {
       await navigator.clipboard.writeText(adminHandoff.markdown);
       setCopyState("copied");
@@ -227,6 +237,8 @@ function ReviewSubmittedIntakeRecapPanel(props: {
 }
 
 function ReviewFailureRecoveryDetails(props: {
+  readonly runId: string;
+  readonly manifestVersion: string | null;
   readonly failureRecovery: NonNullable<ReviewPackageDoThisNext["failureRecovery"]>;
   readonly sessionAiReadiness: SessionAiReadinessState;
   readonly canConfigureWorkspaceAi: boolean;
@@ -236,6 +248,8 @@ function ReviewFailureRecoveryDetails(props: {
   readonly showRecoverySteps: boolean;
 }): React.JSX.Element {
   const {
+    runId,
+    manifestVersion,
     failureRecovery,
     sessionAiReadiness,
     canConfigureWorkspaceAi,
@@ -311,7 +325,11 @@ function ReviewFailureRecoveryDetails(props: {
       ) : null}
 
       {failureRecovery.adminHandoff !== null && failureRecovery.adminHandoff !== undefined ? (
-        <ReviewFailureAdminHandoffPanel adminHandoff={failureRecovery.adminHandoff} />
+        <ReviewFailureAdminHandoffPanel
+          runId={runId}
+          manifestVersion={manifestVersion}
+          adminHandoff={failureRecovery.adminHandoff}
+        />
       ) : null}
 
       {failureRecovery.adminConfigurationHref !== null &&
@@ -467,6 +485,8 @@ export function ReviewPackageDoThisNextStrip(
 
       {hasFailureRecovery ? (
         <ReviewFailureRecoveryDetails
+          runId={runId}
+          manifestVersion={hasGoldenManifest ? "committed" : null}
           failureRecovery={next.failureRecovery}
           sessionAiReadiness={sessionAiReadiness}
           canConfigureWorkspaceAi={canConfigureWorkspaceAi}

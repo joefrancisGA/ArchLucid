@@ -4,10 +4,12 @@ import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { buildExecutiveSponsorLink } from "@/lib/build-executive-sponsor-link";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { showError, showSuccess } from "@/lib/toast";
 
 type CopyExecutiveSponsorLinkButtonProps = {
   readonly runId: string;
+  readonly manifestVersion?: string | null;
 };
 
 /** Copies a read-only sponsor report URL for executive handoff. */
@@ -16,6 +18,16 @@ export function CopyExecutiveSponsorLinkButton(props: CopyExecutiveSponsorLinkBu
 
   const onCopy = useCallback(async () => {
     if (typeof window === "undefined") {
+      return;
+    }
+
+    const blockedReason = runCollateralSealedManifestCopyBlockedReason({
+      runId: props.runId,
+      manifestVersion: props.manifestVersion,
+    });
+
+    if (blockedReason !== null) {
+      showError(blockedReason);
       return;
     }
 
@@ -30,7 +42,7 @@ export function CopyExecutiveSponsorLinkButton(props: CopyExecutiveSponsorLinkBu
     } finally {
       setCopying(false);
     }
-  }, [props.runId]);
+  }, [props.manifestVersion, props.runId]);
 
   return (
     <Button
