@@ -327,6 +327,11 @@ public static partial class GenericArchitectureAdvicePatterns
             || after.StartsWith("shouldn't adopt", StringComparison.Ordinal)
             || after.StartsWith("won't adopt", StringComparison.Ordinal)
             || after.StartsWith("doesn't need", StringComparison.Ordinal)
+            || after.StartsWith("shouldn't implement", StringComparison.Ordinal)
+            || after.StartsWith("won't implement", StringComparison.Ordinal)
+            || after.StartsWith("shouldn't enable", StringComparison.Ordinal)
+            || after.StartsWith("won't enable", StringComparison.Ordinal)
+            || after.StartsWith("shouldn't use", StringComparison.Ordinal)
             || after.StartsWith("cannot require", StringComparison.Ordinal)
             || after.StartsWith("cannot need", StringComparison.Ordinal);
     }
