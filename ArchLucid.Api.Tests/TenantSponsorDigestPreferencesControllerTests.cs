@@ -375,6 +375,61 @@ public sealed class TenantSponsorDigestPreferencesControllerTests
     }
 
     [Fact]
+    public async Task PostSponsorDigestPreferences_preserves_schedule_and_timezone_when_enable_only_body_omits_schedule_fields()
+    {
+        SponsorDigestPreferencesResponse existing = new()
+        {
+            TenantId = Scope.TenantId,
+            IsConfigured = true,
+            EmailEnabled = false,
+            RecipientEmails = ["sponsor@contoso.test"],
+            IanaTimeZoneId = "America/New_York",
+            DayOfWeek = 2,
+            HourOfDay = 9,
+            UpdatedUtc = DateTimeOffset.Parse("2026-06-01T08:00:00Z"),
+        };
+
+        Mock<ITenantSponsorDigestPreferencesRepository> repository = new();
+        repository
+            .Setup(r => r.GetByTenantAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
+        repository
+            .Setup(r => r.UpsertAsync(
+                Scope.TenantId,
+                true,
+                It.Is<IReadOnlyList<string>>(emails => emails.SequenceEqual(new[] { "sponsor@contoso.test" })),
+                "America/New_York",
+                2,
+                9,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SponsorDigestPreferencesResponse
+            {
+                TenantId = Scope.TenantId,
+                IsConfigured = true,
+                EmailEnabled = true,
+                RecipientEmails = ["sponsor@contoso.test"],
+                IanaTimeZoneId = "America/New_York",
+                DayOfWeek = 2,
+                HourOfDay = 9,
+            });
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantSponsorDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            repository.Object,
+            Mock.Of<IAuditService>());
+
+        SponsorDigestPreferencesUpsertRequest body = new() { EmailEnabled = true };
+
+        IActionResult action = await controller.PostSponsorDigestPreferences(body, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        repository.VerifyAll();
+    }
+
+    [Fact]
     public async Task PostSponsorDigestPreferences_returns_bad_request_when_recipient_emails_are_whitespace_only()
     {
         SponsorDigestPreferencesResponse existing = new()

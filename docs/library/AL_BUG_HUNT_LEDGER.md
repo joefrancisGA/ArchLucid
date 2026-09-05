@@ -3409,11 +3409,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 211
-- **bugs-found:** 433
+- **hunts:** 212
+- **bugs-found:** 434
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — digest disable-only schedule/timezone reset
+- **last-bug:** 2026-09-05 — digest enable-only schedule/timezone reset
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4441,6 +4441,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantExecDigestPreferencesController.PostExecDigestPreferences` / `TenantSponsorDigestPreferencesController.PostSponsorDigestPreferences` — disable-only POST (`emailEnabled: false` without schedule fields) reset `dayOfWeek`, `hourOfDay`, and `ianaTimeZoneId` to defaults (`1`, `8`, `UTC`) instead of preserving stored schedule/timezone like `TryDisableEmailAsync` (#778/#793 recipient parity) — **hit 2026-09-05 (#794):** merge omitted schedule/timezone from existing preferences when disabling email; regressions in `PostExecDigestPreferences_preserves_schedule_and_timezone_when_disable_only_body_omits_schedule_fields` and `PostSponsorDigestPreferences_preserves_schedule_and_timezone_when_disable_only_body_omits_schedule_fields`.
 
 2026-09-05 seed hunt #794 (hit): proved digest disable-only schedule/timezone silent reset.
+
+- [x] (proven) `TenantExecDigestPreferencesController.PostExecDigestPreferences` / `TenantSponsorDigestPreferencesController.PostSponsorDigestPreferences` — enable-only POST (`emailEnabled: true` without schedule fields) after disable reset `dayOfWeek`, `hourOfDay`, and `ianaTimeZoneId` to defaults (`1`, `8`, `UTC`) instead of preserving stored schedule/timezone (#794 disable parity) — **hit 2026-09-05 (#816):** merge omitted schedule/timezone from existing preferences when re-enabling email; regressions in `PostExecDigestPreferences_preserves_schedule_and_timezone_when_enable_only_body_omits_schedule_fields` and `PostSponsorDigestPreferences_preserves_schedule_and_timezone_when_enable_only_body_omits_schedule_fields`.
+- [x] (invalid) Digest preference POST disable-only with explicit default schedule fields clobbers custom schedule — **cheap-disproof 2026-09-05:** explicit `dayOfWeek`/`hourOfDay`/`ianaTimeZoneId` on disable apply client-supplied values by design (full-form semantics); #794 fixed only omitted-field merge.
+- [x] (invalid) `TenantExecDigestPreferencesController` / `TenantSponsorDigestPreferencesController` lack workspace scope preflight — **cheap-disproof 2026-09-05:** digest prefs are tenant-wide (`GetByTenantAsync`); tenant-scoped weekly delivery intentionally uses primary workspace per ledger #489; unlike workspace-scoped homepage/health reads.
+
+2026-09-05 seed hunt #816 (hit): proved digest enable-only schedule/timezone silent reset; cheap-disproved disable explicit-schedule clobber and digest workspace-preflight candidates.
 
 2026-09-04 seed hunt #787 (hit): proved disposition inapplicable optional string silent drop beyond whitespace-only cases.
 
