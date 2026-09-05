@@ -340,6 +340,7 @@ public sealed class CloudResourceEvidenceHubService(
             .Take(RecentChangeTake)
             .Select(change => new CloudResourceInventoryChangeSummary
             {
+                ChangeId = change.ChangeId,
                 DiffId = change.DiffId,
                 SnapshotAId = change.SnapshotAId,
                 SnapshotBId = change.SnapshotBId,

@@ -2186,6 +2186,108 @@ export interface components {
         };
         /** @enum {string} */
         CloudProvider: "None" | "Azure" | "Aws" | "Gcp";
+        CloudResourceAuditLineageLink: {
+            available?: boolean;
+            degradedReason?: null | string;
+            relativePath?: null | string;
+        };
+        CloudResourceCurrentConfigurationSection: {
+            azureResourceId?: string;
+            properties?: {
+                [key: string]: string;
+            };
+            region?: null | string;
+            resourceGroup?: null | string;
+            resourceType?: string;
+            /** Format: uuid */
+            snapshotId?: string;
+            tags?: {
+                [key: string]: string;
+            };
+        };
+        CloudResourceEvidenceFindingHubItem: {
+            id?: string;
+            severity?: null | string;
+            status?: null | string;
+            streamKind?: string;
+            streamLabel?: string;
+            title?: string;
+        };
+        CloudResourceEvidenceFindingStreamPage: {
+            hasMore?: boolean;
+            items?: components["schemas"]["CloudResourceEvidenceFindingHubItem"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            streamKind?: string;
+            streamLabel?: string;
+            /** Format: int32 */
+            totalCount?: number;
+        };
+        CloudResourceEvidenceHubResponse: {
+            architectureReviewFindings?: components["schemas"]["CloudResourceEvidenceFindingStreamPage"];
+            auditLineageLink?: components["schemas"]["CloudResourceAuditLineageLink"];
+            /** Format: uuid */
+            cloudResourceId?: string;
+            currentConfiguration?: null | components["schemas"]["CloudResourceCurrentConfigurationSection"];
+            diagramCorrespondence?: null | components["schemas"]["DiagramInfrastructureCorrespondenceRow"];
+            evidencePointers?: components["schemas"]["CloudResourceEvidencePointer"][];
+            externalResourceId?: string;
+            networkRelationships?: components["schemas"]["CloudResourceNetworkRelationshipSummary"][];
+            operationalSecurityFindings?: components["schemas"]["CloudResourceEvidenceFindingStreamPage"];
+            rbacAssignments?: components["schemas"]["CloudResourceRbacAssignmentSummary"][];
+            recentChanges?: components["schemas"]["CloudResourceInventoryChangeSummary"][];
+            remediationInstances?: components["schemas"]["CloudResourceRemediationStreamPage"];
+            resourceType?: null | string;
+            terraformAddress?: null | string;
+            terraformGenerationMethod?: null | string;
+        };
+        CloudResourceEvidencePointer: {
+            kind?: string;
+            relativePath?: string;
+        };
+        CloudResourceInventoryChangeSummary: {
+            /** Format: uuid */
+            changeId?: string;
+            changeType?: string;
+            /** Format: uuid */
+            diffId?: string;
+            newValue?: null | string;
+            oldValue?: null | string;
+            property?: null | string;
+            riskClassification?: null | string;
+            /** Format: uuid */
+            snapshotAId?: string;
+            /** Format: uuid */
+            snapshotBId?: string;
+        };
+        CloudResourceNetworkRelationshipSummary: {
+            fromAzureResourceId?: string;
+            relationshipType?: string;
+            toAzureResourceId?: string;
+        };
+        CloudResourceRbacAssignmentSummary: {
+            principalId?: string;
+            roleDefinitionId?: string;
+            scope?: string;
+        };
+        CloudResourceRemediationHubItem: {
+            /** Format: uuid */
+            instanceId?: string;
+            patternKey?: string;
+            status?: string;
+        };
+        CloudResourceRemediationStreamPage: {
+            hasMore?: boolean;
+            items?: components["schemas"]["CloudResourceRemediationHubItem"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int32 */
+            totalCount?: number;
+        };
         CommitRunCommittedArtifactInventoryEntry: {
             artifactName?: string;
             /** Format: date-time */
@@ -4836,6 +4938,38 @@ export interface components {
             confidence?: number;
             key?: string;
             value?: string;
+        };
+        InfraEvidenceAskCitation: {
+            id?: string;
+            kind?: string;
+            label?: null | string;
+        };
+        InfraEvidenceAskRequest: {
+            /** Format: uuid */
+            assessmentId?: null | string;
+            /** Format: uuid */
+            auditEvidenceSnapshotId?: null | string;
+            /** Format: uuid */
+            cloudResourceId?: null | string;
+            /** Format: uuid */
+            controlId?: null | string;
+            /** Format: uuid */
+            diffId?: null | string;
+            question?: string;
+            /** Format: uuid */
+            runId?: null | string;
+            /** Format: date-time */
+            sinceUtc?: null | string;
+            /** Format: uuid */
+            snapshotId?: null | string;
+            useSimulator?: boolean;
+        };
+        InfraEvidenceAskResponse: {
+            answer?: string;
+            citations?: components["schemas"]["InfraEvidenceAskCitation"][];
+            insufficientEvidence?: boolean;
+            simulatorLabel?: null | string;
+            topicKind?: string;
         };
         InfrastructureDeclarationRequest: {
             content?: string;

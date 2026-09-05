@@ -2,6 +2,12 @@ namespace ArchLucid.Contracts.InfraEvidence;
 
 public sealed class CloudResourceInventoryChangeSummary
 {
+    public Guid ChangeId
+    {
+        get;
+        set;
+    }
+
     public Guid DiffId
     {
         get;

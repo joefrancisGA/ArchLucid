@@ -216,6 +216,21 @@ Responses include **`interpretationHonestyLabel`**: *"AI interpretation (not obs
 
 Finding and remediation streams honor **`PaginationDefaults`** (`page`, `pageSize`; max 200). Unknown `CloudResourceId` returns **404**. Streams are never mixed without `streamKind` / `streamLabel`.
 
+### Infra-evidence Ask grounding (IE-22)
+
+`POST /v1/infra-evidence/ask` answers subscription-change, drift, diagram-gap, pattern-coverage, architecture-as-of-date, and audit-control-evidence questions from **structured rows with citations**. When no rows are in range, the response sets **`insufficientEvidence: true`** and does not call the LLM.
+
+| Topic | Evidence source |
+|---|---|
+| Subscription change / since-date | Hub recent changes filtered by `sinceUtc` (IE-06) |
+| Drift | Diff report changes (IE-07) |
+| Diagram gap | IE-19 `InfrastructureOnly` correspondence rows |
+| Pattern coverage | Remediation pattern keys on hub |
+| Architecture as of date | Snapshot `CapturedUtc` header |
+| Audit control evidence | AE-10 lineage chains when assessment query params provided |
+
+LLM path uses **`IPromptRedactor`** before completion. **`useSimulator: true`** returns a deterministic template with **`SIMULATOR`** label. Answers cite only allowed `kind:id` citation keys from collected rows — no invented ARM ids.
+
 ---
 
 ## Further reading

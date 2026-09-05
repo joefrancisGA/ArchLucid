@@ -6,6 +6,12 @@ import { REVIEW_PRE_STAGE_FAILURE_INTACT_SUMMARY } from "@/lib/resolve-review-fa
 
 import { ReviewPackageDoThisNextStrip } from "./ReviewPackageDoThisNextStrip";
 
+const useReviewPipelineReRunInFlightMock = vi.hoisted(() => vi.fn(() => false));
+
+vi.mock("@/hooks/use-review-pipeline-rerun-in-flight", () => ({
+  useReviewPipelineReRunInFlight: useReviewPipelineReRunInFlightMock,
+}));
+
 const readySessionAiReadiness: SessionAiReadinessState = {
   sessionMode: "Simulator",
   hostMode: "Simulator",
@@ -411,6 +417,48 @@ describe("ReviewPackageDoThisNextStrip", () => {
     expect(screen.getByTestId("review-package-do-this-next-strip").className).toContain("max-w-full");
     expect(screen.getByTestId("review-package-re-run-review").parentElement?.className).toContain("flex-col");
     expect(screen.queryByTestId("review-package-do-this-next-action")).toBeNull();
+  });
+
+  it("hides stale failure recovery copy while a re-run attempt is in flight", () => {
+    useReviewPipelineReRunInFlightMock.mockReturnValue(true);
+
+    render(
+      <ReviewPackageDoThisNextStrip
+        runId="run-1"
+        hasGoldenManifest={false}
+        commitBlockedReason={null}
+        sessionAiReadiness={loadedReadySessionAiReadiness}
+        lastFailureSummary={{
+          agentType: "Unknown",
+          failureClass: "invalidOperation",
+        }}
+        failureRecordedAtUtc="2026-09-01T12:00:00.000Z"
+        next={{
+          kind: "rerun-review",
+          sentence:
+            "Execution failed before the first pipeline stage — follow the steps below, then re-run the review.",
+          actionLabel: "Re-run review",
+          href: "/architecture/reviews/new?path=guided-intake&rerun=run-1",
+          failureRecovery: {
+            headline: "Execution failed before the first pipeline stage",
+            detail: "unknown agent: invalid operator",
+            recoverySteps: ["Click Re-run review."],
+            suggestSupportTicket: false,
+            severity: "error",
+            supportHref: "/help/report-a-problem",
+            intactSummary: REVIEW_PRE_STAGE_FAILURE_INTACT_SUMMARY,
+          },
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("review-package-do-this-next-sentence")).toHaveTextContent(
+      "Re-run in progress — follow assessment progress below.",
+    );
+    expect(screen.queryByTestId("review-package-failure-recovery")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("review-package-failure-cause")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("review-package-failure-recorded-at")).not.toBeInTheDocument();
+    expect(screen.getByTestId("review-package-do-this-next-action")).toHaveTextContent("Re-run review");
   });
 
   it("renders outline evidence CTA and secondary sponsor link when demoted", () => {

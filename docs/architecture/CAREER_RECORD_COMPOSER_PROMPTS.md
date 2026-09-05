@@ -3,7 +3,7 @@
 > **Paste-ready files:** [`.cursor/prompts/career-record-00-index.md`](../../.cursor/prompts/career-record-00-index.md) (**CR-01–12**)
 > **Wave 8 (run first):** [`INSTRUMENT_SPINE_COMPOSER_PROMPTS.md`](INSTRUMENT_SPINE_COMPOSER_PROMPTS.md) (**IS-01–15**)
 > **Wave 9 (run second):** [`LIVELIHOOD_SPINE_COMPOSER_PROMPTS.md`](LIVELIHOOD_SPINE_COMPOSER_PROMPTS.md) (**LS-01–12**)
-> **Wave 10 (run third):** [`SEALED_DESK_COMPOSER_PROMPTS.md`](SEALED_DESK_COMPOSER_PROMPTS.md) (**SD-01–12**)
+> **Wave 12:** [`LIVELIHOOD_KERNEL_COMPOSER_PROMPTS.md`](LIVELIHOOD_KERNEL_COMPOSER_PROMPTS.md) (**LK-01–15**) — BFF + ADR 0071–0073; do not implement BFF from CR files
 > **Shipped predecessors:** LI-01–15 (`master` #1397), LD-01–15 (#1421 / #1439), RS-01–15 (#1457), WA-01–24 (#1496), FD-01–13 (#1534 / #1537)
 
 # Career-record Composer prompts (CR-01–CR-12)
@@ -14,7 +14,7 @@ ArchLucid is a working-architect tool: people will sit in it much of the day, an
 
 This set is **wave 11** — residuals a 2026-09-05 livelihood restatement still finds **after naming those owners**: Decisioning tests that still pin `typed-engine-protected` Promote, Working copy that still names two start products, historical ID/WK prompts in current tense, reverse-with-audit leftover mounts, second-window `sessionStorage`, remaining wait heroes, insights call sites that ignore the open-package resolver, remaining 200% clip, infeasible empty presets, harness/catalog denominator unpinned in CI, finding-inspect eval chrome, and sponsor Ready overclaim.
 
-It does **not** rewrite the product spine. It does **not** change `DeterministicInsightDensityGate` (IS-05). It does **not** implement the BFF (IS-15). It does **not** fork dual-pane selection (LS-01), what-if execute (LS-06), golden-harness registration (SD-03), or ADR 0069/0070 status (SD-02). It does **not** collapse desktop review tabs. It does **not** lengthen silent 300s undo.
+It does **not** rewrite the product spine. It does **not** change `DeterministicInsightDensityGate` (IS-05). It does **not** implement the BFF (**LK-05–07**; do not paste IS-15). It does **not** fork dual-pane selection (LS-01), what-if execute (LS-06), golden-harness registration (SD-03), or ADR 0069/0070 status (SD-02). It does **not** collapse desktop review tabs. It does **not** lengthen silent 300s undo.
 
 Paste **one** `.cursor/prompts/career-record-NN-*.md` file per Composer session. Do not implement from this document’s tables.
 
@@ -34,7 +34,7 @@ After IS/LS/SD, the remaining failures are: **tests still certify the old gate**
 | One work object | **CR-02** | Drafts list / first-review / help still name two start products on Working |
 | False confidence | **CR-03** | ID/WK Composer prompts still speak the short-circuit in present tense |
 | Career defense | **CR-04** | Keyboard/bulk stay `reversible` 300s-only; confirmation copy does not say reverse |
-| Career defense | **CR-05** | New window / restored tab loses `sessionStorage` Bearer (honesty until IS-15) |
+| Career defense | **CR-05** | New window / restored tab loses `sessionStorage` Bearer (honesty until LK-05–07) |
 | Throughput | **CR-06** | Remaining wait heroes besides review-detail workbench |
 | Throughput | **CR-07** | Remaining shortcut/palette/sidebar ignore `resolveOpenPackageRunId` |
 | Throughput | **CR-08** | Palette / stamp / dual-pane still clip at 200% / 1280px |

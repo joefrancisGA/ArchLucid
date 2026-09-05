@@ -7636,6 +7636,340 @@
         ],
         "type": "string"
       },
+      "CloudResourceAuditLineageLink": {
+        "properties": {
+          "available": {
+            "type": "boolean"
+          },
+          "degradedReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "relativePath": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "CloudResourceCurrentConfigurationSection": {
+        "properties": {
+          "azureResourceId": {
+            "type": "string"
+          },
+          "properties": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "region": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "resourceGroup": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "resourceType": {
+            "type": "string"
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "tags": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "CloudResourceEvidenceFindingHubItem": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "severity": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "streamKind": {
+            "type": "string"
+          },
+          "streamLabel": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CloudResourceEvidenceFindingStreamPage": {
+        "properties": {
+          "hasMore": {
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CloudResourceEvidenceFindingHubItem"
+            },
+            "type": "array"
+          },
+          "page": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "streamKind": {
+            "type": "string"
+          },
+          "streamLabel": {
+            "type": "string"
+          },
+          "totalCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "CloudResourceEvidenceHubResponse": {
+        "properties": {
+          "architectureReviewFindings": {
+            "$ref": "#/components/schemas/CloudResourceEvidenceFindingStreamPage"
+          },
+          "auditLineageLink": {
+            "$ref": "#/components/schemas/CloudResourceAuditLineageLink"
+          },
+          "cloudResourceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "currentConfiguration": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CloudResourceCurrentConfigurationSection"
+              }
+            ]
+          },
+          "diagramCorrespondence": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/DiagramInfrastructureCorrespondenceRow"
+              }
+            ]
+          },
+          "evidencePointers": {
+            "items": {
+              "$ref": "#/components/schemas/CloudResourceEvidencePointer"
+            },
+            "type": "array"
+          },
+          "externalResourceId": {
+            "type": "string"
+          },
+          "networkRelationships": {
+            "items": {
+              "$ref": "#/components/schemas/CloudResourceNetworkRelationshipSummary"
+            },
+            "type": "array"
+          },
+          "operationalSecurityFindings": {
+            "$ref": "#/components/schemas/CloudResourceEvidenceFindingStreamPage"
+          },
+          "rbacAssignments": {
+            "items": {
+              "$ref": "#/components/schemas/CloudResourceRbacAssignmentSummary"
+            },
+            "type": "array"
+          },
+          "recentChanges": {
+            "items": {
+              "$ref": "#/components/schemas/CloudResourceInventoryChangeSummary"
+            },
+            "type": "array"
+          },
+          "remediationInstances": {
+            "$ref": "#/components/schemas/CloudResourceRemediationStreamPage"
+          },
+          "resourceType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "terraformAddress": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "terraformGenerationMethod": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "CloudResourceEvidencePointer": {
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "relativePath": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CloudResourceInventoryChangeSummary": {
+        "properties": {
+          "changeId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "changeType": {
+            "type": "string"
+          },
+          "diffId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "newValue": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "oldValue": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "property": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "riskClassification": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "snapshotAId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "snapshotBId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CloudResourceNetworkRelationshipSummary": {
+        "properties": {
+          "fromAzureResourceId": {
+            "type": "string"
+          },
+          "relationshipType": {
+            "type": "string"
+          },
+          "toAzureResourceId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CloudResourceRbacAssignmentSummary": {
+        "properties": {
+          "principalId": {
+            "type": "string"
+          },
+          "roleDefinitionId": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CloudResourceRemediationHubItem": {
+        "properties": {
+          "instanceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "patternKey": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CloudResourceRemediationStreamPage": {
+        "properties": {
+          "hasMore": {
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CloudResourceRemediationHubItem"
+            },
+            "type": "array"
+          },
+          "page": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "CommitRunCommittedArtifactInventoryEntry": {
         "properties": {
           "artifactName": {
@@ -16842,6 +17176,116 @@
             "type": "string"
           },
           "value": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "InfraEvidenceAskCitation": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "label": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "InfraEvidenceAskRequest": {
+        "properties": {
+          "assessmentId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "auditEvidenceSnapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "cloudResourceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "controlId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "diffId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "question": {
+            "type": "string"
+          },
+          "runId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "sinceUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "useSimulator": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "InfraEvidenceAskResponse": {
+        "properties": {
+          "answer": {
+            "type": "string"
+          },
+          "citations": {
+            "items": {
+              "$ref": "#/components/schemas/InfraEvidenceAskCitation"
+            },
+            "type": "array"
+          },
+          "insufficientEvidence": {
+            "type": "boolean"
+          },
+          "simulatorLabel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "topicKind": {
             "type": "string"
           }
         },
@@ -42107,6 +42551,9 @@
       "name": "CloudInventoryExtractorUpload"
     },
     {
+      "name": "CloudResourceEvidenceHub"
+    },
+    {
       "name": "Comparison"
     },
     {
@@ -42258,6 +42705,9 @@
     },
     {
       "name": "ImportRequestFile"
+    },
+    {
+      "name": "InfraEvidenceAsk"
     },
     {
       "name": "InfraEvidenceInventory"

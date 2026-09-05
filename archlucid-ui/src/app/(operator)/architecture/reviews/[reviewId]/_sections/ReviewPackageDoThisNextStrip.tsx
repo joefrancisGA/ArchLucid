@@ -25,6 +25,8 @@ import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detai
 import {
   formatReviewFailureRecordedAtLabel,
 } from "@/components/resolve-run-detail-last-failure-summary";
+import { useReviewPipelineReRunInFlight } from "@/hooks/use-review-pipeline-rerun-in-flight";
+import { REVIEW_PIPELINE_RE_RUN_IN_PROGRESS_DO_THIS_NEXT_SENTENCE } from "@/lib/operations/review-pipeline-rerun-in-flight";
 import type { ReviewFailureAdminHandoff } from "@/lib/review-failure-recovery-role-copy";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { cn } from "@/lib/utils";
@@ -382,6 +384,9 @@ export function ReviewPackageDoThisNextStrip(
   } = props;
   const buttonVariant = next.buttonVariant ?? "primary";
   const blockRerun = next.kind === "rerun-review" && sessionAiReadiness.blocksExecute;
+  const reRunInFlight = useReviewPipelineReRunInFlight(runId);
+  const suppressStaleFailureRecovery =
+    reRunInFlight && next.failureRecovery !== null && next.failureRecovery !== undefined;
   const failureRecordedAtLabel = formatReviewFailureRecordedAtLabel(failureRecordedAtUtc);
 
   const actionRow = (
@@ -443,8 +448,11 @@ export function ReviewPackageDoThisNextStrip(
         )
       : [];
   const showFailureRecoverySteps = failureRecoverySteps.length > 0;
-  const showHeaderPrimaryAction = hasFailureRecovery && !showFailureRecoverySteps;
-  const displayedSentence = resolveDisplayedDoThisNextSentence(next, sessionAiReadiness);
+  const showHeaderPrimaryAction =
+    hasFailureRecovery && !showFailureRecoverySteps && !suppressStaleFailureRecovery;
+  const displayedSentence = suppressStaleFailureRecovery
+    ? REVIEW_PIPELINE_RE_RUN_IN_PROGRESS_DO_THIS_NEXT_SENTENCE
+    : resolveDisplayedDoThisNextSentence(next, sessionAiReadiness);
 
   return (
     <section
@@ -474,7 +482,7 @@ export function ReviewPackageDoThisNextStrip(
             )}
           >
             {showHeaderPrimaryAction ? actionRow : null}
-            {hasFailureRecovery && failureRecordedAtLabel !== null ? (
+            {hasFailureRecovery && !suppressStaleFailureRecovery && failureRecordedAtLabel !== null ? (
               <p
                 className={cn("m-0 shrink-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="review-package-failure-recorded-at"
@@ -492,7 +500,7 @@ export function ReviewPackageDoThisNextStrip(
         </p>
       </div>
 
-      {!hasFailureRecovery ? (
+      {!hasFailureRecovery || suppressStaleFailureRecovery ? (
         <div
           className="flex min-w-0 w-full max-w-full shrink-0 flex-col items-stretch gap-2 sm:items-end"
           data-testid="review-package-do-this-next-action"
@@ -502,7 +510,7 @@ export function ReviewPackageDoThisNextStrip(
         </div>
       ) : null}
 
-      {hasFailureRecovery ? (
+      {hasFailureRecovery && !suppressStaleFailureRecovery ? (
         <ReviewFailureRecoveryDetails
           runId={runId}
           manifestVersion={hasGoldenManifest ? "committed" : null}
