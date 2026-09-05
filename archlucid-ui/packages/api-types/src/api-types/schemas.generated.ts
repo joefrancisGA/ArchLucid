@@ -1969,6 +1969,25 @@ export interface components {
             parentDraftId?: string;
             parentSpawnedRunId?: null | string;
         };
+        BrandAssetResponse: {
+            /** Format: uuid */
+            assetId?: string;
+            assetType?: string;
+            checksumSha256Hex?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            /** Format: int32 */
+            height?: null | number;
+            mimeType?: string;
+            originalFileName?: string;
+            status?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+            /** Format: int32 */
+            width?: null | number;
+        };
+        /** @enum {string} */
+        BrandAssetType: "LogoPrimary" | "LogoSecondary" | "LogoSquare" | "LogoFavicon" | "LogoDark" | "LogoLight" | "LogoReportCover" | "LogoMono" | "Other";
         BuildAzureInventoryDiffNarrativeRequest: {
             narrativeKind?: components["schemas"]["AzureInventoryDiffNarrativeKind"];
             useSimulator?: boolean;
