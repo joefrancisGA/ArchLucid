@@ -39,4 +39,17 @@ describe("design-tokens-brand", () => {
     expect(PRODUCT_BRAND_CSS_DEFAULTS.primary).toBe("#0f766e");
     expect(PRODUCT_BRAND_CSS_DEFAULTS.foreground).toBe("#171717");
   });
+
+  it("applyTenantBrandCssVars does not remap status severity tokens", () => {
+    document.documentElement.style.setProperty("--al-status-critical-fg", "#c00000");
+
+    applyTenantBrandCssVars({
+      primary: "#112233",
+      foreground: "#ffffff",
+      background: "#000000",
+    });
+
+    expect(document.documentElement.style.getPropertyValue("--al-status-critical-fg")).toBe("#c00000");
+    expect(document.documentElement.style.getPropertyValue(BRAND_CSS_VAR_NAMES.primary)).toBe("#112233");
+  });
 });
