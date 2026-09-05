@@ -250,6 +250,80 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         return Task.FromResult(match is null ? null : Map(match));
     }
 
+    /// <inheritdoc />
+    public Task<IReadOnlyList<DraftRequestResponse>> ListByArchitectureIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid architectureId,
+        CancellationToken cancellationToken)
+    {
+        List<DraftRequestResponse> matches = _drafts.Values
+            .Where(stored =>
+                stored.ArchitectureId == architectureId
+                && DraftRequestRepositoryCore.MatchesProjectScope(
+                    tenantId,
+                    workspaceId,
+                    projectId,
+                    stored.TenantId,
+                    stored.WorkspaceId,
+                    stored.ProjectId))
+            .OrderByDescending(stored => stored.UpdatedUtc)
+            .ThenByDescending(stored => stored.DraftId)
+            .Select(Map)
+            .ToList();
+
+        return Task.FromResult<IReadOnlyList<DraftRequestResponse>>(matches);
+    }
+
+    /// <inheritdoc />
+    public Task<int> CountByArchitectureIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid architectureId,
+        CancellationToken cancellationToken)
+    {
+        int count = _drafts.Values.Count(stored =>
+            stored.ArchitectureId == architectureId
+            && DraftRequestRepositoryCore.MatchesProjectScope(
+                tenantId,
+                workspaceId,
+                projectId,
+                stored.TenantId,
+                stored.WorkspaceId,
+                stored.ProjectId));
+
+        return Task.FromResult(count);
+    }
+
+    /// <inheritdoc />
+    public Task<bool> SetArchitectureIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid draftId,
+        Guid architectureId,
+        CancellationToken cancellationToken)
+    {
+        if (!_drafts.TryGetValue(draftId, out InMemoryDraftRequestStoredDraft? stored))
+            return Task.FromResult(false);
+
+        if (!DraftRequestRepositoryCore.MatchesProjectScope(
+                tenantId,
+                workspaceId,
+                projectId,
+                stored.TenantId,
+                stored.WorkspaceId,
+                stored.ProjectId))
+            return Task.FromResult(false);
+
+        stored.ArchitectureId = architectureId;
+        stored.UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+
+        return Task.FromResult(true);
+    }
+
     private static DraftRequestResponse Map(InMemoryDraftRequestStoredDraft stored) =>
         DraftRequestRepositoryCore.MapInMemoryStoredDraft(stored, JsonOptions);
 }
