@@ -220,7 +220,8 @@ public static partial class GenericArchitectureAdvicePatterns
             || after.StartsWith("is optional", StringComparison.Ordinal)
             || after.StartsWith("won't need to", StringComparison.Ordinal)
             || after.StartsWith("must not be required", StringComparison.Ordinal)
-            || after.StartsWith("must not be needed", StringComparison.Ordinal);
+            || after.StartsWith("must not be needed", StringComparison.Ordinal)
+            || after.StartsWith("cannot require", StringComparison.Ordinal);
     }
 
     /// <summary>

@@ -28,9 +28,23 @@ public sealed class AzureExtractorSensitivePropertyRedactorTests
     [InlineData("accountkeyless", false)]
     [InlineData("clientsecretless", false)]
     [InlineData("privatekeyless", false)]
+    [InlineData("sharedAccessKey", true)]
+    [InlineData("signingCertificate", true)]
   public void IsSensitiveKey_detects_secret_like_names(string key, bool expected)
     {
         AzureExtractorSensitivePropertyRedactor.IsSensitiveKey(key).Should().Be(expected);
+    }
+
+    [Fact]
+    public void IsSensitiveKey_detects_shared_access_key_property_names()
+    {
+        AzureExtractorSensitivePropertyRedactor.IsSensitiveKey("sharedAccessKey").Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsSensitiveKey_detects_signing_certificate_property_names_matching_config_redactor()
+    {
+        AzureExtractorSensitivePropertyRedactor.IsSensitiveKey("signingCertificate").Should().BeTrue();
     }
 
     [Fact]

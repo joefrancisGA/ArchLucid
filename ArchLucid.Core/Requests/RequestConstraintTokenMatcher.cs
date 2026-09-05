@@ -171,7 +171,9 @@ internal static class RequestConstraintTokenMatcher
             || before.StartsWith("avoid", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("avoids", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("cannot use", StringComparison.OrdinalIgnoreCase)
-            || before.StartsWith("cannot", StringComparison.OrdinalIgnoreCase))
+            || before.StartsWith("cannot require", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("cannot", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("need not enable", StringComparison.OrdinalIgnoreCase))
             return true;
 
         if (ContainsMidSentenceNegation(before))
@@ -182,6 +184,7 @@ internal static class RequestConstraintTokenMatcher
             || before.EndsWith("shouldn't", StringComparison.OrdinalIgnoreCase)
             || before.EndsWith("won't", StringComparison.OrdinalIgnoreCase)
             || before.EndsWith("cannot", StringComparison.OrdinalIgnoreCase)
+            || before.EndsWith("cannot require", StringComparison.OrdinalIgnoreCase)
             || before.EndsWith("never", StringComparison.OrdinalIgnoreCase)
             || before.EndsWith("avoids", StringComparison.OrdinalIgnoreCase)
             || before.EndsWith("avoid", StringComparison.OrdinalIgnoreCase);
@@ -193,7 +196,8 @@ internal static class RequestConstraintTokenMatcher
             || ContainsPhrase(before, " must not ")
             || ContainsPhrase(before, " do not ")
             || ContainsPhrase(before, " doesn't require ")
-            || ContainsPhrase(before, " doesn't need ");
+            || ContainsPhrase(before, " doesn't need ")
+            || ContainsPhrase(before, " cannot require ");
     }
 
     private static bool ContainsPhrase(ReadOnlySpan<char> haystack, string phrase)

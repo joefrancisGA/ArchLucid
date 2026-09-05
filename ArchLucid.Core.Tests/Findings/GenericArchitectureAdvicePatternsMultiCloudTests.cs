@@ -81,6 +81,15 @@ public sealed class GenericArchitectureAdvicePatternsMultiCloudTests
         GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(message).Should().BeFalse();
     }
 
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_cannot_negated_checklist_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "enable mfa cannot require hardware tokens")
+            .Should()
+            .BeFalse();
+    }
+
     [Theory]
     [InlineData(
         "Enable GuardDuty monitoring for `payments-api` ingress paths.",

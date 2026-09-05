@@ -123,6 +123,42 @@ public sealed class ConfigurationEffectiveValueResolverTests
         value.Should().Be("***");
     }
 
+    [Fact]
+    public void Resolve_redacts_shared_access_key_config_path()
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Azure:Storage:SharedAccessKey"] = "super-secret"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            "Azure:Storage:SharedAccessKey",
+            isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_redacts_certificate_thumbprint_config_path_matching_azure_redactor()
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["ArchLucid:Auth:CertificateThumbprint"] = "ABCDEF123456"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            "ArchLucid:Auth:CertificateThumbprint",
+            isSet: true);
+
+        value.Should().Be("***");
+    }
+
     [Theory]
     [InlineData("ArchLucid:PasswordlessAuth:Enabled", "true")]
     [InlineData("ArchLucid:TokenizerModel:Name", "gpt-4.1")]

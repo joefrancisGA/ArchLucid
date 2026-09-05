@@ -114,6 +114,9 @@ internal static class RunHeaderAnchorJsonComparer
 
     private static bool ArraysEquivalent(JsonElement left, JsonElement right)
     {
+        if (TryNestedEmptyArrayEquivalent(left, right))
+            return true;
+
         List<JsonElement> leftItems = left.EnumerateArray().ToList();
         List<JsonElement> rightItems = right.EnumerateArray().ToList();
 
@@ -127,6 +130,17 @@ internal static class RunHeaderAnchorJsonComparer
         }
 
         return true;
+    }
+
+    private static bool TryNestedEmptyArrayEquivalent(JsonElement left, JsonElement right)
+    {
+        if (left.GetArrayLength() == 0 && right.GetArrayLength() == 1)
+            return right[0].ValueKind == JsonValueKind.Array && right[0].GetArrayLength() == 0;
+
+        if (right.GetArrayLength() == 0 && left.GetArrayLength() == 1)
+            return left[0].ValueKind == JsonValueKind.Array && left[0].GetArrayLength() == 0;
+
+        return false;
     }
 
     private static bool TryCrossKindEquivalent(JsonElement left, JsonElement right)
@@ -163,6 +177,30 @@ internal static class RunHeaderAnchorJsonComparer
 
         if (TryAbsentEmptyArrayEquivalent(left, right))
             return true;
+
+        if (TryObjectSingleElementArrayEquivalent(left, right))
+            return true;
+
+        return false;
+    }
+
+    private static bool TryObjectSingleElementArrayEquivalent(JsonElement left, JsonElement right)
+    {
+        if (left.ValueKind == JsonValueKind.Object && right.ValueKind == JsonValueKind.Array)
+        {
+            if (right.GetArrayLength() != 1)
+                return false;
+
+            return ElementsEquivalent(left, right[0]);
+        }
+
+        if (left.ValueKind == JsonValueKind.Array && right.ValueKind == JsonValueKind.Object)
+        {
+            if (left.GetArrayLength() != 1)
+                return false;
+
+            return ElementsEquivalent(left[0], right);
+        }
 
         return false;
     }

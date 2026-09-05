@@ -26,6 +26,9 @@ public static class AzureExtractorSensitivePropertyRedactor
             .Replace("_", string.Empty, StringComparison.Ordinal)
             .ToLowerInvariant();
 
+        if (IsExplicitCredentialKey(normalized))
+            return true;
+
         foreach (string fragment in SensitiveKeyFragments)
         {
             if (ContainsSensitiveFragment(normalized, fragment))
@@ -54,6 +57,12 @@ public static class AzureExtractorSensitivePropertyRedactor
         }
 
         return false;
+    }
+
+    private static bool IsExplicitCredentialKey(string normalized)
+    {
+        return normalized.Equals("sharedaccesskey", StringComparison.Ordinal)
+            || normalized.Equals("signingcertificate", StringComparison.Ordinal);
     }
 
     private static bool IsNegatedSensitiveFragment(string normalized, int fragmentIndex, string fragment)
