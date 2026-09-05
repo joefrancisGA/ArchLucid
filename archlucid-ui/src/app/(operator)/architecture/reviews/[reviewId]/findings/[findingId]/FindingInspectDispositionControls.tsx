@@ -105,6 +105,8 @@ export function FindingInspectDispositionControls(props: FindingInspectDispositi
         busyAction={viewModel.busyAction}
         pendingRevokeWaiverConfirm={viewModel.pendingRevokeWaiverConfirm}
         setPendingRevokeWaiverConfirm={viewModel.setPendingRevokeWaiverConfirm}
+        pendingWaiverCreateConfirm={viewModel.pendingWaiverCreateConfirm}
+        setPendingWaiverCreateConfirm={viewModel.setPendingWaiverCreateConfirm}
         submitWaiver={viewModel.submitWaiver}
         revokeWaiver={viewModel.revokeWaiver}
         mutationDisabledHintId={viewModel.mutationDisabledHintId}

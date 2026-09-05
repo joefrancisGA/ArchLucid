@@ -45,6 +45,22 @@ describe("formatOperatorHomeRecentReviewsOutcome", () => {
     );
   });
 
+  it("summarizes committed packages with no open findings", () => {
+    const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
+      reviewPackagesTotal: 4,
+      reviewPackagesCommitted: 3,
+      reviewPackagesActive: 1,
+      openFindings: 0,
+      governanceWarnings: 0,
+      evidenceSources: 3,
+      hasReviews: true,
+    };
+
+    expect(formatOperatorHomeRecentReviewsOutcome(metrics)).toBe(
+      "3 finalized · 1 active · no open findings",
+    );
+  });
+
   it("summarizes committed packages with finding pressure", () => {
     const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
       reviewPackagesTotal: 3,
@@ -57,7 +73,7 @@ describe("formatOperatorHomeRecentReviewsOutcome", () => {
     };
 
     expect(formatOperatorHomeRecentReviewsOutcome(metrics)).toBe(
-      "2 finalized · 1 active · 6 open findings · 1 with approval-check warnings",
+      "2 finalized · 1 active · 6 open findings · with 1 Approval-check warning",
     );
   });
 
@@ -81,6 +97,8 @@ describe("deriveHomePreviewTabCounts", () => {
     });
 
     expect(counts.all).toBe(2);
+    expect(counts.recentVisibleCount).toBe(2);
+    expect(counts.recentTotalCount).toBe(3);
     expect(counts.approved).toBe(0);
   });
 });

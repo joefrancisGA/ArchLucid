@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 
+import { LongOperationQueueStatusLine } from "@/components/operations/LongOperationQueueStatusLine";
 import { useLongOperationWait } from "@/hooks/use-long-operation-wait";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  formatLongOperationQueueStatusLine,
   LONG_OPERATION_HOME_PAGE_STATUS_HINT,
   LONG_OPERATION_QUEUE_STATUS_REFRESH_HINT,
 } from "@/lib/operations/long-operation-wait-copy";
@@ -55,12 +55,11 @@ export function LongOperationWaitNotice(props: LongOperationWaitNoticeProps): Re
     >
       <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{wait.copy.headline}</p>
       {stageLabel.length > 0 ? (
-        <p
-          className={cn("m-0 mt-2 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
-          data-testid="long-operation-queue-status"
-        >
-          {formatLongOperationQueueStatusLine(stageLabel)}
-        </p>
+        <LongOperationQueueStatusLine
+          className="mt-2"
+          stageLabel={stageLabel}
+          testId="long-operation-queue-status"
+        />
       ) : null}
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {LONG_OPERATION_QUEUE_STATUS_REFRESH_HINT}

@@ -1,10 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import {
-  OPERATOR_ATTENTION_KIND_STRIP_HELPER,
-  OperatorAttentionKindStrip,
-} from "@/components/operator/OperatorAttentionKindStrip";
+import { OperatorAttentionKindStrip } from "@/components/operator/OperatorAttentionKindStrip";
 import { OPERATOR_ATTENTION_KIND_DESTINATIONS } from "@/lib/operator/operator-attention-kind-destinations";
 import { OPERATOR_ATTENTION_KIND_LABELS } from "@/lib/operator/operator-attention-taxonomy";
 
@@ -17,6 +14,15 @@ vi.mock("@/hooks/use-operator-attention-summary", () => ({
       { partition: "awaiting-approval", totalCount: 3 },
     ],
     surfaceCounts: {},
+  }),
+}));
+
+vi.mock("@/hooks/use-attention-partition-previews", () => ({
+  useAttentionPartitionPreviews: () => ({
+    "unfinished-work": "Enterprise platform draft",
+    "assigned-to-me": null,
+    alerts: null,
+    "awaiting-approval": "Claims intake modernization",
   }),
 }));
 
@@ -37,7 +43,6 @@ describe("OperatorAttentionKindStrip (TB-2353)", () => {
 
     const strip = screen.getByTestId("operator-attention-kind-strip");
     expect(strip).toHaveAttribute("data-variant", "default");
-    expect(strip.textContent).toContain(OPERATOR_ATTENTION_KIND_STRIP_HELPER);
     expect(screen.getByTestId("operator-attention-kind-chips")).toBeInTheDocument();
 
     for (const kind of Object.keys(OPERATOR_ATTENTION_KIND_LABELS) as Array<
@@ -52,14 +57,13 @@ describe("OperatorAttentionKindStrip (TB-2353)", () => {
     expect(screen.getByTestId("operator-attention-kind-chip-awaiting-approval")).toHaveTextContent("3");
   });
 
-  it("omits helper text on compact home hub layout", () => {
+  it("renders compact home hub layout", () => {
     usePathname.mockReturnValue("/");
     useSearchParams.mockReturnValue(new URLSearchParams());
 
     render(<OperatorAttentionKindStrip variant="compact" />);
 
     expect(screen.getByTestId("operator-attention-kind-strip")).toHaveAttribute("data-variant", "compact");
-    expect(screen.queryByText(OPERATOR_ATTENTION_KIND_STRIP_HELPER)).not.toBeInTheDocument();
     expect(screen.getByTestId("operator-attention-kind-chips")).toBeInTheDocument();
   });
 
@@ -69,12 +73,22 @@ describe("OperatorAttentionKindStrip (TB-2353)", () => {
 
     render(<OperatorAttentionKindStrip variant="compact" suppressKinds={["unfinished-work"]} />);
 
-    expect(screen.queryByText(OPERATOR_ATTENTION_KIND_STRIP_HELPER)).not.toBeInTheDocument();
     expect(screen.queryByTestId("operator-attention-kind-chip-unfinished-work")).not.toBeInTheDocument();
     expect(screen.getByTestId("operator-attention-kind-chip-awaiting-approval")).toBeInTheDocument();
   });
 
-  it("emphasizes awaiting-approval chips when the queue has items", () => {
+  it("renders partition preview for the highest non-zero kind", () => {
+    usePathname.mockReturnValue("/");
+    useSearchParams.mockReturnValue(new URLSearchParams());
+
+    render(<OperatorAttentionKindStrip variant="compact" suppressKinds={["unfinished-work"]} />);
+
+    expect(screen.getByTestId("operator-attention-partition-preview-awaiting-approval")).toHaveTextContent(
+      "Claims intake modernization",
+    );
+  });
+
+  it("emphasizes chips when the queue has items", () => {
     usePathname.mockReturnValue("/");
     useSearchParams.mockReturnValue(new URLSearchParams());
 

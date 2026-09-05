@@ -33,12 +33,11 @@ import {
   isBuyerSafePrimaryReviewNavigationPreferred,
 } from "@/lib/buyer/buyer-safe-review-navigation";
 import {
-  deriveHomePreviewTabCounts,
   filterTenantOverviewRuns,
   formatOperatorHomeRecentReviewsOutcome,
   isExampleOnlyOverviewRunList,
 } from "@/lib/operator/operator-home-recent-reviews-outcome";
-import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
+import { deriveOperatorHomeTenantCountingSnapshot } from "@/lib/operator/operator-home-tenant-counting";
 import { shouldShowRunsDashboardInitialSkeleton } from "@/lib/operator/operator-home-runs-dashboard-client-fetch";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { RunSummary } from "@/types/authority";
@@ -177,12 +176,14 @@ export function useRunsDashboardTabs({
         ? showcaseDemoRun.runId
         : undefined;
 
-    return deriveHomePreviewTabCounts({
-      previewItems: homeAttentionPreviewItems,
+    return deriveOperatorHomeTenantCountingSnapshot({
+      displayItems,
+      previewItems: filterTenantOverviewRuns(homeAttentionPreviewItems),
       excludeShowcaseRunId,
-    });
+    }).previewTabCounts;
   }, [
     buyerPolishedShell,
+    displayItems,
     filteredItems,
     hideHeading,
     homeAttentionPreviewItems,
@@ -218,10 +219,12 @@ export function useRunsDashboardTabs({
     const exampleReviewOnly = hideHeading && !sampleReviewsVisible
       ? false
       : isExampleOnlyOverviewRunList(displayItems);
-    const tenantItems = filterTenantOverviewRuns(displayItems);
-    const metrics = deriveOperatorHomeWorkspaceMetrics(tenantItems, tenantItems.length);
+    const tenantSnapshot = deriveOperatorHomeTenantCountingSnapshot({
+      displayItems,
+      previewItems: displayItems,
+    });
 
-    return formatOperatorHomeRecentReviewsOutcome(metrics, { exampleReviewOnly });
+    return formatOperatorHomeRecentReviewsOutcome(tenantSnapshot.metrics, { exampleReviewOnly });
   }, [displayItems, hideHeading, phase, sampleReviewsVisible]);
 
   const selectDashboardTab = useCallback((

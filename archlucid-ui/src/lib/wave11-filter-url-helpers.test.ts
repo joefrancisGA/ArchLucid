@@ -2224,6 +2224,230 @@ describe("wave33 filter url helpers", () => {
   });
 });
 
+describe("wave34 filter url helpers", () => {
+  it("governance correction, terraform export, ai refine skip, workspace switch, and policy pack leave", async () => {
+    const {
+      governanceRecordCorrectionConfirmHrefFromSearch,
+      parseGovernanceRecordCorrectionKindFromSearch,
+      parseGovernanceRecordCorrectionRunIdFromSearch,
+      parseGovernanceRecordCorrectionSubjectIdFromSearch,
+    } = await import("@/lib/governance/governance-record-correction-confirm-url");
+    const {
+      parseTerraformAdvisoryExportConfirmOpenFromSearch,
+      terraformAdvisoryExportConfirmHrefFromSearch,
+    } = await import("@/lib/reviews/terraform-advisory-export-confirm-url");
+    const {
+      architectureDraftAiRefineFramingSkipConfirmHrefFromSearch,
+      parseArchitectureDraftAiRefineFramingSkipConfirmOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-draft-ai-refine-framing-skip-confirm-url");
+    const {
+      parseWorkspaceModeSwitchConfirmOpenFromSearch,
+      workspaceModeSwitchConfirmHrefFromSearch,
+    } = await import("@/lib/operator/workspace-mode-switch-confirm-url");
+    const {
+      parsePolicyPackAuthoringLeaveConfirmOpenFromSearch,
+      policyPackAuthoringLeaveConfirmHrefFromSearch,
+    } = await import("@/lib/policy/policy-pack-authoring-leave-confirm-url");
+
+    expect(parseGovernanceRecordCorrectionKindFromSearch("governance_quick_approve")).toBe("governance_quick_approve");
+    expect(parseGovernanceRecordCorrectionSubjectIdFromSearch("approval-1")).toBe("approval-1");
+    expect(parseGovernanceRecordCorrectionRunIdFromSearch("run-1")).toBe("run-1");
+    expect(
+      governanceRecordCorrectionConfirmHrefFromSearch(
+        "tab=queue",
+        {
+          mutationKind: "governance_quick_approve",
+          subjectId: "approval-1",
+          runId: "run-1",
+        },
+        "/governance/approval-queue",
+      ),
+    ).toBe(
+      "/governance/approval-queue?tab=queue&govCorrectionKind=governance_quick_approve&govCorrectionSubjectId=approval-1&govCorrectionRunId=run-1",
+    );
+    expect(parseTerraformAdvisoryExportConfirmOpenFromSearch("1")).toBe(true);
+    expect(
+      terraformAdvisoryExportConfirmHrefFromSearch("reviewTab=overview", true, "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?reviewTab=overview&terraformExportConfirm=1");
+    expect(parseArchitectureDraftAiRefineFramingSkipConfirmOpenFromSearch("true")).toBe(true);
+    expect(
+      architectureDraftAiRefineFramingSkipConfirmHrefFromSearch("", true, "/architecture/architectures/a1"),
+    ).toBe("/architecture/architectures/a1?aiRefineFramingSkipConfirm=1");
+    expect(parseWorkspaceModeSwitchConfirmOpenFromSearch("1")).toBe(true);
+    expect(
+      workspaceModeSwitchConfirmHrefFromSearch("help=1", true, "/architecture/reviews"),
+    ).toBe("/architecture/reviews?help=1&workspaceSwitchConfirm=1");
+    expect(parsePolicyPackAuthoringLeaveConfirmOpenFromSearch("true")).toBe(true);
+    expect(policyPackAuthoringLeaveConfirmHrefFromSearch("packId=p1", true)).toBe(
+      "/governance/policy-packs?packId=p1&packAuthoringLeaveConfirm=1",
+    );
+  });
+
+  it("wizard restore, consulting export, itsm create, and work item dialog params", async () => {
+    const {
+      parseWizardSessionRestoreConfirmOpenFromSearch,
+      parseWizardSessionRestoreIdFromSearch,
+      wizardSessionRestoreConfirmHrefFromSearch,
+    } = await import("@/lib/operator/wizard-session-restore-confirm-url");
+    const {
+      parseReviewConsultingExportOpenFromSearch,
+      reviewConsultingExportPanelsHrefFromSearch,
+    } = await import("@/lib/reviews/review-consulting-export-panels-url");
+    const {
+      itsmOutboundCreateIssuePanelsHrefFromSearch,
+      parseItsmOutboundCreateFindingIdFromSearch,
+      parseItsmOutboundCreateOpenFromSearch,
+    } = await import("@/lib/itsm/itsm-outbound-create-issue-panels-url");
+    const {
+      createWorkItemDialogHrefFromSearch,
+      parseCreateWorkItemFindingIdFromSearch,
+      parseCreateWorkItemOpenFromSearch,
+    } = await import("@/lib/work-items/create-work-item-dialog-url");
+    const {
+      findingInspectGovernancePanelHrefFromSearch,
+      parseFindingInspectWaiverConfirmOpenFromSearch,
+    } = await import("@/lib/findings/finding-inspect-governance-panel-url");
+
+    expect(parseWizardSessionRestoreConfirmOpenFromSearch("1")).toBe(true);
+    expect(parseWizardSessionRestoreIdFromSearch("reviews-new-quick-start")).toBe("reviews-new-quick-start");
+    expect(
+      wizardSessionRestoreConfirmHrefFromSearch(
+        "",
+        { confirmOpen: true, wizardId: "reviews-new-quick-start" },
+        "/architecture/reviews/new",
+      ),
+    ).toBe("/architecture/reviews/new?wizardRestoreConfirm=1&wizardRestoreId=reviews-new-quick-start");
+    expect(parseReviewConsultingExportOpenFromSearch("true")).toBe(true);
+    expect(
+      reviewConsultingExportPanelsHrefFromSearch("reviewTab=overview", true, "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?reviewTab=overview&consultingExportOpen=1");
+    expect(parseItsmOutboundCreateOpenFromSearch("1")).toBe(true);
+    expect(parseItsmOutboundCreateFindingIdFromSearch("finding-1")).toBe("finding-1");
+    expect(
+      itsmOutboundCreateIssuePanelsHrefFromSearch(
+        "govPanel=waiver",
+        { open: true, findingId: "finding-1" },
+        "/architecture/reviews/r1/findings/f1/inspect",
+      ),
+    ).toBe(
+      "/architecture/reviews/r1/findings/f1/inspect?govPanel=waiver&itsmCreateOpen=1&itsmCreateFindingId=finding-1",
+    );
+    expect(parseCreateWorkItemOpenFromSearch("true")).toBe(true);
+    expect(parseCreateWorkItemFindingIdFromSearch("finding-2")).toBe("finding-2");
+    expect(
+      createWorkItemDialogHrefFromSearch(
+        "reviewTab=findings",
+        { open: true, findingId: "finding-2" },
+        "/architecture/reviews/r1",
+      ),
+    ).toBe("/architecture/reviews/r1?reviewTab=findings&workItemOpen=1&workItemFindingId=finding-2");
+    expect(parseFindingInspectWaiverConfirmOpenFromSearch("1")).toBe(true);
+    expect(
+      findingInspectGovernancePanelHrefFromSearch(
+        "",
+        { panel: "waiver", waiverConfirmOpen: true, waiverRevokeConfirmOpen: false },
+        "/architecture/reviews/r1/findings/f1/inspect",
+      ),
+    ).toBe("/architecture/reviews/r1/findings/f1/inspect?govPanel=waiver&waiverConfirm=1");
+  });
+});
+
+describe("wave35 filter url helpers", () => {
+  it("generate adr, share link, export deliverable, and presenter elicitation params", async () => {
+    const {
+      parseReviewGenerateAdrOpenFromSearch,
+      reviewGenerateAdrPanelsHrefFromSearch,
+    } = await import("@/lib/reviews/review-generate-adr-panels-url");
+    const {
+      parseReviewShareLinkOpenFromSearch,
+      reviewShareLinkPanelsHrefFromSearch,
+    } = await import("@/lib/reviews/review-share-link-panels-url");
+    const {
+      parseReviewDeliverableAudienceFromSearch,
+      parseReviewDeliverableOpenFromSearch,
+      reviewExportDeliverablePanelsHrefFromSearch,
+    } = await import("@/lib/reviews/review-export-deliverable-panels-url");
+    const {
+      parseReviewPresenterQuestionIdFromSearch,
+      reviewPresenterElicitationHrefFromSearch,
+    } = await import("@/lib/reviews/review-presenter-elicitation-url");
+
+    expect(parseReviewGenerateAdrOpenFromSearch("1")).toBe(true);
+    expect(
+      reviewGenerateAdrPanelsHrefFromSearch("reviewTab=overview", true, "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?reviewTab=overview&adrOpen=1");
+    expect(parseReviewShareLinkOpenFromSearch("true")).toBe(true);
+    expect(
+      reviewShareLinkPanelsHrefFromSearch("reviewTab=overview", true, "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?reviewTab=overview&shareLinkOpen=1");
+    expect(parseReviewDeliverableOpenFromSearch("1")).toBe(true);
+    expect(parseReviewDeliverableAudienceFromSearch("grc")).toBe("grc");
+    expect(
+      reviewExportDeliverablePanelsHrefFromSearch(
+        "reviewTab=overview",
+        { open: true, audience: "board" },
+        "/architecture/reviews/r1",
+      ),
+    ).toBe("/architecture/reviews/r1?reviewTab=overview&deliverableOpen=1&deliverableAudience=board");
+    expect(parseReviewPresenterQuestionIdFromSearch("latency")).toBe("latency");
+    expect(
+      reviewPresenterElicitationHrefFromSearch("presenter=1", "latency", "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?presenter=1&presenterQuestionId=latency");
+  });
+
+  it("governance triage, nav guard, replay modify, graduation offer, mute, and in-flight cancel params", async () => {
+    const {
+      governanceFindingTriagePanelsHrefFromSearch,
+      parseGovernanceFindingTriageFocusedFindingIdFromSearch,
+    } = await import("@/lib/governance/governance-finding-triage-panels-url");
+    const {
+      livelihoodDocumentGuardHrefFromSearch,
+      parseLivelihoodDocumentGuardOpenFromSearch,
+    } = await import("@/lib/operator/livelihood-document-guard-url");
+    const {
+      parseReplayModifyConfirmOpenFromSearch,
+      replayModifyConfirmHrefFromSearch,
+    } = await import("@/lib/replay/replay-modify-confirm-url");
+    const {
+      parseWorkspaceModeGraduationOfferOpenFromSearch,
+      workspaceModeGraduationOfferPanelsHrefFromSearch,
+    } = await import("@/lib/operator/workspace-mode-graduation-offer-panels-url");
+    const {
+      parseQuickDecisionMuteFindingIdFromSearch,
+      quickDecisionMutePanelsHrefFromSearch,
+    } = await import("@/lib/reviews/quick-decision-mute-panels-url");
+    const {
+      parseShellInFlightCancelIdFromSearch,
+      shellInFlightCancelConfirmHrefFromSearch,
+    } = await import("@/lib/operator/shell-in-flight-cancel-confirm-url");
+
+    expect(parseGovernanceFindingTriageFocusedFindingIdFromSearch("finding-1")).toBe("finding-1");
+    expect(governanceFindingTriagePanelsHrefFromSearch("severity=high", "finding-1")).toBe(
+      "/governance/findings?severity=high&focusedFinding=finding-1",
+    );
+    expect(parseLivelihoodDocumentGuardOpenFromSearch("1")).toBe(true);
+    expect(livelihoodDocumentGuardHrefFromSearch("step=2", true, "/administration/identity/sso-wizard")).toBe(
+      "/administration/identity/sso-wizard?step=2&navGuardOpen=1",
+    );
+    expect(parseReplayModifyConfirmOpenFromSearch("true")).toBe(true);
+    expect(replayModifyConfirmHrefFromSearch("runId=r1", true)).toBe(
+      "/internal/validate-route?runId=r1&replayModifyConfirm=1",
+    );
+    expect(parseWorkspaceModeGraduationOfferOpenFromSearch("1")).toBe(true);
+    expect(
+      workspaceModeGraduationOfferPanelsHrefFromSearch("help=1", true, "/architecture/reviews"),
+    ).toBe("/architecture/reviews?help=1&graduationOfferOpen=1");
+    expect(parseQuickDecisionMuteFindingIdFromSearch("finding-2")).toBe("finding-2");
+    expect(
+      quickDecisionMutePanelsHrefFromSearch("reviewTab=findings", "finding-2", "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?reviewTab=findings&muteFindingId=finding-2");
+    expect(parseShellInFlightCancelIdFromSearch("op-1")).toBe("op-1");
+    expect(shellInFlightCancelConfirmHrefFromSearch("", "op-1", "/architecture/reviews")).toBe(
+      "/architecture/reviews?inFlightCancelId=op-1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

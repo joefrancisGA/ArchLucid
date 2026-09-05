@@ -44,12 +44,12 @@ describe("operatorHomeDataCurrencyValue", () => {
     expect(label.toLowerCase()).not.toMatch(/\bnow\b/);
   });
 
-  it("uses relative age for older refreshes", () => {
+  it("uses relative age with a visible clock parenthetical for older refreshes", () => {
     const refreshedAt = new Date(Date.now() - 2 * 60 * 60 * 1000);
     const label = operatorHomeDataCurrencyValue(refreshedAt);
 
     expect(label).toMatch(/hour/);
-    expect(label).not.toMatch(/\d{1,2}:\d{2}/);
+    expect(label).toMatch(/\(\d{1,2}:\d{2}/);
   });
 });
 

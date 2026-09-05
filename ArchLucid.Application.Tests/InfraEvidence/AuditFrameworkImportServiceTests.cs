@@ -126,6 +126,7 @@ internal sealed class InMemoryAuditFrameworkRepository : IAuditFrameworkReposito
     AuditFrameworkRecord framework,
     IReadOnlyList<AuditControlRecord> controls,
     IReadOnlyDictionary<Guid, IReadOnlyDictionary<string, string>> metadataByControlId,
+    IReadOnlyList<AuditEvidenceRequirementRecord> requirements,
     CancellationToken cancellationToken = default)
   {
     AuditFrameworkRecord? sameHash = _frameworks.Values.FirstOrDefault(

@@ -1,4 +1,5 @@
 using ArchLucid.Application.InfraEvidence;
+using ArchLucid.Application.InfraEvidence.AuditEvidence;
 using ArchLucid.Persistence.InfraEvidence;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +20,23 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<IAzureInventoryDriftApprovalService, AzureInventoryDriftApprovalService>();
         services.AddScoped<IAzureInventoryDiffNarrativeService, AzureInventoryDiffNarrativeService>();
         services.AddScoped<IAuditFrameworkImportService, AuditFrameworkImportService>();
+        services.AddScoped<IAuditEvidenceSelectionService, AuditEvidenceSelectionService>();
+        services.AddScoped<IAuditControlEvaluationService, AuditControlEvaluationService>();
+        services.AddScoped<IAuditEvidenceSnapshotCollectionService, AuditEvidenceSnapshotCollectionService>();
+        services.AddScoped<IAuditEvidenceSnapshotVerificationService, AuditEvidenceSnapshotVerificationService>();
+        services.AddScoped<IAuditEvidenceSnapshotQueryService, AuditEvidenceSnapshotQueryService>();
+        services.AddScoped<IAuditEvidenceFreshnessService, AuditEvidenceFreshnessService>();
+        services.AddScoped<IAuditReadinessService, AuditReadinessService>();
+        services.AddScoped<IAuditEvidenceSelectorRegistry, AuditEvidenceSelectorRegistry>();
+        services.AddScoped<InventoryAuditEvidenceSelector>();
+        services.AddScoped<IdentityAuditEvidenceSelector>();
+        services.AddScoped<RbacAuditEvidenceSelector>();
+        services.AddScoped<NetworkAuditEvidenceSelector>();
+        services.AddScoped<DataAuditEvidenceSelector>();
+        services.AddScoped<LoggingAuditEvidenceSelector>();
+        services.AddScoped<GovernanceAuditEvidenceSelector>();
+        services.AddScoped<PostureAuditEvidenceSelector>();
+        services.AddScoped<ResilienceAuditEvidenceSelector>();
         services.AddScoped<IAzureInventoryDiffConsumer, NoOpAzureInventoryDiffConsumer>();
     }
 }

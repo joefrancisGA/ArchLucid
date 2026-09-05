@@ -11,6 +11,7 @@ import {
 import { GovernanceRecordCorrectionDialog } from "@/components/governance/GovernanceRecordCorrectionDialog";
 import { ReversibleMutationSuccessCallout } from "@/components/operator/ReversibleMutationSuccessCallout";
 import { useApprovalRequestLineageQuery } from "@/hooks/use-approval-request-lineage-query";
+import { useGovernanceRecordCorrectionUrlSync } from "@/hooks/use-governance-record-correction-url-sync";
 import { batchReviewGovernanceApprovalRequests } from "@/lib/api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { approvalLineageBlocksQuickApprove } from "@/lib/governance/governance-quick-approve-lineage";
@@ -75,7 +76,9 @@ export function GovernanceQuickApproveButton({
   const quickApproveIdParam = searchParams.get("quickApproveId");
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [correctionTarget, setCorrectionTarget] = useState<GovernanceMutationCorrectionTarget | null>(null);
-  const [correctionDialogOpen, setCorrectionDialogOpen] = useState(false);
+  const { correctionDialogOpen, setCorrectionDialogOpen } = useGovernanceRecordCorrectionUrlSync({
+    correctionTarget,
+  });
   const lineageQuery = useApprovalRequestLineageQuery(approvalRequestId, {
     enabled: canExecute && status === "Submitted",
   });

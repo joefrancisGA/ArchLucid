@@ -63,6 +63,34 @@ function filterProbeDebugMetadata(
   });
 }
 
+function formatProbeFreshnessLabel(asOfUtc: string): string | null {
+  const normalized = asOfUtc.trim();
+
+  if (normalized.length === 0) {
+    return null;
+  }
+
+  const parsed = new Date(normalized);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+
+  return parsed.toLocaleString();
+}
+
+function buildProbeDetailsTriggerLabel(result: WorkspaceAiAvailabilityResult): string {
+  const checkCount = result.checks.length;
+  const validatedAt = formatProbeFreshnessLabel(result.asOfUtc);
+  const checkLabel = `${checkCount} probe check${checkCount === 1 ? "" : "s"}`;
+
+  if (validatedAt !== null) {
+    return `Probe details — ${checkLabel}, validated ${validatedAt}`;
+  }
+
+  return `Probe details — ${checkLabel}`;
+}
+
 function resolveProbeProvenanceCopy(aiSource: string): string {
   if (aiSource === "managed-platform") {
     return "ArchLucid ran a live completion probe against the Azure OpenAI deployment configured for this workspace on the managed platform.";
@@ -230,6 +258,11 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
         )
       : null;
 
+  const probeLoaded = state.status === "loaded";
+  const probeAvailable = probeLoaded && state.result.isAvailable;
+  const probeTriggerLabel =
+    probeLoaded ? buildProbeDetailsTriggerLabel(state.result) : "Probe details";
+
   return (
     <div
       className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800"
@@ -264,22 +297,37 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
           ) : null}
         </div>
 
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="shrink-0"
-          onClick={() => void checkAvailability({ force: true })}
-          data-testid="review-package-check-ai-availability-button"
-        >
-          {state.status === "loading" ? "Checking AI availability…" : "Check AI availability"}
-        </Button>
+        {!probeAvailable ? (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="shrink-0"
+            onClick={() => void checkAvailability({ force: true })}
+            data-testid="review-package-check-ai-availability-button"
+          >
+            {state.status === "loading" ? "Checking AI availability…" : "Check AI availability"}
+          </Button>
+        ) : null}
       </div>
 
-      {state.status === "loaded" ? (
-        state.result.isAvailable ? (
-          <AdvancedOptionsAccordion triggerLabel="Probe details" defaultOpen={false} className="mt-3">
+      {probeLoaded ? (
+        probeAvailable ? (
+          <AdvancedOptionsAccordion triggerLabel={probeTriggerLabel} defaultOpen={false} className="mt-3">
             <WorkspaceAiProbeDiagnostics result={state.result} />
+            <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
+              <button
+                type="button"
+                className={cn(
+                  "text-al-link underline-offset-2 hover:underline",
+                  OPERATOR_TYPOGRAPHY.helper,
+                )}
+                onClick={() => void checkAvailability({ force: true })}
+                data-testid="review-package-recheck-ai-availability-link"
+              >
+                Re-check AI availability
+              </button>
+            </p>
           </AdvancedOptionsAccordion>
         ) : (
           <div className="mt-3">

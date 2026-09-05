@@ -10,8 +10,8 @@ import {
   REVIEW_PIPELINE_KEEP_WATCHING_CTA,
   REVIEW_PIPELINE_NOTIFICATIONS_ENABLED_LABEL,
 } from "@/lib/review-execution-background-safety-copy";
+import { LongOperationQueueStatusLine } from "@/components/operations/LongOperationQueueStatusLine";
 import {
-  formatLongOperationQueueStatusLine,
   LONG_OPERATION_QUEUE_STATUS_REFRESH_HINT,
 } from "@/lib/operations/long-operation-wait-copy";
 import { ReRunReviewButton } from "@/components/runs/ReRunReviewButton";
@@ -101,9 +101,7 @@ export function RunProgressTracker({
 
       {tracker.pollEnabled && tracker.clientPhase === "polling" ? (
         <div className="mt-3" data-testid="run-progress-queue-status">
-          <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-            {formatLongOperationQueueStatusLine(tracker.currentStageLabel)}
-          </p>
+          <LongOperationQueueStatusLine stageLabel={tracker.currentStageLabel} />
           <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {LONG_OPERATION_QUEUE_STATUS_REFRESH_HINT}
           </p>
@@ -128,7 +126,7 @@ export function RunProgressTracker({
         )
       ) : null}
 
-      {tracker.pipelineTerminalFailure ? (
+      {tracker.showPipelineTerminalFailure ? (
         <div className="mt-3 flex flex-wrap items-center gap-2" data-testid="run-progress-terminal-failure-actions">
           <ReRunReviewButton
             runId={runId}

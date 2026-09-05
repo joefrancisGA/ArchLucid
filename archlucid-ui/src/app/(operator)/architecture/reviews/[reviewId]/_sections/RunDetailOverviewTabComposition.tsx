@@ -105,6 +105,7 @@ export function composeRunDetailOverviewTab(
         recommendedActions={recommendedActions}
         criticalCount={severityCounts.critical}
         highCount={severityCounts.high}
+        pipelineIncomplete={!showDetailedOutcomeCards}
         proofStatusSlot={
           <RunDetailFirstScreenProofStatusClient
             key="run-detail-overview-proof-status"
@@ -123,8 +124,12 @@ export function composeRunDetailOverviewTab(
       <Suspense fallback={<RunDetailMidDeferredSkeleton />}>
         <RunDetailMidDeferredSections context={deferredContext} />
       </Suspense>
-      {buyerFinalizedPackage ? null : (
-        <RunDetailSponsorReportCtaCardDeferred runId={m.resolvedDetail.run.runId} demoted />
+      {buyerFinalizedPackage || !runCompleted ? null : (
+        <RunDetailSponsorReportCtaCardDeferred
+          runId={m.resolvedDetail.run.runId}
+          manifestId={m.manifestId}
+          demoted
+        />
       )}
     </div>
   );

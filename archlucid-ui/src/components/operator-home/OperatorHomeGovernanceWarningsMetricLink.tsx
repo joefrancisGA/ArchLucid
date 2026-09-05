@@ -18,6 +18,7 @@ export type OperatorHomeGovernanceWarningsMetricLinkProps = {
   readonly count: number;
   readonly label: string;
   readonly className?: string;
+  readonly emphasizeCount?: boolean;
 };
 
 /** Warnings KPI toggles the home warnings filter on and clears it when already active. */
@@ -29,6 +30,8 @@ export function OperatorHomeGovernanceWarningsMetricLink(
   const href = warningsFilterActive
     ? homeGovernanceWarningsClearHrefFromSearch(searchParams.toString())
     : homeGovernanceWarningsHrefFromSearch(searchParams.toString());
+
+  const emphasizeCount = props.emphasizeCount !== false;
 
   return (
     <Link
@@ -48,7 +51,7 @@ export function OperatorHomeGovernanceWarningsMetricLink(
       <span className="inline-flex items-baseline gap-1.5">
         <span
           className={cn(
-            OPERATOR_HOME_METRIC_COUNTER_VALUE,
+            emphasizeCount ? OPERATOR_HOME_METRIC_COUNTER_VALUE : OPERATOR_HOME_METRIC_COUNTER_LABEL,
             warningsFilterActive ? "text-al-text-primary" : undefined,
           )}
         >
