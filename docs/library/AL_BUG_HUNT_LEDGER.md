@@ -3348,11 +3348,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 210
-- **bugs-found:** 432
+- **hunts:** 211
+- **bugs-found:** 433
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — digest empty recipientEmails array silent wipe
+- **last-hunt:** 2026-09-05
+- **last-bug:** 2026-09-05 — digest disable-only schedule/timezone reset
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4376,6 +4376,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantExecDigestPreferencesController.PostExecDigestPreferences` / `TenantSponsorDigestPreferencesController.PostSponsorDigestPreferences` — disable-only POST with explicit empty `recipientEmails` array (`[]`) wiped stored recipients instead of preserving them like omitted field (#778) — **hit 2026-09-04 (#793):** treat null or empty recipient list as omitted when `emailEnabled` is false before merge-from-existing (whitespace #792 parity); regressions in `PostExecDigestPreferences_preserves_recipients_when_disable_only_body_has_empty_recipient_emails_array` and `PostSponsorDigestPreferences_preserves_recipients_when_disable_only_body_has_empty_recipient_emails_array`.
 
 2026-09-04 seed hunt #793 (hit): proved digest empty recipientEmails array silent wipe on disable-only upsert.
+
+- [x] (proven) `TenantExecDigestPreferencesController.PostExecDigestPreferences` / `TenantSponsorDigestPreferencesController.PostSponsorDigestPreferences` — disable-only POST (`emailEnabled: false` without schedule fields) reset `dayOfWeek`, `hourOfDay`, and `ianaTimeZoneId` to defaults (`1`, `8`, `UTC`) instead of preserving stored schedule/timezone like `TryDisableEmailAsync` (#778/#793 recipient parity) — **hit 2026-09-05 (#794):** merge omitted schedule/timezone from existing preferences when disabling email; regressions in `PostExecDigestPreferences_preserves_schedule_and_timezone_when_disable_only_body_omits_schedule_fields` and `PostSponsorDigestPreferences_preserves_schedule_and_timezone_when_disable_only_body_omits_schedule_fields`.
+
+2026-09-05 seed hunt #794 (hit): proved digest disable-only schedule/timezone silent reset.
 
 2026-09-04 seed hunt #787 (hit): proved disposition inapplicable optional string silent drop beyond whitespace-only cases.
 
