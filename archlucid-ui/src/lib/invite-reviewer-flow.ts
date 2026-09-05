@@ -52,8 +52,8 @@ export const INVITE_REVIEWER_DEFAULT_ROLE: ArchLucidAppRole = "Reader";
 /** Return path after cancel or back from the invite flow (operator overview). */
 export const INVITE_REVIEWER_BACK_TO_REVIEW_HREF = "/";
 
-/** Label for the back navigation — matches the destination (Overview), not "a review." */
-export const INVITE_REVIEWER_BACK_LABEL = "Back to overview";
+/** Label for the back navigation — matches the destination (Home), not "a review." */
+export const INVITE_REVIEWER_BACK_LABEL = "Back to Home";
 
 export const INVITE_REVIEWER_FORBIDDEN_DESCRIPTION =
   "Inviting reviewers requires workspace administrator access. Ask a workspace admin to send the invitation, or sign in with an admin-ranked account.";
