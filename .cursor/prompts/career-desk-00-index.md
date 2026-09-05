@@ -1,7 +1,8 @@
 <!-- Career-desk Composer prompts — paste one prompt per session.
      Origin: 2026-09-04 owner diagnosis that ArchLucid is a working-architect
      tool (all-day use; livelihoods may depend on the sealed record), not a
-     casual evaluator. Wave 5 after WA-01–24 shipped (#1496). Wave 6: all-day-desk-00-index.md (AD-01–12). Wave 7: founding-desk-00-index.md (FD-01–13).
+     casual evaluator. Wave 5 after WA-01–24 shipped (#1496). Wave 6: all-day-desk-00-index.md (AD-01–12).      Wave 7: founding-desk-00-index.md (FD-01–13).
+     Wave 8: instrument-spine-00-index.md (IS-01–15).
      Do not implement from this index. -->
 
 # Career-desk mitigations — Composer prompt set (CD-01–CD-15)
@@ -34,6 +35,7 @@ Do **not** merge draft+review in the database, collapse desktop review tabs, aut
 | **CD-01–15** | **This set** — wave 5 unique leftovers | Run these |
 | **AD-01–12** | Wave 6 all-day desk leftovers | [`all-day-desk-00-index.md`](all-day-desk-00-index.md) |
 | **FD-01–13** | Wave 7 founding leftovers | [`founding-desk-00-index.md`](founding-desk-00-index.md) |
+| **IS-01–15** | Wave 8 load-bearing bets | [`instrument-spine-00-index.md`](instrument-spine-00-index.md) |
 
 If a CD row lists a WA/LD/RS/LI owner, **do not fork** that file. Implement only the leftover in *What to build*.
 
@@ -99,4 +101,4 @@ Prefer **01 → 02 → 03** first (teaching/empty/ADR chrome). Then **05 → 06 
 
 Summarize: files changed, tests run, residual risk, Working vs Guided behavior, whether the **product spine** still works without that prompt. Do not mark LI, LD, RS, or WA as undone.
 
-**Wave 6:** [`all-day-desk-00-index.md`](all-day-desk-00-index.md) (**AD-01–12**). **Wave 7:** [`founding-desk-00-index.md`](founding-desk-00-index.md) (**FD-01–13**). Do not fork AD-09 or AD-10.
+**Wave 6:** [`all-day-desk-00-index.md`](all-day-desk-00-index.md) (**AD-01–12**). **Wave 7:** [`founding-desk-00-index.md`](founding-desk-00-index.md) (**FD-01–13**). **Wave 8:** [`instrument-spine-00-index.md`](instrument-spine-00-index.md) (**IS-01–15**). Do not fork AD-09 or AD-10.

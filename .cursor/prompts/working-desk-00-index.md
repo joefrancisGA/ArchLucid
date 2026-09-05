@@ -9,7 +9,8 @@
      Wave 4: working-architect-00-index.md (WA-01–24) shipped #1496.
      Wave 5: career-desk-00-index.md (CD-01–15).
      Wave 6: all-day-desk-00-index.md (AD-01–12).
-     Wave 7: founding-desk-00-index.md (FD-01–13). -->
+     Wave 7: founding-desk-00-index.md (FD-01–13).
+     Wave 8: instrument-spine-00-index.md (IS-01–15). -->
 
 # Working-desk mitigations — Composer prompt set (WD-01–WD-12)
 

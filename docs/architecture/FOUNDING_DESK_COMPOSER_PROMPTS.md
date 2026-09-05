@@ -4,10 +4,11 @@
 > **Shipped predecessors:** LI-01–15 (`master` #1397), LD-01–15 (#1421 / #1439), RS-01–15 (#1457), WA-01–24 (#1496)
 > **Wave 5:** [`CAREER_DESK_COMPOSER_PROMPTS.md`](CAREER_DESK_COMPOSER_PROMPTS.md) (**CD-01–15**)
 > **Wave 6:** [`ALL_DAY_DESK_COMPOSER_PROMPTS.md`](ALL_DAY_DESK_COMPOSER_PROMPTS.md) (**AD-01–12**) — do not fork
+> **Wave 8:** [`INSTRUMENT_SPINE_COMPOSER_PROMPTS.md`](INSTRUMENT_SPINE_COMPOSER_PROMPTS.md) (**IS-01–15**) — do not fork FD
 
 # Founding-desk Composer prompts (FD-01–FD-13)
 
-**Created:** 2026-09-04 · **Status:** **implemented** on `cursor/founding-desk-implementation-38e3` (draft PR #1534) · **Fresh reassessment:** [`FOUNDING_DESK_ASSESSMENT_2026-09-04.md`](FOUNDING_DESK_ASSESSMENT_2026-09-04.md) — 10/13 closed in product, 3 partial (Vitest/zoom fixtures only) · **Do not re-run LI, LD, RS, WA, CD, or AD.**
+**Created:** 2026-09-04 · **Status:** **implemented** on `cursor/founding-desk-implementation-38e3` (draft PR #1534) · **Fresh reassessment:** [`FOUNDING_DESK_ASSESSMENT_2026-09-04.md`](FOUNDING_DESK_ASSESSMENT_2026-09-04.md) — 10/13 closed in product, 3 partial (Vitest/zoom fixtures only) · **Do not re-run LI, LD, RS, WA, CD, or AD.** Wave 8: [`INSTRUMENT_SPINE_COMPOSER_PROMPTS.md`](INSTRUMENT_SPINE_COMPOSER_PROMPTS.md) (**IS-01–15**).
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record. **AD-01–12** owns dirty inspect, cancel confirm, deep-page back links, offline new-draft, last-visit honesty, collab freshness, hub scan layout, remaining recovery roots, Azure Boards dirty, keyboard-doc truth, draft load recovery, and sticky identity columns.
 
