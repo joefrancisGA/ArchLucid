@@ -42,7 +42,8 @@ internal static class RequestConstraintTokenMatcher
             if (index < 0)
                 return false;
 
-            if (IsStandaloneWordToken(haystack, index, token.Length))
+            if (IsStandaloneWordToken(haystack, index, token.Length)
+                && !IsNegatedPhrasePrefix(haystack, index))
                 return true;
 
             index++;
@@ -91,6 +92,12 @@ internal static class RequestConstraintTokenMatcher
         if (IsNonPrefixedNegation(haystack, tokenIndex))
             return true;
 
+        if (IsNoPrefixedNegation(haystack, tokenIndex))
+            return true;
+
+        if (IsNotPrefixedNegation(haystack, tokenIndex))
+            return true;
+
         ReadOnlySpan<char> before = haystack.AsSpan(0, tokenIndex).TrimEnd();
 
         if (before.Length < 2)
@@ -101,6 +108,34 @@ internal static class RequestConstraintTokenMatcher
             || before.EndsWith("un_", StringComparison.OrdinalIgnoreCase)
             || before.EndsWith("un.", StringComparison.OrdinalIgnoreCase)
             || before.EndsWith("un ", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsNoPrefixedNegation(string haystack, int tokenIndex)
+    {
+        ReadOnlySpan<char> before = haystack.AsSpan(0, tokenIndex).TrimEnd();
+
+        if (before.Length < 2)
+            return false;
+
+        return before.EndsWith("no", StringComparison.OrdinalIgnoreCase)
+            || before.EndsWith("no-", StringComparison.OrdinalIgnoreCase)
+            || before.EndsWith("no_", StringComparison.OrdinalIgnoreCase)
+            || before.EndsWith("no.", StringComparison.OrdinalIgnoreCase)
+            || before.EndsWith("no ", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsNotPrefixedNegation(string haystack, int tokenIndex)
+    {
+        ReadOnlySpan<char> before = haystack.AsSpan(0, tokenIndex).TrimEnd();
+
+        if (before.Length < 3)
+            return false;
+
+        return before.EndsWith("not", StringComparison.OrdinalIgnoreCase)
+            || before.EndsWith("not-", StringComparison.OrdinalIgnoreCase)
+            || before.EndsWith("not_", StringComparison.OrdinalIgnoreCase)
+            || before.EndsWith("not.", StringComparison.OrdinalIgnoreCase)
+            || before.EndsWith("not ", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsNonPrefixedNegation(string haystack, int tokenIndex)
