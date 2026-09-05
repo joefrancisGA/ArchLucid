@@ -1,7 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useState, type SetStateAction } from "react";
 
 import {
   Dialog,
@@ -11,6 +12,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { KeyboardShortcutsHelpContent } from "@/components/KeyboardShortcutsHelpContent";
+import { useShortcutNavigation } from "@/hooks/useShortcutNavigation";
+import {
+  keyboardShortcutsDialogHrefFromSearch,
+  parseKeyboardShortcutsOpenFromSearch,
+} from "@/lib/operator/keyboard-shortcuts-dialog-url";
 
 export type KeyboardShortcutProviderProps = {
   children: ReactNode;
@@ -23,8 +29,37 @@ export type KeyboardShortcutProviderProps = {
  * {@link AppShellSyncKeyboardShortcutListener}.
  */
 export function KeyboardShortcutProvider({ children, onHelpRequested }: KeyboardShortcutProviderProps) {
-  const [helpOpen, setHelpOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const shortcutsOpenParam = searchParams.get("shortcutsOpen");
+  const [helpOpen, setHelpOpenState] = useState(() => parseKeyboardShortcutsOpenFromSearch(shortcutsOpenParam));
   const showBuiltInHelpDialog = onHelpRequested === undefined;
+
+  const syncShortcutsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(keyboardShortcutsDialogHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setHelpOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setHelpOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncShortcutsOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncShortcutsOpenToUrl],
+  );
+
+  useShortcutNavigation({
+    onHelpRequested: showBuiltInHelpDialog ? () => setHelpOpen(true) : onHelpRequested,
+  });
 
   return (
     <>
