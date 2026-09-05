@@ -27,4 +27,11 @@ public sealed class AssignPolicyPackRequest
         get;
         set;
     }
+
+    /// <summary>When true, marks the assignment as organization-required for resolution precedence.</summary>
+    public bool IsOrganizationRequired
+    {
+        get;
+        set;
+    }
 }

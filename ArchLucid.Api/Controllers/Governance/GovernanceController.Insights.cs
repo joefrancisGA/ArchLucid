@@ -54,7 +54,8 @@ public sealed partial class GovernanceController
             maxChanges,
             cancellationToken);
 
-        string fingerprint = $"dashboard|pending={maxPending}|decisions={maxDecisions}|changes={maxChanges}";
+        string fingerprint =
+            $"dashboard|tenant={scope.TenantId:N}|workspace={scope.WorkspaceId:N}|project={scope.ProjectId:N}|pending={maxPending}|decisions={maxDecisions}|changes={maxChanges}";
         string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
             summary,
             ContractJson.CamelCaseIgnoreNullCompact,

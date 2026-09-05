@@ -3418,11 +3418,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 228
-- **bugs-found:** 447
+- **hunts:** 229
+- **bugs-found:** 450
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — renew operator retry duplicate RiskExceptionRenewed audit
+- **last-bug:** 2026-09-05 — policy-pack archive retry and conditional GET scope ETag gaps
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4515,6 +4515,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.RenewRiskException` / `RiskExceptionService.RenewAsync` — operator retry logs duplicate `RiskExceptionRenewed` audit without `IdempotencyFilter` (#570 revoke lifecycle parity lens; narrowed after #833 cheap-disproof of cumulative-expiry claim) — **hit 2026-09-05 (#834):** return existing active waiver without SQL renew or audit when `ExpiresAtUtc` and optional `rationale`/`evidenceRef` already match (policy-pack assign #833 parity); regression in `RenewAsync_skips_duplicate_audit_when_identical_operator_retry`.
 
 2026-09-05 thorough hunt #834 (hit): proved renew idempotent retry guard for duplicate RiskExceptionRenewed audit; zone idempotency-posture retry candidates exhausted.
+
+- [x] (proven) `PolicyPacksController.ArchiveAssignment` / `PolicyPackAssignStage.TryArchiveAssignmentAsync` — operator retry after successful archive returned HTTP 404 (`ResourceNotFound`) and skipped duplicate changelog because `ArchiveAsync` zero-row update mapped to failure (#833 assign retry parity) — **hit 2026-09-05 (#835):** return success when assignment row exists with `ArchivedUtc` set; regression in `TryArchiveAssignmentAsync_returns_true_when_assignment_already_archived`.
+- [x] (proven) `GovernanceStickinessController.GetReviewsAwaitingAction` — conditional ETag omitted tenant/workspace/project fingerprint while sibling `GetDecisionsNeededSummary` and `PolicyPacksController.GetEffective` include scope — **hit 2026-09-05 (#835):** scope fingerprint in etag computation; regression in `GetReviewsAwaitingAction_returns_ok_when_scope_changes_despite_matching_empty_body_etag`.
+- [x] (proven) `GovernanceController.GetDashboard` — conditional ETag fingerprint included query bounds only while `GovernanceDashboardService` scopes recent changes by workspace/project — **hit 2026-09-05 (#835):** include tenant/workspace/project in fingerprint; regression in `GetDashboard_returns_ok_when_workspace_changes_despite_matching_summary_etag`.
+- [ ] (candidate) `GovernanceStickinessController.CreateRecurrenceSchedule` / `GovernanceStickinessFacade.CreateRecurrenceScheduleAsync` — operator retry allocates fresh `ScheduleId` and creates duplicate schedule rows + `ArchitectureReviewRecurrenceScheduleCreated` audit (`operator-documented-safe-retry`, no dedupe guard).
+- [ ] (candidate) `TenantTrialController.ConvertTrialAsync` / `TenantTrialConversionStage.ConvertTrialAsync` — successful convert retry returns HTTP 409 because trial status is no longer `Active` (`operator-documented-safe-retry` posture).
+- [ ] (candidate) `TenantCustomerSuccessController.PostProductFeedbackAsync` — retry appends duplicate `ProductFeedback` rows (append-only telemetry lens; may be intentional).
+
+2026-09-05 seed hunt #835 (hit): reseeded post-#834 exhaustion; proved archive idempotent retry and two conditional-GET scope etag gaps; seeded recurrence/trial/feedback retry candidates.
 
 2026-09-05 seed hunt #830 (seed-only): reseeded post-#829 idempotency and canonicalization gaps; four new candidates on renew retry, mutation-correction duplicate audit, policy-pack assign retry, and merge-conflict audit finding-id casing.
 

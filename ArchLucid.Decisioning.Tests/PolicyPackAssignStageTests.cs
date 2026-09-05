@@ -89,4 +89,62 @@ public sealed class PolicyPackAssignStageTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task TryArchiveAssignmentAsync_returns_true_when_assignment_already_archived()
+    {
+        InMemoryPolicyPackAssignmentRepository repository = new();
+        Mock<IPolicyPackResolverCacheInvalidator> invalidator = new();
+        invalidator
+            .Setup(i => i.InvalidateTenantAsync(TenantId, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IPolicyPackChangeLogAppender> changeLog = new();
+        changeLog
+            .Setup(c => c.AppendAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        PolicyPackAssignStage sut = new(repository, invalidator.Object, changeLog.Object);
+
+        PolicyPackAssignment assignment = await sut.AssignAsync(
+            TenantId,
+            WorkspaceId,
+            ProjectId,
+            PackId,
+            "1.0.0",
+            GovernanceScopeLevel.Project,
+            isPinned: true,
+            isOrganizationRequired: false,
+            isEnabled: true,
+            CancellationToken.None);
+
+        bool first = await sut.TryArchiveAssignmentAsync(TenantId, assignment.AssignmentId, CancellationToken.None);
+        bool second = await sut.TryArchiveAssignmentAsync(TenantId, assignment.AssignmentId, CancellationToken.None);
+
+        first.Should().BeTrue();
+        second.Should().BeTrue();
+        changeLog.Verify(
+            c => c.AppendAsync(
+                PackId,
+                TenantId,
+                WorkspaceId,
+                ProjectId,
+                PolicyPackChangeTypes.AssignmentArchived,
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
 }

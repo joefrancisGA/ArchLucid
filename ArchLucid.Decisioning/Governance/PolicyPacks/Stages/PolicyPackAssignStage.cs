@@ -106,7 +106,15 @@ public sealed class PolicyPackAssignStage(
         bool ok = await _assignmentRepository.ArchiveAsync(tenantId, assignmentId, ct);
 
         if (!ok)
+        {
+            PolicyPackAssignment? existing =
+                await _assignmentRepository.GetByTenantAndAssignmentIdAsync(tenantId, assignmentId, ct);
+
+            if (existing is not null && existing.ArchivedUtc.HasValue)
+                return true;
+
             return false;
+        }
 
         PolicyPackAssignment? row =
             await _assignmentRepository.GetByTenantAndAssignmentIdAsync(tenantId, assignmentId, ct);
