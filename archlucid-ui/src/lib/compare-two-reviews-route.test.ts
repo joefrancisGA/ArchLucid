@@ -13,6 +13,12 @@ describe("compare-two-reviews-route", () => {
     );
   });
 
+  it("buildCompareTwoReviewsHref scopes compare to an architecture when provided", () => {
+    expect(
+      buildCompareTwoReviewsHref({ baseRunId: "run-abc", architectureId: "arch-1" }),
+    ).toBe("/insights/compare-two-reviews?priorRunId=run-abc&architectureId=arch-1");
+  });
+
   it("buildCompareTwoReviewsHref omits query for empty base ids", () => {
     expect(buildCompareTwoReviewsHref({ baseRunId: "" })).toBe("/insights/compare-two-reviews");
     expect(buildCompareTwoReviewsHref({ baseRunId: "   " })).toBe("/insights/compare-two-reviews");

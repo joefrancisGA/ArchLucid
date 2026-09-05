@@ -9,7 +9,7 @@ import {
   compareRunIdsAreSameAfterDemoCanonicalization,
   readCompareRunIdsFromSearchParams,
 } from "@/lib/compare-url-query-params";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import {
@@ -79,12 +79,17 @@ export function useCompareFormRunSelection(options: {
   const leftFootnote = comparePickerFootnote(leftTrim, leftPickedSummary);
   const rightFootnote = comparePickerFootnote(rightTrim, rightPickedSummary);
   const isDemoClaimsIntakeComparePair =
+    evalChrome &&
     isStaticDemoPayloadFallbackEnabled() &&
     leftTrim === SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID &&
     rightTrim === SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID;
 
-  const buyerPolished = isBuyerPolishedOperatorShellEnv();
-  const { finalizedCount, insufficientForCompare } = useCompareFinalizedRunAvailability();
+  const evalChrome = useProductionEvalChrome();
+  const architectureId = searchParams?.get("architectureId")?.trim() ?? "";
+  const { finalizedCount, insufficientForCompare } = useCompareFinalizedRunAvailability({
+    architectureId: architectureId.length > 0 ? architectureId : undefined,
+  });
+  const buyerPolished = evalChrome;
 
   const leftPickerLabel = isDemoClaimsIntakeComparePair ? "Baseline Claims Intake Review" : "Baseline review";
   const rightPickerLabel = isDemoClaimsIntakeComparePair ? "Updated Claims Intake Review" : "Updated review";
@@ -101,9 +106,7 @@ export function useCompareFormRunSelection(options: {
   const hasPrefilledSelection = leftTrim.length > 0 || rightTrim.length > 0;
 
   const showRelatedReviewLinks =
-    leftTrim.length > 0 ||
-    rightTrim.length > 0 ||
-    isStaticDemoPayloadFallbackEnabled();
+    leftTrim.length > 0 || rightTrim.length > 0 || (evalChrome && isStaticDemoPayloadFallbackEnabled());
 
   return {
     leftRunId,

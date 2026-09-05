@@ -30,14 +30,28 @@ export function compareTwoReviewsHref(query?: Record<string, string | undefined>
 }
 
 /** Pre-fills the base (prior) side when opening Compare from a review context (PT-20). */
-export function buildCompareTwoReviewsHref(args: { readonly baseRunId: string }): string {
+export function buildCompareTwoReviewsHref(args: {
+  readonly baseRunId: string;
+  readonly architectureId?: string;
+}): string {
   const trimmed = args.baseRunId.trim();
 
   if (trimmed.length === 0) {
+    const architectureId = args.architectureId?.trim() ?? "";
+
+    if (architectureId.length > 0) {
+      return compareTwoReviewsHref({ architectureId });
+    }
+
     return COMPARE_TWO_REVIEWS_PATH;
   }
 
-  return compareTwoReviewsHref({ priorRunId: trimmed });
+  const architectureId = args.architectureId?.trim() ?? "";
+
+  return compareTwoReviewsHref({
+    priorRunId: trimmed,
+    ...(architectureId.length > 0 ? { architectureId } : {}),
+  });
 }
 
 /** Extracts a review run id from a review-detail pathname when present. */

@@ -5,7 +5,7 @@ import { Suspense } from "react";
 import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleton";
 
 import { ReviewsNewPageShell } from "./ReviewsNewPageShell";
-import { ReviewsNewPathSwitcherDeferred } from "./reviews-new-path-switcher-deferred-chunks";
+import { ReviewsNewRouteBody } from "./ReviewsNewRouteBody";
 
 export const metadata: Metadata = {
   title: START_REVIEW_LABEL,
@@ -15,7 +15,7 @@ export default async function NewRunPage() {
   return (
     <Suspense fallback={<NewRunWizardSkeleton />}>
       <ReviewsNewPageShell>
-        <ReviewsNewPathSwitcherDeferred />
+        <ReviewsNewRouteBody />
       </ReviewsNewPageShell>
     </Suspense>
   );
