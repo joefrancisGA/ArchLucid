@@ -2,7 +2,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, type SetStateAction } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { ShareLinkPermissionClarityPanel } from "@/components/usability/ShareLinkPermissionClarityPanel";
@@ -15,6 +16,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  parseReviewShareLinkOpenFromSearch,
+  reviewShareLinkPanelsHrefFromSearch,
+} from "@/lib/reviews/review-share-link-panels-url";
 
 type ShareableReviewLinkButtonProps = {
   readonly runId: string;
@@ -23,7 +28,32 @@ type ShareableReviewLinkButtonProps = {
 
 /** Copy a read-only showcase link for sponsors who will not log in. */
 export function ShareableReviewLinkButton(props: ShareableReviewLinkButtonProps) {
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
+  const searchParams = useSearchParams();
+  const shareLinkOpenParam = searchParams.get("shareLinkOpen");
+  const [open, setOpenState] = useState(() => parseReviewShareLinkOpenFromSearch(shareLinkOpenParam));
+
+  const syncShareLinkOpenToUrl = useCallback(
+    (nextOpen: boolean) => {
+      router.replace(reviewShareLinkPanelsHrefFromSearch(searchParams.toString(), nextOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncShareLinkOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncShareLinkOpenToUrl],
+  );
 
   const shareUrl = useCallback((): string => {
     if (typeof window === "undefined") {

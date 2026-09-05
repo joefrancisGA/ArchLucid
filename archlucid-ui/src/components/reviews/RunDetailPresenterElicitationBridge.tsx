@@ -1,6 +1,7 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
 import { ReviewPresenterElicitationActions } from "@/components/reviews/ReviewPresenterElicitationActions";
 import {
@@ -11,6 +12,10 @@ import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useReviewPresenterElicitation } from "@/hooks/use-review-presenter-elicitation";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { readPresenterModeFromSearchParams } from "@/lib/review-detail-workspace-tabs";
+import {
+  parseReviewPresenterQuestionIdFromSearch,
+  reviewPresenterElicitationHrefFromSearch,
+} from "@/lib/reviews/review-presenter-elicitation-url";
 import { cn } from "@/lib/utils";
 
 export type RunDetailPresenterElicitationBridgeProps = ReviewDetailWorkspaceProps & {
@@ -22,12 +27,41 @@ export function RunDetailPresenterElicitationBridge(
   props: RunDetailPresenterElicitationBridgeProps,
 ): React.JSX.Element {
   const { architectureRequestId, ...workspaceProps } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
+  const presenterQuestionIdParam = searchParams.get("presenterQuestionId");
   const { isWorkingMode } = useWorkspaceMode();
   const presenterMode = readPresenterModeFromSearchParams(searchParams);
   const elicitation = useReviewPresenterElicitation(architectureRequestId);
 
   const showPresenterElicitation = presenterMode && isWorkingMode;
+  const primaryQuestionKey = elicitation.primaryQuestion?.questionKey ?? "";
+
+  useEffect(() => {
+    if (!showPresenterElicitation) {
+      return;
+    }
+
+    const urlQuestionId = parseReviewPresenterQuestionIdFromSearch(presenterQuestionIdParam);
+    const nextQuestionId = primaryQuestionKey.trim().length > 0 ? primaryQuestionKey : null;
+
+    if (urlQuestionId === (nextQuestionId ?? "")) {
+      return;
+    }
+
+    router.replace(
+      reviewPresenterElicitationHrefFromSearch(searchParams.toString(), nextQuestionId, pathname),
+      { scroll: false },
+    );
+  }, [
+    pathname,
+    presenterQuestionIdParam,
+    primaryQuestionKey,
+    router,
+    searchParams,
+    showPresenterElicitation,
+  ]);
 
   const presenterFindingTitle = showPresenterElicitation ? elicitation.title : undefined;
 

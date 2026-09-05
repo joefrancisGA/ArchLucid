@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type SetStateAction } from "react";
 
 import { ShellInFlightCancelAbandonClarity } from "@/components/shell/ShellInFlightCancelAbandonClarity";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -17,6 +17,10 @@ import { formatOperationElapsed } from "@/lib/operations/format-operation-elapse
 import { patchInFlightOperation } from "@/lib/operations/in-flight-operations-store";
 import { ARCHLUCID_OPEN_SHELL_IN_FLIGHT_EVENT } from "@/lib/operations/open-shell-in-flight-event";
 import { isTerminalOperationState } from "@/lib/operations/operation-state";
+import {
+  parseShellInFlightCancelIdFromSearch,
+  shellInFlightCancelConfirmHrefFromSearch,
+} from "@/lib/operator/shell-in-flight-cancel-confirm-url";
 import { enterpriseStatusTagClass, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -26,13 +30,42 @@ import { cn } from "@/lib/utils";
  */
 export function ShellInFlightOperationsAffordance(): React.JSX.Element | null {
   const router = useRouter();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const inFlightCancelIdParam = searchParams.get("inFlightCancelId");
   const operations = useShellInFlightOperations();
   const [nowMs, setNowMs] = useState(() => Date.now());
   const [open, setOpen] = useState(false);
   const [cancellingIds, setCancellingIds] = useState<ReadonlySet<string>>(() => new Set());
-  const [pendingCancelOperationId, setPendingCancelOperationId] = useState<string | null>(null);
+  const [pendingCancelOperationId, setPendingCancelOperationIdState] = useState<string | null>(() => {
+    const parsed = parseShellInFlightCancelIdFromSearch(inFlightCancelIdParam);
+
+    return parsed.length > 0 ? parsed : null;
+  });
   const [cancelFailureMessage, setCancelFailureMessage] = useState<string | null>(null);
   const clarity = buildCancelAbandonInFlightClarity();
+
+  const syncInFlightCancelIdToUrl = useCallback(
+    (operationId: string | null) => {
+      router.replace(
+        shellInFlightCancelConfirmHrefFromSearch(searchParams.toString(), operationId, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPendingCancelOperationId = useCallback(
+    (value: SetStateAction<string | null>) => {
+      setPendingCancelOperationIdState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncInFlightCancelIdToUrl(next);
+
+        return next;
+      });
+    },
+    [syncInFlightCancelIdToUrl],
+  );
 
   useEffect(() => {
     function onOperationTerminal(): void {

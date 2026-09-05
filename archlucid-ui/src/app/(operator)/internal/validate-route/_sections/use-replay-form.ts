@@ -11,6 +11,10 @@ import {
   parseReplayValidationModeFromSearch,
   replayValidationModeHrefFromSearch,
 } from "@/lib/replay/replay-validation-mode-url";
+import {
+  parseReplayModifyConfirmOpenFromSearch,
+  replayModifyConfirmHrefFromSearch,
+} from "@/lib/replay/replay-modify-confirm-url";
 import { coerceReplayResponse } from "@/lib/operator/operator-response-guards";
 import {
   latestValidationOutcomeByRunId,
@@ -29,10 +33,13 @@ export function useReplayForm(): ReplayFormViewModel {
   const searchParams = useSearchParams();
   const scopedRunIdFromUrl = (searchParams.get("runId") ?? "").trim();
   const urlMode = parseReplayValidationModeFromSearch(searchParams.get("mode"));
+  const replayModifyConfirmParam = searchParams.get("replayModifyConfirm");
   const [runId, setRunId] = useState(scopedRunIdFromUrl);
   const [selectedRun, setSelectedRun] = useState<RunSummary | null>(null);
   const [mode, setModeState] = useState<string>(urlMode);
-  const [modifyConfirmed, setModifyConfirmed] = useState(false);
+  const [modifyConfirmed, setModifyConfirmedState] = useState(() =>
+    parseReplayModifyConfirmOpenFromSearch(replayModifyConfirmParam),
+  );
   const [result, setResult] = useState<ReplayResponse | null>(null);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [malformedMessage, setMalformedMessage] = useState<string | null>(null);
@@ -59,6 +66,25 @@ export function useReplayForm(): ReplayFormViewModel {
       });
     },
     [router, searchParams],
+  );
+
+  const syncModifyConfirmToUrl = useCallback(
+    (confirmOpen: boolean) => {
+      router.replace(replayModifyConfirmHrefFromSearch(searchParams.toString(), confirmOpen), { scroll: false });
+    },
+    [router, searchParams],
+  );
+
+  const setModifyConfirmed = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setModifyConfirmedState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncModifyConfirmToUrl(next);
+
+        return next;
+      });
+    },
+    [syncModifyConfirmToUrl],
   );
 
   const onPickReview = useCallback(
@@ -89,8 +115,9 @@ export function useReplayForm(): ReplayFormViewModel {
   );
 
   useEffect(() => {
-    setModifyConfirmed(false);
-  }, [mode, runId]);
+    setModifyConfirmedState(false);
+    syncModifyConfirmToUrl(false);
+  }, [mode, runId, syncModifyConfirmToUrl]);
 
   const runIdTrimmed = runId.trim();
 
