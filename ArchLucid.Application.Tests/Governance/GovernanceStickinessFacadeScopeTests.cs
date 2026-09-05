@@ -1018,6 +1018,88 @@ public sealed class GovernanceStickinessFacadeScopeTests
     }
 
     [Fact]
+    public async Task CreateRecurrenceScheduleAsync_returns_existing_schedule_when_identical_operator_retry()
+    {
+        Guid sourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid existingScheduleId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        const string cronExpression = "0 8 * * 1";
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(CallerScope, sourceRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchLucid.Persistence.Models.RunRecord
+            {
+                RunId = sourceRunId,
+                ArchitectureId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            });
+
+        Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new();
+        recurrenceRepo
+            .Setup(r => r.ListByScopeAsync(
+                CallerScope.TenantId,
+                CallerScope.WorkspaceId,
+                CallerScope.ProjectId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new ArchitectureReviewRecurrenceSchedule
+                {
+                    ScheduleId = existingScheduleId,
+                    TenantId = CallerScope.TenantId,
+                    WorkspaceId = CallerScope.WorkspaceId,
+                    ProjectId = CallerScope.ProjectId,
+                    SourceRunId = sourceRunId,
+                    Name = "Recurring architecture review",
+                    CronExpression = cronExpression,
+                    IsEnabled = true,
+                },
+            ]);
+
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IArchitectureReviewRecurrenceNextRunCalculator> calculator = new();
+        calculator
+            .Setup(c => c.IsSupportedCronExpression(cronExpression))
+            .Returns(true);
+        calculator
+            .Setup(c => c.ComputeNextRunUtc(cronExpression, It.IsAny<DateTime>(), true))
+            .Returns(DateTime.UtcNow.AddDays(7));
+
+        GovernanceStickinessFacade sut = CreateSut(
+            runRepository: runs.Object,
+            recurrenceRepository: recurrenceRepo.Object,
+            recurrenceCalculator: calculator.Object,
+            auditService: audit.Object,
+            authorityQuery: PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateAuthorityQueryServiceForAnyRun(CallerScope),
+            manifestHashService: PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService());
+
+        CreateArchitectureReviewRecurrenceScheduleRequest request = new()
+        {
+            SourceRunId = sourceRunId,
+            IsEnabled = true,
+            CronExpression = cronExpression,
+        };
+
+        ArchitectureReviewRecurrenceSchedule first =
+            await sut.CreateRecurrenceScheduleAsync(request, CancellationToken.None);
+        ArchitectureReviewRecurrenceSchedule second =
+            await sut.CreateRecurrenceScheduleAsync(request, CancellationToken.None);
+
+        second.ScheduleId.Should().Be(first.ScheduleId);
+        second.ScheduleId.Should().Be(existingScheduleId);
+        recurrenceRepo.Verify(
+            r => r.CreateAsync(It.IsAny<ArchitectureReviewRecurrenceSchedule>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task CreateRecurrenceScheduleAsync_throws_when_name_exceeds_sql_max_length()
     {
         Guid sourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -1348,7 +1430,8 @@ public sealed class GovernanceStickinessFacadeScopeTests
         IArchitectureReviewRecurrenceNextRunCalculator? recurrenceCalculator = null,
         IAuditService? auditService = null,
         IAuthorityQueryService? authorityQuery = null,
-        IManifestHashService? manifestHashService = null)
+        IManifestHashService? manifestHashService = null,
+        IArchitectureReviewRecurrenceScheduleRepository? recurrenceRepository = null)
     {
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(CallerScope);
@@ -1360,7 +1443,7 @@ public sealed class GovernanceStickinessFacadeScopeTests
             riskExceptionService ?? Mock.Of<IRiskExceptionService>(),
             riskRegister ?? new Mock<IArchitectureRiskRegisterService>().Object,
             decisionRegister ?? new Mock<IArchitectureDecisionRegisterService>().Object,
-            Mock.Of<IArchitectureReviewRecurrenceScheduleRepository>(),
+            recurrenceRepository ?? Mock.Of<IArchitectureReviewRecurrenceScheduleRepository>(),
             recurrenceCalculator ?? Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>(),
             runRepository ?? Mock.Of<IRunRepository>(),
             mergeConflictResolution ?? Mock.Of<ArchLucid.Application.Findings.IFindingMergeConflictResolutionService>(),

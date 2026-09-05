@@ -62,6 +62,22 @@ public sealed partial class GovernanceStickinessFacade
         string name = string.IsNullOrWhiteSpace(request.Name) ? "Recurring architecture review" : request.Name.Trim();
         RecurrenceScheduleValidation.ValidateNameOrThrow(name);
 
+        IReadOnlyList<ArchitectureReviewRecurrenceSchedule> existingSchedules =
+            await _recurrenceScheduleRepository.ListByScopeAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                ct);
+
+        ArchitectureReviewRecurrenceSchedule? matchingSchedule = existingSchedules.FirstOrDefault(schedule =>
+            schedule.SourceRunId == request.SourceRunId
+            && string.Equals(schedule.CronExpression, cronExpression, StringComparison.Ordinal)
+            && schedule.IsEnabled == request.IsEnabled.Value
+            && string.Equals(schedule.Name, name, StringComparison.Ordinal));
+
+        if (matchingSchedule is not null)
+            return matchingSchedule;
+
         ArchitectureReviewRecurrenceSchedule schedule = new()
         {
             ScheduleId = Guid.NewGuid(),
