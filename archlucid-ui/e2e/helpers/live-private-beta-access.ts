@@ -64,6 +64,33 @@ export function isLivePrivateBetaJwtConfigured(): boolean {
   return isLiveJwtTokenConfigured();
 }
 
+const EMPTY_DRAFT_LIST_PAGE_JSON = JSON.stringify({
+  items: [],
+  totalCount: 0,
+  page: 1,
+  pageSize: 200,
+});
+
+/**
+ * Operator home and reviews hub mount server-backed draft inventory. On cold CI SQL the first
+ * GET /v1/architecture/draft can exceed the UI proxy's 60s budget and stall invite-wave smoke.
+ */
+export async function stubEmptyArchitectureDraftListRoute(page: Page): Promise<void> {
+  await page.route("**/api/proxy/v1/architecture/draft**", async (route) => {
+    if (route.request().method() !== "GET") {
+      await route.continue();
+
+      return;
+    }
+
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: EMPTY_DRAFT_LIST_PAGE_JSON,
+    });
+  });
+}
+
 /** Registers init script so the next navigation starts with a signed-in JWT browser session. */
 export async function primeJwtBrowserSession(page: Page, accessToken: string): Promise<void> {
   const expiresAtMs = Date.now() + 3_600_000;
