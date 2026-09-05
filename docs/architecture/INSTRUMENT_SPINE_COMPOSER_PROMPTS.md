@@ -1,12 +1,13 @@
 > **Scope:** Copy-paste Composer prompts that close **instrument-spine wave-8 load-bearing bets** after FD-01–13. Internal engineering only — not buyer-facing copy.
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Founding contract:** [`ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) R4 / R13 · **UI standard:** [`../library/UI_DESIGN_SYSTEM.md`](../library/UI_DESIGN_SYSTEM.md)
 > **Paste-ready files:** [`.cursor/prompts/instrument-spine-00-index.md`](../../.cursor/prompts/instrument-spine-00-index.md) (**IS-01–15**)
+> **Wave 9:** [`LIVELIHOOD_SPINE_COMPOSER_PROMPTS.md`](LIVELIHOOD_SPINE_COMPOSER_PROMPTS.md) (**LS-01–12**) — leftovers after this set; do not fork IS
 > **Shipped predecessors:** LI-01–15 (`master` #1397), LD-01–15 (#1421 / #1439), RS-01–15 (#1457), WA-01–24 (#1496), FD-01–13 (#1534 / #1537)
 > **Wave 5–7 leftovers:** [`CAREER_DESK_COMPOSER_PROMPTS.md`](CAREER_DESK_COMPOSER_PROMPTS.md), [`ALL_DAY_DESK_COMPOSER_PROMPTS.md`](ALL_DAY_DESK_COMPOSER_PROMPTS.md), [`FOUNDING_DESK_COMPOSER_PROMPTS.md`](FOUNDING_DESK_COMPOSER_PROMPTS.md) — do not re-run / do not fork
 
 # Instrument-spine Composer prompts (IS-01–IS-15)
 
-**Created:** 2026-09-05 · **Status:** ready to run **after FD-01–13** · **Do not re-run LI, LD, RS, WA, CD, AD, or FD.**
+**Created:** 2026-09-05 · **Status:** ready to run **after FD-01–13** · **Do not re-run LI, LD, RS, WA, CD, AD, or FD.** Wave 9: [`LIVELIHOOD_SPINE_COMPOSER_PROMPTS.md`](LIVELIHOOD_SPINE_COMPOSER_PROMPTS.md) (**LS-01–12**).
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record. Waves 1–7 closed overlay accidents (Working default, dirty guards, honesty lines, presenter loop). They **explicitly refused** to change `typed-engine-protected`, rewrite ADR 0067, or replace the create → execute → wait spine.
 

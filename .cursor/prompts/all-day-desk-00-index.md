@@ -5,6 +5,7 @@
      livelihood-grade UX audit of the architect workspace.
      Wave 7: founding-desk-00-index.md (FD-01–13).
      Wave 8: instrument-spine-00-index.md (IS-01–15).
+     Wave 9: livelihood-spine-00-index.md (LS-01–12).
      Do not implement from this index. -->
 
 # All-day-desk mitigations — Composer prompt set (AD-01–AD-12)
@@ -114,3 +115,4 @@ Summarize: files changed, tests run, residual risk, Working vs Guided behavior, 
 
 **Wave 7:** [`founding-desk-00-index.md`](founding-desk-00-index.md) (**FD-01–13**). Do not fork AD-09 (Azure Boards dirty) or AD-10 (keyboard docs).
 **Wave 8:** [`instrument-spine-00-index.md`](instrument-spine-00-index.md) (**IS-01–15**). Do not fork AD-05 (watermark honesty) or AD-02 (cancel confirm).
+**Wave 9:** [`livelihood-spine-00-index.md`](livelihood-spine-00-index.md) (**LS-01–12**). Do not fork IS.

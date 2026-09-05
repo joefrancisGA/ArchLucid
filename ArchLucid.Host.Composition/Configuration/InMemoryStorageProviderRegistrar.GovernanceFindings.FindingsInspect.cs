@@ -76,6 +76,8 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<IAuditEvidenceSnapshotRepository, NoOpAuditEvidenceSnapshotRepository>();
         services.AddSingleton<IAuditManualEvidenceRepository, NoOpAuditManualEvidenceRepository>();
         services.AddSingleton<IAuditControlTimelineRepository, NoOpAuditControlTimelineRepository>();
+        services.AddSingleton<ISecurityCrosswalkRepository, NoOpSecurityCrosswalkRepository>();
+        services.AddSingleton<IOperationalSecurityFindingRepository, NoOpOperationalSecurityFindingRepository>();
         services.AddSingleton<ITenantBrandingProfileRepository, InMemoryTenantBrandingProfileRepository>();
     }
 }
