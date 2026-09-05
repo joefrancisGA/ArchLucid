@@ -2002,6 +2002,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-05 seed hunt #805 (hit): reseeded zone; proved authority hash-fragment discovery URL bug and non-http(s) endpoint scheme gap.
 
+---
+
 ## Zone: archlucid-core
 
 - **id:** archlucid-core
