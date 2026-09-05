@@ -95,6 +95,67 @@ public sealed class SqlTenantBrandingProfileRepository(ISqlConnectionFactory con
         CancellationToken cancellationToken = default)
         => await TryGetByStatusAsync(tenantId, BrandingProfileStatus.Default, cancellationToken);
 
+    public async Task<TenantBrandingProfileRecord?> TryGetDraftAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default)
+        => await TryGetByStatusAsync(tenantId, BrandingProfileStatus.Draft, cancellationToken);
+
+    public async Task ReplaceDraftAsync(TenantBrandingProfileRecord record, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(record);
+
+        if (record.BrandingStatus != BrandingProfileStatus.Draft)
+            throw new InvalidOperationException("ReplaceDraftAsync requires a Draft profile.");
+
+        const string deleteSql = """
+                                 DELETE FROM dbo.TenantBrandingProfiles
+                                 WHERE TenantId = @TenantId AND BrandingStatus = @BrandingStatus;
+                                 """;
+
+        using System.Data.IDbConnection conn =
+            await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        await conn.ExecuteAsync(
+            new CommandDefinition(
+                deleteSql,
+                new { record.TenantId, BrandingStatus = (int)BrandingProfileStatus.Draft },
+                cancellationToken: cancellationToken));
+
+        await InsertAsync(record, cancellationToken);
+    }
+
+    public async Task UpdateStatusForTenantAsync(
+        Guid tenantId,
+        BrandingProfileStatus fromStatus,
+        BrandingProfileStatus toStatus,
+        string updatedBy,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           UPDATE dbo.TenantBrandingProfiles
+                           SET BrandingStatus = @ToStatus,
+                               UpdatedUtc = @UpdatedUtc,
+                               UpdatedBy = @UpdatedBy
+                           WHERE TenantId = @TenantId AND BrandingStatus = @FromStatus;
+                           """;
+
+        using System.Data.IDbConnection conn =
+            await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        await conn.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    FromStatus = (int)fromStatus,
+                    ToStatus = (int)toStatus,
+                    UpdatedUtc = TimeProvider.System.UtcNowDateTime(),
+                    UpdatedBy = updatedBy,
+                },
+                cancellationToken: cancellationToken));
+    }
+
     public async Task<int> CountActiveProfilesAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
         const string sql = """

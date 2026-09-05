@@ -9,6 +9,7 @@ export const operatorQueryKeys = {
   tenantTrialStatus: ["operator", "tenant", "trial-status"] as const,
   tenantBrandingPresentation: (context: string) =>
     ["operator", "tenant", "branding-presentation", context] as const,
+  tenantBrandingAdmin: ["operator", "tenant", "branding-admin"] as const,
   tenantWorkspacesList: (scope: OperatorScopeQueryKey) =>
     ["operator", "tenant", "workspaces", scope] as const,
   tenantCostSettings: ["operator", "tenant", "cost-settings"] as const,

@@ -226,6 +226,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `InfraEvidence/CloudResourceEvidenceHubController.cs` | `/v1/infra-evidence/cloud-resources` | standard | ReadAuthority |  |  |
 | `InfraEvidence/InfraEvidenceAskController.cs` | `/v1/infra-evidence/ask` | standard | ReadAuthority |  |  |
 | `InfraEvidence/InfraEvidenceInventoryController.cs` | `/v1/infra-evidence/azure-inventory` | standard | ReadAuthority |  |  |
+| `InfraEvidence/TenantBrandingAdminController.cs` | `/v1/infra-evidence/branding/admin` | standard | AdminAuthority | /administration/branding |  |
 | `InfraEvidence/TenantBrandingController.cs` | `/v1/infra-evidence/branding` | standard | ReadAuthority |  |  |
 | `Integrations/AzureBoardsIntegrationsController.cs` | `/v1/integrations/azure-boards` | standard | Authorize |  |  |
 | `Integrations/ItsmCorrelationController.cs` | `/v1/integrations/itsm/correlations` | none | ReadAuthority |  |  |

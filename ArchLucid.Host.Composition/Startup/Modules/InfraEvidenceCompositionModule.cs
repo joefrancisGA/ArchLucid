@@ -77,6 +77,7 @@ public static class InfraEvidenceCompositionModule
         services.AddSingleton<ITenantBrandingCacheInvalidator>(static sp =>
             sp.GetRequiredService<TenantBrandingResolvedProfileCache>());
         services.AddScoped<ITenantBrandingService, TenantBrandingService>();
+        services.AddScoped<ITenantBrandingAdminService, TenantBrandingAdminService>();
         services.AddSingleton<IBrandedDiagramExportComposer, BrandedDiagramExportComposer>();
         services.AddScoped<IBrandedDiagramExportService, BrandedDiagramExportService>();
         services.AddScoped<ITenantReportBrandingApplyHelper, TenantReportBrandingApplyHelper>();
