@@ -7,7 +7,11 @@ import type {
 } from "@/lib/compare-effective-governance-diff";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { governancePolicyPackDetailPath } from "@/lib/governance/governance-route-paths";
-import { policyPackBuyerGovernanceDetailHref } from "@/lib/policy/policy-pack-buyer-label";
+import {
+  buildCommittedCoverageExclusionLines,
+  buildCommittedCoverageExclusionSummary,
+} from "@/lib/policy/committed-coverage-scope-summary";
+import { policyPackBuyerGovernanceDetailHref, policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 
 export type PolicyAtCommitScopeSummaryProps = {
   readonly snapshot: CompareEffectiveGovernanceAtCommitSnapshot | null | undefined;
@@ -16,11 +20,11 @@ export type PolicyAtCommitScopeSummaryProps = {
 };
 
 function formatCoverageRow(row: CompareEffectiveCoverageAssignmentAtCommitRow): string {
+  const packLabel = policyPackBuyerLabel(row.policyPackId, row.policyPackVersion);
   const parts = [
+    packLabel,
     row.qualityDimension,
-    row.coverageType,
-    row.selectionState,
-    row.exclusionReason !== null ? `excluded: ${row.exclusionReason}` : null,
+    row.exclusionReason !== null && row.exclusionReason.length > 0 ? `excluded: ${row.exclusionReason}` : null,
   ].filter((part): part is string => part !== null && part.length > 0);
 
   return parts.join(" · ");
@@ -41,6 +45,8 @@ export function PolicyAtCommitScopeSummary(
   const testIdPrefix = props.testIdPrefix ?? "policy-at-commit-scope";
   const packAssignments = snapshot.packAssignments ?? [];
   const coverageAssignments = snapshot.coverageAssignments ?? [];
+  const exclusionSummary = buildCommittedCoverageExclusionSummary(snapshot, policyPackBuyerLabel);
+  const exclusionLines = buildCommittedCoverageExclusionLines(snapshot, policyPackBuyerLabel);
 
   if (!snapshot.hasEffectivePolicy) {
     return (
@@ -63,6 +69,29 @@ export function PolicyAtCommitScopeSummary(
         rule key(s)
         {snapshot.conflictCount > 0 ? ` · ${snapshot.conflictCount} merge conflict(s)` : null}
       </p>
+
+      {exclusionSummary !== null ? (
+        <div data-testid={`${testIdPrefix}-exclusions`}>
+          <p className={cn("m-0 font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+            Excluded from assurance scope
+          </p>
+          <p className={cn("m-0 mt-1 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+            {exclusionSummary}
+          </p>
+          {exclusionLines.length > 0 ? (
+            <ul className="m-0 mt-1 list-none space-y-1 p-0">
+              {exclusionLines.map((line) => (
+                <li
+                  key={`${line.packLabel}-${line.reason}`}
+                  className={cn("text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
+                >
+                  {line.packLabel} — {line.reason}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
+      ) : null}
 
       {packAssignments.length > 0 ? (
         <ul className="m-0 list-none space-y-1 p-0" data-testid={`${testIdPrefix}-packs`}>
@@ -97,8 +126,7 @@ export function PolicyAtCommitScopeSummary(
                 key={`${row.policyPackId}-${row.coverageType}-${row.qualityDimension ?? "none"}-${row.selectionState}`}
                 className={cn("text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
               >
-                <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{row.policyPackId}</span> · v
-                {row.policyPackVersion} · {formatCoverageRow(row)}
+                {formatCoverageRow(row)}
               </li>
             ))}
           </ul>

@@ -1,26 +1,56 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type ReactElement } from "react";
 
 import {
   GOVERNANCE_APPROVAL_HELP_RELATED_PRODUCT_DOCS,
   GOVERNANCE_APPROVAL_HELP_TECHNICAL_REFERENCE_INTRO,
   GOVERNANCE_APPROVAL_HELP_TECHNICAL_REFERENCE_SECTIONS,
 } from "@/lib/governance/governance-approval-help-guide-content";
-import { cn } from "@/lib/utils";
-import { DESIGN_TOKENS, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  helpGovApprovalTechnicalReferenceHrefFromSearch,
+  parseHelpGovApprovalTechRefOpenFromSearch,
+} from "@/lib/help/help-governance-approval-technical-reference-url";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 /** Lazy-mounts API detail so collapsed technical reference stays out of primary page text scans. */
 export function HelpGovernanceApprovalTechnicalReference(): ReactElement {
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const helpGovApprovalTechRefParam = searchParams.get("helpGovApprovalTechRef");
+  const [open, setOpenState] = useState(() => parseHelpGovApprovalTechRefOpenFromSearch(helpGovApprovalTechRefParam));
+
+  const syncTechRefOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      router.replace(
+        helpGovApprovalTechnicalReferenceHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (detailsOpen: boolean) => {
+      setOpenState(detailsOpen);
+      syncTechRefOpenToUrl(detailsOpen);
+    },
+    [syncTechRefOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOpenState(parseHelpGovApprovalTechRefOpenFromSearch(helpGovApprovalTechRefParam));
+  }, [helpGovApprovalTechRefParam]);
 
   return (
     <details
       id="technical-reference"
       className={HELP_PAGE_LAYOUT.details}
       data-testid="help-governance-approval-technical-reference"
+      open={open}
       onToggle={(event) => {
         setOpen((event.currentTarget as HTMLDetailsElement).open);
       }}

@@ -17,6 +17,11 @@ import {
   type CoveragePreviewAssignment,
   type CoveragePreviewResponse,
 } from "@/lib/api/coverage-preview-api";
+import {
+  findCoveragePackOverride,
+  isCoveragePreviewAssignmentExcludable,
+  type CoveragePackOverride,
+} from "@/lib/coverage-pack-overrides";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +30,9 @@ export type AssuranceCoveragePreviewPanelProps = {
   readonly cloudProvider?: string;
   readonly securityIntakeAnswer?: string;
   readonly descriptionText?: string;
+  readonly packOverrides: readonly CoveragePackOverride[];
+  readonly onPackOverrideChange: (override: CoveragePackOverride) => void;
+  readonly overrideValidationMessage?: string | null;
   readonly className?: string;
 };
 
@@ -36,26 +44,76 @@ const GROUP_ORDER: readonly CoveragePreviewGroupKey[] = [
   "additionalOptional",
 ];
 
-function renderAssignmentRow(assignment: CoveragePreviewAssignment): React.JSX.Element {
-  const included = assignment.includedInRunEvaluation;
+function renderAssignmentRow(
+  assignment: CoveragePreviewAssignment,
+  packOverrides: readonly CoveragePackOverride[],
+  onPackOverrideChange: (override: CoveragePackOverride) => void,
+): React.JSX.Element {
+  const override = findCoveragePackOverride(packOverrides, assignment.policyPackId);
+  const isExcluded = override?.excluded === true;
+  const included = assignment.includedInRunEvaluation && !isExcluded;
+  const canExclude = isCoveragePreviewAssignmentExcludable(assignment);
 
   return (
     <li
       key={`${assignment.policyPackId}-${assignment.coverageType}`}
-      className="flex flex-wrap items-center justify-between gap-2 rounded border border-neutral-200 px-2 py-1.5 dark:border-neutral-800"
+      className="flex flex-col gap-2 rounded border border-neutral-200 px-2 py-1.5 dark:border-neutral-800"
       data-testid={`coverage-preview-row-${assignment.policyPackDisplayName}`}
     >
-      <span className="min-w-0 font-medium text-neutral-900 dark:text-neutral-100">
-        {assignment.policyPackDisplayName}
-      </span>
-      <div className="flex flex-wrap items-center gap-2">
-        <StatusTag kind={included ? "ready" : "neutral"} label={included ? "Evaluates this run" : "Not in this run"} />
-        {assignment.recommendationRationale ? (
-          <span className={cn("max-w-md", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
-            {assignment.recommendationRationale}
-          </span>
-        ) : null}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span className="min-w-0 font-medium text-neutral-900 dark:text-neutral-100">
+          {assignment.policyPackDisplayName}
+        </span>
+        <div className="flex flex-wrap items-center gap-2">
+          <StatusTag kind={included ? "ready" : "neutral"} label={included ? "Evaluates this run" : "Not in this run"} />
+          {assignment.recommendationRationale ? (
+            <span className={cn("max-w-md", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
+              {assignment.recommendationRationale}
+            </span>
+          ) : null}
+        </div>
       </div>
+
+      {canExclude ? (
+        <div className="flex flex-col gap-1.5 border-t border-neutral-200 pt-2 dark:border-neutral-800">
+          <label className="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
+            <input
+              type="checkbox"
+              checked={isExcluded}
+              onChange={(event) => {
+                onPackOverrideChange({
+                  policyPackId: assignment.policyPackId,
+                  excluded: event.target.checked,
+                  exclusionReason: override?.exclusionReason ?? "",
+                });
+              }}
+              data-testid={`coverage-preview-exclude-${assignment.policyPackId}`}
+            />
+            Exclude from this review
+          </label>
+          {isExcluded ? (
+            <label className="flex flex-col gap-1">
+              <span className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
+                Why is this pack out of scope?
+              </span>
+              <input
+                type="text"
+                value={override?.exclusionReason ?? ""}
+                onChange={(event) => {
+                  onPackOverrideChange({
+                    policyPackId: assignment.policyPackId,
+                    excluded: true,
+                    exclusionReason: event.target.value,
+                  });
+                }}
+                placeholder="Short reason for procurement and audit trail"
+                className="rounded border border-neutral-300 bg-white px-2 py-1 text-sm text-neutral-900 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-100"
+                data-testid={`coverage-preview-exclude-reason-${assignment.policyPackId}`}
+              />
+            </label>
+          ) : null}
+        </div>
+      ) : null}
     </li>
   );
 }
@@ -69,12 +127,14 @@ export function AssuranceCoveragePreviewPanel(props: AssuranceCoveragePreviewPan
         focusedPilotModeEnabled: props.focusedPilotModeEnabled,
         securityIntakeAnswer: props.securityIntakeAnswer,
         descriptionText: props.descriptionText,
+        userOverrides: props.packOverrides,
       }),
     [
       props.cloudProvider,
       props.focusedPilotModeEnabled,
       props.securityIntakeAnswer,
       props.descriptionText,
+      props.packOverrides,
     ],
   );
 
@@ -111,6 +171,14 @@ export function AssuranceCoveragePreviewPanel(props: AssuranceCoveragePreviewPan
             {formatCoveragePreviewScopeNote(response)}
           </p>
         ) : null}
+        {props.overrideValidationMessage ? (
+          <p
+            className={cn("m-0 mt-1 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="coverage-preview-override-validation"
+          >
+            {props.overrideValidationMessage}
+          </p>
+        ) : null}
       </div>
 
       {response ? (
@@ -127,7 +195,11 @@ export function AssuranceCoveragePreviewPanel(props: AssuranceCoveragePreviewPan
                 <h4 className={cn("m-0 mb-2 text-sm font-semibold text-neutral-800 dark:text-neutral-200")}>
                   {COVERAGE_PREVIEW_GROUP_LABELS[groupKey]}
                 </h4>
-                <ul className="m-0 flex list-none flex-col gap-1.5 p-0">{rows.map(renderAssignmentRow)}</ul>
+                <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
+                  {rows.map((assignment) =>
+                    renderAssignmentRow(assignment, props.packOverrides, props.onPackOverrideChange),
+                  )}
+                </ul>
               </div>
             );
           })}

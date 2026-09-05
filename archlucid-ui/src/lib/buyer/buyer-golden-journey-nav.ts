@@ -4,8 +4,8 @@ import { isBuyerGoldenSpineRunId } from "@/lib/buyer/buyer-golden-spine-run-id";
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { comparePageHref } from "@/lib/compare-url-query-params";
-import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/findings/finding-inspect-graph-evidence";
 import {
+  SHOWCASE_PHI_FINDING_GRAPH_NODE_ID,
   SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID,

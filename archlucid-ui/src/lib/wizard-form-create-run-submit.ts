@@ -4,8 +4,13 @@ import type { ReviewCreationProgressBeginInput } from "@/hooks/use-review-creati
 import { createArchitectureRun } from "@/lib/api";
 import { isArchitectureRequestCreateUnresolvedError } from "@/lib/api/architecture-request-create-unresolved-error";
 import { isApiRequestError } from "@/lib/api-request-error";
+import {
+  getSessionCoveragePackOverrides,
+  validateCoveragePackOverrides,
+} from "@/lib/coverage-pack-overrides";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { reviewPipelineOperationId } from "@/lib/operations/review-pipeline-in-flight";
+import { persistSessionRunCoverageAcknowledgement } from "@/lib/persist-run-coverage-acknowledgement";
 import {
   REVIEW_START_CREATION_FAILED_MESSAGE,
   REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE,
@@ -75,6 +80,11 @@ export async function evaluateWizardFormCreateRunGates(
   return null;
 }
 
+/** Returns a validation message when wizard session exclusions are incomplete. */
+export function describeCoveragePackOverrideBlocker(): string | null {
+  return validateCoveragePackOverrides(getSessionCoveragePackOverrides());
+}
+
 /** POST create-run after gates have already passed. Records funnel + wizard-completed telemetry. */
 export async function executeWizardFormCreateRun(
   args: ExecuteArgs & { readonly progress?: WizardCreateRunProgressBridge },
@@ -86,6 +96,12 @@ export async function executeWizardFormCreateRun(
 
     if (runId === null || runId.length === 0) {
       return { ok: false, reason: "no-run-id" };
+    }
+
+    try {
+      await persistSessionRunCoverageAcknowledgement(runId);
+    } catch (error: unknown) {
+      return { ok: false, reason: "error", error };
     }
 
     args.progress?.bindOperation?.(reviewPipelineOperationId(runId));
@@ -110,6 +126,12 @@ export async function submitWizardFormCreateRun(
 
   if (gateFailure !== null) {
     return { ok: false, reason: gateFailure };
+  }
+
+  const overrideBlocker = describeCoveragePackOverrideBlocker();
+
+  if (overrideBlocker !== null) {
+    return { ok: false, reason: "validation" };
   }
 
   return executeWizardFormCreateRun(args);
@@ -180,6 +202,14 @@ export async function submitQuickFamilyWizardCreateRun(
         ? `${REVIEW_START_POLICY_CLOUD_MISMATCH_MESSAGE} ${mismatch}`
         : REVIEW_START_POLICY_CLOUD_MISMATCH_MESSAGE,
     );
+
+    return;
+  }
+
+  const overrideBlocker = describeCoveragePackOverrideBlocker();
+
+  if (overrideBlocker !== null) {
+    args.setStepValidationMessage(overrideBlocker);
 
     return;
   }

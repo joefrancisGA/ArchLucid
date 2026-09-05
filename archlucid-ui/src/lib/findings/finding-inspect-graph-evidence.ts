@@ -1,13 +1,13 @@
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import {
+  SHOWCASE_PHI_FINDING_GRAPH_NODE_ID,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
-/** Static demo primary-finding node id in the curated provenance graph (`operator-static-demo`). */
-export const SHOWCASE_PHI_FINDING_GRAPH_NODE_ID = "n-phi";
+export { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID };
 
 export function findingInspectListsEvidenceProvenance(payload: FindingInspectPayload): boolean {
   const rows = payload.evidence ?? [];

@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type SetStateAction } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +17,11 @@ import {
   ARCHLUCID_ONBOARDING_TOUR_START_EVENT,
   writeOnboardingTourCompleted,
 } from "@/lib/onboarding-tour";
+import {
+  onboardingTourOverlayHrefFromSearch,
+  parseOnboardingTourOpenFromSearch,
+  parseOnboardingTourStepFromSearch,
+} from "@/lib/tour/onboarding-tour-overlay-url";
 
 type Rect = { top: number; left: number; width: number; height: number };
 
@@ -25,9 +30,17 @@ type Rect = { top: number; left: number; width: number; height: number };
  * alongside the welcome modal.
  */
 export function OnboardingTour() {
-  const pathname = usePathname();
-  const [open, setOpen] = useState(false);
-  const [stepIndex, setStepIndex] = useState(0);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const onboardingTourOpenParam = searchParams.get("onboardingTourOpen");
+  const onboardingTourStepParam = searchParams.get("onboardingTourStep");
+  const [open, setOpenState] = useState(() => parseOnboardingTourOpenFromSearch(onboardingTourOpenParam));
+  const [stepIndex, setStepIndexState] = useState(() => {
+    const urlStep = parseOnboardingTourStepFromSearch(onboardingTourStepParam);
+
+    return urlStep ?? 0;
+  });
   const [highlight, setHighlight] = useState<Rect | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const steps = OPERATOR_ONBOARDING_TOUR_STEPS;
@@ -37,12 +50,45 @@ export function OnboardingTour() {
 
   const targetSelector = step.targetSelector;
 
+  const syncTourToUrl = useCallback(
+    (state: { open: boolean; stepIndex: number }) => {
+      router.replace(onboardingTourOverlayHrefFromSearch(searchParams.toString(), state, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncTourToUrl({ open: next, stepIndex });
+
+        return next;
+      });
+    },
+    [stepIndex, syncTourToUrl],
+  );
+
+  const setStepIndex = useCallback(
+    (value: SetStateAction<number>) => {
+      setStepIndexState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncTourToUrl({ open, stepIndex: next });
+
+        return next;
+      });
+    },
+    [open, syncTourToUrl],
+  );
+
   const closeAndPersist = useCallback(() => {
     writeOnboardingTourCompleted();
     setOpen(false);
     setStepIndex(0);
     setHighlight(null);
-  }, []);
+  }, [setOpen, setStepIndex]);
 
   const updateHighlight = useCallback(() => {
     if (!targetSelector) {
@@ -124,7 +170,24 @@ export function OnboardingTour() {
     return () => {
       window.removeEventListener(ARCHLUCID_ONBOARDING_TOUR_START_EVENT, onStart);
     };
-  }, []);
+  }, [setOpen, setStepIndex]);
+
+  useEffect(() => {
+    const urlOpen = parseOnboardingTourOpenFromSearch(onboardingTourOpenParam);
+
+    if (!urlOpen) {
+      setOpenState(false);
+
+      return;
+    }
+
+    setOpenState(true);
+    const urlStep = parseOnboardingTourStepFromSearch(onboardingTourStepParam);
+
+    if (urlStep !== null) {
+      setStepIndexState(Math.min(urlStep, steps.length - 1));
+    }
+  }, [onboardingTourOpenParam, onboardingTourStepParam, steps.length]);
 
   useEffect(() => {
     if (!open) {

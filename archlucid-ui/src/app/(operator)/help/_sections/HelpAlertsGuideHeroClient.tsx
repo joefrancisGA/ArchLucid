@@ -10,6 +10,7 @@ import {
   ALERTS_HELP_PRIMARY_ACTIONS,
   resolveAlertsHelpActionPanelState,
 } from "@/lib/alerts-help-guide-content";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
 import {
   OPERATOR_TYPOGRAPHY,
@@ -18,6 +19,7 @@ import { useAlertsHelpWorkspaceReadiness } from "@/lib/use-alerts-help-workspace
 
 /** Shared client hero for `/help/alerts` — one readiness fetch for panel and strip. */
 export function HelpAlertsGuideHeroClient(): React.ReactElement {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const readiness = useAlertsHelpWorkspaceReadiness();
   const panelState = resolveAlertsHelpActionPanelState(readiness);
   const rulesNotConfigured = panelState === "rules-not-configured";
@@ -25,7 +27,12 @@ export function HelpAlertsGuideHeroClient(): React.ReactElement {
   const loading = panelState === "loading";
 
   return (
-    <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
+    <div
+      className={cn(
+        "space-y-4",
+        !buyerPolishedShell && "border-b border-neutral-200 pb-6 dark:border-neutral-800",
+      )}
+    >
       <section
         aria-labelledby="help-alerts-action-panel-heading"
         className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
@@ -91,7 +98,7 @@ export function HelpAlertsGuideHeroClient(): React.ReactElement {
         </div>
       </section>
 
-      <HelpAlertsWorkspaceReadinessStrip readiness={readiness} />
+      {!buyerPolishedShell ? <HelpAlertsWorkspaceReadinessStrip readiness={readiness} /> : null}
     </div>
   );
 }

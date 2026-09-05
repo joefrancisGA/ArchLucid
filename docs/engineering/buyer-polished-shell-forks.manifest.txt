@@ -119,6 +119,9 @@ archlucid-ui/src/app/(operator)/help/_sections/HelpAzureBoardsHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpAzurePermissionsHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpBaselineSettingsGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpBaselineSettingsHeaderActions.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpAlertsGuideHeroClient.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpAlertsGuideView.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpAlertsHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpBillingAndPlansGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpBillingAndPlansHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpCaiqSigResponseGuideView.tsx
