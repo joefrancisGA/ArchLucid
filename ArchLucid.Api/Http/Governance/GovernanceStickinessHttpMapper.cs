@@ -419,7 +419,7 @@ public static class GovernanceStickinessHttpMapper
 
         string bodyFindingId = request.FindingId?.Trim() ?? "";
 
-        if (!string.Equals(routeFindingId, bodyFindingId, StringComparison.Ordinal))
+        if (!string.Equals(routeFindingId, bodyFindingId, StringComparison.OrdinalIgnoreCase))
         {
             return new GovernanceHttpValidation(
                 "findingId must match the route findingId.",
