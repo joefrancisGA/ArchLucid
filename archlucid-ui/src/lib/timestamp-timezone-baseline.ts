@@ -28,7 +28,6 @@ export const TIMESTAMP_TIMEZONE_BASELINE: readonly string[] = [
   "app/(operator)/internal/deployment-status/_sections/AdminDeploymentStatusPageView.tsx",
   "components/ArtifactListTable.tsx",
   "components/ArtifactReviewContent.tsx",
-  "components/AuthorityPipelineTimeline.tsx",
   "components/EstimatedLlmCostBarChart.tsx",
   "components/advisory/AdvisoryScanSummaryPanel.tsx",
   "components/advisory/AdvisorySchedulesContent.tsx",

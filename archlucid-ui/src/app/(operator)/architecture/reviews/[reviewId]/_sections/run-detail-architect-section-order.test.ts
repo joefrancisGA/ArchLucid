@@ -1,17 +1,21 @@
 import { describe, expect, it } from "vitest";
 
-import { readRegisteredSource } from "@/testing/source-scan-harness";
+import {
+  readRegisteredSource,
+  readRunDetailPageViewFamilySource,
+  readRunDetailTabbedWorkspaceFamilySource,
+} from "@/testing/source-scan-harness";
 
 import {
   RUN_DETAIL_FINALIZED_ARCHITECT_SECTION_ORDER,
 } from "./run-detail-architect-section-order";
 
-const pageViewSource = readRegisteredSource("run-detail-page-view");
-const tabbedWorkspaceSource = readRegisteredSource("run-detail-tabbed-workspace");
+const pageViewSource = readRunDetailPageViewFamilySource();
+const tabbedWorkspaceSource = readRunDetailTabbedWorkspaceFamilySource();
 const belowFoldSource = readRegisteredSource("run-detail-below-fold");
 
 // The standard-mode tab panels were extracted into RunDetailTabbedWorkspace, so the workspace
-// markup a reviewer sees is now split across two modules. Scan both for mount assertions.
+// markup a reviewer sees is now split across the workspace, shell, and resolve modules.
 const workspaceSource = `${pageViewSource}\n${tabbedWorkspaceSource}`;
 
 // Evidence deliverables mount via composeRunDetailEvidenceTab (not inline in tabbed workspace).
@@ -62,7 +66,7 @@ describe("run-detail-architect-section-order (TB-620)", () => {
     expect(belowFoldSource).toContain("{m.manifestId && !ownedByAnotherTab && !m.buyerPolishedArtifactTable ? (");
     expect(belowFoldSource).toContain("{m.manifestId && !ownedByAnotherTab ? (");
     expect(pageViewSource).not.toContain("RunDetailTabbedSectionNavDeferred");
-    expect(tabbedWorkspaceSource).toContain("ReviewDetailWorkspaceDeferred");
+    expect(tabbedWorkspaceSource).toContain("RunDetailPresenterElicitationBridge");
   });
 
   it("places operator findings before pipeline timeline in below-fold", () => {

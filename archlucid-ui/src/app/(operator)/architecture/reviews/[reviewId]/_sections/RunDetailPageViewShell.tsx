@@ -20,7 +20,6 @@ import {
   RunDetailGovernanceAlertsDeferred,
   RunDetailGovernanceCtaDeferred,
   RunDetailOutcomeCardsDeferred,
-  RunDetailReviewPackageDoThisNextResolvedDeferred,
   RunDetailSampleReviewPackageSummaryDeferred,
   RunDetailSectionNavDeferred,
   RunDetailStalledReviewGuidanceCalloutDeferred,
@@ -39,8 +38,6 @@ import {
 } from "./RunDetailWorkspaceShell";
 import type { RunDetailPresentation } from "./run-detail-page-presentation";
 import type { RunDetailPageModel } from "./run-detail-page-model";
-import { isReviewPipelineIncomplete } from "@/lib/run-detail-workspace-derive";
-import { analysisStagesCompleteOnSummary } from "./pipeline-complete-on-summary";
 
 export type RunDetailPageViewChrome = {
   readonly sampleReviewPackageSummaryEl: React.JSX.Element | null;
@@ -207,11 +204,7 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
     blockingApprovalCount,
     buyerGoldenPageReady,
     commitBlockedReason,
-    finalizeAssumptionGateApplies,
-    quickDecisionFindings,
-    requestAssumptionTexts,
     reviewHeaderPresentation,
-    reviewStatusSummary,
     showArchitectureCreatedHome,
     showDemoMarketingChrome,
     signedReviewRecordId,
@@ -221,10 +214,8 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
     templateLabel,
     finalizedAtLabel,
     packageVersionLabel,
-    architectureEditHref,
-    findingCoverageSummary,
   } = presentation;
-  const reviewPipelineIncomplete = isReviewPipelineIncomplete(workspaceStatus);
+  const reviewPipelineIncomplete = presentation.reviewPipelineIncomplete;
 
   return (
     <div
@@ -289,42 +280,6 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
                       templateLabel={templateLabel}
                       finalizedAtLabel={finalizedAtLabel}
                       packageVersionLabel={packageVersionLabel}
-                    />
-
-                    <RunDetailReviewPackageDoThisNextResolvedDeferred
-                      runId={m.resolvedDetail.run.runId}
-                      manifestId={m.manifestId}
-                      hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
-                      blockingFindingCount={blockingApprovalCount}
-                      buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
-                      operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision}
-                      manifestStatus={m.manifestSummary?.status ?? null}
-                      runCompleted={m.resolvedDetail.run.completedUtc != null}
-                      nextAction={reviewStatusSummary.nextAction}
-                      showProgressTracker={m.showProgressTracker}
-                      legacyRunStatus={m.resolvedDetail.run.legacyRunStatus ?? null}
-                      isDeadLettered={m.resolvedDetail.run.isDeadLettered === true}
-                      openClarificationGapCount={0}
-                      correctionHref={architectureEditHref}
-                      useCreateHomeWorkspaceTabs={false}
-                      hasGoldenManifest={Boolean(m.manifestId)}
-                      commitBlockedReason={commitBlockedReason}
-                      finalizeAssumptionGateApplies={finalizeAssumptionGateApplies}
-                      quickDecisionFindings={quickDecisionFindings}
-                      requestAssumptionTexts={requestAssumptionTexts}
-                      transparencyTrail={
-                        m.manifestSummaryForUi?.feasibilityVerdict?.transparencyTrail ??
-                        m.manifestSummary?.feasibilityVerdict?.transparencyTrail ??
-                        null
-                      }
-                      feasibilityVerdict={
-                        m.manifestSummaryForUi?.feasibilityVerdict ??
-                        m.manifestSummary?.feasibilityVerdict ??
-                        null
-                      }
-                      graphSnapshot={m.resolvedDetail.graphSnapshot}
-                      analysisStagesComplete={analysisStagesCompleteOnSummary(m.progressForPipelineUi)}
-                      {...chrome.reviewPackageDoThisNextEvidenceProps}
                     />
 
                     {chrome.tabbedWorkspaceEl}

@@ -35,6 +35,14 @@ describe("design-tokens TB-115 surfaces", () => {
     expect(operatorSemanticBadge("warn")).toContain("--al-status-warn-bg");
   });
 
+  it("keeps in-progress status on the teal accent instead of sky blue", () => {
+    const inProgress = enterpriseStatusTagClass("in-progress");
+
+    expect(inProgress).toContain("--al-accent-interactive");
+    expect(inProgress).not.toContain("sky-");
+    expect(inProgress).not.toContain("--al-status-neutral-bg");
+  });
+
   it("metadata status shell is non-interactive", () => {
     expect(METADATA_STATUS_TAG_SHELL).toContain("cursor-default");
     expect(METADATA_STATUS_TAG_SHELL).toContain("pointer-events-none");

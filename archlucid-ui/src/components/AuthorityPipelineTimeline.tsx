@@ -1,11 +1,29 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { CheckCircle2, Circle } from "lucide-react";
 import type { ReactNode } from "react";
 
+import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { StatusTag } from "@/components/ui/status-tag";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
+import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
+import {
+  mapTimelineEventToStatusKind,
+  timelineEventStatusLabel,
+} from "@/lib/map-timeline-event-status";
 import { isTimelineMilestoneEvent } from "@/lib/timeline-milestone-events";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import type { PipelineTimelineItem } from "@/types/authority";
+
+const ELAPSED_DELTA_INLINE_THRESHOLD_SEC = 2;
 
 type AuthorityPipelineTimelineProps = {
   items: PipelineTimelineItem[] | null;
@@ -13,6 +31,8 @@ type AuthorityPipelineTimelineProps = {
   loadErrorMessage?: string | null;
   /** When true, omit per-event technical `<details>` (event id / raw type) — public marketing surfaces. */
   omitEventTechnicalDetails?: boolean;
+  /** When set, render at most this many rows (keeps the most recent events). */
+  maxVisibleItems?: number;
 };
 
 function timelineStatusIcon(eventType: string): ReactNode {
@@ -44,7 +64,7 @@ function actorLabel(name: string): string {
   return n;
 }
 
-function formatElapsedSincePrevious(prevIso: string | undefined, curIso: string): string | null {
+function formatElapsedSincePreviousInline(prevIso: string | undefined, curIso: string): string | null {
   if (!prevIso) {
     return null;
   }
@@ -58,26 +78,61 @@ function formatElapsedSincePrevious(prevIso: string | undefined, curIso: string)
 
   const sec = Math.round((curMs - prevMs) / 1000);
 
+  if (sec < ELAPSED_DELTA_INLINE_THRESHOLD_SEC) {
+    return null;
+  }
+
   if (sec < 60) {
-    return `${sec}s after prior event`;
+    return `+${sec}s`;
   }
 
   const m = Math.floor(sec / 60);
   const s = sec % 60;
 
-  return `${m}m ${s}s after prior event`;
+  return `+${m}m ${s}s`;
 }
 
-/** Read-only vertical timeline of audit events for one architecture review (oldest first). */
+function renderTechnicalDetails(row: PipelineTimelineItem, eventLabel: string): ReactNode {
+  return (
+    <CollapsibleSection
+      title="Technical details"
+      summaryAriaLabel={`Technical details for ${eventLabel}`}
+      defaultOpen={false}
+      className="mb-0 border-0 bg-transparent p-0"
+    >
+      <div className="space-y-1 border-s border-neutral-200 ps-3 dark:border-neutral-700">
+        <p className="m-0">
+          <span className="font-medium text-neutral-600 dark:text-neutral-400">Event id:</span>{" "}
+          <code className={OPERATOR_TYPOGRAPHY.helper}>{row.eventId}</code>
+        </p>
+        <p className="m-0">
+          <span className="font-medium text-neutral-600 dark:text-neutral-400">Event type:</span>{" "}
+          <code className={OPERATOR_TYPOGRAPHY.helper}>{row.eventType}</code>
+        </p>
+        {row.correlationId ? (
+          <p className="m-0">
+            <span className="font-medium text-neutral-600 dark:text-neutral-400">Correlation:</span>{" "}
+            {row.correlationId}
+          </p>
+        ) : null}
+      </div>
+    </CollapsibleSection>
+  );
+}
+
+/** Read-only audit trail table for one architecture review (oldest first). */
 export function AuthorityPipelineTimeline({
   items,
   loadErrorMessage,
   omitEventTechnicalDetails = false,
+  maxVisibleItems,
 }: AuthorityPipelineTimelineProps) {
+  const auditTrailLabel = BUYER_SURFACE_VOCABULARY.auditTrail;
+
   if (loadErrorMessage) {
     return (
       <p className={cn("mt-0 text-amber-700 dark:text-amber-400", OPERATOR_TYPOGRAPHY.body)}>
-        Pipeline timeline could not be loaded: {loadErrorMessage}
+        {auditTrailLabel} could not be loaded: {loadErrorMessage}
       </p>
     );
   }
@@ -85,7 +140,7 @@ export function AuthorityPipelineTimeline({
   if (items === null) {
     return (
       <p className={cn("mt-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-        Pipeline timeline not loaded.
+        {auditTrailLabel} not loaded.
       </p>
     );
   }
@@ -98,68 +153,73 @@ export function AuthorityPipelineTimeline({
     );
   }
 
-  return (
-    <ol
-      className={cn("m-0 max-w-3xl list-none space-y-0 pl-0 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
-      aria-label="Review trail timeline"
-    >
-      {items.map((row, index) => {
-        const prevUtc = index > 0 ? items[index - 1]!.occurredUtc : undefined;
-        const elapsed = formatElapsedSincePrevious(prevUtc, row.occurredUtc);
+  const visibleItems =
+    maxVisibleItems !== undefined && maxVisibleItems > 0 && items.length > maxVisibleItems
+      ? items.slice(-maxVisibleItems)
+      : items;
 
-        return (
-        <li
-          key={row.eventId}
-          className="relative border-s-2 border-neutral-200 pb-6 ps-4 last:border-s-transparent last:pb-0 dark:border-neutral-700"
-        >
-          <div className="flex gap-3 pt-0.5">
-            <div className="mt-0.5">{timelineStatusIcon(row.eventType)}</div>
-            <div className="flex min-w-0 flex-1 flex-col gap-1">
-              <time
-                className={cn("font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-                dateTime={row.occurredUtc}
-              >
-                {new Date(row.occurredUtc).toLocaleString()}
-              </time>
-              {elapsed ? (
-                <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{elapsed}</span>
-              ) : null}
-              <span className="font-medium text-neutral-900 dark:text-neutral-100">
-                {pipelineEventTypeFriendlyLabel(row.eventType)}
-              </span>
-              <span className="text-neutral-700 dark:text-neutral-300">
+  return (
+    <EnterpriseTable ariaLabel={auditTrailLabel}>
+      <EnterpriseTableHead>
+        <EnterpriseTableRow>
+          <EnterpriseTableHeaderCell>Event</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Timestamp (UTC)</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>Actor</EnterpriseTableHeaderCell>
+          {omitEventTechnicalDetails ? null : (
+            <EnterpriseTableHeaderCell>
+              <span className="sr-only">Technical details</span>
+            </EnterpriseTableHeaderCell>
+          )}
+        </EnterpriseTableRow>
+      </EnterpriseTableHead>
+      <EnterpriseTableBody>
+        {visibleItems.map((row) => {
+          const globalIndex = items.indexOf(row);
+          const prevUtc = globalIndex > 0 ? items[globalIndex - 1]!.occurredUtc : undefined;
+          const elapsedInline = formatElapsedSincePreviousInline(prevUtc, row.occurredUtc);
+          const eventLabel = pipelineEventTypeFriendlyLabel(row.eventType);
+          const timestampLabel = formatIsoUtcForDisplay(row.occurredUtc);
+
+          return (
+            <EnterpriseTableRow key={row.eventId}>
+              <EnterpriseTableCell>
+                <span className="inline-flex min-w-0 items-center gap-2 font-medium text-neutral-900 dark:text-neutral-100">
+                  {timelineStatusIcon(row.eventType)}
+                  <span>{eventLabel}</span>
+                </span>
+              </EnterpriseTableCell>
+              <EnterpriseTableCell>
+                <StatusTag
+                  kind={mapTimelineEventToStatusKind(row.eventType)}
+                  label={timelineEventStatusLabel(row.eventType)}
+                />
+              </EnterpriseTableCell>
+              <EnterpriseTableCell>
+                <time
+                  className={cn(
+                    "tabular-nums text-neutral-600 dark:text-neutral-400",
+                    OPERATOR_TYPOGRAPHY.helper,
+                  )}
+                  dateTime={row.occurredUtc}
+                >
+                  {timestampLabel}
+                  {elapsedInline ? (
+                    <span className="ml-1 text-neutral-500 dark:text-neutral-500">{elapsedInline}</span>
+                  ) : null}
+                </time>
+              </EnterpriseTableCell>
+              <EnterpriseTableCell className={OPERATOR_TYPOGRAPHY.body}>
                 <span className="sr-only">Actor: </span>
                 {actorLabel(row.actorUserName)}
-              </span>
+              </EnterpriseTableCell>
               {omitEventTechnicalDetails ? null : (
-              <details className={cn("mt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                <summary className={cn("cursor-pointer select-none", OPERATOR_LINK.inline)}>
-                  Technical details
-                </summary>
-                <div className="mt-2 space-y-1 border-s border-neutral-200 ps-3 dark:border-neutral-700">
-                  <p className="m-0">
-                    <span className="font-medium text-neutral-600 dark:text-neutral-400">Event id:</span>{" "}
-                    <code className={OPERATOR_TYPOGRAPHY.helper}>{row.eventId}</code>
-                  </p>
-                  <p className="m-0">
-                    <span className="font-medium text-neutral-600 dark:text-neutral-400">Event type:</span>{" "}
-                    <code className={OPERATOR_TYPOGRAPHY.helper}>{row.eventType}</code>
-                  </p>
-                  {row.correlationId ? (
-                    <p className="m-0">
-                      <span className="font-medium text-neutral-600 dark:text-neutral-400">Correlation:</span>{" "}
-                      {row.correlationId}
-                    </p>
-                  ) : null}
-                </div>
-              </details>
+                <EnterpriseTableCell>{renderTechnicalDetails(row, eventLabel)}</EnterpriseTableCell>
               )}
-            </div>
-          </div>
-        </li>
-        );
-      })}
-    </ol>
+            </EnterpriseTableRow>
+          );
+        })}
+      </EnterpriseTableBody>
+    </EnterpriseTable>
   );
 }
-
