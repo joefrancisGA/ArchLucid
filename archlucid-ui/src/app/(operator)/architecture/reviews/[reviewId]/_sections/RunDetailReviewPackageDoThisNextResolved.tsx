@@ -18,6 +18,7 @@ import { RunDetailReviewPackageDecisionReceiptStrip } from "./RunDetailReviewPac
 import { FinalizeReadinessStrip } from "@/components/reviews/FinalizeReadinessStrip";
 import { RunDetailOverviewTransparencyTrail } from "@/components/reviews/RunDetailOverviewTransparencyTrail";
 import { RunDetailSealDeskCoverageStrip } from "@/components/reviews/RunDetailSealDeskCoverageStrip";
+import { resolveReviewFailureRecordedAtUtc } from "@/components/resolve-run-detail-last-failure-summary";
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import type {
   ResolveReviewPackageDoThisNextInput,
@@ -39,6 +40,7 @@ export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackage
   readonly pipelineDiagnosticContext?: ReviewPipelineDiagnosticContext | null;
   readonly lastFailureSummary?: RunDetailLastFailureSummary | null;
   readonly pipelineSummary?: RunSummary | null;
+  readonly runCompletedUtc?: string | null;
   readonly intakeDescription?: string | null;
   readonly intakeSystemName?: string | null;
   readonly realModeFellBackToSimulator?: boolean | null;
@@ -221,7 +223,13 @@ export function RunDetailReviewPackageDoThisNextResolved(
           />
         </>
       ) : null}
-      <FinalizeReadinessStrip commitBlockedReason={assumptionAwareCommitBlockedReason} />
+      <FinalizeReadinessStrip
+        commitBlockedReason={
+          next.failureRecovery !== null && next.failureRecovery !== undefined
+            ? null
+            : assumptionAwareCommitBlockedReason
+        }
+      />
       <ReviewPackageDoThisNextStrip
         next={next}
         runId={props.runId}
@@ -232,6 +240,11 @@ export function RunDetailReviewPackageDoThisNextResolved(
         canConfigureWorkspaceAi={canConfigureWorkspaceAi}
         usesCustomerAiConnection={usesCustomerAiConnection}
         transparencyTrail={props.transparencyTrail ?? null}
+        lastFailureSummary={props.lastFailureSummary ?? null}
+        failureRecordedAtUtc={resolveReviewFailureRecordedAtUtc({
+          pipelineSummary: props.pipelineSummary ?? null,
+          runCompletedUtc: props.runCompletedUtc ?? props.pipelineSummary?.completedUtc ?? null,
+        })}
       />
     </>
   );

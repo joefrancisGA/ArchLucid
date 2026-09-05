@@ -12,7 +12,9 @@ import { FavoriteReviewToggle } from "@/components/reviews/FavoriteReviewToggle"
 import { ArchitectureObjectMapStrip } from "@/components/operator/ArchitectureObjectMapStrip";
 import { ReviewAskDock } from "@/components/reviews/ReviewAskDock";
 import { ReviewHeaderShareMenu } from "@/components/reviews/ReviewHeaderShareMenu";
+import { ReviewPresenterHeaderButton } from "@/components/reviews/ReviewPresenterHeaderButton";
 import { ReviewWorkspaceStaleBanner } from "@/components/reviews/ReviewWorkspaceStaleBanner";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { SampleReviewDemoBanner } from "@/components/reviews/SampleReviewDemoBanner";
 import { useReviewsListReturnNavHref } from "@/hooks/use-reviews-list-return-nav-href";
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
@@ -202,11 +204,12 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
               disabled={reviewPipelineIncomplete}
               disabledReason={headerActionDisabledReason}
             />
+            <ReviewPresenterHeaderButton reviewCompleted={!reviewPipelineIncomplete} />
             <FavoriteReviewToggle runId={props.runId} title={h1Title} size="sm" />
           </>
         }
       >
-        <ArchitectureObjectMapStrip focus="review" />
+        {!reviewPipelineIncomplete ? <ArchitectureObjectMapStrip focus="review" /> : null}
         <dl
           className={cn(
             "m-0 grid gap-3 sm:grid-cols-2 lg:grid-cols-3",
@@ -240,6 +243,13 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
           ) : null}
         </dl>
       </OperatorPageHeader>
+      {reviewPipelineIncomplete && headerActionDisabledReason !== null ? (
+        <WhyDisabledCtaHint
+          reason={headerActionDisabledReason}
+          className="mt-2"
+          testId="review-header-actions-disabled-hint"
+        />
+      ) : null}
     </div>
   );
 }
