@@ -9,7 +9,7 @@ import {
   isUsableGoldenManifestExportJson,
   triggerGoldenManifestMarkdownDownload,
 } from "@/lib/export-markdown";
-import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import { runCollateralSealedManifestCopyBlockedReason, manifestSummarySealedVersionForCopyGuard } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import type { ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
 
 const DEFAULT_LABEL = "Copy for AI assistant";
@@ -59,7 +59,7 @@ export function CopyForAiAssistantButton(props: CopyForAiAssistantButtonProps) {
   async function handleCopyForAiAssistant(): Promise<void> {
     const blockedReason = runCollateralSealedManifestCopyBlockedReason({
       runId,
-      manifestVersion: manifestSummary?.manifestVersion ?? null,
+      manifestVersion: manifestSummarySealedVersionForCopyGuard(manifestSummary),
     });
 
     if (blockedReason !== null) {
