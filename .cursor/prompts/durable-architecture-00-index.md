@@ -3,7 +3,8 @@
      (all-day use; livelihoods may depend on the sealed record), not a casual
      evaluator. Wave 13 after livelihood-kernel-00-index.md (LK-01–15).
      Load-bearing bet: productize dbo.Architectures as the customer-visible
-     durable identity. Do not merge DraftRequests and Runs. Do not fork BFF.
+     durable identity.      Do not merge DraftRequests and Runs. Do not fork BFF.
+     Wave 14 execution: customer-architecture-00-index.md (CA-01–50) — do not paste DA.
      Do not implement from this index. -->
 
 # Durable-architecture mitigations — Composer prompt set (DA-01–DA-12)
@@ -16,7 +17,7 @@ Waves 1–7 shipped **overlays**. Wave 8 changed three bets (one Working start, 
 
 **Owner authorization (this wave):** make `dbo.Architectures` the **customer-visible durable identity**. Drafts stay `DraftRequests`. Reviews stay `Runs`/`Reviews`. Sealed records stay `GoldenManifests`. **Do not merge tables.** **Do not rewrite ADR 0068, 0069, or 0072 bodies** — supersede with **ADR 0074**. **Do not implement the BFF** (LK-05–07). **Do not add a 40th engine**.
 
-**Do not implement from this index.** Paste one numbered file per Composer session.
+**Do not implement from this index.** **Do not paste these DA files** after wave 14 exists — run [`.cursor/prompts/customer-architecture-00-index.md`](customer-architecture-00-index.md) (**CA-01–50**). Skip a CA row if its DA twin already shipped.
 
 **Do not treat this set as a V1 assessment scorecard.** Do not add GTM cohort work (**M-90**, **M-44**, **M-91**, **M-92**) or closed assurance programs (**TB-135** / **TB-136**). **TB-645** vocabulary stays.
 
@@ -44,7 +45,8 @@ Do **not** collapse desktop review tabs behind **More**. Do **not** auto-switch 
 | **IS-01–15** | Wave 8 load-bearing bets | Do not fork. **IS-15 execution remains LK-05–07** |
 | **LS / SD / CR** | Waves 9–11 leftovers | Do not fork |
 | **LK-01–15** | Wave 12 kernel | **Do not fork.** BFF, undo, trail gate, wait chrome, stamp denominator stay there |
-| **DA-01–12** | **This set** — wave 13 identity | Run these |
+| **DA-01–12** | **This set** — wave 13 identity skeleton | Prompt files shipped `master` #1676. **Do not paste** after CA exists |
+| **CA-01–50** | Wave 14 customer object | [`customer-architecture-00-index.md`](customer-architecture-00-index.md) — **run these** |
 
 If a DA row lists an LK/IS/LS owner, **do not re-implement that file**. Implement only the leftover in *What to build*.
 
