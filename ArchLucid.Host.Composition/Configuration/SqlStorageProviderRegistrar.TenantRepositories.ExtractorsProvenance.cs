@@ -60,6 +60,11 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<IRemediationWaveRepository, SqlRemediationWaveRepository>();
         services.AddScoped<IArchitectureDiagramModelRepository, SqlArchitectureDiagramModelRepository>();
         services.AddScoped<IArchitectureDiagramReconciliationRepository, SqlArchitectureDiagramReconciliationRepository>();
-        services.AddScoped<ITenantBrandingProfileRepository, SqlTenantBrandingProfileRepository>();
+        services.AddScoped<SqlTenantBrandingProfileRepository>();
+        services.AddScoped<ITenantBrandingProfileRepository>(static sp =>
+            new TenantBrandingProfileRepositoryWithCacheInvalidation(
+                sp.GetRequiredService<SqlTenantBrandingProfileRepository>(),
+                sp.GetRequiredService<ITenantBrandingCacheInvalidator>()));
+        services.AddScoped<IBrandAssetRepository, SqlBrandAssetRepository>();
     }
 }
