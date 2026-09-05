@@ -3420,11 +3420,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 256
-- **bugs-found:** 495
+- **hunts:** 257
+- **bugs-found:** 496
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — recurrence cron and catalog promote snapshot-version case-insensitive idempotent retry
+- **last-bug:** 2026-09-05 — duplicate-pack description case-insensitive idempotent retry
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4608,6 +4608,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyPacksController.Create` / `PolicyPacksAppService.CreatePackAsync` — operator retry with pack `description` differing only by casing allocated fresh `PolicyPackId` and logged duplicate `PolicyPackCreated` audit (`Ordinal` description match in create dedupe matcher; #861 name casing sibling) — **hit 2026-09-05 (#862):** case-insensitive description comparison in create dedupe matcher; regression in `CreatePackAsync_returns_existing_pack_and_skips_duplicate_audit_when_description_differs_only_by_casing`.
 - [x] (proven) `GovernanceStickinessController.CreateRecurrenceSchedule` / `UpdateRecurrenceSchedule` / `GovernanceStickinessFacade` create+update dedupe — operator retry with `cronExpression` differing only by casing allocated duplicate schedule rows or logged duplicate audit (`Ordinal` cron compare after #858 name casing fix) — **hit 2026-09-05 (#863):** case-insensitive cron comparison in create dedupe matcher and update `cronChanged` guard; regressions in `CreateRecurrenceScheduleAsync_returns_existing_schedule_when_cron_differs_only_by_casing` and `UpdateRecurrenceScheduleAsync_skips_duplicate_audit_when_cron_differs_only_by_casing`.
 - [x] (proven) `PolicyPacksController.PromoteCatalogEntry` / `PolicyPackWorkflowFacade.TryPromoteCatalogEntryAsync` — operator retry with `snapshotVersion` differing only by casing logged duplicate `PolicyPackCatalogPromoted` audit (`Ordinal` version compare in `wasNewPromotion` guard; #839 promote skip-audit sibling) — **hit 2026-09-05 (#863):** case-insensitive `SnapshotVersion` comparison in `wasNewPromotion` guard; regression in `TryPromoteCatalogEntryAsync_skips_duplicate_audit_when_snapshot_version_differs_only_by_casing`.
+
+2026-09-05 thorough hunt #863 (hit): proved both #862 candidates — recurrence cron and catalog promote snapshot-version case-insensitive idempotent retry.
+
+- [x] (proven) `PolicyPacksController.DuplicatePack` / `PolicyPacksAppService.TryDuplicatePackAsync` — operator retry with duplicate copy `description` differing only by casing allocated fresh pack row (`Ordinal` description match in duplicate dedupe matcher; #862 create-description casing sibling) — **hit 2026-09-05 (#864):** case-insensitive description comparison in duplicate dedupe matcher; regression in `TryDuplicatePackAsync_returns_existing_copy_and_skips_duplicate_audit_when_description_differs_only_by_casing`.
+
+- [ ] (candidate) `PolicyPacksController.Create` / `PolicyPacksAppService.CreatePackAsync` — operator retry with pack `packType` differing only by casing may allocate fresh `PolicyPackId` (`Ordinal` packType match in create dedupe matcher; #864 duplicate-description casing sibling).
+- [ ] (candidate) `PolicyPacksController.DuplicatePack` / `PolicyPacksAppService.TryDuplicatePackAsync` — operator retry with duplicate copy `packType` differing only by casing may allocate fresh pack row (`Ordinal` packType match in duplicate dedupe matcher; #864 duplicate-description casing sibling).
+
+2026-09-05 seed hunt #864 (hit): reseeded post-#863 idempotent-retry casing exhaustion; proved duplicate-pack description case-insensitive idempotent retry; seeded create and duplicate-pack packType casing candidates.
 
 2026-09-05 thorough hunt #863 (hit): proved both #862 candidates — recurrence cron and catalog promote snapshot-version case-insensitive idempotent retry.
 

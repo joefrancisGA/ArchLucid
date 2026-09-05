@@ -312,7 +312,7 @@ public sealed class PolicyPacksAppService(
             pack =>
                 !pack.IsDeleted
                 && string.Equals(pack.Name, copyName, StringComparison.OrdinalIgnoreCase)
-                && string.Equals(pack.Description, sourcePack.Description, StringComparison.Ordinal)
+                && string.Equals(pack.Description, sourcePack.Description, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(pack.PackType, sourcePack.PackType, StringComparison.Ordinal));
 
         if (existingDuplicate is not null)
