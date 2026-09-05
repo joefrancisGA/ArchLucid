@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { ReactElement } from "react";
 
@@ -43,6 +43,7 @@ import {
   filterFindingsByClassificationBand,
   type ReviewFindingsClassificationBandId,
 } from "@/lib/findings/review-detail-findings-classification-band";
+import { COMMAND_PALETTE_FINDING_CHECKLIST_BAND_EVENT } from "@/lib/command-palette-handler-actions";
 import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
 import {
   deriveRunDetailFindingsTriageCounts,
@@ -110,6 +111,19 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
   }
   const architectWorkspaceChrome = useArchitectWorkspaceChrome();
   const [classificationBand, setClassificationBand] = useState<ReviewFindingsClassificationBandId>("decision-grade");
+
+  useEffect(() => {
+    const onChecklistBand = () => {
+      setClassificationBand("checklist");
+    };
+
+    window.addEventListener(COMMAND_PALETTE_FINDING_CHECKLIST_BAND_EVENT, onChecklistBand);
+
+    return () => {
+      window.removeEventListener(COMMAND_PALETTE_FINDING_CHECKLIST_BAND_EVENT, onChecklistBand);
+    };
+  }, []);
+
   const createHomeSurface = props.packageCommitted === false;
   const actorNodeCount = countActorNodesInGraphSnapshot(props.graphSnapshot);
   const showActorEnginesQuietHint =

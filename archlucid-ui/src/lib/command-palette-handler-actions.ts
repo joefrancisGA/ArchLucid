@@ -12,6 +12,7 @@ export const COMMAND_PALETTE_FINDING_PREVIOUS_EVENT = COMMAND_PALETTE_FINDING_PR
 export const COMMAND_PALETTE_FINDING_ACCEPT_EVENT = "archlucid-command-palette-finding-accept";
 export const COMMAND_PALETTE_FINDING_REMEDIATE_EVENT = "archlucid-command-palette-finding-remediate";
 export const COMMAND_PALETTE_FINDING_REJECT_EVENT = "archlucid-command-palette-finding-reject";
+export const COMMAND_PALETTE_FINDING_CHECKLIST_BAND_EVENT = "archlucid-command-palette-finding-checklist-band";
 export const COMMAND_PALETTE_ALERT_NEXT_EVENT = "archlucid-command-palette-alert-next";
 export const COMMAND_PALETTE_ALERT_PREV_EVENT = "archlucid-command-palette-alert-prev";
 export const COMMAND_PALETTE_ALERT_ACKNOWLEDGE_EVENT = "archlucid-command-palette-alert-acknowledge";
@@ -28,6 +29,7 @@ export type CommandPaletteHandlerActionId =
   | "action-finding-accept"
   | "action-finding-remediate"
   | "action-finding-reject"
+  | "action-finding-checklist-band"
   | "action-alert-next"
   | "action-alert-prev"
   | "action-alert-acknowledge"
@@ -129,6 +131,12 @@ export const COMMAND_PALETTE_HANDLER_ACTIONS: readonly CommandPaletteHandlerActi
     isAvailable: (pathname) => isFindingsWorkPath(pathname),
   },
   {
+    id: "action-finding-checklist-band",
+    label: "Open checklist band",
+    searchValue: "action finding checklist band classification coverage",
+    isAvailable: (pathname) => isReviewDetailWorkPath(pathname),
+  },
+  {
     id: "action-alert-next",
     label: "Focus next alert",
     searchValue: "action alert next alt+j triage",
@@ -169,6 +177,7 @@ const HANDLER_ACTION_EVENTS: Record<CommandPaletteHandlerActionId, string> = {
   "action-finding-accept": COMMAND_PALETTE_FINDING_ACCEPT_EVENT,
   "action-finding-remediate": COMMAND_PALETTE_FINDING_REMEDIATE_EVENT,
   "action-finding-reject": COMMAND_PALETTE_FINDING_REJECT_EVENT,
+  "action-finding-checklist-band": COMMAND_PALETTE_FINDING_CHECKLIST_BAND_EVENT,
   "action-alert-next": COMMAND_PALETTE_ALERT_NEXT_EVENT,
   "action-alert-prev": COMMAND_PALETTE_ALERT_PREV_EVENT,
   "action-alert-acknowledge": COMMAND_PALETTE_ALERT_ACKNOWLEDGE_EVENT,

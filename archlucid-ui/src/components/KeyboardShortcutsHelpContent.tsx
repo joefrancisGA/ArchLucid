@@ -126,10 +126,18 @@ export function KeyboardShortcutsTabContent(): React.ReactElement {
   const [reviewDetailOpen, setReviewDetailOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
 
+  const workingDeskWorkShortcuts = useMemo(
+    () => [...FINDINGS_PAGE_SHORTCUTS, ...REVIEW_DETAIL_PAGE_SHORTCUTS],
+    [],
+  );
+
   return (
     <div className="space-y-4">
       {/* Uncollapsed and first: the palette reaches every page, so it is the shortcut worth learning. */}
       <ShortcutTable entries={SHELL_COMMAND_SHORTCUTS} caption="Command palette" />
+      {isWorkingMode ? (
+        <ShortcutTable entries={workingDeskWorkShortcuts} caption="Desk work (Working)" />
+      ) : null}
       <ShortcutTable entries={common} caption="Common" />
       {rest.length > 0 ? (
         <Collapsible open={moreOpen} onOpenChange={setMoreOpen}>

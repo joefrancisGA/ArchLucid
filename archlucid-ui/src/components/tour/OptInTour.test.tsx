@@ -4,6 +4,16 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { DRAFT_TOUR_STEPS, OptInTour, TOUR_DISMISSED_LOCAL_STORAGE_KEY } from "./OptInTour";
 import { OptInTourLauncher } from "./OptInTourLauncher";
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+vi.mock("@/lib/workspace-mode/use-teaching-chrome-visible", () => ({
+  useTeachingChromeVisible: () => true,
+}));
+
 afterEach(() => {
   window.localStorage.clear();
   vi.restoreAllMocks();

@@ -5,7 +5,9 @@ import {
 } from "@/components/reviews/ReviewWorkspaceShell";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
+import { readCachedUserPreferencesForMutators } from "@/lib/api/user-preferences";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReviewDetailVisibleTabs } from "@/lib/resolve-review-detail-visible-tabs";
 import { resolveReviewWorkspaceTabLabel } from "@/lib/resolve-review-workspace-tab-label";
@@ -32,6 +34,7 @@ export type ReviewWorkspaceTabStripProps = {
   readonly tabCounts?: ReviewWorkspaceTabCounts;
   readonly isTabNewSinceLastVisit?: (tabId: ReviewDetailTabId) => boolean;
   readonly onTabChange: (tab: ReviewDetailTabId) => void;
+  readonly showThisBrowserVisitHonesty?: boolean;
 };
 
 function tabCountBadge(
@@ -144,7 +147,10 @@ function renderTabTrigger(
       <span className="inline-flex items-center gap-2">
         {resolveReviewWorkspaceTabLabel(props.lifecycle, tabId)}
         {props.isTabNewSinceLastVisit?.(tabId) === true ? (
-          <NewSinceLastVisitMarker testId={`review-detail-tab-new-${tabId}`} />
+          <NewSinceLastVisitMarker
+            testId={`review-detail-tab-new-${tabId}`}
+            showThisBrowserHonesty={props.showThisBrowserVisitHonesty}
+          />
         ) : null}
       </span>
       {count !== null ? (
@@ -185,6 +191,14 @@ function ReviewWorkspaceTabDivider(): React.JSX.Element {
 }
 
 export function ReviewWorkspaceTabStrip(props: ReviewWorkspaceTabStripProps): React.JSX.Element {
+  const { isWorkingMode } = useWorkspaceMode();
+  const deskContinuityExplicit = readCachedUserPreferencesForMutators().deskContinuityIsExplicit;
+  const showThisBrowserVisitHonesty =
+    props.showThisBrowserVisitHonesty ?? (!isWorkingMode || !deskContinuityExplicit);
+  const stripProps: ReviewWorkspaceTabStripProps = {
+    ...props,
+    showThisBrowserVisitHonesty,
+  };
   const counts = props.tabCounts ?? {};
   const tabsVariant = props.lifecycle === "create-home" ? "pill" : "line";
   const primaryTabIds = props.resolvedTabs.visibleTabIds;
@@ -253,7 +267,7 @@ export function ReviewWorkspaceTabStrip(props: ReviewWorkspaceTabStripProps): Re
               "-mx-1 overflow-x-auto px-1",
             )}
           >
-            {primaryTabIds.map((tabId) => renderTabTrigger(props, tabId, counts))}
+            {primaryTabIds.map((tabId) => renderTabTrigger(stripProps, tabId, counts))}
             {secondaryTabIds.length > 0 ? (
               <>
                 <ReviewWorkspaceTabDivider />
@@ -268,7 +282,7 @@ export function ReviewWorkspaceTabStrip(props: ReviewWorkspaceTabStripProps): Re
                 </span>
               </>
             ) : null}
-            {secondaryTabIds.map((tabId) => renderTabTrigger(props, tabId, counts))}
+            {secondaryTabIds.map((tabId) => renderTabTrigger(stripProps, tabId, counts))}
           </TabsList>
         </Tabs>
       </div>

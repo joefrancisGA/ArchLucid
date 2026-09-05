@@ -295,6 +295,11 @@ public sealed class AuditEvidenceFreshnessGateTests
             AuditAssessmentStatus status,
             CancellationToken cancellationToken = default)
             => Task.CompletedTask;
+
+        public Task<IReadOnlyList<AuditAssessmentRecord>> ListActiveByTenantAsync(
+            Guid tenantId,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult<IReadOnlyList<AuditAssessmentRecord>>([]);
     }
 
     private sealed class CapturingEvaluationRepository : IAuditControlEvaluationRepository

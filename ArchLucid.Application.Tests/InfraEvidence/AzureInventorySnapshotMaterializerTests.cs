@@ -55,6 +55,7 @@ public sealed class AzureInventorySnapshotMaterializerTests
         AzureInventorySnapshotMaterializer sut = new(
             snapshotRepository.Object,
             identityDirectory.Object,
+            CreateNoOpPostMaterializeCoordinator(),
             NullLogger<AzureInventorySnapshotMaterializer>.Instance);
 
         AzureInventorySnapshotMaterializeResult result = await sut.TryMaterializePackageAsync(
@@ -107,6 +108,7 @@ public sealed class AzureInventorySnapshotMaterializerTests
         AzureInventorySnapshotMaterializer sut = new(
             snapshotRepository.Object,
             identityDirectory.Object,
+            CreateNoOpPostMaterializeCoordinator(),
             NullLogger<AzureInventorySnapshotMaterializer>.Instance);
 
         AzureInventorySnapshotMaterializeResult result = await sut.TryMaterializePackageAsync(
@@ -155,6 +157,7 @@ public sealed class AzureInventorySnapshotMaterializerTests
         AzureInventorySnapshotMaterializer sut = new(
             snapshotRepository.Object,
             identityDirectory.Object,
+            CreateNoOpPostMaterializeCoordinator(),
             NullLogger<AzureInventorySnapshotMaterializer>.Instance);
 
         AzureInventorySnapshotMaterializeResult result = await sut.TryMaterializePackageAsync(
@@ -210,6 +213,7 @@ public sealed class AzureInventorySnapshotMaterializerTests
         AzureInventorySnapshotMaterializer sut = new(
             snapshotRepository.Object,
             identityDirectory.Object,
+            CreateNoOpPostMaterializeCoordinator(),
             NullLogger<AzureInventorySnapshotMaterializer>.Instance);
 
         AzureInventorySnapshotMaterializeResult result = await sut.TryMaterializePackageAsync(
@@ -258,6 +262,20 @@ public sealed class AzureInventorySnapshotMaterializerTests
             .Returns(Task.CompletedTask);
 
         return snapshotRepository;
+    }
+
+    private static IAzureInventorySnapshotPostMaterializeCoordinator CreateNoOpPostMaterializeCoordinator()
+    {
+        Mock<IAzureInventorySnapshotPostMaterializeCoordinator> coordinator = new();
+        coordinator
+            .Setup(c => c.OnSnapshotMaterializedAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        return coordinator.Object;
     }
 
     private static Mock<ICloudResourceIdentityDirectory> CreateIdentityDirectory(ScopeContext scope, Guid snapshotId)

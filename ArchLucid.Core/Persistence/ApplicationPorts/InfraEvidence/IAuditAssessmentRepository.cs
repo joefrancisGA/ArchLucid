@@ -16,4 +16,8 @@ public interface IAuditAssessmentRepository
         Guid assessmentId,
         AuditAssessmentStatus status,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<AuditAssessmentRecord>> ListActiveByTenantAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default);
 }
