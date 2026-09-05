@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 161
-- **bugs-found:** 320
+- **hunts:** 162
+- **bugs-found:** 325
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — anchor null object/property trim, mid-sentence constraint negation, Secretizer redaction
+- **last-bug:** 2026-09-05 — compliance simulator negation parity, anchor scalar/array, advice suffix negation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2271,6 +2271,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RunHeaderAnchorJsonComparer.AreEquivalent` — whitespace-padded JSON property names treated as distinct keys — **hit 2026-09-05 (#889):** `{"label":"x"}` vs `{" label ":"x"}` failed property union compare; fixed by trimming property names during case-insensitive lookup (`EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_whitespace_padded_property_names_on_committed_run`).
 - [x] (proven) `RequestConstraintTokenMatcher` / `RequestConstraintClassifier` — mid-sentence prohibitive negation gap (`do not require` / `must not`) — **hit 2026-09-05 (#889):** #887 prefix-only advice negation missed `workflows do not require encryption` and `must not use encryption`; classifier false positives; fixed with mid-sentence negation phrase detection (`HasEncryptionConstraint_does_not_false_positive_on_do_not_require_encryption_phrasing`, `HasEncryptionConstraint_does_not_false_positive_on_must_not_encryption_phrasing`).
 - [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `Secret`/`Password`+`izer` suffix false positives — **hit 2026-09-05 (#889):** #887 guarded `Token`+`izer` only; `SecretizerModule` / `PasswordizerAuth` config paths and `secretizer` / `passwordizer` ARM keys redacted; fixed with `izer` suffix guard parity (`Resolve_returns_scalar_for_non_secret_segment_substrings` with `SecretizerModule` / `PasswordizerAuth`, `IsSensitiveKey_detects_secret_like_names` with `secretizer` / `passwordizer`).
+
+- [x] (proven) `FakeScenarioFactory.CreateComplianceResult` — negated managed-identity / private-networking constraints still emit controls and findings — **hit 2026-09-05 (#891):** #882 wired encryption through `RequestConstraintClassifier` only; `non-managed identity` / `non-private networking` still produced `ManagedIdentityRequired` / `PrivateNetworkingRequired`; fixed with classifier-gated controls, claims, and findings (`CreateComplianceResult_does_not_add_managed_identity_control_for_negated_constraint`, `CreateComplianceResult_does_not_emit_private_networking_finding_for_negated_constraint`).
+- [x] (proven) `DeclarationSecurityPropertyKeyResolver.TryGet` — missing ARM `sslEnforcementEnabled` alias for `SslEnforcementEnabled` — **hit 2026-09-05 (#891):** sibling logical names include ARM camelCase keys; SSL enforcement property bags with `sslEnforcementEnabled` missed baseline classifiers; fixed with alias parity (`TryGet_resolves_arm_sslEnforcementEnabled`).
+- [x] (proven) `RunHeaderAnchorJsonComparer.AreEquivalent` — JSON scalar vs single-element array treated as anchor mutation — **hit 2026-09-05 (#891):** after #888–#889 null/empty coercions, `{"packSlug":"x"}` vs `{"packSlug":["x"]}` failed kind check; fixed with scalar↔single-element-array bridge (`EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_scalar_equivalent_to_single_element_array_on_committed_run`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsObviousGenericAdvice` — suffix prohibitive negation gap (`enable mfa not required`) — **hit 2026-09-05 (#891):** prefix/mid negation from #877–#889 missed trailing `not required` on imperative regex matches; fixed with suffix negation guard on fragment and imperative paths (`IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing` with `enable mfa not required for batch service accounts`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` — `ApiKey`/`ConnectionString`+`izer` suffix false positives — **hit 2026-09-05 (#891):** #889 guarded `Secret`/`Password`/`Token`+`izer` only; `ApiKeyizerModule` / `ConnectionStringizerSettings` redacted in operator summary; fixed with `izer` suffix guard parity (`Resolve_returns_scalar_for_non_secret_segment_substrings` with `ApiKeyizerModule` / `ConnectionStringizerSettings`).
+
+2026-09-05 seed hunt #891 (hit): reseeded after #889 closure; proved compliance simulator negation parity, SSL enforcement ARM alias, anchor scalar/array coercion, advice suffix negation, and ApiKey/ConnectionString izer redaction parity.
 
 2026-09-05 seed hunt #889: reseeded after #888 closure; proved anchor null-object/property-name trim, mid-sentence constraint negation, and Secretizer/Passwordizer redaction parity.
 2026-09-05 seed hunt #888: reseeded after #887 closure; proved ConnectionStringless config redaction, ARM key+free suffix parity, and anchor null array/string coercion.
