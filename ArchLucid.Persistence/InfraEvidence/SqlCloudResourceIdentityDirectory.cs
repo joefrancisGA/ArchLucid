@@ -204,6 +204,63 @@ public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory conn
         };
     }
 
+    public async Task<CloudResourceIdentityRecord?> TryGetByCloudResourceIdAsync(
+        ScopeContext scope,
+        Guid cloudResourceId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (cloudResourceId == Guid.Empty)
+            return null;
+
+        const string sql = """
+                           SELECT TOP (1)
+                               CloudResourceId, TenantId, WorkspaceId, ProjectId, Provider,
+                               ExternalResourceIdNormalized, ResourceType, SubscriptionOrAccountId,
+                               ResourceGroupOrProject, Region, DisplayName,
+                               FirstSeenSnapshotId, LastSeenSnapshotId, FirstSeenUtc, LastSeenUtc
+                           FROM dbo.CloudResourceIdentities
+                           WHERE TenantId = @TenantId
+                               AND CloudResourceId = @CloudResourceId;
+                           """;
+
+        using System.Data.IDbConnection conn =
+            await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        Row? row = await conn.QuerySingleOrDefaultAsync<Row>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    CloudResourceId = cloudResourceId,
+                },
+                cancellationToken: cancellationToken));
+
+        if (row is null)
+            return null;
+
+        return new CloudResourceIdentityRecord
+        {
+            CloudResourceId = row.CloudResourceId,
+            TenantId = row.TenantId,
+            WorkspaceId = row.WorkspaceId,
+            ProjectId = row.ProjectId,
+            Provider = (CloudProvider)row.Provider,
+            ExternalResourceIdNormalized = row.ExternalResourceIdNormalized,
+            ResourceType = row.ResourceType,
+            SubscriptionOrAccountId = row.SubscriptionOrAccountId,
+            ResourceGroupOrProject = row.ResourceGroupOrProject,
+            Region = row.Region,
+            DisplayName = row.DisplayName,
+            FirstSeenSnapshotId = row.FirstSeenSnapshotId,
+            LastSeenSnapshotId = row.LastSeenSnapshotId,
+            FirstSeenUtc = row.FirstSeenUtc,
+            LastSeenUtc = row.LastSeenUtc,
+        };
+    }
+
     public async Task UpdateResourceCloudResourceIdAsync(
         ScopeContext scope,
         Guid resourceRowId,

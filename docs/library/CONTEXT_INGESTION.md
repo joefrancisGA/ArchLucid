@@ -198,6 +198,24 @@ Optional PNG/PDF vision ingest into **`ArchitectureDiagramModel`** with **`Extra
 
 Responses include **`interpretationHonestyLabel`**: *"AI interpretation (not observed Azure state)."* Invalid vision schema is **fail-closed** (`VisionDiagramModelValidator`).
 
+### Cloud resource evidence hub (IE-21)
+
+`GET /v1/infra-evidence/cloud-resources/{cloudResourceId}/hub` joins existing infra-evidence tables for one stable **`CloudResourceId`**:
+
+| Section | Source |
+|---|---|
+| Current configuration | Latest (or `snapshotId`) inventory snapshot |
+| Terraform mapping | `AdvisoryTerraformResourceMappings` |
+| Diagram correspondence | IE-19 reconciliation when `runId` + `snapshotId` provided |
+| Operational security findings | `OperationalSecurityFindings` — labeled stream |
+| Architecture review findings | Run findings when `runId` provided — separate labeled stream |
+| Remediation instances | `RemediationInstances` filtered by resource |
+| RBAC / network | Snapshot role assignments and relationships |
+| Recent changes | Latest diff for prior→current snapshot pair |
+| Audit lineage link | AE-10 relative path when `assessmentId`, `auditEvidenceSnapshotId`, and `controlId` query params are set |
+
+Finding and remediation streams honor **`PaginationDefaults`** (`page`, `pageSize`; max 200). Unknown `CloudResourceId` returns **404**. Streams are never mixed without `streamKind` / `streamLabel`.
+
 ---
 
 ## Further reading
