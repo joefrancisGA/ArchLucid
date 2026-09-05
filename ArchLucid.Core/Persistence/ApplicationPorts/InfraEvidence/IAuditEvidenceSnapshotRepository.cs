@@ -41,4 +41,10 @@ public interface IAuditEvidenceSnapshotRepository
         Guid assessmentId,
         string baselineName,
         CancellationToken cancellationToken = default);
+
+    Task UpdateItemFreshnessAsync(
+        Guid tenantId,
+        Guid auditEvidenceSnapshotId,
+        IReadOnlyList<AuditEvidenceFreshnessItemUpdate> updates,
+        CancellationToken cancellationToken = default);
 }
