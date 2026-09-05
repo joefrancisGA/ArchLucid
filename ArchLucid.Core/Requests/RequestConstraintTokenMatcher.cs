@@ -98,6 +98,9 @@ internal static class RequestConstraintTokenMatcher
         if (IsNotPrefixedNegation(haystack, tokenIndex))
             return true;
 
+        if (IsWithoutPrefixedNegation(haystack, tokenIndex))
+            return true;
+
         ReadOnlySpan<char> before = haystack.AsSpan(0, tokenIndex).TrimEnd();
 
         if (before.Length < 2)
@@ -136,6 +139,20 @@ internal static class RequestConstraintTokenMatcher
             || before.EndsWith("not_", StringComparison.OrdinalIgnoreCase)
             || before.EndsWith("not.", StringComparison.OrdinalIgnoreCase)
             || before.EndsWith("not ", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsWithoutPrefixedNegation(string haystack, int tokenIndex)
+    {
+        ReadOnlySpan<char> before = haystack.AsSpan(0, tokenIndex).TrimEnd();
+
+        if (before.Length < 7)
+            return false;
+
+        return before.EndsWith("without", StringComparison.OrdinalIgnoreCase)
+            || before.EndsWith("without-", StringComparison.OrdinalIgnoreCase)
+            || before.EndsWith("without_", StringComparison.OrdinalIgnoreCase)
+            || before.EndsWith("without.", StringComparison.OrdinalIgnoreCase)
+            || before.EndsWith("without ", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsNonPrefixedNegation(string haystack, int tokenIndex)

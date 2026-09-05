@@ -34,7 +34,12 @@ internal static class RunHeaderAnchorJsonComparer
     private static bool ElementsEquivalent(JsonElement left, JsonElement right)
     {
         if (left.ValueKind != right.ValueKind)
+        {
+            if (TryCrossKindEquivalent(left, right))
+                return true;
+
             return false;
+        }
 
         switch (left.ValueKind)
         {
@@ -92,6 +97,67 @@ internal static class RunHeaderAnchorJsonComparer
         }
 
         return true;
+    }
+
+    private static bool TryCrossKindEquivalent(JsonElement left, JsonElement right)
+    {
+        if (TryBooleanStringEquivalent(left, right))
+            return true;
+
+        if (TryNumberStringEquivalent(left, right))
+            return true;
+
+        return false;
+    }
+
+    private static bool TryBooleanStringEquivalent(JsonElement left, JsonElement right)
+    {
+        if (left.ValueKind == JsonValueKind.String && right.ValueKind is JsonValueKind.True or JsonValueKind.False)
+            return TryParseBooleanString(left, out bool leftBoolean) && leftBoolean == right.GetBoolean();
+
+        if (right.ValueKind == JsonValueKind.String && left.ValueKind is JsonValueKind.True or JsonValueKind.False)
+            return TryParseBooleanString(right, out bool rightBoolean) && rightBoolean == left.GetBoolean();
+
+        return false;
+    }
+
+    private static bool TryParseBooleanString(JsonElement element, out bool value)
+    {
+        value = false;
+
+        string? text = element.GetString()?.Trim();
+
+        if (text is null)
+            return false;
+
+        return bool.TryParse(text, out value);
+    }
+
+    private static bool TryNumberStringEquivalent(JsonElement left, JsonElement right)
+    {
+        if (left.ValueKind == JsonValueKind.String && right.ValueKind == JsonValueKind.Number)
+            return TryParseDecimalString(left, out decimal leftNumber)
+                && right.TryGetDecimal(out decimal rightNumber)
+                && leftNumber == rightNumber;
+
+        if (left.ValueKind == JsonValueKind.Number && right.ValueKind == JsonValueKind.String)
+            return TryParseDecimalString(right, out decimal rightNumber)
+                && left.TryGetDecimal(out decimal leftNumber)
+                && leftNumber == rightNumber;
+
+        return false;
+    }
+
+    private static bool TryParseDecimalString(JsonElement element, out decimal value)
+    {
+        value = default;
+
+        string? text = element.GetString()?.Trim();
+
+        if (text is null)
+            return false;
+
+        return decimal.TryParse(text, out value);
     }
 
     private static bool StringsEquivalent(JsonElement left, JsonElement right)

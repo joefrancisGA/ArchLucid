@@ -181,6 +181,7 @@ public static partial class GenericArchitectureAdvicePatterns
         return before.EndsWith("do not", StringComparison.Ordinal)
             || before.EndsWith("do-not", StringComparison.Ordinal)
             || before.EndsWith("don't", StringComparison.Ordinal)
+            || before.EndsWith("won't", StringComparison.Ordinal)
             || before.EndsWith("no requirement to", StringComparison.Ordinal)
             || before.EndsWith("not required to", StringComparison.Ordinal)
             || before.EndsWith("never", StringComparison.Ordinal)

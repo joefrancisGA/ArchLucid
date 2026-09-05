@@ -161,6 +161,34 @@ public sealed class CommittedRunHeaderAnchorGuardTests
     }
 
     [Fact]
+    public void EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_string_encoded_boolean_only_change_on_committed_run()
+    {
+        Guid manifestId = Guid.NewGuid();
+        RunRecord persisted = CreateRun(goldenManifestId: manifestId);
+        persisted.GovernanceScopeJson = """{"enabled":true}""";
+        RunRecord proposed = CreateRun(goldenManifestId: manifestId);
+        proposed.GovernanceScopeJson = """{"enabled":"true"}""";
+
+        Action act = () => CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, proposed);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_string_encoded_number_only_change_on_committed_run()
+    {
+        Guid manifestId = Guid.NewGuid();
+        RunRecord persisted = CreateRun(goldenManifestId: manifestId);
+        persisted.GovernanceScopeJson = """{"schemaVersion":1}""";
+        RunRecord proposed = CreateRun(goldenManifestId: manifestId);
+        proposed.GovernanceScopeJson = """{"schemaVersion":"1"}""";
+
+        Action act = () => CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, proposed);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
     public void EnsureAnchorsUnchangedIfCommitted_allows_engine_provenance_string_whitespace_only_change_on_committed_run()
     {
         Guid manifestId = Guid.NewGuid();

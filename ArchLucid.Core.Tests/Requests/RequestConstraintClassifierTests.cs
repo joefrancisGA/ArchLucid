@@ -203,6 +203,30 @@ public sealed class RequestConstraintClassifierTests
     }
 
     [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_without_encryption_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["without encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasManagedIdentityConstraint_does_not_false_positive_on_without_managed_identity_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["without managed identity for storage"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasPrivateNetworkingConstraint_does_not_false_positive_on_without_private_networking_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["without private networking for batch workloads"]);
+
+        RequestConstraintClassifier.HasPrivateNetworkingConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
     public void HasManagedIdentityConstraint_does_not_false_positive_on_not_managed_identity_phrasing()
     {
         ArchitectureRequest request = CreateRequest(constraints: ["not managed identity for storage"]);
