@@ -34,10 +34,22 @@ describe("ReRunReviewButton", () => {
     executeArchitectureRunAsync.mockResolvedValue({ operationId: "run:run-abc", location: null });
   });
 
+  it("requires confirmation before spending AI budget", async () => {
+    render(<ReRunReviewButton runId="run-abc" retryCount={2} />);
+
+    fireEvent.click(screen.getByTestId("re-run-review-button"));
+
+    expect(screen.getByTestId("re-run-review-confirm-dialog")).toBeInTheDocument();
+    expect(screen.getByText(/Attempt/)).toHaveTextContent("3");
+    expect(screen.getByText(/Metered AI budget will be consumed/)).toBeInTheDocument();
+    expect(executeArchitectureRunAsync).not.toHaveBeenCalled();
+  });
+
   it("re-executes the review on the same run id and shows a durable started outcome", async () => {
     render(<ReRunReviewButton runId="run-abc" retryCount={2} />);
 
     fireEvent.click(screen.getByTestId("re-run-review-button"));
+    fireEvent.click(screen.getByTestId("re-run-review-confirm-button"));
 
     await waitFor(() => {
       expect(executeArchitectureRunAsync).toHaveBeenCalledWith("run-abc");
@@ -55,6 +67,7 @@ describe("ReRunReviewButton", () => {
     render(<ReRunReviewButton runId="run-abc" />);
 
     fireEvent.click(screen.getByTestId("re-run-review-button"));
+    fireEvent.click(screen.getByTestId("re-run-review-confirm-button"));
 
     await waitFor(() => {
       expect(screen.getByTestId("re-run-review-outcome")).toBeInTheDocument();
@@ -87,6 +100,7 @@ describe("ReRunReviewButton", () => {
     render(<ReRunReviewButton runId="run-abc" />);
 
     fireEvent.click(screen.getByTestId("re-run-review-button"));
+    fireEvent.click(screen.getByTestId("re-run-review-confirm-button"));
 
     await waitFor(() => {
       expect(screen.getByTestId("re-run-review-queue-status")).toHaveTextContent("Queue status: Queued");
@@ -109,6 +123,7 @@ describe("ReRunReviewButton", () => {
     render(<ReRunReviewButton runId="run-abc" />);
 
     fireEvent.click(screen.getByTestId("re-run-review-button"));
+    fireEvent.click(screen.getByTestId("re-run-review-confirm-button"));
 
     await waitFor(() => {
       expect(screen.getByTestId("re-run-review-outcome")).toBeInTheDocument();
@@ -151,6 +166,7 @@ describe("ReRunReviewButton", () => {
     render(<ReRunReviewButton runId="run-abc" retryCount={0} />);
 
     fireEvent.click(screen.getByTestId("re-run-review-button"));
+    fireEvent.click(screen.getByTestId("re-run-review-confirm-button"));
 
     await waitFor(() => {
       expect(screen.getByTestId("re-run-review-outcome")).toHaveTextContent(
@@ -167,6 +183,7 @@ describe("ReRunReviewButton", () => {
     render(<ReRunReviewButton runId="run-abc" retryCount={0} />);
 
     fireEvent.click(screen.getByTestId("re-run-review-button"));
+    fireEvent.click(screen.getByTestId("re-run-review-confirm-button"));
 
     await waitFor(() => {
       expect(screen.getByTestId("re-run-review-outcome")).toHaveTextContent(
@@ -202,6 +219,7 @@ describe("ReRunReviewButton", () => {
     render(<ReRunReviewButton runId="run-abc" />);
 
     fireEvent.click(screen.getByTestId("re-run-review-button"));
+    fireEvent.click(screen.getByTestId("re-run-review-confirm-button"));
 
     await waitFor(() => {
       expect(screen.queryByTestId("re-run-review-outcome")).not.toBeInTheDocument();

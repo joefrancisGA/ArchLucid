@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { ReactElement } from "react";
 
 import {
@@ -8,25 +9,39 @@ import {
 } from "@/components/EnterpriseCompactEmptyState";
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
+import { OPERATOR_LINK } from "@/lib/design-tokens";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { useCorePilotDerivedStepStatus } from "@/lib/use-core-pilot-derived-step-status";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
 export type RunDetailPreFinalizedEmptyStateProps = {
   readonly runId: string;
+  readonly terminalFailure?: boolean;
 };
+
+function focusAuditTrailAfterJump(): void {
+  const target =
+    document.querySelector<HTMLElement>("[data-testid='run-pipeline-timeline-collapsible']")
+    ?? document.getElementById("pipeline-timeline");
+
+  if (target === null) {
+    return;
+  }
+
+  if (!target.hasAttribute("tabindex")) {
+    target.tabIndex = -1;
+  }
+
+  target.focus({ preventScroll: true });
+}
 
 export function RunDetailPreFinalizedEmptyState(props: RunDetailPreFinalizedEmptyStateProps): ReactElement {
   const corePilot = useCorePilotDerivedStepStatus();
   const showFirstReviewGuide = !corePilot.isPending && corePilot.nextStepIndex !== null;
+  const terminalFailure = props.terminalFailure === true;
+  const auditTrailHref = buildReviewDetailTabHref(props.runId, "activity", { hash: "pipeline-timeline" });
 
-  const actions: EnterpriseCompactEmptyStateAction[] = [
-    {
-      label: "See pipeline / findings",
-      href: buildReviewDetailTabHref(props.runId, "overview", { hash: "pipeline-timeline" }),
-      variant: "primary" as const,
-    },
-  ];
+  const actions: EnterpriseCompactEmptyStateAction[] = [];
 
   if (showFirstReviewGuide) {
     actions.push({
@@ -36,18 +51,39 @@ export function RunDetailPreFinalizedEmptyState(props: RunDetailPreFinalizedEmpt
     });
   }
 
+  const title = terminalFailure ? "Review did not finalize" : "Review not ready yet";
+  const description = terminalFailure ? (
+    <p className="m-0">
+      This architecture review stopped before a sealed review record was produced. Use the recovery steps above to
+      address what failed, then re-run the review. Exports and custody records appear only after finalization.
+    </p>
+  ) : (
+    <p className="m-0">
+      This architecture review has not been finalized yet. After analysis completes and you finalize, the{" "}
+      <InlineGlossaryChip nounId="sealed-review-record">{SIGNED_MANIFEST_LABEL.toLowerCase()}</InlineGlossaryChip>,{" "}
+      <InlineGlossaryChip nounId="evidence-trail">evidence trail</InlineGlossaryChip>, and exports will appear here.
+    </p>
+  );
+
   return (
     <EnterpriseCompactEmptyState
       testId="run-detail-pre-finalized-empty-state"
-      title="Review not ready yet"
-      description={
-        <p className="m-0">
-          This architecture review has not been finalized yet. After the pipeline completes and you finalize, the{" "}
-          <InlineGlossaryChip nounId="sealed-review-record">{SIGNED_MANIFEST_LABEL.toLowerCase()}</InlineGlossaryChip>,{" "}
-          <InlineGlossaryChip nounId="evidence-trail">evidence trail</InlineGlossaryChip>, and exports will appear here.
-        </p>
-      }
+      title={title}
+      description={description}
       actions={actions}
+      footer={
+        <Link
+          className={OPERATOR_LINK.nav}
+          href={auditTrailHref}
+          onClick={() => {
+            window.setTimeout(() => {
+              focusAuditTrailAfterJump();
+            }, 0);
+          }}
+        >
+          See audit trail / findings
+        </Link>
+      }
     />
   );
 }
