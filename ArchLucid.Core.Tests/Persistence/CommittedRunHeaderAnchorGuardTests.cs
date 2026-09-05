@@ -61,6 +61,20 @@ public sealed class CommittedRunHeaderAnchorGuardTests
     }
 
     [Fact]
+    public void EnsureAnchorsUnchangedIfCommitted_allows_otel_trace_id_casing_only_change_on_committed_run()
+    {
+        Guid manifestId = Guid.NewGuid();
+        RunRecord persisted = CreateRun(goldenManifestId: manifestId);
+        persisted.OtelTraceId = "0123456789abcdef0123456789abcdef";
+        RunRecord proposed = CreateRun(goldenManifestId: manifestId);
+        proposed.OtelTraceId = "0123456789ABCDEF0123456789ABCDEF";
+
+        Action act = () => CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, proposed);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
     public void EnsureAnchorsUnchangedIfCommitted_throws_when_anchor_mutates_on_committed_run()
     {
         Guid manifestId = Guid.NewGuid();

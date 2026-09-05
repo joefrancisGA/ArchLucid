@@ -70,7 +70,7 @@ public static class CommittedRunHeaderAnchorGuard
         if (persisted.StructuralExecutionMode != proposed.StructuralExecutionMode)
             return true;
 
-        if (!string.Equals(persisted.OtelTraceId, proposed.OtelTraceId, StringComparison.Ordinal))
+        if (!string.Equals(persisted.OtelTraceId, proposed.OtelTraceId, StringComparison.OrdinalIgnoreCase))
             return true;
 
         if (!string.Equals(persisted.EngineProvenanceJson, proposed.EngineProvenanceJson, StringComparison.Ordinal))

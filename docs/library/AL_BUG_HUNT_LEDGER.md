@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 150
-- **bugs-found:** 284
+- **hunts:** 151
+- **bugs-found:** 287
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — committed run manifest-version casing false anchor mutation
+- **last-bug:** 2026-09-05 — Otel trace id casing anchor guard and advice/redactor negation gaps
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2217,6 +2217,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `MarketingAttributionBucketMapper.MapCoarsePlatform` — `micro-soft` / `micro_soft` UTM sources map to `unknown` — delimiter normalization already compacts to `microsoft`; cheap-disproof passes without code change.
 
 2026-09-05 seed hunt #878: reseeded committed-run anchor guard and advice-pattern negation after #871/#877; proved manifest-version casing false anchor mutation and `no requirement to` fragment gap; disproved micro-soft platform delimiter candidate.
+
+- [x] (proven) `CommittedRunHeaderAnchorGuard.HasAnchorMutation` — `OtelTraceId` hex casing-only drift treated as anchor mutation — **hit 2026-09-05 (#879):** #878 fixed `CurrentManifestVersion` casing only; W3C trace id hex persisted lowercase while upstream retried uppercase and threw `RunEvidenceAnchorImmutableException`; fixed with `OrdinalIgnoreCase` (`EnsureAnchorsUnchangedIfCommitted_allows_otel_trace_id_casing_only_change_on_committed_run`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsObviousGenericAdvice` — `never {phrase}` prohibitive intent still matches affirmative fragments — **hit 2026-09-05 (#879):** #878 `no requirement to` negation missed `never enable mfa`; architecture-specific findings demoted as generic checklist advice; fixed with `never` negation prefix (`IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing` with `never enable mfa for service accounts`).
+- [x] (proven) `AzureExtractorSensitivePropertyRedactor.IsSensitiveKey` — `connectionstringfree` substring false positive — **hit 2026-09-05 (#879):** #876 `passwordless` suffix guard missed `connectionstring`+`free`; benign ARM metadata redacted; fixed with `connectionstringfree` suffix guard (`IsSensitiveKey_detects_secret_like_names` with `connectionstringfree`).
+- [x] (invalid) `AuthEmailDomainNormalizer.TryNormalize` — trailing-hyphen DNS label `bad-.example.com` accepted — `DomainLabelPattern` already rejects labels not ending in alphanumeric; cheap-disproof via `TryNormalize_rejects_invalid_domains`.
+
+2026-09-05 seed hunt #879: reseeded anchor-guard casing sibling, advice negation, and redactor suffix surfaces after #878; proved Otel trace id casing, `never` advice negation, and `connectionstringfree` false positive; disproved trailing-hyphen domain label candidate.
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
 - [x] (valid-no-repro) Tenant scope model treats empty workspace as a wildcard — `ActivityScopeTags` rejects `Guid.Empty` workspace ids; no wildcard semantics in Core tenancy models.
