@@ -360,6 +360,51 @@ public sealed class TenantCustomerSuccessControllerTests
     }
 
     [SkippableFact]
+    public async Task PostProductFeedbackAsync_persists_canonical_finding_ref_when_request_differs_only_by_casing()
+    {
+        const string canonicalFindingId = "FIND-ABC";
+        ProductFeedbackSubmission? captured = null;
+
+        Mock<ITenantCustomerSuccessRepository> repo = new();
+        repo.Setup(r =>
+                r.InsertProductFeedbackAsync(It.IsAny<ProductFeedbackSubmission>(), It.IsAny<CancellationToken>()))
+            .Callback<ProductFeedbackSubmission, CancellationToken>((s, _) => captured = s)
+            .Returns(Task.CompletedTask);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                "find-abc",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse
+            {
+                FindingId = canonicalFindingId,
+            });
+
+        TenantCustomerSuccessController sut = BuildSut(
+            repo.Object,
+            scopeProvider.Object,
+            findingInspect: findingInspect.Object);
+
+        ProductFeedbackRequest request = new()
+        {
+            FindingRef = "find-abc",
+            Score = 1,
+        };
+
+        IActionResult result = await sut.PostProductFeedbackAsync(request, CancellationToken.None);
+
+        result.Should().BeOfType<NoContentResult>();
+        captured.Should().NotBeNull();
+        captured!.FindingRef.Should().Be(canonicalFindingId);
+    }
+
+    [SkippableFact]
     public async Task PostProductFeedbackAsync_returns_bad_request_when_finding_ref_exceeds_max_length()
     {
         string overlongFindingRef = new string('f', 513);
