@@ -237,7 +237,7 @@ public sealed class TenantErasureCommandService(
             return false;
 
         return tenant.LegalHoldUntilUtc == untilUtc
-            && string.Equals(tenant.LegalHoldReason, reason, StringComparison.Ordinal);
+            && string.Equals(tenant.LegalHoldReason, reason, StringComparison.OrdinalIgnoreCase);
     }
 
     private Task AppendPlatformAuditAsync(

@@ -3418,11 +3418,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 247
-- **bugs-found:** 482
+- **hunts:** 248
+- **bugs-found:** 483
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — waiver renew rationale case-insensitive idempotent retry
+- **last-bug:** 2026-09-05 — legal hold reason case-insensitive idempotent retry
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4584,11 +4584,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.BatchReviewApprovalRequests` / `GovernanceApprovalRequestsFacade.BatchReviewAsync` / `GovernanceWorkflowReviewStage.ReviewCommentsMatch` — per-item retry on already-finalized approval surfaced `Conflict` instead of idempotent success when `ReviewComment` differed only by casing (`Ordinal` match after trim; whitespace already trimmed) — **hit 2026-09-05 (#852):** case-insensitive comment comparison in `ReviewCommentsMatch` (approve/reject/batch share path); regressions in `Reject_returns_existing_approval_without_duplicate_audit_when_review_comment_differs_only_by_casing` and `Reject_returns_existing_approval_without_duplicate_audit_when_review_comment_differs_only_by_outer_whitespace`.
 - [x] (proven) `GovernanceStickinessController.RenewRiskException` / `RiskExceptionService.RenewAsync` / `IsIdenticalRenewal` — operator retry on already-renewed waiver with `rationale` or `evidenceRef` differing only by casing re-ran `RenewAsync` and logged duplicate `RiskExceptionRenewed` audit (`Ordinal` match after trim; #852 review-comment parity) — **hit 2026-09-05 (#853):** case-insensitive optional text comparison in `IsIdenticalRenewal`; regressions in `RenewAsync_skips_duplicate_audit_when_rationale_differs_only_by_casing` and `RenewAsync_skips_duplicate_audit_when_evidence_ref_differs_only_by_casing`.
 
-2026-09-05 thorough hunt #852 (hit): cheap-disproved approve regression-only candidate; proved governance review comment case-insensitive idempotent retry gap.
+- [x] (proven) `TenantErasureLegalHoldController.SetLegalHoldAsync` / `TenantErasureCommandService.IsIdenticalLegalHoldRetry` — operator retry with `reason` differing only by casing re-upserted legal hold and logged duplicate `TenantErasureLegalHoldSet` audit (`StringComparison.Ordinal` on reason; #852/#853 text-field parity) — **hit 2026-09-05 (#854):** case-insensitive reason comparison in `IsIdenticalLegalHoldRetry`; regression in `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_reason_differs_only_by_casing`.
 
-- [ ] (candidate) `TenantErasureLegalHoldController.SetLegalHoldAsync` / `TenantErasureCommandService.IsIdenticalLegalHoldRetry` — operator retry with `reason` differing only by casing may re-upsert legal hold and log duplicate `TenantErasureLegalHoldSet` audit (`StringComparison.Ordinal` on reason; #852 review-comment / #853 renew rationale parity).
+2026-09-05 thorough hunt #854 (hit): proved legal-hold reason case-insensitive idempotent retry gap seeded in #853.
 
 2026-09-05 seed hunt #853 (hit): reseeded post-#852 idempotent-retry exhaustion; proved waiver renew rationale/evidenceRef case-insensitive idempotent retry gap; seeded legal-hold reason casing candidate.
+
+2026-09-05 thorough hunt #852 (hit): cheap-disproved approve regression-only candidate; proved governance review comment case-insensitive idempotent retry gap.
 
 2026-09-05 seed hunt #845 (hit): reseeded post-#844 idempotent-retry exhaustion; proved core-pilot checklist and tenant baseline duplicate-audit gaps; seeded restore idempotent-success and governance-resolution read-audit retry candidates.
 
