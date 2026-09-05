@@ -1542,6 +1542,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "InfraEvidence/TenantBrandingController.cs",
+      "class_name": "TenantBrandingController",
+      "route_template": "v{version:apiVersion}/infra-evidence/branding",
+      "normalized_prefix": "/v1/infra-evidence/branding",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Integrations/AzureBoardsIntegrationsController.cs",
       "class_name": "AzureBoardsIntegrationsController",
       "route_template": "v{version:apiVersion}/integrations/azure-boards",
