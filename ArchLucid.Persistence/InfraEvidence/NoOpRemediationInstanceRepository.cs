@@ -24,4 +24,9 @@ public sealed class NoOpRemediationInstanceRepository : IRemediationInstanceRepo
         Guid instanceId,
         CancellationToken cancellationToken = default) =>
         Task.FromResult<IReadOnlyList<RemediationEvidenceRecord>>([]);
+
+    public Task<IReadOnlyList<RemediationInstanceRecord>> ListByTenantAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult<IReadOnlyList<RemediationInstanceRecord>>([]);
 }

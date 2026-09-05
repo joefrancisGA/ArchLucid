@@ -341,6 +341,12 @@ public sealed class RemediationInstanceServiceTests
             CancellationToken cancellationToken = default) =>
             Task.FromResult<IReadOnlyList<RemediationEvidenceRecord>>(
                 Evidence.Where(row => row.TenantId == tenantId && row.InstanceId == instanceId).ToList());
+
+        public Task<IReadOnlyList<RemediationInstanceRecord>> ListByTenantAsync(
+            Guid tenantId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<RemediationInstanceRecord>>(
+                Instances.Where(row => row.TenantId == tenantId).ToList());
     }
 
     private sealed class InMemoryRemediationPatternMatchRepository : IRemediationPatternMatchRepository

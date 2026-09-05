@@ -1762,6 +1762,36 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "OperationalSecurity/RemediationPrioritizationController.cs",
+      "class_name": "RemediationPrioritizationController",
+      "route_template": "v{version:apiVersion}/operational-security/remediation-prioritization",
+      "normalized_prefix": "/v1/operational-security/remediation-prioritization",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "OperationalSecurity/RemediationWavesController.cs",
+      "class_name": "RemediationWavesController",
+      "route_template": "v{version:apiVersion}/operational-security/remediation-waves",
+      "normalized_prefix": "/v1/operational-security/remediation-waves",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "OperationalSecurity/RemediationFactoryMetricsController.cs",
+      "class_name": "RemediationFactoryMetricsController",
+      "route_template": "v{version:apiVersion}/operational-security/remediation-metrics",
+      "normalized_prefix": "/v1/operational-security/remediation-metrics",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Pilots/PilotsBoardPackController.cs",
       "class_name": "PilotsBoardPackController",
       "route_template": "v{version:apiVersion}/pilots",
