@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 165
-- **bugs-found:** 340
+- **hunts:** 166
+- **bugs-found:** 345
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — anchor numeric boolean, PrivateKeyless redaction, advice/constraint negation suffixes and contractions
+- **last-bug:** 2026-09-05 — anchor empty/whitespace coercion, credential config redaction, advice negation parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2305,6 +2305,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `DeclarationSecurityPropertyKeyResolver` — raw ARM `ipSecurityRestrictions` alias — ingestion canonicalizes to `tf.ipsecurityrestrictions` before resolver (cheap-disproof #894).
 
 2026-09-05 seed hunt #894 (hit): reseeded after #893 closure; proved five hunt-ready rows — anchor numeric↔boolean coercion, PrivateKeyless config redaction parity, advice suffix/contraction negation, and constraint contraction/suffix negation.
+
+- [x] (proven) `RunHeaderAnchorJsonComparer.TryAbsentEmptyStringEquivalent` — empty JSON string property vs omitted property treated as anchor mutation — **hit 2026-09-05 (#895):** #888 null/empty-string coercion did not bridge absent vs `""`; fixed with undefined↔whitespace-empty bridge (`EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_empty_string_equivalent_to_omitted_on_committed_run`).
+- [x] (proven) `RunHeaderAnchorJsonComparer.TryNullEmptyStringEquivalent` — whitespace-only JSON string vs `null` treated as anchor mutation — **hit 2026-09-05 (#895):** used `IsNullOrEmpty` not `IsNullOrWhiteSpace`; fixed with whitespace-null parity (`EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_whitespace_string_equivalent_to_null_on_committed_run`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher.IsExplicitCredentialConfigSegment` — `ClientSecret` / `PrimaryKey` / `AccountKey` paths not redacted — **hit 2026-09-05 (#895):** embedded-fragment guard blocked `Secret` inside `ClientSecret`; fixed with explicit credential segment parity vs Azure redactor (`Resolve_redacts_explicit_credential_config_paths`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isn't required` / `isn't needed` suffix gap — **hit 2026-09-05 (#895):** #894 added `is not` variants but not apostrophe suffixes already on constraint matcher; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing` with isn't variants).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — mid-sentence `doesn't require {phrase}` and imperative-path prefix gap — **hit 2026-09-05 (#895):** prefix scan missed `doesn't require` and imperative regex path skipped prefix negation; fixed with prefix guard + imperative negation check (`IsObviousGenericAdvice_does_not_flag_doesnt_require_mid_sentence_phrasing`).
+- [x] (valid-no-repro) `RunHeaderAnchorJsonComparer.TryBooleanStringEquivalent` — string `"1"`/`"0"` vs JSON boolean — `RunExplanationAggregateJsonReader.TryParseBooleanString` already accepts numeric strings; cross-kind bridge passes (`EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_string_one_vs_boolean_true` probe, seed #895).
+
+2026-09-05 seed hunt #895 (hit): reseeded after #894 closure; proved five hunt-ready rows — anchor empty/whitespace coercion, credential config redaction parity, and advice negation suffix/prefix parity.
 
 2026-09-05 seed hunt #889: reseeded after #888 closure; proved anchor null-object/property-name trim, mid-sentence constraint negation, and Secretizer/Passwordizer redaction parity.
 2026-09-05 seed hunt #888: reseeded after #887 closure; proved ConnectionStringless config redaction, ARM key+free suffix parity, and anchor null array/string coercion.
