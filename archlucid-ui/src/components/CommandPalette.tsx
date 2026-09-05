@@ -189,37 +189,37 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     [pathname, router, searchParams],
   );
 
-  const setOpen = useCallback(
-    (value: SetStateAction<boolean>) => {
-      setOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        const nextQuery = next ? paletteQuery : "";
-        syncCommandPaletteToUrl(next, nextQuery);
+  const setOpen = useCallback((value: SetStateAction<boolean>) => {
+    setOpenState((current) => {
+      return typeof value === "function" ? value(current) : value;
+    });
+  }, []);
 
-        if (!next) {
-          setPaletteQueryState("");
-        }
+  const setPaletteQuery = useCallback((value: SetStateAction<string>) => {
+    setPaletteQueryState((current) => {
+      return typeof value === "function" ? value(current) : value;
+    });
+  }, []);
 
-        return next;
-      });
-    },
-    [paletteQuery, syncCommandPaletteToUrl],
-  );
+  useEffect(() => {
+    const queryForUrl = open ? paletteQuery : "";
 
-  const setPaletteQuery = useCallback(
-    (value: SetStateAction<string>) => {
-      setPaletteQueryState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
+    if (!open && paletteQuery !== "") {
+      setPaletteQueryState("");
+    }
 
-        if (open) {
-          syncCommandPaletteToUrl(true, next);
-        }
+    const nextHref = commandPaletteOverlayHrefFromSearch(
+      searchParams.toString(),
+      { open, query: queryForUrl },
+      pathname,
+    );
+    const currentSearch = searchParams.toString();
+    const currentHref = currentSearch.length === 0 ? pathname : `${pathname}?${currentSearch}`;
 
-        return next;
-      });
-    },
-    [open, syncCommandPaletteToUrl],
-  );
+    if (nextHref !== currentHref) {
+      syncCommandPaletteToUrl(open, queryForUrl);
+    }
+  }, [open, paletteQuery, pathname, searchParams, syncCommandPaletteToUrl]);
 
   useEffect(() => {
     const pending = consumePendingCommandPaletteOpen();

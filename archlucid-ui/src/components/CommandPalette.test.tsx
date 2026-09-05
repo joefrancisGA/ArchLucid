@@ -8,9 +8,10 @@ import {
 } from "@/lib/keyboard-shortcut-display";
 
 const mockPush = vi.fn();
+const mockReplace = vi.fn();
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: mockPush }),
+  useRouter: () => ({ push: mockPush, replace: mockReplace }),
   usePathname: () => "/",
   useSearchParams: () => new URLSearchParams(),
 }));
@@ -54,6 +55,7 @@ describe("CommandPalette", () => {
 
   beforeEach(() => {
     mockPush.mockClear();
+    mockReplace.mockClear();
   });
 
   it("shows Ctrl+K on the trigger and never the macOS command symbol", () => {
