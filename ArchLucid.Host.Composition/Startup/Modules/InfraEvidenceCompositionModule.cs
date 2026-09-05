@@ -72,5 +72,9 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<IInfraEvidenceAskEvidenceCollector, InfraEvidenceAskEvidenceCollector>();
         services.AddScoped<IInfraEvidenceAskGroundingService, InfraEvidenceAskGroundingService>();
         services.AddScoped<IBrandAssetService, BrandAssetService>();
+        services.AddSingleton<TenantBrandingResolvedProfileCache>();
+        services.AddSingleton<ITenantBrandingCacheInvalidator>(static sp =>
+            sp.GetRequiredService<TenantBrandingResolvedProfileCache>());
+        services.AddScoped<ITenantBrandingService, TenantBrandingService>();
     }
 }
