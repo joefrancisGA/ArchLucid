@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 188
-- **bugs-found:** 534
+- **hunts:** 189
+- **bugs-found:** 546
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — LegacyAccessKey/StagedAccessKey/ConnectorAccessKey redaction, will/would/shall/cannot/should-not-ensure negation, advice will-not-apply and cannot-apply and shall/should-not-maintain suffix
+- **last-bug:** 2026-09-05 — DeprecatedAccessKey/FallbackAccessKey/IntegrationAccessKey redaction, ought-not-ensure negation, advice will/would/shall/cannot/should/ought-not-ensure and would/ought-not-apply suffix
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2563,6 +2563,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `cannot apply` suffix gap — **hit 2026-09-05 (#916):** #912 added constraint mid-sentence `cannot apply` only; missed imperative-path suffix; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_cannot_apply_suffix_phrasing`).
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `shall not maintain` suffix gap — **hit 2026-09-05 (#916):** #915 added constraint mid-sentence `shall not maintain` only; missed imperative-path suffix; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_shall_not_maintain_suffix_phrasing`).
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `should not maintain` suffix gap — **hit 2026-09-05 (#916):** #915 added constraint mid-sentence `should not maintain` only; missed imperative-path suffix; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_should_not_maintain_suffix_phrasing`).
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DeprecatedAccessKey` not redacted — **hit 2026-09-05 (#917):** compound access-key class after #916; embedded `AccessKey`/`accesskey` fragment guard skipped `DeprecatedAccessKey`/`deprecatedaccesskey`; fixed with explicit credential detection (`Resolve_redacts_deprecated_access_key_config_path`, `IsSensitiveKey_detects_deprecated_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `FallbackAccessKey` not redacted — **hit 2026-09-05 (#917):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_fallback_access_key_config_path`, `IsSensitiveKey_detects_fallback_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `IntegrationAccessKey` not redacted — **hit 2026-09-05 (#917):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_integration_access_key_config_path`, `IsSensitiveKey_detects_integration_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `ought not ensure` negation gap — **hit 2026-09-05 (#917):** #916 added `will/would/shall/cannot/should not ensure` only; missed prohibitive `ought not ensure {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_ought_not_ensure_encryption_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `will not ensure` suffix gap — **hit 2026-09-05 (#917):** #916 added constraint mid-sentence `will not ensure` only; missed imperative-path suffix; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_will_not_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `would not ensure` suffix gap — **hit 2026-09-05 (#917):** same suffix family; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_would_not_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `shall not ensure` suffix gap — **hit 2026-09-05 (#917):** same suffix family; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_shall_not_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `cannot ensure` suffix gap — **hit 2026-09-05 (#917):** same suffix family; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_cannot_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `should not ensure` suffix gap — **hit 2026-09-05 (#917):** same suffix family; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_should_not_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `ought not ensure` suffix gap — **hit 2026-09-05 (#917):** #915 added constraint prefix `need not ensure` only; missed imperative-path `ought not ensure`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_ought_not_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `would not apply` suffix gap — **hit 2026-09-05 (#917):** #911 added constraint mid-sentence `will not apply` only; missed imperative-path `would not apply`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_would_not_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `ought not apply` suffix gap — **hit 2026-09-05 (#917):** #916 added constraint mid-sentence `ought not apply` only; missed imperative-path suffix; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_ought_not_apply_suffix_phrasing`).
+
+2026-09-05 seed hunt #917 (hit): reseeded after #916 closure; proved twelve hunt-ready rows — DeprecatedAccessKey/FallbackAccessKey/IntegrationAccessKey redaction parity, ought-not-ensure constraint negation, and advice will/would/shall/cannot/should/ought-not-ensure and would/ought-not-apply suffix.
 
 2026-09-05 seed hunt #916 (hit): reseeded after #915 closure; proved twelve hunt-ready rows — LegacyAccessKey/StagedAccessKey/ConnectorAccessKey redaction parity, will/would/shall/cannot/should-not-ensure constraint negation, and advice will-not-apply and cannot-apply and shall/should-not-maintain suffix.
 
