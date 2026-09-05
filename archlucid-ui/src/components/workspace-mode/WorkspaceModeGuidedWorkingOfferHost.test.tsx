@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const workspaceModeMock = vi.hoisted(() => ({
   mode: "guided" as "guided" | "working",
@@ -9,6 +9,11 @@ const workspaceModeMock = vi.hoisted(() => ({
 const evalChromeMock = vi.hoisted(() => ({ value: true }));
 const commitContextMock = vi.hoisted(() => ({ hasCommittedManifest: false }));
 const preferencesMock = vi.hoisted(() => ({ workspaceModeGraduationOffer: "pending" as const }));
+const navigationMock = vi.hoisted(() => ({
+  pathname: "/",
+  replace: vi.fn(),
+  search: "",
+}));
 
 vi.mock("@/components/WorkspaceModeProvider", () => ({
   useWorkspaceMode: () => ({
@@ -35,29 +40,43 @@ vi.mock("@tanstack/react-query", async (importOriginal) => {
 });
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/architecture/reviews",
-  useRouter: () => ({ replace: vi.fn() }),
-  useSearchParams: () => new URLSearchParams(),
+  usePathname: () => navigationMock.pathname,
+  useRouter: () => ({ replace: navigationMock.replace }),
+  useSearchParams: () => new URLSearchParams(navigationMock.search),
 }));
 
 import { WorkspaceModeGuidedWorkingOfferHost } from "@/components/workspace-mode/WorkspaceModeGuidedWorkingOfferHost";
 
 describe("WorkspaceModeGuidedWorkingOfferHost (FD-10)", () => {
-  it("does not show the invitation before the first committed package", () => {
+  beforeEach(() => {
     workspaceModeMock.mode = "guided";
+    workspaceModeMock.setAndPersist.mockClear();
     evalChromeMock.value = true;
     commitContextMock.hasCommittedManifest = false;
+    preferencesMock.workspaceModeGraduationOffer = "pending";
+    navigationMock.pathname = "/";
+    navigationMock.search = "";
+    navigationMock.replace.mockClear();
+  });
 
+  it("does not show the invitation before the first committed package", () => {
     const { container } = render(<WorkspaceModeGuidedWorkingOfferHost />);
 
     expect(container).toBeEmptyDOMElement();
   });
 
+  it("does not router.replace when Overview already has no graduation-offer query", () => {
+    const { rerender } = render(<WorkspaceModeGuidedWorkingOfferHost />);
+
+    expect(navigationMock.replace).not.toHaveBeenCalled();
+
+    rerender(<WorkspaceModeGuidedWorkingOfferHost />);
+
+    expect(navigationMock.replace).not.toHaveBeenCalled();
+  });
+
   it("shows the opt-in Working invitation for Guided seats after first commit", () => {
-    workspaceModeMock.mode = "guided";
-    evalChromeMock.value = true;
     commitContextMock.hasCommittedManifest = true;
-    preferencesMock.workspaceModeGraduationOffer = "pending";
 
     render(<WorkspaceModeGuidedWorkingOfferHost />);
 
@@ -65,9 +84,30 @@ describe("WorkspaceModeGuidedWorkingOfferHost (FD-10)", () => {
     expect(screen.getByTestId("workspace-mode-graduation-offer")).toBeInTheDocument();
   });
 
+  it("writes graduationOfferOpen once when the invitation becomes eligible", () => {
+    commitContextMock.hasCommittedManifest = true;
+
+    render(<WorkspaceModeGuidedWorkingOfferHost />);
+
+    expect(navigationMock.replace).toHaveBeenCalledTimes(1);
+    expect(navigationMock.replace).toHaveBeenCalledWith("/?graduationOfferOpen=1", { scroll: false });
+  });
+
+  it("does not router.replace again when the query already has graduationOfferOpen", () => {
+    commitContextMock.hasCommittedManifest = true;
+    navigationMock.search = "graduationOfferOpen=1";
+
+    const { rerender } = render(<WorkspaceModeGuidedWorkingOfferHost />);
+
+    expect(navigationMock.replace).not.toHaveBeenCalled();
+
+    rerender(<WorkspaceModeGuidedWorkingOfferHost />);
+
+    expect(navigationMock.replace).not.toHaveBeenCalled();
+  });
+
   it("does not show the invitation on Working seats", () => {
     workspaceModeMock.mode = "working";
-    evalChromeMock.value = true;
     commitContextMock.hasCommittedManifest = true;
 
     const { container } = render(<WorkspaceModeGuidedWorkingOfferHost />);
@@ -76,11 +116,7 @@ describe("WorkspaceModeGuidedWorkingOfferHost (FD-10)", () => {
   });
 
   it("calls the existing workspace-mode setter when the operator opts in", () => {
-    workspaceModeMock.mode = "guided";
-    evalChromeMock.value = true;
     commitContextMock.hasCommittedManifest = true;
-    preferencesMock.workspaceModeGraduationOffer = "pending";
-    workspaceModeMock.setAndPersist.mockClear();
 
     render(<WorkspaceModeGuidedWorkingOfferHost />);
 

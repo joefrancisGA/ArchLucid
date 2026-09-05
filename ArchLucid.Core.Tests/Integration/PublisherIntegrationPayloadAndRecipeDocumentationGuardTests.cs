@@ -69,7 +69,8 @@ public sealed class PublisherIntegrationPayloadAndRecipeDocumentationGuardTests
             "category",
             "severity",
             "title",
-            "deduplicationKey"
+            "deduplicationKey",
+            "manifestHash"
         ];
 
         names.Should().Equal(expected);
