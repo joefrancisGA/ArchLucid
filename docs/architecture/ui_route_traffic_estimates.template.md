@@ -62,6 +62,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Done | Notes |
 |----|------|------|--------|--------|---------|---------|------|-------|
+| ADB | `/administration/branding` | 0.02% | 0 | 0 | 2 | Admin | No | None |
 | AS | `/assurance-status` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | DIS | `/digest/sponsor` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | DIU | `/digest/sponsor/run/[runId]` | 0.02% | 0 | 0 | 2 | Marketing | No | None |

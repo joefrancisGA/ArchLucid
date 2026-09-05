@@ -68,7 +68,6 @@ public static class HostedCloudExtractorCompositionModule
         services.AddScoped<IAzureExtractorPreparedZipPersistStage, AzureExtractorPreparedZipPersistStage>();
         services.AddScoped<IAzureExtractorIngestService, AzureExtractorIngestService>();
         services.AddScoped<IAzureExtractorResultEnricher, AzureExtractorResultEnricher>();
-        InfraEvidenceCompositionModule.Register(services);
         services.Configure<AzureExtractorEnrichmentOptions>(
             configuration.GetSection(AzureExtractorEnrichmentOptions.SectionPath));
         services.AddScoped<AzureExtractorChunkedUploadService>();
