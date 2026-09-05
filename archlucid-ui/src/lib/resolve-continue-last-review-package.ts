@@ -60,10 +60,26 @@ function readRecentReviewPackageEntry(): ContinueLastReviewPackageTarget | null 
   return null;
 }
 
-/** Resolves the review package to pin on Working Overview (CD-11). */
+/** Resolves the review package to pin on Working Overview (CD-11 / IS-13). */
 export function resolveContinueLastReviewPackageTarget(
   runs: readonly RunSummary[],
+  serverLastOpenReviewId?: string | null,
 ): ContinueLastReviewPackageTarget | null {
+  const trimmedServerReviewId = serverLastOpenReviewId?.trim() ?? "";
+
+  if (trimmedServerReviewId.length > 0) {
+    const accessible = runs.some((run) => run.runId === trimmedServerReviewId);
+
+    if (accessible) {
+      return {
+        runId: trimmedServerReviewId,
+        label: "Review",
+        href: `/architecture/reviews/${trimmedServerReviewId}`,
+        visitedAtUtc: new Date().toISOString(),
+      };
+    }
+  }
+
   const recent = readRecentReviewPackageEntry();
 
   if (recent === null) {

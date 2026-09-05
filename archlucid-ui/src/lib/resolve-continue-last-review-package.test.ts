@@ -45,6 +45,27 @@ describe("resolve-continue-last-review-package (CD-11)", () => {
     expect(target?.href).toBe("/architecture/reviews/run-abc");
   });
 
+  it("prefers server last-open review id over local recent views", () => {
+    localStorage.setItem(
+      OPERATOR_RECENT_VIEWS_STORAGE_KEY,
+      JSON.stringify({
+        schemaVersion: 1,
+        entries: [
+          {
+            href: "/architecture/reviews/run-other",
+            label: "Other",
+            kind: "review",
+            visitedAtUtc: "2026-01-02T00:00:00Z",
+          },
+        ],
+      }),
+    );
+
+    const target = resolveContinueLastReviewPackageTarget([run], "run-abc");
+
+    expect(target?.runId).toBe("run-abc");
+  });
+
   it("does not invent a showcase id when the stored review is inaccessible", () => {
     localStorage.setItem(
       OPERATOR_RECENT_VIEWS_STORAGE_KEY,
