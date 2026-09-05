@@ -57,6 +57,41 @@ warm_path_optional() {
   return 0
 }
 
+warm_path_post() {
+  local label="$1"
+  local url="$2"
+  local body="$3"
+  local max_time="${4:-${CURL_MAX_TIME}}"
+  local max_attempts="${5:-${ATTEMPTS}}"
+  local attempt=1
+
+  while [ "${attempt}" -le "${max_attempts}" ]; do
+    local status
+    status="$(curl -sS -o /dev/null -w "%{http_code}" \
+      -X POST \
+      -H "Authorization: Bearer ${TOKEN}" \
+      -H "Accept: application/json" \
+      -H "Content-Type: application/json" \
+      --max-time "${max_time}" \
+      -d "${body}" \
+      "${url}" || true)"
+
+    if [ "${status}" = "200" ] || [ "${status}" = "201" ]; then
+      echo "Warmed ${label} (HTTP ${status})."
+      return 0
+    fi
+
+    if [ "${attempt}" -eq "${max_attempts}" ]; then
+      echo "::error::Failed to warm ${label} at ${url} after ${max_attempts} attempts (last HTTP ${status})" >&2
+      return 1
+    fi
+
+    echo "Warm ${label} attempt ${attempt}/${max_attempts} failed (HTTP ${status}); retrying in ${SLEEP_SECONDS}s..."
+    sleep "${SLEEP_SECONDS}"
+    attempt=$((attempt + 1))
+  done
+}
+
 echo "Warming private-beta API paths at ${API_URL}..."
 warm_path "auth scope" "${API_URL}/v1/scope"
 warm_path "pending invitations" "${API_URL}/v1/admin/users/invitations"
@@ -69,6 +104,21 @@ if [ "${LIVE_E2E_PRIVATE_BETA_ACCESS:-}" = "1" ]; then
     "${API_URL}/v1/architecture/draft?mine=true&page=1&pageSize=1" \
     "${DRAFT_MAX_TIME}" \
     "${DRAFT_ATTEMPTS}"
+
+  # Cold CI SQL + inline Simulator pipeline can exceed Playwright's 300s per-attempt create-run budget.
+  # JIT-warm POST /v1/architecture/request (parity with scripts/ci/start_api_for_k6.sh).
+  CREATE_RUN_MAX_TIME="${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARMUP_MAX_TIME:-900}"
+  CREATE_RUN_ATTEMPTS="${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARMUP_ATTEMPTS:-1}"
+  CREATE_RUN_BODY="$(cat <<EOF
+{"requestId":"private-beta-shell-warm-$(date +%s)","description":"Private beta trunk smoke JIT warm for POST /v1/architecture/request","systemName":"PrivateBetaShellWarm","environment":"prod","cloudProvider":1,"constraints":[],"requiredCapabilities":["SQL"],"assumptions":[],"priorManifestVersion":null}
+EOF
+)"
+  warm_path_post \
+    "create architecture run" \
+    "${API_URL}/v1/architecture/request" \
+    "${CREATE_RUN_BODY}" \
+    "${CREATE_RUN_MAX_TIME}" \
+    "${CREATE_RUN_ATTEMPTS}"
 else
   warm_path "draft inventory" "${API_URL}/v1/architecture/draft?mine=true&page=1&pageSize=1"
 fi

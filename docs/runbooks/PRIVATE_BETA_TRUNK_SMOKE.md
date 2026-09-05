@@ -15,7 +15,7 @@
 
 1. Build API (Release) + Next standalone (`NEXT_PUBLIC_ARCHLUCID_AUTH_MODE=jwt-bearer`)
 2. Mint RS256 JWT (`scripts/ci/mint_ci_jwt.py`) with Admin role + default tenant scope
-3. Shell warm (`scripts/ci/warm_private_beta_live_api_paths.sh`) — scope + invitations required; draft **best-effort** when `LIVE_E2E_PRIVATE_BETA_ACCESS=1`
+3. Shell warm (`scripts/ci/warm_private_beta_live_api_paths.sh`) — scope + invitations required; draft **best-effort**; **POST /v1/architecture/request required** (up to 900s JIT warm, parity with k6 startup smoke)
 4. Playwright `--workers=1` on `live-api-private-beta-access.spec.ts`
 
 ## Common failure modes
@@ -23,6 +23,8 @@
 | Symptom | Likely cause | Fix |
 | --- | --- | --- |
 | `Failed to warm draft inventory` before Playwright | Pre-#1669 required draft warm; cold SQL hang | **Shipped #1669** — draft warm is best-effort in CI |
+| `Failed to warm create architecture run` before Playwright | Cold SQL + inline Simulator pipeline on first POST | **Shipped** — shell JIT-warms `POST /v1/architecture/request` (900s budget); API env matches k6 parity (demo seed off, pipeline timeouts) |
+| `TimeoutError` on `POST /v1/architecture/request` in Playwright (300s) | First create-run on cold SQL without shell warm | Ensure warm script runs before Playwright; check API log for hung pipeline / applock |
 | Playwright never starts | Shell warm `set -e` on required path | Check scope/invitations warm; API not ready |
 | `GET /api/proxy/v1/architecture/draft` 60s timeout | Draft list hit before route stub | Spec stubs `**/api/proxy/v1/architecture/draft**`; ensure stub runs before `page.goto` |
 | `POST /v1/architecture/request` 401 | JwtBearer / proxy token mismatch | `ARCHLUCID_PROXY_BEARER_TOKEN` must equal `LIVE_JWT_TOKEN` in workflow env |
