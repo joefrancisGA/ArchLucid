@@ -40,11 +40,17 @@ internal static class SecurityDeltaRegressionClassifier
         if (IsNegatedPositiveStatus(normalized))
             return 0;
 
-        if (ContainsAny(normalized, "noncompliant", "non-compliant", "non compliant", "fail", "failed", "off", "disabled", "missing", "gap", "at risk"))
+        if (ContainsAny(normalized, "remediation planned", "gap closed", "no gap"))
+            return 2;
+
+        if (ContainsAny(normalized, "noncompliant", "non-compliant", "non compliant", "fail", "failed", "off", "disabled", "missing", "at risk"))
             return 0;
 
         if (ContainsAny(normalized, "partial", "planned", "in progress", "pending", "stated"))
             return 1;
+
+        if (ContainsStatusToken(normalized, "gap"))
+            return 0;
 
         if (ContainsAny(normalized, "compliant", "pass", "passed", "on", "enabled", "implemented", "met", "satisfied"))
             return 2;

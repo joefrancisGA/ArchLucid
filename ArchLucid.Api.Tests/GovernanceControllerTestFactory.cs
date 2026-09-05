@@ -81,6 +81,7 @@ internal static class GovernanceControllerTestFactory
             promotionRepository ?? Mock.Of<IGovernancePromotionRecordRepository>(),
             activationRepository ?? Mock.Of<IGovernanceEnvironmentActivationRepository>(),
             findingReviewTrailRepository ?? Mock.Of<IFindingReviewTrailRepository>(),
+            Mock.Of<IFindingInspectReadRepository>(),
             scope,
             runs,
             Mock.Of<IAuthorityQueryService>(),

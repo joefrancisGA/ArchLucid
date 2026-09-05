@@ -87,9 +87,30 @@ public sealed class GraphRagNeighborExpander(
             {
                 GraphNode neighbor = neighborHop.Node;
                 string chunkId = KnowledgeGraphNodeEmbeddingTextComposer.BuildChunkId(graphSnapshotId, neighbor.NodeId);
+                double neighborScore = seed.Score * Math.Pow(NeighborScoreFactor, neighborHop.HopDistance);
 
                 if (!existingChunkIds.Add(chunkId))
+                {
+                    int existingIndex = expanded.FindIndex(hit => string.Equals(hit.ChunkId, chunkId, StringComparison.Ordinal));
+
+                    if (existingIndex >= 0 && neighborScore > expanded[existingIndex].Score)
+                    {
+                        RetrievalHit prior = expanded[existingIndex];
+                        expanded[existingIndex] = new RetrievalHit
+                        {
+                            ChunkId = prior.ChunkId,
+                            DocumentId = prior.DocumentId,
+                            CorpusKind = prior.CorpusKind,
+                            SourceType = prior.SourceType,
+                            SourceId = prior.SourceId,
+                            Title = prior.Title,
+                            Text = prior.Text,
+                            Score = neighborScore,
+                        };
+                    }
+
                     continue;
+                }
 
                 expanded.Add(new RetrievalHit
                 {
@@ -100,7 +121,7 @@ public sealed class GraphRagNeighborExpander(
                     SourceId = neighbor.NodeId,
                     Title = neighbor.Label ?? neighbor.NodeId,
                     Text = KnowledgeGraphNodeEmbeddingTextComposer.Compose(neighbor),
-                    Score = seed.Score * Math.Pow(NeighborScoreFactor, neighborHop.HopDistance),
+                    Score = neighborScore,
                 });
             }
         }

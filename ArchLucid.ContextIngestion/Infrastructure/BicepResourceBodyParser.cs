@@ -74,9 +74,14 @@ internal static class BicepResourceBodyParser
 
             Match multilineArrayMatch = MultilineArrayAssignmentRegex.Match(line);
 
-            if (multilineArrayMatch.Success
-                && TryConsumeMultilineArrayAssignment(lines, ref lineIndex, multilineArrayMatch.Groups["key"].Value, properties))
-                continue;
+            if (multilineArrayMatch.Success)
+            {
+                if (TryConsumeMultilineArrayAssignment(lines, ref lineIndex, multilineArrayMatch.Groups["key"].Value, properties))
+                    continue;
+
+                if (TryConsumeMultilineNestedBlockAssignment(lines, ref lineIndex, multilineArrayMatch.Groups["key"].Value, properties))
+                    continue;
+            }
 
             Match nestedBlockMatch = NestedBlockStartRegex.Match(line);
 
@@ -191,6 +196,57 @@ internal static class BicepResourceBodyParser
 
             int consumedArrayLines = CountConsumedLines(fromHere, arrayBody);
             lineIndex += probeIndex - lineIndex + consumedArrayLines;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryConsumeMultilineNestedBlockAssignment(
+        string[] lines,
+        ref int lineIndex,
+        string blockKey,
+        Dictionary<string, string> properties)
+    {
+        int probeIndex = lineIndex + 1;
+        bool inBlockComment = false;
+
+        while (probeIndex < lines.Length)
+        {
+            string probeLine = lines[probeIndex].Trim();
+
+            if (InfrastructureDeclarationLineCommentScanner.TryConsumeBlockComment(ref probeLine, ref inBlockComment))
+            {
+                probeIndex++;
+                continue;
+            }
+
+            if (probeLine.Length == 0
+                || probeLine.StartsWith("//", StringComparison.Ordinal)
+                || probeLine.StartsWith('#'))
+            {
+                probeIndex++;
+                continue;
+            }
+
+            if (!probeLine.StartsWith("{", StringComparison.Ordinal))
+                return false;
+
+            string fromHere = string.Join('\n', lines[probeIndex..]);
+            int braceIndex = fromHere.IndexOf('{', StringComparison.Ordinal);
+            string blockBody = InfrastructureDeclarationBraceBodyExtractor.ExtractBalancedBraceBody(fromHere, braceIndex);
+
+            if (!string.IsNullOrWhiteSpace(blockBody))
+            {
+                if (IsFlattenableBlockName(blockKey))
+                    ParseBodyIntoProperties(blockBody, properties);
+                else
+                    CanonicalInfrastructurePropertyBag.TryAddTfBlockProperty(properties, blockKey, blockBody);
+            }
+
+            int consumedBlockLines = CountConsumedLines(fromHere, blockBody);
+            lineIndex += probeIndex - lineIndex + consumedBlockLines;
 
             return true;
         }

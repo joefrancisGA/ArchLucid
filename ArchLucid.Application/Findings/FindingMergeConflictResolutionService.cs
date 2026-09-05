@@ -50,7 +50,7 @@ public sealed partial class FindingMergeConflictResolutionService(
 
         Finding? conflictFinding = findings
             .FirstOrDefault(finding =>
-                string.Equals(finding.FindingId, conflictFindingId, StringComparison.Ordinal)
+                string.Equals(finding.FindingId, conflictFindingId, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(finding.FindingType, ConflictFindingType, StringComparison.Ordinal));
 
         if (conflictFinding is null)
@@ -62,7 +62,7 @@ public sealed partial class FindingMergeConflictResolutionService(
             return false;
 
         List<Finding> members = findings
-            .Where(finding => memberFindingIds.Contains(finding.FindingId ?? string.Empty, StringComparer.Ordinal))
+            .Where(finding => memberFindingIds.Contains(finding.FindingId ?? string.Empty, StringComparer.OrdinalIgnoreCase))
             .ToList();
 
         if (members.Count == 0)

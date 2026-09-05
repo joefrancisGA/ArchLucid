@@ -37,7 +37,19 @@ public sealed partial class RiskExceptionService
         if (string.IsNullOrWhiteSpace(revokedByUserId))
             throw new ArgumentException("Revoked-by user id is required.", nameof(revokedByUserId));
 
+        DateTimeOffset now = TimeProvider.System.UtcNowDateTime();
+
         RiskExceptionRecord? existing = await repository.GetByIdAsync(tenantId, riskExceptionId, cancellationToken);
+
+        if (existing is null)
+            throw new InvalidOperationException("Risk exception was not found.");
+
+        IReadOnlyList<RiskExceptionRecord> expired =
+            await repository.MarkExpiredAsync(tenantId, now, cancellationToken);
+
+        await AuditExpiredAsync(expired, cancellationToken);
+
+        existing = await repository.GetByIdAsync(tenantId, riskExceptionId, cancellationToken);
 
         if (existing is null)
             throw new InvalidOperationException("Risk exception was not found.");
@@ -54,7 +66,7 @@ public sealed partial class RiskExceptionService
             tenantId,
             riskExceptionId,
             revokedByUserId.Trim(),
-            TimeProvider.System.UtcNowDateTime(),
+            now,
             cancellationToken);
 
         AuditEvent revokedAudit = new()

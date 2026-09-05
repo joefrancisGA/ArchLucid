@@ -7,6 +7,8 @@ using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scim.Models;
 using ArchLucid.Core.Scoping;
 
+using ArchLucid.Host.Core.Auth.Services;
+
 using Microsoft.AspNetCore.Authentication;
 
 namespace ArchLucid.Api.Auth.Services;
@@ -74,7 +76,8 @@ public sealed class CustomRoleClaimsTransformation(
         Guid tenantId,
         CancellationToken cancellationToken)
     {
-        string? externalId = principal.FindFirst("sub")?.Value
+        string? externalId = RoleSyncService.TryDirectoryObjectKey(principal)
+            ?? principal.FindFirst("sub")?.Value
             ?? principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         if (string.IsNullOrWhiteSpace(externalId))

@@ -56,6 +56,23 @@ public sealed class GovernanceApprovalRequestsHttpMapperTests
     }
 
     [Fact]
+    public void ValidateBatchReviewRequest_rejects_whitespace_only_review_comment()
+    {
+        GovernanceHttpValidation? validation = GovernanceApprovalRequestsHttpMapper.ValidateBatchReviewRequest(
+            new GovernanceApprovalBatchReviewRequest
+            {
+                ApprovalRequestIds = ["req-1"],
+                Decision = "approve",
+                ReviewComment = "   ",
+            });
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("ReviewComment");
+        validation.Message.Should().Contain("whitespace");
+    }
+
+    [Fact]
     public void ValidateBatchReviewRequest_rejects_overlong_review_comment()
     {
         GovernanceHttpValidation? validation = GovernanceApprovalRequestsHttpMapper.ValidateBatchReviewRequest(
@@ -69,6 +86,17 @@ public sealed class GovernanceApprovalRequestsHttpMapperTests
         validation.Should().NotBeNull();
         validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
         validation.Message.Should().Contain(GovernanceRequestValidationRules.ReviewCommentMaxLength.ToString());
+    }
+
+    [Fact]
+    public void ValidateReviewComment_rejects_whitespace_only_comment()
+    {
+        GovernanceHttpValidation? validation = GovernanceApprovalRequestsHttpMapper.ValidateReviewComment("   ");
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("ReviewComment");
+        validation.Message.Should().Contain("whitespace");
     }
 
     [Fact]
@@ -119,6 +147,19 @@ public sealed class GovernanceApprovalRequestsHttpMapperTests
         validation.Should().NotBeNull();
         validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
         validation.Message.Should().Contain(GovernanceEnvironmentSlug.MaxLength.ToString());
+    }
+
+    [Fact]
+    public void ValidateOptionalGovernanceComment_rejects_whitespace_only_notes()
+    {
+        GovernanceHttpValidation? validation = GovernanceApprovalRequestsHttpMapper.ValidateOptionalGovernanceComment(
+            "   ",
+            "Notes");
+
+        validation.Should().NotBeNull();
+        validation!.ProblemType.Should().Be(ProblemTypes.ValidationFailed);
+        validation.Message.Should().Contain("Notes");
+        validation.Message.Should().Contain("whitespace");
     }
 
     [Fact]

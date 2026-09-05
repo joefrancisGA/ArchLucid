@@ -52,7 +52,8 @@ public sealed class LexicalOverlapRetrievalReranker : IRetrievalReranker
 
         double score = overlap / (double)queryTokens.Count;
 
-        if (string.Equals(hit.CorpusKind, nameof(CorpusKind.PolicyPack), StringComparison.OrdinalIgnoreCase))
+        if (overlap > 0
+            && string.Equals(hit.CorpusKind, nameof(CorpusKind.PolicyPack), StringComparison.OrdinalIgnoreCase))
             score += PolicyPackCorpusBoost;
 
         return score;

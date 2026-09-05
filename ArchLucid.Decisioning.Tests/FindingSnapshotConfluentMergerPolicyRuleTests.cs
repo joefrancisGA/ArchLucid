@@ -125,4 +125,38 @@ public sealed class FindingSnapshotConfluentMergerPolicyRuleTests
         snapshot.Findings[0].IsMuted.Should().BeTrue();
         snapshot.Findings[0].MuteReason.Should().Be("Resolved by operator clarification answer.");
     }
+
+    [Fact]
+    public void Merge_joins_policy_rule_ids_case_insensitively()
+    {
+        Finding engineA = new()
+        {
+            FindingId = "a",
+            FindingType = "Test",
+            Category = "Security",
+            EngineType = "engine-a",
+            PolicyRuleId = "SEC-01",
+            Title = "Shared title",
+            Rationale = "same payload",
+            Severity = FindingSeverity.Warning,
+        };
+
+        Finding engineB = new()
+        {
+            FindingId = "b",
+            FindingType = "Test",
+            Category = "Security",
+            EngineType = "engine-b",
+            PolicyRuleId = "sec-01",
+            Title = "Shared title",
+            Rationale = "same payload",
+            Severity = FindingSeverity.Warning,
+        };
+
+        FindingsSnapshot snapshot = new() { Findings = [] };
+
+        FindingsSnapshotAuthorityMerger.MergeAdditionalFindings(snapshot, [engineA, engineB], TimeProvider.System);
+
+        snapshot.Findings.Should().ContainSingle();
+    }
 }

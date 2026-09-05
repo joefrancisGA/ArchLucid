@@ -30,9 +30,8 @@ public sealed partial class RiskExceptionService
         DateTimeOffset now = TimeProvider.System.UtcNowDateTime();
         RiskExceptionValidation.Validate(request, now);
 
-        await RiskExceptionDispositionGuard.EnsureWaiverAllowedForFindingAsync(
-            findingReviewTrailRepository,
-            scope.TenantId,
+        await EnsureWaiverAllowedForFindingWithInspectLookupAsync(
+            scope,
             request.FindingId.Trim(),
             cancellationToken);
 
@@ -41,10 +40,8 @@ public sealed partial class RiskExceptionService
 
         await AuditExpiredAsync(expired, cancellationToken);
 
-        RiskExceptionRecord? existingActive = await repository.GetActiveForScopeFindingAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
+        RiskExceptionRecord? existingActive = await FindActiveWaiverForFindingAsync(
+            scope,
             request.FindingId.Trim(),
             now,
             cancellationToken);
@@ -129,10 +126,10 @@ public sealed partial class RiskExceptionService
 
         await AuditExpiredAsync(expired, cancellationToken);
 
-        RiskExceptionRecord? siblingActive = await repository.GetActiveForScopeFindingAsync(
-            tenantId,
-            existing.WorkspaceId,
-            existing.ProjectId,
+        ScopeContext scope = BuildScopeFromRiskException(existing);
+
+        RiskExceptionRecord? siblingActive = await FindActiveWaiverForFindingAsync(
+            scope,
             existing.FindingId,
             now,
             cancellationToken);
@@ -142,19 +139,21 @@ public sealed partial class RiskExceptionService
             throw new ConflictException("An active waiver already exists for this finding.");
         }
 
-        await RiskExceptionDispositionGuard.EnsureWaiverAllowedForFindingAsync(
-            findingReviewTrailRepository,
-            tenantId,
+        await EnsureWaiverAllowedForFindingWithInspectLookupAsync(
+            scope,
             existing.FindingId,
             cancellationToken);
+
+        string? rationale = request.Rationale?.Trim();
+        string? evidenceRef = request.EvidenceRef?.Trim();
 
         await repository.RenewAsync(
             tenantId,
             riskExceptionId,
             request.ExpiresAtUtc,
             renewedByUserId.Trim(),
-            request.Rationale,
-            request.EvidenceRef,
+            rationale,
+            evidenceRef,
             cancellationToken);
 
         RiskExceptionRecord? record = await repository.GetByIdAsync(tenantId, riskExceptionId, cancellationToken);

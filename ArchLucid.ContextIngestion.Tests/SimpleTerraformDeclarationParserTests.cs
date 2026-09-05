@@ -666,6 +666,30 @@ public sealed class SimpleTerraformDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_MultilineNestedBlockHeader_PreservesRetentionPolicyBlock()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "app.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_log_analytics_workspace" "logs" {
+                        retention_policy =
+                        {
+                          days = 30
+                        }
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.retention_policy"].Should().Contain("30");
+        result[0].Properties.Should().NotContainKey("tf.days");
+    }
+
+    [Fact]
     public async Task ParseAsync_NestedSiteConfigWithEscapedQuoteBeforeClosingBrace_StillParsesTrailingScalars()
     {
         InfrastructureDeclarationReference declaration = new()

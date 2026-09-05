@@ -17,7 +17,7 @@ export function useCompareFormUrlSync(options: {
   const { setLeftRunId, setRightRunId, runCompareForPair } = options;
   const router = useRouter();
   const searchParams = useSearchParams();
-  const autoComparedFromUrlRef = useRef(false);
+  const lastAutoComparedPairKeyRef = useRef("");
 
   const syncSelectionToUrl = useCallback(
     (priorRunId: string, laterRunId: string) => {
@@ -34,8 +34,17 @@ export function useCompareFormUrlSync(options: {
 
   useEffect(() => {
     const { prior: left, later: right } = readCompareRunIdsFromSearchParams(searchParams);
-    if (left.length === 0 || right.length === 0 || autoComparedFromUrlRef.current) return;
-    autoComparedFromUrlRef.current = true;
+    if (left.length === 0 || right.length === 0) {
+      lastAutoComparedPairKeyRef.current = "";
+      return;
+    }
+
+    const pairKey = `${left}\u0000${right}`;
+    if (lastAutoComparedPairKeyRef.current === pairKey) {
+      return;
+    }
+
+    lastAutoComparedPairKeyRef.current = pairKey;
     if (compareRunIdsAreSameAfterDemoCanonicalization(left, right)) return;
     void runCompareForPair(left, right);
   }, [searchParams, runCompareForPair]);

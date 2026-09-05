@@ -151,6 +151,27 @@ public sealed class ArchLucidSamlInboundClaimsNormalizerTests
         identity.FindFirst("workspace_id")!.Value.Should().Be(correctWorkspaceId.ToString("D"));
     }
 
+    [Fact]
+    public void Apply_skips_ambiguous_multi_valued_scope_source_claims()
+    {
+        Guid firstTenantId = Guid.NewGuid();
+        Guid secondTenantId = ScopeIds.DefaultTenant;
+
+        ClaimsIdentity identity = CreateSamlIdentity(
+            new Claim("http://idp.example/tenant", firstTenantId.ToString("D")),
+            new Claim("http://idp.example/tenant", secondTenantId.ToString("D")));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions
+            {
+                Enabled = true,
+                TenantIdClaimType = "http://idp.example/tenant",
+            });
+
+        identity.FindFirst("tenant_id").Should().BeNull();
+    }
+
     private static ClaimsIdentity CreateSamlIdentity(params Claim[] claims) =>
         new(claims, Saml2Constants.AuthenticationScheme);
 }

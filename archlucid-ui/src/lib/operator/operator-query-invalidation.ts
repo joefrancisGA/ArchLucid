@@ -7,6 +7,8 @@ import {
 } from "@/lib/operator/operator-home-lifecycle-notify";
 import { invalidatePilotRecentDeltasCache } from "@/lib/pilot-recent-deltas-client";
 import { invalidateRunsByProjectPagedCache } from "@/lib/runs-by-project-paged-client";
+import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
+import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
 /** Invalidates operator-home runs, commit context, and delta caches after run lifecycle writes (TB-562). */
 export async function invalidateOperatorHomeRunsCaches(): Promise<void> {
@@ -17,6 +19,7 @@ export async function invalidateOperatorHomeRunsCaches(): Promise<void> {
     invalidateRunsByProjectPagedCache(),
     invalidateCorePilotCommitContextCache(),
     invalidatePilotRecentDeltasCache(),
+    getOperatorQueryClient().invalidateQueries({ queryKey: operatorQueryKeys.userAttentionSummary }),
   ]);
 }
 

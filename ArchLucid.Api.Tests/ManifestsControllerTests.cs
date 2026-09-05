@@ -521,6 +521,20 @@ public sealed class ManifestsControllerTests
     }
 
     [Fact]
+    public async Task GetManifestDiagramV2_returns_bad_request_for_whitespace_only_layout()
+    {
+        ManifestsController controller = CreateController();
+
+        IActionResult action = await controller.GetManifestDiagramV2(
+            ManifestVersion,
+            layout: "   ",
+            cancellationToken: CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task GetManifestDiagramV2_returns_bad_request_for_unknown_relationship_labels()
     {
         ManifestsController controller = CreateController();

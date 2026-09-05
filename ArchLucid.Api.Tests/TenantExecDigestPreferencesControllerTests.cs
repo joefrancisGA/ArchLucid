@@ -257,6 +257,116 @@ public sealed class TenantExecDigestPreferencesControllerTests
     }
 
     [Fact]
+    public async Task PostExecDigestPreferences_preserves_schedule_and_timezone_when_disable_only_body_omits_schedule_fields()
+    {
+        ExecDigestPreferencesResponse existing = new()
+        {
+            TenantId = Scope.TenantId,
+            IsConfigured = true,
+            EmailEnabled = true,
+            RecipientEmails = ["exec@contoso.test"],
+            IanaTimeZoneId = "America/New_York",
+            DayOfWeek = 2,
+            HourOfDay = 9,
+            UpdatedUtc = DateTimeOffset.Parse("2026-06-01T08:00:00Z"),
+        };
+
+        Mock<ITenantExecDigestPreferencesRepository> repository = new();
+        repository
+            .Setup(r => r.GetByTenantAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
+        repository
+            .Setup(r => r.UpsertAsync(
+                Scope.TenantId,
+                false,
+                It.Is<IReadOnlyList<string>>(emails => emails.SequenceEqual(new[] { "exec@contoso.test" })),
+                "America/New_York",
+                2,
+                9,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ExecDigestPreferencesResponse
+            {
+                TenantId = Scope.TenantId,
+                IsConfigured = true,
+                EmailEnabled = false,
+                RecipientEmails = ["exec@contoso.test"],
+                IanaTimeZoneId = "America/New_York",
+                DayOfWeek = 2,
+                HourOfDay = 9,
+            });
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantExecDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            repository.Object,
+            Mock.Of<IAuditService>());
+
+        ExecDigestPreferencesUpsertRequest body = new() { EmailEnabled = false };
+
+        IActionResult action = await controller.PostExecDigestPreferences(body, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        repository.VerifyAll();
+    }
+
+    [Fact]
+    public async Task PostExecDigestPreferences_preserves_schedule_and_timezone_when_enable_only_body_omits_schedule_fields()
+    {
+        ExecDigestPreferencesResponse existing = new()
+        {
+            TenantId = Scope.TenantId,
+            IsConfigured = true,
+            EmailEnabled = false,
+            RecipientEmails = ["exec@contoso.test"],
+            IanaTimeZoneId = "America/New_York",
+            DayOfWeek = 2,
+            HourOfDay = 9,
+            UpdatedUtc = DateTimeOffset.Parse("2026-06-01T08:00:00Z"),
+        };
+
+        Mock<ITenantExecDigestPreferencesRepository> repository = new();
+        repository
+            .Setup(r => r.GetByTenantAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
+        repository
+            .Setup(r => r.UpsertAsync(
+                Scope.TenantId,
+                true,
+                It.Is<IReadOnlyList<string>>(emails => emails.SequenceEqual(new[] { "exec@contoso.test" })),
+                "America/New_York",
+                2,
+                9,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ExecDigestPreferencesResponse
+            {
+                TenantId = Scope.TenantId,
+                IsConfigured = true,
+                EmailEnabled = true,
+                RecipientEmails = ["exec@contoso.test"],
+                IanaTimeZoneId = "America/New_York",
+                DayOfWeek = 2,
+                HourOfDay = 9,
+            });
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantExecDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            repository.Object,
+            Mock.Of<IAuditService>());
+
+        ExecDigestPreferencesUpsertRequest body = new() { EmailEnabled = true };
+
+        IActionResult action = await controller.PostExecDigestPreferences(body, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        repository.VerifyAll();
+    }
+
+    [Fact]
     public async Task PostExecDigestPreferences_preserves_recipients_when_disable_only_body_omits_recipient_emails()
     {
         ExecDigestPreferencesResponse existing = new()
@@ -306,6 +416,108 @@ public sealed class TenantExecDigestPreferencesControllerTests
 
         action.Should().BeOfType<OkObjectResult>();
         repository.VerifyAll();
+    }
+
+    [Fact]
+    public async Task PostExecDigestPreferences_preserves_recipients_when_disable_only_body_has_empty_recipient_emails_array()
+    {
+        ExecDigestPreferencesResponse existing = new()
+        {
+            TenantId = Scope.TenantId,
+            IsConfigured = true,
+            EmailEnabled = true,
+            RecipientEmails = ["exec@contoso.test"],
+            IanaTimeZoneId = "UTC",
+            DayOfWeek = 1,
+            HourOfDay = 8,
+            UpdatedUtc = DateTimeOffset.Parse("2026-06-01T08:00:00Z"),
+        };
+
+        Mock<ITenantExecDigestPreferencesRepository> repository = new();
+        repository
+            .Setup(r => r.GetByTenantAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
+        repository
+            .Setup(r => r.UpsertAsync(
+                Scope.TenantId,
+                false,
+                It.Is<IReadOnlyList<string>>(emails => emails.SequenceEqual(new[] { "exec@contoso.test" })),
+                "UTC",
+                1,
+                8,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ExecDigestPreferencesResponse
+            {
+                TenantId = Scope.TenantId,
+                IsConfigured = true,
+                EmailEnabled = false,
+                RecipientEmails = ["exec@contoso.test"],
+            });
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantExecDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            repository.Object,
+            Mock.Of<IAuditService>());
+
+        ExecDigestPreferencesUpsertRequest body = new() { EmailEnabled = false, RecipientEmails = [] };
+
+        IActionResult action = await controller.PostExecDigestPreferences(body, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        repository.VerifyAll();
+    }
+
+    [Fact]
+    public async Task PostExecDigestPreferences_returns_bad_request_when_recipient_emails_are_whitespace_only()
+    {
+        ExecDigestPreferencesResponse existing = new()
+        {
+            TenantId = Scope.TenantId,
+            IsConfigured = true,
+            EmailEnabled = true,
+            RecipientEmails = ["exec@contoso.test"],
+            IanaTimeZoneId = "UTC",
+            DayOfWeek = 1,
+            HourOfDay = 8,
+            UpdatedUtc = DateTimeOffset.Parse("2026-06-01T08:00:00Z"),
+        };
+
+        Mock<ITenantExecDigestPreferencesRepository> repository = new();
+        repository
+            .Setup(r => r.GetByTenantAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantExecDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            repository.Object,
+            Mock.Of<IAuditService>());
+
+        ExecDigestPreferencesUpsertRequest body = new()
+        {
+            EmailEnabled = false,
+            RecipientEmails = ["   ", "\t"],
+        };
+
+        IActionResult action = await controller.PostExecDigestPreferences(body, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        repository.Verify(
+            r => r.UpsertAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<bool>(),
+                It.IsAny<IReadOnlyList<string>>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]

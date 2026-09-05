@@ -73,8 +73,10 @@ public sealed class ReplayComparisonExportsDiffSlice(IExportRecordDiffService ex
         string exportType = record.ExportType.Trim();
         string templateProfile = record.TemplateProfile?.Trim() ?? string.Empty;
         string format = record.Format?.Trim() ?? string.Empty;
+        string compareRunId = record.CompareRunId?.Trim() ?? string.Empty;
+        string compareManifestVersion = record.CompareManifestVersion?.Trim() ?? string.Empty;
 
-        return $"{exportType}|{templateProfile}|{format}";
+        return $"{exportType}|{templateProfile}|{format}|{compareRunId}|{compareManifestVersion}";
     }
 
     private static string DescribeExportPairingKey(string pairingKey, int index, int pairCount)

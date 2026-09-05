@@ -87,6 +87,7 @@ public sealed class ContractsPackageCoverageBatchRc28dTests
               {
                 "severity": "Info",
                 "category": "Cost",
+                "enforcementTier": "PolicyViolation",
                 "{{propertyName}}": "{{expected}}"
               }
               """;
