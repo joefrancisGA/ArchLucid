@@ -160,6 +160,20 @@ public sealed class CommittedRunHeaderAnchorGuardTests
         act.Should().NotThrow();
     }
 
+    [Fact]
+    public void EnsureAnchorsUnchangedIfCommitted_allows_engine_provenance_string_whitespace_only_change_on_committed_run()
+    {
+        Guid manifestId = Guid.NewGuid();
+        RunRecord persisted = CreateRun(goldenManifestId: manifestId);
+        persisted.EngineProvenanceJson = """{"providerKind":"azure-openai"}""";
+        RunRecord proposed = CreateRun(goldenManifestId: manifestId);
+        proposed.EngineProvenanceJson = """{"providerKind":"azure-openai "}""";
+
+        Action act = () => CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, proposed);
+
+        act.Should().NotThrow();
+    }
+
     private static RunRecord CreateRun(Guid? goldenManifestId)
     {
         return new RunRecord

@@ -56,6 +56,8 @@ public sealed class ConfigurationEffectiveValueResolverTests
     [InlineData("ArchLucid:PasswordlessAuth:Enabled", "true")]
     [InlineData("ArchLucid:TokenizerModel:Name", "gpt-4.1")]
     [InlineData("ArchLucid:ApiKeylessAuth:Mode", "managed-identity")]
+    [InlineData("ArchLucid:ConnectionStringFreeSettings:Enabled", "true")]
+    [InlineData("Features:NonSecretStorage:Bucket", "logs")]
   public void Resolve_returns_scalar_for_non_secret_segment_substrings(string configPath, string expectedValue)
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)

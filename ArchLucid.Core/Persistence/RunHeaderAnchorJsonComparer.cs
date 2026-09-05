@@ -43,7 +43,7 @@ internal static class RunHeaderAnchorJsonComparer
             case JsonValueKind.Array:
                 return ArraysEquivalent(left, right);
             case JsonValueKind.String:
-                return string.Equals(left.GetString(), right.GetString(), StringComparison.Ordinal);
+                return StringsEquivalent(left, right);
             case JsonValueKind.Number:
                 return NumbersEquivalent(left, right);
             case JsonValueKind.True:
@@ -92,6 +92,17 @@ internal static class RunHeaderAnchorJsonComparer
         }
 
         return true;
+    }
+
+    private static bool StringsEquivalent(JsonElement left, JsonElement right)
+    {
+        string? leftText = left.GetString();
+        string? rightText = right.GetString();
+
+        if (leftText is null || rightText is null)
+            return leftText == rightText;
+
+        return string.Equals(leftText.Trim(), rightText.Trim(), StringComparison.Ordinal);
     }
 
     private static bool NumbersEquivalent(JsonElement left, JsonElement right)
