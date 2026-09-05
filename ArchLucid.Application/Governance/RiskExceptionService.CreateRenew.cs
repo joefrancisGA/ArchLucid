@@ -148,13 +148,16 @@ public sealed partial class RiskExceptionService
             existing.FindingId,
             cancellationToken);
 
+        string? rationale = request.Rationale?.Trim();
+        string? evidenceRef = request.EvidenceRef?.Trim();
+
         await repository.RenewAsync(
             tenantId,
             riskExceptionId,
             request.ExpiresAtUtc,
             renewedByUserId.Trim(),
-            request.Rationale,
-            request.EvidenceRef,
+            rationale,
+            evidenceRef,
             cancellationToken);
 
         RiskExceptionRecord? record = await repository.GetByIdAsync(tenantId, riskExceptionId, cancellationToken);
