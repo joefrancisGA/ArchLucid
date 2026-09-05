@@ -39,6 +39,11 @@ public sealed class DraftRequestMutateStage(
         if (!DraftRequestStateMachine.IsMutable(existing.Status))
             throw new InvalidOperationException($"Draft '{draftId}' is not mutable in status '{existing.Status}'.");
 
+        DraftPatchStaleUpdatedUtcGuard.EnsurePatchNotStaleOrThrow(
+            existing,
+            patch.ExpectedUpdatedUtc,
+            patch.ForceOverwrite == true);
+
         if (patch.SystemName is not null && !string.IsNullOrWhiteSpace(patch.SystemName))
         {
             string trimmedName = patch.SystemName.Trim();

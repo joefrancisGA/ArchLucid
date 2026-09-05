@@ -1,5 +1,10 @@
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
+import { isTransparencyTrailComplete } from "@/lib/feasibility/transparency-trail-completeness";
+
+export const TRANSPARENCY_TRAIL_EXPORT_INCOMPLETE_BANNER =
+  "> **Career export blocked (ADR 0073):** This sealed record does not include a complete transparency trail (asserted, inferred, skipped). Do not treat this artifact as a defensible stamp.";
+
 export type TransparencyTrailExportSection = {
   readonly asserted: TransparencyTrail["asserted"];
   readonly inferred: TransparencyTrail["inferred"];
@@ -23,10 +28,14 @@ export function buildTransparencyTrailExportSection(
 export function formatTransparencyTrailMarkdownSection(
   trail: TransparencyTrail | null | undefined,
 ): string {
+  if (!isTransparencyTrailComplete(trail)) {
+    return `${TRANSPARENCY_TRAIL_EXPORT_INCOMPLETE_BANNER}\n`;
+  }
+
   const section = buildTransparencyTrailExportSection(trail);
 
   if (section === null) {
-    return "";
+    return `${TRANSPARENCY_TRAIL_EXPORT_INCOMPLETE_BANNER}\n`;
   }
 
   const lines: string[] = [];

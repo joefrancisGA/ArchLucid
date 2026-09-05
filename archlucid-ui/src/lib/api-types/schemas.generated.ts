@@ -6118,7 +6118,10 @@ export interface components {
         PatchDraftRequest: {
             actorSet?: null | components["schemas"]["ActorSet"];
             businessOutcome?: null | string;
+            /** Format: date-time */
+            expectedUpdatedUtc?: null | string;
             focusedPilotModeEnabled?: null | boolean;
+            forceOverwrite?: null | boolean;
             freeTextIntent?: null | string;
             structuredBrief?: null | components["schemas"]["ArchitectureDraftStructuredBrief"];
             systemName?: null | string;

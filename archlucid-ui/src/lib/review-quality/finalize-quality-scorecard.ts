@@ -1,4 +1,5 @@
 import { formatAuthorityCommitSkippedMustBlockedReason } from "./authority-commit-skipped-must-blocked-reason";
+import { TRANSPARENCY_TRAIL_INCOMPLETE_FINALIZE_REASON } from "@/lib/feasibility/transparency-trail-completeness";
 
 export type FinalizeQualityScorecardInput = {
   readonly blockingFindingCount: number;
@@ -9,6 +10,8 @@ export type FinalizeQualityScorecardInput = {
   readonly lowExtractionConfidenceCount: number;
   readonly unresolvedHighSeverityDispositionCount: number;
   readonly skippedMustCount: number;
+  /** When true, ADR 0073 blocks finalize until intake trail exists. */
+  readonly transparencyTrailIncomplete?: boolean;
 };
 
 export type FinalizeQualityScorecardResult = {
@@ -72,6 +75,10 @@ export function evaluateFinalizeQualityScorecard(input: FinalizeQualityScorecard
 
   if (input.skippedMustCount > 0) {
     blockingReasons.push(formatAuthorityCommitSkippedMustBlockedReason(input.skippedMustCount));
+  }
+
+  if (input.transparencyTrailIncomplete === true) {
+    blockingReasons.push(TRANSPARENCY_TRAIL_INCOMPLETE_FINALIZE_REASON);
   }
 
   return {

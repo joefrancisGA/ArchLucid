@@ -76,6 +76,7 @@ export type ArchitectureDraftWorkspaceBodyProps = {
   readonly draft: DraftRequestResponse | null;
   readonly conflictMessage: string | null;
   readonly onReloadDraft: () => void;
+  readonly onKeepLocalDraft: () => void | Promise<void>;
   readonly onLoadDraft: () => void;
   readonly draftStartReviewChecklistDescription: string;
   readonly draftStartReviewSteps: Parameters<typeof IntegrationConnectChecklist>[0]["steps"];

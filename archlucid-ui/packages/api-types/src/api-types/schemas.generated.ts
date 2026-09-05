@@ -1969,6 +1969,25 @@ export interface components {
             parentDraftId?: string;
             parentSpawnedRunId?: null | string;
         };
+        BrandAssetResponse: {
+            /** Format: uuid */
+            assetId?: string;
+            assetType?: string;
+            checksumSha256Hex?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            /** Format: int32 */
+            height?: null | number;
+            mimeType?: string;
+            originalFileName?: string;
+            status?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+            /** Format: int32 */
+            width?: null | number;
+        };
+        /** @enum {string} */
+        BrandAssetType: "LogoPrimary" | "LogoSecondary" | "LogoSquare" | "LogoFavicon" | "LogoDark" | "LogoLight" | "LogoReportCover" | "LogoMono" | "Other";
         BuildAzureInventoryDiffNarrativeRequest: {
             narrativeKind?: components["schemas"]["AzureInventoryDiffNarrativeKind"];
             useSimulator?: boolean;
@@ -6099,7 +6118,10 @@ export interface components {
         PatchDraftRequest: {
             actorSet?: null | components["schemas"]["ActorSet"];
             businessOutcome?: null | string;
+            /** Format: date-time */
+            expectedUpdatedUtc?: null | string;
             focusedPilotModeEnabled?: null | boolean;
+            forceOverwrite?: null | boolean;
             freeTextIntent?: null | string;
             structuredBrief?: null | components["schemas"]["ArchitectureDraftStructuredBrief"];
             systemName?: null | string;

@@ -331,6 +331,14 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             throw new PreCommitGovernanceBlockedException(skippedMustGate);
         }
 
+        PreCommitGateResult? trailCompletenessGate =
+            AuthorityCommitTransparencyTrailCompletenessGate.Evaluate(request.IntakeTransparencyTrail);
+
+        if (trailCompletenessGate is not null)
+        {
+            throw new PreCommitGovernanceBlockedException(trailCompletenessGate);
+        }
+
         AuthorityCommitDecisionMaterializationResult materialization;
         try
         {
