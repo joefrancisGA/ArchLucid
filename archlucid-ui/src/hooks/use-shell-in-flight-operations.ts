@@ -16,6 +16,7 @@ import {
 } from "@/lib/operations/in-flight-operations-store";
 import { advisoryDraftDetailHref } from "@/lib/operations/advisory-draft-in-flight";
 import { resolveOperationDetailHref } from "@/lib/operations/operation-location";
+import { isStaleReRunFailureOperationPoll } from "@/lib/operations/is-stale-rerun-failure-operation-poll";
 import { isTerminalOperationState } from "@/lib/operations/operation-state";
 import { markReviewPipelineCompletionNotified } from "@/lib/review-pipeline-completion-notify-dedupe";
 import { ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT } from "@/lib/operator/operator-scope-storage";
@@ -176,6 +177,10 @@ export function useShellInFlightOperations(): readonly TrackedInFlightOperation[
           const detail = await getOperation(operationId);
           const runId = detail.resultRef?.runId ?? row.runId;
           const href = resolveOperationDetailHref(row.href, runId);
+
+          if (isStaleReRunFailureOperationPoll(row, detail)) {
+            continue;
+          }
 
           patchInFlightOperation(operationId, {
             stepLabel: detail.stepLabel,

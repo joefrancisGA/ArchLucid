@@ -126,7 +126,7 @@ export function RunProgressTracker({
         )
       ) : null}
 
-      {tracker.pipelineTerminalFailure ? (
+      {tracker.showPipelineTerminalFailure ? (
         <div className="mt-3 flex flex-wrap items-center gap-2" data-testid="run-progress-terminal-failure-actions">
           <ReRunReviewButton
             runId={runId}
