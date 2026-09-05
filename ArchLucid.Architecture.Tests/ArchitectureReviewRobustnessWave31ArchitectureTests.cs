@@ -195,6 +195,6 @@ public sealed class ArchitectureReviewRobustnessWave31ArchitectureTests
                 "ComplianceDriftIntegrationEventPublishing.cs"));
 
         outboxGuard.Should().Contain("IntegrationEventTypes.ComplianceDriftEscalatedV1");
-        publishing.Should().Contain("TryResolveVerifiedManifestHashAsync");
+        publishing.Should().Contain("TryResolveVerifiedManifestHashOrNullAsync");
     }
 }

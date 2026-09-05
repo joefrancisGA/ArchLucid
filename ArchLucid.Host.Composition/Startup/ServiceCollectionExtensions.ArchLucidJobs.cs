@@ -16,6 +16,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IArchLucidJob, FirstTenantFunnelArchivalArchLucidJob>();
         services.AddSingleton<IArchLucidJob, TrialLifecycleArchLucidJob>();
         services.AddSingleton<IArchLucidJob, TrialEmailScanArchLucidJob>();
+        services.AddSingleton<IArchLucidJob, ComplianceDriftEscalationArchLucidJob>();
         services.AddSingleton<IArchLucidJob, ExecDigestWeeklyArchLucidJob>();
         services.AddSingleton<IArchLucidJob, SponsorDigestWeeklyArchLucidJob>();
         services.AddSingleton<IArchLucidJob, WeeklySponsorReportJob>();

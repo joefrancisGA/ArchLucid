@@ -126,6 +126,7 @@ public static partial class ServiceCollectionExtensions
         AgentCompositionModule.Register(services, configuration);
         RetrievalCompositionModule.Register(services, configuration);
         RegisterGovernance(services, configuration);
+        ComplianceDriftEscalationCompositionModule.Register(services, configuration, hostingRole);
         services.AddArchitectureIntelligence();
         services.AddReviewClarificationQuestions();
         services.Configure<ArchitectureIntelligencePipelineOptions>(
