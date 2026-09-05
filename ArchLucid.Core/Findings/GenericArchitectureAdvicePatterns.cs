@@ -184,6 +184,7 @@ public static partial class GenericArchitectureAdvicePatterns
             || before.EndsWith("no requirement to", StringComparison.Ordinal)
             || before.EndsWith("not required to", StringComparison.Ordinal)
             || before.EndsWith("never", StringComparison.Ordinal)
+            || before.EndsWith("without", StringComparison.Ordinal)
             || before.EndsWith("not", StringComparison.Ordinal)
             || before.EndsWith("no", StringComparison.Ordinal);
     }

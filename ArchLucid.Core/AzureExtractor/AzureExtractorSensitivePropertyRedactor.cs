@@ -84,6 +84,12 @@ public static class AzureExtractorSensitivePropertyRedactor
             && normalized.AsSpan(fragment.Length).Equals("free", StringComparison.Ordinal))
             return true;
 
+        if (string.Equals(fragment, "accesskey", StringComparison.Ordinal)
+            && fragmentIndex == 0
+            && normalized.Length > fragment.Length
+            && normalized.AsSpan(fragment.Length).Equals("less", StringComparison.Ordinal))
+            return true;
+
         return false;
     }
 

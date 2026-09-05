@@ -106,6 +106,11 @@ internal static class ConfigurationSensitiveConfigPathMatcher
             && segment.Slice(fragmentIndex + fragment.Length).StartsWith("izer", StringComparison.OrdinalIgnoreCase))
             return true;
 
+        if (fragment.Equals("ApiKey", StringComparison.OrdinalIgnoreCase)
+            && fragmentIndex + fragment.Length < segment.Length
+            && segment.Slice(fragmentIndex + fragment.Length).StartsWith("less", StringComparison.OrdinalIgnoreCase))
+            return true;
+
         return false;
     }
 

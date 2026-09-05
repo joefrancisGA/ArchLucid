@@ -3,6 +3,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Requests;
 
 namespace ArchLucid.Core.AgentSimulation;
 
@@ -20,9 +21,7 @@ public static partial class FakeScenarioFactory
             "Key Vault"
         ];
 
-        if (request.Constraints.Any(c =>
-                c.Contains("encryption", StringComparison.OrdinalIgnoreCase)))
-
+        if (RequestConstraintClassifier.HasEncryptionConstraint(request))
             requiredControls.Add("Encryption At Rest");
 
         return new AgentResult
