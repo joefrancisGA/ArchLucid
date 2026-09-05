@@ -16,7 +16,7 @@ describe("formatTransparencyTrailMarkdownSection", () => {
     expect(markdown).toContain("l0.pillar.security");
   });
 
-  it("returns empty output when trail is absent", () => {
-    expect(formatTransparencyTrailMarkdownSection(null)).toBe("");
+  it("returns career export banner when trail is absent", () => {
+    expect(formatTransparencyTrailMarkdownSection(null)).toContain("Career export blocked");
   });
 });
