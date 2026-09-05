@@ -239,6 +239,16 @@ public sealed class RunRecord
         set;
     }
 
+    /// <summary>
+    ///     JSON-serialized <see cref="ArchLucid.Contracts.Governance.Coverage.RunAcknowledgedCoverageDocument" />;
+    ///     operator preview pin before execute.
+    /// </summary>
+    public string? AcknowledgedCoverageJson
+    {
+        get;
+        set;
+    }
+
     /// <summary>JSON-serialized last recommendation improve-loop evidence for operator replay.</summary>
     public string? ImproveLoopEvidenceJson
     {

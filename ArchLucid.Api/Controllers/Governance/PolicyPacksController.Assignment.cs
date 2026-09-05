@@ -62,6 +62,7 @@ public sealed partial class PolicyPacksController
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ArchiveAssignment(Guid assignmentId, CancellationToken ct = default)
     {
         IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(assignmentId, "assignmentId");
@@ -82,6 +83,14 @@ public sealed partial class PolicyPacksController
             return this.MapResourceNotFound(
                 result,
                 $"Assignment '{assignmentId}' was not found or is already archived for this tenant.");
+        }
+
+        if (result.Outcome == PolicyPackHttpOutcome.Conflict)
+        {
+            return this.ConflictProblem(
+                result.Message
+                    ?? "Organization-required policy pack assignments cannot be archived.",
+                ProblemTypes.Conflict);
         }
 
         return NoContent();

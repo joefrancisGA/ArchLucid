@@ -74,30 +74,30 @@ export function buildCommittedCoverageScopeLine(
   const parts: string[] = [];
 
   if ((counts.baseline ?? 0) > 0) {
-    parts.push(`${counts.baseline} baseline quality dimension${counts.baseline === 1 ? "" : "s"}`);
+    parts.push(`${counts.baseline} core architecture quality area${counts.baseline === 1 ? "" : "s"}`);
   }
 
   if ((counts.organizationRequired ?? 0) > 0) {
-    parts.push(`${counts.organizationRequired} organization-required pack${counts.organizationRequired === 1 ? "" : "s"}`);
+    parts.push(`${counts.organizationRequired} required organizational standard${counts.organizationRequired === 1 ? "" : "s"}`);
   }
 
   if ((counts.platformOverlay ?? 0) > 0) {
-    parts.push(`${counts.platformOverlay} platform overlay${counts.platformOverlay === 1 ? "" : "s"}`);
+    parts.push(`${counts.platformOverlay} cloud best-practice framework${counts.platformOverlay === 1 ? "" : "s"}`);
   }
 
   if ((counts.contextualRecommended ?? 0) > 0) {
-    parts.push(`${counts.contextualRecommended} contextual pack${counts.contextualRecommended === 1 ? "" : "s"}`);
+    parts.push(`${counts.contextualRecommended} project-specific recommendation${counts.contextualRecommended === 1 ? "" : "s"}`);
   }
 
   if ((counts.additionalOptional ?? 0) > 0) {
-    parts.push(`${counts.additionalOptional} additional pack${counts.additionalOptional === 1 ? "" : "s"}`);
+    parts.push(`${counts.additionalOptional} optional governance pack${counts.additionalOptional === 1 ? "" : "s"}`);
   }
 
   if (parts.length === 0) {
     return null;
   }
 
-  return `Committed coverage: ${parts.join(", ")}.`;
+  return `Assurance scope at commit: ${parts.join(", ")}.`;
 }
 
 export function buildCommittedPolicyPackEvaluationHeadline(input: {
@@ -112,7 +112,7 @@ export function buildCommittedPolicyPackEvaluationHeadline(input: {
   if (packAssignments.length > 1) {
     const base = `Evaluated against ${packAssignments.length} committed policy packs`;
 
-    return coverageLine !== null ? `${base} (${coverageLine.replace("Committed coverage: ", "").replace(/\.$/, "")}).` : `${base}.`;
+    return coverageLine !== null ? `${base} (${coverageLine.replace("Assurance scope at commit: ", "").replace(/\.$/, "")}).` : `${base}.`;
   }
 
   if (coverageLine !== null) {

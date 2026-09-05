@@ -12,7 +12,7 @@ public static class PolicyPackRunEvaluationScope
     ///     Returns whether the pack is included in run evaluation for the given focused-review and assignment state.
     /// </summary>
     public static bool IsPackIncludedInRunEvaluation(
-        string? packDisplayName,
+        PolicyPack? pack,
         PolicyPackAssignment? assignment,
         bool focusedPilotModeEnabled,
         CloudProvider cloudProvider)
@@ -26,11 +26,25 @@ public static class PolicyPackRunEvaluationScope
         }
 
         bool isOrganizationRequired = PolicyPackAssignmentOrganizationRequired.IsOrganizationRequired(assignment);
-        bool isOverlay = PlatformOverlayPolicyPacks.IsOverlayDisplayName(packDisplayName, cloudProvider);
+        bool isOverlay = PlatformOverlayPolicyPacks.IsOverlayPack(pack, cloudProvider);
 
         return FocusedPilotModePolicyPacks.IsPackAllowedInFocusedReview(
-            packDisplayName,
+            pack,
             isOrganizationRequired,
             isOverlay);
     }
+
+    /// <summary>
+    ///     Returns whether the pack is included in run evaluation for the given focused-review and assignment state.
+    /// </summary>
+    public static bool IsPackIncludedInRunEvaluation(
+        string? packDisplayName,
+        PolicyPackAssignment? assignment,
+        bool focusedPilotModeEnabled,
+        CloudProvider cloudProvider) =>
+        IsPackIncludedInRunEvaluation(
+            packDisplayName is null ? null : new PolicyPack { Name = packDisplayName },
+            assignment,
+            focusedPilotModeEnabled,
+            cloudProvider);
 }
