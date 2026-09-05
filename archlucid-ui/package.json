@@ -28,6 +28,8 @@
     "write:first-load-js-baseline": "node ./scripts/first-load-js-baseline.mjs write-baseline",
     "build:help-index": "node ./scripts/build-help-search-index.mjs",
     "build:docs-pdf": "tsx ./scripts/build-docs-pdf.ts",
+    "prepare:live-e2e-static-assets": "node ./scripts/prepare-live-e2e-static-assets.mjs",
+    "build:live-e2e": "npm run build:api-types && npm run sync:glossary && npm run generate:pricing && npm run generate:deferred-chunk-loaders && npm run build:help-index && npm run prepare:live-e2e-static-assets && npm run clean:next-export && next build",
     "start": "next start -p 3000",
     "lint": "eslint .",
     "test": "vitest run",

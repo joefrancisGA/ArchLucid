@@ -53,6 +53,21 @@ def _extract_yaml_job_block(text: str, job_marker: str) -> str | None:
     return text[start : match.end() + next_job.start()]
 
 
+def _require_live_e2e_build(rel_path: str, text: str, errors: list[str]) -> None:
+    job_text = text if rel_path == _PUSH_REL else _extract_yaml_job_block(text, _JOB_MARKER)
+
+    if job_text is None:
+        errors.append(f"{rel_path}: missing job marker {_JOB_MARKER}")
+
+        return
+
+    if "npm run build:live-e2e" not in job_text:
+        errors.append(
+            f"{rel_path}: {_JOB_NAME} must use npm run build:live-e2e "
+            "(skip build:docs-pdf; private-beta smoke does not need static help PDFs)",
+        )
+
+
 def _require_private_beta_job_timeout(rel_path: str, text: str, errors: list[str]) -> None:
     job_text = text if rel_path == _PUSH_REL else _extract_yaml_job_block(text, _JOB_MARKER)
 
@@ -97,6 +112,7 @@ def main(argv: list[str] | None = None) -> int:
         ci_text = ci_path.read_text(encoding="utf-8", errors="replace")
         _require_jwt_bearer_and_spec(_CI_REL, ci_text, errors)
         _require_private_beta_job_timeout(_CI_REL, ci_text, errors)
+        _require_live_e2e_build(_CI_REL, ci_text, errors)
 
     if not push_path.is_file():
         errors.append(f"missing {_PUSH_REL} (trunk push must run private-beta Playwright before invites)")
@@ -114,6 +130,7 @@ def main(argv: list[str] | None = None) -> int:
 
         _require_jwt_bearer_and_spec(_PUSH_REL, text, errors)
         _require_private_beta_job_timeout(_PUSH_REL, text, errors)
+        _require_live_e2e_build(_PUSH_REL, text, errors)
 
         if "cancel-in-progress: false" not in text:
             errors.append(
