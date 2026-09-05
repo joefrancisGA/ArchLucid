@@ -222,10 +222,19 @@ public sealed class GovernanceMutationCorrectionService(
         {
             ValidateArchitectureReviewFinalizeSubject(subjectId, normalizedRunId);
 
-            return;
+            return subjectId;
         }
 
         throw new ArgumentException($"Mutation kind '{mutationKind}' does not support in-product correction.", nameof(mutationKind));
+    }
+
+    private static void ValidateArchitectureReviewFinalizeSubject(string subjectId, string normalizedRunId)
+    {
+        if (!string.Equals(subjectId, normalizedRunId, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new KeyNotFoundException(
+                $"Review finalize correction subject must match run id '{normalizedRunId}'.");
+        }
     }
 
     private async Task<string> ValidateFindingDispositionSubjectAsync(
