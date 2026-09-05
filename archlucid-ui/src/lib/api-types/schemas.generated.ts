@@ -1178,6 +1178,75 @@ export interface components {
             /** Format: uuid */
             resolvedRunId?: string;
         };
+        ArchitectureIdentityBackfillReport: {
+            /** Format: int32 */
+            createdRunsLinked?: number;
+            /** Format: int32 */
+            displayNamesRefreshed?: number;
+            /** Format: int32 */
+            orphanDraftsLinked?: number;
+            /** Format: int32 */
+            reviewRunsLinked?: number;
+            /** Format: int32 */
+            spawnedDraftsLinked?: number;
+            /** Format: int32 */
+            totalMutations?: number;
+        };
+        ArchitectureIdentityChildDraftSummary: {
+            /** Format: uuid */
+            draftId?: string;
+            status?: components["schemas"]["DraftRequestStatus"];
+            systemName?: null | string;
+            /** Format: date-time */
+            updatedUtc?: string;
+        };
+        ArchitectureIdentityChildReviewSummary: {
+            /** Format: date-time */
+            createdUtc?: string;
+            description?: null | string;
+            /** Format: uuid */
+            runId?: string;
+        };
+        ArchitectureIdentityDetail: {
+            /** Format: uuid */
+            architectureId?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            /** Format: uuid */
+            currentDraftId?: null | string;
+            currentModelId?: null | string;
+            description?: null | string;
+            displayName?: string;
+            /** Format: int32 */
+            draftCount?: number;
+            drafts?: components["schemas"]["ArchitectureIdentityChildDraftSummary"][];
+            /** Format: uuid */
+            latestReviewId?: null | string;
+            /** Format: uuid */
+            latestSealedManifestId?: null | string;
+            /** Format: int32 */
+            reviewCount?: number;
+            reviews?: components["schemas"]["ArchitectureIdentityChildReviewSummary"][];
+            /** Format: date-time */
+            updatedUtc?: string;
+        };
+        ArchitectureIdentityListItem: {
+            /** Format: uuid */
+            architectureId?: string;
+            /** Format: uuid */
+            currentDraftId?: null | string;
+            displayName?: string;
+            /** Format: int32 */
+            draftCount?: number;
+            /** Format: uuid */
+            latestReviewId?: null | string;
+            /** Format: uuid */
+            latestSealedManifestId?: null | string;
+            /** Format: int32 */
+            reviewCount?: number;
+            /** Format: date-time */
+            updatedUtc?: string;
+        };
         ArchitectureIntelligencePublishResult: {
             /** Format: uuid */
             findingsSnapshotId?: null | string;
@@ -3494,6 +3563,8 @@ export interface components {
             workflowIntent?: null | string;
         };
         DraftRequestResponse: {
+            /** Format: uuid */
+            architectureId?: null | string;
             createdByUserId?: string;
             /** Format: date-time */
             createdUtc?: string;
@@ -6094,6 +6165,16 @@ export interface components {
             /** Format: int32 */
             statusCode?: number;
             transportSucceeded?: boolean;
+        };
+        PagedResponseOfArchitectureIdentityListItem: {
+            hasMore?: boolean;
+            items?: components["schemas"]["ArchitectureIdentityListItem"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int32 */
+            totalCount?: number;
         };
         PagedResponseOfConversationThread: {
             hasMore?: boolean;
