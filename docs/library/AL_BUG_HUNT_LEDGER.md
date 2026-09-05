@@ -3418,11 +3418,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 232
-- **bugs-found:** 458
+- **hunts:** 233
+- **bugs-found:** 462
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — policy-pack and link-entra idempotent retry audit guards
+- **last-bug:** 2026-09-05 — assignment toggle, catalog promote, recurrence update idempotent retry audit guards
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4533,6 +4533,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantTrialController.LinkEntraAsync` / `TenantTrialIdentityHandoffStage.LinkEntraAsync` — operator retry with same `entraTenantId` logs duplicate `TenantEntraDirectoryBound` audit while SQL update is idempotent — **hit 2026-09-05 (#838):** skip directory-bound audit when tenant already bound to requested directory; regression in `LinkEntraAsync_skips_duplicate_directory_bound_audit_when_already_bound_retry`.
 
 2026-09-05 thorough hunt #838 (hit): proved four idempotent-retry duplicate-audit gaps seeded in #837.
+
+- [x] (proven) `PolicyPacksController.SetAssignmentEnabled` / `PolicyPackWorkflowFacade.TrySetAssignmentEnabledAsync` / `PolicyPackWorkspaceSelectionService.TrySetAssignmentEnabledAsync` — operator retry with the same `isEnabled` value returns HTTP 204 and logs duplicate `PolicyPackAssignmentEnabledChanged` audit (`operator-documented-safe-retry`; #838 assign/archive/delete audit-skip parity) — **hit 2026-09-05 (#839):** skip audit when assignment already at requested enabled state; regression in `TrySetAssignmentEnabledAsync_skips_duplicate_audit_when_value_unchanged_retry`.
+- [x] (proven) `PolicyPacksController.SetAssignmentOrganizationRequired` / `PolicyPackWorkflowFacade.TrySetAssignmentOrganizationRequiredAsync` / `PolicyPackWorkspaceSelectionService.TrySetAssignmentOrganizationRequiredAsync` — identical `isOrganizationRequired` retry logs duplicate `PolicyPackAssignmentOrganizationRequiredChanged` audit while persistence is a no-op — **hit 2026-09-05 (#839):** skip audit when assignment already at requested organization-required state; regression in `TrySetAssignmentOrganizationRequiredAsync_skips_duplicate_audit_when_value_unchanged_retry`.
+- [x] (proven) `PolicyPacksController.PromoteCatalogEntry` / `PolicyPackWorkflowFacade.TryPromoteCatalogEntryAsync` — operator retry for the same `sourcePolicyPackId` + version re-upserts via `UpsertPromotedFromSnapshotAsync` and logs duplicate `PolicyPackCatalogPromoted` audit (#837 demote skip-audit parity) — **hit 2026-09-09 (#839):** skip audit when promoted catalog row already exists for source pack and version; regression in `TryPromoteCatalogEntryAsync_skips_duplicate_audit_when_identical_promote_retry`.
+- [x] (proven) `GovernanceStickinessController.UpdateRecurrenceSchedule` / `GovernanceStickinessFacade.UpdateRecurrenceScheduleAsync` — operator retry with empty PUT or unchanged `isEnabled`/`cronExpression`/`name` still calls `UpdateAsync` and logs duplicate `ArchitectureReviewRecurrenceScheduleUpdated` audit (#836 create dedupe parity) — **hit 2026-09-05 (#839):** return existing schedule without update or audit when request makes no effective changes; regressions in `UpdateRecurrenceScheduleAsync_preserves_next_run_when_request_has_no_schedule_changes` and `UpdateRecurrenceScheduleAsync_skips_duplicate_audit_when_request_has_no_changes_retry`.
+- [ ] (candidate) `PolicyPacksController.Publish` / `PolicyPacksAppService.PublishVersionAsync` / `PolicyPackPublishStage.PublishVersionAsync` — operator retry with identical pack/version/contentJson re-upserts version, appends another `VersionPublished` change-log row, and logs duplicate `PolicyPackVersionPublished` audit (`UpsertPublishedVersionAsync` + unconditional `auditService.LogAsync` / `changeLogAppender.AppendAsync`).
+
+2026-09-05 seed hunt #839 (hit): reseeded post-#838 idempotent-retry audit exhaustion; proved assignment toggle, catalog promote, and recurrence-update duplicate-audit gaps; seeded publish retry candidate.
 
 2026-09-05 seed hunt #837 (hit): reseeded post-#836 idempotency exhaustion; proved decisions-needed etag scope gap and catalog demote idempotent retry; seeded assign/archive/delete/link-entra audit retry candidates.
 
