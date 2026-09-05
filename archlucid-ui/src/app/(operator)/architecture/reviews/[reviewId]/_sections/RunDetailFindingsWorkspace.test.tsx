@@ -193,21 +193,29 @@ describe("RunDetailFindingsWorkspace", () => {
     );
   });
 
-  it("shows density desk honesty line and opt-in hide-generic control in Working mode", () => {
+  it("shows density desk honesty line and classification bands in Working mode", () => {
     architectWorkspaceChromeMocks.enabled = true;
 
     render(
       <RunDetailFindingsWorkspace
         runId="run-1"
-        findings={[finding({ findingId: "f-1", insightDensityScore: 20 })]}
+        findings={[
+          finding({
+            findingId: "f-1",
+            insightDensityScore: 20,
+            classification: "ChecklistCoverage",
+          }),
+        ]}
         packageCommitted={true}
       />,
     );
 
     expect(screen.getByTestId("run-detail-findings-density-desk-controls")).toHaveTextContent(
-      "typed-engine scores do not hide findings",
+      "insight-density gate demotes",
     );
-    expect(screen.getByTestId("run-detail-findings-hide-generic-control")).toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-findings-band-decision-grade")).toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-findings-band-checklist")).toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-findings-checklist-remains-hint")).toBeInTheDocument();
   });
 
   it("hides actor-engine quiet hint when actor nodes exist", () => {

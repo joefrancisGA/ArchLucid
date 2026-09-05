@@ -84,21 +84,21 @@ describe("buildInspectFindingWorkItemBody", () => {
     const withHonesty = {
       ...inspectInput,
       coverageHonestyLine:
-        "Typed-engine findings stay on the package regardless of insight-density score (typed-engine-protected).",
+        "Checklist coverage stays on the package when the insight-density gate demotes a finding.",
       includeCoverageHonesty: true,
     };
 
     const text = buildInspectFindingWorkItemBody("markdown", withHonesty);
 
     expect(text.indexOf("**Severity:**")).toBeLessThan(text.indexOf("**Coverage honesty:**"));
-    expect(text).toContain("typed-engine-protected");
+    expect(text).toContain("insight-density gate demotes");
   });
 
   it("omits coverage honesty when includeCoverageHonesty is false", () => {
     const guidedPaste = {
       ...inspectInput,
       coverageHonestyLine:
-        "Typed-engine findings stay on the package regardless of insight-density score (typed-engine-protected).",
+        "Checklist coverage stays on the package when the insight-density gate demotes a finding.",
       includeCoverageHonesty: false,
     };
 

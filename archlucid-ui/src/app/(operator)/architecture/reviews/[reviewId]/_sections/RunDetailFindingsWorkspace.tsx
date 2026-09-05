@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { ReactElement } from "react";
 
@@ -34,10 +35,14 @@ import { useReviewFindingsVisibilityState } from "@/hooks/use-review-findings-vi
 import { isFindingMergeConflictReviewFinding } from "@/lib/review-quality/finding-quality-signals";
 import {
   filterReviewDetailFindingsHideGeneric,
-  INSIGHT_DENSITY_GENERIC_THRESHOLD,
   sortReviewDetailFindingsBySignal,
 } from "@/lib/findings/review-detail-findings-density-sort";
 import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
+import {
+  countFindingsByClassificationBand,
+  filterFindingsByClassificationBand,
+  type ReviewFindingsClassificationBandId,
+} from "@/lib/findings/review-detail-findings-classification-band";
 import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
 import {
   deriveRunDetailFindingsTriageCounts,
@@ -89,7 +94,6 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
     hideGenericLowDensity,
     setShowLowConfidence,
     setShowAdvisory,
-    setHideGenericLowDensity,
   } = useReviewFindingsVisibilityState();
 
   function applyNaturalLanguageFacets(facets: FindingsNaturalLanguageFacets): void {
@@ -105,6 +109,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
     toolbar.setSearchQuery(facets.titleKeywords.join(" "));
   }
   const architectWorkspaceChrome = useArchitectWorkspaceChrome();
+  const [classificationBand, setClassificationBand] = useState<ReviewFindingsClassificationBandId>("decision-grade");
   const createHomeSurface = props.packageCommitted === false;
   const actorNodeCount = countActorNodesInGraphSnapshot(props.graphSnapshot);
   const showActorEnginesQuietHint =
@@ -130,8 +135,13 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
     architectWorkspaceChrome && hideGenericLowDensity
       ? filterReviewDetailFindingsHideGeneric(confidenceVisibleScoped, true)
       : confidenceVisibleScoped;
+  const bandScopedFindings =
+    architectWorkspaceChrome
+      ? filterFindingsByClassificationBand(densityFilteredFindings, classificationBand)
+      : densityFilteredFindings;
+  const classificationCounts = countFindingsByClassificationBand(confidenceVisibleScoped);
   const listFindings = architectWorkspaceChrome
-    ? sortReviewDetailFindingsBySignal(densityFilteredFindings)
+    ? sortReviewDetailFindingsBySignal(bandScopedFindings)
     : sortFindingsForToolbar(confidenceVisibleScoped, toolbar.sort);
   const { visibleFindings: confidenceGatedForCounts } = applyFindingsConfidenceVisibility(
     filterFindingsForToolbar(
@@ -293,22 +303,44 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             {INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE}
           </p>
-          <label
-            className={cn(
-              "flex items-center gap-2 text-al-text-secondary",
-              OPERATOR_TYPOGRAPHY.helper,
-            )}
-            data-testid="run-detail-findings-hide-generic-control"
+          <div
+            className="flex flex-wrap items-center gap-2"
+            role="tablist"
+            aria-label="Finding classification bands"
+            data-testid="run-detail-findings-classification-bands"
           >
-            <input
-              type="checkbox"
-              checked={hideGenericLowDensity}
-              onChange={(event) => {
-                setHideGenericLowDensity(event.target.checked);
-              }}
-            />
-            Hide generic findings (density score below {INSIGHT_DENSITY_GENERIC_THRESHOLD}) — advisory only
-          </label>
+            {(
+              [
+                ["decision-grade", `Decision-grade (${classificationCounts.decisionGrade})`],
+                ["checklist", `Checklist (${classificationCounts.checklist})`],
+                ["all", `All (${confidenceVisibleScoped.length})`],
+              ] as const
+            ).map(([bandId, label]) => (
+              <button
+                key={bandId}
+                type="button"
+                role="tab"
+                aria-selected={classificationBand === bandId}
+                className={cn(
+                  "rounded-md border px-2 py-1 text-sm",
+                  classificationBand === bandId
+                    ? "border-neutral-500 bg-neutral-100 dark:bg-neutral-800"
+                    : "border-neutral-200 dark:border-neutral-700",
+                )}
+                onClick={() => {
+                  setClassificationBand(bandId);
+                }}
+                data-testid={`run-detail-findings-band-${bandId}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          {classificationBand === "decision-grade" && classificationCounts.checklist > 0 && listFindings.length === 0 ? (
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="run-detail-findings-checklist-remains-hint">
+              {classificationCounts.checklist} checklist {classificationCounts.checklist === 1 ? "row remains" : "rows remain"} on this package — open the Checklist band to triage them.
+            </p>
+          ) : null}
         </div>
       ) : null}
       {createHomeSurface ? (

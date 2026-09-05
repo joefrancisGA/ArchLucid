@@ -177,7 +177,12 @@ describe("ADR 0067 — Create architecture / Review peer parity", () => {
   });
 });
 
-describe("ADR 0067 §6 — Working workspace-state emphasis (CD-03)", () => {
+describe("ADR 0069 — Working one work object (IS-01/02)", () => {
+  it("documents ADR 0069 supersession for Working — Guided still cites ADR 0067", () => {
+    // Guard pointer: Working fixtures below; Guided peer parity remains in the ADR 0067 block above.
+    expect("0069-working-desk-one-work-object").toMatch(/0069/);
+  });
+
   it("Working empty tenant home sections emphasize start-something without buyer hero funnel", () => {
     const sections = composeOperatorHomeSections({
       phaseSignals: {
