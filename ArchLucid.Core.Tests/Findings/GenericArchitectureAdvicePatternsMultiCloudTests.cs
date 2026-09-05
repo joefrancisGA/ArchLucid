@@ -74,6 +74,14 @@ public sealed class GenericArchitectureAdvicePatternsMultiCloudTests
     }
 
     [Theory]
+    [InlineData("enable mfa won't need to be configured for batch workloads")]
+    [InlineData("use https must not be required for legacy clients")]
+    public void IsObviousGenericAdvice_does_not_flag_wont_need_or_must_not_suffix_phrasing(string message)
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(message).Should().BeFalse();
+    }
+
+    [Theory]
     [InlineData(
         "Enable GuardDuty monitoring for `payments-api` ingress paths.",
         "subscriptions/000/resourceGroups/rg/providers/Microsoft.Web/sites/payments-api")]

@@ -158,6 +158,34 @@ internal static class RunHeaderAnchorJsonComparer
         if (TryAbsentEmptyStringEquivalent(left, right))
             return true;
 
+        if (TryAbsentEmptyObjectEquivalent(left, right))
+            return true;
+
+        if (TryAbsentEmptyArrayEquivalent(left, right))
+            return true;
+
+        return false;
+    }
+
+    private static bool TryAbsentEmptyObjectEquivalent(JsonElement left, JsonElement right)
+    {
+        if (left.ValueKind == JsonValueKind.Object && right.ValueKind == JsonValueKind.Undefined)
+            return !left.EnumerateObject().Any();
+
+        if (left.ValueKind == JsonValueKind.Undefined && right.ValueKind == JsonValueKind.Object)
+            return !right.EnumerateObject().Any();
+
+        return false;
+    }
+
+    private static bool TryAbsentEmptyArrayEquivalent(JsonElement left, JsonElement right)
+    {
+        if (left.ValueKind == JsonValueKind.Array && right.ValueKind == JsonValueKind.Undefined)
+            return left.GetArrayLength() == 0;
+
+        if (left.ValueKind == JsonValueKind.Undefined && right.ValueKind == JsonValueKind.Array)
+            return right.GetArrayLength() == 0;
+
         return false;
     }
 

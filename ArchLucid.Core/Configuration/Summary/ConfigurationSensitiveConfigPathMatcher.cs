@@ -79,7 +79,17 @@ internal static class ConfigurationSensitiveConfigPathMatcher
             || segment.Equals("PrimaryKey", StringComparison.OrdinalIgnoreCase)
             || segment.Equals("SecondaryKey", StringComparison.OrdinalIgnoreCase)
             || segment.Equals("AccountKey", StringComparison.OrdinalIgnoreCase)
-            || segment.Equals("AccessKey", StringComparison.OrdinalIgnoreCase);
+            || segment.Equals("AccessKey", StringComparison.OrdinalIgnoreCase)
+            || segment.Equals("SigningKey", StringComparison.OrdinalIgnoreCase)
+            || segment.Equals("SigningCertificate", StringComparison.OrdinalIgnoreCase)
+            || segment.Equals("SigningCertificatePath", StringComparison.OrdinalIgnoreCase)
+            || IsCertificateCredentialSegment(segment);
+    }
+
+    private static bool IsCertificateCredentialSegment(ReadOnlySpan<char> segment)
+    {
+        return segment.EndsWith("CertificatePath", StringComparison.OrdinalIgnoreCase)
+            || segment.EndsWith("Certificate", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsPrivateKeyCredentialSegment(ReadOnlySpan<char> segment)

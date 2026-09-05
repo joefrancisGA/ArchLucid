@@ -89,6 +89,41 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Theory]
+    [InlineData("ArchLucid:Auth:SigningCertificatePath", "/secrets/signing.pfx")]
+    [InlineData("ArchLucid:Saml:SigningCertificate", "/secrets/signing.pfx")]
+    public void Resolve_redacts_certificate_config_paths(string configPath, string secretValue)
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = secretValue
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_redacts_signing_key_config_path()
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["ArchLucid:Auth:SigningKey"] = "super-secret"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            "ArchLucid:Auth:SigningKey",
+            isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Theory]
     [InlineData("ArchLucid:PasswordlessAuth:Enabled", "true")]
     [InlineData("ArchLucid:TokenizerModel:Name", "gpt-4.1")]
     [InlineData("ArchLucid:ApiKeylessAuth:Mode", "managed-identity")]

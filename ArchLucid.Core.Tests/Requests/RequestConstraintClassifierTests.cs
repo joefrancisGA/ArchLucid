@@ -315,6 +315,38 @@ public sealed class RequestConstraintClassifierTests
     }
 
     [Fact]
+    public void HasManagedIdentityConstraint_does_not_false_positive_on_need_not_managed_identity_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["managed identity need not be used for storage"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasPrivateNetworkingConstraint_does_not_false_positive_on_need_not_private_networking_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["private networking need not be required for batch workloads"]);
+
+        RequestConstraintClassifier.HasPrivateNetworkingConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_need_not_encryption_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["encryption need not be used at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasManagedIdentityConstraint_does_not_false_positive_on_cannot_use_managed_identity_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["cannot use managed identity for storage"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
     public void RequiresAiCapability_does_not_false_positive_on_no_ai_capability_phrasing()
     {
         ArchitectureRequest request = CreateRequest(capabilities: ["no-ai inference"]);

@@ -169,7 +169,9 @@ internal static class RequestConstraintTokenMatcher
             || before.StartsWith("must not", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("never", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("avoid", StringComparison.OrdinalIgnoreCase)
-            || before.StartsWith("avoids", StringComparison.OrdinalIgnoreCase))
+            || before.StartsWith("avoids", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("cannot use", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("cannot", StringComparison.OrdinalIgnoreCase))
             return true;
 
         if (ContainsMidSentenceNegation(before))
@@ -179,6 +181,7 @@ internal static class RequestConstraintTokenMatcher
             || before.EndsWith("doesn't", StringComparison.OrdinalIgnoreCase)
             || before.EndsWith("shouldn't", StringComparison.OrdinalIgnoreCase)
             || before.EndsWith("won't", StringComparison.OrdinalIgnoreCase)
+            || before.EndsWith("cannot", StringComparison.OrdinalIgnoreCase)
             || before.EndsWith("never", StringComparison.OrdinalIgnoreCase)
             || before.EndsWith("avoids", StringComparison.OrdinalIgnoreCase)
             || before.EndsWith("avoid", StringComparison.OrdinalIgnoreCase);
@@ -233,7 +236,7 @@ internal static class RequestConstraintTokenMatcher
         if (after.Length < 2)
             return false;
 
-        return after.StartsWith("not required", StringComparison.OrdinalIgnoreCase)
+        if (after.StartsWith("not required", StringComparison.OrdinalIgnoreCase)
             || after.StartsWith("not needed", StringComparison.OrdinalIgnoreCase)
             || after.StartsWith("not necessary", StringComparison.OrdinalIgnoreCase)
             || after.StartsWith("is not required", StringComparison.OrdinalIgnoreCase)
@@ -242,6 +245,10 @@ internal static class RequestConstraintTokenMatcher
             || after.StartsWith("is unnecessary", StringComparison.OrdinalIgnoreCase)
             || after.StartsWith("isn't required", StringComparison.OrdinalIgnoreCase)
             || after.StartsWith("isn't needed", StringComparison.OrdinalIgnoreCase)
-            || after.StartsWith("is optional", StringComparison.OrdinalIgnoreCase);
+            || after.StartsWith("is optional", StringComparison.OrdinalIgnoreCase)
+            || after.StartsWith("need not", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return ContainsPhrase(after, " need not ");
     }
 }
