@@ -28,6 +28,12 @@ public interface IAzureInventorySnapshotRepository
         Guid snapshotId,
         AzureInventorySnapshotMaterializeWriteRequest writeRequest,
         CancellationToken cancellationToken = default);
+
+    Task<Guid?> TryGetPriorMaterializedSnapshotIdAsync(
+        ScopeContext scope,
+        string subscriptionId,
+        Guid newerSnapshotId,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed class AzureInventorySnapshotMaterializeWriteRequest

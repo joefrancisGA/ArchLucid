@@ -72,6 +72,29 @@ public sealed class SqlAuditAssessmentRepository(ISqlConnectionFactory connectio
         return row is null ? null : Map(row);
     }
 
+    public async Task<IReadOnlyList<AuditAssessmentRecord>> ListActiveByTenantAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT AssessmentId, TenantId, WorkspaceId, ProjectId, FrameworkId, FrameworkVersion,
+                                  ScopeJson, PeriodStartUtc, PeriodEndUtc, Status, RequestedBy, CreatedUtc
+                           FROM dbo.AuditAssessments
+                           WHERE TenantId = @TenantId
+                               AND Status <> @ArchivedStatus;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<AssessmentRow> rows = await conn.QueryAsync<AssessmentRow>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, ArchivedStatus = (int)AuditAssessmentStatus.Archived },
+                cancellationToken: cancellationToken));
+
+        return rows.Select(Map).ToList();
+    }
+
     public async Task UpdateStatusAsync(
         Guid tenantId,
         Guid assessmentId,

@@ -431,6 +431,14 @@ public sealed class AuditManualEvidenceSubmissionServiceTests
             AuditAssessmentStatus status,
             CancellationToken cancellationToken = default) =>
             Task.CompletedTask;
+
+        public Task<IReadOnlyList<AuditAssessmentRecord>> ListActiveByTenantAsync(
+            Guid tenantId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<AuditAssessmentRecord>>(
+                Assessments.Values
+                    .Where(assessment => assessment.TenantId == tenantId && assessment.Status != AuditAssessmentStatus.Archived)
+                    .ToList());
     }
 
     private sealed class InMemoryAuditEvidenceSnapshotRepository : IAuditEvidenceSnapshotRepository
