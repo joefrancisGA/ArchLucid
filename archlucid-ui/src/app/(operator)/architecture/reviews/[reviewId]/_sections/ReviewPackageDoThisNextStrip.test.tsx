@@ -407,6 +407,9 @@ describe("ReviewPackageDoThisNextStrip", () => {
       "re-run the review to retry with the same intake",
     );
     expect(screen.getByTestId("review-package-re-run-review")).toBeInTheDocument();
+    expect(screen.getByTestId("review-package-do-this-next-strip").className).toContain("min-w-0");
+    expect(screen.getByTestId("review-package-do-this-next-strip").className).toContain("max-w-full");
+    expect(screen.getByTestId("review-package-re-run-review").parentElement?.className).toContain("flex-col");
     expect(screen.queryByTestId("review-package-do-this-next-action")).toBeNull();
   });
 

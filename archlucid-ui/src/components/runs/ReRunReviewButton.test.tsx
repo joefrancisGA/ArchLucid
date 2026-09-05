@@ -88,6 +88,8 @@ describe("ReRunReviewButton", () => {
       expect(screen.getByTestId("re-run-review-outcome-detail")).toHaveTextContent(
         "Re-running architecture review started",
       );
+      expect(screen.getByTestId("re-run-review-button").parentElement?.className).toContain("flex-col");
+      expect(screen.getByTestId("re-run-review-outcome").className).toContain("break-words");
     });
   });
 
