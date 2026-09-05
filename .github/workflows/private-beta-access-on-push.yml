@@ -96,7 +96,7 @@ jobs:
         env:
           ASPNETCORE_ENVIRONMENT: Development
           ASPNETCORE_URLS: http://127.0.0.1:5128
-          ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidLiveE2eBetaAccess"
+          ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidLiveE2eBetaAccess;Max Pool Size=200;Connect Timeout=120"
           ArchLucid__StorageProvider: Sql
           ArchLucidAuth__Mode: JwtBearer
           ArchLucidAuth__Authority: ""
@@ -119,6 +119,15 @@ jobs:
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
           DataConsistency__InitialDelaySeconds: "0"
+          DataConsistency__OrphanProbeEnabled: "false"
+          Demo__Enabled: "false"
+          Demo__SeedOnStartup: "false"
+          TrialArchitecturePreseed__Enabled: "false"
+          Persistence__SqlOpenResilience__MaxRetryAttempts: "6"
+          Persistence__SqlOpenResilience__BaseDelayMilliseconds: "500"
+          ArchLucid__Persistence__DefaultSqlCommandTimeoutSeconds: "300"
+          ArchLucid__CreateRun__DistributedIdempotencyLockTimeoutMilliseconds: "180000"
+          AuthorityPipeline__PipelineTimeout: "00:05:00"
           HostLeaderElection__Enabled: "false"
           Observability__ConsoleExporter__Enabled: "false"
         run: |
