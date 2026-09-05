@@ -46,7 +46,7 @@ describe("RunsDashboardFilters", () => {
     );
 
     expect(screen.getByTestId("runs-dashboard-governance-warnings-only")).toBeDisabled();
-    expect(screen.getByText(/No reviews with approval-check warnings in this workspace yet/i)).toBeInTheDocument();
+    expect(screen.getByText(/No reviews with governance approval warnings in this workspace yet/i)).toBeInTheDocument();
   });
 
   it("renders nothing in buyer-polished shell", () => {

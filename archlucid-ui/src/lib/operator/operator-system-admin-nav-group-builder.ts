@@ -163,9 +163,9 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
 
           href: INTERNAL_AGENT_MODEL_CATALOG_PATH,
 
-          label: "Agent model catalog",
+          label: "Runtime alias catalog",
 
-          title: "Agent model catalog — platform alias curation, lifecycle, and evaluation evidence",
+          title: "Runtime alias catalog — platform alias curation, lifecycle, and evaluation evidence",
 
           icon: Boxes,
 

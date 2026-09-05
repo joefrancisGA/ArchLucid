@@ -132,12 +132,16 @@ function resolveRunsDashboardTabBaseLabel(
   }
 
   if (tabId === "attention") {
-    // Home preview only — distinct from the "Awaiting approval" attention chip above.
+    // Home preview — label matches Approval > Findings in the sidebar.
     if (homePreviewMode) {
       return RUNS_DASHBOARD_LABELS.tabOpenFindings;
     }
 
     return RUNS_DASHBOARD_LABELS.tabNeedsAttention;
+  }
+
+  if (homePreviewMode) {
+    return RUNS_DASHBOARD_LABELS.tabMonitoring;
   }
 
   return RUNS_DASHBOARD_LABELS.tabOutcomes;

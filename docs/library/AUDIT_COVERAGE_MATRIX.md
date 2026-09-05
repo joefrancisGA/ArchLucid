@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:419 -->
+<!-- audit-core-const-count:420 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -216,6 +216,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Tier 2 hosted GCP extractor collection run | `HostedGcpExtractorRunController` (`POST /v1/admin/gcp-extractor/hosted/run`); `HostedGcpExtractorRunService` | `CloudConnectionGcpPolled`, `CloudInventoryExtractorPackageUploaded`, `CloudInventoryExtractorPackageParseFailed`, `CloudInventoryExtractorPackageSchemaRejected`, `CloudInventoryExtractorPackageIngestSucceeded` | Tenant/Workspace/Project; optional `RunId` on success event | Hosted collect → GCP inventory ingest pipeline (`[MutatingAuditExcluded]` on controller) |
 | Azure inventory snapshot header (infra-evidence plane) | `AzureInventorySnapshotHeaderService` (ingest pipeline after extractor package success) | `AzureInventorySnapshotCreated`, `AzureInventorySnapshotFailed` | Tenant/Workspace/Project from ambient scope | `snapshotId`, `packageId`, subscription scope |
 | Azure inventory baseline designation (infra-evidence plane) | `InfraEvidenceInventoryController` (`POST /v1/infra-evidence/azure-inventory/baselines`); `AzureInventoryBaselineService` | — | — | Tenant-scoped inventory metadata — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
+| Infra-evidence Ask grounding (read-only structured rows) | `InfraEvidenceAskController` (`POST /v1/infra-evidence/ask`); `IInfraEvidenceAskGroundingService` | — | — | Read-auth gated grounding over structured evidence rows with citations; **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | Azure inventory drift approval (infra-evidence plane) | `InfraEvidenceInventoryController` (`POST /v1/infra-evidence/azure-inventory/diffs/{diffId}/drift-approvals`); `AzureInventoryDriftApprovalService` | — | — | Drift approval records carry approver, reason, and ticket reference inline — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | Azure inventory diff narrative (infra-evidence plane) | `InfraEvidenceInventoryController` (`POST /v1/infra-evidence/azure-inventory/diffs/{diffId}/narratives`); `AzureInventoryDiffNarrativeService` | — | — | Persisted `AiInference` artifacts with cited change ids — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | Structured architecture diagram ingest (infra-evidence plane) | `ArchitectureDiagramIngestController` (`POST /v1/architecture/runs/{runId}/diagrams/ingest`); `StructuredDiagramIngestService` | — | RunId | Persisted `ArchitectureDiagramModel` per run — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
@@ -820,6 +821,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `ArchitectureIntelligenceRunCompleted` | `ArchitectureIntelligence.RunCompleted` | `ArchitectureIntelligenceController` (architecture intelligence run / golden paths) |
 | `ArchitectureIntelligenceGoldenTestCompleted` | `ArchitectureIntelligence.GoldenTestCompleted` | `ArchitectureIntelligenceController` (golden test completion) |
 | `TenantBrandingProfileChanged` | `TenantBrandingProfile.Changed` | `SqlTenantBrandingProfileRepository` (tenant branding profile upsert) |
+| `TenantBrandAssetUploaded` | `TenantBrandAsset.Uploaded` | `BrandAssetController` (`POST /v1/infra-evidence/branding/assets`); `POST /v1/infra-evidence/branding/assets` |
 | `TenantCatalogMigrationStarted` | `TenantCatalogMigrationStarted` | `TenantCatalogMigrationOrchestrator` (`POST /v1/admin/tenants/{tenantId}/catalog-migration/start`) |
 | `TenantCatalogMigrationProjectionRefreshCompleted` | `TenantCatalogMigrationProjectionRefreshCompleted` | `TenantCatalogMigrationOrchestrator` (`POST /v1/admin/tenants/{tenantId}/catalog-migration/projection-refresh`) |
 | `TenantCatalogMigrationVerificationPassed` | `TenantCatalogMigrationVerificationPassed` | `TenantCatalogMigrationOrchestrator` (`POST /v1/admin/tenants/{tenantId}/catalog-migration/verify` when probe passes) |

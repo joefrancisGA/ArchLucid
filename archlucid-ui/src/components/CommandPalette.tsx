@@ -30,6 +30,7 @@ import { NAV_GROUPS } from "@/lib/nav-config";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { mergeContextualOnlyOperatorNavHrefsIntoVisibleSet } from "@/lib/nav-contextual-only-operator-paths";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
+import { isArchLucidVendorStaffPrincipal } from "@/lib/vendor-staff-principal";
 import {
   filterNavGroupsByRoleDensity,
   resolveRoleNavDensityPersona,
@@ -132,6 +133,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   const patternLibraryNavVisible = usePatternLibraryNavVisible();
   const { mode } = useWorkspaceMode();
   const workingMode = isWorkingWorkspaceMode(mode);
+  const showVendorInternalNav = isArchLucidVendorStaffPrincipal(currentPrincipal);
 
   const visibleHrefs = useMemo(() => {
     const shellRows = applyPatternLibraryNavGate(
@@ -141,6 +143,8 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
           callerAuthorityRank,
           "all",
           effectiveHasCommittedArchitectureReview,
+          false,
+          { showVendorInternalNav },
         ),
         auditRunId,
       ),
@@ -172,6 +176,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     patternLibraryNavVisible,
     roleNavDensityPersona,
     roleNavDensityShowFullNav,
+    showVendorInternalNav,
     workingMode,
   ]);
 
@@ -382,6 +387,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
             patternLibraryNavVisible={patternLibraryNavVisible}
             roleNavDensityPersona={roleNavDensityPersona}
             roleNavDensityShowFullNav={roleNavDensityShowFullNav}
+            showVendorInternalNav={showVendorInternalNav}
             onNavigate={navigate}
           />
           {buyerPolishedShell ? null : (

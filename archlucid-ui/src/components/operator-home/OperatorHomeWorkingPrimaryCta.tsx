@@ -5,10 +5,9 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { useWorkingStartHref } from "@/hooks/use-working-start-href";
-import {
-  ARCHITECTURES_LIST_PATH,
-  REVIEWS_LIST_PATH,
-} from "@/lib/architecture/architecture-routes";
+import { ARCHITECTURES_LIST_PATH, REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { OPERATOR_HOME_START_NEW_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_LINK, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
@@ -74,12 +73,13 @@ export function OperatorHomeWorkingPrimaryCta(
 function WorkingCapabilityLinks(): React.JSX.Element {
   return (
     <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
+      Resume work:{" "}
       <Link href={ARCHITECTURES_LIST_PATH} className={OPERATOR_LINK.optional} data-testid="operator-home-working-drafts-link">
-        Drafts
+        {ARCHITECTURE_DRAFTS_LIST_LABEL}
       </Link>
       <span aria-hidden="true"> · </span>
       <Link href={REVIEWS_LIST_PATH} className={OPERATOR_LINK.optional} data-testid="operator-home-working-packages-link">
-        Packages
+        {OPERATOR_NAV_LINK_LABELS.reviewPackage}
       </Link>
     </p>
   );

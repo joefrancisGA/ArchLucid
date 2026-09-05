@@ -96,6 +96,7 @@ describe("design-tokens TB-119 typography", () => {
     expect(OPERATOR_TYPOGRAPHY.kpiValue).toContain("text-4xl");
     expect(OPERATOR_TYPOGRAPHY.kpiValue).toContain("font-mono");
     expect(OPERATOR_TYPOGRAPHY.kpiValue).toContain("tabular-nums");
+    expect(OPERATOR_TYPOGRAPHY.kpiValue).toContain("lining-nums");
   });
 
   it("KPI card title and description use tab and helper scales", () => {

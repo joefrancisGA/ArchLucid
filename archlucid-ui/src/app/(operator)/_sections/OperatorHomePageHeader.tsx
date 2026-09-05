@@ -4,12 +4,14 @@ import type { ReactNode } from "react";
 
 import { OperatorHomeWorkingPrimaryCta } from "@/components/operator-home/OperatorHomeWorkingPrimaryCta";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { OPERATOR_HOME_DATA_CURRENCY_PREFIX } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_HOME_PAGE_TITLE } from "@/lib/operator/operator-home-page-copy";
 import { useOperatorHomeRefresh } from "@/lib/operator/operator-home-refresh-context";
 import {
   OPERATOR_NOT_REFRESHED_LABEL,
+  operatorHomeDataCurrencyStaleCue,
   operatorHomeDataCurrencyValue,
 } from "@/lib/operator/operator-last-refreshed-label";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
@@ -32,11 +34,17 @@ function operatorHomeFreshnessContent(input: {
   }
 
   const value = operatorHomeDataCurrencyValue(input.lastRefreshedAt);
+  const staleCue = operatorHomeDataCurrencyStaleCue(input.lastRefreshedAt);
 
   return (
     <>
       <span className="text-al-text-secondary">{OPERATOR_HOME_DATA_CURRENCY_PREFIX}: </span>
       <strong className="font-semibold text-al-text-primary">{value}</strong>
+      {staleCue !== null ? (
+        <span className="ml-1 font-medium text-[var(--al-status-needs-attention-fg)]" data-testid="operator-home-data-stale-cue">
+          {staleCue}
+        </span>
+      ) : null}
     </>
   );
 }
@@ -68,6 +76,7 @@ export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): Reac
       }
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="operator-home-header-actions">
+          <PageContextualHelpButton />
           <RefreshButton
             data-testid="operator-home-refresh-button"
             busy={refreshing}
@@ -77,7 +86,7 @@ export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): Reac
       }
     >
       <OperatorHomeWorkingPrimaryCta
-        variant={isWorkingMode ? "primary" : "primary"}
+        variant="primary"
         showNewReviewWhenResuming={isWorkingMode}
       />
     </OperatorPageHeader>
