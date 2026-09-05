@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 158
-- **bugs-found:** 308
+- **hunts:** 159
+- **bugs-found:** 312
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — anchor JSON coercion, without constraint negation, PasswordFree redaction, won't advice
+- **last-bug:** 2026-09-05 — constraint advice negation, SecretFree/TokenFree redaction, anchor null property
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2257,6 +2257,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `Password`+`free` suffix false positive — **hit 2026-09-05 (#886):** #879/#885 guarded `ConnectionString`+`free` only; `PasswordFreeAuth` / `passwordfreeauth` redacted; fixed with `Password`+`free` suffix guard (`Resolve_returns_scalar_for_non_secret_segment_substrings` with `PasswordFreeAuth`, `IsSensitiveKey_detects_secret_like_names` with `passwordfreeauth`).
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsObviousGenericAdvice` — `won't {phrase}` prohibitive intent still matches affirmative fragments — **hit 2026-09-05 (#886):** #884 `avoid`/`without` parity missed `won't enable mfa`; fixed with `won't` negation prefix (`IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing` with `workload won't enable mfa for service accounts`).
 
+- [x] (proven) `RequestConstraintTokenMatcher` / `RequestConstraintClassifier` — advice-style negation parity gap (`avoid` / `never` / `do not` / `not required to`) — **hit 2026-09-05 (#887):** #886 `without` parity missed prohibitive constraint phrasing; classifier false positives on starter evidence refs; fixed with `IsAdviceStyleNegation` prefix checks (`HasEncryptionConstraint_does_not_false_positive_on_avoid_encryption_phrasing`, `HasManagedIdentityConstraint_does_not_false_positive_on_not_required_to_managed_identity_phrasing`, `RequiresSqlCapability_does_not_false_positive_on_avoid_sql_phrasing`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` — `Secret`+`free` / `Token`+`free` / `Token`+`less` / `ApiKey`+`free` suffix false positives — **hit 2026-09-05 (#887):** #886 `Password`+`free` parity missed sibling segments; operator summary redacted benign paths; fixed with expanded suffix guards (`Resolve_returns_scalar_for_non_secret_segment_substrings` with `SecretFreeStorage`, `TokenFreeAuth`, `TokenlessAuth`, `ApiKeyFreeAuth`).
+- [x] (proven) `AzureExtractorSensitivePropertyRedactor.IsSensitiveKey` — `secret`+`free` compound false positive — **hit 2026-09-05 (#887):** #886 `passwordfreeauth` parity missed `secretfreeauth`; fixed with `secret`+`free` suffix guard (`IsSensitiveKey_detects_secret_like_names` with `secretfreeauth`).
+- [x] (proven) `RunHeaderAnchorJsonComparer.AreEquivalent` — explicit JSON `null` property vs omitted property treated as anchor mutation — **hit 2026-09-05 (#887):** property-count compare failed when reload added `"optional":null`; committed lifecycle updates threw `RunEvidenceAnchorImmutableException`; fixed by union property compare treating absent/null as equivalent (`EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_null_property_equivalent_to_omitted_on_committed_run`).
+
+2026-09-05 seed hunt #887: reseeded after #886 closure; proved constraint advice negation, SecretFree/TokenFree config redaction, secretfreeauth ARM redaction, and anchor null-vs-omitted parity.
 2026-09-05 seed hunt #886: promoted five hunt-ready rows from #885 reseed gap; proved anchor JSON coercion, constraint without negation, PasswordFree redaction parity, and won't advice negation.
 2026-09-05 thorough hunt #885: cheap-disproved config segment parity after #884 seed; proved JSON string whitespace anchor drift; reseeded from #884 candidates.
 2026-09-05 seed hunt #884: reseeded redactor embedded tokens, advice avoid negation, and trial nudge casing after #883; proved three hunt-ready rows; seeded config segment parity and JSON string whitespace anchor candidates.
