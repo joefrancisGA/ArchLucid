@@ -3418,11 +3418,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 239
-- **bugs-found:** 473
+- **hunts:** 240
+- **bugs-found:** 474
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — core-pilot checklist and tenant baseline idempotent retry audit guards
+- **last-bug:** 2026-09-05 — architecture project restore idempotent retry success
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4559,8 +4559,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `CorePilotTeamChecklistController.PutAsync` — operator retry with identical `stepIndex`/`isCompleted` re-upserts checklist row and logs duplicate `CorePilotTeamChecklistUpdated` audit (`UpsertAsync` + unconditional controller audit; #844 cost-settings parity) — **hit 2026-09-05 (#845):** skip audit when listed step already matches requested completion state; regression in `PutAsync_skips_duplicate_audit_when_identical_operator_retry`.
 - [x] (proven) `TenantBaselineController.PutAsync` — operator retry with unchanged manual-prep, review-cycle hours/source, or source-note-only updates logs duplicate `TrialBaselineManualPrepUpdated` / `TrialBaselineReviewCycleUpdated` audit (`UpdateBaselineAsync` / `PersistTrialSignupBaselineReviewCycleAsync` + unconditional audit) — **hit 2026-09-05 (#845):** skip audit when merged tenant baseline fields already match normalized request; regression in `PutAsync_skips_duplicate_audit_when_manual_prep_unchanged_retry`.
-- [ ] (candidate) `TenantWorkspacesController.RestoreProjectAsync` — `operator-documented-safe-retry` retry after successful restore returns HTTP 404 (`NotFoundOrNotDeleted`) instead of idempotent HTTP 204 success (#844 restore audit path sibling).
-- [ ] (candidate) `GovernanceResolutionController.Resolve` — operator GET retries log duplicate `GovernanceResolutionExecuted` (and conflict) audit events on every identical resolution read (`resolver.ResolveAsync` + unconditional audit).
+- [x] (proven) `TenantWorkspacesController.RestoreProjectAsync` — `operator-documented-safe-retry` retry after successful restore returns HTTP 404 (`NotFoundOrNotDeleted`) instead of idempotent HTTP 204 success (#844 restore audit path sibling) — **hit 2026-09-05 (#846):** `ArchitectureProjectRestoreResult.AlreadyActive` returns HTTP 204 without duplicate `ArchitectureProjectRestored` audit; regressions in `RestoreProjectAsync_returns_no_content_without_duplicate_audit_when_already_restored_retry` and `InMemoryArchitectureProjectRepositoryTests.Insert_list_soft_delete_restore_round_trip`.
+- [x] (invalid) `GovernanceResolutionController.Resolve` — operator GET retries log duplicate `GovernanceResolutionExecuted` (and conflict) audit events on every identical resolution read — **cheap-disproof 2026-09-05 (#846):** controller remarks document intentional per-read audit for SIEM correlation; endpoint lacks `operator-documented-safe-retry` posture and is not a mutation retry gap.
+
+2026-09-05 thorough hunt #846 (hit): proved restore idempotent-success gap seeded in #845; cheap-disproved governance-resolution read-audit candidate (intentional telemetry).
+
+- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — `operator-documented-safe-retry` sibling: already-soft-deleted retry returns HTTP 404 instead of idempotent HTTP 204 (`TrySoftDeleteAsync` false path; #846 restore parity).
 
 2026-09-05 seed hunt #845 (hit): reseeded post-#844 idempotent-retry exhaustion; proved core-pilot checklist and tenant baseline duplicate-audit gaps; seeded restore idempotent-success and governance-resolution read-audit retry candidates.
 
