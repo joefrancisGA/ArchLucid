@@ -99,19 +99,21 @@ export function operatorLastRefreshedExactLabel(
 export function operatorHomeDataCurrencyValue(lastRefreshedAt: Date): string {
   const relativeLabel = operatorLastRefreshedLabel(lastRefreshedAt);
   const clockLabel = operatorLastRefreshedClockLabel(lastRefreshedAt);
+  const isToday = new Date().toDateString() === lastRefreshedAt.toDateString();
+  const dateSuffix = isToday ? "" : ` · ${lastRefreshedAt.toLocaleDateString()}`;
 
   if (clockLabel === null) {
-    return relativeLabel;
+    return `${relativeLabel}${dateSuffix}`;
   }
 
   const nowMs = Date.now();
   const nowRelativeLabel = formatRelativeTime(new Date(nowMs).toISOString(), nowMs);
 
   if (relativeLabel === nowRelativeLabel) {
-    return clockLabel;
+    return `${clockLabel}${dateSuffix}`;
   }
 
-  return `${relativeLabel} (${clockLabel})`;
+  return `${relativeLabel} (${clockLabel}${dateSuffix})`;
 }
 
 /**

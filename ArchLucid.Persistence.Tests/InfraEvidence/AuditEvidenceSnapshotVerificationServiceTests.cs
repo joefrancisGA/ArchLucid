@@ -243,5 +243,12 @@ public sealed class AuditEvidenceSnapshotVerificationServiceTests
 
             items[0] = CopyItemWithSummary(items[0], mutatedSummary);
         }
+
+        public Task UpdateItemFreshnessAsync(
+            Guid tenantId,
+            Guid auditEvidenceSnapshotId,
+            IReadOnlyList<AuditEvidenceFreshnessItemUpdate> updates,
+            CancellationToken cancellationToken = default)
+            => Task.CompletedTask;
     }
 }

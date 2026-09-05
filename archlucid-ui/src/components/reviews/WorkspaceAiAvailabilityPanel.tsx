@@ -64,6 +64,38 @@ function filterProbeDebugMetadata(
   });
 }
 
+function formatProbeFreshnessLabel(asOfUtc: string): string | null {
+  const normalized = asOfUtc.trim();
+
+  if (normalized.length === 0) {
+    return null;
+  }
+
+  const formatted = formatInstantForLocale(normalized);
+
+  if (formatted === " — ") {
+    return null;
+  }
+
+  return formatted;
+}
+
+function buildProbeDetailsTriggerLabel(result: WorkspaceAiAvailabilityResult, compact: boolean): string {
+  if (compact) {
+    return "Probe details";
+  }
+
+  const checkCount = result.checks.length;
+  const validatedAt = formatProbeFreshnessLabel(result.asOfUtc);
+  const checkLabel = `${checkCount} probe check${checkCount === 1 ? "" : "s"}`;
+
+  if (validatedAt !== null) {
+    return `Probe details — ${checkLabel}, validated ${validatedAt}`;
+  }
+
+  return `Probe details — ${checkLabel}`;
+}
+
 function resolveProbeProvenanceCopy(aiSource: string): string {
   if (aiSource === "managed-platform") {
     return "ArchLucid ran a live completion probe against the Azure OpenAI deployment configured for this workspace on the managed platform.";
@@ -128,8 +160,9 @@ function WorkspaceAiProbeModelSummary(props: {
   readonly deploymentName: string | null;
   readonly modelId: string | null;
   readonly aiSource: string;
+  readonly compact?: boolean;
 }): React.JSX.Element | null {
-  const { deploymentName, modelId, aiSource } = props;
+  const { deploymentName, modelId, aiSource, compact = false } = props;
 
   if (deploymentName === null && modelId === null) {
     return null;
@@ -151,31 +184,39 @@ function WorkspaceAiProbeModelSummary(props: {
           <span className="font-semibold">{modelId}</span>
         </p>
       )}
-      <p
-        className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-        data-testid="review-package-workspace-ai-model-provenance"
-      >
-        {resolveProbeProvenanceCopy(aiSource)}
-      </p>
+      {!compact ? (
+        <p
+          className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="review-package-workspace-ai-model-provenance"
+        >
+          {resolveProbeProvenanceCopy(aiSource)}
+        </p>
+      ) : null}
     </div>
   );
 }
 
 function WorkspaceAiProbeDiagnostics(props: {
   readonly result: WorkspaceAiAvailabilityResult;
+  readonly compact?: boolean;
 }): React.JSX.Element {
-  const { result } = props;
+  const { result, compact = false } = props;
   const deploymentName = resolveProbeDeploymentName(result.debug);
   const modelId = resolveProbeModelId(result.debug);
   const debugEntries = filterProbeDebugMetadata(result.debug, deploymentName);
 
   return (
-    <div className="space-y-3" data-testid="review-package-workspace-ai-debug">
-      <WorkspaceAiProbeModelSummary deploymentName={deploymentName} modelId={modelId} aiSource={result.aiSource} />
+    <div className="space-y-2" data-testid="review-package-workspace-ai-debug">
+      <WorkspaceAiProbeModelSummary
+        deploymentName={deploymentName}
+        modelId={modelId}
+        aiSource={result.aiSource}
+        compact={compact}
+      />
 
       <div>
         <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Probe checks</p>
-        <ul className={cn("m-0 mt-1.5 list-disc space-y-0.5 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        <ul className={cn("m-0 mt-1 list-disc space-y-0.5 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {result.checks.map((row) => (
             <li key={`${row.name}:${row.status}`}>
               <span className="font-medium text-al-text-primary">{row.name}</span>
@@ -187,10 +228,10 @@ function WorkspaceAiProbeDiagnostics(props: {
         </ul>
       </div>
 
-      {debugEntries.length > 0 ? (
+      {!compact && debugEntries.length > 0 ? (
         <div>
           <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Debug metadata</p>
-          <div className={cn("m-0 mt-1.5 grid gap-x-4 gap-y-1 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.helper)}>
+          <div className={cn("m-0 mt-1 grid gap-x-4 gap-y-1 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.helper)}>
             {debugEntries.map(([key, value]) => (
               <InlineMetadataLine key={key} label={key} value={value} className="break-all" />
             ))}
@@ -198,9 +239,11 @@ function WorkspaceAiProbeDiagnostics(props: {
         </div>
       ) : null}
 
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-package-workspace-ai-as-of">
-        Validated at {formatInstantForLocale(result.asOfUtc)} · source {result.aiSource}
-      </p>
+      {!compact ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-package-workspace-ai-as-of">
+          Validated at {formatInstantForLocale(result.asOfUtc)} · source {result.aiSource}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -231,66 +274,105 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
         )
       : null;
 
+  const probeLoaded = state.status === "loaded";
+  const probeAvailable = probeLoaded && state.result.isAvailable;
+  const probeValidatedAt =
+    probeLoaded ? formatProbeFreshnessLabel(state.result.asOfUtc) : null;
+  const probeTriggerLabel =
+    probeLoaded ? buildProbeDetailsTriggerLabel(state.result, probeAvailable) : "Probe details";
+
   return (
     <div
-      className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800"
+      className={cn(
+        "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800",
+        probeAvailable ? "p-2.5" : "p-3",
+      )}
       data-testid="review-package-workspace-ai-availability-panel"
     >
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0 space-y-2">
-          <StatusTag kind={statusTagKind(state)} label={label} />
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="review-package-workspace-ai-detail">
-            {detail}
-          </p>
-          {state.status === "idle" ? (
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              {managedBySession
-                ? "This check runs automatically when you open a failed review."
-                : "Press Check AI availability to run a live probe against your configured model. Outage claims appear only after you validate."}
+      {probeAvailable ? (
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <StatusTag kind={statusTagKind(state)} label={label} />
+            {probeValidatedAt !== null ? (
+              <span
+                className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="review-package-workspace-ai-checked-at"
+              >
+                Checked {probeValidatedAt}
+              </span>
+            ) : null}
+          </div>
+          <button
+            type="button"
+            className={cn(
+              "shrink-0 text-al-link underline-offset-2 hover:underline",
+              OPERATOR_TYPOGRAPHY.helper,
+            )}
+            onClick={() => void checkAvailability({ force: true })}
+            data-testid="review-package-recheck-ai-availability-link"
+          >
+            Re-check
+          </button>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 space-y-1.5">
+            <StatusTag kind={statusTagKind(state)} label={label} />
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="review-package-workspace-ai-detail">
+              {detail}
             </p>
-          ) : null}
-          {state.status === "loading" ? (
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Running a live completion probe (typically a few seconds). You can press the button again to retry.
-            </p>
-          ) : null}
-          {liveProbeFailure !== null && liveProbeFailure !== undefined ? (
-            <p
-              className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
-              data-testid="review-package-workspace-ai-vendor-error"
-              role="alert"
+            {state.status === "idle" ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {managedBySession
+                  ? "Checks run automatically when you open a failed review."
+                  : "Run a live probe before claiming an outage."}
+              </p>
+            ) : null}
+            {state.status === "loading" ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Running a live completion probe (typically a few seconds).
+              </p>
+            ) : null}
+            {liveProbeFailure !== null && liveProbeFailure !== undefined ? (
+              <p
+                className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="review-package-workspace-ai-vendor-error"
+                role="alert"
+              >
+                Vendor response: {liveProbeFailure.detail}
+              </p>
+            ) : null}
+          </div>
+
+          {!probeAvailable ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="shrink-0"
+              onClick={() => void checkAvailability({ force: true })}
+              data-testid="review-package-check-ai-availability-button"
             >
-              Vendor response: {liveProbeFailure.detail}
-            </p>
+              {state.status === "loading" ? "Checking AI availability…" : "Check AI availability"}
+            </Button>
           ) : null}
         </div>
+      )}
 
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="shrink-0"
-          onClick={() => void checkAvailability({ force: true })}
-          data-testid="review-package-check-ai-availability-button"
-        >
-          {state.status === "loading" ? "Checking AI availability…" : "Check AI availability"}
-        </Button>
-      </div>
-
-      {state.status === "loaded" ? (
-        state.result.isAvailable ? (
-          <AdvancedOptionsAccordion triggerLabel="Probe details" defaultOpen={false} className="mt-3">
-            <WorkspaceAiProbeDiagnostics result={state.result} />
+      {probeLoaded ? (
+        probeAvailable ? (
+          <AdvancedOptionsAccordion triggerLabel={probeTriggerLabel} defaultOpen={false} className="mt-2">
+            <WorkspaceAiProbeDiagnostics result={state.result} compact />
           </AdvancedOptionsAccordion>
         ) : (
-          <div className="mt-3">
+          <div className="mt-2">
             <WorkspaceAiProbeDiagnostics result={state.result} />
           </div>
         )
       ) : null}
 
       {state.status === "error" ? (
-        <p className={cn("m-0 mt-3 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
+        <p className={cn("m-0 mt-2 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
           {managedBySession
             ? "Automatic checks could not finish. Use Check AI availability to retry, or open Report a problem if this persists."
             : "Could not validate AI availability. Use Check AI availability to retry, or open Report a problem if this persists."}

@@ -6,7 +6,8 @@ import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 import Link from "next/link";
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useState, type SetStateAction } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,15 +18,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  parseReviewDeliverableAudienceFromSearch,
+  parseReviewDeliverableOpenFromSearch,
+  type ReviewDeliverableAudience,
+  reviewExportDeliverablePanelsHrefFromSearch,
+} from "@/lib/reviews/review-export-deliverable-panels-url";
 
 type ExportDeliverableDialogProps = {
   readonly runId: string;
   readonly manifestId?: string | null;
 };
 
-type DeliverableAudience = "sponsor" | "grc" | "board";
-
-const AUDIENCE_OPTIONS: readonly { id: DeliverableAudience; label: string; description: string }[] = [
+const AUDIENCE_OPTIONS: readonly { id: ReviewDeliverableAudience; label: string; description: string }[] = [
   { id: "sponsor", label: "Sponsor report", description: "Sponsor-safe PDF with outcomes and risk posture." },
   { id: "grc", label: "GRC diligence bundle", description: "Audit trail excerpts, findings, and policy references." },
   { id: "board", label: "Board packet", description: "Condensed narrative for governance committees." },
@@ -33,8 +38,55 @@ const AUDIENCE_OPTIONS: readonly { id: DeliverableAudience; label: string; descr
 
 /** Unified export/deliverable picker for post-commit reviews. */
 export function ExportDeliverableDialog(props: ExportDeliverableDialogProps) {
-  const [audience, setAudience] = useState<DeliverableAudience>("sponsor");
+  const router = useRouter();
+  const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
+  const searchParams = useSearchParams();
+  const deliverableOpenParam = searchParams.get("deliverableOpen");
+  const deliverableAudienceParam = searchParams.get("deliverableAudience");
+  const [open, setOpenState] = useState(() => parseReviewDeliverableOpenFromSearch(deliverableOpenParam));
+  const [audience, setAudienceState] = useState<ReviewDeliverableAudience>(() => {
+    const parsed = parseReviewDeliverableAudienceFromSearch(deliverableAudienceParam);
+
+    return parsed ?? "sponsor";
+  });
   const encodedRun = encodeURIComponent(props.runId);
+
+  const syncDeliverablePanelsToUrl = useCallback(
+    (nextOpen: boolean, nextAudience: ReviewDeliverableAudience) => {
+      router.replace(
+        reviewExportDeliverablePanelsHrefFromSearch(
+          searchParams.toString(),
+          { open: nextOpen, audience: nextOpen ? nextAudience : null },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncDeliverablePanelsToUrl(next, audience);
+
+        return next;
+      });
+    },
+    [audience, syncDeliverablePanelsToUrl],
+  );
+
+  const setAudience = useCallback(
+    (nextAudience: ReviewDeliverableAudience) => {
+      setAudienceState(nextAudience);
+
+      if (open) {
+        syncDeliverablePanelsToUrl(true, nextAudience);
+      }
+    },
+    [open, syncDeliverablePanelsToUrl],
+  );
 
   const exportHref =
     audience === "sponsor"
@@ -44,7 +96,7 @@ export function ExportDeliverableDialog(props: ExportDeliverableDialogProps) {
         : `${SPONSOR_DASHBOARD_HREF}?runId=${encodedRun}`;
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button type="button" variant="outline" size="sm" data-testid="export-deliverable-trigger">
           Create deliverable

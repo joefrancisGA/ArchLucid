@@ -52,6 +52,65 @@ const loadedUnavailableSessionAiReadiness: SessionAiReadinessState = {
   checkAvailability: vi.fn(),
 };
 
+const loadedAvailableSessionAiReadiness: SessionAiReadinessState = {
+  sessionMode: "Real",
+  hostMode: "Real",
+  hasDevOverride: false,
+  isSessionReal: true,
+  isLoading: false,
+  isReady: true,
+  blocksExecute: false,
+  detail: null,
+  availability: {
+    isAvailable: true,
+    validated: true,
+    aiSource: "managed-platform",
+    summary: "ArchLucid-managed AI is available",
+    asOfUtc: "2026-09-01T11:24:56.000Z",
+    checks: [],
+    debug: {},
+  },
+  probeState: {
+    status: "loaded",
+    result: {
+      isAvailable: true,
+      validated: true,
+      aiSource: "managed-platform",
+      summary: "ArchLucid-managed AI is available",
+      asOfUtc: "2026-09-01T11:24:56.000Z",
+      checks: [],
+      debug: {},
+    },
+  },
+  checkAvailability: vi.fn(),
+};
+
+const failureRecoveryFixture = {
+  headline: "Execution failed before the first pipeline stage",
+  detail: "Missing Azure OpenAI deployment configuration",
+  recoverySteps: [
+    "Share the administrator handoff below with a workspace administrator — this account cannot change AI configuration.",
+    "After your administrator confirms workspace AI setup, return here and click Re-run review.",
+  ],
+  suggestSupportTicket: false,
+  severity: "error" as const,
+  supportHref: "/help/report-a-problem",
+  intactSummary:
+    "Your submitted intake package was recorded. Processing stopped before the first pipeline stage — this is usually a configuration or infrastructure issue, not missing intake fields.",
+  workspaceAiConfigurationSignal: {
+    label: "Workspace AI configuration",
+    detail: "Missing Azure OpenAI credentials or deployment config",
+  },
+  adminHandoff: {
+    markdown: "Review ID: run-1\nFailure: Execution failed before the first pipeline stage",
+    verificationLines: ["Connection probe passes on Administration → Model governance."],
+  },
+  submittedIntakeRecap: {
+    fields: [{ label: "Review title", value: "ArchLucid" }],
+    attachedFiles: ["ARCHITECTURE_HANDBOOK.docx"],
+  },
+};
+
 vi.mock("@/components/CommitRunButton", () => ({
   CommitRunButton: () => <button type="button">Finalize review</button>,
 }));
@@ -267,6 +326,32 @@ describe("ReviewPackageDoThisNextStrip", () => {
 
     expect(screen.queryByTestId("review-package-re-run-review")).toBeNull();
     expect(screen.getByTestId("review-package-do-this-next-action")).toHaveTextContent("Re-run review");
+  });
+
+  it("hides What to do when the live probe succeeded and only re-run is required", () => {
+    render(
+      <ReviewPackageDoThisNextStrip
+        runId="run-1"
+        hasGoldenManifest={false}
+        commitBlockedReason={null}
+        sessionAiReadiness={loadedAvailableSessionAiReadiness}
+        next={{
+          kind: "rerun-review",
+          sentence:
+            "Execution failed before the first pipeline stage — this is usually platform AI availability, not missing intake fields. Follow the steps below, then re-run the review.",
+          actionLabel: "Re-run review",
+          href: "/architecture/reviews/new?path=guided-intake&rerun=run-1",
+          failureRecovery: failureRecoveryFixture,
+        }}
+      />,
+    );
+
+    expect(screen.queryByTestId("review-package-failure-recovery-steps")).toBeNull();
+    expect(screen.getByTestId("review-package-do-this-next-sentence")).toHaveTextContent(
+      "re-run the review to retry with the same intake",
+    );
+    expect(screen.getByTestId("review-package-re-run-review")).toBeInTheDocument();
+    expect(screen.queryByTestId("review-package-do-this-next-action")).toBeNull();
   });
 
   it("renders outline evidence CTA and secondary sponsor link when demoted", () => {

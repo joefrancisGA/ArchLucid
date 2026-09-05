@@ -67,11 +67,12 @@ function HomeSectionHeading(props: { readonly id?: string; readonly children: st
 function OperatorHomePageChrome(props: {
   readonly buyerPolishedShell: boolean;
   readonly workingMode: boolean;
+  readonly workspaceMetrics: ReturnType<typeof deriveOperatorHomeTenantCountingSnapshot>["metrics"];
 }): React.JSX.Element {
   return (
     <>
       <OperatorHomePageHeader
-        subtitle={operatorHomePageSubtitle(props.buyerPolishedShell, props.workingMode) ?? ""}
+        subtitle={operatorHomePageSubtitle(props.buyerPolishedShell, props.workingMode, props.workspaceMetrics) ?? ""}
       />
 </>
   );
@@ -273,27 +274,28 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
     <OperatorHomeGateDeferred>
       <OperatorHomeRefreshProvider>
         {isWorkingMode ? null : <OperatorHomeDeferredOnboarding />}
-        {evalChromeShell ? (
-          <a
-            href={`#${OPERATOR_HOME_PRIMARY_CONTENT_ID}`}
-            className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
-          >
-            {OPERATOR_HOME_SKIP_LINK_LABEL}
-          </a>
-        ) : null}
+        <a
+          href={`#${OPERATOR_HOME_PRIMARY_CONTENT_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {OPERATOR_HOME_SKIP_LINK_LABEL}
+        </a>
         <OperatorPageContainer variant="dashboard" className="space-y-4">
-          <OperatorHomePageChrome buyerPolishedShell={evalChromeShell} workingMode={isWorkingMode} />
-          {evalChromeShell ? (
-            <div
-              id={OPERATOR_HOME_PRIMARY_CONTENT_ID}
-              className="scroll-mt-24 space-y-4"
-              data-testid="operator-home-primary-content"
-            >
-              <OperatorHomePageBody model={model} buyerPolishedShell={evalChromeShell} workingMode={isWorkingMode} />
-            </div>
-          ) : (
+          <OperatorHomePageChrome
+            buyerPolishedShell={evalChromeShell}
+            workingMode={isWorkingMode}
+            workspaceMetrics={deriveOperatorHomeTenantCountingSnapshot({
+              displayItems: model.runsDashboard.items,
+              previewItems: model.runsDashboard.items,
+            }).metrics}
+          />
+          <div
+            id={OPERATOR_HOME_PRIMARY_CONTENT_ID}
+            className="scroll-mt-24 space-y-4"
+            data-testid="operator-home-primary-content"
+          >
             <OperatorHomePageBody model={model} buyerPolishedShell={evalChromeShell} workingMode={isWorkingMode} />
-          )}
+          </div>
         </OperatorPageContainer>
       </OperatorHomeRefreshProvider>
     </OperatorHomeGateDeferred>

@@ -414,6 +414,56 @@ public sealed class AuditEvidenceSnapshotCollectionServiceTests
 
             return Task.FromResult(baseline);
         }
+
+        public Task UpdateItemFreshnessAsync(
+            Guid tenantId,
+            Guid auditEvidenceSnapshotId,
+            IReadOnlyList<AuditEvidenceFreshnessItemUpdate> updates,
+            CancellationToken cancellationToken = default)
+        {
+            if (!_items.TryGetValue(auditEvidenceSnapshotId, out List<AuditEvidenceSnapshotItemRecord>? items))
+                return Task.CompletedTask;
+
+            foreach (AuditEvidenceFreshnessItemUpdate update in updates)
+            {
+                int index = items.FindIndex(item => item.EvidenceRowId == update.EvidenceRowId);
+
+                if (index < 0)
+                    continue;
+
+                AuditEvidenceSnapshotItemRecord existing = items[index];
+                items[index] = CopyItemWithFreshness(existing, update.FreshnessStatus);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private static AuditEvidenceSnapshotItemRecord CopyItemWithFreshness(
+            AuditEvidenceSnapshotItemRecord source,
+            AuditEvidenceFreshnessStatus freshnessStatus) =>
+            new()
+            {
+                EvidenceRowId = source.EvidenceRowId,
+                AuditEvidenceSnapshotId = source.AuditEvidenceSnapshotId,
+                RequirementId = source.RequirementId,
+                TenantId = source.TenantId,
+                CloudResourceId = source.CloudResourceId,
+                AzureResourceId = source.AzureResourceId,
+                EvidenceType = source.EvidenceType,
+                CollectedUtc = source.CollectedUtc,
+                CollectorVersion = source.CollectorVersion,
+                NormalizedPointer = source.NormalizedPointer,
+                RawPointer = source.RawPointer,
+                EvidenceHashSha256 = source.EvidenceHashSha256,
+                CollectionStatus = source.CollectionStatus,
+                FreshnessStatus = freshnessStatus,
+                Confidence = source.Confidence,
+                Summary = source.Summary,
+                ProvenanceKind = source.ProvenanceKind,
+                SelectorVersion = source.SelectorVersion,
+                AzureScope = source.AzureScope,
+                ApiQueryId = source.ApiQueryId,
+            };
     }
 }
 

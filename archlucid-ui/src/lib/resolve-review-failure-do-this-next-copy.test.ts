@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { ReviewFailureRecoveryGuidance } from "@/lib/resolve-review-failure-recovery-guidance";
 import {
+  resolveProbeSucceededDoThisNextSentence,
   resolveReviewFailureCommitBlockedReason,
   resolveReviewFailureDoThisNextSentence,
   shouldShowReviewFailureRecoveryDetail,
@@ -38,6 +39,17 @@ describe("resolveReviewFailureDoThisNextSentence", () => {
     });
 
     expect(sentence).toContain("Missing Azure OpenAI deployment configuration");
+  });
+});
+
+describe("resolveProbeSucceededDoThisNextSentence", () => {
+  it("drops follow-the-steps wording once the live probe succeeded", () => {
+    const sentence = resolveProbeSucceededDoThisNextSentence(preStageGuidance);
+
+    expect(sentence).toContain("Execution failed before the first pipeline stage");
+    expect(sentence).toContain("re-run the review");
+    expect(sentence).not.toContain("Follow the steps below");
+    expect(sentence).not.toContain("platform AI availability");
   });
 });
 

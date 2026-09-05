@@ -14,6 +14,7 @@ import { requestOpenShellInFlightOperations } from "@/lib/operations/open-shell-
 vi.mock("next/navigation", () => ({
   usePathname: () => "/",
   useRouter: () => ({ refresh: vi.fn(), push: vi.fn(), replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/lib/api/operations-api", () => ({
