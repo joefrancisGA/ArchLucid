@@ -845,6 +845,126 @@ public sealed class GovernanceWorkflowServiceTests
     }
 
     [SkippableFact]
+    public async Task Approve_returns_existing_approval_without_duplicate_audit_when_identical_operator_retry()
+    {
+        GovernanceApprovalRequest existing = new()
+        {
+            ApprovalRequestId = "apr-approved-retry",
+            RunId = "run-1",
+            Status = GovernanceApprovalStatus.Approved,
+            RequestedBy = "alice",
+            ReviewedBy = "bob",
+            ReviewedByActorKey = "bob-id",
+            ReviewComment = "looks good",
+        };
+
+        _approvalRepo.Setup(r => r.GetByIdAsync("apr-approved-retry", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
+
+        GovernanceApprovalRequest result = await _sut.ApproveAsync(
+            "apr-approved-retry",
+            "bob",
+            "bob-id",
+            "looks good");
+
+        result.Should().BeSameAs(existing);
+        result.Status.Should().Be(GovernanceApprovalStatus.Approved);
+
+        _approvalRepo.Verify(
+            r => r.TryTransitionFromReviewableAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        _baselineAudit.Verify(
+            a => a.RecordAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        _durableAudit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task Reject_returns_existing_approval_without_duplicate_audit_when_review_comment_differs_only_by_casing()
+    {
+        GovernanceApprovalRequest existing = new()
+        {
+            ApprovalRequestId = "apr-rejected-retry-case",
+            RunId = "run-1",
+            Status = GovernanceApprovalStatus.Rejected,
+            RequestedBy = "alice",
+            ReviewedBy = "bob",
+            ReviewedByActorKey = "bob-id",
+            ReviewComment = "not ready",
+        };
+
+        _approvalRepo.Setup(r => r.GetByIdAsync("apr-rejected-retry-case", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
+
+        GovernanceApprovalRequest result = await _sut.RejectAsync(
+            "apr-rejected-retry-case",
+            "bob",
+            "bob-id",
+            "NOT READY");
+
+        result.Should().BeSameAs(existing);
+        result.Status.Should().Be(GovernanceApprovalStatus.Rejected);
+
+        _approvalRepo.Verify(
+            r => r.TryTransitionFromReviewableAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        _durableAudit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task Reject_returns_existing_approval_without_duplicate_audit_when_review_comment_differs_only_by_outer_whitespace()
+    {
+        GovernanceApprovalRequest existing = new()
+        {
+            ApprovalRequestId = "apr-rejected-retry-pad",
+            RunId = "run-1",
+            Status = GovernanceApprovalStatus.Rejected,
+            RequestedBy = "alice",
+            ReviewedBy = "bob",
+            ReviewedByActorKey = "bob-id",
+            ReviewComment = "not ready",
+        };
+
+        _approvalRepo.Setup(r => r.GetByIdAsync("apr-rejected-retry-pad", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
+
+        GovernanceApprovalRequest result = await _sut.RejectAsync(
+            "apr-rejected-retry-pad",
+            "bob",
+            "bob-id",
+            "  not ready  ");
+
+        result.Should().BeSameAs(existing);
+        result.Status.Should().Be(GovernanceApprovalStatus.Rejected);
+    }
+
+    [SkippableFact]
     public async Task Reject_AlreadyRejected_ThrowsGovernanceApprovalReviewConflictException()
     {
         GovernanceApprovalRequest existing = new()

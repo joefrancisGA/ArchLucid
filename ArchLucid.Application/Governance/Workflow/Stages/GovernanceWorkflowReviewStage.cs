@@ -180,7 +180,7 @@ public sealed class GovernanceWorkflowReviewStage(
         string? normalizedExisting = string.IsNullOrWhiteSpace(existingComment) ? null : existingComment.Trim();
         string? normalizedRequested = string.IsNullOrWhiteSpace(requestedComment) ? null : requestedComment.Trim();
 
-        return string.Equals(normalizedExisting, normalizedRequested, StringComparison.Ordinal);
+        return string.Equals(normalizedExisting, normalizedRequested, StringComparison.OrdinalIgnoreCase);
     }
 
     private async Task EnforceSegregationOfDutiesForReviewAsync(
