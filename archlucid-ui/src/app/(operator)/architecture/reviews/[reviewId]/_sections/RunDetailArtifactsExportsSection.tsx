@@ -3,6 +3,8 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
+import { useCallback } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { DecisionReceiptExportButton } from "@/components/draft-intake/DecisionReceiptExportButton";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
@@ -43,6 +45,10 @@ import {
   RUN_DETAIL_DELIVERABLES_BUYER_TABLE_LEAD,
   RUN_DETAIL_DELIVERABLES_INTRO,
 } from "@/lib/runs/run-detail-deliverables-copy";
+import {
+  parseRunDeliverablesOpenFromSearch,
+  runDetailDeliverablesDisclosureHrefFromSearch,
+} from "@/lib/runs/run-detail-deliverables-disclosure-url";
 import { manifestSummarySealedVersionForCopyGuard, runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
 export type RunDetailArtifactsExportsSectionProps = {
@@ -107,6 +113,11 @@ export function RunDetailArtifactsExportsSection(
     manifestSummary,
     feasibilityVerdictOverride,
   );
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const runDeliverablesOpenParam = searchParams.get("runDeliverablesOpen");
+  const urlDeliverablesOpen = parseRunDeliverablesOpenFromSearch(runDeliverablesOpenParam);
   const sealedManifestVersion = manifestSummarySealedVersionForCopyGuard(manifestSummaryForUi ?? manifestSummary);
   const collateralExportBlockedReason = runCollateralSealedManifestCopyBlockedReason({
     runId,
@@ -116,13 +127,24 @@ export function RunDetailArtifactsExportsSection(
     feasibilityVerdict !== null && isExportableDecisionVerdict(feasibilityVerdict.kind);
   const deliverablesSectionDefaultOpen =
     deliverablesDefaultOpen ?? !buyerPolishedArtifactTable;
+  const deliverablesOpen = urlDeliverablesOpen ?? deliverablesSectionDefaultOpen;
+
+  const setDeliverablesOpen = useCallback(
+    (open: boolean) => {
+      router.replace(runDetailDeliverablesDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
 
   return (
     <section id="artifacts-exports" className="scroll-mt-24">
         <CollapsibleSection
           title={BUYER_MANIFEST_DELIVERABLES_HEADING}
           headingLevel={3}
-          defaultOpen={deliverablesSectionDefaultOpen}
+          open={deliverablesOpen}
+          onToggle={setDeliverablesOpen}
         >
           <p className={cn("m-0 mb-4 text-al-text-secondary", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.body)}>
             {RUN_DETAIL_DELIVERABLES_INTRO}
