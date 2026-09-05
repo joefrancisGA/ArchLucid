@@ -1254,6 +1254,75 @@ public sealed class GovernanceWorkflowServiceTests
     }
 
     [SkippableFact]
+    public async Task Promote_ToProd_WithApprovedRequest_operator_retry_manifest_version_casing_only_succeeds()
+    {
+        GovernanceApprovalRequest approvedRequest = new()
+        {
+            ApprovalRequestId = "apr-approved",
+            Status = GovernanceApprovalStatus.Approved,
+            RunId = "run-1",
+            ManifestVersion = "v1",
+            TargetEnvironment = GovernanceEnvironment.Prod
+        };
+
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DetailForRun("run-1"));
+        _approvalRepo.Setup(r => r.GetByIdAsync("apr-approved", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(approvedRequest);
+        _approvalRepo.Setup(r => r.UpdateAsync(It.IsAny<GovernanceApprovalRequest>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        _promotionRepo.Setup(r => r.CreateAsync(It.IsAny<GovernancePromotionRecord>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        GovernancePromotionRecord result = await _sut.PromoteAsync(
+            "run-1", "V1", "test", GovernanceEnvironment.Prod,
+            "alice", "apr-approved", "prod ready");
+
+        result.ManifestVersion.Should().Be("V1");
+        result.ApprovalRequestId.Should().Be("apr-approved");
+    }
+
+    [SkippableFact]
+    public async Task Activate_operator_retry_manifest_version_casing_only_succeeds_when_run_embeds_manifest()
+    {
+        Mock<IUnifiedGoldenManifestReader> manifests = new(MockBehavior.Strict);
+
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(GovernanceWorkflowTestComposition.CreateRunDetailWithManifest("run-1", "v1"));
+        _activationRepo.Setup(r => r.GetByEnvironmentAsync("dev", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<GovernanceEnvironmentActivation>());
+        _activationRepo.Setup(r =>
+                r.CreateAsync(It.IsAny<GovernanceEnvironmentActivation>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        GovernanceWorkflowService sut = GovernanceWorkflowTestComposition.CreateService(
+            _approvalRepo.Object,
+            _promotionRepo.Object,
+            _activationRepo.Object,
+            _runDetailQueryService.Object,
+            _baselineAudit.Object,
+            _durableAudit.Object,
+            Mock.Of<IScopeContextProvider>(s => s.GetCurrentScope() == new ScopeContext
+            {
+                TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            }),
+            _integrationEvents.Object,
+            _integrationOutbox.Object,
+            _integrationEventOptions.Object,
+            Options.Create(new PreCommitGovernanceGateOptions()),
+            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+            manifests.Object);
+
+        GovernanceEnvironmentActivation result = await sut.ActivateAsync("run-1", "V1", "dev", "activator");
+
+        result.ManifestVersion.Should().Be("V1");
+        result.RunId.Should().Be("run-1");
+        manifests.VerifyNoOtherCalls();
+    }
+
+    [SkippableFact]
     public async Task Promote_ToProd_WithApprovedRequest_Succeeds()
     {
         GovernanceApprovalRequest approvedRequest = new()

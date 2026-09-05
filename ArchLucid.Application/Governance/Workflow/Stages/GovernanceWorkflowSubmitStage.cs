@@ -100,7 +100,7 @@ public sealed class GovernanceWorkflowSubmitStage(
 
         GoldenManifest? manifest =
             runDetail.Manifest is not null
-            && string.Equals(run.CurrentManifestVersion, manifestVersion, StringComparison.Ordinal)
+            && string.Equals(run.CurrentManifestVersion, manifestVersion, StringComparison.OrdinalIgnoreCase)
                 ? runDetail.Manifest
                 : await _unifiedGoldenManifestReader.GetByVersionAsync(manifestVersion, cancellationToken)
                     .ConfigureAwait(false);
