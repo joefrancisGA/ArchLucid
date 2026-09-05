@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, type ReactElement } from "react";
+import { useEffect, type ReactElement } from "react";
 
 import { AlertsOutstandingNavBadge } from "@/components/alerts/AlertsOutstandingNavBadge";
 import { GovernanceAssignedToMeFindingsNavBadge } from "@/components/governance/findings/GovernanceAssignedToMeFindingsNavBadge";
@@ -34,6 +34,7 @@ import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 import {
   parseSidebarNavMoreGroupFromSearch,
   sidebarNavMoreDisclosureHrefFromSearch,
+  sidebarNavMoreDisclosureHrefMatchesLocation,
 } from "@/lib/sidebar-nav/sidebar-nav-more-disclosure-url";
 import type { SidebarCollapsibleNavGroupId } from "@/lib/sidebar-nav-group-expansion-storage";
 import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
@@ -88,32 +89,32 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
   const contentId = `sidebar-group-${group.id}-content`;
   const headingId = `sidebar-group-heading-${group.id}`;
   const { daily, more } = splitSidebarLinksDailyVsMore(group.id, linksForRender, props.pathname ?? "/");
-  const [moreOpen, setMoreOpenState] = useState(
-    () => parseSidebarNavMoreGroupFromSearch(sidebarMoreGroupParam) === group.id,
-  );
+  const urlMoreGroupOpen = parseSidebarNavMoreGroupFromSearch(sidebarMoreGroupParam) === group.id;
+  const moreOpen = more.length > 0 && urlMoreGroupOpen;
 
   useEffect(() => {
-    setMoreOpenState(parseSidebarNavMoreGroupFromSearch(sidebarMoreGroupParam) === group.id);
-  }, [group.id, sidebarMoreGroupParam]);
-
-  useEffect(() => {
-    if (more.length === 0) {
-      setMoreOpenState(false);
-    }
-  }, [more.length, props.pathname]);
-
-  useEffect(() => {
-    const urlSaysOpen = parseSidebarNavMoreGroupFromSearch(sidebarMoreGroupParam) === group.id;
-
-    if (moreOpen === urlSaysOpen) {
+    if (more.length > 0 || !urlMoreGroupOpen) {
       return;
     }
 
-    router.replace(
-      sidebarNavMoreDisclosureHrefFromSearch(searchParams.toString(), moreOpen ? group.id : null, pathname),
-      { scroll: false },
-    );
-  }, [group.id, moreOpen, pathname, router, searchParams, sidebarMoreGroupParam]);
+    const nextHref = sidebarNavMoreDisclosureHrefFromSearch(searchParams.toString(), null, pathname);
+
+    if (sidebarNavMoreDisclosureHrefMatchesLocation(nextHref)) {
+      return;
+    }
+
+    router.replace(nextHref, { scroll: false });
+  }, [more.length, pathname, router, searchParams, urlMoreGroupOpen]);
+
+  function replaceSidebarMoreGroupInUrl(groupId: string | null): void {
+    const nextHref = sidebarNavMoreDisclosureHrefFromSearch(searchParams.toString(), groupId, pathname);
+
+    if (sidebarNavMoreDisclosureHrefMatchesLocation(nextHref)) {
+      return;
+    }
+
+    router.replace(nextHref, { scroll: false });
+  }
 
   if (linksForRender.length === 0) {
     return <div key={group.id} hidden />;
@@ -226,7 +227,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
                 data-testid={`sidebar-group-more-${group.id}`}
                 aria-expanded={moreOpen}
                 onClick={() => {
-                  setMoreOpenState((current) => !current);
+                  replaceSidebarMoreGroupInUrl(urlMoreGroupOpen ? null : group.id);
                 }}
               >
                 {moreOpen ? (
