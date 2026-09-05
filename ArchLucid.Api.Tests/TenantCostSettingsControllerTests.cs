@@ -288,6 +288,58 @@ public sealed class TenantCostSettingsControllerTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task PutAsync_skips_duplicate_audit_when_identical_operator_retry()
+    {
+        TenantCostSettingsRecord existing = new()
+        {
+            TenantId = Scope.TenantId,
+            ArchitectHourlyRateUsd = 200m,
+            AverageIncidentCostUsd = 30_000m,
+            EaDiscountMultiplier = 0.9m,
+            UpdatedUtc = DateTimeOffset.Parse("2026-06-01T08:00:00Z"),
+            UpdatedByActorId = "prior",
+        };
+
+        Mock<ITenantCostSettingsRepository> repository = new();
+        repository
+            .SetupSequence(r => r.TryGetAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantCostSettingsRecord?)null)
+            .ReturnsAsync(existing);
+        repository
+            .Setup(r => r.UpsertAsync(It.IsAny<TenantCostSettingsRecord>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        TenantCostSettingsController controller = CreateController(
+            repository.Object,
+            scopeProvider.Object,
+            audit.Object);
+
+        TenantCostSettingsPutRequest body = new()
+        {
+            ArchitectHourlyRateUsd = 200m,
+            AverageIncidentCostUsd = 30_000m,
+            EaDiscountPercentage = 10m,
+        };
+
+        await controller.PutAsync(body, CancellationToken.None);
+        await controller.PutAsync(body, CancellationToken.None);
+
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.TenantCostSettingsUpdated),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     private static TenantCostSettingsController CreateController(
         ITenantCostSettingsRepository repository,
         IScopeContextProvider scopeProvider,

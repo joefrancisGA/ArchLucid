@@ -49,6 +49,9 @@ public sealed class TenantTrialConversionStage(
 
         if (!string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
         {
+            if (IsIdempotentConvertedRetry(tenant, tier))
+                return new TenantTrialConvertResult { Outcome = TenantTrialHttpOutcome.Success };
+
             return new TenantTrialConvertResult
             {
                 Outcome = TenantTrialHttpOutcome.Conflict,
@@ -113,5 +116,16 @@ public sealed class TenantTrialConversionStage(
 
         errorMessage = $"TargetTier must be '{nameof(TenantTier.Standard)}' or '{nameof(TenantTier.Enterprise)}'.";
         return false;
+    }
+
+    private static bool IsIdempotentConvertedRetry(TenantRecord tenant, TenantTier? requestedTier)
+    {
+        if (!TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Converted))
+            return false;
+
+        if (requestedTier is null)
+            return true;
+
+        return tenant.Tier == requestedTier.Value;
     }
 }

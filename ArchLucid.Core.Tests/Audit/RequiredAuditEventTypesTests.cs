@@ -37,6 +37,18 @@ public sealed class RequiredAuditEventTypesTests
     }
 
     [Fact]
+    public void IsRequired_matches_wire_values_case_insensitively()
+    {
+        RequiredAuditEventTypes.IsRequired(AuditEventTypes.GovernanceApprovalApproved.ToLowerInvariant())
+            .Should()
+            .BeTrue();
+
+        RequiredAuditEventTypes.IsRequired(AuditEventTypes.ManifestFinalized.ToUpperInvariant())
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
     public void All_includes_TB953_minimum_governance_and_identity_set()
     {
         RequiredAuditEventTypes.All.Should().Contain(

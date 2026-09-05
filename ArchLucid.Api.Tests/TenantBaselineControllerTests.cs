@@ -464,6 +464,188 @@ public sealed class TenantBaselineControllerTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task PutAsync_skips_duplicate_audit_when_manual_prep_unchanged_retry()
+    {
+        DateTimeOffset captured = DateTimeOffset.Parse("2026-06-01T08:00:00Z");
+        TenantRecord beforeCapture = new()
+        {
+            Id = Scope.TenantId,
+            Name = "Contoso",
+            Slug = "contoso",
+            Tier = TenantTier.Standard,
+        };
+        TenantRecord afterCapture = new()
+        {
+            Id = Scope.TenantId,
+            Name = "Contoso",
+            Slug = "contoso",
+            Tier = TenantTier.Standard,
+            BaselineManualPrepHoursPerReview = 6m,
+            BaselinePeoplePerReview = 4,
+            BaselineManualPrepCapturedUtc = captured,
+        };
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .SetupSequence(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(beforeCapture)
+            .ReturnsAsync(afterCapture)
+            .ReturnsAsync(afterCapture)
+            .ReturnsAsync(afterCapture);
+        tenants
+            .Setup(r => r.UpdateBaselineAsync(
+                Scope.TenantId,
+                6m,
+                4,
+                It.IsAny<DateTimeOffset?>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        TenantBaselineController controller = CreateController(
+            tenants.Object,
+            scopeProvider.Object,
+            audit.Object);
+
+        TenantBaselinePutRequest body = new()
+        {
+            ManualPrepHoursPerReview = 6m,
+            PeoplePerReview = 4,
+        };
+
+        await controller.PutAsync(body, CancellationToken.None);
+        await controller.PutAsync(body, CancellationToken.None);
+
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    e.EventType == AuditEventTypes.TrialBaselineManualPrepUpdated
+                    || e.EventType == AuditEventTypes.TrialBaselineManualPrepCaptured),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task PutAsync_skips_duplicate_audit_when_review_cycle_source_note_differs_only_by_casing()
+    {
+        DateTimeOffset captured = DateTimeOffset.Parse("2026-06-01T08:00:00Z");
+        TenantRecord tenant = new()
+        {
+            Id = Scope.TenantId,
+            Name = "Contoso",
+            Slug = "contoso",
+            Tier = TenantTier.Standard,
+            BaselineReviewCycleHours = 40m,
+            BaselineReviewCycleSource = "baseline_settings:workshop",
+            BaselineReviewCycleCapturedUtc = captured,
+        };
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(tenant);
+        tenants
+            .Setup(r => r.PersistTrialSignupBaselineReviewCycleAsync(
+                Scope.TenantId,
+                40m,
+                It.IsAny<string>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        TenantBaselineController controller = CreateController(
+            tenants.Object,
+            scopeProvider.Object,
+            audit.Object);
+
+        TenantBaselinePutRequest exactMatch = new() { BaselineReviewCycleSourceNote = "workshop" };
+        TenantBaselinePutRequest casingVariant = new() { BaselineReviewCycleSourceNote = "Workshop" };
+
+        await controller.PutAsync(exactMatch, CancellationToken.None);
+        await controller.PutAsync(casingVariant, CancellationToken.None);
+
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.TrialBaselineReviewCycleUpdated),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task PutAsync_skips_duplicate_audit_when_review_cycle_hours_retry_source_note_differs_only_by_casing()
+    {
+        DateTimeOffset captured = DateTimeOffset.Parse("2026-06-01T08:00:00Z");
+        TenantRecord tenant = new()
+        {
+            Id = Scope.TenantId,
+            Name = "Contoso",
+            Slug = "contoso",
+            Tier = TenantTier.Standard,
+            BaselineReviewCycleHours = 40m,
+            BaselineReviewCycleSource = "baseline_settings:workshop",
+            BaselineReviewCycleCapturedUtc = captured,
+        };
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(tenant);
+        tenants
+            .Setup(r => r.PersistTrialSignupBaselineReviewCycleAsync(
+                Scope.TenantId,
+                40m,
+                It.IsAny<string>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        TenantBaselineController controller = CreateController(
+            tenants.Object,
+            scopeProvider.Object,
+            audit.Object);
+
+        TenantBaselinePutRequest body = new()
+        {
+            BaselineReviewCycleHours = 40m,
+            BaselineReviewCycleSourceNote = "Workshop",
+        };
+
+        await controller.PutAsync(body, CancellationToken.None);
+        await controller.PutAsync(body, CancellationToken.None);
+
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    e.EventType == AuditEventTypes.TrialBaselineReviewCycleUpdated
+                    || e.EventType == AuditEventTypes.TrialBaselineReviewCycleCaptured),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static TenantBaselineController CreateController(
         ITenantRepository tenantRepository,
         IScopeContextProvider scopeProvider,

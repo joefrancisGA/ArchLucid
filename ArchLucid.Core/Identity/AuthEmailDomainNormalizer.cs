@@ -59,7 +59,12 @@ public static partial class AuthEmailDomainNormalizer
             return false;
         }
 
-        string[] labels = normalizedDomain.Split('.', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (normalizedDomain.Contains("..", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        string[] labels = normalizedDomain.Split('.', StringSplitOptions.TrimEntries);
 
         if (labels.Length < 2)
         {

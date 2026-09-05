@@ -113,7 +113,7 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
                     x.TenantId == scope.TenantId &&
                     x.WorkspaceId == scope.WorkspaceId &&
                     x.ProjectId == scope.ProjectId &&
-                    string.Equals(x.Metadata.Version, manifestVersion, StringComparison.Ordinal))
+                    string.Equals(x.Metadata.Version, manifestVersion, StringComparison.OrdinalIgnoreCase))
                 .OrderByDescending(x => x.CreatedUtc)
                 .FirstOrDefault();
 

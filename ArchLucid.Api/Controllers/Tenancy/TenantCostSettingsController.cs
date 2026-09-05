@@ -137,7 +137,14 @@ public sealed class TenantCostSettingsController(
 
         await _repository.UpsertAsync(record, cancellationToken);
 
-        await _auditService.LogAsync(
+        bool isIdenticalRetry = existing is not null
+            && existing.ArchitectHourlyRateUsd == record.ArchitectHourlyRateUsd
+            && existing.AverageIncidentCostUsd == record.AverageIncidentCostUsd
+            && existing.EaDiscountMultiplier == record.EaDiscountMultiplier;
+
+        if (!isIdenticalRetry)
+        {
+            await _auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.TenantCostSettingsUpdated,
@@ -157,6 +164,7 @@ public sealed class TenantCostSettingsController(
                     }),
             },
             cancellationToken);
+        }
 
         return Ok(ProjectResponse(record));
     }

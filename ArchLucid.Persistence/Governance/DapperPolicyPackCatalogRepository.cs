@@ -73,13 +73,28 @@ public sealed class DapperPolicyPackCatalogRepository(ISqlConnectionFactory conn
                                IsPromoted = 0,
                                UpdatedUtc = SYSUTCDATETIME(),
                                DemotedUtc = SYSUTCDATETIME()
-                           WHERE PolicyPackCatalogEntryId = @PolicyPackCatalogEntryId;
+                           WHERE PolicyPackCatalogEntryId = @PolicyPackCatalogEntryId
+                             AND IsPromoted = 1;
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
         int affected = await connection.ExecuteAsync(
             new CommandDefinition(sql, new { PolicyPackCatalogEntryId = policyPackCatalogEntryId }, cancellationToken: ct));
-        return affected > 0;
+
+        if (affected > 0)
+            return true;
+
+        const string alreadyDemotedSql = """
+                                         SELECT TOP (1) 1
+                                         FROM dbo.PolicyPackCatalogEntry WITH (NOLOCK)
+                                         WHERE PolicyPackCatalogEntryId = @PolicyPackCatalogEntryId
+                                           AND IsPromoted = 0;
+                                         """;
+
+        int? alreadyDemoted = await connection.QueryFirstOrDefaultAsync<int?>(
+            new CommandDefinition(alreadyDemotedSql, new { PolicyPackCatalogEntryId = policyPackCatalogEntryId }, cancellationToken: ct));
+
+        return alreadyDemoted.HasValue;
     }
 
     /// <inheritdoc />

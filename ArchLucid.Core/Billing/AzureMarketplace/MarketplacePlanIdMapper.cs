@@ -27,6 +27,7 @@ public static class MarketplacePlanIdMapper
     private static bool PlanIdContainsEnterpriseTierToken(string planId)
     {
         int start = 0;
+        string? previousToken = null;
 
         for (int i = 0; i <= planId.Length; i++)
         {
@@ -35,9 +36,11 @@ public static class MarketplacePlanIdMapper
 
             ReadOnlySpan<char> token = planId.AsSpan(start, i - start);
 
-            if (token.Equals("enterprise", StringComparison.OrdinalIgnoreCase))
+            if (token.Equals("enterprise", StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(previousToken, "non", StringComparison.OrdinalIgnoreCase))
                 return true;
 
+            previousToken = token.Length == 0 ? previousToken : token.ToString();
             start = i + 1;
         }
 

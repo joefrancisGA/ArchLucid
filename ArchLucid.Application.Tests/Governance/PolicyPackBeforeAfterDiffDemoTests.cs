@@ -9,6 +9,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Llm.Redaction;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
@@ -206,6 +207,7 @@ public sealed class PolicyPackBeforeAfterDiffDemoTests : VerifyBase
             management,
             packs,
             versions,
+            Mock.Of<IPolicyPackAssignmentRepository>(),
             audit.Object,
             Mock.Of<IIntegrationEventOutboxRepository>(),
             Mock.Of<IIntegrationEventPublisher>(),
