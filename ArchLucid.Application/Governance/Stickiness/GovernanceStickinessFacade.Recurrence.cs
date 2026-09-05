@@ -71,7 +71,7 @@ public sealed partial class GovernanceStickinessFacade
 
         ArchitectureReviewRecurrenceSchedule? matchingSchedule = existingSchedules.FirstOrDefault(schedule =>
             schedule.SourceRunId == request.SourceRunId
-            && string.Equals(schedule.CronExpression, cronExpression, StringComparison.Ordinal)
+            && string.Equals(schedule.CronExpression, cronExpression, StringComparison.OrdinalIgnoreCase)
             && schedule.IsEnabled == request.IsEnabled.Value
             && string.Equals(schedule.Name, name, StringComparison.OrdinalIgnoreCase));
 
@@ -198,7 +198,7 @@ public sealed partial class GovernanceStickinessFacade
 
         bool isEnabledChanged = request.IsEnabled.HasValue && request.IsEnabled.Value != originalIsEnabled;
         bool cronChanged = !string.IsNullOrWhiteSpace(request.CronExpression)
-            && !string.Equals(request.CronExpression.Trim(), originalCron, StringComparison.Ordinal);
+            && !string.Equals(request.CronExpression.Trim(), originalCron, StringComparison.OrdinalIgnoreCase);
         bool nameChanged = !string.IsNullOrWhiteSpace(request.Name)
             && !string.Equals(request.Name.Trim(), originalName, StringComparison.OrdinalIgnoreCase);
 

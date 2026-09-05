@@ -88,7 +88,7 @@ public sealed partial class PolicyPackWorkflowFacade
 
         bool wasNewPromotion = existingPromoted is null
             || existingPromoted.PolicyPackCatalogEntryId != row.PolicyPackCatalogEntryId
-            || !string.Equals(existingPromoted.SnapshotVersion, row.SnapshotVersion, StringComparison.Ordinal);
+            || !string.Equals(existingPromoted.SnapshotVersion, row.SnapshotVersion, StringComparison.OrdinalIgnoreCase);
 
         if (wasNewPromotion)
         {

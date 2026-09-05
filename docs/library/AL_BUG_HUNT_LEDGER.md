@@ -3420,11 +3420,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 255
-- **bugs-found:** 493
+- **hunts:** 256
+- **bugs-found:** 495
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — policy-pack create description case-insensitive idempotent retry
+- **last-bug:** 2026-09-05 — recurrence cron and catalog promote snapshot-version case-insensitive idempotent retry
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4606,8 +4606,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-05 thorough hunt #861 (hit): proved both #860 candidates — policy-pack create and duplicate-pack name case-insensitive idempotent retry.
 
 - [x] (proven) `PolicyPacksController.Create` / `PolicyPacksAppService.CreatePackAsync` — operator retry with pack `description` differing only by casing allocated fresh `PolicyPackId` and logged duplicate `PolicyPackCreated` audit (`Ordinal` description match in create dedupe matcher; #861 name casing sibling) — **hit 2026-09-05 (#862):** case-insensitive description comparison in create dedupe matcher; regression in `CreatePackAsync_returns_existing_pack_and_skips_duplicate_audit_when_description_differs_only_by_casing`.
-- [ ] (candidate) `GovernanceStickinessController.CreateRecurrenceSchedule` / `UpdateRecurrenceSchedule` / `GovernanceStickinessFacade` create+update dedupe — operator retry with `cronExpression` differing only by casing may allocate duplicate schedule rows (`Ordinal` cron compare after #858 name casing fix).
-- [ ] (candidate) `PolicyPacksController.PromoteCatalogEntry` / `PolicyPackWorkflowFacade.TryPromoteCatalogEntryAsync` — operator retry with `snapshotVersion` differing only by casing may log duplicate `PolicyPackCatalogPromoted` audit (`Ordinal` version compare in `wasNewPromotion` guard; #839 promote skip-audit sibling).
+- [x] (proven) `GovernanceStickinessController.CreateRecurrenceSchedule` / `UpdateRecurrenceSchedule` / `GovernanceStickinessFacade` create+update dedupe — operator retry with `cronExpression` differing only by casing allocated duplicate schedule rows or logged duplicate audit (`Ordinal` cron compare after #858 name casing fix) — **hit 2026-09-05 (#863):** case-insensitive cron comparison in create dedupe matcher and update `cronChanged` guard; regressions in `CreateRecurrenceScheduleAsync_returns_existing_schedule_when_cron_differs_only_by_casing` and `UpdateRecurrenceScheduleAsync_skips_duplicate_audit_when_cron_differs_only_by_casing`.
+- [x] (proven) `PolicyPacksController.PromoteCatalogEntry` / `PolicyPackWorkflowFacade.TryPromoteCatalogEntryAsync` — operator retry with `snapshotVersion` differing only by casing logged duplicate `PolicyPackCatalogPromoted` audit (`Ordinal` version compare in `wasNewPromotion` guard; #839 promote skip-audit sibling) — **hit 2026-09-05 (#863):** case-insensitive `SnapshotVersion` comparison in `wasNewPromotion` guard; regression in `TryPromoteCatalogEntryAsync_skips_duplicate_audit_when_snapshot_version_differs_only_by_casing`.
+
+2026-09-05 thorough hunt #863 (hit): proved both #862 candidates — recurrence cron and catalog promote snapshot-version case-insensitive idempotent retry.
 
 2026-09-05 seed hunt #862 (hit): reseeded post-#861 idempotent-retry casing exhaustion; proved policy-pack create description case-insensitive idempotent retry; seeded recurrence cron and catalog promote snapshot-version casing candidates.
 

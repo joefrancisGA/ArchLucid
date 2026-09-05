@@ -647,6 +647,53 @@ public sealed class PolicyPackWorkflowFacadeTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task TryPromoteCatalogEntryAsync_skips_duplicate_audit_when_snapshot_version_differs_only_by_casing()
+    {
+        Guid sourcePackId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        const string storedVersion = "V1.0.0";
+        const string retryVersion = "v1.0.0";
+        const string contentJson = """{"complianceRuleKeys":["k"],"complianceRuleIds":[],"alertRuleIds":[],"compositeAlertRuleIds":[],"advisoryDefaults":{},"metadata":{}}""";
+
+        PolicyPack pack = CreateInScopePack(sourcePackId);
+        pack.PackType = PolicyPackType.BuiltIn;
+        pack.DistributionScope = PolicyPackDistributionScope.Platform;
+        pack.CurrentVersion = storedVersion;
+        pack.Description = "desc";
+
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(r => r.GetByIdAsync(sourcePackId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(pack);
+
+        Mock<IPolicyPackVersionRepository> versions = new();
+        versions
+            .Setup(v => v.GetByPackAndVersionAsync(sourcePackId, storedVersion, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackVersion { PolicyPackId = sourcePackId, Version = storedVersion, ContentJson = contentJson });
+        versions
+            .Setup(v => v.GetByPackAndVersionAsync(sourcePackId, retryVersion, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackVersion { PolicyPackId = sourcePackId, Version = storedVersion, ContentJson = contentJson });
+
+        InMemoryPolicyPackCatalogRepository catalog = new();
+        PolicyPackCatalogAdminService catalogAdmin = new(packs.Object, versions.Object, catalog);
+
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        PolicyPackWorkflowFacade sut = CreateCatalogPromoteSut(catalog, catalogAdmin, audit.Object);
+
+        await sut.TryPromoteCatalogEntryAsync(sourcePackId, storedVersion, CancellationToken.None);
+        await sut.TryPromoteCatalogEntryAsync(sourcePackId, retryVersion, CancellationToken.None);
+
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.PolicyPackCatalogPromoted),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     private static PolicyPack CreateInScopePack(Guid packId) =>
         new()
         {

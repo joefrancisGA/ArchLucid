@@ -12,6 +12,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Persistence.Interfaces;
 
 using FluentAssertions;
@@ -1239,6 +1240,88 @@ public sealed class GovernanceStickinessFacadeScopeTests
             IsEnabled = true,
             CronExpression = cronExpression,
             Name = "recurring architecture review",
+        };
+
+        ArchitectureReviewRecurrenceSchedule schedule =
+            await sut.CreateRecurrenceScheduleAsync(request, CancellationToken.None);
+
+        schedule.ScheduleId.Should().Be(existingScheduleId);
+        recurrenceRepo.Verify(
+            r => r.CreateAsync(It.IsAny<ArchitectureReviewRecurrenceSchedule>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateRecurrenceScheduleAsync_returns_existing_schedule_when_cron_differs_only_by_casing()
+    {
+        Guid sourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid existingScheduleId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        const string storedCron = "0 8 * * MON";
+        const string requestCron = "0 8 * * mon";
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(CallerScope, sourceRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchLucid.Persistence.Models.RunRecord
+            {
+                RunId = sourceRunId,
+                ArchitectureId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            });
+
+        Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new();
+        recurrenceRepo
+            .Setup(r => r.ListByScopeAsync(
+                CallerScope.TenantId,
+                CallerScope.WorkspaceId,
+                CallerScope.ProjectId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new ArchitectureReviewRecurrenceSchedule
+                {
+                    ScheduleId = existingScheduleId,
+                    TenantId = CallerScope.TenantId,
+                    WorkspaceId = CallerScope.WorkspaceId,
+                    ProjectId = CallerScope.ProjectId,
+                    SourceRunId = sourceRunId,
+                    Name = "Recurring architecture review",
+                    CronExpression = storedCron,
+                    IsEnabled = true,
+                },
+            ]);
+
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        ArchitectureReviewRecurrenceNextRunCalculator realCalculator = new(new SimpleScanScheduleCalculator());
+        Mock<IArchitectureReviewRecurrenceNextRunCalculator> calculator = new();
+        calculator
+            .Setup(c => c.IsSupportedCronExpression(It.IsAny<string>()))
+            .Returns((string cron) => realCalculator.IsSupportedCronExpression(cron));
+        calculator
+            .Setup(c => c.ComputeNextRunUtc(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<bool>()))
+            .Returns((string cron, DateTime from, bool enabled) => realCalculator.ComputeNextRunUtc(cron, from, enabled));
+
+        GovernanceStickinessFacade sut = CreateSut(
+            runRepository: runs.Object,
+            recurrenceRepository: recurrenceRepo.Object,
+            recurrenceCalculator: calculator.Object,
+            auditService: audit.Object,
+            authorityQuery: PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateAuthorityQueryServiceForAnyRun(CallerScope),
+            manifestHashService: PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService());
+
+        CreateArchitectureReviewRecurrenceScheduleRequest request = new()
+        {
+            SourceRunId = sourceRunId,
+            IsEnabled = true,
+            CronExpression = requestCron,
+            Name = "Recurring architecture review",
         };
 
         ArchitectureReviewRecurrenceSchedule schedule =
