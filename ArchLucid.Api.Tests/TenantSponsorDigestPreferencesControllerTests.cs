@@ -581,6 +581,69 @@ public sealed class TenantSponsorDigestPreferencesControllerTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task PostSponsorDigestPreferences_skips_duplicate_audit_when_identical_operator_retry()
+    {
+        SponsorDigestPreferencesResponse existing = new()
+        {
+            TenantId = Scope.TenantId,
+            IsConfigured = true,
+            EmailEnabled = true,
+            RecipientEmails = ["exec@contoso.test"],
+            IanaTimeZoneId = "America/New_York",
+            DayOfWeek = 2,
+            HourOfDay = 9,
+            UpdatedUtc = DateTimeOffset.Parse("2026-06-01T08:00:00Z"),
+        };
+
+        SponsorDigestPreferencesUpsertRequest body = new()
+        {
+            EmailEnabled = true,
+            RecipientEmails = ["exec@contoso.test"],
+            IanaTimeZoneId = "America/New_York",
+            DayOfWeek = 2,
+            HourOfDay = 9,
+        };
+
+        Mock<ITenantSponsorDigestPreferencesRepository> repository = new();
+        repository
+            .SetupSequence(r => r.GetByTenantAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((SponsorDigestPreferencesResponse?)null)
+            .ReturnsAsync(existing);
+        repository
+            .Setup(r => r.UpsertAsync(
+                Scope.TenantId,
+                true,
+                It.IsAny<IReadOnlyList<string>>(),
+                "America/New_York",
+                2,
+                9,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        TenantSponsorDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            repository.Object,
+            audit.Object);
+
+        await controller.PostSponsorDigestPreferences(body, CancellationToken.None);
+        await controller.PostSponsorDigestPreferences(body, CancellationToken.None);
+
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.SponsorDigestPreferencesUpdated),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     private static TenantSponsorDigestPreferencesController CreateController(
         IScopeContextProvider scopeProvider,
         ITenantSponsorDigestPreferencesRepository preferencesRepository,

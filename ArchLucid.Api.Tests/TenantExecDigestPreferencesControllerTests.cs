@@ -664,6 +664,69 @@ public sealed class TenantExecDigestPreferencesControllerTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task PostExecDigestPreferences_skips_duplicate_audit_when_identical_operator_retry()
+    {
+        ExecDigestPreferencesResponse existing = new()
+        {
+            TenantId = Scope.TenantId,
+            IsConfigured = true,
+            EmailEnabled = true,
+            RecipientEmails = ["exec@contoso.test"],
+            IanaTimeZoneId = "America/New_York",
+            DayOfWeek = 2,
+            HourOfDay = 9,
+            UpdatedUtc = DateTimeOffset.Parse("2026-06-01T08:00:00Z"),
+        };
+
+        ExecDigestPreferencesUpsertRequest body = new()
+        {
+            EmailEnabled = true,
+            RecipientEmails = ["exec@contoso.test"],
+            IanaTimeZoneId = "America/New_York",
+            DayOfWeek = 2,
+            HourOfDay = 9,
+        };
+
+        Mock<ITenantExecDigestPreferencesRepository> repository = new();
+        repository
+            .SetupSequence(r => r.GetByTenantAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ExecDigestPreferencesResponse?)null)
+            .ReturnsAsync(existing);
+        repository
+            .Setup(r => r.UpsertAsync(
+                Scope.TenantId,
+                true,
+                It.IsAny<IReadOnlyList<string>>(),
+                "America/New_York",
+                2,
+                9,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        TenantExecDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            repository.Object,
+            audit.Object);
+
+        await controller.PostExecDigestPreferences(body, CancellationToken.None);
+        await controller.PostExecDigestPreferences(body, CancellationToken.None);
+
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.ExecDigestPreferencesUpdated),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     private static TenantExecDigestPreferencesController CreateController(
         IScopeContextProvider scopeProvider,
         ITenantExecDigestPreferencesRepository preferencesRepository,

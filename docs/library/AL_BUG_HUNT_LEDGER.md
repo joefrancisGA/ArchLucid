@@ -3418,11 +3418,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 236
-- **bugs-found:** 467
+- **hunts:** 237
+- **bugs-found:** 469
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — environment catalog, homepage settings, duplicate-pack idempotent retry guards
+- **last-bug:** 2026-09-05 — exec/sponsor digest preferences idempotent retry audit guards
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4548,6 +4548,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyPacksController.DuplicatePack` / `PolicyPacksAppService.TryDuplicatePackAsync` — operator retry allocates fresh `PolicyPackId` and creates duplicate "(Copy)" pack rows + `PolicyPackDuplicated` audit (`operator-documented-safe-retry`, no dedupe guard) — **hit 2026-09-05 (#842):** return existing scope-visible copy with matching name, metadata, and content without create or audit; regression in `TryDuplicatePackAsync_returns_existing_copy_and_skips_duplicate_audit_on_identical_operator_retry`.
 
 2026-09-05 thorough hunt #842 (hit): proved three idempotent-retry gaps seeded in #841 (environment catalog audit, homepage settings audit, duplicate-pack row creation).
+
+- [x] (proven) `TenantExecDigestPreferencesController.PostExecDigestPreferences` — operator retry with identical emailEnabled/recipients/timezone/schedule re-upserts preferences and logs duplicate `ExecDigestPreferencesUpdated` audit (`operator-documented-safe-retry`, unconditional controller audit) — **hit 2026-09-05 (#843):** skip audit when configured preferences already match normalized request; regression in `PostExecDigestPreferences_skips_duplicate_audit_when_identical_operator_retry`.
+- [x] (proven) `TenantSponsorDigestPreferencesController.PostSponsorDigestPreferences` — identical operator retry logs duplicate `SponsorDigestPreferencesUpdated` audit (#842 homepage/digest parity) — **hit 2026-09-05 (#843):** shared `DigestPreferencesIdempotentRetry.MatchesExisting` guard; regression in `PostSponsorDigestPreferences_skips_duplicate_audit_when_identical_operator_retry`.
+- [ ] (candidate) `TenantCostSettingsController.PutAsync` — operator retry with identical rate/EA fields re-upserts settings and logs duplicate `TenantCostSettingsUpdated` audit (`UpsertAsync` + unconditional controller audit; #842 homepage parity).
+- [ ] (candidate) `PolicyPacksController.Create` / `PolicyPacksAppService.CreatePackAsync` — operator retry with same name/metadata/content allocates fresh `PolicyPackId` and logs duplicate `PolicyPackCreated` audit (`operator-documented-safe-retry`, #842 duplicate-pack parity).
+- [ ] (candidate) `TenantWorkspacesController` project create (`ProjectCrud`) — operator retry may allocate duplicate project rows + audit (`operator-documented-safe-retry` posture on create endpoint).
+
+2026-09-05 seed hunt #843 (hit): reseeded post-#842 idempotent-retry exhaustion; proved exec/sponsor digest preferences duplicate-audit gaps; seeded cost-settings, policy-pack create, and workspace project-create retry candidates.
 
 2026-09-05 seed hunt #839 (hit): reseeded post-#838 idempotent-retry audit exhaustion; proved assignment toggle, catalog promote, and recurrence-update duplicate-audit gaps; seeded publish retry candidate.
 
