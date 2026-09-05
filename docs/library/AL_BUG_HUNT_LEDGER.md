@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 163
-- **bugs-found:** 330
+- **hunts:** 164
+- **bugs-found:** 335
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — anchor boolean/number scalar-array, on/off synonym, advice no-need-to, networkacls alias
+- **last-bug:** 2026-09-05 — anchor null scalar-array, advice suffix negation, PrivateKeyPem redaction, ipsecurityrestrictions alias, constraint suffix negation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2287,6 +2287,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `DeclarationSecurityPropertyKeyResolver.TryGet` — missing `tf.networkacls` alias for `IngressBlob` — **hit 2026-09-05 (#892):** Bicep ingestion writes `tf.networkacls` but resolver listed only `tf.ingress` / `tf.network_rules`; open-admin ingress heuristic missed; fixed with alias parity (`TryGet_resolves_tf_networkacls_for_ingress_blob`).
 
 2026-09-05 seed hunt #892 (hit): proved five hunt-ready rows promoted at seed-only pass — anchor boolean/number scalar-array coercion, on/off boolean synonym parity, advice `no need to` negation, and IngressBlob `tf.networkacls` alias.
+
+- [x] (proven) `RunHeaderAnchorJsonComparer.TryNullSingleElementNullArrayEquivalent` — JSON null scalar vs single-element `[null]` array treated as anchor mutation — **hit 2026-09-05 (#893):** after #891–#892 scalar/array bridges, `{"packSlug":null}` vs `{"packSlug":[null]}` failed cross-kind equivalence; fixed with null↔single-null-element bridge (`EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_null_scalar_equivalent_to_single_element_null_array_on_committed_run`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — suffix prohibitive negation gap (`not necessary` / `is optional`) — **hit 2026-09-05 (#893):** #891 `not required` suffix missed shorter `not necessary` and `is optional` on imperative regex matches; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing` with `enable mfa not necessary for batch workloads` / `use https is optional for legacy clients`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` — `JwtPrivateKeyPemPath` segment missed by embedded-fragment guard — **hit 2026-09-05 (#893):** #891 added `PrivateKey` fragment but `IsEmbeddedSensitiveFragment` skipped `PrivateKey` inside `JwtPrivateKeyPemPath`; operator summary exposed PEM path literals; fixed with explicit `PrivateKeyPem` credential segment detection (`Resolve_redacts_private_key_config_paths`).
+- [x] (proven) `DeclarationSecurityPropertyKeyResolver.TryGet` — missing `tf.ipsecurityrestrictions` / `tf.ip_security_restrictions` aliases for `IngressBlob` — **hit 2026-09-05 (#893):** #892 added `tf.networkacls` only; App Service terraform-show-json `tf.ip_security_restrictions` bags missed open-admin ingress heuristic; fixed with alias parity (`TryGet_resolves_tf_ipsecurityrestrictions_for_ingress_blob`).
+- [x] (proven) `RequestConstraintTokenMatcher` / `RequestConstraintClassifier` — suffix prohibitive negation and `no need to` advice negation gaps — **hit 2026-09-05 (#893):** #887–#892 prefix/mid negation missed `encryption not necessary` suffix and `no need to use managed identity`; classifier false positives on starter evidence refs; fixed with `IsNegatedPhraseSuffix` and `IsAdviceStyleNegation` `no need to` prefix (`HasEncryptionConstraint_does_not_false_positive_on_not_necessary_encryption_phrasing`, `HasManagedIdentityConstraint_does_not_false_positive_on_no_need_to_managed_identity_phrasing`).
+
+2026-09-05 seed hunt #893 (hit): proved five hunt-ready rows from #892 reseed gap — anchor null scalar-array coercion, advice suffix negation parity, PrivateKeyPem config redaction, IngressBlob ipsecurityrestrictions aliases, and constraint suffix/`no need to` negation.
 
 2026-09-05 seed hunt #889: reseeded after #888 closure; proved anchor null-object/property-name trim, mid-sentence constraint negation, and Secretizer/Passwordizer redaction parity.
 2026-09-05 seed hunt #888: reseeded after #887 closure; proved ConnectionStringless config redaction, ARM key+free suffix parity, and anchor null array/string coercion.
