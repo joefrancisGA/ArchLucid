@@ -19,6 +19,7 @@ import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ManifestSummary } from "@/types/authority";
+import { manifestSummarySealedVersionForCopyGuard } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
 import { RunDetailFeasibilityVerdictSection } from "./RunDetailFeasibilityVerdictSection";
 import { RunDetailManifestSummaryHeading } from "./RunDetailManifestSummaryHeading";
@@ -165,7 +166,7 @@ export function RunDetailManifestSummarySection(
               {finiteIntegerCountDisplay(manifestSummary.unresolvedIssueCount)}
             </dd>
           </dl>
-          <ManifestJsonActions runId={manifestSummary.runId} manifestVersion={manifestSummary.manifestVersion} />
+          <ManifestJsonActions runId={manifestSummary.runId} manifestVersion={manifestSummarySealedVersionForCopyGuard(manifestSummary)} />
         </CardContent>
       </Card>
 

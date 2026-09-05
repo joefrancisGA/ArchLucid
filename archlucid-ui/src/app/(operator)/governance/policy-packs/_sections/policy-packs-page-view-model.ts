@@ -72,7 +72,11 @@ export type PolicyPacksPageViewModel = {
   readonly load: () => Promise<void>;
   readonly importVerticalPolicyPack: (slug: string, label: string) => Promise<void>;
   readonly onCreate: () => Promise<void>;
+  readonly createLastSavedUtc: string | null;
+  readonly createInlineSaveError: string | null;
   readonly onPublish: () => Promise<void>;
+  readonly publishLastSavedUtc: string | null;
+  readonly publishInlineSaveError: string | null;
   readonly onAssign: () => Promise<void>;
   readonly publishSuccessMessage: string | null;
   readonly setPublishSuccessMessage: Dispatch<SetStateAction<string | null>>;

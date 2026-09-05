@@ -1,3 +1,7 @@
+import type { ManifestSummary } from "@/types/authority";
+
+import { isManifestCommittedForPilotScorecardPackage } from "@/lib/pilot-scorecard-package-eligibility";
+
 /** Wave-28 suggestions 300–310: block run-collateral clipboard/export when manifest is not sealed-bound. */
 export function runCollateralSealedManifestCopyBlockedReason(input: {
   runId: string;
@@ -16,4 +20,13 @@ export function runCollateralSealedManifestCopyBlockedReason(input: {
   }
 
   return null;
+}
+
+/** Resolve a sealed-manifest version token for copy/export guards from summary-only surfaces. */
+export function manifestSummarySealedVersionForCopyGuard(summary: ManifestSummary | null): string | null {
+  if (summary === null || !isManifestCommittedForPilotScorecardPackage(summary)) {
+    return null;
+  }
+
+  return summary.manifestId;
 }

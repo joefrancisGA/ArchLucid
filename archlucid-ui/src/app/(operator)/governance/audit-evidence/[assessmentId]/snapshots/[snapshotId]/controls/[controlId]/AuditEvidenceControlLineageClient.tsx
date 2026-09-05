@@ -44,7 +44,7 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
 
       {lineageQuery.isError ? (
         <div data-testid="audit-evidence-lineage-error">
-          <StatusTag kind="warning" label="Lineage unavailable" />
+          <StatusTag kind="needs-attention" label="Lineage unavailable" />
           <p className={OPERATOR_TYPOGRAPHY.helper}>Could not load chain of custody for this control.</p>
         </div>
       ) : null}
