@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 151
-- **bugs-found:** 287
+- **hunts:** 152
+- **bugs-found:** 291
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — Otel trace id casing anchor guard and advice/redactor negation gaps
+- **last-bug:** 2026-09-05 — digest manifest-hash alias parity and marketplace non-enterprise tier false positive
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2224,6 +2224,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `AuthEmailDomainNormalizer.TryNormalize` — trailing-hyphen DNS label `bad-.example.com` accepted — `DomainLabelPattern` already rejects labels not ending in alphanumeric; cheap-disproof via `TryNormalize_rejects_invalid_domains`.
 
 2026-09-05 seed hunt #879: reseeded anchor-guard casing sibling, advice negation, and redactor suffix surfaces after #878; proved Otel trace id casing, `never` advice negation, and `connectionstringfree` false positive; disproved trailing-hyphen domain label candidate.
+
+- [x] (proven) `DigestDeliveryManifestHashGuard.EnsureRunLinkedDigestManifestHashOrThrow` — `manifestHashSha256` metadata alias rejected — **hit 2026-09-05 (#880):** outbox guard accepted `manifestHashSha256` after #801 PascalCase fix but digest delivery guard only read `manifestHash`; run-linked digest webhooks blocked with false `manifestHash metadata is required`; fixed with case-insensitive `manifestHashSha256` alias (`EnsureRunLinkedDigestManifestHashOrThrow_accepts_manifestHashSha256_metadata_alias`).
+- [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `non-enterprise` plan id false-positive Enterprise tier — **hit 2026-09-05 (#880):** token scan matched standalone `enterprise` after `non` delimiter (`contoso-non-enterprise-standard`); marketplace tier persisted as Enterprise; fixed by skipping enterprise token when previous delimiter token is `non` (`TierStorageCodeFromPlanId_does_not_false_positive_on_non_enterprise_delimited_plan`).
+- [x] (proven) `AzureExtractorSensitivePropertyRedactor.IsSensitiveKey` — `secretless` substring false positive — **hit 2026-09-05 (#880):** #879 `connectionstringfree` suffix guard missed `secret`+`less`; benign ARM metadata redacted; fixed with `secretless` suffix guard (`IsSensitiveKey_detects_secret_like_names` with `secretless`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsObviousGenericAdvice` — `not required to {phrase}` prohibitive intent still matches affirmative fragments — **hit 2026-09-05 (#880):** #879 `never`/`no requirement to` negation missed `not required to enable mfa`; architecture-specific findings demoted as generic checklist advice; fixed with `not required to` negation prefix (`IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing` with `not required to enable mfa for this workload`).
+- [ ] (candidate) `ConfigurationEffectiveValueResolver.IsSensitiveConfigPath` — `PasswordlessAuth` / `TokenizerModel` segment substring false positives redact non-secret config display values — needs segment-boundary or suffix guards like `AzureExtractorSensitivePropertyRedactor`.
+- [ ] (candidate) `CommittedRunHeaderAnchorGuard.HasAnchorMutation` — `EngineProvenanceJson` / `GovernanceScopeJson` JSON property-order or casing-only drift treated as anchor mutation — needs semantic JSON compare, not plain `Ordinal` string equality.
+
+2026-09-05 seed hunt #880: reseeded digest manifest-hash alias parity, marketplace tier negation, redactor suffix, and advice negation after #879; proved four hunt-ready rows; seeded config-path redaction and JSON anchor casing candidates.
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
 - [x] (valid-no-repro) Tenant scope model treats empty workspace as a wildcard — `ActivityScopeTags` rejects `Guid.Empty` workspace ids; no wildcard semantics in Core tenancy models.
