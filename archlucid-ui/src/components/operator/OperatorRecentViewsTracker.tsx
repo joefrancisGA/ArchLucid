@@ -3,6 +3,12 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo } from "react";
 
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import {
+  extractArchitectureDraftIdFromPathname,
+  extractReviewIdFromPathname,
+  persistDeskContinuityPatch,
+} from "@/lib/desk-continuity-preference";
 import {
   OPERATOR_RECENT_VIEWS_STORAGE_KEY,
   parseStoredRecentViews,
@@ -14,6 +20,7 @@ import {
 /** Records the current route in localStorage for {@link OperatorRecentViewsPanel}. */
 export function OperatorRecentViewsTracker(): null {
   const pathname = usePathname() ?? "/";
+  const { isWorkingMode } = useWorkspaceMode();
   const search = typeof window !== "undefined" ? window.location.search : "";
 
   const href = useMemo(() => {
@@ -43,7 +50,26 @@ export function OperatorRecentViewsTracker(): null {
     catch {
       /* ignore storage failures */
     }
-  }, [href, pathname]);
+
+    if (!isWorkingMode) {
+      return;
+    }
+
+    const reviewId = extractReviewIdFromPathname(pathname);
+    const draftId = extractArchitectureDraftIdFromPathname(pathname);
+
+    if (reviewId === null && draftId === null) {
+      return;
+    }
+
+    void persistDeskContinuityPatch({
+      lastOpenReviewId: reviewId,
+      lastOpenDraftId: draftId,
+      lastVisitWatermarkUtc: new Date().toISOString(),
+    }).catch(() => {
+      /* offline or unauthenticated */
+    });
+  }, [href, isWorkingMode, pathname]);
 
   return null;
 }

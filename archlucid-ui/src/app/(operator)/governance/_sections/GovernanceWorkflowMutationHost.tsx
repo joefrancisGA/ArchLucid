@@ -74,6 +74,7 @@ export function GovernanceWorkflowMutationHost(props: GovernanceWorkflowMutation
                 }
               : undefined
           }
+          // governance_workflow_approve | governance_workflow_reject — mounted-controls markers (IS-12 / LD-05)
         />
       ) : null}
 

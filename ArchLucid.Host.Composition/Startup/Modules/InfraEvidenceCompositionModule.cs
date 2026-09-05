@@ -30,6 +30,12 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<IAuditManualEvidenceSubmissionService, AuditManualEvidenceSubmissionService>();
         services.AddScoped<IAuditHybridEvidenceQueryService, AuditHybridEvidenceQueryService>();
         services.AddScoped<IAuditEvidencePackageExportService, AuditEvidencePackageExportService>();
+<<<<<<< HEAD
+=======
+        services.AddScoped<IAuditContinuousReadinessService, AuditContinuousReadinessService>();
+        services.AddScoped<IAuditEvaluationFindingHandoffService, NoOpAuditEvaluationFindingHandoffService>();
+        services.AddScoped<IAzureInventorySnapshotPostMaterializeCoordinator, AzureInventorySnapshotPostMaterializeCoordinator>();
+>>>>>>> origin/master
         services.AddScoped<IAuditEvidenceSelectorRegistry, AuditEvidenceSelectorRegistry>();
         services.AddScoped<InventoryAuditEvidenceSelector>();
         services.AddScoped<IdentityAuditEvidenceSelector>();
@@ -40,6 +46,6 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<GovernanceAuditEvidenceSelector>();
         services.AddScoped<PostureAuditEvidenceSelector>();
         services.AddScoped<ResilienceAuditEvidenceSelector>();
-        services.AddScoped<IAzureInventoryDiffConsumer, NoOpAzureInventoryDiffConsumer>();
+        services.AddScoped<IAzureInventoryDiffConsumer, AuditContinuousReadinessDiffConsumer>();
     }
 }

@@ -4,7 +4,8 @@ import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/desi
 
 import { BookOpen } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useState, type SetStateAction } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +17,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { getDocHref } from "@/lib/help/help-topics";
+import {
+  architectureRequestWizardHelpDrawerHrefFromSearch,
+  parseArchitectureRequestWizardHelpOpenFromSearch,
+} from "@/lib/wizard/architecture-request-wizard-help-drawer-url";
 
 const WIZARD_DOC_LINKS: { title: string; docPath: string; blurb: string }[] = [
   {
@@ -42,7 +47,32 @@ const WIZARD_DOC_LINKS: { title: string; docPath: string; blurb: string }[] = [
 
 /** Right-edge panel with links to official docs for the full architecture request wizard. */
 export function ArchitectureRequestWizardHelpDrawer() {
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const wizardHelpOpenParam = searchParams.get("wizardHelpOpen");
+  const [open, setOpenState] = useState(() => parseArchitectureRequestWizardHelpOpenFromSearch(wizardHelpOpenParam));
+
+  const syncWizardHelpOpenToUrl = useCallback(
+    (drawerOpen: boolean) => {
+      router.replace(architectureRequestWizardHelpDrawerHrefFromSearch(searchParams.toString(), drawerOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncWizardHelpOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncWizardHelpOpenToUrl],
+  );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

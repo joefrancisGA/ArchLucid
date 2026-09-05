@@ -54,9 +54,22 @@ function readRecentArchitectureDraftId(): string | null {
 /** Resolves the draft row to pin as Continue last draft on the architectures list. */
 export function resolveContinueLastArchitectureDraftEntry(
   entries: readonly ArchitectureDraftRegistryEntry[],
+  serverLastOpenDraftId?: string | null,
 ): ArchitectureDraftRegistryEntry | null {
   if (entries.length === 0) {
     return null;
+  }
+
+  const trimmedServerDraftId = serverLastOpenDraftId?.trim() ?? "";
+
+  if (trimmedServerDraftId.length > 0) {
+    const serverMatch = entries.find(
+      (entry) => entry.architectureId === trimmedServerDraftId && isContinuableArchitectureDraftEntry(entry),
+    );
+
+    if (serverMatch !== undefined) {
+      return serverMatch;
+    }
   }
 
   const sessionDraftId = readArchitectureCreationDraftId();
