@@ -130,10 +130,10 @@ describe("WorkspaceAiAvailabilityPanel", () => {
     });
 
     expect(screen.getByText("AI checked — OK")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Probe details" })).toHaveAttribute("aria-expanded", "false");
+    expect(screen.getByRole("button", { name: /^Probe details/ })).toHaveAttribute("aria-expanded", "false");
     expect(screen.queryByText("Probe checks")).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "Probe details" }));
+    fireEvent.click(screen.getByRole("button", { name: /^Probe details/ }));
 
     await waitFor(() => {
       expect(screen.getByTestId("review-package-workspace-ai-debug")).toBeInTheDocument();
@@ -172,7 +172,13 @@ describe("WorkspaceAiAvailabilityPanel", () => {
       expect(fetchWorkspaceAiAvailabilityMock).toHaveBeenCalledTimes(1);
     });
 
-    fireEvent.click(screen.getByTestId("review-package-check-ai-availability-button"));
+    fireEvent.click(screen.getByRole("button", { name: /^Probe details/ }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("review-package-recheck-ai-availability-link")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("review-package-recheck-ai-availability-link"));
 
     await waitFor(() => {
       expect(fetchWorkspaceAiAvailabilityMock).toHaveBeenCalledTimes(2);

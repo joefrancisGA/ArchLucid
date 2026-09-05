@@ -44,6 +44,10 @@ vi.mock("@/components/reviews/ReviewHeaderShareMenu", () => ({
   ),
 }));
 
+vi.mock("@/components/reviews/ReviewPresenterHeaderButton", () => ({
+  ReviewPresenterHeaderButton: () => null,
+}));
+
 vi.mock("@/components/reviews/ReviewAskDock", () => ({
   ReviewAskDock: ({
     disabled,

@@ -15,7 +15,15 @@ import type { SessionAiReadinessState } from "@/hooks/use-session-ai-readiness";
 import type { ReviewSubmittedIntakeRecap } from "@/lib/derive-review-submitted-intake-recap";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveProbeAwareRecoverySteps } from "@/lib/resolve-probe-aware-recovery-steps";
-import { shouldShowReviewFailureRecoveryDetail } from "@/lib/resolve-review-failure-do-this-next-copy";
+import {
+  resolveReviewFailureWhatFailedLine,
+  shouldShowReviewFailureRecoveryDetail,
+} from "@/lib/resolve-review-failure-do-this-next-copy";
+import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
+import {
+  formatReviewFailureRecordedAtLabel,
+} from "@/components/resolve-run-detail-last-failure-summary";
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import type { ReviewFailureAdminHandoff } from "@/lib/review-failure-recovery-role-copy";
 import { cn } from "@/lib/utils";
 
@@ -33,6 +41,8 @@ export type ReviewPackageDoThisNextStripProps = {
   readonly canConfigureWorkspaceAi?: boolean;
   readonly usesCustomerAiConnection?: boolean;
   readonly transparencyTrail?: TransparencyTrail | null;
+  readonly lastFailureSummary?: RunDetailLastFailureSummary | null;
+  readonly failureRecordedAtUtc?: string | null;
 };
 
 function ReviewFailureAdminHandoffPanel(props: {
@@ -124,11 +134,13 @@ function ReviewSubmittedIntakeRecapPanel(props: {
       </p>
 
       {recap.fields.length > 0 ? (
-        <dl className={cn("m-0 mt-3 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
+        <dl className={cn("m-0 mt-3 grid gap-3", OPERATOR_TYPOGRAPHY.body)}>
           {recap.fields.map((field) => (
-            <div key={`${field.label}:${field.value}`}>
+            <div key={`${field.label}:${field.value}`} className="min-w-0">
               <dt className="font-medium text-neutral-500 dark:text-neutral-400">{field.label}</dt>
-              <dd className="m-0 mt-1 whitespace-pre-wrap text-neutral-800 dark:text-neutral-200">{field.value}</dd>
+              <dd className="m-0 mt-1 whitespace-pre-wrap break-words text-neutral-800 dark:text-neutral-200">
+                {field.value}
+              </dd>
             </div>
           ))}
         </dl>
@@ -155,13 +167,23 @@ function ReviewFailureRecoveryDetails(props: {
   readonly sessionAiReadiness: SessionAiReadinessState;
   readonly canConfigureWorkspaceAi: boolean;
   readonly usesCustomerAiConnection: boolean;
+  readonly lastFailureSummary?: RunDetailLastFailureSummary | null;
+  readonly actionRow: React.ReactNode;
 }): React.JSX.Element {
-  const { failureRecovery, sessionAiReadiness, canConfigureWorkspaceAi, usesCustomerAiConnection } = props;
+  const {
+    failureRecovery,
+    sessionAiReadiness,
+    canConfigureWorkspaceAi,
+    usesCustomerAiConnection,
+    lastFailureSummary,
+    actionRow,
+  } = props;
   const Callout =
     failureRecovery.severity === "warning" ? OperatorWarningCallout : OperatorErrorCallout;
   const intactSummary = failureRecovery.intactSummary?.trim() ?? "";
   const showDetail = shouldShowReviewFailureRecoveryDetail(failureRecovery);
   const workspaceAiSignal = failureRecovery.workspaceAiConfigurationSignal;
+  const whatFailedLine = resolveReviewFailureWhatFailedLine(lastFailureSummary, failureRecovery);
   const recoverySteps =
     workspaceAiSignal !== null && workspaceAiSignal !== undefined
       ? resolveProbeAwareRecoverySteps({
@@ -169,11 +191,20 @@ function ReviewFailureRecoveryDetails(props: {
           probeState: sessionAiReadiness.probeState,
           usesCustomerAiConnection,
           canConfigureWorkspaceAi,
+          reviewTerminalFailure: true,
         })
       : failureRecovery.recoverySteps;
 
   return (
     <div className="mt-3 space-y-3" data-testid="review-package-failure-recovery">
+      {whatFailedLine !== null ? (
+        <div data-testid="review-package-failure-cause">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            <span className="font-semibold text-al-text-primary">What failed:</span> {whatFailedLine}
+          </p>
+        </div>
+      ) : null}
+
       {showDetail ? (
         <Callout>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="review-package-failure-detail">
@@ -207,6 +238,10 @@ function ReviewFailureRecoveryDetails(props: {
             <li key={step}>{step}</li>
           ))}
         </ol>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2" data-testid="review-package-do-this-next-action">
+        {actionRow}
       </div>
 
       {failureRecovery.adminHandoff !== null && failureRecovery.adminHandoff !== undefined ? (
@@ -255,10 +290,65 @@ export function ReviewPackageDoThisNextStrip(
     sessionAiReadiness,
     canConfigureWorkspaceAi = false,
     usesCustomerAiConnection = false,
-    transparencyTrail = null,
+    lastFailureSummary = null,
+    failureRecordedAtUtc = null,
   } = props;
   const buttonVariant = next.buttonVariant ?? "primary";
   const blockRerun = next.kind === "rerun-review" && sessionAiReadiness.blocksExecute;
+  const failureRecordedAtLabel = formatReviewFailureRecordedAtLabel(failureRecordedAtUtc);
+  const activityFailureDetailsHref = buildReviewDetailTabHref(runId, "activity", {
+    hash: "review-failure-details",
+  });
+
+  const actionRow = (
+    <>
+      {next.kind === "finalize-package" ? (
+        <CommitRunButton
+          runId={runId}
+          disabled={hasGoldenManifest}
+          commitBlockedReason={commitBlockedReason}
+          buttonVariant="primary"
+        />
+      ) : next.kind === "rerun-review" && !blockRerun ? (
+        <ReRunReviewButton
+          runId={runId}
+          retryCount={retryCount}
+          variant={buttonVariant}
+          size="sm"
+          data-testid="review-package-re-run-review"
+        />
+      ) : next.href !== null && !blockRerun ? (
+        <Button type="button" variant={buttonVariant} size="sm" asChild>
+          <Link href={next.href}>{next.actionLabel}</Link>
+        </Button>
+      ) : (
+        <span
+          className={cn(buttonVariants({ variant: buttonVariant, size: "sm" }), "pointer-events-none opacity-60")}
+          title={blockRerun ? sessionAiReadiness.detail ?? "Live AI is not ready for Real mode." : undefined}
+        >
+          {next.actionLabel}
+        </span>
+      )}
+      {next.secondaryAction !== null && next.secondaryAction !== undefined ? (
+        <Button type="button" variant="outline" size="sm" asChild>
+          <Link href={next.secondaryAction.href} data-testid="review-package-do-this-next-secondary-action">
+            {next.secondaryAction.label}
+          </Link>
+        </Button>
+      ) : null}
+      {next.quickLinks !== null && next.quickLinks !== undefined && next.quickLinks.length > 0 ? (
+        <div className="flex flex-wrap gap-2" data-testid="review-package-do-this-next-quick-links">
+          {next.quickLinks.map((link) => (
+            <Button key={link.href} type="button" variant="outline" size="sm" asChild>
+              <Link href={link.href}>{link.label}</Link>
+            </Button>
+          ))}
+        </div>
+      ) : null}
+    </>
+  );
+
+  const hasFailureRecovery = next.failureRecovery !== null && next.failureRecovery !== undefined;
 
   return (
     <section
@@ -266,72 +356,57 @@ export function ReviewPackageDoThisNextStrip(
       data-testid="review-package-do-this-next-strip"
       aria-labelledby="review-package-do-this-next-heading"
     >
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0 space-y-1">
+      <div className="min-w-0 space-y-1">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <h2
             id="review-package-do-this-next-heading"
             className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
           >
             Do this next
           </h2>
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="review-package-do-this-next-sentence">
-            {next.sentence}
-          </p>
-        </div>
-
-      <div className="flex shrink-0 flex-wrap flex-col items-stretch gap-2 sm:items-end" data-testid="review-package-do-this-next-action" data-review-package-do-this-next-kind={next.kind}>
-          {next.kind === "finalize-package" ? (
-            <CommitRunButton
-              runId={runId}
-              disabled={hasGoldenManifest}
-              commitBlockedReason={commitBlockedReason}
-              buttonVariant="primary"
-            />
-          ) : next.kind === "rerun-review" && !blockRerun ? (
-            <ReRunReviewButton
-              runId={runId}
-              retryCount={retryCount}
-              variant={buttonVariant}
-              size="sm"
-              data-testid="review-package-re-run-review"
-            />
-          ) : next.href !== null && !blockRerun ? (
-            <Button type="button" variant={buttonVariant} size="sm" asChild>
-              <Link href={next.href}>{next.actionLabel}</Link>
-            </Button>
-          ) : (
-            <span
-              className={cn(buttonVariants({ variant: buttonVariant, size: "sm" }), "pointer-events-none opacity-60")}
-              title={blockRerun ? sessionAiReadiness.detail ?? "Live AI is not ready for Real mode." : undefined}
+          {hasFailureRecovery && failureRecordedAtLabel !== null ? (
+            <p
+              className={cn("m-0 shrink-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="review-package-failure-recorded-at"
             >
-              {next.actionLabel}
-            </span>
-          )}
-          {next.secondaryAction !== null && next.secondaryAction !== undefined ? (
-            <Button type="button" variant="outline" size="sm" asChild>
-              <Link href={next.secondaryAction.href} data-testid="review-package-do-this-next-secondary-action">
-                {next.secondaryAction.label}
-              </Link>
-            </Button>
-          ) : null}
-          {next.quickLinks !== null && next.quickLinks !== undefined && next.quickLinks.length > 0 ? (
-            <div className="flex flex-wrap gap-2" data-testid="review-package-do-this-next-quick-links">
-              {next.quickLinks.map((link) => (
-                <Button key={link.href} type="button" variant="outline" size="sm" asChild>
-                  <Link href={link.href}>{link.label}</Link>
-                </Button>
-              ))}
-            </div>
+              Failed {failureRecordedAtLabel}
+            </p>
           ) : null}
         </div>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="review-package-do-this-next-sentence">
+          {next.sentence}
+        </p>
+        {hasFailureRecovery ? (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+            <Link
+              href={activityFailureDetailsHref}
+              className={OPERATOR_LINK.nav}
+              data-testid="review-package-view-failure-details-link"
+            >
+              View failure details
+            </Link>
+          </p>
+        ) : null}
       </div>
 
-      {next.failureRecovery !== null && next.failureRecovery !== undefined ? (
+      {!hasFailureRecovery ? (
+        <div
+          className="flex shrink-0 flex-wrap flex-col items-stretch gap-2 sm:items-end"
+          data-testid="review-package-do-this-next-action"
+          data-review-package-do-this-next-kind={next.kind}
+        >
+          {actionRow}
+        </div>
+      ) : null}
+
+      {hasFailureRecovery ? (
         <ReviewFailureRecoveryDetails
           failureRecovery={next.failureRecovery}
           sessionAiReadiness={sessionAiReadiness}
           canConfigureWorkspaceAi={canConfigureWorkspaceAi}
           usesCustomerAiConnection={usesCustomerAiConnection}
+          lastFailureSummary={lastFailureSummary}
+          actionRow={actionRow}
         />
       ) : null}
     </section>

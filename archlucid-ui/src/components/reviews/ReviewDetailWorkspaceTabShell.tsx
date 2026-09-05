@@ -13,8 +13,6 @@ import {
 } from "@/components/reviews/WorkbenchSelectionCoordinator";
 import { WorkbenchFindingSelectionSync } from "@/components/reviews/WorkbenchFindingSelectionSync";
 import { ReviewWorkspaceTabStrip } from "@/components/reviews/ReviewWorkspaceTabStrip";
-import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
-import { Button } from "@/components/ui/button";
 
 import type { ReviewDetailWorkspaceProps } from "@/components/reviews/ReviewDetailWorkspace";
 import type { UseReviewDetailWorkspaceTabsResult } from "@/components/reviews/use-review-detail-workspace-tabs";
@@ -60,9 +58,7 @@ export function ReviewDetailWorkspaceTabShell({
   props,
   tabs,
   navigateTab,
-  onEnterPresenter,
 }: ReviewDetailWorkspaceTabShellProps): React.JSX.Element {
-  const { isWorkingMode } = useWorkspaceMode();
   const {
     activeTab,
     lifecycle,
@@ -78,19 +74,6 @@ export function ReviewDetailWorkspaceTabShell({
   return (
     <div className="min-w-0 space-y-4" data-testid="review-detail-workspace">
       {props.defensibilityStrip ?? null}
-      {isWorkingMode ? (
-        <div className="flex justify-end">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            data-testid="review-presenter-enter"
-            onClick={onEnterPresenter}
-          >
-            Presenter
-          </Button>
-        </div>
-      ) : null}
       <ReviewWorkspaceTabStrip
         lifecycle={lifecycle}
         activeTab={activeTab}

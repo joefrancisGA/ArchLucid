@@ -85,6 +85,34 @@ function findingsTabAriaLabel(count: number): string {
   return `${count} assessment finding${count === 1 ? "" : "s"} · this review · findings tab`;
 }
 
+function evidenceTabAriaLabel(count: number): string {
+  return `${count} evidence item${count === 1 ? "" : "s"} · this review · evidence tab`;
+}
+
+function architectureTabAriaLabel(count: number): string {
+  return `${count} architecture diagram${count === 1 ? "" : "s"} · this review · architecture tab`;
+}
+
+function tabCountAriaLabel(tabId: ReviewDetailTabId, count: number): string {
+  if (tabId === "decisions-remediation") {
+    return clarificationsTabAriaLabel(count);
+  }
+
+  if (tabId === "findings") {
+    return findingsTabAriaLabel(count);
+  }
+
+  if (tabId === "evidence") {
+    return evidenceTabAriaLabel(count);
+  }
+
+  if (tabId === "architecture") {
+    return architectureTabAriaLabel(count);
+  }
+
+  return `${count}`;
+}
+
 function tabOptionLabel(
   lifecycle: ReviewWorkspaceLifecycle,
   tabId: ReviewDetailTabId,
@@ -122,16 +150,10 @@ function renderTabTrigger(
       {count !== null ? (
         <span
           className={cn(
-            "ml-2 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-neutral-200 px-1.5 py-0.5 text-xs font-semibold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200",
+            "ml-2 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-neutral-200 px-1.5 py-0.5 font-semibold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200",
             OPERATOR_TYPOGRAPHY.helper,
           )}
-          aria-label={
-            tabId === "decisions-remediation"
-              ? clarificationsTabAriaLabel(count)
-              : tabId === "findings"
-                ? findingsTabAriaLabel(count)
-                : undefined
-          }
+          aria-label={tabCountAriaLabel(tabId, count)}
           data-testid={
             tabId === "decisions-remediation"
               ? "architecture-workspace-clarifications-count"

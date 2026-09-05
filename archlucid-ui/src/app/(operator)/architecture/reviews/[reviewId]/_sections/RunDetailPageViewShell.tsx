@@ -56,6 +56,7 @@ export type RunDetailPageViewChrome = {
     readonly pipelineDiagnosticContext: RunDetailPageModel["pipelineDiagnosticContext"];
     readonly lastFailureSummary: ReturnType<typeof resolveRunDetailLastFailureSummary>;
     readonly pipelineSummary: RunDetailPageModel["progressForPipelineUi"];
+    readonly runCompletedUtc: string | null;
     readonly intakeDescription: string | null;
     readonly intakeSystemName: string | null;
     readonly realModeFellBackToSimulator: boolean;
@@ -140,6 +141,7 @@ export function resolveRunDetailPageViewChrome(
     pipelineDiagnosticContext: m.pipelineDiagnosticContext,
     lastFailureSummary: resolveRunDetailLastFailureSummary(m.resolvedDetail),
     pipelineSummary: m.progressForPipelineUi,
+    runCompletedUtc: m.resolvedDetail.run.completedUtc ?? null,
     intakeDescription: m.resolvedDetail.run.description ?? m.progressForPipelineUi.description ?? null,
     intakeSystemName: m.progressForPipelineUi.displayName ?? null,
     realModeFellBackToSimulator: m.resolvedDetail.run.realModeFellBackToSimulator === true,

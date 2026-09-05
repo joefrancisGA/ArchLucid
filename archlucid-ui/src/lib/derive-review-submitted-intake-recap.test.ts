@@ -27,9 +27,9 @@ describe("deriveReviewSubmittedIntakeRecap", () => {
           value:
             "Evaluate the attached materials for architecture structure, cost, compliance, security, and policy-pack violations.",
         },
-        { label: "Primary System or Architecture", value: "ArchLucid" },
       ]),
     );
+    expect(recap?.fields.some((field) => field.label === "Primary System or Architecture")).toBe(false);
     expect(recap?.attachedFiles).toEqual(["ARCHITECTURE_HANDBOOK.2026.08.06b.docx"]);
   });
 

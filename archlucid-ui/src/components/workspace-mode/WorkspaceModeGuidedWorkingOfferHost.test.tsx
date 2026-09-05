@@ -34,6 +34,12 @@ vi.mock("@tanstack/react-query", async (importOriginal) => {
   };
 });
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/architecture/reviews",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 import { WorkspaceModeGuidedWorkingOfferHost } from "@/components/workspace-mode/WorkspaceModeGuidedWorkingOfferHost";
 
 describe("WorkspaceModeGuidedWorkingOfferHost (FD-10)", () => {
