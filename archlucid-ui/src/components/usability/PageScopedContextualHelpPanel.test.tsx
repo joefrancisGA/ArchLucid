@@ -8,6 +8,12 @@ import {
 } from "@/components/usability/PageScopedContextualHelpPanel";
 import type { PageContextualHelpEntry } from "@/lib/contextual-help-registry";
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/governance/findings",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 const FULL_ENTRY: PageContextualHelpEntry = {
   whatIsThisPage: "Short page summary.",
   whatToDoNext: "Do the next thing.",

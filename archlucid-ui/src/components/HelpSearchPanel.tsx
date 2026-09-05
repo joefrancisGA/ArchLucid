@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
@@ -43,6 +43,10 @@ import {
   resolveHelpSearchPanelLoadingSlug,
   type HelpSearchPanelArticleState,
 } from "@/components/help-search-panel-presentation";
+import {
+  helpDocSearchPanelHrefFromSearch,
+  parseHelpDocSearchQueryFromSearch,
+} from "@/lib/help/help-doc-search-panel-url";
 
 export type HelpSearchPanelProps = {
   open: boolean;
@@ -57,17 +61,54 @@ export type HelpSearchPanelProps = {
 export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpSearchPanelProps) {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const helpSearchQueryParam = searchParams.get("helpSearchQ");
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const { isWorkingMode } = useWorkspaceMode();
   const isAdmin = !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
 
-  const [query, setQuery] = useState("");
+  const [query, setQueryState] = useState(() => parseHelpDocSearchQueryFromSearch(helpSearchQueryParam));
   const [highlightedRowId, setHighlightedRowId] = useState("");
   const [article, setArticle] = useState<HelpSearchPanelArticleState>({ status: "idle" });
   const [conceptsDialogOpen, setConceptsDialogOpen] = useState(false);
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const topicListRef = useRef<HTMLDivElement>(null);
+
+  const syncHelpSearchQueryToUrl = useCallback(
+    (nextQuery: string) => {
+      router.replace(
+        helpDocSearchPanelHrefFromSearch(searchParams.toString(), { open: true, query: nextQuery }, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setQuery = useCallback(
+    (value: string) => {
+      setQueryState(value);
+
+      if (open) {
+        syncHelpSearchQueryToUrl(value);
+      }
+    },
+    [open, syncHelpSearchQueryToUrl],
+  );
+
+  useEffect(() => {
+    if (!open) {
+      setQueryState("");
+
+      return;
+    }
+
+    const urlQuery = parseHelpDocSearchQueryFromSearch(helpSearchQueryParam);
+
+    if (urlQuery.length > 0) {
+      setQueryState(urlQuery);
+    }
+  }, [helpSearchQueryParam, open]);
 
   const isSearching = query.trim().length > 0;
   const isViewingArticle = article.status === "loaded" || article.status === "loading" || article.status === "error";
