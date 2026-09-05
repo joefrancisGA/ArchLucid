@@ -83,11 +83,16 @@ test.describe("live-api-private-beta-access", () => {
     await assertJwtScopeBindingRejectsForgedTenantHeader(request);
   });
 
-  test("invite → auth session → tenant scope → review → expiry recovery → deep-link round-trip", async ({
-    page,
-    request,
-    browser,
-  }) => {
+  test.describe("browser journeys", () => {
+    test.beforeEach(async ({ page }) => {
+      await stubEmptyArchitectureDraftListRoute(page);
+    });
+
+    test("invite → auth session → tenant scope → review → expiry recovery → deep-link round-trip", async ({
+      page,
+      request,
+      browser,
+    }) => {
     test.setTimeout(liveE2ePrivateBetaAccessPlaywrightTimeoutMs());
 
     const { accessToken } = requireLivePrivateBetaJwtEnv();
@@ -113,7 +118,6 @@ test.describe("live-api-private-beta-access", () => {
 
     expect(pendingMatch).toBe(true);
 
-    await stubEmptyArchitectureDraftListRoute(page);
     await primeJwtBrowserSession(page, accessToken);
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
@@ -176,6 +180,7 @@ test.describe("live-api-private-beta-access", () => {
     const signedOutPage = await signedOutContext.newPage();
 
     try {
+      await stubEmptyArchitectureDraftListRoute(signedOutPage);
       await signedOutPage.goto(reviewPath, { waitUntil: "domcontentloaded" });
 
       await expect(signedOutPage).toHaveURL(/\/auth\/signin(\?|$)/, { timeout: 60_000 });
@@ -194,12 +199,12 @@ test.describe("live-api-private-beta-access", () => {
 
     test.info().annotations.push({ type: "e2e-beta-access-run-id", description: runId });
     test.info().annotations.push({ type: "e2e-beta-access-invite-id", description: invite.id });
-  });
+    });
 
-  test("invitee Operator accept → session → create review under invitee principal (TB-927)", async ({
-    page,
-    request,
-  }) => {
+    test("invitee Operator accept → session → create review under invitee principal (TB-927)", async ({
+      page,
+      request,
+    }) => {
     test.setTimeout(liveE2ePrivateBetaAccessPlaywrightTimeoutMs());
 
     requireLivePrivateBetaJwtEnv();
@@ -222,7 +227,6 @@ test.describe("live-api-private-beta-access", () => {
 
     expect(inviteeSession.redirectPath).toBe("/architecture/first-review-guide?source=invitation");
 
-    await stubEmptyArchitectureDraftListRoute(page);
     await primeJwtBrowserSession(page, inviteeSession.accessToken);
     await page.goto(inviteeSession.redirectPath, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/architecture\/first-review-guide\?source=invitation/);
@@ -284,5 +288,6 @@ test.describe("live-api-private-beta-access", () => {
 
     test.info().annotations.push({ type: "e2e-beta-invitee-run-id", description: runId });
     test.info().annotations.push({ type: "e2e-beta-invitee-platform-user-id", description: preAuth.platformUserId });
+    });
   });
 });
