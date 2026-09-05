@@ -1,4 +1,6 @@
 using ArchLucid.Application.InfraEvidence;
+using ArchLucid.Application.InfraEvidence.Ask;
+using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Application.InfraEvidence.AuditEvidence;
 using ArchLucid.Application.InfraEvidence.OperationalSecurityFindings;
@@ -67,5 +69,12 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<IDiagramInfrastructureReconciliationService, DiagramInfrastructureReconciliationService>();
         services.AddScoped<IVisionDiagramIngestService, VisionDiagramIngestService>();
         services.AddScoped<ICloudResourceEvidenceHubService, CloudResourceEvidenceHubService>();
+        services.AddScoped<IInfraEvidenceAskEvidenceCollector, InfraEvidenceAskEvidenceCollector>();
+        services.AddScoped<IInfraEvidenceAskGroundingService, InfraEvidenceAskGroundingService>();
+        services.AddScoped<IBrandAssetService, BrandAssetService>();
+        services.AddSingleton<TenantBrandingResolvedProfileCache>();
+        services.AddSingleton<ITenantBrandingCacheInvalidator>(static sp =>
+            sp.GetRequiredService<TenantBrandingResolvedProfileCache>());
+        services.AddScoped<ITenantBrandingService, TenantBrandingService>();
     }
 }

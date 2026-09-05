@@ -216,6 +216,120 @@ public sealed class ArchitectureRunAsyncOperationHostedServiceTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task Execute_for_second_run_starts_while_first_execute_is_still_running()
+    {
+        TaskCompletionSource firstEntered = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource firstRelease = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource secondStarted = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        int started = 0;
+        Mock<IArchitectureRunExecuteOrchestrator> execute = new();
+        execute
+            .Setup(e => e.ExecuteRunAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(async (string _, CancellationToken ct) =>
+            {
+                int order = Interlocked.Increment(ref started);
+
+                if (order == 1)
+                {
+                    firstEntered.TrySetResult();
+                    await firstRelease.Task.WaitAsync(ct);
+                }
+                else
+                {
+                    secondStarted.TrySetResult();
+                }
+
+                return new ExecuteRunResult();
+            });
+
+        ArchitectureRunAsyncOperationQueue queue = new();
+        ArchitectureRunAsyncOperationRegistrar registrar = new();
+        using ArchitectureRunAsyncOperationHostedService sut = CreateSut(
+            queue,
+            registrar,
+            Mock.Of<IArchitectureRunCreateOrchestrator>(),
+            execute.Object);
+
+        Guid firstRunId = Guid.NewGuid();
+        Guid secondRunId = Guid.NewGuid();
+        registrar.TryRegister(DefaultScope, firstRunId.ToString("D"), ArchitectureRunAsyncOperationKind.Execute)
+            .Should()
+            .BeTrue();
+        registrar.TryRegister(DefaultScope, secondRunId.ToString("D"), ArchitectureRunAsyncOperationKind.Execute)
+            .Should()
+            .BeTrue();
+
+        await sut.StartAsync(CancellationToken.None);
+
+        try
+        {
+            await queue.EnqueueAsync(ExecuteItem(firstRunId), CancellationToken.None);
+            await firstEntered.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            await queue.EnqueueAsync(ExecuteItem(secondRunId), CancellationToken.None);
+            await secondStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        }
+        finally
+        {
+            firstRelease.TrySetResult();
+            await sut.StopAsync(CancellationToken.None);
+        }
+
+        started.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task Execute_failure_persists_failed_status_with_fresh_completed_utc()
+    {
+        Guid runId = Guid.NewGuid();
+        DateTime previousCompleted = new(2026, 9, 5, 17, 12, 13, DateTimeKind.Utc);
+        Mock<IArchitectureRunExecuteOrchestrator> execute = new();
+        execute
+            .Setup(e => e.ExecuteRunAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new ConflictException("Run execute is already owned by another host instance."));
+        Mock<IRunRepository> runs = new();
+        RunRecord header = new()
+        {
+            RunId = runId,
+            LegacyRunStatus = nameof(ArchLucid.Contracts.Common.ArchitectureRunStatus.Retrying),
+            CompletedUtc = previousCompleted
+        };
+        runs
+            .Setup(r => r.GetByIdAsync(DefaultScope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(header);
+        TaskCompletionSource updated = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        runs
+            .Setup(r => r.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null))
+            .Callback<RunRecord, CancellationToken, System.Data.IDbConnection?, System.Data.IDbTransaction?>(
+                (row, _, _, _) =>
+                {
+                    if (row.LegacyRunStatus == nameof(ArchLucid.Contracts.Common.ArchitectureRunStatus.Failed))
+                        updated.TrySetResult();
+                })
+            .Returns(Task.CompletedTask);
+
+        ArchitectureRunAsyncOperationQueue queue = new();
+        ArchitectureRunAsyncOperationRegistrar registrar = new();
+        registrar.TryRegister(DefaultScope, runId.ToString("D"), ArchitectureRunAsyncOperationKind.Execute);
+
+        using ArchitectureRunAsyncOperationHostedService sut = CreateSut(
+            queue,
+            registrar,
+            Mock.Of<IArchitectureRunCreateOrchestrator>(),
+            execute.Object,
+            runs.Object);
+
+        await sut.StartAsync(CancellationToken.None);
+        await queue.EnqueueAsync(ExecuteItem(runId), CancellationToken.None);
+        await updated.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await sut.StopAsync(CancellationToken.None);
+
+        header.LegacyRunStatus.Should().Be(nameof(ArchLucid.Contracts.Common.ArchitectureRunStatus.Failed));
+        header.CompletedUtc.Should().NotBeNull();
+        header.CompletedUtc.Should().BeAfter(previousCompleted);
+        header.LastFailureReason.Should().Contain("invalidOperation");
+    }
+
     private static ArchitectureRunAsyncOperationHostedService CreateSut(
         ArchitectureRunAsyncOperationQueue queue,
         ArchitectureRunAsyncOperationRegistrar registrar,

@@ -23,7 +23,7 @@ public sealed class SqlTenantBrandingProfileRepository(ISqlConnectionFactory con
                                LogoDarkAssetId, LogoLightAssetId, LogoReportCoverAssetId, LogoMonoAssetId,
                                PrimaryColor, SecondaryColor, AccentColor, BackgroundColor, ForegroundColor,
                                TypographyJson, Tagline, WebsiteUrl, SupportUrl, BrandingStatus, Version,
-                               CreatedUtc, UpdatedUtc, CreatedBy, UpdatedBy
+                               CreatedUtc, UpdatedUtc, CreatedBy, UpdatedBy, CoBrandingEnabled
                            )
                            VALUES
                            (
@@ -32,7 +32,7 @@ public sealed class SqlTenantBrandingProfileRepository(ISqlConnectionFactory con
                                @LogoDarkAssetId, @LogoLightAssetId, @LogoReportCoverAssetId, @LogoMonoAssetId,
                                @PrimaryColor, @SecondaryColor, @AccentColor, @BackgroundColor, @ForegroundColor,
                                @TypographyJson, @Tagline, @WebsiteUrl, @SupportUrl, @BrandingStatus, @Version,
-                               @CreatedUtc, @UpdatedUtc, @CreatedBy, @UpdatedBy
+                               @CreatedUtc, @UpdatedUtc, @CreatedBy, @UpdatedBy, @CoBrandingEnabled
                            );
                            """;
 
@@ -74,6 +74,7 @@ public sealed class SqlTenantBrandingProfileRepository(ISqlConnectionFactory con
                         record.UpdatedUtc,
                         record.CreatedBy,
                         record.UpdatedBy,
+                        record.CoBrandingEnabled,
                     },
                     commandTimeout: DapperCommandTimeoutSeconds.Report,
                     cancellationToken: cancellationToken));
@@ -124,7 +125,7 @@ public sealed class SqlTenantBrandingProfileRepository(ISqlConnectionFactory con
                                LogoDarkAssetId, LogoLightAssetId, LogoReportCoverAssetId, LogoMonoAssetId,
                                PrimaryColor, SecondaryColor, AccentColor, BackgroundColor, ForegroundColor,
                                TypographyJson, Tagline, WebsiteUrl, SupportUrl, BrandingStatus, Version,
-                               CreatedUtc, UpdatedUtc, CreatedBy, UpdatedBy
+                               CreatedUtc, UpdatedUtc, CreatedBy, UpdatedBy, CoBrandingEnabled
                            FROM dbo.TenantBrandingProfiles
                            WHERE TenantId = @TenantId AND BrandingStatus = @BrandingStatus
                            ORDER BY Version DESC;
@@ -173,6 +174,7 @@ public sealed class SqlTenantBrandingProfileRepository(ISqlConnectionFactory con
             UpdatedUtc = row.UpdatedUtc,
             CreatedBy = row.CreatedBy,
             UpdatedBy = row.UpdatedBy,
+            CoBrandingEnabled = row.CoBrandingEnabled,
         };
 
     private sealed class Row
@@ -340,6 +342,12 @@ public sealed class SqlTenantBrandingProfileRepository(ISqlConnectionFactory con
         }
 
         public string? UpdatedBy
+        {
+            get;
+            init;
+        }
+
+        public bool CoBrandingEnabled
         {
             get;
             init;

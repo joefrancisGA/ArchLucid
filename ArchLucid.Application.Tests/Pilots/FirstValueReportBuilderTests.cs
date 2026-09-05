@@ -1,3 +1,4 @@
+using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Agents;
@@ -8,9 +9,10 @@ using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Pilots;
-using ArchLucid.Persistence.Tenancy;
 using ArchLucid.Persistence.Value;
 
 using FluentAssertions;
@@ -404,6 +406,60 @@ public sealed class FirstValueReportBuilderTests
         md.Should().Contain("**Projected dollar claim disposition:** **HOLD**");
     }
 
+    [SkippableFact]
+    public async Task BuildMarkdownAsync_uses_tenant_branding_service_for_prepared_for_line()
+    {
+        ArchitectureRunDetail detail = BuildCommittedDetail();
+        Mock<IRunDetailQueryService> query = new();
+        query.Setup(q => q.GetRunDetailAsync("r1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        PilotRunDeltas computed = new()
+        {
+            RunCreatedUtc = detail.Run.CreatedUtc,
+            ManifestCommittedUtc = detail.Manifest!.Metadata.CreatedUtc,
+            TimeToCommittedManifest = detail.Manifest.Metadata.CreatedUtc - detail.Run.CreatedUtc,
+            FindingsBySeverity = [],
+            AuditRowCount = 0,
+            LlmCallCount = 0,
+            IsDemoTenant = false,
+        };
+
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
+
+        Mock<ITenantBrandingService> branding = new();
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+
+        branding
+            .Setup(b => b.GetBrandingProfileAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ResolvedTenantBrandingProfile
+            {
+                TenantId = tenantId,
+                IsProductBrand = false,
+                CompanyDisplayName = "Fabrikam Holdings",
+            });
+
+        branding
+            .Setup(b => b.GetLogoAsync(tenantId, BrandingDisplayContext.ReportCover, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantBrandingLogo
+            {
+                IsProductBrand = false,
+                HttpsUrl = "https://cdn.example/logo.png",
+            });
+
+        FirstValueReportBuilder sut = CreateSut(query.Object, deltas.Object, brandingService: branding.Object);
+
+        string? md = await sut.BuildMarkdownAsync("r1", "http://api.test");
+
+        md.Should().NotBeNull();
+        md.Should().Contain("Prepared for: Fabrikam Holdings");
+        md.Should().Contain("![Tenant logo](https://cdn.example/logo.png)");
+        branding.Verify(
+            b => b.GetBrandingProfileAsync(tenantId, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     private static ArchitectureRunDetail BuildCommittedDetail()
     {
         GoldenManifest manifest = new()
@@ -450,7 +506,8 @@ public sealed class FirstValueReportBuilderTests
     private static FirstValueReportBuilder CreateSut(
         IRunDetailQueryService query,
         IPilotRunDeltaComputer deltas,
-        ValueReportRawMetrics? rawMetrics = null)
+        ValueReportRawMetrics? rawMetrics = null,
+        ITenantBrandingService? brandingService = null)
     {
         Mock<IValueReportMetricsReader> metrics = new();
 
@@ -504,10 +561,7 @@ public sealed class FirstValueReportBuilderTests
         Mock<IOptionsMonitor<PublicSiteOptions>> siteOpts = new();
         siteOpts.Setup(s => s.CurrentValue).Returns(new PublicSiteOptions { BaseUrl = "https://ui.example" });
 
-        Mock<ITenantFirstValueReportBrandingRepository> branding = new();
-        branding
-            .Setup(b => b.TryGetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((TenantFirstValueReportBrandingRow?)null);
+        ITenantBrandingService branding = brandingService ?? FirstValueReportBrandingTestDoubles.CreateProductBrandService().Object;
 
         Mock<IPilotBaselineRepository> pilotBaselines = new();
         pilotBaselines
@@ -522,7 +576,7 @@ public sealed class FirstValueReportBuilderTests
             new ExecutionProvenanceFooterRenderer(),
             configuration,
             siteOpts.Object,
-            branding.Object,
+            branding,
             pilotBaselines.Object,
             FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),

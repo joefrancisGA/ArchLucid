@@ -15,6 +15,9 @@ public static partial class AuditEventTypes
     /// <summary>Tenant branding profile created or updated.</summary>
     public const string TenantBrandingProfileChanged = "TenantBrandingProfile.Changed";
 
+    /// <summary>Tenant brand asset uploaded (SVG/PNG/JPEG).</summary>
+    public const string TenantBrandAssetUploaded = "TenantBrandAsset.Uploaded";
+
     /// <summary>Operational security finding ingested or updated from an external source.</summary>
     public const string OperationalSecurityFindingIngested = "OperationalSecurityFinding.Ingested";
 

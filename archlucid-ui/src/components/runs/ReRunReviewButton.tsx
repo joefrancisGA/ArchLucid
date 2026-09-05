@@ -41,7 +41,9 @@ import {
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   parseReRunReviewConfirmOpenFromSearch,
+  parseReRunReviewConfirmSourceFromSearch,
   reRunReviewConfirmHrefFromSearch,
+  resolveReRunReviewConfirmDialogOpenForButton,
 } from "@/lib/runs/re-run-review-confirm-url";
 import { cn } from "@/lib/utils";
 
@@ -83,30 +85,45 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const reRunConfirmOpenParam = searchParams.get("reRunConfirmOpen");
+  const reRunConfirmSourceParam = searchParams.get("reRunConfirmSource");
+  const urlConfirmOpen = parseReRunReviewConfirmOpenFromSearch(reRunConfirmOpenParam);
+  const urlConfirmSource = parseReRunReviewConfirmSourceFromSearch(reRunConfirmSourceParam);
   const [busy, setBusy] = useState(false);
   const [confirmOpen, setConfirmOpenState] = useState(() =>
-    parseReRunReviewConfirmOpenFromSearch(reRunConfirmOpenParam),
+    resolveReRunReviewConfirmDialogOpenForButton({
+      urlConfirmOpen: parseReRunReviewConfirmOpenFromSearch(reRunConfirmOpenParam),
+      urlConfirmSource: parseReRunReviewConfirmSourceFromSearch(reRunConfirmSourceParam),
+      buttonTestId: dataTestId,
+    }),
   );
 
-  const setConfirmOpen = useCallback((open: boolean) => {
-    setConfirmOpenState(open);
-  }, []);
+  const syncConfirmOpenToUrl = useCallback(
+    (open: boolean, sourceTestId: string | null = null) => {
+      router.replace(
+        reRunReviewConfirmHrefFromSearch(searchParams.toString(), open, pathname, sourceTestId),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setConfirmOpen = useCallback(
+    (open: boolean) => {
+      setConfirmOpenState(open);
+      syncConfirmOpenToUrl(open, open ? dataTestId : null);
+    },
+    [dataTestId, syncConfirmOpenToUrl],
+  );
 
   useEffect(() => {
-    setConfirmOpenState(parseReRunReviewConfirmOpenFromSearch(reRunConfirmOpenParam));
-  }, [reRunConfirmOpenParam]);
-
-  useEffect(() => {
-    const urlConfirmOpen = parseReRunReviewConfirmOpenFromSearch(reRunConfirmOpenParam);
-
-    if (urlConfirmOpen === confirmOpen) {
-      return;
-    }
-
-    router.replace(reRunReviewConfirmHrefFromSearch(searchParams.toString(), confirmOpen, pathname), {
-      scroll: false,
-    });
-  }, [confirmOpen, pathname, reRunConfirmOpenParam, router, searchParams]);
+    setConfirmOpenState(
+      resolveReRunReviewConfirmDialogOpenForButton({
+        urlConfirmOpen,
+        urlConfirmSource,
+        buttonTestId: dataTestId,
+      }),
+    );
+  }, [dataTestId, urlConfirmOpen, urlConfirmSource]);
   const [sessionAttemptOffset, setSessionAttemptOffset] = useState(0);
   const [outcome, setOutcome] = useState<ReRunReviewOutcomeState | null>(null);
   const [error, setError] = useState<{
@@ -301,7 +318,7 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
           });
 
   return (
-    <div className={className}>
+    <div className={cn("flex min-w-0 w-full max-w-full flex-col items-start gap-2", className)}>
       <Button
         type="button"
         variant={variant}
@@ -315,37 +332,39 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
       >
         {busy ? busyLabel : idleLabel}
       </Button>
-      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <AlertDialogContent data-testid="re-run-review-confirm-dialog">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Re-run this review?</AlertDialogTitle>
-            <AlertDialogDescription asChild>
-              <div className={cn("space-y-3", OPERATOR_TYPOGRAPHY.body)}>
-                <p className="m-0">
-                  Attempt <strong>{pendingAttemptNumber}</strong> will re-invoke architecture analysis on this review.
-                  Metered AI budget will be consumed.
-                </p>
-                <AiBudgetSpendNotice action="Architecture review analysis" testId="re-run-review-budget-notice" />
-              </div>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
-            <Button
-              type="button"
-              variant="primary"
-              size="sm"
-              disabled={busy || running}
-              onClick={() => {
-                void onReRunReview();
-              }}
-              data-testid="re-run-review-confirm-button"
-            >
-              Re-run review (attempt {pendingAttemptNumber})
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {confirmOpen ? (
+        <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+          <AlertDialogContent data-testid="re-run-review-confirm-dialog">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Re-run this review?</AlertDialogTitle>
+              <AlertDialogDescription asChild>
+                <div className={cn("space-y-3", OPERATOR_TYPOGRAPHY.body)}>
+                  <p className="m-0">
+                    Attempt <strong>{pendingAttemptNumber}</strong> will re-invoke architecture analysis on this review.
+                    Metered AI budget will be consumed.
+                  </p>
+                  <AiBudgetSpendNotice action="Architecture review analysis" testId="re-run-review-budget-notice" />
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+              <Button
+                type="button"
+                variant="primary"
+                size="sm"
+                disabled={busy || running}
+                onClick={() => {
+                  void onReRunReview();
+                }}
+                data-testid="re-run-review-confirm-button"
+              >
+                Re-run review (attempt {pendingAttemptNumber})
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      ) : null}
       {outcome !== null && outcomeHeadline !== null ? (
         <ReRunReviewOutcomeNotice
           phase={outcome.phase}

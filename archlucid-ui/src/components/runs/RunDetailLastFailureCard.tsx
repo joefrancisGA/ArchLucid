@@ -1,6 +1,10 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReactElement } from "react";
+
+import { useReviewPipelineReRunInFlight } from "@/hooks/use-review-pipeline-rerun-in-flight";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -18,13 +22,20 @@ export {
 
 /** Surfaces parsed last agent execution failure on operator run detail (assessment #5 / TB-965). */
 export function RunDetailLastFailureCard(props: {
+  readonly runId?: string | null;
   readonly summary: RunDetailLastFailureSummary | null | undefined;
   readonly legacyRunStatus?: string | null;
   readonly failureRecordedAtUtc?: string | null;
 }): ReactElement | null {
   const summary = props.summary;
+  const runId = props.runId?.trim() ?? "";
+  const reRunInFlight = useReviewPipelineReRunInFlight(runId);
 
   if (summary === null || summary === undefined) {
+    return null;
+  }
+
+  if (runId.length > 0 && reRunInFlight) {
     return null;
   }
 
