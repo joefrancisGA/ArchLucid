@@ -1,5 +1,6 @@
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Application.Governance.Stickiness;
@@ -272,7 +273,7 @@ public sealed class GovernanceStickinessFacadeScopeTests
                 "foreign-finding",
                 FindingMergeConflictResolutionAction.AcceptPrimary,
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+            .ReturnsAsync(FindingMergeConflictResolveResult.NotFound);
 
         Mock<IAuthorityQueryService> authority = new();
         authority
@@ -352,7 +353,7 @@ public sealed class GovernanceStickinessFacadeScopeTests
                 routeFindingId,
                 FindingMergeConflictResolutionAction.AcceptPrimary,
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
+            .ReturnsAsync(FindingMergeConflictResolveResult.Resolved);
 
         Mock<IAuthorityQueryService> authority = new();
         authority
@@ -405,6 +406,79 @@ public sealed class GovernanceStickinessFacadeScopeTests
         auditEvents[0].EventType.Should().Be(AuditEventTypes.FindingMergeConflictResolved);
         auditEvents[0].DataJson.Should().Contain(canonicalFindingId);
         auditEvents[0].DataJson.Should().NotContain(routeFindingId);
+    }
+
+    [Fact]
+    public async Task TryResolveFindingMergeConflictAsync_returns_true_without_duplicate_audit_when_already_resolved_retry()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        const string conflictFindingId = "CONFLICT-1";
+        const string sealedManifestHash = "sealed-manifest-hash-for-merge-conflict-idempotent-retry";
+        List<AuditEvent> auditEvents = [];
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(CallerScope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchLucid.Persistence.Models.RunRecord { RunId = runId });
+
+        Mock<IFindingInspectReadRepository> findings = new(MockBehavior.Strict);
+
+        Mock<IFindingMergeConflictResolutionService> merge = new();
+        merge
+            .Setup(s => s.TryResolveAsync(
+                CallerScope,
+                runId,
+                conflictFindingId,
+                FindingMergeConflictResolutionAction.AcceptPrimary,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(FindingMergeConflictResolveResult.AlreadyResolved);
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(
+                CallerScope,
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new ArchLucid.Persistence.Models.RunRecord { RunId = runId },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    ManifestHash = sealedManifestHash,
+                },
+            });
+
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns(sealedManifestHash);
+
+        Mock<IAuditService> auditService = new(MockBehavior.Strict);
+
+        GovernanceStickinessFacade sut = CreateSut(
+            runRepository: runs.Object,
+            findingInspect: findings.Object,
+            mergeConflictResolution: merge.Object,
+            auditService: auditService.Object,
+            authorityQuery: authority.Object,
+            manifestHashService: manifestHash.Object);
+
+        ResolveFindingMergeConflictRequest request = new()
+        {
+            Action = FindingMergeConflictResolutionAction.AcceptPrimary,
+        };
+
+        bool resolved = await sut.TryResolveFindingMergeConflictAsync(
+            runId,
+            conflictFindingId,
+            request,
+            CancellationToken.None);
+
+        resolved.Should().BeTrue();
+        auditEvents.Should().BeEmpty();
+        findings.VerifyNoOtherCalls();
+        auditService.VerifyNoOtherCalls();
     }
 
     [Fact]
