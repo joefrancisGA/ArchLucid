@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 179
-- **bugs-found:** 432
+- **hunts:** 180
+- **bugs-found:** 440
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — DataLakeAccessKey/ServiceAccessKey redaction, does-not-configure/apply and would/shall-not-mandate negation
+- **last-bug:** 2026-09-05 — EventAccessKey/PortalAccessKey redaction, does-not-provision/need-not-ensure and should/ought-not-mandate negation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2437,6 +2437,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `will not mandate` suffix gap — **hit 2026-09-05 (#907):** #906 added `will not need` only; missed trailing `will not mandate` on imperative regex matches; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_will_not_mandate_suffix_phrasing`).
 
 2026-09-05 seed hunt #907 (hit): reseeded after #906 closure; proved eight hunt-ready rows — DataLakeAccessKey/ServiceAccessKey redaction parity, does-not-configure/apply and would/shall-not-mandate constraint negation, and advice does-not-enforce/will-not-mandate suffix.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `EventAccessKey` not redacted — **hit 2026-09-05 (#908):** compound access-key class after #907; embedded `AccessKey`/`accesskey` fragment guard skipped `EventAccessKey`/`eventaccesskey`; fixed with explicit credential detection (`Resolve_redacts_event_access_key_config_path`, `IsSensitiveKey_detects_event_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `PortalAccessKey` not redacted — **hit 2026-09-05 (#908):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_portal_access_key_config_path`, `IsSensitiveKey_detects_portal_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — `does not provision` prefix negation gap — **hit 2026-09-05 (#908):** prefix list had `does not apply`/`does not configure` only; missed leading `does not provision {token}`; fixed with prefix negation guard (`HasEncryptionConstraint_does_not_false_positive_on_does_not_provision_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — `need not ensure` prefix negation gap — **hit 2026-09-05 (#908):** prefix list had `need not enforce`/`need not require` only; missed leading `need not ensure {token}`; fixed with prefix negation guard (`HasEncryptionConstraint_does_not_false_positive_on_need_not_ensure_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `should not mandate` negation gap — **hit 2026-09-05 (#908):** #907 added `shall not mandate` only; missed prohibitive `should not mandate {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_should_not_mandate_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `ought not mandate` negation gap — **hit 2026-09-05 (#908):** same mid-sentence family; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_ought_not_mandate_encryption_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `would not mandate` suffix gap — **hit 2026-09-05 (#908):** #907 added `will not mandate` only; missed trailing `would not mandate` on imperative regex matches; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_would_not_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `does not configure` suffix gap — **hit 2026-09-05 (#908):** suffix list had `does not enforce`/`does not mandate` only; missed trailing `does not configure` on imperative regex matches; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_does_not_configure_suffix_phrasing`).
+
+2026-09-05 seed hunt #908 (hit): reseeded after #907 closure; proved eight hunt-ready rows — EventAccessKey/PortalAccessKey redaction parity, does-not-provision/need-not-ensure and should/ought-not-mandate constraint negation, and advice would-not-mandate/does-not-configure suffix.
 
 2026-09-05 seed hunt #889: reseeded after #888 closure; proved anchor null-object/property-name trim, mid-sentence constraint negation, and Secretizer/Passwordizer redaction parity.
 2026-09-05 seed hunt #888: reseeded after #887 closure; proved ConnectionStringless config redaction, ARM key+free suffix parity, and anchor null array/string coercion.
