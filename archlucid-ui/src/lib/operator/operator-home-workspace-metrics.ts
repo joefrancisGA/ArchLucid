@@ -1,5 +1,6 @@
 import { resolveRunFindingCountDisplay } from "@/lib/operator/operator-home-run-list-insight";
 import { formatOperatorHomeApprovalCheckWarningCount } from "@/lib/operator/operator-home-approval-check-warning-copy";
+import { resolveRunHomeStatusTag } from "@/components/operator-home/runs-dashboard-helpers";
 import type { RunSummary } from "@/types/authority";
 
 export const OPERATOR_HOME_WORKSPACE_METRICS_EMPTY_COPY =
@@ -24,6 +25,10 @@ function runHasEvidenceSource(run: RunSummary): boolean {
   );
 }
 
+function isDraftRun(run: RunSummary): boolean {
+  return resolveRunHomeStatusTag(run).kind === "draft";
+}
+
 /** Aggregates workspace metrics from operator-home runs dashboard data already on the page. */
 export function deriveOperatorHomeWorkspaceMetrics(
   items: readonly RunSummary[],
@@ -45,7 +50,7 @@ export function deriveOperatorHomeWorkspaceMetrics(
 
     if (run.hasGoldenManifest === true) {
       reviewPackagesCommitted += 1;
-    } else {
+    } else if (!isDraftRun(run)) {
       reviewPackagesActive += 1;
     }
 

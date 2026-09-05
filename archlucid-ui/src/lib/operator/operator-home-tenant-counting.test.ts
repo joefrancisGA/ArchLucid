@@ -33,7 +33,7 @@ describe("deriveOperatorHomeTenantCountingSnapshot", () => {
 
     const snapshot = deriveOperatorHomeTenantCountingSnapshot({
       displayItems: items,
-      previewItems: items.filter((run) => run.runId?.startsWith("tenant-")),
+      previewItems: items,
     });
 
     expect(snapshot.tenantItems).toHaveLength(3);
@@ -42,5 +42,6 @@ describe("deriveOperatorHomeTenantCountingSnapshot", () => {
     expect(snapshot.previewTabCounts.recentTotalCount).toBe(3);
     expect(snapshot.previewTabCounts.recentVisibleCount).toBe(2);
     expect(snapshot.previewTabCounts.all).toBe(2);
+    expect(snapshot.previewTabCounts.attention).toBe(snapshot.metrics.reviewPackagesActive > 0 ? 2 : 0);
   });
 });

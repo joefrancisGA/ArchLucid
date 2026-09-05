@@ -4,10 +4,13 @@ import {
   canonicalizeDemoRunId,
   dedupeRunSummariesByRunId,
   demoRunUrlRequiresCanonicalRedirect,
+  isShowcaseCreatedStaticDemoRunId,
+  isShowcaseSampleOfAnyKind,
   isShowcaseStaticDemoRunId,
   normalizeRunSummaryForDemoPicker,
 } from "@/lib/demo-run-canonical";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { SHOWCASE_CREATED_STATIC_DEMO_RUN_ID } from "@/lib/showcase-created-static-demo";
 import type { RunSummary } from "@/types/authority";
 
 describe("demo-run-canonical", () => {
@@ -24,6 +27,12 @@ describe("demo-run-canonical", () => {
 
   it("maps legacy workspace slug aliases to the showcase id", () => {
     expect(canonicalizeDemoRunId("claims-intake-sample-workspace")).toBe(SHOWCASE_STATIC_DEMO_RUN_ID);
+  });
+
+  it("treats created showcase slug as a showcase sample of any kind", () => {
+    expect(isShowcaseCreatedStaticDemoRunId(SHOWCASE_CREATED_STATIC_DEMO_RUN_ID)).toBe(true);
+    expect(isShowcaseSampleOfAnyKind(SHOWCASE_CREATED_STATIC_DEMO_RUN_ID)).toBe(true);
+    expect(isShowcaseStaticDemoRunId(SHOWCASE_CREATED_STATIC_DEMO_RUN_ID)).toBe(false);
   });
 
   it("demoRunUrlRequiresCanonicalRedirect is true only for known aliases", () => {

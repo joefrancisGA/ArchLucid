@@ -62,6 +62,17 @@ export function isShowcaseCreatedStaticDemoRunId(runId: string): boolean {
   return runId.trim() === SHOWCASE_CREATED_STATIC_DEMO_RUN_ID;
 }
 
+/** True when `runId` is any curated showcase sample (reviewed or created-package demo). */
+export function isShowcaseSampleOfAnyKind(runId: string): boolean {
+  const trimmed = runId.trim();
+
+  if (trimmed.length === 0) {
+    return false;
+  }
+
+  return isShowcaseStaticDemoRunId(trimmed) || isShowcaseCreatedStaticDemoRunId(trimmed);
+}
+
 /** True when visiting `/runs/{runId}` (or sponsor `/architecture/reviews/{runId}`) should 308 to the canonical id. */
 export function demoRunUrlRequiresCanonicalRedirect(runId: string): boolean {
   const t = runId.trim();
