@@ -2003,11 +2003,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 144
-- **bugs-found:** 272
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — `HasManagedIdentityConstraint` unmanaged-identity false positive
+- **hunts:** 145
+- **bugs-found:** 273
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-05
+- **last-bug:** 2026-09-05 — Wave-22 manifest-hash guards rejected PascalCase metadata keys
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2154,6 +2154,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `Permissions.IsKnown` — padded permission strings rejected when callers bypass `ValidateAndNormalize` — `IsKnown` is exact-match only; sole caller `ValidateAndNormalize` trims before lookup and `CustomRoleService` routes through `ValidateAndNormalize` exclusively; padded direct `IsKnown` behavior is intentional (`IsKnown_returns_false_for_padded_permission_without_trim`, `ValidateAndNormalize_trims_before_IsKnown_lookup`).
 
 2026-09-04 thorough hunt #739: cheap-disproved `Permissions.IsKnown` trim candidate; no bypass path in repo; dry.
+
+- [x] (proven) `DigestDeliveryManifestHashGuard` / `IntegrationEventOutboxManifestHashGuard` — PascalCase `ManifestHash` / `ManifestHashSha256` / `RunId` rejected — **hit 2026-09-05 (#801):** Wave-22 guards used case-sensitive `TryGetProperty` while sibling JSON readers accept PascalCase; run-linked digest delivery and outbox publish blocked valid payloads; fixed with `RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive` (`EnsureRunLinkedDigestManifestHashOrThrow_accepts_PascalCase_ManifestHash`, `EnsureRunScopedPayloadIncludesManifestHashOrThrow_accepts_PascalCase_ManifestHash`, `EnsureRunScopedPayloadIncludesManifestHashOrThrow_accepts_PascalCase_ManifestHashSha256`).
+- [ ] (candidate) `RequestConstraintClassifier` / `RequestConstraintTokenMatcher` — `no-` / `not ` negation prefix gap on managed-identity / AI / SQL / private-networking constraints; `no-sql` may match standalone-word SQL token without negation handling.
+- [ ] (candidate) `RequiredAuditEventTypes.IsRequired` — lowercase governance audit wire values rejected after #735 trim fix; external emitters with mis-cased strings may skip fail-closed routing.
+
+2026-09-05 seed hunt #801: reseeded Wave-22 manifest-hash guards; proved PascalCase manifestHash/runId parity gap; reseeded constraint negation and audit casing candidates.
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
 - [x] (valid-no-repro) Tenant scope model treats empty workspace as a wildcard — `ActivityScopeTags` rejects `Guid.Empty` workspace ids; no wildcard semantics in Core tenancy models.
