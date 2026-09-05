@@ -54,7 +54,6 @@ export function RunsDashboardPanelChrome({ model }: RunsDashboardPanelChromeProp
         onValueChange={(next) => {
           model.selectDashboardTab(next as RunsDashboardTabId);
         }}
-        variant="pill"
       >
         <Card
           className={cn(

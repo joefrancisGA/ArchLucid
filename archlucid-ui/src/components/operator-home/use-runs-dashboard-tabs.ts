@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
+import { useOperatorAttentionSummary } from "@/hooks/use-operator-attention-summary";
 import { useSampleReviewsOnOverviewVisible } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
 import { filterRunsForHomeAttentionPreview } from "@/lib/operator/home-attention-dedup";
 import { operatorAttentionKindLabel } from "@/lib/operator/operator-attention-taxonomy";
@@ -78,6 +79,9 @@ export function useRunsDashboardTabs({
   );
   const { reportWorkspaceReviews, homeAttentionPreviewExcludedRunIds } = useOperatorHomeWorkspaceActivity();
   const sampleReviewsVisible = useSampleReviewsOnOverviewVisible();
+  const { summaries: attentionSummaries } = useOperatorAttentionSummary();
+  const awaitingApprovalCount =
+    attentionSummaries.find((summary) => summary.partition === "awaiting-approval")?.totalCount ?? 0;
 
   useEffect(() => {
     if (homeGovernanceWarningsQueryEnabled(searchParams)) {
@@ -226,15 +230,23 @@ export function useRunsDashboardTabs({
       previewItems: displayItems,
     });
 
-    const visibleCount = hideHeading
-      ? (statusTabCounts as HomePreviewTabCounts).recentVisibleCount
-      : undefined;
+    const previewCounts = hideHeading ? (statusTabCounts as HomePreviewTabCounts) : undefined;
+    const visibleCount = previewCounts?.recentVisibleCount;
 
     return formatOperatorHomeRecentReviewsOutcome(tenantSnapshot.metrics, {
       exampleReviewOnly,
       visibleCount,
+      recentTotalCount: previewCounts?.recentTotalCount,
+      awaitingApprovalCount,
     });
-  }, [displayItems, hideHeading, phase, sampleReviewsVisible, statusTabCounts]);
+  }, [
+    awaitingApprovalCount,
+    displayItems,
+    hideHeading,
+    phase,
+    sampleReviewsVisible,
+    statusTabCounts,
+  ]);
 
   const selectDashboardTab = useCallback((
     next: RunsDashboardTabId,

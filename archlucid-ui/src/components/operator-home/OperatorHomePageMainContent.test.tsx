@@ -20,7 +20,7 @@ vi.mock("@/components/operator-home/operator-home-workspace-activity-context", (
 import { OperatorHomePageMainContent } from "@/components/operator-home/OperatorHomePageMainContent";
 
 describe("OperatorHomePageMainContent", () => {
-  it("places recent reviews before compact starting actions when workspace has reviews", () => {
+  it("places compact starting actions before recent reviews when workspace has reviews", () => {
     render(
       <OperatorHomePageMainContent
         heroSection={<div data-testid="home-hero" />}
@@ -32,15 +32,15 @@ describe("OperatorHomePageMainContent", () => {
     );
 
     expect(screen.queryByTestId("home-hero")).toBeNull();
-    expect(screen.getByTestId("home-recent-reviews")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-compact-starting-actions")).toBeInTheDocument();
+    expect(screen.getByTestId("home-recent-reviews")).toBeInTheDocument();
     expect(screen.queryByTestId("home-first-value")).toBeNull();
 
-    const recent = screen.getByTestId("home-recent-reviews");
     const compact = screen.getByTestId("operator-home-compact-starting-actions");
+    const recent = screen.getByTestId("home-recent-reviews");
     const examples = screen.getByTestId("home-examples");
 
-    expect(recent.compareDocumentPosition(compact) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(compact.compareDocumentPosition(examples) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(compact.compareDocumentPosition(recent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(recent.compareDocumentPosition(examples) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

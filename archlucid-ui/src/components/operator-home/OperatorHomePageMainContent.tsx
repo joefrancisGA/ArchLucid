@@ -22,8 +22,8 @@ export function OperatorHomePageMainContent(props: OperatorHomePageMainContentPr
     return (
       <>
         <OperatorHomeInFlightReviewsSection />
-        {props.recentReviewsSection}
         <OperatorHomeCompactStartingActionsSection />
+        {props.recentReviewsSection}
         {props.sponsorRoiStrip}
         {props.examplesPlacement}
       </>
@@ -34,6 +34,7 @@ export function OperatorHomePageMainContent(props: OperatorHomePageMainContentPr
     <>
       {props.heroSection}
       <OperatorHomeInFlightReviewsSection />
+      <OperatorHomeCompactStartingActionsSection />
       {props.recentReviewsSection}
       {props.sponsorRoiStrip}
       {props.firstValueCallout}

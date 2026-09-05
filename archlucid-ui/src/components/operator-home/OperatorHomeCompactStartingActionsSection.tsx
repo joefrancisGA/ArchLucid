@@ -24,6 +24,8 @@ export type OperatorHomeCompactStartingActionsSectionProps = {
   readonly workingMode?: boolean;
   /** True when the workspace already has in-flight review packages on the desk. */
   readonly hasActiveDeskWork?: boolean;
+  /** When the page header already owns the resume/start primary, demote this section. */
+  readonly pagePrimaryOwnedByHeader?: boolean;
 };
 
 /** Reduced-emphasis starting actions when workspace reviews already exist. */
@@ -40,19 +42,29 @@ export function OperatorHomeCompactStartingActionsSection(
     ? OPERATOR_HOME_START_OR_RESUME_REVIEW_HEADING
     : OPERATOR_HOME_COMPACT_STARTING_ACTIONS_HEADING;
 
-  const showStarterPacks = props.workingMode !== true;
+  const showStarterPacks = props.workingMode !== true && props.pagePrimaryOwnedByHeader !== true;
+  const demoted = props.pagePrimaryOwnedByHeader === true;
+  const hasVisibleBody =
+    props.pagePrimaryOwnedByHeader !== true ||
+    showStarterPacks ||
+    !hideDualPathCards;
+
+  if (!hasVisibleBody) {
+    return null;
+  }
 
   return (
     <section
       aria-labelledby="operator-home-compact-starting-actions-heading"
       className={OPERATOR_LAYOUT.sectionHeadingStack}
       data-testid="operator-home-compact-starting-actions"
+      data-demoted={demoted ? "true" : undefined}
     >
       <div className={OPERATOR_LAYOUT.sectionStack}>
         <OperatorHomeCardSectionTitle id="operator-home-compact-starting-actions-heading">
           {sectionHeading}
         </OperatorHomeCardSectionTitle>
-        {props.workingMode === true ? (
+        {props.pagePrimaryOwnedByHeader === true ? null : props.workingMode === true ? (
           <OperatorHomeWorkingPrimaryCta variant={workingCtaVariant} showNewReviewWhenResuming={hasDeskWork} />
         ) : (
           <div className="flex flex-wrap items-center gap-2">

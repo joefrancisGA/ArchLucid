@@ -1,4 +1,11 @@
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
+import {
+  INTERNAL_AGENT_MODEL_CATALOG_PATH,
+  INTERNAL_FLEET_LLM_COGS_PATH,
+  INTERNAL_HEALTH_PATH,
+  INTERNAL_PRICING_QUOTE_AGING_PATH,
+  INTERNAL_TRIAL_FUNNEL_PATH,
+} from "@/lib/internal-ops-route-paths";
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
@@ -73,6 +80,13 @@ export const SIDEBAR_DAILY_HREFS_BY_GROUP: Readonly<Record<string, readonly stri
     SETTINGS_NOTIFICATIONS_PATH,
     SETTINGS_BILLING_PATH,
     ADMINISTRATION_SYSTEM_HEALTH_PATH,
+  ],
+  "operator-system-admin": [
+    INTERNAL_HEALTH_PATH,
+    INTERNAL_TRIAL_FUNNEL_PATH,
+    INTERNAL_FLEET_LLM_COGS_PATH,
+    INTERNAL_AGENT_MODEL_CATALOG_PATH,
+    INTERNAL_PRICING_QUOTE_AGING_PATH,
   ],
 };
 

@@ -140,7 +140,7 @@ function UnfinishedWorkRailPrimaryCard(props: { readonly item: UnfinishedWorkRai
           <div className="flex flex-wrap items-center gap-2">
             <Link
               href={item.href}
-              className={cn("min-w-0 break-words font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+              className={cn("min-w-0 break-words font-semibold", OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.cardTitle)}
               data-testid={`unfinished-work-rail-link-${item.id}`}
             >
               {item.title}
@@ -176,7 +176,7 @@ function UnfinishedWorkRailRow(props: { readonly item: UnfinishedWorkRailItem })
     >
       <Link
         href={item.href}
-        className={cn("min-w-0 break-words font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
+        className={cn("min-w-0 break-words font-medium", OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.body)}
         data-testid={`unfinished-work-rail-link-${item.id}`}
       >
         {item.title}

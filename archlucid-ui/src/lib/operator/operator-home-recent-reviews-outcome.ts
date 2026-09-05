@@ -14,6 +14,10 @@ export type FormatOperatorHomeRecentReviewsOutcomeOptions = {
   readonly exampleReviewOnly?: boolean;
   /** Featured recent-review rows visible in the preview list. */
   readonly visibleCount?: number;
+  /** Total tenant rows in the recent preview pool (before featured cap). */
+  readonly recentTotalCount?: number;
+  /** Governance approval queue pressure from attention summary. */
+  readonly awaitingApprovalCount?: number;
 };
 
 /**
@@ -53,8 +57,23 @@ export function formatOperatorHomeRecentReviewsOutcome(
     parts.push(`with ${formatOperatorHomeApprovalCheckWarningCount(metrics.governanceWarnings)}`);
   }
 
+  const awaitingApprovalCount = options?.awaitingApprovalCount ?? 0;
+
+  if (awaitingApprovalCount > 0) {
+    parts.push(
+      `${awaitingApprovalCount} awaiting approval`,
+    );
+  }
+
   if (options?.visibleCount !== undefined) {
-    parts.push(`showing ${options.visibleCount}`);
+    const visible = options.visibleCount;
+    const total = options.recentTotalCount ?? visible;
+
+    if (total > visible) {
+      parts.push(`showing ${visible} of ${total}`);
+    } else {
+      parts.push(`showing ${visible}`);
+    }
   }
 
   return parts.join(" · ");

@@ -29,7 +29,7 @@ export function buyerFacingReviewTitleFromSummary(run: RunSummary): string {
   }
 
   if (isShowcaseStaticDemoRunId(runIdRaw)) {
-    return SHOWCASE_BUYER_REVIEW_TITLE;
+    return SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE;
   }
 
   if (isShowcaseCreatedStaticDemoRunId(runIdRaw)) {
