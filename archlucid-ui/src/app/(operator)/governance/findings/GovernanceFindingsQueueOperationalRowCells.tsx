@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 
+import { FindingClassificationChip } from "@/components/findings/FindingClassificationChip";
 import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
 import { FindingCausalMiniChain } from "@/components/usability/FindingCausalMiniChain";
 import {
@@ -150,6 +151,11 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
                 chain={findingCausalMiniChainFromGovernanceQueueRow(row) ?? buildFindingCausalMiniChain({})}
                 className="mt-2"
               />
+          </div>
+        ) : null}
+        {row.recordKind === "finding" && row.classification !== null && row.classification !== undefined ? (
+          <div className="mt-1">
+            <FindingClassificationChip classification={row.classification} findingId={row.findingId} />
           </div>
         ) : null}
         {showInsightDensityScore &&

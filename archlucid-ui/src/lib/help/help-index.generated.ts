@@ -36,9 +36,37 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
     "docTitle": "Configuration reference",
+    "sectionSlug": "pilot-profile-overlay-appsettingspilotjson",
+    "sectionHeading": "Pilot profile overlay (`appsettings.Pilot.json`)",
+    "excerpt": "Use the optional `appsettings.Pilot.json` overlay (loaded in `ArchLucid.Api/Program.cs` after base JSON, before Advanced/SaaS) when standing up a single-replica pilot. It keeps the operator view minimal:"
+  },
+  {
+    "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
+    "docTitle": "Configuration reference",
     "sectionSlug": "testing-non-production",
     "sectionHeading": "Testing (non-production)",
     "excerpt": "Testing (non-production)"
+  },
+  {
+    "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
+    "docTitle": "Configuration reference",
+    "sectionSlug": "insight-density-gate-tb-382",
+    "sectionHeading": "Insight-density gate (TB-382)",
+    "excerpt": "Premium-tier judge calls are metered and capped. Each judged finding is one Reasoning deployment completion."
+  },
+  {
+    "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
+    "docTitle": "Configuration reference",
+    "sectionSlug": "open-commitment-finding-engine-id-05",
+    "sectionHeading": "Open-commitment finding engine (ID-05)",
+    "excerpt": "Surfaces overdue deferrals, unanswered evidence requests, and waiver expiry from the disposition trail on every review when enabled. Default on — disable per tenant when trail fan-out or finding volume is undesirable."
+  },
+  {
+    "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
+    "docTitle": "Configuration reference",
+    "sectionSlug": "portfolio-recurrence-finding-engine-id-06",
+    "sectionHeading": "Portfolio recurrence finding engine (ID-06)",
+    "excerpt": "Cross-run portfolio scan on every review when enabled. Default off so tenants do not incur `IRunDetailQueryService` / `IFindingsSnapshotRepository` fan-out until operators opt in and measure cost."
   },
   {
     "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
@@ -60,6 +88,13 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "sectionSlug": "itsm-integration-posture-tb-387",
     "sectionHeading": "ITSM integration posture (TB-387)",
     "excerpt": "Outbound vendor credentials are configured through deployment-level ITSM outbound and inbound connector settings (unchanged)."
+  },
+  {
+    "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
+    "docTitle": "Configuration reference",
+    "sectionSlug": "itsm-inbound-webhooks-integrationsitsminbound-tb-396",
+    "sectionHeading": "ITSM inbound webhooks (`Integrations:ItsmInbound`, TB-396)",
+    "excerpt": "Jira and ServiceNow inbound status webhooks authenticate with shared secrets (or per-tenant connector secrets when `AllowDeploymentWideWebhookSecrets` is `false`). When a correlated external ticket changes state, ArchLucid updates `FindingRecords.HumanReviewStatus` on the scoped snapshot row. Optional disposition ma…"
   },
   {
     "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
@@ -199,14 +234,14 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Your first architecture review",
     "sectionSlug": "what-good-looks-like",
     "sectionHeading": "What good looks like",
-    "excerpt": "Success signals for a first session:"
+    "excerpt": "Resume a draft, open an architecture package, inspect sealed records, or start a new review from the draft editor."
   },
   {
     "docPath": "docs/CORE_PILOT.md",
     "docTitle": "Your first architecture review",
     "sectionSlug": "recommended-first-session",
     "sectionHeading": "Recommended first session",
-    "excerpt": "- Start with one real architecture artifact or open the sample review. - Review the top findings. - Confirm or add supporting evidence. - Record at least one decision when the product prompts for it. - Finalize the architecture review. - Open the generated artifacts and sponsor exports."
+    "excerpt": "Resume a draft, open an architecture package, inspect sealed records, or start a new review from the draft editor."
   },
   {
     "docPath": "docs/CORE_PILOT.md",
@@ -1599,7 +1634,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-30",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1560 owns honesty CI for CI-guarantees-compat / Sunset-always-on overclaims. - Optional product follow-ons: `oasdiff`, CLI surface snapshot, enable Sunset in prod — not claimed as shipped. - This handout does not claim CPA SOC 2 or a published third-party penetration test."
+    "excerpt": "- TB-1560 Done — honesty CI (`check_rest_cli_breaking_change_compat_honesty.py`) guards CI-guarantees-compat / Sunset-always-on overclaims. - Optional product follow-ons: `oasdiff`, CLI surface snapshot, enable Sunset in prod — not claimed as shipped. - This handout does not claim CPA SOC 2 or a published third-part…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2537,7 +2572,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "pa-review-30",
     "sectionHeading": "PA review",
-    "excerpt": "1. Ask which rung the buyer will open and whether ladder UI labels the `/see-it` ↔ `/live-demo` relationship (TB-1267 / TB-1282). 2. Confirm offline curated fallback is not narrated as a live API session. 3. Confirm Contoso payload is not under Claims chrome. 4. Treat “ladder done” while TB-1267 / TB-1282 / TB-1029 …"
+    "excerpt": "1. Ask which rung the buyer will open and whether ladder UI labels the `/see-it` ↔ `/live-demo` relationship (TB-1267 / TB-1282). 2. Confirm offline curated fallback is not narrated as a live API session. 3. Confirm Contoso payload is not under Claims chrome. 4. Treat “ladder done” while TB-1029 or mode-chip / hero-…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2551,7 +2586,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-50",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1427 Done (2026-08-09) — fused ladder + claim-honesty contract published in [`../library/LIVE_DEMO_SEE_IT_LADDER_HONESTY.md`](../library/LIVE_DEMO_SEE_IT_LADDER_HONESTY.md). - TB-1428 owns anti-live-demo-as-live / ladder-closed language guards (depends on TB-1427). - UI ship remains on TB-1266–TB-1269 / TB-1281…"
+    "excerpt": "- TB-1427 Done (2026-08-09) — fused ladder + claim-honesty contract published in [`../library/LIVE_DEMO_SEE_IT_LADDER_HONESTY.md`](../library/LIVE_DEMO_SEE_IT_LADDER_HONESTY.md). - TB-1428 Done (2026-08-14) — anti-live-demo-as-live / ladder-closed language guard CI (`scripts/ci/check_live_demo_see_it_ladder_honesty.…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -4315,7 +4350,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "1-do-you-have-soc-2-type-ii",
     "sectionHeading": "1. Do you have SOC 2 Type II?",
-    "excerpt": "Answer: Today we publish a SOC 2 self-assessment and control mappin — OC 2 Type II CPA attestation is not currently issued ([SOC 2 self-assessment](/help/soc2-self-assessment)). Type I followed by Type II is the typical SaaS roadmap once operating evidence exists alongside budget."
+    "excerpt": "Answer: Today we publish a SOC 2 self-assessment and control mapping—SOC 2 Type II CPA attestation is not currently issued ([SOC 2 self-assessment](/help/soc2-self-assessment)). Type I followed by Type II is the typical SaaS roadmap once operating evidence exists alongside budget."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -4364,14 +4399,14 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "8-what-happens-if-archlucid-ceases-trading",
     "sectionHeading": "8. What happens if ArchLucid ceases trading?",
-    "excerpt": "Answer: Operational continuity hinges on contractual termination assistance, export rights, negotiated escrow arrangements, and staged migration timeline — xplicit source-code escrow is negotiable rather than universally bundled in starter paper. Request MSA / Order Form language through legal / sales diligence."
+    "excerpt": "Answer: Operational continuity hinges on contractual termination assistance, export rights, negotiated escrow arrangements, and staged migration timelines—explicit source-code escrow is negotiable rather than universally bundled in starter paper. Request MSA / Order Form language through legal / sales diligence."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "9-do-you-maintain-cyber-insurance",
     "sectionHeading": "9. Do you maintain cyber insurance?",
-    "excerpt": "Answer: Procurement should request current coverage limits, carrier, renewal date, and claims history directly from Vendor during diligenc — igures change year to year. Do not treat informal marketing copy as a certificate of insurance."
+    "excerpt": "Answer: Procurement should request current coverage limits, carrier, renewal date, and claims history directly from Vendor during diligence—figures change year to year. Do not treat informal marketing copy as a certificate of insurance."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -4399,7 +4434,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "trust-progression-timeline-informal",
     "sectionHeading": "Trust progression timeline (informal)",
-    "excerpt": "Note: Dates are illustrativ — ind via executed Order Form milestones when procuring regulated workloads. Stripped from `/help/procurement` buyer presentation (internal enablement)."
+    "excerpt": "Note: Dates are illustrative—bind via executed Order Form milestones when procuring regulated workloads. Stripped from `/help/procurement` buyer presentation (internal enablement)."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",

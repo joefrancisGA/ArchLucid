@@ -189,6 +189,31 @@ const SIGNED_MANIFEST_LABEL = "Sealed review record";
 const ARCHITECTURE_REVIEW_LABEL = "Architecture review";
 
 /**
+ * Keep in sync with `src/lib/help/help-workspace-mode-copy.ts` — desk lead for Working help search.
+ * @param {string} text
+ */
+function normalizeWorkingHelpDeskSearchExcerpt(docPath, text) {
+  if (!text || typeof text !== "string") {
+    return text;
+  }
+
+  const isCorePilotDoc = docPath.replace(/\\/g, "/").endsWith("docs/CORE_PILOT.md");
+
+  if (!isCorePilotDoc) {
+    return text;
+  }
+
+  const firstSessionLead =
+    /\b(open the sample|sample walkthrough|start with your first review|first review path|finish workspace setup|for your first session|recommended first session|success signals for a first session)\b/i;
+
+  if (!firstSessionLead.test(text)) {
+    return text;
+  }
+
+  return "Resume a draft, open an architecture package, inspect sealed records, or start a new review from the draft editor.";
+}
+
+/**
  * Mirrors `help-product-language.ts` for build-time help search excerpts.
  * @param {string} text
  */
@@ -386,7 +411,10 @@ function parseMarkdownDoc(docPath, raw) {
           docTitle,
           sectionSlug: "",
           sectionHeading: applyHelpTopicProductLanguage(`${docTitle} — overview`),
-          excerpt: applyHelpTopicProductLanguage(excerpt),
+          excerpt: normalizeWorkingHelpDeskSearchExcerpt(
+            docPath,
+            applyHelpTopicProductLanguage(excerpt),
+          ),
         });
       }
 
@@ -410,7 +438,10 @@ function parseMarkdownDoc(docPath, raw) {
         docTitle,
         sectionSlug,
         sectionHeading: applyHelpTopicProductLanguage(sectionHeading),
-        excerpt: applyHelpTopicProductLanguage(excerpt.length > 0 ? excerpt : sectionHeading),
+        excerpt: normalizeWorkingHelpDeskSearchExcerpt(
+          docPath,
+          applyHelpTopicProductLanguage(excerpt.length > 0 ? excerpt : sectionHeading),
+        ),
       });
 
       i += 1;

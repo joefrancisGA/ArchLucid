@@ -11,10 +11,6 @@ import {
   isAzureBoardsConnectionSaveSuccessful,
 } from "@/lib/azure-boards-integration-present";
 import { mapAzureBoardsHealthFromSettings } from "@/lib/azure-boards-stored-health";
-import {
-  AZURE_BOARDS_CONNECTION_SAVE_SUCCESS,
-  AZURE_BOARDS_SAVE_SUCCESS,
-} from "@/lib/azure-boards-page-copy";
 import type { AzureBoardsIntegrationHealthResponse, AzureBoardsOutboundSettingsResponse } from "@/lib/api/azure-boards-api";
 
 export type UseAzureBoardsConnectionMutationsOptions = {
@@ -52,6 +48,10 @@ export function useAzureBoardsConnectionMutations({
   const [connectionSaveError, setConnectionSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
   const [connectionSaveSuccess, setConnectionSaveSuccess] = useState<string | null>(null);
+  const [settingsLastSavedUtc, setSettingsLastSavedUtc] = useState<string | null>(null);
+  const [settingsInlineSaveError, setSettingsInlineSaveError] = useState<string | null>(null);
+  const [connectionLastSavedUtc, setConnectionLastSavedUtc] = useState<string | null>(null);
+  const [connectionInlineSaveError, setConnectionInlineSaveError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isSavingConnection, setIsSavingConnection] = useState(false);
 
@@ -63,6 +63,7 @@ export function useAzureBoardsConnectionMutations({
     setIsSavingConnection(true);
     setConnectionSaveError(null);
     setConnectionSaveSuccess(null);
+    setConnectionInlineSaveError(null);
 
     try {
       const saved = await upsertTenantItsmConnectorConnection("azureboards", {
@@ -73,8 +74,9 @@ export function useAzureBoardsConnectionMutations({
         isEnabled: true,
       });
       applyConnection(saved);
+
       if (isAzureBoardsConnectionSaveSuccessful(saved)) {
-        setConnectionSaveSuccess(AZURE_BOARDS_CONNECTION_SAVE_SUCCESS);
+        setConnectionLastSavedUtc(new Date().toISOString());
       }
 
       // New credentials are unvalidated until the operator runs Test connection.
@@ -86,7 +88,9 @@ export function useAzureBoardsConnectionMutations({
       );
       await loadDiscovery();
     } catch (error: unknown) {
-      setConnectionSaveError(error instanceof Error ? error.message : "Could not save connection.");
+      const message = error instanceof Error ? error.message : "Could not save connection.";
+      setConnectionSaveError(message);
+      setConnectionInlineSaveError(message);
     } finally {
       setIsSavingConnection(false);
     }
@@ -108,6 +112,7 @@ export function useAzureBoardsConnectionMutations({
     setIsSaving(true);
     setSaveError(null);
     setSaveSuccess(null);
+    setSettingsInlineSaveError(null);
 
     try {
       const saved = await upsertAzureBoardsSettings({
@@ -118,9 +123,11 @@ export function useAzureBoardsConnectionMutations({
         defaultTags: defaultTags.trim() || null,
       });
       applySettings(saved);
-      setSaveSuccess(AZURE_BOARDS_SAVE_SUCCESS);
+      setSettingsLastSavedUtc(new Date().toISOString());
     } catch (error: unknown) {
-      setSaveError(error instanceof Error ? error.message : "Could not save work item settings.");
+      const message = error instanceof Error ? error.message : "Could not save work item settings.";
+      setSaveError(message);
+      setSettingsInlineSaveError(message);
     } finally {
       setIsSaving(false);
     }
@@ -139,6 +146,10 @@ export function useAzureBoardsConnectionMutations({
     connectionSaveError,
     saveSuccess,
     connectionSaveSuccess,
+    settingsLastSavedUtc,
+    settingsInlineSaveError,
+    connectionLastSavedUtc,
+    connectionInlineSaveError,
     isSaving,
     isSavingConnection,
     saveConnection,

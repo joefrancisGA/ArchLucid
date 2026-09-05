@@ -18,6 +18,11 @@ public sealed class GovernedFindingCoverageMetric
     /// </summary>
     public int TotalDecisionGradeCount { get; init; }
 
+    /// <summary>
+    ///     Findings demoted to checklist coverage by the insight-density gate (ADR 0070).
+    /// </summary>
+    public int TotalChecklistCoverageCount { get; init; }
+
     /// <summary>Findings classified as governance-blocking (<c>FindingEnforcementTier.PolicyViolation</c>).</summary>
     public int GovernedCount { get; init; }
 
@@ -48,16 +53,18 @@ public sealed class GovernedFindingCoverageMetric
         int governedCount,
         int advisoryCount,
         int withPolicyRuleCount,
-        int withEvidenceRefsCount)
+        int withEvidenceRefsCount,
+        int totalChecklistCoverageCount = 0)
     {
-        bool available = totalDecisionGradeCount > 0;
-        double? percentage = available
+        bool available = totalDecisionGradeCount > 0 || totalChecklistCoverageCount > 0;
+        double? percentage = totalDecisionGradeCount > 0
             ? Math.Round((double)governedCount / totalDecisionGradeCount * 100.0, 1)
             : null;
 
         return new GovernedFindingCoverageMetric
         {
             TotalDecisionGradeCount = totalDecisionGradeCount,
+            TotalChecklistCoverageCount = totalChecklistCoverageCount,
             GovernedCount = governedCount,
             AdvisoryCount = advisoryCount,
             WithPolicyRuleCount = withPolicyRuleCount,

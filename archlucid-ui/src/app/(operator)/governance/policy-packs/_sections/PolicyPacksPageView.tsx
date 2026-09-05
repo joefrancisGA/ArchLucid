@@ -302,11 +302,15 @@ export function PolicyPacksPageView(props: Props) {
                       createJson={m.createJson}
                       onCreateJsonChange={m.setCreateJson}
                       onCreate={m.onCreate}
+                      createLastSavedUtc={m.createLastSavedUtc}
+                      createInlineSaveError={m.createInlineSaveError}
                       publishVersion={m.publishVersion}
                       onPublishVersionChange={m.setPublishVersion}
                       publishJson={m.publishJson}
                       onPublishJsonChange={m.setPublishJson}
                       onPublish={m.onPublish}
+                      publishLastSavedUtc={m.publishLastSavedUtc}
+                      publishInlineSaveError={m.publishInlineSaveError}
                       assignVersion={m.assignVersion}
                       onAssignVersionChange={m.setAssignVersion}
                       assignScopeLevel={m.assignScopeLevel}

@@ -9,6 +9,7 @@ import { useCallback, useEffect, useState } from "react";
 import { PolicyPackChangeImpactNotice } from "@/components/policy/PolicyPackChangeImpactNotice";
 import { PolicyPackContentJsonEditor } from "@/components/policy/PolicyPackContentJsonEditor";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { LivelihoodPersistSaveStatus } from "@/components/operator/LivelihoodPersistSaveStatus";
 import { InlineHelp } from "@/components/InlineHelp";
 import { GovernanceDryRunModal } from "@/components/governance/GovernanceDryRunModal";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
@@ -50,11 +51,15 @@ export type PolicyPacksLifecycleSectionProps = {
   createJson: string;
   onCreateJsonChange: (value: string) => void;
   onCreate: () => void;
+  readonly createLastSavedUtc: string | null;
+  readonly createInlineSaveError: string | null;
   publishVersion: string;
   onPublishVersionChange: (value: string) => void;
   publishJson: string;
   onPublishJsonChange: (value: string) => void;
   onPublish: () => void;
+  readonly publishLastSavedUtc: string | null;
+  readonly publishInlineSaveError: string | null;
   assignVersion: string;
   onAssignVersionChange: (value: string) => void;
   assignScopeLevel: string;
@@ -83,11 +88,15 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
     createJson,
     onCreateJsonChange,
     onCreate,
+    createLastSavedUtc,
+    createInlineSaveError,
     publishVersion,
     onPublishVersionChange,
     publishJson,
     onPublishJsonChange,
     onPublish,
+    publishLastSavedUtc,
+    publishInlineSaveError,
     assignVersion,
     onAssignVersionChange,
     assignScopeLevel,
@@ -255,6 +264,11 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
             >
               {canMutatePacks ? "Create pack" : policyPacksCreatePackButtonLabelReaderRank}
             </button>
+            <LivelihoodPersistSaveStatus
+              lastSavedUtc={createLastSavedUtc}
+              inlineSaveError={createInlineSaveError}
+              testId="policy-pack-create-save-status"
+            />
           </div>
         </section>
 
@@ -311,6 +325,11 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
             >
               {canMutatePacks ? "Publish" : policyPacksPublishButtonLabelReaderRank}
             </button>
+            <LivelihoodPersistSaveStatus
+              lastSavedUtc={publishLastSavedUtc}
+              inlineSaveError={publishInlineSaveError}
+              testId="policy-pack-publish-save-status"
+            />
           </div>
         </section>
 

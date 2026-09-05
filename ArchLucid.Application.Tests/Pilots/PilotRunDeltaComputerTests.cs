@@ -617,6 +617,34 @@ public sealed class PilotRunDeltaComputerTests
         metric.GovernedPercentage.Should().Be(0.0);
     }
 
+    [Fact]
+    public void AggregateGovernedFindingCoverage_SplitsDecisionGradeAndChecklistCounts()
+    {
+        List<ArchitectureFinding> findings =
+        [
+            new ArchitectureFinding
+            {
+                FindingId = "dg-1",
+                EnforcementTier = FindingEnforcementTier.PolicyViolation,
+                Classification = FindingClassification.DecisionGradeFinding,
+            },
+            new ArchitectureFinding
+            {
+                FindingId = "cl-1",
+                EnforcementTier = FindingEnforcementTier.Advisory,
+                Classification = FindingClassification.ChecklistCoverage,
+            },
+        ];
+
+        ArchitectureRunDetail detail = BuildDetailWithFindings(findings);
+        GovernedFindingCoverageMetric metric = PilotRunDeltaComputer.AggregateGovernedFindingCoverage(detail);
+
+        metric.IsAvailable.Should().BeTrue();
+        metric.TotalDecisionGradeCount.Should().Be(1);
+        metric.TotalChecklistCoverageCount.Should().Be(1);
+        metric.GovernedCount.Should().Be(1);
+    }
+
     private static ArchitectureRunDetail BuildDetailWithFindings(List<ArchitectureFinding> findings)
     {
         DateTime created = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
