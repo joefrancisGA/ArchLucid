@@ -1,11 +1,16 @@
 "use client";
-
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  parseQuickReviewAdvancedOpenFromSearch,
+  quickReviewAdvancedConfigHrefFromSearch,
+} from "@/lib/wizard/quick-review-advanced-config-url";
 
 type QuickReviewAdvancedConfigAccordionProps = {
   readonly children: ReactNode;
@@ -15,17 +20,44 @@ type QuickReviewAdvancedConfigAccordionProps = {
 
 /** Collapses execution modes, workspace scope, and policy-pack pickers until the operator explicitly expands them. */
 export function QuickReviewAdvancedConfigAccordion(props: QuickReviewAdvancedConfigAccordionProps): React.JSX.Element {
-  const [internalOpen, setInternalOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const quickReviewAdvancedOpenParam = searchParams.get("quickReviewAdvancedOpen");
+  const [internalOpen, setInternalOpenState] = useState(() =>
+    parseQuickReviewAdvancedOpenFromSearch(quickReviewAdvancedOpenParam),
+  );
   const isControlled = props.open !== undefined;
   const open = isControlled ? props.open : internalOpen;
 
-  function setOpen(next: boolean): void {
-    if (!isControlled) {
-      setInternalOpen(next);
+  const syncOpenToUrl = useCallback(
+    (next: boolean) => {
+      router.replace(quickReviewAdvancedConfigHrefFromSearch(searchParams.toString(), next, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (next: boolean): void => {
+      if (!isControlled) {
+        setInternalOpenState(next);
+        syncOpenToUrl(next);
+      }
+
+      props.onOpenChange?.(next);
+    },
+    [isControlled, props, syncOpenToUrl],
+  );
+
+  useEffect(() => {
+    if (isControlled) {
+      return;
     }
 
-    props.onOpenChange?.(next);
-  }
+    setInternalOpenState(parseQuickReviewAdvancedOpenFromSearch(quickReviewAdvancedOpenParam));
+  }, [isControlled, quickReviewAdvancedOpenParam]);
 
   return (
     <Collapsible open={open} onOpenChange={setOpen} data-testid="quick-review-advanced-config">

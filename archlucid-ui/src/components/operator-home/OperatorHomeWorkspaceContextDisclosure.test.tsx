@@ -33,6 +33,12 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   }),
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/",
+  useSearchParams: () => new URLSearchParams(),
+  useRouter: () => ({ replace: vi.fn() }),
+}));
+
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
 import { OPERATOR_HOME_WORKSPACE_METRICS_EMPTY_COPY } from "@/lib/operator/operator-home-workspace-metrics";
 

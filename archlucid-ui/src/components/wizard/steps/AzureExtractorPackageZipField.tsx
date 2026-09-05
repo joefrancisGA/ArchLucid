@@ -3,7 +3,8 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { AzureExtractorUploadFailureCallout } from "@/components/AzureExtractorUploadFailureCallout";
@@ -31,6 +32,10 @@ import {
 } from "@/lib/zero-config-demo-mode";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  parseWizardAzureAdvancedOpenFromSearch,
+  wizardAzureAdvancedHrefFromSearch,
+} from "@/lib/wizard/wizard-azure-advanced-url";
 
 export type AzureExtractorPackageZipFieldProps = {
   variant: "baseline" | "ingest";
@@ -58,6 +63,10 @@ function BaselineStepHeading(props: { step: number; title: string; description: 
  */
 export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFieldProps) {
   const { variant, onPendingZipFileChange } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const wizardAzureAdvancedOpenParam = searchParams.get("wizardAzureAdvancedOpen");
   const { setValue } = useFormContext<WizardFormValues>();
   const [busy, setBusy] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
@@ -65,7 +74,30 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
   const [selectedDemoScenarioId, setSelectedDemoScenarioId] = useState<DemoReviewScenarioId>(
     DEFAULT_DEMO_REVIEW_SCENARIO_ID,
   );
-  const [azureAdvancedOpen, setAzureAdvancedOpen] = useState(false);
+  const [azureAdvancedOpen, setAzureAdvancedOpenState] = useState(() =>
+    parseWizardAzureAdvancedOpenFromSearch(wizardAzureAdvancedOpenParam),
+  );
+
+  const syncAzureAdvancedOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(wizardAzureAdvancedHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setAzureAdvancedOpen = useCallback(
+    (open: boolean) => {
+      setAzureAdvancedOpenState(open);
+      syncAzureAdvancedOpenToUrl(open);
+    },
+    [syncAzureAdvancedOpenToUrl],
+  );
+
+  useEffect(() => {
+    setAzureAdvancedOpenState(parseWizardAzureAdvancedOpenFromSearch(wizardAzureAdvancedOpenParam));
+  }, [wizardAzureAdvancedOpenParam]);
   const maxMb = Math.floor(ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES / (1024 * 1024));
   const successMessage =
     variant === "baseline"

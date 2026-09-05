@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ArchitectureCreatedOverviewEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedOverviewEvidenceOrientationStrip";
 import { ArchitectureStructuredSectionView } from "@/components/architecture/ArchitectureStructuredSectionView";
@@ -22,6 +23,10 @@ import type {
 import { REVIEWS_NEW_CREATE_ARCHITECTURE_HREF } from "@/lib/reviews-new-path-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ArchitectureWorkspaceTabId } from "@/lib/architecture/architecture-workspace-tabs";
+import {
+  parseSubmittedBriefOpenFromSearch,
+  submittedBriefDisclosureHrefFromSearch,
+} from "@/lib/architecture/submitted-brief-disclosure-url";
 
 const OVERVIEW_SECTION_KEYS: readonly ArchitectureStructuredSectionKey[] = [
   "sponsor-report",
@@ -56,8 +61,35 @@ export type ArchitectureCreatedOverviewPanelProps = {
 export function ArchitectureCreatedOverviewPanel(
   props: ArchitectureCreatedOverviewPanelProps,
 ): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const submittedBriefOpenParam = searchParams.get("submittedBriefOpen");
   const [parseAttempt, setParseAttempt] = useState(0);
-  const [submittedBriefOpen, setSubmittedBriefOpen] = useState(false);
+  const [submittedBriefOpen, setSubmittedBriefOpenState] = useState(() =>
+    parseSubmittedBriefOpenFromSearch(submittedBriefOpenParam),
+  );
+
+  const syncSubmittedBriefOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(submittedBriefDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSubmittedBriefOpen = useCallback(
+    (open: boolean) => {
+      setSubmittedBriefOpenState(open);
+      syncSubmittedBriefOpenToUrl(open);
+    },
+    [syncSubmittedBriefOpenToUrl],
+  );
+
+  useEffect(() => {
+    setSubmittedBriefOpenState(parseSubmittedBriefOpenFromSearch(submittedBriefOpenParam));
+  }, [submittedBriefOpenParam]);
 
   const parseResult = useMemo(
     () => {

@@ -1,12 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { StatusTag } from "@/components/ui/status-tag";
 import { useAuditEvidenceLineageQuery } from "@/hooks/use-audit-evidence-lineage-query";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
 import { deriveAuditLineageCheckboxPresentation } from "@/lib/audit-evidence-lineage-presentation";
 import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH } from "@/lib/audit-evidence-lineage-route";
+import {
+  auditEvidenceLineageChainHrefFromSearch,
+  parseAuditEvidenceLineageChainOpenFromSearch,
+} from "@/lib/governance/audit-evidence-lineage-chain-url";
 
 import { AuditEvidenceLineageSpine } from "./AuditEvidenceLineageSpine";
 
@@ -17,8 +22,40 @@ type AuditEvidenceControlLineageClientProps = {
 };
 
 export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLineageClientProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const lineageChainOpenParam = searchParams.get("lineageChainOpen");
   const lineageQuery = useAuditEvidenceLineageQuery(props.assessmentId, props.snapshotId, props.controlId);
-  const [chainExpanded, setChainExpanded] = useState(false);
+  const [chainExpanded, setChainExpandedState] = useState(() =>
+    parseAuditEvidenceLineageChainOpenFromSearch(lineageChainOpenParam),
+  );
+
+  const syncChainExpandedToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        auditEvidenceLineageChainHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setChainExpanded = useCallback(
+    (value: boolean | ((current: boolean) => boolean)) => {
+      setChainExpandedState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncChainExpandedToUrl(next);
+
+        return next;
+      });
+    },
+    [syncChainExpandedToUrl],
+  );
+
+  useEffect(() => {
+    setChainExpandedState(parseAuditEvidenceLineageChainOpenFromSearch(lineageChainOpenParam));
+  }, [lineageChainOpenParam]);
 
   const lineage = lineageQuery.data;
   const checkboxPresentation = lineage ? deriveAuditLineageCheckboxPresentation(lineage) : null;

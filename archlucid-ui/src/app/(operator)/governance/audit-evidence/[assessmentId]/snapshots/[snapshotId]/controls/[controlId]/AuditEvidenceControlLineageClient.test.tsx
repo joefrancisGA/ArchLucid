@@ -7,6 +7,12 @@ vi.mock("@/hooks/use-audit-evidence-lineage-query", () => ({
   useAuditEvidenceLineageQuery: (...args: unknown[]) => useAuditEvidenceLineageQueryMock(...args),
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/governance/audit-evidence/a/s/c",
+  useSearchParams: () => new URLSearchParams(),
+  useRouter: () => ({ replace: vi.fn() }),
+}));
+
 import { AuditEvidenceControlLineageClient } from "./AuditEvidenceControlLineageClient";
 
 const ids = {

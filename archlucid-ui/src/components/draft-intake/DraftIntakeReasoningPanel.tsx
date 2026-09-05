@@ -2,7 +2,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
 import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
@@ -15,6 +16,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { reasonDraftRequest } from "@/lib/api/draft-intake-api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
+import {
+  draftIntakeReasoningPanelHrefFromSearch,
+  parseDraftIntakeReasonOpenFromSearch,
+} from "@/lib/draft-intake/draft-intake-reasoning-panel-url";
 
 const DEFAULT_INTAKE_QUESTION =
   "What gaps or risks do you see in my intent and outcome before I start the architecture review?";
@@ -53,7 +58,17 @@ function summarizeLatestTurn(turns: DraftIntakeReasonTurn[]): string | null {
  * Pre-run Socratic reasoning via POST /v1/architecture/draft/{draftId}/reason (SAQ-013).
  */
 export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps) {
-  const [panelOpen, setPanelOpen] = useState(props.defaultOpen === true);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const draftIntakeReasonOpenParam = searchParams.get("draftIntakeReasonOpen");
+  const [panelOpen, setPanelOpenState] = useState(() => {
+    if (parseDraftIntakeReasonOpenFromSearch(draftIntakeReasonOpenParam)) {
+      return true;
+    }
+
+    return props.defaultOpen === true;
+  });
   const [message, setMessage] = useState(DEFAULT_INTAKE_QUESTION);
   const [turns, setTurns] = useState<DraftIntakeReasonTurn[]>([]);
   const [busy, setBusy] = useState(false);
@@ -62,6 +77,39 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
     problem: ApiProblemDetails | null;
     correlationId: string | null;
   } | null>(null);
+
+  const syncPanelOpenToUrl = useCallback(
+    (open: boolean) => {
+      if (props.embedded === true) {
+        return;
+      }
+
+      router.replace(draftIntakeReasoningPanelHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, props.embedded, router, searchParams],
+  );
+
+  const setPanelOpen = useCallback(
+    (open: boolean) => {
+      setPanelOpenState(open);
+      syncPanelOpenToUrl(open);
+    },
+    [syncPanelOpenToUrl],
+  );
+
+  useEffect(() => {
+    if (props.embedded === true) {
+      return;
+    }
+
+    if (draftIntakeReasonOpenParam === null) {
+      return;
+    }
+
+    setPanelOpenState(parseDraftIntakeReasonOpenFromSearch(draftIntakeReasonOpenParam));
+  }, [draftIntakeReasonOpenParam, props.embedded]);
 
   const panelDisabled = props.disabled === true || busy;
   const summaryStatus = useMemo(() => summarizeLatestTurn(turns), [turns]);

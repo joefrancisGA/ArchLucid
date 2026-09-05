@@ -2907,6 +2907,94 @@ describe("wave40 filter url helpers", () => {
   });
 });
 
+describe("wave41 filter url helpers", () => {
+  it("lineage chain, wizard inventory/azure advanced, quick review advanced, and muted filter params", async () => {
+    const {
+      auditEvidenceLineageChainHrefFromSearch,
+      parseAuditEvidenceLineageChainOpenFromSearch,
+    } = await import("@/lib/governance/audit-evidence-lineage-chain-url");
+    const {
+      parseWizardInventoryOpenFromSearch,
+      wizardStepCloudInventoryHrefFromSearch,
+    } = await import("@/lib/wizard/wizard-step-cloud-inventory-url");
+    const {
+      parseWizardAzureAdvancedOpenFromSearch,
+      wizardAzureAdvancedHrefFromSearch,
+    } = await import("@/lib/wizard/wizard-azure-advanced-url");
+    const {
+      parseQuickReviewAdvancedOpenFromSearch,
+      quickReviewAdvancedConfigHrefFromSearch,
+    } = await import("@/lib/wizard/quick-review-advanced-config-url");
+    const {
+      parseQuickDecisionShowMutedFromSearch,
+      quickDecisionMutedFilterHrefFromSearch,
+    } = await import("@/lib/reviews/quick-decision-muted-filter-url");
+
+    expect(parseAuditEvidenceLineageChainOpenFromSearch("1")).toBe(true);
+    expect(
+      auditEvidenceLineageChainHrefFromSearch("", true, "/governance/audit-evidence/a/s/c"),
+    ).toBe("/governance/audit-evidence/a/s/c?lineageChainOpen=1");
+    expect(parseWizardInventoryOpenFromSearch("true")).toBe(true);
+    expect(wizardStepCloudInventoryHrefFromSearch("qsStep=2", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?qsStep=2&wizardInventoryOpen=1",
+    );
+    expect(parseWizardAzureAdvancedOpenFromSearch("1")).toBe(true);
+    expect(wizardAzureAdvancedHrefFromSearch("", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?wizardAzureAdvancedOpen=1",
+    );
+    expect(parseQuickReviewAdvancedOpenFromSearch("1")).toBe(true);
+    expect(quickReviewAdvancedConfigHrefFromSearch("", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?quickReviewAdvancedOpen=1",
+    );
+    expect(parseQuickDecisionShowMutedFromSearch("1")).toBe(true);
+    expect(
+      quickDecisionMutedFilterHrefFromSearch("tab=findings", true, "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?tab=findings&showMuted=1");
+  });
+
+  it("compare manifest diff, finding provenance, draft intake reason, submitted brief, home workspace details params", async () => {
+    const {
+      compareManifestDiffHrefFromSearch,
+      parseCompareManifestDiffOpenFromSearch,
+    } = await import("@/lib/compare/compare-manifest-diff-url");
+    const {
+      findingProvenancePanelHrefFromSearch,
+      parseFindingProvenanceOpenFromSearch,
+    } = await import("@/lib/findings/finding-provenance-panel-url");
+    const {
+      draftIntakeReasoningPanelHrefFromSearch,
+      parseDraftIntakeReasonOpenFromSearch,
+    } = await import("@/lib/draft-intake/draft-intake-reasoning-panel-url");
+    const {
+      parseSubmittedBriefOpenFromSearch,
+      submittedBriefDisclosureHrefFromSearch,
+    } = await import("@/lib/architecture/submitted-brief-disclosure-url");
+    const {
+      homeWorkspaceDetailsHrefFromSearch,
+      parseHomeWorkspaceDetailsOpenFromSearch,
+    } = await import("@/lib/operator-home/home-workspace-details-url");
+
+    expect(parseCompareManifestDiffOpenFromSearch("1")).toBe(true);
+    expect(compareManifestDiffHrefFromSearch("compare=1", true, "/insights/compare-two-reviews")).toBe(
+      "/insights/compare-two-reviews?compare=1&compareManifestDiffOpen=1",
+    );
+    expect(parseFindingProvenanceOpenFromSearch("true")).toBe(true);
+    expect(
+      findingProvenancePanelHrefFromSearch("", true, "/architecture/reviews/r1/findings/f1"),
+    ).toBe("/architecture/reviews/r1/findings/f1?findingProvenanceOpen=1");
+    expect(parseDraftIntakeReasonOpenFromSearch("1")).toBe(true);
+    expect(draftIntakeReasoningPanelHrefFromSearch("draftId=d1", true, "/architecture/drafts/d1")).toBe(
+      "/architecture/drafts/d1?draftId=d1&draftIntakeReasonOpen=1",
+    );
+    expect(parseSubmittedBriefOpenFromSearch("1")).toBe(true);
+    expect(
+      submittedBriefDisclosureHrefFromSearch("tab=overview", true, "/architecture/created/a1"),
+    ).toBe("/architecture/created/a1?tab=overview&submittedBriefOpen=1");
+    expect(parseHomeWorkspaceDetailsOpenFromSearch("1")).toBe(true);
+    expect(homeWorkspaceDetailsHrefFromSearch("", true, "/")).toBe("/?homeWorkspaceDetailsOpen=1");
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

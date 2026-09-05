@@ -34,6 +34,10 @@ import {
   quickDecisionAskPanelsHrefFromSearch,
 } from "@/lib/reviews/quick-decision-ask-panels-url";
 import {
+  parseQuickDecisionShowMutedFromSearch,
+  quickDecisionMutedFilterHrefFromSearch,
+} from "@/lib/reviews/quick-decision-muted-filter-url";
+import {
   parseQuickDecisionReasoningFindingIdFromSearch,
   quickDecisionReasoningPanelsHrefFromSearch,
 } from "@/lib/reviews/quick-decision-reasoning-panels-url";
@@ -60,7 +64,15 @@ type QuickDecisionSummaryDerivedState = QuickDecisionSummaryDerivedData & {
 function useQuickDecisionSummaryDerivedData(props: QuickDecisionSummaryProps): QuickDecisionSummaryDerivedState {
   const sorted = sortQuickDecisionFindings(props.findings);
   const confidenceManagedExternally = props.confidenceVisibility?.managedExternally === true;
-  const [showMuted, setShowMuted] = useState(false);
+  const [showMuted, setShowMuted] = useOptionallyControlledBoolean(
+    props.mutedVisibility?.managedExternally === true && props.mutedVisibility
+      ? {
+          value: props.mutedVisibility.showMuted,
+          onChange: props.mutedVisibility.onShowMutedChange,
+          managedExternally: true,
+        }
+      : undefined,
+  );
   const [showLowConfidence, setShowLowConfidence] = useOptionallyControlledBoolean(
     confidenceManagedExternally && props.confidenceVisibility
       ? {
@@ -195,8 +207,33 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
   const muteFindingIdParam = searchParams.get("muteFindingId");
   const qdReasonIdParam = searchParams.get("qdReasonId");
   const qdAskFindingIdParam = searchParams.get("qdAskFindingId");
+  const showMutedParam = searchParams.get("showMuted");
   const canMutate = useOperateCapability();
-  const derivedState = useQuickDecisionSummaryDerivedData(props);
+
+  const syncShowMutedToUrl = useCallback(
+    (showMuted: boolean) => {
+      router.replace(quickDecisionMutedFilterHrefFromSearch(searchParams.toString(), showMuted, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const mutedVisibility = useMemo(
+    () => ({
+      showMuted: parseQuickDecisionShowMutedFromSearch(showMutedParam),
+      onShowMutedChange: (value: boolean) => {
+        syncShowMutedToUrl(value);
+      },
+      managedExternally: true as const,
+    }),
+    [showMutedParam, syncShowMutedToUrl],
+  );
+
+  const derivedState = useQuickDecisionSummaryDerivedData({
+    ...props,
+    mutedVisibility,
+  });
   const { derived, filters } = splitDerivedState(derivedState);
   const [reasoningOpen, setReasoningOpen] = useState(() => {
     const urlFindingId = parseQuickDecisionReasoningFindingIdFromSearch(qdReasonIdParam);
