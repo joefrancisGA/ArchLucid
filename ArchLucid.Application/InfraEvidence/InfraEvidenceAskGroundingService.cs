@@ -3,7 +3,9 @@ using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.Llm;
 using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Logging;
 
@@ -13,6 +15,8 @@ public sealed class InfraEvidenceAskGroundingService(
     IInfraEvidenceAskEvidenceCollector evidenceCollector,
     IAgentCompletionClient llm,
     IPromptRedactor promptRedactor,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     ILogger<InfraEvidenceAskGroundingService> logger) : IInfraEvidenceAskGroundingService
 {
     public async Task<InfraEvidenceAskGroundingResult> TryAnswerAsync(
@@ -34,6 +38,13 @@ public sealed class InfraEvidenceAskGroundingService(
 
         try
         {
+            await InfraEvidenceAskSealedManifestHashGuard.EnsureRunSealedManifestHashWhenRunScopedOrThrowAsync(
+                request.RunId,
+                scope,
+                authorityQueryService,
+                manifestHashService,
+                cancellationToken);
+
             string topicKind = InfraEvidenceAskIntentResolver.Resolve(request);
 
             InfraEvidenceAskEvidenceBundle bundle =

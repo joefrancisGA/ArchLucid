@@ -37,7 +37,8 @@ internal static class ArchitectureRunIntegrationEventPublishing
         ArgumentNullException.ThrowIfNull(authorityQueryService);
         ArgumentNullException.ThrowIfNull(manifestHashService);
 
-        string? manifestHash = await RunIntegrationEventManifestHashResolver.TryResolveVerifiedManifestHashOrNullAsync(
+        string? manifestHash =
+            await RunIntegrationEventManifestHashResolver.TryResolveVerifiedManifestHashWhenCommittedOrNullAsync(
             runId,
             scope,
             authorityQueryService,
@@ -99,7 +100,8 @@ internal static class ArchitectureRunIntegrationEventPublishing
         ArgumentNullException.ThrowIfNull(authorityQueryService);
         ArgumentNullException.ThrowIfNull(manifestHashService);
 
-        string? manifestHash = await RunIntegrationEventManifestHashResolver.TryResolveVerifiedManifestHashOrNullAsync(
+        string? manifestHash =
+            await RunIntegrationEventManifestHashResolver.TryResolveVerifiedManifestHashWhenCommittedOrNullAsync(
             runId,
             scope,
             authorityQueryService,
