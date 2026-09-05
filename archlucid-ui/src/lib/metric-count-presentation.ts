@@ -73,6 +73,10 @@ export function formatMetricCountScopeLabel(dimensions: readonly MetricCountScop
 export function formatMetricCountHeadline(presentation: MetricCountPresentation): string {
   const scope = formatMetricCountScopeLabel(presentation.dimensions);
 
+  if (scope.length === 0) {
+    return `${presentation.count} ${presentation.noun}`;
+  }
+
   return `${presentation.count} ${presentation.noun} · ${scope}`;
 }
 
@@ -155,7 +159,7 @@ export function workspaceOpenFindingsPresentation(count: number): MetricCountPre
   return {
     count,
     noun: count === 1 ? "open finding" : "open findings",
-    dimensions: [{ kind: "workspace" }],
+    dimensions: [],
     href: buildGovernanceFindingsQueueHref({ filter: "open" }),
   };
 }
@@ -164,7 +168,7 @@ export function operatorHomeActiveReviewsPresentation(count: number): MetricCoun
   return {
     count,
     noun: count === 1 ? "active review" : "active reviews",
-    dimensions: [{ kind: "workspace" }],
+    dimensions: [],
     href: reviewsHubInventoryFilterHref("Active"),
   };
 }
@@ -173,7 +177,7 @@ export function operatorHomeFinalizedPackagesPresentation(count: number): Metric
   return {
     count,
     noun: count === 1 ? "finalized package" : "finalized packages",
-    dimensions: [{ kind: "workspace" }],
+    dimensions: [],
     href: reviewsHubInventoryFilterHref("finalized"),
   };
 }
@@ -185,7 +189,7 @@ export function operatorHomeGovernanceWarningsPresentation(
   return {
     count,
     noun,
-    dimensions: [{ kind: "workspace" }],
+    dimensions: [],
     href: OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF,
   };
 }

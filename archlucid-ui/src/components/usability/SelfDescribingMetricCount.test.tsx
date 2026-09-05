@@ -17,6 +17,6 @@ describe("SelfDescribingMetricCount", () => {
       "href",
       "/governance/findings?filter=open",
     );
-    expect(screen.getByText(/open findings — this workspace/)).toBeInTheDocument();
+    expect(screen.getByText(/^open findings$/)).toBeInTheDocument();
   });
 });
