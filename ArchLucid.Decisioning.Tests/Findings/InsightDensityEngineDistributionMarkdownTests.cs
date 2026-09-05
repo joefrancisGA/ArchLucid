@@ -1,4 +1,5 @@
 using ArchLucid.Decisioning.Findings;
+using ArchLucid.Decisioning.Tests.GoldenCorpus;
 
 using FluentAssertions;
 
@@ -31,14 +32,14 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
             """
             # Insight-density engine distribution
 
-            claimBoundary: Advisory-only measurement — scores do **not** demote typed-engine findings in production.
-            DeterministicInsightDensityGate returns Promote / DecisionGradeFinding for non-agent findings
-            (penalty reason `typed-engine-protected`); the computed score is visible here but is not a control.
+            claimBoundary: Production gate (ADR 0070) — scores demote typed-engine findings when the predicate fails.
+            DeterministicInsightDensityGate applies the demotion predicate to agent and typed-engine findings
+            (penalty reason `typed-engine-scored` for engine origin); checklist rows remain on the package snapshot.
             The golden corpus harness registers **16** engines; **0** appear in this table (≥1 finding across case-01..case-35). **39** built-in product engines are absent from this corpus-derived slice.
-            `WouldDemoteIfUnprotectedCount` is a counterfactual (score below DemotionThreshold) — not production demotion behavior.
+            `WouldDemoteIfUnprotectedCount` matches production demotion when the predicate applies (ADR 0070).
 
             Advisory scores from deterministic `DeterministicInsightDensityGate` over the decisioning golden corpus.
-            Typed-engine-protected findings are never demoted in production — a low median signals engine output quality, not a gate bug.
+            Low medians on typed engines signal output quality — demotion to checklist is expected when anchors and evidence are absent.
 
             | Engine | Findings | Min | Median | Max | Would demote if unprotected |
             | --- | --- | --- | --- | --- | --- |
@@ -58,14 +59,14 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
             """
             # Insight-density engine distribution
 
-            claimBoundary: Advisory-only measurement — scores do **not** demote typed-engine findings in production.
-            DeterministicInsightDensityGate returns Promote / DecisionGradeFinding for non-agent findings
-            (penalty reason `typed-engine-protected`); the computed score is visible here but is not a control.
+            claimBoundary: Production gate (ADR 0070) — scores demote typed-engine findings when the predicate fails.
+            DeterministicInsightDensityGate applies the demotion predicate to agent and typed-engine findings
+            (penalty reason `typed-engine-scored` for engine origin); checklist rows remain on the package snapshot.
             The golden corpus harness registers **16** engines; **1** appear in this table (≥1 finding across case-01..case-35). **38** built-in product engines are absent from this corpus-derived slice.
-            `WouldDemoteIfUnprotectedCount` is a counterfactual (score below DemotionThreshold) — not production demotion behavior.
+            `WouldDemoteIfUnprotectedCount` matches production demotion when the predicate applies (ADR 0070).
 
             Advisory scores from deterministic `DeterministicInsightDensityGate` over the decisioning golden corpus.
-            Typed-engine-protected findings are never demoted in production — a low median signals engine output quality, not a gate bug.
+            Low medians on typed engines signal output quality — demotion to checklist is expected when anchors and evidence are absent.
 
             | Engine | Findings | Min | Median | Max | Would demote if unprotected |
             | --- | --- | --- | --- | --- | --- |
@@ -102,6 +103,42 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
         markdown.Should().Contain("**40** appear in this table");
         markdown.Should().Contain("**0** built-in product engines are absent");
         markdown.Should().NotContain("**-1**");
+    }
+
+    [Fact]
+    public void Library_and_quality_docs_do_not_recite_pre_0070_gate_contract()
+    {
+        string repoRoot = GoldenCorpusRepoPaths.FindRepoRoot();
+        string[] relativePaths =
+        [
+            "docs/library/FINDING_ENGINE_OUTPUT_REFERENCE.md",
+            "docs/library/CONFIGURATION_REFERENCE.md",
+            "docs/library/FINDING_STREAM_PRODUCT_OF_RECORD.md",
+            "docs/library/AGENT_EVAL_CORPUS.md",
+            "docs/quality/insight-density-engine-distribution.md",
+        ];
+
+        string[] forbiddenPhrases =
+        [
+            "Typed engine findings always promote",
+            "always promote (`typed-engine-protected`)",
+            "score is advisory for engines",
+            "is a counterfactual, not production demotion",
+            "never demotes typed-engine findings",
+        ];
+
+        foreach (string relativePath in relativePaths)
+        {
+            string fullPath = Path.Combine(repoRoot, relativePath);
+            File.Exists(fullPath).Should().BeTrue($"missing contract doc {relativePath}");
+
+            string content = File.ReadAllText(fullPath);
+
+            foreach (string phrase in forbiddenPhrases)
+            {
+                content.Should().NotContain(phrase, $"stale gate contract in {relativePath}");
+            }
+        }
     }
 
     private static InsightDensityEngineDistributionRow CreateRow(

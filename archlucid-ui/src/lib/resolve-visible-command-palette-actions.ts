@@ -11,10 +11,16 @@ import {
 } from "@/lib/command-palette-handler-actions";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
+import { WORKING_MODE_SECONDARY_REPORTING_HREFS } from "@/lib/workspace-mode/working-mode-nav-filter";
 
 export type VisibleCommandPaletteAction = CommandPaletteHrefAction | CommandPaletteHandlerAction;
 
 const WORKING_MODE_HIDDEN_ACTION_IDS = new Set(["action-finish-setup"]);
+
+const WORKING_MODE_PALETTE_NAV_ALLOWLIST = new Set<string>([
+  "/help",
+  "/help/report-problem",
+]);
 
 export type ResolveVisibleCommandPaletteHrefActionsInput = {
   readonly workingMode: boolean;
@@ -22,6 +28,8 @@ export type ResolveVisibleCommandPaletteHrefActionsInput = {
   readonly showFullNav?: boolean;
   /** Working Start resolver output (IS-03); defaults to draft editor when omitted. */
   readonly workingStartHref?: string;
+  /** Sidebar-visible href set — Working palette nav rows must agree (SD-11). */
+  readonly visibleNavHrefs?: ReadonlySet<string>;
 };
 
 const GUIDED_FIRST_SESSION_HIDDEN_HREFS = new Set<string>([
@@ -43,6 +51,8 @@ export function resolveVisibleCommandPaletteHrefActions(
   const showFullNav = typeof input === "boolean" ? true : input.showFullNav === true;
   const workingStartHref =
     typeof input === "boolean" ? ARCHITECTURES_NEW_PATH : (input.workingStartHref ?? ARCHITECTURES_NEW_PATH);
+  const visibleNavHrefs =
+    typeof input === "boolean" ? undefined : input.visibleNavHrefs;
 
   let actions: readonly CommandPaletteHrefAction[] = workingMode
     ? COMMAND_PALETTE_ACTIONS.filter((action) => !WORKING_MODE_HIDDEN_ACTION_IDS.has(action.id)).map((action) =>
@@ -59,6 +69,24 @@ export function resolveVisibleCommandPaletteHrefActions(
 
   if (!workingMode && !hasCommittedArchitectureReview && !showFullNav) {
     actions = actions.filter((action) => !GUIDED_FIRST_SESSION_HIDDEN_HREFS.has(action.href));
+  }
+
+  if (workingMode) {
+    actions = actions.filter((action) => {
+      if (WORKING_MODE_SECONDARY_REPORTING_HREFS.has(action.href)) {
+        return false;
+      }
+
+      if (visibleNavHrefs === undefined) {
+        return true;
+      }
+
+      if (WORKING_MODE_PALETTE_NAV_ALLOWLIST.has(action.href)) {
+        return true;
+      }
+
+      return visibleNavHrefs.has(action.href);
+    });
   }
 
   return actions;
