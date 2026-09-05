@@ -134,13 +134,24 @@ internal static class RunHeaderAnchorJsonComparer
 
     private static bool TryNestedEmptyArrayEquivalent(JsonElement left, JsonElement right)
     {
-        if (left.GetArrayLength() == 0 && right.GetArrayLength() == 1)
-            return right[0].ValueKind == JsonValueKind.Array && right[0].GetArrayLength() == 0;
+        if (left.ValueKind != JsonValueKind.Array || right.ValueKind != JsonValueKind.Array)
+            return false;
 
-        if (right.GetArrayLength() == 0 && left.GetArrayLength() == 1)
-            return left[0].ValueKind == JsonValueKind.Array && left[0].GetArrayLength() == 0;
+        return IsDeeplyNestedEmptyArray(left) && IsDeeplyNestedEmptyArray(right);
+    }
 
-        return false;
+    private static bool IsDeeplyNestedEmptyArray(JsonElement element)
+    {
+        if (element.ValueKind != JsonValueKind.Array)
+            return false;
+
+        if (element.GetArrayLength() == 0)
+            return true;
+
+        if (element.GetArrayLength() != 1)
+            return false;
+
+        return IsDeeplyNestedEmptyArray(element[0]);
     }
 
     private static bool TryCrossKindEquivalent(JsonElement left, JsonElement right)
@@ -275,22 +286,23 @@ internal static class RunHeaderAnchorJsonComparer
     private static bool TryNullSingleElementNullArrayEquivalent(JsonElement left, JsonElement right)
     {
         if (left.ValueKind == JsonValueKind.Null && right.ValueKind == JsonValueKind.Array)
-        {
-            if (right.GetArrayLength() != 1)
-                return false;
-
-            return right[0].ValueKind == JsonValueKind.Null;
-        }
+            return IsDeeplyNestedNullScalar(right);
 
         if (left.ValueKind == JsonValueKind.Array && right.ValueKind == JsonValueKind.Null)
-        {
-            if (left.GetArrayLength() != 1)
-                return false;
-
-            return left[0].ValueKind == JsonValueKind.Null;
-        }
+            return IsDeeplyNestedNullScalar(left);
 
         return false;
+    }
+
+    private static bool IsDeeplyNestedNullScalar(JsonElement element)
+    {
+        if (element.ValueKind == JsonValueKind.Null)
+            return true;
+
+        if (element.ValueKind != JsonValueKind.Array || element.GetArrayLength() != 1)
+            return false;
+
+        return IsDeeplyNestedNullScalar(element[0]);
     }
 
     private static bool TryScalarSingleElementArrayEquivalent(JsonElement left, JsonElement right)

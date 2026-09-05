@@ -62,7 +62,10 @@ public static class AzureExtractorSensitivePropertyRedactor
     private static bool IsExplicitCredentialKey(string normalized)
     {
         return normalized.Equals("sharedaccesskey", StringComparison.Ordinal)
-            || normalized.Equals("signingcertificate", StringComparison.Ordinal);
+            || normalized.Equals("secondaryaccesskey", StringComparison.Ordinal)
+            || normalized.Equals("signingkey", StringComparison.Ordinal)
+            || normalized.Equals("signingcertificate", StringComparison.Ordinal)
+            || normalized.Equals("signingcertificatepath", StringComparison.Ordinal);
     }
 
     private static bool IsNegatedSensitiveFragment(string normalized, int fragmentIndex, string fragment)
