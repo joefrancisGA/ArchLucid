@@ -2825,7 +2825,9 @@ describe("wave40 filter url helpers", () => {
   it("re-run confirm, audit trail tech ref, shortcuts section, and run record metadata params", async () => {
     const {
       parseReRunReviewConfirmOpenFromSearch,
+      parseReRunReviewConfirmSourceFromSearch,
       reRunReviewConfirmHrefFromSearch,
+      resolveReRunReviewConfirmDialogOpenForButton,
     } = await import("@/lib/runs/re-run-review-confirm-url");
     const {
       helpAuditTrailTechnicalReferenceHrefFromSearch,
@@ -2841,9 +2843,24 @@ describe("wave40 filter url helpers", () => {
     } = await import("@/lib/runs/run-detail-record-metadata-url");
 
     expect(parseReRunReviewConfirmOpenFromSearch("1")).toBe(true);
+    expect(parseReRunReviewConfirmSourceFromSearch("review-package-re-run-review")).toBe(
+      "review-package-re-run-review",
+    );
     expect(
-      reRunReviewConfirmHrefFromSearch("tab=overview", true, "/architecture/reviews/r1"),
-    ).toBe("/architecture/reviews/r1?tab=overview&reRunConfirmOpen=1");
+      reRunReviewConfirmHrefFromSearch(
+        "tab=overview",
+        true,
+        "/architecture/reviews/r1",
+        "review-package-re-run-review",
+      ),
+    ).toBe("/architecture/reviews/r1?tab=overview&reRunConfirmOpen=1&reRunConfirmSource=review-package-re-run-review");
+    expect(
+      resolveReRunReviewConfirmDialogOpenForButton({
+        urlConfirmOpen: true,
+        urlConfirmSource: "review-package-re-run-review",
+        buttonTestId: "run-progress-re-run-review",
+      }),
+    ).toBe(false);
     expect(parseHelpAuditTrailTechRefOpenFromSearch("true")).toBe(true);
     expect(
       helpAuditTrailTechnicalReferenceHrefFromSearch("", true, "/help/audit-trail"),
