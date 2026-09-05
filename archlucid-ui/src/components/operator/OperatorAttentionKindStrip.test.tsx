@@ -101,8 +101,10 @@ describe("OperatorAttentionKindStrip (TB-2353)", () => {
     expect(needsActionChip.className).toContain("py-1");
     expect(needsActionChip.className).not.toMatch(/py-1\.5/);
     expect(needsActionChip.className).not.toMatch(/text-lg/);
-    expect(needsActionChip).toHaveTextContent("Awaiting approval (3)");
-    expect(idleChip).toHaveTextContent("Alerts (0)");
+    expect(needsActionChip).toHaveTextContent("Awaiting approval");
+    expect(needsActionChip).toHaveTextContent("(3)");
+    expect(idleChip).toHaveTextContent("Alerts");
+    expect(idleChip).toHaveTextContent("(0)");
     expect(screen.queryByLabelText("Status: Awaiting approval")).not.toBeInTheDocument();
   });
 

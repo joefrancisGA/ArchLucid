@@ -25,7 +25,8 @@ describe("OperatorAttentionKindChip", () => {
     expect(chip.className).not.toMatch(/py-1\.5/);
     expect(chip.className).not.toMatch(/text-lg/);
     expect(DESIGN_TOKENS.interactive.chip).toContain("min-h-8");
-    expect(chip).toHaveTextContent("Awaiting approval (3)");
+    expect(chip).toHaveTextContent("Awaiting approval");
+    expect(chip).toHaveTextContent("(3)");
     expect(screen.queryByLabelText("Status: Awaiting approval")).not.toBeInTheDocument();
   });
 
@@ -42,7 +43,8 @@ describe("OperatorAttentionKindChip", () => {
     const chip = screen.getByTestId("operator-attention-kind-chip-alerts");
     expect(chip.className).toContain("min-h-8");
     expect(chip.className).toContain("py-1");
-    expect(chip).toHaveTextContent("Alerts (0)");
+    expect(chip).toHaveTextContent("Alerts");
+    expect(chip).toHaveTextContent("(0)");
   });
 
   it("marks the selected chip as the current page", () => {
