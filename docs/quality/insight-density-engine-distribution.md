@@ -2,7 +2,8 @@
 
 claimBoundary: Production gate (ADR 0070) — scores demote typed-engine findings when the predicate fails.
 DeterministicInsightDensityGate applies the demotion predicate to agent and typed-engine findings
-(penalty reason `typed-engine-scored` for engine origin); checklist rows remain on the package snapshot.
+(penalty reason `typed-engine-scored` for engine origin; legacy `typed-engine-protected` Promote bypass superseded);
+checklist rows remain on the package snapshot.
 The golden corpus harness registers **16** engines; **15** appear in this table (≥1 finding across case-01..case-35). **24** built-in product engines are absent from this corpus-derived slice.
 `WouldDemoteIfUnprotectedCount` matches production demotion when the predicate applies (ADR 0070).
 

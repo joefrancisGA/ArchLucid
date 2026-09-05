@@ -6,6 +6,7 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Pilots;
 using ArchLucid.Persistence.Tenancy;
 
@@ -26,6 +27,8 @@ public sealed class SponsorRoiSummaryBuilder(
     ITenantSettingsRepository tenantSettingsRepository,
     IRunDetailQueryService runDetailQueryService,
     IPilotScorecardMetricsReader pilotScorecardMetricsReader,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     ILogger<SponsorRoiSummaryBuilder> logger)
 {
     private readonly SponsorRoiRunCollector _runCollector =
@@ -54,6 +57,12 @@ public sealed class SponsorRoiSummaryBuilder(
 
     private readonly IPilotScorecardMetricsReader _pilotScorecardMetricsReader =
         pilotScorecardMetricsReader ?? throw new ArgumentNullException(nameof(pilotScorecardMetricsReader));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private readonly ILogger<SponsorRoiSummaryBuilder> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -185,6 +194,15 @@ public sealed class SponsorRoiSummaryBuilder(
         };
 
         RoiSponsorFacingScopeLabeler.ApplySponsorRoiSummary(response);
+
+        ScopeContext sealedScope = _scopeContextProvider.GetCurrentScope();
+
+        await SponsorRoiBoardPackSealedManifestGuard.EnsureSummaryRunsSealedOrThrowAsync(
+            response,
+            sealedScope,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken).ConfigureAwait(false);
 
         return response;
     }

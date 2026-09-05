@@ -113,7 +113,7 @@ export function RemediationFactoryClient() {
       </header>
 
       {metricsQuery.isError ? (
-        <StatusTag kind="warning" label="Executive metrics unavailable" />
+        <StatusTag kind="needs-attention" label="Executive metrics unavailable" />
       ) : metricsQuery.data ? (
         <ExecutiveMetricsGrid metrics={metricsQuery.data} />
       ) : (
@@ -123,7 +123,7 @@ export function RemediationFactoryClient() {
       <section className="space-y-3" aria-label="Operator priority table">
         <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Priority queue</h2>
         {rankedQuery.isError ? (
-          <StatusTag kind="warning" label="Priority queue unavailable" />
+          <StatusTag kind="needs-attention" label="Priority queue unavailable" />
         ) : ranked.length === 0 ? (
           <p className={OPERATOR_TYPOGRAPHY.helper}>No open operational security findings to rank.</p>
         ) : (
@@ -151,7 +151,7 @@ export function RemediationFactoryClient() {
         >
           Explain selected score
         </button>
-        {simulatorError ? <StatusTag kind="warning" label={simulatorError} /> : null}
+        {simulatorError ? <StatusTag kind="needs-attention" label={simulatorError} /> : null}
         {simulatorSummary ? (
           <pre className="overflow-x-auto rounded bg-muted p-3 text-xs" data-testid="remediation-simulator-output">
             {simulatorSummary}

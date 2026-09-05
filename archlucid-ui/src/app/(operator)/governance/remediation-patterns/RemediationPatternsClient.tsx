@@ -177,7 +177,7 @@ export function RemediationPatternsClient() {
       <section className="space-y-3" aria-label="Pattern registry list">
         <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Pattern registry</h2>
         {listQuery.isError ? (
-          <StatusTag kind="warning" label="Pattern list unavailable" data-testid="remediation-patterns-list-error" />
+          <StatusTag kind="needs-attention" label="Pattern list unavailable" data-testid="remediation-patterns-list-error" />
         ) : (listQuery.data ?? []).length === 0 ? (
           <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="remediation-patterns-empty">
             No remediation patterns yet. Import YAML to create a Draft version.
@@ -216,7 +216,7 @@ export function RemediationPatternsClient() {
         <section className="space-y-3" aria-label="Version history">
           <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Version history</h2>
           {detailQuery.isError ? (
-            <StatusTag kind="warning" label="Version history unavailable" />
+            <StatusTag kind="needs-attention" label="Version history unavailable" />
           ) : versions.length === 0 ? (
             <p className={OPERATOR_TYPOGRAPHY.helper}>No versions found for this pattern.</p>
           ) : (
@@ -252,7 +252,7 @@ export function RemediationPatternsClient() {
               {approvalBlockedReason}
             </p>
           ) : null}
-          {actionError ? <StatusTag kind="warning" label={actionError} /> : null}
+          {actionError ? <StatusTag kind="needs-attention" label={actionError} /> : null}
         </section>
       ) : null}
 
@@ -277,7 +277,7 @@ export function RemediationPatternsClient() {
           Import YAML as Draft
         </button>
         {importError ? (
-          <StatusTag kind="warning" label={importError} data-testid="remediation-pattern-import-error" />
+          <StatusTag kind="needs-attention" label={importError} data-testid="remediation-pattern-import-error" />
         ) : null}
         {importSuccess ? (
           <StatusTag kind="ready" label={importSuccess} data-testid="remediation-pattern-import-success" />

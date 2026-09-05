@@ -1,7 +1,9 @@
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Governance;
 
@@ -14,7 +16,9 @@ public sealed class GovernanceDashboardService(
     IPolicyPackChangeLogRepository policyPackChangeLogRepository,
     IRunDetailQueryService runDetailQueryService,
     IAgentExecutionTraceRepository traceRepository,
-    IScopeContextProvider scopeContextProvider) : IGovernanceDashboardService
+    IScopeContextProvider scopeContextProvider,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : IGovernanceDashboardService
 {
     private readonly IGovernanceApprovalRequestRepository _approvalRequestRepository =
         approvalRequestRepository ?? throw new ArgumentNullException(nameof(approvalRequestRepository));
@@ -30,6 +34,12 @@ public sealed class GovernanceDashboardService(
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     /// <inheritdoc/>
     public async Task<GovernanceDashboardSummary> GetDashboardAsync(Guid tenantId, int maxPending = 20, int maxDecisions = 20, int maxChanges = 20,
@@ -59,12 +69,27 @@ public sealed class GovernanceDashboardService(
                 maxChanges,
                 cancellationToken);
         Task<(long PromptTokens, long CompletionTokens)> tokenTask =
-            GovernanceDashboardRecentRunTokenAggregator.AggregateAsync(_runDetailQueryService, _traceRepository, _scopeContextProvider, cancellationToken);
+            GovernanceDashboardRecentRunTokenAggregator.AggregateAsync(
+                _runDetailQueryService,
+                _traceRepository,
+                _scopeContextProvider,
+                _authorityQueryService,
+                _manifestHashService,
+                cancellationToken);
         await Task.WhenAll(pendingTask, decisionsTask, changesTask, tokenTask);
         IReadOnlyList<GovernanceApprovalRequest> pending = await pendingTask;
         IReadOnlyList<GovernanceApprovalRequest> decisions = await decisionsTask;
         IReadOnlyList<PolicyPackChangeLogEntry> scopedChanges = await changesTask;
         (long promptTokens, long completionTokens) = await tokenTask;
+
+        await GovernanceInsightsSealedManifestHashGuard.EnsureDashboardRunsSealedOrThrowAsync(
+            pending,
+            decisions,
+            scope,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken);
+
         return new GovernanceDashboardSummary
         {
             PendingApprovals = pending,

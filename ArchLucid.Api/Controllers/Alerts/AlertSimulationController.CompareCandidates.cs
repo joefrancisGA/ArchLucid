@@ -68,6 +68,10 @@ public sealed partial class AlertSimulationController
 
             return Ok(result);
         }
+        catch (Exception ex) when (IsSealedManifestSimulationBlock(ex))
+        {
+            return MapSealedManifestSimulationBlockOrNull(ex)!;
+        }
         catch (Exception ex) when (ex is ArgumentException or NullReferenceException or InvalidOperationException or FormatException or JsonException)
         {
             return this.BadRequestProblem(

@@ -1,6 +1,6 @@
 using ArchLucid.Application.Governance;
-using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Application.Roi;
+using ArchLucid.Application.Tests.Governance;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
@@ -10,6 +10,7 @@ using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Pilots;
 using ArchLucid.Persistence.Roi;
@@ -194,16 +195,24 @@ public sealed class SponsorRoiBackgroundTenantRollupIsolationTests
             tenantSettings,
             runQuery.Object,
             SponsorRoiSummaryServiceTestSupport.CreateDefaultPilotScorecardMetricsReader(),
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateAuthorityQueryServiceForAnyRun(new ScopeContext()),
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService(),
             NullLogger<SponsorRoiSummaryBuilder>.Instance);
 
         SponsorRoiHistoryBuilder historyBuilder = new(
             runCollector,
             runQuery.Object,
+            ambientScopeProvider.Object,
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateAuthorityQueryServiceForAnyRun(new ScopeContext()),
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService(),
             NullLogger<SponsorRoiHistoryBuilder>.Instance);
 
         SponsorRoiExportBuilder exportBuilder = new(
             runCollector,
-            pricingLabelResolver);
+            pricingLabelResolver,
+            ambientScopeProvider.Object,
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateAuthorityQueryServiceForAnyRun(new ScopeContext()),
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService());
 
         CrossTenantPortfolioSummaryBuilder portfolioBuilder = new(
             runCollector,

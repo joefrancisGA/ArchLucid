@@ -6,7 +6,7 @@ using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Roi;
 
-/// <summary>Wave-25 suggestion 244: sponsor ROI board-pack export fail-closed on sealed hash for contributing runs.</summary>
+/// <summary>Wave-25 suggestion 244 / wave-27 suggestion 272: sponsor ROI multi-run rollup fail-closed on sealed hash.</summary>
 public static class SponsorRoiBoardPackSealedManifestGuard
 {
     public static async Task EnsureSummaryRunsSealedOrThrowAsync(
@@ -17,19 +17,35 @@ public static class SponsorRoiBoardPackSealedManifestGuard
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(summary);
+
+        IEnumerable<string> runIds = summary.Systems
+            .Select(system => system.RunId)
+            .Where(static runId => !string.IsNullOrWhiteSpace(runId));
+
+        await EnsureRunIdsSealedOrThrowAsync(runIds, scope, authorityQueryService, manifestHashService, cancellationToken);
+    }
+
+    public static async Task EnsureRunIdsSealedOrThrowAsync(
+        IEnumerable<string> runIds,
+        ScopeContext scope,
+        IAuthorityQueryService authorityQueryService,
+        IManifestHashService manifestHashService,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(runIds);
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(authorityQueryService);
         ArgumentNullException.ThrowIfNull(manifestHashService);
 
-        foreach (SystemLatestRunRoi system in summary.Systems)
+        foreach (string runId in runIds)
         {
-            if (string.IsNullOrWhiteSpace(system.RunId))
+            if (string.IsNullOrWhiteSpace(runId))
                 continue;
 
-            if (!Guid.TryParse(system.RunId.Trim(), out Guid runGuid))
+            if (!Guid.TryParse(runId.Trim(), out Guid runGuid))
             {
                 throw new ConflictException(
-                    $"Sponsor ROI board pack blocked: run id '{system.RunId}' is not a valid GUID.");
+                    $"Sponsor ROI rollup blocked: run id '{runId}' is not a valid GUID.");
             }
 
             await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(

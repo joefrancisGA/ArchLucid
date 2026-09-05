@@ -1,6 +1,7 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Contracts.Governance.Posture;
@@ -60,12 +61,19 @@ public sealed class GovernancePostureController(
         if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
             return Ok(new ArchitecturePostureSummary());
 
-        ArchitecturePostureSummary summary = await postureService.GetSummaryAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            resolvedProjectId,
-            cancellationToken: cancellationToken);
+        try
+        {
+            ArchitecturePostureSummary summary = await postureService.GetSummaryAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                resolvedProjectId,
+                cancellationToken: cancellationToken);
 
-        return Ok(summary);
+            return Ok(summary);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 }
