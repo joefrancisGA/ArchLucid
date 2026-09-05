@@ -64,22 +64,50 @@ internal static class RunHeaderAnchorJsonComparer
 
     private static bool ObjectsEquivalent(JsonElement left, JsonElement right)
     {
-        List<JsonProperty> leftProperties = left.EnumerateObject().ToList();
-        List<JsonProperty> rightProperties = right.EnumerateObject().ToList();
+        HashSet<string> propertyNames = new(StringComparer.OrdinalIgnoreCase);
 
-        if (leftProperties.Count != rightProperties.Count)
-            return false;
+        foreach (JsonProperty property in left.EnumerateObject())
+            propertyNames.Add(property.Name);
 
-        foreach (JsonProperty leftProperty in leftProperties)
+        foreach (JsonProperty property in right.EnumerateObject())
+            propertyNames.Add(property.Name);
+
+        foreach (string propertyName in propertyNames)
         {
-            if (!TryGetPropertyCaseInsensitive(right, leftProperty.Name, out JsonElement rightValue))
-                return false;
+            bool leftHasProperty = TryGetPropertyCaseInsensitive(left, propertyName, out JsonElement leftValue);
+            bool rightHasProperty = TryGetPropertyCaseInsensitive(right, propertyName, out JsonElement rightValue);
 
-            if (!ElementsEquivalent(leftProperty.Value, rightValue))
+            if (!PropertiesEquivalent(leftHasProperty, leftValue, rightHasProperty, rightValue))
                 return false;
         }
 
         return true;
+    }
+
+    private static bool PropertiesEquivalent(
+        bool leftHasProperty,
+        JsonElement leftValue,
+        bool rightHasProperty,
+        JsonElement rightValue)
+    {
+        if (!leftHasProperty && !rightHasProperty)
+            return true;
+
+        if (IsNullOrAbsentProperty(leftHasProperty, leftValue) && IsNullOrAbsentProperty(rightHasProperty, rightValue))
+            return true;
+
+        if (!leftHasProperty)
+            leftValue = default;
+
+        if (!rightHasProperty)
+            rightValue = default;
+
+        return ElementsEquivalent(leftValue, rightValue);
+    }
+
+    private static bool IsNullOrAbsentProperty(bool hasProperty, JsonElement value)
+    {
+        return !hasProperty || value.ValueKind == JsonValueKind.Null;
     }
 
     private static bool ArraysEquivalent(JsonElement left, JsonElement right)

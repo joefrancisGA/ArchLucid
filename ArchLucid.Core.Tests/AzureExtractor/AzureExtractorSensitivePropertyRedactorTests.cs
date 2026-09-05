@@ -16,6 +16,7 @@ public sealed class AzureExtractorSensitivePropertyRedactorTests
     [InlineData("passwordless", false)]
     [InlineData("connectionstringfree", false)]
     [InlineData("passwordfreeauth", false)]
+    [InlineData("secretfreeauth", false)]
     [InlineData("secretless", false)]
     [InlineData("accesskeyless", false)]
     [InlineData("primarykeyless", false)]

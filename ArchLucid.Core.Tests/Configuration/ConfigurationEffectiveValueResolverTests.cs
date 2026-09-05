@@ -58,6 +58,10 @@ public sealed class ConfigurationEffectiveValueResolverTests
     [InlineData("ArchLucid:ApiKeylessAuth:Mode", "managed-identity")]
     [InlineData("ArchLucid:ConnectionStringFreeSettings:Enabled", "true")]
     [InlineData("ArchLucid:PasswordFreeAuth:Mode", "managed-identity")]
+    [InlineData("ArchLucid:SecretFreeStorage:Bucket", "logs")]
+    [InlineData("ArchLucid:TokenFreeAuth:Mode", "managed-identity")]
+    [InlineData("ArchLucid:TokenlessAuth:Mode", "managed-identity")]
+    [InlineData("ArchLucid:ApiKeyFreeAuth:Mode", "managed-identity")]
     [InlineData("Features:NonSecretStorage:Bucket", "logs")]
   public void Resolve_returns_scalar_for_non_secret_segment_substrings(string configPath, string expectedValue)
     {

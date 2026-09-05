@@ -227,6 +227,30 @@ public sealed class RequestConstraintClassifierTests
     }
 
     [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_avoid_encryption_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["avoid encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasManagedIdentityConstraint_does_not_false_positive_on_not_required_to_managed_identity_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["not required to use managed identity"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void RequiresSqlCapability_does_not_false_positive_on_avoid_sql_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(capabilities: ["avoid sql databases"]);
+
+        RequestConstraintClassifier.RequiresSqlCapability(request).Should().BeFalse();
+    }
+
+    [Fact]
     public void HasManagedIdentityConstraint_does_not_false_positive_on_not_managed_identity_phrasing()
     {
         ArchitectureRequest request = CreateRequest(constraints: ["not managed identity for storage"]);

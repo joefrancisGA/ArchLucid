@@ -99,17 +99,21 @@ internal static class ConfigurationSensitiveConfigPathMatcher
 
         if (fragment.Equals("Secret", StringComparison.OrdinalIgnoreCase)
             && fragmentIndex + fragment.Length < segment.Length
-            && segment.Slice(fragmentIndex + fragment.Length).StartsWith("less", StringComparison.OrdinalIgnoreCase))
+            && (segment.Slice(fragmentIndex + fragment.Length).StartsWith("less", StringComparison.OrdinalIgnoreCase)
+                || segment.Slice(fragmentIndex + fragment.Length).StartsWith("free", StringComparison.OrdinalIgnoreCase)))
             return true;
 
         if (fragment.Equals("Token", StringComparison.OrdinalIgnoreCase)
             && fragmentIndex + fragment.Length < segment.Length
-            && segment.Slice(fragmentIndex + fragment.Length).StartsWith("izer", StringComparison.OrdinalIgnoreCase))
+            && (segment.Slice(fragmentIndex + fragment.Length).StartsWith("izer", StringComparison.OrdinalIgnoreCase)
+                || segment.Slice(fragmentIndex + fragment.Length).StartsWith("less", StringComparison.OrdinalIgnoreCase)
+                || segment.Slice(fragmentIndex + fragment.Length).StartsWith("free", StringComparison.OrdinalIgnoreCase)))
             return true;
 
         if (fragment.Equals("ApiKey", StringComparison.OrdinalIgnoreCase)
             && fragmentIndex + fragment.Length < segment.Length
-            && segment.Slice(fragmentIndex + fragment.Length).StartsWith("less", StringComparison.OrdinalIgnoreCase))
+            && (segment.Slice(fragmentIndex + fragment.Length).StartsWith("less", StringComparison.OrdinalIgnoreCase)
+                || segment.Slice(fragmentIndex + fragment.Length).StartsWith("free", StringComparison.OrdinalIgnoreCase)))
             return true;
 
         return false;
