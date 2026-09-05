@@ -7,7 +7,11 @@ import { architectureDraftHasLinkedReview } from "@/lib/architecture/architectur
 import { resolveContinueLastArchitectureDraftEntry } from "@/lib/architecture-draft-continue-last";
 import { getUserPreferences, readCachedUserPreferencesForMutators } from "@/lib/api/user-preferences";
 import { defaultDeskContinuityDto, type DeskContinuityDto } from "@/lib/api/user-preferences-types";
-import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
+import {
+  mergeDeskContinuity,
+  readCachedDeskContinuity,
+  readCachedLastOpenArchitectureId,
+} from "@/lib/desk-continuity-preference";
 import { resolveContinueLastReviewPackageTarget } from "@/lib/resolve-continue-last-review-package";
 import {
   getInFlightOperations,
