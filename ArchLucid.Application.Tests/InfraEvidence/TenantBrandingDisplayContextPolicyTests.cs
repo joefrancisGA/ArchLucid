@@ -78,4 +78,24 @@ public sealed class TenantBrandingDisplayContextPolicyTests
         OperatorHelpProductTextPolicy.RetainsProductIdentity(OperatorHelpProductTextPolicy.SampleHelpMarkdown)
             .Should().BeTrue();
     }
+
+    [Fact]
+    public void MermaidDiagram_context_uses_tenant_visual_brand_when_active()
+    {
+        ResolvedTenantBrandingProfile profile = new()
+        {
+            TenantId = TenantId,
+            IsProductBrand = false,
+            CompanyDisplayName = "Fabrikam Holdings",
+            SourceProfileStatus = BrandingProfileStatus.Active,
+        };
+
+        TenantBrandingSurfacePresentation presentation = TenantBrandingDisplayContextPolicy.Resolve(
+            BrandingDisplayContext.MermaidDiagram,
+            profile,
+            new TenantBrandingLogo { IsProductBrand = false, HttpsUrl = "https://cdn.example/logo.png" });
+
+        presentation.MastheadDisplayName.Should().Be("Fabrikam Holdings");
+        presentation.UsesTenantVisualBrand.Should().BeTrue();
+    }
 }
