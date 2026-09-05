@@ -2,12 +2,14 @@ using System.Text.Json;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Coverage;
+using ArchLucid.Application.Governance.DefaultPolicyPacks;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance.Coverage;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Contracts.Governance.Resolution;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Core.Governance.Resolution;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -147,6 +149,152 @@ public sealed class ExecuteTimeGovernanceScopeCaptureServiceTests
         IReadOnlyList<CoverageAssignment> coverageRows =
             await coverageRepository.ListByRunIdAsync(scope, runId.ToString("N"), CancellationToken.None);
         coverageRows.Should().NotBeEmpty();
+
+        auditEvents.Should().ContainSingle(row => row.EventType == AuditEventTypes.RunGovernanceScopeResolved);
+    }
+
+    [Fact]
+    public async Task TryCaptureAndPersistAsync_applies_acknowledged_coverage_exclusions_at_execute()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid overlayPackId = Guid.NewGuid();
+
+        ScopeContext scope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId
+        };
+
+        RunAcknowledgedCoverageDocument acknowledgement = new()
+        {
+            EvaluationVersion = RunAcknowledgedCoverageDocument.DocumentVersion,
+            AcknowledgedUtc = DateTime.UtcNow,
+            ActorUserId = "operator@test",
+            Entries =
+            [
+                new RunCoverageAcknowledgementEntry
+                {
+                    PolicyPackId = overlayPackId,
+                    Excluded = true,
+                    ExclusionReason = "Pilot excludes cloud overlays"
+                }
+            ]
+        };
+
+        RunRecord header = new()
+        {
+            RunId = runId,
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ScopeProjectId = projectId,
+            ProjectId = projectId.ToString("N"),
+            PinnedPolicyPackIdsJson = JsonSerializer.Serialize(
+                new[] { new PinnedPolicyPackRow(overlayPackId.ToString("D"), "1.0.0") },
+                ContractJson.CamelCaseIgnoreNullCompact),
+            AcknowledgedCoverageJson = RunAcknowledgedCoverageJson.Serialize(acknowledgement)
+        };
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(header);
+        runs
+            .Setup(r => r.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        Mock<IEffectiveGovernanceResolver> resolver = new();
+        resolver
+            .Setup(r => r.ResolveAsync(tenantId, workspaceId, projectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new EffectiveGovernanceResolutionResult
+            {
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId
+            });
+
+        PolicyPackAssignment assignment = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            PolicyPackId = overlayPackId,
+            PolicyPackVersion = "1.0.0",
+            ScopeLevel = GovernanceScopeLevel.Project,
+            IsEnabled = true
+        };
+
+        Mock<IPolicyPackAssignmentRepository> assignments = new();
+        assignments
+            .Setup(r => r.ListByScopeAsync(tenantId, workspaceId, projectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([assignment]);
+
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(r => r.GetByIdsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new PolicyPack
+                {
+                    PolicyPackId = overlayPackId,
+                    Name = DefaultPolicyPackCatalog.AzureWellArchitectedDisplayName,
+                    TenantId = tenantId
+                }
+            ]);
+
+        InMemoryCoverageAssignmentRepository coverageRepository = new();
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns("operator@test");
+
+        List<AuditEvent> auditEvents = [];
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((auditEvent, _) => auditEvents.Add(auditEvent))
+            .Returns(Task.CompletedTask);
+
+        ExecuteTimeGovernanceScopeCaptureService sut = new(
+            runs.Object,
+            scopeProvider.Object,
+            resolver.Object,
+            assignments.Object,
+            packs.Object,
+            Mock.Of<IPolicyPackVersionRepository>(),
+            coverageRepository,
+            new CoverageAssignmentValidator(),
+            actor.Object,
+            auditService.Object,
+            NullLogger<ExecuteTimeGovernanceScopeCaptureService>.Instance);
+
+        ArchitectureRequest request = new()
+        {
+            CloudProvider = CloudProvider.Azure,
+            PolicyReferences = [FocusedPilotModePolicyPacks.ReferenceToken]
+        };
+
+        await sut.TryCaptureAndPersistAsync(runId.ToString("N"), request, CancellationToken.None);
+
+        ExecutedEffectiveGovernanceSnapshotDescriptor? snapshot =
+            ExecutedEffectiveGovernanceSnapshotJson.TryDeserialize(header.GovernanceScopeJson);
+        snapshot.Should().NotBeNull();
+        snapshot!.PackAssignments.Should().BeEmpty();
+        snapshot.CoverageAssignments.Should().ContainSingle(row =>
+            row.PolicyPackId == overlayPackId
+            && row.SelectionState == CoverageSelectionState.RecommendedButExcluded.ToString()
+            && row.ExclusionReason == "Pilot excludes cloud overlays");
+
+        IReadOnlyList<CoverageAssignment> coverageRows =
+            await coverageRepository.ListByRunIdAsync(scope, runId.ToString("N"), CancellationToken.None);
+        coverageRows.Should().ContainSingle(row =>
+            row.PolicyPackId == overlayPackId
+            && row.SelectionState == CoverageSelectionState.RecommendedButExcluded
+            && row.ExclusionReason == "Pilot excludes cloud overlays");
 
         auditEvents.Should().ContainSingle(row => row.EventType == AuditEventTypes.RunGovernanceScopeResolved);
     }

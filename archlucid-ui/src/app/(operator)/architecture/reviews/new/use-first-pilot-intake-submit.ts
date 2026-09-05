@@ -18,6 +18,8 @@ import { REVIEW_START_CREATION_FAILED_MESSAGE } from "@/lib/review-start-progres
 import { recheckUnresolvedArchitectureReviewCreate } from "@/lib/review-start-unresolved-recheck";
 import { PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { buildIntakeContextDocumentsFromEvidenceFiles } from "@/lib/intake-context-documents-from-files";
+import { describeCoveragePackOverrideBlocker } from "@/lib/wizard-form-create-run-submit";
+import { persistSessionRunCoverageAcknowledgement } from "@/lib/persist-run-coverage-acknowledgement";
 import { uploadWizardPendingDocumentEvidence } from "@/lib/wizard-pending-evidence-upload";
 
 /** Create + multipart evidence upload can exceed the default soft-fail budget on slow links. */
@@ -81,6 +83,14 @@ export function useFirstPilotIntakeSubmit(options: UseFirstPilotIntakeSubmitOpti
       return;
     }
 
+    const overrideBlocker = describeCoveragePackOverrideBlocker();
+
+    if (overrideBlocker !== null) {
+      setClientValidationMessage(overrideBlocker);
+
+      return;
+    }
+
     if (resolvedBrief.length > ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH) {
       setClientValidationMessage(
         `Brief must not exceed ${ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH} characters.`,
@@ -109,6 +119,18 @@ export function useFirstPilotIntakeSubmit(options: UseFirstPilotIntakeSubmitOpti
 
       if (id === null) {
         creationProgress.fail(REVIEW_START_CREATION_FAILED_MESSAGE);
+
+        return;
+      }
+
+      try {
+        await persistSessionRunCoverageAcknowledgement(id);
+      } catch (error) {
+        const message =
+          isApiRequestError(error) && error.message.trim().length > 0
+            ? error.message
+            : REVIEW_START_CREATION_FAILED_MESSAGE;
+        creationProgress.fail(message);
 
         return;
       }
@@ -188,6 +210,19 @@ export function useFirstPilotIntakeSubmit(options: UseFirstPilotIntakeSubmitOpti
       const id = result.runId;
       creationProgress.markResumed();
       creationProgress.bindOperation(reviewPipelineOperationId(id));
+
+      try {
+        await persistSessionRunCoverageAcknowledgement(id);
+      } catch (error) {
+        const message =
+          isApiRequestError(error) && error.message.trim().length > 0
+            ? error.message
+            : REVIEW_START_CREATION_FAILED_MESSAGE;
+        creationProgress.fail(message);
+        creationProgress.endRecheck();
+
+        return;
+      }
 
       if (filesToUpload.length > 0) {
         const uploadResult = await uploadWizardPendingDocumentEvidence(id, filesToUpload);

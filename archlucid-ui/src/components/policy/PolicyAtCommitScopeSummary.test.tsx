@@ -26,7 +26,7 @@ describe("PolicyAtCommitScopeSummary", () => {
               policyPackId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
               policyPackVersion: "1.2.0",
               coverageType: "QualityDimension",
-              selectionState: "Excluded",
+              selectionState: "RecommendedButExcluded",
               qualityDimension: "Reliability",
               exclusionReason: "Out of pilot scope",
             },
@@ -38,8 +38,8 @@ describe("PolicyAtCommitScopeSummary", () => {
 
     expect(screen.getByTestId("policy-at-commit-test-summary")).toBeInTheDocument();
     expect(screen.getByTestId("policy-at-commit-test-packs")).toHaveTextContent("Tenant");
+    expect(screen.getByTestId("policy-at-commit-test-exclusions")).toHaveTextContent("Out of pilot scope");
     expect(screen.getByTestId("policy-at-commit-test-coverage")).toHaveTextContent("Reliability");
-    expect(screen.getByTestId("policy-at-commit-test-coverage")).toHaveTextContent("Out of pilot scope");
     expect(screen.getByTestId("policy-at-commit-test-counts")).toHaveTextContent("merge conflict");
   });
 });
