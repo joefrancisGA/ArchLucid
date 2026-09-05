@@ -3420,11 +3420,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 260
-- **bugs-found:** 499
+- **hunts:** 261
+- **bugs-found:** 500
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — policy-pack assign version lookup case-insensitive idempotent retry
+- **last-bug:** 2026-09-05 — policy-pack publish version upsert case-insensitive idempotent retry
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4624,7 +4624,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `PolicyPacksController.Assign` / `PolicyPacksAppService.TryAssignAsync` — operator retry with `version` differing only by casing returned null instead of idempotent assignment success (`Ordinal` `GetByPackAndVersionAsync` preflight before #867 assign dedupe; SemVer allows optional leading `v`) — **hit 2026-09-05 (#868):** case-insensitive version resolution via `ResolvePackVersionAsync` fallback to `ListByPackAsync`; regression in `TryAssignAsync_returns_existing_assignment_and_skips_duplicate_audit_when_version_differs_only_by_casing`.
 
-- [ ] (candidate) `PolicyPacksController.Publish` / `PolicyPackPublishStage.PublishVersionAsync` / `UpsertPublishedVersionAsync` — operator retry with version label differing only by casing may upsert a second version row (`Ordinal` version key in upsert after #868 AppService skip-audit guard resolves lookup case-insensitively).
+- [x] (proven) `PolicyPacksController.Publish` / `PolicyPackPublishStage.PublishVersionAsync` / `UpsertPublishedVersionAsync` — operator retry with version label differing only by casing upserted a second version row (`Ordinal` version key in upsert after #868 AppService skip-audit guard resolves lookup case-insensitively) — **hit 2026-09-05 (#869):** case-insensitive version match in `UpsertPublishedVersionAsync` (InMemory + Dapper); regression in `UpsertPublishedVersionAsync_operator_retry_with_version_casing_only_updates_existing_row`.
+
+2026-09-05 thorough hunt #869 (hit): proved publish version upsert case-insensitive idempotent retry seeded in #868.
 
 2026-09-05 seed hunt #868 (hit): reseeded post-#867 idempotent-retry casing exhaustion; proved assign version lookup case-insensitive idempotent retry; seeded publish version upsert casing candidate.
 

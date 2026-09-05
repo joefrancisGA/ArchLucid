@@ -134,7 +134,7 @@ public sealed class DapperPolicyPackVersionRepository(
         const string selectSql = """
                                  SELECT PolicyPackVersionId, PolicyPackId, [Version] AS Version, ContentJson, CreatedUtc, IsPublished
                                  FROM dbo.PolicyPackVersions WITH (UPDLOCK, HOLDLOCK)
-                                 WHERE PolicyPackId = @PolicyPackId AND [Version] = @Ver;
+                                 WHERE PolicyPackId = @PolicyPackId;
                                  """;
 
         const string updateSql = """
@@ -172,12 +172,15 @@ public sealed class DapperPolicyPackVersionRepository(
             if (packScope is null)
                 throw new InvalidOperationException("dbo.PolicyPacks.PolicyPackId was not found: " + policyPackId + ".");
 
-            PolicyPackVersion? existing = await connection.QueryFirstOrDefaultAsync<PolicyPackVersion>(
+            IReadOnlyList<PolicyPackVersion> existingRows = (await connection.QueryAsync<PolicyPackVersion>(
                 new CommandDefinition(
                     selectSql,
-                    new { PolicyPackId = policyPackId, Ver = version },
+                    new { PolicyPackId = policyPackId },
                     transaction,
-                    cancellationToken: ct));
+                    cancellationToken: ct))).ToList();
+
+            PolicyPackVersion? existing = existingRows.FirstOrDefault(row =>
+                string.Equals(row.Version, version, StringComparison.OrdinalIgnoreCase));
 
             if (existing is not null)
             {

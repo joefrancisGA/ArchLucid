@@ -73,7 +73,7 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
         lock (_gate)
         {
             int idx = _items.FindIndex(x => x.PolicyPackId == policyPackId &&
-                                            string.Equals(x.Version, version, StringComparison.Ordinal));
+                                            string.Equals(x.Version, version, StringComparison.OrdinalIgnoreCase));
 
             if (idx >= 0)
             {
