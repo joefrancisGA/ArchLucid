@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 
 import {
@@ -52,11 +52,16 @@ import {
   compositeAlertRulesPanelsHrefFromSearch,
   parseCompositeAlertRulesCreatePanelFromSearch,
 } from "@/lib/alerts/composite-alert-rules-panels-url";
+import {
+  alertRulesSimulateRuleHrefFromSearch,
+  parseAlertRulesSimulateRuleIdFromSearch,
+} from "@/lib/alerts/alert-rules-simulate-rule-url";
 import { MutatingInWorkspaceChip } from "@/components/MutatingInWorkspaceChip";
 import { Button } from "@/components/ui/button";
 
 export function useAlertRulesContentState() {
   const router = useRouter();
+  const pathname = usePathname() ?? GOVERNANCE_ALERT_RULES_PATH;
   const searchParams = useSearchParams();
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
   const scopedRunFilterActive = scopedRunId.length > 0;
@@ -101,7 +106,47 @@ export function useAlertRulesContentState() {
   const routingSubscriptions = routingQuery.items;
   const loading = rulesQuery.loading;
   const failure = rulesQuery.failure ?? mutationFailure;
-  const [simulateForRule, setSimulateForRule] = useState<AlertRule | null>(null);
+  const [simulateForRule, setSimulateForRuleState] = useState<AlertRule | null>(null);
+
+  const syncSimulateRuleToUrl = useCallback(
+    (rule: AlertRule | null) => {
+      router.replace(
+        alertRulesSimulateRuleHrefFromSearch(searchParams.toString(), rule?.ruleId ?? null, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSimulateForRule = useCallback(
+    (rule: AlertRule | null) => {
+      setSimulateForRuleState(rule);
+      syncSimulateRuleToUrl(rule);
+    },
+    [syncSimulateRuleToUrl],
+  );
+
+  useEffect(() => {
+    const simulateRuleId = parseAlertRulesSimulateRuleIdFromSearch(searchParams.get("simulateRule"));
+
+    if (simulateRuleId.length === 0) {
+      setSimulateForRuleState(null);
+
+      return;
+    }
+
+    if (loading) {
+      return;
+    }
+
+    const match = items.find((rule) => rule.ruleId === simulateRuleId);
+
+    if (match === undefined) {
+      return;
+    }
+
+    setSimulateForRuleState((current) => (current?.ruleId === match.ruleId ? current : match));
+  }, [items, loading, searchParams]);
 
   const syncCreatePanelToUrl = useCallback(
     (showCreate: boolean) => {

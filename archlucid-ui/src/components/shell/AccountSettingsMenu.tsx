@@ -2,7 +2,7 @@
 
 import { CircleUser } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -11,6 +11,7 @@ import {
   useRef,
   useState,
   type CSSProperties,
+  type SetStateAction,
 } from "react";
 import { createPortal } from "react-dom";
 
@@ -18,6 +19,10 @@ import { Button } from "@/components/ui/button";
 import { OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SELF_SETTINGS_DESTINATIONS } from "@/lib/self-settings-destinations";
 import { OPERATOR_SHELL_GET_SUPPORT_MENU_ITEM } from "@/lib/operator/operator-shell-support-affordances";
+import {
+  accountSettingsMenuHrefFromSearch,
+  parseAccountSettingsMenuOpenFromSearch,
+} from "@/lib/operator/account-settings-menu-url";
 import { cn } from "@/lib/utils";
 
 export const ACCOUNT_SETTINGS_MENU_ARIA_LABEL = "Your account settings";
@@ -53,16 +58,40 @@ export function computeAccountSettingsMenuPanelStyle(trigger: HTMLElement): CSSP
  * scrollbar in the top bar that kills demos.
  */
 export function AccountSettingsMenu(): React.JSX.Element {
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const accountMenuOpenParam = searchParams.get("accountMenuOpen");
+  const [open, setOpenState] = useState(() => parseAccountSettingsMenuOpenFromSearch(accountMenuOpenParam));
   const [panelStyle, setPanelStyle] = useState<CSSProperties | null>(null);
-  const pathname = usePathname();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const panelId = useId();
 
+  const syncAccountMenuOpenToUrl = useCallback(
+    (menuOpen: boolean) => {
+      router.replace(accountSettingsMenuHrefFromSearch(searchParams.toString(), menuOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncAccountMenuOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncAccountMenuOpenToUrl],
+  );
+
   const closeMenu = useCallback(() => {
     setOpen(false);
-  }, []);
+  }, [setOpen]);
 
   const syncPanelPosition = useCallback(() => {
     const trigger = triggerRef.current;

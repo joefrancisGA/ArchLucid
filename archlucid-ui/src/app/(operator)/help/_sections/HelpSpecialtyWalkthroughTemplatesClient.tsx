@@ -67,6 +67,10 @@ import {
   parseSpecialtyWalkthroughTemplateFromSearch,
   specialtyWalkthroughsSelectionHrefFromSearch,
 } from "@/lib/help/specialty-walkthroughs-selection-url";
+import {
+  parseSpecialtyWalkthroughTemplatePreviewFromSearch,
+  specialtyWalkthroughTemplatePreviewHrefFromSearch,
+} from "@/lib/help/specialty-walkthrough-template-preview-url";
 
 import { SPECIALTY_TEMPLATE_READ_ONLY_HINT_ID, SpecialtyTemplateCard } from "./SpecialtyTemplateCard";
 import {
@@ -92,7 +96,17 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
   const [selectedTemplateId, setSelectedTemplateIdState] = useState<SpecialtyReviewTemplateId | null>(() =>
     parseSpecialtyWalkthroughTemplateFromSearch(searchParams.get("template")),
   );
-  const [preview, setPreview] = useState<SpecialtyTemplatePreviewState | null>(null);
+  const [preview, setPreviewState] = useState<SpecialtyTemplatePreviewState | null>(() => {
+    const templateId = parseSpecialtyWalkthroughTemplatePreviewFromSearch(searchParams.get("templatePreview"));
+
+    if (templateId === null) {
+      return null;
+    }
+
+    const template = findSpecialtyReviewTemplate(templateId);
+
+    return template === undefined ? null : { template };
+  });
   const [saasCloudContext, setSaasCloudContextState] = useState<SpecialtyReviewCloudContext>(() =>
     parseSpecialtyWalkthroughCloudFromSearch(searchParams.get("cloud")),
   );
@@ -125,9 +139,47 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
     [syncSelectionToUrl],
   );
 
+  const syncTemplatePreviewToUrl = useCallback(
+    (templateId: SpecialtyReviewTemplateId | null) => {
+      router.replace(
+        specialtyWalkthroughTemplatePreviewHrefFromSearch(searchParams.toString(), templateId, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPreview = useCallback(
+    (value: SpecialtyTemplatePreviewState | null) => {
+      setPreviewState(value);
+      syncTemplatePreviewToUrl(value?.template.id ?? null);
+    },
+    [syncTemplatePreviewToUrl],
+  );
+
   useEffect(() => {
     setSelectedTemplateIdState(parseSpecialtyWalkthroughTemplateFromSearch(searchParams.get("template")));
     setSaasCloudContextState(parseSpecialtyWalkthroughCloudFromSearch(searchParams.get("cloud")));
+
+    const templateId = parseSpecialtyWalkthroughTemplatePreviewFromSearch(searchParams.get("templatePreview"));
+
+    if (templateId === null) {
+      setPreviewState(null);
+
+      return;
+    }
+
+    const template = findSpecialtyReviewTemplate(templateId);
+
+    if (template === undefined) {
+      setPreviewState(null);
+
+      return;
+    }
+
+    setPreviewState((current) =>
+      current?.template.id === template.id ? current : { template },
+    );
   }, [searchParams]);
 
   const selectedTemplate = useMemo(
