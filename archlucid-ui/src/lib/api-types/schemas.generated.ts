@@ -4501,6 +4501,8 @@ export interface components {
             governedPercentage?: null | number | string;
             isAvailable?: boolean;
             /** Format: int32 */
+            totalChecklistCoverageCount?: number;
+            /** Format: int32 */
             totalDecisionGradeCount?: number;
             /** Format: int32 */
             withEvidenceRefsCount?: number;

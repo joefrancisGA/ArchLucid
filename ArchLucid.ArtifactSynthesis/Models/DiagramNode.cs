@@ -31,4 +31,10 @@ public class DiagramNode
         get;
         set;
     }
+
+    public Guid? CloudResourceId
+    {
+        get;
+        set;
+    }
 }
