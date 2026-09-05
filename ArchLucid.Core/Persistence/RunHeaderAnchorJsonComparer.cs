@@ -230,10 +230,10 @@ internal static class RunHeaderAnchorJsonComparer
     private static bool TryAbsentEmptyArrayEquivalent(JsonElement left, JsonElement right)
     {
         if (left.ValueKind == JsonValueKind.Array && right.ValueKind == JsonValueKind.Undefined)
-            return left.GetArrayLength() == 0;
+            return left.GetArrayLength() == 0 || IsDeeplyNestedEmptyArray(left);
 
         if (left.ValueKind == JsonValueKind.Undefined && right.ValueKind == JsonValueKind.Array)
-            return right.GetArrayLength() == 0;
+            return right.GetArrayLength() == 0 || IsDeeplyNestedEmptyArray(right);
 
         return false;
     }

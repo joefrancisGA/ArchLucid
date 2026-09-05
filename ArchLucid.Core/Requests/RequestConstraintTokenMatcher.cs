@@ -176,7 +176,8 @@ internal static class RequestConstraintTokenMatcher
             || before.StartsWith("need not enable", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("need not use", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("need not have", StringComparison.OrdinalIgnoreCase)
-            || before.StartsWith("does not require", StringComparison.OrdinalIgnoreCase))
+            || before.StartsWith("does not require", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("does not need", StringComparison.OrdinalIgnoreCase))
             return true;
 
         if (ContainsMidSentenceNegation(before))
@@ -200,6 +201,10 @@ internal static class RequestConstraintTokenMatcher
             || ContainsPhrase(before, " should not require")
             || ContainsPhrase(before, " shall not require ")
             || ContainsPhrase(before, " shall not require")
+            || ContainsPhrase(before, " will not require ")
+            || ContainsPhrase(before, " will not require")
+            || ContainsPhrase(before, " would not require ")
+            || ContainsPhrase(before, " would not require")
             || ContainsPhrase(before, " must not ")
             || ContainsPhrase(before, " do not ")
             || ContainsPhrase(before, " doesn't require ")

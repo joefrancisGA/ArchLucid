@@ -83,6 +83,8 @@ internal static class ConfigurationSensitiveConfigPathMatcher
             || segment.Equals("SharedAccessKey", StringComparison.OrdinalIgnoreCase)
             || segment.Equals("SecondaryAccessKey", StringComparison.OrdinalIgnoreCase)
             || segment.Equals("PrimaryAccessKey", StringComparison.OrdinalIgnoreCase)
+            || segment.Equals("AccountSharedAccessKey", StringComparison.OrdinalIgnoreCase)
+            || segment.Equals("StorageAccountKey", StringComparison.OrdinalIgnoreCase)
             || segment.Equals("SigningKey", StringComparison.OrdinalIgnoreCase)
             || segment.Equals("SigningCertificate", StringComparison.OrdinalIgnoreCase)
             || segment.Equals("SigningCertificatePath", StringComparison.OrdinalIgnoreCase)
