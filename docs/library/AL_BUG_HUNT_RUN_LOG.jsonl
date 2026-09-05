@@ -927,4 +927,5 @@
 {"at":"2026-09-05T00:16:19.5925648Z","zoneId":"notifications-pipeline","outcome":"hit"}
 {"at":"2026-09-05T00:21:03.5431609Z","zoneId":"archlucid-contracts","outcome":"hit"}
 {"at":"2026-09-05T00:26:03.7685796Z","zoneId":"application-analysis","outcome":"hit"}
-{"at":"2026-09-05T00:32:16.8946350Z","zoneId":"api-authority-admin-controllers","outcome":"hit"}
+{"at":"2026-09-05T00:32:16.894635Z","zoneId":"api-authority-admin-controllers","outcome":"hit"}
+{"at":"2026-09-05T00:43:19.2137806Z","zoneId":"tenant-data-export","outcome":"hit"}
