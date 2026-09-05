@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 156
-- **bugs-found:** 302
+- **hunts:** 157
+- **bugs-found:** 303
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — keyless redactor embedded tokens, avoid advice negation, trial nudge casing
+- **last-bug:** 2026-09-05 — run-header anchor JSON string whitespace drift
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2248,9 +2248,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AzureExtractorSensitivePropertyRedactor.IsSensitiveKey` — `accountkeyless` / `clientsecretless` / `privatekeyless` suffix and embedded-token false positives — **hit 2026-09-05 (#884):** #883 per-fragment `less` guards missed remaining `*keyless` compounds and `secret` embedded in `clientsecretless`; benign ARM metadata redacted; fixed with generic prefix `less` suffix guard and embedded-fragment skip (`IsSensitiveKey_detects_secret_like_names` with `accountkeyless` / `clientsecretless` / `privatekeyless`).
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsObviousGenericAdvice` — `avoid` / `avoids {phrase}` prohibitive intent still matches affirmative fragments — **hit 2026-09-05 (#884):** #882 `without` negation missed `policy avoids enable mfa`; architecture-specific findings demoted as generic checklist advice; fixed with `avoid` / `avoids` negation prefixes (`IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing` with `policy avoids enable mfa for batch workloads`).
 - [x] (proven) `ArchLucidGrowthFunnelMeters.NormalizeTrialUpgradeNudgeTrigger` / `NormalizeTeamExpansionNudgeTrigger` — case-sensitive trigger labels bucketed as `unknown` — **hit 2026-09-05 (#884):** PascalCase `Runs` / `WORKSPACES` telemetry normalized to `trigger=unknown`; fixed with case-insensitive canonical trigger matching (`TrialUpgradeNudgeShownTotal_normalizes_trigger_case_insensitively`, `TeamExpansionNudgeShownTotal_normalizes_trigger_case_insensitively`).
-- [ ] (candidate) `ConfigurationSensitiveConfigPathMatcher` — `ConnectionStringFreeSettings` / `NonSecretStorage` segment parity — verify #881 segment matcher already handles `free` / `non` negation before repro.
-- [ ] (candidate) `RunHeaderAnchorJsonComparer.AreEquivalent` — JSON string whitespace-only drift treated as anchor mutation — may need trimmed string compare on governance/provenance anchors.
+- [x] (invalid) `ConfigurationSensitiveConfigPathMatcher` — `ConnectionStringFreeSettings` / `NonSecretStorage` segment parity — #881 segment matcher already handles `free` / `non` negation; cheap-disproof via `Resolve_returns_scalar_for_non_secret_segment_substrings` with `ConnectionStringFreeSettings` and `NonSecretStorage` paths (hunt #885).
+- [x] (proven) `RunHeaderAnchorJsonComparer.AreEquivalent` — JSON string whitespace-only drift treated as anchor mutation — **hit 2026-09-05 (#885):** trailing whitespace in `EngineProvenanceJson` string values (`azure-openai` vs `azure-openai `) failed semantic compare and threw `RunEvidenceAnchorImmutableException` on committed runs; fixed with trimmed string compare in `StringsEquivalent` (`EnsureAnchorsUnchangedIfCommitted_allows_engine_provenance_string_whitespace_only_change_on_committed_run`).
 
+2026-09-05 thorough hunt #885: cheap-disproved config segment parity after #884 seed; proved JSON string whitespace anchor drift; reseeded from #884 candidates.
 2026-09-05 seed hunt #884: reseeded redactor embedded tokens, advice avoid negation, and trial nudge casing after #883; proved three hunt-ready rows; seeded config segment parity and JSON string whitespace anchor candidates.
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
