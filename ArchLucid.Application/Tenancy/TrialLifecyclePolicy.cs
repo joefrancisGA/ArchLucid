@@ -12,25 +12,25 @@ public static class TrialLifecyclePolicy
         ArgumentNullException.ThrowIfNull(options);
         if (tenant.TrialExpiresUtc is null || string.IsNullOrWhiteSpace(tenant.TrialStatus))
             return null;
-        if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal))
+        if (TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Converted))
             return null;
-        if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Deleted, StringComparison.Ordinal))
+        if (TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Deleted))
             return null;
         DateTimeOffset anchor = tenant.TrialExpiresUtc.Value;
         DateTimeOffset readOnlyNotBefore = anchor.AddDays(options.ReadOnlyAfterExpireDays);
         DateTimeOffset exportOnlyNotBefore = readOnlyNotBefore.AddDays(options.ExportOnlyAfterReadOnlyDays);
         DateTimeOffset purgeNotBefore = exportOnlyNotBefore.AddDays(options.PurgeAfterExportOnlyDays);
 
-        if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
+        if (TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Active))
             return utcNow < anchor ? null : new TrialLifecycleAdvancement(TrialLifecycleStatus.Active, TrialLifecycleStatus.Expired, "trial_active_window_ended");
 
-        if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Expired, StringComparison.Ordinal))
+        if (TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Expired))
             return utcNow < readOnlyNotBefore ? null : new TrialLifecycleAdvancement(TrialLifecycleStatus.Expired, TrialLifecycleStatus.ReadOnly, "trial_read_only_phase");
 
-        if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.ReadOnly, StringComparison.Ordinal))
+        if (TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.ReadOnly))
             return utcNow < exportOnlyNotBefore ? null : new TrialLifecycleAdvancement(TrialLifecycleStatus.ReadOnly, TrialLifecycleStatus.ExportOnly, "trial_export_only_phase");
 
-        if (!string.Equals(tenant.TrialStatus, TrialLifecycleStatus.ExportOnly, StringComparison.Ordinal))
+        if (!TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.ExportOnly))
             return null;
 
         return utcNow < purgeNotBefore ? null : new TrialLifecycleAdvancement(TrialLifecycleStatus.ExportOnly, TrialLifecycleStatus.Deleted, "trial_dpa_hard_purge");
@@ -43,23 +43,38 @@ public static class TrialLifecyclePolicy
         ArgumentNullException.ThrowIfNull(options);
         if (tenant.TrialExpiresUtc is null || string.IsNullOrWhiteSpace(tenant.TrialStatus))
             return null;
-        if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal) ||
-            string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Deleted, StringComparison.Ordinal))
+        if (TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Converted) ||
+            TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Deleted))
             return null;
         DateTimeOffset T = tenant.TrialExpiresUtc.Value;
         DateTimeOffset readOnlyNotBefore = T.AddDays(options.ReadOnlyAfterExpireDays);
         DateTimeOffset exportOnlyNotBefore = readOnlyNotBefore.AddDays(options.ExportOnlyAfterReadOnlyDays);
         DateTimeOffset purgeNotBefore = exportOnlyNotBefore.AddDays(options.PurgeAfterExportOnlyDays);
-        DateTimeOffset deadline = tenant.TrialStatus switch
-        {
-            TrialLifecycleStatus.Active => T,
-            TrialLifecycleStatus.Expired => readOnlyNotBefore,
-            TrialLifecycleStatus.ReadOnly => exportOnlyNotBefore,
-            TrialLifecycleStatus.ExportOnly => purgeNotBefore,
-            _ => T
-        };
+        DateTimeOffset deadline = ResolveStatusDeadline(tenant.TrialStatus, T, readOnlyNotBefore, exportOnlyNotBefore, purgeNotBefore);
         double totalDays = (deadline - utcNow).TotalDays;
         int days = (int)Math.Floor(totalDays);
         return days < 0 ? 0 : days;
+    }
+
+    private static DateTimeOffset ResolveStatusDeadline(
+        string trialStatus,
+        DateTimeOffset trialExpiresUtc,
+        DateTimeOffset readOnlyNotBefore,
+        DateTimeOffset exportOnlyNotBefore,
+        DateTimeOffset purgeNotBefore)
+    {
+        if (TrialLifecycleStatus.EqualsStatus(trialStatus, TrialLifecycleStatus.Active))
+            return trialExpiresUtc;
+
+        if (TrialLifecycleStatus.EqualsStatus(trialStatus, TrialLifecycleStatus.Expired))
+            return readOnlyNotBefore;
+
+        if (TrialLifecycleStatus.EqualsStatus(trialStatus, TrialLifecycleStatus.ReadOnly))
+            return exportOnlyNotBefore;
+
+        if (TrialLifecycleStatus.EqualsStatus(trialStatus, TrialLifecycleStatus.ExportOnly))
+            return purgeNotBefore;
+
+        return trialExpiresUtc;
     }
 }
