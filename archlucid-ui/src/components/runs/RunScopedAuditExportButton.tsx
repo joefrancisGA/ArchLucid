@@ -11,23 +11,35 @@ import { downloadAuditExportCsv } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { auditExportExecuteRankAuditorRoleNote } from "@/lib/enterprise-controls-context-copy";
 import { buildRunScopedAuditExportParams } from "@/lib/runs/run-scoped-audit-export";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { showError } from "@/lib/toast";
 
 export type RunScopedAuditExportButtonProps = {
   readonly runId: string;
+  readonly manifestVersion?: string | null;
 };
 
 /** One-click run-scoped audit CSV export from review detail (Requires Auditor or Admin on API). */
 export function RunScopedAuditExportButton(props: RunScopedAuditExportButtonProps): React.JSX.Element | null {
-  const { runId } = props;
+  const { runId, manifestVersion = null } = props;
   const { currentPrincipal } = useOperatorNavAuthority();
   const [busy, setBusy] = useState(false);
   const [roleHintVisible, setRoleHintVisible] = useState(false);
+  const [blockedReason, setBlockedReason] = useState<string | null>(null);
 
   const exportRoleOk = principalRolesAllowAuditCsvExport(currentPrincipal.roleClaimValues);
   const trimmedRunId = runId.trim();
+  const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
+    runId: trimmedRunId,
+    manifestVersion,
+  });
 
   const onExport = useCallback(async (): Promise<void> => {
+    if (sealedManifestBlockedReason !== null) {
+      setBlockedReason(sealedManifestBlockedReason);
+      return;
+    }
+
     if (!exportRoleOk) {
       setRoleHintVisible(true);
 
@@ -36,6 +48,7 @@ export function RunScopedAuditExportButton(props: RunScopedAuditExportButtonProp
 
     setBusy(true);
     setRoleHintVisible(false);
+    setBlockedReason(null);
 
     try {
       const params = buildRunScopedAuditExportParams(trimmedRunId);
@@ -52,7 +65,7 @@ export function RunScopedAuditExportButton(props: RunScopedAuditExportButtonProp
     } finally {
       setBusy(false);
     }
-  }, [exportRoleOk, trimmedRunId]);
+  }, [exportRoleOk, manifestVersion, sealedManifestBlockedReason, trimmedRunId]);
 
   if (trimmedRunId.length === 0) {
     return null;
@@ -68,7 +81,7 @@ export function RunScopedAuditExportButton(props: RunScopedAuditExportButtonProp
         type="button"
         variant="outline"
         size="sm"
-        disabled={busy || !exportRoleOk}
+        disabled={busy || !exportRoleOk || sealedManifestBlockedReason !== null}
         data-testid="run-scoped-audit-export-button"
         aria-describedby={
           roleHintVisible || !exportRoleOk ? "run-scoped-audit-export-role-hint" : undefined
@@ -77,6 +90,23 @@ export function RunScopedAuditExportButton(props: RunScopedAuditExportButtonProp
       >
         {busy ? "Exporting audit trail…" : "Download audit trail (CSV)"}
       </Button>
+      {sealedManifestBlockedReason !== null ? (
+        <p
+          role="alert"
+          className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="run-scoped-audit-export-blocked-reason"
+        >
+          {sealedManifestBlockedReason}
+        </p>
+      ) : blockedReason !== null ? (
+        <p
+          role="alert"
+          className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="run-scoped-audit-export-blocked-reason"
+        >
+          {blockedReason}
+        </p>
+      ) : null}
       {roleHintVisible || !exportRoleOk ? (
         <p
           id="run-scoped-audit-export-role-hint"

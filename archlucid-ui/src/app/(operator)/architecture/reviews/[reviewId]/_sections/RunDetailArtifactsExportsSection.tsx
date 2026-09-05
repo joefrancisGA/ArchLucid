@@ -43,6 +43,7 @@ import {
   RUN_DETAIL_DELIVERABLES_BUYER_TABLE_LEAD,
   RUN_DETAIL_DELIVERABLES_INTRO,
 } from "@/lib/runs/run-detail-deliverables-copy";
+import { manifestSummarySealedVersionForCopyGuard } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
 export type RunDetailArtifactsExportsSectionProps = {
   readonly manifestId: string;
@@ -129,6 +130,7 @@ export function RunDetailArtifactsExportsSection(
                   runId,
                   verdict: feasibilityVerdict,
                 }}
+                manifestVersion={manifestSummarySealedVersionForCopyGuard(manifestSummaryForUi ?? manifestSummary)}
               />
             ) : null}
             {/* Exports stay secondary — the review's recommended next step owns the only primary affordance. */}
@@ -242,6 +244,7 @@ export function RunDetailArtifactsExportsSection(
                       runId,
                       verdict: feasibilityVerdict,
                     }}
+                    manifestVersion={manifestSummarySealedVersionForCopyGuard(manifestSummaryForUi ?? manifestSummary)}
                   />
                 }
               />
@@ -331,7 +334,10 @@ export function RunDetailArtifactsExportsSection(
                   </ExportTrackedAnchor>
                   <ExportFormatWhenToUseHint format="zip" />
                 </div>
-                <RunScopedAuditExportButton runId={runId} />
+                <RunScopedAuditExportButton
+                  runId={runId}
+                  manifestVersion={manifestSummarySealedVersionForCopyGuard(manifestSummaryForUi ?? manifestSummary)}
+                />
                 <Link
                   className={cn(buttonVariants({ variant: "outline", size: "sm" }), OPERATOR_LINK.nav)}
                   href={buildCompareTwoReviewsHref({ baseRunId: runId })}
