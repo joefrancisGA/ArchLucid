@@ -3,8 +3,10 @@ using ArchLucid.Core.Integration;
 using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Alerts.Delivery;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Alerts;
 using ArchLucid.Persistence.IntegrationOutbox;
+using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
@@ -88,6 +90,8 @@ public sealed class AlertServiceApplyActionTests
             integration.Object,
             outbox.Object,
             opts.Object,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
             NullLogger<AlertService>.Instance);
 
         return (sut, alertRepo, audit);

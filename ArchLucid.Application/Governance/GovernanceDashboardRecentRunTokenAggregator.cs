@@ -3,7 +3,9 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Governance;
 
@@ -17,11 +19,15 @@ internal static class GovernanceDashboardRecentRunTokenAggregator
         IRunDetailQueryService runDetailQueryService,
         IAgentExecutionTraceRepository traceRepository,
         IScopeContextProvider scopeContextProvider,
+        IAuthorityQueryService authorityQueryService,
+        IManifestHashService manifestHashService,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(runDetailQueryService);
         ArgumentNullException.ThrowIfNull(traceRepository);
         ArgumentNullException.ThrowIfNull(scopeContextProvider);
+        ArgumentNullException.ThrowIfNull(authorityQueryService);
+        ArgumentNullException.ThrowIfNull(manifestHashService);
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
@@ -48,6 +54,16 @@ internal static class GovernanceDashboardRecentRunTokenAggregator
 
                 if (summary.CreatedUtc < windowStartUtc)
                     return await SumTokenTotalsAsync(scope, traceRepository, recentRunIds, cancellationToken);
+
+                if (!await GovernanceInsightsSealedManifestHashGuard.TryVerifyRunSealedManifestHashAsync(
+                        summary.RunId,
+                        scope,
+                        authorityQueryService,
+                        manifestHashService,
+                        cancellationToken).ConfigureAwait(false))
+                {
+                    continue;
+                }
 
                 recentRunIds.Add(summary.RunId);
             }

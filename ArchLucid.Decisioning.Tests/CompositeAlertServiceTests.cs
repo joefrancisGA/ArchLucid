@@ -3,8 +3,11 @@ using ArchLucid.Core.Alerts.Composite;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Alerts;
 using ArchLucid.Persistence.IntegrationOutbox;
+using ArchLucid.Persistence.Queries;
+using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
@@ -265,6 +268,8 @@ public sealed class CompositeAlertServiceTests
         IIntegrationEventPublisher? integrationEvents = null,
         IIntegrationEventOutboxRepository? integrationOutbox = null,
         IOptionsMonitor<IntegrationEventsOptions>? integrationEventsOptions = null,
+        IAuthorityQueryService? authorityQueryService = null,
+        IManifestHashService? manifestHashService = null,
         ILogger<CompositeAlertService>? logger = null) =>
         new(
             ruleRepository,
@@ -278,6 +283,8 @@ public sealed class CompositeAlertServiceTests
             integrationEvents ?? Mock.Of<IIntegrationEventPublisher>(),
             integrationOutbox ?? Mock.Of<IIntegrationEventOutboxRepository>(),
             integrationEventsOptions ?? StubIntegrationEventsOptions(),
+            authorityQueryService ?? SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            manifestHashService ?? SealedManifestHashTestSupport.CreateManifestHashService(),
             logger ?? NullLogger<CompositeAlertService>.Instance);
 
     private static IOptionsMonitor<IntegrationEventsOptions> StubIntegrationEventsOptions()
