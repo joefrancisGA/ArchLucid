@@ -10,11 +10,16 @@ public static class AuditReadinessBuilder
         AuditControlRecord control,
         IReadOnlyList<AuditEvidenceRequirementRecord> requirements,
         IReadOnlyList<AuditEvidenceSnapshotItemRecord> evidenceItems,
-        AuditControlEvaluationRecord? evaluation)
+        AuditControlEvaluationRecord? evaluation,
+        IReadOnlyList<AuditManualEvidenceSubmissionRecord>? manualSubmissions = null,
+        DateTime? referenceUtc = null)
     {
         ArgumentNullException.ThrowIfNull(control);
         ArgumentNullException.ThrowIfNull(requirements);
         ArgumentNullException.ThrowIfNull(evidenceItems);
+
+        IReadOnlyList<AuditManualEvidenceSubmissionRecord> submissions = manualSubmissions ?? [];
+        DateTime freshnessReferenceUtc = referenceUtc ?? TimeProvider.System.UtcNowDateTime();
 
         AuditControlApplicabilityStatus applicability = ResolveApplicability(control.Applicability);
         List<AuditEvidenceRequirementRecord> controlRequirements = requirements
@@ -35,11 +40,26 @@ public static class AuditReadinessBuilder
         AuditControlEvidenceCompleteness completeness = ResolveCompleteness(evidenceRequiredCount, evidenceCollectedCount);
 
         bool manualEvidenceRequired = controlRequirements.Any(requirement =>
-            requirement.ManualEvidenceAllowed
-            && controlItems.Any(item =>
+        {
+            if (!requirement.ManualEvidenceAllowed)
+                return false;
+
+            bool hasAutomatedGap = controlItems.Any(item =>
                 item.RequirementId == requirement.RequirementId
                 && item.CollectionStatus is AuditEvidenceCollectionStatus.Insufficient
-                    or AuditEvidenceCollectionStatus.Unsupported));
+                    or AuditEvidenceCollectionStatus.Unsupported);
+
+            if (!hasAutomatedGap)
+                return false;
+
+            bool hasValidManual = submissions.Any(submission =>
+                submission.RequirementId == requirement.RequirementId
+                && AuditManualEvidenceFreshnessClassifier.IsValidForCurrentAssessment(
+                    submission,
+                    freshnessReferenceUtc));
+
+            return !hasValidManual;
+        });
 
         IReadOnlyList<string> approvedExceptionIds = evaluation?.ExceptionIds ?? [];
         AuditEvaluationOutcome? automatedOutcome = evaluation?.Outcome;

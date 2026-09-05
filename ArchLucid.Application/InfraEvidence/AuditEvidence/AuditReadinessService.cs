@@ -10,6 +10,7 @@ public sealed class AuditReadinessService(
     IAuditEvidenceRequirementRepository requirementRepository,
     IAuditEvidenceSnapshotRepository snapshotRepository,
     IAuditControlEvaluationRepository evaluationRepository,
+    IAuditManualEvidenceRepository manualEvidenceRepository,
     ILogger<AuditReadinessService> logger) : IAuditReadinessService
 {
     public async Task<AuditAssessmentReadinessSummaryRecord?> TryBuildAssessmentReadinessAsync(
@@ -42,6 +43,9 @@ public sealed class AuditReadinessService(
             IReadOnlyList<AuditEvidenceSnapshotItemRecord> evidenceItems =
                 await snapshotRepository.ListItemsAsync(tenantId, auditEvidenceSnapshotId, cancellationToken);
 
+            IReadOnlyList<AuditManualEvidenceSubmissionRecord> manualSubmissions =
+                await manualEvidenceRepository.ListByAssessmentAsync(tenantId, assessmentId, cancellationToken);
+
             List<AuditControlReadinessRecord> controlReadiness = [];
 
             foreach (AuditControlRecord control in controls)
@@ -58,7 +62,8 @@ public sealed class AuditReadinessService(
                         control,
                         requirements,
                         evidenceItems,
-                        evaluation));
+                        evaluation,
+                        manualSubmissions));
             }
 
             return AuditReadinessBuilder.BuildAssessmentSummary(
