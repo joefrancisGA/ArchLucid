@@ -565,6 +565,65 @@ public sealed class GovernanceStickinessFacadeScopeTests
     }
 
     [Fact]
+    public async Task CreateRiskExceptionAsync_persists_canonical_finding_id_when_request_differs_only_by_casing()
+    {
+        const string canonicalFindingId = "FIND-ABC";
+        CreateRiskExceptionRequest? capturedRequest = null;
+
+        Mock<IFindingInspectReadRepository> findings = new();
+        findings
+            .Setup(r => r.GetInspectAsync(
+                CallerScope,
+                "find-abc",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse
+            {
+                FindingId = canonicalFindingId,
+            });
+
+        Mock<IRiskExceptionService> riskExceptions = new();
+        riskExceptions
+            .Setup(s => s.CreateAsync(
+                It.IsAny<CreateRiskExceptionRequest>(),
+                CallerScope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<CreateRiskExceptionRequest, ScopeContext, string, CancellationToken>(
+                (request, _, _, _) => capturedRequest = request)
+            .ReturnsAsync(new RiskExceptionRecord
+            {
+                RiskExceptionId = Guid.NewGuid(),
+                TenantId = CallerScope.TenantId,
+                WorkspaceId = CallerScope.WorkspaceId,
+                ProjectId = CallerScope.ProjectId,
+                FindingId = canonicalFindingId,
+                OwnerUserId = "owner",
+                Rationale = "accepted risk",
+                EvidenceRef = "artifact://evidence/1",
+                ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+            });
+
+        GovernanceStickinessFacade sut = CreateSut(
+            findingInspect: findings.Object,
+            riskExceptionService: riskExceptions.Object);
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = "find-abc",
+            OwnerUserId = "owner",
+            Rationale = "accepted risk",
+            EvidenceRef = "artifact://evidence/1",
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        await sut.CreateRiskExceptionAsync(request, CancellationToken.None);
+
+        capturedRequest.Should().NotBeNull();
+        capturedRequest!.FindingId.Should().Be(canonicalFindingId);
+    }
+
+    [Fact]
     public async Task CreateRiskExceptionAsync_throws_when_run_id_does_not_match_finding_authority_run()
     {
         Guid authorityRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
