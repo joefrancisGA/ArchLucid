@@ -45,7 +45,7 @@ internal static class RunHeaderAnchorJsonComparer
             case JsonValueKind.String:
                 return string.Equals(left.GetString(), right.GetString(), StringComparison.Ordinal);
             case JsonValueKind.Number:
-                return left.GetRawText() == right.GetRawText();
+                return NumbersEquivalent(left, right);
             case JsonValueKind.True:
             case JsonValueKind.False:
                 return left.GetBoolean() == right.GetBoolean();
@@ -92,6 +92,14 @@ internal static class RunHeaderAnchorJsonComparer
         }
 
         return true;
+    }
+
+    private static bool NumbersEquivalent(JsonElement left, JsonElement right)
+    {
+        if (left.TryGetDecimal(out decimal leftNumber) && right.TryGetDecimal(out decimal rightNumber))
+            return leftNumber == rightNumber;
+
+        return false;
     }
 
     private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)
