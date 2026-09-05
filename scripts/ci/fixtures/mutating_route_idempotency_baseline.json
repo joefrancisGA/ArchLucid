@@ -1,5 +1,5 @@
 {
-  "discoveredRouteCount": 148,
+  "discoveredRouteCount": 164,
   "formatVersion": "1.0",
   "routes": {
     "DELETE /scim/v2/Users/{id}": "naturally-idempotent",
@@ -69,6 +69,9 @@
     "POST /v1/architecture/review/{runId}/evidence/bulk": "operator-documented-safe-retry",
     "POST /v1/architecture/review/{runId}/knowledge-model/clarification-answers": "operator-documented-safe-retry",
     "POST /v1/architecture/review/{runId}/result": "explicit-idempotency-key",
+    "POST /v1/architecture/runs/{runId}/diagrams/ingest": "unclassified",
+    "POST /v1/architecture/runs/{runId}/diagrams/reconcile": "unclassified",
+    "POST /v1/architecture/runs/{runId}/diagrams/vision-ingest": "unclassified",
     "POST /v1/ask": "operator-documented-safe-retry",
     "POST /v1/auth/email-otp/challenge": "unclassified",
     "POST /v1/auth/email-otp/verify": "unclassified",
@@ -95,9 +98,11 @@
     "POST /v1/governance-preview/preview": "dry-run-no-persist",
     "POST /v1/governance/coverage/preview": "dry-run-no-persist",
     "POST /v1/governance/pre-finalize/simulate": "dry-run-no-persist",
+    "POST /v1/infra-evidence/ask": "unclassified",
     "POST /v1/infra-evidence/azure-inventory/baselines": "unclassified",
     "POST /v1/infra-evidence/azure-inventory/diffs/{diffId}/drift-approvals": "unclassified",
     "POST /v1/infra-evidence/azure-inventory/diffs/{diffId}/narratives": "unclassified",
+    "POST /v1/infra-evidence/branding/assets": "unclassified",
     "POST /v1/integrations/itsm/health/probe": "operator-documented-safe-retry",
     "POST /v1/integrations/itsm/outbound/issues": "operator-documented-safe-retry",
     "POST /v1/integrations/webhooks/jira": "inbound-webhook-pipeline",
@@ -116,6 +121,16 @@
     "POST /v1/mcp/retrieval/policy-pack-search": "dry-run-no-persist",
     "POST /v1/mcp/retrieval/price-row-lookup": "dry-run-no-persist",
     "POST /v1/mcp/retrieval/prior-decision-search": "dry-run-no-persist",
+    "POST /v1/operational-security/findings/ingest": "unclassified",
+    "POST /v1/operational-security/remediation-patterns/draft": "unclassified",
+    "POST /v1/operational-security/remediation-patterns/import/bulk": "unclassified",
+    "POST /v1/operational-security/remediation-patterns/import/json": "unclassified",
+    "POST /v1/operational-security/remediation-patterns/import/yaml": "unclassified",
+    "POST /v1/operational-security/remediation-patterns/{patternId}/approve": "unclassified",
+    "POST /v1/operational-security/remediation-patterns/{patternId}/deprecate": "unclassified",
+    "POST /v1/operational-security/remediation-patterns/{patternId}/retire": "unclassified",
+    "POST /v1/operational-security/remediation-patterns/{patternId}/submit": "unclassified",
+    "POST /v1/operational-security/remediation-waves": "unclassified",
     "POST /v1/operations/{operationId}/cancel": "operator-documented-safe-retry",
     "POST /v1/operator/saved-views": "operator-documented-safe-retry",
     "POST /v1/pilots/board-pack.pdf": "operator-documented-safe-retry",
@@ -147,9 +162,10 @@
     "PUT /v1/governance/environment-catalog": "operator-documented-safe-retry",
     "PUT /v1/integrations/itsm/settings": "operator-documented-safe-retry",
     "PUT /v1/notifications/customer-channel-preferences": "naturally-idempotent",
+    "PUT /v1/operational-security/remediation-prioritization/weights": "naturally-idempotent",
     "PUT /v1/tenant/core-pilot-checklist": "naturally-idempotent",
     "PUT /v1/tenant/cost-settings": "naturally-idempotent",
     "PUT /v1/tenant/homepage-settings": "naturally-idempotent"
   },
-  "unclassifiedRouteCount": 8
+  "unclassifiedRouteCount": 23
 }

@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:419 -->
+<!-- audit-core-const-count:420 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -227,6 +227,8 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Remediation pattern lifecycle transitions (infra-evidence plane) | `RemediationPatternsController` (`POST /v1/operational-security/remediation-patterns/{patternId}/submit`, `POST /v1/operational-security/remediation-patterns/{patternId}/approve`, `POST /v1/operational-security/remediation-patterns/{patternId}/deprecate`, `POST /v1/operational-security/remediation-patterns/{patternId}/retire`); `RemediationPatternService` | — | — | Version status transitions with SoD in service layer — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | Remediation wave create (infra-evidence plane) | `RemediationWavesController` (`POST /v1/operational-security/remediation-waves`); `RemediationWaveService` | — | — | Tenant-scoped wave orchestration metadata — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | Remediation prioritization weights upsert (infra-evidence plane) | `RemediationPrioritizationController` (`PUT /v1/operational-security/remediation-prioritization/weights`); `RemediationPrioritizationService` | — | — | Tenant-scoped ranking weights — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
+| Tenant brand asset upload (infra-evidence plane) | `BrandAssetController` (`POST /v1/infra-evidence/branding/assets`); `BrandAssetService` | `TenantBrandAssetUploaded` | Tenant/Workspace/Project from ambient scope | `{ assetId, assetType }` — controller emits audit via `IAuditService` |
+| Infra-evidence Ask grounding (infra-evidence plane) | `InfraEvidenceAskController` (`POST /v1/infra-evidence/ask`); `InfraEvidenceAskGroundingService` | — | — | Read-only grounding over structured evidence rows — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | Internal cross-tenant analytics rollup refresh (operator) | `InternalCrossTenantAnalyticsController` (`POST /v1/internal/analytics/cross-tenant/daily/refresh`) | `InternalCrossTenantRollupRefreshed` | Operator RBAC; non-tenant aggregate surface | `{ rollupDate }` (UTC calendar day string) |
 | Tenant value report DOCX (sync or async completion) | `ValueReportController` (`POST /v1/value-report/generate`, `POST /v1/value-report/{tenantId}/generate`); `InMemoryValueReportJobQueue` (async completion) | `ValueReportGenerated` | Tenant/Workspace/Project from ambient scope | `tenantId`, `from`, `to`, `byteCount`, `asyncJob` (JSON); async jobs also include `jobId` |
 | Replay export persisted as new row | `ExportsController` (replay POST + metadata POST when `RecordReplayExport`) | `ReplayExportRecorded` | RunId when parseable | `sourceExportRecordId`, `recordedReplayExportRecordId`, `runId` |
@@ -820,6 +822,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `ArchitectureIntelligenceRunCompleted` | `ArchitectureIntelligence.RunCompleted` | `ArchitectureIntelligenceController` (architecture intelligence run / golden paths) |
 | `ArchitectureIntelligenceGoldenTestCompleted` | `ArchitectureIntelligence.GoldenTestCompleted` | `ArchitectureIntelligenceController` (golden test completion) |
 | `TenantBrandingProfileChanged` | `TenantBrandingProfile.Changed` | `SqlTenantBrandingProfileRepository` (tenant branding profile upsert) |
+| `TenantBrandAssetUploaded` | `TenantBrandAsset.Uploaded` | `BrandAssetController` (tenant brand asset upload) |
 | `TenantCatalogMigrationStarted` | `TenantCatalogMigrationStarted` | `TenantCatalogMigrationOrchestrator` (`POST /v1/admin/tenants/{tenantId}/catalog-migration/start`) |
 | `TenantCatalogMigrationProjectionRefreshCompleted` | `TenantCatalogMigrationProjectionRefreshCompleted` | `TenantCatalogMigrationOrchestrator` (`POST /v1/admin/tenants/{tenantId}/catalog-migration/projection-refresh`) |
 | `TenantCatalogMigrationVerificationPassed` | `TenantCatalogMigrationVerificationPassed` | `TenantCatalogMigrationOrchestrator` (`POST /v1/admin/tenants/{tenantId}/catalog-migration/verify` when probe passes) |
@@ -845,6 +848,8 @@ When adding a Core constant, add a row here and bump `audit-core-const-count`.
 - `POST /v1/artifacts/reviews/{runId}/export/push`
 - `POST /v1/artifacts/reviews/{runId}/terraform-pr`
 - `POST /v1/authority/reviews/{runId}/disposition`
+- `POST /v1/infra-evidence/branding/assets`
+- `POST /v1/infra-evidence/ask`
 
 ---
 
