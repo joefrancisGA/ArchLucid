@@ -62,7 +62,7 @@ public sealed partial class FindingMergeConflictResolutionService(
             return false;
 
         List<Finding> members = findings
-            .Where(finding => memberFindingIds.Contains(finding.FindingId ?? string.Empty, StringComparer.Ordinal))
+            .Where(finding => memberFindingIds.Contains(finding.FindingId ?? string.Empty, StringComparer.OrdinalIgnoreCase))
             .ToList();
 
         if (members.Count == 0)
