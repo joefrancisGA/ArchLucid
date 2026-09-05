@@ -3409,11 +3409,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 213
-- **bugs-found:** 435
+- **hunts:** 214
+- **bugs-found:** 436
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — RecordDisposition route/body findingId mismatch
+- **last-bug:** 2026-09-05 — product feedback runId/findingRef authority mismatch
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4454,6 +4454,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `GovernancePreviewController.Preview` omitted `environment` defaults to dev — **cheap-disproof 2026-09-05:** same intentional omission pattern as #778.
 
 2026-09-05 seed hunt #817 (hit): proved RecordDisposition route/body findingId silent mismatch; cheap-disproved recurrence/pre-commit/preview omission-default candidates.
+
+- [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — in-scope `findingRef` with mismatched or omitted `runId` returned HTTP 204 and persisted cross-linked feedback — **hit 2026-09-05 (#818):** `ProductFeedbackHttpMapper.ValidateRunMatchesFindingAuthorityRun` enforces finding authority-run binding (#571 stickiness parity); regressions in `PostProductFeedbackAsync_returns_bad_request_when_run_id_does_not_match_finding_authority_run` and `PostProductFeedbackAsync_returns_bad_request_when_finding_ref_has_authority_run_and_run_id_omitted`.
+- [x] (invalid) Digest enable-only POST with explicit empty `recipientEmails: []` wipes stored recipients — **cheap-disproof 2026-09-05:** `DigestRecipientEmailsValidator` rejects empty recipient list when `emailEnabled` is true (disable-only #793 parity does not apply to enable path).
+
+2026-09-05 seed hunt #818 (hit): proved product-feedback finding authority-run binding gap; cheap-disproved digest enable empty-recipient wipe candidate.
 
 2026-09-04 seed hunt #787 (hit): proved disposition inapplicable optional string silent drop beyond whitespace-only cases.
 
