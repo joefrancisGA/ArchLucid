@@ -27,6 +27,7 @@ public sealed class RemediationWavesController(
     IScopeContextProvider scopeProvider,
     IActorContext actorContext) : ControllerBase
 {
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation wave creation is tenant-scoped orchestration metadata.")]
@@ -77,26 +78,5 @@ public sealed class RemediationWavesController(
             return NotFound();
 
         return Ok(detail);
-    }
-}
-
-public sealed class RemediationWaveCreateRequest
-{
-    public string Name
-    {
-        get;
-        init;
-    } = string.Empty;
-
-    public int? TargetSize
-    {
-        get;
-        init;
-    }
-
-    public IReadOnlyList<Guid>? ExplicitCloudResourceIds
-    {
-        get;
-        init;
     }
 }

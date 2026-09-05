@@ -25,6 +25,7 @@ public sealed class ArchitectureDiagramReconciliationController(
     IDiagramInfrastructureReconciliationService reconciliationService,
     IScopeContextProvider scopeProvider) : ControllerBase
 {
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("reconcile")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Diagram reconciliation persists deterministic correspondence rows per run and snapshot.")]
