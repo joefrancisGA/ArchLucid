@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 177
-- **bugs-found:** 416
+- **hunts:** 178
+- **bugs-found:** 424
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — ManageAccessKey/DfsAccessKey redaction, need-not-apply/provision and should/shall-not-need negation
+- **last-bug:** 2026-09-05 — CosmosAccessKey/ApiAccessKey redaction, need-not-require/does-not-mandate/enforce and will-not-mandate/cannot-need negation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2415,6 +2415,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `shall not need` suffix gap — **hit 2026-09-05 (#905):** same imperative suffix family; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_shall_not_need_suffix_phrasing`).
 
 2026-09-05 seed hunt #905 (hit): reseeded after #904 closure; proved eight hunt-ready rows — ManageAccessKey/DfsAccessKey redaction parity, need-not-apply/provision and should/shall-not-need constraint negation, and advice should/shall-not-need suffix.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CosmosAccessKey` not redacted — **hit 2026-09-05 (#906):** compound access-key class after #905; embedded `AccessKey`/`accesskey` fragment guard skipped `CosmosAccessKey`/`cosmosaccesskey`; fixed with explicit credential detection (`Resolve_redacts_cosmos_access_key_config_path`, `IsSensitiveKey_detects_cosmos_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ApiAccessKey` not redacted — **hit 2026-09-05 (#906):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_api_access_key_config_path`, `IsSensitiveKey_detects_api_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — `need not require` prefix negation gap — **hit 2026-09-05 (#906):** prefix list had `need not mandate`/`need not provision` only; missed leading `need not require {token}`; fixed with prefix negation guard (`HasEncryptionConstraint_does_not_false_positive_on_need_not_require_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — `does not mandate` prefix negation gap — **hit 2026-09-05 (#906):** prefix list had `does not require`/`does not need` only; missed leading `does not mandate {token}`; fixed with prefix negation guard (`HasEncryptionConstraint_does_not_false_positive_on_does_not_mandate_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — `does not enforce` prefix negation gap — **hit 2026-09-05 (#906):** same prefix family; fixed with prefix negation guard (`HasEncryptionConstraint_does_not_false_positive_on_does_not_enforce_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `will not mandate` negation gap — **hit 2026-09-05 (#906):** #905 added `will not need` only; missed prohibitive `will not mandate {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_will_not_mandate_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `cannot need` negation gap — **hit 2026-09-05 (#906):** mid-sentence list had `cannot require` only; missed prohibitive `cannot need {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_cannot_need_encryption_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `does not mandate` / `cannot need` suffix gaps — **hit 2026-09-05 (#906):** suffix list had `does not require`/`cannot require` only; missed trailing `does not mandate` and `cannot need` on imperative regex matches; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_does_not_mandate_suffix_phrasing`, `IsObviousGenericAdvice_does_not_flag_cannot_need_suffix_phrasing`).
+
+2026-09-05 seed hunt #906 (hit): reseeded after #905 closure; proved eight hunt-ready rows — CosmosAccessKey/ApiAccessKey redaction parity, need-not-require/does-not-mandate/enforce and will-not-mandate/cannot-need constraint negation, and advice does-not-mandate/cannot-need suffix.
 
 2026-09-05 seed hunt #889: reseeded after #888 closure; proved anchor null-object/property-name trim, mid-sentence constraint negation, and Secretizer/Passwordizer redaction parity.
 2026-09-05 seed hunt #888: reseeded after #887 closure; proved ConnectionStringless config redaction, ARM key+free suffix parity, and anchor null array/string coercion.
