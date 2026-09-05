@@ -3418,11 +3418,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 235
-- **bugs-found:** 464
+- **hunts:** 236
+- **bugs-found:** 467
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — link-entra local identity idempotent retry audit guard
+- **last-bug:** 2026-09-05 — environment catalog, homepage settings, duplicate-pack idempotent retry guards
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4543,11 +4543,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-05 thorough hunt #840 (hit): proved publish idempotent-retry duplicate audit and change-log gap seeded in #839.
 
 - [x] (proven) `TenantTrialController.LinkEntraAsync` / `TenantTrialIdentityHandoffStage.LinkEntraAsync` — operator retry with same `localEmail` + `entraOid` logs duplicate `TrialLocalIdentityLinkedToEntra` audit while `TryLinkLocalIdentityToEntraAsync` returns success without SQL update when OID already matches (#838 directory-bound skip-audit parity) — **hit 2026-09-05 (#841):** skip local-identity-linked audit when identity row already linked to requested OID; regression in `LinkEntraAsync_skips_duplicate_local_identity_linked_audit_when_already_linked_retry`.
-- [ ] (candidate) `GovernanceEnvironmentCatalogController.Replace` / `IGovernanceEnvironmentCatalogService.ReplaceCatalogAsync` — operator retry with identical environments/transitions re-upserts catalog and logs duplicate `GovernanceEnvironmentCatalogReplaced` audit (`ReplaceCatalogAsync` + unconditional controller `auditService.LogAsync`).
-- [ ] (candidate) `TenantHomepageSettingsController.PutAsync` — operator retry with same `selectedRunId` re-upserts tenant setting and logs duplicate `TenantHomepageSettingsUpdated` audit (`SetSelectedRunIdAsync` + unconditional controller audit).
-- [ ] (candidate) `PolicyPacksController.DuplicatePack` / `PolicyPacksAppService.TryDuplicatePackAsync` — operator retry allocates fresh `PolicyPackId` and creates duplicate "(Copy)" pack rows + `PolicyPackDuplicated` audit (`operator-documented-safe-retry`, no dedupe guard).
+- [x] (proven) `GovernanceEnvironmentCatalogController.Replace` / `IGovernanceEnvironmentCatalogService.ReplaceCatalogAsync` — operator retry with identical environments/transitions re-upserts catalog and logs duplicate `GovernanceEnvironmentCatalogReplaced` audit (`ReplaceCatalogAsync` + unconditional controller `auditService.LogAsync`) — **hit 2026-09-05 (#842):** skip audit when administrator-configured catalog content already matches normalized request; regression in `Replace_skips_duplicate_audit_when_identical_operator_retry`.
+- [x] (proven) `TenantHomepageSettingsController.PutAsync` — operator retry with same `selectedRunId` re-upserts tenant setting and logs duplicate `TenantHomepageSettingsUpdated` audit (`SetSelectedRunIdAsync` + unconditional controller audit) — **hit 2026-09-05 (#842):** skip audit when featured sample already configured for requested run id (and skip clear audit when already unconfigured); regression in `PutAsync_skips_duplicate_audit_when_selected_run_id_unchanged_retry`.
+- [x] (proven) `PolicyPacksController.DuplicatePack` / `PolicyPacksAppService.TryDuplicatePackAsync` — operator retry allocates fresh `PolicyPackId` and creates duplicate "(Copy)" pack rows + `PolicyPackDuplicated` audit (`operator-documented-safe-retry`, no dedupe guard) — **hit 2026-09-05 (#842):** return existing scope-visible copy with matching name, metadata, and content without create or audit; regression in `TryDuplicatePackAsync_returns_existing_copy_and_skips_duplicate_audit_on_identical_operator_retry`.
 
-2026-09-05 seed hunt #841 (hit): reseeded post-#840 idempotent-retry exhaustion; proved link-entra local identity duplicate-audit gap; seeded environment-catalog replace, homepage settings, and duplicate-pack retry candidates.
+2026-09-05 thorough hunt #842 (hit): proved three idempotent-retry gaps seeded in #841 (environment catalog audit, homepage settings audit, duplicate-pack row creation).
 
 2026-09-05 seed hunt #839 (hit): reseeded post-#838 idempotent-retry audit exhaustion; proved assignment toggle, catalog promote, and recurrence-update duplicate-audit gaps; seeded publish retry candidate.
 

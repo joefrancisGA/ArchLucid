@@ -278,6 +278,30 @@ public sealed class PolicyPacksAppService(
 
         string copyName = sourcePack.Name.TrimEnd() + " (Copy)";
 
+        IReadOnlyList<PolicyPack> packsInScope = await packRepository
+            .ListByScopeAsync(tenantId, workspaceId, projectId, ct)
+            .ConfigureAwait(false);
+
+        PolicyPack? existingDuplicate = packsInScope.FirstOrDefault(
+            pack =>
+                !pack.IsDeleted
+                && string.Equals(pack.Name, copyName, StringComparison.Ordinal)
+                && string.Equals(pack.Description, sourcePack.Description, StringComparison.Ordinal)
+                && string.Equals(pack.PackType, sourcePack.PackType, StringComparison.Ordinal));
+
+        if (existingDuplicate is not null)
+        {
+            PolicyPackVersion? existingVersion = await versionRepository
+                .GetByPackAndVersionAsync(existingDuplicate.PolicyPackId, existingDuplicate.CurrentVersion, ct)
+                .ConfigureAwait(false);
+
+            if (existingVersion is not null
+                && string.Equals(existingVersion.ContentJson, latestVersion.ContentJson, StringComparison.Ordinal))
+            {
+                return existingDuplicate;
+            }
+        }
+
         PolicyPack duplicate = await managementService.CreatePackAsync(
             tenantId,
             workspaceId,
