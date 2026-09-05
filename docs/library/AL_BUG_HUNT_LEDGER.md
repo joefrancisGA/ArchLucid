@@ -2685,11 +2685,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 15
-- **bugs-found:** 25
+- **hunts:** 16
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — RelationshipType whitespace label silently defaulted to Calls
+- **last-hunt:** 2026-09-05
+- **last-bug:** 2026-09-05 — architecture finding numeric sourceAgent ordinal ignored
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2732,6 +2732,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RelationshipTypeJsonConverter.Read` — whitespace relationship label returns default `Calls` instead of throwing like unknown labels — **hit 2026-09-04 (#761):** `""` and `"   "` silently became `Calls` after #542 strictness for unknown aliases; fixed to throw `JsonException`; regression in `RelationshipTypeJsonConverterTests.Read_whitespace_relationship_label_throws`.
 
 2026-09-04 thorough hunt #761: cheap-disproved service/runtime/datastore unknown→`Unknown` parity candidate; proved RelationshipType whitespace silent `Calls` downgrade.
+
+- [x] (proven) `ArchitectureFindingJsonConverter.Read` — numeric `sourceAgent` ordinal ignored while `enforcementTier`/`severity`/`treatment` accept defined ordinals — **hit 2026-09-05 (#796):** `"sourceAgent": 2` left `SourceAgent` at invalid default `0` instead of `AgentType.Cost`; fixed with `TryReadSourceAgent` + `Enum.IsDefined`; regressions in `Deserialize_numeric_source_agent_maps_cost_ordinal` and `Deserialize_integer_source_agent_out_of_range_throws`; updated wave-21 test fixtures to include required `enforcementTier`.
+- [ ] (candidate) `ArchitectureFindingJsonConverter.ReadSeverity` — whitespace-only severity string silently maps to `Info` instead of throwing like unknown labels — may be intentional empty-severity default for partial LLM payloads; needs cheap-disproof against eval-corpus strictness.
+
+2026-09-05 seed hunt #796 (hit): reseeded archlucid-contracts after wave-21 churn; proved architecture-finding numeric sourceAgent ordinal gap; seeded whitespace-severity default candidate.
 
 2026-08-31 seed hunt #332 (hit): proved object-shaped claim `evidenceRefs` dropped in `AgentResultJsonConverter`; seeded numeric/PascalCase insight-density fields, `FindingConfidenceLevel` ordinal, and comma-delimiter brief sentinel candidates.
 
