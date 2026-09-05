@@ -120,6 +120,7 @@ public static partial class ServiceCollectionExtensions
         RegisterIntegrationEventPublishing(services, configuration);
         AlertsCompositionModule.Register(services, configuration);
         PipelineCompositionModule.Register(services, configuration);
+        InfraEvidenceCompositionModule.Register(services);
         RegisterDecisioningEngines(services, configuration);
         CoordinatorArtifactsCompositionModule.Register(services, configuration);
         AgentCompositionModule.Register(services, configuration);
