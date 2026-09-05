@@ -1,3 +1,4 @@
+using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Application.Value;
@@ -297,6 +298,8 @@ public sealed class SponsorOnePagerPdfBuilderTests
         siteOpts.Setup(s => s.CurrentValue).Returns(new PublicSiteOptions { BaseUrl = "https://ui.example" });
 
         ITenantBrandingService branding = FirstValueReportBrandingTestDoubles.CreateProductBrandService().Object;
+        ITenantReportBrandingApplyHelper reportBranding =
+            FirstValueReportBrandingTestDoubles.CreateApplyHelper(branding);
 
         IPilotBaselineRepository baselineRepo = pilotBaselines ?? CreateDefaultPilotBaselineRepository();
 
@@ -308,7 +311,7 @@ public sealed class SponsorOnePagerPdfBuilderTests
             new ExecutionProvenanceFooterRenderer(),
             configuration,
             siteOpts.Object,
-            branding,
+            reportBranding,
             baselineRepo,
             FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),

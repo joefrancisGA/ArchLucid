@@ -1,3 +1,4 @@
+using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Application.Rendering;
 using ArchLucid.Contracts.Pilots;
 
@@ -64,40 +65,21 @@ public sealed class FirstValueReportPdfBuilder(FirstValueReportBuilder markdownB
 
                 page.Header().Column(header =>
                 {
-                    if (showSponsorCirculationWatermark)
-                    {
-                        header.Item()
-                            .Background(Colors.Red.Lighten4)
-                            .Padding(6)
-                            .Text(watermarkBannerText)
-                            .Bold()
-                            .FontColor(Colors.Red.Darken3)
-                            .FontSize(11);
-                    }
-
-                    TenantFirstValueReportBrandingForExport? tenantBranding = built.TenantFirstValueReportBranding;
-                    if (!string.IsNullOrWhiteSpace(tenantBranding?.CompanyDisplayName))
-                    {
-                        header.Item()
-                            .PaddingBottom(4)
-                            .Text(tenantBranding.CompanyDisplayName)
-                            .Bold()
-                            .FontSize(12);
-                    }
-
-                    header.Item().Text("ArchLucid — first value report (pilot)").Bold().FontSize(14);
+                    TenantReportBrandingApplier.ApplyFirstValueReportPdfHeader(
+                        header,
+                        built.TenantReportBranding,
+                        showSponsorCirculationWatermark,
+                        watermarkBannerText);
                 });
                 page.Content().Column(column => MarkdownPdfRenderer.Render(column, markdown));
                 page.Footer().Column(foot =>
                 {
-                    if (showSponsorCirculationWatermark)
-                        foot.Item().AlignCenter().Text(watermarkBannerText).FontSize(9).Italic().FontColor(Colors.Grey.Medium);
-
-                    foot.Item().AlignCenter().Text(text =>
-                    {
-                        text.Span("Generated from run ");
-                        text.Span(runId).Bold();
-                    });
+                    TenantReportBrandingApplier.ApplyFirstValueReportPdfFooter(
+                        foot,
+                        built.TenantReportBranding,
+                        runId,
+                        showSponsorCirculationWatermark,
+                        watermarkBannerText);
                 });
             });
         });

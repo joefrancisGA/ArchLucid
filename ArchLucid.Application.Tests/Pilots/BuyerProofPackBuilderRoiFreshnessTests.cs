@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Application.Exports;
+using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Application.Roi;
@@ -241,6 +242,8 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
         siteOpts.Setup(s => s.CurrentValue).Returns(new PublicSiteOptions { BaseUrl = "https://ui.example" });
 
         ITenantBrandingService branding = FirstValueReportBrandingTestDoubles.CreateProductBrandService().Object;
+        ITenantReportBrandingApplyHelper reportBranding =
+            FirstValueReportBrandingTestDoubles.CreateApplyHelper(branding);
 
         Mock<IPilotBaselineRepository> pilotBaselines = new();
         pilotBaselines
@@ -263,7 +266,7 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
             new ExecutionProvenanceFooterRenderer(),
             configuration,
             siteOpts.Object,
-            branding,
+            reportBranding,
             pilotBaselines.Object,
             collectionResolver ?? FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),

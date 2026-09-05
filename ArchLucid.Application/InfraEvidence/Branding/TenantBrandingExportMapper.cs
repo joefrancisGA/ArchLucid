@@ -12,25 +12,18 @@ public static class TenantBrandingExportMapper
         string apiBaseForLinks,
         CancellationToken cancellationToken)
     {
-        ResolvedTenantBrandingProfile profile =
-            await brandingService.GetBrandingProfileAsync(tenantId, cancellationToken);
-
-        if (profile.IsProductBrand)
-            return null;
-
-        TenantBrandingLogo logo = await brandingService.GetLogoAsync(
+        TenantReportBrandingApplyHelper helper = new(brandingService);
+        TenantReportBrandingForExport? resolved = await helper.ResolveForExportAsync(
             tenantId,
             BrandingDisplayContext.ReportCover,
+            apiBaseForLinks,
             cancellationToken);
 
-        string? logoUrl = logo.HttpsUrl;
+        if (resolved is null)
+            return null;
 
-        if (logoUrl is null && logo.AssetId is Guid assetId && !string.IsNullOrWhiteSpace(apiBaseForLinks))
-        {
-            string baseUrl = apiBaseForLinks.Trim().TrimEnd('/');
-            logoUrl = $"{baseUrl}/v1/infra-evidence/branding/assets/{assetId:D}/content";
-        }
-
-        return FirstValueReportBrandingSanitizer.TryBuildExportModel(logoUrl, profile.CompanyDisplayName);
+        return FirstValueReportBrandingSanitizer.TryBuildExportModel(
+            resolved.LogoHttpsUrl,
+            resolved.CompanyDisplayName);
     }
 }

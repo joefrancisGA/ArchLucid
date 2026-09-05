@@ -79,5 +79,6 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<ITenantBrandingService, TenantBrandingService>();
         services.AddSingleton<IBrandedDiagramExportComposer, BrandedDiagramExportComposer>();
         services.AddScoped<IBrandedDiagramExportService, BrandedDiagramExportService>();
+        services.AddScoped<ITenantReportBrandingApplyHelper, TenantReportBrandingApplyHelper>();
     }
 }
