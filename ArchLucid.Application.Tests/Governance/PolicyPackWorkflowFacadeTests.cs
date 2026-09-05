@@ -87,6 +87,7 @@ public sealed class PolicyPackWorkflowFacadeTests
             "1.0.0",
             "Project",
             false,
+            false,
             CancellationToken.None);
 
         result.Outcome.Should().Be(PolicyPackAssignOutcome.PackNotFound);
@@ -170,6 +171,39 @@ public sealed class PolicyPackWorkflowFacadeTests
                     ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
                     PolicyPackId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
                     PolicyPackVersion = "1.0.0",
+                });
+
+        Mock<IPolicyPacksAppService> appService = new(MockBehavior.Strict);
+
+        PolicyPackWorkflowFacade sut = CreateSut(
+            Mock.Of<IPolicyPackRepository>(),
+            assignments: assignments.Object,
+            appService: appService.Object);
+
+        bool result = await sut.TryArchiveAssignmentAsync(assignmentId, CancellationToken.None);
+
+        result.Should().BeFalse();
+        appService.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task TryArchiveAssignmentAsync_returns_false_when_assignment_is_organization_required()
+    {
+        Guid assignmentId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IPolicyPackAssignmentRepository> assignments = new();
+        assignments
+            .Setup(r => r.GetByTenantAndAssignmentIdAsync(CallerScope.TenantId, assignmentId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PolicyPackAssignment
+                {
+                    AssignmentId = assignmentId,
+                    TenantId = CallerScope.TenantId,
+                    WorkspaceId = CallerScope.WorkspaceId,
+                    ProjectId = CallerScope.ProjectId,
+                    PolicyPackId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+                    PolicyPackVersion = "1.0.0",
+                    IsOrganizationRequired = true,
                 });
 
         Mock<IPolicyPacksAppService> appService = new(MockBehavior.Strict);

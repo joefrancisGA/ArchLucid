@@ -123,6 +123,7 @@ public sealed partial class PolicyPackWorkflowFacade(
         string version,
         string scopeLevel,
         bool isPinned,
+        bool isOrganizationRequired,
         CancellationToken ct)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
@@ -139,6 +140,7 @@ public sealed partial class PolicyPackWorkflowFacade(
             version,
             scopeLevel,
             isPinned,
+            isOrganizationRequired,
             ct);
 
         if (assignment is null)
@@ -155,6 +157,9 @@ public sealed partial class PolicyPackWorkflowFacade(
             await _assignmentRepository.GetByTenantAndAssignmentIdAsync(scope.TenantId, assignmentId, ct);
 
         if (!PolicyPackAssignmentScope.IsVisibleInScope(assignment, scope))
+            return false;
+
+        if (PolicyPackAssignmentOrganizationRequired.IsOrganizationRequired(assignment))
             return false;
 
         return await _policyPacksApp.TryArchiveAssignmentAsync(scope.TenantId, assignmentId, ct);

@@ -30,7 +30,12 @@
           "framework": "CIS Azure Foundations Benchmark",
           "theme": "Identity"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Azure"
+        ]
+      }
     },
     {
       "id": "cis-az-002",
@@ -51,7 +56,12 @@
           "framework": "CIS Azure Foundations Benchmark",
           "theme": "Storage"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Azure"
+        ]
+      }
     },
     {
       "id": "cis-az-003",
@@ -72,7 +82,12 @@
           "framework": "CIS Azure Foundations Benchmark",
           "theme": "Networking"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Azure"
+        ]
+      }
     },
     {
       "id": "cis-az-004",
@@ -93,7 +108,12 @@
           "framework": "CIS Azure Foundations Benchmark",
           "theme": "Logging"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Azure"
+        ]
+      }
     },
     {
       "id": "cis-az-005",
@@ -114,7 +134,12 @@
           "framework": "CIS Azure Foundations Benchmark",
           "theme": "Identity"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Azure"
+        ]
+      }
     },
     {
       "id": "cis-az-006",
@@ -135,7 +160,12 @@
           "framework": "CIS Azure Foundations Benchmark",
           "theme": "Storage"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Azure"
+        ]
+      }
     },
     {
       "id": "cis-az-007",
@@ -156,7 +186,12 @@
           "framework": "CIS Azure Foundations Benchmark",
           "theme": "Networking"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Azure"
+        ]
+      }
     },
     {
       "id": "cis-az-008",
@@ -177,7 +212,12 @@
           "framework": "CIS Azure Foundations Benchmark",
           "theme": "Logging"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Azure"
+        ]
+      }
     },
     {
       "id": "cis-az-009",
@@ -198,7 +238,12 @@
           "framework": "CIS Azure Foundations Benchmark",
           "theme": "Identity"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Azure"
+        ]
+      }
     },
     {
       "id": "cis-az-010",
@@ -219,7 +264,12 @@
           "framework": "CIS Azure Foundations Benchmark",
           "theme": "Storage"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Azure"
+        ]
+      }
     }
   ]
 }

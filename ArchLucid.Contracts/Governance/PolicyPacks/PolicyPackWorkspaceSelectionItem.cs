@@ -50,4 +50,10 @@ public sealed class PolicyPackWorkspaceSelectionItem
         get;
         set;
     }
+
+    public bool IsOrganizationRequired
+    {
+        get;
+        set;
+    }
 }

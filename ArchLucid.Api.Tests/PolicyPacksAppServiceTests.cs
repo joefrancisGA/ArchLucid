@@ -84,12 +84,13 @@ public sealed class PolicyPacksAppServiceTests
             "1.0.0",
             "workspace",
             false,
+            false,
             CancellationToken.None);
 
         result.Should().BeNull();
         management.Verify(
             x => x.AssignAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(),
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()),
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 

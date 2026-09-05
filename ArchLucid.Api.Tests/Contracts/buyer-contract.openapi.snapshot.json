@@ -5380,6 +5380,9 @@
       },
       "AssignPolicyPackRequest": {
         "properties": {
+          "isOrganizationRequired": {
+            "type": "boolean"
+          },
           "isPinned": {
             "type": "boolean"
           },
@@ -21981,6 +21984,9 @@
             "type": "boolean"
           },
           "isGloballyActive": {
+            "type": "boolean"
+          },
+          "isOrganizationRequired": {
             "type": "boolean"
           },
           "name": {
@@ -40075,6 +40081,9 @@
     },
     {
       "name": "Audit"
+    },
+    {
+      "name": "AuditEvidencePackage"
     },
     {
       "name": "AuthDebug"

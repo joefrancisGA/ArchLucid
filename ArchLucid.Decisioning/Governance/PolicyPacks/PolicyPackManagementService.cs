@@ -49,6 +49,7 @@ public sealed class PolicyPackManagementService(
         string version,
         string scopeLevel,
         bool isPinned,
+        bool isOrganizationRequired = false,
         bool isEnabled = true,
         CancellationToken ct = default) =>
         _assignStage.AssignAsync(
@@ -59,6 +60,7 @@ public sealed class PolicyPackManagementService(
             version,
             scopeLevel,
             isPinned,
+            isOrganizationRequired,
             isEnabled,
             ct);
 

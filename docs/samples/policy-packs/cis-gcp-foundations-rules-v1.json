@@ -41,7 +41,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 1.1 \u2014 Ensure MFA enabled for privileged users"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-002",
@@ -73,7 +78,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 1.2 \u2014 Ensure MFA enabled for all users"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-003",
@@ -105,7 +115,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 1.3 \u2014 Guest users reviewed"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-004",
@@ -137,7 +152,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 1.4 \u2014 Security defaults / Conditional Access"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-005",
@@ -169,7 +189,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 1.5 \u2014 Restrict user consent to apps"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-006",
@@ -201,7 +226,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 3.1 \u2014 Storage public access disabled"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-007",
@@ -233,7 +263,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 3.2 \u2014 Storage encryption enabled"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-008",
@@ -265,7 +300,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 3.3 \u2014 Soft delete and versioning"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-009",
@@ -297,7 +337,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 3.4 \u2014 Storage network restrictions"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-010",
@@ -329,7 +374,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 4.1 \u2014 SQL auditing enabled"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-011",
@@ -361,7 +411,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 4.2 \u2014 SQL TDE enabled"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-012",
@@ -393,7 +448,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 4.3 \u2014 SQL public access restricted"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-013",
@@ -425,7 +485,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 8.1 \u2014 Cloud KMS recovery enabled"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-014",
@@ -457,7 +522,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 8.2 \u2014 Cloud KMS network restrictions"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-015",
@@ -489,7 +559,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 5.1 \u2014 Diagnostic settings configured"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-016",
@@ -521,7 +596,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 5.2 \u2014 Activity log retention"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-017",
@@ -553,7 +633,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 6.1 \u2014 WAF on internet-facing apps"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-018",
@@ -585,7 +670,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 6.2 \u2014 Restrictive NSG rules"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-019",
@@ -617,7 +707,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 7.1 \u2014 JIT access for VMs"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-020",
@@ -649,7 +744,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 7.2 \u2014 Managed disk encryption"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-021",
@@ -681,7 +781,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 2.1 \u2014 Security Command Center services enabled"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-022",
@@ -713,7 +818,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 2.2 \u2014 Auto provisioning agents"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-023",
@@ -739,7 +849,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 9.1 \u2014 Email security policies"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-024",
@@ -771,7 +886,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 9.2 \u2014 Cloud Run authentication"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-025",
@@ -803,7 +923,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 9.3 \u2014 Cloud Run TLS and HTTPS"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-026",
@@ -835,7 +960,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 10.1 \u2014 ACR admin user disabled"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-027",
@@ -867,7 +997,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 10.2 \u2014 GKE API access restricted"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     },
     {
       "id": "cis-gcp-028",
@@ -899,7 +1034,12 @@
           "framework": "CIS GCP Foundations Benchmark",
           "theme": "CIS 2.3 \u2014 Org policies on critical assets"
         }
-      ]
+      ],
+      "applicabilityConditions": {
+        "cloudProvider": [
+          "Gcp"
+        ]
+      }
     }
   ]
 }

@@ -124,7 +124,7 @@ public sealed class EffectiveGovernanceSnapshotBuilderTests
     }
 
     [Fact]
-    public async Task ResolveAsync_focused_pilot_includes_pinned_organization_pack_in_pack_assignments()
+    public async Task ResolveAsync_focused_pilot_includes_organization_required_pack_in_pack_assignments()
     {
         Guid tenantId = Guid.NewGuid();
         Guid workspaceId = Guid.NewGuid();
@@ -138,7 +138,7 @@ public sealed class EffectiveGovernanceSnapshotBuilderTests
             ProjectId = projectId
         };
 
-        PolicyPackAssignment pinnedOrgPack = new()
+        PolicyPackAssignment orgRequiredPack = new()
         {
             TenantId = tenantId,
             WorkspaceId = workspaceId,
@@ -147,7 +147,7 @@ public sealed class EffectiveGovernanceSnapshotBuilderTests
             PolicyPackVersion = "3.1.0",
             ScopeLevel = GovernanceScopeLevel.Project,
             IsEnabled = true,
-            IsPinned = true
+            IsOrganizationRequired = true
         };
 
         Mock<IEffectiveGovernanceResolver> resolver = new();
@@ -163,7 +163,7 @@ public sealed class EffectiveGovernanceSnapshotBuilderTests
         Mock<IPolicyPackAssignmentRepository> assignments = new();
         assignments
             .Setup(r => r.ListByScopeAsync(tenantId, workspaceId, projectId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([pinnedOrgPack]);
+            .ReturnsAsync([orgRequiredPack]);
 
         Mock<IPolicyPackRepository> packs = new();
         packs

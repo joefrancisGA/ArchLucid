@@ -41,9 +41,8 @@ public sealed class PolicyFilteredComplianceRulePackProvider(
                 .LoadEffectiveContentAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, ct)
             ;
         ComplianceRulePack merged = TenantCuratedComplianceRulePackMerger.MergeFilePackWithCuratedFromGovernance(full, effective);
-        ComplianceRuleApplicabilityContext? applicabilityContext = PilotModeGovernanceScope.IsActive
-            ? ComplianceRuleApplicabilityContext.FromCloudProvider(PilotModeGovernanceScope.ActiveCloudProvider)
-            : null;
+        ComplianceRuleApplicabilityContext applicabilityContext =
+            ComplianceRuleApplicabilityContext.FromCloudProvider(PilotModeGovernanceScope.ActiveCloudProvider);
 
         return ComplianceRulePackGovernanceFilter.Filter(merged, effective, applicabilityContext);
     }

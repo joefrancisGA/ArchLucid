@@ -30,6 +30,7 @@ public sealed class PolicyPackAssignStage(
         string version,
         string scopeLevel,
         bool isPinned,
+        bool isOrganizationRequired = false,
         bool isEnabled = true,
         CancellationToken ct = default)
     {
@@ -57,6 +58,7 @@ public sealed class PolicyPackAssignStage(
             IsEnabled = isEnabled,
             ScopeLevel = normalized,
             IsPinned = isPinned,
+            IsOrganizationRequired = isOrganizationRequired,
             AssignedUtc = TimeProvider.System.UtcNowDateTime(),
         };
 
@@ -65,7 +67,7 @@ public sealed class PolicyPackAssignStage(
         await _policyPackResolverCacheInvalidator.InvalidateTenantAsync(tenantId, ct);
 
         string assignJson = JsonSerializer.Serialize(
-            new { scopeLevel = normalized, version, isPinned },
+            new { scopeLevel = normalized, version, isPinned, isOrganizationRequired },
             PolicyPackChangeLogAppender.ChangeLogJsonOptions);
 
         await _changeLogAppender.AppendAsync(
