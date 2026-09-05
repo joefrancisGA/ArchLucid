@@ -64,7 +64,7 @@ public static class CommittedRunHeaderAnchorGuard
         if (persisted.ArtifactBundleId != proposed.ArtifactBundleId)
             return true;
 
-        if (!string.Equals(persisted.CurrentManifestVersion, proposed.CurrentManifestVersion, StringComparison.Ordinal))
+        if (!string.Equals(persisted.CurrentManifestVersion, proposed.CurrentManifestVersion, StringComparison.OrdinalIgnoreCase))
             return true;
 
         if (persisted.StructuralExecutionMode != proposed.StructuralExecutionMode)

@@ -47,6 +47,20 @@ public sealed class CommittedRunHeaderAnchorGuardTests
     }
 
     [Fact]
+    public void EnsureAnchorsUnchangedIfCommitted_allows_manifest_version_casing_only_change_on_committed_run()
+    {
+        Guid manifestId = Guid.NewGuid();
+        RunRecord persisted = CreateRun(goldenManifestId: manifestId);
+        persisted.CurrentManifestVersion = "v1.0.0";
+        RunRecord proposed = CreateRun(goldenManifestId: manifestId);
+        proposed.CurrentManifestVersion = "V1.0.0";
+
+        Action act = () => CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, proposed);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
     public void EnsureAnchorsUnchangedIfCommitted_throws_when_anchor_mutates_on_committed_run()
     {
         Guid manifestId = Guid.NewGuid();

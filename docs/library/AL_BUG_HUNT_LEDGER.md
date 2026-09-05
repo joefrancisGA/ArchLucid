@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 149
-- **bugs-found:** 282
+- **hunts:** 150
+- **bugs-found:** 284
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — UTM platform delimiter gap and generic advice negation false positives
+- **last-bug:** 2026-09-05 — committed run manifest-version casing false anchor mutation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2211,6 +2211,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `QualityGateRecordedEvaluationSnapshotFactory.ResolveTriageScenarioId` — lowercase `structural` reject category mis-routed — canonical `RejectReasonStructural` constant is already lowercase; cheap-disproof with `ToLowerInvariant()` regression passes unchanged.
 
 2026-09-05 seed hunt #877: reseeded advice-pattern negation and UTM platform delimiter surfaces; proved generic-advice false positives and platform bucketing gap; disproved quality-gate casing candidate.
+
+- [x] (proven) `CommittedRunHeaderAnchorGuard.HasAnchorMutation` — `CurrentManifestVersion` casing-only drift treated as anchor mutation — **hit 2026-09-05 (#878):** #871 fixed governance workflow manifest-version casing but committed run header guard still used `Ordinal`; operator retry with `V1.0.0` vs `v1.0.0` threw `RunEvidenceAnchorImmutableException` on lifecycle updates; fixed with `OrdinalIgnoreCase` (`EnsureAnchorsUnchangedIfCommitted_allows_manifest_version_casing_only_change_on_committed_run`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsObviousGenericAdvice` — `no requirement to {phrase}` prohibitive intent still matches affirmative fragments — **hit 2026-09-05 (#878):** #877 negation parity covered `do not`/`not`/`no` only; `no requirement to enable mfa` still demoted architecture-specific findings; fixed with `no requirement to` negation prefix (`IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing` with `no requirement to enable mfa for this workload`).
+- [x] (invalid) `MarketingAttributionBucketMapper.MapCoarsePlatform` — `micro-soft` / `micro_soft` UTM sources map to `unknown` — delimiter normalization already compacts to `microsoft`; cheap-disproof passes without code change.
+
+2026-09-05 seed hunt #878: reseeded committed-run anchor guard and advice-pattern negation after #871/#877; proved manifest-version casing false anchor mutation and `no requirement to` fragment gap; disproved micro-soft platform delimiter candidate.
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
 - [x] (valid-no-repro) Tenant scope model treats empty workspace as a wildcard — `ActivityScopeTags` rejects `Guid.Empty` workspace ids; no wildcard semantics in Core tenancy models.
