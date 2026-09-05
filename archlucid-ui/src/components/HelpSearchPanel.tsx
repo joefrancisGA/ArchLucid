@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type SetStateAction } from "react";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
@@ -44,6 +44,11 @@ import {
   type HelpSearchPanelArticleState,
 } from "@/components/help-search-panel-presentation";
 import {
+  helpDocSearchNestedPanelsHrefFromSearch,
+  parseHelpDocSearchConceptsOpenFromSearch,
+  parseHelpDocSearchFeedbackOpenFromSearch,
+} from "@/lib/help/help-doc-search-nested-panels-url";
+import {
   helpDocSearchPanelHrefFromSearch,
   parseHelpDocSearchQueryFromSearch,
 } from "@/lib/help/help-doc-search-panel-url";
@@ -63,6 +68,8 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const helpSearchQueryParam = searchParams.get("helpSearchQ");
+  const helpConceptsOpenParam = searchParams.get("helpConceptsOpen");
+  const helpFeedbackOpenParam = searchParams.get("helpFeedbackOpen");
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const { isWorkingMode } = useWorkspaceMode();
   const isAdmin = !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
@@ -70,8 +77,12 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
   const [query, setQueryState] = useState(() => parseHelpDocSearchQueryFromSearch(helpSearchQueryParam));
   const [highlightedRowId, setHighlightedRowId] = useState("");
   const [article, setArticle] = useState<HelpSearchPanelArticleState>({ status: "idle" });
-  const [conceptsDialogOpen, setConceptsDialogOpen] = useState(false);
-  const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
+  const [conceptsDialogOpen, setConceptsDialogOpenState] = useState(() =>
+    parseHelpDocSearchConceptsOpenFromSearch(helpConceptsOpenParam),
+  );
+  const [feedbackDialogOpen, setFeedbackDialogOpenState] = useState(() =>
+    parseHelpDocSearchFeedbackOpenFromSearch(helpFeedbackOpenParam),
+  );
   const searchInputRef = useRef<HTMLInputElement>(null);
   const topicListRef = useRef<HTMLDivElement>(null);
 
@@ -81,6 +92,15 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
         helpDocSearchPanelHrefFromSearch(searchParams.toString(), { open: true, query: nextQuery }, pathname),
         { scroll: false },
       );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const syncNestedHelpPanelsToUrl = useCallback(
+    (state: { conceptsOpen: boolean; feedbackOpen: boolean }) => {
+      router.replace(helpDocSearchNestedPanelsHrefFromSearch(searchParams.toString(), state, pathname), {
+        scroll: false,
+      });
     },
     [pathname, router, searchParams],
   );
@@ -109,6 +129,30 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
       setQueryState(urlQuery);
     }
   }, [helpSearchQueryParam, open]);
+
+  const setConceptsDialogOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setConceptsDialogOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncNestedHelpPanelsToUrl({ conceptsOpen: next, feedbackOpen: feedbackDialogOpen });
+
+        return next;
+      });
+    },
+    [feedbackDialogOpen, syncNestedHelpPanelsToUrl],
+  );
+
+  const setFeedbackDialogOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setFeedbackDialogOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncNestedHelpPanelsToUrl({ conceptsOpen: conceptsDialogOpen, feedbackOpen: next });
+
+        return next;
+      });
+    },
+    [conceptsDialogOpen, syncNestedHelpPanelsToUrl],
+  );
 
   const isSearching = query.trim().length > 0;
   const isViewingArticle = article.status === "loaded" || article.status === "loading" || article.status === "error";
@@ -181,8 +225,9 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
       setQuery("");
       setHighlightedRowId("");
       setArticle({ status: "idle" });
-      setConceptsDialogOpen(false);
-      setFeedbackDialogOpen(false);
+      setConceptsDialogOpenState(false);
+      setFeedbackDialogOpenState(false);
+      syncNestedHelpPanelsToUrl({ conceptsOpen: false, feedbackOpen: false });
       return;
     }
 
@@ -193,7 +238,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
     return () => {
       window.cancelAnimationFrame(frame);
     };
-  }, [open]);
+  }, [open, syncNestedHelpPanelsToUrl]);
 
   useEffect(() => {
     setHighlightedRowId((current) => {

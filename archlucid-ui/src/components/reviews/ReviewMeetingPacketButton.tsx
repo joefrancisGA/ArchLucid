@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useState, type ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useState, type ReactElement, type SetStateAction } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +17,10 @@ import {
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { getRunPackageExportUrl } from "@/lib/api/downloads-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  parseReviewMeetingPacketOpenFromSearch,
+  reviewMeetingPacketPanelsHrefFromSearch,
+} from "@/lib/reviews/review-meeting-packet-panels-url";
 
 export type ReviewMeetingPacketStep = {
   readonly id: string;
@@ -80,8 +85,33 @@ export function buildReviewMeetingPacketSteps(
 
 /** One-click CAB / meeting packet launcher with ordered exports and deep links. */
 export function ReviewMeetingPacketButton(props: ReviewMeetingPacketButtonProps): ReactElement {
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
+  const searchParams = useSearchParams();
+  const meetingPacketOpenParam = searchParams.get("meetingPacketOpen");
+  const [open, setOpenState] = useState(() => parseReviewMeetingPacketOpenFromSearch(meetingPacketOpenParam));
   const steps = buildMeetingPacketSteps(props);
+
+  const syncMeetingPacketOpenToUrl = useCallback(
+    (nextOpen: boolean) => {
+      router.replace(reviewMeetingPacketPanelsHrefFromSearch(searchParams.toString(), nextOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncMeetingPacketOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncMeetingPacketOpenToUrl],
+  );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

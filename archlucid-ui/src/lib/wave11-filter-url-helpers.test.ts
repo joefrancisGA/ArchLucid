@@ -2548,6 +2548,96 @@ describe("wave36 filter url helpers", () => {
   });
 });
 
+describe("wave37 filter url helpers", () => {
+  it("quick decision reasoning/ask, meeting packet, and run inspector preview params", async () => {
+    const {
+      parseQuickDecisionReasoningFindingIdFromSearch,
+      quickDecisionReasoningPanelsHrefFromSearch,
+    } = await import("@/lib/reviews/quick-decision-reasoning-panels-url");
+    const {
+      parseQuickDecisionAskFindingIdFromSearch,
+      quickDecisionAskPanelsHrefFromSearch,
+    } = await import("@/lib/reviews/quick-decision-ask-panels-url");
+    const {
+      parseReviewMeetingPacketOpenFromSearch,
+      reviewMeetingPacketPanelsHrefFromSearch,
+    } = await import("@/lib/reviews/review-meeting-packet-panels-url");
+    const {
+      parseRunInspectorMoreOpenFromSearch,
+      parseRunInspectorTechOpenFromSearch,
+      runInspectorPreviewPanelsHrefFromSearch,
+    } = await import("@/lib/runs/run-inspector-preview-panels-url");
+
+    expect(parseQuickDecisionReasoningFindingIdFromSearch("finding-1")).toBe("finding-1");
+    expect(
+      quickDecisionReasoningPanelsHrefFromSearch("reviewTab=findings", "finding-1", "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?reviewTab=findings&qdReasonId=finding-1");
+    expect(parseQuickDecisionAskFindingIdFromSearch("finding-2")).toBe("finding-2");
+    expect(
+      quickDecisionAskPanelsHrefFromSearch("reviewTab=findings", "finding-2", "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?reviewTab=findings&qdAskFindingId=finding-2");
+    expect(parseReviewMeetingPacketOpenFromSearch("1")).toBe(true);
+    expect(
+      reviewMeetingPacketPanelsHrefFromSearch("reviewTab=overview", true, "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?reviewTab=overview&meetingPacketOpen=1");
+    expect(parseRunInspectorMoreOpenFromSearch("true")).toBe(true);
+    expect(parseRunInspectorTechOpenFromSearch("1")).toBe(true);
+    expect(
+      runInspectorPreviewPanelsHrefFromSearch(
+        "status=active",
+        { moreOpen: true, technicalOpen: true },
+        "/architecture/reviews",
+      ),
+    ).toBe("/architecture/reviews?status=active&runInspectorMoreOpen=1&runInspectorTechOpen=1");
+  });
+
+  it("replay picker, in-flight popover, global search, mobile nav, and help nested params", async () => {
+    const {
+      parseReplayPickerOpenFromSearch,
+      parseReplayPickerQueryFromSearch,
+      reviewPackageValidationPickerHrefFromSearch,
+    } = await import("@/lib/replay/review-package-validation-picker-url");
+    const {
+      parseShellInFlightPopoverOpenFromSearch,
+      shellInFlightPopoverHrefFromSearch,
+    } = await import("@/lib/operator/shell-in-flight-popover-url");
+    const {
+      parseGlobalSearchBarOpenFromSearch,
+      globalSearchBarOverlayHrefFromSearch,
+    } = await import("@/lib/operator/global-search-bar-overlay-url");
+    const {
+      parseMobileNavDrawerOpenFromSearch,
+      mobileNavDrawerHrefFromSearch,
+    } = await import("@/lib/operator/mobile-nav-drawer-url");
+    const {
+      helpDocSearchNestedPanelsHrefFromSearch,
+      parseHelpDocSearchConceptsOpenFromSearch,
+      parseHelpDocSearchFeedbackOpenFromSearch,
+    } = await import("@/lib/help/help-doc-search-nested-panels-url");
+
+    expect(parseReplayPickerOpenFromSearch("1")).toBe(true);
+    expect(parseReplayPickerQueryFromSearch("alpha")).toBe("alpha");
+    expect(
+      reviewPackageValidationPickerHrefFromSearch("runId=r1", { open: true, query: "alpha" }),
+    ).toBe("/internal/validate-route?runId=r1&replayPickerOpen=1&replayPickerQ=alpha");
+    expect(parseShellInFlightPopoverOpenFromSearch("1")).toBe(true);
+    expect(shellInFlightPopoverHrefFromSearch("", true, "/architecture/reviews")).toBe(
+      "/architecture/reviews?inFlightOpen=1",
+    );
+    expect(parseGlobalSearchBarOpenFromSearch("true")).toBe(true);
+    expect(globalSearchBarOverlayHrefFromSearch("help=1", true, "/")).toBe("/?help=1&globalSearchOpen=1");
+    expect(parseMobileNavDrawerOpenFromSearch("1")).toBe(true);
+    expect(mobileNavDrawerHrefFromSearch("reviewTab=overview", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?reviewTab=overview&mobileNavOpen=1",
+    );
+    expect(parseHelpDocSearchConceptsOpenFromSearch("1")).toBe(true);
+    expect(parseHelpDocSearchFeedbackOpenFromSearch("true")).toBe(true);
+    expect(
+      helpDocSearchNestedPanelsHrefFromSearch("", { conceptsOpen: true, feedbackOpen: true }, "/architecture/reviews"),
+    ).toBe("/architecture/reviews?helpConceptsOpen=1&helpFeedbackOpen=1");
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(
