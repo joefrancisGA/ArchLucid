@@ -63,7 +63,7 @@ public sealed class PolicyPacksAppService(
             pack =>
                 !pack.IsDeleted
                 && string.Equals(pack.Name, name, StringComparison.OrdinalIgnoreCase)
-                && string.Equals(pack.Description, description, StringComparison.Ordinal)
+                && string.Equals(pack.Description, description, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(pack.PackType, packType, StringComparison.Ordinal));
 
         if (existingPack is not null)
