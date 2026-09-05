@@ -3420,11 +3420,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 257
-- **bugs-found:** 496
+- **hunts:** 258
+- **bugs-found:** 497
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — policy-pack create packType case-insensitive idempotent retry
+- **last-bug:** 2026-09-05 — duplicate-pack description case-insensitive idempotent retry
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4615,6 +4615,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `PolicyPacksController.DuplicatePack` / `PolicyPacksAppService.TryDuplicatePackAsync` — operator retry with duplicate copy `packType` differing only by casing — **cheap-disproof 2026-09-05 (#865):** dedupe compares `pack.PackType` to `sourcePack.PackType`; both are persisted values and the copy is always created with the source's pack type verbatim, so casing divergence cannot occur on operator retry.
 
 2026-09-05 thorough hunt #865 (hit): proved create-pack packType case-insensitive idempotent retry; cheap-disproved duplicate-pack packType casing candidate.
+
+- [x] (proven) `PolicyPacksController.DuplicatePack` / `PolicyPacksAppService.TryDuplicatePackAsync` — operator retry with duplicate copy `description` differing only by casing allocated fresh pack row (`Ordinal` description match in duplicate dedupe matcher; #862 create-description casing sibling) — **hit 2026-09-05 (#866):** case-insensitive description comparison in duplicate dedupe matcher; regression in `TryDuplicatePackAsync_returns_existing_copy_and_skips_duplicate_audit_when_description_differs_only_by_casing`.
+
+- [ ] (candidate) `PolicyPacksController.Assign` / `PolicyPackAssignStage.AssignAsync` — operator retry with `version` differing only by casing may allocate fresh assignment row (`Ordinal` version match in assign dedupe matcher; #838 assignment audit skip-audit sibling).
+
+2026-09-05 seed hunt #866 (hit): reseeded post-#865 idempotent-retry casing exhaustion; proved duplicate-pack description case-insensitive idempotent retry; seeded policy-pack assign version casing candidate.
 
 2026-09-05 seed hunt #862 (hit): reseeded post-#861 idempotent-retry casing exhaustion; proved policy-pack create description case-insensitive idempotent retry; seeded recurrence cron and catalog promote snapshot-version casing candidates.
 

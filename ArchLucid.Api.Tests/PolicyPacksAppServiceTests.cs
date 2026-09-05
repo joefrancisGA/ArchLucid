@@ -1057,6 +1057,106 @@ public sealed class PolicyPacksAppServiceTests
             Times.Never);
     }
 
+    [SkippableFact]
+    public async Task TryDuplicatePackAsync_returns_existing_copy_and_skips_duplicate_audit_when_description_differs_only_by_casing()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid packId = Guid.NewGuid();
+        Guid existingCopyId = Guid.NewGuid();
+        const string body = """{"complianceRuleKeys":["a"]}""";
+
+        PolicyPack sourcePack = new()
+        {
+            PolicyPackId = packId,
+            TenantId = tenantId,
+            Name = "Source",
+            Description = "Baseline Pack",
+            PackType = PolicyPackType.ProjectCustom,
+            IsDeleted = false,
+            CurrentVersion = "1.2.0",
+        };
+
+        PolicyPack existingCopy = new()
+        {
+            PolicyPackId = existingCopyId,
+            TenantId = tenantId,
+            Name = "Source (Copy)",
+            Description = "baseline pack",
+            PackType = PolicyPackType.ProjectCustom,
+            IsDeleted = false,
+            CurrentVersion = "1.0.0",
+        };
+
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(p => p.GetByIdAsync(packId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(sourcePack);
+        packs
+            .Setup(p => p.ListByScopeAsync(tenantId, workspaceId, projectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new[] { existingCopy });
+
+        Mock<IPolicyPackVersionRepository> versions = new();
+        versions
+            .Setup(v => v.ListByPackAsync(packId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new PolicyPackVersion
+                {
+                    PolicyPackId = packId,
+                    Version = "1.2.0",
+                    ContentJson = string.Empty,
+                    IsPublished = true,
+                },
+            ]);
+        versions
+            .Setup(v => v.GetByPackAndVersionAsync(packId, "1.2.0", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PolicyPackVersion
+                {
+                    PolicyPackId = packId,
+                    Version = "1.2.0",
+                    ContentJson = body,
+                    IsPublished = true,
+                });
+        versions
+            .Setup(v => v.GetByPackAndVersionAsync(existingCopyId, "1.0.0", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PolicyPackVersion
+                {
+                    PolicyPackId = existingCopyId,
+                    Version = "1.0.0",
+                    ContentJson = body,
+                    IsPublished = false,
+                });
+
+        Mock<IPolicyPackManagementService> management = new(MockBehavior.Strict);
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
+
+        PolicyPacksAppService sut = CreateSut(management.Object, packs: packs.Object, versions: versions.Object, audit: audit.Object);
+
+        PolicyPack? result = await sut.TryDuplicatePackAsync(tenantId, workspaceId, projectId, packId, CancellationToken.None);
+
+        result.Should().BeSameAs(existingCopy);
+        management.Verify(
+            m => m.CreatePackAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(
+            x => x.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.PolicyPackDuplicated),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static PolicyPacksAppService CreateSut(
         IPolicyPackManagementService management,
         IPolicyPackRepository? packs = null,
