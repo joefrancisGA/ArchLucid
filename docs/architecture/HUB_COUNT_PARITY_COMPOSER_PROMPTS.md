@@ -5,7 +5,7 @@
 
 # Hub count parity — Composer prompts (HCP-01–HCP-05)
 
-**Created:** 2026-09-05 · **Status:** ready to run · **Do not re-run HOM `#1539`/`#1550`/`#1563`, LS-08, CD-11, or AD-07.**
+**Created:** 2026-09-05 · **Status:** shipped in PR #1689 · **Do not re-run HOM `#1539`/`#1550`/`#1563`, LS-08, CD-11, or AD-07.**
 
 Home already has one tenant-scoped counting snapshot, self-describing metrics (`SelfDescribingMetricCount`), one filled resume CTA, and attention-chip suppression. Reviews hub, sponsor KPIs, and a few remaining strips still disagree on counts or show two Continue primaries.
 
