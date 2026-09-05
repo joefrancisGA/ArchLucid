@@ -4,16 +4,16 @@
 
 ## Goal
 
-Until IS-15, Working documents and in-app session-expired copy tell the truth: the architect SPA session is **this browser tab’s `sessionStorage`**. A new window may require sign-in. PT-19 / presenter heartbeat remains the meeting interim. Do not move tokens to `localStorage`. Do not claim the SPA is XSS-safe.
+Until LK-05–07, Working documents and in-app session-expired copy tell the truth: the architect SPA session is **this browser tab’s `sessionStorage`**. A new window may require sign-in. PT-19 / presenter heartbeat remains the meeting interim. Do not move tokens to `localStorage`. Do not claim the SPA is XSS-safe.
 
 ## Why
 
-Livelihoods depending on the sealed record include dual-monitor and conference-room projector loops (R4). `sessionStorage` is tab-scoped. A second window that looks logged out, or a restored tab that looks logged in with an empty store, is casual-SPA. Implementing the BFF is IS-15. Silence plus a surprising login wall mid-ARB is the failure.
+Livelihoods depending on the sealed record include dual-monitor and conference-room projector loops (R4). `sessionStorage` is tab-scoped. A second window that looks logged out, or a restored tab that looks logged in with an empty store, is casual-SPA. Implementing the BFF is LK-05–07. Silence plus a surprising login wall mid-ARB is the failure.
 
 ## Context
 
 - `archlucid-ui/src/lib/oidc/session.ts` `persistTokenResponse` / `sessionStorage`
-- `docs/architecture/adrs/0059-spa-bff-http-only-session-plan.md` — leave **Proposed** until IS-15
+- `docs/architecture/adrs/0059-spa-bff-http-only-session-plan.md` — leave **Proposed** until LK-05
 - SD-09 trust-center residual — extend with second-window / tab-restore, do not duplicate the XSS paragraph
 - `OidcTokenExpiryWarningGuard` / `SESSION_IDLE_WORKING_TIMEOUT_MS` — 4h Working idle stays
 - PT-19 presenter/print activity heartbeat — reuse if present; do not invent a second token store
@@ -31,7 +31,7 @@ Livelihoods depending on the sealed record include dual-monitor and conference-r
 - A buyer/security reader can learn that a second window may not share the SPA session without opening `session.ts`.
 - Refresh tokens are not written to `localStorage`.
 - Working idle remains 4 hours. CLI Bearer still documented as supported.
-- IS-15 remains the implementation owner.
+- IS-15 remains the historical pointer. **LK-05–07** execute the BFF.
 
 ## Constraints
 

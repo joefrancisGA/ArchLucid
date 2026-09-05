@@ -8,7 +8,7 @@
 
 ArchLucid sells a **seat for a repeat professional** (`docs/ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md` R4 / R13; ADR 0052). People will sit in it much of the day; livelihoods may depend on the sealed record.
 
-**LI, LD, RS, and this set shipped** on `master` (#1496). Do not re-run. Wave 5 unique leftovers: [`career-desk-00-index.md`](career-desk-00-index.md) (**CD-01–15**). Wave 6: [`all-day-desk-00-index.md`](all-day-desk-00-index.md) (**AD-01–12**). Wave 7: [`founding-desk-00-index.md`](founding-desk-00-index.md) (**FD-01–13**). Wave 8: [`instrument-spine-00-index.md`](instrument-spine-00-index.md) (**IS-01–15**). Wave 9: [`livelihood-spine-00-index.md`](livelihood-spine-00-index.md) (**LS-01–12**).
+**LI, LD, RS, and this set shipped** on `master` (#1496). Do not re-run. Wave 5 unique leftovers: [`career-desk-00-index.md`](career-desk-00-index.md) (**CD-01–15**). Wave 6: [`all-day-desk-00-index.md`](all-day-desk-00-index.md) (**AD-01–12**). Wave 7: [`founding-desk-00-index.md`](founding-desk-00-index.md) (**FD-01–13**). Wave 8: [`instrument-spine-00-index.md`](instrument-spine-00-index.md) (**IS-01–15**). Wave 9: [`livelihood-spine-00-index.md`](livelihood-spine-00-index.md) (**LS-01–12**). Wave 12 kernel: [`livelihood-kernel-00-index.md`](livelihood-kernel-00-index.md) (**LK-01–15**).
 
 This is **iterative**. These 24 will not perfect the working-architect paradigm. They close the next predicted residuals without rewriting the product spine.
 

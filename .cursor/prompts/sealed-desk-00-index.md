@@ -4,6 +4,7 @@
      casual evaluator. Wave 10 after instrument-spine-00-index.md (IS-01–15)
      and livelihood-spine-00-index.md (LS-01–12).
      Wave 11 leftovers: career-record-00-index.md (CR-01–12).
+     Wave 12 kernel: livelihood-kernel-00-index.md (LK-01–15) — BFF + ADR 0071–0073.
      Do not implement from this index. -->
 
 # Sealed-desk leftovers — Composer prompt set (SD-01–SD-12)
@@ -45,6 +46,7 @@ Do **not** collapse desktop review tabs behind **More**. Do **not** auto-switch 
 | **LS-01–12** | Wave 9 diagnosis leftovers | **Run second** — do not fork |
 | **FD / AD / CD / WA / RS / LD / LI / PT / WD** | Overlays and leftovers | Do not re-run / do not fork |
 | **SD-01–12** | **This set** — wave 10 residuals | Run these after IS + LS |
+| **LK-01–15** | Wave 12 kernel | [`livelihood-kernel-00-index.md`](livelihood-kernel-00-index.md) — **do not paste IS-15; SD-09 obsolete after LK-05–07** |
 | **CR-01–12** | Wave 11 residuals | [`career-record-00-index.md`](career-record-00-index.md) |
 
 If an SD row lists an IS/LS/WA/FD owner, **do not fork** that file. Implement only the leftover in *What to build*.
@@ -75,7 +77,7 @@ If an SD row lists an IS/LS/WA/FD owner, **do not fork** that file. Implement on
 | 06 | `sealed-desk-06-remaining-help-not-first-session.md` | Remaining help leads with first-session | WA-04 leftover topics |
 | 07 | `sealed-desk-07-hub-refresh-restores-filters.md` | Reviews / governance hub F5 drops filters | WA-15 leftover hubs |
 | 08 | `sealed-desk-08-remaining-editors-last-saved.md` | Remaining livelihood editors lack last-saved / retry | WA-16 leftover mounts |
-| 09 | `sealed-desk-09-bearer-residual-honesty-until-bff.md` | XSS-readable Bearer is unpublished until IS-15 | IS-15 / ADR 0059 leftover honesty |
+| 09 | `sealed-desk-09-bearer-residual-honesty-until-bff.md` | XSS-readable Bearer is unpublished until LK-05–07 | IS-15 leftover honesty; **obsolete after LK BFF** |
 | 10 | `sealed-desk-10-spawn-locked-draft-is-handoff.md` | Spawn-locked draft URL is still a workspace | RS-04 / IS-03 leftover route |
 | 11 | `sealed-desk-11-palette-matches-working-nav.md` | Palette lists destinations Working nav hides | IS-08 leftover call sites |
 | 12 | `sealed-desk-12-remaining-decision-grade-chrome.md` | Remaining Ready tags / CLI dumps overclaim grade | FD-13 / IS-06 leftover |
@@ -110,3 +112,4 @@ If an SD row lists an IS/LS/WA/FD owner, **do not fork** that file. Implement on
 Summarize: files changed, tests run, residual risk, Working vs Guided behavior, whether **IS-01–15** / **LS-01–12** still own the spine, and whether Guided/demo/trial still work without that prompt. Do not mark IS, LS, FD, AD, CD, WA, RS, LD, or LI as undone.
 
 **Wave 11 leftovers:** [`career-record-00-index.md`](career-record-00-index.md) (**CR-01–12**). Do not fork IS/LS/SD.
+**Wave 12 kernel:** [`livelihood-kernel-00-index.md`](livelihood-kernel-00-index.md) (**LK-01–15**). Do **not** paste IS-15; SD-09 is obsolete after LK-05–07.
