@@ -3,6 +3,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReactElement } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useReviewPipelineReRunInFlight } from "@/hooks/use-review-pipeline-rerun-in-flight";
 
@@ -17,6 +19,10 @@ import {
   plainLanguageFailureCauseSentence,
   resolveLastFailureCardCopy,
 } from "@/lib/execution-vs-quality-outcome-copy";
+import {
+  parseRunLastFailureTechOpenFromSearch,
+  runLastFailureTechDetailsHrefFromSearch,
+} from "@/lib/runs/run-last-failure-tech-details-url";
 
 export {
   resolveRunDetailLastFailureSummary,
@@ -49,9 +55,37 @@ export function RunDetailLastFailureCard(props: {
   readonly failureRecordedAtUtc?: string | null;
   readonly hasRecoverySteps?: boolean;
 }): ReactElement | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const runLastFailureTechOpenParam = searchParams.get("runLastFailureTechOpen");
   const summary = props.summary;
   const runId = props.runId?.trim() ?? "";
   const reRunInFlight = useReviewPipelineReRunInFlight(runId);
+  const [technicalDetailsOpen, setTechnicalDetailsOpenState] = useState(() =>
+    parseRunLastFailureTechOpenFromSearch(runLastFailureTechOpenParam),
+  );
+
+  const syncTechnicalDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(runLastFailureTechDetailsHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTechnicalDetailsOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalDetailsOpenState(open);
+      syncTechnicalDetailsOpenToUrl(open);
+    },
+    [syncTechnicalDetailsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalDetailsOpenState(parseRunLastFailureTechOpenFromSearch(runLastFailureTechOpenParam));
+  }, [runLastFailureTechOpenParam]);
 
   if (summary === null || summary === undefined) {
     return null;
@@ -130,7 +164,13 @@ export function RunDetailLastFailureCard(props: {
           <span className="font-medium">What failed:</span> {whatFailedLine}
         </p>
         {hasTechnicalDetails ? (
-          <details className="rounded-md border border-neutral-200 bg-al-surface-raised p-2 dark:border-neutral-800">
+          <details
+            className="rounded-md border border-neutral-200 bg-al-surface-raised p-2 dark:border-neutral-800"
+            open={technicalDetailsOpen}
+            onToggle={(event) => {
+              setTechnicalDetailsOpen((event.currentTarget as HTMLDetailsElement).open);
+            }}
+          >
             <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
               Technical details
             </summary>

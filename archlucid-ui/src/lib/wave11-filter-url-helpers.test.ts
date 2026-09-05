@@ -3105,6 +3105,96 @@ describe("wave42 filter url helpers", () => {
   });
 });
 
+describe("wave43 filter url helpers", () => {
+  it("related surfaces, governance findings queues, more filters, and last failure tech params", async () => {
+    const {
+      parseRelatedSurfacesOpenFromSearch,
+      relatedSurfacesDisclosureHrefFromSearch,
+    } = await import("@/lib/operator/related-surfaces-disclosure-url");
+    const {
+      governanceFindingsRelatedQueuesHrefFromSearch,
+      parseGovernanceFindingsRelatedQueuesOpenFromSearch,
+    } = await import("@/lib/governance/governance-findings-related-queues-url");
+    const {
+      governanceFindingsMoreFiltersHrefFromSearch,
+      parseGovernanceFindingsMoreFiltersOpenFromSearch,
+    } = await import("@/lib/governance/governance-findings-more-filters-url");
+    const {
+      parseRunLastFailureTechOpenFromSearch,
+      runLastFailureTechDetailsHrefFromSearch,
+    } = await import("@/lib/runs/run-last-failure-tech-details-url");
+
+    expect(parseRelatedSurfacesOpenFromSearch("1")).toBe(true);
+    expect(relatedSurfacesDisclosureHrefFromSearch("tab=overview", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?tab=overview&relatedSurfacesOpen=1",
+    );
+    expect(parseGovernanceFindingsRelatedQueuesOpenFromSearch("true")).toBe(true);
+    expect(
+      governanceFindingsRelatedQueuesHrefFromSearch("", true, "/governance/findings"),
+    ).toBe("/governance/findings?governanceFindingsRelatedQueuesOpen=1");
+    expect(parseGovernanceFindingsMoreFiltersOpenFromSearch("1")).toBe(true);
+    expect(
+      governanceFindingsMoreFiltersHrefFromSearch("jobView=verify", true, "/governance/findings"),
+    ).toBe("/governance/findings?jobView=verify&governanceFindingsMoreFiltersOpen=1");
+    expect(parseRunLastFailureTechOpenFromSearch("1")).toBe(true);
+    expect(runLastFailureTechDetailsHrefFromSearch("", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?runLastFailureTechOpen=1",
+    );
+  });
+
+  it("submitted architecture, assessment narrative, coverage curation, inspect reasoning, api keys, ai usage params", async () => {
+    const {
+      parseSubmittedArchitectureOpenFromSearch,
+      submittedArchitectureDisclosureHrefFromSearch,
+    } = await import("@/lib/reviews/submitted-architecture-disclosure-url");
+    const {
+      parseRunAssessmentNarrativeOpenFromSearch,
+      runAssessmentNarrativeHrefFromSearch,
+    } = await import("@/lib/reviews/run-assessment-narrative-url");
+    const {
+      parseRunCoverageCurationOpenFromSearch,
+      runCoverageCurationDisclosureHrefFromSearch,
+    } = await import("@/lib/reviews/run-coverage-curation-disclosure-url");
+    const {
+      findingInspectReasoningHrefFromSearch,
+      parseFindingInspectReasoningOpenFromSearch,
+    } = await import("@/lib/findings/finding-inspect-reasoning-url");
+    const {
+      apiKeysTechnicalDetailsHrefFromSearch,
+      parseApiKeysTechnicalDetailsOpenFromSearch,
+    } = await import("@/lib/administration/api-keys-technical-details-url");
+    const {
+      aiUsageDetailedActivityHrefFromSearch,
+      parseAiUsageDetailedActivityOpenFromSearch,
+    } = await import("@/lib/administration/ai-usage-detailed-activity-url");
+
+    expect(parseSubmittedArchitectureOpenFromSearch("1")).toBe(true);
+    expect(
+      submittedArchitectureDisclosureHrefFromSearch("tab=findings", true, "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?tab=findings&submittedArchitectureOpen=1");
+    expect(parseRunAssessmentNarrativeOpenFromSearch("true")).toBe(true);
+    expect(runAssessmentNarrativeHrefFromSearch("", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?runAssessmentNarrativeOpen=1",
+    );
+    expect(parseRunCoverageCurationOpenFromSearch("1")).toBe(true);
+    expect(runCoverageCurationDisclosureHrefFromSearch("tab=findings", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?tab=findings&runCoverageCurationOpen=1",
+    );
+    expect(parseFindingInspectReasoningOpenFromSearch("1")).toBe(true);
+    expect(
+      findingInspectReasoningHrefFromSearch("", true, "/architecture/reviews/r1/findings/f1"),
+    ).toBe("/architecture/reviews/r1/findings/f1?findingInspectReasoningOpen=1");
+    expect(parseApiKeysTechnicalDetailsOpenFromSearch("1")).toBe(true);
+    expect(apiKeysTechnicalDetailsHrefFromSearch("", true)).toBe(
+      "/administration/api-keys?apiKeysTechnicalDetailsOpen=1",
+    );
+    expect(parseAiUsageDetailedActivityOpenFromSearch("true")).toBe(true);
+    expect(aiUsageDetailedActivityHrefFromSearch("range=30d", true)).toBe(
+      "/administration/ai-usage?range=30d&aiUsageDetailedActivityOpen=1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

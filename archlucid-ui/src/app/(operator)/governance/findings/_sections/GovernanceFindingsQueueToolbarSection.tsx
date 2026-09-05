@@ -1,11 +1,18 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
 import { GovernanceFindingsFilterBar } from "@/components/governance/findings/GovernanceFindingsFilterBar";
 import { GovernanceFindingsQueueActiveFilterChips } from "@/components/governance/findings/GovernanceFindingsQueueActiveFilterChips";
 import { GovernanceFindingsRegisterFilterCompact } from "@/components/governance/findings/GovernanceFindingsRegisterFilterCompact";
 import { GovernanceFindingsQueueSearchField } from "@/components/governance/findings/GovernanceFindingsQueueSearchField";
 import { GovernanceFindingsSavedViewsBar } from "@/components/governance/findings/GovernanceFindingsSavedViewsBar";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  governanceFindingsMoreFiltersHrefFromSearch,
+  parseGovernanceFindingsMoreFiltersOpenFromSearch,
+} from "@/lib/governance/governance-findings-more-filters-url";
 import { cn } from "@/lib/utils";
 
 import type { GovernanceFindingsQueueAssignedToMeShellProps } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueAssignedToMeShell";
@@ -54,6 +61,36 @@ function GovernanceFindingsAdvancedFiltersPanel(
 export function GovernanceFindingsQueueToolbarSection(
   props: GovernanceFindingsQueueAssignedToMeShellProps,
 ): React.JSX.Element | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const governanceFindingsMoreFiltersOpenParam = searchParams.get("governanceFindingsMoreFiltersOpen");
+  const [moreFiltersOpen, setMoreFiltersOpenState] = useState(() =>
+    parseGovernanceFindingsMoreFiltersOpenFromSearch(governanceFindingsMoreFiltersOpenParam),
+  );
+
+  const syncMoreFiltersOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        governanceFindingsMoreFiltersHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setMoreFiltersOpen = useCallback(
+    (open: boolean) => {
+      setMoreFiltersOpenState(open);
+      syncMoreFiltersOpenToUrl(open);
+    },
+    [syncMoreFiltersOpenToUrl],
+  );
+
+  useEffect(() => {
+    setMoreFiltersOpenState(parseGovernanceFindingsMoreFiltersOpenFromSearch(governanceFindingsMoreFiltersOpenParam));
+  }, [governanceFindingsMoreFiltersOpenParam]);
+
   if (
     props.rows.length === 0 &&
     !props.compactRegisterFilterVisible &&
@@ -87,6 +124,10 @@ export function GovernanceFindingsQueueToolbarSection(
         <details
           className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
           data-testid="governance-findings-more-filters"
+          open={moreFiltersOpen}
+          onToggle={(event) => {
+            setMoreFiltersOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
         >
           <summary className={cn("cursor-pointer font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             More filters

@@ -1,10 +1,18 @@
+"use client";
+
 import { cn } from "@/lib/utils";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 
 import {
   API_KEYS_TECHNICAL_DETAILS_TITLE,
 } from "@/lib/api-keys-settings-copy";
+import {
+  apiKeysTechnicalDetailsHrefFromSearch,
+  parseApiKeysTechnicalDetailsOpenFromSearch,
+} from "@/lib/administration/api-keys-technical-details-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { components } from "@/lib/api-types.generated";
 
@@ -17,10 +25,43 @@ export type ApiKeysSettingsTechnicalDetailsProps = {
 };
 
 export function ApiKeysSettingsTechnicalDetails(props: ApiKeysSettingsTechnicalDetailsProps): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/administration/api-keys";
+  const searchParams = useSearchParams();
+  const apiKeysTechnicalDetailsOpenParam = searchParams.get("apiKeysTechnicalDetailsOpen");
+  const [open, setOpenState] = useState(() =>
+    parseApiKeysTechnicalDetailsOpenFromSearch(apiKeysTechnicalDetailsOpenParam),
+  );
+
+  const syncOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      router.replace(apiKeysTechnicalDetailsHrefFromSearch(searchParams.toString(), detailsOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (detailsOpen: boolean) => {
+      setOpenState(detailsOpen);
+      syncOpenToUrl(detailsOpen);
+    },
+    [syncOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOpenState(parseApiKeysTechnicalDetailsOpenFromSearch(apiKeysTechnicalDetailsOpenParam));
+  }, [apiKeysTechnicalDetailsOpenParam]);
+
   return (
     <details
       className="rounded-md border border-neutral-200 p-4 dark:border-neutral-700"
       data-testid="api-keys-technical-details"
+      open={open}
+      onToggle={(event) => {
+        setOpen((event.currentTarget as HTMLDetailsElement).open);
+      }}
     >
       <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
         {API_KEYS_TECHNICAL_DETAILS_TITLE}

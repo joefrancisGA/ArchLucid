@@ -10,6 +10,12 @@ vi.mock("@/hooks/use-review-pipeline-rerun-in-flight", () => ({
   useReviewPipelineReRunInFlight: useReviewPipelineReRunInFlightMock,
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/architecture/reviews/r1",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(""),
+}));
+
 describe("RunDetailLastFailureCard (TB-965)", () => {
   it("renders quality-rejected copy without outage phrasing", () => {
     render(
