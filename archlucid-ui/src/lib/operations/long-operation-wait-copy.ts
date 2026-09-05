@@ -83,16 +83,43 @@ export function buildLongOperationWaitCopy(args: {
 /** Sentence-case label for queue status rows in long-operation wait surfaces. */
 export const LONG_OPERATION_QUEUE_STATUS_LABEL = "Queue status:";
 
-export function resolveLongOperationQueueStatusValue(stageLabel: string): string {
-  const label = stageLabel.trim();
-
-  if (label.length > 0) {
-    return label;
+/** Elapsed suffix after the first 10s queue-status refresh (e.g. " (14s)"). */
+export function formatQueueStatusElapsedSuffix(elapsedMs: number): string | null {
+  if (elapsedMs < LONG_OPERATION_ESCALATION_10S_MS) {
+    return null;
   }
 
-  return "Queued";
+  const sec = Math.floor(elapsedMs / 1000);
+
+  if (sec < 60) {
+    return ` (${sec}s)`;
+  }
+
+  const minutes = Math.floor(sec / 60);
+  const seconds = sec % 60;
+
+  if (seconds === 0) {
+    return ` (${minutes}m)`;
+  }
+
+  return ` (${minutes}m ${seconds}s)`;
 }
 
-export function formatLongOperationQueueStatusLine(stageLabel: string): string {
-  return `${LONG_OPERATION_QUEUE_STATUS_LABEL} ${resolveLongOperationQueueStatusValue(stageLabel)}`;
+export function resolveLongOperationQueueStatusValue(
+  stageLabel: string,
+  elapsedMs?: number,
+): string {
+  const label = stageLabel.trim().length > 0 ? stageLabel.trim() : "Queued";
+  const elapsedSuffix =
+    elapsedMs !== undefined ? formatQueueStatusElapsedSuffix(elapsedMs) : null;
+
+  if (elapsedSuffix !== null) {
+    return `${label}${elapsedSuffix}`;
+  }
+
+  return label;
+}
+
+export function formatLongOperationQueueStatusLine(stageLabel: string, elapsedMs?: number): string {
+  return `${LONG_OPERATION_QUEUE_STATUS_LABEL} ${resolveLongOperationQueueStatusValue(stageLabel, elapsedMs)}`;
 }
