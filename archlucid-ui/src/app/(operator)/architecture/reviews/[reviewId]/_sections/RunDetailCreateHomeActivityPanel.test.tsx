@@ -51,4 +51,22 @@ describe("RunDetailCreateHomeActivityPanel", () => {
     expect(screen.queryByTestId("architecture-activity-orientation")).not.toBeInTheDocument();
     expect(screen.getByTestId("outcome-cards").closest("details")).not.toBeNull();
   });
+
+  it("anchors failure details for View failure details deep links", () => {
+    render(
+      <RunDetailCreateHomeActivityPanel
+        {...baseProps}
+        lastFailureSummary={{
+          agentType: "HolisticCritic",
+          failureClass: "parse",
+          reasonCode: "SchemaViolation",
+        }}
+        legacyRunStatus="Failed"
+        failureRecordedAtUtc="2026-09-01T12:00:00.000Z"
+      />,
+    );
+
+    expect(document.getElementById("review-failure-details")).toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-last-failure-card")).toBeInTheDocument();
+  });
 });

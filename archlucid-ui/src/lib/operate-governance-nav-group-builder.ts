@@ -23,7 +23,6 @@ import {
 import { GOVERNANCE_ENVIRONMENTS_PATH } from "@/lib/governance/governance-environments-route";
 import { GOVERNANCE_SETUP_HREF } from "@/lib/governance/governance-setup-route";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
-import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
@@ -104,14 +103,6 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           label: OPERATOR_NAV_LINK_LABELS.decisionRegister,
           title: "Review recorded decisions and governance approval",
           icon: Gavel,
-          tier: "extended",
-          requiredAuthority: "ReadAuthority",
-        },
-        {
-          href: SIGNED_RECORDS_LIST_PATH,
-          label: OPERATOR_NAV_LINK_LABELS.sealedReviewRecords,
-          title: "Browse finalized review records across reviews",
-          icon: FileText,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },

@@ -3,7 +3,11 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReactElement } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
+import {
+  formatReviewFailureRecordedAtLabel,
+  resolveRunDetailLastFailureSummary,
+  type RunDetailLastFailureSummary,
+} from "@/components/resolve-run-detail-last-failure-summary";
 import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
 import { resolveLastFailureCardCopy } from "@/lib/execution-vs-quality-outcome-copy";
 
@@ -16,6 +20,7 @@ export {
 export function RunDetailLastFailureCard(props: {
   readonly summary: RunDetailLastFailureSummary | null | undefined;
   readonly legacyRunStatus?: string | null;
+  readonly failureRecordedAtUtc?: string | null;
 }): ReactElement | null {
   const summary = props.summary;
 
@@ -40,6 +45,7 @@ export function RunDetailLastFailureCard(props: {
     rejectReasonCategory: summary.rejectReasonCategory,
     reasonCode: summary.reasonCode,
   });
+  const failureRecordedAtLabel = formatReviewFailureRecordedAtLabel(props.failureRecordedAtUtc);
 
   const borderClass =
     copy.axis === "quality"
@@ -77,6 +83,11 @@ export function RunDetailLastFailureCard(props: {
         </CardTitle>
       </CardHeader>
       <CardContent className={cn("space-y-2 pt-0", bodyClass, OPERATOR_TYPOGRAPHY.body)}>
+        {failureRecordedAtLabel !== null ? (
+          <p className={cn("m-0", helperClass, OPERATOR_TYPOGRAPHY.helper)} data-testid="run-detail-last-failure-recorded-at">
+            Failed {failureRecordedAtLabel}
+          </p>
+        ) : null}
         <p className="m-0">
           <span className="font-medium">Agent:</span> {agentLabel}
         </p>

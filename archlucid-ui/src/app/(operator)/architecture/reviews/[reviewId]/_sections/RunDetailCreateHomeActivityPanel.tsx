@@ -12,6 +12,8 @@ import {
 import type { RunSummary } from "@/types/authority";
 import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
 import { cn } from "@/lib/utils";
+import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
+import { RunDetailLastFailureCard } from "@/components/runs/RunDetailLastFailureCard";
 
 import { RunDetailProgressTrackerDeferred } from "./run-detail-page-view-deferred-chunks";
 
@@ -28,6 +30,9 @@ export type RunDetailCreateHomeActivityPanelProps = {
   readonly outcomeCards: ReactNode;
   readonly midDeferred: ReactNode;
   readonly sourcesPanel: ReactNode;
+  readonly lastFailureSummary?: RunDetailLastFailureSummary | null;
+  readonly legacyRunStatus?: string | null;
+  readonly failureRecordedAtUtc?: string | null;
   /** When Do this next owns the page primary, keep orientation links secondary. */
   readonly pagePrimaryOwnedElsewhere?: boolean;
 };
@@ -126,6 +131,13 @@ export function RunDetailCreateHomeActivityPanel(props: RunDetailCreateHomeActiv
             <span className="text-al-text-secondary"> (as of {props.provenanceAsOfLabel})</span>
           ) : null}
         </p>
+        <div id="review-failure-details" className="scroll-mt-24">
+          <RunDetailLastFailureCard
+            summary={props.lastFailureSummary ?? null}
+            legacyRunStatus={props.legacyRunStatus ?? null}
+            failureRecordedAtUtc={props.failureRecordedAtUtc ?? null}
+          />
+        </div>
       </div>
 
       <details
