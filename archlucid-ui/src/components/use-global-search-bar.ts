@@ -10,6 +10,7 @@ import { useGlobalSearchResults } from "@/components/use-global-search-results";
 import { useReviewPackageSearchScope } from "@/hooks/use-review-package-search-scope";
 import {
   globalSearchBarOverlayHrefFromSearch,
+  isGlobalSearchBarOverlayHrefCurrent,
   parseGlobalSearchBarOpenFromSearch,
 } from "@/lib/operator/global-search-bar-overlay-url";
 
@@ -24,31 +25,53 @@ export function useGlobalSearchBar() {
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const globalSearchOpenParam = searchParams.get("globalSearchOpen");
+  const urlOpen = parseGlobalSearchBarOpenFromSearch(globalSearchOpenParam);
   const inputRef = useRef<HTMLInputElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
+  const previousUrlOpenRef = useRef(urlOpen);
   const [query, setQuery] = useState("");
-  const [open, setOpenState] = useState(() => parseGlobalSearchBarOpenFromSearch(globalSearchOpenParam));
+  const [open, setOpenState] = useState(urlOpen);
 
   const syncGlobalSearchOpenToUrl = useCallback(
     (panelOpen: boolean) => {
-      router.replace(globalSearchBarOverlayHrefFromSearch(searchParams.toString(), panelOpen, pathname), {
+      const currentSearch = searchParams.toString();
+
+      if (isGlobalSearchBarOverlayHrefCurrent(currentSearch, panelOpen, pathname)) {
+        return;
+      }
+
+      router.replace(globalSearchBarOverlayHrefFromSearch(currentSearch, panelOpen, pathname), {
         scroll: false,
       });
     },
     [pathname, router, searchParams],
   );
 
-  const setOpen = useCallback(
-    (value: SetStateAction<boolean>) => {
-      setOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncGlobalSearchOpenToUrl(next);
+  const setOpen = useCallback((value: SetStateAction<boolean>) => {
+    setOpenState((current) => (typeof value === "function" ? value(current) : value));
+  }, []);
 
-        return next;
-      });
-    },
-    [syncGlobalSearchOpenToUrl],
-  );
+  useEffect(() => {
+    // Keep router.replace out of the open-state updater. React runs updaters during
+    // render, and replacing the URL would update Router while GlobalSearchBar renders.
+
+    if (previousUrlOpenRef.current !== urlOpen) {
+      previousUrlOpenRef.current = urlOpen;
+
+      if (urlOpen !== open) {
+        setOpenState(urlOpen);
+      }
+
+      return;
+    }
+
+    if (urlOpen === open) {
+      return;
+    }
+
+    syncGlobalSearchOpenToUrl(open);
+    previousUrlOpenRef.current = open;
+  }, [open, syncGlobalSearchOpenToUrl, urlOpen]);
 
   const {
     routeLocalSearchMode,
