@@ -54,10 +54,6 @@ export function SignupVerifyClient() {
     const result = await fetchSignupVerifyTrialStatus();
     setTrialStatus(result);
 
-    if (result.kind === "error") {
-      setInitialLoadFailed(true);
-    }
-
     return result;
   }, []);
 
@@ -70,7 +66,11 @@ export function SignupVerifyClient() {
 
     void (async () => {
       setChecking(true);
-      await refreshTrialStatus();
+      const result = await refreshTrialStatus();
+
+      if (!canceled && result.kind === "error") {
+        setInitialLoadFailed(true);
+      }
 
       if (!canceled) {
         setChecking(false);

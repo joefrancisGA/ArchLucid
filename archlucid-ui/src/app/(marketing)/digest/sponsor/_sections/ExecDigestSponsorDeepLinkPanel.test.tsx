@@ -1,11 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { DIGEST_SPONSOR_CLAIM_DISCIPLINE } from "@/lib/marketing/digest-sponsor-evidence-copy";
 import {
   DIGEST_SPONSOR_LEAD,
   DIGEST_SPONSOR_OVERVIEW_TITLE,
   DIGEST_SPONSOR_PRIMARY_CONTENT_ID,
+  DIGEST_SPONSOR_SIGN_IN_WORKSPACE_LABEL,
   DIGEST_SPONSOR_SKIP_LINK_LABEL,
 } from "@/lib/marketing/digest-sponsor-page-copy";
 import type { ExecDigestSponsorDeepLinkView } from "@/lib/digest/exec-digest-sponsor-deep-link-server";
@@ -37,9 +37,17 @@ describe("ExecDigestSponsorDeepLinkPanel", () => {
     );
     expect(screen.getByTestId("digest-sponsor-orientation-top")).toBeInTheDocument();
     expect(screen.getByTestId("digest-sponsor-orientation")).toBeInTheDocument();
-    expect(screen.getByText(DIGEST_SPONSOR_CLAIM_DISCIPLINE)).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: DIGEST_SPONSOR_OVERVIEW_TITLE })).toBeInTheDocument();
     expect(screen.getByText(DIGEST_SPONSOR_LEAD)).toBeInTheDocument();
     expect(screen.getByText("Payments edge")).toBeInTheDocument();
+  });
+
+  it("sign-in link includes returnUrl to sponsor digest after authentication", () => {
+    render(<ExecDigestSponsorDeepLinkPanel view={view} />);
+
+    expect(screen.getByRole("link", { name: DIGEST_SPONSOR_SIGN_IN_WORKSPACE_LABEL })).toHaveAttribute(
+      "href",
+      "/auth/signin?returnUrl=%2Fdigest%2Fsponsor",
+    );
   });
 });

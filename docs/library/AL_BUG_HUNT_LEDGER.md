@@ -4702,11 +4702,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 11
-- **bugs-found:** 18
+- **hunts:** 12
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — sponsor digest issue-page sign-in missing returnUrl to digest entry
+- **last-hunt:** 2026-09-05
+- **last-bug:** 2026-09-05 — sponsor digest success panel sign-in missing returnUrl; signup verify poll error flipped delivery-failure UI
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4740,6 +4740,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `GetStartedPageClient` builds sign-in href manually instead of `buildAuthSignInHref` — **cheap-disproof 2026-09-04 (#662):** `buildSignInTrialHref` already encodes onboarding `returnUrl` and matches `buildAuthSignInHref({ returnPath: buildGuidedTrialHref() })`; parity risk only on future auth route changes, not a current wrong outcome.
 
 2026-09-04 thorough hunt #662: proved sponsor digest issue-page sign-in returnUrl gap; cheap-disproved get-started sign-in helper parity as already equivalent.
+
+- [x] (proven) `ExecDigestSponsorDeepLinkPanel` success view used raw `view.signInUrl` without `returnUrl` — **hit 2026-09-05 (#813):** workspace sign-in CTA on loaded sponsor digest did not return to `/digest/sponsor` after auth unlike issue-page parity fix; fixed with `buildAuthSignInHref({ returnPath: DIGEST_SPONSOR_CANONICAL_PATH })` (`ExecDigestSponsorDeepLinkPanel.test.tsx`).
+- [x] (proven) `SignupVerifyClient.refreshTrialStatus` set `initialLoadFailed` on every poll error — **hit 2026-09-05 (#813):** background `STATUS_POLL_MS` fetch error replaced check-inbox UX with delivery-failure copy after a successful pending probe; fixed by limiting `initialLoadFailed` to the initial load (`SignupVerifyClient.test.tsx`).
+- [ ] (candidate) `/see-it` keeps `source="live"` disclosure when `normalizeSeeItMarketingPayload` upgrades thin API JSON to static showcase payload — needs repro in `see-it/page.tsx` / `SeeItMarketingBody`.
+
+2026-09-05 seed hunt #813 (hit): proved sponsor digest panel sign-in returnUrl gap and signup verify poll delivery-failure flip; seeded see-it live-vs-snapshot disclosure candidate.
 
 2026-09-03 seed hunt #548: proved demo preview artifact operator deep-link gating gap; reseeded digest issue-page and get-started sign-in parity candidates.
 
