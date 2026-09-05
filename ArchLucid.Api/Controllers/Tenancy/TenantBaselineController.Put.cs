@@ -118,10 +118,16 @@ public sealed partial class TenantBaselineController
 
             bool firstManualCapture = existing.BaselineManualPrepCapturedUtc is null;
             DateTimeOffset captured = TimeProvider.System.GetUtcNow();
+            bool isIdenticalManualRetry = existing.BaselineManualPrepCapturedUtc is not null
+                && existing.BaselineManualPrepHoursPerReview == prep
+                && existing.BaselinePeoplePerReview == people;
+
             await _tenantRepository.UpdateBaselineAsync(scope.TenantId, prep, people, captured, cancellationToken);
             ArchLucidInstrumentation.RecordBaselineManualPrepCaptured();
 
-            await _auditService.LogAsync(
+            if (!isIdenticalManualRetry)
+            {
+                await _auditService.LogAsync(
                 new AuditEvent
                 {
                     EventType = firstManualCapture
@@ -136,6 +142,7 @@ public sealed partial class TenantBaselineController
                         new { manualPrepHoursPerReview = prep, peoplePerReview = people, capturedUtc = captured })
                 },
                 cancellationToken);
+            }
         }
 
         if (touchReview)
@@ -148,6 +155,9 @@ public sealed partial class TenantBaselineController
 
             DateTimeOffset capturedUtc = TimeProvider.System.GetUtcNow();
             bool firstReviewCycleCapture = existing.BaselineReviewCycleCapturedUtc is null;
+            bool isIdenticalReviewRetry = existing.BaselineReviewCycleCapturedUtc is not null
+                && existing.BaselineReviewCycleHours == hours
+                && string.Equals(existing.BaselineReviewCycleSource, persistedSource, StringComparison.Ordinal);
 
             await _tenantRepository.PersistTrialSignupBaselineReviewCycleAsync(
                 scope.TenantId,
@@ -156,7 +166,9 @@ public sealed partial class TenantBaselineController
                 capturedUtc,
                 cancellationToken);
 
-            await _auditService.LogAsync(
+            if (!isIdenticalReviewRetry)
+            {
+                await _auditService.LogAsync(
                 new AuditEvent
                 {
                     EventType = firstReviewCycleCapture
@@ -176,6 +188,7 @@ public sealed partial class TenantBaselineController
                         })
                 },
                 cancellationToken);
+            }
         }
         else if (touchReviewSourceNote)
         {
@@ -191,7 +204,14 @@ public sealed partial class TenantBaselineController
                 capturedUtc,
                 cancellationToken);
 
-            await _auditService.LogAsync(
+            bool isIdenticalSourceNoteRetry = string.Equals(
+                existing.BaselineReviewCycleSource,
+                persistedSource,
+                StringComparison.Ordinal);
+
+            if (!isIdenticalSourceNoteRetry)
+            {
+                await _auditService.LogAsync(
                 new AuditEvent
                 {
                     EventType = AuditEventTypes.TrialBaselineReviewCycleUpdated,
@@ -209,6 +229,7 @@ public sealed partial class TenantBaselineController
                         })
                 },
                 cancellationToken);
+            }
         }
 
         TenantRecord? readBack = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);

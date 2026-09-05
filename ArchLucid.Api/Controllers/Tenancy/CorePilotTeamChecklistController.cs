@@ -103,6 +103,15 @@ public sealed class CorePilotTeamChecklistController(
 
         string actor = _actorContext.GetActorId();
 
+        IReadOnlyList<CorePilotChecklistStepRow> existingRows = await _repository
+            .ListAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken)
+            .ConfigureAwait(false);
+
+        CorePilotChecklistStepRow? existingStep = existingRows
+            .FirstOrDefault(row => row.StepIndex == body.StepIndex);
+
+        bool isIdenticalRetry = existingStep is not null && existingStep.IsCompleted == body.IsCompleted;
+
         await _repository
             .UpsertAsync(
                 scope.TenantId,
@@ -114,7 +123,9 @@ public sealed class CorePilotTeamChecklistController(
                 cancellationToken)
             .ConfigureAwait(false);
 
-        await _auditService.LogAsync(
+        if (!isIdenticalRetry)
+        {
+            await _auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.CorePilotTeamChecklistUpdated,
@@ -131,6 +142,7 @@ public sealed class CorePilotTeamChecklistController(
                     })
             },
             cancellationToken);
+        }
 
         return NoContent();
     }
