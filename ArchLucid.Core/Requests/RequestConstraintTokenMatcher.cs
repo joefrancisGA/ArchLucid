@@ -178,6 +178,7 @@ internal static class RequestConstraintTokenMatcher
             || before.StartsWith("need not use", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("need not have", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("need not adopt", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("need not implement", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("does not require", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("does not need", StringComparison.OrdinalIgnoreCase))
             return true;
@@ -211,6 +212,8 @@ internal static class RequestConstraintTokenMatcher
             || ContainsPhrase(before, " will not need")
             || ContainsPhrase(before, " would not need ")
             || ContainsPhrase(before, " would not need")
+            || ContainsPhrase(before, " ought not require ")
+            || ContainsPhrase(before, " ought not require")
             || ContainsPhrase(before, " must not ")
             || ContainsPhrase(before, " do not ")
             || ContainsPhrase(before, " doesn't require ")
