@@ -55,6 +55,7 @@ export function composeRunDetailActivityTab(
       </p>
       <div id="review-failure-details" className="scroll-mt-24">
         <RunDetailLastFailureCardDeferred
+          runId={m.resolvedDetail.run.runId}
           summary={resolveRunDetailLastFailureSummary(m.resolvedDetail)}
           legacyRunStatus={
             (m.resolvedDetail.run as { legacyRunStatus?: string | null }).legacyRunStatus ?? null
