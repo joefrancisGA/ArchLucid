@@ -3418,11 +3418,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 241
-- **bugs-found:** 475
+- **hunts:** 242
+- **bugs-found:** 477
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — architecture project soft-delete idempotent retry success
+- **last-bug:** 2026-09-05 — erasure approve and legal-hold idempotent retry success
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4567,6 +4567,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantWorkspacesController.DeleteProjectAsync` — `operator-documented-safe-retry` sibling: already-soft-deleted retry returns HTTP 404 instead of idempotent HTTP 204 (`TrySoftDeleteAsync` false path; #846 restore parity) — **hit 2026-09-05 (#847):** `ArchitectureProjectSoftDeleteResult.AlreadyDeleted` returns HTTP 204 without duplicate `ArchitectureProjectSoftDeleted` audit; regression in `DeleteProjectAsync_returns_no_content_without_duplicate_audit_when_already_deleted_retry`.
 
 2026-09-05 thorough hunt #847 (hit): proved soft-delete idempotent-success gap seeded in #846.
+
+- [x] (proven) `TenantErasureLegalHoldController.ApproveErasureAsync` / `TenantErasureCommandService.TryApproveErasureAsync` — `operator-documented-safe-retry` retry after successful erasure approval returns HTTP 409 (`TenantErasureApprovedUtc` already set) instead of idempotent HTTP 204 (#836 trial-convert parity) — **hit 2026-09-05 (#848):** return success without duplicate `TenantErasureApproved` platform audit when already approved; regression in `TryApproveErasureAsync_returns_success_without_duplicate_audit_when_already_approved_retry`.
+- [x] (proven) `TenantErasureLegalHoldController.SetLegalHoldAsync` / `TenantErasureCommandService.TrySetLegalHoldAsync` — identical `untilUtc`/`reason` operator retry re-upserts legal hold and logs duplicate `TenantErasureLegalHoldSet` platform audit (`TrySetTenantErasureLegalHoldAsync` + unconditional audit) — **hit 2026-09-05 (#848):** skip repository update and audit when tenant legal hold already matches normalized request; regression in `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_identical_operator_retry`.
+
+2026-09-05 seed hunt #848 (hit): reseeded post-#847 idempotent-retry exhaustion; proved erasure approve idempotent-success and legal-hold duplicate-audit gaps.
 
 2026-09-05 seed hunt #845 (hit): reseeded post-#844 idempotent-retry exhaustion; proved core-pilot checklist and tenant baseline duplicate-audit gaps; seeded restore idempotent-success and governance-resolution read-audit retry candidates.
 
