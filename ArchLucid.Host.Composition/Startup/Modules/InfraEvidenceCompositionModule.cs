@@ -3,7 +3,10 @@ using ArchLucid.Application.InfraEvidence.AuditEvidence;
 using ArchLucid.Application.InfraEvidence.OperationalSecurityFindings;
 using ArchLucid.Application.InfraEvidence.OperationalSecurityExceptions;
 using ArchLucid.Application.InfraEvidence.RemediationInstances;
+using ArchLucid.Application.InfraEvidence.RemediationMetrics;
 using ArchLucid.Application.InfraEvidence.RemediationPatterns;
+using ArchLucid.Application.InfraEvidence.RemediationPrioritization;
+using ArchLucid.Application.InfraEvidence.RemediationWaves;
 using ArchLucid.Application.InfraEvidence.SecurityCrosswalk;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -42,6 +45,9 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<IRemediationPatternService, RemediationPatternService>();
         services.AddScoped<IRemediationPatternMatcherService, RemediationPatternMatcherService>();
         services.AddScoped<IRemediationInstanceService, RemediationInstanceService>();
+        services.AddScoped<IRemediationPrioritizationService, RemediationPrioritizationService>();
+        services.AddScoped<IRemediationWaveService, RemediationWaveService>();
+        services.AddScoped<IRemediationFactoryMetricsService, RemediationFactoryMetricsService>();
         services.AddScoped<IAuditContinuousReadinessService, AuditContinuousReadinessService>();
         services.AddScoped<IAuditEvaluationFindingHandoffService, AuditEvaluationFindingHandoffService>();
         services.AddScoped<IAzureInventorySnapshotPostMaterializeCoordinator, AzureInventorySnapshotPostMaterializeCoordinator>();

@@ -207,12 +207,26 @@ public sealed partial class PilotRunDeltaComputer
         if (active.Count == 0)
             return GovernedFindingCoverageMetric.NotAvailable();
 
-        int governed = active.Count(static f => f.EnforcementTier == FindingEnforcementTier.PolicyViolation);
-        int advisory = active.Count(static f => f.EnforcementTier == FindingEnforcementTier.Advisory);
-        int withPolicyRule = active.Count(static f => !string.IsNullOrWhiteSpace(f.PolicyRuleId));
-        int withEvidenceRefs = active.Count(HasPersistedEvidencePointer);
+        List<Finding> decisionGradeFindings = active
+            .Where(static f => f.Classification != FindingClassification.ChecklistCoverage)
+            .ToList();
+        int checklistCount = active.Count - decisionGradeFindings.Count;
 
-        return GovernedFindingCoverageMetric.Compute(active.Count, governed, advisory, withPolicyRule, withEvidenceRefs);
+        if (decisionGradeFindings.Count == 0 && checklistCount == 0)
+            return GovernedFindingCoverageMetric.NotAvailable();
+
+        int governed = decisionGradeFindings.Count(static f => f.EnforcementTier == FindingEnforcementTier.PolicyViolation);
+        int advisory = decisionGradeFindings.Count(static f => f.EnforcementTier == FindingEnforcementTier.Advisory);
+        int withPolicyRule = decisionGradeFindings.Count(static f => !string.IsNullOrWhiteSpace(f.PolicyRuleId));
+        int withEvidenceRefs = decisionGradeFindings.Count(HasPersistedEvidencePointer);
+
+        return GovernedFindingCoverageMetric.Compute(
+            decisionGradeFindings.Count,
+            governed,
+            advisory,
+            withPolicyRule,
+            withEvidenceRefs,
+            checklistCount);
     }
 
     internal static GovernedFindingCoverageMetric AggregateGovernedFindingCoverage(ArchitectureRunDetail detail)
@@ -222,17 +236,26 @@ public sealed partial class PilotRunDeltaComputer
             .Where(static f => !f.IsMuted)
             .ToList();
 
-        int total = allFindings.Count;
+        List<ArchitectureFinding> decisionGradeFindings = allFindings
+            .Where(static f => f.Classification != FindingClassification.ChecklistCoverage)
+            .ToList();
+        int checklistCount = allFindings.Count - decisionGradeFindings.Count;
 
-        if (total == 0)
+        if (decisionGradeFindings.Count == 0 && checklistCount == 0)
             return GovernedFindingCoverageMetric.NotAvailable();
 
-        int governed = allFindings.Count(static f => f.EnforcementTier == FindingEnforcementTier.PolicyViolation);
-        int advisory = allFindings.Count(static f => f.EnforcementTier == FindingEnforcementTier.Advisory);
-        int withPolicyRule = allFindings.Count(static f => !string.IsNullOrWhiteSpace(f.PolicyRuleId));
-        int withEvidenceRefs = allFindings.Count(static f => f.EvidenceRefs.Count > 0);
+        int governed = decisionGradeFindings.Count(static f => f.EnforcementTier == FindingEnforcementTier.PolicyViolation);
+        int advisory = decisionGradeFindings.Count(static f => f.EnforcementTier == FindingEnforcementTier.Advisory);
+        int withPolicyRule = decisionGradeFindings.Count(static f => !string.IsNullOrWhiteSpace(f.PolicyRuleId));
+        int withEvidenceRefs = decisionGradeFindings.Count(static f => f.EvidenceRefs.Count > 0);
 
-        return GovernedFindingCoverageMetric.Compute(total, governed, advisory, withPolicyRule, withEvidenceRefs);
+        return GovernedFindingCoverageMetric.Compute(
+            decisionGradeFindings.Count,
+            governed,
+            advisory,
+            withPolicyRule,
+            withEvidenceRefs,
+            checklistCount);
     }
 
     private static bool HasPersistedEvidencePointer(Finding finding)

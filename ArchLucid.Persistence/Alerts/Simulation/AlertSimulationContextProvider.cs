@@ -51,6 +51,7 @@ public sealed class AlertSimulationContextProvider(
                     scope,
                     runId.Value,
                     comparedToRunId,
+                    skipOnSealedHashFailure: false,
                     ct)
                 ;
 
@@ -67,7 +68,13 @@ public sealed class AlertSimulationContextProvider(
 
         foreach (RunSummaryDto run in runs.OrderByDescending(x => x.CreatedUtc))
         {
-            AlertEvaluationContext? context = await BuildContextAsync(scope, run.RunId, comparedToRunId: null, ct);
+            AlertEvaluationContext? context = await BuildContextAsync(
+                scope,
+                run.RunId,
+                comparedToRunId: null,
+                skipOnSealedHashFailure: true,
+                ct);
+
             if (context is not null)
                 results.Add(context);
         }
@@ -83,6 +90,7 @@ public sealed class AlertSimulationContextProvider(
         ScopeContext scope,
         Guid runId,
         Guid? comparedToRunId,
+        bool skipOnSealedHashFailure,
         CancellationToken ct)
     {
         RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
@@ -97,10 +105,23 @@ public sealed class AlertSimulationContextProvider(
         if (detail.GoldenManifest.RunId != runId)
             return null;
 
-        AlertSimulationSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrow(
-            detail.GoldenManifest,
-            runId,
-            manifestHashService);
+        if (skipOnSealedHashFailure)
+        {
+            if (!AlertSimulationSealedManifestHashGuard.TryEnsureRunSealedManifestHash(
+                    detail.GoldenManifest,
+                    runId,
+                    manifestHashService))
+            {
+                return null;
+            }
+        }
+        else
+        {
+            AlertSimulationSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrow(
+                detail.GoldenManifest,
+                runId,
+                manifestHashService);
+        }
 
         FindingsSnapshot findings = detail.FindingsSnapshot ?? CreateEmptyFindings(detail.GoldenManifest);
 
@@ -119,12 +140,26 @@ public sealed class AlertSimulationContextProvider(
                 && RunMatchesCallerScope(comparedDetail.Run, scope)
                 && comparedDetail.GoldenManifest.RunId == comparedToRunId.Value)
             {
-                AlertSimulationSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrow(
-                    comparedDetail.GoldenManifest,
-                    comparedToRunId.Value,
-                    manifestHashService);
+                if (skipOnSealedHashFailure)
+                {
+                    if (!AlertSimulationSealedManifestHashGuard.TryEnsureRunSealedManifestHash(
+                            comparedDetail.GoldenManifest,
+                            comparedToRunId.Value,
+                            manifestHashService))
+                    {
+                        comparedDetail = null;
+                    }
+                }
+                else
+                {
+                    AlertSimulationSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrow(
+                        comparedDetail.GoldenManifest,
+                        comparedToRunId.Value,
+                        manifestHashService);
+                }
 
-                comparison = comparisonService.Compare(comparedDetail.GoldenManifest, detail.GoldenManifest);
+                if (comparedDetail?.GoldenManifest is not null)
+                    comparison = comparisonService.Compare(comparedDetail.GoldenManifest, detail.GoldenManifest);
             }
         }
 

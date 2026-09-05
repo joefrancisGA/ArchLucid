@@ -129,6 +129,7 @@ export function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceD
             ? Math.trunc(t.evidenceRefCount)
             : null,
         policyRuleId: coerceComplianceRuleKey(ruleHint),
+        classification: t.classification ?? null,
       };
     });
 }

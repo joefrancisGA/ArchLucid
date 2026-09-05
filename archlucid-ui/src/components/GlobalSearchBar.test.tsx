@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { GlobalSearchBar, FOCUS_GLOBAL_SEARCH_EVENT } from "@/components/GlobalSearchBar";
@@ -11,12 +11,21 @@ import {
 import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
 import { OPEN_COMMAND_PALETTE_EVENT } from "@/lib/shortcut-registry";
 
+const navigationTestState = vi.hoisted(() => ({
+  pathname: "/",
+  search: "",
+  push: vi.fn(),
+  replace: vi.fn(),
+}));
+
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-  useRouter: () => ({ push: vi.fn() }),
-  redirect: vi.fn(),
+    usePathname: () => navigationTestState.pathname,
+    useSearchParams: () => new URLSearchParams(navigationTestState.search),
+    useRouter: () => ({ push: navigationTestState.push, replace: navigationTestState.replace }),
+    redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
   };
@@ -32,6 +41,10 @@ vi.mock("@/lib/demo-ui-env", () => ({
 
 describe("GlobalSearchBar", () => {
   beforeEach(() => {
+    navigationTestState.pathname = "/";
+    navigationTestState.search = "";
+    navigationTestState.push.mockReset();
+    navigationTestState.replace.mockReset();
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
@@ -56,7 +69,23 @@ describe("GlobalSearchBar", () => {
     expect(screen.queryByText("Ctrl+K")).toBeNull();
   });
 
-  it("exposes the quick-actions popup as a dialog rather than a listbox", () => {
+  it("does not replace the URL while rendering a closed search bar", () => {
+    render(<GlobalSearchBar />);
+
+    expect(screen.queryByTestId("global-search-quick-actions")).not.toBeInTheDocument();
+    expect(navigationTestState.replace).not.toHaveBeenCalled();
+  });
+
+  it("opens the quick-actions panel from the globalSearchOpen query param", () => {
+    navigationTestState.search = "globalSearchOpen=1";
+
+    render(<GlobalSearchBar />);
+
+    expect(screen.getByTestId("global-search-quick-actions")).toBeInTheDocument();
+    expect(navigationTestState.replace).not.toHaveBeenCalled();
+  });
+
+  it("exposes the quick-actions popup as a dialog rather than a listbox", async () => {
     render(<GlobalSearchBar />);
 
     const input = screen.getByRole("combobox", { name: GLOBAL_SEARCH_ARIA_LABEL });
@@ -67,6 +96,37 @@ describe("GlobalSearchBar", () => {
     expect(input).toHaveAttribute("aria-haspopup", "dialog");
     expect(input).toHaveAttribute("aria-expanded", "true");
     expect(input).toHaveAttribute("aria-controls", popup.id);
+    await waitFor(() => {
+      expect(navigationTestState.replace).toHaveBeenCalledWith("/?globalSearchOpen=1", { scroll: false });
+    });
+  });
+
+  it("closes the panel and clears globalSearchOpen after an outside click", async () => {
+    navigationTestState.search = "globalSearchOpen=1";
+
+    render(<GlobalSearchBar />);
+
+    expect(screen.getByTestId("global-search-quick-actions")).toBeInTheDocument();
+
+    fireEvent.mouseDown(document.body);
+
+    expect(screen.queryByTestId("global-search-quick-actions")).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(navigationTestState.replace).toHaveBeenCalledWith("/", { scroll: false });
+    });
+  });
+
+  it("closes the panel when globalSearchOpen is removed from the URL", () => {
+    navigationTestState.search = "globalSearchOpen=1";
+    const view = render(<GlobalSearchBar />);
+
+    expect(screen.getByTestId("global-search-quick-actions")).toBeInTheDocument();
+
+    navigationTestState.search = "";
+    view.rerender(<GlobalSearchBar />);
+
+    expect(screen.queryByTestId("global-search-quick-actions")).not.toBeInTheDocument();
+    expect(navigationTestState.replace).not.toHaveBeenCalled();
   });
 
   it("opens the results panel when the query is long enough", async () => {

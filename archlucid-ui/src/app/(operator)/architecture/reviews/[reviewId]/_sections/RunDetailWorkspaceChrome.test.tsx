@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("next/navigation", () => ({
   usePathname: () => "/architecture/reviews/run-1",
   useSearchParams: () => new URLSearchParams("reviewTab=overview"),
+  useRouter: () => ({ replace: vi.fn() }),
 }));
 
 vi.mock("next/link", () => ({

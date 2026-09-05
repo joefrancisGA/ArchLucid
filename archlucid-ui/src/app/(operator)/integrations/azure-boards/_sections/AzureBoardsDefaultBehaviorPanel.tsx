@@ -1,5 +1,6 @@
 "use client";
 
+import { LivelihoodPersistSaveStatus } from "@/components/operator/LivelihoodPersistSaveStatus";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,6 +47,8 @@ export type AzureBoardsDefaultBehaviorPanelProps = {
   readonly discoveryError: string | null;
   readonly saveError: string | null;
   readonly saveSuccess: string | null;
+  readonly settingsLastSavedUtc: string | null;
+  readonly settingsInlineSaveError: string | null;
   readonly isSaving: boolean;
   readonly onSaveSettings: () => void;
 };
@@ -68,6 +71,8 @@ export function AzureBoardsDefaultBehaviorPanel({
   discoveryError,
   saveError,
   saveSuccess,
+  settingsLastSavedUtc,
+  settingsInlineSaveError,
   isSaving,
   onSaveSettings,
 }: AzureBoardsDefaultBehaviorPanelProps): React.ReactElement | null {
@@ -129,6 +134,12 @@ export function AzureBoardsDefaultBehaviorPanel({
           {saveSuccess}
         </p>
       ) : null}
+
+      <LivelihoodPersistSaveStatus
+        lastSavedUtc={settingsLastSavedUtc}
+        inlineSaveError={settingsInlineSaveError}
+        testId="azure-boards-settings-save-status"
+      />
 
       <div className="grid max-w-2xl gap-4 sm:grid-cols-2">
         <div className="space-y-2 sm:col-span-2">

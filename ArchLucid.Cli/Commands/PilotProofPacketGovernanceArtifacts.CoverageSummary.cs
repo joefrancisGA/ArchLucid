@@ -34,6 +34,7 @@ internal static partial class PilotProofPacketGovernanceArtifacts
         }
 
         el.TryGetProperty("totalDecisionGradeCount", out JsonElement totalEl);
+        el.TryGetProperty("totalChecklistCoverageCount", out JsonElement checklistEl);
         el.TryGetProperty("governedCount", out JsonElement govEl);
         el.TryGetProperty("advisoryCount", out JsonElement advEl);
         el.TryGetProperty("withPolicyRuleCount", out JsonElement ruleEl);
@@ -41,6 +42,7 @@ internal static partial class PilotProofPacketGovernanceArtifacts
         el.TryGetProperty("governedPercentage", out JsonElement pctEl);
 
         int total = totalEl.TryGetInt32(out int t) ? t : 0;
+        int checklist = checklistEl.TryGetInt32(out int c) ? c : 0;
         int governed = govEl.TryGetInt32(out int g) ? g : 0;
         int advisory = advEl.TryGetInt32(out int a) ? a : 0;
         int withPolicyRule = ruleEl.TryGetInt32(out int r) ? r : 0;
@@ -55,6 +57,7 @@ internal static partial class PilotProofPacketGovernanceArtifacts
         {
             ["isAvailable"] = true,
             ["totalDecisionGradeCount"] = total,
+            ["totalChecklistCoverageCount"] = checklist,
             ["governedCount"] = governed,
             ["advisoryCount"] = advisory,
             ["withPolicyRuleCount"] = withPolicyRule,
@@ -62,6 +65,7 @@ internal static partial class PilotProofPacketGovernanceArtifacts
             ["governedPercentage"] = pct,
             ["governedPercentageLabel"] = pctLabel,
             ["explanation"] =
+                $"Decision-grade: {total}; checklist coverage: {checklist}. " +
                 $"{governed} of {total} decision-grade findings ({pctLabel}) are governance-blocking " +
                 $"(PolicyViolation tier). {advisory} are advisory-only and excluded from the pre-commit gate. " +
                 $"{withPolicyRule} carry a policy-rule trace; {withEvidenceRefs} have evidence references.",

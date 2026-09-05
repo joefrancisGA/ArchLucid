@@ -2,8 +2,9 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import type React from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -16,6 +17,11 @@ import {
   resolveShortcutDescription,
   type ShortcutEntry,
 } from "@/lib/shortcut-registry";
+import {
+  keyboardShortcutsSectionHrefFromSearch,
+  parseKeyboardShortcutsSectionFromSearch,
+  type KeyboardShortcutsSectionId,
+} from "@/lib/operator/keyboard-shortcuts-section-url";
 
 const COMMON_NAV_KEYS = new Set(["alt+n", "alt+r", "alt+a", "alt+h"]);
 
@@ -115,16 +121,52 @@ function partitionNavigationShortcuts(workingMode: boolean) {
  * Also used from tests to keep shortcut copy aligned.
  */
 export function KeyboardShortcutsTabContent(): React.ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const shortcutsSectionParam = searchParams.get("shortcutsSection");
   const { isWorkingMode } = useWorkspaceMode();
   const { common, rest, helpOnly } = useMemo(
     () => partitionNavigationShortcuts(isWorkingMode),
     [isWorkingMode],
   );
-  const [moreOpen, setMoreOpen] = useState(false);
-  const [alertsOpen, setAlertsOpen] = useState(false);
-  const [findingsOpen, setFindingsOpen] = useState(false);
-  const [reviewDetailOpen, setReviewDetailOpen] = useState(false);
-  const [helpOpen, setHelpOpen] = useState(false);
+  const urlSection = parseKeyboardShortcutsSectionFromSearch(shortcutsSectionParam);
+  const [moreOpen, setMoreOpenState] = useState(urlSection === "more");
+  const [alertsOpen, setAlertsOpenState] = useState(urlSection === "alerts");
+  const [findingsOpen, setFindingsOpenState] = useState(urlSection === "findings");
+  const [reviewDetailOpen, setReviewDetailOpenState] = useState(urlSection === "review");
+  const [helpOpen, setHelpOpenState] = useState(urlSection === "help");
+
+  const syncSectionToUrl = useCallback(
+    (sectionId: KeyboardShortcutsSectionId | null) => {
+      router.replace(
+        keyboardShortcutsSectionHrefFromSearch(searchParams.toString(), sectionId, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSectionOpen = useCallback(
+    (sectionId: KeyboardShortcutsSectionId, open: boolean) => {
+      setMoreOpenState(sectionId === "more" && open);
+      setAlertsOpenState(sectionId === "alerts" && open);
+      setFindingsOpenState(sectionId === "findings" && open);
+      setReviewDetailOpenState(sectionId === "review" && open);
+      setHelpOpenState(sectionId === "help" && open);
+      syncSectionToUrl(open ? sectionId : null);
+    },
+    [syncSectionToUrl],
+  );
+
+  useEffect(() => {
+    const section = parseKeyboardShortcutsSectionFromSearch(shortcutsSectionParam);
+    setMoreOpenState(section === "more");
+    setAlertsOpenState(section === "alerts");
+    setFindingsOpenState(section === "findings");
+    setReviewDetailOpenState(section === "review");
+    setHelpOpenState(section === "help");
+  }, [shortcutsSectionParam]);
 
   const workingDeskWorkShortcuts = useMemo(
     () => [...FINDINGS_PAGE_SHORTCUTS, ...REVIEW_DETAIL_PAGE_SHORTCUTS],
@@ -140,7 +182,7 @@ export function KeyboardShortcutsTabContent(): React.ReactElement {
       ) : null}
       <ShortcutTable entries={common} caption="Common" />
       {rest.length > 0 ? (
-        <Collapsible open={moreOpen} onOpenChange={setMoreOpen}>
+        <Collapsible open={moreOpen} onOpenChange={(open) => setSectionOpen("more", open)}>
           <CollapsibleTrigger
             type="button"
             className={cn("w-full rounded-md border border-dashed border-neutral-200 py-1.5 text-left font-semibold text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600", OPERATOR_TYPOGRAPHY.helper)}
@@ -154,7 +196,7 @@ export function KeyboardShortcutsTabContent(): React.ReactElement {
         </Collapsible>
       ) : null}
       {ALERTS_PAGE_SHORTCUTS.length > 0 ? (
-        <Collapsible open={alertsOpen} onOpenChange={setAlertsOpen}>
+        <Collapsible open={alertsOpen} onOpenChange={(open) => setSectionOpen("alerts", open)}>
           <CollapsibleTrigger
             type="button"
             className={cn("w-full rounded-md border border-dashed border-neutral-200 py-1.5 text-left font-semibold text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600", OPERATOR_TYPOGRAPHY.helper)}
@@ -168,7 +210,7 @@ export function KeyboardShortcutsTabContent(): React.ReactElement {
         </Collapsible>
       ) : null}
       {FINDINGS_PAGE_SHORTCUTS.length > 0 ? (
-        <Collapsible open={findingsOpen} onOpenChange={setFindingsOpen}>
+        <Collapsible open={findingsOpen} onOpenChange={(open) => setSectionOpen("findings", open)}>
           <CollapsibleTrigger
             type="button"
             className={cn("w-full rounded-md border border-dashed border-neutral-200 py-1.5 text-left font-semibold text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600", OPERATOR_TYPOGRAPHY.helper)}
@@ -182,7 +224,7 @@ export function KeyboardShortcutsTabContent(): React.ReactElement {
         </Collapsible>
       ) : null}
       {REVIEW_DETAIL_PAGE_SHORTCUTS.length > 0 ? (
-        <Collapsible open={reviewDetailOpen} onOpenChange={setReviewDetailOpen}>
+        <Collapsible open={reviewDetailOpen} onOpenChange={(open) => setSectionOpen("review", open)}>
           <CollapsibleTrigger
             type="button"
             className={cn("w-full rounded-md border border-dashed border-neutral-200 py-1.5 text-left font-semibold text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600", OPERATOR_TYPOGRAPHY.helper)}
@@ -196,7 +238,7 @@ export function KeyboardShortcutsTabContent(): React.ReactElement {
         </Collapsible>
       ) : null}
       {helpOnly.length > 0 ? (
-        <Collapsible open={helpOpen} onOpenChange={setHelpOpen}>
+        <Collapsible open={helpOpen} onOpenChange={(open) => setSectionOpen("help", open)}>
           <CollapsibleTrigger
             type="button"
             className={cn("w-full rounded-md border border-dashed border-neutral-200 py-1.5 text-left font-semibold text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600", OPERATOR_TYPOGRAPHY.helper)}

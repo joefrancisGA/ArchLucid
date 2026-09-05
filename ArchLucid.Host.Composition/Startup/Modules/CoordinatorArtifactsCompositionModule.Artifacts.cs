@@ -1,6 +1,8 @@
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.ArtifactSynthesis.Generators;
 using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.ArtifactSynthesis.Services;
@@ -25,6 +27,14 @@ partial class CoordinatorArtifactsCompositionModule
         services.AddSingleton<IArtifactBundleValidator, ArtifactBundleValidator>();
         services.AddSingleton<ITechnologyLedgerArtifactLinter, TechnologyLedgerArtifactLinter>();
         services.AddSingleton<IDiagramRenderer, MermaidDiagramRenderer>();
+        services.AddSingleton<IDiagramAstFromGraphCompiler, DiagramAstFromGraphCompiler>();
+        services.AddSingleton<IMermaidDiagramComplexityAnalyzer, MermaidDiagramComplexityAnalyzer>();
+        services.AddSingleton<IMermaidDiagramDeterministicRepairer, MermaidDiagramDeterministicRepairer>();
+        services.AddSingleton<IMermaidDiagramStructuralValidator, MermaidDiagramStructuralValidator>();
+        services.AddSingleton<IMermaidDiagramSemanticIntegrityGuard, MermaidDiagramSemanticIntegrityGuard>();
+        services.AddSingleton<IMermaidDiagramFallbackSetBuilder, MermaidDiagramFallbackSetBuilder>();
+        services.AddSingleton<IMermaidDiagramRenderPipeline, MermaidDiagramRenderPipeline>();
+        services.AddSingleton<IMermaidDiagramAiRepairer, NoOpMermaidDiagramAiRepairer>();
         services.AddScoped<IArtifactGenerator, ReferenceArchitectureMarkdownGenerator>();
         services.AddScoped<IArtifactGenerator, ArchitectureNarrativeArtifactGenerator>();
         services.AddScoped<IArtifactGenerator, ComplianceMatrixArtifactGenerator>();

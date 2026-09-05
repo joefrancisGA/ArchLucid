@@ -2604,6 +2604,8 @@ describe("wave37 filter url helpers", () => {
     const {
       parseGlobalSearchBarOpenFromSearch,
       globalSearchBarOverlayHrefFromSearch,
+      isGlobalSearchBarOverlayHrefCurrent,
+      currentPathnameWithSearch,
     } = await import("@/lib/operator/global-search-bar-overlay-url");
     const {
       parseMobileNavDrawerOpenFromSearch,
@@ -2626,6 +2628,9 @@ describe("wave37 filter url helpers", () => {
     );
     expect(parseGlobalSearchBarOpenFromSearch("true")).toBe(true);
     expect(globalSearchBarOverlayHrefFromSearch("help=1", true, "/")).toBe("/?help=1&globalSearchOpen=1");
+    expect(currentPathnameWithSearch("/", "help=1")).toBe("/?help=1");
+    expect(isGlobalSearchBarOverlayHrefCurrent("help=1&globalSearchOpen=1", true, "/")).toBe(true);
+    expect(isGlobalSearchBarOverlayHrefCurrent("help=1", true, "/")).toBe(false);
     expect(parseMobileNavDrawerOpenFromSearch("1")).toBe(true);
     expect(mobileNavDrawerHrefFromSearch("reviewTab=overview", true, "/architecture/reviews/r1")).toBe(
       "/architecture/reviews/r1?reviewTab=overview&mobileNavOpen=1",
@@ -2813,6 +2818,92 @@ describe("wave39 filter url helpers", () => {
     expect(
       wizardStepPresetImportHrefFromSearch("qsStep=1", true, "/architecture/reviews/new"),
     ).toBe("/architecture/reviews/new?qsStep=1&wizardImportOpen=1");
+  });
+});
+
+describe("wave40 filter url helpers", () => {
+  it("re-run confirm, audit trail tech ref, shortcuts section, and run record metadata params", async () => {
+    const {
+      parseReRunReviewConfirmOpenFromSearch,
+      reRunReviewConfirmHrefFromSearch,
+    } = await import("@/lib/runs/re-run-review-confirm-url");
+    const {
+      helpAuditTrailTechnicalReferenceHrefFromSearch,
+      parseHelpAuditTrailTechRefOpenFromSearch,
+    } = await import("@/lib/help/help-audit-trail-technical-reference-url");
+    const {
+      keyboardShortcutsSectionHrefFromSearch,
+      parseKeyboardShortcutsSectionFromSearch,
+    } = await import("@/lib/operator/keyboard-shortcuts-section-url");
+    const {
+      parseRunDetailRecordMetadataOpenFromSearch,
+      runDetailRecordMetadataHrefFromSearch,
+    } = await import("@/lib/runs/run-detail-record-metadata-url");
+
+    expect(parseReRunReviewConfirmOpenFromSearch("1")).toBe(true);
+    expect(
+      reRunReviewConfirmHrefFromSearch("tab=overview", true, "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?tab=overview&reRunConfirmOpen=1");
+    expect(parseHelpAuditTrailTechRefOpenFromSearch("true")).toBe(true);
+    expect(
+      helpAuditTrailTechnicalReferenceHrefFromSearch("", true, "/help/audit-trail"),
+    ).toBe("/help/audit-trail?helpAuditTrailTechRef=1");
+    expect(parseKeyboardShortcutsSectionFromSearch("alerts")).toBe("alerts");
+    expect(keyboardShortcutsSectionHrefFromSearch("shortcutsOpen=1", "review", "/help")).toBe(
+      "/help?shortcutsOpen=1&shortcutsSection=review",
+    );
+    expect(parseRunDetailRecordMetadataOpenFromSearch("1")).toBe(true);
+    expect(
+      runDetailRecordMetadataHrefFromSearch("", true, "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?runRecordMetaOpen=1");
+  });
+
+  it("sidebar recent, settings advanced, audit technical details, help advanced, invites, billing addons params", async () => {
+    const {
+      parseSidebarRecentActivityOpenFromSearch,
+      sidebarRecentActivityHrefFromSearch,
+    } = await import("@/lib/sidebar-nav/sidebar-recent-activity-url");
+    const {
+      parseSettingsMasterAdvancedOpenFromSearch,
+      settingsMasterAdvancedHrefFromSearch,
+    } = await import("@/lib/administration/settings-master-advanced-url");
+    const {
+      auditPageTechnicalDetailsHrefFromSearch,
+      parseAuditPageTechnicalDetailsOpenFromSearch,
+    } = await import("@/lib/governance/audit-page-technical-details-url");
+    const {
+      helpAdvancedTopicsHrefFromSearch,
+      parseHelpAdvancedTopicsOpenFromSearch,
+    } = await import("@/lib/help/help-advanced-topics-url");
+    const {
+      parseSettingsInvitesShowResolvedFromSearch,
+      settingsInvitesShowResolvedHrefFromSearch,
+    } = await import("@/lib/administration/settings-invites-show-resolved-url");
+    const {
+      billingPlanAddonsHrefFromSearch,
+      parseBillingPlanAddonsOpenFromSearch,
+    } = await import("@/lib/administration/billing-plan-addons-url");
+
+    expect(parseSidebarRecentActivityOpenFromSearch("1")).toBe(true);
+    expect(sidebarRecentActivityHrefFromSearch("scopeOpen=1", true, "/architecture/reviews")).toBe(
+      "/architecture/reviews?scopeOpen=1&sidebarRecentOpen=1",
+    );
+    expect(parseSettingsMasterAdvancedOpenFromSearch("true")).toBe(true);
+    expect(settingsMasterAdvancedHrefFromSearch("q=api", true)).toBe("/administration?q=api&settingsMasterAdvancedOpen=1");
+    expect(parseAuditPageTechnicalDetailsOpenFromSearch("1")).toBe(true);
+    expect(auditPageTechnicalDetailsHrefFromSearch("runId=r1", true)).toBe(
+      "/governance/audit?runId=r1&auditTechnicalDetailsOpen=1",
+    );
+    expect(parseHelpAdvancedTopicsOpenFromSearch("1")).toBe(true);
+    expect(helpAdvancedTopicsHrefFromSearch("q=sso", true)).toBe("/help?q=sso&helpAdvancedTopicsOpen=1");
+    expect(parseSettingsInvitesShowResolvedFromSearch("1")).toBe(true);
+    expect(settingsInvitesShowResolvedHrefFromSearch("", true)).toBe(
+      "/administration/users?settingsInvitesShowResolved=1",
+    );
+    expect(parseBillingPlanAddonsOpenFromSearch("1")).toBe(true);
+    expect(billingPlanAddonsHrefFromSearch("plan=architect", true)).toBe(
+      "/administration/billing?plan=architect&billingPlanAddonsOpen=1",
+    );
   });
 });
 

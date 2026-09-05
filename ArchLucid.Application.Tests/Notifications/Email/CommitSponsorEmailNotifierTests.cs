@@ -2,6 +2,7 @@
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Notifications.Email;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
@@ -17,6 +18,8 @@ namespace ArchLucid.Application.Tests.Notifications.Email;
 public sealed class CommitSponsorEmailNotifierTests
 {
     private static readonly Guid TenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+    private static readonly Guid RunId = Guid.Parse("11111111-2222-3333-4444-555555555555");
+    private static readonly string RunIdText = RunId.ToString("D");
 
     [SkippableFact]
     public async Task NotifyAfterCommitAsync_when_admin_email_missing_does_not_send()
@@ -34,9 +37,11 @@ public sealed class CommitSponsorEmailNotifierTests
             lookup.Object,
             email.Object,
             options,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
             NullLogger<CommitSponsorEmailNotifier>.Instance);
 
-        await sut.NotifyAfterCommitAsync(TenantId, "run-1", CancellationToken.None);
+        await sut.NotifyAfterCommitAsync(TenantId, RunIdText, CancellationToken.None);
 
         email.Verify(
             x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
@@ -61,16 +66,18 @@ public sealed class CommitSponsorEmailNotifierTests
             lookup.Object,
             email.Object,
             options,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
             NullLogger<CommitSponsorEmailNotifier>.Instance);
 
-        await sut.NotifyAfterCommitAsync(TenantId, "run-abc", CancellationToken.None);
+        await sut.NotifyAfterCommitAsync(TenantId, RunIdText, CancellationToken.None);
 
         email.Verify(
             x => x.SendAsync(
                 It.Is<EmailMessage>(m =>
                     m.To == "sponsor@example.com"
                     && m.Subject.Contains("Prod", StringComparison.Ordinal)
-                    && m.HtmlBody.Contains("run-abc", StringComparison.Ordinal)
+                    && m.HtmlBody.Contains(RunIdText, StringComparison.Ordinal)
                     && m.HtmlBody.Contains("https://app.example/runs/", StringComparison.Ordinal)),
                 It.IsAny<CancellationToken>()),
             Times.Once);
@@ -96,9 +103,11 @@ public sealed class CommitSponsorEmailNotifierTests
             lookup.Object,
             email.Object,
             options,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
             NullLogger<CommitSponsorEmailNotifier>.Instance);
 
-        Func<Task> act = async () => await sut.NotifyAfterCommitAsync(TenantId, "run-z", CancellationToken.None);
+        Func<Task> act = async () => await sut.NotifyAfterCommitAsync(TenantId, RunIdText, CancellationToken.None);
 
         await act.Should().NotThrowAsync();
     }
@@ -119,9 +128,11 @@ public sealed class CommitSponsorEmailNotifierTests
             lookup.Object,
             email.Object,
             options,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
             NullLogger<CommitSponsorEmailNotifier>.Instance);
 
-        await sut.NotifyAfterCommitAsync(TenantId, "run-1", CancellationToken.None);
+        await sut.NotifyAfterCommitAsync(TenantId, RunIdText, CancellationToken.None);
 
         email.Verify(
             x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),

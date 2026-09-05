@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 
+import { FindingClassificationChip } from "@/components/findings/FindingClassificationChip";
 import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
 import { FindingCausalMiniChain } from "@/components/usability/FindingCausalMiniChain";
 import {
@@ -152,6 +153,11 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
               />
           </div>
         ) : null}
+        {row.recordKind === "finding" && row.classification !== null && row.classification !== undefined ? (
+          <div className="mt-1">
+            <FindingClassificationChip classification={row.classification} findingId={row.findingId} />
+          </div>
+        ) : null}
         {showInsightDensityScore &&
         row.recordKind === "finding" &&
         row.insightDensityScore !== null &&
@@ -161,7 +167,7 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
             className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
             data-testid={`governance-row-insight-density-${row.findingId}`}
           >
-            Density {Math.trunc(row.insightDensityScore)} (advisory — typed engines are not hidden)
+            Density {Math.trunc(row.insightDensityScore)} — classification follows gate (Decision-grade vs checklist)
           </p>
         ) : null}
         <div

@@ -5,7 +5,9 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.IntegrationOutbox;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -30,6 +32,8 @@ public sealed class ArchitectureRunExecuteOutboxPublishHook(
     IIntegrationEventOutboxRepository integrationEventOutbox,
     IIntegrationEventPublisher integrationEventPublisher,
     IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     ILogger<ArchitectureRunExecuteOutboxPublishHook> logger) : IArchitectureRunExecuteOutboxPublishHook
 {
     private readonly IScopeContextProvider _scopeContextProvider =
@@ -43,6 +47,12 @@ public sealed class ArchitectureRunExecuteOutboxPublishHook(
 
     private readonly IOptionsMonitor<IntegrationEventsOptions> _integrationEventsOptions =
         integrationEventsOptions ?? throw new ArgumentNullException(nameof(integrationEventsOptions));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private readonly ILogger<ArchitectureRunExecuteOutboxPublishHook> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -65,6 +75,8 @@ public sealed class ArchitectureRunExecuteOutboxPublishHook(
             runGuid,
             scope,
             failureSummary,
+            _authorityQueryService,
+            _manifestHashService,
             cancellationToken).ConfigureAwait(false);
     }
 
@@ -88,6 +100,8 @@ public sealed class ArchitectureRunExecuteOutboxPublishHook(
             runGuid,
             scope,
             ex,
+            _authorityQueryService,
+            _manifestHashService,
             cancellationToken).ConfigureAwait(false);
     }
 }

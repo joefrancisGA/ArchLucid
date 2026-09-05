@@ -40,6 +40,10 @@ import {
   billingCheckoutConfirmHrefFromSearch,
   parseBillingCheckoutConfirmOpenFromSearch,
 } from "@/lib/administration/billing-checkout-confirm-url";
+import {
+  billingPlanAddonsHrefFromSearch,
+  parseBillingPlanAddonsOpenFromSearch,
+} from "@/lib/administration/billing-plan-addons-url";
 import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
 
 function buildSalesLedPricingHref(tierId: MarketingPricingTierId): string {
@@ -61,7 +65,12 @@ function PlanSummaryLines(props: { pricing: PricingDoc; pkg: PricingPackage }) {
   );
 }
 
-function PlanAddonDetails(props: { pricing: PricingDoc; pkg: PricingPackage }) {
+function PlanAddonDetails(props: {
+  pricing: PricingDoc;
+  pkg: PricingPackage;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
   const addonLines = buildOperatorBillingAddonLines(props.pricing, props.pkg);
 
   if (addonLines.length === 0) {
@@ -69,7 +78,13 @@ function PlanAddonDetails(props: { pricing: PricingDoc; pkg: PricingPackage }) {
   }
 
   return (
-    <details className="rounded-md border border-neutral-200 bg-neutral-50/70 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40">
+    <details
+      className="rounded-md border border-neutral-200 bg-neutral-50/70 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40"
+      open={props.open}
+      onToggle={(event) => {
+        props.onOpenChange((event.currentTarget as HTMLDetailsElement).open);
+      }}
+    >
       <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
         Usage and add-ons
       </summary>
@@ -99,6 +114,7 @@ export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProp
   const pathname = usePathname() ?? SETTINGS_BILLING_PATH;
   const searchParams = useSearchParams();
   const urlCheckoutConfirm = parseBillingCheckoutConfirmOpenFromSearch(searchParams.get("checkoutConfirm"));
+  const billingPlanAddonsOpenParam = searchParams.get("billingPlanAddonsOpen");
   const [pricing, setPricing] = useState<PricingDoc | null>(null);
   const [pricingError, setPricingError] = useState(false);
   const [checkoutPlanId, setCheckoutPlanId] = useState<MarketingPricingTierId | null>(null);
@@ -134,6 +150,23 @@ export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProp
   const selectedPlanRaw = props.initialPlanId ?? searchParams.get("plan");
   const selectedPlanId =
     typeof selectedPlanRaw === "string" && isMarketingPricingTierId(selectedPlanRaw) ? selectedPlanRaw : null;
+  const planAddonsOpen = parseBillingPlanAddonsOpenFromSearch(billingPlanAddonsOpenParam);
+
+  const syncPlanAddonsOpenToUrl = useCallback(
+    (tierId: MarketingPricingTierId, open: boolean) => {
+      const params = new URLSearchParams(searchParams.toString());
+
+      if (open) {
+        params.set("plan", tierId);
+      }
+
+      router.replace(
+        billingPlanAddonsHrefFromSearch(params.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
 
   useEffect(() => {
     if (!urlCheckoutConfirm || selectedPlanId === null || pricing === null) {
@@ -321,7 +354,14 @@ export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProp
                 </CardHeader>
                 <CardContent className="flex flex-1 flex-col gap-4 pt-0">
                   <PlanSummaryLines pricing={pricing} pkg={pkg} />
-                  <PlanAddonDetails pricing={pricing} pkg={pkg} />
+                  <PlanAddonDetails
+                    pricing={pricing}
+                    pkg={pkg}
+                    open={planAddonsOpen && selectedPlanId === tierId}
+                    onOpenChange={(open) => {
+                      syncPlanAddonsOpenToUrl(tierId, open);
+                    }}
+                  />
                   <div>
                     <p className={cn("mb-2", OPERATOR_NAV_GROUP_LABEL)}>Highlights</p>
                     <ul className={cn("list-disc space-y-1.5 pl-4 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>

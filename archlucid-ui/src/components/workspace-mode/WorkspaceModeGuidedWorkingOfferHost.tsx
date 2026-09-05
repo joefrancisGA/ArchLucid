@@ -12,7 +12,11 @@ import {
   fetchUserPreferencesFromApi,
   USER_PREFERENCES_STALE_MS,
 } from "@/lib/api/user-preferences";
-import { workspaceModeGraduationOfferPanelsHrefFromSearch } from "@/lib/operator/workspace-mode-graduation-offer-panels-url";
+import { replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
+import {
+  workspaceModeGraduationOfferPanelsHrefFromSearch,
+  workspaceModeGraduationOfferUrlAlreadyMatches,
+} from "@/lib/operator/workspace-mode-graduation-offer-panels-url";
 import { isGuidedWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
@@ -33,9 +37,15 @@ export function WorkspaceModeGuidedWorkingOfferHost(): React.JSX.Element | null 
 
   const syncGraduationOfferOpenToUrl = useCallback(
     (offerOpen: boolean) => {
-      router.replace(
-        workspaceModeGraduationOfferPanelsHrefFromSearch(searchParams.toString(), offerOpen, pathname),
-        { scroll: false },
+      const currentSearch = searchParams.toString();
+
+      if (workspaceModeGraduationOfferUrlAlreadyMatches(currentSearch, offerOpen)) {
+        return;
+      }
+
+      replaceIfHrefChanged(
+        router,
+        workspaceModeGraduationOfferPanelsHrefFromSearch(currentSearch, offerOpen, pathname),
       );
     },
     [pathname, router, searchParams],

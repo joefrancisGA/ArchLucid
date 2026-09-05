@@ -4,8 +4,10 @@ using System.Text.Json;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Persistence.Alerts.Helpers;
 using ArchLucid.Persistence.IntegrationOutbox;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
@@ -36,6 +38,8 @@ public sealed class AlertService(
     IIntegrationEventPublisher integrationEventPublisher,
     IIntegrationEventOutboxRepository integrationEventOutbox,
     IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     ILogger<AlertService> logger) : IAlertService
 {
     /// <summary>
@@ -54,6 +58,12 @@ public sealed class AlertService(
 
         try
         {
+            await AlertEvaluateSealedManifestHashGuard.EnsureContextRunSealedManifestHashOrThrowAsync(
+                context,
+                authorityQueryService,
+                manifestHashService,
+                ct);
+
             IReadOnlyList<AlertRule> rules = await ruleRepository
                 .ListEnabledByScopeAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
                 ;
@@ -109,6 +119,12 @@ public sealed class AlertService(
         if (existing is not null)
             return false;
 
+        await AlertPersistSealedManifestHashGuard.EnsureAlertRunSealedManifestHashOrThrowAsync(
+            alert,
+            authorityQueryService,
+            manifestHashService,
+            ct);
+
         await alertRepository.CreateAsync(alert, ct);
 
         await auditService.LogAsync(
@@ -137,6 +153,8 @@ public sealed class AlertService(
             integrationEventsOptions,
             logger,
             alert,
+            authorityQueryService,
+            manifestHashService,
             ct);
 
         return true;
@@ -220,6 +238,8 @@ public sealed class AlertService(
                 alert,
                 userId,
                 request.Comment,
+                authorityQueryService,
+                manifestHashService,
                 ct);
 
 
@@ -233,6 +253,8 @@ public sealed class AlertService(
                 alert,
                 userId,
                 request.Comment,
+                authorityQueryService,
+                manifestHashService,
                 ct);
 
 

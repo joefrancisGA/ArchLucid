@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, type ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type ReactElement } from "react";
 
 import {
   AUDIT_TRAIL_HELP_APPEND_ONLY_ENFORCEMENT_ANCHOR,
@@ -9,6 +10,10 @@ import {
   AUDIT_TRAIL_HELP_TECHNICAL_REFERENCE_INTRO,
   AUDIT_TRAIL_HELP_TECHNICAL_REFERENCE_SECTIONS,
 } from "@/lib/audit-trail-help-guide-content";
+import {
+  helpAuditTrailTechnicalReferenceHrefFromSearch,
+  parseHelpAuditTrailTechRefOpenFromSearch,
+} from "@/lib/help/help-audit-trail-technical-reference-url";
 import { cn } from "@/lib/utils";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -21,43 +26,46 @@ function technicalReferenceHashShouldOpen(): boolean {
 
 /** Lazy-mounts engineering detail so collapsed technical reference stays out of primary page text scans. */
 export function HelpAuditTrailTechnicalReference(): ReactElement {
-  const detailsRef = useRef<HTMLDetailsElement>(null);
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const helpAuditTrailTechRefParam = searchParams.get("helpAuditTrailTechRef");
+  const [open, setOpenState] = useState(() => parseHelpAuditTrailTechRefOpenFromSearch(helpAuditTrailTechRefParam));
+
+  const syncTechRefOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      router.replace(
+        helpAuditTrailTechnicalReferenceHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (detailsOpen: boolean) => {
+      setOpenState(detailsOpen);
+      syncTechRefOpenToUrl(detailsOpen);
+    },
+    [syncTechRefOpenToUrl],
+  );
 
   useEffect(() => {
-    const syncOpenFromDom = (): void => {
-      const details = detailsRef.current;
+    if (technicalReferenceHashShouldOpen()) {
+      setOpen(true);
 
-      if (details === null) {
-        return;
-      }
+      return;
+    }
 
-      // Deep links to enforcement detail must open before the lazy body mounts.
-      if (technicalReferenceHashShouldOpen()) {
-        details.open = true;
-      }
-
-      if (details.open) {
-        setOpen(true);
-      }
-    };
-
-    syncOpenFromDom();
-    window.addEventListener("hashchange", syncOpenFromDom);
-    const frameId = window.requestAnimationFrame(syncOpenFromDom);
-
-    return () => {
-      window.removeEventListener("hashchange", syncOpenFromDom);
-      window.cancelAnimationFrame(frameId);
-    };
-  }, []);
+    setOpenState(parseHelpAuditTrailTechRefOpenFromSearch(helpAuditTrailTechRefParam));
+  }, [helpAuditTrailTechRefParam, setOpen]);
 
   return (
     <details
-      ref={detailsRef}
       id="technical-reference"
       className={HELP_PAGE_LAYOUT.details}
       data-testid="help-audit-trail-technical-reference"
+      open={open}
       onToggle={(event) => {
         setOpen((event.currentTarget as HTMLDetailsElement).open);
       }}

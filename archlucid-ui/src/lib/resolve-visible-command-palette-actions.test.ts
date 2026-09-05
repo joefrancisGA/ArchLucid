@@ -41,6 +41,17 @@ describe("resolve-visible-command-palette-actions (PT-06)", () => {
     expect(committedGuided.some((action) => action.href === "/insights/sponsor-report")).toBe(true);
   });
 
+  it("filters Working palette href actions to sidebar-visible destinations (SD-11)", () => {
+    const visible = new Set<string>(["/architecture/reviews", "/architecture/architectures/new"]);
+    const workingActions = resolveVisibleCommandPaletteHrefActions({
+      workingMode: true,
+      visibleNavHrefs: visible,
+    });
+
+    expect(workingActions.some((action) => action.href === "/insights/sponsor-report")).toBe(false);
+    expect(workingActions.some((action) => action.href === "/architecture/reviews")).toBe(true);
+  });
+
   it("maps Working create action to a single New review draft-editor href (WA-02)", () => {
     const workingActions = resolveVisibleCommandPaletteHrefActions(true);
     const guidedActions = resolveVisibleCommandPaletteHrefActions(false);
