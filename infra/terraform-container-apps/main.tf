@@ -318,6 +318,37 @@ resource "azurerm_container_app" "api" {
         }
       }
 
+      dynamic "env" {
+        for_each = local.fallback_llm_app_configured ? [1] : []
+        content {
+          name  = "ArchLucid__FallbackLlm__Enabled"
+          value = "true"
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.fallback_llm_app_configured ? [1] : []
+        content {
+          name  = "ArchLucid__FallbackLlm__Endpoints__0__Endpoint"
+          value = trimspace(var.fallback_llm_endpoint)
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.fallback_llm_app_configured ? [1] : []
+        content {
+          name  = "ArchLucid__FallbackLlm__Endpoints__0__DeploymentName"
+          value = trimspace(var.fallback_llm_deployment_name)
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.fallback_llm_app_configured ? [1] : []
+        content {
+          name  = "ArchLucid__FallbackLlm__Endpoints__0__UseManagedIdentity"
+          value = "true"
+        }
+      }
 
       dynamic "env" {
         for_each = local.azure_search_app_configured ? [1] : []
@@ -622,6 +653,38 @@ resource "azurerm_container_app" "worker" {
         content {
           name  = "AzureOpenAI__EmbeddingDeploymentName"
           value = trimspace(var.azure_openai_embedding_deployment_name)
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.fallback_llm_app_configured ? [1] : []
+        content {
+          name  = "ArchLucid__FallbackLlm__Enabled"
+          value = "true"
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.fallback_llm_app_configured ? [1] : []
+        content {
+          name  = "ArchLucid__FallbackLlm__Endpoints__0__Endpoint"
+          value = trimspace(var.fallback_llm_endpoint)
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.fallback_llm_app_configured ? [1] : []
+        content {
+          name  = "ArchLucid__FallbackLlm__Endpoints__0__DeploymentName"
+          value = trimspace(var.fallback_llm_deployment_name)
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.fallback_llm_app_configured ? [1] : []
+        content {
+          name  = "ArchLucid__FallbackLlm__Endpoints__0__UseManagedIdentity"
+          value = "true"
         }
       }
 

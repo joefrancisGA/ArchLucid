@@ -77,7 +77,7 @@ Re-triage after 15 minutes if scope was misjudged.
 | Topic | Doc |
 |-------|-----|
 | Operator triage | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) |
-| Health / circuit breakers | [OBSERVABILITY.md](../library/OBSERVABILITY.md), [V1_SCOPE.md](../library/V1_SCOPE.md) (health surface) |
+| Health / circuit breakers | [OBSERVABILITY.md](../library/OBSERVABILITY.md), [V1_SCOPE.md](../library/V1_SCOPE.md) (health surface), [AI_PROVIDER_OFFLINE.md](AI_PROVIDER_OFFLINE.md) |
 | Redis | [REDIS_HEALTH.md](REDIS_HEALTH.md) |
 | SLO / burn | [SLO_PROMETHEUS_GRAFANA.md](SLO_PROMETHEUS_GRAFANA.md) |
 | Deploy order / SaaS | [REFERENCE_SAAS_STACK_ORDER.md](../library/REFERENCE_SAAS_STACK_ORDER.md) |

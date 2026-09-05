@@ -31,15 +31,13 @@ partial class AgentAzureOpenAiExecutorRegistrar
             services.AddSingleton<FallbackAzureOpenAiInnerClientsRegistry>(sp =>
             {
                 FallbackLlmOptions fo = sp.GetRequiredService<IOptions<FallbackLlmOptions>>().Value;
-                IReadOnlyList<(string Endpoint, string ApiKey, string DeploymentName)> ordered =
+                IReadOnlyList<FallbackLlmResolvedEndpoint> ordered =
                     FallbackLlmConfigurationResolver.ResolveOrderedEndpoints(fo);
                 IConfiguration cfg = sp.GetRequiredService<IConfiguration>();
                 int maxTokens = cfg.GetValue("AzureOpenAI:MaxCompletionTokens", 0);
 
                 if (maxTokens <= 0)
-
                     maxTokens = AzureOpenAiCompletionClient.DefaultMaxCompletionTokens;
-
 
                 AzureOpenAiOptions ao = sp.GetRequiredService<IOptions<AzureOpenAiOptions>>().Value;
                 BinaryData? schema = AgentCompletionPipelineHelpers.ResolveStructuredOutputAgentResultSchema(cfg, ao);
@@ -53,22 +51,52 @@ partial class AgentAzureOpenAiExecutorRegistrar
                 ILlmCompletionOutputTruncationReporter truncationReporter =
                     sp.GetRequiredService<ILlmCompletionOutputTruncationReporter>();
 
-                foreach ((string ep, string key, string dep) in ordered)
+                foreach (FallbackLlmResolvedEndpoint row in ordered)
                 {
-                    clients.Add(
-                        new AzureOpenAiCompletionClient(
-                            ep,
-                            key,
-                            dep,
-                            maxTokens,
-                            schema,
-                            completionLogger,
-                            llmTelemetryOptions,
-                            truncationReporter));
+                    clients.Add(CreateFallbackInnerClient(
+                        row,
+                        maxTokens,
+                        schema,
+                        completionLogger,
+                        llmTelemetryOptions,
+                        truncationReporter));
                 }
 
                 return new FallbackAzureOpenAiInnerClientsRegistry { Clients = clients };
             });
         }
+    }
+
+    private static AzureOpenAiCompletionClient CreateFallbackInnerClient(
+        FallbackLlmResolvedEndpoint row,
+        int maxTokens,
+        BinaryData? schema,
+        ILogger<AzureOpenAiCompletionClient> completionLogger,
+        IOptionsMonitor<LlmTelemetryOptions> llmTelemetryOptions,
+        ILlmCompletionOutputTruncationReporter truncationReporter)
+    {
+        ArgumentNullException.ThrowIfNull(row);
+
+        if (row.UseManagedIdentity)
+        {
+            return AzureOpenAiCompletionClient.CreateWithManagedIdentity(
+                row.Endpoint,
+                row.DeploymentName,
+                maxTokens,
+                schema,
+                completionLogger,
+                llmTelemetryOptions,
+                truncationReporter);
+        }
+
+        return new AzureOpenAiCompletionClient(
+            row.Endpoint,
+            row.ApiKey,
+            row.DeploymentName,
+            maxTokens,
+            schema,
+            completionLogger,
+            llmTelemetryOptions,
+            truncationReporter);
     }
 }

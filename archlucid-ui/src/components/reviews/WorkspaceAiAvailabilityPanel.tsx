@@ -136,7 +136,7 @@ function statusTagKind(
     return "blocked";
   }
 
-  return state.result.isAvailable ? "ready" : "needs-attention";
+  return state.result.isAvailable ? "ready" : "blocked";
 }
 
 function resolveWorkspaceAiDetail(
