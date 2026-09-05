@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 160
-- **bugs-found:** 316
+- **hunts:** 161
+- **bugs-found:** 320
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — ConnectionStringless config, ARM key+free, anchor null array/string coercion
+- **last-bug:** 2026-09-05 — anchor null object/property trim, mid-sentence constraint negation, Secretizer redaction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2267,6 +2267,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RunHeaderAnchorJsonComparer.AreEquivalent` — JSON `null` array vs empty array treated as anchor mutation — **hit 2026-09-05 (#888):** `packAssignments:null` vs `[]` failed kind check on committed runs; fixed with cross-kind null/empty-array coercion (`EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_null_array_equivalent_to_empty_on_committed_run`).
 - [x] (proven) `RunHeaderAnchorJsonComparer.AreEquivalent` — JSON `null` string vs empty string treated as anchor mutation — **hit 2026-09-05 (#888):** after #887 null/omitted property fix, `label:null` vs `label:""` still failed semantic compare; fixed with cross-kind null/empty-string coercion (`EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_null_string_equivalent_to_empty_on_committed_run`).
 
+- [x] (proven) `RunHeaderAnchorJsonComparer.AreEquivalent` — empty JSON object vs `null` property treated as anchor mutation — **hit 2026-09-05 (#889):** after #888 null array/string coercion, `{"scope":{}}` vs `{"scope":null}` failed kind check on committed runs; fixed with cross-kind null/empty-object coercion (`EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_empty_object_equivalent_to_null_on_committed_run`).
+- [x] (proven) `RunHeaderAnchorJsonComparer.AreEquivalent` — whitespace-padded JSON property names treated as distinct keys — **hit 2026-09-05 (#889):** `{"label":"x"}` vs `{" label ":"x"}` failed property union compare; fixed by trimming property names during case-insensitive lookup (`EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_whitespace_padded_property_names_on_committed_run`).
+- [x] (proven) `RequestConstraintTokenMatcher` / `RequestConstraintClassifier` — mid-sentence prohibitive negation gap (`do not require` / `must not`) — **hit 2026-09-05 (#889):** #887 prefix-only advice negation missed `workflows do not require encryption` and `must not use encryption`; classifier false positives; fixed with mid-sentence negation phrase detection (`HasEncryptionConstraint_does_not_false_positive_on_do_not_require_encryption_phrasing`, `HasEncryptionConstraint_does_not_false_positive_on_must_not_encryption_phrasing`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `Secret`/`Password`+`izer` suffix false positives — **hit 2026-09-05 (#889):** #887 guarded `Token`+`izer` only; `SecretizerModule` / `PasswordizerAuth` config paths and `secretizer` / `passwordizer` ARM keys redacted; fixed with `izer` suffix guard parity (`Resolve_returns_scalar_for_non_secret_segment_substrings` with `SecretizerModule` / `PasswordizerAuth`, `IsSensitiveKey_detects_secret_like_names` with `secretizer` / `passwordizer`).
+
+2026-09-05 seed hunt #889: reseeded after #888 closure; proved anchor null-object/property-name trim, mid-sentence constraint negation, and Secretizer/Passwordizer redaction parity.
 2026-09-05 seed hunt #888: reseeded after #887 closure; proved ConnectionStringless config redaction, ARM key+free suffix parity, and anchor null array/string coercion.
 2026-09-05 seed hunt #887: reseeded after #886 closure; proved constraint advice negation, SecretFree/TokenFree config redaction, secretfreeauth ARM redaction, and anchor null-vs-omitted parity.
 2026-09-05 seed hunt #886: promoted five hunt-ready rows from #885 reseed gap; proved anchor JSON coercion, constraint without negation, PasswordFree redaction parity, and won't advice negation.
