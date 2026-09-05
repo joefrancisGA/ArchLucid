@@ -3418,11 +3418,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 227
-- **bugs-found:** 446
+- **hunts:** 228
+- **bugs-found:** 447
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — policy-pack assign operator retry duplicate assignment
+- **last-bug:** 2026-09-05 — renew operator retry duplicate RiskExceptionRenewed audit
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4508,10 +4508,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-05 thorough hunt #833 (hit): proved policy-pack assign idempotent retry guard; cheap-disproved renew cumulative-expiry and mutation-correction duplicate-audit candidates.
 
-- [ ] (candidate) `GovernanceStickinessController.RenewRiskException` / `RiskExceptionService.RenewAsync` — operator retry logs duplicate `RiskExceptionRenewed` audit without `IdempotencyFilter` (#570 revoke lifecycle parity lens; narrowed after #833 cheap-disproof of cumulative-expiry claim).
 - [x] (proven) `GovernanceStickinessController.ResolveFindingMergeConflict` / `GovernanceStickinessFacade.TryResolveFindingMergeConflictAsync` — route `findingId` differing only by casing from inspect canonical id resolved via case-insensitive snapshot lookup (#819) but audit `FindingMergeConflictResolved` JSON emitted keyboard route casing while disposition/waiver/mutation-correction paths persist canonical ids (#820/#824) — **hit 2026-09-05 (#832):** inspect canonical `FindingId` in audit payload after successful resolve; regression in `GovernanceStickinessFacadeScopeTests.TryResolveFindingMergeConflictAsync_logs_canonical_finding_id_when_route_differs_only_by_casing`.
 
 2026-09-05 thorough hunt #832 (hit): proved merge-conflict resolve audit finding-id casing parity; three idempotency-posture retry candidates remain open.
+
+- [x] (proven) `GovernanceStickinessController.RenewRiskException` / `RiskExceptionService.RenewAsync` — operator retry logs duplicate `RiskExceptionRenewed` audit without `IdempotencyFilter` (#570 revoke lifecycle parity lens; narrowed after #833 cheap-disproof of cumulative-expiry claim) — **hit 2026-09-05 (#834):** return existing active waiver without SQL renew or audit when `ExpiresAtUtc` and optional `rationale`/`evidenceRef` already match (policy-pack assign #833 parity); regression in `RenewAsync_skips_duplicate_audit_when_identical_operator_retry`.
+
+2026-09-05 thorough hunt #834 (hit): proved renew idempotent retry guard for duplicate RiskExceptionRenewed audit; zone idempotency-posture retry candidates exhausted.
 
 2026-09-05 seed hunt #830 (seed-only): reseeded post-#829 idempotency and canonicalization gaps; four new candidates on renew retry, mutation-correction duplicate audit, policy-pack assign retry, and merge-conflict audit finding-id casing.
 

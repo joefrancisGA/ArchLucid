@@ -147,6 +147,9 @@ public sealed partial class RiskExceptionService
         string? rationale = request.Rationale?.Trim();
         string? evidenceRef = request.EvidenceRef?.Trim();
 
+        if (IsIdenticalRenewal(existing, request.ExpiresAtUtc, rationale, evidenceRef))
+            return existing;
+
         await repository.RenewAsync(
             tenantId,
             riskExceptionId,
@@ -178,5 +181,26 @@ public sealed partial class RiskExceptionService
         await LogRequiredAsync(renewedAudit, $"RiskExceptionRenewed:{riskExceptionId:N}", cancellationToken);
 
         return record;
+    }
+
+    private static bool IsIdenticalRenewal(
+        RiskExceptionRecord existing,
+        DateTimeOffset expiresAtUtc,
+        string? rationale,
+        string? evidenceRef)
+    {
+        if (existing.Status != RiskExceptionStatus.Active)
+            return false;
+
+        if (existing.ExpiresAtUtc != expiresAtUtc)
+            return false;
+
+        if (rationale is not null && !string.Equals(existing.Rationale, rationale, StringComparison.Ordinal))
+            return false;
+
+        if (evidenceRef is not null && !string.Equals(existing.EvidenceRef, evidenceRef, StringComparison.Ordinal))
+            return false;
+
+        return true;
     }
 }
