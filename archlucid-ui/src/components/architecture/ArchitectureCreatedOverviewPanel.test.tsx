@@ -1,6 +1,12 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/architecture/created/run-abc",
+  useSearchParams: () => new URLSearchParams(),
+  useRouter: () => ({ replace: vi.fn() }),
+}));
+
 import { ArchitectureCreatedOverviewPanel } from "@/components/architecture/ArchitectureCreatedOverviewPanel";
 import { buildArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
 import { ARCHITECTURE_CREATED_OVERVIEW_SOURCES } from "@/lib/architecture/architecture-created-overview-sources";
