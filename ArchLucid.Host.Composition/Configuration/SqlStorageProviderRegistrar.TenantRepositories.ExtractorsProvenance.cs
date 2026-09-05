@@ -49,6 +49,7 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<IAuditManualEvidenceRepository, SqlAuditManualEvidenceRepository>();
         services.AddScoped<IAuditControlTimelineRepository, SqlAuditControlTimelineRepository>();
         services.AddScoped<ISecurityCrosswalkRepository, SqlSecurityCrosswalkRepository>();
+        services.AddScoped<IOperationalSecurityFindingRepository, SqlOperationalSecurityFindingRepository>();
         services.AddScoped<ITenantBrandingProfileRepository, SqlTenantBrandingProfileRepository>();
     }
 }
