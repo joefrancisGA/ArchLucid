@@ -7,6 +7,7 @@ import { OperatorHomeContinueLastReviewPackageSection } from "@/components/opera
 import { OperatorHomeInFlightReviewsSection } from "@/components/operator-home/OperatorHomeInFlightReviewsSection";
 import { UnfinishedWorkRail } from "@/components/operator-home/UnfinishedWorkRail";
 import { OperatorHomeWorkspaceMetricsStrip } from "@/components/operator-home/OperatorHomeWorkspaceMetricsStrip";
+import { OperatorHomeWorkspaceActivityProvider } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { OperatorHomeCompactStartingActionsSection } from "@/components/operator-home/OperatorHomeCompactStartingActionsSection";
 import { OperatorAttentionKindStrip } from "@/components/operator/OperatorAttentionKindStrip";
 import {
