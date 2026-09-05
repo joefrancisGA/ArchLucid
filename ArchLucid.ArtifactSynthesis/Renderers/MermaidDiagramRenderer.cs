@@ -119,6 +119,12 @@ public class MermaidDiagramRenderer : IDiagramRenderer
 
     internal static string EscapeLabel(string label)
     {
-        return label.Replace("\"", "'", StringComparison.Ordinal);
+        return label
+            .Replace("\r\n", " ", StringComparison.Ordinal)
+            .Replace('\n', ' ')
+            .Replace('\r', ' ')
+            .Replace("\"", "'", StringComparison.Ordinal)
+            .Replace("[", "#91;", StringComparison.Ordinal)
+            .Replace("]", "#93;", StringComparison.Ordinal);
     }
 }
