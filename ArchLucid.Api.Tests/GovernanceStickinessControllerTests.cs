@@ -879,7 +879,7 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
-    public async Task RevokeRiskException_returns_conflict_when_waiver_is_already_revoked()
+    public async Task RevokeRiskException_returns_no_content_without_duplicate_audit_when_already_revoked_retry()
     {
         Guid exceptionId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
 
@@ -901,6 +901,9 @@ public sealed class GovernanceStickinessControllerTests
         repository
             .Setup(r => r.GetByIdAsync(Scope.TenantId, exceptionId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(revokedRecord);
+        repository
+            .Setup(r => r.MarkExpiredAsync(Scope.TenantId, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
 
         RiskExceptionService riskExceptionService = new(
             repository.Object,
@@ -930,8 +933,7 @@ public sealed class GovernanceStickinessControllerTests
 
         IActionResult action = await controller.RevokeRiskException(exceptionId, CancellationToken.None);
 
-        ObjectResult conflict = action.Should().BeOfType<ObjectResult>().Subject;
-        conflict.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        action.Should().BeOfType<NoContentResult>();
     }
 
     [Fact]

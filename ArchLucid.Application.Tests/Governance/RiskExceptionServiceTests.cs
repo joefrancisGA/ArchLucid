@@ -829,7 +829,7 @@ public sealed class RiskExceptionServiceTests
     }
 
     [Fact]
-    public async Task RevokeAsync_throws_conflict_when_risk_exception_status_is_revoked()
+    public async Task RevokeAsync_completes_without_duplicate_audit_when_already_revoked_retry()
     {
         Guid exceptionId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
 
@@ -849,21 +849,24 @@ public sealed class RiskExceptionServiceTests
                 CreatedAtUtc = DateTimeOffset.UtcNow,
                 CreatedByUserId = "creator",
             });
+        repository
+            .Setup(r => r.MarkExpiredAsync(Scope.TenantId, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
 
         RiskExceptionService sut = new(
             repository.Object,
             Mock.Of<IFindingReviewTrailRepository>(),
             Mock.Of<IFindingInspectReadRepository>(),
-            Mock.Of<IAuditService>(),
+            audit.Object,
             Mock.Of<ILogger<RiskExceptionService>>());
 
-        Func<Task> act = () => sut.RevokeAsync(
+        await sut.RevokeAsync(
             Scope.TenantId,
             exceptionId,
             "reviewer@test",
             CancellationToken.None);
-
-        await act.Should().ThrowAsync<ConflictException>().WithMessage("*Revoked*");
 
         repository.Verify(
             r => r.RevokeAsync(
@@ -873,6 +876,7 @@ public sealed class RiskExceptionServiceTests
                 It.IsAny<DateTimeOffset>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
+        audit.VerifyNoOtherCalls();
     }
 
     [Fact]
