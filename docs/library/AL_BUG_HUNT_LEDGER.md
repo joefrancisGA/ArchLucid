@@ -2041,10 +2041,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
 - **hunts:** 163
-- **bugs-found:** 325
+- **bugs-found:** 330
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — compliance simulator negation parity, anchor scalar/array, advice suffix negation
+- **last-bug:** 2026-09-05 — anchor boolean/number scalar-array, on/off synonym, advice no-need-to, networkacls alias
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2280,13 +2280,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-05 seed hunt #891 (hit): reseeded after #889 closure; proved compliance simulator negation parity, SSL enforcement ARM alias, anchor scalar/array coercion, advice suffix negation, and ApiKey/ConnectionString izer redaction parity.
 
-- [ ] (hunt-ready) `RunHeaderAnchorJsonComparer.TryScalarSingleElementArrayEquivalent` — boolean JSON scalar vs single-element array treated as anchor mutation — **locus:** `ArchLucid.Core/Persistence/RunHeaderAnchorJsonComparer.cs` `TryScalarSingleElementArrayEquivalent` (string-only bridge after #891); **input:** `{"enabled":true}` vs `{"enabled":[true]}` on committed `GovernanceScopeJson`; **wrong outcome:** `RunEvidenceAnchorImmutableException` on lifecycle update despite semantic equivalence; **mechanism:** #891 scalar↔array coercion handles `JsonValueKind.String` only; boolean/number kinds still fail `ElementsEquivalent` kind check.
-- [ ] (hunt-ready) `RunHeaderAnchorJsonComparer.TryScalarSingleElementArrayEquivalent` — numeric JSON scalar vs single-element array treated as anchor mutation — **locus:** same method; **input:** `{"version":1}` vs `{"version":[1]}`; **wrong outcome:** committed anchor guard throws on reload formatting drift; **mechanism:** symmetric gap to #891 string scalar/array fix for `JsonValueKind.Number`.
-- [ ] (hunt-ready) `RunHeaderAnchorJsonComparer.TryParseBooleanString` — `on`/`off` synonym vs JSON boolean treated as anchor mutation — **locus:** `TryBooleanStringEquivalent` / `TryParseBooleanString` (`bool.TryParse` only); **input:** `{"flag":"on"}` vs `{"flag":true}`; **wrong outcome:** anchor mutation false positive on committed runs; **mechanism:** sibling readers (`RunExplanationAggregateJsonReader.TryParseBooleanString`, `FindingJsonStringReaders`) accept on/off/enabled synonyms; anchor comparer does not.
-- [ ] (hunt-ready) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — `no need to {phrase}` prohibitive intent still matches affirmative fragments — **locus:** `IsNegatedAdviceFragment` prefix list; **input:** `no need to enable mfa for service accounts`; **wrong outcome:** architecture-specific finding demoted as generic checklist advice; **mechanism:** #877–#891 added `no requirement to` / suffix `not required` but not the shorter `no need to` prefix.
-- [ ] (hunt-ready) `DeclarationSecurityPropertyKeyResolver.TryGet` — missing `tf.networkacls` alias for `IngressBlob` — **locus:** `LogicalNameToCandidateKeys[IngressBlob]`; **input:** property bag `{"tf.networkacls":"0.0.0.0/0:22"}` from Bicep `networkAcls` ingestion; **wrong outcome:** `DeclarationSecurityBaselineClassifier.HasOpenAdminIngressHeuristic` skips open SSH/RDP ingress signal; **mechanism:** ingestion writes `tf.networkacls` (`BicepInfrastructureDeclarationParserTests`); resolver lists only `tf.ingress` / `tf.network_rules` / `tf.networkrules`.
+- [x] (proven) `RunHeaderAnchorJsonComparer.TryScalarSingleElementArrayEquivalent` — boolean JSON scalar vs single-element array treated as anchor mutation — **hit 2026-09-05 (#892):** #891 string-only scalar↔array bridge left `{"enabled":true}` vs `{"enabled":[true]}` failing committed anchor guard; fixed by generalizing scalar kinds to string/number/boolean (`EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_boolean_scalar_equivalent_to_single_element_array_on_committed_run`).
+- [x] (proven) `RunHeaderAnchorJsonComparer.TryScalarSingleElementArrayEquivalent` — numeric JSON scalar vs single-element array treated as anchor mutation — **hit 2026-09-05 (#892):** symmetric to boolean gap; `{"version":1}` vs `{"version":[1]}` failed kind check; fixed with same scalar-kind bridge (`EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_number_scalar_equivalent_to_single_element_array_on_committed_run`).
+- [x] (proven) `RunHeaderAnchorJsonComparer.TryParseBooleanString` — `on`/`off` synonym vs JSON boolean treated as anchor mutation — **hit 2026-09-05 (#892):** anchor comparer used `bool.TryParse` only while sibling readers accept on/off/enabled synonyms; fixed by delegating to `RunExplanationAggregateJsonReader.TryParseBooleanString` (`EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_on_synonym_boolean_only_change_on_committed_run`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — `no need to {phrase}` prohibitive intent still matches affirmative fragments — **hit 2026-09-05 (#892):** #891 suffix `not required` missed shorter `no need to` prefix; fixed with prefix guard (`IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing` with `no need to enable mfa for this workload`).
+- [x] (proven) `DeclarationSecurityPropertyKeyResolver.TryGet` — missing `tf.networkacls` alias for `IngressBlob` — **hit 2026-09-05 (#892):** Bicep ingestion writes `tf.networkacls` but resolver listed only `tf.ingress` / `tf.network_rules`; open-admin ingress heuristic missed; fixed with alias parity (`TryGet_resolves_tf_networkacls_for_ingress_blob`).
 
-2026-09-05 seed hunt #892 (seed-only): reseeded after #891 all-hypotheses-closed; promoted five mechanism-backed hunt-ready rows (anchor boolean/number scalar-array, anchor on/off boolean synonym, advice `no need to` negation, IngressBlob `tf.networkacls` alias gap). No failing repro shipped this run.
+2026-09-05 seed hunt #892 (hit): proved five hunt-ready rows promoted at seed-only pass — anchor boolean/number scalar-array coercion, on/off boolean synonym parity, advice `no need to` negation, and IngressBlob `tf.networkacls` alias.
 
 2026-09-05 seed hunt #889: reseeded after #888 closure; proved anchor null-object/property-name trim, mid-sentence constraint negation, and Secretizer/Passwordizer redaction parity.
 2026-09-05 seed hunt #888: reseeded after #887 closure; proved ConnectionStringless config redaction, ARM key+free suffix parity, and anchor null array/string coercion.
