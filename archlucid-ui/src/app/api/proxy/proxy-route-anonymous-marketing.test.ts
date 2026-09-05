@@ -65,6 +65,30 @@ describe("proxy route anonymous marketing paths", () => {
     expect(headers.get("authorization")).toBeNull();
   });
 
+  it("forwards browser bearer on anonymous marketing paths when the visitor is signed in", async () => {
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+
+    const req = new NextRequest("http://localhost/api/proxy/v1/marketing/early-access", {
+      method: "POST",
+      headers: {
+        authorization: "Bearer visitor-jwt",
+        "content-type": "application/json",
+        "content-length": "12",
+      },
+      body: '{"ok":true}',
+    });
+
+    const res = await POST(req, {
+      params: Promise.resolve({ path: ["v1", "marketing", "early-access"] }),
+    });
+
+    expect(res.status).toBe(204);
+
+    const init = fetchMock.mock.calls[0]![1] as RequestInit;
+    const headers = init.headers as Headers;
+    expect(headers.get("authorization")).toBe("Bearer visitor-jwt");
+  });
+
   it("does not attach server bearer for marketing why-archlucid pack PDF download", async () => {
     fetchMock.mockResolvedValue(
       new Response("pdf-bytes", {

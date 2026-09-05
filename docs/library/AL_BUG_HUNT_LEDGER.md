@@ -1510,10 +1510,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 9
+- **hunts:** 10
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-04
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-05
 - **last-bug:** 2026-09-04 — anonymous marketing allowlist omitted why-archlucid-pack.pdf proxy download
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -1531,8 +1531,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Post-sign-in return URLs accept dot-segment traversal that browsers normalize outside the auth subtree — **hit 2026-08-26:** `/signin/../../administration` and `/%2e%2e/admin` passed `isSafeReturnPath` while resolving to `/administration` and `/admin`; fixed with `containsDotDotSegment` in `safe-return-path.ts`; regressions in `safe-return-path.test.ts` and `sign-in-return-destination.test.ts`.
 - [x] (proven) `isAnonymousMarketingProxyPath` allowlist omits `v1/marketing/early-access` and trust-center ZIP/PDF routes — **hit 2026-09-03 (#593):** UI posts through `/api/proxy/...` but `buildProxyUpstreamHeaders` attached `ARCHLUCID_PROXY_BEARER_TOKEN` unlike quick-scan / quote-request; extended allowlist in `proxy-anonymous-marketing-paths.ts`; regressions in `proxy-route-anonymous-marketing.test.ts`.
 - [x] (proven) `isAnonymousMarketingProxyPath` allowlist omits `v1/marketing/why-archlucid-pack.pdf` — **hit 2026-09-04 (#711 seed):** `/why` and `/see-it` link `/api/proxy/v1/marketing/why-archlucid-pack.pdf` but server bearer still attached; extended allowlist (+ proactive `enterprise-comparison.pdf` / `sponsor-brief.pdf`); regression `does not attach server bearer for marketing why-archlucid pack PDF download`.
-- [ ] (candidate) `resolveShowcasePageRenderPlan` fetches `v1/marketing/showcase/{runKey}` directly against API base — not routed through `/api/proxy`, so proxy bearer posture does not apply
-- [ ] (candidate) Browser-supplied `Authorization` on anonymous marketing proxy paths still forwards upstream — intentional when a signed-in user hits a marketing page; server bearer is what must be stripped
+- [x] (candidate) `resolveShowcasePageRenderPlan` fetches `v1/marketing/showcase/{runKey}` directly against API base — invalid: SSR uses anonymous server `fetch` with no `Authorization` or `X-Api-Key`; `GET /v1/marketing/showcase/{runKey}` is `[AllowAnonymous]` and does not need proxy bearer stripping
+- [x] (candidate) Browser-supplied `Authorization` on anonymous marketing proxy paths still forwards upstream — invalid: by design; `buildProxyUpstreamHeaders` strips only the configured server bearer on allowlisted marketing paths while preserving a signed-in visitor's bearer
+
+2026-09-05 thorough hunt #809 (dry): cheap-disproof closed showcase-direct-fetch and client-bearer-forward candidates; regressions in `proxy-route-anonymous-marketing.test.ts` and `showcase-page.test.tsx`.
 
 2026-09-04 seed hunt #711: reseeded from zone files; proved why-archlucid-pack.pdf allowlist gap; seeded showcase-direct-fetch and client-bearer-forward candidates.
 

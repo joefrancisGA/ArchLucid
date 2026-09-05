@@ -114,6 +114,19 @@ describe("MarketingShowcasePage", () => {
       `https://api.test/v1/marketing/showcase/${encodeURIComponent(decodedRunKey)}`,
       expect.objectContaining({ next: { revalidate: 300 } }),
     );
+
+    const fetchInit = fetchMock.mock.calls[0]![1] as RequestInit | undefined;
+
+    if (fetchInit?.headers instanceof Headers) {
+      expect(fetchInit.headers.get("authorization")).toBeNull();
+    } else if (fetchInit?.headers && typeof fetchInit.headers === "object") {
+      const auth =
+        "authorization" in fetchInit.headers
+          ? (fetchInit.headers as Record<string, string>).authorization
+          : undefined;
+
+      expect(auth).toBeUndefined();
+    }
   });
 
   it("serves static-first curated slugs with static render mode even when API base is configured", async () => {
