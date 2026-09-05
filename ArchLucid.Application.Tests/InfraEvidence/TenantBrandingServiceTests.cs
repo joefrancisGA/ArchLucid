@@ -112,6 +112,28 @@ public sealed class TenantBrandingServiceTests
             .Should().Be("Fresh Tenant Co");
     }
 
+    [Fact]
+    public async Task GetSurfacePresentationAsync_application_header_uses_active_company_name()
+    {
+        InMemoryTenantBrandingProfileRepository repository = new();
+        DateTime utcNow = new(2026, 5, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        await repository.InsertAsync(
+            BuildProfile(TenantA, BrandingProfileStatus.Active, utcNow, "Tenant A Holdings"),
+            CancellationToken.None);
+
+        TenantBrandingService service = CreateService(repository);
+
+        TenantBrandingSurfacePresentation presentation = await service.GetSurfacePresentationAsync(
+            TenantA,
+            BrandingDisplayContext.ApplicationHeader,
+            CancellationToken.None);
+
+        presentation.MastheadDisplayName.Should().Be("Tenant A Holdings");
+        presentation.UsesTenantVisualBrand.Should().BeTrue();
+        presentation.ShowArchLucidMarkInMasthead.Should().BeFalse();
+    }
+
     private static TenantBrandingService CreateService(
         ITenantBrandingProfileRepository profileRepository,
         TenantBrandingResolvedProfileCache? cache = null)

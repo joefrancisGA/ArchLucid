@@ -171,4 +171,10 @@ public sealed class TenantBrandingProfileRecord
         get;
         init;
     }
+
+    public bool CoBrandingEnabled
+    {
+        get;
+        init;
+    }
 }

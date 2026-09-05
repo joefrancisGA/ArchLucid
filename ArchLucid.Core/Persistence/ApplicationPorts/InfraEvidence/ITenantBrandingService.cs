@@ -25,4 +25,9 @@ public interface ITenantBrandingService
         Guid tenantId,
         Guid assetId,
         CancellationToken cancellationToken = default);
+
+    Task<TenantBrandingSurfacePresentation> GetSurfacePresentationAsync(
+        Guid tenantId,
+        BrandingDisplayContext context,
+        CancellationToken cancellationToken = default);
 }
