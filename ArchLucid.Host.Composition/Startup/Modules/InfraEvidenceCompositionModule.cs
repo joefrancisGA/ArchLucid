@@ -37,6 +37,7 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<ISecurityCrosswalkService, SecurityCrosswalkService>();
         services.AddScoped<IOperationalSecurityFindingIngestService, OperationalSecurityFindingIngestService>();
         services.AddScoped<IRemediationPatternService, RemediationPatternService>();
+        services.AddScoped<IRemediationPatternMatcherService, RemediationPatternMatcherService>();
         services.AddScoped<IAuditContinuousReadinessService, AuditContinuousReadinessService>();
         services.AddScoped<IAuditEvaluationFindingHandoffService, AuditEvaluationFindingHandoffService>();
         services.AddScoped<IAzureInventorySnapshotPostMaterializeCoordinator, AzureInventorySnapshotPostMaterializeCoordinator>();

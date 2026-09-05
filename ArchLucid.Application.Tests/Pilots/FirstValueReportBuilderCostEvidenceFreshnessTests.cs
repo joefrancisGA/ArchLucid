@@ -246,6 +246,7 @@ public sealed class FirstValueReportBuilderCostEvidenceFreshnessTests
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
             authorityQuery,
             manifestHashService,
+            FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 
