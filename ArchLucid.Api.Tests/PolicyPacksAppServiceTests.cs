@@ -610,6 +610,118 @@ public sealed class PolicyPacksAppServiceTests
     }
 
     [SkippableFact]
+    public async Task TryAssignAsync_returns_existing_assignment_and_skips_duplicate_audit_when_version_differs_only_by_casing()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid packId = Guid.NewGuid();
+        Guid assignmentId = Guid.NewGuid();
+        const string storedVersion = "v1.0.0";
+        const string retryVersion = "V1.0.0";
+        PolicyPackVersion versionRow = new()
+        {
+            PolicyPackId = packId,
+            Version = storedVersion,
+        };
+        PolicyPackAssignment assignment = new()
+        {
+            AssignmentId = assignmentId,
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            PolicyPackId = packId,
+            PolicyPackVersion = storedVersion,
+            ScopeLevel = GovernanceScopeLevel.Project,
+            IsPinned = false,
+            IsOrganizationRequired = false,
+            IsEnabled = true,
+        };
+
+        Mock<IPolicyPackVersionRepository> versions = new();
+        versions
+            .Setup(v => v.GetByPackAndVersionAsync(packId, storedVersion, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(versionRow);
+        versions
+            .Setup(v => v.GetByPackAndVersionAsync(packId, retryVersion, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((PolicyPackVersion?)null);
+        versions
+            .Setup(v => v.ListByPackAsync(packId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new[] { versionRow });
+
+        Mock<IPolicyPackAssignmentRepository> assignments = new();
+        assignments
+            .SetupSequence(a => a.ListByScopeAsync(tenantId, workspaceId, projectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<PolicyPackAssignment>())
+            .ReturnsAsync(new[] { assignment });
+
+        Mock<IPolicyPackManagementService> management = new();
+        management
+            .Setup(m => m.AssignAsync(
+                tenantId,
+                workspaceId,
+                projectId,
+                packId,
+                storedVersion,
+                GovernanceScopeLevel.Project,
+                false,
+                false,
+                true,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(assignment);
+        management
+            .Setup(m => m.AssignAsync(
+                tenantId,
+                workspaceId,
+                projectId,
+                packId,
+                retryVersion,
+                GovernanceScopeLevel.Project,
+                false,
+                false,
+                true,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(assignment);
+
+        Mock<IAuditService> audit = new();
+        audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        PolicyPacksAppService sut = CreateSut(
+            management.Object,
+            versions: versions.Object,
+            assignments: assignments.Object,
+            audit: audit.Object);
+
+        await sut.TryAssignAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            packId,
+            storedVersion,
+            GovernanceScopeLevel.Project,
+            false,
+            false,
+            CancellationToken.None);
+        PolicyPackAssignment? second = await sut.TryAssignAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            packId,
+            retryVersion,
+            GovernanceScopeLevel.Project,
+            false,
+            false,
+            CancellationToken.None);
+
+        second.Should().BeSameAs(assignment);
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.PolicyPackAssignmentCreated),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
     public async Task TryArchiveAssignmentAsync_skips_duplicate_audit_when_already_archived_retry()
     {
         Guid tenantId = Guid.NewGuid();
