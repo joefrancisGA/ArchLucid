@@ -113,6 +113,21 @@ public sealed class PlatformUserAuthVersionValidatorTests
         valid.Should().BeFalse();
     }
 
+    [Fact]
+    public async Task ValidateAsync_skips_auth_version_when_local_issuer_differs_only_by_casing()
+    {
+        PlatformUserAuthVersionValidator sut = CreateSut(new InMemoryPlatformUserRepository());
+
+        bool valid = await sut.ValidateAsync(
+            "HTTPS://ISSUER.TEST",
+            Guid.NewGuid().ToString("D"),
+            null,
+            CancellationToken.None);
+
+        valid.Should().BeTrue(
+            "MatchesLocalIssuer is ordinal; JwtBearer ValidIssuer rejects case variants before OnTokenValidated runs.");
+    }
+
     private static PlatformUserAuthVersionValidator CreateSut(
         IPlatformUserRepository users,
         string trialJwtIssuer = "https://issuer.test",
