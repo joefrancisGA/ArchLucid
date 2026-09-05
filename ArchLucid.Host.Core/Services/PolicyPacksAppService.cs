@@ -109,8 +109,7 @@ public sealed class PolicyPacksAppService(
 
         string normalizedJson = string.IsNullOrWhiteSpace(contentJson) ? "{}" : contentJson;
 
-        PolicyPackVersion? existingVersion = await versionRepository
-            .GetByPackAndVersionAsync(policyPackId, version, ct)
+        PolicyPackVersion? existingVersion = await ResolvePackVersionAsync(policyPackId, version, ct)
             .ConfigureAwait(false);
 
         bool isIdenticalRetry = existingVersion is not null
@@ -162,9 +161,7 @@ public sealed class PolicyPacksAppService(
         bool isOrganizationRequired,
         CancellationToken ct)
     {
-        PolicyPackVersion? packVersion = await versionRepository
-                .GetByPackAndVersionAsync(policyPackId, version, ct)
-            ;
+        PolicyPackVersion? packVersion = await ResolvePackVersionAsync(policyPackId, version, ct);
         if (packVersion is null)
             return null;
 
@@ -347,5 +344,25 @@ public sealed class PolicyPacksAppService(
             ct);
 
         return duplicate;
+    }
+
+    private async Task<PolicyPackVersion?> ResolvePackVersionAsync(
+        Guid policyPackId,
+        string version,
+        CancellationToken ct)
+    {
+        PolicyPackVersion? exactMatch = await versionRepository
+            .GetByPackAndVersionAsync(policyPackId, version, ct)
+            .ConfigureAwait(false);
+
+        if (exactMatch is not null)
+            return exactMatch;
+
+        IReadOnlyList<PolicyPackVersion> versions = await versionRepository
+            .ListByPackAsync(policyPackId, ct)
+            .ConfigureAwait(false);
+
+        return versions.FirstOrDefault(
+            row => string.Equals(row.Version, version, StringComparison.OrdinalIgnoreCase));
     }
 }
