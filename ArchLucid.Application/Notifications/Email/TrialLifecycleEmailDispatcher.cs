@@ -1,4 +1,5 @@
 using ArchLucid.Application.Notifications.Email.Models;
+using ArchLucid.Core.Identity;
 using ArchLucid.Core.Notifications.Email;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
@@ -54,12 +55,16 @@ public sealed class TrialLifecycleEmailDispatcher(
         if (!PassesTriggerGate(envelope.Trigger, tenant, utcNow))
             return;
         string? to = await _contactLookup.TryResolveAdminEmailAsync(envelope.TenantId, cancellationToken);
-        if (string.IsNullOrWhiteSpace(to))
+
+        if (string.IsNullOrWhiteSpace(to)
+            || !IdentityEmailNormalizer.TryNormalize(to, out string normalizedMailbox, out _))
         {
             if (_logger.IsEnabled(LogLevel.Information))
                 _logger.LogInformation("Trial lifecycle email skipped; no mailbox resolved for tenant {TenantId}.", envelope.TenantId);
             return;
         }
+
+        to = normalizedMailbox;
 
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
         string productName = string.IsNullOrWhiteSpace(emailOptions.ProductDisplayName) ? DefaultProductName : emailOptions.ProductDisplayName.Trim();
@@ -77,7 +82,7 @@ public sealed class TrialLifecycleEmailDispatcher(
 
         EmailMessage message = new()
         {
-            To = to.Trim(),
+            To = to,
             Subject = plan.Subject,
             HtmlBody = html,
             TextBody = text,

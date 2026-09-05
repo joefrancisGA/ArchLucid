@@ -2,6 +2,7 @@ using System.Net;
 
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Identity;
 using ArchLucid.Core.Notifications.Email;
 using ArchLucid.Core.Tenancy;
 
@@ -46,13 +47,17 @@ public sealed class CommitSponsorEmailNotifier(
 
         string trimmedRunId = runId.Trim();
         string? to = await _contactLookup.TryResolveAdminEmailAsync(tenantId, cancellationToken).ConfigureAwait(false);
-        if (string.IsNullOrWhiteSpace(to))
+
+        if (string.IsNullOrWhiteSpace(to)
+            || !IdentityEmailNormalizer.TryNormalize(to, out string normalizedMailbox, out _))
         {
             if (_logger.IsEnabled(LogLevel.Information))
                 _logger.LogInformation("Commit sponsor email skipped: no admin mailbox for tenant {TenantId}, run {RunId}.", tenantId,
                     LogSanitizer.Sanitize(trimmedRunId));
             return;
         }
+
+        to = normalizedMailbox;
 
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
         string productName = string.IsNullOrWhiteSpace(emailOptions.ProductDisplayName) ? DefaultProductName : emailOptions.ProductDisplayName.Trim();
@@ -72,7 +77,7 @@ public sealed class CommitSponsorEmailNotifier(
         string idempotencyKey = $"architecture-commit-sponsor:{tenantId:N}:{trimmedRunId}";
         EmailMessage message = new()
         {
-            To = to.Trim(),
+            To = to,
             Subject = subject,
             HtmlBody = html,
             TextBody = text,

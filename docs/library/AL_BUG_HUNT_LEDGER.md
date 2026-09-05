@@ -3088,11 +3088,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 16
-- **bugs-found:** 27
+- **hunts:** 17
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — trial expired email suppressed when lifecycle advanced status before dispatch/scan
+- **last-hunt:** 2026-09-05
+- **last-bug:** 2026-09-05 — trial/commit admin mailbox trim-only bypassed IdentityEmailNormalizer
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -3149,8 +3149,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-04 seed hunt #660: reseeded from trial lifecycle TrialStatus parity after #623 casing fix; proved padded TrialStatus gate gap vs Core `EqualsStatus` trim parity.
 
 - [x] (proven) `TrialLifecycleEmailDispatcher.PassesTriggerGate` / `TrialScheduledLifecycleEmailScanner.PublishDueAsync` — `Expired` trigger required `TrialStatus == Active`, so lifecycle scheduler advancing `Active → Expired` before dispatch or scan permanently suppressed trial-ended mail — **hit 2026-09-04 (#754):** allow `Expired` trigger for Active or Expired tenants with past `TrialExpiresUtc`; scanner enqueues expired trigger for Expired tenants; regressions in `DispatchAsync_sends_expired_email_when_trial_status_already_expired` and `PublishDueAsync_publishes_expired_trigger_when_trial_status_already_expired`.
-- [ ] (candidate) `ExecDigestUnsubscribeController` / `SponsorDigestUnsubscribeController` — valid token when `TryDisableEmailAsync` returns false (missing prefs or already disabled) still returns HTTP 200 success copy; confirm intentional idempotent unsubscribe semantics vs surfacing not-found.
-- [ ] (candidate) `TrialLifecycleEmailDispatcher.DispatchAsync` / `CommitSponsorEmailNotifier` — admin mailbox resolved with trim-only instead of `IdentityEmailNormalizer` parity with digest subscriptions and remediation assignment.
+- [x] (valid-no-repro) `ExecDigestUnsubscribeController` / `SponsorDigestUnsubscribeController` — valid token when `TryDisableEmailAsync` returns false (missing prefs or already disabled) still returns HTTP 200 success copy — **cheap-disproof 2026-09-05 (#795):** intentional idempotent unsubscribe UX; signed token proves intent; duplicate clicks and already-disabled prefs should not surface errors to end users.
+- [x] (proven) `TrialLifecycleEmailDispatcher.DispatchAsync` / `CommitSponsorEmailNotifier.NotifyAfterCommitAsync` — admin mailbox from `ITenantTrialEmailContactLookup` accepted with trim-only (`Contains('@')` upstream) and sent to malformed addresses like `finance@` while digest subscriptions and remediation assignment reject via `IdentityEmailNormalizer` — **hit 2026-09-05 (#795):** validate and normalize admin mailbox before send; regressions in `DispatchAsync_skips_send_when_admin_mailbox_is_malformed` and `NotifyAfterCommitAsync_when_admin_mailbox_malformed_does_not_send`.
+
+2026-09-05 thorough hunt #795 (hit): proved admin-mailbox normalization gap; cheap-disproved unsubscribe idempotency as intentional.
 
 2026-09-04 seed hunt #754: reseeded notifications-pipeline after #660; proved trial expired-email race between lifecycle advancement and email dispatch/scan; seeded unsubscribe idempotency and admin-mailbox normalization candidates.
 
