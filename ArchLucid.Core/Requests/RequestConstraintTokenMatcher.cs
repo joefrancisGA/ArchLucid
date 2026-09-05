@@ -178,7 +178,10 @@ internal static class RequestConstraintTokenMatcher
             || before.StartsWith("need not use", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("need not have", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("need not adopt", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("need not deploy", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("need not mandate", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("need not implement", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("is not needed for", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("does not require", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("does not need", StringComparison.OrdinalIgnoreCase))
             return true;
