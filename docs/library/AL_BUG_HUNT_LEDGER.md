@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 195
-- **bugs-found:** 618
+- **hunts:** 196
+- **bugs-found:** 630
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — ClusterAccessKey/CloudAccessKey/ComputeAccessKey redaction, workloads shouldn't/won't-apply/configure negation, advice shouldn't/won't-enforce/apply/configure suffix
+- **last-bug:** 2026-09-05 — ConfigAccessKey/ConnectionAccessKey/ContainerAccessKey redaction, workloads shouldn't/won't-mandate/maintain negation, advice shouldn't/won't-configure/mandate/maintain suffix
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2654,6 +2654,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `shouldn't apply` suffix gap — **hit 2026-09-05 (#923):** #912 added `do not apply` suffix only; missed imperative-path `shouldn't apply`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_shouldnt_apply_suffix_phrasing`).
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `won't apply` suffix gap — **hit 2026-09-05 (#923):** same suffix family; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_wont_apply_suffix_phrasing`).
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `shouldn't configure` suffix gap — **hit 2026-09-05 (#923):** #912 added `should not configure` suffix only; missed imperative-path `shouldn't configure`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_shouldnt_configure_suffix_phrasing`).
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ConfigAccessKey` not redacted — **hit 2026-09-05 (#924):** compound access-key class after #923; embedded `AccessKey`/`accesskey` fragment guard skipped `ConfigAccessKey`/`configaccesskey`; fixed with explicit credential detection (`Resolve_redacts_config_access_key_config_path`, `IsSensitiveKey_detects_config_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ConnectionAccessKey` not redacted — **hit 2026-09-05 (#924):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_connection_access_key_config_path`, `IsSensitiveKey_detects_connection_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ContainerAccessKey` not redacted — **hit 2026-09-05 (#924):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_container_access_key_config_path`, `IsSensitiveKey_detects_container_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `shouldn't mandate` negation gap — **hit 2026-09-05 (#924):** #909 added `should not mandate` only; missed prohibitive `shouldn't mandate {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_workloads_shouldnt_mandate_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `won't mandate` negation gap — **hit 2026-09-05 (#924):** same contraction family; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_workloads_wont_mandate_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `shouldn't maintain` negation gap — **hit 2026-09-05 (#924):** #911 added `should not maintain` only; missed prohibitive `shouldn't maintain {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_workloads_shouldnt_maintain_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `won't maintain` negation gap — **hit 2026-09-05 (#924):** same contraction family; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_workloads_wont_maintain_encryption_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `won't configure` suffix gap — **hit 2026-09-05 (#924):** #923 added `shouldn't configure` suffix only; missed imperative-path `won't configure`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_wont_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `shouldn't mandate` suffix gap — **hit 2026-09-05 (#924):** #912 added `do not mandate` suffix only; missed imperative-path `shouldn't mandate`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_shouldnt_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `won't mandate` suffix gap — **hit 2026-09-05 (#924):** same suffix family; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_wont_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `shouldn't maintain` suffix gap — **hit 2026-09-05 (#924):** #912 added `should not maintain` suffix only; missed imperative-path `shouldn't maintain`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_shouldnt_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `won't maintain` suffix gap — **hit 2026-09-05 (#924):** same suffix family; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_wont_maintain_suffix_phrasing`).
+
+2026-09-05 seed hunt #924 (hit): reseeded after #923 closure; proved twelve hunt-ready rows — ConfigAccessKey/ConnectionAccessKey/ContainerAccessKey redaction parity, workloads shouldn't/won't-mandate/maintain constraint negation, and advice won't-configure and shouldn't/won't-mandate/maintain suffix.
 
 2026-09-05 seed hunt #923 (hit): reseeded after #922 closure; proved twelve hunt-ready rows — ClusterAccessKey/CloudAccessKey/ComputeAccessKey redaction parity, workloads shouldn't/won't-apply/configure constraint negation, and advice shouldn't/won't-enforce/apply/configure suffix.
 
