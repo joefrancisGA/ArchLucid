@@ -3065,6 +3065,11 @@ export interface components {
             /** Format: uuid */
             snapshotId?: string;
         };
+        DeskContinuityDto: {
+            lastOpenDraftId?: null | string;
+            lastOpenReviewId?: null | string;
+            lastVisitWatermarkUtc?: null | string;
+        };
         DeterminismCheckRequest: {
             commitReplays?: boolean;
             executionMode?: string;
@@ -8266,6 +8271,9 @@ export interface components {
         SetCloudPlatformScopeRequest: {
             scope?: components["schemas"]["CloudPlatformScopeDto"];
         };
+        SetDeskContinuityRequest: {
+            continuity?: components["schemas"]["DeskContinuityDto"];
+        };
         SetFindingsVisibilityPreferencesRequest: {
             hideGenericEnabled?: boolean;
             showAdvisoryEnabled?: boolean;
@@ -9709,6 +9717,8 @@ export interface components {
             appearancePreferenceIsExplicit?: boolean;
             cloudPlatformScope?: components["schemas"]["CloudPlatformScopeDto"];
             cloudPlatformScopeIsExplicit?: boolean;
+            deskContinuity?: components["schemas"]["DeskContinuityDto"];
+            deskContinuityIsExplicit?: boolean;
             findingsHideGenericEnabled?: boolean;
             findingsHideGenericEnabledIsExplicit?: boolean;
             findingsShowAdvisoryEnabled?: boolean;
