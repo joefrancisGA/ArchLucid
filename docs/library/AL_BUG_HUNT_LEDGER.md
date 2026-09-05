@@ -3418,11 +3418,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 245
-- **bugs-found:** 480
+- **hunts:** 246
+- **bugs-found:** 481
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — risk-exception revoke idempotent retry success
+- **last-bug:** 2026-09-05 — governance review comment case-insensitive idempotent retry
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4580,10 +4580,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `GovernanceStickinessController.RevokeRiskException` / `RiskExceptionService.RevokeAsync` — `operator-documented-safe-retry` retry on already-revoked waiver returned HTTP 409 (`ConflictException` from #570 lifecycle guard) instead of idempotent HTTP 204 without duplicate `RiskExceptionRevoked` audit (#847 delete/restore parity) — **hit 2026-09-05 (#851):** return early when status is `Revoked`; regressions in `RevokeAsync_completes_without_duplicate_audit_when_already_revoked_retry` and `RevokeRiskException_returns_no_content_without_duplicate_audit_when_already_revoked_retry`.
 
-- [ ] (candidate) `GovernanceController.Approve` / `GovernanceWorkflowReviewStage.ApproveAsync` — `operator-documented-safe-retry` sibling shares `ReviewAsync` idempotent retry path fixed in #849 for reject but lacks dedicated approve regression coverage.
-- [ ] (candidate) `GovernanceController.BatchReviewApprovalRequests` / `GovernanceApprovalRequestsFacade.BatchReviewAsync` — per-item retry on already-finalized approval may surface `Conflict` in batch results instead of idempotent success when `ReviewComment` casing/whitespace differs from stored value.
+- [x] (invalid) `GovernanceController.Approve` / `GovernanceWorkflowReviewStage.ApproveAsync` — `operator-documented-safe-retry` sibling shares `ReviewAsync` idempotent retry path fixed in #849 for reject but lacks dedicated approve regression coverage — **cheap-disproof 2026-09-05 (#852):** `Approve_returns_existing_approval_without_duplicate_audit_when_identical_operator_retry` confirms shared `ReviewAsync` idempotent path already covers approve.
+- [x] (proven) `GovernanceController.BatchReviewApprovalRequests` / `GovernanceApprovalRequestsFacade.BatchReviewAsync` / `GovernanceWorkflowReviewStage.ReviewCommentsMatch` — per-item retry on already-finalized approval surfaced `Conflict` instead of idempotent success when `ReviewComment` differed only by casing (`Ordinal` match after trim; whitespace already trimmed) — **hit 2026-09-05 (#852):** case-insensitive comment comparison in `ReviewCommentsMatch` (approve/reject/batch share path); regressions in `Reject_returns_existing_approval_without_duplicate_audit_when_review_comment_differs_only_by_casing` and `Reject_returns_existing_approval_without_duplicate_audit_when_review_comment_differs_only_by_outer_whitespace`.
 
-2026-09-05 seed hunt #851 (hit): reseeded post-#850 idempotent-retry exhaustion; proved revoke idempotent-success gap; seeded approve regression coverage and batch-review comment-matching candidates.
+2026-09-05 thorough hunt #852 (hit): cheap-disproved approve regression-only candidate; proved governance review comment case-insensitive idempotent retry gap.
 
 2026-09-05 seed hunt #845 (hit): reseeded post-#844 idempotent-retry exhaustion; proved core-pilot checklist and tenant baseline duplicate-audit gaps; seeded restore idempotent-success and governance-resolution read-audit retry candidates.
 
