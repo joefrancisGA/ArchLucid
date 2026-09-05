@@ -216,6 +216,13 @@ public sealed partial class PolicyPackWorkflowFacade(
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
+        PolicyPackAssignment? existing =
+            await _assignmentRepository.GetByTenantAndAssignmentIdAsync(scope.TenantId, assignmentId, ct);
+
+        bool valueUnchanged = existing is not null
+            && PolicyPackAssignmentScope.IsVisibleInScope(existing, scope)
+            && existing.IsEnabled == isEnabled;
+
         bool ok = await _workspaceSelectionService.TrySetAssignmentEnabledAsync(
             scope,
             assignmentId,
@@ -225,13 +232,16 @@ public sealed partial class PolicyPackWorkflowFacade(
         if (!ok)
             return false;
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.PolicyPackAssignmentEnabledChanged,
-                DataJson = JsonSerializer.Serialize(new { assignmentId, isEnabled }),
-            },
-            ct);
+        if (!valueUnchanged)
+        {
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.PolicyPackAssignmentEnabledChanged,
+                    DataJson = JsonSerializer.Serialize(new { assignmentId, isEnabled }),
+                },
+                ct);
+        }
 
         return true;
     }
@@ -244,6 +254,13 @@ public sealed partial class PolicyPackWorkflowFacade(
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
+        PolicyPackAssignment? existing =
+            await _assignmentRepository.GetByTenantAndAssignmentIdAsync(scope.TenantId, assignmentId, ct);
+
+        bool valueUnchanged = existing is not null
+            && PolicyPackAssignmentScope.IsVisibleInScope(existing, scope)
+            && existing.IsOrganizationRequired == isOrganizationRequired;
+
         bool ok = await _workspaceSelectionService.TrySetAssignmentOrganizationRequiredAsync(
             scope,
             assignmentId,
@@ -253,13 +270,16 @@ public sealed partial class PolicyPackWorkflowFacade(
         if (!ok)
             return false;
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.PolicyPackAssignmentOrganizationRequiredChanged,
-                DataJson = JsonSerializer.Serialize(new { assignmentId, isOrganizationRequired }),
-            },
-            ct);
+        if (!valueUnchanged)
+        {
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.PolicyPackAssignmentOrganizationRequiredChanged,
+                    DataJson = JsonSerializer.Serialize(new { assignmentId, isOrganizationRequired }),
+                },
+                ct);
+        }
 
         return true;
     }

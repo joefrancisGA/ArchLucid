@@ -82,9 +82,13 @@ public sealed partial class GovernanceStickinessController
         GovernanceReviewsAwaitingActionResponse response =
             await _facade.GetReviewsAwaitingActionAsync(cancellationToken);
 
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        string fingerprint =
+            $"reviews-awaiting|tenant={scope.TenantId:N}|workspace={scope.WorkspaceId:N}|project={scope.ProjectId:N}";
         string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
             response,
-            ContractJson.CamelCaseIgnoreNullCompact);
+            ContractJson.CamelCaseIgnoreNullCompact,
+            fingerprint);
 
         return this.OkWithConditionalEtag(response, etag);
     }
@@ -114,7 +118,8 @@ public sealed partial class GovernanceStickinessController
         GovernanceDecisionsNeededSummaryResponse response =
             await _facade.GetDecisionsNeededSummaryAsync(projectId, cancellationToken);
 
-        string fingerprint = $"decisions-needed|project={projectId ?? scope.ProjectId}";
+        string fingerprint =
+            $"decisions-needed|tenant={scope.TenantId:N}|workspace={scope.WorkspaceId:N}|project={projectId ?? scope.ProjectId:N}";
         string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
             response,
             ContractJson.CamelCaseIgnoreNullCompact,

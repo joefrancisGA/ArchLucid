@@ -534,6 +534,127 @@ public sealed class TenantTrialControllerTests
     }
 
     [Fact]
+    public async Task ConvertTrialAsync_returns_no_content_when_already_converted_with_same_target_tier_retry()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+        };
+        TenantRecord tenant = new()
+        {
+            Id = scope.TenantId,
+            Name = "t",
+            Slug = "t",
+            Tier = TenantTier.Standard,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
+            TrialStatus = TrialLifecycleStatus.Converted,
+        };
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+        Mock<IAuditService> audit = new();
+        Mock<IBillingTrialConversionGate> gate = new();
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
+        schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        TenantTrialController sut = CreateController(
+            tenants.Object,
+            scopeProvider.Object,
+            audit.Object,
+            gate.Object,
+            NoopTrialIdentityUsers(),
+            schedulerOpts.Object);
+
+        IActionResult result = await sut.ConvertTrialAsync(
+            new TenantTrialConvertRequest { TargetTier = nameof(TenantTier.Standard) },
+            CancellationToken.None);
+
+        result.Should().BeOfType<NoContentResult>();
+        tenants.Verify(
+            t => t.MarkTrialConvertedAsync(It.IsAny<Guid>(), It.IsAny<TenantTier?>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ConvertTrialAsync_skips_duplicate_audit_when_identical_operator_retry()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+        };
+        TenantRecord activeTenant = new()
+        {
+            Id = scope.TenantId,
+            Name = "t",
+            Slug = "t",
+            Tier = TenantTier.Free,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
+            TrialStatus = TrialLifecycleStatus.Active,
+        };
+        TenantRecord convertedTenant = new()
+        {
+            Id = scope.TenantId,
+            Name = "t",
+            Slug = "t",
+            Tier = TenantTier.Standard,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
+            TrialStatus = TrialLifecycleStatus.Converted,
+        };
+        TenantRecord current = activeTenant;
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => current);
+        tenants
+            .Setup(t => t.MarkTrialConvertedAsync(scope.TenantId, TenantTier.Standard, It.IsAny<CancellationToken>()))
+            .Callback(() => current = convertedTenant)
+            .Returns(Task.CompletedTask);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        Mock<IBillingTrialConversionGate> gate = new();
+        gate
+            .Setup(g => g.EnsureManualConversionAllowedAsync(scope.TenantId, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
+        schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        TenantTrialController sut = CreateController(
+            tenants.Object,
+            scopeProvider.Object,
+            audit.Object,
+            gate.Object,
+            NoopTrialIdentityUsers(),
+            schedulerOpts.Object);
+
+        TenantTrialConvertRequest request = new() { TargetTier = nameof(TenantTier.Standard) };
+
+        await sut.ConvertTrialAsync(request, CancellationToken.None);
+        await sut.ConvertTrialAsync(request, CancellationToken.None);
+
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.TenantTrialConverted),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        tenants.Verify(
+            t => t.MarkTrialConvertedAsync(scope.TenantId, TenantTier.Standard, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task LinkEntraAsync_returns_bad_request_when_local_email_not_claimed_for_tenant()
     {
         Guid callerTenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");

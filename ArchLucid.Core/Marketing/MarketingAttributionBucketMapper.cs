@@ -9,21 +9,26 @@ public static class MarketingAttributionBucketMapper
             return "unknown";
 
         string medium = utmMedium.Trim().ToLowerInvariant();
+        string compact = NormalizeMediumToken(medium);
 
-        if (medium is "cpc" or "ppc" or "paid" or "paidsearch" or "display" or "retargeting")
+        if (compact is "cpc" or "ppc" or "paid" or "paidsearch" or "display" or "retargeting")
             return "paid_direct";
 
-        if (medium is "email" or "newsletter")
+        if (compact is "email" or "newsletter")
             return "referral";
 
-        if (medium is "organic" or "seo")
+        if (compact is "organic" or "seo")
             return "organic";
 
-        if (medium is "social" or "social-paid")
+        if (compact is "social" or "socialpaid")
             return "paid_direct";
 
         return "unknown";
     }
+
+    private static string NormalizeMediumToken(string medium) =>
+        medium.Replace("-", string.Empty, StringComparison.Ordinal)
+            .Replace("_", string.Empty, StringComparison.Ordinal);
 
     public static string MapCoarsePlatform(string? utmSource)
     {
@@ -31,14 +36,15 @@ public static class MarketingAttributionBucketMapper
             return "unknown";
 
         string source = utmSource.Trim().ToLowerInvariant();
+        string compact = NormalizePlatformToken(source);
 
-        if (source.Contains("google", StringComparison.Ordinal))
+        if (compact.Contains("google", StringComparison.Ordinal))
             return "google";
 
-        if (source.Contains("linkedin", StringComparison.Ordinal))
+        if (compact.Contains("linkedin", StringComparison.Ordinal))
             return "linkedin";
 
-        if (source.Contains("bing", StringComparison.Ordinal) || source.Contains("microsoft", StringComparison.Ordinal))
+        if (compact.Contains("bing", StringComparison.Ordinal) || compact.Contains("microsoft", StringComparison.Ordinal))
             return "bing";
 
         if (source is "archlucid" or "internal" or "product")
@@ -46,4 +52,8 @@ public static class MarketingAttributionBucketMapper
 
         return "unknown";
     }
+
+    private static string NormalizePlatformToken(string source) =>
+        source.Replace("-", string.Empty, StringComparison.Ordinal)
+            .Replace("_", string.Empty, StringComparison.Ordinal);
 }

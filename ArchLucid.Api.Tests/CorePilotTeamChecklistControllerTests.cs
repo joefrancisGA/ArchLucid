@@ -397,4 +397,48 @@ public sealed class CorePilotTeamChecklistControllerTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task PutAsync_skips_duplicate_audit_when_identical_operator_retry()
+    {
+        Mock<ICorePilotTeamChecklistRepository> repo = new();
+        repo
+            .SetupSequence(r => r.ListAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<CorePilotChecklistStepRow>())
+            .ReturnsAsync(
+            [
+                new CorePilotChecklistStepRow(2, false, DateTimeOffset.Parse("2026-06-01T08:00:00Z"), "op-1"),
+            ]);
+        repo
+            .Setup(r => r.UpsertAsync(
+                Scope.TenantId,
+                Scope.WorkspaceId,
+                Scope.ProjectId,
+                2,
+                false,
+                "op-1",
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActorId()).Returns("op-1");
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        CorePilotTeamChecklistController sut = BuildSut(repo.Object, scopeProvider.Object, actor.Object, audit.Object);
+        CorePilotChecklistPutRequest body = new() { StepIndex = 2, IsCompleted = false };
+
+        await sut.PutAsync(body, CancellationToken.None);
+        await sut.PutAsync(body, CancellationToken.None);
+
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.CorePilotTeamChecklistUpdated),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
 }

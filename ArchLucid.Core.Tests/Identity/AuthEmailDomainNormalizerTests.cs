@@ -20,6 +20,9 @@ public sealed class AuthEmailDomainNormalizerTests
     [Theory]
     [InlineData("localhost")]
     [InlineData("not-a-domain")]
+    [InlineData("sub..example.com")]
+    [InlineData("user@sub..example.com")]
+    [InlineData("bad-.example.com")]
     [InlineData("")]
     public void TryNormalize_rejects_invalid_domains(string input)
     {

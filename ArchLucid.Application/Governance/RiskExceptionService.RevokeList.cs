@@ -54,12 +54,12 @@ public sealed partial class RiskExceptionService
         if (existing is null)
             throw new InvalidOperationException("Risk exception was not found.");
 
+        if (existing.Status == RiskExceptionStatus.Revoked)
+            return;
+
         if (existing.Status != RiskExceptionStatus.Active)
         {
-            throw new ConflictException(
-                existing.Status == RiskExceptionStatus.Revoked
-                    ? "Revoked risk exceptions cannot be revoked again."
-                    : "Only active risk exceptions can be revoked.");
+            throw new ConflictException("Only active risk exceptions can be revoked.");
         }
 
         await repository.RevokeAsync(

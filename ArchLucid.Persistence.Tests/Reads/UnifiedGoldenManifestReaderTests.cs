@@ -1,6 +1,8 @@
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Repositories;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -256,6 +258,91 @@ public sealed class UnifiedGoldenManifestReaderTests
 
         manifest.Should().NotBeNull();
         manifest.SystemName.Should().Be("FromAuthority");
+    }
+
+    [SkippableFact]
+    public async Task GetByVersionAsync_finds_manifest_when_contract_version_differs_only_by_casing()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333")
+        };
+
+        Guid runId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        InMemoryGoldenManifestRepository authority = new();
+        SaveContractsManifestOptions keying = new()
+        {
+            ManifestId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            RunId = runId,
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            FindingsSnapshotId = Guid.NewGuid(),
+            DecisionTraceId = Guid.NewGuid(),
+            RuleSetId = "rs",
+            RuleSetVersion = "1",
+            RuleSetHash = "rsh",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
+        };
+
+        await authority.SaveAsync(
+            new Cm.GoldenManifest
+            {
+                RunId = runId.ToString("D"),
+                SystemName = "sys",
+                Metadata = new Cm.ManifestMetadata { ManifestVersion = "v1" },
+                Governance = new Cm.ManifestGovernance()
+            },
+            scope,
+            keying,
+            new StubManifestHashService(),
+            CancellationToken.None);
+
+        Mock<IRunRepository> runs = new();
+        runs.Setup(r => r.GetByIdAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                RunId = runId,
+                ProjectId = "default",
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            });
+
+        Cm.GoldenManifest projected = new()
+        {
+            RunId = runId.ToString("D"),
+            SystemName = "default",
+            Metadata = new Cm.ManifestMetadata { ManifestVersion = "v1" },
+            Governance = new Cm.ManifestGovernance()
+        };
+
+        Mock<IAuthorityCommitProjectionBuilder> projection = new();
+        projection
+            .Setup(p => p.BuildAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<AuthorityCommitProjectionInput>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(projected);
+
+        UnifiedGoldenManifestReader sut = new(
+            runs.Object,
+            authority,
+            projection.Object,
+            Mock.Of<IArchitectureRequestRepository>(),
+            Mock.Of<IScopeContextProvider>(s => s.GetCurrentScope() == scope));
+
+        Cm.GoldenManifest? manifest = await sut.GetByVersionAsync("V1", CancellationToken.None);
+
+        manifest.Should().NotBeNull();
+        manifest!.Metadata.ManifestVersion.Should().Be("v1");
+    }
+
+    private sealed class StubManifestHashService : IManifestHashService
+    {
+        public string ComputeHash(ManifestDocument manifest) => $"stub:{manifest.ManifestId:N}";
     }
 
     private static ManifestDocument NewAuthorityRow(ScopeContext scope, Guid runId, Guid? manifestId = null)

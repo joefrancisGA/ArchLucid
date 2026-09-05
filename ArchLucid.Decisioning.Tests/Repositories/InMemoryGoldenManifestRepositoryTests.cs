@@ -150,6 +150,54 @@ public sealed class InMemoryGoldenManifestRepositoryTests
     }
 
     [Fact]
+    public async Task GetByContractManifestVersionAsync_finds_row_when_version_differs_only_by_casing()
+    {
+        InMemoryGoldenManifestRepository sut = new();
+        Guid manifestId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            WorkspaceId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            ProjectId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd")
+        };
+
+        SaveContractsManifestOptions keying = new()
+        {
+            ManifestId = manifestId,
+            RunId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+            ContextSnapshotId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"),
+            GraphSnapshotId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            FindingsSnapshotId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            DecisionTraceId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            RuleSetId = "rs",
+            RuleSetVersion = "1",
+            RuleSetHash = "rsh",
+            CreatedUtc = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc)
+        };
+
+        Cm.GoldenManifest contract = new()
+        {
+            RunId = keying.RunId.ToString("D"),
+            SystemName = "sys-under-test",
+            Metadata = new Cm.ManifestMetadata { ManifestVersion = "v1" },
+            Governance = new Cm.ManifestGovernance()
+        };
+
+        await sut.SaveAsync(
+            contract,
+            scope,
+            keying,
+            new StubManifestHashService(),
+            CancellationToken.None);
+
+        ManifestDocument? byVersion = await sut.GetByContractManifestVersionAsync(scope, "V1", CancellationToken.None);
+
+        byVersion.Should().NotBeNull();
+        byVersion!.ManifestId.Should().Be(manifestId);
+        byVersion.Metadata.Version.Should().Be("v1");
+    }
+
+    [Fact]
     public async Task SaveAsync_document_cancelled_throws()
     {
         InMemoryGoldenManifestRepository sut = new();

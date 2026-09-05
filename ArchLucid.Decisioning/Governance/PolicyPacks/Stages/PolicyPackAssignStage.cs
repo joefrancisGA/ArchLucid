@@ -47,6 +47,22 @@ public sealed class PolicyPackAssignStage(
         else if (string.Equals(normalized, GovernanceScopeLevel.Workspace, StringComparison.Ordinal))
             proj = Guid.Empty;
 
+        IReadOnlyList<PolicyPackAssignment> existingAssignments =
+            await _assignmentRepository.ListByScopeAsync(tenantId, ws, proj, ct)
+            ?? Array.Empty<PolicyPackAssignment>();
+
+        PolicyPackAssignment? matchingAssignment = existingAssignments.FirstOrDefault(assignment =>
+            !assignment.ArchivedUtc.HasValue
+            && assignment.PolicyPackId == policyPackId
+            && string.Equals(assignment.PolicyPackVersion, version, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(assignment.ScopeLevel, normalized, StringComparison.Ordinal)
+            && assignment.IsPinned == isPinned
+            && assignment.IsOrganizationRequired == isOrganizationRequired
+            && assignment.IsEnabled == isEnabled);
+
+        if (matchingAssignment is not null)
+            return matchingAssignment;
+
         PolicyPackAssignment assignment = new()
         {
             AssignmentId = Guid.NewGuid(),
@@ -90,7 +106,15 @@ public sealed class PolicyPackAssignStage(
         bool ok = await _assignmentRepository.ArchiveAsync(tenantId, assignmentId, ct);
 
         if (!ok)
+        {
+            PolicyPackAssignment? existing =
+                await _assignmentRepository.GetByTenantAndAssignmentIdAsync(tenantId, assignmentId, ct);
+
+            if (existing is not null && existing.ArchivedUtc.HasValue)
+                return true;
+
             return false;
+        }
 
         PolicyPackAssignment? row =
             await _assignmentRepository.GetByTenantAndAssignmentIdAsync(tenantId, assignmentId, ct);

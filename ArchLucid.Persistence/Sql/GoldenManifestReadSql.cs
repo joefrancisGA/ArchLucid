@@ -35,7 +35,7 @@ internal static class GoldenManifestReadSql
                                                                 WHERE TenantId = @TenantId
                                                                   AND WorkspaceId = @WorkspaceId
                                                                   AND ProjectId = @ProjectId
-                                                                  AND ContractManifestVersion = @ManifestVersion
+                                                                  AND ContractManifestVersion COLLATE Latin1_General_CI_AI = @ManifestVersion
                                                                 ORDER BY CreatedUtc DESC;
                                                                 """;
 

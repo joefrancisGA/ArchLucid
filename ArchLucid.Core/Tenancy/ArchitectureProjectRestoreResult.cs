@@ -6,6 +6,9 @@ public enum ArchitectureProjectRestoreResult
     /// <summary>Row was restored successfully.</summary>
     Restored,
 
+    /// <summary>Project already active in the workspace (idempotent operator retry).</summary>
+    AlreadyActive,
+
     /// <summary>No matching soft-deleted row for tenant / workspace / project id.</summary>
     NotFoundOrNotDeleted,
 

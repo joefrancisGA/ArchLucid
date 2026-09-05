@@ -17,6 +17,21 @@ public sealed class InMemoryPolicyPackVersionRepositoryTests
     }
 
     [SkippableFact]
+    public async Task GetByPackAndVersionAsync_finds_row_with_version_casing_only_difference()
+    {
+        InMemoryPolicyPackVersionRepository sut = new();
+        Guid packId = Guid.NewGuid();
+
+        await sut.UpsertPublishedVersionAsync(packId, "v1.0.0", "{}", CancellationToken.None);
+
+        PolicyPackVersion? found = await sut.GetByPackAndVersionAsync(packId, "V1.0.0", CancellationToken.None);
+
+        found.Should().NotBeNull();
+        found!.Version.Should().Be("v1.0.0");
+        found.ContentJson.Should().Be("{}");
+    }
+
+    [SkippableFact]
     public async Task GetByPackAndVersionAsync_finds_row()
     {
         InMemoryPolicyPackVersionRepository sut = new();
@@ -77,6 +92,29 @@ public sealed class InMemoryPolicyPackVersionRepositoryTests
 
         second.ContentJson.Should().Be("{\"x\":1}");
         prev2.Should().Be("{}");
+    }
+
+    [SkippableFact]
+    public async Task UpsertPublishedVersionAsync_operator_retry_with_version_casing_only_updates_existing_row()
+    {
+        InMemoryPolicyPackVersionRepository sut = new();
+        Guid packId = Guid.NewGuid();
+
+        (PolicyPackVersion first, string? prev1) =
+            await sut.UpsertPublishedVersionAsync(packId, "v1.0.0", "{}", CancellationToken.None);
+
+        prev1.Should().BeNull();
+        first.Version.Should().Be("v1.0.0");
+
+        (PolicyPackVersion second, string? prev2) =
+            await sut.UpsertPublishedVersionAsync(packId, "V1.0.0", "{}", CancellationToken.None);
+
+        prev2.Should().Be("{}");
+        second.PolicyPackVersionId.Should().Be(first.PolicyPackVersionId);
+        second.Version.Should().Be("v1.0.0");
+
+        IReadOnlyList<PolicyPackVersion> list = await sut.ListByPackAsync(packId, CancellationToken.None);
+        list.Should().ContainSingle();
     }
 
     [SkippableFact]

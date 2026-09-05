@@ -76,7 +76,7 @@ public sealed class GovernanceWorkflowPromoteValidateStage(
 
         GoldenManifest? manifest =
             runDetail.Manifest is not null
-            && string.Equals(run.CurrentManifestVersion, manifestVersion, StringComparison.Ordinal)
+            && string.Equals(run.CurrentManifestVersion, manifestVersion, StringComparison.OrdinalIgnoreCase)
                 ? runDetail.Manifest
                 : await _unifiedGoldenManifestReader.GetByVersionAsync(manifestVersion, cancellationToken)
                     .ConfigureAwait(false);
@@ -238,7 +238,7 @@ public sealed class GovernanceWorkflowPromoteValidateStage(
             throw new InvalidOperationException(OpaqueProdApprovalMismatch);
         }
 
-        if (!string.Equals(approvalRequest.ManifestVersion, manifestVersion, StringComparison.Ordinal))
+        if (!string.Equals(approvalRequest.ManifestVersion, manifestVersion, StringComparison.OrdinalIgnoreCase))
         {
             if (verbosePromotionValidationErrors)
             {

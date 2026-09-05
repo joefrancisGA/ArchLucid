@@ -321,8 +321,8 @@ public sealed class AuditEvidenceSnapshotCollectionServiceTests
             ScopeContext scope,
             string subscriptionId,
             Guid newerSnapshotId,
-            CancellationToken cancellationToken = default) =>
-            Task.FromResult<Guid?>(null);
+            CancellationToken cancellationToken = default)
+            => Task.FromResult<Guid?>(null);
     }
 
     internal sealed class InMemoryAuditEvidenceRequirementRepository : IAuditEvidenceRequirementRepository
