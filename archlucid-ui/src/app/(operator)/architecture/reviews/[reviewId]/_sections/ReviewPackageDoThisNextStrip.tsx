@@ -321,7 +321,10 @@ function ReviewFailureRecoveryDetails(props: {
       ) : null}
 
       {showRecoverySteps ? (
-        <div className="flex flex-wrap items-center gap-2" data-testid="review-package-do-this-next-action">
+        <div
+          className="flex min-w-0 w-full max-w-full flex-col items-start gap-2"
+          data-testid="review-package-do-this-next-action"
+        >
           {actionRow}
         </div>
       ) : null}
@@ -445,26 +448,40 @@ export function ReviewPackageDoThisNextStrip(
         )
       : [];
   const showFailureRecoverySteps = failureRecoverySteps.length > 0;
+  const showHeaderPrimaryAction =
+    hasFailureRecovery && !showFailureRecoverySteps && !suppressStaleFailureRecovery;
   const displayedSentence = suppressStaleFailureRecovery
     ? REVIEW_PIPELINE_RE_RUN_IN_PROGRESS_DO_THIS_NEXT_SENTENCE
     : resolveDisplayedDoThisNextSentence(next, sessionAiReadiness);
 
   return (
     <section
-      className={cn(DESIGN_TOKENS.callout.info, "flex flex-col gap-3 p-4")}
+      className={cn(DESIGN_TOKENS.callout.info, "flex min-w-0 max-w-full flex-col gap-3 p-4")}
       data-testid="review-package-do-this-next-strip"
       aria-labelledby="review-package-do-this-next-heading"
     >
-      <div className="min-w-0 space-y-1">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+      <div className="min-w-0 max-w-full space-y-1">
+        <div
+          className={cn(
+            "flex gap-2",
+            showHeaderPrimaryAction
+              ? "flex-col items-stretch"
+              : "flex-col sm:flex-row sm:items-start sm:justify-between",
+          )}
+        >
           <h2
             id="review-package-do-this-next-heading"
             className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
           >
             Do this next
           </h2>
-          <div className="flex shrink-0 flex-wrap items-center gap-2">
-            {hasFailureRecovery && !showFailureRecoverySteps && !suppressStaleFailureRecovery ? actionRow : null}
+          <div
+            className={cn(
+              "flex min-w-0 max-w-full flex-col items-start gap-2",
+              showHeaderPrimaryAction ? "w-full" : "shrink-0 sm:flex-row sm:flex-wrap sm:items-center",
+            )}
+          >
+            {showHeaderPrimaryAction ? actionRow : null}
             {hasFailureRecovery && !suppressStaleFailureRecovery && failureRecordedAtLabel !== null ? (
               <p
                 className={cn("m-0 shrink-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
@@ -475,14 +492,17 @@ export function ReviewPackageDoThisNextStrip(
             ) : null}
           </div>
         </div>
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="review-package-do-this-next-sentence">
+        <p
+          className={cn("m-0 break-words text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="review-package-do-this-next-sentence"
+        >
           {displayedSentence}
         </p>
       </div>
 
       {!hasFailureRecovery || suppressStaleFailureRecovery ? (
         <div
-          className="flex shrink-0 flex-wrap flex-col items-stretch gap-2 sm:items-end"
+          className="flex min-w-0 w-full max-w-full shrink-0 flex-col items-stretch gap-2 sm:items-end"
           data-testid="review-package-do-this-next-action"
           data-review-package-do-this-next-kind={next.kind}
         >
