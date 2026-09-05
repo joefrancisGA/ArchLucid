@@ -137,6 +137,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   assignedToMeFindings: "Assigned to me",
   riskExceptions: "Exceptions",
   remediationFactory: "Remediation factory",
+  remediationPatterns: "Remediation patterns",
   decisionRegister: "Decision register",
   sealedReviewRecords: "Finalized review records",
   recurrenceSchedules: "Recurrence schedules",

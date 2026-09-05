@@ -106,6 +106,14 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
+          href: "/governance/remediation-patterns",
+          label: OPERATOR_NAV_LINK_LABELS.remediationPatterns,
+          title: "Create, review, approve, and import remediation patterns (Draft-only import)",
+          icon: ClipboardList,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
           href: "/governance/decision-register",
           label: OPERATOR_NAV_LINK_LABELS.decisionRegister,
           title: "Review recorded decisions and governance approval",
