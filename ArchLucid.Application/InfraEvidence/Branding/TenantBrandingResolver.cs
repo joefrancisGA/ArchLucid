@@ -59,6 +59,7 @@ internal static class TenantBrandingResolver
             LogoReportCoverAssetId = profile.LogoReportCoverAssetId,
             LogoMonoAssetId = profile.LogoMonoAssetId,
             SourceProfileStatus = profile.BrandingStatus,
+            CoBrandingEnabled = profile.CoBrandingEnabled,
         };
 
     private static ResolvedTenantBrandingProfile ProductBrand(Guid tenantId) =>

@@ -11367,7 +11367,8 @@ BEGIN
         CreatedUtc                DATETIME2         NOT NULL,
         UpdatedUtc                DATETIME2         NOT NULL,
         CreatedBy                 NVARCHAR(256)     NULL,
-        UpdatedBy                 NVARCHAR(256)     NULL
+        UpdatedBy                 NVARCHAR(256)     NULL,
+        CoBrandingEnabled         BIT               NOT NULL CONSTRAINT DF_TenantBrandingProfiles_CoBrandingEnabled DEFAULT (0)
     );
 
     CREATE NONCLUSTERED INDEX IX_TenantBrandingProfiles_Tenant_Status
@@ -11840,5 +11841,17 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_BrandAssets_Tenant_Status
         ON dbo.BrandAssets (TenantId, Status);
+END;
+GO
+
+/*
+  365: Tenant branding co-branding flag (BR-04).
+*/
+
+IF COL_LENGTH(N'dbo.TenantBrandingProfiles', N'CoBrandingEnabled') IS NULL
+BEGIN
+    ALTER TABLE dbo.TenantBrandingProfiles
+        ADD CoBrandingEnabled BIT NOT NULL
+            CONSTRAINT DF_TenantBrandingProfiles_CoBrandingEnabled DEFAULT (0);
 END;
 GO

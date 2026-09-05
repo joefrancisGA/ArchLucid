@@ -111,6 +111,16 @@ public sealed class TenantBrandingService(
         return result.Succeeded ? result : null;
     }
 
+    public async Task<TenantBrandingSurfacePresentation> GetSurfacePresentationAsync(
+        Guid tenantId,
+        BrandingDisplayContext context,
+        CancellationToken cancellationToken = default)
+    {
+        ResolvedTenantBrandingProfile profile = await GetBrandingProfileAsync(tenantId, cancellationToken);
+        TenantBrandingLogo logo = await GetLogoAsync(tenantId, context, cancellationToken);
+        return TenantBrandingDisplayContextPolicy.Resolve(context, profile, logo);
+    }
+
     private async Task<ResolvedTenantBrandingProfile> GetOrLoadResolvedProfileAsync(
         Guid tenantId,
         CancellationToken cancellationToken)

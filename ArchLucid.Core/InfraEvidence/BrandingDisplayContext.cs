@@ -1,6 +1,6 @@
 namespace ArchLucid.Core.InfraEvidence;
 
-/// <summary>Where tenant branding is rendered; logo asset selection may vary by surface (BR-04 expands rules).</summary>
+/// <summary>Where tenant branding is rendered; logo asset selection and masthead rules vary by surface.</summary>
 public enum BrandingDisplayContext
 {
     ApplicationHeader = 0,

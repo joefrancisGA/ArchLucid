@@ -112,4 +112,10 @@ public sealed class ResolvedTenantBrandingProfile
         get;
         init;
     }
+
+    public bool CoBrandingEnabled
+    {
+        get;
+        init;
+    }
 }
