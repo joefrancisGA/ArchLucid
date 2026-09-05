@@ -47,7 +47,7 @@ describe("draftArchitectureRequestWithPoll", () => {
 
     const pollPromise = draftArchitectureRequestWithPoll(
       { freeTextDescription: "Customer-facing API with private networking and EU residency." },
-      { architectureId: "arch-001" },
+      { draftId: "arch-001" },
     );
 
     await vi.waitFor(() => {

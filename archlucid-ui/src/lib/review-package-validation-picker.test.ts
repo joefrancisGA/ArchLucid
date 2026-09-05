@@ -30,7 +30,7 @@ describe("reviewPackageOwnerLabel", () => {
       {
         draftRegistryEntries: [
           {
-            architectureId: "draft-001",
+            draftId: "draft-001",
             displayName: "Payments platform",
             customerStatus: "ready-for-review",
             ownerLabel: "alex@example.com",
@@ -93,7 +93,7 @@ describe("reviewPackageOwnerLabel", () => {
         currentUserLabel: "alex@example.com",
         draftRegistryEntries: [
           {
-            architectureId: "draft-001",
+            draftId: "draft-001",
             displayName: "Payments platform",
             customerStatus: "ready-for-review",
             ownerLabel: "You",
@@ -123,7 +123,7 @@ describe("lookupArchitectureDraftOwnerLabel", () => {
   it("matches linked review ids after demo canonicalization", () => {
     const owner = lookupArchitectureDraftOwnerLabel("review-linked", [
       {
-        architectureId: "draft-001",
+        draftId: "draft-001",
         displayName: "Payments platform",
         customerStatus: "ready-for-review",
         ownerLabel: "You",

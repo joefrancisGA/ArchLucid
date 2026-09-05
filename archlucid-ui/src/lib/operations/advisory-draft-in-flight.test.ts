@@ -42,7 +42,7 @@ describe("trackAdvisoryDraftInFlight", () => {
   it("registers Suggest from overview so leaving the draft does not hide queued work", () => {
     const trackedId = trackAdvisoryDraftInFlight({
       operationId,
-      architectureId: "arch-001",
+      draftId: "arch-001",
     });
 
     expect(trackedId).toBe(operationId);
@@ -67,7 +67,7 @@ describe("trackAdvisoryDraftInFlight", () => {
   it("retargets Open to the saved draft after deferred create", () => {
     trackAdvisoryDraftInFlight({
       operationId,
-      architectureId: "new",
+      draftId: "new",
     });
 
     retargetAdvisoryDraftInFlightArchitecture("new", "draft-001");
@@ -81,7 +81,7 @@ describe("trackAdvisoryDraftInFlight", () => {
   it("finds the tracked row for this architecture", () => {
     trackAdvisoryDraftInFlight({
       operationId,
-      architectureId: "arch-001",
+      draftId: "arch-001",
     });
 
     expect(findTrackedAdvisoryDraftForArchitecture("arch-001")?.operationId).toBe(operationId);
@@ -91,7 +91,7 @@ describe("trackAdvisoryDraftInFlight", () => {
   it("drops a consumed row after the draft applies suggestions", () => {
     trackAdvisoryDraftInFlight({
       operationId,
-      architectureId: "arch-001",
+      draftId: "arch-001",
     });
 
     markAdvisoryDraftInFlightConsumed(operationId);
@@ -102,7 +102,7 @@ describe("trackAdvisoryDraftInFlight", () => {
   it("skips demo and offline shells, where a tracked row would poll a 404 forever", () => {
     staticDemo.enabled = true;
 
-    expect(trackAdvisoryDraftInFlight({ operationId, architectureId: "arch-001" })).toBeNull();
+    expect(trackAdvisoryDraftInFlight({ operationId, draftId: "arch-001" })).toBeNull();
     expect(getInFlightOperations()).toHaveLength(0);
   });
 

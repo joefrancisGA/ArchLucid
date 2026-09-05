@@ -64,10 +64,10 @@ vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
 }));
 
 function entry(
-  overrides: Partial<ArchitectureDraftRegistryEntry> & Pick<ArchitectureDraftRegistryEntry, "architectureId">,
+  overrides: Partial<ArchitectureDraftRegistryEntry> & Pick<ArchitectureDraftRegistryEntry, "draftId">,
 ): ArchitectureDraftRegistryEntry {
   return {
-    architectureId: overrides.architectureId,
+    draftId: overrides.draftId,
     displayName: overrides.displayName ?? "Healthcare Claims Platform",
     customerStatus: overrides.customerStatus ?? "ready-for-review",
     ownerLabel: overrides.ownerLabel ?? "You",
@@ -108,8 +108,8 @@ describe("ArchitectureDraftListClient", () => {
 
   it("counts abandoned drafts under Archived only, not No review yet", () => {
     useArchitectureDraftRegistryEntries.mockReturnValue([
-      entry({ architectureId: "a1", customerStatus: "archived", linkedReviewId: null, displayName: "Deleted A" }),
-      entry({ architectureId: "a2", customerStatus: "archived", linkedReviewId: null, displayName: "Deleted B" }),
+      entry({ draftId: "a1", customerStatus: "archived", linkedReviewId: null, displayName: "Deleted A" }),
+      entry({ draftId: "a2", customerStatus: "archived", linkedReviewId: null, displayName: "Deleted B" }),
     ]);
 
     renderClient();
@@ -122,7 +122,7 @@ describe("ArchitectureDraftListClient", () => {
   });
 
   it("uses URL-bound sort chips in the inventory toolbar", () => {
-    useArchitectureDraftRegistryEntries.mockReturnValue([entry({ architectureId: "a1" })]);
+    useArchitectureDraftRegistryEntries.mockReturnValue([entry({ draftId: "a1" })]);
 
     renderClient();
 
@@ -132,10 +132,9 @@ describe("ArchitectureDraftListClient", () => {
 
   it("shows filter chip counts from the full registry", () => {
     useArchitectureDraftRegistryEntries.mockReturnValue([
-      entry({ architectureId: "a1", customerStatus: "draft", linkedReviewId: null }),
-      entry({ architectureId: "a2", customerStatus: "ready-for-review", linkedReviewId: null }),
-      entry({
-        architectureId: "a3",
+      entry({ draftId: "a1", customerStatus: "draft", linkedReviewId: null }),
+      entry({ draftId: "a2", customerStatus: "ready-for-review", linkedReviewId: null }),
+      entry({ draftId: "a3",
         customerStatus: "archived",
         linkedReviewId: "run-1",
         displayName: "Archived platform",
@@ -158,8 +157,7 @@ describe("ArchitectureDraftListClient", () => {
 
   it("renders ready-for-review with in-progress status semantics and hybrid updated time", () => {
     useArchitectureDraftRegistryEntries.mockReturnValue([
-      entry({
-        architectureId: "a1",
+      entry({ draftId: "a1",
         displayName: "Healthcare Claims Platform",
         customerStatus: "ready-for-review",
         lastUpdatedUtc: "2026-07-12T23:42:05.000Z",
@@ -195,7 +193,7 @@ describe("ArchitectureDraftListClient", () => {
   });
 
   it("does not flash the empty state before registry hydrate when drafts exist (TB-1450)", () => {
-    useArchitectureDraftRegistryEntries.mockReturnValue([entry({ architectureId: "a1" })]);
+    useArchitectureDraftRegistryEntries.mockReturnValue([entry({ draftId: "a1" })]);
 
     renderClient();
 
@@ -215,7 +213,7 @@ describe("ArchitectureDraftListClient", () => {
   });
 
   it("shows draft-vs-review disclosure only when drafts exist (TB-1449)", async () => {
-    useArchitectureDraftRegistryEntries.mockReturnValue([entry({ architectureId: "a1" })]);
+    useArchitectureDraftRegistryEntries.mockReturnValue([entry({ draftId: "a1" })]);
 
     renderClient();
 
@@ -225,7 +223,7 @@ describe("ArchitectureDraftListClient", () => {
   });
 
   it("uses compact inventory toolbar search height", () => {
-    useArchitectureDraftRegistryEntries.mockReturnValue([entry({ architectureId: "a1" })]);
+    useArchitectureDraftRegistryEntries.mockReturnValue([entry({ draftId: "a1" })]);
 
     renderClient();
 
@@ -233,7 +231,7 @@ describe("ArchitectureDraftListClient", () => {
   });
 
   it("uses compact inventory toolbar sort chips", () => {
-    useArchitectureDraftRegistryEntries.mockReturnValue([entry({ architectureId: "a1" })]);
+    useArchitectureDraftRegistryEntries.mockReturnValue([entry({ draftId: "a1" })]);
 
     renderClient();
 
@@ -242,8 +240,8 @@ describe("ArchitectureDraftListClient", () => {
 
   it("excludes archived drafts from the default All table view", () => {
     useArchitectureDraftRegistryEntries.mockReturnValue([
-      entry({ architectureId: "a1", customerStatus: "draft", displayName: "Draft A" }),
-      entry({ architectureId: "a2", customerStatus: "archived", displayName: "Archived B" }),
+      entry({ draftId: "a1", customerStatus: "draft", displayName: "Draft A" }),
+      entry({ draftId: "a2", customerStatus: "archived", displayName: "Archived B" }),
     ]);
 
     renderClient();
@@ -255,7 +253,7 @@ describe("ArchitectureDraftListClient", () => {
   });
 
   it("keeps search, filters, and sort in one toolbar", () => {
-    useArchitectureDraftRegistryEntries.mockReturnValue([entry({ architectureId: "a1" })]);
+    useArchitectureDraftRegistryEntries.mockReturnValue([entry({ draftId: "a1" })]);
 
     renderClient();
 
@@ -268,8 +266,8 @@ describe("ArchitectureDraftListClient", () => {
 
   it("filters by chip without changing registry counts", () => {
     useArchitectureDraftRegistryEntries.mockReturnValue([
-      entry({ architectureId: "a1", customerStatus: "draft", displayName: "Draft A" }),
-      entry({ architectureId: "a2", customerStatus: "ready-for-review", displayName: "Ready B" }),
+      entry({ draftId: "a1", customerStatus: "draft", displayName: "Draft A" }),
+      entry({ draftId: "a2", customerStatus: "ready-for-review", displayName: "Ready B" }),
     ]);
 
     renderClient("filter=draft");
@@ -284,8 +282,8 @@ describe("ArchitectureDraftListClient", () => {
   it("pins continue last draft when session remembers an architecture id", () => {
     window.sessionStorage.setItem("archlucid.architecture-creation.draft-id", "a1");
     useArchitectureDraftRegistryEntries.mockReturnValue([
-      entry({ architectureId: "a1", customerStatus: "draft", displayName: "Draft A" }),
-      entry({ architectureId: "a2", customerStatus: "draft", displayName: "Draft B" }),
+      entry({ draftId: "a1", customerStatus: "draft", displayName: "Draft A" }),
+      entry({ draftId: "a2", customerStatus: "draft", displayName: "Draft B" }),
     ]);
 
     renderClient();
@@ -300,7 +298,7 @@ describe("ArchitectureDraftListClient", () => {
   it("hides continue last draft when the remembered draft is archived", () => {
     window.sessionStorage.setItem("archlucid.architecture-creation.draft-id", "a1");
     useArchitectureDraftRegistryEntries.mockReturnValue([
-      entry({ architectureId: "a1", customerStatus: "archived", displayName: "Archived A" }),
+      entry({ draftId: "a1", customerStatus: "archived", displayName: "Archived A" }),
     ]);
 
     renderClient();

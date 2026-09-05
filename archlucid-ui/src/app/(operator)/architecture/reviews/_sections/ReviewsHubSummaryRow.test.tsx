@@ -58,7 +58,7 @@ describe("ReviewsHubSummaryRow", () => {
   it("opens the sole ready draft instead of scrolling when only one draft is ready", () => {
     useArchitectureDraftRegistryEntriesMock.mockReturnValue([
       {
-        architectureId: "draft-001",
+        draftId: "draft-001",
         displayName: "Payments",
         customerStatus: "draft",
         ownerLabel: "You",

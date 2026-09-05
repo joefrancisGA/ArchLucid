@@ -31,7 +31,7 @@ describe("ArchitectureDraftHandoffPanel (SD-10)", () => {
   it("shows read-only handoff with Open review primary — no editable fields", () => {
     render(
       <ArchitectureDraftHandoffPanel
-        architectureId="draft-1"
+        draftId="draft-1"
         workspaceHeading="Payments modernization"
         linkedReviewId="run-42"
         linkedReviewTitle="Payments review"

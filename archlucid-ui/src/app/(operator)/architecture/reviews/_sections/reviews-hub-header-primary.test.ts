@@ -10,7 +10,7 @@ import { REVIEWS_HUB_HEADER_START_LABEL } from "./reviews-hub-copy";
 
 function draft(id: string, name: string): ArchitectureDraftRegistryEntry {
   return {
-    architectureId: id,
+    draftId: id,
     displayName: name,
     customerStatus: "draft",
     ownerLabel: "You",

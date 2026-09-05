@@ -19,7 +19,7 @@ describe("mapDraftSummaryToRegistryEntry", () => {
 
     const entry = mapDraftSummaryToRegistryEntry(summary);
 
-    expect(entry.architectureId).toBe(summary.draftId);
+    expect(entry.draftId).toBe(summary.draftId);
     expect(entry.displayName).toBe("Claims intake");
     expect(entry.customerStatus).toBe("review-linked");
     expect(entry.linkedReviewId).toBe("run-claims");

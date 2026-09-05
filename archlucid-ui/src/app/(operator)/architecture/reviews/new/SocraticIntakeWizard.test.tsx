@@ -146,7 +146,7 @@ vi.mock("@/lib/toast", () => ({
 
 vi.mock("@/lib/architecture/architecture-draft-registry", () => ({
   buildArchitectureDraftRegistryEntry: vi.fn(() => ({
-    architectureId: "draft-1",
+    draftId: "draft-1",
     displayName: "ArchLucid",
     customerStatus: "ready-for-review",
     ownerLabel: "You",
