@@ -299,9 +299,13 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
   }
 
   const setAskFindingId = useCallback(
-    (value: string | null) => {
-      setAskFindingIdState(value);
-      syncAskFindingIdToUrl(value);
+    (value: string | null | ((current: string | null) => string | null)) => {
+      setAskFindingIdState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncAskFindingIdToUrl(next);
+
+        return next;
+      });
     },
     [syncAskFindingIdToUrl],
   );
