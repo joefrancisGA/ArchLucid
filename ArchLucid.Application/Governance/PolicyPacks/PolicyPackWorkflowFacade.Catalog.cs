@@ -100,10 +100,16 @@ public sealed partial class PolicyPackWorkflowFacade
     /// <inheritdoc />
     public async Task<bool> TryDemoteCatalogEntryAsync(Guid policyPackCatalogEntryId, CancellationToken ct)
     {
+        PolicyPackCatalogEntryDetail? promoted =
+            await _policyPackCatalogRepository.GetPromotedDetailByIdAsync(policyPackCatalogEntryId, ct);
+
         bool ok = await _policyPackCatalogAdminService.TryDemoteAsync(policyPackCatalogEntryId, ct);
 
         if (!ok)
             return false;
+
+        if (promoted is null)
+            return true;
 
         await _auditService.LogAsync(
             new AuditEvent

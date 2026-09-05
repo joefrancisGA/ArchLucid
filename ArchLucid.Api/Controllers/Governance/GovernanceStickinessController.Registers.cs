@@ -118,7 +118,8 @@ public sealed partial class GovernanceStickinessController
         GovernanceDecisionsNeededSummaryResponse response =
             await _facade.GetDecisionsNeededSummaryAsync(projectId, cancellationToken);
 
-        string fingerprint = $"decisions-needed|project={projectId ?? scope.ProjectId}";
+        string fingerprint =
+            $"decisions-needed|tenant={scope.TenantId:N}|workspace={scope.WorkspaceId:N}|project={projectId ?? scope.ProjectId:N}";
         string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
             response,
             ContractJson.CamelCaseIgnoreNullCompact,

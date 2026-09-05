@@ -3418,11 +3418,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 230
-- **bugs-found:** 452
+- **hunts:** 231
+- **bugs-found:** 454
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — recurrence/trial convert idempotent retry guards
+- **last-bug:** 2026-09-05 — decisions-needed etag scope gap and catalog demote idempotent retry
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4524,6 +4524,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `TenantCustomerSuccessController.PostProductFeedbackAsync` — retry appends duplicate `ProductFeedback` rows (append-only telemetry lens; may be intentional) — **cheap-disproof 2026-09-05 (#836):** append-only product telemetry by design (mutation-correction #833 posture family); each submission is an immutable feedback event, not a state mutation requiring idempotent dedupe.
 
 2026-09-05 thorough hunt #836 (hit): proved recurrence and trial-convert idempotent retry guards; cheap-disproved product-feedback duplicate-row candidate.
+
+- [x] (proven) `GovernanceStickinessController.GetDecisionsNeededSummary` — conditional ETag fingerprint included `project` only while `GovernanceDigestDecisionNeededComposer.BuildSummaryAsync` scopes by tenant/workspace/project (#835 reviews-awaiting sibling) — **hit 2026-09-05 (#837):** include tenant/workspace in etag fingerprint; regression in `GetDecisionsNeededSummary_returns_ok_when_workspace_changes_despite_matching_empty_body_etag`.
+- [x] (proven) `PolicyPacksController.DemoteCatalogEntry` / `PolicyPackWorkflowFacade.TryDemoteCatalogEntryAsync` / `DapperPolicyPackCatalogRepository.TryDemoteAsync` — operator retry after successful demote returned HTTP 404 and logged duplicate `PolicyPackCatalogDemoted` audit (#835 archive retry parity) — **hit 2026-09-05 (#837):** return success when catalog row already demoted; skip audit when entry was not promoted before demote; regression in `TryDemoteCatalogEntryAsync_skips_duplicate_audit_when_already_demoted_retry`.
+- [ ] (candidate) `PolicyPacksController.Assign` / `PolicyPacksAppService.TryAssignAsync` — operator retry returns existing assignment (#833) but still logs duplicate `PolicyPackAssignmentCreated` audit (`operator-documented-safe-retry` posture).
+- [ ] (candidate) `PolicyPacksController.ArchiveAssignment` / `PolicyPacksAppService.TryArchiveAssignmentAsync` — operator retry returns success (#835) but still logs duplicate `PolicyPackAssignmentArchived` audit.
+- [ ] (candidate) `PolicyPacksController.DeletePack` / `PolicyPacksAppService.TrySoftDeletePackAsync` — operator retry re-soft-deletes pack and logs duplicate `PolicyPackDeleted` audit.
+- [ ] (candidate) `TenantTrialController.LinkEntraAsync` / `TenantTrialIdentityHandoffStage.LinkEntraAsync` — operator retry with same `entraTenantId` logs duplicate `TenantEntraDirectoryBound` audit while SQL update is idempotent.
+
+2026-09-05 seed hunt #837 (hit): reseeded post-#836 idempotency exhaustion; proved decisions-needed etag scope gap and catalog demote idempotent retry; seeded assign/archive/delete/link-entra audit retry candidates.
 
 2026-09-05 seed hunt #835 (hit): reseeded post-#834 exhaustion; proved archive idempotent retry and two conditional-GET scope etag gaps; seeded recurrence/trial/feedback retry candidates.
 
