@@ -6,7 +6,9 @@
      Wave 4: working-architect-00-index.md (WA-01–24) shipped #1496.
      Wave 5: career-desk-00-index.md (CD-01–15).
      Wave 6: all-day-desk-00-index.md (AD-01–12).
-     Wave 7: founding-desk-00-index.md (FD-01–13). -->
+     Wave 7: founding-desk-00-index.md (FD-01–13).
+     Wave 8: instrument-spine-00-index.md (IS-01–15).
+     Wave 9: livelihood-spine-00-index.md (LS-01–12). -->
 
 # Livelihood-instrument mitigations — Composer prompt set (LI-01–LI-15)
 
@@ -91,4 +93,4 @@ Prefer **01 → 03 → 04** first (finding honesty, trail at finalize, skipped M
 
 Summarize: files changed, tests run, residual risk, Working vs Guided behavior.
 
-**Do not re-run this set** (shipped #1397). Wave 4: [`working-architect-00-index.md`](working-architect-00-index.md) (**WA-01–24**).
+**Do not re-run this set** (shipped #1397). Wave 4: [`working-architect-00-index.md`](working-architect-00-index.md) (**WA-01–24**). Wave 8: [`instrument-spine-00-index.md`](instrument-spine-00-index.md) (**IS-01–15**). Wave 9 leftovers: [`livelihood-spine-00-index.md`](livelihood-spine-00-index.md) (**LS-01–12**). Do not fork IS.

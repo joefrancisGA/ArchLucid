@@ -5,7 +5,7 @@
 
 # Livelihood-desk Composer prompts (LD-01–LD-15)
 
-**Created:** 2026-09-04 · **Status:** **shipped** `master` #1421 / #1439 · **Do not re-run.** Wave 4 shipped #1496. Wave 5: [`CAREER_DESK_COMPOSER_PROMPTS.md`](CAREER_DESK_COMPOSER_PROMPTS.md) (**CD-01–15**). Wave 6: [`ALL_DAY_DESK_COMPOSER_PROMPTS.md`](ALL_DAY_DESK_COMPOSER_PROMPTS.md) (**AD-01–12**). Wave 7: [`FOUNDING_DESK_COMPOSER_PROMPTS.md`](FOUNDING_DESK_COMPOSER_PROMPTS.md) (**FD-01–13**).
+**Created:** 2026-09-04 · **Status:** **shipped** `master` #1421 / #1439 · **Do not re-run.** Wave 4 shipped #1496. Wave 5: [`CAREER_DESK_COMPOSER_PROMPTS.md`](CAREER_DESK_COMPOSER_PROMPTS.md) (**CD-01–15**). Wave 6: [`ALL_DAY_DESK_COMPOSER_PROMPTS.md`](ALL_DAY_DESK_COMPOSER_PROMPTS.md) (**AD-01–12**). Wave 7: [`FOUNDING_DESK_COMPOSER_PROMPTS.md`](FOUNDING_DESK_COMPOSER_PROMPTS.md) (**FD-01–13**). Wave 8: [`INSTRUMENT_SPINE_COMPOSER_PROMPTS.md`](INSTRUMENT_SPINE_COMPOSER_PROMPTS.md) (**IS-01–15**). Wave 9: [`LIVELIHOOD_SPINE_COMPOSER_PROMPTS.md`](LIVELIHOOD_SPINE_COMPOSER_PROMPTS.md) (**LS-01–12**).
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record. **LI-01–15** closed the first residual wave (finding honesty on review-detail, infeasible as package, trail at Finalize, skipped-MUST UI gate, Record correction API, Working start/keyboard/in-flight/workbench/ops/compare, draft truth, several dirty guards, presenter keepalive, finding-graph outline).
 
