@@ -235,9 +235,11 @@ public static partial class GenericArchitectureAdvicePatterns
             || after.StartsWith("need not adopt", StringComparison.Ordinal)
             || after.StartsWith("does not require", StringComparison.Ordinal)
             || after.StartsWith("does not need", StringComparison.Ordinal)
+            || after.StartsWith("does not mandate", StringComparison.Ordinal)
             || after.StartsWith("would not need", StringComparison.Ordinal)
             || after.StartsWith("will not need", StringComparison.Ordinal)
-            || after.StartsWith("cannot require", StringComparison.Ordinal);
+            || after.StartsWith("cannot require", StringComparison.Ordinal)
+            || after.StartsWith("cannot need", StringComparison.Ordinal);
     }
 
     /// <summary>

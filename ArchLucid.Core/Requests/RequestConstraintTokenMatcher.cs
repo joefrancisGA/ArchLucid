@@ -184,11 +184,14 @@ internal static class RequestConstraintTokenMatcher
             || before.StartsWith("need not configure", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("need not apply", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("need not provision", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("need not require", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("need not implement", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("is not needed for", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("is not necessary for", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("does not require", StringComparison.OrdinalIgnoreCase)
-            || before.StartsWith("does not need", StringComparison.OrdinalIgnoreCase))
+            || before.StartsWith("does not need", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("does not mandate", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("does not enforce", StringComparison.OrdinalIgnoreCase))
             return true;
 
         if (ContainsMidSentenceNegation(before))
@@ -224,6 +227,8 @@ internal static class RequestConstraintTokenMatcher
             || ContainsPhrase(before, " will not need")
             || ContainsPhrase(before, " would not need ")
             || ContainsPhrase(before, " would not need")
+            || ContainsPhrase(before, " will not mandate ")
+            || ContainsPhrase(before, " will not mandate")
             || ContainsPhrase(before, " ought not require ")
             || ContainsPhrase(before, " ought not require")
             || ContainsPhrase(before, " ought not need ")
@@ -232,7 +237,9 @@ internal static class RequestConstraintTokenMatcher
             || ContainsPhrase(before, " do not ")
             || ContainsPhrase(before, " doesn't require ")
             || ContainsPhrase(before, " doesn't need ")
-            || ContainsPhrase(before, " cannot require ");
+            || ContainsPhrase(before, " cannot require ")
+            || ContainsPhrase(before, " cannot need ")
+            || ContainsPhrase(before, " cannot need");
     }
 
     private static bool ContainsPhrase(ReadOnlySpan<char> haystack, string phrase)
