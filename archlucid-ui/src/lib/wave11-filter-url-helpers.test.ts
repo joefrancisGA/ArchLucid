@@ -1329,7 +1329,7 @@ describe("wave26 filter url helpers", () => {
     expect(parseArchitectureDiagramFindingIdFromSearch("finding-7")).toBe("finding-7");
     expect(
       architectureDiagramFindingHrefFromSearch("tab=architecture", "finding-7", "/architecture/reviews/r1"),
-    ).toBe("/architecture/reviews/r1?tab=architecture&diagramFindingId=finding-7");
+    ).toBe("/architecture/reviews/r1?tab=architecture&findingId=finding-7");
     expect(parseFindingsWhatIfEnabledFromSearch("1")).toBe(true);
     expect(parseFindingsWhatIfIdsFromSearch("f1,f2")).toEqual(["f1", "f2"]);
     expect(

@@ -6,10 +6,15 @@ import { describe, expect, it } from "vitest";
 
 import { ReviewWorkspaceTabStrip } from "@/components/reviews/ReviewWorkspaceTabStrip";
 import { REVIEW_WORKSPACE_MORE_TABS_TEST_ID } from "@/components/reviews/ReviewWorkspaceMoreTabsMenu";
+import { REVIEW_WORKBENCH_LAYOUT_TEST_ID } from "@/components/reviews/ReviewWorkbenchLayout";
 import { resolveReviewDetailVisibleTabs } from "@/lib/resolve-review-detail-visible-tabs";
 
 const appShellSource = readFileSync(join(process.cwd(), "src/components/AppShellClient.tsx"), "utf8");
 const tabStripSource = readFileSync(join(process.cwd(), "src/components/reviews/ReviewWorkspaceTabStrip.tsx"), "utf8");
+const workbenchLayoutSource = readFileSync(
+  join(process.cwd(), "src/components/reviews/ReviewWorkbenchLayout.tsx"),
+  "utf8",
+);
 
 describe("operator shell eight-hour zoom guard (FD-09)", () => {
   it("keeps the sidebar on a vertical scrollport instead of clipping overflow", () => {
@@ -47,5 +52,12 @@ describe("operator shell eight-hour zoom guard (FD-09)", () => {
 
     expect(screen.queryByTestId(REVIEW_WORKSPACE_MORE_TABS_TEST_ID)).toBeNull();
     expect(screen.queryByTestId("review-detail-workspace-tab-additional-label")).toBeNull();
+  });
+
+  it("keeps workbench column overflow inside the column and pins selected finding title (LS-10)", () => {
+    expect(workbenchLayoutSource).toContain("lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,0.9fr)]");
+    expect(workbenchLayoutSource).toContain("overflow-x-auto");
+    expect(workbenchLayoutSource).toContain("review-workbench-selected-finding-title");
+    expect(workbenchLayoutSource).toContain("sticky top-0");
   });
 });

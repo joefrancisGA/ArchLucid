@@ -10,8 +10,10 @@ import { GovernanceAssignedToMeFindingsNavBadge } from "@/components/governance/
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { GovernanceReviewsAwaitingNavBadge } from "@/components/governance/GovernanceReviewsAwaitingNavBadge";
 import { SidebarNavLink } from "@/components/sidebar-nav/SidebarNavLink";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { readCachedDeskContinuity } from "@/lib/desk-continuity-preference";
 import {
   GOVERNANCE_ALERTS_PATH,
   GOVERNANCE_APPROVAL_QUEUE_PATH,
@@ -28,6 +30,8 @@ import {
   sidebarMoreLinksLabel,
   splitSidebarLinksDailyVsMore,
 } from "@/lib/sidebar-nav-daily-links";
+import { resolveWorkingInsightsNavHref } from "@/lib/resolve-working-insights-nav-href";
+import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 import {
   parseSidebarNavMoreGroupFromSearch,
   sidebarNavMoreDisclosureHrefFromSearch,
@@ -70,6 +74,8 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
+  const { mode } = useWorkspaceMode();
+  const workingMode = isWorkingWorkspaceMode(mode);
   const sidebarMoreGroupParam = searchParams.get("sidebarMoreGroup");
   const { group, visibleLinks } = props.row;
   const linksForRender = filterSidebarNavClusterLinks({
@@ -169,18 +175,27 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
       group.surface,
       props.isGovernanceModeEnabled,
     );
+    const resolvedHref = workingMode
+      ? resolveWorkingInsightsNavHref({
+          href: presented.href,
+          pathname,
+          lastOpenReviewId: readCachedDeskContinuity().lastOpenReviewId,
+        })
+      : presented.href;
+    const presentedWithHref =
+      resolvedHref === presented.href ? presented : { ...presented, href: resolvedHref };
 
     return (
       <SidebarNavLink
-        key={presented.href}
-        presented={presented}
-        active={isNavLinkActive(props.pathname, presented.href)}
-        advancedDemo={isSidebarNavLinkAdvancedInDemo(presented.href, demoOrBuyer)}
+        key={presentedWithHref.href}
+        presented={presentedWithHref}
+        active={isNavLinkActive(props.pathname, presentedWithHref.href)}
+        advancedDemo={isSidebarNavLinkAdvancedInDemo(presentedWithHref.href, demoOrBuyer)}
         buyerPolishedShell={props.buyerPolishedShell}
         navGroupId={group.id}
         unlockPhase={props.effectiveOperateUnlockPhase}
         onNavigate={props.onNavLinkNavigate}
-        afterLabel={sidebarNavLinkAfterLabel(presented.href)}
+        afterLabel={sidebarNavLinkAfterLabel(presentedWithHref.href)}
       />
     );
   }

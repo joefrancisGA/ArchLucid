@@ -43,6 +43,9 @@ describe("FindingListDispositionRowActions (WA-18)", () => {
     );
 
     expect(screen.getByTestId("finding-list-accept-finding-2")).toBeDisabled();
-    expect(screen.getByText("Resolve merge conflict first.")).toBeInTheDocument();
+    expect(screen.getByTestId("finding-list-accept-finding-2")).not.toHaveAttribute("title");
+    expect(screen.getByTestId("finding-list-disposition-blocked-reason-finding-2")).toHaveTextContent(
+      "Resolve merge conflict first.",
+    );
   });
 });

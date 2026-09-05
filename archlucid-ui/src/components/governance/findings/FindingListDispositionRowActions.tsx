@@ -36,7 +36,6 @@ export function FindingListDispositionRowActions(
         size="sm"
         variant="outline"
         disabled={!triage.mutationsEnabled || blockedReason !== null}
-        title={blockedReason ?? undefined}
         onClick={() => {
           triage.requestDisposition(props.findingId, "Accepted");
         }}
@@ -49,7 +48,6 @@ export function FindingListDispositionRowActions(
         size="sm"
         variant="outline"
         disabled={!triage.mutationsEnabled || blockedReason !== null}
-        title={blockedReason ?? undefined}
         onClick={() => {
           triage.requestDisposition(props.findingId, "Remediated");
         }}
@@ -62,7 +60,6 @@ export function FindingListDispositionRowActions(
         size="sm"
         variant="outline"
         disabled={!triage.mutationsEnabled || blockedReason !== null}
-        title={blockedReason ?? undefined}
         onClick={() => {
           triage.requestDisposition(props.findingId, "RejectedAsNotApplicable");
         }}
@@ -71,7 +68,12 @@ export function FindingListDispositionRowActions(
         Reject N/A
       </Button>
       {blockedReason !== null ? (
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          role="status"
+          aria-live="polite"
+          data-testid={`finding-list-disposition-blocked-reason-${props.findingId}`}
+        >
           {blockedReason}
         </p>
       ) : null}
