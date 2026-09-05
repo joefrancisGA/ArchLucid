@@ -1,13 +1,9 @@
 {
   "complianceRuleIds": [],
   "complianceRuleKeys": [
-    "az-dr-001",
-    "az-dr-002",
     "az-dr-003",
     "az-dr-004",
     "az-dr-005",
-    "az-dr-006",
-    "az-dr-007",
     "az-dr-008",
     "az-dr-009",
     "az-dr-010"
