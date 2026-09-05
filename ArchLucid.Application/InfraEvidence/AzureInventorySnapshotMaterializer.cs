@@ -15,6 +15,7 @@ namespace ArchLucid.Application.InfraEvidence;
 public sealed class AzureInventorySnapshotMaterializer(
     IAzureInventorySnapshotRepository snapshotRepository,
     ICloudResourceIdentityDirectory cloudResourceIdentityDirectory,
+    IAzureInventorySnapshotPostMaterializeCoordinator postMaterializeCoordinator,
     ILogger<AzureInventorySnapshotMaterializer> logger) : IAzureInventorySnapshotMaterializer
 {
     public async Task<AzureInventorySnapshotMaterializeResult> TryMaterializePackageAsync(
@@ -248,6 +249,18 @@ public sealed class AzureInventorySnapshotMaterializer(
                     UnknownResources = unknowns,
                 },
                 cancellationToken);
+
+            AzureInventorySnapshotRecord? materializedHeader =
+                await snapshotRepository.TryGetBySnapshotIdAsync(scope, snapshotId, cancellationToken);
+
+            if (materializedHeader is not null)
+            {
+                await postMaterializeCoordinator.OnSnapshotMaterializedAsync(
+                    scope,
+                    snapshotId,
+                    materializedHeader.SubscriptionId,
+                    cancellationToken);
+            }
 
             return new AzureInventorySnapshotMaterializeResult
             {

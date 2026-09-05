@@ -189,6 +189,14 @@ public sealed class AuditEvidenceSnapshotCollectionServiceTests
 
             return Task.CompletedTask;
         }
+
+        public Task<IReadOnlyList<AuditAssessmentRecord>> ListActiveByTenantAsync(
+            Guid tenantId,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult<IReadOnlyList<AuditAssessmentRecord>>(
+                _assessments.Values
+                    .Where(assessment => assessment.TenantId == tenantId && assessment.Status != AuditAssessmentStatus.Archived)
+                    .ToList());
     }
 
     internal sealed class InMemoryAuditFrameworkRepository : IAuditFrameworkRepository

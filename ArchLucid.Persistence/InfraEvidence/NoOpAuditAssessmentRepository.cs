@@ -14,6 +14,11 @@ public sealed class NoOpAuditAssessmentRepository : IAuditAssessmentRepository
         CancellationToken cancellationToken = default)
         => Task.FromResult<AuditAssessmentRecord?>(null);
 
+    public Task<IReadOnlyList<AuditAssessmentRecord>> ListActiveByTenantAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<AuditAssessmentRecord>>([]);
+
     public Task UpdateStatusAsync(
         Guid tenantId,
         Guid assessmentId,
