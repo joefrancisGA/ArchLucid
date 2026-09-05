@@ -17,6 +17,8 @@ export ARCHLUCID_GIT_REPO_ROOT="${ARCHLUCID_GIT_REPO_ROOT:-$ROOT}"
 
 echo "Pre-corset guards: ARCHLUCID_GIT_DIFF_RANGE=${ARCHLUCID_GIT_DIFF_RANGE:-<unset>}"
 
+python3 scripts/ci/check_no_merge_conflict_markers.py
+
 python3 scripts/ci/assert_audit_const_count.py
 python3 scripts/ci/assert_openapi_mutations_in_audit_matrix.py
 python3 scripts/ci/check_audit_matrix.py

@@ -90,6 +90,7 @@ jobs:
 
       - name: Sponsor export + private-beta + release-gate + insight-density guards
         run: |
+          python3 scripts/ci/check_no_merge_conflict_markers.py
           python3 scripts/ci/check_sponsor_export_execution_mode_label.py
           python3 scripts/ci/check_live_api_private_beta_access_ci_wiring.py
           python3 scripts/ci/check_ui_jwt_bearer_build_on_push_corset.py
@@ -101,6 +102,7 @@ jobs:
 
       - name: Beta-readiness guard unit tests
         run: |
+          python3 -m unittest discover -s scripts/ci/tests -p "test_check_no_merge_conflict_markers.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_sponsor_export_execution_mode_label.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_live_api_private_beta_access_ci_wiring.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_ui_jwt_bearer_build_on_push_corset.py"
