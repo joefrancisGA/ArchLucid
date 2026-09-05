@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 147
-- **bugs-found:** 277
+- **hunts:** 148
+- **bugs-found:** 280
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — uppercase integration event types bypass manifest-hash gate
+- **last-bug:** 2026-09-05 — ARM redactor substring false positives and email domain double-dot acceptance
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2200,11 +2200,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `IntegrationEventTypes.MapToCanonical` / `AreEquivalent` — uppercase canonical event types not normalized — **hit 2026-09-05 (#875):** `MapToCanonical` only mapped legacy `com.archiforge.*` aliases case-insensitively; uppercase `COM.ARCHLUCID.*` passed through unchanged so `AreEquivalent` returned false and `IntegrationEventServiceBusApplicationProperties` skipped alert/promotion property extraction; fixed with case-insensitive canonical type lookup (`MapToCanonical_normalizes_uppercase_canonical_input`, `AreEquivalent_matches_uppercase_canonical_to_canonical`).
 - [x] (proven) `IntegrationEventOutboxManifestHashGuard` — mis-cased `eventType` bypasses manifest-hash gate — **hit 2026-09-05 (#875):** `RunScopedArchitectureEventTypes` used `StringComparer.Ordinal`; uppercase `COM.ARCHLUCID.AUTHORITY.RUN.COMPLETED` with hashless payload exited early after #801 PascalCase JSON fix; fixed by normalizing via `MapToCanonical` before membership check (`EnsureRunScopedPayloadIncludesManifestHashOrThrow_blocks_uppercase_event_type_without_manifest_hash`, `EnsureRunScopedPayloadIncludesManifestHashOrThrow_accepts_uppercase_event_type_with_manifest_hash`).
-- [ ] (candidate) `AzureExtractorSensitivePropertyRedactor.IsSensitiveKey` — `nonsecret` / `passwordless` substring false positives after delimiter strip; unbounded `Contains(fragment)` matches embedded secret/password fragments.
-- [ ] (candidate) `AuthEmailDomainNormalizer.TryNormalize` — `sub..example.com` accepted because `Split(RemoveEmptyEntries)` collapses empty DNS labels.
-- [ ] (candidate) `MarketingAttributionBucketMapper.MapCoarseMedium` — `paid-search` / `social_paid` delimiter variants map to `unknown` while `paidsearch` maps to `paid_direct`.
+- [x] (proven) `AzureExtractorSensitivePropertyRedactor.IsSensitiveKey` — `nonsecret` / `passwordless` substring false positives after delimiter strip; unbounded `Contains(fragment)` matches embedded secret/password fragments — **hit 2026-09-05 (#876):** `nonsecret` / `passwordless` ARM property keys redacted after delimiter strip; benign metadata lost from extractor hashes; fixed with negation-prefix and `passwordless` suffix guards (`IsSensitiveKey_detects_secret_like_names` with `nonsecret` / `passwordless`).
+- [x] (proven) `AuthEmailDomainNormalizer.TryNormalize` — `sub..example.com` accepted because `Split(RemoveEmptyEntries)` collapses empty DNS labels — **hit 2026-09-05 (#876):** double-dot domains normalized to valid labels and passed sign-in routing; fixed by rejecting `..` and empty split labels (`TryNormalize_rejects_invalid_domains` with `sub..example.com`).
+- [x] (proven) `MarketingAttributionBucketMapper.MapCoarseMedium` — `paid-search` / `social_paid` delimiter variants map to `unknown` while `paidsearch` maps to `paid_direct` — **hit 2026-09-05 (#876):** hyphen/underscore UTM mediums bucketed as `unknown` after #875 seed; fixed with delimiter-normalized compact token matching (`MapCoarseMedium_buckets_low_cardinality` with `paid-search` / `social_paid`).
 
-2026-09-05 seed hunt #875: reseeded integration event casing and manifest-hash guard; proved uppercase canonical normalization and mis-cased outbox gate bypass; reseeded redactor, email domain, and attribution delimiter candidates.
+2026-09-05 thorough hunt #876: proved redactor substring false positives, double-dot email domain acceptance, and UTM medium delimiter parity gap from #875 seed candidates.
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
 - [x] (valid-no-repro) Tenant scope model treats empty workspace as a wildcard — `ActivityScopeTags` rejects `Guid.Empty` workspace ids; no wildcard semantics in Core tenancy models.

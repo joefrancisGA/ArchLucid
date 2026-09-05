@@ -12,6 +12,8 @@ public sealed class AzureExtractorSensitivePropertyRedactorTests
     [InlineData("connectionString", true)]
     [InlineData("primaryKey", true)]
     [InlineData("location", false)]
+    [InlineData("nonsecret", false)]
+    [InlineData("passwordless", false)]
   public void IsSensitiveKey_detects_secret_like_names(string key, bool expected)
     {
         AzureExtractorSensitivePropertyRedactor.IsSensitiveKey(key).Should().Be(expected);

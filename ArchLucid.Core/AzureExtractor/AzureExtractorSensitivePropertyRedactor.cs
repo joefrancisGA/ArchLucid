@@ -28,11 +28,81 @@ public static class AzureExtractorSensitivePropertyRedactor
 
         foreach (string fragment in SensitiveKeyFragments)
         {
-            if (normalized.Contains(fragment, StringComparison.Ordinal))
+            if (ContainsSensitiveFragment(normalized, fragment))
                 return true;
         }
 
         return false;
+    }
+
+    private static bool ContainsSensitiveFragment(string normalized, string fragment)
+    {
+        int index = 0;
+
+        while (index < normalized.Length)
+        {
+            index = normalized.IndexOf(fragment, index, StringComparison.Ordinal);
+
+            if (index < 0)
+                return false;
+
+            if (!IsNegatedSensitiveFragment(normalized, index, fragment))
+                return true;
+
+            index++;
+        }
+
+        return false;
+    }
+
+    private static bool IsNegatedSensitiveFragment(string normalized, int fragmentIndex, string fragment)
+    {
+        if (IsNonPrefixedNegation(normalized, fragmentIndex))
+            return true;
+
+        if (IsNoPrefixedNegation(normalized, fragmentIndex))
+            return true;
+
+        if (IsUnPrefixedNegation(normalized, fragmentIndex))
+            return true;
+
+        if (string.Equals(fragment, "password", StringComparison.Ordinal)
+            && fragmentIndex == 0
+            && normalized.Length > fragment.Length
+            && normalized.AsSpan(fragment.Length).Equals("less", StringComparison.Ordinal))
+            return true;
+
+        return false;
+    }
+
+    private static bool IsNonPrefixedNegation(string normalized, int fragmentIndex)
+    {
+        ReadOnlySpan<char> before = normalized.AsSpan(0, fragmentIndex);
+
+        if (before.Length < 3)
+            return false;
+
+        return before.EndsWith("non", StringComparison.Ordinal);
+    }
+
+    private static bool IsNoPrefixedNegation(string normalized, int fragmentIndex)
+    {
+        ReadOnlySpan<char> before = normalized.AsSpan(0, fragmentIndex);
+
+        if (before.Length < 2)
+            return false;
+
+        return before.EndsWith("no", StringComparison.Ordinal);
+    }
+
+    private static bool IsUnPrefixedNegation(string normalized, int fragmentIndex)
+    {
+        ReadOnlySpan<char> before = normalized.AsSpan(0, fragmentIndex);
+
+        if (before.Length < 2)
+            return false;
+
+        return before.EndsWith("un", StringComparison.Ordinal);
     }
 
     public static string RedactValue(string? value) =>

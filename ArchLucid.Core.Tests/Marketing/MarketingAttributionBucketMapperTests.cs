@@ -11,6 +11,8 @@ public sealed class MarketingAttributionBucketMapperTests
     [Theory]
     [InlineData("cpc", "paid_direct")]
     [InlineData("ppc", "paid_direct")]
+    [InlineData("paid-search", "paid_direct")]
+    [InlineData("social_paid", "paid_direct")]
     [InlineData("email", "referral")]
     [InlineData("organic", "organic")]
     [InlineData(null, "unknown")]
