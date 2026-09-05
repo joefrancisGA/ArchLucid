@@ -48,18 +48,52 @@ describe("ReRunReviewButton", () => {
     fireEvent.click(screen.getByTestId("re-run-review-button"));
 
     await waitFor(() => {
-      expect(routerReplace).toHaveBeenCalledWith("/architecture/reviews/run-abc?reRunConfirmOpen=1", {
-        scroll: false,
-      });
+      expect(routerReplace).toHaveBeenCalledWith(
+        "/architecture/reviews/run-abc?reRunConfirmOpen=1&reRunConfirmSource=re-run-review-button",
+        {
+          scroll: false,
+        },
+      );
     });
   });
 
-  it("opens the confirm dialog when the URL already has reRunConfirmOpen=1", () => {
+  it("opens the confirm dialog when the URL already has reRunConfirmOpen=1 for this button", () => {
     mockSearchParams.set("reRunConfirmOpen", "1");
+    mockSearchParams.set("reRunConfirmSource", "re-run-review-button");
 
     render(<ReRunReviewButton runId="run-abc" />);
 
     expect(screen.getByTestId("re-run-review-confirm-dialog")).toBeInTheDocument();
+  });
+
+  it("does not open a duplicate confirm dialog for another button source", () => {
+    mockSearchParams.set("reRunConfirmOpen", "1");
+    mockSearchParams.set("reRunConfirmSource", "review-package-re-run-review");
+
+    render(<ReRunReviewButton runId="run-abc" />);
+
+    expect(screen.queryByTestId("re-run-review-confirm-dialog")).not.toBeInTheDocument();
+  });
+
+  it("does not fight URL state across multiple mounted buttons", async () => {
+    render(
+      <>
+        <ReRunReviewButton runId="run-abc" data-testid="review-package-re-run-review" />
+        <ReRunReviewButton runId="run-abc" data-testid="run-progress-re-run-review" />
+      </>,
+    );
+
+    fireEvent.click(screen.getByTestId("review-package-re-run-review"));
+
+    await waitFor(() => {
+      expect(routerReplace).toHaveBeenCalledWith(
+        "/architecture/reviews/run-abc?reRunConfirmOpen=1&reRunConfirmSource=review-package-re-run-review",
+        { scroll: false },
+      );
+    });
+
+    expect(screen.getByTestId("re-run-review-confirm-dialog")).toBeInTheDocument();
+    expect(routerReplace).toHaveBeenCalledTimes(1);
   });
 
   it("requires confirmation before spending AI budget", async () => {
