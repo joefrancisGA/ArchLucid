@@ -27,4 +27,13 @@ public sealed class AssignPolicyPackRequest
         get;
         set;
     }
+
+    /// <summary>
+    ///     When true, marks the assignment as organization-required (cannot be disabled or archived by workspace admins).
+    /// </summary>
+    public bool IsOrganizationRequired
+    {
+        get;
+        set;
+    }
 }

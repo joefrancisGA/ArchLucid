@@ -8,6 +8,21 @@ const EXCLUDED_SELECTION_STATES = new Set([
   "Retired",
 ]);
 
+export type CommittedCoverageExclusionLine = {
+  readonly packLabel: string;
+  readonly reason: string;
+};
+
+function isExcludedCoverageRow(selectionState: string): boolean {
+  const normalized = selectionState.trim();
+
+  if (normalized.length === 0) {
+    return false;
+  }
+
+  return EXCLUDED_SELECTION_STATES.has(normalized);
+}
+
 function coverageTypeToGroupKey(coverageType: string): CoveragePreviewGroupKey | null {
   switch (coverageType) {
     case "ProviderNeutralBaseline":
@@ -98,6 +113,60 @@ export function buildCommittedCoverageScopeLine(
   }
 
   return `Assurance scope at commit: ${parts.join(", ")}.`;
+}
+
+/** Buyer-facing lines for packs explicitly excluded before execute. */
+export function buildCommittedCoverageExclusionLines(
+  snapshot: CompareEffectiveGovernanceAtCommitSnapshot | null | undefined,
+  resolvePackLabel: (policyPackId: string, policyPackVersion: string) => string = (policyPackId, policyPackVersion) => {
+    const version = policyPackVersion.trim();
+
+    return version.length > 0 ? `${policyPackId} v${version}` : policyPackId;
+  },
+): readonly CommittedCoverageExclusionLine[] {
+  if (snapshot === null || snapshot === undefined) {
+    return [];
+  }
+
+  const lines: CommittedCoverageExclusionLine[] = [];
+
+  for (const row of snapshot.coverageAssignments ?? []) {
+    if (!isExcludedCoverageRow(row.selectionState)) {
+      continue;
+    }
+
+    const reason = row.exclusionReason?.trim();
+
+    if (reason === undefined || reason.length === 0) {
+      continue;
+    }
+
+    lines.push({
+      packLabel: resolvePackLabel(row.policyPackId, row.policyPackVersion),
+      reason,
+    });
+  }
+
+  return lines;
+}
+
+export function buildCommittedCoverageExclusionSummary(
+  snapshot: CompareEffectiveGovernanceAtCommitSnapshot | null | undefined,
+  resolvePackLabel?: (policyPackId: string, policyPackVersion: string) => string,
+): string | null {
+  const lines = buildCommittedCoverageExclusionLines(snapshot, resolvePackLabel);
+
+  if (lines.length === 0) {
+    return null;
+  }
+
+  const formatted = lines.map((line) => `${line.packLabel} (${line.reason})`).join("; ");
+
+  if (lines.length === 1) {
+    return `One standard was excluded from assurance scope for this review: ${formatted}.`;
+  }
+
+  return `${lines.length} standards were excluded from assurance scope for this review: ${formatted}.`;
 }
 
 export function buildCommittedPolicyPackEvaluationHeadline(input: {

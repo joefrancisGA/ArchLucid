@@ -40,11 +40,18 @@ export type CoveragePreviewResponse = {
   assignments: CoveragePreviewAssignment[];
 };
 
+export type CoveragePreviewUserOverride = {
+  policyPackId: string;
+  excluded: boolean;
+  exclusionReason?: string | null;
+};
+
 export type CoveragePreviewRequest = {
   cloudProvider: string;
   focusedPilotModeEnabled: boolean;
   securityIntakeAnswer?: string;
   descriptionText?: string;
+  userOverrides?: readonly CoveragePreviewUserOverride[];
 };
 
 /** POST /v1/governance/coverage/preview — explainable assurance coverage before run creation. */

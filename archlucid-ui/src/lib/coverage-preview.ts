@@ -56,20 +56,41 @@ export function buildCoveragePreviewRequest(input: {
   focusedPilotModeEnabled: boolean;
   securityIntakeAnswer?: string;
   descriptionText?: string;
+  userOverrides?: ReadonlyArray<{
+    policyPackId: string;
+    excluded: boolean;
+    exclusionReason: string;
+  }>;
 }): {
   cloudProvider: string;
   focusedPilotModeEnabled: boolean;
   securityIntakeAnswer?: string;
   descriptionText?: string;
+  userOverrides?: Array<{
+    policyPackId: string;
+    excluded: boolean;
+    exclusionReason: string;
+  }>;
 } {
   const securityIntakeAnswer = input.securityIntakeAnswer?.trim();
   const descriptionText = input.descriptionText?.trim();
+  const userOverrides =
+    input.userOverrides !== undefined && input.userOverrides.length > 0
+      ? input.userOverrides
+          .filter((override) => override.excluded)
+          .map((override) => ({
+            policyPackId: override.policyPackId,
+            excluded: true,
+            exclusionReason: override.exclusionReason.trim(),
+          }))
+      : undefined;
 
   return {
     cloudProvider: input.cloudProvider,
     focusedPilotModeEnabled: input.focusedPilotModeEnabled,
     ...(securityIntakeAnswer ? { securityIntakeAnswer } : {}),
     ...(descriptionText ? { descriptionText } : {}),
+    ...(userOverrides !== undefined && userOverrides.length > 0 ? { userOverrides } : {}),
   };
 }
 

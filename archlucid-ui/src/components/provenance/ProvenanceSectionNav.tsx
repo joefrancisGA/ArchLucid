@@ -1,10 +1,15 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState, type SetStateAction } from "react";
 
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  parseProvenanceSectionNavOpenFromSearch,
+  provenanceSectionNavHrefFromSearch,
+} from "@/lib/provenance/provenance-section-nav-url";
 
 export type ProvenanceSection = {
   id: string;
@@ -101,11 +106,36 @@ function ProvenanceSectionLinks(props: {
 
 /** Sticky in-page navigation with scroll-spy highlighting for the provenance page. */
 export function ProvenanceSectionNav(props: ProvenanceSectionNavProps): React.JSX.Element | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const provNavOpenParam = searchParams.get("provNavOpen");
   const sections = props.sections;
   const sectionIds = useMemo(() => sections.map((section) => section.id), [sections]);
   const activeId = useActiveProvenanceSection(sectionIds);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileOpen, setMobileOpenState] = useState(() => parseProvenanceSectionNavOpenFromSearch(provNavOpenParam));
   const buyerStickyChrome = isBuyerPolishedOperatorShellEnv();
+
+  const syncProvNavOpenToUrl = useCallback(
+    (navOpen: boolean) => {
+      router.replace(provenanceSectionNavHrefFromSearch(searchParams.toString(), navOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setMobileOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setMobileOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncProvNavOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncProvNavOpenToUrl],
+  );
 
   if (sections.length < 3) {
     return null;

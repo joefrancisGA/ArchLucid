@@ -28,6 +28,23 @@ describe("coverage-preview helpers", () => {
     });
   });
 
+  it("buildCoveragePreviewRequest includes excluded user overrides", () => {
+    expect(
+      buildCoveragePreviewRequest({
+        cloudProvider: "Azure",
+        focusedPilotModeEnabled: true,
+        userOverrides: [
+          { policyPackId: "1", excluded: true, exclusionReason: " Pilot " },
+          { policyPackId: "2", excluded: false, exclusionReason: "" },
+        ],
+      }),
+    ).toEqual({
+      cloudProvider: "Azure",
+      focusedPilotModeEnabled: true,
+      userOverrides: [{ policyPackId: "1", excluded: true, exclusionReason: "Pilot" }],
+    });
+  });
+
   it("groupCoveragePreviewAssignments buckets by coverage type", () => {
     const assignments: CoveragePreviewAssignment[] = [
       {

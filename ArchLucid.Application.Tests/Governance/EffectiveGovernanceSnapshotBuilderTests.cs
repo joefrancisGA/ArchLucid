@@ -1,4 +1,5 @@
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance.DefaultPolicyPacks;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance.Coverage;
 using ArchLucid.Contracts.Governance.PolicyPacks;
@@ -200,5 +201,93 @@ public sealed class EffectiveGovernanceSnapshotBuilderTests
         result.CoverageAssignments.Should().Contain(row =>
             row.PolicyPackId == orgPackId
             && row.ExclusionReason == null);
+    }
+
+    [Fact]
+    public async Task ResolveAsync_applies_user_acknowledged_exclusions_before_execute()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid overlayPackId = Guid.NewGuid();
+
+        ScopeContext scope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId
+        };
+
+        PolicyPackAssignment overlayAssignment = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            PolicyPackId = overlayPackId,
+            PolicyPackVersion = "1.0.0",
+            ScopeLevel = GovernanceScopeLevel.Project,
+            IsEnabled = true
+        };
+
+        Mock<IEffectiveGovernanceResolver> resolver = new();
+        resolver
+            .Setup(r => r.ResolveAsync(tenantId, workspaceId, projectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new EffectiveGovernanceResolutionResult
+            {
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId
+            });
+
+        Mock<IPolicyPackAssignmentRepository> assignments = new();
+        assignments
+            .Setup(r => r.ListByScopeAsync(tenantId, workspaceId, projectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([overlayAssignment]);
+
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(r => r.GetByIdsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new PolicyPack
+                {
+                    PolicyPackId = overlayPackId,
+                    Name = DefaultPolicyPackCatalog.AzureWellArchitectedDisplayName,
+                    TenantId = tenantId
+                }
+            ]);
+
+        ArchitectureRequest request = new()
+        {
+            CloudProvider = CloudProvider.Azure,
+            PolicyReferences = [FocusedPilotModePolicyPacks.ReferenceToken]
+        };
+
+        Dictionary<Guid, RunCoverageAcknowledgementEntry> acknowledgements = new()
+        {
+            [overlayPackId] = new RunCoverageAcknowledgementEntry
+            {
+                PolicyPackId = overlayPackId,
+                Excluded = true,
+                ExclusionReason = "Pilot excludes cloud overlays"
+            }
+        };
+
+        EffectiveGovernanceSnapshotBuilder sut = new();
+        EffectiveGovernanceSnapshotResolution result = await sut.ResolveAsync(
+            scope,
+            request,
+            resolver.Object,
+            assignments.Object,
+            packs.Object,
+            preloadedScopePolicyPackAssignments: null,
+            CancellationToken.None,
+            runCoverageAcknowledgements: acknowledgements);
+
+        result.PackAssignments.Should().BeEmpty();
+        result.CoverageAssignments.Should().ContainSingle(row =>
+            row.PolicyPackId == overlayPackId
+            && row.SelectionState == CoverageSelectionState.RecommendedButExcluded.ToString()
+            && row.ExclusionReason == "Pilot excludes cloud overlays");
     }
 }

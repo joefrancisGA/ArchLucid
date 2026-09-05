@@ -2,17 +2,17 @@ import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
-import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/findings/finding-inspect-graph-evidence";
-import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator/operator-static-demo";
-import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
-import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import {
+  SHOWCASE_PHI_FINDING_GRAPH_NODE_ID,
   SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
+import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator/operator-static-demo";
+import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 
 export type PrimaryReviewExploreLink = {
   readonly href: string;
