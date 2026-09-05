@@ -49,6 +49,7 @@ public sealed partial class PolicyPacksController
                 Version = request.Version,
                 ScopeLevel = request.ScopeLevel,
                 IsPinned = request.IsPinned,
+                IsOrganizationRequired = request.IsOrganizationRequired,
             },
             ct).ConfigureAwait(false);
 

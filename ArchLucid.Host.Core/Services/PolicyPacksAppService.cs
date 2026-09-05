@@ -117,6 +117,7 @@ public sealed class PolicyPacksAppService(
         string version,
         string scopeLevel,
         bool isPinned,
+        bool isOrganizationRequired,
         CancellationToken ct)
     {
         PolicyPackVersion? packVersion = await versionRepository
@@ -126,7 +127,17 @@ public sealed class PolicyPacksAppService(
             return null;
 
         PolicyPackAssignment assignment = await managementService
-                .AssignAsync(tenantId, workspaceId, projectId, policyPackId, version, scopeLevel, isPinned, isEnabled: true, ct)
+                .AssignAsync(
+                    tenantId,
+                    workspaceId,
+                    projectId,
+                    policyPackId,
+                    version,
+                    scopeLevel,
+                    isPinned,
+                    isOrganizationRequired,
+                    isEnabled: true,
+                    ct)
             ;
 
         await auditService.LogAsync(
@@ -141,6 +152,7 @@ public sealed class PolicyPacksAppService(
                         version = assignment.PolicyPackVersion,
                         assignment.ScopeLevel,
                         assignment.IsPinned,
+                        assignment.IsOrganizationRequired,
                     }),
             },
             ct);

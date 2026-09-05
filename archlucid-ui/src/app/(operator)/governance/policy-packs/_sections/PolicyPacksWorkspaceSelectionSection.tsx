@@ -12,11 +12,21 @@ export type PolicyPacksWorkspaceSelectionSectionProps = {
   readonly items: PolicyPackWorkspaceSelectionItem[];
   readonly loading: boolean;
   readonly togglingAssignmentId: string | null;
+  readonly togglingOrganizationRequiredAssignmentId: string | null;
   readonly onToggle: (assignmentId: string, nextEnabled: boolean) => void;
+  readonly onToggleOrganizationRequired: (assignmentId: string, nextOrganizationRequired: boolean) => void;
 };
 
 export function PolicyPacksWorkspaceSelectionSection(props: PolicyPacksWorkspaceSelectionSectionProps) {
-  const { canMutatePacks, items, loading, togglingAssignmentId, onToggle } = props;
+  const {
+    canMutatePacks,
+    items,
+    loading,
+    togglingAssignmentId,
+    togglingOrganizationRequiredAssignmentId,
+    onToggle,
+    onToggleOrganizationRequired,
+  } = props;
 
   return (
     <section className="mb-8" aria-labelledby="policy-packs-workspace-selection-heading">
@@ -25,7 +35,7 @@ export function PolicyPacksWorkspaceSelectionSection(props: PolicyPacksWorkspace
       </h3>
       <p className={cn("mb-3 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         All bundled packs start selected for this workspace. Turn packs off when you do not want their rules applied to
-        reviews here.
+        reviews here. Lock a pack as organization-required when every review in this scope must include it.
       </p>
 
       {loading && items.length === 0 ? (
@@ -41,7 +51,9 @@ export function PolicyPacksWorkspaceSelectionSection(props: PolicyPacksWorkspace
       <ul className="divide-y rounded-md border" data-testid="policy-packs-workspace-selection-list">
         {items.map((item) => {
           const inputId = `policy-pack-selection-${item.assignmentId}`;
+          const orgRequiredInputId = `policy-pack-org-required-${item.assignmentId}`;
           const busy = togglingAssignmentId === item.assignmentId;
+          const orgRequiredBusy = togglingOrganizationRequiredAssignmentId === item.assignmentId;
 
           return (
             <li key={item.assignmentId} className="px-3 py-3">
@@ -51,7 +63,7 @@ export function PolicyPacksWorkspaceSelectionSection(props: PolicyPacksWorkspace
                   type="checkbox"
                   className="mt-1 h-4 w-4"
                   checked={item.isEnabled}
-                  disabled={!canMutatePacks || busy || loading}
+                  disabled={!canMutatePacks || busy || loading || item.isOrganizationRequired}
                   onChange={(event) => {
                     onToggle(item.assignmentId, event.target.checked);
                   }}
@@ -67,12 +79,31 @@ export function PolicyPacksWorkspaceSelectionSection(props: PolicyPacksWorkspace
                     ) : (
                       <StatusTag kind="neutral" label="Advanced / domain" />
                     )}
+                    {item.isOrganizationRequired ? (
+                      <StatusTag kind="ready" label="Organization required" />
+                    ) : null}
                     <StatusTag kind="neutral" label={policyPackTypeBuyerDisplayLabel(item.packType)} />
                     <StatusTag kind="neutral" label={`v${item.currentVersion}`} />
                   </div>
                   {item.description ? (
                     <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{item.description}</p>
                   ) : null}
+                  <div className="mt-2 flex items-center gap-2">
+                    <input
+                      id={orgRequiredInputId}
+                      type="checkbox"
+                      className="h-4 w-4"
+                      checked={item.isOrganizationRequired}
+                      disabled={!canMutatePacks || busy || orgRequiredBusy || loading}
+                      onChange={(event) => {
+                        onToggleOrganizationRequired(item.assignmentId, event.target.checked);
+                      }}
+                      data-testid={`policy-pack-org-required-${item.policyPackId}`}
+                    />
+                    <label htmlFor={orgRequiredInputId} className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                      Require for all reviews in this scope
+                    </label>
+                  </div>
                 </div>
               </div>
             </li>

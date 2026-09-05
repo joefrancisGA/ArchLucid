@@ -85,6 +85,7 @@ public sealed class DefaultPolicyPackSeeder(
             "1.0.0",
             GovernanceScopeLevel.Project,
             isPinned: false,
+            isOrganizationRequired: false,
             isEnabled: true,
             ct);
 
