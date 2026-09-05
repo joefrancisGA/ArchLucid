@@ -2604,6 +2604,8 @@ describe("wave37 filter url helpers", () => {
     const {
       parseGlobalSearchBarOpenFromSearch,
       globalSearchBarOverlayHrefFromSearch,
+      isGlobalSearchBarOverlayHrefCurrent,
+      currentPathnameWithSearch,
     } = await import("@/lib/operator/global-search-bar-overlay-url");
     const {
       parseMobileNavDrawerOpenFromSearch,
@@ -2626,6 +2628,9 @@ describe("wave37 filter url helpers", () => {
     );
     expect(parseGlobalSearchBarOpenFromSearch("true")).toBe(true);
     expect(globalSearchBarOverlayHrefFromSearch("help=1", true, "/")).toBe("/?help=1&globalSearchOpen=1");
+    expect(currentPathnameWithSearch("/", "help=1")).toBe("/?help=1");
+    expect(isGlobalSearchBarOverlayHrefCurrent("help=1&globalSearchOpen=1", true, "/")).toBe(true);
+    expect(isGlobalSearchBarOverlayHrefCurrent("help=1", true, "/")).toBe(false);
     expect(parseMobileNavDrawerOpenFromSearch("1")).toBe(true);
     expect(mobileNavDrawerHrefFromSearch("reviewTab=overview", true, "/architecture/reviews/r1")).toBe(
       "/architecture/reviews/r1?reviewTab=overview&mobileNavOpen=1",

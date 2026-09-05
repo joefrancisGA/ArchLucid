@@ -27,3 +27,18 @@ export function globalSearchBarOverlayHrefFromSearch(
 
   return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
 }
+
+export function currentPathnameWithSearch(pathname: string, currentSearch: string): string {
+  return currentSearch.length === 0 ? pathname : `${pathname}?${currentSearch}`;
+}
+
+export function isGlobalSearchBarOverlayHrefCurrent(
+  currentSearch: string,
+  open: boolean,
+  pathname: string,
+): boolean {
+  return (
+    globalSearchBarOverlayHrefFromSearch(currentSearch, open, pathname) ===
+    currentPathnameWithSearch(pathname, currentSearch)
+  );
+}
