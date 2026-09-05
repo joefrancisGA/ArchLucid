@@ -36,4 +36,8 @@ public interface IRemediationPatternRepository
         Guid tenantId,
         Guid patternId,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<RemediationPatternApprovedVersionRecord>> ListApprovedVersionsForTenantAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default);
 }

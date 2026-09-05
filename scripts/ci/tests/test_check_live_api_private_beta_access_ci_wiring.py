@@ -7,6 +7,12 @@ import sys
 import unittest
 from pathlib import Path
 
+_CI_ROOT = Path(__file__).resolve().parents[1]
+if str(_CI_ROOT) not in sys.path:
+    sys.path.insert(0, str(_CI_ROOT))
+
+import check_live_api_private_beta_access_ci_wiring as sut
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
@@ -28,6 +34,28 @@ class TestCheckLiveApiPrivateBetaAccessCiWiring(unittest.TestCase):
             0,
             msg=result.stdout + result.stderr,
         )
+
+    def test_playwright_timeout_wiring_rejects_legacy_run_cycle_helper(self) -> None:
+        errors: list[str] = []
+
+        sut._require_private_beta_playwright_timeout_wiring(
+            "test.setTimeout(liveE2eArchitectureRunCyclePlaywrightTimeoutMs());",
+            f"export function {sut._PRIVATE_BETA_TIMEOUT_FN}() {{ if (process.env.CI) {{ return 2700000; }} }}",
+            errors,
+        )
+
+        self.assertTrue(any("must not use" in error for error in errors))
+
+    def test_playwright_timeout_wiring_rejects_low_ci_budget(self) -> None:
+        errors: list[str] = []
+
+        sut._require_private_beta_playwright_timeout_wiring(
+            f"test.setTimeout({sut._PRIVATE_BETA_TIMEOUT_FN}());",
+            f"export function {sut._PRIVATE_BETA_TIMEOUT_FN}() {{ if (process.env.CI) {{ return 600000; }} }}",
+            errors,
+        )
+
+        self.assertTrue(any("below" in error for error in errors))
 
 
 if __name__ == "__main__":

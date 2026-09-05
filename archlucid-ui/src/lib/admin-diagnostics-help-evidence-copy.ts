@@ -4,6 +4,7 @@ import {
   ADMIN_DIAGNOSTICS_HELP_BUYER_RELATED_TOPICS,
 } from "@/lib/admin-diagnostics-help-related-topics";
 import type { EvidenceAdminSourceLink } from "@/lib/evidence-surface-copy";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 export { ADMIN_DIAGNOSTICS_HELP_PAGE_TITLE };
@@ -33,11 +34,27 @@ export const ADMIN_DIAGNOSTICS_HELP_PAGE_ORIENTATION_TITLE = "What this page is"
 export const ADMIN_DIAGNOSTICS_HELP_PAGE_ORIENTATION =
   "This guide explains where to check platform health and workspace readiness in ArchLucid. It is orientation help — not a live health report or an audit export from your tenant. When you need current probe results or support triage, open Troubleshooting or Report a problem.";
 
+export const ADMIN_DIAGNOSTICS_HELP_CLAIM_DISCIPLINE =
+  "This guide explains where to check platform health and workspace readiness — orientation help only, not a live health report or audit export from your tenant.";
+
+export const ADMIN_DIAGNOSTICS_HELP_FOLLOW_UPS_TITLE = "Where to go next" as const;
+
+export const ADMIN_DIAGNOSTICS_HELP_SOURCES_INTRO =
+  "Use these follow-ups when diagnostics vocabulary turns into live probes, system health checks, or support triage.";
+
 export const ADMIN_DIAGNOSTICS_HELP_PRIMARY_ACTION = {
   label: "System health",
   href: "/administration/system-health",
   adminOnly: true,
+  testId: "help-admin-diagnostics-primary-action",
 } as const;
+
+/** Operator Sources — no self-href to `/help/admin-diagnostics`. */
+export const ADMIN_DIAGNOSTICS_HELP_SOURCES: readonly EvidenceAdminSourceLink[] = [
+  { label: ADMIN_DIAGNOSTICS_HELP_PRIMARY_ACTION.label, href: ADMIN_DIAGNOSTICS_HELP_PRIMARY_ACTION.href },
+  ...ADMIN_DIAGNOSTICS_HELP_BUYER_RELATED_TOPICS,
+  { label: "Integration readiness help", href: inAppHelpHref("integration-readiness") },
+] as const;
 
 export type AdminDiagnosticsHelpSourceLink = EvidenceAdminSourceLink;
 

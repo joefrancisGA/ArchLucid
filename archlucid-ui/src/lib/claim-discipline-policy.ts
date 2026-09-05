@@ -10,6 +10,7 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "accessibility",
   "account-security-settings",
   "admin-configuration",
+  "admin-diagnostics-help",
   "admin-health",
   "admin-itsm-connectors",
   "admin-tenants",
