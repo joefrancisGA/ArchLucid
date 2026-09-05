@@ -3418,11 +3418,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 244
-- **bugs-found:** 479
+- **hunts:** 245
+- **bugs-found:** 480
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — merge-conflict resolve idempotent retry success
+- **last-bug:** 2026-09-05 — risk-exception revoke idempotent retry success
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4577,6 +4577,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.ResolveFindingMergeConflict` / `FindingMergeConflictResolutionService.TryResolveAsync` — `operator-documented-safe-retry` sibling: already-resolved retry returns HTTP 404 because conflict finding row was removed from snapshot on first success (#847 delete/restore parity) — **hit 2026-09-05 (#850):** retain resolved conflict tombstone (`FindingMergeConflictResolved`) and return `AlreadyResolved` without duplicate `FindingMergeConflictResolved` audit; regressions in `TryResolveAsync_returns_already_resolved_without_mutating_snapshot_on_operator_retry` and `TryResolveFindingMergeConflictAsync_returns_true_without_duplicate_audit_when_already_resolved_retry`.
 
 2026-09-05 thorough hunt #850 (hit): proved merge-conflict resolve idempotent-success gap seeded in #849.
+
+- [x] (proven) `GovernanceStickinessController.RevokeRiskException` / `RiskExceptionService.RevokeAsync` — `operator-documented-safe-retry` retry on already-revoked waiver returned HTTP 409 (`ConflictException` from #570 lifecycle guard) instead of idempotent HTTP 204 without duplicate `RiskExceptionRevoked` audit (#847 delete/restore parity) — **hit 2026-09-05 (#851):** return early when status is `Revoked`; regressions in `RevokeAsync_completes_without_duplicate_audit_when_already_revoked_retry` and `RevokeRiskException_returns_no_content_without_duplicate_audit_when_already_revoked_retry`.
+
+- [ ] (candidate) `GovernanceController.Approve` / `GovernanceWorkflowReviewStage.ApproveAsync` — `operator-documented-safe-retry` sibling shares `ReviewAsync` idempotent retry path fixed in #849 for reject but lacks dedicated approve regression coverage.
+- [ ] (candidate) `GovernanceController.BatchReviewApprovalRequests` / `GovernanceApprovalRequestsFacade.BatchReviewAsync` — per-item retry on already-finalized approval may surface `Conflict` in batch results instead of idempotent success when `ReviewComment` casing/whitespace differs from stored value.
+
+2026-09-05 seed hunt #851 (hit): reseeded post-#850 idempotent-retry exhaustion; proved revoke idempotent-success gap; seeded approve regression coverage and batch-review comment-matching candidates.
 
 2026-09-05 seed hunt #845 (hit): reseeded post-#844 idempotent-retry exhaustion; proved core-pilot checklist and tenant baseline duplicate-audit gaps; seeded restore idempotent-success and governance-resolution read-audit retry candidates.
 
