@@ -25,6 +25,11 @@ namespace Microsoft.AspNetCore.Mvc
     {
     }
 
+    public sealed class HttpPostAttribute : System.Attribute
+    {
+        public HttpPostAttribute(string? template = null) { }
+    }
+
     public sealed class NonActionAttribute : System.Attribute
     {
     }
@@ -62,7 +67,7 @@ namespace N
 """;
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
-            .WithSpan(37, 30, 37, 33)
+            .WithSpan(42, 30, 42, 33)
             .WithArguments("BadController.Get()");
 
         CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier> test = new()
@@ -164,7 +169,7 @@ namespace N
 """;
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
-            .WithSpan(42, 30, 42, 31)
+            .WithSpan(47, 30, 47, 31)
             .WithArguments("MixedController.B()");
 
         CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier> test = new()
@@ -295,7 +300,7 @@ namespace N
 """;
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
-            .WithSpan(34, 25, 34, 40)
+            .WithSpan(39, 25, 39, 40)
             .WithArguments("EmptyController");
 
         CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier> test = new()
@@ -430,6 +435,46 @@ namespace N
     public sealed class DerivedAuthorizedHelperController : AuthorizedHelperBaseController
     {
         public override IActionResult Helper() => Ok();
+    }
+}
+""";
+
+        CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier> test = new()
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        };
+
+        await test.RunAsync();
+    }
+
+    [Fact]
+    public async Task Does_not_report_when_default_interface_implementation_carries_Authorize()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public interface IAuthorizedDefaultApi
+    {
+        [Authorize]
+        [HttpPost]
+        Task<IActionResult> SubmitAsync()
+        {
+            throw new System.NotImplementedException();
+        }
+    }
+
+    public sealed class DefaultImplController : ControllerBase, IAuthorizedDefaultApi
+    {
+        [HttpPost("submit")]
+        public Task<IActionResult> SubmitAsync() => Task.FromResult<IActionResult>(Ok());
     }
 }
 """;
