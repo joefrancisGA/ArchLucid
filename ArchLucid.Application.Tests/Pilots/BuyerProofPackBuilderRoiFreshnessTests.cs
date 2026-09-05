@@ -5,6 +5,7 @@ using System.Text.Json;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Roi;
+using ArchLucid.Application.Tests.Exports;
 using ArchLucid.Application.Tests.Roi;
 using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Architecture;
@@ -13,11 +14,13 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Decisioning.Services;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Pilots;
 using ArchLucid.Persistence.Tenancy;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Value;
 
 using FluentAssertions;
@@ -62,7 +65,19 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
             .Setup(b => b.BuildMarkdownAsync(RunId.ToString(), It.IsAny<CancellationToken>()))
             .ReturnsAsync("# Sponsor review packet");
 
-        FirstValueReportBuilder markdownBuilder = CreateMarkdownBuilder(query.Object, deltas.Object);
+        RoiCostEvidenceCollectionResolver collectionResolver =
+            CreateResolverWithStaleRunLinkedTimestamp(RunId, staleCollectionUtc);
+
+        ManifestHashService manifestHashService = new();
+        IAuthorityQueryService authorityQuery =
+            SealedExportReceiptTestSupport.CreateAuthorityQueryService(RunId, manifestHashService);
+
+        FirstValueReportBuilder markdownBuilder = CreateMarkdownBuilder(
+            query.Object,
+            deltas.Object,
+            collectionResolver,
+            authorityQuery,
+            manifestHashService);
         FirstValueReportPdfBuilder pdfBuilder = new(markdownBuilder);
 
         (ValueReportBuilder valueReport, Mock<IScopeContextProvider> scopeProvider) =
@@ -81,9 +96,6 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
                     UpdatedUtc = DateTimeOffset.UtcNow,
                 });
 
-        RoiCostEvidenceCollectionResolver collectionResolver =
-            CreateResolverWithStaleRunLinkedTimestamp(RunId, staleCollectionUtc);
-
         BuyerProofPackBuilder sut = new(
             markdownBuilder,
             pdfBuilder,
@@ -94,8 +106,8 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
             scopeProvider.Object,
             pilotBaselines.Object,
             collectionResolver,
-            Mock.Of<ArchLucid.Persistence.Queries.IAuthorityQueryService>(),
-            Mock.Of<ArchLucid.Core.Manifest.IManifestHashService>());
+            authorityQuery,
+            manifestHashService);
 
         BuyerProofPackBuildResult? result =
             await sut.TryBuildZipAsync(RunId.ToString(), "http://localhost:5000");
@@ -109,6 +121,11 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
 
         root.GetProperty("roiSourceFreshnessDisposition").GetString().Should().Be("HOLD");
         root.GetProperty("extractorCollectionTimestampUtc").GetDateTime().Should().Be(staleCollectionUtc);
+
+        string firstValueMarkdown = await ReadZipEntryTextAsync(result!.ZipBytes, "first-value-report.md");
+
+        firstValueMarkdown.Should().Contain("**Evidence freshness:** **Stale** (`stale`)");
+        firstValueMarkdown.Should().Contain("**HOLD posture:**");
     }
 
     private static RoiCostEvidenceCollectionResolver CreateResolverWithStaleRunLinkedTimestamp(
@@ -174,7 +191,10 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
 
     private static FirstValueReportBuilder CreateMarkdownBuilder(
         IRunDetailQueryService query,
-        IPilotRunDeltaComputer deltas)
+        IPilotRunDeltaComputer deltas,
+        RoiCostEvidenceCollectionResolver? collectionResolver = null,
+        IAuthorityQueryService? authorityQuery = null,
+        IManifestHashService? manifestHashService = null)
     {
         Mock<IValueReportMetricsReader> metrics = new();
         metrics
@@ -247,10 +267,10 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
             siteOpts.Object,
             branding.Object,
             pilotBaselines.Object,
-            FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
+            collectionResolver ?? FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>(),
+            authorityQuery ?? Mock.Of<IAuthorityQueryService>(),
+            manifestHashService ?? Mock.Of<IManifestHashService>(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 

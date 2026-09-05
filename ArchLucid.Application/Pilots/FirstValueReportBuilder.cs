@@ -302,10 +302,17 @@ public sealed class FirstValueReportBuilder(
         PilotRunDeltas deltas,
         DateTime? extractorCollectionTimestampUtc)
     {
+        int configuredStaleAfterDays = _roiCostEvidenceFreshnessOptions.StaleAfterDays <= 0
+            ? 90
+            : _roiCostEvidenceFreshnessOptions.StaleAfterDays;
+
+        int sponsorHandoffStaleAfterDays = (int)RoiMetricSourceFreshnessRules.StaleExtractorThreshold.TotalDays;
+        int staleAfterDays = Math.Min(configuredStaleAfterDays, sponsorHandoffStaleAfterDays);
+
         return PilotCostEvidenceFreshnessBadgeResolver.Resolve(
             extractorCollectionTimestampUtc,
             deltas.IsDemoTenant || proof.DemoTenantWarningRequired,
             TimeProvider.System.UtcNowDateTime(),
-            _roiCostEvidenceFreshnessOptions.StaleAfterDays);
+            staleAfterDays);
     }
 }
