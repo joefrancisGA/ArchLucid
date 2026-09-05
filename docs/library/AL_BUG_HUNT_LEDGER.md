@@ -3409,11 +3409,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 215
-- **bugs-found:** 437
+- **hunts:** 216
+- **bugs-found:** 438
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — finding ID case canonicalization for disposition trail/correction paths
+- **last-bug:** 2026-09-05 — CreateRiskException finding ID case canonicalization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4463,6 +4463,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessFacade.ListDispositionsAsync` / `RecordDispositionAsync` / `GovernanceMutationCorrectionService.ValidateFindingDispositionSubjectAsync` / `FindingMergeConflictResolutionService` — route or subject `findingId` differing only by casing from inspect canonical id returned HTTP 200 `[]`, failed correction lookup, or missed merge-conflict member — **hit 2026-09-05 (#819):** resolve canonical `finding.FindingId` via inspect before trail/snapshot SQL (`ListDispositionsAsync_returns_history_when_finding_id_differs_only_by_casing`, `RecordAsync_appends_correction_for_keyboard_finding_disposition_when_subject_id_differs_only_by_casing`); merge-conflict lookup uses `OrdinalIgnoreCase`.
 
 2026-09-05 seed hunt #819 (hit): proved finding-id case canonicalization gap on disposition history, mutation correction, and merge-conflict resolution paths.
+
+- [x] (proven) `GovernanceStickinessFacade.CreateRiskExceptionAsync` / `RiskExceptionService.CreateAsync` — body `findingId` differing only by casing from inspect canonical id persisted keyboard casing so waiver joins and `RiskExceptionDispositionGuard` trail lookups missed the row — **hit 2026-09-05 (#820):** rewrite normalized request to `finding.FindingId` after inspect (#819 disposition parity); regression in `CreateRiskExceptionAsync_persists_canonical_finding_id_when_request_differs_only_by_casing`.
+- [ ] (candidate) `TenantCustomerSuccessController.PostProductFeedbackAsync` — `findingRef` differing only by casing from inspect canonical id may persist keyboard casing after #818 authority-run binding — needs cheap-disproof vs canonicalize parity with disposition/waiver paths.
+
+2026-09-05 seed hunt #820 (hit): proved CreateRiskException finding-id case canonicalization gap; seeded product-feedback findingRef casing candidate.
 
 2026-09-04 seed hunt #787 (hit): proved disposition inapplicable optional string silent drop beyond whitespace-only cases.
 
