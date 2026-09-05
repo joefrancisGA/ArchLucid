@@ -13,4 +13,10 @@ public sealed class NoOpAuditControlEvaluationRepository : IAuditControlEvaluati
         Guid snapshotId,
         CancellationToken cancellationToken = default)
         => Task.FromResult<AuditControlEvaluationRecord?>(null);
+
+    public Task<IReadOnlyList<AuditEvidenceItemRecord>> ListEvidenceItemsByEvaluationAsync(
+        Guid tenantId,
+        Guid evaluationId,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<AuditEvidenceItemRecord>>([]);
 }
