@@ -3418,11 +3418,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 231
-- **bugs-found:** 454
+- **hunts:** 232
+- **bugs-found:** 458
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — decisions-needed etag scope gap and catalog demote idempotent retry
+- **last-bug:** 2026-09-05 — policy-pack and link-entra idempotent retry audit guards
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4527,10 +4527,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `GovernanceStickinessController.GetDecisionsNeededSummary` — conditional ETag fingerprint included `project` only while `GovernanceDigestDecisionNeededComposer.BuildSummaryAsync` scopes by tenant/workspace/project (#835 reviews-awaiting sibling) — **hit 2026-09-05 (#837):** include tenant/workspace in etag fingerprint; regression in `GetDecisionsNeededSummary_returns_ok_when_workspace_changes_despite_matching_empty_body_etag`.
 - [x] (proven) `PolicyPacksController.DemoteCatalogEntry` / `PolicyPackWorkflowFacade.TryDemoteCatalogEntryAsync` / `DapperPolicyPackCatalogRepository.TryDemoteAsync` — operator retry after successful demote returned HTTP 404 and logged duplicate `PolicyPackCatalogDemoted` audit (#835 archive retry parity) — **hit 2026-09-05 (#837):** return success when catalog row already demoted; skip audit when entry was not promoted before demote; regression in `TryDemoteCatalogEntryAsync_skips_duplicate_audit_when_already_demoted_retry`.
-- [ ] (candidate) `PolicyPacksController.Assign` / `PolicyPacksAppService.TryAssignAsync` — operator retry returns existing assignment (#833) but still logs duplicate `PolicyPackAssignmentCreated` audit (`operator-documented-safe-retry` posture).
-- [ ] (candidate) `PolicyPacksController.ArchiveAssignment` / `PolicyPacksAppService.TryArchiveAssignmentAsync` — operator retry returns success (#835) but still logs duplicate `PolicyPackAssignmentArchived` audit.
-- [ ] (candidate) `PolicyPacksController.DeletePack` / `PolicyPacksAppService.TrySoftDeletePackAsync` — operator retry re-soft-deletes pack and logs duplicate `PolicyPackDeleted` audit.
-- [ ] (candidate) `TenantTrialController.LinkEntraAsync` / `TenantTrialIdentityHandoffStage.LinkEntraAsync` — operator retry with same `entraTenantId` logs duplicate `TenantEntraDirectoryBound` audit while SQL update is idempotent.
+- [x] (proven) `PolicyPacksController.Assign` / `PolicyPacksAppService.TryAssignAsync` — operator retry returns existing assignment (#833) but still logs duplicate `PolicyPackAssignmentCreated` audit (`operator-documented-safe-retry` posture) — **hit 2026-09-05 (#838):** skip audit when assignment id already existed in scope before assign; regression in `TryAssignAsync_skips_duplicate_audit_when_identical_operator_retry`.
+- [x] (proven) `PolicyPacksController.ArchiveAssignment` / `PolicyPacksAppService.TryArchiveAssignmentAsync` — operator retry returns success (#835) but still logs duplicate `PolicyPackAssignmentArchived` audit — **hit 2026-09-05 (#838):** skip audit when assignment already archived before archive attempt; regression in `TryArchiveAssignmentAsync_skips_duplicate_audit_when_already_archived_retry`.
+- [x] (proven) `PolicyPacksController.DeletePack` / `PolicyPacksAppService.TrySoftDeletePackAsync` — operator retry re-soft-deletes pack and logs duplicate `PolicyPackDeleted` audit — **hit 2026-09-05 (#838):** return success without update or audit when pack already deleted; regression in `TrySoftDeletePackAsync_skips_duplicate_audit_when_pack_already_deleted_retry`.
+- [x] (proven) `TenantTrialController.LinkEntraAsync` / `TenantTrialIdentityHandoffStage.LinkEntraAsync` — operator retry with same `entraTenantId` logs duplicate `TenantEntraDirectoryBound` audit while SQL update is idempotent — **hit 2026-09-05 (#838):** skip directory-bound audit when tenant already bound to requested directory; regression in `LinkEntraAsync_skips_duplicate_directory_bound_audit_when_already_bound_retry`.
+
+2026-09-05 thorough hunt #838 (hit): proved four idempotent-retry duplicate-audit gaps seeded in #837.
 
 2026-09-05 seed hunt #837 (hit): reseeded post-#836 idempotency exhaustion; proved decisions-needed etag scope gap and catalog demote idempotent retry; seeded assign/archive/delete/link-entra audit retry candidates.
 
