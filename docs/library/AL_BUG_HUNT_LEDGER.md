@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 186
-- **bugs-found:** 510
+- **hunts:** 187
+- **bugs-found:** 522
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — TemporaryAccessKey/ExternalAccessKey/InternalAccessKey redaction, shall/cannot/should/ought-not-provision and will-not-maintain negation, advice shall/should-not-provision and cannot-configure and need-not-maintain suffix
+- **last-bug:** 2026-09-05 — PrimaryStorageAccessKey/SecondaryStorageAccessKey/RotatedAccessKey redaction, would/shall/cannot/should/ought-not-maintain negation, advice would-not-provision and cannot-provision/enforce and need-not-ensure suffix
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2537,6 +2537,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `need not maintain` suffix gap — **hit 2026-09-05 (#914):** #911 added constraint prefix `need not maintain` only; missed imperative-path suffix; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_need_not_maintain_suffix_phrasing`).
 
 2026-09-05 seed hunt #914 (hit): reseeded after #913 closure; proved twelve hunt-ready rows — TemporaryAccessKey/ExternalAccessKey/InternalAccessKey redaction parity, shall/cannot/should/ought-not-provision and will-not-maintain constraint negation, and advice shall/should-not-provision and cannot-configure and need-not-maintain suffix.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `PrimaryStorageAccessKey` not redacted — **hit 2026-09-05 (#915):** compound access-key class after #914; embedded `AccessKey`/`accesskey` fragment guard skipped `PrimaryStorageAccessKey`/`primarystorageaccesskey`; fixed with explicit credential detection (`Resolve_redacts_primary_storage_access_key_config_path`, `IsSensitiveKey_detects_primary_storage_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `SecondaryStorageAccessKey` not redacted — **hit 2026-09-05 (#915):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_secondary_storage_access_key_config_path`, `IsSensitiveKey_detects_secondary_storage_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `RotatedAccessKey` not redacted — **hit 2026-09-05 (#915):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_rotated_access_key_config_path`, `IsSensitiveKey_detects_rotated_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `would not maintain` negation gap — **hit 2026-09-05 (#915):** #914 added `will not maintain` only; missed prohibitive `would not maintain {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_would_not_maintain_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `shall not maintain` negation gap — **hit 2026-09-05 (#915):** same mid-sentence family; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_shall_not_maintain_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `cannot maintain` negation gap — **hit 2026-09-05 (#915):** #911 added `need not maintain` prefix only; missed prohibitive `cannot maintain {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_cannot_maintain_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `should not maintain` negation gap — **hit 2026-09-05 (#915):** same mid-sentence family; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_should_not_maintain_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `ought not maintain` negation gap — **hit 2026-09-05 (#915):** same mid-sentence family; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_ought_not_maintain_encryption_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `would not provision` suffix gap — **hit 2026-09-05 (#915):** #913 added constraint mid-sentence `would not provision` only; missed imperative-path suffix; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_would_not_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `cannot provision` suffix gap — **hit 2026-09-05 (#915):** #914 added constraint mid-sentence `cannot provision` only; missed imperative-path suffix; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_cannot_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `cannot enforce` suffix gap — **hit 2026-09-05 (#915):** #911 added constraint mid-sentence `cannot enforce` only; missed imperative-path suffix; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_cannot_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `need not ensure` suffix gap — **hit 2026-09-05 (#915):** #908 added constraint prefix `need not ensure` only; missed imperative-path suffix; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_need_not_ensure_suffix_phrasing`).
+
+2026-09-05 seed hunt #915 (hit): reseeded after #914 closure; proved twelve hunt-ready rows — PrimaryStorageAccessKey/SecondaryStorageAccessKey/RotatedAccessKey redaction parity, would/shall/cannot/should/ought-not-maintain constraint negation, and advice would-not-provision and cannot-provision/enforce and need-not-ensure suffix.
 
 2026-09-05 seed hunt #889: reseeded after #888 closure; proved anchor null-object/property-name trim, mid-sentence constraint negation, and Secretizer/Passwordizer redaction parity.
 2026-09-05 seed hunt #888: reseeded after #887 closure; proved ConnectionStringless config redaction, ARM key+free suffix parity, and anchor null array/string coercion.
