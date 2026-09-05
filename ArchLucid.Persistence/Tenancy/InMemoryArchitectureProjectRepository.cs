@@ -80,17 +80,23 @@ public sealed class InMemoryArchitectureProjectRepository : IArchitectureProject
     }
 
     /// <inheritdoc />
-    public Task<bool> TrySoftDeleteAsync(Guid tenantId, Guid workspaceId, Guid projectId, CancellationToken ct)
+    public Task<ArchitectureProjectSoftDeleteResult> TrySoftDeleteAsync(Guid tenantId, Guid workspaceId, Guid projectId, CancellationToken ct)
     {
         _ = ct;
 
-        if (!_byId.TryGetValue(projectId, out ProjectRow? row) || row.TenantId != tenantId || row.WorkspaceId != workspaceId || row.IsDeleted)
-            return Task.FromResult(false);
+        if (!_byId.TryGetValue(projectId, out ProjectRow? row))
+            return Task.FromResult(ArchitectureProjectSoftDeleteResult.NotFound);
+
+        if (row.TenantId != tenantId || row.WorkspaceId != workspaceId)
+            return Task.FromResult(ArchitectureProjectSoftDeleteResult.NotFound);
+
+        if (row.IsDeleted)
+            return Task.FromResult(ArchitectureProjectSoftDeleteResult.AlreadyDeleted);
 
         row.IsDeleted = true;
         row.DeletedUtc = TimeProvider.System.GetUtcNow();
 
-        return Task.FromResult(true);
+        return Task.FromResult(ArchitectureProjectSoftDeleteResult.Deleted);
     }
 
     /// <inheritdoc />
