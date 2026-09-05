@@ -19,4 +19,10 @@ public class DiagramAst
         get;
         set;
     } = [];
+
+    public List<DiagramSubgraph> Subgraphs
+    {
+        get;
+        set;
+    } = [];
 }

@@ -138,6 +138,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   riskExceptions: "Exceptions",
   remediationFactory: "Remediation factory",
   remediationPatterns: "Remediation patterns",
+  auditEvidenceLineage: "Audit evidence lineage",
   decisionRegister: "Decision register",
   sealedReviewRecords: "Finalized review records",
   recurrenceSchedules: "Recurrence schedules",

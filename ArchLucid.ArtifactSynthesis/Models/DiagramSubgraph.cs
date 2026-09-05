@@ -1,8 +1,8 @@
 namespace ArchLucid.ArtifactSynthesis.Models;
 
-public class DiagramNode
+public class DiagramSubgraph
 {
-    public string NodeId
+    public string SubgraphId
     {
         get;
         set;
@@ -14,13 +14,7 @@ public class DiagramNode
         set;
     } = null!;
 
-    public string NodeType
-    {
-        get;
-        set;
-    } = null!;
-
-    public string? SubgraphId
+    public string? ParentSubgraphId
     {
         get;
         set;
