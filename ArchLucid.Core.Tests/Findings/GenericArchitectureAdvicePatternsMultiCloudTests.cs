@@ -41,6 +41,14 @@ public sealed class GenericArchitectureAdvicePatternsMultiCloudTests
     }
 
     [Theory]
+    [InlineData("do not enable mfa for service accounts")]
+    [InlineData("misuse https only for legacy clients")]
+    public void IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing(string message)
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(message).Should().BeFalse();
+    }
+
+    [Theory]
     [InlineData(
         "Enable GuardDuty monitoring for `payments-api` ingress paths.",
         "subscriptions/000/resourceGroups/rg/providers/Microsoft.Web/sites/payments-api")]

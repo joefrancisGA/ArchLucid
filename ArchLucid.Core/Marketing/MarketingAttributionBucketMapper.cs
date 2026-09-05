@@ -36,14 +36,15 @@ public static class MarketingAttributionBucketMapper
             return "unknown";
 
         string source = utmSource.Trim().ToLowerInvariant();
+        string compact = NormalizePlatformToken(source);
 
-        if (source.Contains("google", StringComparison.Ordinal))
+        if (compact.Contains("google", StringComparison.Ordinal))
             return "google";
 
-        if (source.Contains("linkedin", StringComparison.Ordinal))
+        if (compact.Contains("linkedin", StringComparison.Ordinal))
             return "linkedin";
 
-        if (source.Contains("bing", StringComparison.Ordinal) || source.Contains("microsoft", StringComparison.Ordinal))
+        if (compact.Contains("bing", StringComparison.Ordinal) || compact.Contains("microsoft", StringComparison.Ordinal))
             return "bing";
 
         if (source is "archlucid" or "internal" or "product")
@@ -51,4 +52,8 @@ public static class MarketingAttributionBucketMapper
 
         return "unknown";
     }
+
+    private static string NormalizePlatformToken(string source) =>
+        source.Replace("-", string.Empty, StringComparison.Ordinal)
+            .Replace("_", string.Empty, StringComparison.Ordinal);
 }

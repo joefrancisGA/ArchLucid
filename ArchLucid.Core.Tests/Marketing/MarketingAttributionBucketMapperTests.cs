@@ -25,6 +25,8 @@ public sealed class MarketingAttributionBucketMapperTests
     [Theory]
     [InlineData("google", "google")]
     [InlineData("Google Ads", "google")]
+    [InlineData("linked-in", "linkedin")]
+    [InlineData("linked_in", "linkedin")]
     [InlineData("linkedin", "linkedin")]
     [InlineData("bing", "bing")]
     [InlineData("archlucid", "internal")]

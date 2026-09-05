@@ -132,7 +132,7 @@ public static partial class GenericArchitectureAdvicePatterns
 
         foreach (string fragment in ObviousPhraseFragments)
         {
-            if (normalized.Contains(fragment, StringComparison.Ordinal))
+            if (ContainsAffirmativeAdviceFragment(normalized, fragment))
                 return true;
         }
 
@@ -140,6 +140,49 @@ public static partial class GenericArchitectureAdvicePatterns
             return true;
 
         return false;
+    }
+
+    private static bool ContainsAffirmativeAdviceFragment(string normalized, string fragment)
+    {
+        int index = 0;
+
+        while (index < normalized.Length)
+        {
+            index = normalized.IndexOf(fragment, index, StringComparison.Ordinal);
+
+            if (index < 0)
+                return false;
+
+            if (!IsNegatedAdviceFragment(normalized, index)
+                && !IsEmbeddedAdviceFragment(normalized, index))
+                return true;
+
+            index++;
+        }
+
+        return false;
+    }
+
+    private static bool IsEmbeddedAdviceFragment(string normalized, int fragmentIndex)
+    {
+        if (fragmentIndex > 0 && char.IsLetter(normalized[fragmentIndex - 1]))
+            return true;
+
+        return false;
+    }
+
+    private static bool IsNegatedAdviceFragment(string normalized, int fragmentIndex)
+    {
+        ReadOnlySpan<char> before = normalized.AsSpan(0, fragmentIndex).TrimEnd();
+
+        if (before.Length < 2)
+            return false;
+
+        return before.EndsWith("do not", StringComparison.Ordinal)
+            || before.EndsWith("do-not", StringComparison.Ordinal)
+            || before.EndsWith("don't", StringComparison.Ordinal)
+            || before.EndsWith("not", StringComparison.Ordinal)
+            || before.EndsWith("no", StringComparison.Ordinal);
     }
 
     /// <summary>

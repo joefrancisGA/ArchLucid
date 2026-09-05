@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 148
-- **bugs-found:** 280
+- **hunts:** 149
+- **bugs-found:** 282
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — ARM redactor substring false positives and email domain double-dot acceptance
+- **last-bug:** 2026-09-05 — UTM platform delimiter gap and generic advice negation false positives
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2205,6 +2205,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `MarketingAttributionBucketMapper.MapCoarseMedium` — `paid-search` / `social_paid` delimiter variants map to `unknown` while `paidsearch` maps to `paid_direct` — **hit 2026-09-05 (#876):** hyphen/underscore UTM mediums bucketed as `unknown` after #875 seed; fixed with delimiter-normalized compact token matching (`MapCoarseMedium_buckets_low_cardinality` with `paid-search` / `social_paid`).
 
 2026-09-05 thorough hunt #876: proved redactor substring false positives, double-dot email domain acceptance, and UTM medium delimiter parity gap from #875 seed candidates.
+
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsObviousGenericAdvice` — negated / embedded checklist phrases false positives — **hit 2026-09-05 (#877):** `do not enable mfa` and `misuse https` matched affirmative fragments via unbounded `Contains`; architecture-specific findings demoted as generic checklist advice; fixed with `do not`/`not`/`no` negation and embedded-word guards (`IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing`).
+- [x] (proven) `MarketingAttributionBucketMapper.MapCoarsePlatform` — `linked-in` / `linked_in` delimiter variants map to `unknown` — **hit 2026-09-05 (#877):** #876 fixed medium delimiter parity only; hyphen/underscore UTM sources missed `linkedin` substring match and bucketed as `unknown`; fixed with delimiter-normalized compact token matching (`MapCoarsePlatform_buckets_low_cardinality` with `linked-in` / `linked_in`).
+- [x] (invalid) `QualityGateRecordedEvaluationSnapshotFactory.ResolveTriageScenarioId` — lowercase `structural` reject category mis-routed — canonical `RejectReasonStructural` constant is already lowercase; cheap-disproof with `ToLowerInvariant()` regression passes unchanged.
+
+2026-09-05 seed hunt #877: reseeded advice-pattern negation and UTM platform delimiter surfaces; proved generic-advice false positives and platform bucketing gap; disproved quality-gate casing candidate.
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — case-sensitive `failureClass` value match — **hit 2026-09-03 (#596):** PascalCase `"PipelineDeadLetter"` in persisted `LastFailureReason` JSON missed dead-letter detection while canonical constant is `pipelineDeadLetter`; run list/detail showed not dead-lettered; fixed with `OrdinalIgnoreCase` comparison (`IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value`).
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
 - [x] (valid-no-repro) Tenant scope model treats empty workspace as a wildcard — `ActivityScopeTags` rejects `Guid.Empty` workspace ids; no wildcard semantics in Core tenancy models.
