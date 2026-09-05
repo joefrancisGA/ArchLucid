@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 164
-- **bugs-found:** 335
+- **hunts:** 165
+- **bugs-found:** 340
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — anchor null scalar-array, advice suffix negation, PrivateKeyPem redaction, ipsecurityrestrictions alias, constraint suffix negation
+- **last-bug:** 2026-09-05 — anchor numeric boolean, PrivateKeyless redaction, advice/constraint negation suffixes and contractions
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2295,6 +2295,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RequestConstraintTokenMatcher` / `RequestConstraintClassifier` — suffix prohibitive negation and `no need to` advice negation gaps — **hit 2026-09-05 (#893):** #887–#892 prefix/mid negation missed `encryption not necessary` suffix and `no need to use managed identity`; classifier false positives on starter evidence refs; fixed with `IsNegatedPhraseSuffix` and `IsAdviceStyleNegation` `no need to` prefix (`HasEncryptionConstraint_does_not_false_positive_on_not_necessary_encryption_phrasing`, `HasManagedIdentityConstraint_does_not_false_positive_on_no_need_to_managed_identity_phrasing`).
 
 2026-09-05 seed hunt #893 (hit): proved five hunt-ready rows from #892 reseed gap — anchor null scalar-array coercion, advice suffix negation parity, PrivateKeyPem config redaction, IngressBlob ipsecurityrestrictions aliases, and constraint suffix/`no need to` negation.
+
+- [x] (proven) `RunHeaderAnchorJsonComparer.TryNumberBooleanEquivalent` — numeric JSON vs boolean treated as anchor mutation — **hit 2026-09-05 (#894):** after #892 scalar/array bridges, `{"enabled":1}` vs `{"enabled":true}` failed cross-kind equivalence while sibling `RunExplanationAggregateJsonReader.TryReadBoolean` coerces whole numbers; fixed with numeric↔boolean bridge (`EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_numeric_boolean_only_change_on_committed_run`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` — `PrivateKey`+`less`/`izer` suffix false positives — **hit 2026-09-05 (#894):** #893 added `PrivateKeyPem` credential detection but `PrivateKeylessAuth` / `PrivateKeyizerModule` still redacted; fixed with `less`/`free`/`izer` negation guard parity (`Resolve_returns_scalar_for_non_secret_segment_substrings` with `PrivateKeylessAuth` / `PrivateKeyizerModule`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `is not necessary` / `is unnecessary` suffix gap — **hit 2026-09-05 (#894):** #893 `not necessary` suffix missed leading `is ` variants; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing` with `enable mfa is not necessary…` / `use https is unnecessary…`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — contraction / extended prefix negation gap — **hit 2026-09-05 (#894):** prefix negation missed `doesn't need to` / `shouldn't` / `won't need to`; fixed with contraction parity (`IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing` with doesn't/shouldn't/won't need to variants).
+- [x] (proven) `RequestConstraintTokenMatcher` — contraction negation and `is unnecessary` suffix gap — **hit 2026-09-05 (#894):** #893 suffix parity missed `isn't required` / `is unnecessary` and `doesn't require`; classifier false positives; fixed with contraction and suffix guards (`HasEncryptionConstraint_does_not_false_positive_on_isnt_required_encryption_phrasing`, `…_doesnt_require…`, `…_is_unnecessary…`).
+- [x] (invalid) `DeclarationSecurityPropertyKeyResolver` — `tf.network_acls` alias — no emitter; `CanonicalInfrastructurePropertyBag` lowercases to `tf.networkacls` already aliased (cheap-disproof #894).
+- [x] (invalid) `DeclarationSecurityPropertyKeyResolver` — raw ARM `ipSecurityRestrictions` alias — ingestion canonicalizes to `tf.ipsecurityrestrictions` before resolver (cheap-disproof #894).
+
+2026-09-05 seed hunt #894 (hit): reseeded after #893 closure; proved five hunt-ready rows — anchor numeric↔boolean coercion, PrivateKeyless config redaction parity, advice suffix/contraction negation, and constraint contraction/suffix negation.
 
 2026-09-05 seed hunt #889: reseeded after #888 closure; proved anchor null-object/property-name trim, mid-sentence constraint negation, and Secretizer/Passwordizer redaction parity.
 2026-09-05 seed hunt #888: reseeded after #887 closure; proved ConnectionStringless config redaction, ARM key+free suffix parity, and anchor null array/string coercion.
