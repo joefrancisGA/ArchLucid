@@ -1,6 +1,7 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Exports;
+using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -48,7 +49,8 @@ public sealed partial class ArtifactExportController(
     IRunExportBlobPushOutboxRepository runExportBlobPushOutbox,
     IRunExportLineageVerifier runExportLineageVerifier,
     IDecisionReceiptService decisionReceiptService,
-    IManifestHashService manifestHashService)
+    IManifestHashService manifestHashService,
+    IBrandedDiagramExportService brandedDiagramExportService)
     : ControllerBase
 {
 }

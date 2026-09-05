@@ -155,7 +155,9 @@ public static class WordDocumentBuilder
         {
             Run severityRun = new(new Text(Sanitize(issue.Severity)));
             if (IsHighSeverity(issue.Severity))
-                severityRun.RunProperties = new RunProperties(new Bold(), new Color { Val = "C00000" });
+                severityRun.RunProperties = new RunProperties(
+                    new Bold(),
+                    new Color { Val = DocxIssueSeverityStyles.HighSeverityColorHex });
 
             table.AppendChild(
                 new TableRow(

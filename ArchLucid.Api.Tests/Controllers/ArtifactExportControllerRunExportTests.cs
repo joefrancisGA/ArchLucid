@@ -1,6 +1,7 @@
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.Contracts.Architecture;
@@ -389,7 +390,8 @@ public sealed class ArtifactExportControllerRunExportTests
             outbox.Object,
             runExportLineageVerifier ?? Mock.Of<IRunExportLineageVerifier>(),
             Mock.Of<ArchLucid.Application.Exports.IDecisionReceiptService>(),
-            Mock.Of<IManifestHashService>());
+            Mock.Of<IManifestHashService>(),
+            Mock.Of<IBrandedDiagramExportService>());
 
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 

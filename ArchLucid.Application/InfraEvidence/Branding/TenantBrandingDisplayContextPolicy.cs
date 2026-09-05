@@ -22,8 +22,16 @@ public static class TenantBrandingDisplayContextPolicy
             or BrandingDisplayContext.Presentation
             or BrandingDisplayContext.Email;
 
+    public static bool IsDiagramExportContext(BrandingDisplayContext context) =>
+        context is BrandingDisplayContext.ArchitectureDiagram
+            or BrandingDisplayContext.SecurityDiagram
+            or BrandingDisplayContext.MermaidDiagram;
+
     public static bool UsesTenantVisualBrand(BrandingDisplayContext context) =>
-        IsVisualMastheadContext(context) || IsReportVisualContext(context) || context is BrandingDisplayContext.Favicon;
+        IsVisualMastheadContext(context)
+            || IsReportVisualContext(context)
+            || IsDiagramExportContext(context)
+            || context is BrandingDisplayContext.Favicon;
 
     public static TenantBrandingSurfacePresentation Resolve(
         BrandingDisplayContext context,

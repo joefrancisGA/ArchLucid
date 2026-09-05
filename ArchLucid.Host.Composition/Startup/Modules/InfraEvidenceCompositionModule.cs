@@ -1,6 +1,7 @@
 using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Application.InfraEvidence.Ask;
 using ArchLucid.Application.InfraEvidence.Branding;
+using ArchLucid.ArtifactSynthesis.Branding;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Application.InfraEvidence.AuditEvidence;
 using ArchLucid.Application.InfraEvidence.OperationalSecurityFindings;
@@ -76,5 +77,7 @@ public static class InfraEvidenceCompositionModule
         services.AddSingleton<ITenantBrandingCacheInvalidator>(static sp =>
             sp.GetRequiredService<TenantBrandingResolvedProfileCache>());
         services.AddScoped<ITenantBrandingService, TenantBrandingService>();
+        services.AddSingleton<IBrandedDiagramExportComposer, BrandedDiagramExportComposer>();
+        services.AddScoped<IBrandedDiagramExportService, BrandedDiagramExportService>();
     }
 }
