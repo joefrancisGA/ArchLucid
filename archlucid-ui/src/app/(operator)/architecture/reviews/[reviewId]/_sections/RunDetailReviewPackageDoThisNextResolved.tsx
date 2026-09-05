@@ -14,10 +14,8 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ReviewPackageDoThisNextStrip } from "./ReviewPackageDoThisNextStrip";
-import { RunDetailReviewPackageDecisionReceiptStrip } from "./RunDetailReviewPackageDecisionReceiptStrip";
+import { RunDetailReviewPackageStampViewport } from "./RunDetailReviewPackageStampViewport";
 import { FinalizeReadinessStrip } from "@/components/reviews/FinalizeReadinessStrip";
-import { RunDetailOverviewTransparencyTrail } from "@/components/reviews/RunDetailOverviewTransparencyTrail";
-import { RunDetailSealDeskCoverageStrip } from "@/components/reviews/RunDetailSealDeskCoverageStrip";
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import type {
   ResolveReviewPackageDoThisNextInput,
@@ -200,27 +198,15 @@ export function RunDetailReviewPackageDoThisNextResolved(
 
   return (
     <>
-      {props.hasGoldenManifest ? (
-        <RunDetailReviewPackageDecisionReceiptStrip
-          runId={props.runId}
-          feasibilityVerdict={props.feasibilityVerdict ?? null}
-        />
-      ) : null}
-      {!props.hasGoldenManifest ? (
-        <>
-          <RunDetailOverviewTransparencyTrail
-            feasibilityVerdict={props.feasibilityVerdict ?? null}
-            runCompleted={props.runCompleted ?? false}
-          />
-          <RunDetailSealDeskCoverageStrip
-            runId={props.runId}
-            analysisStagesComplete={props.analysisStagesComplete}
-            graphSnapshot={props.graphSnapshot}
-            transparencyTrail={props.transparencyTrail ?? null}
-            className="mb-3"
-          />
-        </>
-      ) : null}
+      <RunDetailReviewPackageStampViewport
+        hasGoldenManifest={props.hasGoldenManifest}
+        runId={props.runId}
+        feasibilityVerdict={props.feasibilityVerdict ?? null}
+        runCompleted={props.runCompleted ?? false}
+        analysisStagesComplete={props.analysisStagesComplete}
+        graphSnapshot={props.graphSnapshot}
+        transparencyTrail={props.transparencyTrail ?? null}
+      />
       <FinalizeReadinessStrip commitBlockedReason={assumptionAwareCommitBlockedReason} />
       <ReviewPackageDoThisNextStrip
         next={next}
