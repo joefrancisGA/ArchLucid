@@ -29,11 +29,9 @@ public static partial class ArchLucidGrowthFunnelMeters
             "archlucid_trial_upgrade_nudge_shown_total",
             description: "Trial upgrade nudge shown in operator shell (label: trigger=runs|seats|expiry).");
 
-    private static readonly HashSet<string> TrialUpgradeNudgeTriggers =
-        new(StringComparer.Ordinal) { "runs", "seats", "expiry" };
+    private static readonly string[] TrialUpgradeNudgeTriggers = ["runs", "seats", "expiry"];
 
-    private static readonly HashSet<string> TeamExpansionNudgeTriggers =
-        new(StringComparer.Ordinal) { "seats", "workspaces" };
+    private static readonly string[] TeamExpansionNudgeTriggers = ["seats", "workspaces"];
 
     /// <summary>Increments <see cref="TrialUpgradeNudgeShownTotal" />.</summary>
     public static void RecordTrialUpgradeNudgeShown(string trigger)
@@ -51,9 +49,15 @@ public static partial class ArchLucidGrowthFunnelMeters
 
     private static string NormalizeTrialUpgradeNudgeTrigger(string trigger)
     {
-        string t = string.IsNullOrWhiteSpace(trigger) ? "unknown" : trigger.Trim();
+        string t = string.IsNullOrWhiteSpace(trigger) ? string.Empty : trigger.Trim();
 
-        return TrialUpgradeNudgeTriggers.Contains(t) ? t : "unknown";
+        foreach (string knownTrigger in TrialUpgradeNudgeTriggers)
+        {
+            if (string.Equals(knownTrigger, t, StringComparison.OrdinalIgnoreCase))
+                return knownTrigger;
+        }
+
+        return "unknown";
     }
 
     /// <summary>Increments <see cref="TeamExpansionNudgeShownTotal" />.</summary>
@@ -72,8 +76,14 @@ public static partial class ArchLucidGrowthFunnelMeters
 
     private static string NormalizeTeamExpansionNudgeTrigger(string trigger)
     {
-        string t = string.IsNullOrWhiteSpace(trigger) ? "unknown" : trigger.Trim();
+        string t = string.IsNullOrWhiteSpace(trigger) ? string.Empty : trigger.Trim();
 
-        return TeamExpansionNudgeTriggers.Contains(t) ? t : "unknown";
+        foreach (string knownTrigger in TeamExpansionNudgeTriggers)
+        {
+            if (string.Equals(knownTrigger, t, StringComparison.OrdinalIgnoreCase))
+                return knownTrigger;
+        }
+
+        return "unknown";
     }
 }

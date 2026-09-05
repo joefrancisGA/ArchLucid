@@ -46,7 +46,8 @@ public static class AzureExtractorSensitivePropertyRedactor
             if (index < 0)
                 return false;
 
-            if (!IsNegatedSensitiveFragment(normalized, index, fragment))
+            if (!IsNegatedSensitiveFragment(normalized, index, fragment)
+                && !IsEmbeddedSensitiveFragment(normalized, index))
                 return true;
 
             index++;
@@ -66,14 +67,7 @@ public static class AzureExtractorSensitivePropertyRedactor
         if (IsUnPrefixedNegation(normalized, fragmentIndex))
             return true;
 
-        if (string.Equals(fragment, "password", StringComparison.Ordinal)
-            && fragmentIndex == 0
-            && normalized.Length > fragment.Length
-            && normalized.AsSpan(fragment.Length).Equals("less", StringComparison.Ordinal))
-            return true;
-
-        if (string.Equals(fragment, "secret", StringComparison.Ordinal)
-            && fragmentIndex == 0
+        if (fragmentIndex == 0
             && normalized.Length > fragment.Length
             && normalized.AsSpan(fragment.Length).Equals("less", StringComparison.Ordinal))
             return true;
@@ -84,22 +78,12 @@ public static class AzureExtractorSensitivePropertyRedactor
             && normalized.AsSpan(fragment.Length).Equals("free", StringComparison.Ordinal))
             return true;
 
-        if (string.Equals(fragment, "accesskey", StringComparison.Ordinal)
-            && fragmentIndex == 0
-            && normalized.Length > fragment.Length
-            && normalized.AsSpan(fragment.Length).Equals("less", StringComparison.Ordinal))
-            return true;
+        return false;
+    }
 
-        if (string.Equals(fragment, "primarykey", StringComparison.Ordinal)
-            && fragmentIndex == 0
-            && normalized.Length > fragment.Length
-            && normalized.AsSpan(fragment.Length).Equals("less", StringComparison.Ordinal))
-            return true;
-
-        if (string.Equals(fragment, "secondarykey", StringComparison.Ordinal)
-            && fragmentIndex == 0
-            && normalized.Length > fragment.Length
-            && normalized.AsSpan(fragment.Length).Equals("less", StringComparison.Ordinal))
+    private static bool IsEmbeddedSensitiveFragment(string normalized, int fragmentIndex)
+    {
+        if (fragmentIndex > 0 && char.IsLetter(normalized[fragmentIndex - 1]))
             return true;
 
         return false;
