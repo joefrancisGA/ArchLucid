@@ -96,6 +96,7 @@ describe("design-tokens TB-119 typography", () => {
     expect(OPERATOR_TYPOGRAPHY.kpiValue).toContain("text-4xl");
     expect(OPERATOR_TYPOGRAPHY.kpiValue).toContain("font-mono");
     expect(OPERATOR_TYPOGRAPHY.kpiValue).toContain("tabular-nums");
+    expect(OPERATOR_TYPOGRAPHY.kpiValue).toContain("lining-nums");
   });
 
   it("KPI card title and description use tab and helper scales", () => {
@@ -218,5 +219,13 @@ describe("design-tokens TB-2276–TB-2280 color hierarchy", () => {
     expect(OPERATOR_SELECTION.tile).toContain("border-neutral-500");
     expect(OPERATOR_SELECTION.tile).not.toMatch(/teal/);
     expect(OPERATOR_SELECTION.row).toContain("bg-al-surface-raised");
+  });
+
+  it("BR-07 registers tenant brand CSS variables without changing status tokens", () => {
+    expect(globalsCss).toContain("--brand-primary:");
+    expect(globalsCss).toContain("--brand-foreground:");
+    expect(globalsCss).toMatch(/\.dark\s*\{[\s\S]*--brand-primary:/);
+    expect(enterpriseStatusTagClass("blocked")).toContain("--al-status-blocked-bg");
+    expect(enterpriseStatusTagClass("ready")).toContain("--al-status-ready-bg");
   });
 });

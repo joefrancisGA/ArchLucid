@@ -54,14 +54,17 @@ public sealed partial class TenantWorkspacesController
                 ProblemTypes.BusinessRuleViolation);
         }
 
-        bool deleted = await _architectureProjectRepository.TrySoftDeleteAsync(
+        ArchitectureProjectSoftDeleteResult outcome = await _architectureProjectRepository.TrySoftDeleteAsync(
             scope.TenantId,
             workspaceId,
             projectId,
             cancellationToken);
 
-        if (!deleted)
+        if (outcome == ArchitectureProjectSoftDeleteResult.NotFound)
             return this.NotFoundProblem("Architecture project was not found or is already deleted.", ProblemTypes.ResourceNotFound);
+
+        if (outcome == ArchitectureProjectSoftDeleteResult.AlreadyDeleted)
+            return NoContent();
 
         await _auditService.LogAsync(
             new AuditEvent
@@ -133,6 +136,9 @@ public sealed partial class TenantWorkspacesController
 
         if (outcome == ArchitectureProjectRestoreResult.NotFoundOrNotDeleted)
             return this.NotFoundProblem("Architecture project was not found or is not soft-deleted.", ProblemTypes.ResourceNotFound);
+
+        if (outcome == ArchitectureProjectRestoreResult.AlreadyActive)
+            return NoContent();
 
         if (outcome == ArchitectureProjectRestoreResult.ActiveProjectNameCollision)
         {

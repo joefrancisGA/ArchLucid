@@ -220,6 +220,27 @@
           "theme": "CC6 Logical access"
         }
       ]
+    },
+    {
+      "id": "soc2-018",
+      "title": "Network segmentation for sensitive workloads",
+      "description": "Sensitive workloads must be segmented on dedicated networks (PP-01 Option B pilot catalog extension). Thematic mapping only — not certification.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document network segmentation expectations in governance.PolicyConstraints; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "SOC 2 TSC",
+          "theme": "CC6.6 Network segmentation"
+        }
+      ]
     }
   ]
 }

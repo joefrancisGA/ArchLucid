@@ -66,9 +66,7 @@ describe("review-package-governance-findings-vocabulary (TB-2386)", () => {
     expect(reviewMetric.dimensions.some((dimension) => dimension.kind === "this-review")).toBe(
       true,
     );
-    expect(workspaceMetric.dimensions.some((dimension) => dimension.kind === "workspace")).toBe(
-      true,
-    );
+    expect(workspaceMetric.dimensions).toHaveLength(0);
     expect(model.reviewPackageFindingsLink.label.toLowerCase()).toContain("this review");
     expect(model.governanceFindingsLink.label.toLowerCase()).toContain("workspace");
     expect(model.governanceFindingsLink.href).toBe(reviewMetric.href);

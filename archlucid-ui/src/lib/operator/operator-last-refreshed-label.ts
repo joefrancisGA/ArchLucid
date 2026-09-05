@@ -116,6 +116,20 @@ export function operatorHomeDataCurrencyValue(lastRefreshedAt: Date): string {
   return `${relativeLabel} (${clockLabel}${dateSuffix})`;
 }
 
+/** Home header staleness threshold — surfaces a visible cue when refresh is overdue. */
+export const OPERATOR_HOME_DATA_STALE_THRESHOLD_MS = 5 * 60 * 1000;
+
+export function operatorHomeDataCurrencyStaleCue(
+  lastRefreshedAt: Date,
+  nowMs = Date.now(),
+): string | null {
+  if (nowMs - lastRefreshedAt.getTime() <= OPERATOR_HOME_DATA_STALE_THRESHOLD_MS) {
+    return null;
+  }
+
+  return "Data may be stale — refresh to update counts.";
+}
+
 /**
  * Clock time with timezone for health surfaces. A relative age alone goes stale silently,
  * and operators correlating health with an incident timeline need an absolute reading.

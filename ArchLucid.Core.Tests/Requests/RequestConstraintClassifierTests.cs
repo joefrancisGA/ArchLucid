@@ -171,6 +171,102 @@ public sealed class RequestConstraintClassifierTests
     }
 
     [Fact]
+    public void RequiresSqlCapability_does_not_false_positive_on_no_sql_capability_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(capabilities: ["no-sql datastore"]);
+
+        RequestConstraintClassifier.RequiresSqlCapability(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void RequiresSqlCapability_does_not_false_positive_on_not_sql_capability_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(capabilities: ["not sql datastore"]);
+
+        RequestConstraintClassifier.RequiresSqlCapability(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_no_encryption_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["no-encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_not_encryption_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["not encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_without_encryption_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["without encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasManagedIdentityConstraint_does_not_false_positive_on_without_managed_identity_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["without managed identity for storage"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasPrivateNetworkingConstraint_does_not_false_positive_on_without_private_networking_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["without private networking for batch workloads"]);
+
+        RequestConstraintClassifier.HasPrivateNetworkingConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_avoid_encryption_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["avoid encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasManagedIdentityConstraint_does_not_false_positive_on_not_required_to_managed_identity_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["not required to use managed identity"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void RequiresSqlCapability_does_not_false_positive_on_avoid_sql_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(capabilities: ["avoid sql databases"]);
+
+        RequestConstraintClassifier.RequiresSqlCapability(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasManagedIdentityConstraint_does_not_false_positive_on_not_managed_identity_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["not managed identity for storage"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void RequiresAiCapability_does_not_false_positive_on_no_ai_capability_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(capabilities: ["no-ai inference"]);
+
+        RequestConstraintClassifier.RequiresAiCapability(request).Should().BeFalse();
+    }
+
+    [Fact]
     public void All_members_throw_when_request_is_null()
     {
         Action act1 = () => RequestConstraintClassifier.HasManagedIdentityConstraint(null!);

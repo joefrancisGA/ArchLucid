@@ -255,7 +255,7 @@ function buildRunItems(runs: readonly RunSummary[]): UnfinishedWorkRailItem[] {
           kind: "awaiting-disposition",
           title: resolveReviewTitle(run),
           href: reviewDetailPath(runId),
-          statusLabel: resolveRunRailStatusLabel(run),
+          statusLabel: UNFINISHED_WORK_RAIL_STATUS_LABELS["awaiting-disposition"],
           updatedUtc: run.createdUtc ?? null,
         }),
       );
@@ -269,7 +269,7 @@ function buildRunItems(runs: readonly RunSummary[]): UnfinishedWorkRailItem[] {
           kind: "review-in-progress",
           title: resolveReviewTitle(run),
           href: reviewDetailPath(runId),
-          statusLabel: resolveRunRailStatusLabel(run),
+          statusLabel: UNFINISHED_WORK_RAIL_STATUS_LABELS["review-in-progress"],
           updatedUtc: run.createdUtc ?? null,
         }),
       );

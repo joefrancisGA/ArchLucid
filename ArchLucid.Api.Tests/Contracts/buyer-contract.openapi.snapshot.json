@@ -33107,6 +33107,86 @@
         },
         "type": "object"
       },
+      "TenantBrandColorsResponse": {
+        "properties": {
+          "accent": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "background": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "foreground": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "primary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "secondary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "TenantBrandingPresentationResponse": {
+        "properties": {
+          "colors": {
+            "$ref": "#/components/schemas/TenantBrandColorsResponse"
+          },
+          "context": {
+            "type": "string"
+          },
+          "isProductBrand": {
+            "type": "boolean"
+          },
+          "logoAssetId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "logoContentPath": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "logoHttpsUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "mastheadDisplayName": {
+            "type": "string"
+          },
+          "showArchLucidMarkInMasthead": {
+            "type": "boolean"
+          },
+          "showPoweredByArchLucid": {
+            "type": "boolean"
+          },
+          "usesTenantVisualBrand": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "TenantCatalogMigrationScopeRequest": {
         "properties": {
           "projectId": {
@@ -43018,6 +43098,9 @@
     },
     {
       "name": "TenantBaseline"
+    },
+    {
+      "name": "TenantBranding"
     },
     {
       "name": "TenantCatalogMigrationStatus"

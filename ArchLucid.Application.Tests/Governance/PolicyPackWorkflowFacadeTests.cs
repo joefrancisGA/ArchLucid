@@ -7,6 +7,8 @@ using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Host.Core.Services;
+using ArchLucid.Persistence.Governance;
 
 using FluentAssertions;
 
@@ -450,6 +452,248 @@ public sealed class PolicyPackWorkflowFacadeTests
         visible.Should().ContainSingle(pack => pack.PolicyPackId == activePackId);
     }
 
+    [Fact]
+    public async Task TryDemoteCatalogEntryAsync_skips_duplicate_audit_when_already_demoted_retry()
+    {
+        InMemoryPolicyPackCatalogRepository catalog = new();
+        PolicyPackCatalogEntryDetail promoted = await catalog.UpsertPromotedFromSnapshotAsync(
+            Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            "Demo",
+            "desc",
+            PolicyPackType.ProjectCustom,
+            "1.0.0",
+            """{"complianceRuleKeys":["k"],"complianceRuleIds":[],"alertRuleIds":[],"compositeAlertRuleIds":[],"advisoryDefaults":{},"metadata":{}}""",
+            CancellationToken.None);
+
+        PolicyPackCatalogAdminService catalogAdmin = new(
+            Mock.Of<IPolicyPackRepository>(),
+            Mock.Of<IPolicyPackVersionRepository>(),
+            catalog);
+
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        PolicyPackWorkflowFacade sut = CreateCatalogDemoteSut(catalog, catalogAdmin, audit.Object);
+
+        bool first = await sut.TryDemoteCatalogEntryAsync(promoted.PolicyPackCatalogEntryId, CancellationToken.None);
+        bool second = await sut.TryDemoteCatalogEntryAsync(promoted.PolicyPackCatalogEntryId, CancellationToken.None);
+
+        first.Should().BeTrue();
+        second.Should().BeTrue();
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.PolicyPackCatalogDemoted),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task TrySetAssignmentEnabledAsync_skips_duplicate_audit_when_value_unchanged_retry()
+    {
+        Guid assignmentId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid packId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        PolicyPackAssignment assignment = new()
+        {
+            AssignmentId = assignmentId,
+            TenantId = CallerScope.TenantId,
+            WorkspaceId = CallerScope.WorkspaceId,
+            ProjectId = CallerScope.ProjectId,
+            PolicyPackId = packId,
+            PolicyPackVersion = "1.0.0",
+            IsEnabled = true,
+            IsOrganizationRequired = false,
+        };
+
+        Mock<IPolicyPackAssignmentRepository> assignments = new();
+        assignments
+            .Setup(r => r.GetByTenantAndAssignmentIdAsync(CallerScope.TenantId, assignmentId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(assignment);
+
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(r => r.GetByIdAsync(packId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateInScopePack(packId));
+
+        Mock<IPlatformBundledPolicyPackAvailability> platform = new();
+        platform
+            .Setup(p => p.IsGloballyActiveAsync(It.IsAny<PolicyPack>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        PolicyPackWorkflowFacade sut = CreateAssignmentToggleSut(
+            packs.Object,
+            assignments.Object,
+            platform.Object,
+            audit.Object);
+
+        bool first = await sut.TrySetAssignmentEnabledAsync(assignmentId, true, CancellationToken.None);
+        bool second = await sut.TrySetAssignmentEnabledAsync(assignmentId, true, CancellationToken.None);
+
+        first.Should().BeTrue();
+        second.Should().BeTrue();
+        assignments.Verify(
+            r => r.UpdateAsync(It.IsAny<PolicyPackAssignment>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.PolicyPackAssignmentEnabledChanged),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task TrySetAssignmentOrganizationRequiredAsync_skips_duplicate_audit_when_value_unchanged_retry()
+    {
+        Guid assignmentId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid packId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        PolicyPackAssignment assignment = new()
+        {
+            AssignmentId = assignmentId,
+            TenantId = CallerScope.TenantId,
+            WorkspaceId = CallerScope.WorkspaceId,
+            ProjectId = CallerScope.ProjectId,
+            PolicyPackId = packId,
+            PolicyPackVersion = "1.0.0",
+            IsEnabled = true,
+            IsOrganizationRequired = true,
+        };
+
+        Mock<IPolicyPackAssignmentRepository> assignments = new();
+        assignments
+            .Setup(r => r.GetByTenantAndAssignmentIdAsync(CallerScope.TenantId, assignmentId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(assignment);
+
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(r => r.GetByIdAsync(packId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateInScopePack(packId));
+
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        PolicyPackWorkflowFacade sut = CreateAssignmentToggleSut(
+            packs.Object,
+            assignments.Object,
+            Mock.Of<IPlatformBundledPolicyPackAvailability>(),
+            audit.Object);
+
+        bool first = await sut.TrySetAssignmentOrganizationRequiredAsync(assignmentId, true, CancellationToken.None);
+        bool second = await sut.TrySetAssignmentOrganizationRequiredAsync(assignmentId, true, CancellationToken.None);
+
+        first.Should().BeTrue();
+        second.Should().BeTrue();
+        assignments.Verify(
+            r => r.UpdateAsync(It.IsAny<PolicyPackAssignment>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.PolicyPackAssignmentOrganizationRequiredChanged),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task TryPromoteCatalogEntryAsync_skips_duplicate_audit_when_identical_promote_retry()
+    {
+        Guid sourcePackId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        const string version = "1.0.0";
+        const string contentJson = """{"complianceRuleKeys":["k"],"complianceRuleIds":[],"alertRuleIds":[],"compositeAlertRuleIds":[],"advisoryDefaults":{},"metadata":{}}""";
+
+        PolicyPack pack = CreateInScopePack(sourcePackId);
+        pack.PackType = PolicyPackType.BuiltIn;
+        pack.DistributionScope = PolicyPackDistributionScope.Platform;
+        pack.CurrentVersion = version;
+        pack.Description = "desc";
+
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(r => r.GetByIdAsync(sourcePackId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(pack);
+
+        Mock<IPolicyPackVersionRepository> versions = new();
+        versions
+            .Setup(v => v.GetByPackAndVersionAsync(sourcePackId, version, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackVersion { PolicyPackId = sourcePackId, Version = version, ContentJson = contentJson });
+
+        InMemoryPolicyPackCatalogRepository catalog = new();
+        PolicyPackCatalogAdminService catalogAdmin = new(packs.Object, versions.Object, catalog);
+
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        PolicyPackWorkflowFacade sut = CreateCatalogPromoteSut(catalog, catalogAdmin, audit.Object);
+
+        PolicyPackCatalogEntryDetail? first = await sut.TryPromoteCatalogEntryAsync(sourcePackId, version, CancellationToken.None);
+        PolicyPackCatalogEntryDetail? second = await sut.TryPromoteCatalogEntryAsync(sourcePackId, version, CancellationToken.None);
+
+        first.Should().NotBeNull();
+        second.Should().NotBeNull();
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.PolicyPackCatalogPromoted),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task TryPromoteCatalogEntryAsync_skips_duplicate_audit_when_snapshot_version_differs_only_by_casing()
+    {
+        Guid sourcePackId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        const string storedVersion = "V1.0.0";
+        const string retryVersion = "v1.0.0";
+        const string contentJson = """{"complianceRuleKeys":["k"],"complianceRuleIds":[],"alertRuleIds":[],"compositeAlertRuleIds":[],"advisoryDefaults":{},"metadata":{}}""";
+
+        PolicyPack pack = CreateInScopePack(sourcePackId);
+        pack.PackType = PolicyPackType.BuiltIn;
+        pack.DistributionScope = PolicyPackDistributionScope.Platform;
+        pack.CurrentVersion = storedVersion;
+        pack.Description = "desc";
+
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(r => r.GetByIdAsync(sourcePackId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(pack);
+
+        Mock<IPolicyPackVersionRepository> versions = new();
+        versions
+            .Setup(v => v.GetByPackAndVersionAsync(sourcePackId, storedVersion, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackVersion { PolicyPackId = sourcePackId, Version = storedVersion, ContentJson = contentJson });
+        versions
+            .Setup(v => v.GetByPackAndVersionAsync(sourcePackId, retryVersion, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackVersion { PolicyPackId = sourcePackId, Version = storedVersion, ContentJson = contentJson });
+
+        InMemoryPolicyPackCatalogRepository catalog = new();
+        PolicyPackCatalogAdminService catalogAdmin = new(packs.Object, versions.Object, catalog);
+
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        PolicyPackWorkflowFacade sut = CreateCatalogPromoteSut(catalog, catalogAdmin, audit.Object);
+
+        await sut.TryPromoteCatalogEntryAsync(sourcePackId, storedVersion, CancellationToken.None);
+        await sut.TryPromoteCatalogEntryAsync(sourcePackId, retryVersion, CancellationToken.None);
+
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.PolicyPackCatalogPromoted),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     private static PolicyPack CreateInScopePack(Guid packId) =>
         new()
         {
@@ -494,5 +738,99 @@ public sealed class PolicyPackWorkflowFacadeTests
                 Mock.Of<IPolicyPackResolverCacheInvalidator>()),
             platformAvailability ?? Mock.Of<IPlatformBundledPolicyPackAvailability>(),
             Mock.Of<IAuditService>());
+    }
+
+    private static PolicyPackWorkflowFacade CreateCatalogDemoteSut(
+        IPolicyPackCatalogRepository catalogRepository,
+        IPolicyPackCatalogAdminService catalogAdminService,
+        IAuditService auditService)
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(CallerScope);
+
+        return new PolicyPackWorkflowFacade(
+            scopeProvider.Object,
+            Mock.Of<IPolicyPackRepository>(),
+            Mock.Of<IPolicyPackAssignmentRepository>(),
+            Mock.Of<IPolicyPackVersionRepository>(),
+            catalogRepository,
+            Mock.Of<ArchLucid.Decisioning.Governance.PolicyPacks.IPolicyPackResolver>(),
+            Mock.Of<ArchLucid.Decisioning.Governance.PolicyPacks.IEffectiveGovernanceLoader>(),
+            Mock.Of<IPolicyPacksAppService>(),
+            catalogAdminService,
+            Mock.Of<IPolicyPackGovernanceDryRunService>(),
+            Mock.Of<IPolicyPackMarkdownExplainService>(),
+            Mock.Of<IPolicyPackRuleTemplatesService>(),
+            Mock.Of<IPolicyPackContentAuthoringValidationService>(),
+            new PolicyPackWorkspaceSelectionService(
+                Mock.Of<IPolicyPackRepository>(),
+                Mock.Of<IPolicyPackAssignmentRepository>(),
+                Mock.Of<IPlatformBundledPolicyPackAvailability>(),
+                Mock.Of<IPolicyPackResolverCacheInvalidator>()),
+            Mock.Of<IPlatformBundledPolicyPackAvailability>(),
+            auditService);
+    }
+
+    private static PolicyPackWorkflowFacade CreateAssignmentToggleSut(
+        IPolicyPackRepository packRepository,
+        IPolicyPackAssignmentRepository assignmentRepository,
+        IPlatformBundledPolicyPackAvailability platformAvailability,
+        IAuditService auditService)
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(CallerScope);
+
+        return new PolicyPackWorkflowFacade(
+            scopeProvider.Object,
+            packRepository,
+            assignmentRepository,
+            Mock.Of<IPolicyPackVersionRepository>(),
+            Mock.Of<IPolicyPackCatalogRepository>(),
+            Mock.Of<ArchLucid.Decisioning.Governance.PolicyPacks.IPolicyPackResolver>(),
+            Mock.Of<ArchLucid.Decisioning.Governance.PolicyPacks.IEffectiveGovernanceLoader>(),
+            Mock.Of<IPolicyPacksAppService>(),
+            Mock.Of<IPolicyPackCatalogAdminService>(),
+            Mock.Of<IPolicyPackGovernanceDryRunService>(),
+            Mock.Of<IPolicyPackMarkdownExplainService>(),
+            Mock.Of<IPolicyPackRuleTemplatesService>(),
+            Mock.Of<IPolicyPackContentAuthoringValidationService>(),
+            new PolicyPackWorkspaceSelectionService(
+                packRepository,
+                assignmentRepository,
+                platformAvailability,
+                Mock.Of<IPolicyPackResolverCacheInvalidator>()),
+            platformAvailability,
+            auditService);
+    }
+
+    private static PolicyPackWorkflowFacade CreateCatalogPromoteSut(
+        IPolicyPackCatalogRepository catalogRepository,
+        IPolicyPackCatalogAdminService catalogAdminService,
+        IAuditService auditService)
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(CallerScope);
+
+        return new PolicyPackWorkflowFacade(
+            scopeProvider.Object,
+            Mock.Of<IPolicyPackRepository>(),
+            Mock.Of<IPolicyPackAssignmentRepository>(),
+            Mock.Of<IPolicyPackVersionRepository>(),
+            catalogRepository,
+            Mock.Of<ArchLucid.Decisioning.Governance.PolicyPacks.IPolicyPackResolver>(),
+            Mock.Of<ArchLucid.Decisioning.Governance.PolicyPacks.IEffectiveGovernanceLoader>(),
+            Mock.Of<IPolicyPacksAppService>(),
+            catalogAdminService,
+            Mock.Of<IPolicyPackGovernanceDryRunService>(),
+            Mock.Of<IPolicyPackMarkdownExplainService>(),
+            Mock.Of<IPolicyPackRuleTemplatesService>(),
+            Mock.Of<IPolicyPackContentAuthoringValidationService>(),
+            new PolicyPackWorkspaceSelectionService(
+                Mock.Of<IPolicyPackRepository>(),
+                Mock.Of<IPolicyPackAssignmentRepository>(),
+                Mock.Of<IPlatformBundledPolicyPackAvailability>(),
+                Mock.Of<IPolicyPackResolverCacheInvalidator>()),
+            Mock.Of<IPlatformBundledPolicyPackAvailability>(),
+            auditService);
     }
 }

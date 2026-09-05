@@ -8,7 +8,7 @@ This matrix complements **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** four-bo
 
 | Signal | Current value |
 | --- | --- |
-| Registry rows | **218** controller route families (`route-tier-policy-nav-registry-count`) |
+| Registry rows | **232** controller route families (`route-tier-policy-nav-registry-count`) |
 | Executable registry | `scripts/ci/data/route_tier_policy_nav_registry.json` |
 | CI command | `python scripts/ci/assert_route_tier_policy_nav.py` |
 | Regenerate intentionally | `python scripts/ci/assert_route_tier_policy_nav.py --sync` |
@@ -68,7 +68,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:218 -->
+<!-- route-tier-policy-nav-registry-count:232 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -217,7 +217,17 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Governance/GovernanceStickinessController.cs` | `/v1/governance` | standard | ReadAuthority |  |  |
 | `Governance/ManifestsController.cs` | `/v1/architecture` | standard | ReadAuthority |  |  |
 | `Governance/PolicyPacksController.cs` | `/v1/policy-packs` | standard | ReadAuthority | /governance/policy-packs |  |
+| `InfraEvidence/ArchitectureDiagramIngestController.cs` | `/v1/architecture/runs/{runId:guid}/diagrams` | standard | ReadAuthority |  |  |
+| `InfraEvidence/ArchitectureDiagramReconciliationController.cs` | `/v1/architecture/runs/{runId:guid}/diagrams` | standard | ReadAuthority |  |  |
+| `InfraEvidence/ArchitectureDiagramVisionIngestController.cs` | `/v1/architecture/runs/{runId:guid}/diagrams` | standard | ReadAuthority |  |  |
+| `InfraEvidence/AuditEvidenceLineageController.cs` | `/v1/infra-evidence/audit-assessments` | standard | ReadAuthority |  |  |
+| `InfraEvidence/AuditEvidencePackageController.cs` | `/v1/infra-evidence/audit-assessments` | standard | ReadAuthority |  |  |
+| `InfraEvidence/BrandAssetController.cs` | `/v1/infra-evidence/branding/assets` | standard | AdminAuthority |  |  |
+| `InfraEvidence/CloudResourceEvidenceHubController.cs` | `/v1/infra-evidence/cloud-resources` | standard | ReadAuthority |  |  |
+| `InfraEvidence/InfraEvidenceAskController.cs` | `/v1/infra-evidence/ask` | standard | ReadAuthority |  |  |
 | `InfraEvidence/InfraEvidenceInventoryController.cs` | `/v1/infra-evidence/azure-inventory` | standard | ReadAuthority |  |  |
+| `InfraEvidence/TenantBrandingAdminController.cs` | `/v1/infra-evidence/branding/admin` | standard | AdminAuthority | /administration/branding |  |
+| `InfraEvidence/TenantBrandingController.cs` | `/v1/infra-evidence/branding` | standard | ReadAuthority |  |  |
 | `Integrations/AzureBoardsIntegrationsController.cs` | `/v1/integrations/azure-boards` | standard | Authorize |  |  |
 | `Integrations/ItsmCorrelationController.cs` | `/v1/integrations/itsm/correlations` | none | ReadAuthority |  |  |
 | `Integrations/ItsmInboundWebhooksController.cs` | `/v1/integrations/webhooks` | none | AllowAnonymous |  | partner_webhook_ingest |
@@ -244,6 +254,11 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Notifications/ExecDigestSponsorDeepLinkController.cs` | `/v1/notifications/exec-digest` | none | AllowAnonymous |  |  |
 | `Notifications/ExecDigestUnsubscribeController.cs` | `/v1/notifications/exec-digest` | none | AllowAnonymous |  | signed_token_unsubscribe |
 | `Notifications/SponsorDigestUnsubscribeController.cs` | `/v1/notifications/sponsor-digest` | none | AllowAnonymous |  |  |
+| `OperationalSecurity/OperationalSecurityFindingsController.cs` | `/v1/operational-security/findings` | standard | ReadAuthority |  |  |
+| `OperationalSecurity/RemediationFactoryMetricsController.cs` | `/v1/operational-security/remediation-metrics` | standard | ReadAuthority |  |  |
+| `OperationalSecurity/RemediationPatternsController.cs` | `/v1/operational-security/remediation-patterns` | standard | ReadAuthority |  |  |
+| `OperationalSecurity/RemediationPrioritizationController.cs` | `/v1/operational-security/remediation-prioritization` | standard | ReadAuthority |  |  |
+| `OperationalSecurity/RemediationWavesController.cs` | `/v1/operational-security/remediation-waves` | standard | ReadAuthority |  |  |
 | `Operator/OperatorSavedViewsController.cs` | `/v1/operator/saved-views` | standard | AuthenticatedUserOnly |  |  |
 | `Operator/OperatorShellStatusController.cs` | `/v1/operator/shell-status` | standard | AuthenticatedUserOnly |  |  |
 | `Pilots/PilotsBoardPackController.cs` | `/v1/pilots` | standard | ExecuteAuthority | /insights/architecture-scorecard |  |

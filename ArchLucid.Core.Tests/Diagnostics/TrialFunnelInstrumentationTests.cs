@@ -89,6 +89,36 @@ public sealed class TrialFunnelInstrumentationTests
     }
 
     [Fact]
+    public void TrialUpgradeNudgeShownTotal_normalizes_trigger_case_insensitively()
+    {
+        _ = ArchLucidInstrumentation.TrialUpgradeNudgeShownTotal;
+
+        using TrialFunnelCapture c = TrialFunnelCapture.Start();
+
+        ArchLucidInstrumentation.RecordTrialUpgradeNudgeShown("Runs");
+
+        c.LongMeasures.Should().Contain(m =>
+            m.Name == "archlucid_trial_upgrade_nudge_shown_total"
+            && m.Value == 1
+            && m.Tags.Any(t => t.Key == "trigger" && (string?)t.Value == "runs"));
+    }
+
+    [Fact]
+    public void TeamExpansionNudgeShownTotal_normalizes_trigger_case_insensitively()
+    {
+        _ = ArchLucidInstrumentation.TeamExpansionNudgeShownTotal;
+
+        using TrialFunnelCapture c = TrialFunnelCapture.Start();
+
+        ArchLucidInstrumentation.RecordTeamExpansionNudgeShown("WORKSPACES");
+
+        c.LongMeasures.Should().Contain(m =>
+            m.Name == "archlucid_team_expansion_nudge_shown_total"
+            && m.Value == 1
+            && m.Tags.Any(t => t.Key == "trigger" && (string?)t.Value == "workspaces"));
+    }
+
+    [Fact]
     public void TrialUpgradeNudgeShownTotal_add_emits_measurement()
     {
         _ = ArchLucidInstrumentation.TrialUpgradeNudgeShownTotal;

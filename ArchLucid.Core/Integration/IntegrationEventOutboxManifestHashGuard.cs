@@ -26,7 +26,9 @@ public static class IntegrationEventOutboxManifestHashGuard
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(eventType);
 
-        if (!RunScopedArchitectureEventTypes.Contains(eventType))
+        string canonicalEventType = IntegrationEventTypes.MapToCanonical(eventType);
+
+        if (!RunScopedArchitectureEventTypes.Contains(canonicalEventType))
             return;
 
         if (payloadUtf8.IsEmpty)
@@ -51,7 +53,7 @@ public static class IntegrationEventOutboxManifestHashGuard
         {
             JsonElement root = document.RootElement;
 
-            if (string.Equals(eventType, IntegrationEventTypes.AdvisoryScanCompletedV1, StringComparison.Ordinal)
+            if (string.Equals(canonicalEventType, IntegrationEventTypes.AdvisoryScanCompletedV1, StringComparison.Ordinal)
                 && !TryReadRunId(root, out Guid runId))
             {
                 return;
@@ -61,7 +63,7 @@ public static class IntegrationEventOutboxManifestHashGuard
                 || string.IsNullOrWhiteSpace(manifestHash))
             {
                 throw new InvalidOperationException(
-                    $"Integration outbox publish blocked for '{eventType}': manifestHash is required on run-scoped architecture payloads.");
+                    $"Integration outbox publish blocked for '{canonicalEventType}': manifestHash is required on run-scoped architecture payloads.");
             }
         }
     }

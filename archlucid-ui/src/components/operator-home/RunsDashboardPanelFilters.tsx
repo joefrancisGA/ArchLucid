@@ -4,9 +4,11 @@ import Link from "next/link";
 
 import type { RunsDashboardTabId } from "@/components/operator-home/runs-dashboard-load-phase";
 import { runsDashboardTabLabel } from "@/components/operator-home/runs-dashboard-helpers";
+import { runsDashboardDisabledTabReason } from "@/components/operator-home/runs-dashboard-panel-presentation";
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
+import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   BUYER_RUNS_DASHBOARD_OPEN_ALL_REVIEWS_CTA,
   BUYER_RUNS_DASHBOARD_RECENT_LABEL_EMPTY,
@@ -38,24 +40,35 @@ export type RunsDashboardPanelFiltersProps = {
   readonly openAllReviewsHref: string;
 };
 
-function renderReviewFilterChips(props: {
+function resolveSelectedTabEmptyReason(props: {
+  readonly buyerPolishedShell: boolean;
+  readonly tab: RunsDashboardTabId;
+  readonly statusTabCounts: RunsDashboardPanelFiltersProps["statusTabCounts"];
+}): string | null {
+  const count = props.statusTabCounts[props.tab] ?? 0;
+
+  if (props.tab === "all" || count > 0) {
+    return null;
+  }
+
+  return runsDashboardDisabledTabReason(props.tab, props.buyerPolishedShell);
+}
+
+function renderReviewViewLineTabs(props: {
   readonly buyerPolishedShell: boolean;
   readonly hideHeading: boolean;
   readonly tab: RunsDashboardTabId;
   readonly statusTabIds: readonly RunsDashboardTabId[];
   readonly statusTabCounts: RunsDashboardPanelFiltersProps["statusTabCounts"];
-  readonly onSelectDashboardTab: RunsDashboardPanelFiltersProps["onSelectDashboardTab"];
   readonly testIdPrefix: string;
 }): React.JSX.Element {
   return (
-    <FilterChipGroup
+    <TabsList
       aria-label={props.buyerPolishedShell ? "Filter reviews" : "Review views"}
       data-testid="runs-dashboard-status-filters"
-      className="flex flex-wrap gap-1.5"
+      className="w-full justify-start"
     >
       {props.statusTabIds.map((id) => {
-        const selected = props.tab === id;
-        const empty = props.statusTabCounts[id] === 0;
         const label = runsDashboardTabLabel(id, props.buyerPolishedShell, props.statusTabCounts[id], {
           homePreviewMode: props.hideHeading,
           recentTotalCount:
@@ -63,20 +76,16 @@ function renderReviewFilterChips(props: {
         });
 
         return (
-          <FilterChip
+          <TabsTrigger
             key={id}
-            aria-pressed={selected}
-            className={buyerFilterChipClass(selected, false, empty)}
+            value={id}
             data-testid={`${props.testIdPrefix}-${id}`}
-            onClick={() => {
-              props.onSelectDashboardTab(id);
-            }}
           >
             {label}
-          </FilterChip>
+          </TabsTrigger>
         );
       })}
-    </FilterChipGroup>
+    </TabsList>
   );
 }
 
@@ -100,6 +109,11 @@ export function RunsDashboardPanelFilters({
     hideHeading,
     isRecentListTab,
     tab,
+  });
+  const selectedTabEmptyReason = resolveSelectedTabEmptyReason({
+    buyerPolishedShell,
+    tab,
+    statusTabCounts,
   });
 
   return (
@@ -134,13 +148,12 @@ export function RunsDashboardPanelFilters({
       >
         {buyerPolishedShell ? (
           <>
-            {renderReviewFilterChips({
+            {renderReviewViewLineTabs({
               buyerPolishedShell,
               hideHeading,
               tab,
               statusTabIds,
               statusTabCounts,
-              onSelectDashboardTab,
               testIdPrefix: "runs-dashboard-filter",
             })}
             {archivedFieldSupported ? (
@@ -169,13 +182,12 @@ export function RunsDashboardPanelFilters({
             ) : null}
           </>
         ) : (
-          renderReviewFilterChips({
+          renderReviewViewLineTabs({
             buyerPolishedShell,
             hideHeading,
             tab,
             statusTabIds,
             statusTabCounts,
-            onSelectDashboardTab,
             testIdPrefix: "runs-dashboard-tab",
           })
         )}
@@ -192,6 +204,14 @@ export function RunsDashboardPanelFilters({
       {panelSummaryText !== null ? (
         <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-neutral-600 dark:text-neutral-400")}>
           {panelSummaryText}
+        </p>
+      ) : null}
+      {selectedTabEmptyReason !== null ? (
+        <p
+          className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
+          data-testid="runs-dashboard-selected-tab-empty-reason"
+        >
+          {selectedTabEmptyReason}
         </p>
       ) : null}
     </CardHeader>

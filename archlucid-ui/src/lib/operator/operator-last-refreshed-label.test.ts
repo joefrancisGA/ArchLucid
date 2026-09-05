@@ -5,7 +5,9 @@ import {
   operatorFreshnessMetadataClockValue,
   operatorFreshnessMetadataLabel,
   operatorFreshnessMetadataWithClockLabel,
+  operatorHomeDataCurrencyStaleCue,
   operatorHomeDataCurrencyValue,
+  OPERATOR_HOME_DATA_STALE_THRESHOLD_MS,
   operatorLastRefreshedClockLabel,
   operatorLastRefreshedExactLabel,
   operatorLastRefreshedLabel,
@@ -167,5 +169,15 @@ describe("operatorLastRefreshedExactLabel", () => {
     const refreshedAt = new Date("2026-01-15T12:00:00.000Z");
 
     expect(operatorLastRefreshedExactLabel(refreshedAt)).toBe("Jan 15, 2026, 12:00 PM UTC");
+  });
+});
+
+describe("operatorHomeDataCurrencyStaleCue", () => {
+  it("reports stale data with a visible cue past the threshold", () => {
+    const refreshedAt = new Date(Date.now() - OPERATOR_HOME_DATA_STALE_THRESHOLD_MS - 1_000);
+    const cue = operatorHomeDataCurrencyStaleCue(refreshedAt);
+
+    expect(cue).toMatch(/stale/i);
+    expect(operatorHomeDataCurrencyStaleCue(new Date())).toBeNull();
   });
 });

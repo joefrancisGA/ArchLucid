@@ -3,6 +3,7 @@
 import { memo, type ReactNode } from "react";
 
 import { OperatorNavAuthorityProvider } from "@/components/operator/OperatorNavAuthorityProvider";
+import { TenantBrandCssVarsProvider } from "@/components/operator/TenantBrandCssVarsProvider";
 import { WorkspaceActiveRunProvider } from "@/components/WorkspaceActiveRunContext";
 import { SessionAiReadinessProvider } from "@/hooks/session-ai-readiness-context";
 
@@ -14,9 +15,11 @@ export const OperatorShellProviders = memo(function OperatorShellProviders(props
 
   return (
     <OperatorNavAuthorityProvider>
-      <SessionAiReadinessProvider>
-        <WorkspaceActiveRunProvider>{children}</WorkspaceActiveRunProvider>
-      </SessionAiReadinessProvider>
+      <TenantBrandCssVarsProvider>
+        <SessionAiReadinessProvider>
+          <WorkspaceActiveRunProvider>{children}</WorkspaceActiveRunProvider>
+        </SessionAiReadinessProvider>
+      </TenantBrandCssVarsProvider>
     </OperatorNavAuthorityProvider>
   );
 });

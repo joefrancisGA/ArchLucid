@@ -1,4 +1,31 @@
-/** Top-bar chip — intentionally loud so rule-based analysis cannot be mistaken for live AI. */
+/** Top-bar analysis mode labels — avoid passive status chips and model-runtime naming on buyer shells. */
+export const ANALYSIS_MODE_RULE_BASED_LABEL = "Rule-based analysis";
+
+export const ANALYSIS_MODE_WORKSPACE_LABEL = "Workspace analysis";
+
+export const ANALYSIS_MODE_RULE_BASED_SWITCH_TITLE = "Switch to rule-based analysis?";
+
+export const ANALYSIS_MODE_WORKSPACE_SWITCH_TITLE = "Switch to workspace analysis?";
+
+export const ANALYSIS_MODE_RULE_BASED_SWITCH_PROMPT =
+  "Rule-based analysis uses deterministic checks only. Use this for demos and offline rehearsal.";
+
+export const ANALYSIS_MODE_WORKSPACE_SWITCH_PROMPT =
+  "Workspace analysis uses your tenant-configured AI path. Confirm before changing how reviews run in this session.";
+
+export function resolveAnalysisModeTopBarButtonLabel(isSimulator: boolean, notReady: boolean): string {
+  if (isSimulator) {
+    return `Analysis: ${ANALYSIS_MODE_RULE_BASED_LABEL}`;
+  }
+
+  if (notReady) {
+    return "Analysis: Workspace (not ready)";
+  }
+
+  return `Analysis: ${ANALYSIS_MODE_WORKSPACE_LABEL}`;
+}
+
+/** @deprecated Dev-only — prefer analysis mode button labels. */
 export const SIMULATOR_MODE_TOP_BAR_CHIP_LABEL = "Rule-based";
 
 export const SIMULATOR_MODE_TOP_BAR_CHIP_DETAIL =

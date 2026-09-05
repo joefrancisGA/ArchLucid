@@ -49,7 +49,7 @@ class TestTraceabilityBatch5BW(unittest.TestCase):
             / "RunDetailPipelineStagesSection.tsx"
         )
         text = path.read_text(encoding="utf-8")
-        self.assertIn("Stage timing and outcomes", text)
+        self.assertIn("Analysis stages", text)
         self.assertIn("run-detail-pipeline-stages", text)
 
 

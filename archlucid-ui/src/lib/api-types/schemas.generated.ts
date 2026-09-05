@@ -9622,6 +9622,114 @@ export interface components {
             /** Format: int32 */
             peoplePerReview?: null | number;
         };
+        TenantBrandColorsResponse: {
+            accent?: null | string;
+            background?: null | string;
+            foreground?: null | string;
+            primary?: null | string;
+            secondary?: null | string;
+        };
+        TenantBrandingActivateResponse: {
+            state?: null | components["schemas"]["TenantBrandingAdminStateResponse"];
+            succeeded?: boolean;
+            validationIssues?: components["schemas"]["TenantBrandingValidationIssueResponse"][];
+        };
+        TenantBrandingActiveSummaryResponse: {
+            isActive?: boolean;
+            /** Format: date-time */
+            updatedUtc?: null | string;
+            /** Format: int32 */
+            version?: null | number;
+        };
+        TenantBrandingAdminStateResponse: {
+            active?: components["schemas"]["TenantBrandingActiveSummaryResponse"];
+            canActivate?: boolean;
+            draft?: components["schemas"]["TenantBrandingDraftResponse"];
+            productDefaults?: components["schemas"]["TenantBrandColorsResponse"];
+            validationIssues?: components["schemas"]["TenantBrandingValidationIssueResponse"][];
+        };
+        TenantBrandingDraftPutRequest: {
+            accentColor?: null | string;
+            backgroundColor?: null | string;
+            coBrandingEnabled?: boolean;
+            companyDisplayName?: null | string;
+            companyLegalName?: null | string;
+            foregroundColor?: null | string;
+            /** Format: uuid */
+            logoDarkAssetId?: null | string;
+            /** Format: uuid */
+            logoFaviconAssetId?: null | string;
+            /** Format: uuid */
+            logoLightAssetId?: null | string;
+            /** Format: uuid */
+            logoMonoAssetId?: null | string;
+            /** Format: uuid */
+            logoPrimaryAssetId?: null | string;
+            /** Format: uuid */
+            logoReportCoverAssetId?: null | string;
+            /** Format: uuid */
+            logoSecondaryAssetId?: null | string;
+            /** Format: uuid */
+            logoSquareAssetId?: null | string;
+            primaryColor?: null | string;
+            secondaryColor?: null | string;
+            shortDisplayName?: null | string;
+            supportUrl?: null | string;
+            tagline?: null | string;
+            websiteUrl?: null | string;
+        };
+        TenantBrandingDraftResponse: {
+            accentColor?: null | string;
+            backgroundColor?: null | string;
+            /** Format: uuid */
+            brandingProfileId?: null | string;
+            coBrandingEnabled?: boolean;
+            companyDisplayName?: null | string;
+            companyLegalName?: null | string;
+            foregroundColor?: null | string;
+            /** Format: uuid */
+            logoDarkAssetId?: null | string;
+            /** Format: uuid */
+            logoFaviconAssetId?: null | string;
+            /** Format: uuid */
+            logoLightAssetId?: null | string;
+            /** Format: uuid */
+            logoMonoAssetId?: null | string;
+            /** Format: uuid */
+            logoPrimaryAssetId?: null | string;
+            /** Format: uuid */
+            logoReportCoverAssetId?: null | string;
+            /** Format: uuid */
+            logoSecondaryAssetId?: null | string;
+            /** Format: uuid */
+            logoSquareAssetId?: null | string;
+            primaryColor?: null | string;
+            secondaryColor?: null | string;
+            shortDisplayName?: null | string;
+            supportUrl?: null | string;
+            tagline?: null | string;
+            /** Format: date-time */
+            updatedUtc?: null | string;
+            websiteUrl?: null | string;
+        };
+        TenantBrandingPresentationResponse: {
+            colors?: components["schemas"]["TenantBrandColorsResponse"];
+            context?: string;
+            isProductBrand?: boolean;
+            /** Format: uuid */
+            logoAssetId?: null | string;
+            logoContentPath?: null | string;
+            logoHttpsUrl?: null | string;
+            mastheadDisplayName?: string;
+            showArchLucidMarkInMasthead?: boolean;
+            showPoweredByArchLucid?: boolean;
+            usesTenantVisualBrand?: boolean;
+        };
+        TenantBrandingValidationIssueResponse: {
+            code?: string;
+            message?: string;
+            severity?: string;
+        };
         TenantCatalogMigrationScopeRequest: {
             /** Format: uuid */
             projectId?: string;

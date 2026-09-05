@@ -599,7 +599,7 @@ describe("RunsDashboardPanel", () => {
     renderRunsDashboardPanel();
 
     await waitFor(() => {
-      expect(screen.getByRole("group", { name: "Filter reviews" })).toBeInTheDocument();
+      expect(screen.getByRole("tablist", { name: "Filter reviews" })).toBeInTheDocument();
       expect(screen.getByTestId("runs-dashboard-filter-all")).toHaveTextContent("All (1)");
       expect(screen.getByTestId("runs-dashboard-filter-approved")).toHaveTextContent("Approved (1)");
     });
@@ -762,19 +762,19 @@ describe("RunsDashboardPanel", () => {
     await screen.findByRole("link", { name: "Active review" });
 
     await waitFor(() => {
-      expect(screen.getByRole("group", { name: "Review views" })).toBeInTheDocument();
+      expect(screen.getByRole("tablist", { name: "Review views" })).toBeInTheDocument();
     });
 
     const filterGroup = screen.getByTestId("runs-dashboard-status-filters");
 
-    expect(within(filterGroup).getByTestId("runs-dashboard-tab-all")).toHaveAttribute("aria-pressed", "true");
+    expect(within(filterGroup).getByTestId("runs-dashboard-tab-all")).toHaveAttribute("aria-selected", "true");
     expect(screen.queryByRole("link", { name: /open all reviews/i })).not.toBeNull();
 
     fireEvent.click(within(filterGroup).getByTestId("runs-dashboard-tab-attention"));
 
     await waitFor(() => {
       expect(within(filterGroup).getByTestId("runs-dashboard-tab-attention")).toHaveAttribute(
-        "aria-pressed",
+        "aria-selected",
         "true",
       );
     });

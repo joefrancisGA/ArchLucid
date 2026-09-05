@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
-import { formatOperatorHomeApprovalCheckWarningFilterLabel } from "@/lib/operator/operator-home-approval-check-warning-copy";
+import { formatOperatorHomeGovernanceApprovalWarningFilterLabel } from "@/lib/operator/operator-home-governance-approval-warning-copy";
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -34,29 +34,39 @@ export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
         aria-label="Filter reviews"
         className="flex flex-wrap items-center gap-1.5"
       >
-        <FilterChip
-          data-testid="runs-dashboard-governance-warnings-only"
-          className={cn(
-            FILTER_CHIP_LAYOUT_CLASS,
-            buyerFilterChipClass(
-              props.governanceWarningsOnly,
-              warningsFilterDisabled,
-              warningsCount === 0,
-            ),
-          )}
-          aria-pressed={props.governanceWarningsOnly}
-          aria-describedby={warningsFilterDisabled ? WARNINGS_FILTER_DISABLED_HINT_ID : undefined}
-          disabled={warningsFilterDisabled}
-          onClick={() => {
-            if (warningsFilterDisabled) {
-              return;
-            }
+        <div className="inline-flex flex-col gap-1">
+          <FilterChip
+            data-testid="runs-dashboard-governance-warnings-only"
+            className={cn(
+              FILTER_CHIP_LAYOUT_CLASS,
+              buyerFilterChipClass(
+                props.governanceWarningsOnly,
+                warningsFilterDisabled,
+                warningsCount === 0,
+              ),
+            )}
+            aria-pressed={props.governanceWarningsOnly}
+            aria-describedby={warningsFilterDisabled ? WARNINGS_FILTER_DISABLED_HINT_ID : undefined}
+            disabled={warningsFilterDisabled}
+            onClick={() => {
+              if (warningsFilterDisabled) {
+                return;
+              }
 
-            props.onGovernanceWarningsOnlyChange(!props.governanceWarningsOnly);
-          }}
-        >
-          {formatOperatorHomeApprovalCheckWarningFilterLabel()}
-        </FilterChip>
+              props.onGovernanceWarningsOnlyChange(!props.governanceWarningsOnly);
+            }}
+          >
+            {formatOperatorHomeGovernanceApprovalWarningFilterLabel()}
+          </FilterChip>
+          {warningsFilterDisabled ? (
+            <p
+              id={WARNINGS_FILTER_DISABLED_HINT_ID}
+              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
+            >
+              No reviews with governance approval warnings in this workspace yet.
+            </p>
+          ) : null}
+        </div>
         <FilterChip
           data-testid="runs-dashboard-show-archived"
           className={cn(FILTER_CHIP_LAYOUT_CLASS, buyerFilterChipClass(props.showArchived, false, false))}
@@ -68,14 +78,6 @@ export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
           {RUNS_DASHBOARD_LABELS.showArchived}
         </FilterChip>
       </FilterChipGroup>
-      {warningsFilterDisabled ? (
-        <p
-          id={WARNINGS_FILTER_DISABLED_HINT_ID}
-          className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
-        >
-          No reviews with approval-check warnings in this workspace yet.
-        </p>
-      ) : null}
     </div>
   );
 }

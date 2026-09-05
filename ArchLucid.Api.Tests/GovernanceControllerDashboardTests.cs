@@ -27,21 +27,18 @@ public sealed class GovernanceControllerDashboardTests
     private static ScopeContext DashboardScope(Guid tenantId) =>
         new() { TenantId = tenantId, WorkspaceId = WorkspaceId };
 
-    private static void SetupTenantExists(Mock<ITenantRepository> tenants, Guid tenantId)
+    private static void SetupTenantExists(Mock<ITenantRepository> tenants, Guid tenantId, params Guid[] workspaceIds)
     {
         tenants
             .Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = tenantId, Name = "contoso" });
         tenants
             .Setup(t => t.ListWorkspacesAsync(tenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
+            .ReturnsAsync(workspaceIds.Select(id => new TenantWorkspaceListItem
+            {
+                WorkspaceId = id,
+                Name = "workspace",
+            }).ToList());
     }
 
     [SkippableFact]
@@ -71,7 +68,7 @@ public sealed class GovernanceControllerDashboardTests
             .ReturnsAsync(expected);
 
         Mock<ITenantRepository> tenants = new();
-        SetupTenantExists(tenants, tenantId);
+        SetupTenantExists(tenants, tenantId, WorkspaceId);
 
         GovernanceController sut = GovernanceControllerTestFactory.Create(
             scopeContextProvider: scope.Object,
@@ -86,6 +83,72 @@ public sealed class GovernanceControllerDashboardTests
         GovernanceDashboardSummary payload = (GovernanceDashboardSummary)ok.Value!;
         payload.PendingCount.Should().Be(1);
         payload.PendingApprovals.Should().ContainSingle().Which.ApprovalRequestId.Should().Be("x1");
+    }
+
+    [SkippableFact]
+    public async Task GetDashboard_returns_ok_when_workspace_changes_despite_matching_summary_etag()
+    {
+        Guid tenantId = Guid.Parse("cccccccc-dddd-eeee-ffff-000011112222");
+        Guid workspaceA = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid workspaceB = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
+        GovernanceDashboardSummary emptySummary = new()
+        {
+            PendingApprovals = [],
+            RecentDecisions = [],
+            RecentChanges = [],
+            PendingCount = 0,
+        };
+
+        Mock<IGovernanceDashboardService> dashboard = new();
+        dashboard
+            .Setup(d => d.GetDashboardAsync(
+                tenantId,
+                20,
+                20,
+                20,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(emptySummary);
+
+        Mock<ITenantRepository> tenants = new();
+        SetupTenantExists(tenants, tenantId, workspaceA, workspaceB);
+
+        Mock<IScopeContextProvider> scopeA = new();
+        scopeA.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceA,
+        });
+
+        GovernanceController controllerA = GovernanceControllerTestFactory.Create(
+            scopeContextProvider: scopeA.Object,
+            dashboardService: dashboard.Object,
+            tenantRepository: tenants.Object);
+
+        IActionResult first = await controllerA.GetDashboard(20, 20, 20, CancellationToken.None);
+        first.Should().BeOfType<OkObjectResult>();
+        string etag = controllerA.Response.Headers.ETag.ToString();
+        etag.Should().NotBeNullOrWhiteSpace();
+
+        Mock<IScopeContextProvider> scopeB = new();
+        scopeB.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceB,
+        });
+
+        DefaultHttpContext httpContext = new();
+        httpContext.Request.Headers.IfNoneMatch = etag;
+
+        GovernanceController controllerB = GovernanceControllerTestFactory.Create(
+            scopeContextProvider: scopeB.Object,
+            dashboardService: dashboard.Object,
+            tenantRepository: tenants.Object,
+            httpContext: httpContext);
+
+        IActionResult second = await controllerB.GetDashboard(20, 20, 20, CancellationToken.None);
+
+        second.Should().BeOfType<OkObjectResult>();
     }
 
     [SkippableFact]
@@ -129,7 +192,7 @@ public sealed class GovernanceControllerDashboardTests
         });
 
         Mock<ITenantRepository> tenants = new();
-        SetupTenantExists(tenants, tenantId);
+        SetupTenantExists(tenants, tenantId, WorkspaceId);
 
         Mock<IGovernanceDashboardService> dashboard = new(MockBehavior.Strict);
 

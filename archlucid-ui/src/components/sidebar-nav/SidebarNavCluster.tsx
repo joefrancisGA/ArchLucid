@@ -7,7 +7,6 @@ import { useEffect, useState, type ReactElement } from "react";
 
 import { AlertsOutstandingNavBadge } from "@/components/alerts/AlertsOutstandingNavBadge";
 import { GovernanceAssignedToMeFindingsNavBadge } from "@/components/governance/findings/GovernanceAssignedToMeFindingsNavBadge";
-import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { GovernanceReviewsAwaitingNavBadge } from "@/components/governance/GovernanceReviewsAwaitingNavBadge";
 import { SidebarNavLink } from "@/components/sidebar-nav/SidebarNavLink";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
@@ -130,15 +129,6 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
     "sidebar-disclosure-trigger inline-flex min-w-0 max-w-full items-center gap-2 rounded-md p-0 text-left hover:bg-neutral-50 dark:hover:bg-neutral-800/80",
   );
 
-  const groupHeadingHelpTooltip = group.caption ? (
-    <FieldHelpTooltip
-      label={groupHeadingLabel}
-      hint={group.caption}
-      side="right"
-      className="shrink-0"
-    />
-  ) : null;
-
   const collapsibleChevron = props.isExpanded ? (
     <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
   ) : (
@@ -153,10 +143,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
       {headingLabel}
     </>
   ) : (
-    <span className="inline-flex min-w-0 flex-1 items-center gap-1">
-      {headingLabel}
-      {groupHeadingHelpTooltip}
-    </span>
+    headingLabel
   );
 
   function renderLink(link: (typeof linksForRender)[number]): ReactElement {
@@ -208,7 +195,6 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
           >
             {headingInner}
           </button>
-          {groupHeadingHelpTooltip}
         </div>
       ) : (
         <div
@@ -234,7 +220,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
               <button
                 type="button"
                 className={cn(
-                  "sidebar-disclosure-trigger flex w-full items-center gap-1 rounded-md px-2 py-1 text-left text-al-text-secondary hover:bg-neutral-50 dark:hover:bg-neutral-800/80",
+                  "sidebar-disclosure-trigger flex w-full items-center gap-1 rounded-md px-2 py-1 text-left text-al-text-primary hover:bg-neutral-50 dark:text-neutral-100 dark:hover:bg-neutral-800/80",
                   OPERATOR_TYPOGRAPHY.helper,
                 )}
                 data-testid={`sidebar-group-more-${group.id}`}
@@ -248,7 +234,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
                 ) : (
                   <ChevronRight className="h-3 w-3 shrink-0 opacity-80" aria-hidden />
                 )}
-                <span>{sidebarMoreLinksLabel(group.label, more.length, moreOpen)}</span>
+                <span>{sidebarMoreLinksLabel(group.id, more.length, moreOpen)}</span>
               </button>
               {moreOpen ? <div className="flex flex-col gap-0.5">{more.map((link) => renderLink(link))}</div> : null}
             </div>

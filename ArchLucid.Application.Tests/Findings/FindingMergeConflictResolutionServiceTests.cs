@@ -1,4 +1,5 @@
 using ArchLucid.Application.Findings;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -89,16 +90,89 @@ public sealed class FindingMergeConflictResolutionServiceTests
 
         FindingMergeConflictResolutionService sut = new(runs.Object, snapshots.Object);
 
-        bool resolved = await sut.TryResolveAsync(
+        FindingMergeConflictResolveResult resolved = await sut.TryResolveAsync(
             Scope,
             runId,
             conflictId,
             FindingMergeConflictResolutionAction.AcceptPrimary,
             CancellationToken.None);
 
-        resolved.Should().BeTrue();
+        resolved.Should().Be(FindingMergeConflictResolveResult.Resolved);
         saved.Should().NotBeNull();
-        saved!.Findings.Should().ContainSingle();
-        saved.Findings[0].FindingId.Should().Be("FIND-A");
+        saved!.Findings.Should().HaveCount(2);
+        saved.Findings.Should().ContainSingle(finding => finding.FindingId == "FIND-A");
+        saved.Findings.Should().ContainSingle(finding =>
+            finding.FindingId == conflictId
+            && finding.FindingType == "FindingMergeConflictResolved");
+    }
+
+    [Fact]
+    public async Task TryResolveAsync_returns_already_resolved_without_mutating_snapshot_on_operator_retry()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid snapshotId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        const string conflictId = "CONFLICT-1";
+
+        Finding primary = new()
+        {
+            FindingId = "FIND-A",
+            FindingType = "PolicyViolation",
+            Category = "Security",
+            EngineType = "engine-a",
+            Title = "a",
+            Rationale = "a",
+            Severity = FindingSeverity.Warning,
+        };
+
+        Finding resolvedConflict = new()
+        {
+            FindingId = conflictId,
+            FindingType = "FindingMergeConflictResolved",
+            Category = "Security",
+            EngineType = "finding-merge-conflict",
+            Title = "conflict",
+            Rationale =
+                "Finding merge conflict on ADR 0063 key. EngineTypes=[engine-a, engine-b]; FindingIds=[find-a, find-b]",
+            Severity = FindingSeverity.Warning,
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["findingMerge.resolutionAction"] = nameof(FindingMergeConflictResolutionAction.AcceptPrimary),
+            },
+        };
+
+        FindingsSnapshot snapshot = new()
+        {
+            FindingsSnapshotId = snapshotId,
+            RunId = runId,
+            Findings = [primary, resolvedConflict],
+        };
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId, FindingsSnapshotId = snapshotId });
+
+        Mock<IFindingsSnapshotRepository> snapshots = new(MockBehavior.Strict);
+        snapshots
+            .Setup(s => s.GetByIdAsync(Scope, snapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(snapshot);
+
+        FindingMergeConflictResolutionService sut = new(runs.Object, snapshots.Object);
+
+        FindingMergeConflictResolveResult resolved = await sut.TryResolveAsync(
+            Scope,
+            runId,
+            conflictId,
+            FindingMergeConflictResolutionAction.AcceptPrimary,
+            CancellationToken.None);
+
+        resolved.Should().Be(FindingMergeConflictResolveResult.AlreadyResolved);
+        snapshots.Verify(
+            s => s.SaveAsync(
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<System.Data.IDbConnection?>(),
+                It.IsAny<System.Data.IDbTransaction?>()),
+            Times.Never);
     }
 }

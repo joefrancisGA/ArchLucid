@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 359_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 365_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -9645,7 +9645,8 @@ BEGIN
         CreatedUtc                DATETIME2         NOT NULL,
         UpdatedUtc                DATETIME2         NOT NULL,
         CreatedBy                 NVARCHAR(256)     NULL,
-        UpdatedBy                 NVARCHAR(256)     NULL
+        UpdatedBy                 NVARCHAR(256)     NULL,
+        CoBrandingEnabled         BIT               NOT NULL CONSTRAINT DF_TenantBrandingProfiles_CoBrandingEnabled DEFAULT (0)
     );
 
     CREATE NONCLUSTERED INDEX IX_TenantBrandingProfiles_Tenant_Status
@@ -10106,4 +10107,46 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_AuditArchitectureEvidenceLinks_Tenant_Control
         ON dbo.AuditArchitectureEvidenceLinks (TenantId, AssessmentId, ControlId);
+END;
+
+GO
+
+/*
+  364: Tenant brand assets (BR-02).
+*/
+
+IF OBJECT_ID(N'dbo.BrandAssets', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.BrandAssets
+    (
+        AssetId            UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_BrandAssets PRIMARY KEY CLUSTERED,
+        TenantId           UNIQUEIDENTIFIER NOT NULL,
+        AssetType          INT               NOT NULL,
+        OriginalFileName   NVARCHAR(512)     NOT NULL,
+        MimeType           NVARCHAR(128)     NOT NULL,
+        Width              INT               NULL,
+        Height             INT               NULL,
+        StorageReference   NVARCHAR(2048)    NOT NULL,
+        ChecksumSha256     VARBINARY(32)     NOT NULL,
+        Status             INT               NOT NULL,
+        CreatedUtc         DATETIME2         NOT NULL,
+        UpdatedUtc         DATETIME2         NOT NULL,
+        CreatedBy          NVARCHAR(256)     NULL
+    );
+
+    CREATE NONCLUSTERED INDEX IX_BrandAssets_Tenant_Status
+        ON dbo.BrandAssets (TenantId, Status);
+END;
+
+GO
+
+/*
+  365: Tenant branding co-branding flag (BR-04).
+*/
+
+IF COL_LENGTH(N'dbo.TenantBrandingProfiles', N'CoBrandingEnabled') IS NULL
+BEGIN
+    ALTER TABLE dbo.TenantBrandingProfiles
+        ADD CoBrandingEnabled BIT NOT NULL
+            CONSTRAINT DF_TenantBrandingProfiles_CoBrandingEnabled DEFAULT (0);
 END;
