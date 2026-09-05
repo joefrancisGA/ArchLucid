@@ -182,7 +182,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
   const draftLastEditedPresentation =
     latestDraft?.lastUpdatedUtc !== undefined && latestDraft.lastUpdatedUtc.trim().length > 0
       ? formatRunHomeListUpdatedLabel({
-          runId: latestDraft.architectureId,
+          runId: latestDraft.draftId,
           projectId: "default",
           createdUtc: latestDraft.lastUpdatedUtc,
         })
@@ -202,7 +202,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
     latestDraft !== undefined &&
     !latestDraftPastDrafting;
   const latestDraftQuery = useArchitectureDraftQuery(
-    latestDraft?.architectureId ?? "",
+    latestDraft?.draftId ?? "",
     shouldResolveLatestDraftReadiness,
   );
   const latestDraftReviewReadinessValid = useMemo(() => {

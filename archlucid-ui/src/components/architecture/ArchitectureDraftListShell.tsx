@@ -342,7 +342,7 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
                         </Button>
                       ) : (
                         <ArchitectureDraftResumeControl
-                          architectureId={entry.draftId}
+                          draftId={entry.draftId}
                           label="Continue editing"
                           source="architectures-list"
                           testId={`architecture-draft-continue-${entry.draftId}`}
@@ -351,7 +351,7 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
                       )}
                       {entry.linkedReviewId !== null ? (
                         <ArchitectureDraftCloneSnapshotControl
-                          architectureId={entry.draftId}
+                          draftId={entry.draftId}
                           testId={`architecture-draft-clone-snapshot-${entry.draftId}`}
                         />
                       ) : null}
@@ -361,7 +361,7 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
                         </Button>
                       ) : null}
                       <ArchitectureDraftDeleteControl
-                        architectureId={entry.draftId}
+                        draftId={entry.draftId}
                         displayName={entry.displayName}
                         linkedReviewId={entry.linkedReviewId}
                         customerStatus={entry.customerStatus}

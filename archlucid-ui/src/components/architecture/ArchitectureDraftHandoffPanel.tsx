@@ -67,7 +67,7 @@ export function ArchitectureDraftHandoffPanel(
             >
               <Link href={reviewHref}>Open review — {reviewLabel}</Link>
             </Button>
-            <ArchitectureDraftCloneSnapshotControl architectureId={props.draftId} variant="outline" />
+            <ArchitectureDraftCloneSnapshotControl draftId={props.draftId} variant="outline" />
           </div>
 
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>

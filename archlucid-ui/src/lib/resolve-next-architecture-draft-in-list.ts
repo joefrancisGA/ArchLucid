@@ -27,8 +27,8 @@ export function resolveNextArchitectureDraftInList(
   }
 
   return {
-    architectureId: nextDraft.architectureId,
+    architectureId: nextDraft.draftId,
     displayName: nextDraft.displayName,
-    href: architectureDraftPath(nextDraft.architectureId),
+    href: architectureDraftPath(nextDraft.draftId),
   };
 }
