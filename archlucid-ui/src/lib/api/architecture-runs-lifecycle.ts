@@ -57,6 +57,7 @@ export async function executeArchitectureRunAsync(
   const accepted = await apiPostAcceptedWithLocation(
     `/v1/architecture/review/${encodeURIComponent(runId)}/execute/async`,
     {},
+    { suppressErrorToast: true },
   );
   const operationId =
     parseOperationIdFromLocation(accepted.location) ?? reviewPipelineOperationId(runId);

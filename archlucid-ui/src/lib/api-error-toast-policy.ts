@@ -30,21 +30,45 @@ export function isConnectivityOrAssistantFailure(message: string): boolean {
   return classifyApiConnectivityFailure({ message, httpStatus: null, problem: null }) !== null;
 }
 
+function isUpstreamApiUrlMisconfigurationProblem(params: {
+  readonly message: string;
+  readonly problem: ApiProblemDetails | null;
+}): boolean {
+  const lower = params.message.toLowerCase();
+  const title = (params.problem?.title ?? "").trim().toLowerCase();
+  const detail = (params.problem?.detail ?? "").trim().toLowerCase();
+  const supportHint = (params.problem?.supportHint ?? "").trim().toLowerCase();
+  const haystack = [lower, title, detail, supportHint].join("\n");
+
+  if (haystack.includes("invalid upstream api configuration")) {
+    return true;
+  }
+
+  if (haystack.includes("archlucid_api_base_url")) {
+    return true;
+  }
+
+  if (
+    haystack.includes("not configured")
+    && (haystack.includes("api base url") || haystack.includes("upstream api url"))
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
 export function classifyApiConnectivityFailure(params: {
   readonly message: string;
   readonly httpStatus: number | null;
   readonly problem: ApiProblemDetails | null;
 }): ApiConnectivityFailureKind | null {
   const lower = params.message.toLowerCase();
-  const supportHint = (params.problem?.supportHint ?? "").trim();
 
   if (lower.includes("usestream"))
     return "assistant-stream";
 
-  if (
-    params.httpStatus === 503
-    && (lower.includes("not configured") || lower.includes("archlucid_api_base_url") || supportHint.length > 0)
-  ) {
+  if (params.httpStatus === 503 && isUpstreamApiUrlMisconfigurationProblem(params)) {
     return "api-not-configured";
   }
 
