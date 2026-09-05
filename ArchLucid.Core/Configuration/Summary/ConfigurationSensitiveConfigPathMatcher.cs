@@ -37,7 +37,8 @@ internal static class ConfigurationSensitiveConfigPathMatcher
             return true;
 
         if (normalized.Equals("PrivateKey", StringComparison.OrdinalIgnoreCase)
-            || IsPrivateKeyCredentialSegment(normalized))
+            || IsPrivateKeyCredentialSegment(normalized)
+            || IsExplicitCredentialConfigSegment(normalized))
             return true;
 
         foreach (string fragment in SensitiveSegmentFragments)
@@ -70,6 +71,15 @@ internal static class ConfigurationSensitiveConfigPathMatcher
         }
 
         return false;
+    }
+
+    private static bool IsExplicitCredentialConfigSegment(ReadOnlySpan<char> segment)
+    {
+        return segment.Equals("ClientSecret", StringComparison.OrdinalIgnoreCase)
+            || segment.Equals("PrimaryKey", StringComparison.OrdinalIgnoreCase)
+            || segment.Equals("SecondaryKey", StringComparison.OrdinalIgnoreCase)
+            || segment.Equals("AccountKey", StringComparison.OrdinalIgnoreCase)
+            || segment.Equals("AccessKey", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsPrivateKeyCredentialSegment(ReadOnlySpan<char> segment)

@@ -137,6 +137,7 @@ public static partial class GenericArchitectureAdvicePatterns
         }
 
         if (ImperativeGenericAdvice().Match(normalized) is { Success: true } imperativeMatch
+            && !IsNegatedAdviceFragment(normalized, imperativeMatch.Index)
             && !IsSuffixNegatedAdviceFragment(normalized, imperativeMatch.Index, imperativeMatch.Length))
             return true;
 
@@ -188,6 +189,7 @@ public static partial class GenericArchitectureAdvicePatterns
             || before.EndsWith("won't", StringComparison.Ordinal)
             || before.EndsWith("won't need to", StringComparison.Ordinal)
             || before.EndsWith("doesn't need to", StringComparison.Ordinal)
+            || before.EndsWith("doesn't require", StringComparison.Ordinal)
             || before.EndsWith("no requirement to", StringComparison.Ordinal)
             || before.EndsWith("no need to", StringComparison.Ordinal)
             || before.EndsWith("not required to", StringComparison.Ordinal)
@@ -213,6 +215,8 @@ public static partial class GenericArchitectureAdvicePatterns
             || after.StartsWith("not necessary", StringComparison.Ordinal)
             || after.StartsWith("is not necessary", StringComparison.Ordinal)
             || after.StartsWith("is unnecessary", StringComparison.Ordinal)
+            || after.StartsWith("isn't required", StringComparison.Ordinal)
+            || after.StartsWith("isn't needed", StringComparison.Ordinal)
             || after.StartsWith("is optional", StringComparison.Ordinal);
     }
 

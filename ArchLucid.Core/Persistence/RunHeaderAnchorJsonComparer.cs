@@ -155,6 +155,20 @@ internal static class RunHeaderAnchorJsonComparer
         if (TryNumberBooleanEquivalent(left, right))
             return true;
 
+        if (TryAbsentEmptyStringEquivalent(left, right))
+            return true;
+
+        return false;
+    }
+
+    private static bool TryAbsentEmptyStringEquivalent(JsonElement left, JsonElement right)
+    {
+        if (left.ValueKind == JsonValueKind.String && right.ValueKind == JsonValueKind.Undefined)
+            return string.IsNullOrWhiteSpace(left.GetString());
+
+        if (left.ValueKind == JsonValueKind.Undefined && right.ValueKind == JsonValueKind.String)
+            return string.IsNullOrWhiteSpace(right.GetString());
+
         return false;
     }
 
@@ -267,10 +281,10 @@ internal static class RunHeaderAnchorJsonComparer
     private static bool TryNullEmptyStringEquivalent(JsonElement left, JsonElement right)
     {
         if (left.ValueKind == JsonValueKind.Null && right.ValueKind == JsonValueKind.String)
-            return string.IsNullOrEmpty(right.GetString());
+            return string.IsNullOrWhiteSpace(right.GetString());
 
         if (left.ValueKind == JsonValueKind.String && right.ValueKind == JsonValueKind.Null)
-            return string.IsNullOrEmpty(left.GetString());
+            return string.IsNullOrWhiteSpace(left.GetString());
 
         return false;
     }

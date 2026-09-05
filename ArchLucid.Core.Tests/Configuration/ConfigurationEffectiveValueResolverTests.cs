@@ -71,6 +71,24 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Theory]
+    [InlineData("ArchLucid:Auth:ClientSecret")]
+    [InlineData("Azure:Storage:PrimaryKey")]
+    [InlineData("Azure:Storage:AccountKey")]
+    public void Resolve_redacts_explicit_credential_config_paths(string configPath)
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "super-secret"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Theory]
     [InlineData("ArchLucid:PasswordlessAuth:Enabled", "true")]
     [InlineData("ArchLucid:TokenizerModel:Name", "gpt-4.1")]
     [InlineData("ArchLucid:ApiKeylessAuth:Mode", "managed-identity")]

@@ -57,9 +57,20 @@ public sealed class GenericArchitectureAdvicePatternsMultiCloudTests
     [InlineData("doesn't need to enable mfa for service accounts")]
     [InlineData("shouldn't enable mfa for service accounts")]
     [InlineData("won't need to enable mfa for service accounts")]
+    [InlineData("enable mfa isn't required for batch workloads")]
+    [InlineData("use https isn't needed for legacy clients")]
     public void IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing(string message)
     {
         GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(message).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_doesnt_require_mid_sentence_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "This workload doesn't require enable tls for internal hops.")
+            .Should()
+            .BeFalse();
     }
 
     [Theory]
