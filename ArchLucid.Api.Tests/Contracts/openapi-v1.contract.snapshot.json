@@ -21031,7 +21031,20 @@
               "string"
             ]
           },
+          "expectedUpdatedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "focusedPilotModeEnabled": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "forceOverwrite": {
             "type": [
               "null",
               "boolean"
