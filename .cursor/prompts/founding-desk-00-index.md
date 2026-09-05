@@ -34,7 +34,7 @@ Do **not** merge draft+review in the database, collapse desktop review tabs, aut
 | **WA-01–24** | Wave 4 chrome + career edges | **Shipped** #1496 |
 | **CD-01–15** | Wave 5 unique leftovers | [`career-desk-00-index.md`](career-desk-00-index.md) |
 | **AD-01–12** | Wave 6 all-day operational leftovers | [`all-day-desk-00-index.md`](all-day-desk-00-index.md) |
-| **FD-01–13** | **This set** — wave 7 founding leftovers | Run these |
+| **FD-01–13** | **This set** — wave 7 founding leftovers | **Shipped** PR #1534 — reassessment [`docs/architecture/FOUNDING_DESK_ASSESSMENT_2026-09-04.md`](../../docs/architecture/FOUNDING_DESK_ASSESSMENT_2026-09-04.md) |
 
 If an FD row lists a CD/AD/WA/RS/LD/WD/PT owner, **do not fork** that file. Implement only the leftover in *What to build*.
 

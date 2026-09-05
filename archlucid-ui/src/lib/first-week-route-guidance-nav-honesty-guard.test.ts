@@ -56,4 +56,21 @@ describe("first-week route guidance nav honesty guard (CD-14)", () => {
 
     expect(lyingWorkingHome.operateDeferralNote).toMatch(WORKING_FORBIDDEN_PHRASES[0]);
   });
+
+  it("Working in-progress review detail does not tell the architect to stay on this page (FD-12)", () => {
+    const workingInProgress = resolveFirstWeekRouteGuidanceForShell("review-detail-in-progress", {
+      evalChrome: false,
+    });
+
+    expect(workingInProgress.bridgeCopy).not.toMatch(/stay on this page/i);
+    expect(workingInProgress.bridgeCopy).toMatch(/activity/i);
+  });
+
+  it("Guided eval in-progress review detail may still use stay-on-page copy", () => {
+    const guidedInProgress = resolveFirstWeekRouteGuidanceForShell("review-detail-in-progress", {
+      evalChrome: true,
+    });
+
+    expect(guidedInProgress.bridgeCopy).toMatch(/stay on this page/i);
+  });
 });
