@@ -30,6 +30,7 @@ public sealed class BrandAssetController(
     IScopeContextProvider scopeProvider,
     IAuditService auditService) : ControllerBase
 {
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
     [Consumes("multipart/form-data")]
     [RequestSizeLimit(BrandAssetUploadValidator.MaxAssetBytes + 256)]

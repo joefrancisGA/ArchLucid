@@ -25,6 +25,7 @@ public sealed class ArchitectureDiagramVisionIngestController(
     IVisionDiagramIngestService ingestService,
     IScopeContextProvider scopeProvider) : ControllerBase
 {
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("vision-ingest")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [FeatureGate(FeatureGateKey.DiagramVisionEnabled)]
