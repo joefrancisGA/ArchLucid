@@ -40,7 +40,7 @@ public sealed class Migration366ArchitectureIdentityDisplayNameSqlTests
     {
         Assembly asm = typeof(DatabaseMigrator).Assembly;
         string? resourceName = asm.GetManifestResourceNames()
-            .SingleOrDefault(static n => n.EndsWith(fileName, StringComparison.Ordinal));
+            .SingleOrDefault(n => n.EndsWith(fileName, StringComparison.Ordinal));
 
         resourceName.Should().NotBeNull($"embedded resource {fileName} must exist");
 
