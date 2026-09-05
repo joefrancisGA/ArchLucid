@@ -13,14 +13,16 @@ The shell exposes **fast navigation** and **page actions** via the keyboard. Des
 | **Input guard** | Shortcuts do not fire while focus is in `<input>`, `<textarea>`, `<select>`, or `contenteditable` (see [`useKeyboardShortcuts`](../src/hooks/useKeyboardShortcuts.ts)). |
 | **Progressive discoverability** | Help overlay (**Shift+?**), nav `title` + `aria-keyshortcuts`, command palette (**Ctrl+K**), and footer hint text—operators learn without reading this doc first. |
 
-Global shortcuts apply from the main content region wrapped by [`KeyboardShortcutProvider`](../src/components/KeyboardShortcutProvider.tsx) in [`layout.tsx`](../src/app/layout.tsx). The header/nav sit outside that wrapper, so **focus the page body** (e.g. Tab to main or click content) before Alt shortcuts if the nav stole focus.
+Global shortcuts register on `window` via [`AppShellSyncKeyboardShortcutListener`](../src/components/shell/AppShellSyncKeyboardShortcutListener.tsx) in [`AppShellClient`](../src/components/AppShellClient.tsx). Alt+letter navigation works from anywhere in the shell, including when focus is on the header or sidebar — you do **not** need to Tab into main content first.
+
+The deferred **Shift+?** help overlay still mounts from [`KeyboardShortcutProvider`](../src/components/KeyboardShortcutProvider.tsx) in [`layout.tsx`](../src/app/layout.tsx); that wrapper does not gate Alt navigation.
 
 ## Command palette (Ctrl+K)
 
 | Surface | Behavior | Visible label |
 |---------|----------|----------------|
 | Header trigger ([`CommandPalette.tsx`](../src/components/CommandPalette.tsx)) | **Ctrl+K** and **⌘K** (macOS `metaKey`) both open/close the palette | Always **`Ctrl+K`** in chips and tooltips — never the ⌘ glyph ([`keyboard-shortcut-display.ts`](../src/lib/keyboard-shortcut-display.ts)) |
-| Palette **work** actions (LI-07 / LD-09) | On draft routes: **Save changes**. On review-detail when finalize is ready: **Finalize review**. On review finding inspect with dirty guarded fields: **Save changes**. On findings / review-detail: next / previous / Alt+1–3 dispositions. On alerts: next / previous / Alt+1–3 triage. **Undo last reversible change** appears only while a reversible Undo control is on the page — not as a dead Home row. **Compare this review** appears in the This review group when a run id is in scope. | Same labels as [`command-palette-handler-actions.ts`](../src/lib/command-palette-handler-actions.ts) |
+| Palette **work** actions (LI-07 / LD-09 / IS-10) | On draft routes: **Save changes**. On review-detail when finalize is ready: **Finalize review**. On review finding inspect with dirty guarded fields: **Save changes**. On findings / review-detail: next / previous / Alt+1–3 dispositions; **Open checklist band** on review-detail. On alerts: next / previous / Alt+1–3 triage. **Undo last reversible change** appears only while a reversible Undo control is on the page — not as a dead Home row. **Compare this review** appears in the This review group when a run id is in scope. | Same labels as [`command-palette-handler-actions.ts`](../src/lib/command-palette-handler-actions.ts) |
 | Global search ([`GlobalSearchBar.tsx`](../src/components/GlobalSearchBar.tsx)) | **`/`** focuses the header search input when focus is not in a text field ([`useSearchShortcut`](../src/hooks/useSearchShortcut.ts)) | Not shown as a chip; documented here |
 | Sidebar footer | *(removed)* | No duplicate “Search pages” hint in the nav column |
 
@@ -72,12 +74,19 @@ Focus a finding card or row (`data-finding-id`, typically `role="article"` / `ta
 
 ## Page-specific: Review detail (`/architecture/reviews/[reviewId]`)
 
+Focus a finding card on the Findings tab (or governance findings lists). **Alt+J/K** and **Alt+1–3** respect the visible classification band in Working mode (IS-07 / IS-10). Implemented via [`FindingKeyboardTriageHost`](../src/components/governance/findings/FindingKeyboardTriageHost.tsx).
+
 | Combo | Action |
 |-------|--------|
 | **Alt+C** | Compare this review (Working mode only — prefills base run) |
 | **Ctrl+Shift+S** | Save architecture draft from the review workbench when the draft editor is open |
+| **Alt+J** | Focus next finding in the visible band |
+| **Alt+K** | Focus previous finding in the visible band |
+| **Alt+1** | Accept focused finding (Execute+ shell rank) |
+| **Alt+2** | Mark focused finding remediated (Execute+ shell rank) |
+| **Alt+3** | Reject focused finding as not applicable (Execute+ shell rank) |
 
-Palette **Finalize review** and **Save changes** mirror the visible Finalize CTA and guarded save buttons on the open review surface (LD-09).
+Palette **Finalize review**, **Save changes**, and **Open checklist band** mirror the visible controls on the open review surface (LD-09 / IS-10). **Shift+?** lists desk work shortcuts before navigation when Working mode is active.
 
 ## Discoverability
 

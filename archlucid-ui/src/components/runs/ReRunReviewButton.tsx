@@ -3,8 +3,18 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
+import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { ReRunReviewOutcomeNotice } from "@/components/runs/ReRunReviewOutcomeNotice";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { useReRunReviewInFlightProgress } from "@/hooks/use-re-run-review-in-flight-progress";
 import { executeArchitectureRunAsync } from "@/lib/api";
@@ -13,11 +23,14 @@ import type { ApiProblemDetails } from "@/lib/api-problem";
 import type { ButtonProps } from "@/components/ui/button";
 import { awaitMinimumVisibleDuration } from "@/lib/await-minimum-visible-duration";
 import { findInFlightOperationForRun } from "@/lib/operations/find-in-flight-operation-for-run";
+import { isInFlightOperationForAttempt } from "@/lib/operations/is-in-flight-operation-for-attempt";
+import { isStaleFailedOperationForAttempt } from "@/lib/operations/is-stale-rerun-failure-operation-poll";
 import {
   getInFlightOperations,
   subscribeInFlightOperations,
 } from "@/lib/operations/in-flight-operations-store";
 import { isTerminalOperationState } from "@/lib/operations/operation-state";
+import { restartReviewPipelineInFlight } from "@/lib/operations/review-pipeline-in-flight";
 import {
   formatReRunReviewTerminalHeadline,
   RE_RUN_REVIEW_MIN_BUSY_MS,
@@ -25,6 +38,8 @@ import {
   reRunReviewOutcomePhaseFromOperationState,
   type ReRunReviewOutcomePhase,
 } from "@/lib/re-run-review-outcome-copy";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type ReRunReviewButtonProps = {
   readonly runId: string;
@@ -62,6 +77,7 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
   } = props;
   const router = useRouter();
   const [busy, setBusy] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [sessionAttemptOffset, setSessionAttemptOffset] = useState(0);
   const [outcome, setOutcome] = useState<ReRunReviewOutcomeState | null>(null);
   const [error, setError] = useState<{
@@ -79,6 +95,7 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
   );
   const trackedOperation = findInFlightOperationForRun(operations, runId);
   const running = outcome?.phase === "running" && outcome.finishedAtMs === undefined;
+  const pendingAttemptNumber = resolveReRunReviewAttemptNumber(retryCount, sessionAttemptOffset);
 
   const { progressCopy } = useReRunReviewInFlightProgress({
     runId,
@@ -112,6 +129,14 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
         return;
       }
 
+      if (!isInFlightOperationForAttempt(latest, active.startedAtMs)) {
+        return;
+      }
+
+      if (isStaleFailedOperationForAttempt(latest, active.startedAtMs)) {
+        return;
+      }
+
       const phase = reRunReviewOutcomePhaseFromOperationState(latest.state);
 
       if (phase === null || phase === "running") {
@@ -138,6 +163,14 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
     const active = activeAttemptRef.current;
 
     if (active === null || trackedOperation === null) {
+      return;
+    }
+
+    if (!isInFlightOperationForAttempt(trackedOperation, active.startedAtMs)) {
+      return;
+    }
+
+    if (isStaleFailedOperationForAttempt(trackedOperation, active.startedAtMs)) {
       return;
     }
 
@@ -171,9 +204,11 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
     const clickStartedAtMs = Date.now();
     const attemptNumber = resolveReRunReviewAttemptNumber(retryCount, sessionAttemptOffset);
 
+    restartReviewPipelineInFlight(runId, clickStartedAtMs);
     setSessionAttemptOffset((previous) => previous + 1);
     setBusy(true);
     setError(null);
+    setConfirmOpen(false);
 
     const nextOutcome: ReRunReviewOutcomeState = {
       phase: "running",
@@ -244,11 +279,44 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
         size={size}
         disabled={busy || running}
         aria-busy={busy || running}
-        onClick={() => void onReRunReview()}
+        onClick={() => {
+          setConfirmOpen(true);
+        }}
         data-testid={dataTestId}
       >
         {busy ? busyLabel : idleLabel}
       </Button>
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent data-testid="re-run-review-confirm-dialog">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Re-run this review?</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className={cn("space-y-3", OPERATOR_TYPOGRAPHY.body)}>
+                <p className="m-0">
+                  Attempt <strong>{pendingAttemptNumber}</strong> will re-invoke architecture analysis on this review.
+                  Metered AI budget will be consumed.
+                </p>
+                <AiBudgetSpendNotice action="Architecture review analysis" testId="re-run-review-budget-notice" />
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              disabled={busy || running}
+              onClick={() => {
+                void onReRunReview();
+              }}
+              data-testid="re-run-review-confirm-button"
+            >
+              Re-run review (attempt {pendingAttemptNumber})
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       {outcome !== null && outcomeHeadline !== null ? (
         <ReRunReviewOutcomeNotice
           phase={outcome.phase}

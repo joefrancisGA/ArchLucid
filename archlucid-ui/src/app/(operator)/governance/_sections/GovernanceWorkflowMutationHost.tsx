@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { GovernanceRecordCorrectionDialog } from "@/components/governance/GovernanceRecordCorrectionDialog";
+import { useGovernanceRecordCorrectionUrlSync } from "@/hooks/use-governance-record-correction-url-sync";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { ReversibleMutationSuccessCallout } from "@/components/operator/ReversibleMutationSuccessCallout";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
@@ -16,6 +17,7 @@ type GovernanceWorkflowMutationHostProps = {
   readonly mutations: UseGovernanceWorkflowMutationsResult;
   readonly showInlineFeedback?: boolean;
 };
+
 
 export function GovernanceWorkflowMutationHost(props: GovernanceWorkflowMutationHostProps) {
   const { mutations, showInlineFeedback = true } = props;
@@ -39,7 +41,9 @@ export function GovernanceWorkflowMutationHost(props: GovernanceWorkflowMutation
     activateBusyId,
     onConfirmActivateFromPromotion,
   } = mutations;
-  const [correctionDialogOpen, setCorrectionDialogOpen] = useState(false);
+  const { correctionDialogOpen, setCorrectionDialogOpen } = useGovernanceRecordCorrectionUrlSync({
+    correctionTarget: mutationCorrectionTarget,
+  });
   const [correctionRecorded, setCorrectionRecorded] = useState(false);
 
   const successMessage =
@@ -70,6 +74,7 @@ export function GovernanceWorkflowMutationHost(props: GovernanceWorkflowMutation
                 }
               : undefined
           }
+          // governance_workflow_approve | governance_workflow_reject — mounted-controls markers (IS-12 / LD-05)
         />
       ) : null}
 

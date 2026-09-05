@@ -1,5 +1,7 @@
 import {
   buildLongOperationWaitCopy,
+  LONG_OPERATION_HOME_PAGE_STATUS_HINT,
+  LONG_OPERATION_QUEUE_STATUS_REFRESH_HINT,
   LONG_OPERATION_TIMEOUT_HINT_MS,
   type LongOperationEscalationLevel,
   type LongOperationWaitCopy,
@@ -19,6 +21,10 @@ const STALE_QUEUED_STEP_LABELS = new Set(["Queued", "Execute failed", "In progre
 export type ReRunReviewRunningProgressCopy = LongOperationWaitCopy & {
   readonly heartbeatLine: string | null;
   readonly stalled: boolean;
+  readonly queueStatusStageLabel: string;
+  readonly queueStatusElapsedMs: number;
+  readonly statusRefreshHint: string;
+  readonly homePageHint: string;
 };
 
 export function resolveHeartbeatAgeMs(
@@ -115,6 +121,10 @@ export function buildReRunReviewRunningProgressCopy(args: {
     detail,
     heartbeatLine,
     stalled,
+    queueStatusStageLabel: stageLabel,
+    queueStatusElapsedMs: args.elapsedMs,
+    statusRefreshHint: LONG_OPERATION_QUEUE_STATUS_REFRESH_HINT,
+    homePageHint: LONG_OPERATION_HOME_PAGE_STATUS_HINT,
   };
 }
 

@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { Share2, Users } from "lucide-react";
-import { useState, type ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useState, type ReactElement, type SetStateAction } from "react";
 
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { ShareableReviewLinkButton } from "@/components/usability/ShareableReviewLinkButton";
@@ -11,6 +12,11 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { buildInviteReviewerHref, INVITE_REVIEWER_PAGE_TITLE } from "@/lib/invite-reviewer-flow";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatWhyDisabledCtaMessage, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
+import {
+  parseReviewHeaderShareMenuOpenFromSearch,
+  reviewHeaderShareMenuHrefFromSearch,
+} from "@/lib/reviews/review-header-share-menu-url";
 import { cn } from "@/lib/utils";
 
 export type ReviewHeaderShareMenuProps = {
@@ -18,16 +24,62 @@ export type ReviewHeaderShareMenuProps = {
   readonly isCommitted: boolean;
   readonly findingsQueueHref: string;
   readonly canInviteReviewer?: boolean;
+  readonly disabled?: boolean;
+  readonly disabledReason?: WhyDisabledCtaReason | null;
 };
 
 /** Consolidated share and export affordances on the review detail header. */
 export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactElement {
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
+  const searchParams = useSearchParams();
+  const shareMenuOpenParam = searchParams.get("shareMenuOpen");
+  const [open, setOpenState] = useState(() => parseReviewHeaderShareMenuOpenFromSearch(shareMenuOpenParam));
+
+  const syncShareMenuOpenToUrl = useCallback(
+    (nextOpen: boolean) => {
+      router.replace(reviewHeaderShareMenuHrefFromSearch(searchParams.toString(), nextOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncShareMenuOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncShareMenuOpenToUrl],
+  );
   const inviteHref = buildInviteReviewerHref(props.runId);
   const exportSteps = buildReviewMeetingPacketSteps({
     runId: props.runId,
     findingsQueueHref: props.findingsQueueHref,
   });
+  const disabledReasonMessage = formatWhyDisabledCtaMessage(props.disabledReason);
+  const shareMenuDisabled = props.disabled === true;
+
+  if (shareMenuDisabled) {
+    return (
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="gap-1.5"
+        disabled
+        aria-label={disabledReasonMessage ?? "Share and export unavailable until the review completes"}
+        data-testid="review-header-share-menu-trigger"
+      >
+        <Share2 className="h-4 w-4" aria-hidden />
+        Share &amp; export
+      </Button>
+    );
+  }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

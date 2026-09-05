@@ -50,6 +50,8 @@ export type FindingInspectDispositionControlsProps = {
   readonly setPendingDispositionConfirm: (value: PendingDispositionConfirm | null) => void;
   readonly pendingRevokeWaiverConfirm: boolean;
   readonly setPendingRevokeWaiverConfirm: (value: boolean) => void;
+  readonly pendingWaiverCreateConfirm: boolean;
+  readonly setPendingWaiverCreateConfirm: (value: boolean) => void;
   readonly applyChangePreviewOverride: boolean;
   readonly setApplyChangePreviewOverride: (value: boolean) => void;
   readonly tradeOffAcknowledgment: string;

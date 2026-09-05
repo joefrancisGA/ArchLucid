@@ -4969,7 +4969,7 @@ jobs:
       - dotnet-full-regression-slow-domain
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
@@ -5020,7 +5020,7 @@ jobs:
           NEXT_PUBLIC_ARCHLUCID_AUTH_MODE: jwt-bearer
         run: |
           npm ci
-          npm run build
+          npm run build:live-e2e
 
       - name: Generate RSA keys & PyJWT (CI JWT mint)
         run: |

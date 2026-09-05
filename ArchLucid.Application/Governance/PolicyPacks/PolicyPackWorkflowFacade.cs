@@ -123,6 +123,7 @@ public sealed partial class PolicyPackWorkflowFacade(
         string version,
         string scopeLevel,
         bool isPinned,
+        bool isOrganizationRequired,
         CancellationToken ct)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
@@ -139,6 +140,7 @@ public sealed partial class PolicyPackWorkflowFacade(
             version,
             scopeLevel,
             isPinned,
+            isOrganizationRequired,
             ct);
 
         if (assignment is null)
@@ -155,6 +157,9 @@ public sealed partial class PolicyPackWorkflowFacade(
             await _assignmentRepository.GetByTenantAndAssignmentIdAsync(scope.TenantId, assignmentId, ct);
 
         if (!PolicyPackAssignmentScope.IsVisibleInScope(assignment, scope))
+            return false;
+
+        if (PolicyPackAssignmentOrganizationRequired.IsOrganizationRequired(assignment))
             return false;
 
         return await _policyPacksApp.TryArchiveAssignmentAsync(scope.TenantId, assignmentId, ct);
@@ -215,6 +220,34 @@ public sealed partial class PolicyPackWorkflowFacade(
             {
                 EventType = AuditEventTypes.PolicyPackAssignmentEnabledChanged,
                 DataJson = JsonSerializer.Serialize(new { assignmentId, isEnabled }),
+            },
+            ct);
+
+        return true;
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> TrySetAssignmentOrganizationRequiredAsync(
+        Guid assignmentId,
+        bool isOrganizationRequired,
+        CancellationToken ct)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        bool ok = await _workspaceSelectionService.TrySetAssignmentOrganizationRequiredAsync(
+            scope,
+            assignmentId,
+            isOrganizationRequired,
+            ct);
+
+        if (!ok)
+            return false;
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.PolicyPackAssignmentOrganizationRequiredChanged,
+                DataJson = JsonSerializer.Serialize(new { assignmentId, isOrganizationRequired }),
             },
             ct);
 

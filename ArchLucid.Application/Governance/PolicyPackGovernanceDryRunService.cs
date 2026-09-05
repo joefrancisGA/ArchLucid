@@ -3,7 +3,6 @@ using System.Text.Json;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Llm.Redaction;
-using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Interfaces;

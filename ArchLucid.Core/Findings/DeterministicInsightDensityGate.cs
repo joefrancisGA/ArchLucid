@@ -84,15 +84,7 @@ public sealed class DeterministicInsightDensityGate(IOptions<InsightDensityGateO
 
         if (!candidate.IsAgentArchitectureFinding)
         {
-            penaltyReasons.Add("typed-engine-protected");
-
-            return new InsightDensityGateResult
-            {
-                InsightDensityScore = score,
-                Treatment = FindingTreatment.Promote,
-                Classification = FindingClassification.DecisionGradeFinding,
-                PenaltyReasons = penaltyReasons,
-            };
+            penaltyReasons.Add("typed-engine-scored");
         }
 
         bool demote = score < _options.DemotionThreshold && !hasArchitectureAnchor && !hasConcreteEvidence;

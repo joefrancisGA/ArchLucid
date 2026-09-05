@@ -1,6 +1,7 @@
 import type { ArchitectureCreatedHomeModel, BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture/architecture-created-home-model";
 import { buildArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
 import { deriveArchitectureGapBaselineFromSubmittedText } from "@/lib/derive-architecture-gap-baseline";
+import { extractAttachedIntakeFileNames } from "@/lib/intake-attached-file-names";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import {
@@ -52,11 +53,16 @@ export function buildRunDetailEvidencePresentation(
     input.runSummaryForBadge,
     input.reviewDisplayTitle,
   );
-  const hasSubmittedArchitecture = submittedArchitectureText !== null;
+  const attachedFileNames = extractAttachedIntakeFileNames(input.runSummaryForBadge.description);
+  const hasSubmittedArchitecture = workspaceDerive.deriveHasSubmittedArchitectureDescription(
+    input.runSummaryForBadge,
+    input.reviewDisplayTitle,
+  );
   const evidenceInventoryItems = deriveRunDetailEvidenceInventory({
     findings: input.quickDecisionFindings,
     runCreatedUtc: model.resolvedDetail.run.createdUtc,
-    submittedArchitecturePresent: hasSubmittedArchitecture,
+    submittedArchitecturePresent: submittedArchitectureText !== null,
+    attachedFileNames,
   });
   const derivedGapBaseline = deriveArchitectureGapBaselineFromSubmittedText(submittedArchitectureText);
   const architectureEditHref = input.hasManifest ? null : guidedIntakeRerunHref(model.resolvedDetail.run.runId);

@@ -19,6 +19,7 @@ import { RunDetailInfeasibleDecisionLead } from "./RunDetailInfeasibleDecisionLe
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
 import { analysisStagesCompleteOnSummary } from "./pipeline-complete-on-summary";
+import { deriveDecisionSnapshotSuppressedReason, isReviewPipelineIncomplete } from "@/lib/run-detail-workspace-derive";
 
 export type RunDetailOverviewTabCompositionInput = {
   readonly model: RunDetailPageModel;
@@ -58,6 +59,8 @@ export function composeRunDetailOverviewTab(
   const feasibilityVerdict: ManifestFeasibilityVerdict | null =
     m.manifestSummary?.feasibilityVerdict ?? m.manifestSummaryForUi?.feasibilityVerdict ?? null;
   const runCompleted = m.resolvedDetail.run.legacyRunStatus === "Completed" || Boolean(m.manifestId);
+  const decisionSnapshotSuppressedReason = deriveDecisionSnapshotSuppressedReason(workspaceStatus);
+  const showDetailedOutcomeCards = !isReviewPipelineIncomplete(workspaceStatus);
 
   return (
     <div key="review-detail-overview-panel" className="space-y-4">
@@ -79,6 +82,7 @@ export function composeRunDetailOverviewTab(
         evidenceCoverageLine={evidenceCoverageSummary.summaryLine}
         primaryConcern={reviewStatusSummary.primaryConcern}
         materialSeverityLine={materialSeverityLine}
+        suppressedReason={decisionSnapshotSuppressedReason}
       />
       {executiveBottomLineEl}
       <RunDetailOverviewTransparencyTrail
@@ -101,6 +105,7 @@ export function composeRunDetailOverviewTab(
         recommendedActions={recommendedActions}
         criticalCount={severityCounts.critical}
         highCount={severityCounts.high}
+        pipelineIncomplete={!showDetailedOutcomeCards}
         proofStatusSlot={
           <RunDetailFirstScreenProofStatusClient
             key="run-detail-overview-proof-status"
@@ -110,15 +115,21 @@ export function composeRunDetailOverviewTab(
           />
         }
       />
-      <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" open={false}>
-        <summary className="cursor-pointer font-semibold">Detailed outcome cards</summary>
-        <div className="mt-3">{input.outcomeCardsEl}</div>
-      </details>
+      {showDetailedOutcomeCards ? (
+        <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" open={false}>
+          <summary className="cursor-pointer font-semibold">Detailed outcome cards</summary>
+          <div className="mt-3">{input.outcomeCardsEl}</div>
+        </details>
+      ) : null}
       <Suspense fallback={<RunDetailMidDeferredSkeleton />}>
         <RunDetailMidDeferredSections context={deferredContext} />
       </Suspense>
-      {buyerFinalizedPackage ? null : (
-        <RunDetailSponsorReportCtaCardDeferred runId={m.resolvedDetail.run.runId} demoted />
+      {buyerFinalizedPackage || !runCompleted ? null : (
+        <RunDetailSponsorReportCtaCardDeferred
+          runId={m.resolvedDetail.run.runId}
+          manifestId={m.manifestId}
+          demoted
+        />
       )}
     </div>
   );

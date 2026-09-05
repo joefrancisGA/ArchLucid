@@ -1,3 +1,4 @@
+import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 import type { NavGroupConfig, NavLinkItem, NavShellSurface } from "@/lib/nav-config";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { filterNavLinksByAuthority } from "@/lib/nav-authority";
@@ -98,6 +99,10 @@ export function listNavGroupsVisibleInOperatorShell(
   const out: NavGroupWithVisibleLinks[] = [];
 
   for (const group of groups) {
+    if (group.staffInternalOnly === true && !isArchLucidInternalOperatorShellEnv()) {
+      continue;
+    }
+
     if (group.surface === "system-admin") {
       if (!isSystemAdministrationNavGroupVisible(presetId)) {
         continue;

@@ -14,9 +14,9 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ReviewPackageDoThisNextStrip } from "./ReviewPackageDoThisNextStrip";
-import { RunDetailReviewPackageDecisionReceiptStrip } from "./RunDetailReviewPackageDecisionReceiptStrip";
+import { RunDetailReviewPackageStampViewport } from "./RunDetailReviewPackageStampViewport";
 import { FinalizeReadinessStrip } from "@/components/reviews/FinalizeReadinessStrip";
-import { RunDetailSealDeskCoverageStrip } from "@/components/reviews/RunDetailSealDeskCoverageStrip";
+import { resolveReviewFailureRecordedAtUtc } from "@/components/resolve-run-detail-last-failure-summary";
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import type {
   ResolveReviewPackageDoThisNextInput,
@@ -38,6 +38,7 @@ export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackage
   readonly pipelineDiagnosticContext?: ReviewPipelineDiagnosticContext | null;
   readonly lastFailureSummary?: RunDetailLastFailureSummary | null;
   readonly pipelineSummary?: RunSummary | null;
+  readonly runCompletedUtc?: string | null;
   readonly intakeDescription?: string | null;
   readonly intakeSystemName?: string | null;
   readonly realModeFellBackToSimulator?: boolean | null;
@@ -199,22 +200,23 @@ export function RunDetailReviewPackageDoThisNextResolved(
 
   return (
     <>
-      {props.hasGoldenManifest ? (
-        <RunDetailReviewPackageDecisionReceiptStrip
-          runId={props.runId}
-          feasibilityVerdict={props.feasibilityVerdict ?? null}
-        />
-      ) : null}
-      {!props.hasGoldenManifest ? (
-        <RunDetailSealDeskCoverageStrip
-          runId={props.runId}
-          analysisStagesComplete={props.analysisStagesComplete}
-          graphSnapshot={props.graphSnapshot}
-          transparencyTrail={props.transparencyTrail ?? null}
-          className="mb-3"
-        />
-      ) : null}
-      <FinalizeReadinessStrip commitBlockedReason={assumptionAwareCommitBlockedReason} />
+      <RunDetailReviewPackageStampViewport
+        hasGoldenManifest={props.hasGoldenManifest}
+        runId={props.runId}
+        feasibilityVerdict={props.feasibilityVerdict ?? null}
+        runCompleted={props.runCompleted ?? false}
+        analysisStagesComplete={props.analysisStagesComplete}
+        graphSnapshot={props.graphSnapshot}
+        transparencyTrail={props.transparencyTrail ?? null}
+        quickDecisionFindings={props.quickDecisionFindings}
+      />
+      <FinalizeReadinessStrip
+        commitBlockedReason={
+          next.failureRecovery !== null && next.failureRecovery !== undefined
+            ? null
+            : assumptionAwareCommitBlockedReason
+        }
+      />
       <ReviewPackageDoThisNextStrip
         next={next}
         runId={props.runId}
@@ -225,6 +227,11 @@ export function RunDetailReviewPackageDoThisNextResolved(
         canConfigureWorkspaceAi={canConfigureWorkspaceAi}
         usesCustomerAiConnection={usesCustomerAiConnection}
         transparencyTrail={props.transparencyTrail ?? null}
+        lastFailureSummary={props.lastFailureSummary ?? null}
+        failureRecordedAtUtc={resolveReviewFailureRecordedAtUtc({
+          pipelineSummary: props.pipelineSummary ?? null,
+          runCompletedUtc: props.runCompletedUtc ?? props.pipelineSummary?.completedUtc ?? null,
+        })}
       />
     </>
   );

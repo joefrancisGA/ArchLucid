@@ -7,6 +7,10 @@ import {
   type RiskExceptionRecord,
 } from "@/lib/api/governance-stickiness-api";
 import { validateRemediationOwnerInput } from "@/lib/findings/finding-governance-action-copy";
+import {
+  EMPTY_FINDING_INSPECT_WAIVER_BASELINE,
+  type FindingInspectWaiverBaseline,
+} from "@/lib/findings/finding-inspect-disposition-unsaved";
 import { useState } from "react";
 
 export type UseFindingInspectGovernanceStickinessWaiversInput = {
@@ -39,7 +43,20 @@ export function useFindingInspectGovernanceStickinessWaivers({
   const [waiverExpiresAtUtc, setWaiverExpiresAtUtc] = useState(defaultRiskExceptionExpiresAtUtc());
   const [waiverEvidenceRef, setWaiverEvidenceRef] = useState("");
   const [waiverOwnerError, setWaiverOwnerError] = useState<string | null>(null);
+  const [pendingWaiverCreateConfirm, setPendingWaiverCreateConfirm] = useState(false);
   const [pendingRevokeWaiverConfirm, setPendingRevokeWaiverConfirm] = useState(false);
+  const [waiverBaseline, setWaiverBaseline] = useState<FindingInspectWaiverBaseline>(
+    EMPTY_FINDING_INSPECT_WAIVER_BASELINE,
+  );
+
+  function captureWaiverBaseline(): FindingInspectWaiverBaseline {
+    return {
+      waiverRationale,
+      waiverOwnerUserId,
+      waiverExpiresAtUtc,
+      waiverEvidenceRef,
+    };
+  }
 
   async function submitWaiver(): Promise<void> {
     if (!canMutate || busyAction !== null) {
@@ -72,6 +89,7 @@ export function useFindingInspectGovernanceStickinessWaivers({
       });
 
       setStatusMessage("Risk exception created.");
+      setWaiverBaseline(captureWaiverBaseline());
       await reload();
     } catch (error: unknown) {
       setErrorMessage(resolveMutationError(error));
@@ -111,9 +129,12 @@ export function useFindingInspectGovernanceStickinessWaivers({
     setWaiverEvidenceRef,
     waiverOwnerError,
     setWaiverOwnerError,
+    pendingWaiverCreateConfirm,
+    setPendingWaiverCreateConfirm,
     pendingRevokeWaiverConfirm,
     setPendingRevokeWaiverConfirm,
     submitWaiver,
     revokeWaiver,
+    waiverBaseline,
   };
 }

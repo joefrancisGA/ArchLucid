@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Contracts.Requests;
 
 namespace ArchLucid.Application.Governance;
 
@@ -8,6 +9,13 @@ namespace ArchLucid.Application.Governance;
 public sealed class CommittedEffectiveGovernanceSnapshotCaptureOptions
 {
     public IReadOnlyList<PolicyPackAssignment>? PreloadedScopePolicyPackAssignments
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Architecture request captured at execute time for commit-time coverage parity.</summary>
+    public ArchitectureRequest? PreloadedArchitectureRequest
     {
         get;
         init;

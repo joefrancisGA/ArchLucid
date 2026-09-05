@@ -12,6 +12,7 @@ public interface IPolicyPackAssignStage
         string version,
         string scopeLevel,
         bool isPinned,
+        bool isOrganizationRequired = false,
         bool isEnabled = true,
         CancellationToken ct = default);
 

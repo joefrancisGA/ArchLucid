@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ReactElement } from "react";
 
+import { cn } from "@/lib/utils";
+
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
 import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
@@ -16,6 +18,10 @@ import {
 } from "@/components/governance/findings/governance-findings-navigation";
 import { governanceQueueDispositionLabel } from "@/lib/architecture/architecture-risk-register-page";
 
+import {
+  GOVERNANCE_FINDINGS_QUEUE_SEVERITY_STICKY_CLASS,
+  GOVERNANCE_FINDINGS_QUEUE_TITLE_STICKY_CLASS,
+} from "@/lib/governance/governance-queue-sticky-identity";
 import {
   GovernanceFindingsQueueDueCell,
   governanceQueueSeverityCell,
@@ -34,7 +40,7 @@ export function GovernanceFindingsQueueAssignedToMeRowCells(props: GovernanceFin
 
   return (
     <>
-      <EnterpriseTableCell className="max-w-[18rem] font-medium text-al-text-primary">
+      <EnterpriseTableCell className={cn("font-medium text-al-text-primary", GOVERNANCE_FINDINGS_QUEUE_TITLE_STICKY_CLASS)}>
         {showNewSinceLastVisit ? (
           <span className="mr-2 inline-flex align-middle">
             <NewSinceLastVisitMarker testId={`governance-table-row-new-${row.findingId}`} />
@@ -70,7 +76,9 @@ export function GovernanceFindingsQueueAssignedToMeRowCells(props: GovernanceFin
           {row.runLabel}
         </Link>
       </EnterpriseTableCell>
-      <EnterpriseTableCell>{governanceQueueSeverityCell(row, false)}</EnterpriseTableCell>
+      <EnterpriseTableCell className={GOVERNANCE_FINDINGS_QUEUE_SEVERITY_STICKY_CLASS}>
+        {governanceQueueSeverityCell(row, false)}
+      </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
         <GovernanceFindingsQueueDueCell row={row} />
       </EnterpriseTableCell>

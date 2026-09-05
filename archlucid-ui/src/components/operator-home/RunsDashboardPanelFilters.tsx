@@ -6,7 +6,7 @@ import type { RunsDashboardTabId } from "@/components/operator-home/runs-dashboa
 import { runsDashboardTabLabel } from "@/components/operator-home/runs-dashboard-helpers";
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import { FilterChip } from "@/components/ui/filter-chip";
-import { TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import {
   BUYER_RUNS_DASHBOARD_OPEN_ALL_REVIEWS_CTA,
   BUYER_RUNS_DASHBOARD_RECENT_LABEL_EMPTY,
@@ -23,7 +23,9 @@ export type RunsDashboardPanelFiltersProps = {
   readonly tab: RunsDashboardTabId;
   readonly isRecentListTab: boolean;
   readonly statusTabIds: readonly RunsDashboardTabId[];
-  readonly statusTabCounts: Readonly<Record<RunsDashboardTabId, number>>;
+  readonly statusTabCounts: Readonly<Record<RunsDashboardTabId, number>> & {
+    readonly recentTotalCount?: number;
+  };
   readonly archivedFieldSupported: boolean;
   readonly archivedCount: number;
   readonly archivedFilterDisabled: boolean;
@@ -35,6 +37,46 @@ export type RunsDashboardPanelFiltersProps = {
   readonly onShowArchivedChange: (value: boolean) => void;
   readonly openAllReviewsHref: string;
 };
+
+function renderReviewFilterChips(props: {
+  readonly buyerPolishedShell: boolean;
+  readonly hideHeading: boolean;
+  readonly tab: RunsDashboardTabId;
+  readonly statusTabIds: readonly RunsDashboardTabId[];
+  readonly statusTabCounts: RunsDashboardPanelFiltersProps["statusTabCounts"];
+  readonly onSelectDashboardTab: RunsDashboardPanelFiltersProps["onSelectDashboardTab"];
+  readonly testIdPrefix: string;
+}): React.JSX.Element {
+  return (
+    <FilterChipGroup
+      aria-label={props.buyerPolishedShell ? "Filter reviews" : "Review views"}
+      data-testid="runs-dashboard-status-filters"
+      className="flex flex-wrap gap-1.5"
+    >
+      {props.statusTabIds.map((id) => {
+        const selected = props.tab === id;
+        const empty = props.statusTabCounts[id] === 0;
+        const label = runsDashboardTabLabel(id, props.buyerPolishedShell, props.statusTabCounts[id], {
+          homePreviewMode: props.hideHeading,
+        });
+
+        return (
+          <FilterChip
+            key={id}
+            aria-pressed={selected}
+            className={buyerFilterChipClass(selected, false, empty)}
+            data-testid={`${props.testIdPrefix}-${id}`}
+            onClick={() => {
+              props.onSelectDashboardTab(id);
+            }}
+          >
+            {label}
+          </FilterChip>
+        );
+      })}
+    </FilterChipGroup>
+  );
+}
 
 export function RunsDashboardPanelFilters({
   buyerPolishedShell,
@@ -90,29 +132,19 @@ export function RunsDashboardPanelFilters({
       >
         {buyerPolishedShell ? (
           <>
-            <TabsList
-              aria-label="Filter reviews"
-              data-testid="runs-dashboard-status-filters"
-              className="flex flex-wrap gap-1.5"
-            >
-              {statusTabIds.map((id) => (
-                <TabsTrigger
-                  key={id}
-                  value={id}
-                  data-testid={`runs-dashboard-filter-${id}`}
-                  className="shrink-0"
-                  disabled={statusTabCounts[id] === 0 && id !== "all"}
-                >
-                  {runsDashboardTabLabel(id, buyerPolishedShell, statusTabCounts[id], {
-                    homePreviewMode: hideHeading,
-                  })}
-                </TabsTrigger>
-              ))}
-            </TabsList>
+            {renderReviewFilterChips({
+              buyerPolishedShell,
+              hideHeading,
+              tab,
+              statusTabIds,
+              statusTabCounts,
+              onSelectDashboardTab,
+              testIdPrefix: "runs-dashboard-filter",
+            })}
             {archivedFieldSupported ? (
               <FilterChip
                 data-testid="runs-dashboard-show-archived"
-                className={buyerFilterChipClass(showArchived, archivedFilterDisabled)}
+                className={buyerFilterChipClass(showArchived, archivedFilterDisabled, archivedCount === 0)}
                 aria-pressed={showArchived}
                 aria-label={`Filter reviews: Archived ${archivedCount}`}
                 disabled={archivedFilterDisabled}
@@ -135,24 +167,15 @@ export function RunsDashboardPanelFilters({
             ) : null}
           </>
         ) : (
-          <TabsList
-            aria-label="Review views"
-            data-testid="runs-dashboard-status-filters"
-            className="-mb-px"
-          >
-            {statusTabIds.map((id) => (
-              <TabsTrigger
-                key={id}
-                value={id}
-                data-testid={`runs-dashboard-tab-${id}`}
-                className="shrink-0"
-              >
-                {runsDashboardTabLabel(id, buyerPolishedShell, statusTabCounts[id], {
-                  homePreviewMode: hideHeading,
-                })}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+          renderReviewFilterChips({
+            buyerPolishedShell,
+            hideHeading,
+            tab,
+            statusTabIds,
+            statusTabCounts,
+            onSelectDashboardTab,
+            testIdPrefix: "runs-dashboard-tab",
+          })
         )}
         {buyerPolishedShell && !hideHeading ? (
           <Link

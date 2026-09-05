@@ -149,20 +149,20 @@ export function hasFindingsSnapshotInsightDensityContent(
 export function formatInsightDensityCurationMessage(curation: InsightDensityCurationCounts): string {
   const demoted = curation.demotedToChecklistCount;
   const retained = curation.retainedFindingCount;
-  const typedEngineHonesty =
-    " Typed-engine findings stay on the package regardless of score (typed-engine-protected).";
+  const typedEngineLead =
+    "Checklist coverage stays on the package when the insight-density gate demotes a finding.";
 
   if (demoted <= 0 && retained <= 0) {
     return "";
   }
 
   if (demoted > 0 && retained > 0) {
-    return `ArchLucid moved ${demoted} low-specificity ${demoted === 1 ? "advisory" : "advisories"} to the coverage checklist and retained ${retained} decision-grade ${retained === 1 ? "finding" : "findings"} on this package.${typedEngineHonesty}`;
+    return `${typedEngineLead} ArchLucid moved ${demoted} low-specificity ${demoted === 1 ? "advisory" : "advisories"} to the coverage checklist and retained ${retained} decision-grade ${retained === 1 ? "finding" : "findings"} on this package.`;
   }
 
   if (demoted > 0) {
-    return `ArchLucid moved ${demoted} low-specificity ${demoted === 1 ? "observation" : "observations"} to the coverage checklist (not decision-grade findings on this package).${typedEngineHonesty}`;
+    return `${typedEngineLead} ArchLucid moved ${demoted} low-specificity ${demoted === 1 ? "observation" : "observations"} to the coverage checklist (not decision-grade findings on this package).`;
   }
 
-  return `ArchLucid retained ${retained} decision-grade ${retained === 1 ? "finding" : "findings"} after insight-density curation.${typedEngineHonesty}`;
+  return `${typedEngineLead} ArchLucid retained ${retained} decision-grade ${retained === 1 ? "finding" : "findings"} after insight-density curation.`;
 }

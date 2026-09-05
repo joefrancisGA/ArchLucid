@@ -6,11 +6,46 @@ import {
   useFindingInspectDispositionControls,
   type FindingInspectDispositionControlsProps,
 } from "./use-finding-inspect-disposition-controls";
+import {
+  LivelihoodDocumentGuardDialog,
+  useLivelihoodDocumentGuards,
+} from "@/hooks/use-livelihood-document-guards";
+import { findingInspectHasUnsavedEdits } from "@/lib/findings/finding-inspect-disposition-unsaved";
 
 export type { FindingInspectDispositionControlsProps };
 
-export function FindingInspectDispositionControls(props: FindingInspectDispositionControlsProps) {
+export type FindingInspectDispositionControlsGuardProps = FindingInspectDispositionControlsProps & {
+  readonly remediationBaseline: import("@/lib/findings/finding-inspect-disposition-unsaved").FindingInspectRemediationBaseline;
+  readonly dispositionBaseline: import("@/lib/findings/finding-inspect-disposition-unsaved").FindingInspectDispositionBaseline;
+  readonly waiverBaseline: import("@/lib/findings/finding-inspect-disposition-unsaved").FindingInspectWaiverBaseline;
+};
+
+export function FindingInspectDispositionControls(props: FindingInspectDispositionControlsGuardProps) {
   const viewModel = useFindingInspectDispositionControls(props);
+  const hasUnsavedEdits = findingInspectHasUnsavedEdits({
+    canMutate: viewModel.canMutate,
+    remediation: {
+      assignedToUserId: viewModel.assignedToUserId,
+      remediationDueUtc: viewModel.remediationDueUtc,
+    },
+    remediationBaseline: props.remediationBaseline,
+    disposition: {
+      disposition: viewModel.disposition,
+      rationale: viewModel.rationale,
+      revisitDueUtc: viewModel.revisitDueUtc,
+      evidenceRequestText: viewModel.evidenceRequestText,
+      tradeOffAcknowledgment: viewModel.tradeOffAcknowledgment,
+    },
+    dispositionBaseline: props.dispositionBaseline,
+    waiver: {
+      waiverRationale: viewModel.waiverRationale,
+      waiverOwnerUserId: viewModel.waiverOwnerUserId,
+      waiverExpiresAtUtc: viewModel.waiverExpiresAtUtc,
+      waiverEvidenceRef: viewModel.waiverEvidenceRef,
+    },
+    waiverBaseline: props.waiverBaseline,
+  });
+  const documentGuards = useLivelihoodDocumentGuards({ when: hasUnsavedEdits });
 
   return (
     <>
@@ -70,12 +105,20 @@ export function FindingInspectDispositionControls(props: FindingInspectDispositi
         busyAction={viewModel.busyAction}
         pendingRevokeWaiverConfirm={viewModel.pendingRevokeWaiverConfirm}
         setPendingRevokeWaiverConfirm={viewModel.setPendingRevokeWaiverConfirm}
+        pendingWaiverCreateConfirm={viewModel.pendingWaiverCreateConfirm}
+        setPendingWaiverCreateConfirm={viewModel.setPendingWaiverCreateConfirm}
         submitWaiver={viewModel.submitWaiver}
         revokeWaiver={viewModel.revokeWaiver}
         mutationDisabledHintId={viewModel.mutationDisabledHintId}
         mutationDisabledReason={viewModel.mutationDisabledReason}
         waiverCreateSteps={viewModel.waiverCreateSteps}
         waiverCreateEmphasizedStepId={viewModel.waiverCreateEmphasizedStepId}
+      />
+      <LivelihoodDocumentGuardDialog
+        open={documentGuards.dialogOpen}
+        message={documentGuards.dialogMessage}
+        onConfirmLeave={documentGuards.confirmLeave}
+        onCancelLeave={documentGuards.cancelLeave}
       />
     </>
   );

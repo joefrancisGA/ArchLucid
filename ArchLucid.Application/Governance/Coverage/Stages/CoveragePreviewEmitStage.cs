@@ -27,7 +27,7 @@ public sealed class CoveragePreviewEmitStage : ICoveragePreviewEmitStage
                 continue;
 
             PolicyPackAssignment? assignment = load.AssignmentByPackId.GetValueOrDefault(pack.PolicyPackId);
-            bool included = ResolveIncludedInRunEvaluation(
+            bool included = PolicyPackRunEvaluationScope.IsPackIncludedInRunEvaluation(
                 pack.Name,
                 assignment,
                 input.FocusedPilotModeEnabled,
@@ -58,10 +58,10 @@ public sealed class CoveragePreviewEmitStage : ICoveragePreviewEmitStage
             if (pack is null)
                 continue;
 
-            if (!assignment.IsPinned)
+            if (!PolicyPackAssignmentOrganizationRequired.IsOrganizationRequired(assignment))
                 continue;
 
-            bool included = ResolveIncludedInRunEvaluation(
+            bool included = PolicyPackRunEvaluationScope.IsPackIncludedInRunEvaluation(
                 pack.Name,
                 assignment,
                 input.FocusedPilotModeEnabled,
@@ -95,7 +95,7 @@ public sealed class CoveragePreviewEmitStage : ICoveragePreviewEmitStage
                 if (!overlayEnabled && assignment is null)
                     continue;
 
-                bool included = ResolveIncludedInRunEvaluation(
+                bool included = PolicyPackRunEvaluationScope.IsPackIncludedInRunEvaluation(
                     pack.Name,
                     assignment,
                     input.FocusedPilotModeEnabled,
@@ -131,12 +131,11 @@ public sealed class CoveragePreviewEmitStage : ICoveragePreviewEmitStage
                 : CoverageSelectionState.OptionalAndNotSelected;
 
             bool included = selectionState == CoverageSelectionState.RecommendedAndSelected
-                && ResolveIncludedInRunEvaluation(
+                && PolicyPackRunEvaluationScope.IsPackIncludedInRunEvaluation(
                     pack.Name,
                     assignment,
                     input.FocusedPilotModeEnabled,
-                    input.CloudProvider,
-                    contextualHighConfidence: true);
+                    input.CloudProvider);
 
             rows.Add(
                 CreatePreviewRow(
@@ -233,28 +232,6 @@ public sealed class CoveragePreviewEmitStage : ICoveragePreviewEmitStage
         IncludedInRunEvaluation = includedInRunEvaluation,
         EvaluationVersion = CoverageEvaluationVersions.PreviewV1,
     };
-
-    private static bool ResolveIncludedInRunEvaluation(
-        string packDisplayName,
-        PolicyPackAssignment? assignment,
-        bool focusedPilotModeEnabled,
-        CloudProvider cloudProvider,
-        bool contextualHighConfidence = false)
-    {
-        if (!focusedPilotModeEnabled)
-        {
-            if (assignment is null)
-                return contextualHighConfidence;
-
-            return assignment.IsEnabled;
-        }
-
-        bool isPinned = assignment?.IsPinned == true;
-        bool isOverlay = PlatformOverlayPolicyPacks.IsOverlayDisplayName(packDisplayName, cloudProvider);
-
-        return FocusedPilotModePolicyPacks.IsPackAllowedInFocusedReview(packDisplayName, isPinned, isOverlay)
-            || contextualHighConfidence;
-    }
 
     private static string BuildSummaryLine(
         int baselineCount,

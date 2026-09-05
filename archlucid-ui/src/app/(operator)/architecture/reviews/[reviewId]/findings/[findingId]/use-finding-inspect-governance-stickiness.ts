@@ -140,6 +140,8 @@ export function useFindingInspectGovernanceStickiness(
     setPendingDispositionConfirm: dispositions.setPendingDispositionConfirm,
     pendingRevokeWaiverConfirm: waivers.pendingRevokeWaiverConfirm,
     setPendingRevokeWaiverConfirm: waivers.setPendingRevokeWaiverConfirm,
+    pendingWaiverCreateConfirm: waivers.pendingWaiverCreateConfirm,
+    setPendingWaiverCreateConfirm: waivers.setPendingWaiverCreateConfirm,
     applyChangePreviewOverride: dispositions.applyChangePreviewOverride,
     setApplyChangePreviewOverride: dispositions.setApplyChangePreviewOverride,
     tradeOffAcknowledgment: dispositions.tradeOffAcknowledgment,
@@ -160,7 +162,12 @@ export function useFindingInspectGovernanceStickiness(
     pendingDispositionBlockedReason: dispositions.pendingDispositionBlockedReason,
     remediationLastSavedUtc: remediation.remediationLastSavedUtc,
     remediationInlineSaveError: remediation.remediationInlineSaveError,
+    remediationBaseline: remediation.remediationBaseline,
     dispositionLastSavedUtc: dispositions.dispositionLastSavedUtc,
     dispositionInlineSaveError: dispositions.dispositionInlineSaveError,
+    dispositionBaseline: dispositions.dispositionBaseline,
+    waiverBaseline: waivers.waiverBaseline,
+    dispositionHistoryAsOfUtc: dispositions.dispositionHistoryAsOfUtc,
+    refreshDispositionHistory: dispositions.refreshDispositionHistory,
   };
 }

@@ -71,6 +71,12 @@ export function FindingInspectGovernanceStickinessPanel(
   }, [stickiness.setPendingRevokeWaiverConfirm, urlWaiverRevokeConfirm]);
 
   useEffect(() => {
+    if (urlWaiverConfirm) {
+      stickiness.setPendingWaiverCreateConfirm(true);
+    }
+  }, [stickiness.setPendingWaiverCreateConfirm, urlWaiverConfirm]);
+
+  useEffect(() => {
     if (urlDispConfirm !== null) {
       stickiness.setPendingDispositionConfirm(urlDispConfirm);
     }
@@ -97,6 +103,11 @@ export function FindingInspectGovernanceStickinessPanel(
     syncGovernancePanelToUrl(urlGovPanel, urlWaiverConfirm, urlDispConfirm, open);
   };
 
+  const setPendingWaiverCreateConfirmWithUrl = (open: boolean) => {
+    stickiness.setPendingWaiverCreateConfirm(open);
+    syncGovernancePanelToUrl(urlGovPanel, open, urlDispConfirm, urlWaiverRevokeConfirm);
+  };
+
   const setPendingDispositionConfirmWithUrl = (
     confirm: FindingInspectDispositionConfirmUrlValue | null,
   ) => {
@@ -108,6 +119,10 @@ export function FindingInspectGovernanceStickinessPanel(
     <div className={cn(OPERATOR_LAYOUT.sectionStack, "rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950/40", OPERATOR_TYPOGRAPHY.body)}>
       <FindingInspectStickinessSummary
         recentDispositionActors={stickiness.recentDispositionActors}
+        dispositionHistoryAsOfUtc={stickiness.dispositionHistoryAsOfUtc}
+        onRefreshDispositionHistory={() => {
+          void stickiness.refreshDispositionHistory();
+        }}
         mutationDisabledHintId={stickiness.mutationDisabledHintId}
         mutationDisabledReason={stickiness.mutationDisabledReason}
         sponsorSynopsisPackageTitle={stickiness.sponsorSynopsisPackageTitle}
@@ -151,6 +166,8 @@ export function FindingInspectGovernanceStickinessPanel(
         setPendingDispositionConfirm={setPendingDispositionConfirmWithUrl}
         pendingRevokeWaiverConfirm={stickiness.pendingRevokeWaiverConfirm}
         setPendingRevokeWaiverConfirm={setPendingRevokeWaiverConfirmWithUrl}
+        pendingWaiverCreateConfirm={stickiness.pendingWaiverCreateConfirm}
+        setPendingWaiverCreateConfirm={setPendingWaiverCreateConfirmWithUrl}
         applyChangePreviewOverride={stickiness.applyChangePreviewOverride}
         setApplyChangePreviewOverride={stickiness.setApplyChangePreviewOverride}
         tradeOffAcknowledgment={stickiness.tradeOffAcknowledgment}
@@ -168,8 +185,11 @@ export function FindingInspectGovernanceStickinessPanel(
         pendingDispositionBlockedReason={stickiness.pendingDispositionBlockedReason}
         remediationLastSavedUtc={stickiness.remediationLastSavedUtc}
         remediationInlineSaveError={stickiness.remediationInlineSaveError}
+        remediationBaseline={stickiness.remediationBaseline}
         dispositionLastSavedUtc={stickiness.dispositionLastSavedUtc}
         dispositionInlineSaveError={stickiness.dispositionInlineSaveError}
+        dispositionBaseline={stickiness.dispositionBaseline}
+        waiverBaseline={stickiness.waiverBaseline}
       />
     </div>
   );

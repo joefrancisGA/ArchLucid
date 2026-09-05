@@ -7,7 +7,7 @@ import { ReviewsNewStarterTemplateGallery } from "@/components/review-intake/Rev
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { ReviewsNewWizardResumeStrip } from "@/components/usability/ReviewsNewWizardResumeStrip";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import {
   resolveReviewsNewPathModeFromQuery,
@@ -34,15 +34,15 @@ function reviewsNewBuyerChromeRendersInShell(pathQuery: string): boolean {
 
 /** Shared `/architecture/reviews/new` layout — skip link, header, and intake workspace (RNX / REN / REQ / ENE). */
 export function ReviewsNewPageShell(props: ReviewsNewPageShellProps): React.JSX.Element {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const evalChrome = useProductionEvalChrome();
   const searchParams = useSearchParams();
   const pathQuery = searchParams?.get("path")?.trim() ?? "";
   const activePath = resolveReviewsNewPathModeFromQuery(pathQuery);
-  const onPathTab = reviewsNewShowsPathTabChrome(buyerPolishedShell, activePath);
-  const showBuyerChromeInShell = buyerPolishedShell && reviewsNewBuyerChromeRendersInShell(pathQuery);
+  const onPathTab = reviewsNewShowsPathTabChrome(evalChrome, activePath);
+  const showBuyerChromeInShell = evalChrome && reviewsNewBuyerChromeRendersInShell(pathQuery);
 
   return (
-    <OperatorPageContainer variant="workflow" withContextRail={buyerPolishedShell}>
+    <OperatorPageContainer variant="workflow" withContextRail={evalChrome}>
       <a
         href={`#${REVIEWS_NEW_SKIP_TARGET_ID}`}
         className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
@@ -55,7 +55,7 @@ export function ReviewsNewPageShell(props: ReviewsNewPageShellProps): React.JSX.
         className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
         data-testid="reviews-new-primary-content"
       >
-        <ReviewsNewPageChrome buyerPolishedShell={buyerPolishedShell} activePath={activePath} />
+        <ReviewsNewPageChrome buyerPolishedShell={evalChrome} activePath={activePath} />
 
         <div
           id={REVIEWS_NEW_FIRST_VIEWPORT_ID}
@@ -70,7 +70,7 @@ export function ReviewsNewPageShell(props: ReviewsNewPageShellProps): React.JSX.
           {!onPathTab ? <ReviewsNewStarterTemplateGallery /> : null}
         </div>
 
-        {buyerPolishedShell || onPathTab ? null : (
+        {evalChrome || onPathTab ? null : (
           <PathChooserCreateObjectVocabularyRail currentSurfaceId="reviews-new" />
         )}
 

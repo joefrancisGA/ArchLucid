@@ -35,12 +35,12 @@ function operatorHomeFreshnessContent(input: {
     return OPERATOR_NOT_REFRESHED_LABEL;
   }
 
+  const value = operatorHomeDataCurrencyValue(input.lastRefreshedAt);
+
   return (
     <>
-      <strong className="font-bold text-al-text-primary">
-        {OPERATOR_HOME_DATA_CURRENCY_PREFIX}:
-      </strong>{" "}
-      {operatorHomeDataCurrencyValue(input.lastRefreshedAt)}
+      <span className="text-al-text-secondary">{OPERATOR_HOME_DATA_CURRENCY_PREFIX}: </span>
+      <strong className="font-semibold text-al-text-primary">{value}</strong>
     </>
   );
 }
@@ -61,15 +61,17 @@ export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): Reac
       subtitle={props.subtitle}
       subtitleClassName="[&_strong]:font-bold"
       subtitleTestId="operator-home-page-subtitle"
+      metadata={
+        <OperatorPageFreshnessMetadata
+          testId="operator-home-data-currency"
+          lastRefreshedAt={refreshing ? null : lastRefreshedAt}
+        >
+          {freshnessContent}
+        </OperatorPageFreshnessMetadata>
+      }
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="operator-home-header-actions">
           <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
-          <OperatorPageFreshnessMetadata
-            testId="operator-home-data-currency"
-            lastRefreshedAt={refreshing ? null : lastRefreshedAt}
-          >
-            {freshnessContent}
-          </OperatorPageFreshnessMetadata>
           <RefreshButton
             data-testid="operator-home-refresh-button"
             busy={refreshing}

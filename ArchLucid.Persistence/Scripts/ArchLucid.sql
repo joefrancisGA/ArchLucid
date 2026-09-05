@@ -1769,6 +1769,24 @@ BEGIN
 END
 GO
 
+/* DbUp 354 parity: hasher-bound JSON (Policy, inventory, create-time pins) for sealed ManifestHash round-trip.
+   Resolves the physical table because migration 295 left dbo.GoldenManifests as a synonym. */
+DECLARE @hasherBoundTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.SignedReviewRecords', N'U') IS NOT NULL THEN N'dbo.SignedReviewRecords'
+        WHEN OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL THEN N'dbo.GoldenManifests'
+    END;
+
+IF @hasherBoundTable IS NOT NULL
+   AND COL_LENGTH(@hasherBoundTable, N'HasherBoundJson') IS NULL
+BEGIN
+    DECLARE @addHasherBoundSql NVARCHAR(MAX) =
+        N'ALTER TABLE ' + @hasherBoundTable + N' ADD HasherBoundJson NVARCHAR(MAX) NULL;';
+
+    EXEC sp_executesql @addHasherBoundSql;
+END
+GO
+
 -- Phase-1 relational slices for GoldenManifest (dual-write; other sections remain JSON on dbo.GoldenManifests).
 IF OBJECT_ID(N'dbo.GoldenManifestAssumptions', N'U') IS NULL
 BEGIN
@@ -10992,22 +11010,789 @@ END
 GO
 
 /*
-  345: Wave-10 robustness — create-time knowledge model content hash (κ) on run headers.
+  346: Organization-required flag on policy pack assignments (distinct from merge-precedence IsPinned).
 */
 
-DECLARE @runTable345 sysname =
-    CASE
-        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
-        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
-    END;
-
-DECLARE @sql345 NVARCHAR(MAX);
-
-IF @runTable345 IS NOT NULL
-   AND COL_LENGTH(@runTable345, N'PinnedKnowledgeModelContentHashSha256') IS NULL
+IF OBJECT_ID(N'dbo.PolicyPackAssignments', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.PolicyPackAssignments', N'IsOrganizationRequired') IS NULL
 BEGIN
-    SET @sql345 = N'ALTER TABLE ' + @runTable345 + N' ADD PinnedKnowledgeModelContentHashSha256 VARBINARY(32) NULL;';
+    ALTER TABLE dbo.PolicyPackAssignments
+        ADD IsOrganizationRequired BIT NOT NULL
+            CONSTRAINT DF_PolicyPackAssignments_IsOrganizationRequired DEFAULT (0);
+END;
+GO
 
-    EXEC sp_executesql @sql345;
-END
+/*
+  347: Infrastructure-evidence plane foundation — Azure inventory snapshots, cloud resource identity,
+       audit framework catalog, and tenant branding profiles (IE-01, IE-04, AE-01, BR-01).
+*/
+
+IF OBJECT_ID(N'dbo.AzureInventorySnapshots', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventorySnapshots
+    (
+        SnapshotId            UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventorySnapshots PRIMARY KEY CLUSTERED,
+        TenantId              UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId           UNIQUEIDENTIFIER NOT NULL,
+        ProjectId             UNIQUEIDENTIFIER NOT NULL,
+        PackageId             UNIQUEIDENTIFIER NOT NULL,
+        SubscriptionId        NVARCHAR(128)     NULL,
+        SubscriptionName      NVARCHAR(256)     NULL,
+        CapturedUtc           DATETIME2         NULL,
+        CaptureStatus         INT               NOT NULL,
+        CaptureVersion        NVARCHAR(64)      NULL,
+        ResourceCount         INT               NOT NULL CONSTRAINT DF_AzureInventorySnapshots_ResourceCount DEFAULT (0),
+        RelationshipCount     INT               NOT NULL CONSTRAINT DF_AzureInventorySnapshots_RelationshipCount DEFAULT (0),
+        CaptureMethod         INT               NOT NULL CONSTRAINT DF_AzureInventorySnapshots_CaptureMethod DEFAULT (0),
+        CollectorVersion      NVARCHAR(64)      NULL,
+        RequestedBy           NVARCHAR(256)     NULL,
+        DurationMs            INT               NULL,
+        CompletenessScore     DECIMAL(5, 4)     NULL,
+        WarningCount          INT               NOT NULL CONSTRAINT DF_AzureInventorySnapshots_WarningCount DEFAULT (0),
+        ErrorCount            INT               NOT NULL CONSTRAINT DF_AzureInventorySnapshots_ErrorCount DEFAULT (0),
+        ContentHashSha256     VARBINARY(32)     NULL,
+        CreatedUtc            DATETIME2         NOT NULL,
+        UpdatedUtc            DATETIME2         NOT NULL,
+        CONSTRAINT FK_AzureInventorySnapshots_Packages FOREIGN KEY (PackageId) REFERENCES dbo.AzureExtractorPackages (PackageId),
+        CONSTRAINT UQ_AzureInventorySnapshots_Tenant_Package UNIQUE (TenantId, PackageId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventorySnapshots_Tenant_Snapshot
+        ON dbo.AzureInventorySnapshots (TenantId, SnapshotId);
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventorySnapshots_Scope_Created
+        ON dbo.AzureInventorySnapshots (TenantId, WorkspaceId, ProjectId, CreatedUtc DESC);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AzureInventoryResources', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryResources
+    (
+        ResourceRowId           UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryResources PRIMARY KEY CLUSTERED,
+        SnapshotId              UNIQUEIDENTIFIER NOT NULL,
+        TenantId                UNIQUEIDENTIFIER NOT NULL,
+        CloudResourceId         UNIQUEIDENTIFIER NULL,
+        AzureResourceId         NVARCHAR(1024)    NOT NULL,
+        ResourceType            NVARCHAR(256)     NOT NULL,
+        Region                  NVARCHAR(128)     NULL,
+        ResourceGroup           NVARCHAR(256)     NULL,
+        SubscriptionId          NVARCHAR(128)     NULL,
+        ParentResourceId        NVARCHAR(1024)    NULL,
+        SourceEvidenceReference NVARCHAR(512)     NULL,
+        CONSTRAINT FK_AzureInventoryResources_Snapshots FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryResources_Tenant_Snapshot
+        ON dbo.AzureInventoryResources (TenantId, SnapshotId);
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryResources_Tenant_AzureResourceId
+        ON dbo.AzureInventoryResources (TenantId, AzureResourceId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AzureInventoryResourceProperties', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryResourceProperties
+    (
+        PropertyRowId           UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryResourceProperties PRIMARY KEY CLUSTERED,
+        SnapshotId              UNIQUEIDENTIFIER NOT NULL,
+        TenantId                UNIQUEIDENTIFIER NOT NULL,
+        ResourceRowId           UNIQUEIDENTIFIER NOT NULL,
+        PropertyKey             NVARCHAR(256)     NOT NULL,
+        PropertyValue           NVARCHAR(4000)    NULL,
+        IsRedacted              BIT               NOT NULL CONSTRAINT DF_AzureInventoryResourceProperties_IsRedacted DEFAULT (0),
+        BlobPointer             NVARCHAR(512)     NULL,
+        CONSTRAINT FK_AzureInventoryResourceProperties_Resources FOREIGN KEY (ResourceRowId) REFERENCES dbo.AzureInventoryResources (ResourceRowId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryResourceProperties_Tenant_Snapshot
+        ON dbo.AzureInventoryResourceProperties (TenantId, SnapshotId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AzureInventoryResourceRelationships', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryResourceRelationships
+    (
+        RelationshipRowId       UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryResourceRelationships PRIMARY KEY CLUSTERED,
+        SnapshotId              UNIQUEIDENTIFIER NOT NULL,
+        TenantId                UNIQUEIDENTIFIER NOT NULL,
+        FromAzureResourceId     NVARCHAR(1024)    NOT NULL,
+        ToAzureResourceId       NVARCHAR(1024)    NOT NULL,
+        RelationshipType        NVARCHAR(128)     NOT NULL,
+        ProvenanceKind          INT               NOT NULL,
+        Confidence              DECIMAL(5, 4)     NULL,
+        InferenceSource         NVARCHAR(256)     NULL,
+        CONSTRAINT FK_AzureInventoryResourceRelationships_Snapshots FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryResourceRelationships_Tenant_Snapshot
+        ON dbo.AzureInventoryResourceRelationships (TenantId, SnapshotId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AzureInventoryIdentities', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryIdentities
+    (
+        IdentityRowId           UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryIdentities PRIMARY KEY CLUSTERED,
+        SnapshotId              UNIQUEIDENTIFIER NOT NULL,
+        TenantId                UNIQUEIDENTIFIER NOT NULL,
+        IdentityType            NVARCHAR(128)     NOT NULL,
+        PrincipalId             NVARCHAR(256)     NOT NULL,
+        DisplayName             NVARCHAR(512)     NULL,
+        SourceEvidenceReference NVARCHAR(512)     NULL,
+        CONSTRAINT FK_AzureInventoryIdentities_Snapshots FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryIdentities_Tenant_Snapshot
+        ON dbo.AzureInventoryIdentities (TenantId, SnapshotId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AzureInventoryRoleAssignments', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryRoleAssignments
+    (
+        RoleAssignmentRowId     UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryRoleAssignments PRIMARY KEY CLUSTERED,
+        SnapshotId              UNIQUEIDENTIFIER NOT NULL,
+        TenantId                UNIQUEIDENTIFIER NOT NULL,
+        Scope                   NVARCHAR(1024)    NOT NULL,
+        PrincipalId             NVARCHAR(256)     NOT NULL,
+        RoleDefinitionId        NVARCHAR(1024)    NOT NULL,
+        SourceEvidenceReference NVARCHAR(512)     NULL,
+        CONSTRAINT FK_AzureInventoryRoleAssignments_Snapshots FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryRoleAssignments_Tenant_Snapshot
+        ON dbo.AzureInventoryRoleAssignments (TenantId, SnapshotId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AzureInventoryTags', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryTags
+    (
+        TagRowId                UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryTags PRIMARY KEY CLUSTERED,
+        SnapshotId              UNIQUEIDENTIFIER NOT NULL,
+        TenantId                UNIQUEIDENTIFIER NOT NULL,
+        ResourceRowId           UNIQUEIDENTIFIER NOT NULL,
+        TagKey                  NVARCHAR(256)     NOT NULL,
+        TagValue                NVARCHAR(512)     NULL,
+        CONSTRAINT FK_AzureInventoryTags_Resources FOREIGN KEY (ResourceRowId) REFERENCES dbo.AzureInventoryResources (ResourceRowId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryTags_Tenant_Snapshot
+        ON dbo.AzureInventoryTags (TenantId, SnapshotId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AzureInventoryDiagnosticConfigurations', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryDiagnosticConfigurations
+    (
+        DiagnosticRowId         UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryDiagnosticConfigurations PRIMARY KEY CLUSTERED,
+        SnapshotId              UNIQUEIDENTIFIER NOT NULL,
+        TenantId                UNIQUEIDENTIFIER NOT NULL,
+        TargetAzureResourceId   NVARCHAR(1024)    NOT NULL,
+        DiagnosticName          NVARCHAR(256)     NOT NULL,
+        WorkspaceResourceId     NVARCHAR(1024)    NULL,
+        SourceEvidenceReference NVARCHAR(512)     NULL,
+        CONSTRAINT FK_AzureInventoryDiagnosticConfigurations_Snapshots FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryDiagnosticConfigurations_Tenant_Snapshot
+        ON dbo.AzureInventoryDiagnosticConfigurations (TenantId, SnapshotId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AzureInventoryUnknownResources', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryUnknownResources
+    (
+        UnknownResourceRowId    UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryUnknownResources PRIMARY KEY CLUSTERED,
+        SnapshotId              UNIQUEIDENTIFIER NOT NULL,
+        TenantId                UNIQUEIDENTIFIER NOT NULL,
+        AzureResourceId         NVARCHAR(1024)    NOT NULL,
+        ResourceType            NVARCHAR(256)     NOT NULL,
+        ResourceGroup           NVARCHAR(256)     NULL,
+        CappedPropertiesJson    NVARCHAR(MAX)     NULL,
+        SourceEvidenceReference NVARCHAR(512)     NULL,
+        CONSTRAINT FK_AzureInventoryUnknownResources_Snapshots FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryUnknownResources_Tenant_Snapshot
+        ON dbo.AzureInventoryUnknownResources (TenantId, SnapshotId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.CloudResourceIdentities', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.CloudResourceIdentities
+    (
+        CloudResourceId               UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_CloudResourceIdentities PRIMARY KEY CLUSTERED,
+        TenantId                      UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId                   UNIQUEIDENTIFIER NOT NULL,
+        ProjectId                     UNIQUEIDENTIFIER NOT NULL,
+        Provider                      INT               NOT NULL,
+        ExternalResourceIdNormalized  NVARCHAR(1024)    NOT NULL,
+        ResourceType                  NVARCHAR(256)     NULL,
+        SubscriptionOrAccountId       NVARCHAR(128)     NULL,
+        ResourceGroupOrProject        NVARCHAR(256)     NULL,
+        Region                        NVARCHAR(128)     NULL,
+        DisplayName                   NVARCHAR(512)     NULL,
+        FirstSeenSnapshotId           UNIQUEIDENTIFIER NULL,
+        LastSeenSnapshotId            UNIQUEIDENTIFIER NULL,
+        FirstSeenUtc                  DATETIME2         NOT NULL,
+        LastSeenUtc                   DATETIME2         NOT NULL,
+        CONSTRAINT UQ_CloudResourceIdentities_Tenant_Provider_External UNIQUE (TenantId, Provider, ExternalResourceIdNormalized)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_CloudResourceIdentities_Tenant_Provider
+        ON dbo.CloudResourceIdentities (TenantId, Provider);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AuditFrameworks', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AuditFrameworks
+    (
+        FrameworkId           UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AuditFrameworks PRIMARY KEY CLUSTERED,
+        TenantId              UNIQUEIDENTIFIER NOT NULL,
+        Name                  NVARCHAR(256)     NOT NULL,
+        Version               NVARCHAR(64)      NOT NULL,
+        Publisher             NVARCHAR(256)     NULL,
+        EffectiveDate         DATE              NULL,
+        SourceReference       NVARCHAR(512)     NOT NULL,
+        Status                INT               NOT NULL,
+        ContentHashSha256     VARBINARY(32)     NOT NULL,
+        SpecBlob              VARBINARY(MAX)    NOT NULL,
+        ImportedBy            NVARCHAR(256)     NULL,
+        CreatedUtc            DATETIME2         NOT NULL,
+        CONSTRAINT UQ_AuditFrameworks_Tenant_Version_Hash UNIQUE (TenantId, Version, ContentHashSha256)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AuditFrameworks_Tenant_Created
+        ON dbo.AuditFrameworks (TenantId, CreatedUtc DESC);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AuditControls', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AuditControls
+    (
+        ControlId             UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AuditControls PRIMARY KEY CLUSTERED,
+        FrameworkId           UNIQUEIDENTIFIER NOT NULL,
+        TenantId              UNIQUEIDENTIFIER NOT NULL,
+        ControlNumber         NVARCHAR(64)      NOT NULL,
+        Title                 NVARCHAR(512)     NOT NULL,
+        Description           NVARCHAR(MAX)     NULL,
+        Objective             NVARCHAR(MAX)     NULL,
+        Applicability         NVARCHAR(512)     NULL,
+        ControlType           NVARCHAR(128)     NULL,
+        ParentControlId       UNIQUEIDENTIFIER NULL,
+        EvaluationGuidance    NVARCHAR(MAX)     NULL,
+        CONSTRAINT FK_AuditControls_Frameworks FOREIGN KEY (FrameworkId) REFERENCES dbo.AuditFrameworks (FrameworkId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AuditControls_Tenant_Framework
+        ON dbo.AuditControls (TenantId, FrameworkId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AuditControlMetadata', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AuditControlMetadata
+    (
+        MetadataRowId         UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AuditControlMetadata PRIMARY KEY CLUSTERED,
+        ControlId             UNIQUEIDENTIFIER NOT NULL,
+        TenantId              UNIQUEIDENTIFIER NOT NULL,
+        MetadataKey           NVARCHAR(128)     NOT NULL,
+        MetadataValue         NVARCHAR(1024)    NULL,
+        CONSTRAINT FK_AuditControlMetadata_Controls FOREIGN KEY (ControlId) REFERENCES dbo.AuditControls (ControlId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AuditControlMetadata_Tenant_Control
+        ON dbo.AuditControlMetadata (TenantId, ControlId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.TenantBrandingProfiles', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.TenantBrandingProfiles
+    (
+        BrandingProfileId         UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_TenantBrandingProfiles PRIMARY KEY CLUSTERED,
+        TenantId                  UNIQUEIDENTIFIER NOT NULL,
+        CompanyDisplayName        NVARCHAR(256)     NULL,
+        CompanyLegalName          NVARCHAR(512)     NULL,
+        ShortDisplayName          NVARCHAR(128)     NULL,
+        LogoPrimaryAssetId        UNIQUEIDENTIFIER NULL,
+        LogoSecondaryAssetId      UNIQUEIDENTIFIER NULL,
+        LogoSquareAssetId         UNIQUEIDENTIFIER NULL,
+        LogoFaviconAssetId        UNIQUEIDENTIFIER NULL,
+        LogoDarkAssetId           UNIQUEIDENTIFIER NULL,
+        LogoLightAssetId          UNIQUEIDENTIFIER NULL,
+        LogoReportCoverAssetId    UNIQUEIDENTIFIER NULL,
+        LogoMonoAssetId           UNIQUEIDENTIFIER NULL,
+        PrimaryColor              NVARCHAR(16)      NULL,
+        SecondaryColor            NVARCHAR(16)      NULL,
+        AccentColor               NVARCHAR(16)      NULL,
+        BackgroundColor           NVARCHAR(16)      NULL,
+        ForegroundColor           NVARCHAR(16)      NULL,
+        TypographyJson            NVARCHAR(MAX)     NULL,
+        Tagline                   NVARCHAR(512)     NULL,
+        WebsiteUrl                NVARCHAR(2048)    NULL,
+        SupportUrl                NVARCHAR(2048)    NULL,
+        BrandingStatus            INT               NOT NULL,
+        Version                   INT               NOT NULL,
+        CreatedUtc                DATETIME2         NOT NULL,
+        UpdatedUtc                DATETIME2         NOT NULL,
+        CreatedBy                 NVARCHAR(256)     NULL,
+        UpdatedBy                 NVARCHAR(256)     NULL
+    );
+
+    CREATE NONCLUSTERED INDEX IX_TenantBrandingProfiles_Tenant_Status
+        ON dbo.TenantBrandingProfiles (TenantId, BrandingStatus);
+
+    CREATE UNIQUE NONCLUSTERED INDEX UX_TenantBrandingProfiles_Tenant_Active
+        ON dbo.TenantBrandingProfiles (TenantId)
+        WHERE BrandingStatus = 2;
+END;
+GO
+
+/*
+  348: Infrastructure-evidence semantic diff and advisory Terraform mapping (IE-05, IE-06).
+*/
+
+IF OBJECT_ID(N'dbo.AzureInventoryDiffs', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryDiffs
+    (
+        DiffId                    UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryDiffs PRIMARY KEY CLUSTERED,
+        TenantId                  UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId               UNIQUEIDENTIFIER NOT NULL,
+        ProjectId                 UNIQUEIDENTIFIER NOT NULL,
+        SnapshotAId               UNIQUEIDENTIFIER NOT NULL,
+        SnapshotBId               UNIQUEIDENTIFIER NOT NULL,
+        SubscriptionId            NVARCHAR(128)     NULL,
+        TotalChanges              INT               NOT NULL CONSTRAINT DF_AzureInventoryDiffs_TotalChanges DEFAULT (0),
+        ResourceAddedCount        INT               NOT NULL CONSTRAINT DF_AzureInventoryDiffs_ResourceAddedCount DEFAULT (0),
+        ResourceRemovedCount      INT               NOT NULL CONSTRAINT DF_AzureInventoryDiffs_ResourceRemovedCount DEFAULT (0),
+        ResourceModifiedCount     INT               NOT NULL CONSTRAINT DF_AzureInventoryDiffs_ResourceModifiedCount DEFAULT (0),
+        NetworkExposureChangeCount INT              NOT NULL CONSTRAINT DF_AzureInventoryDiffs_NetworkExposureChangeCount DEFAULT (0),
+        PermissionChangeCount     INT               NOT NULL CONSTRAINT DF_AzureInventoryDiffs_PermissionChangeCount DEFAULT (0),
+        LoggingRegressionCount    INT               NOT NULL CONSTRAINT DF_AzureInventoryDiffs_LoggingRegressionCount DEFAULT (0),
+        NewPrivateEndpointCount   INT               NOT NULL CONSTRAINT DF_AzureInventoryDiffs_NewPrivateEndpointCount DEFAULT (0),
+        RelationshipRemovedCount  INT               NOT NULL CONSTRAINT DF_AzureInventoryDiffs_RelationshipRemovedCount DEFAULT (0),
+        CreatedUtc                DATETIME2         NOT NULL,
+        CONSTRAINT FK_AzureInventoryDiffs_SnapshotA FOREIGN KEY (SnapshotAId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId),
+        CONSTRAINT FK_AzureInventoryDiffs_SnapshotB FOREIGN KEY (SnapshotBId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId),
+        CONSTRAINT UQ_AzureInventoryDiffs_Tenant_SnapshotPair UNIQUE (TenantId, SnapshotAId, SnapshotBId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryDiffs_Tenant_Snapshots
+        ON dbo.AzureInventoryDiffs (TenantId, SnapshotAId, SnapshotBId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AzureInventoryChanges', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryChanges
+    (
+        ChangeId                  UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryChanges PRIMARY KEY CLUSTERED,
+        DiffId                    UNIQUEIDENTIFIER NOT NULL,
+        TenantId                  UNIQUEIDENTIFIER NOT NULL,
+        SnapshotAId               UNIQUEIDENTIFIER NOT NULL,
+        SnapshotBId               UNIQUEIDENTIFIER NOT NULL,
+        CloudResourceId           UNIQUEIDENTIFIER NULL,
+        AzureResourceId           NVARCHAR(1024)    NULL,
+        ChangeType                INT               NOT NULL,
+        Property                  NVARCHAR(256)     NULL,
+        OldValue                  NVARCHAR(4000)    NULL,
+        NewValue                  NVARCHAR(4000)    NULL,
+        RiskClassification        NVARCHAR(128)     NULL,
+        ArchitectureSignificance  NVARCHAR(256)     NULL,
+        SecuritySignificance      NVARCHAR(256)     NULL,
+        Confidence                DECIMAL(5, 4)     NULL,
+        EvidenceReference         NVARCHAR(512)     NULL,
+        ProvenanceKind            INT               NOT NULL,
+        CONSTRAINT FK_AzureInventoryChanges_Diffs FOREIGN KEY (DiffId) REFERENCES dbo.AzureInventoryDiffs (DiffId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryChanges_Tenant_Diff
+        ON dbo.AzureInventoryChanges (TenantId, DiffId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AdvisoryTerraformResourceMappings', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AdvisoryTerraformResourceMappings
+    (
+        MappingId                 UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AdvisoryTerraformResourceMappings PRIMARY KEY CLUSTERED,
+        SnapshotId                UNIQUEIDENTIFIER NOT NULL,
+        TenantId                  UNIQUEIDENTIFIER NOT NULL,
+        CloudResourceId           UNIQUEIDENTIFIER NULL,
+        AzureResourceId           NVARCHAR(1024)    NOT NULL,
+        TerraformAddress          NVARCHAR(512)     NOT NULL,
+        CategoryFolder            NVARCHAR(64)      NOT NULL,
+        GenerationMethod          INT               NOT NULL,
+        UncertaintyNotes          NVARCHAR(2000)    NULL,
+        CreatedUtc                DATETIME2         NOT NULL,
+        CONSTRAINT FK_AdvisoryTerraformResourceMappings_Snapshots FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AdvisoryTerraformResourceMappings_Tenant_Snapshot
+        ON dbo.AdvisoryTerraformResourceMappings (TenantId, SnapshotId);
+END;
+GO
+
+/*
+  349: Infrastructure-evidence baselines, drift approvals, and diff narratives (IE-07, IE-08).
+*/
+
+IF OBJECT_ID(N'dbo.AzureInventoryBaselines', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryBaselines
+    (
+        BaselineId        UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryBaselines PRIMARY KEY CLUSTERED,
+        TenantId          UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId       UNIQUEIDENTIFIER NOT NULL,
+        ProjectId         UNIQUEIDENTIFIER NOT NULL,
+        SnapshotId        UNIQUEIDENTIFIER NOT NULL,
+        BaselineKind      INT               NOT NULL,
+        SubscriptionId    NVARCHAR(128)     NULL,
+        DesignatedBy      NVARCHAR(256)     NOT NULL,
+        DesignatedUtc     DATETIME2         NOT NULL,
+        Notes             NVARCHAR(2000)    NULL,
+        CONSTRAINT FK_AzureInventoryBaselines_Snapshots FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryBaselines_Tenant_Kind
+        ON dbo.AzureInventoryBaselines (TenantId, BaselineKind, DesignatedUtc DESC);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AzureInventoryDriftApprovals', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryDriftApprovals
+    (
+        ApprovalId        UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryDriftApprovals PRIMARY KEY CLUSTERED,
+        TenantId          UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId       UNIQUEIDENTIFIER NOT NULL,
+        ProjectId         UNIQUEIDENTIFIER NOT NULL,
+        DiffId            UNIQUEIDENTIFIER NOT NULL,
+        ChangeId          UNIQUEIDENTIFIER NULL,
+        Approver          NVARCHAR(256)     NOT NULL,
+        Reason            NVARCHAR(2000)    NOT NULL,
+        TicketReference   NVARCHAR(256)     NULL,
+        ExpirationUtc     DATETIME2         NOT NULL,
+        Status            INT               NOT NULL,
+        CreatedUtc        DATETIME2         NOT NULL,
+        CONSTRAINT FK_AzureInventoryDriftApprovals_Diffs FOREIGN KEY (DiffId) REFERENCES dbo.AzureInventoryDiffs (DiffId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryDriftApprovals_Tenant_Diff_Status
+        ON dbo.AzureInventoryDriftApprovals (TenantId, DiffId, Status, ExpirationUtc);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AzureInventoryDiffNarratives', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AzureInventoryDiffNarratives
+    (
+        NarrativeId       UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AzureInventoryDiffNarratives PRIMARY KEY CLUSTERED,
+        DiffId            UNIQUEIDENTIFIER NOT NULL,
+        TenantId          UNIQUEIDENTIFIER NOT NULL,
+        NarrativeKind     INT               NOT NULL,
+        NarrativeText     NVARCHAR(MAX)     NOT NULL,
+        CitedChangeIdsJson NVARCHAR(MAX)    NOT NULL,
+        ProvenanceKind    INT               NOT NULL,
+        SimulatorLabel    NVARCHAR(64)      NULL,
+        CreatedUtc        DATETIME2         NOT NULL,
+        CONSTRAINT FK_AzureInventoryDiffNarratives_Diffs FOREIGN KEY (DiffId) REFERENCES dbo.AzureInventoryDiffs (DiffId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AzureInventoryDiffNarratives_Tenant_Diff
+        ON dbo.AzureInventoryDiffNarratives (TenantId, DiffId, CreatedUtc DESC);
+END;
+GO
+
+/*
+  350: Audit evidence requirements (AE-02).
+*/
+
+IF OBJECT_ID(N'dbo.AuditEvidenceRequirements', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AuditEvidenceRequirements
+    (
+        RequirementId         UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AuditEvidenceRequirements PRIMARY KEY CLUSTERED,
+        ControlId             UNIQUEIDENTIFIER NOT NULL,
+        FrameworkId           UNIQUEIDENTIFIER NOT NULL,
+        TenantId              UNIQUEIDENTIFIER NOT NULL,
+        Name                  NVARCHAR(256)     NOT NULL,
+        Description           NVARCHAR(2000)    NULL,
+        EvidenceType          NVARCHAR(128)     NOT NULL,
+        RequiredAzureScopes   NVARCHAR(512)     NULL,
+        RequiredResourceTypes NVARCHAR(512)     NULL,
+        CollectionMethod      NVARCHAR(128)     NULL,
+        Frequency             NVARCHAR(128)     NULL,
+        EvaluationMethod      NVARCHAR(128)     NULL,
+        ManualEvidenceAllowed BIT               NOT NULL,
+        RequiredFreshness     NVARCHAR(128)     NULL,
+        AutomationClass       INT               NOT NULL,
+        CONSTRAINT FK_AuditEvidenceRequirements_Controls FOREIGN KEY (ControlId) REFERENCES dbo.AuditControls (ControlId),
+        CONSTRAINT FK_AuditEvidenceRequirements_Frameworks FOREIGN KEY (FrameworkId) REFERENCES dbo.AuditFrameworks (FrameworkId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AuditEvidenceRequirements_Tenant_Framework
+        ON dbo.AuditEvidenceRequirements (TenantId, FrameworkId, EvidenceType);
+END;
+GO
+
+/*
+  351: Audit control evaluations and evidence items (AE-03).
+*/
+
+IF OBJECT_ID(N'dbo.AuditControlEvaluations', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AuditControlEvaluations
+    (
+        EvaluationId        UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AuditControlEvaluations PRIMARY KEY CLUSTERED,
+        ControlId           UNIQUEIDENTIFIER NOT NULL,
+        FrameworkId         UNIQUEIDENTIFIER NOT NULL,
+        SnapshotId          UNIQUEIDENTIFIER NOT NULL,
+        TenantId            UNIQUEIDENTIFIER NOT NULL,
+        Outcome             INT               NOT NULL,
+        PassCount           INT               NOT NULL,
+        ApplicableCount     INT               NOT NULL,
+        Confidence          DECIMAL(5, 4)     NOT NULL,
+        EvaluationText      NVARCHAR(MAX)     NOT NULL,
+        Formula             NVARCHAR(2000)    NOT NULL,
+        RequirementIdsJson  NVARCHAR(MAX)     NOT NULL,
+        ExceptionIdsJson    NVARCHAR(MAX)     NOT NULL,
+        ProvenanceKind      INT               NOT NULL,
+        HumanDisposition    NVARCHAR(256)     NULL,
+        Notes               NVARCHAR(2000)    NULL,
+        CreatedUtc          DATETIME2         NOT NULL,
+        CONSTRAINT FK_AuditControlEvaluations_Controls FOREIGN KEY (ControlId) REFERENCES dbo.AuditControls (ControlId),
+        CONSTRAINT FK_AuditControlEvaluations_Frameworks FOREIGN KEY (FrameworkId) REFERENCES dbo.AuditFrameworks (FrameworkId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AuditControlEvaluations_Tenant_Control_Snapshot
+        ON dbo.AuditControlEvaluations (TenantId, ControlId, SnapshotId, CreatedUtc DESC);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AuditEvidenceItems', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AuditEvidenceItems
+    (
+        EvidenceItemId      UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AuditEvidenceItems PRIMARY KEY CLUSTERED,
+        EvaluationId        UNIQUEIDENTIFIER NOT NULL,
+        RequirementId       UNIQUEIDENTIFIER NOT NULL,
+        TenantId            UNIQUEIDENTIFIER NOT NULL,
+        CloudResourceId     UNIQUEIDENTIFIER NULL,
+        AzureResourceId     NVARCHAR(1024)    NULL,
+        EvidenceType        NVARCHAR(128)     NOT NULL,
+        Summary             NVARCHAR(2000)    NOT NULL,
+        CollectionStatus    INT               NOT NULL,
+        ProvenanceKind      INT               NOT NULL,
+        CreatedUtc          DATETIME2         NOT NULL,
+        CONSTRAINT FK_AuditEvidenceItems_Evaluations FOREIGN KEY (EvaluationId) REFERENCES dbo.AuditControlEvaluations (EvaluationId),
+        CONSTRAINT FK_AuditEvidenceItems_Requirements FOREIGN KEY (RequirementId) REFERENCES dbo.AuditEvidenceRequirements (RequirementId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AuditEvidenceItems_Tenant_Evaluation
+        ON dbo.AuditEvidenceItems (TenantId, EvaluationId);
+END;
+GO
+
+/*
+  352: Audit assessments and immutable audit evidence snapshots (AE-04).
+*/
+
+IF OBJECT_ID(N'dbo.AuditAssessments', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AuditAssessments
+    (
+        AssessmentId        UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AuditAssessments PRIMARY KEY CLUSTERED,
+        TenantId            UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId         UNIQUEIDENTIFIER NOT NULL,
+        ProjectId           UNIQUEIDENTIFIER NOT NULL,
+        FrameworkId           UNIQUEIDENTIFIER NOT NULL,
+        FrameworkVersion      NVARCHAR(64)      NOT NULL,
+        ScopeJson             NVARCHAR(MAX)     NOT NULL,
+        PeriodStartUtc        DATETIME2         NULL,
+        PeriodEndUtc          DATETIME2         NULL,
+        Status                INT               NOT NULL,
+        RequestedBy           NVARCHAR(256)     NOT NULL,
+        CreatedUtc            DATETIME2         NOT NULL,
+        CONSTRAINT FK_AuditAssessments_Frameworks FOREIGN KEY (FrameworkId) REFERENCES dbo.AuditFrameworks (FrameworkId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AuditAssessments_Tenant_Created
+        ON dbo.AuditAssessments (TenantId, CreatedUtc DESC);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AuditEvidenceSnapshots', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AuditEvidenceSnapshots
+    (
+        AuditEvidenceSnapshotId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AuditEvidenceSnapshots PRIMARY KEY CLUSTERED,
+        AssessmentId            UNIQUEIDENTIFIER NOT NULL,
+        TenantId                UNIQUEIDENTIFIER NOT NULL,
+        SubscriptionIdsJson     NVARCHAR(MAX)     NOT NULL,
+        CollectionStartedUtc    DATETIME2         NOT NULL,
+        CollectionCompletedUtc  DATETIME2         NOT NULL,
+        SelectorVersionsJson    NVARCHAR(MAX)     NOT NULL,
+        FrameworkVersion        NVARCHAR(64)      NOT NULL,
+        ControlCatalogVersion   NVARCHAR(128)     NOT NULL,
+        Completeness            DECIMAL(5, 4)     NOT NULL,
+        FailuresJson            NVARCHAR(MAX)     NOT NULL,
+        WarningsJson            NVARCHAR(MAX)     NOT NULL,
+        EvidenceHashSha256      VARBINARY(32)     NOT NULL,
+        CreatedUtc              DATETIME2         NOT NULL,
+        CONSTRAINT FK_AuditEvidenceSnapshots_Assessments FOREIGN KEY (AssessmentId) REFERENCES dbo.AuditAssessments (AssessmentId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AuditEvidenceSnapshots_Tenant_Assessment
+        ON dbo.AuditEvidenceSnapshots (TenantId, AssessmentId, CollectionCompletedUtc DESC);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AuditEvidenceSnapshotInventoryLinks', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AuditEvidenceSnapshotInventoryLinks
+    (
+        LinkId                  UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AuditEvidenceSnapshotInventoryLinks PRIMARY KEY CLUSTERED,
+        AuditEvidenceSnapshotId UNIQUEIDENTIFIER NOT NULL,
+        AzureInventorySnapshotId UNIQUEIDENTIFIER NOT NULL,
+        TenantId                UNIQUEIDENTIFIER NOT NULL,
+        CONSTRAINT FK_AuditEvidenceSnapshotInventoryLinks_Snapshots FOREIGN KEY (AuditEvidenceSnapshotId) REFERENCES dbo.AuditEvidenceSnapshots (AuditEvidenceSnapshotId),
+        CONSTRAINT FK_AuditEvidenceSnapshotInventoryLinks_Inventory FOREIGN KEY (AzureInventorySnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AuditEvidenceSnapshotInventoryLinks_Tenant_AuditSnapshot
+        ON dbo.AuditEvidenceSnapshotInventoryLinks (TenantId, AuditEvidenceSnapshotId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AuditEvidenceSnapshotItems', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AuditEvidenceSnapshotItems
+    (
+        EvidenceRowId           UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AuditEvidenceSnapshotItems PRIMARY KEY CLUSTERED,
+        AuditEvidenceSnapshotId UNIQUEIDENTIFIER NOT NULL,
+        RequirementId           UNIQUEIDENTIFIER NOT NULL,
+        TenantId                UNIQUEIDENTIFIER NOT NULL,
+        CloudResourceId         UNIQUEIDENTIFIER NULL,
+        AzureResourceId         NVARCHAR(1024)    NULL,
+        EvidenceType            NVARCHAR(128)     NOT NULL,
+        CollectedUtc            DATETIME2         NOT NULL,
+        CollectorVersion        NVARCHAR(64)      NOT NULL,
+        NormalizedPointer       NVARCHAR(1024)    NULL,
+        RawPointer              NVARCHAR(1024)    NULL,
+        EvidenceHashSha256      VARBINARY(32)     NOT NULL,
+        CollectionStatus        INT               NOT NULL,
+        FreshnessStatus         INT               NOT NULL,
+        Confidence              DECIMAL(5, 4)     NOT NULL,
+        Summary                 NVARCHAR(2000)    NOT NULL,
+        ProvenanceKind          INT               NOT NULL,
+        SelectorVersion         NVARCHAR(64)      NOT NULL,
+        AzureScope              NVARCHAR(512)     NULL,
+        ApiQueryId              NVARCHAR(256)     NULL,
+        CONSTRAINT FK_AuditEvidenceSnapshotItems_Snapshots FOREIGN KEY (AuditEvidenceSnapshotId) REFERENCES dbo.AuditEvidenceSnapshots (AuditEvidenceSnapshotId),
+        CONSTRAINT FK_AuditEvidenceSnapshotItems_Requirements FOREIGN KEY (RequirementId) REFERENCES dbo.AuditEvidenceRequirements (RequirementId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AuditEvidenceSnapshotItems_Tenant_AuditSnapshot
+        ON dbo.AuditEvidenceSnapshotItems (TenantId, AuditEvidenceSnapshotId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AuditEvidenceBaselines', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AuditEvidenceBaselines
+    (
+        BaselineId              UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AuditEvidenceBaselines PRIMARY KEY CLUSTERED,
+        AssessmentId            UNIQUEIDENTIFIER NOT NULL,
+        AuditEvidenceSnapshotId UNIQUEIDENTIFIER NOT NULL,
+        TenantId                UNIQUEIDENTIFIER NOT NULL,
+        Name                    NVARCHAR(256)     NOT NULL,
+        DesignatedBy            NVARCHAR(256)     NOT NULL,
+        DesignatedUtc           DATETIME2         NOT NULL,
+        CONSTRAINT FK_AuditEvidenceBaselines_Assessments FOREIGN KEY (AssessmentId) REFERENCES dbo.AuditAssessments (AssessmentId),
+        CONSTRAINT FK_AuditEvidenceBaselines_Snapshots FOREIGN KEY (AuditEvidenceSnapshotId) REFERENCES dbo.AuditEvidenceSnapshots (AuditEvidenceSnapshotId),
+        CONSTRAINT UQ_AuditEvidenceBaselines_Tenant_Assessment_Name UNIQUE (TenantId, AssessmentId, Name)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AuditEvidenceBaselines_Tenant_Assessment
+        ON dbo.AuditEvidenceBaselines (TenantId, AssessmentId, DesignatedUtc DESC);
+END;
+GO
+
+/*
+  353: Human-submitted audit evidence and architecture evidence links (AE-07).
+*/
+
+IF OBJECT_ID(N'dbo.AuditManualEvidenceSubmissions', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AuditManualEvidenceSubmissions
+    (
+        SubmissionId            UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AuditManualEvidenceSubmissions PRIMARY KEY CLUSTERED,
+        TenantId                UNIQUEIDENTIFIER NOT NULL,
+        AssessmentId            UNIQUEIDENTIFIER NOT NULL,
+        ControlId               UNIQUEIDENTIFIER NOT NULL,
+        RequirementId           UNIQUEIDENTIFIER NOT NULL,
+        Owner                   NVARCHAR(256)     NOT NULL,
+        SubmittedBy             NVARCHAR(256)     NOT NULL,
+        SubmittedUtc            DATETIME2         NOT NULL,
+        ApplicablePeriodStartUtc DATETIME2        NULL,
+        ApplicablePeriodEndUtc  DATETIME2         NULL,
+        ExpirationUtc           DATETIME2         NULL,
+        DocumentVersion         NVARCHAR(128)     NULL,
+        DocumentKind            NVARCHAR(128)     NOT NULL,
+        EvidenceHashSha256      VARBINARY(32)     NOT NULL,
+        BlobPointer             NVARCHAR(1024)    NOT NULL,
+        ReviewStatus            INT               NOT NULL,
+        ProvenanceKind          INT               NOT NULL,
+        ItsmProvider            NVARCHAR(64)      NULL,
+        ItsmExternalKey         NVARCHAR(256)     NULL,
+        CONSTRAINT FK_AuditManualEvidenceSubmissions_Assessments FOREIGN KEY (AssessmentId) REFERENCES dbo.AuditAssessments (AssessmentId),
+        CONSTRAINT FK_AuditManualEvidenceSubmissions_Requirements FOREIGN KEY (RequirementId) REFERENCES dbo.AuditEvidenceRequirements (RequirementId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AuditManualEvidenceSubmissions_Tenant_Assessment
+        ON dbo.AuditManualEvidenceSubmissions (TenantId, AssessmentId, SubmittedUtc DESC);
+
+    CREATE NONCLUSTERED INDEX IX_AuditManualEvidenceSubmissions_Tenant_Control
+        ON dbo.AuditManualEvidenceSubmissions (TenantId, AssessmentId, ControlId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AuditArchitectureEvidenceLinks', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AuditArchitectureEvidenceLinks
+    (
+        LinkId                  UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AuditArchitectureEvidenceLinks PRIMARY KEY CLUSTERED,
+        TenantId                UNIQUEIDENTIFIER NOT NULL,
+        AssessmentId            UNIQUEIDENTIFIER NOT NULL,
+        ControlId               UNIQUEIDENTIFIER NOT NULL,
+        RequirementId           UNIQUEIDENTIFIER NOT NULL,
+        RunId                   UNIQUEIDENTIFIER NOT NULL,
+        GoldenManifestId        UNIQUEIDENTIFIER NOT NULL,
+        LinkedBy                NVARCHAR(256)     NOT NULL,
+        LinkedUtc               DATETIME2         NOT NULL,
+        CONSTRAINT FK_AuditArchitectureEvidenceLinks_Assessments FOREIGN KEY (AssessmentId) REFERENCES dbo.AuditAssessments (AssessmentId),
+        CONSTRAINT FK_AuditArchitectureEvidenceLinks_Requirements FOREIGN KEY (RequirementId) REFERENCES dbo.AuditEvidenceRequirements (RequirementId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AuditArchitectureEvidenceLinks_Tenant_Assessment
+        ON dbo.AuditArchitectureEvidenceLinks (TenantId, AssessmentId, LinkedUtc DESC);
+
+    CREATE NONCLUSTERED INDEX IX_AuditArchitectureEvidenceLinks_Tenant_Control
+        ON dbo.AuditArchitectureEvidenceLinks (TenantId, AssessmentId, ControlId);
+END;
 GO

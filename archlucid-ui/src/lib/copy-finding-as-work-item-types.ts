@@ -7,6 +7,8 @@ export type WorkItemClipboardFormat =
   | "json";
 
 /** Stable JSON envelope for external ticketing scripts (not a Jira/ServiceNow API integration). */
+export type FindingWorkItemProvenanceKind = "asserted" | "inferred";
+
 export type FindingWorkItemJsonDocument = {
   schema: "archlucid.work-item.v1";
   findingId: string;
@@ -18,6 +20,9 @@ export type FindingWorkItemJsonDocument = {
   ruleId: string;
   trustLabel?: string;
   trustLabelReason?: string;
+  /** Working-mode clipboard honesty when inspect supplies coverage/provenance signals (FD-07). */
+  coverageHonesty?: string;
+  coverageHonestyProvenanceKind?: FindingWorkItemProvenanceKind;
   links: {
     review: string;
     finding: string;
@@ -44,6 +49,11 @@ export type FindingWorkItemBuildInput = {
   trustLabelReason?: string | null;
   /** Committed manifest version from inspect payload when available. */
   manifestVersion?: string | null;
+  /** Pre-rendered honesty line for Working clipboard exports (FD-07). */
+  coverageHonestyLine?: string | null;
+  coverageHonestyProvenanceKind?: FindingWorkItemProvenanceKind | null;
+  /** When false, omit coverage honesty even if populated (Guided paste). */
+  includeCoverageHonesty?: boolean;
 };
 
 /** Minimal block for per-finding table rows (aggregate explanation list / governance queue). */

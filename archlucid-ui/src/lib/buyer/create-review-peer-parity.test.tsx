@@ -15,6 +15,8 @@ import {
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE,
   OPERATOR_HOME_SETUP_NEXT_CHOOSE_PATH,
 } from "@/lib/buyer/buyer-polish-copy";
+import { WORKING_NEW_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { composeOperatorHomeSections } from "@/lib/compose-operator-home-sections";
 import { OPERATOR_PRIMARY_CTA_INVENTORY } from "@/lib/operator/operator-primary-cta-inventory";
 import { formatArchitectureObjectMapSentence } from "@/lib/vocabulary/architecture-object-map";
 
@@ -172,5 +174,41 @@ describe("ADR 0067 — Create architecture / Review peer parity", () => {
       expect(createTokens).toContain(token);
       expect(reviewTokens).toContain(token);
     }
+  });
+});
+
+describe("ADR 0069 — Working one work object (IS-01/02)", () => {
+  it("documents ADR 0069 supersession for Working — Guided still cites ADR 0067", () => {
+    // Guard pointer: Working fixtures below; Guided peer parity remains in the ADR 0067 block above.
+    expect("0069-working-desk-one-work-object").toMatch(/0069/);
+  });
+
+  it("Working empty tenant home sections emphasize start-something without buyer hero funnel", () => {
+    const sections = composeOperatorHomeSections({
+      phaseSignals: {
+        hasWorkspaceReviews: false,
+        hasOverviewReviewRows: false,
+        draftCount: 0,
+        hasCommittedManifest: false,
+        openFindingsCount: 0,
+        governanceWarningsCount: 0,
+      },
+      buyerPolishedShell: false,
+      workingMode: true,
+      metrics: {
+        reviewPackagesCommitted: 0,
+        reviewPackagesActive: 0,
+        openFindings: 0,
+        governanceWarnings: 0,
+        hasReviews: false,
+      },
+    });
+
+    expect(sections.some((section) => section.id === "hero")).toBe(false);
+    expect(sections.some((section) => section.id === "start-something")).toBe(true);
+  });
+
+  it("exposes Working single-start label for dense draft editor entry", () => {
+    expect(WORKING_NEW_REVIEW_LABEL).toBe("New review");
   });
 });

@@ -14,7 +14,7 @@
     {
       "id": "iam-aws-001",
       "title": "Single authoritative AWS organization documented",
-      "description": "Architecture must identify the authoritative AWS Organizations management account and OU scope for the workload — not ambiguous multi-account sprawl.",
+      "description": "Architecture must identify the authoritative AWS Organizations management account and OU scope for the workload \u2014 not ambiguous multi-account sprawl.",
       "severity": "Critical",
       "priority": "P0",
       "remediationGuidance": "Record organization ID, management account, and OU naming in governance.ComplianceTags and metadata.ChangeDescription.",
@@ -39,7 +39,7 @@
       "frameworkMappings": [
         {
           "framework": "AWS IAM Identity Center",
-          "theme": "AWS Organizations — Account authority"
+          "theme": "AWS Organizations \u2014 Account authority"
         }
       ]
     },
@@ -71,7 +71,7 @@
       "frameworkMappings": [
         {
           "framework": "AWS IAM Identity Center",
-          "theme": "IAM Identity Center — MFA and session controls"
+          "theme": "IAM Identity Center \u2014 MFA and session controls"
         }
       ]
     },

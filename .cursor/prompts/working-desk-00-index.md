@@ -6,7 +6,12 @@
      Created: 2026-09-03.
      Successor leftovers (2026-09-04): livelihood-desk-00-index.md (LD-01–15) shipped.
      Wave 3: repeat-seat-00-index.md (RS-01–15) shipped #1457.
-     Wave 4: working-architect-00-index.md (WA-01–24). -->
+     Wave 4: working-architect-00-index.md (WA-01–24) shipped #1496.
+     Wave 5: career-desk-00-index.md (CD-01–15).
+     Wave 6: all-day-desk-00-index.md (AD-01–12).
+     Wave 7: founding-desk-00-index.md (FD-01–13).
+     Wave 8: instrument-spine-00-index.md (IS-01–15).
+     Wave 9: livelihood-spine-00-index.md (LS-01–12). -->
 
 # Working-desk mitigations — Composer prompt set (WD-01–WD-12)
 
@@ -23,6 +28,8 @@ ArchLucid sells a **seat for a repeat professional**. Working mode, finding undo
 **Wave 3 (shipped):** [`repeat-seat-00-index.md`](repeat-seat-00-index.md) (**RS-01–15**, `master` #1457). Do not re-run.
 
 **Wave 4 (predicted leftovers after LD+RS):** [`working-architect-00-index.md`](working-architect-00-index.md) (**WA-01–24**). If a WA row lists a WD owner, do not fork this file.
+
+**Wave 8:** [`instrument-spine-00-index.md`](instrument-spine-00-index.md) (**IS-01–15**). **Wave 9:** [`livelihood-spine-00-index.md`](livelihood-spine-00-index.md) (**LS-01–12**). Do not fork IS.
 
 ## Run order
 
@@ -74,3 +81,5 @@ Independent after **WD-01**. Prefer **01 → 08 → 02 → 03** first (identity,
 ## After each prompt
 
 Summarize: files changed, tests run, residual risk, Working vs Guided behavior.
+
+**Wave 8:** [`instrument-spine-00-index.md`](instrument-spine-00-index.md) (**IS-01–15**). **Wave 9:** [`livelihood-spine-00-index.md`](livelihood-spine-00-index.md) (**LS-01–12**). Do not fork IS.

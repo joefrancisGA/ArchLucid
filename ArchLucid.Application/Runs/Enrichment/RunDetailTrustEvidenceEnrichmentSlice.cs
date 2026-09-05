@@ -20,10 +20,19 @@ public sealed class RunDetailTrustEvidenceEnrichmentSlice(IRunTrustEvidenceCardB
         if (!IsCommittedForTrust(detail, architectureDetail))
             return;
 
-        detail.TrustEvidenceCard =
-            await _trustEvidenceCardBuilder
-                .BuildAsync(architectureDetail, context.HostAgentExecutionMode, cancellationToken)
-                .ConfigureAwait(false);
+        try
+        {
+            detail.TrustEvidenceCard =
+                await _trustEvidenceCardBuilder
+                    .BuildAsync(architectureDetail, context.HostAgentExecutionMode, cancellationToken)
+                    .ConfigureAwait(false);
+        }
+        catch (ConflictException)
+        {
+            // Sealed-hash mismatch must not fail GET /v1/authority/reviews/{runId}.
+            // Demo seeds historically hashed Policy notes that were not persisted, so recomputation
+            // 409'd the whole review page (and blocked re-run polling).
+        }
     }
 
     private static bool IsCommittedForTrust(RunDetailDto detail, ArchitectureRunDetail architectureDetail)

@@ -15,7 +15,7 @@ import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudge
 import { architectureDraftPath } from "@/lib/architecture/architecture-routes";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import {
   GUIDED_INTAKE_ALREADY_SUBMITTED_LEAD,
   GUIDED_INTAKE_SOURCE_ARCHITECTURE_HINT_LEAD,
@@ -36,7 +36,7 @@ import { useGuidedIntakeWizard } from "./use-guided-intake-wizard";
 
 /** Guided intake: write the brief, answer required clarifications, submit the review package. */
 export function SocraticIntakeWizard() {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const evalChrome = useProductionEvalChrome();
   const suppressWizardResumePrompt = useReviewsNewSuppressWizardResumePrompt();
   const { isSimulator } = useAgentExecutionMode();
   const {
@@ -350,7 +350,7 @@ export function SocraticIntakeWizard() {
         />
       ) : null}
 
-      {buyerPolishedShell ? <ReviewsNewBuyerChrome /> : null}
+      {evalChrome ? <ReviewsNewBuyerChrome /> : null}
       </div>
     </div>
   );

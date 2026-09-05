@@ -12,7 +12,7 @@ internal static class GoldenManifestReadSql
                                          CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
                                          MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
                                          ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
-                                         WarningsJson, ProvenanceJson, ManifestPayloadBlobUri
+                                         WarningsJson, ProvenanceJson, HasherBoundJson, ManifestPayloadBlobUri
                                      FROM dbo.GoldenManifests
                                      WHERE TenantId = @TenantId
                                        AND WorkspaceId = @WorkspaceId
@@ -30,7 +30,7 @@ internal static class GoldenManifestReadSql
                                                                     CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
                                                                     MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
                                                                     ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
-                                                                    WarningsJson, ProvenanceJson, ManifestPayloadBlobUri, ContractManifestVersion
+                                                                    WarningsJson, ProvenanceJson, HasherBoundJson, ManifestPayloadBlobUri, ContractManifestVersion
                                                                 FROM dbo.GoldenManifests
                                                                 WHERE TenantId = @TenantId
                                                                   AND WorkspaceId = @WorkspaceId

@@ -1,21 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type SetStateAction } from "react";
 
 import { ShellInFlightCancelAbandonClarity } from "@/components/shell/ShellInFlightCancelAbandonClarity";
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { useShellInFlightOperations } from "@/hooks/use-shell-in-flight-operations";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cancelOperation } from "@/lib/api/operations-api";
 import { buildCancelAbandonInFlightClarity } from "@/lib/operations/cancel-abandon-in-flight-clarity";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { formatOperationElapsed } from "@/lib/operations/format-operation-elapsed";
 import { patchInFlightOperation } from "@/lib/operations/in-flight-operations-store";
 import { ARCHLUCID_OPEN_SHELL_IN_FLIGHT_EVENT } from "@/lib/operations/open-shell-in-flight-event";
 import { isTerminalOperationState } from "@/lib/operations/operation-state";
+import {
+  parseShellInFlightCancelIdFromSearch,
+  shellInFlightCancelConfirmHrefFromSearch,
+} from "@/lib/operator/shell-in-flight-cancel-confirm-url";
+import {
+  parseShellInFlightPopoverOpenFromSearch,
+  shellInFlightPopoverHrefFromSearch,
+} from "@/lib/operator/shell-in-flight-popover-url";
 import { enterpriseStatusTagClass, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { showError } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
 /**
@@ -24,11 +34,64 @@ import { cn } from "@/lib/utils";
  */
 export function ShellInFlightOperationsAffordance(): React.JSX.Element | null {
   const router = useRouter();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const inFlightCancelIdParam = searchParams.get("inFlightCancelId");
+  const inFlightOpenParam = searchParams.get("inFlightOpen");
   const operations = useShellInFlightOperations();
   const [nowMs, setNowMs] = useState(() => Date.now());
-  const [open, setOpen] = useState(false);
+  const [open, setOpenState] = useState(() => parseShellInFlightPopoverOpenFromSearch(inFlightOpenParam));
   const [cancellingIds, setCancellingIds] = useState<ReadonlySet<string>>(() => new Set());
+  const [pendingCancelOperationId, setPendingCancelOperationIdState] = useState<string | null>(() => {
+    const parsed = parseShellInFlightCancelIdFromSearch(inFlightCancelIdParam);
+
+    return parsed.length > 0 ? parsed : null;
+  });
+  const [cancelFailureMessage, setCancelFailureMessage] = useState<string | null>(null);
   const clarity = buildCancelAbandonInFlightClarity();
+
+  const syncInFlightPopoverOpenToUrl = useCallback(
+    (popoverOpen: boolean) => {
+      router.replace(shellInFlightPopoverHrefFromSearch(searchParams.toString(), popoverOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncInFlightPopoverOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncInFlightPopoverOpenToUrl],
+  );
+
+  const syncInFlightCancelIdToUrl = useCallback(
+    (operationId: string | null) => {
+      router.replace(
+        shellInFlightCancelConfirmHrefFromSearch(searchParams.toString(), operationId, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPendingCancelOperationId = useCallback(
+    (value: SetStateAction<string | null>) => {
+      setPendingCancelOperationIdState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncInFlightCancelIdToUrl(next);
+
+        return next;
+      });
+    },
+    [syncInFlightCancelIdToUrl],
+  );
 
   useEffect(() => {
     function onOperationTerminal(): void {
@@ -88,7 +151,8 @@ export function ShellInFlightOperationsAffordance(): React.JSX.Element | null {
       });
     } catch (error: unknown) {
       const detail = error instanceof Error ? error.message : "Try again in a moment.";
-      showError("Could not cancel this work", detail);
+      setCancelFailureMessage(detail);
+      setOpen(true);
     } finally {
       setCancellingIds((previous) => {
         const next = new Set(previous);
@@ -98,7 +162,12 @@ export function ShellInFlightOperationsAffordance(): React.JSX.Element | null {
     }
   }
 
+  const pendingCancelOperation = operations.find(
+    (operation) => operation.operationId === pendingCancelOperationId,
+  );
+
   return (
+    <>
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
@@ -166,7 +235,8 @@ export function ShellInFlightOperationsAffordance(): React.JSX.Element | null {
                         data-testid="shell-in-flight-operation-cancel"
                         aria-label={`Cancel ${operation.title}`}
                         onClick={() => {
-                          void handleCancel(operation.operationId);
+                          setCancelFailureMessage(null);
+                          setPendingCancelOperationId(operation.operationId);
                         }}
                       >
                         {cancelInFlight || cancelAlreadyRequested ? "Canceling…" : "Cancel"}
@@ -183,7 +253,46 @@ export function ShellInFlightOperationsAffordance(): React.JSX.Element | null {
             );
           })}
         </ul>
+        {cancelFailureMessage !== null ? (
+          <div className="border-t border-neutral-200 px-3 py-2 dark:border-neutral-700">
+            <OperatorErrorRecoveryContract
+              testId="shell-in-flight-cancel-failure-recovery"
+              presentation={errorRecoveryContractForScenario("in-flight-cancel-failure", {
+                failureSummary: "Could not cancel this in-flight operation.",
+              })}
+            />
+          </div>
+        ) : null}
       </PopoverContent>
     </Popover>
+    <ConfirmationDialog
+      open={pendingCancelOperationId !== null}
+      onOpenChange={(dialogOpen) => {
+        if (!dialogOpen) {
+          setPendingCancelOperationId(null);
+        }
+      }}
+      title="Stop this in-flight operation?"
+      description={
+        pendingCancelOperation !== undefined
+          ? `${clarity.panelHeaderOneLiner} Stopping "${pendingCancelOperation.title}" is cooperative — work already completed stays intact.`
+          : clarity.panelHeaderOneLiner
+      }
+      confirmLabel="Stop operation"
+      variant="destructive"
+      busy={
+        pendingCancelOperationId !== null && cancellingIds.has(pendingCancelOperationId)
+      }
+      onConfirm={() => {
+        if (pendingCancelOperationId === null) {
+          return;
+        }
+
+        const operationId = pendingCancelOperationId;
+        setPendingCancelOperationId(null);
+        void handleCancel(operationId);
+      }}
+    />
+    </>
   );
 }

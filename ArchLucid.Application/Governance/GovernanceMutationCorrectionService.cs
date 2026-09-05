@@ -218,6 +218,13 @@ public sealed class GovernanceMutationCorrectionService(
             return await ValidateFindingDispositionSubjectAsync(subjectId, normalizedRunId, scope, cancellationToken);
         }
 
+        if (mutationKind == GovernanceMutationCorrectionKinds.ArchitectureReviewFinalize)
+        {
+            ValidateArchitectureReviewFinalizeSubject(subjectId, normalizedRunId);
+
+            return;
+        }
+
         throw new ArgumentException($"Mutation kind '{mutationKind}' does not support in-product correction.", nameof(mutationKind));
     }
 

@@ -21,13 +21,13 @@ export const MUTATION_AMENDABLE_MOUNTED_CONTROL_SURFACES: readonly MutationAmend
     },
     {
       mutationId: "governance_workflow_approve",
-      sourceRoot: "app/(operator)/governance/_sections/GovernanceWorkflowApprovalsList.tsx",
-      requiredSuccessMarkers: ["GovernanceRecordCorrectionInlineControl", "governance_workflow_approve"],
+      sourceRoot: "app/(operator)/governance/_sections/GovernanceWorkflowMutationHost.tsx",
+      requiredSuccessMarkers: ["onRecordCorrection", "governance_workflow_approve"],
     },
     {
       mutationId: "governance_workflow_reject",
-      sourceRoot: "app/(operator)/governance/_sections/GovernanceWorkflowApprovalsList.tsx",
-      requiredSuccessMarkers: ["GovernanceRecordCorrectionInlineControl", "governance_workflow_reject"],
+      sourceRoot: "app/(operator)/governance/_sections/GovernanceWorkflowMutationHost.tsx",
+      requiredSuccessMarkers: ["onRecordCorrection", "governance_workflow_reject"],
     },
     {
       mutationId: "governance_workflow_promote",
@@ -48,6 +48,11 @@ export const MUTATION_AMENDABLE_MOUNTED_CONTROL_SURFACES: readonly MutationAmend
       mutationId: "governance_keyboard_finding_disposition",
       sourceRoot: "components/governance/findings/FindingKeyboardTriageHost.tsx",
       requiredSuccessMarkers: ["onRecordCorrection", "GovernanceRecordCorrectionDialog"],
+    },
+    {
+      mutationId: "governance_architecture_review_finalize",
+      sourceRoot: "app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailReviewPackageDecisionReceiptStrip.tsx",
+      requiredSuccessMarkers: ["GovernanceRecordCorrectionInlineControl", "governance_architecture_review_finalize"],
     },
   ];
 

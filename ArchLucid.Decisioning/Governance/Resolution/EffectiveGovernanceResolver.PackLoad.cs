@@ -56,7 +56,7 @@ public sealed partial class EffectiveGovernanceResolver
 
             if (focusedPilotMode && !Core.Governance.PolicyPacks.FocusedPilotModePolicyPacks.IsPackAllowedInFocusedReview(
                     pack.Name,
-                    assignment.IsPinned,
+                    Core.Governance.PolicyPacks.PolicyPackAssignmentOrganizationRequired.IsOrganizationRequired(assignment),
                     Core.Governance.PolicyPacks.PlatformOverlayPolicyPacks.IsOverlayDisplayName(
                         pack.Name,
                         Core.Governance.PolicyPacks.PilotModeGovernanceScope.ActiveCloudProvider)))

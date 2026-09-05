@@ -105,7 +105,7 @@ export function RunDetailSubmittedArchitectureSection(
         >
           <ArchitectureNarrativeMarkdownView
             markdown=""
-            emptyStateMessage="No architecture description was submitted with this review. Evidence and uploaded documents may still be available in the evidence sections."
+            emptyStateMessage="Open the Evidence tab to view submitted documents and diagrams."
           />
         </CollapsibleSection>
       </section>

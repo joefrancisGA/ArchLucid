@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { useEffect, useState, type ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type ReactElement } from "react";
 
 import { AlertsOutstandingNavBadge } from "@/components/alerts/AlertsOutstandingNavBadge";
 import { GovernanceAssignedToMeFindingsNavBadge } from "@/components/governance/findings/GovernanceAssignedToMeFindingsNavBadge";
@@ -23,9 +24,14 @@ import {
   isSidebarNavLinkAdvancedInDemo,
 } from "@/lib/sidebar-nav-link-filters";
 import {
+  sidebarMoreLinksCollapseLabel,
   sidebarMoreLinksLabel,
   splitSidebarLinksDailyVsMore,
 } from "@/lib/sidebar-nav-daily-links";
+import {
+  parseSidebarNavMoreGroupFromSearch,
+  sidebarNavMoreDisclosureHrefFromSearch,
+} from "@/lib/sidebar-nav/sidebar-nav-more-disclosure-url";
 import type { SidebarCollapsibleNavGroupId } from "@/lib/sidebar-nav-group-expansion-storage";
 import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
 
@@ -61,6 +67,10 @@ type SidebarNavClusterProps = {
 };
 
 export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const sidebarMoreGroupParam = searchParams.get("sidebarMoreGroup");
   const { group, visibleLinks } = props.row;
   const linksForRender = filterSidebarNavClusterLinks({
     visibleLinks,
@@ -73,13 +83,41 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
   const contentId = `sidebar-group-${group.id}-content`;
   const headingId = `sidebar-group-heading-${group.id}`;
   const { daily, more } = splitSidebarLinksDailyVsMore(group.id, linksForRender, props.pathname ?? "/");
-  const [moreOpen, setMoreOpen] = useState(() => more.length > 0 && more.length <= 3);
+  const [moreOpen, setMoreOpenState] = useState(
+    () => parseSidebarNavMoreGroupFromSearch(sidebarMoreGroupParam) === group.id,
+  );
+
+  const syncSidebarMoreGroupToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        sidebarNavMoreDisclosureHrefFromSearch(searchParams.toString(), open ? group.id : null, pathname),
+        { scroll: false },
+      );
+    },
+    [group.id, pathname, router, searchParams],
+  );
+
+  const setMoreOpen = useCallback(
+    (value: boolean | ((current: boolean) => boolean)) => {
+      setMoreOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncSidebarMoreGroupToUrl(next);
+
+        return next;
+      });
+    },
+    [syncSidebarMoreGroupToUrl],
+  );
+
+  useEffect(() => {
+    setMoreOpenState(parseSidebarNavMoreGroupFromSearch(sidebarMoreGroupParam) === group.id);
+  }, [group.id, sidebarMoreGroupParam]);
 
   useEffect(() => {
     if (more.length === 0) {
       setMoreOpen(false);
     }
-  }, [more.length, props.pathname]);
+  }, [more.length, props.pathname, setMoreOpen]);
 
   if (linksForRender.length === 0) {
     return <div key={group.id} hidden />;
@@ -204,7 +242,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
                 ) : (
                   <ChevronRight className="h-3 w-3 shrink-0 opacity-80" aria-hidden />
                 )}
-                <span>{sidebarMoreLinksLabel(group.label, more.length)}</span>
+                <span>{sidebarMoreLinksLabel(group.label, more.length, moreOpen)}</span>
               </button>
               {moreOpen ? <div className="flex flex-col gap-0.5">{more.map((link) => renderLink(link))}</div> : null}
             </div>

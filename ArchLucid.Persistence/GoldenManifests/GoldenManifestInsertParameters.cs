@@ -48,6 +48,7 @@ internal static class GoldenManifestInsertParameters
             payload.AssumptionsJson,
             payload.WarningsJson,
             payload.ProvenanceJson,
+            payload.HasherBoundJson,
             ManifestPayloadBlobUri = manifestPayloadBlobUri,
             LifecycleStatus = nameof(GoldenManifestLifecycleStatus.Active),
             ContractManifestVersion = ResolveContractManifestVersion(manifest)

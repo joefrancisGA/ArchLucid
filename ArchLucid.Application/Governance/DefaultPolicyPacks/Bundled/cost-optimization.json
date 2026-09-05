@@ -20,9 +20,9 @@
     "templateId": "cost-optimization-v1",
     "pack.displayName": "FinOps & Cloud Cost Optimization",
     "pack.category": "Cost",
-    "pack.version": "1.0.1",
+    "pack.version": "1.0.0",
     "pack.isDefault": "true",
-    "pack.description": "FinOps-oriented review prompts grounded in read-only cloud inventory ZIP output (resource manifests, optional catalog pricing overlays, policy compliance exports). Highlights common waste vectors such as orphaned addressing, oversized compute SKUs, and unattached disks. Does not replace live cost management actuals.",
+    "pack.description": "FinOps prompts from Azure extractor inventory. Does not replace Cost Management actuals.",
     "frameworkMappingDisclaimer": "FinOps mapping is advisory only.",
     "curatedRulesArtifact": "docs/samples/policy-packs/cost-optimization-rules-v1.json"
   }

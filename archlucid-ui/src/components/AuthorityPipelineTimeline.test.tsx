@@ -5,7 +5,7 @@ import { AuthorityPipelineTimeline } from "@/components/AuthorityPipelineTimelin
 import type { PipelineTimelineItem } from "@/types/authority";
 
 describe("AuthorityPipelineTimeline", () => {
-  it("renders ordered audit rows", () => {
+  it("renders ordered audit rows with UTC timestamps and status tags", () => {
     const items: PipelineTimelineItem[] = [
       {
         eventId: "11111111-1111-1111-1111-111111111111",
@@ -27,6 +27,9 @@ describe("AuthorityPipelineTimeline", () => {
 
     expect(screen.getByText("Review started")).toBeInTheDocument();
     expect(screen.getByText("Review completed")).toBeInTheDocument();
+    expect(screen.getByText("Milestone")).toBeInTheDocument();
+    expect(screen.getByText("Step")).toBeInTheDocument();
+    expect(screen.getAllByText(/UTC/).length).toBeGreaterThanOrEqual(2);
     expect(screen.getAllByText(/RunStarted/).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/RunCompleted/).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/c1/)).toBeInTheDocument();
@@ -44,7 +47,7 @@ describe("AuthorityPipelineTimeline", () => {
       <AuthorityPipelineTimeline items={null} loadErrorMessage="unauthorized" />,
     );
 
-    expect(screen.getByText(/Pipeline timeline could not be loaded/)).toBeInTheDocument();
+    expect(screen.getByText(/Audit trail could not be loaded/)).toBeInTheDocument();
     expect(screen.getByText(/unauthorized/)).toBeInTheDocument();
   });
 
@@ -80,5 +83,45 @@ describe("AuthorityPipelineTimeline", () => {
     render(<AuthorityPipelineTimeline items={items} />);
 
     expect(screen.getByText("Review finalized")).toBeInTheDocument();
+  });
+
+  it("gives each technical-details disclosure a distinct accessible name", () => {
+    const items: PipelineTimelineItem[] = [
+      {
+        eventId: "11111111-1111-1111-1111-111111111111",
+        occurredUtc: "2026-04-01T12:00:00.000Z",
+        eventType: "RunStarted",
+        actorUserName: "system",
+        correlationId: null,
+      },
+      {
+        eventId: "22222222-2222-2222-2222-222222222222",
+        occurredUtc: "2026-04-01T12:00:00.400Z",
+        eventType: "RunCompleted",
+        actorUserName: "system",
+        correlationId: null,
+      },
+    ];
+
+    render(<AuthorityPipelineTimeline items={items} />);
+
+    expect(screen.getByLabelText("Technical details for Review started")).toBeInTheDocument();
+    expect(screen.getByLabelText("Technical details for Review completed")).toBeInTheDocument();
+    expect(screen.queryByText(/0s after prior event/)).toBeNull();
+    expect(screen.queryByText(/^\+0s$/)).toBeNull();
+  });
+
+  it("limits visible rows when maxVisibleItems is set", () => {
+    const items: PipelineTimelineItem[] = Array.from({ length: 8 }, (_, index) => ({
+      eventId: `00000000-0000-0000-0000-${String(index).padStart(12, "0")}`,
+      occurredUtc: `2026-04-01T12:00:${String(index).padStart(2, "0")}.000Z`,
+      eventType: "RunStarted",
+      actorUserName: "system",
+      correlationId: null,
+    }));
+
+    render(<AuthorityPipelineTimeline items={items} maxVisibleItems={5} />);
+
+    expect(screen.getAllByRole("row")).toHaveLength(6);
   });
 });

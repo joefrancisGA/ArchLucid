@@ -1,6 +1,6 @@
-using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance.Resolution;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Core.Governance.Resolution;
 using ArchLucid.Core.Manifest;
@@ -47,84 +47,22 @@ public sealed class CommittedEffectiveGovernanceSnapshotCapturer(
         ArgumentNullException.ThrowIfNull(manifest);
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-        EffectiveGovernanceResolutionResult resolution = await _effectiveGovernanceResolver.ResolveAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            cancellationToken);
-
-        IReadOnlyList<PolicyPackAssignment> assignments = options?.PreloadedScopePolicyPackAssignments
+        IReadOnlyList<ArchLucid.Contracts.Governance.PolicyPacks.PolicyPackAssignment> assignments =
+            options?.PreloadedScopePolicyPackAssignments
             ?? throw new ConflictException(
                 "Commit blocked: effective governance snapshot requires pin-derived policy pack assignments.");
 
-        bool focusedPilotMode = options?.PinnedFocusedPilotModeEnabled == true
-            || (options?.PinnedFocusedPilotModeEnabled is null && PilotModeGovernanceScope.IsActive);
-        CloudProvider focusedPilotCloudProvider = options?.PinnedFocusedPilotCloudProvider is int raw
-            ? (CloudProvider)raw
-            : PilotModeGovernanceScope.ActiveCloudProvider;
-        List<CommittedGovernancePackAssignmentSnapshot> packRows = [];
-        List<ArchLucid.Contracts.Governance.PolicyPacks.PolicyPackAssignment> applicableAssignments = [];
+        ArchitectureRequest request = ResolveArchitectureRequest(options);
 
-        foreach (ArchLucid.Contracts.Governance.PolicyPacks.PolicyPackAssignment assignment in assignments)
-        {
-            if (!AppliesToScope(assignment, scope.TenantId, scope.WorkspaceId, scope.ProjectId))
-                continue;
-
-            if (!focusedPilotMode && !assignment.IsEnabled)
-                continue;
-
-            applicableAssignments.Add(assignment);
-        }
-
-        IReadOnlyList<ArchLucid.Contracts.Governance.PolicyPacks.PolicyPack> loadedPacks = applicableAssignments.Count == 0
-            ? Array.Empty<ArchLucid.Contracts.Governance.PolicyPacks.PolicyPack>()
-            : await _policyPackRepository.GetByIdsAsync(
-                applicableAssignments.Select(static assignment => assignment.PolicyPackId).Distinct().ToList(),
-                cancellationToken);
-
-        Dictionary<Guid, ArchLucid.Contracts.Governance.PolicyPacks.PolicyPack> packById =
-            loadedPacks.ToDictionary(static pack => pack.PolicyPackId);
-
-        foreach (ArchLucid.Contracts.Governance.PolicyPacks.PolicyPackAssignment assignment in applicableAssignments)
-        {
-            if (!packById.TryGetValue(assignment.PolicyPackId, out ArchLucid.Contracts.Governance.PolicyPacks.PolicyPack? pack))
-                continue;
-
-            if (focusedPilotMode && !FocusedPilotModePolicyPacks.IsPackAllowedInFocusedReview(
-                    pack.Name,
-                    assignment.IsPinned,
-                    PlatformOverlayPolicyPacks.IsOverlayDisplayName(
-                        pack.Name,
-                        focusedPilotCloudProvider)))
-                continue;
-
-            packRows.Add(
-                new CommittedGovernancePackAssignmentSnapshot
-                {
-                    PolicyPackId = assignment.PolicyPackId,
-                    PolicyPackVersion = assignment.PolicyPackVersion,
-                    ScopeLevel = GovernanceScopeLevel.TryNormalize(assignment.ScopeLevel) ?? GovernanceScopeLevel.Project,
-                    ComplianceRuleKeys = await PolicyPackAssignmentComplianceRuleKeysResolver.ResolveForAssignmentAsync(
-                        _policyPackVersionRepository,
-                        assignment,
-                        cancellationToken).ConfigureAwait(false),
-                });
-        }
-
-        packRows = packRows
-            .OrderBy(row => row.PolicyPackId)
-            .ThenBy(row => row.PolicyPackVersion, StringComparer.Ordinal)
-            .ThenBy(row => row.ScopeLevel, StringComparer.Ordinal)
-            .ToList();
-
-        List<string> complianceRuleKeys = resolution.EffectiveContent.ComplianceRuleKeys
-            .Where(key => !string.IsNullOrWhiteSpace(key))
-            .Select(key => key.Trim())
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .OrderBy(key => key, StringComparer.OrdinalIgnoreCase)
-            .ToList();
-
-        bool hasEffectivePolicy = packRows.Count > 0 || complianceRuleKeys.Count > 0;
+        EffectiveGovernanceSnapshotResolution resolution = await _snapshotBuilder.ResolveAsync(
+            scope,
+            request,
+            _effectiveGovernanceResolver,
+            _policyPackAssignmentRepository,
+            _policyPackRepository,
+            assignments,
+            cancellationToken,
+            _policyPackVersionRepository).ConfigureAwait(false);
 
         manifest.EffectiveGovernanceAtCommit = new CommittedEffectiveGovernanceSnapshotDescriptor
         {
@@ -132,29 +70,32 @@ public sealed class CommittedEffectiveGovernanceSnapshotCapturer(
             RuleSetId = manifest.RuleSetId,
             RuleSetVersion = manifest.RuleSetVersion,
             RuleSetHash = manifest.RuleSetHash,
-            ComplianceRuleKeyCount = complianceRuleKeys.Count,
-            ComplianceRuleKeys = complianceRuleKeys,
-            ConflictCount = resolution.Conflicts.Count,
-            PackAssignments = packRows,
-            HasEffectivePolicy = hasEffectivePolicy
+            ComplianceRuleKeyCount = resolution.ComplianceRuleKeys.Count,
+            ComplianceRuleKeys = resolution.ComplianceRuleKeys,
+            ConflictCount = resolution.ConflictCount,
+            PackAssignments = resolution.PackAssignments,
+            CoverageAssignments = resolution.CoverageAssignments,
+            HasEffectivePolicy = resolution.HasEffectivePolicy
         };
     }
 
-    private static bool AppliesToScope(
-        ArchLucid.Contracts.Governance.PolicyPacks.PolicyPackAssignment assignment,
-        Guid tenantId,
-        Guid workspaceId,
-        Guid projectId)
+    private static ArchitectureRequest ResolveArchitectureRequest(CommittedEffectiveGovernanceSnapshotCaptureOptions? options)
     {
-        if (assignment.TenantId != tenantId)
-            return false;
+        if (options?.PreloadedArchitectureRequest is not null)
+            return options.PreloadedArchitectureRequest;
 
-        return assignment.ScopeLevel switch
+        CloudProvider cloudProvider = options?.PinnedFocusedPilotCloudProvider is int raw
+            ? (CloudProvider)raw
+            : CloudProvider.None;
+
+        bool focusedPilot = options?.PinnedFocusedPilotModeEnabled == true;
+
+        return new ArchitectureRequest
         {
-            GovernanceScopeLevel.Tenant => true,
-            GovernanceScopeLevel.Workspace => assignment.WorkspaceId == workspaceId,
-            GovernanceScopeLevel.Project => assignment.WorkspaceId == workspaceId && assignment.ProjectId == projectId,
-            _ => false
+            CloudProvider = cloudProvider,
+            PolicyReferences = focusedPilot
+                ? [FocusedPilotModePolicyPacks.ReferenceToken]
+                : [],
         };
     }
 }

@@ -44,6 +44,8 @@ export type ReviewDetailWorkspaceProps = {
   readonly panels: ReviewDetailWorkspacePanels;
   /** TB-2385: shown above non-activity tab panels while pipeline work remains. */
   readonly inPipelineBanner?: ReactNode | null;
+  /** Shown once under the tab strip, above every panel (for example failure recovery). */
+  readonly activePanelLead?: ReactNode | null;
   /** When omitted, all tabs stay primary (legacy / tests). */
   readonly tabLifecycle?: ResolveReviewDetailVisibleTabsInput;
   /** Tab-scoped "On this page" anchor nav rendered below the tab strip. */

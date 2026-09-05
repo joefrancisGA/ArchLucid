@@ -22,6 +22,7 @@ using ArchLucid.Persistence.Feedback;
 using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.Governance;
 using ArchLucid.Persistence.Governance.Posture;
+using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Repositories;
@@ -61,5 +62,22 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<IImportedArchitectureRequestRepository, NoOpImportedArchitectureRequestRepository>();
         services.AddSingleton<IAzureExtractorPackageRepository, NoOpAzureExtractorPackageRepository>();
         services.AddSingleton<ICloudInventoryExtractorPackageRepository, NoOpCloudInventoryExtractorPackageRepository>();
+        services.AddSingleton<IAzureInventorySnapshotRepository, NoOpAzureInventorySnapshotRepository>();
+        services.AddSingleton<IAzureInventoryDiffRepository, NoOpAzureInventoryDiffRepository>();
+        services.AddSingleton<IAzureInventoryBaselineRepository, NoOpAzureInventoryBaselineRepository>();
+        services.AddSingleton<IAzureInventoryDriftApprovalRepository, NoOpAzureInventoryDriftApprovalRepository>();
+        services.AddSingleton<IAzureInventoryDiffNarrativeRepository, NoOpAzureInventoryDiffNarrativeRepository>();
+        services.AddSingleton<IAdvisoryTerraformRepresentationRepository, NoOpAdvisoryTerraformRepresentationRepository>();
+        services.AddSingleton<ICloudResourceIdentityDirectory, NoOpCloudResourceIdentityDirectory>();
+        services.AddSingleton<IAuditFrameworkRepository, NoOpAuditFrameworkRepository>();
+        services.AddSingleton<IAuditEvidenceRequirementRepository, NoOpAuditEvidenceRequirementRepository>();
+        services.AddSingleton<IAuditControlEvaluationRepository, NoOpAuditControlEvaluationRepository>();
+        services.AddSingleton<IAuditAssessmentRepository, NoOpAuditAssessmentRepository>();
+        services.AddSingleton<IAuditEvidenceSnapshotRepository, NoOpAuditEvidenceSnapshotRepository>();
+        services.AddSingleton<IAuditManualEvidenceRepository, NoOpAuditManualEvidenceRepository>();
+        services.AddSingleton<IAuditControlTimelineRepository, NoOpAuditControlTimelineRepository>();
+        services.AddSingleton<ISecurityCrosswalkRepository, NoOpSecurityCrosswalkRepository>();
+        services.AddSingleton<IOperationalSecurityFindingRepository, NoOpOperationalSecurityFindingRepository>();
+        services.AddSingleton<ITenantBrandingProfileRepository, InMemoryTenantBrandingProfileRepository>();
     }
 }

@@ -1,7 +1,9 @@
 <!-- Livelihood-desk Composer prompts — paste one prompt per session.
      Origin: 2026-09-04 owner diagnosis that ArchLucid is a working-architect tool
      (all-day use; livelihoods may depend on it), not a casual evaluator product.
-     Wave 2 after LI-01–15 shipped on master (#1397). Do not implement from this index. -->
+     Wave 2 after LI-01–15 shipped on master (#1397). Do not implement from this index.
+     Wave 8: instrument-spine-00-index.md (IS-01–15).
+     Wave 9: livelihood-spine-00-index.md (LS-01–12). -->
 
 # Livelihood-desk mitigations — Composer prompt set (LD-01–LD-15)
 
@@ -35,6 +37,8 @@ This set is the **2026-09-04 residual 15** — the same five diagnosis classes, 
 | **RS-01–15** | Wave 3 unique leftovers | **Shipped** #1457 — do not re-run |
 | **WA-01–24** | Wave 4 chrome + career edges | **Shipped** #1496 — do not re-run |
 | **CD-01–15** | Wave 5 unique leftovers | [`career-desk-00-index.md`](career-desk-00-index.md) |
+| **AD-01–12** | Wave 6 all-day desk leftovers | [`all-day-desk-00-index.md`](all-day-desk-00-index.md) |
+| **FD-01–13** | Wave 7 founding leftovers | [`founding-desk-00-index.md`](founding-desk-00-index.md) |
 
 ## Run order
 
@@ -94,3 +98,5 @@ Summarize: files changed, tests run, residual risk, Working vs Guided behavior. 
 **Wave 3:** [`repeat-seat-00-index.md`](repeat-seat-00-index.md) (**RS-01–15**) — **shipped** `master` #1457. Do not re-run.
 
 **Wave 4 (predicted leftovers after LD+RS):** [`working-architect-00-index.md`](working-architect-00-index.md) (**WA-01–24**). Do not implement from this file. WA names the LD/RS owner and forbids a fork.
+
+**Wave 5:** [`career-desk-00-index.md`](career-desk-00-index.md) (**CD-01–15**). **Wave 6:** [`all-day-desk-00-index.md`](all-day-desk-00-index.md) (**AD-01–12**). **Wave 7:** [`founding-desk-00-index.md`](founding-desk-00-index.md) (**FD-01–13**). **Wave 8:** [`instrument-spine-00-index.md`](instrument-spine-00-index.md) (**IS-01–15**). **Wave 9:** [`livelihood-spine-00-index.md`](livelihood-spine-00-index.md) (**LS-01–12**). Do not fork AD-09, AD-10, or IS.

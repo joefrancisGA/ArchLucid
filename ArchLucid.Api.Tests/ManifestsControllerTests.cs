@@ -34,6 +34,7 @@ public sealed class ManifestsControllerTests
     private const string LeftVersion = "v1";
     private const string RightVersion = "v2";
     private const string ManifestVersion = "golden-v1";
+    private const string SealedManifestHash = "abc123sealedhash";
 
     private static readonly ScopeContext CallerScope = new()
     {
@@ -148,7 +149,7 @@ public sealed class ManifestsControllerTests
         Mock<IAuthorityQueryService> authority = new();
         authority
             .Setup(q => q.GetRunDetailForManifestCompareAsync(
-                CallerScope,
+                It.IsAny<ScopeContext>(),
                 It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken _) => new RunDetailDto
@@ -157,6 +158,7 @@ public sealed class ManifestsControllerTests
                 GoldenManifest = new ManifestDocument
                 {
                     RunId = runId,
+                    ManifestHash = SealedManifestHash,
                     CommittedArtifactInventory =
                     [
                         new ArchLucid.Core.Manifest.Sections.CommittedArtifactInventoryEntry
@@ -167,6 +169,11 @@ public sealed class ManifestsControllerTests
                     ],
                 },
             });
+
+        Mock<IManifestHashService> manifestHashService = new();
+        manifestHashService
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns(SealedManifestHash);
 
         Mock<ITenantRepository> tenants = new();
         tenants
@@ -228,7 +235,7 @@ public sealed class ManifestsControllerTests
                 scopeProvider.Object,
                 runs.Object,
                 authority.Object,
-                Mock.Of<IManifestHashService>(),
+                manifestHashService.Object,
                 compareFacade.Object,
                 tenantRepo)
             {

@@ -68,6 +68,7 @@ public sealed partial class PolicyPackHttpFacade
             versionKey,
             scopeLevel,
             request.IsPinned,
+            request.IsOrganizationRequired,
             ct).ConfigureAwait(false);
 
         return assignResult.Outcome switch
@@ -141,6 +142,23 @@ public sealed partial class PolicyPackHttpFacade
             return PolicyPackHttpResult<bool>.ScopeNotFound();
 
         bool ok = await _workflow.TrySetAssignmentEnabledAsync(assignmentId, isEnabled, ct).ConfigureAwait(false);
+
+        return ok
+            ? PolicyPackHttpResult<bool>.Success(true)
+            : new PolicyPackHttpResult<bool> { Outcome = PolicyPackHttpOutcome.ResourceNotFound };
+    }
+
+    /// <inheritdoc />
+    public async Task<PolicyPackHttpResult<bool>> SetAssignmentOrganizationRequiredAsync(
+        Guid assignmentId,
+        bool isOrganizationRequired,
+        CancellationToken ct)
+    {
+        if (!await EnsureScopeAsync(ct).ConfigureAwait(false))
+            return PolicyPackHttpResult<bool>.ScopeNotFound();
+
+        bool ok = await _workflow.TrySetAssignmentOrganizationRequiredAsync(assignmentId, isOrganizationRequired, ct)
+            .ConfigureAwait(false);
 
         return ok
             ? PolicyPackHttpResult<bool>.Success(true)

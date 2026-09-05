@@ -1,11 +1,15 @@
 import { describe, expect, it } from "vitest";
 
-import { readRegisteredSource, readSiblingSource } from "@/testing/source-scan-harness";
+import {
+  readRunDetailPageViewFamilySource,
+  readRunDetailTabbedWorkspaceFamilySource,
+  readSiblingSource,
+} from "@/testing/source-scan-harness";
 
-const pageViewSource = readRegisteredSource("run-detail-page-view");
-// Standard-mode tab panels (including the summary strip) live in RunDetailTabbedWorkspace,
+const pageViewSource = readRunDetailPageViewFamilySource();
+// Standard-mode tab panels (including the summary strip) live in the tabbed workspace family,
 // which RunDetailPageView mounts as `tabbedWorkspaceEl`.
-const tabbedWorkspaceSource = readRegisteredSource("run-detail-tabbed-workspace");
+const tabbedWorkspaceSource = readRunDetailTabbedWorkspaceFamilySource();
 
 describe("Run detail workspace header integration", () => {
   it("uses workspace header and review status summary on RunDetailPageView", () => {

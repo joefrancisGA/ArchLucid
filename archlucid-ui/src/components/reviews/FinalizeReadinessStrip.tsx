@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils";
 
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { StatusTag } from "@/components/ui/status-tag";
 import { renderDoThisNextReferenceCopy } from "@/lib/usability/do-this-next-reference-copy";
 
 export type FinalizeReadinessStripProps = {
@@ -19,14 +20,17 @@ export function FinalizeReadinessStrip(props: FinalizeReadinessStripProps): Reac
 
   return (
     <div
-      className="mb-3 rounded-lg border border-amber-200 bg-amber-50/80 px-4 py-3 dark:border-amber-900/50 dark:bg-amber-950/30"
+      className={cn(DESIGN_TOKENS.callout.warnShell, "mb-3 flex-col gap-2")}
       data-testid="finalize-readiness-strip"
       role="status"
     >
-      <p className={cn("m-0 font-medium text-amber-950 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>
-        Finalize is blocked until you resolve the following
-      </p>
-      <p className={cn("m-0 mt-1 text-amber-900 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}>
+      <div className="flex flex-wrap items-center gap-2">
+        <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+          Finalize is blocked until you resolve the following
+        </p>
+        <StatusTag kind="blocked" label="Blocked" />
+      </div>
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {renderDoThisNextReferenceCopy(reason)}
       </p>
     </div>

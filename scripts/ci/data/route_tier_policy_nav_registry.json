@@ -1452,6 +1452,16 @@
       "nav_operator_href": "/governance/policy-packs"
     },
     {
+      "controller_file": "InfraEvidence/InfraEvidenceInventoryController.cs",
+      "class_name": "InfraEvidenceInventoryController",
+      "route_template": "v{version:apiVersion}/infra-evidence/azure-inventory",
+      "normalized_prefix": "/v1/infra-evidence/azure-inventory",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Integrations/AzureBoardsIntegrationsController.cs",
       "class_name": "AzureBoardsIntegrationsController",
       "route_template": "v{version:apiVersion}/integrations/azure-boards",
@@ -1728,6 +1738,16 @@
       "normalized_prefix": "/v1/operator/shell-status",
       "commercial_tier": "standard",
       "class_policy": "AuthenticatedUserOnly",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "OperationalSecurity/OperationalSecurityFindingsController.cs",
+      "class_name": "OperationalSecurityFindingsController",
+      "route_template": "v{version:apiVersion}/operational-security/findings",
+      "normalized_prefix": "/v1/operational-security/findings",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
       "exemption": null,
       "nav_operator_href": null
     },

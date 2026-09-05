@@ -8,7 +8,7 @@ This matrix complements **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** four-bo
 
 | Signal | Current value |
 | --- | --- |
-| Registry rows | **217** controller route families (`route-tier-policy-nav-registry-count`) |
+| Registry rows | **218** controller route families (`route-tier-policy-nav-registry-count`) |
 | Executable registry | `scripts/ci/data/route_tier_policy_nav_registry.json` |
 | CI command | `python scripts/ci/assert_route_tier_policy_nav.py` |
 | Regenerate intentionally | `python scripts/ci/assert_route_tier_policy_nav.py --sync` |
@@ -68,7 +68,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:217 -->
+<!-- route-tier-policy-nav-registry-count:218 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -217,6 +217,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Governance/GovernanceStickinessController.cs` | `/v1/governance` | standard | ReadAuthority |  |  |
 | `Governance/ManifestsController.cs` | `/v1/architecture` | standard | ReadAuthority |  |  |
 | `Governance/PolicyPacksController.cs` | `/v1/policy-packs` | standard | ReadAuthority | /governance/policy-packs |  |
+| `InfraEvidence/InfraEvidenceInventoryController.cs` | `/v1/infra-evidence/azure-inventory` | standard | ReadAuthority |  |  |
 | `Integrations/AzureBoardsIntegrationsController.cs` | `/v1/integrations/azure-boards` | standard | Authorize |  |  |
 | `Integrations/ItsmCorrelationController.cs` | `/v1/integrations/itsm/correlations` | none | ReadAuthority |  |  |
 | `Integrations/ItsmInboundWebhooksController.cs` | `/v1/integrations/webhooks` | none | AllowAnonymous |  | partner_webhook_ingest |

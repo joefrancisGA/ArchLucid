@@ -5,10 +5,11 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { askReviewQuestionsHref } from "@/lib/ask-review-questions-route";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
-import { SHORTCUTS, WORKING_MODE_NEW_REVIEW_ROUTE, resolveShortcutDescription } from "@/lib/shortcut-registry";
+import { SHORTCUTS, resolveShortcutDescription } from "@/lib/shortcut-registry";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 import { buildCompareTwoReviewsHref, readReviewRunIdFromPathname } from "@/lib/compare-two-reviews-route";
+import { useWorkingStartHref } from "@/hooks/use-working-start-href";
 
 import { useKeyboardShortcuts, type KeyboardShortcutsMap } from "./useKeyboardShortcuts";
 
@@ -29,6 +30,7 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
   const onHelpRequested = options.onHelpRequested;
   const { mode } = useWorkspaceMode();
   const workingMode = isWorkingWorkspaceMode(mode);
+  const workingStartHref = useWorkingStartHref();
 
   const map: KeyboardShortcutsMap = useMemo(() => {
     const next: KeyboardShortcutsMap = {};
@@ -37,7 +39,7 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
     for (const entry of SHORTCUTS) {
       if (entry.route !== undefined && entry.route !== "") {
         let route =
-          workingMode && entry.key === "alt+n" ? WORKING_MODE_NEW_REVIEW_ROUTE : entry.route;
+          workingMode && entry.key === "alt+n" ? workingStartHref : entry.route;
 
         if (workingMode && entry.key === "alt+c" && reviewRunId !== null) {
           route = buildCompareTwoReviewsHref({ baseRunId: reviewRunId });
@@ -68,7 +70,7 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
     }
 
     return next;
-  }, [onHelpRequested, pathname, router, workingMode]);
+  }, [onHelpRequested, pathname, router, workingMode, workingStartHref]);
 
   useKeyboardShortcuts(map);
 

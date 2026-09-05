@@ -113,7 +113,7 @@ describe("buildRunDetailPresentation", () => {
 
     const presentation = await buildRunDetailPresentation(generated, true);
 
-    expect(presentation.hasSubmittedArchitecture).toBe(false);
+    expect(presentation.hasSubmittedArchitecture).toBe(true);
     expect(presentation.evidenceInventoryItems.map((item) => item.sourceName)).toEqual([
       "ARCHITECTURE_HANDBOOK.docx",
     ]);
@@ -138,6 +138,7 @@ describe("buildRunDetailPresentation", () => {
       "/architecture/reviews/new?path=guided-intake&rerun=run-1",
     );
     expect(finalized.architectureEditHref).toBeNull();
+    expect(finalized.reviewPipelineIncomplete).toBe(false);
   });
 
   it("demotes the governance CTA card when governance is already the primary action", async () => {

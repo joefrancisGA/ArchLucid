@@ -13,6 +13,7 @@ using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Search;
 using ArchLucid.Persistence.Tenancy;
 using ArchLucid.Persistence.Value;
+using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Provenance;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -33,5 +34,22 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<IProvenanceQueryService, ProvenanceQueryService>();
         services.AddScoped<IAzureExtractorPackageRepository, SqlAzureExtractorPackageRepository>();
         services.AddScoped<ICloudInventoryExtractorPackageRepository, SqlCloudInventoryExtractorPackageRepository>();
+        services.AddScoped<IAzureInventorySnapshotRepository, SqlAzureInventorySnapshotRepository>();
+        services.AddScoped<IAzureInventoryDiffRepository, SqlAzureInventoryDiffRepository>();
+        services.AddScoped<IAzureInventoryBaselineRepository, SqlAzureInventoryBaselineRepository>();
+        services.AddScoped<IAzureInventoryDriftApprovalRepository, SqlAzureInventoryDriftApprovalRepository>();
+        services.AddScoped<IAzureInventoryDiffNarrativeRepository, SqlAzureInventoryDiffNarrativeRepository>();
+        services.AddScoped<IAdvisoryTerraformRepresentationRepository, SqlAdvisoryTerraformRepresentationRepository>();
+        services.AddScoped<ICloudResourceIdentityDirectory, SqlCloudResourceIdentityDirectory>();
+        services.AddScoped<IAuditFrameworkRepository, SqlAuditFrameworkRepository>();
+        services.AddScoped<IAuditEvidenceRequirementRepository, SqlAuditEvidenceRequirementRepository>();
+        services.AddScoped<IAuditControlEvaluationRepository, SqlAuditControlEvaluationRepository>();
+        services.AddScoped<IAuditAssessmentRepository, SqlAuditAssessmentRepository>();
+        services.AddScoped<IAuditEvidenceSnapshotRepository, SqlAuditEvidenceSnapshotRepository>();
+        services.AddScoped<IAuditManualEvidenceRepository, SqlAuditManualEvidenceRepository>();
+        services.AddScoped<IAuditControlTimelineRepository, SqlAuditControlTimelineRepository>();
+        services.AddScoped<ISecurityCrosswalkRepository, SqlSecurityCrosswalkRepository>();
+        services.AddScoped<IOperationalSecurityFindingRepository, SqlOperationalSecurityFindingRepository>();
+        services.AddScoped<ITenantBrandingProfileRepository, SqlTenantBrandingProfileRepository>();
     }
 }

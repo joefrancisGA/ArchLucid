@@ -13,8 +13,6 @@ import {
 } from "@/components/reviews/WorkbenchSelectionCoordinator";
 import { WorkbenchFindingSelectionSync } from "@/components/reviews/WorkbenchFindingSelectionSync";
 import { ReviewWorkspaceTabStrip } from "@/components/reviews/ReviewWorkspaceTabStrip";
-import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
-import { Button } from "@/components/ui/button";
 
 import type { ReviewDetailWorkspaceProps } from "@/components/reviews/ReviewDetailWorkspace";
 import type { UseReviewDetailWorkspaceTabsResult } from "@/components/reviews/use-review-detail-workspace-tabs";
@@ -31,7 +29,7 @@ function panelWithInPipelineBanner(
   panel: ReactNode,
   inPipelineBanner: ReactNode | null | undefined,
 ): ReactNode {
-  if (inPipelineBanner === null || inPipelineBanner === undefined || tabId === "activity") {
+  if (tabId === "activity" || inPipelineBanner === null || inPipelineBanner === undefined) {
     return panel;
   }
 
@@ -60,9 +58,7 @@ export function ReviewDetailWorkspaceTabShell({
   props,
   tabs,
   navigateTab,
-  onEnterPresenter,
 }: ReviewDetailWorkspaceTabShellProps): React.JSX.Element {
-  const { isWorkingMode } = useWorkspaceMode();
   const {
     activeTab,
     lifecycle,
@@ -74,23 +70,11 @@ export function ReviewDetailWorkspaceTabShell({
     inPipelineBanner,
     counts,
   } = tabs;
+  const activePanelLead = props.activePanelLead ?? null;
 
   return (
     <div className="min-w-0 space-y-4" data-testid="review-detail-workspace">
       {props.defensibilityStrip ?? null}
-      {isWorkingMode ? (
-        <div className="flex justify-end">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            data-testid="review-presenter-enter"
-            onClick={onEnterPresenter}
-          >
-            Presenter
-          </Button>
-        </div>
-      ) : null}
       <ReviewWorkspaceTabStrip
         lifecycle={lifecycle}
         activeTab={activeTab}
@@ -105,6 +89,10 @@ export function ReviewDetailWorkspaceTabShell({
       />
 
       {props.tabSectionNav ?? null}
+
+      {activePanelLead !== null ? (
+        <div data-testid="review-detail-active-panel-lead">{activePanelLead}</div>
+      ) : null}
 
       {workbenchVisible ? (
         <WorkbenchLayoutBridge

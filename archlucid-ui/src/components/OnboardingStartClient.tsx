@@ -36,7 +36,7 @@ function recoveryCopyForTrialStatusFailure(httpStatus: number): RecoveryCopy {
     return {
       headline: "Sign-in required",
       detail:
-        "Finish email verification and sign in with a user that can access this tenant. You can still start an architecture review from Overview once you are signed in.",
+        "Finish email verification and sign in with a user that can access this tenant. You can still start an architecture review from Home once you are signed in.",
     };
   }
 
@@ -51,7 +51,7 @@ function recoveryCopyForTrialStatusFailure(httpStatus: number): RecoveryCopy {
   if (httpStatus === 429) {
     return {
       headline: "Too many requests",
-      detail: "Wait a few seconds and retry. You can still continue with a new review request or open Overview.",
+      detail: "Wait a few seconds and retry. You can still continue with a new review request or open Home.",
     };
   }
 
@@ -74,7 +74,7 @@ function recoveryCopyForNetworkError(): RecoveryCopy {
   return {
     headline: "Network error",
     detail:
-      "Check your connection, then retry. You can still open the new-review wizard or Overview to keep going.",
+      "Check your connection, then retry. You can still open the new-review wizard or Home to keep going.",
   };
 }
 

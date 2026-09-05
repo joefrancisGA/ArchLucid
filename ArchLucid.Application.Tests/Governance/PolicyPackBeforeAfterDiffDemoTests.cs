@@ -248,6 +248,7 @@ public sealed class PolicyPackBeforeAfterDiffDemoTests : VerifyBase
             "1.0.0",
             GovernanceScopeLevel.Project,
             isPinned: false,
+            isOrganizationRequired: false,
             CancellationToken.None);
 
         assignment.Should().NotBeNull();

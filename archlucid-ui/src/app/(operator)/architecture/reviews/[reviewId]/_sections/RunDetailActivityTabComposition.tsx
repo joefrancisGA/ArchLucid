@@ -53,12 +53,15 @@ export function composeRunDetailActivityTab(
           Full provenance view
         </Link>
       </p>
-      <RunDetailLastFailureCardDeferred
-        summary={resolveRunDetailLastFailureSummary(m.resolvedDetail)}
-        legacyRunStatus={
-          (m.resolvedDetail.run as { legacyRunStatus?: string | null }).legacyRunStatus ?? null
-        }
-      />
+      <div id="review-failure-details" className="scroll-mt-24">
+        <RunDetailLastFailureCardDeferred
+          summary={resolveRunDetailLastFailureSummary(m.resolvedDetail)}
+          legacyRunStatus={
+            (m.resolvedDetail.run as { legacyRunStatus?: string | null }).legacyRunStatus ?? null
+          }
+          failureRecordedAtUtc={m.progressForPipelineUi?.completedUtc ?? m.resolvedDetail.run.completedUtc ?? null}
+        />
+      </div>
       {!m.buyerPolishedArtifactTable ? (
         <RunDetailOperatorTechnicalForensicsPanelDeferred
           agentExecutionLlmCostEstimate={m.resolvedDetail.agentExecutionLlmCostEstimate}

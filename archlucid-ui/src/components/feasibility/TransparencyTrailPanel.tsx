@@ -21,7 +21,7 @@ function ShouldSkippedEntries(trail: TransparencyTrail): TransparencyTrail["skip
 }
 
 /** ADR 0050 asserted / inferred / skipped transparency record for review surfaces. */
-export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): ReactElement {
+export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): ReactElement | null {
   const trail = props.trail;
 
   if (props.missingTrailDefect === true && (trail === null || trail === undefined)) {
@@ -43,19 +43,7 @@ export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): Reac
   }
 
   if (trail === null || trail === undefined) {
-    return (
-      <div
-        className={cn(
-          "rounded-md border border-neutral-200 bg-neutral-50/80 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900/40",
-          props.className,
-        )}
-        data-testid="transparency-trail-empty"
-      >
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          No transparency trail is available yet for this review.
-        </p>
-      </div>
-    );
+    return null;
   }
 
   const mustSkipped = MustSkippedEntries(trail);

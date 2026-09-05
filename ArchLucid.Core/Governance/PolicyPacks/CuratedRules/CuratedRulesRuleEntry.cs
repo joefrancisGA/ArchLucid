@@ -59,4 +59,11 @@ internal sealed class CuratedRulesRuleEntry
         get;
         set;
     }
+
+    [JsonPropertyName("applicabilityConditions")]
+    public CuratedRulesApplicabilityConditions? ApplicabilityConditions
+    {
+        get;
+        set;
+    }
 }

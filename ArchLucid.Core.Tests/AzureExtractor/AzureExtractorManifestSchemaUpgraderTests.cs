@@ -17,7 +17,7 @@ public sealed class AzureExtractorManifestSchemaUpgraderTests
 
         ok.Should().BeTrue();
         error.Should().BeNull();
-        manifestJson.Should().Contain("\"schemaVersion\":1");
+        manifestJson.Should().Contain("\"schemaVersion\":2");
     }
 
     [Fact]
@@ -29,7 +29,7 @@ public sealed class AzureExtractorManifestSchemaUpgraderTests
 
         ok.Should().BeTrue();
         error.Should().BeNull();
-        manifestJson.Should().Contain("\"schemaVersion\":1");
+        manifestJson.Should().Contain("\"schemaVersion\":2");
     }
 
     [Fact]
@@ -52,7 +52,7 @@ public sealed class AzureExtractorManifestSchemaUpgraderTests
 
         ok.Should().BeTrue();
         error.Should().BeNull();
-        manifestJson.Should().Contain("\"schemaVersion\":1");
+        manifestJson.Should().Contain("\"schemaVersion\":2");
     }
 
     [Fact]
@@ -64,7 +64,7 @@ public sealed class AzureExtractorManifestSchemaUpgraderTests
 
         ok.Should().BeTrue();
         error.Should().BeNull();
-        manifestJson.Should().Contain("\"schemaVersion\":1");
+        manifestJson.Should().Contain("\"schemaVersion\":2");
     }
 
     [Fact]

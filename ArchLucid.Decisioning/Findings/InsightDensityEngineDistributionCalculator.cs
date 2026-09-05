@@ -8,11 +8,10 @@ namespace ArchLucid.Decisioning.Findings;
 /// </summary>
 /// <remarks>
 ///     <para>
-///         <strong>claimBoundary:</strong> Advisory-only. Typed-engine findings are never demoted —
-///         <see cref="DeterministicInsightDensityGate" /> short-circuits with penalty reason
-///         <c>typed-engine-protected</c>. Distribution rows report computed scores and
-///         <see cref="InsightDensityEngineDistributionRow.WouldDemoteIfUnprotectedCount" /> as a
-///         counterfactual, not production behavior.
+///         <strong>claimBoundary:</strong> Per ADR 0070, typed-engine findings follow the same demotion
+///         predicate as agent findings. Distribution rows report computed scores and
+///         <see cref="InsightDensityEngineDistributionRow.WouldDemoteIfUnprotectedCount" /> aligned with
+///         production gate behavior.
 ///     </para>
 ///     <para>
 ///         The golden corpus harness exercises six engines; thirty-three built-in engines are absent

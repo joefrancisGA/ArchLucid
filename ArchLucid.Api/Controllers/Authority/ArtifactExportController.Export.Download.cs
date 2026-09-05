@@ -153,8 +153,7 @@ public sealed partial class ArtifactExportController
     /// </summary>
     [HttpGet("reviews/{runId:guid}/terraform-advisory-export")]
     [HttpGet("runs/{runId:guid}/terraform-advisory-export")]
-    [Produces("application/zip")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK, "application/zip")]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

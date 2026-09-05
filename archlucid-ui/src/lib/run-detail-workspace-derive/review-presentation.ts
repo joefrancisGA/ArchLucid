@@ -199,7 +199,7 @@ export function deriveReviewHeaderPresentation(input: {
 
   if (reviewTitle.length > 0 && reviewTitle.toLowerCase() === PRODUCT_BRAND_NAME.toLowerCase()) {
     return {
-      h1Title: PRODUCT_BRAND_NAME,
+      h1Title: "Architecture under review",
       eyebrowLabel: "Architecture review",
       reviewIdentifierLabel: runId,
     };

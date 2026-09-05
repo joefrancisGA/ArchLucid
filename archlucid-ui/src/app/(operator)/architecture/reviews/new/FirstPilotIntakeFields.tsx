@@ -240,6 +240,9 @@ export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): Reac
             togglePresentation="choice"
             focusedPilotModeEnabled={wizard.focusedPilotModeEnabled}
             onFocusedPilotModeEnabledChange={wizard.setFocusedPilotModeEnabled}
+            cloudProvider={wizard.coveragePreviewCloudProvider}
+            descriptionText={wizard.coveragePreviewDescriptionText}
+            securityIntakeAnswer={wizard.coveragePreviewSecurityIntakeAnswer}
           />
         </CollapsibleSection>
 

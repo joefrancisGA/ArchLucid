@@ -77,7 +77,9 @@ function buildModel(overrides: Partial<PolicyPacksPageViewModel> = {}): PolicyPa
     workspaceSelectionItems: [],
     workspaceSelectionLoading: false,
     togglingAssignmentId: null,
+    togglingOrganizationRequiredAssignmentId: null,
     onToggleWorkspaceSelection: vi.fn(async () => undefined),
+    onToggleOrganizationRequired: vi.fn(async () => undefined),
     packs: [selectedPack],
     effective,
     effectiveContent,
@@ -140,7 +142,9 @@ function buildModel(overrides: Partial<PolicyPacksPageViewModel> = {}): PolicyPa
     workspaceSelectionItems: [],
     workspaceSelectionLoading: false,
     togglingAssignmentId: null,
+    togglingOrganizationRequiredAssignmentId: null,
     onToggleWorkspaceSelection: vi.fn(async () => undefined),
+    onToggleOrganizationRequired: vi.fn(async () => undefined),
     ...overrides,
   };
 }

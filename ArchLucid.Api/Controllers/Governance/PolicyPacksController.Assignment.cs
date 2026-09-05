@@ -49,6 +49,7 @@ public sealed partial class PolicyPacksController
                 Version = request.Version,
                 ScopeLevel = request.ScopeLevel,
                 IsPinned = request.IsPinned,
+                IsOrganizationRequired = request.IsOrganizationRequired,
             },
             ct).ConfigureAwait(false);
 
@@ -121,6 +122,46 @@ public sealed partial class PolicyPacksController
             return this.MapResourceNotFound(
                 result,
                 $"Assignment '{assignmentId}' was not found or cannot be enabled in the current scope.");
+        }
+
+        return NoContent();
+    }
+
+    /// <summary>Marks or clears organization-required lock on one policy pack assignment for the current scope.</summary>
+    [HttpPut("assignments/{assignmentId:guid}/organization-required")]
+    [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
+    [MutatingAuditExcluded("Audit: IPolicyPackHttpFacade.SetAssignmentOrganizationRequiredAsync logs PolicyPackAssignmentOrganizationRequiredChanged.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SetAssignmentOrganizationRequired(
+        Guid assignmentId,
+        [FromBody] SetPolicyPackAssignmentOrganizationRequiredRequest? request,
+        CancellationToken ct = default)
+    {
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(assignmentId, "assignmentId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
+
+        PolicyPackHttpResult<bool> result = await _httpFacade.SetAssignmentOrganizationRequiredAsync(
+                assignmentId,
+                request.IsOrganizationRequired,
+                ct)
+            .ConfigureAwait(false);
+
+        IActionResult? scopeProblem = this.MapScopeOrNull(result);
+
+        if (scopeProblem is not null)
+            return scopeProblem;
+
+        if (result.Outcome == PolicyPackHttpOutcome.ResourceNotFound)
+        {
+            return this.MapResourceNotFound(
+                result,
+                $"Assignment '{assignmentId}' was not found or cannot be updated in the current scope.");
         }
 
         return NoContent();

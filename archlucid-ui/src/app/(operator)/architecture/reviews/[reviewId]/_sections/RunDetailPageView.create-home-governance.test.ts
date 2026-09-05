@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { readRegisteredSource } from "@/testing/source-scan-harness";
+import { readRegisteredSource, readRunDetailPageViewFamilySource } from "@/testing/source-scan-harness";
 
-const pageViewSource = readRegisteredSource("run-detail-page-view");
+const pageViewSource = readRunDetailPageViewFamilySource();
 const createHomeSource = readRegisteredSource("run-detail-page-view-create-home");
 
 describe("RunDetailPageView create-home governance (TB-1858)", () => {
@@ -21,7 +21,7 @@ describe("RunDetailPageView create-home governance (TB-1858)", () => {
 
   it("passes pagePrimaryOwnedElsewhere to create-home activity outcome cards", () => {
     const outcomeCardsIndex = pageViewSource.indexOf("const createHomeActivityOutcomeCardsEl = (");
-    const outcomeCardsSource = pageViewSource.slice(outcomeCardsIndex, outcomeCardsIndex + 900);
+    const outcomeCardsSource = pageViewSource.slice(outcomeCardsIndex, outcomeCardsIndex + 2_400);
 
     expect(outcomeCardsSource).toContain("pagePrimaryOwnedElsewhere");
   });

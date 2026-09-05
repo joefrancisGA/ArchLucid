@@ -28,6 +28,7 @@ public interface IPolicyPackWorkflowFacade
         string version,
         string scopeLevel,
         bool isPinned,
+        bool isOrganizationRequired,
         CancellationToken ct);
 
     Task<bool> TryArchiveAssignmentAsync(Guid assignmentId, CancellationToken ct);
@@ -43,6 +44,8 @@ public interface IPolicyPackWorkflowFacade
     Task<IReadOnlyList<PolicyPackWorkspaceSelectionItem>> ListWorkspaceSelectionAsync(CancellationToken ct);
 
     Task<bool> TrySetAssignmentEnabledAsync(Guid assignmentId, bool isEnabled, CancellationToken ct);
+
+    Task<bool> TrySetAssignmentOrganizationRequiredAsync(Guid assignmentId, bool isOrganizationRequired, CancellationToken ct);
 
     Task<IReadOnlyList<PolicyPackCatalogListItem>> ListCatalogAsync(CancellationToken ct);
 

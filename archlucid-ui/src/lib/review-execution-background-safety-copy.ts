@@ -1,5 +1,6 @@
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import { StructuralExecutionModeWire, formatStructuralExecutionModeLabel } from "@/lib/structural-execution-mode";
+import { LONG_OPERATION_HOME_PAGE_STATUS_HINT } from "@/lib/operations/long-operation-wait-copy";
 
 /** Default client watchdog before extended tenant p90 estimates (TB-2149). */
 export const REVIEW_PIPELINE_DEFAULT_POLL_MAX_MS = 180_000;
@@ -8,10 +9,10 @@ export const REVIEW_PIPELINE_DEFAULT_POLL_MAX_MS = 180_000;
 export const REVIEW_PIPELINE_POLL_MAX_CAP_MS = 900_000;
 
 export const REVIEW_PIPELINE_BACKGROUND_SAFETY_MESSAGE =
-  "You can leave this page — analysis continues on the server and your review will keep running.";
+  `You can leave this page — analysis continues on the server and your review will keep running. ${LONG_OPERATION_HOME_PAGE_STATUS_HINT}`;
 
 export const REVIEW_PIPELINE_BACKGROUND_SAFETY_SIMULATOR_MESSAGE =
-  "You can leave this page — simulator analysis continues on the server until the pipeline finishes.";
+  `You can leave this page — simulator analysis continues on the server until the pipeline finishes. ${LONG_OPERATION_HOME_PAGE_STATUS_HINT}`;
 
 export const REVIEW_PIPELINE_DURATION_ESTIMATE_DISCLAIMER =
   "Typical duration is based on your workspace's recent finalized reviews, not a guaranteed SLA.";

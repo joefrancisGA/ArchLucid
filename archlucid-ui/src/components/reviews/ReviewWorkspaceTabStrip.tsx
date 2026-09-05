@@ -5,7 +5,9 @@ import {
 } from "@/components/reviews/ReviewWorkspaceShell";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
+import { readCachedUserPreferencesForMutators } from "@/lib/api/user-preferences";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReviewDetailVisibleTabs } from "@/lib/resolve-review-detail-visible-tabs";
 import { resolveReviewWorkspaceTabLabel } from "@/lib/resolve-review-workspace-tab-label";
@@ -32,6 +34,7 @@ export type ReviewWorkspaceTabStripProps = {
   readonly tabCounts?: ReviewWorkspaceTabCounts;
   readonly isTabNewSinceLastVisit?: (tabId: ReviewDetailTabId) => boolean;
   readonly onTabChange: (tab: ReviewDetailTabId) => void;
+  readonly showThisBrowserVisitHonesty?: boolean;
 };
 
 function tabCountBadge(
@@ -85,6 +88,34 @@ function findingsTabAriaLabel(count: number): string {
   return `${count} assessment finding${count === 1 ? "" : "s"} · this review · findings tab`;
 }
 
+function evidenceTabAriaLabel(count: number): string {
+  return `${count} evidence item${count === 1 ? "" : "s"} · this review · evidence tab`;
+}
+
+function architectureTabAriaLabel(count: number): string {
+  return `${count} architecture diagram${count === 1 ? "" : "s"} · this review · architecture tab`;
+}
+
+function tabCountAriaLabel(tabId: ReviewDetailTabId, count: number): string {
+  if (tabId === "decisions-remediation") {
+    return clarificationsTabAriaLabel(count);
+  }
+
+  if (tabId === "findings") {
+    return findingsTabAriaLabel(count);
+  }
+
+  if (tabId === "evidence") {
+    return evidenceTabAriaLabel(count);
+  }
+
+  if (tabId === "architecture") {
+    return architectureTabAriaLabel(count);
+  }
+
+  return `${count}`;
+}
+
 function tabOptionLabel(
   lifecycle: ReviewWorkspaceLifecycle,
   tabId: ReviewDetailTabId,
@@ -116,22 +147,19 @@ function renderTabTrigger(
       <span className="inline-flex items-center gap-2">
         {resolveReviewWorkspaceTabLabel(props.lifecycle, tabId)}
         {props.isTabNewSinceLastVisit?.(tabId) === true ? (
-          <NewSinceLastVisitMarker testId={`review-detail-tab-new-${tabId}`} />
+          <NewSinceLastVisitMarker
+            testId={`review-detail-tab-new-${tabId}`}
+            showThisBrowserHonesty={props.showThisBrowserVisitHonesty}
+          />
         ) : null}
       </span>
       {count !== null ? (
         <span
           className={cn(
-            "ml-2 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-neutral-200 px-1.5 py-0.5 text-xs font-semibold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200",
+            "ml-2 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-neutral-200 px-1.5 py-0.5 font-semibold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200",
             OPERATOR_TYPOGRAPHY.helper,
           )}
-          aria-label={
-            tabId === "decisions-remediation"
-              ? clarificationsTabAriaLabel(count)
-              : tabId === "findings"
-                ? findingsTabAriaLabel(count)
-                : undefined
-          }
+          aria-label={tabCountAriaLabel(tabId, count)}
           data-testid={
             tabId === "decisions-remediation"
               ? "architecture-workspace-clarifications-count"
@@ -163,6 +191,14 @@ function ReviewWorkspaceTabDivider(): React.JSX.Element {
 }
 
 export function ReviewWorkspaceTabStrip(props: ReviewWorkspaceTabStripProps): React.JSX.Element {
+  const { isWorkingMode } = useWorkspaceMode();
+  const deskContinuityExplicit = readCachedUserPreferencesForMutators().deskContinuityIsExplicit;
+  const showThisBrowserVisitHonesty =
+    props.showThisBrowserVisitHonesty ?? (!isWorkingMode || !deskContinuityExplicit);
+  const stripProps: ReviewWorkspaceTabStripProps = {
+    ...props,
+    showThisBrowserVisitHonesty,
+  };
   const counts = props.tabCounts ?? {};
   const tabsVariant = props.lifecycle === "create-home" ? "pill" : "line";
   const primaryTabIds = props.resolvedTabs.visibleTabIds;
@@ -231,7 +267,7 @@ export function ReviewWorkspaceTabStrip(props: ReviewWorkspaceTabStripProps): Re
               "-mx-1 overflow-x-auto px-1",
             )}
           >
-            {primaryTabIds.map((tabId) => renderTabTrigger(props, tabId, counts))}
+            {primaryTabIds.map((tabId) => renderTabTrigger(stripProps, tabId, counts))}
             {secondaryTabIds.length > 0 ? (
               <>
                 <ReviewWorkspaceTabDivider />
@@ -246,7 +282,7 @@ export function ReviewWorkspaceTabStrip(props: ReviewWorkspaceTabStripProps): Re
                 </span>
               </>
             ) : null}
-            {secondaryTabIds.map((tabId) => renderTabTrigger(props, tabId, counts))}
+            {secondaryTabIds.map((tabId) => renderTabTrigger(stripProps, tabId, counts))}
           </TabsList>
         </Tabs>
       </div>

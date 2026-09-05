@@ -32,4 +32,24 @@ describe("decisionReceiptExport", () => {
     expect(receipt.verdict.kind).toBe("SoftInfeasible");
     expect(receipt.intake?.freeTextIntent).toBe("Build a workflow.");
   });
+
+  it("includes asserted vs inferred transparency trail on export (CD-07)", () => {
+    const receipt = buildDecisionReceiptDocument({
+      source: "committed-run",
+      runId: "run-1",
+      verdict: {
+        kind: "Feasible",
+        summary: "Proceed with constraints.",
+        transparencyTrail: {
+          asserted: [{ key: "region", value: "eastus" }],
+          inferred: [{ key: "throughput", value: "high", confidence: 0.6 }],
+          skipped: [{ questionKey: "must-dr", tier: "Must" }],
+        },
+      },
+    });
+
+    expect(receipt.transparencyTrail?.asserted).toHaveLength(1);
+    expect(receipt.transparencyTrail?.inferred).toHaveLength(1);
+    expect(receipt.transparencyTrail?.skipped).toHaveLength(1);
+  });
 });

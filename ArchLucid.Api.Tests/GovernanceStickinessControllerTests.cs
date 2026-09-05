@@ -15,10 +15,13 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Models;
 
 using FluentAssertions;
@@ -40,6 +43,39 @@ public sealed class GovernanceStickinessControllerTests
         WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
     };
+
+    private const string SealedManifestHash = "abc123sealedhash";
+
+    private static IAuthorityQueryService CreateAuthorityQueryService()
+    {
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken _) => new RunDetailDto
+            {
+                Run = new RunRecord { RunId = runId },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    ManifestHash = SealedManifestHash,
+                },
+            });
+
+        return authority.Object;
+    }
+
+    private static IManifestHashService CreateManifestHashService()
+    {
+        Mock<IManifestHashService> manifestHashService = new();
+        manifestHashService
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns(SealedManifestHash);
+
+        return manifestHashService.Object;
+    }
 
     private static ITenantRepository TenantExistsRepository()
     {
@@ -184,8 +220,8 @@ public sealed class GovernanceStickinessControllerTests
                     attestationService ?? Mock.Of<IRealizedValueAttestationService>(),
                     audit.Object,
                     findingInspect?.Object ?? Mock.Of<IFindingInspectReadRepository>(),
-                    Mock.Of<IAuthorityQueryService>(),
-                    Mock.Of<IManifestHashService>()),
+                    CreateAuthorityQueryService(),
+                    CreateManifestHashService()),
                 scope.Object,
                 tenantRepository ?? TenantExistsRepository(),
                 nextRun.Object)
@@ -219,8 +255,8 @@ public sealed class GovernanceStickinessControllerTests
                     Mock.Of<IRealizedValueAttestationService>(),
                     Mock.Of<IAuditService>(),
                     Mock.Of<IFindingInspectReadRepository>(),
-                    Mock.Of<IAuthorityQueryService>(),
-                    Mock.Of<IManifestHashService>()),
+                    CreateAuthorityQueryService(),
+                    CreateManifestHashService()),
                 scopeProvider,
                 tenantRepository ?? TenantExistsRepository(),
                 Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>())
@@ -1513,7 +1549,7 @@ public sealed class GovernanceStickinessControllerTests
         {
             FindingIds = ["foreign-finding-1", "foreign-finding-2"],
             Disposition = FindingDisposition.Accepted,
-            Rationale = "bulk"
+            Rationale = "bulk accepted after architecture review",
         };
 
         IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
@@ -1548,7 +1584,7 @@ public sealed class GovernanceStickinessControllerTests
         {
             FindingIds = ["in-scope-finding", "foreign-finding"],
             Disposition = FindingDisposition.Accepted,
-            Rationale = "bulk",
+            Rationale = "bulk accepted after architecture review",
         };
 
         IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
@@ -1731,7 +1767,8 @@ public sealed class GovernanceStickinessControllerTests
         {
             FindingId = "foreign-finding",
             Disposition = FindingDisposition.Accepted,
-            Rationale = "ok"
+            Rationale = "accepted after architecture review",
+            TradeOffAcknowledgment = "accepted trade-off for architecture review",
         };
 
         IActionResult action = await controller.RecordDisposition("foreign-finding", request, CancellationToken.None);
@@ -1770,7 +1807,8 @@ public sealed class GovernanceStickinessControllerTests
             FindingId = "finding-1",
             RunId = foreignRunId,
             Disposition = FindingDisposition.Accepted,
-            Rationale = "ok"
+            Rationale = "accepted after architecture review",
+            TradeOffAcknowledgment = "accepted trade-off for architecture review",
         };
 
         IActionResult action = await controller.RecordDisposition("finding-1", request, CancellationToken.None);
@@ -2955,7 +2993,8 @@ public sealed class GovernanceStickinessControllerTests
         {
             FindingId = "finding-1",
             Disposition = FindingDisposition.Accepted,
-            Rationale = "ok"
+            Rationale = "accepted after architecture review",
+            TradeOffAcknowledgment = "accepted trade-off for architecture review",
         };
 
         IActionResult action = await controller.RecordDisposition(" finding-1 ", request, CancellationToken.None);
@@ -3044,7 +3083,7 @@ public sealed class GovernanceStickinessControllerTests
         {
             FindingIds = [" finding-1 "],
             Disposition = FindingDisposition.Accepted,
-            Rationale = "bulk"
+            Rationale = "bulk accepted after architecture review",
         };
 
         IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
@@ -3101,7 +3140,7 @@ public sealed class GovernanceStickinessControllerTests
                 Scope,
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
-            Times.Once);
+            Times.Never);
     }
 
     [Fact]
@@ -3199,7 +3238,7 @@ public sealed class GovernanceStickinessControllerTests
                 Scope,
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
-            Times.Once);
+            Times.Never);
     }
 
     [Fact]
@@ -3251,7 +3290,7 @@ public sealed class GovernanceStickinessControllerTests
                 Scope,
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
-            Times.Once);
+            Times.Never);
     }
 
     [Fact]

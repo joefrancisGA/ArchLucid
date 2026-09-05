@@ -60,6 +60,10 @@ describe("runsDashboardTabLabel (TB-667)", () => {
     expect(runsDashboardTabLabel("approved", true, 0)).toBe("Approved (0)");
     expect(formatRunsDashboardTabLabelWithCount("Monitoring", 2)).toBe("Monitoring (2)");
   });
+
+  it("labels home preview Recent tabs with visible counts only", () => {
+    expect(runsDashboardTabLabel("all", false, 2, { homePreviewMode: true })).toBe("Recent (2)");
+  });
 });
 
 describe("runs dashboard status filters", () => {

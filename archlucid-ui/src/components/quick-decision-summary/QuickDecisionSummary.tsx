@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useMemo, useState } from "react";
 import type { ReactElement } from "react";
 
 import type { QuickDecisionWorkspaceCardContext } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
@@ -24,6 +25,18 @@ import {
   sortQuickDecisionFindings,
 } from "@/lib/quick-decision-summary-derive";
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
+import {
+  parseQuickDecisionMuteFindingIdFromSearch,
+  quickDecisionMutePanelsHrefFromSearch,
+} from "@/lib/reviews/quick-decision-mute-panels-url";
+import {
+  parseQuickDecisionAskFindingIdFromSearch,
+  quickDecisionAskPanelsHrefFromSearch,
+} from "@/lib/reviews/quick-decision-ask-panels-url";
+import {
+  parseQuickDecisionReasoningFindingIdFromSearch,
+  quickDecisionReasoningPanelsHrefFromSearch,
+} from "@/lib/reviews/quick-decision-reasoning-panels-url";
 
 import { QuickDecisionSummaryCardView } from "./QuickDecisionSummaryCardView";
 import { QuickDecisionSummaryDialogs } from "./QuickDecisionSummaryDialogs";
@@ -176,42 +189,132 @@ function splitDerivedState(state: QuickDecisionSummaryDerivedState): {
 
 /** Top severity-ranked actionable findings from run detail agent results (no extra API calls). */
 export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
+  const searchParams = useSearchParams();
+  const muteFindingIdParam = searchParams.get("muteFindingId");
+  const qdReasonIdParam = searchParams.get("qdReasonId");
+  const qdAskFindingIdParam = searchParams.get("qdAskFindingId");
   const canMutate = useOperateCapability();
   const derivedState = useQuickDecisionSummaryDerivedData(props);
   const { derived, filters } = splitDerivedState(derivedState);
-  const [reasoningOpen, setReasoningOpen] = useState(false);
-  const [activeReasoning, setActiveReasoning] = useState<QuickDecisionFinding | null>(null);
-  const [muteOpen, setMuteOpen] = useState(false);
-  const [muteTarget, setMuteTarget] = useState<QuickDecisionFinding | null>(null);
-  const [askFindingId, setAskFindingId] = useState<string | null>(null);
+  const [reasoningOpen, setReasoningOpen] = useState(() => {
+    const urlFindingId = parseQuickDecisionReasoningFindingIdFromSearch(qdReasonIdParam);
+
+    return urlFindingId.length > 0;
+  });
+  const [activeReasoning, setActiveReasoning] = useState<QuickDecisionFinding | null>(() => {
+    const urlFindingId = parseQuickDecisionReasoningFindingIdFromSearch(qdReasonIdParam);
+
+    if (urlFindingId.length === 0) {
+      return null;
+    }
+
+    return props.findings.find((finding) => finding.findingId === urlFindingId) ?? null;
+  });
+  const [muteOpen, setMuteOpen] = useState(() => {
+    const urlFindingId = parseQuickDecisionMuteFindingIdFromSearch(muteFindingIdParam);
+
+    return urlFindingId.length > 0;
+  });
+  const [muteTarget, setMuteTarget] = useState<QuickDecisionFinding | null>(() => {
+    const urlFindingId = parseQuickDecisionMuteFindingIdFromSearch(muteFindingIdParam);
+
+    if (urlFindingId.length === 0) {
+      return null;
+    }
+
+    return props.findings.find((finding) => finding.findingId === urlFindingId) ?? null;
+  });
+  const [askFindingId, setAskFindingIdState] = useState<string | null>(() => {
+    const urlFindingId = parseQuickDecisionAskFindingIdFromSearch(qdAskFindingIdParam);
+
+    return urlFindingId.length > 0 ? urlFindingId : null;
+  });
+
+  const syncMuteFindingIdToUrl = useCallback(
+    (findingId: string | null) => {
+      router.replace(quickDecisionMutePanelsHrefFromSearch(searchParams.toString(), findingId, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const syncReasoningFindingIdToUrl = useCallback(
+    (findingId: string | null) => {
+      router.replace(quickDecisionReasoningPanelsHrefFromSearch(searchParams.toString(), findingId, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const syncAskFindingIdToUrl = useCallback(
+    (findingId: string | null) => {
+      router.replace(quickDecisionAskPanelsHrefFromSearch(searchParams.toString(), findingId, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  function handleReasoningDialogOpenChange(open: boolean): void {
+    setReasoningOpen(open);
+
+    if (!open) {
+      setActiveReasoning(null);
+      syncReasoningFindingIdToUrl(null);
+    }
+  }
 
   function handleMuteDialogOpenChange(open: boolean): void {
     setMuteOpen(open);
 
     if (!open) {
       setMuteTarget(null);
+      syncMuteFindingIdToUrl(null);
     }
   }
 
   function openMuteDialog(finding: QuickDecisionFinding): void {
     setMuteTarget(finding);
     setMuteOpen(true);
+    syncMuteFindingIdToUrl(finding.findingId);
   }
 
   function openReasoningDialog(finding: QuickDecisionFinding): void {
     setActiveReasoning(finding);
     setReasoningOpen(true);
+    syncReasoningFindingIdToUrl(finding.findingId);
   }
 
   function toggleAskPanel(finding: QuickDecisionFinding): void {
-    setAskFindingId((current) => (current === finding.findingId ? null : finding.findingId));
+    setAskFindingIdState((current) => {
+      const next = current === finding.findingId ? null : finding.findingId;
+      syncAskFindingIdToUrl(next);
+
+      return next;
+    });
   }
+
+  const setAskFindingId = useCallback(
+    (value: string | null | ((current: string | null) => string | null)) => {
+      setAskFindingIdState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncAskFindingIdToUrl(next);
+
+        return next;
+      });
+    },
+    [syncAskFindingIdToUrl],
+  );
 
   const interaction: QuickDecisionSummaryInteractionState = {
     canMutate,
     ...filters,
     reasoningOpen,
-    setReasoningOpen,
+    setReasoningOpen: handleReasoningDialogOpenChange,
     activeReasoning,
     setActiveReasoning,
     muteOpen,
@@ -244,7 +347,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
         <QuickDecisionSummaryDialogs
           runId={props.runId}
           reasoningOpen={reasoningOpen}
-          setReasoningOpen={setReasoningOpen}
+          setReasoningOpen={handleReasoningDialogOpenChange}
           activeReasoning={activeReasoning}
           setActiveReasoning={setActiveReasoning}
           muteOpen={muteOpen}
@@ -262,7 +365,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
       <QuickDecisionSummaryDialogs
         runId={props.runId}
         reasoningOpen={reasoningOpen}
-        setReasoningOpen={setReasoningOpen}
+        setReasoningOpen={handleReasoningDialogOpenChange}
         activeReasoning={activeReasoning}
         setActiveReasoning={setActiveReasoning}
         muteOpen={muteOpen}

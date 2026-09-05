@@ -143,11 +143,15 @@ function resolveRunsDashboardTabBaseLabel(
   return RUNS_DASHBOARD_LABELS.tabOutcomes;
 }
 
+export type RunsDashboardTabLabelOptions = {
+  readonly homePreviewMode?: boolean;
+};
+
 export function runsDashboardTabLabel(
   tabId: RunsDashboardTabId,
   buyerPolishedShell: boolean,
   count?: number,
-  options?: { readonly homePreviewMode?: boolean },
+  options?: RunsDashboardTabLabelOptions,
 ): string {
   const baseLabel = resolveRunsDashboardTabBaseLabel(
     tabId,

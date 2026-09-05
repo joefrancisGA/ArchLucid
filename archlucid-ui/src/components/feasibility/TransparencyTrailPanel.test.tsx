@@ -21,6 +21,12 @@ describe("TransparencyTrailPanel", () => {
     expect(screen.getByText("l0.pillar.security")).toBeInTheDocument();
   });
 
+  it("renders nothing when the trail is not available yet", () => {
+    const { container } = render(<TransparencyTrailPanel trail={null} />);
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
   it("shows a defect callout when the trail is missing on a completed review", () => {
     render(<TransparencyTrailPanel trail={null} missingTrailDefect />);
 

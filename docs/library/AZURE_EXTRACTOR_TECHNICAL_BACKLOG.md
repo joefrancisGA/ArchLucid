@@ -6,11 +6,14 @@ This file tracks **remaining** work after the initial ingest API, MVP PowerShell
 
 ## Shipped in this iteration (baseline)
 
-- `POST /v1/azure-extractor/upload` with `manifest.json` schema **1** enforcement, **52 MiB** ZIP cap, optional `runId` association, SQL persistence (`dbo.AzureExtractorPackages`), audit events (`AzureExtractorPackage.*`).
-- `scripts/azure/Get-ArchLucidAzurePackage.ps1`: **read-only** `Get-AzResource` inventory to `manifest.json`, `resources.json`, `README.txt` (cost/advisor/retail flags warn-only until extended).
+- **ARC-AMPE alignment:** one Azure collector family only — customer PowerShell (`Get-ArchLucidAzurePackage.ps1`) and hosted Tier-2 reader share schema v2 ZIP layout; no second parallel collector or ARM write path.
+
+- `POST /v1/azure-extractor/upload` with `manifest.json` schema **1–2** enforcement (v2 adds completeness metadata and optional sibling inventory files), **52 MiB** ZIP cap, optional `runId` association, SQL persistence (`dbo.AzureExtractorPackages`), audit events (`AzureExtractorPackage.*`).
+- `scripts/azure/Get-ArchLucidAzurePackage.ps1`: **read-only** `Get-AzResource` inventory to `manifest.json`, `resources.json`, optional v2 sibling JSON arrays, `README.txt` (cost/advisor/retail flags warn-only until extended).
 - `archlucid azure terraform-export`: non-interactive **resource-group** mode wrapping `aztfexport`, adds `ADVISORY.md`, zips output.
 - `AzureExtractorCitationFormatter` for future evidence-bundle lines.
 - Advisory Terraform comment templates in `ArchLucid.Application`.
+- **IE-05 reconstruction:** `AdvisoryTerraformRepresentationService` builds labeled reconstruction artifacts from `AzureInventorySnapshot` rows (additive to C2 snippet path and CLI aztfexport primary export).
 
 ## Backlog (prioritized)
 

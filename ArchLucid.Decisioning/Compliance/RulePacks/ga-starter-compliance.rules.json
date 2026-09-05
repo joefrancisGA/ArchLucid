@@ -5511,7 +5511,7 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "priority": "P1",
+      "priority": "P0",
       "description": "Stub for aws-dr-003; see docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json for narrative."
     },
     {
@@ -5522,7 +5522,7 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "priority": "P1",
+      "priority": "P0",
       "description": "Stub for aws-dr-004; see docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json for narrative."
     },
     {
@@ -5533,7 +5533,7 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "priority": "P1",
+      "priority": "P0",
       "description": "Stub for aws-dr-005; see docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json for narrative."
     },
     {
@@ -5577,7 +5577,7 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "priority": "P1",
+      "priority": "P0",
       "description": "Stub for gcp-dr-003; see docs/samples/policy-packs/gcp-resiliency-dr-rules-v1.json for narrative."
     },
     {
@@ -5588,7 +5588,7 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "priority": "P1",
+      "priority": "P0",
       "description": "Stub for gcp-dr-004; see docs/samples/policy-packs/gcp-resiliency-dr-rules-v1.json for narrative."
     },
     {
@@ -5599,7 +5599,7 @@
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
-      "priority": "P1",
+      "priority": "P0",
       "description": "Stub for gcp-dr-005; see docs/samples/policy-packs/gcp-resiliency-dr-rules-v1.json for narrative."
     },
     {
@@ -8835,6 +8835,50 @@
       "severity": "Warning",
       "priority": "P1",
       "description": "When sustainability, cost, reliability, or performance goals conflict, record the accepted tradeoff rather than leaving resource waste implicit."
+    },
+    {
+      "ruleId": "az-dr-001",
+      "controlId": "AZ-DR-001",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P0",
+      "description": "Stub for az-dr-001; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-dr-002",
+      "controlId": "AZ-DR-002",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P0",
+      "description": "Stub for az-dr-002; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-dr-006",
+      "controlId": "AZ-DR-006",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Stub for az-dr-006; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "az-dr-007",
+      "controlId": "AZ-DR-007",
+      "controlName": "GA Reliability starter rule (catalog stub)",
+      "appliesToCategory": "reliability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P2",
+      "description": "Stub for az-dr-007; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative."
     }
   ]
 }

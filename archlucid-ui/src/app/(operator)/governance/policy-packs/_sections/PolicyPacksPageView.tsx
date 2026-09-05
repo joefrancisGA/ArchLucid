@@ -234,8 +234,12 @@ export function PolicyPacksPageView(props: Props) {
               items={m.workspaceSelectionItems}
               loading={m.workspaceSelectionLoading || m.loading}
               togglingAssignmentId={m.togglingAssignmentId}
+              togglingOrganizationRequiredAssignmentId={m.togglingOrganizationRequiredAssignmentId}
               onToggle={(assignmentId, nextEnabled) => {
                 void m.onToggleWorkspaceSelection(assignmentId, nextEnabled);
+              }}
+              onToggleOrganizationRequired={(assignmentId, nextOrganizationRequired) => {
+                void m.onToggleOrganizationRequired(assignmentId, nextOrganizationRequired);
               }}
             />
 

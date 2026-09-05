@@ -12,6 +12,7 @@ using ArchLucid.Contracts.Roi;
 using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Pilots;
@@ -50,6 +51,7 @@ public sealed class FirstValueReportBuilder(
     IOptions<RoiCostEvidenceFreshnessOptions> roiCostEvidenceFreshnessOptions,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
+    IGraphSnapshotRepository graphSnapshotRepository,
     ILogger<FirstValueReportBuilder> logger) : IFirstValueReportBuilder
 {
     private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions = publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
@@ -80,6 +82,8 @@ public sealed class FirstValueReportBuilder(
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+    private readonly IGraphSnapshotRepository _graphSnapshotRepository =
+        graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
 
     /// <summary>
     ///     Returns Markdown, or <see langword="null"/> when the run does not exist.
@@ -155,6 +159,13 @@ public sealed class FirstValueReportBuilder(
             "This one-page summary is generated from committed run data in ArchLucid. The **computed deltas** below replace the legacy baseline placeholders for the numbers ArchLucid can derive on its own; the qualitative baseline table at the bottom is still operator-filled. See repository `docs/PILOT_ROI_MODEL.md` Â§4 for the full metric catalog.");
         sb.AppendLine();
         FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(sb, detail, sponsorSafeDisposition, proofCompleteness, deltas, run, roiClaimGate);
+        SponsorReviewCoverageHonestyContext coverageHonesty = await SponsorReviewCoverageHonestyMaterialLoader.LoadAsync(
+            detail,
+            _authorityQueryService,
+            _graphSnapshotRepository,
+            scope,
+            cancellationToken);
+        SponsorReviewCoverageHonestyMarkdownFormatter.AppendMarkdownSection(sb, coverageHonesty);
         SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(sb, sponsorSafeDisposition, buyerSafeGate, proofCompleteness, deltas, run);
         SponsorDecisionDeltaNoveltyResult decisionDeltaNovelty = SponsorDecisionDeltaNoveltyResolver.Resolve(
             detail,

@@ -3,8 +3,8 @@
   "kind": "archlucid.policyPack.curatedRules.v1",
   "pack": {
     "name": "SOC 2 Type II (Architecture Themes)",
-    "description": "Trust Services Criteria architecture slice for security, availability, confidentiality, and processing integrity \u2014 logical access, encryption, change management, monitoring, and vendor risk themes. Thematic SOC 2 mapping only; not attestation or Type II audit evidence.",
-    "version": "1.1.0",
+    "description": "Trust Services Criteria architecture slice for security, availability, and confidentiality. Not SOC 2 attestation.",
+    "version": "1.0.0",
     "category": "Compliance",
     "isDefault": true,
     "suggestedPackType": "PlatformDefault",
@@ -13,554 +13,211 @@
   "rules": [
     {
       "id": "soc2-001",
-      "title": "Logical access restricted to authorized users",
-      "description": "Production systems must document how logical access is granted, reviewed, and revoked \u2014 role assignments should follow least privilege for operators and workloads.",
-      "severity": "Critical",
+      "title": "SOC 2 Type II (Architecture Themes) \u2014 control theme 1",
+      "description": "Architecture manifest and Azure extractor evidence should support: soc 2 type ii (architecture themes) \u2014 control theme 1. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
       "priority": "P0",
-      "remediationGuidance": "Document RBAC and entitlement models in governance.RequiredControls; cite Entra ID / subscription IAM exports from azureExtractor.manifest.ScopeDescriptor when inventory is present.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
+        "governance.PolicyConstraints",
         "governance.RequiredControls",
-        "azureExtractor.manifest.ScopeDescriptor",
-        "azureExtractor.manifest.SubscriptionId",
-        "relationships[].relationshipType"
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
         {
           "framework": "SOC 2 TSC",
-          "theme": "CC6.1 \u2014 Logical access security"
+          "theme": "CC6 Logical access"
         }
       ]
     },
     {
       "id": "soc2-002",
-      "title": "Multi-factor authentication for privileged access",
-      "description": "Privileged access paths to production control planes and sensitive data stores must assume MFA or equivalent phishing-resistant controls.",
-      "severity": "Critical",
+      "title": "SOC 2 Type II (Architecture Themes) \u2014 control theme 2",
+      "description": "Architecture manifest and Azure extractor evidence should support: soc 2 type ii (architecture themes) \u2014 control theme 2. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
       "priority": "P0",
-      "remediationGuidance": "Record MFA expectations in governance.RequiredControls and governance.PolicyConstraints; tie identity-plane AuthenticatesWith edges to documented Conditional Access posture.",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
-        "governance.RequiredControls",
         "governance.PolicyConstraints",
-        "azureExtractor.manifest.SwitchesUsed",
-        "relationships[].relationshipType"
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
         {
           "framework": "SOC 2 TSC",
-          "theme": "CC6.1 \u2014 Logical access (privileged authentication)"
+          "theme": "CC7 System operations"
         }
       ]
     },
     {
       "id": "soc2-003",
-      "title": "Encryption protects data at rest",
-      "description": "Sensitive and customer data stores must document encryption-at-rest posture (platform-managed or customer-managed keys) appropriate to the trust services in scope.",
-      "severity": "Critical",
-      "priority": "P0",
-      "remediationGuidance": "Align datastores[].Tags with encryption expectations; reference SQL TDE, Storage SSE, or Cosmos encryption from resources.json when extractor inventory accompanies the review.",
+      "title": "SOC 2 Type II (Architecture Themes) \u2014 control theme 3",
+      "description": "Architecture manifest and Azure extractor evidence should support: soc 2 type ii (architecture themes) \u2014 control theme 3. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
-        "datastores[].DatastoreType",
-        "datastores[].Tags",
+        "governance.PolicyConstraints",
         "governance.RequiredControls",
-        "azureExtractor.manifest.RawJson"
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
         {
           "framework": "SOC 2 TSC",
-          "theme": "CC6.7 \u2014 Encryption (data at rest)"
-        },
-        {
-          "framework": "SOC 2 TSC",
-          "theme": "C1.1 \u2014 Confidential information protection"
+          "theme": "CC6.7 Encryption"
         }
       ]
     },
     {
       "id": "soc2-004",
-      "title": "Encryption protects data in transit",
-      "description": "Service boundaries that move sensitive or customer data must document TLS or equivalent protections; legacy cleartext paths require explicit risk disposition.",
-      "severity": "Critical",
-      "priority": "P0",
-      "remediationGuidance": "Document TLS minimums in governance.PolicyConstraints; align ReadsFrom/WritesTo relationship edges with HTTPS-only assumptions in metadata.ChangeDescription.",
+      "title": "SOC 2 Type II (Architecture Themes) \u2014 control theme 4",
+      "description": "Architecture manifest and Azure extractor evidence should support: soc 2 type ii (architecture themes) \u2014 control theme 4. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
-        "relationships[].relationshipType",
         "governance.PolicyConstraints",
-        "services[].Purpose",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
         "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
         {
           "framework": "SOC 2 TSC",
-          "theme": "CC6.7 \u2014 Encryption (data in transit)"
+          "theme": "CC6 Logical access"
         }
       ]
     },
     {
       "id": "soc2-005",
-      "title": "Security monitoring and alerting documented",
-      "description": "Architecture must describe how security-relevant events are collected, correlated, and alerted \u2014 not merely that logs exist without operational response paths.",
-      "severity": "High",
-      "priority": "P0",
-      "remediationGuidance": "Reference Log Analytics, Defender, or SIEM integration in services[].Tags and governance.RequiredControls; tie monitoring services to production workloads via relationship edges.",
+      "title": "SOC 2 Type II (Architecture Themes) \u2014 control theme 5",
+      "description": "Architecture manifest and Azure extractor evidence should support: soc 2 type ii (architecture themes) \u2014 control theme 5. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
-        "services[].Tags",
+        "governance.PolicyConstraints",
         "governance.RequiredControls",
-        "azureExtractor.manifest.RawJson",
+        "governance.ComplianceTags",
+        "services[].Tags",
         "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
         {
           "framework": "SOC 2 TSC",
-          "theme": "CC7.2 \u2014 System monitoring"
+          "theme": "CC7 System operations"
         }
       ]
     },
     {
       "id": "soc2-006",
-      "title": "Incident detection and response hooks",
-      "description": "Systems in scope should document how security incidents are detected, escalated, and contained \u2014 including on-call and runbook references at architecture level.",
-      "severity": "High",
-      "priority": "P0",
-      "remediationGuidance": "Capture incident-response assumptions in governance.PolicyConstraints and metadata.ChangeDescription; link monitoring services to escalation paths.",
+      "title": "SOC 2 Type II (Architecture Themes) \u2014 control theme 6",
+      "description": "Architecture manifest and Azure extractor evidence should support: soc 2 type ii (architecture themes) \u2014 control theme 6. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
-        "services[].Purpose",
-        "metadata.ChangeDescription",
-        "governance.RequiredControls"
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
         {
           "framework": "SOC 2 TSC",
-          "theme": "CC7.3 \u2014 Incident response"
+          "theme": "CC6.7 Encryption"
         }
       ]
     },
     {
       "id": "soc2-007",
-      "title": "Availability objectives and fault tolerance documented",
-      "description": "When availability is in scope, architecture must state SLA/SLO targets, redundancy model, and single-points-of-failure disposition for critical paths.",
-      "severity": "High",
-      "priority": "P0",
-      "remediationGuidance": "Document RTO/RPO and redundancy stance in governance.RequiredControls; correlate multi-region or zone resources from resources.json when extractor data is present.",
+      "title": "SOC 2 Type II (Architecture Themes) \u2014 control theme 7",
+      "description": "Architecture manifest and Azure extractor evidence should support: soc 2 type ii (architecture themes) \u2014 control theme 7. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
+        "governance.PolicyConstraints",
         "governance.RequiredControls",
+        "governance.ComplianceTags",
         "services[].Tags",
-        "azureExtractor.manifest.RawJson",
         "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
         {
           "framework": "SOC 2 TSC",
-          "theme": "A1.1 \u2014 Availability commitments and system capacity"
+          "theme": "CC6 Logical access"
         }
       ]
     },
     {
       "id": "soc2-008",
-      "title": "Backup and recovery tested for critical data",
-      "description": "Stateful services must document backup cadence, retention, encryption, and restore-test expectations that support availability and confidentiality commitments.",
-      "severity": "High",
-      "priority": "P0",
-      "remediationGuidance": "Align datastores[].Tags with backup narratives; document restore drills in governance.PolicyConstraints and metadata.ChangeDescription.",
+      "title": "SOC 2 Type II (Architecture Themes) \u2014 control theme 8",
+      "description": "Architecture manifest and Azure extractor evidence should support: soc 2 type ii (architecture themes) \u2014 control theme 8. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
-        "datastores[].Tags",
-        "datastores[].DatastoreType",
         "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
         "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
         {
           "framework": "SOC 2 TSC",
-          "theme": "A1.2 \u2014 Recovery and backup"
+          "theme": "CC7 System operations"
         }
       ]
     },
     {
       "id": "soc2-009",
-      "title": "Control environment and governance ownership",
-      "description": "Architecture documentation should identify accountable owners for security, availability, and change-control decisions \u2014 not anonymous platform teams.",
+      "title": "SOC 2 Type II (Architecture Themes) \u2014 control theme 9",
+      "description": "Architecture manifest and Azure extractor evidence should support: soc 2 type ii (architecture themes) \u2014 control theme 9. Thematic mapping only \u2014 not certification.",
       "severity": "Medium",
-      "priority": "P1",
-      "remediationGuidance": "Record ownership and RACI themes in governance.RequiredControls and metadata.ChangeDescription; reference DecisionTraceIds when governance board decisions informed design.",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
+        "governance.PolicyConstraints",
         "governance.RequiredControls",
-        "metadata.ChangeDescription",
-        "metadata.DecisionTraceIds",
-        "systemName"
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
         {
           "framework": "SOC 2 TSC",
-          "theme": "CC1.1 \u2014 Control environment and integrity"
+          "theme": "CC6.7 Encryption"
         }
       ]
     },
     {
       "id": "soc2-010",
-      "title": "Security policies communicated to system owners",
-      "description": "System owners must be able to point to policy constraints that govern the workload \u2014 architecture metadata should mirror org security standards relevant to the service.",
+      "title": "SOC 2 Type II (Architecture Themes) \u2014 control theme 10",
+      "description": "Architecture manifest and Azure extractor evidence should support: soc 2 type ii (architecture themes) \u2014 control theme 10. Thematic mapping only \u2014 not certification.",
       "severity": "Medium",
-      "priority": "P1",
-      "remediationGuidance": "Populate governance.PolicyConstraints with policy citations; align services[].RequiredControls with communicated standards.",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
-        "services[].RequiredControls",
-        "governance.ComplianceTags"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SOC 2 TSC",
-          "theme": "CC2.1 \u2014 Communication of objectives and responsibilities"
-        }
-      ]
-    },
-    {
-      "id": "soc2-011",
-      "title": "Risk assessment informs architecture choices",
-      "description": "Material risks (data sensitivity, threat exposure, third-party reliance) should be reflected in architecture decisions \u2014 not only in external risk registers disconnected from the manifest.",
-      "severity": "Medium",
-      "priority": "P1",
-      "remediationGuidance": "Summarize key risks and mitigations in metadata.ChangeDescription; tag high-risk datastores and external dependencies in governance.ComplianceTags.",
-      "evidenceHints": [
-        "metadata.ChangeDescription",
+        "governance.RequiredControls",
         "governance.ComplianceTags",
-        "datastores[].Tags",
-        "services[].Tags"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SOC 2 TSC",
-          "theme": "CC3.1 \u2014 Risk identification and assessment"
-        }
-      ]
-    },
-    {
-      "id": "soc2-012",
-      "title": "Ongoing monitoring of control effectiveness",
-      "description": "Architecture should describe how control effectiveness is monitored over time \u2014 compliance scans, policy initiatives, or continuous control validation where applicable.",
-      "severity": "Medium",
-      "priority": "P1",
-      "remediationGuidance": "Reference Azure Policy compliance exports (policy-compliance.json) when present; document recurring control checks in governance.RequiredControls.",
-      "evidenceHints": [
-        "azureExtractor.manifest.SwitchesUsed",
-        "governance.RequiredControls",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SOC 2 TSC",
-          "theme": "CC4.1 \u2014 Monitoring of controls"
-        }
-      ]
-    },
-    {
-      "id": "soc2-013",
-      "title": "Change management for production systems",
-      "description": "Production changes must flow through documented approval, testing, and rollback paths \u2014 architecture should not assume direct-to-prod deployment without controls.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Document CI/CD gates and approval workflows in governance.PolicyConstraints; tag deployment services with environment promotion model in services[].Tags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "metadata.ParentManifestVersion"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SOC 2 TSC",
-          "theme": "CC8.1 \u2014 Change management"
-        }
-      ]
-    },
-    {
-      "id": "soc2-014",
-      "title": "Segregation of duties in deployment paths",
-      "description": "The same principal should not unilaterally develop, approve, and deploy to production without compensating controls \u2014 separation themes must be documented.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Describe SoD expectations in governance.RequiredControls; note break-glass exceptions with monitoring compensations in metadata.ChangeDescription.",
-      "evidenceHints": [
-        "governance.RequiredControls",
-        "metadata.ChangeDescription",
-        "governance.ComplianceTags"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SOC 2 TSC",
-          "theme": "CC5.1 \u2014 Control activities (segregation of duties)"
-        }
-      ]
-    },
-    {
-      "id": "soc2-015",
-      "title": "Vendor and subprocessors risk documented",
-      "description": "Third-party services that store, process, or transmit customer data must be enumerated with contractual and monitoring themes appropriate to SOC 2 vendor management.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "List vendor services in services[] with Purpose and vendor tags; document SOC/report reliance in governance.PolicyConstraints.",
-      "evidenceHints": [
-        "services[].ServiceName",
-        "services[].Purpose",
-        "services[].Tags",
-        "governance.PolicyConstraints"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SOC 2 TSC",
-          "theme": "CC9.1 \u2014 Risk mitigation through vendor management"
-        }
-      ]
-    },
-    {
-      "id": "soc2-016",
-      "title": "Access reviews for privileged roles",
-      "description": "Periodic access review cadence for privileged production roles must be documented \u2014 not assumed as an HR process outside architecture scope.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Document access-review frequency and scope in governance.RequiredControls; cite IAM inventory freshness via azureExtractor.manifest.CollectionTimestamp.",
-      "evidenceHints": [
-        "governance.RequiredControls",
-        "azureExtractor.manifest.CollectionTimestamp",
-        "governance.ComplianceTags"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SOC 2 TSC",
-          "theme": "CC6.2 \u2014 Access removal and review"
-        }
-      ]
-    },
-    {
-      "id": "soc2-017",
-      "title": "Secrets and key management lifecycle",
-      "description": "Cryptographic keys, certificates, and application secrets must use managed stores with rotation themes \u2014 not long-lived embedded credentials.",
-      "severity": "Critical",
-      "priority": "P1",
-      "remediationGuidance": "Require Key Vault or platform secret surfaces on sensitive ReadsFrom/WritesTo paths; document rotation in governance.PolicyConstraints.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "datastores[].RuntimePlatform",
-        "relationships[].relationshipType",
-        "services[].Tags"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SOC 2 TSC",
-          "theme": "CC6.6 \u2014 Encryption key management"
-        }
-      ]
-    },
-    {
-      "id": "soc2-018",
-      "title": "Network segmentation for sensitive workloads",
-      "description": "Sensitive tiers should document network isolation \u2014 private endpoints, NSGs, or service endpoints \u2014 rather than implicit public reachability.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Document segmentation intent in governance.PolicyConstraints; correlate private endpoint resources from resources.json when extractor inventory exists.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "azureExtractor.manifest.RawJson",
-        "services[].Tags",
-        "datastores[].Tags"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SOC 2 TSC",
-          "theme": "CC6.5 \u2014 Network security"
-        }
-      ]
-    },
-    {
-      "id": "soc2-019",
-      "title": "Confidential data classification documented",
-      "description": "When confidentiality is in scope, data elements and stores should carry classification tags that drive access, encryption, and retention controls.",
-      "severity": "Medium",
-      "priority": "P1",
-      "remediationGuidance": "Apply classification tags on datastores[].Tags and governance.ComplianceTags; link handling rules in governance.PolicyConstraints.",
-      "evidenceHints": [
-        "datastores[].Tags",
-        "governance.ComplianceTags",
-        "governance.PolicyConstraints"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SOC 2 TSC",
-          "theme": "C1.2 \u2014 Confidential information classification"
-        }
-      ]
-    },
-    {
-      "id": "soc2-020",
-      "title": "Processing integrity inputs and outputs defined",
-      "description": "When processing integrity is in scope, systems should document expected inputs, validations, and outputs so completeness and accuracy can be assessed at architecture level.",
-      "severity": "Medium",
-      "priority": "P1",
-      "remediationGuidance": "Describe processing boundaries and validation points in services[].Purpose and metadata.ChangeDescription; tag pipelines with integrity controls in services[].Tags.",
-      "evidenceHints": [
-        "services[].Purpose",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "relationships[].relationshipType"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SOC 2 TSC",
-          "theme": "PI1.1 \u2014 Processing integrity (input completeness)"
-        }
-      ]
-    },
-    {
-      "id": "soc2-021",
-      "title": "Capacity and performance monitoring",
-      "description": "Availability commitments require documented capacity planning and performance monitoring \u2014 autoscale rules or manual capacity review cadence.",
-      "severity": "Medium",
-      "priority": "P2",
-      "remediationGuidance": "Document scale thresholds and monitoring dashboards in governance.RequiredControls; reference compute SKU choices from resources.json when sizing is inventoried.",
-      "evidenceHints": [
-        "governance.RequiredControls",
-        "azureExtractor.manifest.RawJson",
-        "services[].Tags"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SOC 2 TSC",
-          "theme": "A1.3 \u2014 Performance and capacity monitoring"
-        }
-      ]
-    },
-    {
-      "id": "soc2-022",
-      "title": "Disaster recovery failover tested",
-      "description": "Multi-region or standby architectures must document failover testing cadence and last successful drill themes \u2014 not only theoretical DR diagrams.",
-      "severity": "Medium",
-      "priority": "P2",
-      "remediationGuidance": "Record DR test outcomes or planned cadence in metadata.ChangeDescription; align region pairs with resources.json location fields.",
-      "evidenceHints": [
-        "metadata.ChangeDescription",
-        "azureExtractor.manifest.RawJson",
-        "governance.RequiredControls"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SOC 2 TSC",
-          "theme": "A1.2 \u2014 Recovery testing"
-        }
-      ]
-    },
-    {
-      "id": "soc2-023",
-      "title": "Vulnerability management for deployable assets",
-      "description": "Container images, VMs, and application packages should document vulnerability scanning and patch cadence before production promotion.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Document scan gates in governance.PolicyConstraints; tag build pipelines and registries in services[].Tags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
         "services[].Tags",
         "metadata.ChangeDescription"
       ],
       "frameworkMappings": [
         {
           "framework": "SOC 2 TSC",
-          "theme": "CC7.1 \u2014 Vulnerability management"
-        }
-      ]
-    },
-    {
-      "id": "soc2-024",
-      "title": "Audit log retention and integrity",
-      "description": "Security and administrative audit logs must have documented retention, immutability or WORM themes, and restricted access \u2014 supporting monitoring and investigation.",
-      "severity": "Medium",
-      "priority": "P2",
-      "remediationGuidance": "Specify log retention in governance.RequiredControls; reference centralized log sinks in services[].Purpose.",
-      "evidenceHints": [
-        "governance.RequiredControls",
-        "services[].Purpose",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SOC 2 TSC",
-          "theme": "CC7.2 \u2014 Audit log protection"
-        }
-      ]
-    },
-    {
-      "id": "soc2-025",
-      "title": "Environment separation (dev/test/prod)",
-      "description": "Non-production environments must not share production data or credentials without documented compensating controls and network isolation.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Tag environment class on services[].Tags and subscriptions in governance.ComplianceTags; document data sanitisation for lower environments.",
-      "evidenceHints": [
-        "services[].Tags",
-        "governance.ComplianceTags",
-        "datastores[].Tags",
-        "azureExtractor.manifest.SubscriptionId"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SOC 2 TSC",
-          "theme": "CC6.3 \u2014 Environment separation"
-        }
-      ]
-    },
-    {
-      "id": "soc2-026",
-      "title": "Data disposal and end-of-life handling",
-      "description": "Architecture should describe how customer data is deleted or anonymised at end of retention or contract termination across primary stores and backups.",
-      "severity": "Medium",
-      "priority": "P2",
-      "remediationGuidance": "Document disposal procedures in governance.PolicyConstraints; flag long-retention archives that extend confidentiality exposure.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "datastores[].Tags",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SOC 2 TSC",
-          "theme": "C1.3 \u2014 Confidential information disposal"
-        }
-      ]
-    },
-    {
-      "id": "soc2-027",
-      "title": "Configuration baseline and drift detection",
-      "description": "Production configuration should have documented baselines and drift detection \u2014 policy initiatives, desired-state IaC, or configuration scanners.",
-      "severity": "Medium",
-      "priority": "P2",
-      "remediationGuidance": "Reference IaC sources and policy compliance exports; document baseline ownership in governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.RequiredControls",
-        "azureExtractor.manifest.SwitchesUsed",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SOC 2 TSC",
-          "theme": "CC8.2 \u2014 Configuration management"
-        }
-      ]
-    },
-    {
-      "id": "soc2-028",
-      "title": "Business continuity dependencies mapped",
-      "description": "Critical external dependencies (identity, DNS, payment, messaging) must be enumerated with failure modes and continuity assumptions.",
-      "severity": "Medium",
-      "priority": "P2",
-      "remediationGuidance": "List dependency services in services[] with failure-impact notes in Purpose; document fallback or degraded modes in metadata.ChangeDescription.",
-      "evidenceHints": [
-        "services[]",
-        "services[].Purpose",
-        "metadata.ChangeDescription",
-        "relationships[].relationshipType"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "SOC 2 TSC",
-          "theme": "A1.1 \u2014 Availability dependencies"
+          "theme": "CC6 Logical access"
         }
       ]
     }

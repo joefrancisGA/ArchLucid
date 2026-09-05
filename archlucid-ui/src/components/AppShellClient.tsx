@@ -61,6 +61,7 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { useAppShellStickyOffsetSync } from "@/hooks/useAppShellStickyOffsetSync";
 import { useAppShellState } from "@/hooks/use-app-shell-state";
 import { useOperatorShellChromeDeferred } from "@/hooks/useOperatorShellChromeDeferred";
@@ -168,6 +169,7 @@ export function AppShellClient({ children }: AppShellClientProps) {
 function AppShellInner({ children }: AppShellClientProps) {
   const chromeMode = useOperatorChromeMode();
   const deferChrome = useOperatorShellChromeDeferred();
+  const evalChrome = useProductionEvalChrome();
   const {
     pathname,
     helpGuidesOpen,
@@ -357,8 +359,8 @@ function AppShellInner({ children }: AppShellClientProps) {
             <FrictionlessTrialBannerDeferred />
             <OperatorShellTopBarDeferred onOpenHelpSearch={openHelpSearch} />
           </div>
-          <CtoDemoJourneyCaptionBarDeferred />
-          <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_BODY_ROW_CLASS, "flex-1")}>
+          {evalChrome ? <CtoDemoJourneyCaptionBarDeferred /> : null}
+          <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_BODY_ROW_CLASS, "min-h-0 flex-1")}>
             <nav
               data-testid="sidebar-nav"
               aria-label="Primary navigation"

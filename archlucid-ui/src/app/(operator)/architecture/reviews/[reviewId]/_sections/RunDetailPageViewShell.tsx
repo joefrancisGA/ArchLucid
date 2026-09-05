@@ -17,11 +17,9 @@ import {
   RunDetailCommitBlockingFindingsBannerDeferred,
   RunDetailCtoDemoReviewRouteGuardDeferred,
   RunDetailDemoMarketingChromeDeferred,
-  RunDetailFirstWeekRouteGuidanceDeferred,
   RunDetailGovernanceAlertsDeferred,
   RunDetailGovernanceCtaDeferred,
   RunDetailOutcomeCardsDeferred,
-  RunDetailReviewPackageDoThisNextResolvedDeferred,
   RunDetailSampleReviewPackageSummaryDeferred,
   RunDetailSectionNavDeferred,
   RunDetailStalledReviewGuidanceCalloutDeferred,
@@ -29,6 +27,7 @@ import {
   HelpPageSituationRegistrarDeferred,
   ReviewGenerationCreatedNoticeDeferred,
 } from "./run-detail-page-view-deferred-chunks";
+import { RunDetailFirstWeekRouteGuidanceMount } from "./RunDetailFirstWeekRouteGuidanceMount";
 import { RunDetailNextReviewFooterClient } from "./RunDetailNextReviewFooterClient";
 import { RunDetailPageViewCommitted } from "./RunDetailPageViewCommitted";
 import { RunDetailPageViewCreateHome } from "./RunDetailPageViewCreateHome";
@@ -39,7 +38,6 @@ import {
 } from "./RunDetailWorkspaceShell";
 import type { RunDetailPresentation } from "./run-detail-page-presentation";
 import type { RunDetailPageModel } from "./run-detail-page-model";
-import { analysisStagesCompleteOnSummary } from "./pipeline-complete-on-summary";
 
 export type RunDetailPageViewChrome = {
   readonly sampleReviewPackageSummaryEl: React.JSX.Element | null;
@@ -55,6 +53,7 @@ export type RunDetailPageViewChrome = {
     readonly pipelineDiagnosticContext: RunDetailPageModel["pipelineDiagnosticContext"];
     readonly lastFailureSummary: ReturnType<typeof resolveRunDetailLastFailureSummary>;
     readonly pipelineSummary: RunDetailPageModel["progressForPipelineUi"];
+    readonly runCompletedUtc: string | null;
     readonly intakeDescription: string | null;
     readonly intakeSystemName: string | null;
     readonly realModeFellBackToSimulator: boolean;
@@ -139,6 +138,7 @@ export function resolveRunDetailPageViewChrome(
     pipelineDiagnosticContext: m.pipelineDiagnosticContext,
     lastFailureSummary: resolveRunDetailLastFailureSummary(m.resolvedDetail),
     pipelineSummary: m.progressForPipelineUi,
+    runCompletedUtc: m.resolvedDetail.run.completedUtc ?? null,
     intakeDescription: m.resolvedDetail.run.description ?? m.progressForPipelineUi.description ?? null,
     intakeSystemName: m.progressForPipelineUi.displayName ?? null,
     realModeFellBackToSimulator: m.resolvedDetail.run.realModeFellBackToSimulator === true,
@@ -204,11 +204,7 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
     blockingApprovalCount,
     buyerGoldenPageReady,
     commitBlockedReason,
-    finalizeAssumptionGateApplies,
-    quickDecisionFindings,
-    requestAssumptionTexts,
     reviewHeaderPresentation,
-    reviewStatusSummary,
     showArchitectureCreatedHome,
     showDemoMarketingChrome,
     signedReviewRecordId,
@@ -218,9 +214,8 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
     templateLabel,
     finalizedAtLabel,
     packageVersionLabel,
-    architectureEditHref,
-    findingCoverageSummary,
   } = presentation;
+  const reviewPipelineIncomplete = presentation.reviewPipelineIncomplete;
 
   return (
     <div
@@ -287,42 +282,6 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
                       packageVersionLabel={packageVersionLabel}
                     />
 
-                    <RunDetailReviewPackageDoThisNextResolvedDeferred
-                      runId={m.resolvedDetail.run.runId}
-                      manifestId={m.manifestId}
-                      hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
-                      blockingFindingCount={blockingApprovalCount}
-                      buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
-                      operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision}
-                      manifestStatus={m.manifestSummary?.status ?? null}
-                      runCompleted={m.resolvedDetail.run.completedUtc != null}
-                      nextAction={reviewStatusSummary.nextAction}
-                      showProgressTracker={m.showProgressTracker}
-                      legacyRunStatus={m.resolvedDetail.run.legacyRunStatus ?? null}
-                      isDeadLettered={m.resolvedDetail.run.isDeadLettered === true}
-                      openClarificationGapCount={0}
-                      correctionHref={architectureEditHref}
-                      useCreateHomeWorkspaceTabs={false}
-                      hasGoldenManifest={Boolean(m.manifestId)}
-                      commitBlockedReason={commitBlockedReason}
-                      finalizeAssumptionGateApplies={finalizeAssumptionGateApplies}
-                      quickDecisionFindings={quickDecisionFindings}
-                      requestAssumptionTexts={requestAssumptionTexts}
-                      transparencyTrail={
-                        m.manifestSummaryForUi?.feasibilityVerdict?.transparencyTrail ??
-                        m.manifestSummary?.feasibilityVerdict?.transparencyTrail ??
-                        null
-                      }
-                      feasibilityVerdict={
-                        m.manifestSummaryForUi?.feasibilityVerdict ??
-                        m.manifestSummary?.feasibilityVerdict ??
-                        null
-                      }
-                      graphSnapshot={m.resolvedDetail.graphSnapshot}
-                      analysisStagesComplete={analysisStagesCompleteOnSummary(m.progressForPipelineUi)}
-                      {...chrome.reviewPackageDoThisNextEvidenceProps}
-                    />
-
                     {chrome.tabbedWorkspaceEl}
                   </>
                 )}
@@ -335,13 +294,15 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
           />
         </RunDetailWorkspaceDisclosureProvider>
 
-        <OperatorRelatedSurfacesDisclosure testId="review-detail-related-surfaces-disclosure">
-          <ArchitectureIntelligenceReviewToolStrip
-            runId={m.resolvedDetail.run.runId}
-            currentSurfaceId="review-workspace"
-          />
-          <SignedRecordsReviewDetailVocabularyRail currentSurfaceId="review-detail" />
-        </OperatorRelatedSurfacesDisclosure>
+        {!reviewPipelineIncomplete ? (
+          <OperatorRelatedSurfacesDisclosure testId="review-detail-related-surfaces-disclosure">
+            <ArchitectureIntelligenceReviewToolStrip
+              runId={m.resolvedDetail.run.runId}
+              currentSurfaceId="review-workspace"
+            />
+            <SignedRecordsReviewDetailVocabularyRail currentSurfaceId="review-detail" />
+          </OperatorRelatedSurfacesDisclosure>
+        ) : null}
 
         {showArchitectureCreatedHome ? (
           <RunDetailPageViewCommitted
@@ -353,8 +314,8 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
           />
         ) : null}
 
-        {blockingApprovalCount === 0 ? (
-          <RunDetailFirstWeekRouteGuidanceDeferred
+        {blockingApprovalCount === 0 && !reviewPipelineIncomplete ? (
+          <RunDetailFirstWeekRouteGuidanceMount
             variant={Boolean(m.manifestId) ? "review-detail-committed" : "review-detail-in-progress"}
             pagePrimaryOwnedElsewhere
           />
@@ -370,7 +331,9 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
 
         <RunDetailBuyerPilotConversionSectionDeferred buyerPolishedArtifactTable={m.buyerPolishedArtifactTable} />
 
-        <RunDetailNextReviewFooterClient runId={m.routeRunId} />
+        {!reviewPipelineIncomplete ? (
+          <RunDetailNextReviewFooterClient runId={m.routeRunId} />
+        ) : null}
       </div>
     </div>
   );

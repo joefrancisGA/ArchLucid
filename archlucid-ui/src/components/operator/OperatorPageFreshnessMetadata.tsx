@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { operatorLastRefreshedExactLabel } from "@/lib/operator/operator-last-refreshed-label";
 
 export type OperatorPageFreshnessMetadataProps = {
   readonly testId: string;
@@ -40,6 +41,7 @@ export function OperatorPageFreshnessMetadata(
       className={className}
       data-testid={props.testId}
       dateTime={props.lastRefreshedAt.toISOString()}
+      title={operatorLastRefreshedExactLabel(props.lastRefreshedAt)}
       aria-label={props.ariaLabel}
     >
       {props.children}

@@ -21,7 +21,8 @@ public sealed class GoldenManifestPayloadBlobEnvelopeTests
             "[]",
             "[]",
             "[]",
-            "{}");
+            "{}",
+            """{"policy":{"notes":["No public SQL endpoints"]}}""");
 
         string json = original.ToJson();
         GoldenManifestPayloadBlobEnvelope? parsed = GoldenManifestPayloadBlobEnvelope.TryDeserialize(json);
@@ -59,8 +60,10 @@ public sealed class GoldenManifestPayloadBlobEnvelopeTests
             ManifestPayloadBlobUri = "https://example/blob"
         };
 
-        GoldenManifestStorageRow merged = GoldenManifestPayloadBlobEnvelope.MergeIntoRow(row, parsed);
+        GoldenManifestStorageRow merged = GoldenManifestPayloadBlobEnvelope.MergeIntoRow(row, parsed!);
         merged.MetadataJson.Should().Be("""{"k":"m"}""");
+        merged.HasherBoundJson.Should().Contain("No public SQL endpoints");
+        merged.HasherBoundJson.Should().Be(parsed.HasherBoundJson);
         merged.ManifestId.Should().Be(row.ManifestId);
         merged.ManifestPayloadBlobUri.Should().Be("https://example/blob");
     }

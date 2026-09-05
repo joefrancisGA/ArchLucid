@@ -1,7 +1,8 @@
 "use client";
 
 import { ClipboardList } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type SetStateAction } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CreateWorkItemDialog } from "@/components/work-items/CreateWorkItemDialog";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,11 @@ import { CREATE_WORK_ITEM_LABEL } from "@/lib/create-work-item-copy";
 import { findingWorkItemSealedManifestCopyBlockedReason } from "@/lib/findings/finding-work-item-sealed-manifest-guard";
 import { showError } from "@/lib/toast";
 import { cn } from "@/lib/utils";
+import {
+  createWorkItemDialogHrefFromSearch,
+  parseCreateWorkItemFindingIdFromSearch,
+  parseCreateWorkItemOpenFromSearch,
+} from "@/lib/work-items/create-work-item-dialog-url";
 
 export type CreateWorkItemButtonProps = BuildArchitectureWorkItemPreviewInput & {
   readonly compact?: boolean;
@@ -23,7 +29,12 @@ export type CreateWorkItemButtonProps = BuildArchitectureWorkItemPreviewInput & 
 
 /** Secondary outline trigger for the provider-neutral create-work-item dialog. */
 export function CreateWorkItemButton(props: CreateWorkItemButtonProps): React.JSX.Element {
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
+  const searchParams = useSearchParams();
+  const workItemOpenParam = searchParams.get("workItemOpen");
+  const workItemFindingIdParam = searchParams.get("workItemFindingId");
+  const [open, setOpenState] = useState(() => parseCreateWorkItemOpenFromSearch(workItemOpenParam));
 
   const preview = useMemo(() => {
     const siteOrigin = typeof window !== "undefined" ? window.location.origin : props.siteOrigin;
@@ -46,6 +57,54 @@ export function CreateWorkItemButton(props: CreateWorkItemButtonProps): React.JS
   ]);
 
   const nativeCreateFindingId = useMemo(() => pickNativeCreateFindingId(props.findings), [props.findings]);
+
+  const syncWorkItemDialogToUrl = useCallback(
+    (nextOpen: boolean) => {
+      router.replace(
+        createWorkItemDialogHrefFromSearch(
+          searchParams.toString(),
+          {
+            open: nextOpen,
+            findingId: nextOpen ? nativeCreateFindingId : null,
+          },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [nativeCreateFindingId, pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncWorkItemDialogToUrl(next);
+
+        return next;
+      });
+    },
+    [syncWorkItemDialogToUrl],
+  );
+
+  useEffect(() => {
+    const urlOpen = parseCreateWorkItemOpenFromSearch(workItemOpenParam);
+    const urlFindingId = parseCreateWorkItemFindingIdFromSearch(workItemFindingIdParam);
+
+    if (!urlOpen) {
+      setOpenState(false);
+
+      return;
+    }
+
+    if (urlFindingId.length > 0 && nativeCreateFindingId !== null && urlFindingId !== nativeCreateFindingId) {
+      setOpenState(false);
+
+      return;
+    }
+
+    setOpenState(true);
+  }, [nativeCreateFindingId, workItemFindingIdParam, workItemOpenParam]);
 
   return (
     <>

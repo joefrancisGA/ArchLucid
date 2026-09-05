@@ -10,11 +10,11 @@ import {
   trackInFlightOperation,
 } from "@/lib/operations/in-flight-operations-store";
 import { requestOpenShellInFlightOperations } from "@/lib/operations/open-shell-in-flight-event";
-import { showError } from "@/lib/toast";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/",
   useRouter: () => ({ refresh: vi.fn(), push: vi.fn(), replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/lib/api/operations-api", () => ({
@@ -37,7 +37,6 @@ describe("ShellInFlightOperationsAffordance", () => {
     resetInFlightOperationsForTests();
     vi.mocked(cancelOperation).mockReset();
     vi.mocked(cancelOperation).mockResolvedValue(undefined);
-    vi.mocked(showError).mockReset();
   });
 
   afterEach(() => {
@@ -115,7 +114,7 @@ describe("ShellInFlightOperationsAffordance", () => {
     expect(cancelOperation).not.toHaveBeenCalled();
   });
 
-  it("calls cancelOperation and patches CancelRequested on success", async () => {
+  it("requires confirmation before cancelOperation runs", async () => {
     trackInFlightOperation({
       operationId: "run:demo",
       title: "Architecture review analysis",
@@ -131,6 +130,33 @@ describe("ShellInFlightOperationsAffordance", () => {
     const cancelButton = await screen.findByTestId("shell-in-flight-operation-cancel");
     cancelButton.click();
 
+    expect(cancelOperation).not.toHaveBeenCalled();
+    expect(await screen.findByText("Stop this in-flight operation?")).toBeInTheDocument();
+
+    (await screen.findByRole("button", { name: "Stop operation" })).click();
+
+    await waitFor(() => {
+      expect(cancelOperation).toHaveBeenCalledWith("run:demo");
+    });
+  });
+
+  it("calls cancelOperation and patches CancelRequested on success", async () => {
+    trackInFlightOperation({
+      operationId: "run:demo",
+      title: "Architecture review analysis",
+      href: "/architecture/reviews/demo",
+      runId: "demo",
+      stepLabel: "Queued",
+      state: "Pending",
+    });
+
+    render(<ShellInFlightOperationsAffordance />);
+    screen.getByTestId("shell-in-flight-operations-trigger").click();
+
+    const cancelButton = await screen.findByTestId("shell-in-flight-operation-cancel");
+    cancelButton.click();
+    (await screen.findByRole("button", { name: "Stop operation" })).click();
+
     await waitFor(() => {
       expect(cancelOperation).toHaveBeenCalledWith("run:demo");
     });
@@ -140,8 +166,6 @@ describe("ShellInFlightOperationsAffordance", () => {
       expect(row?.state).toBe("CancelRequested");
       expect(row?.stepLabel).toBe("Cancel requested");
     });
-
-    expect(showError).not.toHaveBeenCalled();
   });
 
   it("shows an error toast when cancel fails", async () => {
@@ -161,9 +185,10 @@ describe("ShellInFlightOperationsAffordance", () => {
 
     const cancelButton = await screen.findByTestId("shell-in-flight-operation-cancel");
     cancelButton.click();
+    (await screen.findByRole("button", { name: "Stop operation" })).click();
 
     await waitFor(() => {
-      expect(showError).toHaveBeenCalledWith("Could not cancel this work", "Conflict");
+      expect(screen.getByTestId("shell-in-flight-cancel-failure-recovery")).toBeInTheDocument();
     });
 
     const row = getInFlightOperations().find((item) => item.operationId === "run:demo");

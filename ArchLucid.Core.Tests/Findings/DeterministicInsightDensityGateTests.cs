@@ -14,12 +14,31 @@ public sealed class DeterministicInsightDensityGateTests
         new DeterministicInsightDensityGate(Options.Create(new InsightDensityGateOptions()));
 
     [Fact]
-    public void Score_never_demotes_typed_finding_engine_outputs()
+    public void Score_demotes_generic_typed_engine_finding_without_anchor_or_evidence()
     {
         InsightDensityGateCandidate candidate = new(
             "engine-f1",
             "Enable MFA for all user accounts.",
             ["critic-checklist"],
+            FindingSeverity.Warning,
+            category: "Insight",
+            isAgentArchitectureFinding: false);
+
+        InsightDensityGateResult result = Gate.Score(candidate, [candidate]);
+
+        result.Treatment.Should().Be(FindingTreatment.DemoteToChecklist);
+        result.Classification.Should().Be(FindingClassification.ChecklistCoverage);
+        result.PenaltyReasons.Should().Contain("typed-engine-scored");
+        result.InsightDensityScore.Should().BeLessThan(50);
+    }
+
+    [Fact]
+    public void Score_promotes_typed_engine_finding_with_architecture_anchor()
+    {
+        InsightDensityGateCandidate candidate = new(
+            "engine-f2",
+            "SecretManagementUnderSpecified",
+            ["doc:manifest.json#services"],
             FindingSeverity.Warning,
             category: "Security",
             isAgentArchitectureFinding: false);
@@ -28,7 +47,25 @@ public sealed class DeterministicInsightDensityGateTests
 
         result.Treatment.Should().Be(FindingTreatment.Promote);
         result.Classification.Should().Be(FindingClassification.DecisionGradeFinding);
-        result.PenaltyReasons.Should().Contain("typed-engine-protected");
+        result.PenaltyReasons.Should().Contain("typed-engine-scored");
+    }
+
+    [Fact]
+    public void Score_category_protects_typed_engine_finding_like_agent_finding()
+    {
+        InsightDensityGateCandidate candidate = new(
+            "engine-f3",
+            "Use HTTPS for all public endpoints.",
+            ["request"],
+            FindingSeverity.Info,
+            category: "Security",
+            isAgentArchitectureFinding: false);
+
+        InsightDensityGateResult result = Gate.Score(candidate, [candidate]);
+
+        result.Treatment.Should().Be(FindingTreatment.Promote);
+        result.PenaltyReasons.Should().Contain("category-protected");
+        result.PenaltyReasons.Should().Contain("typed-engine-scored");
     }
 
     [Fact]

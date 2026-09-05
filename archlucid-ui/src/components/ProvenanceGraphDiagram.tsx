@@ -2,7 +2,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type SetStateAction } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +13,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  parseProvenanceExplainNodeIdFromSearch,
+  provenanceNodeExplainPanelsHrefFromSearch,
+} from "@/lib/provenance/provenance-node-explain-panels-url";
 
 export type ProvenanceDiagramNode = {
   id: string;
@@ -91,8 +96,59 @@ type Props = {
 };
 
 export function ProvenanceGraphDiagram({ nodes, edges }: Props) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const provExplainNodeIdParam = searchParams.get("provExplainNodeId");
   const [highlightId, setHighlightId] = useState<string | null>(null);
-  const [explainModalOpen, setExplainModalOpen] = useState(false);
+  const [explainModalOpen, setExplainModalOpenState] = useState(() => {
+    const urlNodeId = parseProvenanceExplainNodeIdFromSearch(provExplainNodeIdParam);
+
+    return urlNodeId.length > 0;
+  });
+  const hydratedFromUrlRef = useRef(false);
+
+  const syncExplainNodeIdToUrl = useCallback(
+    (nodeId: string | null) => {
+      router.replace(provenanceNodeExplainPanelsHrefFromSearch(searchParams.toString(), nodeId, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setExplainModalOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setExplainModalOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncExplainNodeIdToUrl(next && highlightId !== null ? highlightId : null);
+
+        return next;
+      });
+    },
+    [highlightId, syncExplainNodeIdToUrl],
+  );
+
+  useEffect(() => {
+    if (hydratedFromUrlRef.current) {
+      return;
+    }
+
+    const urlNodeId = parseProvenanceExplainNodeIdFromSearch(provExplainNodeIdParam);
+
+    if (urlNodeId.length === 0) {
+      hydratedFromUrlRef.current = true;
+
+      return;
+    }
+
+    if (nodes.some((node) => node.id === urlNodeId)) {
+      setHighlightId(urlNodeId);
+      setExplainModalOpenState(true);
+    }
+
+    hydratedFromUrlRef.current = true;
+  }, [nodes, provExplainNodeIdParam]);
 
   const selectedNode = useMemo(
     (): ProvenanceDiagramNode | null =>
@@ -284,7 +340,9 @@ export function ProvenanceGraphDiagram({ nodes, edges }: Props) {
             variant="outline"
             size="sm"
             className="mt-3 h-8"
-            onClick={() => setExplainModalOpen(true)}
+            onClick={() => {
+              setExplainModalOpen(true);
+            }}
           >
             Explain
           </Button>

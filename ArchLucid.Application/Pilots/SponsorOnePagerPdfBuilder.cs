@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
@@ -38,6 +39,7 @@ public sealed class SponsorOnePagerPdfBuilder(
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
     IScopeContextProvider scopeContextProvider,
+    IGraphSnapshotRepository graphSnapshotRepository,
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions)
 {
     private const string IllustrationOnlyPerPageHeader = "ILLUSTRATION ONLY — not a commitment";
@@ -50,6 +52,8 @@ public sealed class SponsorOnePagerPdfBuilder(
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+    private readonly IGraphSnapshotRepository _graphSnapshotRepository =
+        graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
     private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions = publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
     private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
     private readonly PilotScorecardBuilder _scorecardBuilder = scorecardBuilder ?? throw new ArgumentNullException(nameof(scorecardBuilder));
@@ -90,6 +94,15 @@ public sealed class SponsorOnePagerPdfBuilder(
         SponsorFirstValuePdfGate.EnsureCanGenerate(sponsorGate);
 
         PilotRunDeltas deltas = await _deltaComputer.ComputeAsync(detail, cancellationToken);
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        SponsorReviewCoverageHonestyContext coverageHonesty = await SponsorReviewCoverageHonestyMaterialLoader.LoadAsync(
+            detail,
+            _authorityQueryService,
+            _graphSnapshotRepository,
+            scope,
+            cancellationToken);
+        IReadOnlyList<string> coverageHonestyLines =
+            SponsorReviewCoverageHonestyMarkdownFormatter.RenderPlainTextLines(coverageHonesty);
         DateTimeOffset end = TimeProvider.System.GetUtcNow();
         DateTimeOffset start = end.AddDays(-30);
         PilotScorecardSummary scorecard = await _scorecardBuilder.BuildAsync(start, end, cancellationToken);
@@ -120,6 +133,18 @@ public sealed class SponsorOnePagerPdfBuilder(
                     column.Item().Text($"Run: {run.RunId}").FontSize(11);
                     column.Item().Text($"Generated (UTC): {TimeProvider.System.UtcNowDateTime():O}");
                     column.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
+                    if (coverageHonestyLines.Count > 0)
+                    {
+                        column.Item().PaddingTop(8).Text("Architecture package honesty").Bold().FontSize(12);
+
+                        foreach (string line in coverageHonestyLines.Skip(1))
+                        {
+                            column.Item().PaddingTop(2).Text(line).FontSize(9);
+                        }
+
+                        column.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
+                    }
+
                     column.Item().PaddingTop(8).Text("Computed deltas (this run)").Bold().FontSize(12);
                     column.Item().Element(c => RenderComputedDeltasTable(c, deltas));
                     column.Item().PaddingTop(4)

@@ -4,6 +4,7 @@ import {
   countFindingsBySeverity,
   deriveArchitectureSystemName,
   deriveBlockingApprovalCount,
+  deriveDecisionSnapshotSuppressedReason,
   deriveEvidenceCoverageSummary,
   deriveSponsorBottomLineContent,
   deriveFinalizedAtUtc,
@@ -12,6 +13,7 @@ import {
   deriveReviewHeaderPresentation,
   deriveReviewStatusSummary,
   deriveRunDetailWorkspaceStatus,
+  isReviewPipelineIncomplete,
   derivePackageVersionLabel,
   deriveSignedReviewRecordIdLabel,
   deriveReviewRecordMetadataContext,
@@ -19,6 +21,7 @@ import {
   REVIEW_METADATA_NOT_FINALIZED_REASONS,
   REVIEW_METADATA_NOT_RECORDED_REASONS,
   deriveSubmittedArchitectureText,
+  deriveHasSubmittedArchitectureDescription,
   formatDecisionSnapshotFindingsLine,
   formatDecisionSnapshotGovernanceOutcome,
   shortenNextActionForPrimaryCta,
@@ -118,6 +121,8 @@ describe("run-detail-workspace-derive", () => {
       kind: "execution-failed",
       statusTagKind: "needs-attention",
     });
+    expect(isReviewPipelineIncomplete(failed)).toBe(true);
+    expect(deriveDecisionSnapshotSuppressedReason(failed)).toMatch(/re-run the review/i);
   });
 
   it("prefers unresolved issue count for blocking approval count", () => {
@@ -139,6 +144,24 @@ describe("run-detail-workspace-derive", () => {
     } as RunSummary;
 
     expect(deriveSubmittedArchitectureText(run, "My review")).toBeNull();
+  });
+
+  it("treats intake-attached documents as submitted architecture even when the brief is generated", () => {
+    const generatedBrief = [
+      'Architecture review intake for "Retail API modernization review".',
+      "Evaluate the attached materials for architecture structure, cost, compliance, security, and policy-pack violations.",
+      "Treat each upload as architecture evidence unless a more specific category was supplied.",
+      "\n\nAttached files:\n- ARCHITECTURE_HANDBOOK.docx",
+    ].join(" ");
+    const run = {
+      runId: "run-1",
+      projectId: "p1",
+      createdUtc: "2026-01-01T00:00:00Z",
+      description: generatedBrief,
+    } as RunSummary;
+
+    expect(deriveSubmittedArchitectureText(run, "Retail API modernization review")).toBeNull();
+    expect(deriveHasSubmittedArchitectureDescription(run, "Retail API modernization review")).toBe(true);
   });
 
   it("builds narrative bottom-line copy from governance rationale only (blocking counts stay in Decision snapshot)", () => {

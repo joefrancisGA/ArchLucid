@@ -11,7 +11,8 @@ export type GovernanceMutationReversibilityId =
   | "governance_keyboard_finding_disposition"
   | "governance_policy_pack_publish"
   | "platform_bundled_policy_pack_activate"
-  | "platform_bundled_policy_pack_deactivate";
+  | "platform_bundled_policy_pack_deactivate"
+  | "governance_architecture_review_finalize";
 
 export type MutationReversibilityEntry = {
   readonly id: GovernanceMutationReversibilityId;
@@ -99,6 +100,13 @@ export const MUTATION_REVERSIBILITY_REGISTRY: Readonly<
     amendable: false,
     confirmationLead:
       "Deactivating removes this pack from tenant workspaces and stops it from applying to reviews. You can activate it again later; changes are recorded on the audit trail.",
+  },
+  governance_architecture_review_finalize: {
+    id: "governance_architecture_review_finalize",
+    classification: "permanent",
+    amendable: true,
+    confirmationLead:
+      "Finalizing creates an immutable sealed review record. The snapshot cannot be unsealed from this workspace. If this finalize was mistaken, use Record correction after confirming to append a rationale on the audit trail.",
   },
 };
 
