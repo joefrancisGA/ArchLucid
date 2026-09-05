@@ -18,6 +18,8 @@ export type RunsDashboardFiltersProps = {
 
 const WARNINGS_FILTER_DISABLED_HINT_ID = "runs-dashboard-governance-warnings-filter-hint";
 
+const FILTER_CHIP_LAYOUT_CLASS = "w-fit shrink-0 whitespace-nowrap";
+
 export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
   if (props.buyerPolishedShell) {
     return null;
@@ -34,10 +36,13 @@ export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
       >
         <FilterChip
           data-testid="runs-dashboard-governance-warnings-only"
-          className={buyerFilterChipClass(
-            props.governanceWarningsOnly,
-            warningsFilterDisabled,
-            warningsCount === 0,
+          className={cn(
+            FILTER_CHIP_LAYOUT_CLASS,
+            buyerFilterChipClass(
+              props.governanceWarningsOnly,
+              warningsFilterDisabled,
+              warningsCount === 0,
+            ),
           )}
           aria-pressed={props.governanceWarningsOnly}
           aria-describedby={warningsFilterDisabled ? WARNINGS_FILTER_DISABLED_HINT_ID : undefined}
@@ -54,7 +59,7 @@ export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
         </FilterChip>
         <FilterChip
           data-testid="runs-dashboard-show-archived"
-          className={buyerFilterChipClass(props.showArchived, false, false)}
+          className={cn(FILTER_CHIP_LAYOUT_CLASS, buyerFilterChipClass(props.showArchived, false, false))}
           aria-pressed={props.showArchived}
           onClick={() => {
             props.onShowArchivedChange(!props.showArchived);

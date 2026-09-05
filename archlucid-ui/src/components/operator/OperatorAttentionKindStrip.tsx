@@ -54,7 +54,7 @@ export function OperatorAttentionKindStrip(
       data-variant={variant}
     >
       <ul
-        className="m-0 flex list-none flex-wrap gap-1.5 p-0"
+        className="m-0 flex list-none flex-wrap items-center gap-1.5 p-0"
         data-testid="operator-attention-kind-chips"
       >
         {visibleKinds.map((kind: OperatorAttentionKindId) => {
@@ -81,11 +81,15 @@ export function OperatorAttentionKindStrip(
                 aria-label={formatOperatorAttentionChipAriaLabel(label, count)}
                 data-testid={`operator-attention-kind-chip-${kind}`}
               >
-                {needsAction ? (
-                  <span aria-hidden="true" className="font-bold text-al-text-primary">
-                    •
-                  </span>
-                ) : null}
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "inline-flex w-2 shrink-0 items-center justify-center font-bold leading-none",
+                    needsAction ? "text-al-text-primary" : "invisible",
+                  )}
+                >
+                  •
+                </span>
                 <span>{label}</span>
                 <span
                   className={cn(

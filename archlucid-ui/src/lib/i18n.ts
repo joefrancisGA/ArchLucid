@@ -80,7 +80,7 @@ export const RUNS_DASHBOARD_LABELS = {
   openFullReviewsList: "Open all reviews",
   governanceWarningTitle: "Review warnings",
   governanceWarningHint: "Unresolved review alerts or policy violations need follow-up.",
-  governanceWarningsOnly: "Has approval-check warnings",
+  governanceWarningsOnly: "Has approval warnings",
   showArchived: "Show archived",
   restoreRequest: "Restore",
   restoringRequest: "Restoring…",
