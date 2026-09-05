@@ -3409,11 +3409,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 216
-- **bugs-found:** 438
+- **hunts:** 217
+- **bugs-found:** 439
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — CreateRiskException finding ID case canonicalization
+- **last-bug:** 2026-09-05 — product feedback findingRef case canonicalization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4465,7 +4465,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-05 seed hunt #819 (hit): proved finding-id case canonicalization gap on disposition history, mutation correction, and merge-conflict resolution paths.
 
 - [x] (proven) `GovernanceStickinessFacade.CreateRiskExceptionAsync` / `RiskExceptionService.CreateAsync` — body `findingId` differing only by casing from inspect canonical id persisted keyboard casing so waiver joins and `RiskExceptionDispositionGuard` trail lookups missed the row — **hit 2026-09-05 (#820):** rewrite normalized request to `finding.FindingId` after inspect (#819 disposition parity); regression in `CreateRiskExceptionAsync_persists_canonical_finding_id_when_request_differs_only_by_casing`.
-- [ ] (candidate) `TenantCustomerSuccessController.PostProductFeedbackAsync` — `findingRef` differing only by casing from inspect canonical id may persist keyboard casing after #818 authority-run binding — needs cheap-disproof vs canonicalize parity with disposition/waiver paths.
+- [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — `findingRef` differing only by casing from inspect canonical id persisted keyboard casing after #818 authority-run binding — **hit 2026-09-05 (#821):** persist `finding.FindingId` after inspect (#819/#820 disposition/waiver parity); regression in `PostProductFeedbackAsync_persists_canonical_finding_ref_when_request_differs_only_by_casing`.
+
+2026-09-05 thorough hunt #821 (hit): proved product-feedback findingRef case canonicalization gap promoted from #820 seed candidate.
 
 2026-09-05 seed hunt #820 (hit): proved CreateRiskException finding-id case canonicalization gap; seeded product-feedback findingRef casing candidate.
 
