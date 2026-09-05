@@ -2040,7 +2040,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 167
+- **hunts:** 168
 - **bugs-found:** 352
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
@@ -2324,6 +2324,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `DeclarationSecurityPropertyKeyResolver.TryGet` — missing `tf.network_acls` snake_case alias for `IngressBlob` — **hit 2026-09-05 (#896):** Terraform HCL `network_acls` blocks emit `tf.network_acls` via `TryAddTfBlockProperty`; fixed with alias parity (`TryGet_resolves_tf_network_acls_for_ingress_blob`).
 
 2026-09-05 seed hunt #896 (hit): reseeded after #895 closure; proved seven hunt-ready rows — anchor absent↔empty object/array, certificate/signing-key config redaction, constraint `need not`/`cannot` negation, advice imperative suffix negation, and `tf.network_acls` resolver alias.
+
+- [ ] (hunt-ready) `RunHeaderAnchorJsonComparer.TryScalarSingleElementArrayEquivalent` — JSON object scalar vs single-element `[{}]` array treated as anchor mutation — **repro #897:** after #891–#892 scalar/array bridges, `{"scope":{}}` vs `{"scope":[{}]}` throws `RunEvidenceAnchorImmutableException`; `IsScalarJsonKind` excludes objects; failing test `EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_object_scalar_equivalent_to_single_element_object_array_on_committed_run`.
+- [ ] (hunt-ready) `RunHeaderAnchorJsonComparer.TryNestedEmptyArrayEquivalent` — empty JSON array vs single-element `[[]]` nested empty array treated as anchor mutation — **repro #897:** `{"packAssignments":[]}` vs `{"packAssignments":[[]]}` throws on committed lifecycle retry; no array↔single-nested-empty-array bridge; failing test `EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_empty_array_equivalent_to_single_element_empty_array_on_committed_run`.
+- [ ] (hunt-ready) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `SharedAccessKey` compound credential segment not redacted — **repro #897:** embedded `AccessKey`/`accesskey` fragment guard skips `SharedAccessKey` / `sharedAccessKey`; operator summary and ARM hashes retain shared-access key literals; failing tests `Resolve_redacts_shared_access_key_config_path`, `IsSensitiveKey_detects_shared_access_key_property_names`.
+- [ ] (hunt-ready) `ConfigurationSensitiveConfigPathMatcher` — `CertificateThumbprint` segment not redacted vs Azure redactor — **repro #897:** Azure `certificate` fragment matches at index 0; config lacks certificate thumbprint credential parity; failing test `Resolve_redacts_certificate_thumbprint_config_path_matching_azure_redactor`.
+- [ ] (hunt-ready) `AzureExtractorSensitivePropertyRedactor.IsSensitiveKey` — `SigningCertificate` not redacted vs config explicit credential segment — **repro #897:** embedded `certificate` fragment guard skips `signingCertificate` while config `IsExplicitCredentialConfigSegment` redacts `SigningCertificate`; failing test `IsSensitiveKey_detects_signing_certificate_property_names_matching_config_redactor`.
+- [ ] (hunt-ready) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` / `ContainsMidSentenceNegation` — `cannot require` and `need not enable` negation gaps — **repro #897:** #896 `cannot use`/`need not` suffix parity missed prohibitive `cannot require {token}` and leading `need not enable {token}`; classifier false positives; failing tests `HasEncryptionConstraint_does_not_false_positive_on_cannot_require_phrasing`, `HasEncryptionConstraint_does_not_false_positive_on_need_not_enable_encryption_phrasing`.
+- [ ] (hunt-ready) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `cannot require` suffix gap — **repro #897:** #896 `must not be required` suffix missed trailing `cannot require` on imperative regex matches; `enable mfa cannot require hardware tokens` still demoted as generic advice; failing test `IsObviousGenericAdvice_does_not_flag_cannot_negated_checklist_phrasing` (`enable mfa cannot require hardware tokens` case).
+
+2026-09-05 seed hunt #897 (seed-only): reseeded after #896 closure; promoted seven hunt-ready rows with verified failing repros on `5523c823cd`; cheap-disproved certificateless auth segments (both matchers), `tf.ip_security_restrictions` / `tf.network_rules` resolver aliases (already listed), and `must not require managed identity` mid-sentence negation (already covered by ` must not ` guard).
 
 2026-09-05 seed hunt #889: reseeded after #888 closure; proved anchor null-object/property-name trim, mid-sentence constraint negation, and Secretizer/Passwordizer redaction parity.
 2026-09-05 seed hunt #888: reseeded after #887 closure; proved ConnectionStringless config redaction, ARM key+free suffix parity, and anchor null array/string coercion.
