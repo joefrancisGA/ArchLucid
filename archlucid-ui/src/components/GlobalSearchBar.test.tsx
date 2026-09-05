@@ -35,8 +35,19 @@ vi.mock("@/lib/proxy-fetch-registration-scope", () => ({
   mergeRegistrationScopeForProxy: (opts: RequestInit) => opts,
 }));
 
-vi.mock("@/lib/demo-ui-env", () => ({
-  isBuyerPolishedOperatorShellEnv: () => false,
+const architectWorkspaceChromeMock = vi.hoisted(() => ({ value: false }));
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () => false,
+  };
+});
+
+vi.mock("@/hooks/useArchitectWorkspaceChrome", () => ({
+  useArchitectWorkspaceChrome: () => architectWorkspaceChromeMock.value,
 }));
 
 describe("GlobalSearchBar", () => {
@@ -45,6 +56,7 @@ describe("GlobalSearchBar", () => {
     navigationTestState.search = "";
     navigationTestState.push.mockReset();
     navigationTestState.replace.mockReset();
+    architectWorkspaceChromeMock.value = false;
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
@@ -245,5 +257,36 @@ describe("GlobalSearchBar", () => {
 
     expect(await screen.findByText(/No pages, reviews, or findings matched/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "browse help topics" })).toHaveAttribute("href", "/help");
+  });
+
+  it("keeps review search scope chips inline with the input on review detail routes", () => {
+    architectWorkspaceChromeMock.value = true;
+    navigationTestState.pathname = "/architecture/reviews/run-abc";
+
+    render(<GlobalSearchBar />);
+
+    const controlRow = screen.getByTestId("global-search-control-row");
+    const scopeToggle = screen.getByTestId("global-search-package-scope-toggle");
+    const input = screen.getByRole("combobox", { name: "Search this review" });
+
+    expect(controlRow).toHaveClass("flex-nowrap");
+    expect(controlRow.contains(scopeToggle)).toBe(true);
+    expect(controlRow.contains(input)).toBe(true);
+    expect(scopeToggle.className).not.toContain("mt-1.5");
+    expect(screen.getByTestId("global-search-scope-package")).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByTestId("global-search-scope-workspace")).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("switches review search scope when the workspace chip is selected", () => {
+    architectWorkspaceChromeMock.value = true;
+    navigationTestState.pathname = "/architecture/reviews/run-abc";
+
+    render(<GlobalSearchBar />);
+
+    fireEvent.click(screen.getByTestId("global-search-scope-workspace"));
+
+    expect(screen.getByRole("combobox", { name: "Search workspace" })).toBeInTheDocument();
+    expect(screen.getByTestId("global-search-scope-workspace")).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByTestId("global-search-scope-package")).toHaveAttribute("aria-pressed", "false");
   });
 });
