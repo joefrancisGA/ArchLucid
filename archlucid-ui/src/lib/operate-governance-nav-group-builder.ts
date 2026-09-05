@@ -3,7 +3,6 @@ import {
   Bell,
   CalendarCheck,
   ClipboardList,
-  FileText,
   Gavel,
   GitBranch,
   History,

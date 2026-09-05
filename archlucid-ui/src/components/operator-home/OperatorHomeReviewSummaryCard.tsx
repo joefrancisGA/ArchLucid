@@ -12,7 +12,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
 import { buyerDemoPackageCardMeta } from "@/lib/buyer/buyer-demo-package-card-meta";
 import { finalizedReviewRecordDisplayLabel } from "@/lib/buyer/finalized-review-record-display-label";
-import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
+import { isShowcaseSampleOfAnyKind } from "@/lib/demo-run-canonical";
 import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
 import { BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK, BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER, formatOperatorHomeFeaturedFindingsSummary } from "@/lib/buyer/buyer-polish-copy";
 import {
@@ -183,7 +183,7 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
   const insightLine = formatRunHomeListInsightLine(props.run);
   const updatedLabel = formatRunHomeListUpdatedLabel(props.run);
   const findingsMetadata = formatFindingsMetadata(props.run);
-  const isShowcaseDemo = isShowcaseStaticDemoRunId(props.run.runId ?? "");
+  const isShowcaseDemo = isShowcaseSampleOfAnyKind(props.run.runId ?? "");
   const isExampleReview =
     isShowcaseDemo || isDemoSeededOverviewInjectedRun(props.run);
   const showcaseProofMetadata = variant === "featured" && isShowcaseDemo;

@@ -45,9 +45,9 @@ describe("OperatorHomePageHeader", () => {
     expect(screen.getByTestId("operator-home-data-currency")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-data-currency").textContent).toMatch(/^Refreshed:/);
 
-    const updatedPrefix = screen.getByText(`${OPERATOR_HOME_DATA_CURRENCY_PREFIX}:`);
-    expect(updatedPrefix.tagName).toBe("STRONG");
-    expect(updatedPrefix.className).toContain("font-bold");
+    const updatedValue = screen.getByTestId("operator-home-data-currency").querySelector("strong");
+    expect(updatedValue).not.toBeNull();
+    expect(updatedValue?.className).toContain("font-semibold");
     expect(screen.getByTestId("operator-home-data-currency").textContent?.toLowerCase()).not.toMatch(/\bnow\b/);
 
     expect(screen.getByTestId("operator-home-refresh-button")).toBeInTheDocument();

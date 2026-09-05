@@ -9,6 +9,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 export type RunsDashboardFiltersProps = {
   readonly buyerPolishedShell: boolean;
   readonly governanceWarningsOnly: boolean;
+  readonly governanceWarningsCount?: number;
   readonly showArchived: boolean;
   readonly onGovernanceWarningsOnlyChange: (value: boolean) => void;
   readonly onShowArchivedChange: (value: boolean) => void;
@@ -18,6 +19,9 @@ export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
   if (props.buyerPolishedShell) {
     return null;
   }
+
+  const warningsCount = props.governanceWarningsCount ?? 0;
+  const warningsFilterDisabled = warningsCount === 0;
 
   return (
     <div
@@ -30,7 +34,12 @@ export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
         <Checkbox
           id="runs-dashboard-governance-warnings-only"
           checked={props.governanceWarningsOnly}
+          disabled={warningsFilterDisabled}
           onCheckedChange={(checked) => {
+            if (warningsFilterDisabled) {
+              return;
+            }
+
             props.onGovernanceWarningsOnlyChange(checked === true);
           }}
           data-testid="runs-dashboard-governance-warnings-only"

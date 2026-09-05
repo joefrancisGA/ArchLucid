@@ -68,6 +68,7 @@ export function useRunProgressTracker({
   const inFlightOperation = useReviewPipelineInFlightForRun(runId);
   const rerunning =
     inFlightOperation !== null && !isTerminalOperationState(inFlightOperation.state);
+  const showPipelineTerminalFailure = pipelineTerminalFailure && !rerunning;
   const pollEnabled =
     (!allStagesReady(initialSummary) && !preFinalizeTerminal && !pipelineTerminalFailure) || rerunning;
 
@@ -222,13 +223,13 @@ export function useRunProgressTracker({
 
   const terminalFailureDiagnosis = useMemo(
     () =>
-      pipelineTerminalFailure
+      showPipelineTerminalFailure
         ? deriveReviewPipelineTerminalFailureDiagnosis({
             diagnosticContext,
             summary: activeSummary,
           })
         : null,
-    [activeSummary, diagnosticContext, pipelineTerminalFailure],
+    [activeSummary, diagnosticContext, showPipelineTerminalFailure],
   );
 
   const liveStatus = useMemo(() => {
@@ -236,7 +237,11 @@ export function useRunProgressTracker({
       return "Ready to finalize — use Finalize review to create the finalized review record for this architecture review.";
     }
 
-    if (pipelineTerminalFailure) {
+    if (rerunning) {
+      return "Re-run in progress — status updates as the assessment advances.";
+    }
+
+    if (showPipelineTerminalFailure) {
       return deferFailureRecoveryToDoThisNext
         ? "Assessment did not finish — see Do this next above for what happened and how to recover."
         : "Assessment did not finish — recovery steps are shown in Do this next above.";
@@ -277,7 +282,8 @@ export function useRunProgressTracker({
     completedPipelineStages,
     buyerPolished,
     durationEstimate?.p90Seconds,
-    pipelineTerminalFailure,
+    showPipelineTerminalFailure,
+    rerunning,
     preFinalizeTerminal,
     deferFailureRecoveryToDoThisNext,
     runId,
@@ -306,6 +312,8 @@ export function useRunProgressTracker({
     pollEnabled,
     preFinalizeTerminal,
     pipelineTerminalFailure,
+    showPipelineTerminalFailure,
+    rerunning,
     clientPhase,
     stageTimeline,
     summary,
