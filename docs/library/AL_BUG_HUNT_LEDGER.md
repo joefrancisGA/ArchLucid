@@ -3409,7 +3409,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 222
+- **hunts:** 223
 - **bugs-found:** 444
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
@@ -4483,6 +4483,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RiskExceptionDispositionGuard.EnsureWaiverAllowedForFindingAsync` on renew — stored `existing.FindingId` without inspect canonicalization let remediated trail under canonical casing stay invisible when waiver row retained legacy casing — **hit 2026-09-05 (#826):** resolve inspect canonical id before disposition guard on create/renew; regression in `RenewAsync_rejects_when_remediated_trail_finding_id_differs_only_by_casing_from_stored_waiver`.
 
 2026-09-05 thorough hunt #826 (hit): proved legacy waiver finding-id casing gaps for duplicate active guard and renew disposition guard seeded in #825.
+
+- [ ] (candidate) `DapperFindingInspectReadRepository.LoadDispositionJoinAsync` / `FindingInspectReadSql.FollowUpBatch` — inspect GET for canonical `finding-1` while legacy active waiver / disposition trail rows remain on `FINDING-1` — **wrong outcome:** `HasActiveWaiver=false` and missing latest disposition metadata in inspect payload while `POST /governance/stickiness/risk-exceptions` returns HTTP 409 after #826 — **mechanism:** follow-up batch binds `@FindingId` from caller trimmed query string (not `row.FindingId`) with exact `FindingId = @FindingId` in waiver COUNT and disposition subqueries; create path now scans active waivers with `OrdinalIgnoreCase` in application code.
+- [ ] (candidate) `ArchitectureRiskRegisterReader.BuildListQuerySql` / `GovernanceStickinessController.GetRiskRegister` — same legacy waiver casing split (`FindingRecords` canonical `finding-1`, `RiskExceptions` row `FINDING-1`) — **wrong outcome:** register row shows open-finding posture (no waived-until label) while create would 409 — **mechanism:** `LEFT JOIN dbo.RiskExceptions re … AND re.FindingId = fr.FindingId` and `latestDisposition` CTE join use exact equality; #826 fixed only mutate-path duplicate guard, not register SQL joins.
+- [ ] (candidate) `GovernanceStickinessController.CreateRiskException` / `RiskExceptionService.CreateAsync` — endpoint comment `idempotency-posture: operator-documented-safe-retry` but no `[IdempotencyFilter]` unlike `RecordDisposition` / `RecordBulkDisposition` — **wrong outcome:** operator retry after successful create (lost response) returns HTTP 409 duplicate active waiver instead of replaying first `RiskExceptionRecord` — **mechanism:** create path lacks `GovernanceIdempotencyKeySupport` replay store while duplicate detection is fail-closed (#572/#826).
+- [x] (invalid) `FindingMergeConflictResolutionService.TryResolveAsync` removal filter — snapshot member rows differing only by casing left after AcceptPrimary/AcceptAlternate because `idsToRemove.Contains` uses ordinal `HashSet` — **cheap-disproof 2026-09-05 (#827):** `idsToRemove` collects each matched member's actual `Finding.FindingId` from snapshot rows; non-primary case variants are added in the member loop; existing regression `TryResolveAsync_resolves_when_rationale_member_ids_differ_only_by_casing_from_snapshot`.
+
+2026-09-05 seed hunt #827 (seed-only): reseeded post-#826 read-path waiver/disposition parity and create idempotency candidates; cheap-disproved merge-conflict ordinal removal miss from #822 seed.
 
 2026-09-05 seed hunt #825 (hit): reseeded waiver renew/create parity; proved renew padded optional-text persistence gap; seeded legacy finding-id casing sibling/guard candidates.
 
