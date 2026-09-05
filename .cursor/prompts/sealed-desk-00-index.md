@@ -3,6 +3,7 @@
      tool (all-day use; livelihoods may depend on the sealed record), not a
      casual evaluator. Wave 10 after instrument-spine-00-index.md (IS-01–15)
      and livelihood-spine-00-index.md (LS-01–12).
+     Wave 11 leftovers: career-record-00-index.md (CR-01–12).
      Do not implement from this index. -->
 
 # Sealed-desk leftovers — Composer prompt set (SD-01–SD-12)
@@ -44,6 +45,7 @@ Do **not** collapse desktop review tabs behind **More**. Do **not** auto-switch 
 | **LS-01–12** | Wave 9 diagnosis leftovers | **Run second** — do not fork |
 | **FD / AD / CD / WA / RS / LD / LI / PT / WD** | Overlays and leftovers | Do not re-run / do not fork |
 | **SD-01–12** | **This set** — wave 10 residuals | Run these after IS + LS |
+| **CR-01–12** | Wave 11 residuals | [`career-record-00-index.md`](career-record-00-index.md) |
 
 If an SD row lists an IS/LS/WA/FD owner, **do not fork** that file. Implement only the leftover in *What to build*.
 
@@ -106,3 +108,5 @@ If an SD row lists an IS/LS/WA/FD owner, **do not fork** that file. Implement on
 ## After each prompt
 
 Summarize: files changed, tests run, residual risk, Working vs Guided behavior, whether **IS-01–15** / **LS-01–12** still own the spine, and whether Guided/demo/trial still work without that prompt. Do not mark IS, LS, FD, AD, CD, WA, RS, LD, or LI as undone.
+
+**Wave 11 leftovers:** [`career-record-00-index.md`](career-record-00-index.md) (**CR-01–12**). Do not fork IS/LS/SD.

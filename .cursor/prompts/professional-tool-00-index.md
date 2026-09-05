@@ -10,7 +10,9 @@
      Wave 6: all-day-desk-00-index.md (AD-01–12).
      Wave 7: founding-desk-00-index.md (FD-01–13).
      Wave 8: instrument-spine-00-index.md (IS-01–15).
-     Wave 9: livelihood-spine-00-index.md (LS-01–12). -->
+     Wave 9: livelihood-spine-00-index.md (LS-01–12).
+     Wave 10: sealed-desk-00-index.md (SD-01–12).
+     Wave 11: career-record-00-index.md (CR-01–12). -->
 
 # Professional-tool mitigations — Composer prompt set
 
@@ -32,6 +34,8 @@ ArchLucid sells a **seat for a repeat professional**. Production UX still treats
 **Wave 7:** [`.cursor/prompts/founding-desk-00-index.md`](founding-desk-00-index.md) (**FD-01–13**). Do not fork AD-09 or AD-10.
 **Wave 8:** [`.cursor/prompts/instrument-spine-00-index.md`](instrument-spine-00-index.md) (**IS-01–15**). Do not re-run PT.
 **Wave 9:** [`.cursor/prompts/livelihood-spine-00-index.md`](livelihood-spine-00-index.md) (**LS-01–12**). Do not fork IS.
+**Wave 10:** [`.cursor/prompts/sealed-desk-00-index.md`](sealed-desk-00-index.md) (**SD-01–12**).
+**Wave 11:** [`.cursor/prompts/career-record-00-index.md`](career-record-00-index.md) (**CR-01–12**). Do not fork IS/LS/SD.
 
 **Do not treat this set as a V1 assessment scorecard.** Do not add GTM cohort work (**M-90**, **M-44**, **M-91**, **M-92**) or closed assurance programs (**TB-645** vocabulary must stay; **TB-135** / **TB-136** stay closed).
 
