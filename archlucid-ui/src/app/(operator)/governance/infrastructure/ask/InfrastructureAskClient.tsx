@@ -21,6 +21,7 @@ import {
   resourceExplorerFilterHrefFromSearch,
   resourceHubFilterHrefFromSearch,
   resolveResourceHubTabFromAskScope,
+  formatResourceHubTabViewLabelFromAskScope,
   RESOURCE_EXPLORER_CLOUD_RESOURCE_ID_PARAM,
   RESOURCE_EXPLORER_WORK_QUEUE_PARAM,
   RESOURCE_HUB_ASSESSMENT_ID_PARAM,
@@ -195,7 +196,12 @@ export function InfrastructureAskClient() {
     return formatResourceHubTabViewLabelFromExplorerWorkQueue(workQueue);
   }, [askScopeHubTab, workQueue]);
 
-  const resourceHubBackLinkLabel = workQueueScopedHubTabLabel ?? "Open resource evidence hub";
+  const askScopeHubTabLabel = useMemo(
+    () => formatResourceHubTabViewLabelFromAskScope(askScopeHubTab),
+    [askScopeHubTab],
+  );
+
+  const resourceHubBackLinkLabel = askScopeHubTabLabel ?? workQueueScopedHubTabLabel ?? "Open resource evidence hub";
 
   const driftWorkbenchBackLinkHref = useMemo(() => {
     if (diffId.length === 0) {
@@ -332,7 +338,11 @@ export function InfrastructureAskClient() {
                 controlId: controlId.length > 0 ? controlId : undefined,
               })}
               data-testid={
-                workQueueScopedHubTabLabel != null ? "infra-ask-open-work-queue-hub-tab" : undefined
+                askScopeHubTabLabel != null
+                  ? "infra-ask-open-scope-hub-tab"
+                  : workQueueScopedHubTabLabel != null
+                    ? "infra-ask-open-work-queue-hub-tab"
+                    : undefined
               }
             >
               {resourceHubBackLinkLabel}

@@ -9,6 +9,7 @@ import {
   buildResourceHubWorkCountHref,
   buildResourceExplorerWorkCountHref,
   resolveResourceHubTabFromAskScope,
+  formatResourceHubTabViewLabelFromAskScope,
   resourceExplorerFilterHrefFromSearch,
   resourceHubFilterHrefFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
@@ -144,6 +145,16 @@ describe("infra-evidence-hub-filter-url", () => {
     expect(resolveResourceHubTabFromAskScope({ correspondenceId: "corr-1" })).toBe("diagram");
     expect(resolveResourceHubTabFromAskScope({ diffId: "diff-1" })).toBe("drift");
     expect(resolveResourceHubTabFromAskScope({})).toBeUndefined();
+  });
+
+  it("formats scoped hub tab view labels for Ask back links", () => {
+    expect(formatResourceHubTabViewLabelFromAskScope("findings")).toBe("View findings in hub");
+    expect(formatResourceHubTabViewLabelFromAskScope("remediation")).toBe("View remediation in hub");
+    expect(formatResourceHubTabViewLabelFromAskScope("drift")).toBe("View drift in hub");
+    expect(formatResourceHubTabViewLabelFromAskScope("diagram")).toBe("View diagram correspondence in hub");
+    expect(formatResourceHubTabViewLabelFromAskScope("audit")).toBe("View audit lineage in hub");
+    expect(formatResourceHubTabViewLabelFromAskScope("overview")).toBeNull();
+    expect(formatResourceHubTabViewLabelFromAskScope(undefined)).toBeNull();
   });
 
   it("builds resource hub href from explorer work queue context", () => {
