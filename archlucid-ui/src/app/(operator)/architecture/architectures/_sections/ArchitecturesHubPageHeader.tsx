@@ -2,7 +2,7 @@
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import {
   ARCHITECTURE_IDENTITY_LIST_CLAIM_DISCIPLINE,
@@ -21,12 +21,12 @@ import { ArchitecturesHubHeaderActions } from "./ArchitecturesHubHeaderActions";
 /** Mode-aware hub chrome — Working lists identities; Guided keeps draft-inventory teaching (CA-25 / CA-36). */
 export function ArchitecturesHubPageHeader(): React.JSX.Element {
   const { isWorkingMode } = useWorkspaceMode();
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const evalChromeShell = useProductionEvalChrome();
 
   const title = isWorkingMode ? ARCHITECTURE_IDENTITY_LIST_PAGE_TITLE : ARCHITECTURES_HUB_PAGE_TITLE;
   const subtitle = isWorkingMode
     ? ARCHITECTURE_IDENTITY_LIST_PAGE_SUBTITLE
-    : architecturesHubPageSubtitle(buyerPolishedShell);
+    : architecturesHubPageSubtitle(evalChromeShell);
   const claimDiscipline = isWorkingMode
     ? ARCHITECTURE_IDENTITY_LIST_CLAIM_DISCIPLINE
     : ARCHITECTURES_LIST_CLAIM_DISCIPLINE;
