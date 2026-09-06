@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 365_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 367_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -8833,6 +8833,7 @@ BEGIN
             ADD Description NVARCHAR(500) NULL;
     END
 END;
+
 GO
 
 IF OBJECT_ID(N'dbo.DraftRequests', N'U') IS NOT NULL
@@ -8841,6 +8842,7 @@ BEGIN
     ALTER TABLE dbo.DraftRequests
         ADD ArchitectureId UNIQUEIDENTIFIER NULL;
 END;
+
 GO
 
 IF OBJECT_ID(N'dbo.DraftRequests', N'U') IS NOT NULL
@@ -8855,9 +8857,7 @@ BEGIN
         ADD CONSTRAINT FK_DraftRequests_Architectures
             FOREIGN KEY (ArchitectureId) REFERENCES dbo.Architectures (ArchitectureId);
 END;
-GO
 
-SET QUOTED_IDENTIFIER ON;
 GO
 
 IF OBJECT_ID(N'dbo.DraftRequests', N'U') IS NOT NULL
@@ -8872,6 +8872,7 @@ BEGIN
         ON dbo.DraftRequests (TenantId, WorkspaceId, ProjectId, ArchitectureId)
         WHERE ArchitectureId IS NOT NULL;
 END;
+
 GO
 
 DECLARE @architectureRunTable sysname =
