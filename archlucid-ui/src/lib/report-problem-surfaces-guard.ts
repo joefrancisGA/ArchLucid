@@ -77,6 +77,11 @@ export const REPORT_PROBLEM_SURFACE_WIRING_RULES: readonly ReportProblemSurfaceW
     requiredMarkers: ["access-denied-wrong-tenant", "FatalPageReportProblemSupportRow"],
     additionalSourceRoots: ["components/operator/OperatorAccessDeniedPageClient.tsx"],
   },
+  {
+    surfaceId: "auth-jwt-insufficient-scope",
+    requiredMarkers: ["auth-jwt-insufficient-scope", "FatalPageReportProblemSupportRow"],
+    additionalSourceRoots: ["components/operator/OperatorAccessDeniedPageClient.tsx"],
+  },
 ] as const;
 
 const REPORT_PROBLEM_AFFORDANCE_MARKERS = [

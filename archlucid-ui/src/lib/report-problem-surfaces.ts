@@ -111,6 +111,13 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
     componentPath: "components/operator/OperatorAccessDeniedPageClient.tsx",
     description: "Authenticated user signed into the wrong tenant or lacks tenant authorization (403 access denied).",
   },
+  {
+    id: "auth-jwt-insufficient-scope",
+    kind: "auth-session-break",
+    routePattern: "/403",
+    componentPath: "components/operator/OperatorAccessDeniedPageClient.tsx",
+    description: "JwtBearer principal authenticated but lacks a recognized app role or scope mapping (403 access denied).",
+  },
 ] as const;
 
 /** Static App Router siblings that must not satisfy `[reviewId]`-style dynamic segments. */

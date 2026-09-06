@@ -1,7 +1,6 @@
 using System.Text.Json;
 
 using ArchLucid.Contracts.Architecture;
-using ArchLucid.Core.Pagination;
 
 namespace ArchLucid.Cli.Commands;
 
@@ -34,7 +33,7 @@ internal static partial class ArchitecturesCommand
                     break;
             }
 
-        PagedResponse<ArchitectureIdentityListItem>? response =
+        ArchitectureIdentityListPage? response =
             await client.ListArchitecturesAsync(page, pageSize);
 
         if (response is null)

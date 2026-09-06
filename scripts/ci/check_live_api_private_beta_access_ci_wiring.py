@@ -26,6 +26,8 @@ _TRIAGE_SCRIPT = "report_private_beta_playwright_failure_triage.py"
 _PUSH_TRIAGE_ARTIFACT = "ui-e2e-live-beta-access-on-push-failure-triage"
 _CI_TRIAGE_ARTIFACT = "ui-e2e-live-beta-access-failure-triage"
 _RETRIGGER_SCRIPT = "scripts/ci/retrigger_private_beta_access_on_push.sh"
+_SANDBOX_MOCKS_REL = "archlucid-ui/src/lib/sandbox-api-mocks.ts"
+_SANDBOX_JSON_IMPORT_ATTR = 'with { type: "json" }'
 
 
 def repo_root() -> Path:
@@ -227,6 +229,23 @@ def _require_private_beta_job_timeout(rel_path: str, text: str, errors: list[str
         )
 
 
+def _require_sandbox_mock_json_import_attribute(errors: list[str]) -> None:
+    path = repo_root() / _SANDBOX_MOCKS_REL
+
+    if not path.is_file():
+        errors.append(f"missing {_SANDBOX_MOCKS_REL}")
+
+        return
+
+    text = path.read_text(encoding="utf-8", errors="replace")
+
+    if _SANDBOX_JSON_IMPORT_ATTR not in text:
+        errors.append(
+            f"{_SANDBOX_MOCKS_REL}: must import sandbox-mock-data.json with {_SANDBOX_JSON_IMPORT_ATTR} "
+            "(Node ESM / Playwright loader rejects bare JSON imports)",
+        )
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.parse_args(argv)
@@ -303,6 +322,8 @@ def main(argv: list[str] | None = None) -> int:
         errors.append(f"missing private-beta retrigger helper: {_RETRIGGER_SCRIPT}")
     elif not retrigger_path.stat().st_mode & 0o111:
         errors.append(f"{_RETRIGGER_SCRIPT}: must be executable")
+
+    _require_sandbox_mock_json_import_attribute(errors)
 
     if errors:
         for error in errors:
