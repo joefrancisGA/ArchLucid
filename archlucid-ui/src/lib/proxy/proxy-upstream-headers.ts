@@ -9,6 +9,7 @@ import {
 } from "@/lib/correlation";
 import { readServerSideApiKey } from "@/lib/legacy-arch-env";
 import { applyDevAgentExecutionModeUpstreamHeader } from "@/lib/proxy/dev-agent-execution-mode-upstream";
+import { applyDevRoleOverrideUpstreamHeader } from "@/lib/proxy/dev-role-override-upstream";
 import { isAnonymousMarketingProxyPath } from "@/lib/proxy-anonymous-marketing-paths";
 import { resolveProxyUpstreamScopeHeaders } from "@/lib/proxy-scope-resolution";
 
@@ -77,6 +78,7 @@ export function buildProxyUpstreamHeaders(request: NextRequest, proxyPath?: stri
   }
 
   applyDevAgentExecutionModeUpstreamHeader(h, request);
+  applyDevRoleOverrideUpstreamHeader(h, request);
 
   return h;
 }

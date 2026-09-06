@@ -19,13 +19,29 @@ import {
   resolveDevRoleOverrideApiActorRole,
   resolveEffectiveDevAgentExecutionMode,
 } from "@/lib/dev-testing-overrides";
-import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
+import { invalidateCurrentPrincipalCache, loadCurrentPrincipal, operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 import { ROLE_NAV_DENSITY_SHOW_FULL_NAV_STORAGE_KEY } from "@/lib/role-shaped-nav-density";
 import { ARCHLUCID_VENDOR_STAFF_CROSS_TENANT_PERMISSION, isArchLucidVendorStaffPrincipal } from "@/lib/vendor-staff-principal";
+
+vi.mock("@/lib/oidc/config", () => ({
+  isJwtAuthMode: () => false,
+}));
+
+vi.mock("@/lib/oidc/session", () => ({
+  ensureAccessTokenFresh: vi.fn(async () => undefined),
+  getAccessTokenForApi: () => "test-token",
+  isLikelySignedIn: () => true,
+}));
+
+vi.mock("@/lib/proxy-fetch-registration-scope", () => ({
+  mergeRegistrationScopeForProxy: (init: RequestInit) => init,
+}));
 
 describe("dev-testing-overrides", () => {
   beforeEach(() => {
     vi.stubEnv("NODE_ENV", "development");
+    invalidateCurrentPrincipalCache();
+    vi.restoreAllMocks();
   });
 
   afterEach(() => {
@@ -33,6 +49,7 @@ describe("dev-testing-overrides", () => {
     document.cookie = `${DEV_ROLE_OVERRIDE_COOKIE}=; Max-Age=0; Path=/; SameSite=Lax`;
     document.cookie = `${DEV_AGENT_EXECUTION_MODE_COOKIE}=; Max-Age=0; Path=/; SameSite=Lax`;
     window.localStorage.removeItem(ROLE_NAV_DENSITY_SHOW_FULL_NAV_STORAGE_KEY);
+    invalidateCurrentPrincipalCache();
   });
 
   it("parses shell and role override tokens", () => {
@@ -68,6 +85,21 @@ describe("dev-testing-overrides", () => {
     expect(isDevEmployeeRoleOverrideActive()).toBe(true);
     expect(readDevShellExperienceOverrideFromDocument()).toBe("full-operator");
     expect(window.localStorage.getItem(ROLE_NAV_DENSITY_SHOW_FULL_NAV_STORAGE_KEY)).toBe("true");
+  });
+
+  it("shapes vendor-staff principal when /me fails but Employee override is active", async () => {
+    persistDevRoleOverride("Employee");
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("upstream unavailable", { status: 503 })),
+    );
+
+    const principal = await loadCurrentPrincipal({ bypassCache: true });
+
+    expect(isArchLucidVendorStaffPrincipal(principal)).toBe(true);
+    expect(principal.roleClaimValues).toContain(DEV_EMPLOYEE_API_ACTOR_ROLE);
+    expect(principal.authorityRank).toBe(3);
   });
 
   it("persists shell override in a dev-only cookie", () => {
