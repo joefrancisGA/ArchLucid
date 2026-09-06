@@ -1,9 +1,17 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReactElement } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
+import {
+  parseReviewCliReproduceOpenFromSearch,
+  reviewCliReproduceDisclosureHrefFromSearch,
+} from "@/lib/reviews/review-cli-reproduce-disclosure-url";
 
 export type ReviewCliReproduceSectionProps = {
   readonly runId: string;
@@ -15,12 +23,38 @@ export function ReviewCliReproduceSection({
   runId,
   ruleSetId,
 }: ReviewCliReproduceSectionProps): ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const reviewCliReproduceOpenParam = searchParams.get("reviewCliReproduceOpen");
+  const [open, setOpenState] = useState(() => parseReviewCliReproduceOpenFromSearch(reviewCliReproduceOpenParam));
   const policyFlag = ruleSetId ? ` --policy ${ruleSetId}` : "";
   const command = `archlucid review run --package-id ${runId}${policyFlag}`;
 
+  const syncOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      router.replace(reviewCliReproduceDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (detailsOpen: boolean) => {
+      setOpenState(detailsOpen);
+      syncOpenToUrl(detailsOpen);
+    },
+    [syncOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOpenState(parseReviewCliReproduceOpenFromSearch(reviewCliReproduceOpenParam));
+  }, [reviewCliReproduceOpenParam]);
+
   return (
     <section id="cli-reproduce" className="scroll-mt-24">
-      <CollapsibleSection title="Reproduce via CLI" defaultOpen={false}>
+      <CollapsibleSection title="Reproduce via CLI" open={open} onToggle={setOpen}>
         <p className={cn("m-0 mb-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           Run this command in your CI pipeline to reproduce this analysis with the same scope and policy pack.
           Requires the ArchLucid CLI authenticated to this workspace.

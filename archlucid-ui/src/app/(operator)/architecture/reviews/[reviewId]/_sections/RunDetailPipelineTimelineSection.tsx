@@ -1,6 +1,10 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { AuthorityPipelineTimeline } from "@/components/AuthorityPipelineTimeline";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -10,6 +14,10 @@ import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  parseRunPipelineTimelineOpenFromSearch,
+  runPipelineTimelineDisclosureHrefFromSearch,
+} from "@/lib/runs/run-pipeline-timeline-disclosure-url";
 import type { PipelineTimelineItem } from "@/types/authority";
 
 const OPERATOR_INLINE_AUDIT_EVENT_LIMIT = 5;
@@ -120,11 +128,37 @@ function pipelineTimelineBody(props: RunDetailPipelineTimelineSectionProps): Rea
 export function RunDetailPipelineTimelineSection(
   props: RunDetailPipelineTimelineSectionProps,
 ): ReactElement {
-  const { runId, buyerPolishedArtifactTable, pipelineTimelineFailure, pipelineTimelineForUi } = props;
+  const { runId, pipelineTimelineFailure, pipelineTimelineForUi } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const runPipelineTimelineOpenParam = searchParams.get("runPipelineTimelineOpen");
+  const [open, setOpenState] = useState(() => parseRunPipelineTimelineOpenFromSearch(runPipelineTimelineOpenParam));
   const auditTrailLabel = BUYER_SURFACE_VOCABULARY.auditTrail;
   const summaryLine = buildAuditTrailSummaryLine(
     pipelineTimelineFailure ? null : pipelineTimelineForUi,
   );
+
+  const syncOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      router.replace(runPipelineTimelineDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (detailsOpen: boolean) => {
+      setOpenState(detailsOpen);
+      syncOpenToUrl(detailsOpen);
+    },
+    [syncOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOpenState(parseRunPipelineTimelineOpenFromSearch(runPipelineTimelineOpenParam));
+  }, [runPipelineTimelineOpenParam]);
 
   return (
     <section
@@ -137,11 +171,12 @@ export function RunDetailPipelineTimelineSection(
         headingLevel={3}
         summaryId="pipeline-timeline-title"
         summaryLine={summaryLine}
-        defaultOpen={false}
+        open={open}
+        onToggle={setOpen}
         sectionTestId="run-pipeline-timeline-collapsible"
       >
         <p className={cn("m-0 mb-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {auditTrailDescription(runId, buyerPolishedArtifactTable)}
+          {auditTrailDescription(runId, props.buyerPolishedArtifactTable)}
         </p>
         {pipelineTimelineBody(props)}
       </CollapsibleSection>
