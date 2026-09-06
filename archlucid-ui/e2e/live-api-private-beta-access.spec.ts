@@ -34,6 +34,7 @@ import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import {
   createRun,
   enrichArchitectureRequestBody,
+  getRunDetailsWithTransientRetries,
   liveApiBase,
   liveE2eArchitectureDescription,
   liveE2ePrivateBetaAccessPlaywrightTimeoutMs,
@@ -147,6 +148,16 @@ test.describe("live-api-private-beta-access", () => {
     );
 
     await waitForArchitectureRunListIncludesRun(request, runId, 120_000, scope);
+
+    const runDetail = await getRunDetailsWithTransientRetries(request, runId, scope);
+    const architectureId = runDetail.run?.architectureId?.trim() ?? "";
+
+    if (architectureId.length > 0) {
+      await page.goto(`/architecture/architectures/${encodeURIComponent(architectureId)}`, {
+        waitUntil: "domcontentloaded",
+      });
+      await expect(page.getByTestId("architecture-identity-desk")).toBeVisible({ timeout: 90_000 });
+    }
 
     await page.goto("/architecture/reviews/new", { waitUntil: "domcontentloaded" });
     await expect(page.getByRole("heading", { name: START_REVIEW_LABEL, level: 1 })).toBeVisible({
