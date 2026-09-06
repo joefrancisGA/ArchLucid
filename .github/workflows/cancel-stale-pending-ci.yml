@@ -10,6 +10,9 @@ on:
         required: false
         default: false
         type: boolean
+  schedule:
+    # Queue relief when trunk churn leaves 0-job pending runs on invite-wave workflows.
+    - cron: "0 */6 * * *"
 
 permissions:
   actions: write
