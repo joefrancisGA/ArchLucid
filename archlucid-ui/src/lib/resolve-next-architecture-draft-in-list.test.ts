@@ -26,7 +26,7 @@ describe("resolveNextArchitectureDraftInList", () => {
       "draft-new",
     );
 
-    expect(next?.architectureId).toBe("draft-old");
+    expect(next?.draftId).toBe("draft-old");
     expect(next?.href).toBe("/architecture/architectures/draft-old");
   });
 });

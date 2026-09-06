@@ -1838,7 +1838,7 @@ describe("wave30 filter url helpers", () => {
     expect(
       architectureDraftDeleteConfirmHrefFromSearch(
         "",
-        { architectureId: "draft-1", confirmOpen: true },
+        { draftId: "draft-1", confirmOpen: true },
       ),
     ).toBe("/architecture/architectures?draftDeleteId=draft-1&draftDeleteConfirm=1");
     expect(parseApiKeyActionFromSearch("rotate_admin")).toBe("rotate_admin");

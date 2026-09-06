@@ -70,6 +70,7 @@ describe("DevTestingQuickSwitchPanel", () => {
 
     expect(await screen.findByTestId("dev-testing-quick-switch")).toBeInTheDocument();
     expect(screen.getByTestId("dev-shell-option-buyer-polished")).toBeInTheDocument();
+    expect(screen.getByTestId("dev-role-option-Employee")).toBeInTheDocument();
     expect(screen.getByTestId("dev-role-option-Reader")).toBeInTheDocument();
     expect(screen.getByTestId("dev-agent-execution-option-real")).toBeInTheDocument();
     expect(screen.getByTestId("dev-agent-execution-option-simulator")).toBeInTheDocument();

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
+import type { ArchitectureDraftCreatedPayload } from "@/hooks/architecture-draft-autosave-shared";
 import { useArchitectureDraftDocumentUndo } from "@/hooks/use-architecture-draft-document-undo";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import {
@@ -148,11 +149,11 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     draft?.draftId?.trim() || resolvedDraftId || (isNewDraft ? null : props.draftId.trim() || null);
 
   const handleDraftCreated = useCallback(
-    (draftId: string) => {
-      writeArchitectureCreationDraftId(draftId);
-      setResolvedDraftId(draftId);
-      replaceArchitectureCreationUrlWithoutNavigation(draftId);
-      retargetAdvisoryDraftInFlightArchitecture(ARCHITECTURE_NEW_DRAFT_SEGMENT, draftId);
+    (created: ArchitectureDraftCreatedPayload) => {
+      writeArchitectureCreationDraftId(created.draftId);
+      setResolvedDraftId(created.draftId);
+      replaceArchitectureCreationUrlWithoutNavigation(created);
+      retargetAdvisoryDraftInFlightArchitecture(ARCHITECTURE_NEW_DRAFT_SEGMENT, created.draftId);
     },
     [setResolvedDraftId],
   );
