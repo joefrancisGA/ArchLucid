@@ -343,6 +343,7 @@ Copy the **Bugs found (24h)** and **Dry runs (24h)** values from the `-Rolling24
 
 ## Canonical files
 
+- `docs/architecture/AL_BUG_QUALITY_COMPOSER_PROMPTS.md` — Composer set **ABQ-01–10** (hunt-quality; paste one `.cursor/prompts/al-bug-quality-NN-*.md` per session; do not implement quality reforms by running `/al-bug`)
 - `.cursor/commands/al-bug.md` — this workflow
 - `.cursor/skills/al-bug/SKILL.md` — skill pointer + hunt heuristics
 - `docs/library/AL_BUG_HUNT_LEDGER.md` — zone yield, hypotheses, exhaustion
@@ -354,6 +355,7 @@ Copy the **Bugs found (24h)** and **Dry runs (24h)** values from the `-Rolling24
 
 ## Related commands
 
+- **ABQ-01–10** — hunt-quality Composer prompts (`.cursor/prompts/al-bug-quality-00-index.md`)
 - `/al-defect` — production defect intake (`PD-###`) from operator reports
 - `/al-bug-api` — same hunt workflow via Cloud Agent API (default `bugsmash`)
 - `/ship-next-improvement` — ship the next backlog / assessment item

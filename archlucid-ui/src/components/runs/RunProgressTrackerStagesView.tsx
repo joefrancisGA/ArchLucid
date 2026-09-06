@@ -45,7 +45,7 @@ function stageStatusTag(
   }
 
   if (pipelineTerminalFailure) {
-    return { kind: "blocked", label: "Not started" };
+    return { kind: "draft", label: "Did not run" };
   }
 
   return { kind: "draft", label: "Pending" };
@@ -83,29 +83,32 @@ export function RunProgressTrackerStagesView({
       <Separator className="my-6" />
 
       <ul className="m-0 flex flex-col gap-3 p-0 list-none">
-        <li className="flex flex-wrap items-center gap-2">
-          <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Source context captured</span>
+        <li className="grid grid-cols-[minmax(12rem,auto)_max-content] items-center gap-2">
+          <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.body)}>Source context captured</span>
           <StatusTag kind={ctxStatus.kind} label={ctxStatus.label} />
         </li>
-        <li className="flex flex-wrap items-center gap-2">
-          <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Evidence graph ready</span>
+        <li className="grid grid-cols-[minmax(12rem,auto)_max-content] items-center gap-2">
+          <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.body)}>Evidence graph ready</span>
           <StatusTag kind={graphStatus.kind} label={graphStatus.label} />
         </li>
-        <li className="flex flex-wrap items-center gap-2">
-          <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Findings complete</span>
+        <li className="grid grid-cols-[minmax(12rem,auto)_max-content] items-center gap-2">
+          <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.body)}>Findings complete</span>
           <StatusTag kind={findingsStatus.kind} label={findingsStatus.label} />
         </li>
         {buyerAssessmentCopy ? (
-          <li className="flex flex-wrap items-center gap-2" data-testid="run-progress-signed-record-row">
-            <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Finalized review record</span>
+          <li
+            className="grid grid-cols-[minmax(12rem,auto)_max-content] items-center gap-2"
+            data-testid="run-progress-signed-record-row"
+          >
+            <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.body)}>Finalized review record</span>
             <StatusTag
-              kind={manifest ? "ready" : pipelineTerminalFailure ? "blocked" : "draft"}
-              label={manifest ? "Complete" : "Not created yet"}
+              kind={manifest ? "ready" : pipelineTerminalFailure ? "draft" : "draft"}
+              label={manifest ? "Complete" : "Did not run"}
             />
           </li>
         ) : (
-          <li className="flex flex-wrap items-center gap-2">
-            <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Finalized review record ready</span>
+          <li className="grid grid-cols-[minmax(12rem,auto)_max-content] items-center gap-2">
+            <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.body)}>Finalized review record ready</span>
             <StatusTag kind={manifestStatus.kind} label={manifestStatus.label} />
           </li>
         )}

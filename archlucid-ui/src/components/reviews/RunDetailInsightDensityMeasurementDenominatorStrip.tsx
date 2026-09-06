@@ -11,6 +11,8 @@ import { cn } from "@/lib/utils";
 export type RunDetailInsightDensityMeasurementDenominatorStripProps = {
   readonly enginesSucceeded?: number | null;
   readonly className?: string;
+  /** Hide engine-coverage copy when the review is in terminal failure (recovery owns the viewport). */
+  readonly suppressOnTerminalFailure?: boolean;
 };
 
 /** LK-14: names the measured engine floor on Working stamp / export surfaces. */
@@ -19,7 +21,7 @@ export function RunDetailInsightDensityMeasurementDenominatorStrip(
 ): ReactElement | null {
   const { isWorkingMode } = useWorkspaceMode();
 
-  if (!isWorkingMode) {
+  if (!isWorkingMode || props.suppressOnTerminalFailure === true) {
     return null;
   }
 

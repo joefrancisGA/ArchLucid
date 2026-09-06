@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useMemo, useSyncExternalStore } from "react";
 
+import { ReviewListDisplayTitle } from "@/components/operator-home/ReviewListDisplayTitle";
+
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { Button } from "@/components/ui/button";
 import {
@@ -149,13 +151,11 @@ function UnfinishedWorkRailTableRow(props: {
   return (
     <EnterpriseTableRow data-testid={`unfinished-work-rail-item-${item.kind}`}>
       <EnterpriseTableCell className="min-w-[12rem] max-w-md">
-        <Link
+        <ReviewListDisplayTitle
           href={item.href}
-          className={cn("min-w-0 break-words font-medium", OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.body)}
-          data-testid={`unfinished-work-rail-link-${item.id}`}
-        >
-          {item.title}
-        </Link>
+          title={item.title}
+          testId={`unfinished-work-rail-link-${item.id}`}
+        />
       </EnterpriseTableCell>
       <EnterpriseTableCell className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {item.workTypeLabel}
@@ -172,7 +172,7 @@ function UnfinishedWorkRailTableRow(props: {
             —
           </span>
         ) : (
-          <Button asChild variant="outline" size="sm" className="h-7">
+          <Button asChild variant="outline" size="sm">
             <Link href={item.href} data-testid={`unfinished-work-rail-continue-${item.id}`}>
               {continueLabel}
             </Link>

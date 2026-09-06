@@ -181,7 +181,7 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
         />
       ) : null}
 
-      {!hasSealedRecord ? (
+      {!hasSealedRecord && !terminalFailure ? (
         <RunDetailPreFinalizedEmptyState
           runId={m.routeRunId}
           terminalFailure={terminalFailure}

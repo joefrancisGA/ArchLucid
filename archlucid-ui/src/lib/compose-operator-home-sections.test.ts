@@ -6,6 +6,7 @@ const emptyMetrics = {
   reviewPackagesTotal: 0,
   reviewPackagesCommitted: 0,
   reviewPackagesActive: 0,
+  reviewPackagesAwaitingApproval: 0,
   openFindings: 0,
   governanceWarnings: 0,
   evidenceSources: 0,

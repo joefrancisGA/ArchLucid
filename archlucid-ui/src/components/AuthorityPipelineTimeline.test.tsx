@@ -121,6 +121,30 @@ describe("AuthorityPipelineTimeline", () => {
     expect(screen.queryByText(/^\+0s$/)).toBeNull();
   });
 
+  it("formats long elapsed deltas with hours instead of large minute counts", () => {
+    const items: PipelineTimelineItem[] = [
+      {
+        eventId: "11111111-1111-1111-1111-111111111111",
+        occurredUtc: "2026-09-05T23:47:54.000Z",
+        eventType: "RunStarted",
+        actorUserName: "system",
+        correlationId: null,
+      },
+      {
+        eventId: "22222222-2222-2222-2222-222222222222",
+        occurredUtc: "2026-09-06T02:49:03.000Z",
+        eventType: "RunCompleted",
+        actorUserName: "system",
+        correlationId: null,
+      },
+    ];
+
+    render(<AuthorityPipelineTimeline items={items} />);
+
+    expect(screen.getByText("+3h 1m 9s")).toBeInTheDocument();
+    expect(screen.queryByText(/\+181m/)).toBeNull();
+  });
+
   it("limits visible rows when maxVisibleItems is set", () => {
     const items: PipelineTimelineItem[] = Array.from({ length: 8 }, (_, index) => ({
       eventId: `00000000-0000-0000-0000-${String(index).padStart(12, "0")}`,

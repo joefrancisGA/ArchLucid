@@ -53,7 +53,7 @@ describe("DevTestingShellShortcuts", () => {
     vi.unstubAllEnvs();
   });
 
-  it("toggles the home quick-switch panel with Ctrl+Shift+H", async () => {
+  it("toggles the dev quick-switch drawer with Alt+Shift+D", async () => {
     render(
       <>
         <DevTestingShellShortcuts />
@@ -61,22 +61,19 @@ describe("DevTestingShellShortcuts", () => {
       </>,
     );
 
-    expect(await screen.findByTestId("dev-testing-quick-switch")).toBeInTheDocument();
+    expect(screen.queryByTestId("dev-testing-quick-switch")).toBeNull();
 
-    fireEvent.keyDown(window, { key: "H", ctrlKey: true, shiftKey: true });
+    fireEvent.keyDown(window, { key: "D", altKey: true, shiftKey: true });
+
+    expect(await screen.findByTestId("dev-testing-quick-switch")).toBeInTheDocument();
+    expect(localStorage.getItem(DEV_QUICK_SWITCH_PANEL_HIDDEN_STORAGE_KEY)).toBe("0");
+
+    fireEvent.keyDown(window, { key: "D", altKey: true, shiftKey: true });
 
     await waitFor(() => {
       expect(screen.queryByTestId("dev-testing-quick-switch")).toBeNull();
     });
 
     expect(localStorage.getItem(DEV_QUICK_SWITCH_PANEL_HIDDEN_STORAGE_KEY)).toBe("1");
-
-    fireEvent.keyDown(window, { key: "H", ctrlKey: true, shiftKey: true });
-
-    await waitFor(() => {
-      expect(screen.getByTestId("dev-testing-quick-switch")).toBeInTheDocument();
-    });
-
-    expect(localStorage.getItem(DEV_QUICK_SWITCH_PANEL_HIDDEN_STORAGE_KEY)).toBeNull();
   });
 });

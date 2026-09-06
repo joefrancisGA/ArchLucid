@@ -30,7 +30,10 @@ describe("insight-density-measurement-floor (PC-01)", () => {
     const presentation = formatInsightDensityMeasurementFloorPresentation(null);
 
     expect(presentation.measuredThisRunEngineCount).toBeNull();
-    expect(presentation.line).toContain("no measured engine coverage");
+    expect(presentation.line).toContain("No engine coverage measured");
+    expect(presentation.line).not.toContain("run");
+    expect(presentation.line).not.toContain("CI");
+    expect(presentation.line).not.toContain("golden corpus harness");
     expect(presentation.meetsCareerExportFloor).toBe(true);
   });
 

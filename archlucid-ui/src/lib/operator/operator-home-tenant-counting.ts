@@ -24,6 +24,8 @@ export type DeriveOperatorHomeTenantCountingSnapshotInput = {
   readonly displayItems: readonly RunSummary[];
   readonly previewItems: readonly RunSummary[];
   readonly excludeShowcaseRunId?: string | undefined;
+  readonly awaitingApprovalCount?: number;
+  readonly awaitingApprovalRunIds?: readonly string[];
 };
 
 /** Single tenant-scoped counting contract for home strip, chips, outcome line, and tab counts. */
@@ -31,10 +33,12 @@ export function deriveOperatorHomeTenantCountingSnapshot(
   input: DeriveOperatorHomeTenantCountingSnapshotInput,
 ): OperatorHomeTenantCountingSnapshot {
   const tenantItems = filterTenantOverviewRuns(input.displayItems);
-  const metrics = deriveOperatorHomeWorkspaceMetrics(tenantItems, tenantItems.length);
+  const awaitingApprovalCount = input.awaitingApprovalCount ?? 0;
+  const metrics = deriveOperatorHomeWorkspaceMetrics(tenantItems, tenantItems.length, awaitingApprovalCount);
   const previewTabCounts = deriveHomePreviewTabCounts({
     previewItems: tenantItems,
     excludeShowcaseRunId: input.excludeShowcaseRunId,
+    awaitingApprovalRunIds: input.awaitingApprovalRunIds,
   });
 
   return {

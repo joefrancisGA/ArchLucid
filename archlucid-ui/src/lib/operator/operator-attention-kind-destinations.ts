@@ -1,7 +1,5 @@
 import { REVIEWS_HUB_UNFINISHED_WORK_HREF } from "@/lib/reviews-hub-unfinished-work-href";
-import {
-  GOVERNANCE_ALERTS_PATH,
-  GOVERNANCE_APPROVAL_QUEUE_PATH,
+import { GOVERNANCE_ALERTS_PATH,
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
 } from "@/lib/governance/governance-route-paths";
@@ -33,9 +31,10 @@ export const OPERATOR_ATTENTION_KIND_DESTINATIONS: Record<
     ctaLabel: "Open alerts",
   },
   "awaiting-approval": {
-    href: GOVERNANCE_APPROVAL_QUEUE_PATH,
-    description: "Reviews waiting for approval.",
-    ctaLabel: "Open approval queue",
+    href: "/?tab=awaiting-approval",
+    description:
+      "Reviews waiting for governance approval before the sealed review record is finalized.",
+    ctaLabel: "View awaiting approval",
   },
 };
 

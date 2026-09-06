@@ -56,7 +56,10 @@ describe("operator-home-run-list-insight", () => {
       isoUtc: "2026-06-15T12:00:00Z",
       absoluteLabel: expect.any(String),
       relativeLabel: expect.any(String),
+      zoneLabel: "Updated",
     });
+
+    expect(formatRunHomeListUpdatedLabel(run, "home-recent-reviews").zoneLabel).toBe("Recent reviews");
 
     vi.useRealTimers();
   });

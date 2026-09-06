@@ -283,9 +283,15 @@ export function useRunProgressTracker({
     }
 
     if (showPipelineTerminalFailure) {
-      return deferFailureRecoveryToDoThisNext
-        ? "Assessment did not finish — see Do this next above for what happened and how to recover."
-        : "Assessment did not finish — use Do this next above to recover.";
+      if (deferFailureRecoveryToDoThisNext) {
+        const stageNoun = buyerAssessmentCopy
+          ? `${completedAssessmentStages} of ${assessmentStageCount} assessment stages complete.`
+          : `${completedPipelineStages} of 4 assessment stages complete.`;
+
+        return stageNoun;
+      }
+
+      return "Assessment did not finish — use Do this next above to recover.";
     }
 
     if (buyerAssessmentCopy) {
