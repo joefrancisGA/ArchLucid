@@ -70,6 +70,34 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
     setSnowAutoCmdb(loaded?.serviceNowAutoCreateCmdbCi ?? false);
   }, []);
 
+  const onPageLoaded = useCallback(
+    (loaded: {
+      readonly health: { readonly failed: boolean; readonly errorMessage: string | null };
+      readonly settings: { readonly failed: boolean; readonly errorMessage: string | null };
+      readonly connection: { readonly failed: boolean; readonly errorMessage: string | null };
+    }) => {
+    setZoneLoadSlices([
+      {
+        id: "health",
+        label: "ServiceNow health",
+        failed: loaded.health.failed,
+        errorMessage: loaded.health.errorMessage ?? null,
+      },
+      {
+        id: "settings",
+        label: "ServiceNow settings",
+        failed: loaded.settings.failed,
+        errorMessage: loaded.settings.errorMessage ?? null,
+      },
+      {
+        id: "connection",
+        label: "ServiceNow connection",
+        failed: loaded.connection.failed,
+        errorMessage: loaded.connection.errorMessage ?? null,
+      },
+    ]);
+  }, []);
+
   const {
     health,
     settings,
@@ -86,28 +114,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
     providerId: "servicenow",
     buildPageLoadResult: buildServiceNowPageLoadResult,
     applySettings,
-    onPageLoaded: (loaded) => {
-      setZoneLoadSlices([
-        {
-          id: "health",
-          label: "ServiceNow health",
-          failed: loaded.health.failed,
-          errorMessage: loaded.health.errorMessage ?? null,
-        },
-        {
-          id: "settings",
-          label: "ServiceNow settings",
-          failed: loaded.settings.failed,
-          errorMessage: loaded.settings.errorMessage ?? null,
-        },
-        {
-          id: "connection",
-          label: "ServiceNow connection",
-          failed: loaded.connection.failed,
-          errorMessage: loaded.connection.errorMessage ?? null,
-        },
-      ]);
-    },
+    onPageLoaded,
   });
 
   useEffect(() => {
