@@ -26,7 +26,7 @@ describe("FinalizeSkippedMustStrip", () => {
     );
 
     expect(screen.getByTestId("finalize-skipped-must-strip")).toBeInTheDocument();
-    expect(screen.getByText("l0.pillar.security")).toBeInTheDocument();
+    expect(screen.getByText(/security-baseline/i)).toBeInTheDocument();
   });
 
   it("stays hidden in Guided mode", () => {

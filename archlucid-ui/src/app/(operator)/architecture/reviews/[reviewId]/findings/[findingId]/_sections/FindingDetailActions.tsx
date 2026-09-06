@@ -1,4 +1,8 @@
+"use client";
+
 import { cn } from "@/lib/utils";
+import { useCallback, useEffect, useState, type SetStateAction } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { FindingAskInlinePanel } from "@/components/findings/FindingAskInlinePanel";
 import { FindingIacStubPanel } from "@/components/findings/FindingIacStubPanel";
@@ -8,6 +12,12 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { FindingExplainPanel } from "@/components/FindingExplainPanel";
 import { OperatorEvidenceLimitsFooter } from "@/components/operator/OperatorEvidenceLimitsFooter";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  findingDetailActionsDisclosureHrefFromSearch,
+  parseFindingExportOpenFromSearch,
+  parseFindingTechnicalAuditOpenFromSearch,
+  parseFindingTechnicalIdsOpenFromSearch,
+} from "@/lib/findings/finding-detail-actions-disclosure-url";
 
 import { FindingInspectItsmWorkflowPanel } from "../FindingInspectItsmWorkflowPanel";
 import { FindingDetailNextFindingFooter } from "./FindingDetailNextFindingFooter";
@@ -19,6 +29,19 @@ type Props = { readonly presentation: FindingDetailPresentation };
 /** Finding detail actions and footers. */
 export function FindingDetailActions({ presentation }: Props) {
   const { model, graphEvidenceHref, linkedManifestHref } = presentation;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const findingExportOpenParam = searchParams.get("findingExportOpen");
+  const findingTechnicalIdsOpenParam = searchParams.get("findingTechnicalIdsOpen");
+  const findingTechnicalAuditOpenParam = searchParams.get("findingTechnicalAuditOpen");
+  const [exportOpen, setExportOpenState] = useState(() => parseFindingExportOpenFromSearch(findingExportOpenParam));
+  const [technicalIdsOpen, setTechnicalIdsOpenState] = useState(() =>
+    parseFindingTechnicalIdsOpenFromSearch(findingTechnicalIdsOpenParam),
+  );
+  const [technicalAuditOpen, setTechnicalAuditOpenState] = useState(() =>
+    parseFindingTechnicalAuditOpenFromSearch(findingTechnicalAuditOpenParam),
+  );
   const {
     runId,
     findingIdRouteParam,
@@ -28,6 +51,63 @@ export function FindingDetailActions({ presentation }: Props) {
     runExecutionFootnote,
     nextFindingInReview,
   } = model;
+
+  const syncPanelsToUrl = useCallback(
+    (state: { exportOpen: boolean; technicalIdsOpen: boolean; technicalAuditOpen: boolean }) => {
+      router.replace(findingDetailActionsDisclosureHrefFromSearch(searchParams.toString(), state, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setExportOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setExportOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncPanelsToUrl({ exportOpen: next, technicalIdsOpen, technicalAuditOpen });
+
+        return next;
+      });
+    },
+    [syncPanelsToUrl, technicalAuditOpen, technicalIdsOpen],
+  );
+
+  const setTechnicalIdsOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setTechnicalIdsOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncPanelsToUrl({ exportOpen, technicalIdsOpen: next, technicalAuditOpen });
+
+        return next;
+      });
+    },
+    [exportOpen, syncPanelsToUrl, technicalAuditOpen],
+  );
+
+  const setTechnicalAuditOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setTechnicalAuditOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncPanelsToUrl({ exportOpen, technicalIdsOpen, technicalAuditOpen: next });
+
+        return next;
+      });
+    },
+    [exportOpen, syncPanelsToUrl, technicalIdsOpen],
+  );
+
+  useEffect(() => {
+    setExportOpenState(parseFindingExportOpenFromSearch(findingExportOpenParam));
+  }, [findingExportOpenParam]);
+
+  useEffect(() => {
+    setTechnicalIdsOpenState(parseFindingTechnicalIdsOpenFromSearch(findingTechnicalIdsOpenParam));
+  }, [findingTechnicalIdsOpenParam]);
+
+  useEffect(() => {
+    setTechnicalAuditOpenState(parseFindingTechnicalAuditOpenFromSearch(findingTechnicalAuditOpenParam));
+  }, [findingTechnicalAuditOpenParam]);
 
   return (
     <>
@@ -48,13 +128,18 @@ export function FindingDetailActions({ presentation }: Props) {
       ) : null}
 
       {inspectPayload !== null && !buyerPolishedShell ? (
-        <CollapsibleSection title="Export finding" defaultOpen={false} summaryLine="Copy for Jira, Azure Boards, or ServiceNow">
+        <CollapsibleSection
+          title="Export finding"
+          open={exportOpen}
+          onToggle={setExportOpen}
+          summaryLine="Copy for Jira, Azure Boards, or ServiceNow"
+        >
           <FindingItsmExportPanel runId={runId} findingId={decodedFindingId} payload={inspectPayload} />
         </CollapsibleSection>
       ) : null}
 
       {inspectPayload !== null && !buyerPolishedShell ? (
-        <CollapsibleSection title="Technical identifiers" defaultOpen={false}>
+        <CollapsibleSection title="Technical identifiers" open={technicalIdsOpen} onToggle={setTechnicalIdsOpen}>
           <dl className={cn("m-0 grid gap-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             <div>
               <dt className={cn("text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>Finding id</dt>
@@ -81,7 +166,7 @@ export function FindingDetailActions({ presentation }: Props) {
       ) : null}
 
       {inspectPayload !== null && !buyerPolishedShell ? (
-        <CollapsibleSection title="Technical audit trail" defaultOpen={false}>
+        <CollapsibleSection title="Technical audit trail" open={technicalAuditOpen} onToggle={setTechnicalAuditOpen}>
           <FindingExplainPanel
             runId={runId}
             findingId={findingIdRouteParam}

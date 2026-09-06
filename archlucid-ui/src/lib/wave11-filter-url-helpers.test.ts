@@ -3295,6 +3295,107 @@ describe("wave44 filter url helpers", () => {
   });
 });
 
+describe("wave45 filter url helpers", () => {
+  it("run advanced analysis, audit identifiers, pipeline timeline/stages, engine and forensics params", async () => {
+    const {
+      parseRunAdvancedAnalysisOpenFromSearch,
+      runAdvancedAnalysisDisclosureHrefFromSearch,
+    } = await import("@/lib/runs/run-advanced-analysis-disclosure-url");
+    const {
+      parseRunAuditIdentifiersOpenFromSearch,
+      runAuditIdentifiersDisclosureHrefFromSearch,
+    } = await import("@/lib/runs/run-audit-identifiers-disclosure-url");
+    const {
+      parseRunPipelineTimelineOpenFromSearch,
+      runPipelineTimelineDisclosureHrefFromSearch,
+    } = await import("@/lib/runs/run-pipeline-timeline-disclosure-url");
+    const {
+      parseRunPipelineStagesOpenFromSearch,
+      runPipelineStagesDisclosureHrefFromSearch,
+    } = await import("@/lib/runs/run-pipeline-stages-disclosure-url");
+    const {
+      parseRunEngineProvenanceOpenFromSearch,
+      runEngineProvenanceDisclosureHrefFromSearch,
+    } = await import("@/lib/runs/run-engine-provenance-disclosure-url");
+    const {
+      parseRunToolInvocationForensicsOpenFromSearch,
+      runToolInvocationForensicsDisclosureHrefFromSearch,
+    } = await import("@/lib/runs/run-tool-invocation-forensics-disclosure-url");
+
+    expect(parseRunAdvancedAnalysisOpenFromSearch("1")).toBe(true);
+    expect(runAdvancedAnalysisDisclosureHrefFromSearch("tab=activity", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?tab=activity&runAdvancedAnalysisOpen=1",
+    );
+    expect(parseRunAuditIdentifiersOpenFromSearch("true")).toBe(true);
+    expect(runAuditIdentifiersDisclosureHrefFromSearch("", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?runAuditIdentifiersOpen=1",
+    );
+    expect(parseRunPipelineTimelineOpenFromSearch("1")).toBe(true);
+    expect(runPipelineTimelineDisclosureHrefFromSearch("tab=activity", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?tab=activity&runPipelineTimelineOpen=1",
+    );
+    expect(parseRunPipelineStagesOpenFromSearch("1")).toBe(true);
+    expect(runPipelineStagesDisclosureHrefFromSearch("", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?runPipelineStagesOpen=1",
+    );
+    expect(parseRunEngineProvenanceOpenFromSearch("true")).toBe(true);
+    expect(runEngineProvenanceDisclosureHrefFromSearch("", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?runEngineProvenanceOpen=1",
+    );
+    expect(parseRunToolInvocationForensicsOpenFromSearch("1")).toBe(true);
+    expect(runToolInvocationForensicsDisclosureHrefFromSearch("", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?runToolInvocationForensicsOpen=1",
+    );
+  });
+
+  it("retrieval grounding, manifest appendix, cli reproduce, and finding detail action params", async () => {
+    const {
+      parseRunRetrievalGroundingOpenFromSearch,
+      runRetrievalGroundingDisclosureHrefFromSearch,
+    } = await import("@/lib/runs/run-retrieval-grounding-disclosure-url");
+    const {
+      manifestVerificationAppendixDisclosureHrefFromSearch,
+      parseManifestVerificationAppendixOpenFromSearch,
+    } = await import("@/lib/signed-records/manifest-verification-appendix-disclosure-url");
+    const {
+      parseReviewCliReproduceOpenFromSearch,
+      reviewCliReproduceDisclosureHrefFromSearch,
+    } = await import("@/lib/reviews/review-cli-reproduce-disclosure-url");
+    const {
+      findingDetailActionsDisclosureHrefFromSearch,
+      parseFindingExportOpenFromSearch,
+      parseFindingTechnicalAuditOpenFromSearch,
+      parseFindingTechnicalIdsOpenFromSearch,
+    } = await import("@/lib/findings/finding-detail-actions-disclosure-url");
+
+    expect(parseRunRetrievalGroundingOpenFromSearch("1")).toBe(true);
+    expect(runRetrievalGroundingDisclosureHrefFromSearch("", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?runRetrievalGroundingOpen=1",
+    );
+    expect(parseManifestVerificationAppendixOpenFromSearch(null)).toBe(null);
+    expect(parseManifestVerificationAppendixOpenFromSearch("1")).toBe(true);
+    expect(
+      manifestVerificationAppendixDisclosureHrefFromSearch("", true, "/governance/sealed-records/m1"),
+    ).toBe("/governance/sealed-records/m1?manifestVerificationAppendixOpen=1");
+    expect(parseReviewCliReproduceOpenFromSearch("true")).toBe(true);
+    expect(reviewCliReproduceDisclosureHrefFromSearch("tab=overview", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?tab=overview&reviewCliReproduceOpen=1",
+    );
+    expect(parseFindingExportOpenFromSearch("1")).toBe(true);
+    expect(parseFindingTechnicalIdsOpenFromSearch("true")).toBe(true);
+    expect(parseFindingTechnicalAuditOpenFromSearch("1")).toBe(true);
+    expect(
+      findingDetailActionsDisclosureHrefFromSearch(
+        "",
+        { exportOpen: true, technicalIdsOpen: true, technicalAuditOpen: false },
+        "/architecture/reviews/r1/findings/f1",
+      ),
+    ).toBe(
+      "/architecture/reviews/r1/findings/f1?findingExportOpen=1&findingTechnicalIdsOpen=1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

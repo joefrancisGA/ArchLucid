@@ -1,5 +1,4 @@
 using ArchLucid.Contracts.Architecture;
-using ArchLucid.Core.Pagination;
 
 using Gen = ArchLucid.Api.Client.Generated;
 
@@ -7,17 +6,18 @@ namespace ArchLucid.Cli;
 
 public sealed partial class ArchLucidApiClient
 {
-    public async Task<PagedResponse<ArchitectureIdentityListItem>?> ListArchitecturesAsync(
+    public async Task<ArchitectureIdentityListPage?> ListArchitecturesAsync(
         int page,
         int pageSize,
+        bool includeArchived = false,
         CancellationToken ct = default)
     {
         try
         {
-            Gen.PagedResponseOfArchitectureIdentityListItem response =
-                await _api.ArchitecturesGETAsync(page, pageSize, ct).ConfigureAwait(false);
+            Gen.ArchitectureIdentityListPage response =
+                await _api.ArchitecturesGETAsync(page, pageSize, includeArchived, ct).ConfigureAwait(false);
 
-            return DeserializeRoundTrip<PagedResponse<ArchitectureIdentityListItem>>(response);
+            return MapGeneratedToContract<ArchitectureIdentityListPage>(response);
         }
         catch (Exception ex)
         {

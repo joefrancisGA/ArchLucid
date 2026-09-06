@@ -348,10 +348,6 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
         />
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} allowRunIdPaste={!buyerPolishedShell} />
-          <CommandPaletteArchitectureIdentitiesGroup enabled={workingMode} onNavigate={navigate} />
-          <CommandPaletteRecentViewsGroup onNavigate={navigate} />
-          <CommandPaletteFindPageSearch visibleHrefs={visibleHrefs} onNavigate={navigate} />
-          <CommandPaletteDocumentationSearch buyerPolishedShell={buyerPolishedShell} onNavigate={navigate} />
           <CommandPaletteActions
             pathname={pathname ?? "/"}
             workingMode={workingMode}
@@ -362,6 +358,10 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
             }}
           />
           <CommandPaletteReviewActions runId={auditRunId} onNavigate={navigate} />
+          <CommandPaletteArchitectureIdentitiesGroup enabled={workingMode} onNavigate={navigate} />
+          <CommandPaletteRecentViewsGroup onNavigate={navigate} />
+          <CommandPaletteFindPageSearch visibleHrefs={visibleHrefs} onNavigate={navigate} />
+          <CommandPaletteDocumentationSearch buyerPolishedShell={buyerPolishedShell} onNavigate={navigate} />
           <CommandPaletteDemoActions onNavigate={navigate} onClose={() => setOpen(false)} />
           <CommandPaletteCuratedTasks
             visibleHrefs={visibleHrefs}

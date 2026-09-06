@@ -13,6 +13,7 @@ import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-det
 export type RunDetailReviewPackageStampViewportProps = {
   readonly hasGoldenManifest: boolean;
   readonly runId: string;
+  readonly enginesSucceeded?: number | null;
   readonly feasibilityVerdict: ManifestFeasibilityVerdict | null | undefined;
   readonly runCompleted: boolean;
   readonly analysisStagesComplete?: boolean;
@@ -36,7 +37,7 @@ export function RunDetailReviewPackageStampViewport(
     return (
       <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
         <RunDetailReviewPackageClassificationSummary findings={props.quickDecisionFindings ?? []} />
-        <RunDetailInsightDensityMeasurementDenominatorStrip />
+        <RunDetailInsightDensityMeasurementDenominatorStrip enginesSucceeded={props.enginesSucceeded} />
         <RunDetailReviewPackageDecisionReceiptStrip
           runId={props.runId}
           feasibilityVerdict={feasibilityVerdict}

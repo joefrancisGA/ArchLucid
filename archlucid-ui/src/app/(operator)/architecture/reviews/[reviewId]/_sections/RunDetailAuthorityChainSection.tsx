@@ -3,6 +3,8 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
@@ -14,6 +16,10 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
+import {
+  parseRunAuditIdentifiersOpenFromSearch,
+  runAuditIdentifiersDisclosureHrefFromSearch,
+} from "@/lib/runs/run-audit-identifiers-disclosure-url";
 
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 
@@ -25,6 +31,13 @@ type RunDetailAuthorityChainSectionProps = {
 /** Full-operator review trail: manifest link + collapsible audit identifiers. */
 export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSectionProps): ReactElement {
   const { run, manifestId } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const runAuditIdentifiersOpenParam = searchParams.get("runAuditIdentifiersOpen");
+  const [auditIdentifiersOpen, setAuditIdentifiersOpenState] = useState(() =>
+    parseRunAuditIdentifiersOpenFromSearch(runAuditIdentifiersOpenParam),
+  );
   const { vocabulary } = useGovernanceMode();
   const manifestLabel = vocabulary.goldenManifestLabel;
   const rowLabelClass = cn("shrink-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body);
@@ -36,6 +49,27 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
           manifestId: manifestIdTrimmed,
         })
       : null;
+
+  const syncAuditIdentifiersOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(runAuditIdentifiersDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setAuditIdentifiersOpen = useCallback(
+    (open: boolean) => {
+      setAuditIdentifiersOpenState(open);
+      syncAuditIdentifiersOpenToUrl(open);
+    },
+    [syncAuditIdentifiersOpenToUrl],
+  );
+
+  useEffect(() => {
+    setAuditIdentifiersOpenState(parseRunAuditIdentifiersOpenFromSearch(runAuditIdentifiersOpenParam));
+  }, [runAuditIdentifiersOpenParam]);
 
   return (
     <section id="authority-chain" className="scroll-mt-24">
@@ -74,7 +108,7 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
             </div>
           </div>
 
-          <CollapsibleSection title="Audit identifiers" defaultOpen={false}>
+          <CollapsibleSection title="Audit identifiers" open={auditIdentifiersOpen} onToggle={setAuditIdentifiersOpen}>
             <ol className="m-0 list-none space-y-0 divide-y divide-neutral-200 p-0 dark:divide-neutral-800">
               {manifestId ? (
                 <li className="flex flex-col gap-2 py-4 first:pt-0 sm:flex-row sm:items-center sm:justify-between">

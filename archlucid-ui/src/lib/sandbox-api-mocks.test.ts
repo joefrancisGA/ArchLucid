@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { trySandboxMockJsonForApiGet } from "@/lib/sandbox-api-mocks";
 
@@ -68,6 +70,12 @@ describe("sandbox-api-mocks", () => {
 
     expect(trySandboxMockJsonForApiGet("/v1/audit/export?fromUtc=x&toUtc=y")).toBeUndefined();
     expect(trySandboxMockJsonForApiGet("/v1/audit/event-types")).toBeUndefined();
+  });
+
+  it("imports sandbox-mock-data.json with a Node ESM import attribute", () => {
+    const source = readFileSync(join(process.cwd(), "src/lib/sandbox-api-mocks.ts"), "utf8");
+
+    expect(source).toContain('with { type: "json" }');
   });
 
   it("does not intercept architecture run sub-resources", () => {

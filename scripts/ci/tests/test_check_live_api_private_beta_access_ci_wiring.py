@@ -99,6 +99,13 @@ class TestCheckLiveApiPrivateBetaAccessCiWiring(unittest.TestCase):
 
         self.assertEqual(errors, [])
 
+    def test_sandbox_mock_json_import_attribute_required(self) -> None:
+        errors: list[str] = []
+
+        sut._require_sandbox_mock_json_import_attribute(errors)
+
+        self.assertEqual(errors, [])
+
 
 if __name__ == "__main__":
     unittest.main()

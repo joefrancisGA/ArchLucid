@@ -1,5 +1,9 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useCallback } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
@@ -26,6 +30,10 @@ import {
 } from "@/lib/showcase-static-demo";
 import type { ManifestSummary } from "@/types/authority";
 import { manifestSummarySealedVersionForCopyGuard } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import {
+  manifestVerificationAppendixDisclosureHrefFromSearch,
+  parseManifestVerificationAppendixOpenFromSearch,
+} from "@/lib/signed-records/manifest-verification-appendix-disclosure-url";
 
 export type ManifestDetailSummaryPanelProps = {
   readonly summary: ManifestSummary;
@@ -42,9 +50,25 @@ export type ManifestDetailSummaryPanelProps = {
  */
 export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProps) {
   const { summary, buyerPolishedLayout, includeBundleDownload = true } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const manifestVerificationAppendixOpenParam = searchParams.get("manifestVerificationAppendixOpen");
+  const urlAppendixOpen = parseManifestVerificationAppendixOpenFromSearch(manifestVerificationAppendixOpenParam);
   const isCuratedDemo = summary.manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID;
   const detailOpenDefault = !(buyerPolishedLayout ?? false) || isCuratedDemo;
+  const appendixOpen = urlAppendixOpen ?? detailOpenDefault;
   const isBuyerPolished = buyerPolishedLayout ?? false;
+
+  const setAppendixOpen = useCallback(
+    (open: boolean) => {
+      router.replace(
+        manifestVerificationAppendixDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
 
   const manifestJsonActions =
     summary.runId.trim().length > 0 ? (
@@ -133,7 +157,8 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
   const auditIdentifiers = (
     <CollapsibleSection
       title={isBuyerPolished ? "Audit verification appendix" : "Verification appendix (identifiers)"}
-      defaultOpen={false}
+      open={appendixOpen}
+      onToggle={setAppendixOpen}
       sectionTestId="manifest-verification-appendix"
     >
       {isBuyerPolished ? manifestJsonActions : null}

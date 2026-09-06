@@ -1,0 +1,41 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  formatInsightDensityMeasurementFloorBlockedReason,
+  formatInsightDensityMeasurementFloorPresentation,
+  INSIGHT_DENSITY_CAREER_EXPORT_MEASUREMENT_FLOOR_MIN_ENGINES,
+} from "@/lib/quality/insight-density-measurement-floor";
+
+describe("insight-density-measurement-floor (PC-01)", () => {
+  it("pins harness and catalog counts to Decisioning constants", () => {
+    expect(INSIGHT_DENSITY_CAREER_EXPORT_MEASUREMENT_FLOOR_MIN_ENGINES).toBe(16);
+
+    const presentation = formatInsightDensityMeasurementFloorPresentation(23);
+
+    expect(presentation.catalogEngineCount).toBe(39);
+    expect(presentation.harnessEngineCount).toBe(16);
+    expect(presentation.measuredThisRunEngineCount).toBe(23);
+  });
+
+  it("names partial coverage without claiming full catalog measurement", () => {
+    const presentation = formatInsightDensityMeasurementFloorPresentation(10);
+
+    expect(presentation.line).toContain("10 of 39");
+    expect(presentation.line).toContain("analytically incomplete");
+    expect(presentation.meetsCareerExportFloor).toBe(false);
+    expect(presentation.line).not.toMatch(/all engines (were )?scored/i);
+  });
+
+  it("uses absence copy when per-run counts are unknown", () => {
+    const presentation = formatInsightDensityMeasurementFloorPresentation(null);
+
+    expect(presentation.measuredThisRunEngineCount).toBeNull();
+    expect(presentation.line).toContain("no measured engine coverage");
+    expect(presentation.meetsCareerExportFloor).toBe(true);
+  });
+
+  it("blocks career export below the harness floor", () => {
+    expect(formatInsightDensityMeasurementFloorBlockedReason(10)).toContain("measurement floor");
+    expect(formatInsightDensityMeasurementFloorBlockedReason(16)).toBeNull();
+  });
+});

@@ -2,7 +2,7 @@
  * Build-time: renders pdfStatus-eligible product docs to static PDFs via ArchLucid.Cli (TB-723).
  */
 import { createHash } from "node:crypto";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { mkdirSync, rmSync, writeFileSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -93,6 +93,22 @@ function resolveVersionDateLabel(sourcePaths: readonly string[]): string | null 
   }
 }
 
+function ensureCliProjectBuildable(): void {
+  const result = spawnSync(
+    "dotnet",
+    ["build", CLI_PROJECT, "-c", "Release", "-v", "q", "/nologo"],
+    { cwd: REPO_ROOT, encoding: "utf8" },
+  );
+
+  if (result.status !== 0) {
+    const detail = [result.stdout, result.stderr].filter(Boolean).join("\n");
+
+    throw new Error(
+      `ArchLucid.Cli Release build failed before docs PDF render. Regenerate ArchLucid.Api.Client if OpenAPI drifted (see scripts/ci/assert_api_client_in_sync.sh).${detail.length > 0 ? `\n${detail}` : ""}`,
+    );
+  }
+}
+
 function renderPdf(markdownPath: string, metadataPath: string, outputPath: string): void {
   execFileSync(
     "dotnet",
@@ -119,6 +135,7 @@ function renderPdf(markdownPath: string, metadataPath: string, outputPath: strin
 
 function main(): void {
   ensureBrandLogoRaster();
+  ensureCliProjectBuildable();
   rmSync(WORK_DIR, { recursive: true, force: true });
   mkdirSync(WORK_DIR, { recursive: true });
   mkdirSync(PUBLIC_OUT_DIR, { recursive: true });

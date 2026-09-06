@@ -1,4 +1,8 @@
+"use client";
+
 import { cn } from "@/lib/utils";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import {
   EnterpriseTable,
@@ -17,6 +21,10 @@ import type {
   RunRetrievalGroundingRow,
 } from "@/types/agent-forensics";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import {
+  parseRunRetrievalGroundingOpenFromSearch,
+  runRetrievalGroundingDisclosureHrefFromSearch,
+} from "@/lib/runs/run-retrieval-grounding-disclosure-url";
 
 type RunRetrievalGroundingPanelProps = {
   payload: RunRetrievalGroundingPayload | null;
@@ -81,14 +89,42 @@ function scoreText(row: RunRetrievalGroundingRow): string {
 /** Redaction-safe forensic panel: chunk ids and metadata only, never raw prompt or retrieved text. */
 export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProps) {
   const { payload, failure } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const runRetrievalGroundingOpenParam = searchParams.get("runRetrievalGroundingOpen");
+  const [open, setOpenState] = useState(() =>
+    parseRunRetrievalGroundingOpenFromSearch(runRetrievalGroundingOpenParam),
+  );
   const sectionId = props.sectionId ?? "retrieval-grounding";
   const sectionTitle = props.title ?? "Retrieval grounding (diagnostics)";
   const rows = payload?.rows ?? [];
   const degraded = payload?.hasDegradedMetadata === true || rows.some((r) => r.scoreMetadataMalformed || r.documentMetadataMalformed);
 
+  const syncOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      router.replace(runRetrievalGroundingDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (detailsOpen: boolean) => {
+      setOpenState(detailsOpen);
+      syncOpenToUrl(detailsOpen);
+    },
+    [syncOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOpenState(parseRunRetrievalGroundingOpenFromSearch(runRetrievalGroundingOpenParam));
+  }, [runRetrievalGroundingOpenParam]);
+
   return (
     <div id={sectionId} className="scroll-mt-24">
-      <CollapsibleSection title={sectionTitle} defaultOpen={false}>
+      <CollapsibleSection title={sectionTitle} open={open} onToggle={setOpen}>
         <p className={cn("mt-0 max-w-3xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           Retrieval traces show which chunks each agent retrieved, the corpus kind, citation coverage, and token counts.
           Raw prompts and retrieved content stay redacted at this edge.

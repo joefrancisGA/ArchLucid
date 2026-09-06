@@ -1,4 +1,4 @@
-import sandboxFixture from "../../sandbox-mock-data.json";
+import sandboxFixture from "../../sandbox-mock-data.json" with { type: "json" };
 
 /**
  * Opt-in static fixtures for local UI work without a live ArchLucid API.

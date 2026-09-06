@@ -190,6 +190,13 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
             {CORE_PILOT_HELP_DISCLOSURE.actorIntakeForFindingEngines.body}
           </HelpDisclosure>
 
+          <HelpDisclosure
+            title={CORE_PILOT_HELP_DISCLOSURE.universalIntakeMustEngineCoverage.title}
+            testId="core-pilot-must-engine-coverage-disclosure"
+          >
+            {CORE_PILOT_HELP_DISCLOSURE.universalIntakeMustEngineCoverage.body}
+          </HelpDisclosure>
+
           <CorePilotHelpPostStepperPanel />
 
           <CorePilotHelpClosingPanel />

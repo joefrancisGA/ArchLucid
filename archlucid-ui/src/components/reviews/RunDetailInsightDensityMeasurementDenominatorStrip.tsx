@@ -5,10 +5,11 @@ import type { ReactElement } from "react";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { formatInsightDensityMeasurementDenominatorLine } from "@/lib/quality/insight-density-measurement-denominator";
+import { formatInsightDensityMeasurementFloorPresentation } from "@/lib/quality/insight-density-measurement-floor";
 import { cn } from "@/lib/utils";
 
 export type RunDetailInsightDensityMeasurementDenominatorStripProps = {
+  readonly enginesSucceeded?: number | null;
   readonly className?: string;
 };
 
@@ -22,7 +23,7 @@ export function RunDetailInsightDensityMeasurementDenominatorStrip(
     return null;
   }
 
-  const { line, helpHref } = formatInsightDensityMeasurementDenominatorLine();
+  const { line, helpHref } = formatInsightDensityMeasurementFloorPresentation(props.enginesSucceeded ?? null);
 
   return (
     <p
