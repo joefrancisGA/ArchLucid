@@ -162,6 +162,46 @@ describe("composeOperatorHomeSections (TB-2368)", () => {
     expect(sectionIds).not.toContain("recommended-next");
   });
 
+  it("suppresses the promoted attention kind on the taxonomy strip", () => {
+    const sections = composeOperatorHomeSections({
+      phaseSignals: {
+        hasWorkspaceReviews: true,
+        hasOverviewReviewRows: true,
+        draftCount: 0,
+        hasCommittedManifest: true,
+        openFindingsCount: 0,
+        governanceWarningsCount: 0,
+      },
+      buyerPolishedShell: false,
+      metrics: { ...emptyMetrics, hasReviews: true, reviewPackagesCommitted: 1 },
+      promotedAttentionKind: "awaiting-approval",
+    });
+
+    const attention = sections.find((section) => section.id === "attention-taxonomy");
+
+    expect(attention?.suppressAttentionKinds).toEqual(["unfinished-work", "awaiting-approval"]);
+  });
+
+  it("does not suppress the promoted attention kind when the metrics strip is omitted", () => {
+    const sections = composeOperatorHomeSections({
+      phaseSignals: {
+        hasWorkspaceReviews: true,
+        hasOverviewReviewRows: true,
+        draftCount: 0,
+        hasCommittedManifest: false,
+        openFindingsCount: 0,
+        governanceWarningsCount: 0,
+      },
+      buyerPolishedShell: false,
+      metrics: { ...emptyMetrics, hasReviews: true, reviewPackagesCommitted: 0 },
+      promotedAttentionKind: "awaiting-approval",
+    });
+
+    const attention = sections.find((section) => section.id === "attention-taxonomy");
+
+    expect(attention?.suppressAttentionKinds).toEqual(["unfinished-work"]);
+  });
+
   it("prioritizes work queue sections in Working mode", () => {
     const sections = composeOperatorHomeSections({
       phaseSignals: {

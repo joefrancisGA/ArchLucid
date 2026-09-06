@@ -1,6 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Services;
+using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.ArtifactSynthesis.Generators;
@@ -24,6 +25,15 @@ public class MermaidDiagramArtifactGenerator(IDiagramRenderer renderer) : IArtif
             ast.Nodes.Add(new DiagramNode { NodeId = nodeId, Label = decision.Title, NodeType = decision.Category });
 
             ast.Edges.Add(new DiagramEdge { FromNodeId = "manifest", ToNodeId = nodeId, Label = "decision" });
+        }
+
+        for (int i = 0; i < manifest.UnresolvedIssues.Items.Count; i++)
+        {
+            ManifestIssue issue = manifest.UnresolvedIssues.Items[i];
+            string nodeId = $"issue_{i}";
+            ast.Nodes.Add(new DiagramNode { NodeId = nodeId, Label = issue.Title, NodeType = "Issue" });
+
+            ast.Edges.Add(new DiagramEdge { FromNodeId = "manifest", ToNodeId = nodeId, Label = "flags" });
         }
 
         string content = renderer.Render(ast);

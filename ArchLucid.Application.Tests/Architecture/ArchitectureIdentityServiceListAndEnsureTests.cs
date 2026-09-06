@@ -157,7 +157,7 @@ public sealed class ArchitectureIdentityServiceListAndEnsureTests
 
         secondEnsure.ArchitectureId.Should().Be(firstEnsure.ArchitectureId);
 
-        var page = await identityRepository.ListAsync(Scope, 1, 50, CancellationToken.None);
+        var page = await identityRepository.ListAsync(Scope, 1, 50, includeArchived: true, CancellationToken.None);
 
         page.TotalCount.Should().Be(1);
     }

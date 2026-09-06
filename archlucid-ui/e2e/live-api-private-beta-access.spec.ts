@@ -52,7 +52,12 @@ const expectedScope = {
   projectId: LIVE_E2E_DEFAULT_PROJECT_ID,
 };
 
-test.describe("live-api-private-beta-access", () => {
+const releaseGateTag = "@release-gate";
+
+test.describe(
+  `live-api-private-beta-access (${releaseGateTag})`,
+  { tag: [releaseGateTag, "@critical", "@buyer-journey"] },
+  () => {
   test.skip(!resolveLiveJwtMode(), "Set LIVE_JWT_TOKEN to run private-beta JwtBearer access-path smoke.");
 
   test.beforeAll(async ({ request }) => {

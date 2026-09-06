@@ -169,6 +169,47 @@ public sealed partial class InMemoryArchitectureIdentityRepository : IArchitectu
         return Task.FromResult(true);
     }
 
+    public Task<bool> TrySetArchivedAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        bool archived,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        _ = cancellationToken;
+
+        if (!_byId.TryGetValue(architectureId, out ArchitectureIdentityRecord? record))
+            return Task.FromResult(false);
+
+        if (record.TenantId != scope.TenantId ||
+            record.WorkspaceId != scope.WorkspaceId ||
+            record.ScopeProjectId != scope.ProjectId)
+            return Task.FromResult(false);
+
+        DateTime nowUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+
+        record.ArchivedUtc = archived ? nowUtc : null;
+        record.UpdatedUtc = nowUtc;
+
+        return Task.FromResult(true);
+    }
+
+    public Task<int> CountArchivedInScopeAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        _ = cancellationToken;
+
+        int count = _byId.Values.Count(record =>
+            record.TenantId == scope.TenantId
+            && record.WorkspaceId == scope.WorkspaceId
+            && record.ScopeProjectId == scope.ProjectId
+            && record.ArchivedUtc.HasValue);
+
+        return Task.FromResult(count);
+    }
+
     private ArchitectureIdentityRecord RequireScopedRecord(ScopeContext scope, Guid architectureId)
     {
         if (!_byId.TryGetValue(architectureId, out ArchitectureIdentityRecord? record))

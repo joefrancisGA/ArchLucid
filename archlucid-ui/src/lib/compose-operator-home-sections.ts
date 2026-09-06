@@ -32,22 +32,43 @@ export type ComposeOperatorHomeSectionsInput = {
   readonly buyerPolishedShell: boolean;
   readonly metrics: OperatorHomeWorkspaceMetricsSnapshot;
   readonly workingMode?: boolean;
+  /** Attention kind promoted by the metrics-strip lead card — omit matching chip below. */
+  readonly promotedAttentionKind?: OperatorAttentionKindId | null;
 };
 
-function shouldShowHomeMetricsStrip(metrics: OperatorHomeWorkspaceMetricsSnapshot): boolean {
-  return metrics.reviewPackagesCommitted > 0;
+function mergeAttentionSuppressKinds(
+  base: readonly OperatorAttentionKindId[],
+  promotedAttentionKind: OperatorAttentionKindId | null | undefined,
+): readonly OperatorAttentionKindId[] {
+  if (promotedAttentionKind === null || promotedAttentionKind === undefined) {
+    return base;
+  }
+
+  if (base.includes(promotedAttentionKind)) {
+    return base;
+  }
+
+  return [...base, promotedAttentionKind];
 }
 
 function attentionTaxonomySection(
   suppressAttentionKinds?: readonly OperatorAttentionKindId[],
+  promotedAttentionKind?: OperatorAttentionKindId | null,
 ): OperatorHomeSectionDescriptor {
+  const mergedSuppressKinds = mergeAttentionSuppressKinds(
+    suppressAttentionKinds ?? [],
+    promotedAttentionKind,
+  );
+
   return {
     id: "attention-taxonomy",
     testId: "operator-home-attention-taxonomy",
-    ...(suppressAttentionKinds !== undefined && suppressAttentionKinds.length > 0
-      ? { suppressAttentionKinds }
-      : {}),
+    ...(mergedSuppressKinds.length > 0 ? { suppressAttentionKinds: mergedSuppressKinds } : {}),
   };
+}
+
+function shouldShowHomeMetricsStrip(metrics: OperatorHomeWorkspaceMetricsSnapshot): boolean {
+  return metrics.reviewPackagesCommitted > 0;
 }
 
 function metricsStripSection(): OperatorHomeSectionDescriptor {
@@ -70,6 +91,7 @@ function earlyPhaseSections(phase: OperatorHomeWorkspacePhase): OperatorHomeSect
 function buyerPolishedSections(
   phase: OperatorHomeWorkspacePhase,
   metrics: OperatorHomeWorkspaceMetricsSnapshot,
+  promotedAttentionKind?: OperatorAttentionKindId | null,
 ): OperatorHomeSectionDescriptor[] {
   if (phase === "eval-empty" || phase === "eval-with-drafts") {
     return earlyPhaseSections(phase);
@@ -77,7 +99,7 @@ function buyerPolishedSections(
 
   const sections: OperatorHomeSectionDescriptor[] = [
     ...(shouldShowHomeMetricsStrip(metrics) ? [metricsStripSection()] : []),
-    attentionTaxonomySection(["unfinished-work"]),
+    attentionTaxonomySection(["unfinished-work"], promotedAttentionKind),
     { id: "unfinished", testId: "operator-home-unfinished-work" },
     { id: "start-something", testId: "operator-home-start-something" },
     { id: "recent-reviews", testId: "operator-home-recent-reviews" },
@@ -96,6 +118,7 @@ function buyerPolishedSections(
 function operatorShellSections(
   phase: OperatorHomeWorkspacePhase,
   metrics: OperatorHomeWorkspaceMetricsSnapshot,
+  promotedAttentionKind?: OperatorAttentionKindId | null,
 ): OperatorHomeSectionDescriptor[] {
   if (phase === "eval-empty" || phase === "eval-with-drafts") {
     return earlyPhaseSections(phase);
@@ -103,7 +126,7 @@ function operatorShellSections(
 
   const sections: OperatorHomeSectionDescriptor[] = [
     ...(shouldShowHomeMetricsStrip(metrics) ? [metricsStripSection()] : []),
-    attentionTaxonomySection(["unfinished-work"]),
+    attentionTaxonomySection(["unfinished-work"], promotedAttentionKind),
     { id: "unfinished", testId: "operator-home-unfinished-work" },
     { id: "start-something", testId: "operator-home-start-something" },
     { id: "recent-reviews", testId: "operator-home-recent-reviews" },
@@ -135,6 +158,7 @@ function workingModeEarlyPhaseSections(phase: OperatorHomeWorkspacePhase): Opera
 function workingModeOperatorShellSections(
   phase: OperatorHomeWorkspacePhase,
   metrics: OperatorHomeWorkspaceMetricsSnapshot,
+  promotedAttentionKind?: OperatorAttentionKindId | null,
 ): OperatorHomeSectionDescriptor[] {
   if (phase === "eval-empty" || phase === "eval-with-drafts") {
     return workingModeEarlyPhaseSections(phase);
@@ -142,7 +166,7 @@ function workingModeOperatorShellSections(
 
   return [
     ...(shouldShowHomeMetricsStrip(metrics) ? [metricsStripSection()] : []),
-    attentionTaxonomySection(["unfinished-work"]),
+    attentionTaxonomySection(["unfinished-work"], promotedAttentionKind),
     { id: "in-flight", testId: "operator-home-in-flight-analysis" },
     { id: "unfinished", testId: "operator-home-unfinished-work" },
     { id: "recent-reviews", testId: "operator-home-recent-reviews" },
@@ -150,21 +174,36 @@ function workingModeOperatorShellSections(
   ];
 }
 
+function resolvePromotedAttentionKindForComposition(
+  metrics: OperatorHomeWorkspaceMetricsSnapshot,
+  promotedAttentionKind: OperatorAttentionKindId | null | undefined,
+): OperatorAttentionKindId | null | undefined {
+  if (!shouldShowHomeMetricsStrip(metrics)) {
+    return null;
+  }
+
+  return promotedAttentionKind;
+}
+
 /** TB-2368 — single layout matrix for buyer-polished and operator home shells. */
 export function composeOperatorHomeSections(
   input: ComposeOperatorHomeSectionsInput,
 ): readonly OperatorHomeSectionDescriptor[] {
   const phase = resolveOperatorHomeWorkspacePhase(input.phaseSignals);
+  const promotedAttentionKind = resolvePromotedAttentionKindForComposition(
+    input.metrics,
+    input.promotedAttentionKind,
+  );
 
   if (input.buyerPolishedShell) {
-    return buyerPolishedSections(phase, input.metrics);
+    return buyerPolishedSections(phase, input.metrics, promotedAttentionKind);
   }
 
   if (input.workingMode === true) {
-    return workingModeOperatorShellSections(phase, input.metrics);
+    return workingModeOperatorShellSections(phase, input.metrics, promotedAttentionKind);
   }
 
-  return operatorShellSections(phase, input.metrics);
+  return operatorShellSections(phase, input.metrics, promotedAttentionKind);
 }
 
 export function operatorHomeSectionDescriptor(

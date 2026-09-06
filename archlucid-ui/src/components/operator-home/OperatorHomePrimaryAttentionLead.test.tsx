@@ -28,6 +28,9 @@ describe("OperatorHomePrimaryAttentionLead", () => {
       screen.getByText(OPERATOR_ATTENTION_KIND_DESTINATIONS["awaiting-approval"].description),
     ).toBeInTheDocument();
     expect(screen.getByText("Reviews waiting for approval.")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: OPERATOR_ATTENTION_KIND_DESTINATIONS["awaiting-approval"].ctaLabel }),
+    ).toBeInTheDocument();
     expect(screen.queryByText(/governance approval/i)).not.toBeInTheDocument();
   });
 });

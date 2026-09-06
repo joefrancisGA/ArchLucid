@@ -24,6 +24,37 @@ import {
 export const EVIDENCE_TRAIL_HELP_HERO_OVERVIEW =
   "Open the Evidence graph to trace how findings, artifacts, and approval decisions connect for a finalized architecture review.";
 
+/** Buyer-safe provenance graph for `/help/evidence-trail` (TB-2127). */
+export const EVIDENCE_TRAIL_HELP_DIAGRAM_SUMMARY =
+  "Evidence flows from uploaded artifacts and review outputs into a finalized review record. The Evidence graph visualizes how findings, artifacts, and decisions connect for audit and sponsor handoff.";
+
+export const EVIDENCE_TRAIL_HELP_DIAGRAM_SOURCE = `flowchart LR
+  subgraph sources["Evidence sources"]
+    FILES["Uploaded artifacts"]
+    CLOUD["Cloud inventory"]
+    BRIEF["Guided brief"]
+  end
+
+  subgraph review["Finalized review"]
+    RUN["Review record"]
+    FIND["Findings"]
+    DEC["Decisions"]
+  end
+
+  subgraph trace["Provenance explorer"]
+    GRAPH["Evidence graph"]
+    EXPORT["Exports and verification"]
+  end
+
+  FILES --> RUN
+  CLOUD --> RUN
+  BRIEF --> RUN
+  RUN --> FIND
+  RUN --> DEC
+  FIND --> GRAPH
+  DEC --> GRAPH
+  GRAPH --> EXPORT`;
+
 export const EVIDENCE_TRAIL_HELP_ACTION_PANEL_TITLE = "Open the Evidence graph";
 
 export const EVIDENCE_TRAIL_HELP_SAMPLE_HONESTY =

@@ -327,8 +327,14 @@ export function DevTestingResetDatabaseButton(): React.JSX.Element {
   );
 
   return (
-    <div className="flex flex-col gap-2">
-      <p className={cn("m-0 font-medium text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
+    <div
+      className="flex flex-col gap-2 rounded-md border border-red-300 bg-red-50/40 p-3 dark:border-red-900 dark:bg-red-950/20"
+      data-testid="dev-reset-database-danger-zone"
+    >
+      <p className={cn("m-0 font-medium text-[var(--al-danger-text)]", OPERATOR_TYPOGRAPHY.helper)}>
+        Danger zone
+      </p>
+      <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
         Database
       </p>
       <div className="flex flex-wrap items-center gap-2">

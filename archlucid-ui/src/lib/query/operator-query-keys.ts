@@ -100,8 +100,13 @@ export const operatorQueryKeys = {
     ["operator", "architecture", "draft-list", scopeKey] as const,
   architectureIdentity: (architectureId: string) =>
     ["operator", "architecture", "identity", architectureId] as const,
-  architectureIdentityList: (scope: OperatorScopeQueryKey, page: number, pageSize: number) =>
-    ["operator", "architecture", "identity-list", scope, { page, pageSize }] as const,
+  architectureIdentityList: (
+    scope: OperatorScopeQueryKey,
+    page: number,
+    pageSize: number,
+    includeArchived: boolean,
+  ) =>
+    ["operator", "architecture", "identity-list", scope, { page, pageSize, includeArchived }] as const,
   helpDocsIndex: ["operator", "help", "docs-index"] as const,
   marketingPublicPricing: ["marketing", "pricing-json"] as const,
   pilotOutcomeSummary: ["operator", "pilots", "outcome-summary"] as const,
