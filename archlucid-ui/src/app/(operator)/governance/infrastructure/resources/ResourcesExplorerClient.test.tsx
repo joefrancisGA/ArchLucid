@@ -75,7 +75,7 @@ describe("ResourcesExplorerClient", () => {
     );
     expect(screen.getByTestId("infra-resource-work-count-11111111-1111-1111-1111-111111111111-remediation")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=remediation",
     );
     expect(screen.getByRole("link", { name: "gateway-pip" })).toHaveAttribute(
       "href",
@@ -113,6 +113,44 @@ describe("ResourcesExplorerClient", () => {
     expect(screen.getByTestId("infra-resource-explorer-hub-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings",
+    );
+  });
+
+  it("routes drift work count badges to the hub drift tab under recent-drift queue", async () => {
+    vi.mocked(fetchCloudResourceExplorerPage).mockResolvedValueOnce({
+      items: [
+        {
+          cloudResourceId: "11111111-1111-1111-1111-111111111111",
+          externalResourceId:
+            "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway",
+          displayName: "gateway-pip",
+          resourceType: "Microsoft.Network/publicIPAddresses",
+          resourceGroup: "rg-net",
+          region: "eastus",
+          lastSeenUtc: "2026-09-01T12:00:00Z",
+          workCounts: {
+            openOperationalFindingsCount: 0,
+            openRemediationInstancesCount: 0,
+            inventoryDriftChangeCount: 3,
+          },
+        },
+      ],
+      totalCount: 1,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
+    searchParams = new URLSearchParams("workQueue=recent-drift");
+    listOperatorSavedViews.mockResolvedValue([]);
+    render(<ResourcesExplorerClient />);
+
+    expect(await screen.findByTestId("infra-resource-work-count-11111111-1111-1111-1111-111111111111-drift")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=drift",
+    );
+    expect(screen.getByTestId("infra-resource-explorer-hub-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=drift",
     );
   });
 });
