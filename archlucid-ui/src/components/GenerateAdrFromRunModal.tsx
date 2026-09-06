@@ -42,6 +42,8 @@ export type GenerateAdrFromRunModalProps = {
   totalFindingCount?: number;
   /** Distinct engines that produced findings on this package snapshot (PC-01). */
   enginesSucceeded?: number | null;
+  /** Recorded aggregate quality-gate outcome when the parent already loaded agent evaluation (DR-05). */
+  aggregateQualityGateOutcome?: number | null;
   /** Buyer-polished review detail: soften ADR jargon into decision-record language. */
   buyerPolished?: boolean;
 };
@@ -58,6 +60,8 @@ export function GenerateAdrFromRunModal({
   const workingDesk = useProductionDeskChrome();
   const healthQuery = useHealthReadySummaryQuery({ enabled: workingDesk });
   const preCommitGateEnabled = healthQuery.data?.preCommitGateEnabled ?? null;
+  const hostQualityGateMode = healthQuery.data?.agentOutputQualityGateMode ?? null;
+  const hostAgentExecutionMode = healthQuery.data?.agentExecutionMode ?? null;
   const router = useRouter();
   const pathname = usePathname() ?? `/architecture/reviews/${input.runId}`;
   const searchParams = useSearchParams();
@@ -87,6 +91,11 @@ export function GenerateAdrFromRunModal({
     enginesSucceeded,
     workingDesk,
     preCommitGateEnabled,
+    structuralExecutionMode: input.structuralExecutionMode ?? null,
+    isSample: input.isSample ?? null,
+    hostAgentExecutionMode,
+    hostQualityGateMode,
+    aggregateQualityGateOutcome: input.aggregateQualityGateOutcome ?? null,
   });
   const exportBlocked =
     (workingDesk && !exportInventory.isComplete && !incompleteExportConfirmed)
@@ -103,12 +112,17 @@ export function GenerateAdrFromRunModal({
             enginesSucceeded,
             workingDesk: true,
             preCommitGateEnabled,
+            structuralExecutionMode: input.structuralExecutionMode ?? null,
+            isSample: input.isSample ?? null,
+            hostAgentExecutionMode,
+            hostQualityGateMode,
+            aggregateQualityGateOutcome: input.aggregateQualityGateOutcome ?? null,
           })
         : null;
 
       return buildMadrMarkdownFromRun(exportInput, { careerExportHonestyMarkdown });
     },
-    [enginesSucceeded, input.runId, preCommitGateEnabled, workingDesk],
+    [enginesSucceeded, hostAgentExecutionMode, hostQualityGateMode, input.aggregateQualityGateOutcome, input.isSample, input.runId, input.structuralExecutionMode, preCommitGateEnabled, workingDesk],
   );
 
   const seedFromInput = useCallback(() => {

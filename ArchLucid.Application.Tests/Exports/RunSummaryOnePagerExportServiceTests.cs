@@ -70,6 +70,7 @@ public sealed class RunSummaryOnePagerExportServiceTests
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
             Mock.Of<IGraphSnapshotRepository>(),
+            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
             Mock.Of<IConfiguration>());
 
         RunSummaryOnePagerExportResult result = await sut.GenerateMarkdownAsync(runId, CancellationToken.None);
@@ -113,6 +114,7 @@ public sealed class RunSummaryOnePagerExportServiceTests
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
             Mock.Of<IGraphSnapshotRepository>(),
+            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
             Mock.Of<IConfiguration>());
 
         Func<Task> act = () => sut.GenerateMarkdownAsync(runId, CancellationToken.None);

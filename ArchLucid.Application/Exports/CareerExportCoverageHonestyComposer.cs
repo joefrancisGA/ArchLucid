@@ -57,6 +57,18 @@ public static class CareerExportCoverageHonestyComposer
             return gateBlockedReason;
         }
 
+        string? qualityGateBlockedReason = AgentOutputQualityGateCareerHonestyPresenter.FormatCareerExportBlockedReason(
+            input.StructuralExecutionMode,
+            input.IsSampleRun,
+            input.HostAgentExecutionMode,
+            input.HostQualityGateMode,
+            input.AggregateQualityGateOutcome);
+
+        if (qualityGateBlockedReason is not null)
+        {
+            return qualityGateBlockedReason;
+        }
+
         return measurementFloorBlockedReason;
     }
 

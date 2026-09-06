@@ -35,6 +35,9 @@ partial class DataHealthJobsCompositionModule
                 tags: [ReadinessTags.Ready])
             .AddCheck<PreCommitGovernanceGateHealthCheck>(
                 PreCommitGovernanceGateHealthCheck.RegistrationName,
+                tags: [ReadinessTags.Ready])
+            .AddCheck<AgentOutputQualityGateModeHealthCheck>(
+                AgentOutputQualityGateModeHealthCheck.RegistrationName,
                 tags: [ReadinessTags.Ready]);
 
         AddArchLucidSqlServerDatabaseHealthCheck(builder);

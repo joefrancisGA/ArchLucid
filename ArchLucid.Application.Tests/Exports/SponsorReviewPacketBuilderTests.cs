@@ -314,6 +314,7 @@ public sealed class SponsorReviewPacketBuilderTests
             authorityQuery.Object,
             manifestHash.Object,
             Mock.Of<IGraphSnapshotRepository>(),
+            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
             Mock.Of<IConfiguration>());
     }
 }

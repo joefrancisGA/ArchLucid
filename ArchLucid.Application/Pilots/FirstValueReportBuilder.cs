@@ -18,6 +18,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Pilots;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Core.InfraEvidence;
@@ -55,6 +56,7 @@ public sealed class FirstValueReportBuilder(
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
     IGraphSnapshotRepository graphSnapshotRepository,
+    IAgentExecutionTraceRepository agentExecutionTraceRepository,
     ILogger<FirstValueReportBuilder> logger) : IFirstValueReportBuilder
 {
     private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions = publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
@@ -87,6 +89,8 @@ public sealed class FirstValueReportBuilder(
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
     private readonly IGraphSnapshotRepository _graphSnapshotRepository =
         graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
+    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
+        agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
 
     /// <summary>
     ///     Returns Markdown, or <see langword="null"/> when the run does not exist.
@@ -179,6 +183,7 @@ public sealed class FirstValueReportBuilder(
             detail,
             _authorityQueryService,
             _graphSnapshotRepository,
+            _agentExecutionTraceRepository,
             scope,
             workingDesk: true,
             _configuration,
