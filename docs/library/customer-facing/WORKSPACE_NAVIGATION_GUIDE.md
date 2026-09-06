@@ -23,7 +23,7 @@ The **architect workspace** and **sponsor** reading surfaces are separate shells
 3. **Review detail** — Watch assessment progress. After you **finalize**, the sealed review record, findings, and exports appear.
 4. **Artifacts** — Download sponsor-ready outputs from the architecture package.
 
-Saving an **architecture draft** (Architectures workspace) is optional and does not start a review.
+Saving an **architecture draft** is optional and does not start a review. In **Working** mode, the **Architectures** hub lists named **architecture identities** (each may own child drafts and reviews). In **Guided** mode, draft inventory teaching may emphasize drafts first.
 
 ### After your first finalize
 
