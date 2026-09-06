@@ -109,6 +109,7 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<IAdminTenantHealthReader, SqlAdminTenantHealthReader>();
         services.AddScoped<IFindingFeedbackRepository, SqlFindingFeedbackRepository>();
         services.AddScoped<IFindingReviewTrailRepository, SqlFindingReviewTrailRepository>();
+        services.AddScoped<IFindingDispositionConcurrencyRepository, SqlFindingDispositionConcurrencyRepository>();
         services.AddScoped<IRiskExceptionRepository, SqlRiskExceptionRepository>();
         services.AddScoped<IArchitectureReviewRecurrenceScheduleRepository, DapperArchitectureReviewRecurrenceScheduleRepository>();
         services.AddScoped<IArchitectureRiskRegisterQuery, ArchitectureRiskRegisterReader>();

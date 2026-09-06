@@ -3,6 +3,7 @@ import { isBuyerGoldenReviewPackagePageReady } from "@/lib/buyer/buyer-golden-sp
 import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer/buyer-demo-content-gating";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import type { WithheldFindingRow } from "@/lib/findings/findings-withheld-band";
 import type {
   EvidenceCoverageSummary,
   SponsorBottomLineContent,
@@ -61,6 +62,8 @@ export type RunDetailPresentation = {
   readonly overallPosture: string;
   readonly blockingApprovalCount: number;
   readonly lowExtractionConfidenceCount: number;
+  readonly withheldFindings: readonly WithheldFindingRow[];
+  readonly catalogAdvisoryEngineFailureCount: number;
   readonly workspaceStatus: RunDetailWorkspaceStatus;
   readonly reviewPipelineIncomplete: boolean;
   readonly recommendedActions: readonly RunDetailWorkspaceRecommendedAction[];

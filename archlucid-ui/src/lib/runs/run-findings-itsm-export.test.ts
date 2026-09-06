@@ -42,10 +42,49 @@ describe("buildRunFindingsItsmJsonExportDocument", () => {
     expect(document.workItems[0]?.trustLabel).toBe("DeterministicRule");
     expect(document.workItems[0]?.trustLabelReason).toBe("Matched egress policy.");
   });
+
+  it("omits checklist coverage rows and records omitted count", () => {
+    const findings: QuickDecisionFinding[] = [
+      {
+        findingId: "decision",
+        title: "Decision finding",
+        recommendation: "Fix it.",
+        severityValue: 2,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+        classification: "DecisionGradeFinding",
+      },
+      {
+        findingId: "checklist",
+        title: "Checklist finding",
+        recommendation: "Review hygiene.",
+        severityValue: 1,
+        findingOrder: 1,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "Advisory",
+        classification: "ChecklistCoverage",
+      },
+    ];
+
+    const document = buildRunFindingsItsmJsonExportDocument(
+      "run-a",
+      findings,
+      "https://demo.example.org",
+    );
+
+    expect(document.findingCount).toBe(1);
+    expect(document.omittedChecklistCoverageCount).toBe(1);
+    expect(document.workItems[0]?.findingId).toBe("decision");
+  });
 });
 
 describe("buildQuickDecisionFindingsCsv", () => {
-  it("exports only the passed findings rows", () => {
+  it("exports only decision-grade findings rows", () => {
     const findings: QuickDecisionFinding[] = [
       {
         findingId: "f1",
@@ -59,12 +98,25 @@ describe("buildQuickDecisionFindingsCsv", () => {
         enforcementTier: "PolicyViolation",
         confidenceLevel: "Low",
       },
+      {
+        findingId: "checklist",
+        title: "Generic hygiene",
+        recommendation: "Review.",
+        severityValue: 1,
+        findingOrder: 1,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "Advisory",
+        classification: "ChecklistCoverage",
+      },
     ];
 
     const csv = buildQuickDecisionFindingsCsv("run-a", findings);
 
     expect(csv).toContain("f1");
     expect(csv).toContain("Open port");
+    expect(csv).not.toContain("checklist");
     expect(csv.split("\n")).toHaveLength(2);
   });
 

@@ -133,9 +133,26 @@ public sealed class GraphMaterializationStageTests
     }
 
     [Fact]
-    public async Task DeclarationIdentityActorsStage_skips_when_request_actors_materialized()
+    public async Task DeclarationIdentityActorsStage_materializes_declaration_actors_when_request_actors_exist_without_duplicates()
     {
         ContextSnapshot snapshot = CreateSnapshot();
+        snapshot.CanonicalObjects =
+        [
+            new CanonicalObject
+            {
+                ObjectId = "ingress-1",
+                ObjectType = GraphNodeTypes.SecurityBaseline,
+                Name = "payments/public",
+                SourceType = "InfrastructureDeclaration",
+                SourceId = "decl-ingress",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["k8s.kind"] = "ingress",
+                    ["k8s.name"] = "public",
+                    ["k8s.namespace"] = "payments",
+                },
+            },
+        ];
         snapshot.SourceHashes[ContextScopeMetadataKeys.Actors] =
             """
             [{"label":"Ops engineer","kind":"Human","trustOrigin":"Internal","contract":"Sync","origin":"Asserted","confidence":100}]
@@ -143,8 +160,9 @@ public sealed class GraphMaterializationStageTests
 
         GraphMaterializationRunResult result = await RunThroughStage(snapshot, "declaration-identity-actors");
 
-        result.StageOutcomes.Should().ContainSingle(o => o.StageName == "declaration-identity-actors")
-            .Which.Skipped.Should().BeTrue();
+        result.StageOutcomes.Should().Contain(o => o.StageName == "declaration-identity-actors"
+            && o.Skipped == false
+            && o.NodesAdded >= 2);
     }
 
     [Fact]

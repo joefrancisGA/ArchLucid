@@ -25,7 +25,7 @@ export const FINDINGS_HELP_PRIMARY_ACTIONS = {
     href: "/insights/search-review-evidence",
   },
   governanceDecisions: {
-    label: "View governance approval",
+    label: "View approval",
     href: "/governance/decision-register",
   },
 } as const;

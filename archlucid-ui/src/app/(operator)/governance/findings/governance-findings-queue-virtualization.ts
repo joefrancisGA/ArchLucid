@@ -1,6 +1,6 @@
 import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
 
-/** Flat governance findings tables virtualize at this row count (TB-694). */
+/** Flat policy findings tables virtualize at this row count (TB-694). */
 export const GOVERNANCE_FINDINGS_QUEUE_VIRTUALIZE_MIN_ROWS = 50;
 
 /** Estimated row height for tenant governance queue virtualization. */

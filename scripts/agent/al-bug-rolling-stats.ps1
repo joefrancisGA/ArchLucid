@@ -38,8 +38,13 @@ param(
 
     [string] $HuntZoneId,
 
-    [ValidateSet('hit', 'dry', 'seed-only')]
+    [ValidateSet('hit', 'dry', 'seed-only', 'held-for-triage')]
     [string] $HuntOutcome,
+
+    [string[]] $HuntPaths,
+
+    [ValidateSet('high', 'medium', 'low')]
+    [string] $Severity,
 
     [switch] $Rolling24h,
 
@@ -135,6 +140,7 @@ function Get-Rolling24HourHuntStats {
     $bugsFound = 0
     $dryRuns = 0
     $seedOnly = 0
+    $huntsInWindow = 0
 
     foreach ($entry in $Entries) {
         $at = ConvertTo-UtcDateTime -IsoTimestamp ([string]$entry.at)
@@ -144,21 +150,44 @@ function Get-Rolling24HourHuntStats {
         }
 
         switch ([string]$entry.outcome) {
-            'hit' { $bugsFound++ }
-            'dry' { $dryRuns++ }
+            'hit' {
+                $bugsFound++
+                $huntsInWindow++
+            }
+            'dry' {
+                $dryRuns++
+                $huntsInWindow++
+            }
             'seed-only' { $seedOnly++ }
+            'held-for-triage' { }
             default {
                 throw "Unknown hunt outcome '$($entry.outcome)' in run log."
             }
         }
     }
 
+    $hitRate = 0.0
+    $denominator = $bugsFound + $dryRuns
+
+    if ($denominator -gt 0) {
+        $hitRate = [double]$bugsFound / [double]$denominator
+    }
+
+    $warning = $null
+
+    if ($denominator -ge 8 -and $hitRate -ge 0.6) {
+        $warning = 'Implausible 24h hit rate — review hunt-ready bar and instance-list fixes before celebrating yield.'
+    }
+
     return [pscustomobject]@{
-        bugsFound24h = $bugsFound
-        dryRuns24h   = $dryRuns
-        seedOnly24h  = $seedOnly
-        windowStart  = $cutoff.ToString('o')
-        windowEnd    = $NowUtc.ToString('o')
+        bugsFound24h   = $bugsFound
+        dryRuns24h     = $dryRuns
+        seedOnly24h    = $seedOnly
+        huntsInWindow  = $huntsInWindow
+        hitRate24h     = [Math]::Round($hitRate, 2)
+        warning24h     = $warning
+        windowStart    = $cutoff.ToString('o')
+        windowEnd      = $NowUtc.ToString('o')
     }
 }
 
@@ -172,6 +201,12 @@ function Write-Rolling24HourHuntPreview {
     Write-Host '| --- | --- |'
     Write-Host ("| Bugs found | {0} |" -f $Stats.bugsFound24h)
     Write-Host ("| Dry runs | {0} |" -f $Stats.dryRuns24h)
+    Write-Host ("| Hit rate | {0} |" -f $Stats.hitRate24h)
+
+    if (-not [string]::IsNullOrWhiteSpace($Stats.warning24h)) {
+        Write-Host ("| Warning | {0} |" -f $Stats.warning24h)
+    }
+
     Write-Host ("| Window (UTC) | {0} -> {1} |" -f $Stats.windowStart, $Stats.windowEnd)
 }
 
@@ -255,6 +290,14 @@ if ($RecordHunt) {
         at      = $nowUtc.ToString('o')
         zoneId  = $HuntZoneId
         outcome = $HuntOutcome
+    }
+
+    if ($HuntPaths -and $HuntPaths.Count -gt 0) {
+        $newEntry | Add-Member -NotePropertyName paths -NotePropertyValue @($HuntPaths)
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($Severity)) {
+        $newEntry | Add-Member -NotePropertyName severity -NotePropertyValue $Severity
     }
 
     $entries = @($entries) + @($newEntry)

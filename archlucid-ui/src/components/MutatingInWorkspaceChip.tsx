@@ -25,7 +25,7 @@ export type MutatingInWorkspaceChipProps = {
 
 /**
  * TB-2220 — Chip naming the workspace that an irreversible mutate CTA will write to.
- * Mount beside create/assign/save/invite controls on admin and governance surfaces.
+ * Mount beside create/assign/save/invite controls on admin and approval surfaces.
  */
 export function MutatingInWorkspaceChip(props: MutatingInWorkspaceChipProps): JSX.Element {
   const [copy, setCopy] = useState<MutatingInWorkspaceChipCopy>(() => {

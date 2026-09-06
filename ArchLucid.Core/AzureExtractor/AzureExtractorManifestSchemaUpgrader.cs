@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
-using ArchLucid.Core.Explanation;
+using ArchLucid.Core.Json;
 
 namespace ArchLucid.Core.AzureExtractor;
 
@@ -146,75 +146,6 @@ public static class AzureExtractorManifestSchemaUpgrader
         return false;
     }
 
-    private static bool TryReadSchemaVersion(JsonNode? versionNode, out int schemaVersion)
-    {
-        if (versionNode is null)
-        {
-            schemaVersion = default;
-
-            return false;
-        }
-
-        switch (versionNode.GetValueKind())
-        {
-            case JsonValueKind.Number when TryReadWholeNumberSchemaVersion(versionNode, out schemaVersion):
-                return true;
-            case JsonValueKind.String:
-            {
-                if (versionNode is not JsonValue jsonValue)
-                    break;
-
-                string? raw = jsonValue.GetValue<string>();
-
-                if (RunExplanationAggregateJsonReader.TryParseBooleanString(raw, out bool booleanSchema))
-                {
-                    schemaVersion = booleanSchema ? 1 : 0;
-
-                    return true;
-                }
-
-                if (RunExplanationAggregateJsonReader.TryParseWholeNumberString(raw, out schemaVersion))
-                    return true;
-
-                break;
-            }
-            case JsonValueKind.True:
-                schemaVersion = 1;
-
-                return true;
-            case JsonValueKind.False:
-                schemaVersion = 0;
-
-                return true;
-        }
-
-        schemaVersion = default;
-
-        return false;
-    }
-
-    private static bool TryReadWholeNumberSchemaVersion(JsonNode versionNode, out int schemaVersion)
-    {
-        if (versionNode is JsonValue jsonValue)
-        {
-            if (jsonValue.TryGetValue<int>(out schemaVersion))
-            {
-                return true;
-            }
-
-            if (jsonValue.TryGetValue<double>(out double numeric)
-                && double.IsFinite(numeric)
-                && numeric >= 0
-                && numeric == Math.Floor(numeric))
-            {
-                schemaVersion = (int)numeric;
-
-                return true;
-            }
-        }
-
-        schemaVersion = default;
-
-        return false;
-    }
+    private static bool TryReadSchemaVersion(JsonNode? versionNode, out int schemaVersion) =>
+        StrictSchemaVersionReader.TryReadSchemaVersion(versionNode, out schemaVersion);
 }

@@ -1,8 +1,12 @@
 using ArchLucid.Application.Exports;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Configuration;
 
 using FluentAssertions;
 
@@ -13,6 +17,16 @@ namespace ArchLucid.Application.Tests.Exports;
 public sealed class CareerExportCoverageHonestyComposerTests
 {
     [Fact]
+    public void Resolve_blocks_working_career_export_when_measurement_count_is_unknown()
+    {
+        CareerExportCoverageHonestyInput input = CreateInput(enginesSucceeded: null, workingDesk: true);
+        CareerExportCoverageHonesty honesty = CareerExportCoverageHonestyComposer.Resolve(input);
+
+        honesty.BlockedForWorkingCareerExport.Should().BeTrue();
+        honesty.MeasurementFloorBlockedReason.Should().Contain("not been measured");
+    }
+
+    [Fact]
     public void Resolve_blocks_working_career_export_when_measurement_floor_is_unmet()
     {
         CareerExportCoverageHonestyInput input = CreateInput(enginesSucceeded: 8, workingDesk: true);
@@ -20,6 +34,82 @@ public sealed class CareerExportCoverageHonestyComposerTests
 
         honesty.BlockedForWorkingCareerExport.Should().BeTrue();
         honesty.MeasurementFloorBlockedReason.Should().Contain("measurement floor");
+    }
+
+    [Fact]
+    public void Resolve_blocks_working_career_export_when_catalog_advisory_engine_failed()
+    {
+        CareerExportCoverageHonestyInput input = CreateInput(
+            enginesSucceeded: 16,
+            workingDesk: true,
+            catalogAdvisoryEngineFailureCount: 1);
+
+        CareerExportCoverageHonesty honesty = CareerExportCoverageHonestyComposer.Resolve(input);
+
+        honesty.BlockedForWorkingCareerExport.Should().BeTrue();
+        honesty.MeasurementFloorBlockedReason.Should().Contain("catalog engine failed");
+    }
+
+    [Fact]
+    public void Resolve_blocks_working_career_export_when_pre_commit_gate_is_disabled()
+    {
+        CareerExportCoverageHonestyInput input = CreateInput(
+            enginesSucceeded: 16,
+            workingDesk: true,
+            preCommitGateEnabled: false);
+
+        CareerExportCoverageHonesty honesty = CareerExportCoverageHonestyComposer.Resolve(input);
+
+        honesty.BlockedForWorkingCareerExport.Should().BeTrue();
+        honesty.MeasurementFloorBlockedReason.Should().Contain("Pre-finalize governance gate is off");
+    }
+
+    [Fact]
+    public void Resolve_blocks_working_career_export_when_quality_gate_is_warn_only_on_real_mode()
+    {
+        CareerExportCoverageHonestyInput input = CreateInput(
+            enginesSucceeded: 16,
+            workingDesk: true,
+            structuralExecutionMode: StructuralExecutionMode.Real,
+            hostAgentExecutionMode: "Real",
+            hostQualityGateMode: AgentOutputQualityGateMode.WarnOnly);
+
+        CareerExportCoverageHonesty honesty = CareerExportCoverageHonestyComposer.Resolve(input);
+
+        honesty.BlockedForWorkingCareerExport.Should().BeTrue();
+        honesty.MeasurementFloorBlockedReason.Should().Contain("Quality gate is WarnOnly");
+    }
+
+    [Fact]
+    public void Resolve_allows_pilot_strict_real_mode_when_gate_passes()
+    {
+        CareerExportCoverageHonestyInput input = CreateInput(
+            enginesSucceeded: 16,
+            workingDesk: true,
+            structuralExecutionMode: StructuralExecutionMode.Real,
+            hostAgentExecutionMode: "Real",
+            hostQualityGateMode: AgentOutputQualityGateMode.PilotStrict,
+            aggregateQualityGateOutcome: AgentOutputQualityGateOutcome.Accepted);
+
+        CareerExportCoverageHonesty honesty = CareerExportCoverageHonestyComposer.Resolve(input);
+
+        honesty.BlockedForWorkingCareerExport.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Resolve_blocks_working_career_export_when_quality_gate_disposition_is_warned()
+    {
+        CareerExportCoverageHonestyInput input = CreateInput(
+            enginesSucceeded: 16,
+            workingDesk: true,
+            structuralExecutionMode: StructuralExecutionMode.Real,
+            hostAgentExecutionMode: "Real",
+            hostQualityGateMode: AgentOutputQualityGateMode.PilotStrict,
+            aggregateQualityGateOutcome: AgentOutputQualityGateOutcome.Warned);
+
+        CareerExportCoverageHonestyComposer.ResolveBlockedReason(input)
+            .Should()
+            .Contain("Warned");
     }
 
     [Fact]
@@ -90,9 +180,16 @@ public sealed class CareerExportCoverageHonestyComposerTests
     }
 
     private static CareerExportCoverageHonestyInput CreateInput(
-        int enginesSucceeded,
+        int? enginesSucceeded,
         bool workingDesk,
-        CareerExportClassificationCounts? classificationCounts = null)
+        CareerExportClassificationCounts? classificationCounts = null,
+        int catalogAdvisoryEngineFailureCount = 0,
+        bool preCommitGateEnabled = true,
+        StructuralExecutionMode structuralExecutionMode = StructuralExecutionMode.Simulator,
+        bool isSampleRun = false,
+        string? hostAgentExecutionMode = null,
+        AgentOutputQualityGateMode hostQualityGateMode = AgentOutputQualityGateMode.WarnOnly,
+        AgentOutputQualityGateOutcome? aggregateQualityGateOutcome = null)
     {
         SponsorReviewCoverageHonestyContext coverageContext = new(
             RunId: "run-1",
@@ -104,6 +201,14 @@ public sealed class CareerExportCoverageHonestyComposerTests
             coverageContext,
             enginesSucceeded,
             workingDesk,
-            classificationCounts);
+            classificationCounts,
+            catalogAdvisoryEngineFailureCount,
+            preCommitGateEnabled,
+            structuralExecutionMode,
+            isSampleRun,
+            hostAgentExecutionMode,
+            hostQualityGateMode,
+            null,
+            aggregateQualityGateOutcome);
     }
 }

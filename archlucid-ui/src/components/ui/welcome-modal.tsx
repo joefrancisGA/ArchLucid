@@ -67,7 +67,7 @@ const BUYER_WELCOME_STEPS: ReadonlyArray<StepDef> = [
   {
     title: "Welcome to ArchLucid",
     description:
-      "Walk through a completed sponsor revie — isk posture, evidence-linked findings, governance status, and audit-ready export — ithout advanced tooling upfront.",
+      "Walk through a completed sponsor revie — isk posture, evidence-linked findings, approval status, and audit-ready export — ithout advanced tooling upfront.",
     Icon: Package,
   },
   {

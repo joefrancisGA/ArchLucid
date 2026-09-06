@@ -57,7 +57,7 @@ const SLACK_CHANNEL_TYPE = "SlackWebhook";
 
 const SAVE_FAILURE_MESSAGE = "We could not save this destination. Check the fields and try again.";
 
-/** Slack alert routing — incoming webhook destinations for governance alerts in this workspace scope. */
+/** Slack alert routing — incoming webhook destinations for approval alerts in this workspace scope. */
 export function SlackIntegrationPageClient(): React.ReactElement {
   const router = useRouter();
   const pathname = usePathname() ?? INTEGRATIONS_SLACK_PATH;

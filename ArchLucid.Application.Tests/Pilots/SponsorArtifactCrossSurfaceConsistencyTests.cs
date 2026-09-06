@@ -180,6 +180,8 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
             Mock.Of<IManifestHashService>(),
             scope.Object,
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
+            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
+            Mock.Of<Microsoft.Extensions.Configuration.IConfiguration>(),
             site.Object);
         byte[]? pdf = await pdfBuilder.BuildPdfAsync("r1", "http://localhost:5000");
 
@@ -457,6 +459,7 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
+            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 }

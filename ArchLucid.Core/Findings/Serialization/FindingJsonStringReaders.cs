@@ -40,7 +40,7 @@ internal static class FindingJsonStringReaders
     internal static string ReadRequiredString(JsonElement root, string name)
     {
         if (!TryGetPropertyCaseInsensitive(root, name, out JsonElement el))
-            throw new KeyNotFoundException("The given key was not present in the dictionary.");
+            throw new JsonException($"{name} is required.");
 
         return ReadStringDictValue(el);
     }

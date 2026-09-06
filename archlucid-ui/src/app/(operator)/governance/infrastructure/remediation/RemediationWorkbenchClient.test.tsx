@@ -225,7 +225,7 @@ describe("RemediationWorkbenchClient", () => {
     await waitFor(() => {
       expect(screen.getByTestId("infra-remediation-open-ask")).toHaveAttribute(
         "href",
-        "/governance/infrastructure/ask?cloudResourceId=33333333-3333-3333-3333-333333333333&snapshotId=11111111-1111-1111-1111-111111111111&findingId=22222222-2222-2222-2222-222222222222&instanceId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&correspondenceId=corr-1&runId=run-1",
+        "/governance/infrastructure/ask?cloudResourceId=33333333-3333-3333-3333-333333333333&snapshotId=11111111-1111-1111-1111-111111111111&findingId=22222222-2222-2222-2222-222222222222&instanceId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&correspondenceId=corr-1&runId=run-1&tab=remediation",
       );
     });
   });
@@ -237,7 +237,7 @@ describe("RemediationWorkbenchClient", () => {
     await waitFor(() => {
       expect(screen.getByTestId("infra-remediation-open-ask")).toHaveAttribute(
         "href",
-        "/governance/infrastructure/ask?cloudResourceId=33333333-3333-3333-3333-333333333333&instanceId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+        "/governance/infrastructure/ask?cloudResourceId=33333333-3333-3333-3333-333333333333&findingId=22222222-2222-2222-2222-222222222222&instanceId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&tab=remediation",
       );
     });
   });

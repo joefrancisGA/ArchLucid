@@ -69,6 +69,48 @@ public sealed class RunExecuteOwnershipLeaseService(
     }
 
     /// <inheritdoc />
+    public async Task RenewAsync(Guid runId, CancellationToken cancellationToken)
+    {
+        if (!IsEnabled)
+            return;
+
+        RunExecuteOwnershipLeaseOptions options = _optionsMonitor.CurrentValue;
+        int durationSeconds = Math.Clamp(options.LeaseDurationSeconds, 30, 3600);
+
+        bool renewed = await _leaseRepository.TryAcquireOrRenewAsync(
+            runId,
+            _processInstanceId.Value,
+            durationSeconds,
+            cancellationToken).ConfigureAwait(false);
+
+        if (!renewed && _logger.IsEnabled(LogLevel.Warning))
+        {
+            _logger.LogWarning(
+                "Execute ownership lease renewal failed for RunId={RunId}; another holder may own the lease.",
+                runId);
+        }
+    }
+
+    /// <inheritdoc />
+    public IAsyncDisposable BeginRenewalScope(Guid runId, CancellationToken cancellationToken)
+    {
+        if (!IsEnabled)
+            return NoOpRunExecuteOwnershipLeaseRenewalScope.Instance;
+
+        RunExecuteOwnershipLeaseRenewalScope? scope = RunExecuteOwnershipLeaseRenewalScope.TryBegin(
+            this,
+            _optionsMonitor,
+            runId,
+            cancellationToken,
+            _logger);
+
+        if (scope is not null)
+            return scope;
+
+        return NoOpRunExecuteOwnershipLeaseRenewalScope.Instance;
+    }
+
+    /// <inheritdoc />
     public Task ReleaseAsync(Guid runId, CancellationToken cancellationToken)
     {
         if (!IsEnabled)

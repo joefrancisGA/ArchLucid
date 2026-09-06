@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { ExportFormatWhenToUseHint } from "@/components/ExportFormatWhenToUseHint";
 import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
+import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -42,6 +43,8 @@ export type GoldenManifestExportMenuProps = {
   progressSummary?: RunSummary | null;
   graphSnapshot?: unknown;
   classificationCounts?: CareerExportClassificationCounts | null;
+  /** Recorded aggregate quality-gate outcome when the parent already loaded agent evaluation (DR-05). */
+  aggregateQualityGateOutcome?: number | null;
   /**
    * Buyer deliverables: single obvious control instead of a select labeled "More formats".
    */
@@ -74,6 +77,10 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
     markdownDownloadTestId = "golden-manifest-markdown-download-button",
   } = props;
   const workingDesk = useProductionDeskChrome();
+  const healthQuery = useHealthReadySummaryQuery({ enabled: workingDesk });
+  const preCommitGateEnabled = healthQuery.data?.preCommitGateEnabled ?? null;
+  const hostQualityGateMode = healthQuery.data?.agentOutputQualityGateMode ?? null;
+  const hostAgentExecutionMode = healthQuery.data?.agentExecutionMode ?? null;
   const [exportMenuKey, setExportMenuKey] = useState(0);
   const [exportError, setExportError] = useState<string | null>(null);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
@@ -104,6 +111,12 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
       enginesSucceeded: props.enginesSucceeded ?? null,
       workingDesk,
       classificationCounts: props.classificationCounts ?? null,
+      preCommitGateEnabled,
+      structuralExecutionMode: props.progressSummary?.structuralExecutionMode ?? null,
+      isSample: props.progressSummary?.isSample ?? null,
+      hostAgentExecutionMode,
+      hostQualityGateMode,
+      aggregateQualityGateOutcome: props.aggregateQualityGateOutcome ?? null,
     });
 
     if (careerExportBlockedReason !== null) {
@@ -124,6 +137,12 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         enginesSucceeded: props.enginesSucceeded ?? null,
         workingDesk,
         classificationCounts: props.classificationCounts ?? null,
+        preCommitGateEnabled,
+        structuralExecutionMode: props.progressSummary?.structuralExecutionMode ?? null,
+        isSample: props.progressSummary?.isSample ?? null,
+        hostAgentExecutionMode,
+        hostQualityGateMode,
+        aggregateQualityGateOutcome: props.aggregateQualityGateOutcome ?? null,
       },
     });
 

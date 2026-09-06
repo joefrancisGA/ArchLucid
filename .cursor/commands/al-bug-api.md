@@ -8,6 +8,8 @@ Starts a **Cursor Cloud Agent** (Composer 2.5 standard, not Fast) that follows t
 
 Each cloud hunt is a **seed hunt** or a **thorough defect hunt** (announced after the picker). Queued launches still complete that kind; they must not skim and exit.
 
+API hunts use the same **§1.1b hunt-ready bar** as local `/al-bug` (five fields including **Reachability**; no instance-list-only fixes).
+
 Distinct from **`/al-bug`** (local hunt loop) and **`/al-api`** (generic cloud task launcher).
 
 **Default git target:** **`master`** (cloud agent pushes with `workOnCurrentBranch=true`).

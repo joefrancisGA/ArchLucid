@@ -33,4 +33,11 @@ public sealed class PreFinalizeChecklistResult
         get;
         init;
     }
+
+    /// <summary>Host <c>ArchLucid:Governance:PreCommitGateEnabled</c> — surfaced for Working desk honesty (DR-04).</summary>
+    public bool PreCommitGateEnabled
+    {
+        get;
+        init;
+    }
 }

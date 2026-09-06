@@ -46,6 +46,8 @@ export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackage
   readonly graphSnapshot?: unknown;
   readonly analysisStagesComplete?: boolean;
   readonly enginesSucceeded?: number | null;
+  readonly withheldFindingCount?: number;
+  readonly catalogAdvisoryEngineFailureCount?: number;
 };
 
 function doThisNextLoadingSkeleton(): React.JSX.Element {
@@ -220,6 +222,8 @@ export function RunDetailReviewPackageDoThisNextResolved(
         graphSnapshot={props.graphSnapshot}
         transparencyTrail={props.transparencyTrail ?? null}
         quickDecisionFindings={props.quickDecisionFindings}
+        withheldFindingCount={props.withheldFindingCount}
+        catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
       />
       <FinalizeReadinessStrip
         commitBlockedReason={

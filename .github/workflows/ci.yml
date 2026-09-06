@@ -2228,6 +2228,23 @@ jobs:
         shell: pwsh
         run: Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/start-local-api-and-ui.Tests.ps1'
 
+      # /al-bug hunt tooling: these were Pester 3 syntax and ungated until ABQ-11, which hid
+      # four StrictMode/scoring defects in the picker, escalation, and sequential runner.
+      - name: AlBugPickZone.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/AlBugPickZone.Tests.ps1'
+
+      - name: AlBugRollingStats.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/AlBugRollingStats.Tests.ps1'
+
+      - name: AlBugEscalation.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/AlBugEscalation.Tests.ps1'
+
+      - name: al-bug-lint-ledger-counters.py
+        run: python3 scripts/agent/al-bug-lint-ledger-counters.py
+
   guards-pre-corset:
     name: "CI: guards pre-corset (text)"
     # RC2 diagnostic branch: blocking — guard failure fails the workflow (conclusion: failure); jobs that

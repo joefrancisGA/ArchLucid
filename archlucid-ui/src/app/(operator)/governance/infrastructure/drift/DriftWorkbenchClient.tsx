@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { LayerHeader } from "@/components/LayerHeader";
@@ -32,6 +32,7 @@ import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/l
 import {
   mergeInfrastructureAskAuditScope,
   mergeWorkbenchHubScopePatch,
+  hasStaleInfraEvidenceAuditUrlParams,
   parseInfraEvidenceWorkbenchAuditScopeFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
 import {
@@ -41,7 +42,12 @@ import {
   DRIFT_WORKBENCH_SNAPSHOT_ID_PARAM,
   parseInfraEvidenceWorkbenchQueryValue,
 } from "@/lib/infra-evidence/infra-evidence-workbench-url";
+import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
+import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
+import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
+import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
+import { driftWorkbenchHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-drift-filter-url";
 import { formatResourceHubTabViewLabel } from "@/lib/infra-evidence/infra-evidence-hub-tab-labels";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { TERRAFORM_ADVISORY_EXPORT_DISCLAIMER } from "@/lib/terraform-advisory-disclaimer";
@@ -63,6 +69,7 @@ function formatDiffLabel(diff: InfraEvidenceDiffSummary, selectedSnapshotId: str
 }
 
 export function DriftWorkbenchClient() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const urlSnapshotId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(DRIFT_WORKBENCH_SNAPSHOT_ID_PARAM));
   const urlCloudResourceId = parseInfraEvidenceWorkbenchQueryValue(
@@ -99,10 +106,29 @@ export function DriftWorkbenchClient() {
   }, [loadingChanges, selectedDiffId.length, urlChangeId, visibleChanges]);
 
   const auditScope = useMemo(() => parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams), [searchParams]);
+  const hasStaleAuditUrlParams = useMemo(
+    () => hasStaleInfraEvidenceAuditUrlParams(searchParams),
+    [searchParams],
+  );
   const scopedSnapshotId = selectedSnapshotId.length > 0 ? selectedSnapshotId : urlSnapshotId;
   const workbenchHubScopePatch = useMemo(
     () => mergeWorkbenchHubScopePatch(scopedSnapshotId, auditScope),
     [auditScope, scopedSnapshotId],
+  );
+  const { hub: resourceHub } = useInfraEvidenceResourceHubAuditLineage(
+    urlCloudResourceId,
+    scopedSnapshotId,
+  );
+
+  const syncDriftUrl = useCallback(
+    (patch: {
+      readonly snapshotId?: string | null;
+      readonly diffId?: string | null;
+      readonly changeId?: string | null;
+    }) => {
+      router.replace(driftWorkbenchHrefFromSearch(searchParams, patch), { scroll: false });
+    },
+    [router, searchParams],
   );
 
   useEffect(() => {
@@ -271,13 +297,27 @@ export function DriftWorkbenchClient() {
     }
   }, [selectedSnapshotId]);
 
+  const selectionAnnouncement = useMemo(() => {
+    if (selectedChange == null) {
+      return null;
+    }
+
+    const propertyLabel = selectedChange.property ?? selectedChange.changeType;
+
+    return `Showing drift change ${propertyLabel}.`;
+  }, [selectedChange]);
+
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6" data-testid="infra-drift-workbench">
       <LayerHeader pageKey="infrastructure-drift" />
-      <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        Compare inventory snapshots, inspect semantic drift rows, and export advisory Terraform reconstructed from snapshot
-        evidence. This is not original Terraform and must not be applied without human review.
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+          Compare inventory snapshots, inspect semantic drift rows, and export advisory Terraform reconstructed from snapshot
+          evidence. This is not original Terraform and must not be applied without human review.
+        </p>
+        <CopyScopedOperatorLinkButton testId="infra-drift-copy-scoped-link" />
+      </div>
+      <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-drift-selection-announcer" />
 
       {urlCloudResourceId.length > 0 ? (
         <section
@@ -288,6 +328,19 @@ export function DriftWorkbenchClient() {
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             Scoped to resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
           </p>
+          {auditScope != null || resourceHub?.auditLineageLink.available === false || hasStaleAuditUrlParams ? (
+            <WorkbenchAuditLineageStatus
+              auditScope={auditScope}
+              hub={resourceHub}
+              cloudResourceId={urlCloudResourceId}
+              currentSearch={searchParams.toString()}
+              snapshotId={scopedSnapshotId}
+              activeTab="drift"
+              hasStaleAuditUrlParams={hasStaleAuditUrlParams}
+              provenanceTestId="infra-drift-audit-provenance"
+              unavailableTestId="infra-drift-audit-unavailable"
+            />
+          ) : null}
           <WorkbenchHubScopeLinks
             cloudResourceId={urlCloudResourceId}
             primaryTab="drift"
@@ -327,7 +380,11 @@ export function DriftWorkbenchClient() {
             data-testid="infra-drift-snapshot-picker"
             disabled={loadingSnapshots || snapshots.length === 0}
             value={selectedSnapshotId}
-            onChange={(event) => setSelectedSnapshotId(event.target.value)}
+            onChange={(event) => {
+              const nextSnapshotId = event.target.value;
+              setSelectedSnapshotId(nextSnapshotId);
+              syncDriftUrl({ snapshotId: nextSnapshotId, diffId: "", changeId: "" });
+            }}
           >
             {snapshots.length === 0 ? <option value="">No snapshots in scope</option> : null}
             {snapshots.map((snapshot) => (
@@ -345,7 +402,11 @@ export function DriftWorkbenchClient() {
             data-testid="infra-drift-diff-picker"
             disabled={loadingDiffs || diffs.length === 0}
             value={selectedDiffId}
-            onChange={(event) => setSelectedDiffId(event.target.value)}
+            onChange={(event) => {
+              const nextDiffId = event.target.value;
+              setSelectedDiffId(nextDiffId);
+              syncDriftUrl({ diffId: nextDiffId, changeId: "" });
+            }}
           >
             {diffs.length === 0 ? <option value="">No diffs for this snapshot</option> : null}
             {diffs.map((diff) => (
@@ -382,6 +443,7 @@ export function DriftWorkbenchClient() {
                 cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : undefined,
                 snapshotId: selectedSnapshotId,
                 diffId: selectedDiffId,
+                hubTab: "drift",
                 ...mergeInfrastructureAskAuditScope(auditScope),
               })}
             >
@@ -422,8 +484,24 @@ export function DriftWorkbenchClient() {
             <EnterpriseTableRow
               key={row.changeId}
               data-testid={`infra-drift-change-row-${row.changeId}`}
-              className={selectedChangeId === row.changeId ? "bg-muted/40" : undefined}
-              onClick={() => setSelectedChangeId(row.changeId)}
+              className={cn(
+                "cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+                selectedChangeId === row.changeId ? "bg-muted/40" : undefined,
+              )}
+              role="button"
+              tabIndex={0}
+              aria-selected={selectedChangeId === row.changeId}
+              onClick={() => {
+                setSelectedChangeId(row.changeId);
+                syncDriftUrl({ changeId: row.changeId });
+              }}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  setSelectedChangeId(row.changeId);
+                  syncDriftUrl({ changeId: row.changeId });
+                }
+              }}
             >
               <EnterpriseTableCell className="max-w-xs truncate font-mono text-xs">
                 {row.azureResourceId ?? "—"}

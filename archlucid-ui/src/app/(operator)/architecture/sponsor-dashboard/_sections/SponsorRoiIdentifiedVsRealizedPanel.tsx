@@ -55,7 +55,7 @@ export function SponsorRoiIdentifiedVsRealizedPanel(
           </span>
         </h3>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          Do not treat identified potential as realized value until findings are remediated through governance.
+          Do not treat identified potential as realized value until findings are remediated through approval.
         </p>
       </div>
 

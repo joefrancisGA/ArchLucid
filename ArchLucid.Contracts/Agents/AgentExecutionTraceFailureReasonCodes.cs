@@ -41,4 +41,9 @@ public static class AgentExecutionTraceFailureReasonCodes
     ///     Re-run/resume could not load the architecture request needed to restart the deferred pipeline.
     /// </summary>
     public const string MissingArchitectureRequest = nameof(MissingArchitectureRequest);
+
+    /// <summary>
+    ///     Execute ownership lease expired without renewal — worker lost mid-run (TB-943 / DR-06).
+    /// </summary>
+    public const string ExecuteOwnershipLeaseExpired = nameof(ExecuteOwnershipLeaseExpired);
 }
