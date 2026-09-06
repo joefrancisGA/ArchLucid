@@ -52,8 +52,17 @@ vi.mock("@/lib/infra-evidence/infra-evidence-hub-api", () => ({
     architectureReviewFindings: {
       streamKind: "ArchitectureReview",
       streamLabel: "Architecture review",
-      items: [],
-      totalCount: 0,
+      items: [
+        {
+          id: "arch-finding-1",
+          title: "Missing subnet segmentation",
+          severity: "Medium",
+          status: "Open",
+          streamKind: "ArchitectureReview",
+          streamLabel: "Architecture review",
+        },
+      ],
+      totalCount: 1,
       page: 1,
       pageSize: 25,
       hasMore: false,
@@ -146,11 +155,21 @@ describe("ResourceHubClient", () => {
     expect(screen.queryByTestId("infra-resource-hub-audit-degraded")).not.toBeInTheDocument();
   });
 
+  it("links audit lineage to scoped Infrastructure Ask", async () => {
+    searchParams = new URLSearchParams("tab=audit&snapshotId=22222222-2222-2222-2222-222222222222");
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-audit-ask")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
+    );
+  });
+
   it("shows tab count badges for findings and drift", async () => {
     searchParams = new URLSearchParams("tab=overview");
     render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
 
-    expect(await screen.findByTestId("infra-resource-hub-tab-findings")).toHaveTextContent("Findings (1)");
+    expect(await screen.findByTestId("infra-resource-hub-tab-findings")).toHaveTextContent("Findings (2)");
     expect(screen.getByTestId("infra-resource-hub-tab-drift")).toHaveTextContent("Drift (1)");
   });
 
@@ -211,6 +230,26 @@ describe("ResourceHubClient", () => {
     expect(await screen.findByTestId("infra-resource-hub-remediation-factory-instance-1")).toHaveAttribute(
       "href",
       "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&instanceId=instance-1",
+    );
+  });
+
+  it("links remediation rows to scoped Infrastructure Ask", async () => {
+    searchParams = new URLSearchParams("tab=remediation&snapshotId=22222222-2222-2222-2222-222222222222");
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-remediation-ask-instance-1")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&instanceId=instance-1",
+    );
+  });
+
+  it("links architecture review findings to scoped Infrastructure Ask", async () => {
+    searchParams = new URLSearchParams("tab=findings&snapshotId=22222222-2222-2222-2222-222222222222");
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-architecture-finding-ask-arch-finding-1")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&findingId=arch-finding-1",
     );
   });
 });
