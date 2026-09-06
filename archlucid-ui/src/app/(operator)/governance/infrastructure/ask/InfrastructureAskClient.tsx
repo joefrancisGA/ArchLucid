@@ -36,6 +36,7 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   formatCloudResourceExplorerWorkQueueLabel,
+  formatResourceHubTabViewLabelFromExplorerWorkQueue,
   parseResourceExplorerWorkQueueFromSearch,
   resolveResourceHubTabFromExplorerWorkQueue,
 } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
@@ -172,6 +173,30 @@ export function InfrastructureAskClient() {
     return resolveResourceHubTabFromExplorerWorkQueue(workQueue);
   }, [assessmentId, auditEvidenceSnapshotId, controlId, correspondenceId, diffId, findingId, instanceId, workQueue]);
 
+  const askScopeHubTab = useMemo(
+    () =>
+      resolveResourceHubTabFromAskScope({
+        findingId,
+        instanceId,
+        diffId,
+        assessmentId,
+        auditEvidenceSnapshotId,
+        controlId,
+        correspondenceId,
+      }),
+    [assessmentId, auditEvidenceSnapshotId, controlId, correspondenceId, diffId, findingId, instanceId],
+  );
+
+  const workQueueScopedHubTabLabel = useMemo(() => {
+    if (workQueue === "all" || askScopeHubTab != null) {
+      return null;
+    }
+
+    return formatResourceHubTabViewLabelFromExplorerWorkQueue(workQueue);
+  }, [askScopeHubTab, workQueue]);
+
+  const resourceHubBackLinkLabel = workQueueScopedHubTabLabel ?? "Open resource evidence hub";
+
   const driftWorkbenchBackLinkHref = useMemo(() => {
     if (diffId.length === 0) {
       return null;
@@ -306,8 +331,11 @@ export function InfrastructureAskClient() {
                 auditEvidenceSnapshotId: auditEvidenceSnapshotId.length > 0 ? auditEvidenceSnapshotId : undefined,
                 controlId: controlId.length > 0 ? controlId : undefined,
               })}
+              data-testid={
+                workQueueScopedHubTabLabel != null ? "infra-ask-open-work-queue-hub-tab" : undefined
+              }
             >
-              Open resource evidence hub
+              {resourceHubBackLinkLabel}
             </Link>
           ) : null}
           {cloudResourceId.length > 0 && hubBackLinkTab != null ? (
