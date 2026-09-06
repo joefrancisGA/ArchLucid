@@ -136,11 +136,13 @@ export function buildResourceHubDiagramReconcileWorkbenchHref(
   snapshotId: string | null | undefined,
   runId: string | null | undefined,
   correspondenceId?: string | null,
+  cloudResourceId?: string | null,
 ): string {
   return buildDiagramReconcileWorkbenchHref({
     snapshotId,
     runId,
     correspondenceId,
+    cloudResourceId,
   });
 }
 
