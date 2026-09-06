@@ -153,7 +153,15 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
           args.resolvedDraftIdRef.current = created.draftId;
           draftId = created.draftId;
           args.setHasPersistedDraft(true);
-          args.onDraftCreated?.(created.draftId);
+          const createdArchitectureId = created.architectureId?.trim() ?? "";
+
+          if (createdArchitectureId.length > 0) {
+            args.onDraftCreated?.({
+              draftId: created.draftId,
+              architectureId: createdArchitectureId,
+            });
+          }
+
           void invalidateArchitectureDraftListQueries();
           clearArchitectureNewDraftRecovery();
         }
