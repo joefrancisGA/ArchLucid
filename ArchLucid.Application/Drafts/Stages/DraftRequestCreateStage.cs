@@ -67,9 +67,7 @@ public sealed class DraftRequestCreateStage(
             document,
             cancellationToken);
 
-        string displayName = !string.IsNullOrWhiteSpace(document.SystemName)
-            ? document.SystemName
-            : intent;
+        string displayName = ArchitectureIdentityDisplayNameResolver.ResolveFromDraft(document);
 
         ArchitectureIdentityRecord identity = await _architectureIdentityService.EnsureForDraftAsync(
             scope,
