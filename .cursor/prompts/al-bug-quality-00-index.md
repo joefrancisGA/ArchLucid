@@ -7,7 +7,7 @@
 
 # `/al-bug` quality — Composer prompt set (ABQ-01–ABQ-18)
 
-**Status:** **ABQ-01–13 shipped in code** on `cursor/al-bug-quality-prompts-3c5e`. **ABQ-14–18 are ready to run** — paste one `.cursor/prompts/al-bug-quality-NN-*.md` file per Composer session. Do **not** re-implement 01–13 from these prompt files (several early prompts are stale vs shipped code; see footnotes).
+**Status:** **ABQ-01–18 shipped in code** on `cursor/al-bug-quality-prompts-3c5e`. Do **not** re-implement from these prompt files (several early prompts are stale vs shipped code; see footnotes).
 
 `/al-bug` finds a real defect with a failing repro, ships a minimal fix to `bugsmash`, and updates `docs/library/AL_BUG_HUNT_LEDGER.md`. By 2026-09-06 the loop was manufacturing bugs: 1,236 logged hunts, 1,182 hits, mega-zone `archlucid-core` reporting thousands of “bugs,” and redactors that redact `beefAccessKey` while leaking `adminPassword`.
 
@@ -26,21 +26,19 @@ Do **not** revert every post–2026-08-23 bugsmash merge. Replace the *mechanism
 | Class | Failure | Prompts |
 |-------|---------|---------|
 | **Fail-open redaction** | `IsEmbeddedSensitiveFragment` + per-word allowlist; real camelCase secrets leak | ABQ-01, ABQ-02 *(shipped)* |
-| **Leniency treadmill** | Boolean / `"on"` / `null` accepted as `schemaVersion`; sibling “parity” hunts | ABQ-03 *(shipped)*, **ABQ-15** *(remaining copies)* |
+| **Leniency treadmill** | Boolean / `"on"` / `null` accepted as `schemaVersion`; sibling “parity” hunts | ABQ-03, ABQ-15 *(shipped)* |
 | **Phrase-list treadmill** | Open-class English phrases (`mightn't configure to`) instead of closed-class negation tokens | ABQ-04, ABQ-13 *(shipped)* |
 | **Weak hunt bar** | Concrete-but-unreachable inputs count as hunt-ready; instance-list diffs count as fixes | ABQ-05 *(shipped)* |
 | **Picker Goodhart** | `bugs-found / hunts` unbounded; no cooldown; sequential auto-push | ABQ-06, ABQ-07 *(shipped)* |
 | **Catalog shape** | Project-wide zones; `-Nominate` documented but missing; recent churn unzoned | ABQ-08, ABQ-09 *(shipped)* |
-| **Inflated yield** | Ledger `(proven)` count treated as product quality | ABQ-10 *(shipped)*, **ABQ-16** *(published counters still lie)* |
-| **Silent tests** | Pester 3 syntax + ungated suites hid StrictMode defects | ABQ-11, ABQ-12 *(shipped)*, **ABQ-17** |
-| **Stale wire fixtures** | `enforcementTier` required in converter; fixtures omit it | **ABQ-14** |
-| **Cloud Agent image** | Linux image has no `pwsh`; prompts assume it | **ABQ-18** |
+| **Inflated yield** | Ledger `(proven)` count treated as product quality | ABQ-10, ABQ-16 *(shipped)* |
+| **Silent tests** | Pester 3 syntax + ungated suites hid StrictMode defects | ABQ-11, ABQ-12, ABQ-17 *(shipped)* |
+| **Stale wire fixtures** | `enforcementTier` required in converter; fixtures omit it | ABQ-14 *(shipped)* |
+| **Cloud Agent image** | Linux image has no `pwsh`; prompts assume it | ABQ-18 *(shipped)* |
 
 ## Run order
 
-**01–13 are done** (do not paste those files to re-do the work). Wave 3:
-
-**14 first** (Core test red; blocks confidence in `FindingJsonConverter`). **15** after 14 (same Core serialization neighborhood; do not fight fixture churn). **16** and **18** are independent of 14/15 and may run in parallel. **17** after 18 preferred (Cloud sessions need `pwsh` + Pester 5 to execute it) but a Windows agent can run 17 without 18.
+**01–18 are done** (do not paste those files to re-do the work).
 
 | # | Prompt file | Flaw it mitigates |
 |---|----------------|-------------------|
@@ -57,11 +55,11 @@ Do **not** revert every post–2026-08-23 bugsmash merge. Replace the *mechanism
 | 11 | *(no prompt file — shipped in code)* | Al-bug Pester 3→5; four StrictMode/scoring defects |
 | 12 | *(no prompt file — shipped in code)* | Structural proven-row classification; CI gates AlBug* suites; deleted stale `_al-bug-pick-zone.ps1` |
 | 13 | *(no prompt file — shipped in code)* | Tokenizer `EndsWithWordToken` compares characters; complete contraction class |
-| **14** | `al-bug-quality-14-enforcement-tier-fixtures.md` | Required `enforcementTier` vs stale fixtures |
-| **15** | `al-bug-quality-15-shared-boolean-reader.md` | 20 `TryParseBooleanString` copies; boolean→number identity |
-| **16** | `al-bug-quality-16-honest-ledger-counters.md` | Published `bugs-found` still exceeds hunts |
-| **17** | `al-bug-quality-17-ungated-pester-suites.md` | Nine leftover Pester 3 suites, ungated |
-| **18** | `al-bug-quality-18-cloud-agent-powershell-setup.md` | Cloud Agent `AGENTS.md` missing pwsh/Pester setup |
+| 14 | *(no prompt file — shipped in code)* | Required `enforcementTier` fixtures; `JsonException` on missing |
+| 15 | *(no prompt file — shipped in code)* | `JsonBooleanStringReader`; identity fields reject boolean/`on` |
+| 16 | *(no prompt file — shipped in code)* | `effective-bugs` picker + `al-bug-lint-ledger-counters.py` |
+| 17 | *(no prompt file — shipped in code)* | Nine Pester 3 suites migrated; `first-pilot-pester` CI job |
+| 18 | *(no prompt file — shipped in code)* | Cloud `AGENTS.md` pwsh/Pester setup |
 
 ## Already shipped — do not re-open as this set’s job
 
@@ -79,13 +77,16 @@ Do **not** revert every post–2026-08-23 bugsmash merge. Replace the *mechanism
 | Escalation (07/11) | `scripts/agent/al-bug-escalation.ps1`; sequential runner calls `Get-CurrentEscalatedFiles` (never `-EscalatedFiles @()`) |
 | Mega-zone split + nominate (08/09) | Retired `archlucid-core`; `-Nominate` |
 | Validity audit (10/12) | `scripts/agent/al-bug-audit-proven-rows.py` classifies **all** proven rows by guard symbol; CI + `python3 scripts/tests/test_al_bug_audit_proven_rows.py` |
-| Al-bug Pester 5 + CI (11/12) | `AlBugPickZone` / `RollingStats` / `Escalation` in `azure-extractor-pester` |
+| Al-bug Pester 5 + CI (11/12/17) | `AlBugPickZone` / `RollingStats` / `Escalation` + `first-pilot-pester` job |
+| Boolean reader + identity reject (15) | `ArchLucid.Core/Json/JsonBooleanStringReader.cs`; `StrictSchemaVersionReader` on CloudInventory manifest |
+| Honest ledger counters (16) | `effectiveBugs` in picker; `al-bug-lint-ledger-counters.py` in CI |
+| Cloud pwsh setup (18) | `AGENTS.md` § Cursor Cloud specific instructions |
 
 ### Footnotes for stale 01–10 prompt text
 
 - ABQ-06 still says “Pester 3.4 only” and “do not edit `.cursor/_al-bug-pick-zone.ps1`”. **Pester 5 is required now.** The stale `_al-bug-pick-zone.ps1` file was **deleted** in ABQ-12. Implementers of 14–18 must not recreate it.
 - ABQ-10 asked for a **sample**; ABQ-12 classified the **full** proven-row population. Do not revert to sampling.
-- ABQ-03 left leftover `TryParseBooleanString` copies on purpose; **ABQ-15** owns them.
+- ABQ-03 + ABQ-15 consolidated boolean parsing into `JsonBooleanStringReader`; identity fields use whole-number/enum readers only.
 
 ## Won’t do (explicitly not prompted)
 
