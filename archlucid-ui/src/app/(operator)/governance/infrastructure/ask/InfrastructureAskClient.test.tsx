@@ -151,7 +151,7 @@ describe("InfrastructureAskClient", () => {
     );
     expect(screen.getByTestId("infra-ask-remediation-back-link")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&findingId=finding-1",
+      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&findingId=finding-1&snapshotId=22222222-2222-2222-2222-222222222222",
     );
   });
 
@@ -168,7 +168,7 @@ describe("InfrastructureAskClient", () => {
     );
     expect(screen.getByTestId("infra-ask-remediation-back-link")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&instanceId=instance-1",
+      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&instanceId=instance-1&snapshotId=22222222-2222-2222-2222-222222222222",
     );
   });
 
@@ -205,6 +205,22 @@ describe("InfrastructureAskClient", () => {
     expect(screen.getByTestId("infra-ask-diagram-reconcile-back-link")).toHaveAttribute(
       "href",
       "/governance/infrastructure/diagram-reconcile?runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111&correspondenceId=corr-1",
+    );
+    expect(screen.getByTestId("infra-ask-remediation-back-link")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&correspondenceId=corr-1&runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222",
+    );
+  });
+
+  it("preserves diagram reconcile handoff context on finding remediation back link", async () => {
+    searchParams = new URLSearchParams(
+      "cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&runId=run-1&correspondenceId=corr-1&findingId=finding-1",
+    );
+    render(<InfrastructureAskClient />);
+
+    expect(screen.getByTestId("infra-ask-remediation-back-link")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&findingId=finding-1&correspondenceId=corr-1&runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222",
     );
   });
 
