@@ -39,6 +39,7 @@ import {
 } from "@/lib/baseline-settings-help-evidence-copy";
 import {
   BASELINE_SETTINGS_HELP_PRIMARY_ACTION,
+  BASELINE_SETTINGS_HELP_BUYER_START_HERE_HELPER,
   BASELINE_SETTINGS_HELP_START_HERE_CARD_TITLE,
 } from "@/lib/baseline-settings-help-guide-content";
 import {
@@ -49,6 +50,7 @@ import {
 } from "@/lib/baseline-settings-help-page-copy";
 import { BASELINE_SAVED_CANNOT_BE_REMOVED_HELPER } from "@/lib/baseline-settings-present";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { formatHelpTopicApplicabilityMetadata } from "@/lib/help/help-topic-applicability-metadata";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpBaselineSettingsGuideView buyer-polished shell (HEB)", () => {
@@ -71,6 +73,9 @@ describe("HelpBaselineSettingsGuideView buyer-polished shell (HEB)", () => {
     expect(screen.queryByTestId("help-baseline-settings-claim-discipline-strip")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-baseline-settings-claim-discipline")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-registry-provenance")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-baseline-settings-buyer-provenance")).toHaveTextContent(
+      formatHelpTopicApplicabilityMetadata(entry)!,
+    );
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-baseline-settings-header-actions")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: BASELINE_SETTINGS_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
@@ -89,9 +94,14 @@ describe("HelpBaselineSettingsGuideView buyer-polished shell (HEB)", () => {
     expect(screen.getByTestId("help-baseline-settings-saved-baseline-warn")).toHaveTextContent(
       BASELINE_SAVED_CANNOT_BE_REMOVED_HELPER,
     );
+    expect(screen.getByTestId("help-baseline-settings-buyer-start-here-helper")).toHaveTextContent(
+      BASELINE_SETTINGS_HELP_BUYER_START_HERE_HELPER,
+    );
     expect(
-      within(actionPanel).getByRole("link", { name: BASELINE_SETTINGS_HELP_PRIMARY_ACTION.label }),
-    ).toHaveAttribute("href", BASELINE_SETTINGS_HELP_PRIMARY_ACTION.href);
+      within(actionPanel).queryByRole("link", { name: BASELINE_SETTINGS_HELP_PRIMARY_ACTION.label }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-baseline-settings-overview")).toHaveTextContent(/measurement anchors/);
+    expect(firstViewport).toContainElement(screen.getByTestId("help-baseline-settings-overview"));
     expect(
       screen.getByRole("heading", { level: 2, name: BASELINE_SETTINGS_HELP_START_HERE_CARD_TITLE }),
     ).toBeInTheDocument();
