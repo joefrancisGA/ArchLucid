@@ -55,7 +55,7 @@ export const ALERTS_GOV_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     section: "Alerts/gov",
     note: "Governance setup guide (Alerts/gov) - GovernanceSetupGuidePageView with PageContextualHelpButton (topic map governance-approval; Category-1 registry), outcome-framed steps and progress coach. Links into audited config workspaces. Not a signed-record Sources trail. Score 62/100 (2026-08-08) - setup checklist hard-caps without live config depth. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
   },
-  /** Traffic workbook row ID for governance approval queue. Owner backlog shorthand: GOP. */
+  /** Traffic workbook row ID for approval queue. Owner backlog shorthand: GOP. */
   {
     rowId: "GOP",
     path: GOVERNANCE_APPROVAL_QUEUE_PATH,

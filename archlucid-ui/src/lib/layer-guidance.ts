@@ -224,7 +224,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "governance-workflow": {
     layerBadge: "Governance",
-    headline: "Record and inspect governance approval decisions for finalized reviews.",
+    headline: "Record and inspect approval decisions for finalized reviews.",
     useWhen:
       "Pick a review to see approval status and decision history, or work pending requests from the workspace queue.",
     firstPilotNote:
@@ -384,17 +384,17 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
   "governance-findings": {
     headline: "Review records, decisions, and monitoring actions tied to this review.",
     useWhen:
-      "Scan dispositions alongside the governance approval — findings, recorded decisions, and follow-up monitors in one ledger.",
+      "Scan dispositions alongside the approval — findings, recorded decisions, and follow-up monitors in one ledger.",
     firstPilotNote: null,
     enterpriseFootnote:
-      "Review administrators and governance reviewers use review detail for deep inspection; governance approval remains the authoritative checkpoint.",
+      "Review administrators and governance reviewers use review detail for deep inspection; approval remains the authoritative checkpoint.",
   },
   "policy-packs": {
     useWhen: "See which governance packs apply in this workspace and how they combine.",
     firstPilotNote: null,
   },
   "governance-workflow": {
-    headline: "Record and inspect governance approval decisions for finalized reviews.",
+    headline: "Record and inspect approval decisions for finalized reviews.",
     useWhen:
       "Browse pending approvals for your workspace, or load a review to see its submission and decision trail.",
     firstPilotNote: null,

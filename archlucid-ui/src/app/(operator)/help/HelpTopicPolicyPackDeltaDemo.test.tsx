@@ -80,7 +80,7 @@ describe("HelpPolicyPackDeltaDemoGuideView (standalone internal runbook)", () =>
 
     // The runbook's pre-commit gate references resolve to the in-app governance topic, so the gate
     // stays linked (under the registry title) instead of leaking a repo `.md` path.
-    const governanceGateLinks = screen.getAllByRole("link", { name: "Governance approval" });
+    const governanceGateLinks = screen.getAllByRole("link", { name: "Approval" });
 
     expect(governanceGateLinks.length).toBeGreaterThan(0);
     expect(governanceGateLinks[0]).toHaveAttribute("href", inAppHelpHref("governance-approval"));

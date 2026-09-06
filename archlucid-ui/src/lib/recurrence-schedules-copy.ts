@@ -21,7 +21,7 @@ export const RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION =
 export const RECURRENCE_SCHEDULES_EMPTY_SUPPORTING =
   "Schedules help ensure that accepted risks, policy exceptions, and approved architecture decisions are reviewed on time instead of being forgotten after approval.";
 
-export const RECURRENCE_SCHEDULES_HELPER_TITLE = "Governance approval workflow";
+export const RECURRENCE_SCHEDULES_HELPER_TITLE = "Approval workflow";
 
 export const RECURRENCE_SCHEDULES_HELPER_BODY =
   "Use recurrence schedules to create follow-up architecture reviews when scheduled reviews need periodic re-review. Recipients and notifications are not configured on this page.";

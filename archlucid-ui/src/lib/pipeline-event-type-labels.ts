@@ -12,7 +12,7 @@ const PIPELINE_EVENT_TYPE_LABELS: Record<string, string> = {
   ManifestFinalized: "Review finalized",
   FindingsSnapshotSealed: "Findings captured",
   ArtifactsGenerated: "Deliverables ready",
-  GovernanceApprovalRequested: "Governance approval requested",
+  GovernanceApprovalRequested: "Approval requested",
   "finalize.run": "Review finalized",
   "run.finalized": "Review finalized",
   "context.snapshot.created": "Source context captured",
@@ -32,10 +32,10 @@ const PIPELINE_EVENT_TYPE_LABELS: Record<string, string> = {
   "com.archlucid.authority.run.quality-gate.rejected": "Quality gate rejected",
   "com.archlucid.findings.high-severity.captured.v1": "High-severity findings captured",
   "com.archlucid.manifest.finalized.v1": "Review finalized",
-  "com.archlucid.governance.approval.submitted": "Governance approval requested",
-  "com.archlucid.governance.approval.approved": "Governance approval approved",
-  "com.archlucid.governance.approval.rejected": "Governance approval rejected",
-  "com.archlucid.governance.approval.recorded": "Governance approval recorded",
+  "com.archlucid.governance.approval.submitted": "Approval requested",
+  "com.archlucid.governance.approval.approved": "Approval approved",
+  "com.archlucid.governance.approval.rejected": "Approval rejected",
+  "com.archlucid.governance.approval.recorded": "Approval recorded",
   "com.archlucid.governance.promotion.activated": "Environment release activated",
   "com.archlucid.governance.policy-pack.published.v1": "Policy pack activated",
   "com.archlucid.alert.fired": "Alert fired",
@@ -90,7 +90,7 @@ const PIPELINE_EVENT_BUYER_SUBTITLE: Record<string, string> = {
   "com.archlucid.governance.approval.submitted":
     "Creates an auditable governance-approval checkpoint before any approved downstream handoff.",
   "com.archlucid.governance.approval.recorded":
-    "Records that the required governance approval sequence completed for this finalized review.",
+    "Records that the required approval sequence completed for this finalized review.",
   "com.archlucid.governance.promotion.activated":
     "Records that an approved review was authorized to advance within the approved change boundary.",
 };

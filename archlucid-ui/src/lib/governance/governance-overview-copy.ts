@@ -39,7 +39,7 @@ export const GOVERNANCE_OVERVIEW_SAMPLE_OVERVIEW_LINE =
 export const GOVERNANCE_OVERVIEW_SUBMIT_ACTION = "Submit review for approval";
 
 export const GOVERNANCE_OVERVIEW_SUBMIT_DISABLED_HINT =
-  "Select a review before submitting for governance approval.";
+  "Select a review before submitting for approval.";
 
 export const GOVERNANCE_OVERVIEW_PENDING_ACTION = "View pending approvals";
 

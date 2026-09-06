@@ -32,7 +32,7 @@ export const RESPONSIBLE_AI_POLICY_PACK_APPLICABILITY =
   "Apply during architecture reviews where inference, training, retrieval-augmented generation, or agent orchestration is in scope. Rules surface as findings when evidence is missing or controls are immature.";
 
 export const RESPONSIBLE_AI_POLICY_PACK_GOVERNANCE_WORKFLOW =
-  "Enable the pack in your workspace policy library, assign it to the target project, then start or refresh an architecture review. Findings tie back to rule families here; finalize the review to record governance approval and finalized review record and evidence trail.";
+  "Enable the pack in your workspace policy library, assign it to the target project, then start or refresh an architecture review. Findings tie back to rule families here; finalize the review to record approval and finalized review record and evidence trail.";
 
 export type ResponsibleAiPolicyRuleRow = {
   readonly ruleName: string;
@@ -93,7 +93,7 @@ export const RESPONSIBLE_AI_POLICY_RULE_ROWS: readonly ResponsibleAiPolicyRuleRo
   {
     ruleName: "Audit logging",
     severity: "Medium",
-    requirement: "Retain tamper-evident logs for prompts, model calls, and governance approval.",
+    requirement: "Retain tamper-evident logs for prompts, model calls, and approval.",
     evidenceExpected: "Audit log design, retention policy",
   },
   {
@@ -148,7 +148,7 @@ export const RESPONSIBLE_AI_ACTION_OPEN_LIBRARY = "Open policy pack library";
 
 export const RESPONSIBLE_AI_ACTION_START_REVIEW = "Start review with this pack";
 
-export const RESPONSIBLE_AI_ACTION_GOVERNANCE = "Open governance approval";
+export const RESPONSIBLE_AI_ACTION_GOVERNANCE = "Open approval";
 
 export const RESPONSIBLE_AI_ACTION_OPEN_GOVERNANCE_SETUP = "Open approval setup";
 

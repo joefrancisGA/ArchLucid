@@ -128,7 +128,7 @@ Home recent-reviews preview tabs (`RunsDashboardPanelFilters` line tabs on `/`) 
 |--------------------------|---------------|-------------------------|
 | **Recent** | Architecture (`pilot`) | `/architecture/reviews` |
 | **Findings** | Approval (`operate-governance`) | `/governance/findings` (open-finding pressure) |
-| **Monitoring** | Approval (`operate-governance`) | Governance approval queue / warning-filtered reviews |
+| **Monitoring** | Approval (`operate-governance`) | Approval queue / warning-filtered reviews |
 
 Do not collapse these preview tabs into a **More** menu on desktop; they are distinct from sidebar cluster **Show N more … destinations** disclosures.
 

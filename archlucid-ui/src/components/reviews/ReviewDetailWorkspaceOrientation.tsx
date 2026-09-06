@@ -12,7 +12,7 @@ export function ReviewDetailWorkspaceOrientation(): React.JSX.Element {
       <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         <span className="font-semibold text-neutral-900 dark:text-neutral-100">Review workflow</span>{" "}
         (step strip above) walks finalized deliverables — sponsor report, finalized review record, evidence trail,
-        governance approval, and audit — for sponsors and auditors.
+        approval, and audit — for sponsors and auditors.
       </p>
       <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         <span className="font-medium text-neutral-800 dark:text-neutral-200">Review sections</span> below are where

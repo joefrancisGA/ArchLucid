@@ -120,7 +120,7 @@ describe("GovernanceResolutionPageView buyer-polished shell", () => {
 
     );
 
-    expect(screen.queryByText(/Submit for governance approval/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Submit for approval/i)).not.toBeInTheDocument();
 
     expect(screen.queryByText(/Approval queue/i)).not.toBeInTheDocument();
 

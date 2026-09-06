@@ -10,7 +10,7 @@ const routeDir = dirname(fileURLToPath(import.meta.url));
 const sectionsDir = join(routeDir, "..", "_sections");
 
 const pageSource = readFileSync(join(routeDir, "page.tsx"), "utf8");
-const pageContentSource = readFileSync(join(sectionsDir, "GovernanceWorkflowPageContent.tsx"), "utf8");
+const pageContentSource = readFileSync(join(sectionsDir, "GovernanceWorkflowPageShell.tsx"), "utf8");
 const deferredSource = readFileSync(join(sectionsDir, "governance-workflow-deferred-chunks.tsx"), "utf8");
 const mutationHostSource = readFileSync(join(sectionsDir, "GovernanceWorkflowMutationHost.tsx"), "utf8");
 const manifestLoaderSource = readDeferredChunkImportLoaderSource();
@@ -30,7 +30,7 @@ const bannedStaticImports = [
   '@/components/AdvancedOptionsAccordion"',
 ] as const;
 
-describe("governance approval-queue deferred imports (TB-934 / wave 10)", () => {
+describe("approval-queue deferred imports (TB-934 / wave 10)", () => {
   it("keeps GovernanceWorkflowPageContent off the page static import graph", () => {
     expect(pageSource).not.toContain(
       'import { GovernanceWorkflowPageContent } from "../_sections/GovernanceWorkflowPageContent"',
@@ -40,7 +40,7 @@ describe("governance approval-queue deferred imports (TB-934 / wave 10)", () => 
     expect(pageSource).not.toContain('"use client"');
   });
 
-  it("keeps below-fold workflow panels off the content static import graph", () => {
+  it("keeps below-fold workflow panels off the page shell static import graph", () => {
     for (const bannedImport of bannedStaticImports) {
       expect(pageContentSource).not.toContain(bannedImport);
     }

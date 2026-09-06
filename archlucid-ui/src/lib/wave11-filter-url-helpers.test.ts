@@ -1124,7 +1124,7 @@ describe("wave24 filter url helpers", () => {
 });
 
 describe("wave25 filter url helpers", () => {
-  it("governance approval review, alert simulate rule, and settings users invite", async () => {
+  it("approval review, alert simulate rule, and settings users invite", async () => {
     const {
       governanceApprovalReviewHrefFromSearch,
       parseGovernanceApprovalIdFromSearch,

@@ -56,7 +56,7 @@ describe("ReversibleMutationSuccessCallout (TB-2148)", () => {
 
     render(
       <ReversibleMutationSuccessCallout
-        message="Governance approval recorded."
+        message="Approval recorded."
         mutationId="governance_quick_approve"
         onRecordCorrection={onRecordCorrection}
       />,

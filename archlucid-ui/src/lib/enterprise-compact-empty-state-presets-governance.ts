@@ -83,7 +83,7 @@ import { ACCOUNT_SECURITY_PATH } from "@/lib/account-route-paths";
 import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 import { API_KEYS_USERS_USERS_LINK } from "@/lib/vocabulary/api-keys-users-vocabulary";
 
-/** Governance approval lineage — findings card when the snapshot has no linked findings. */
+/** Approval lineage — findings card when the snapshot has no linked findings. */
 export const GOVERNANCE_APPROVAL_LINEAGE_FINDINGS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "governance-approval-lineage-findings-empty-state",
   title: "No findings in lineage",
@@ -91,7 +91,7 @@ export const GOVERNANCE_APPROVAL_LINEAGE_FINDINGS_EMPTY_COMPACT: EnterpriseCompa
     "Findings appear when this approval links to a review that has a findings snapshot.",
 };
 
-/** Governance approval lineage — rare null-data fallback after a non-error load path. */
+/** Approval lineage — rare null-data fallback after a non-error load path. */
 export const GOVERNANCE_APPROVAL_LINEAGE_NO_DATA_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "governance-approval-lineage-no-data",
   title: "Could not load lineage",

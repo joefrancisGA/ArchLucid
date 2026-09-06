@@ -27,7 +27,7 @@ export const PAGE_CAPABILITY_BOUNDARY_ASK: PageCapabilityBoundary = {
   heading: PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY,
   items: [
     "Approve, reject, or finalize architecture reviews.",
-    "Write dispositions into the Decision register or replace formal governance approval records.",
+    "Write dispositions into the Decision register or replace formal approval records.",
     "Invent architecture or evidence outside the selected finalized review.",
     "Serve as an unaudited general-purpose chat transcript that becomes your system of record.",
   ],
@@ -40,7 +40,7 @@ export const PAGE_CAPABILITY_BOUNDARY_COMPARE: PageCapabilityBoundary = {
     "Mutate either review's finalized review record or attached evidence.",
     "Approve, reject, or finalize packages from the comparison view.",
     "Invent findings or architecture outside the two selected packages.",
-    "Replace the Decision register or governance approval workflows.",
+    "Replace the Decision register or approval workflows.",
   ],
 };
 
@@ -50,7 +50,7 @@ export const PAGE_CAPABILITY_BOUNDARY_GOVERNANCE_FINDINGS: PageCapabilityBoundar
   items: [
     "Automatically remediate cloud or application configuration.",
     "Author or change policy packs and policy rules.",
-    "Invent risks that are not traceable to findings, waivers, exceptions, or governance approval.",
+    "Invent risks that are not traceable to findings, waivers, exceptions, or approval.",
     "Replace the Decision register or finalized review record as the authority of record.",
   ],
 };
@@ -62,7 +62,7 @@ export const PAGE_CAPABILITY_BOUNDARY_ASSIGNED_FINDINGS: PageCapabilityBoundary 
     "Show findings assigned to other operators or unassigned workspace items.",
     "Automatically remediate cloud or application configuration.",
     "Replace the tenant findings queue or Decision register as the system of record.",
-    "Invent findings that are not traceable to reviews, evidence trails, or governance approval records.",
+    "Invent findings that are not traceable to reviews, evidence trails, or approval records.",
   ],
 };
 

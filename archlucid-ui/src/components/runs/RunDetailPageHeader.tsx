@@ -209,7 +209,7 @@ export function RunDetailPageHeader({
   const streamlinedPilotPath = isStreamlinedCorePilotPath(hasCommittedArchitectureReview);
   const approvalStatusLabel = streamlinedPilotPath
     ? CORE_PILOT_PATH_STREAMLINED_LABELS.reviewApproval
-    : "Governance approval";
+    : "Approval";
   const approvalCheckLabel = streamlinedPilotPath
     ? CORE_PILOT_PATH_STREAMLINED_LABELS.approvalCheck
     : "Approval check";

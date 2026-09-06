@@ -191,7 +191,7 @@ describe("HelpApiContractsGuideView (HG)", () => {
       within(actionPanel).getByTestId("help-api-contracts-primary-cta"),
     ).toHaveAttribute("href", API_CONTRACTS_HELP_PRIMARY_ACTIONS.openOpenApi.href);
     expect(within(actionPanel).queryByRole("link", { name: "CLI usage" })).not.toBeInTheDocument();
-    expect(within(actionPanel).queryByRole("link", { name: "Governance approval (buyer)" })).not.toBeInTheDocument();
+    expect(within(actionPanel).queryByRole("link", { name: "Approval (buyer)" })).not.toBeInTheDocument();
 
     for (const source of API_CONTRACTS_HELP_SOURCES) {
       expect(

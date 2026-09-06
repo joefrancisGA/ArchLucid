@@ -8,7 +8,7 @@ describe("RunDetailGovernanceCta", () => {
     render(<RunDetailGovernanceCta runId="run-123" />);
 
     expect(screen.getByTestId("run-detail-governance-cta")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Submit for governance approval →" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Submit for approval" })).toHaveAttribute(
       "href",
       "/governance/approval-queue?runId=run-123",
     );
@@ -17,6 +17,6 @@ describe("RunDetailGovernanceCta", () => {
   it("demotes the button to outline when the summary header owns the primary CTA", () => {
     render(<RunDetailGovernanceCta runId="run-123" demoted />);
 
-    expect(screen.getByRole("link", { name: "Submit for governance approval →" })).toHaveClass("border");
+    expect(screen.getByRole("link", { name: "Submit for approval" })).toHaveClass("border");
   });
 });

@@ -8,7 +8,7 @@ import {
 } from "@/lib/vocabulary/governance-approval-vocabulary";
 
 describe("governance-approval-vocabulary", () => {
-  it("uses governance approval product language instead of resolve outcomes", () => {
+  it("uses approval product language instead of resolve outcomes", () => {
     const corpus = [
       GOVERNANCE_APPROVAL_LABEL,
       GOVERNANCE_APPROVAL_JOB_LABEL,
@@ -18,7 +18,8 @@ describe("governance-approval-vocabulary", () => {
       .join(" ")
       .toLowerCase();
 
-    expect(corpus).toContain("governance approval");
+    expect(corpus).toContain("approval");
+    expect(corpus).not.toContain("governance approval");
     expect(corpus).not.toContain("resolve outcomes");
   });
 

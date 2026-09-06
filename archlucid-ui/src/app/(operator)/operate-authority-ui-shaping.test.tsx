@@ -619,7 +619,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
       // Approvals list and submit card are separate dynamic chunks that mount after the context bar.
       expect(await screen.findByText(GOVERNANCE_WORKFLOW_OUTCOME_NO_REQUESTS)).toBeInTheDocument();
-      expect((await screen.findAllByText("Submit for governance approval")).length).toBeGreaterThan(0);
+      expect((await screen.findAllByText("Submit for approval")).length).toBeGreaterThan(0);
 
       const submitVersion = await waitFor(() => {
         const input = document.getElementById("gov-submit-version") as HTMLInputElement | null;

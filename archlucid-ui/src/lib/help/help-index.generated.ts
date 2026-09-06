@@ -549,7 +549,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "finding-disposition-concurrency-m-141",
     "sectionHeading": "Finding disposition concurrency (M-141)",
-    "excerpt": "Former standalone body: `docs/go-to-market/FINDING_CONCURRENT_DISPOSITION_RACE_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-141 / TB-986). Complements [Security reviewer audit trail (M-118)](#security-reviewer-audit-trail-m-118). Does not alter governance approval-request CAS. Not …"
+    "excerpt": "Former standalone body: `docs/go-to-market/FINDING_CONCURRENT_DISPOSITION_RACE_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-141 / TB-986). Complements [Security reviewer audit trail (M-118)](#security-reviewer-audit-trail-m-118). Does not alter approval-request CAS. Not …"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -577,7 +577,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-7",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "No mutex is implied, and this work does not alter the existing governance approval-request CAS behavior."
+    "excerpt": "No mutex is implied, and this work does not alter the existing approval-request CAS behavior."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -605,7 +605,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "pa-review",
     "sectionHeading": "PA review",
-    "excerpt": "1. Confirm whether the gate is enabled for the tenant and which packs are enforcing vs advisory. 2. Do not describe packs as third-party certifications or default-on blocks. 3. Contrast finding approve/reject trail with governance approval-queue CAS (M-140 / [M-141](#finding-disposition-concurrency-m-141)). 4. Route…"
+    "excerpt": "1. Confirm whether the gate is enabled for the tenant and which packs are enforcing vs advisory. 2. Do not describe packs as third-party certifications or default-on blocks. 3. Contrast finding approve/reject trail with approval-queue CAS (M-140 / [M-141](#finding-disposition-concurrency-m-141)). 4. Route…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",

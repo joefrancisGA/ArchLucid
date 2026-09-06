@@ -63,7 +63,7 @@ test.describe(
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 
-    // Step 4 — Audit trail (includes recorded governance approval events)
+    // Step 4 — Audit trail (includes recorded approval events)
     await page.goto(BUYER_GOLDEN_PATH_HREFS.auditTrail);
     await expect(page).toHaveURL(/\/audit\?runId=/);
     await expect(

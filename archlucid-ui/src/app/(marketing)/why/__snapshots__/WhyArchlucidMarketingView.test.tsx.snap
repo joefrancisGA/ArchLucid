@@ -1328,7 +1328,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                       class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
                       href="/help/governance-approval"
                     >
-                      Governance approval
+                      Approval
                     </a>
                   </div>
                 </td>

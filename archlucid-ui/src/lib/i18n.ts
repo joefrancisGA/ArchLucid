@@ -29,7 +29,7 @@ export const DOMAIN_TERMS = {
   findingsSnapshot: "Findings Snapshot",
   artifactBundle: "Deliverables bundle",
   preCommitGate: "Approval check",
-  governanceApproval: "Governance approval",
+  governanceApproval: "Approval",
 } as const;
 
 export const ARCHITECTURE_REVIEW_LABELS = {

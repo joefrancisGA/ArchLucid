@@ -146,7 +146,7 @@ export const liveA11yFullMatrixTag = "@live-a11y-full-matrix";
  */
 export const PAGES_DEFERRED = [
   {
-    name: "Governance approval request lineage",
+    name: "Approval request lineage",
     path: "/governance/approval-requests/{id}/lineage",
     reason:
       "Lineage view expects a persisted approval request (e.g. Contoso demo `apr-demo-001`). Catalogs without demo governance seed return empty/error surfaces — flakes the `main` visibility gate. Scope as a targeted journey test once seed is mandatory.",

@@ -33,7 +33,7 @@ export type GovernanceApprovalStatusBannerProps = {
   readonly provenance?: GovernanceApprovalProvenance | null;
 };
 
-/** Compact governance approval status — shared accent and actions across buyer governance surfaces. */
+/** Compact approval status — shared accent and actions across buyer governance surfaces. */
 export function GovernanceApprovalStatusBanner(props: GovernanceApprovalStatusBannerProps) {
   const { className, onRiskRegisterPage = false, onAssignedToMeFindingsPage = false, provenance = null } = props;
 

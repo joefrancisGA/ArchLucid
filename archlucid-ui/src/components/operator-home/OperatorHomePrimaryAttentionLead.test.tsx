@@ -31,6 +31,6 @@ describe("OperatorHomePrimaryAttentionLead", () => {
     expect(
       screen.getByRole("link", { name: OPERATOR_ATTENTION_KIND_DESTINATIONS["awaiting-approval"].ctaLabel }),
     ).toBeInTheDocument();
-    expect(screen.queryByText(/governance approval/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/approval/i)).not.toBeInTheDocument();
   });
 });

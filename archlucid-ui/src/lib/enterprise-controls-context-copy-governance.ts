@@ -133,10 +133,10 @@ export const governanceWorkflowPageLeadReader =
   "Inspect how an architecture review moved through approval. Load a review below to view its approval history.";
 
 
-export const governanceWorkflowSubmitCardTitleOperator = "Submit for governance approval";
+export const governanceWorkflowSubmitCardTitleOperator = "Submit for approval";
 
 
-export const governanceWorkflowSubmitCardTitleReader = "Submit for governance approval";
+export const governanceWorkflowSubmitCardTitleReader = "Submit for approval";
 
 
 export const governanceWorkflowApprovalRequestsCardTitleOperator = "Approval requests for this review";
@@ -196,7 +196,7 @@ export const governanceWorkflowNoApprovalsOperatorHint =
   "Submit a request above or choose a different review.";
 
 
-export const governanceWorkflowSubmitForApprovalButtonLabelReaderRank = "Submit for governance approval";
+export const governanceWorkflowSubmitForApprovalButtonLabelReaderRank = "Submit for approval";
 
 
 export const governanceWorkflowReviewSubmitButtonLabelReaderRank = "Submit review (needs approver rights)";
