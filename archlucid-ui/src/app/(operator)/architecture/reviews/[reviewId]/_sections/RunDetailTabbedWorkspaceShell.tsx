@@ -30,6 +30,7 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
     reviewStatusSummary,
     architectureEditHref,
     findingCoverageSummary,
+    withheldFindings,
   } = presentation;
 
   const activePanelLeadEl = (
@@ -79,6 +80,7 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
       intakeSystemName={model.progressForPipelineUi.displayName ?? null}
       realModeFellBackToSimulator={model.resolvedDetail.run.realModeFellBackToSimulator === true}
       enginesSucceeded={findingCoverageSummary?.enginesSucceeded ?? null}
+      withheldFindingCount={withheldFindings.length}
     />
   );
 
