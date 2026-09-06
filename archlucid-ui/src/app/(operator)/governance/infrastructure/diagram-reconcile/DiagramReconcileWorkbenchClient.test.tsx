@@ -100,6 +100,10 @@ describe("DiagramReconcileWorkbenchClient", () => {
     expect(within(conflictRow).getByText("Conflict")).toBeInTheDocument();
     expect(within(conflictRow).getByText(/private gateway/)).toBeInTheDocument();
     expect(within(conflictRow).getAllByText(/publicIPAddresses\/gateway/).length).toBeGreaterThan(0);
+    expect(within(conflictRow).getByTestId("infra-diagram-reconcile-ask-diagram-node-1")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/ask?cloudResourceId=22222222-3333-4444-5555-666666666666&snapshotId=11111111-1111-1111-1111-111111111111&correspondenceId=diagram-node-1&runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+    );
 
     const filter = screen.getByTestId("infra-diagram-reconcile-filter");
     fireEvent.change(filter, { target: { value: "Conflict" } });
