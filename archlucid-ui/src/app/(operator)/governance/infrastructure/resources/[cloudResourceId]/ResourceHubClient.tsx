@@ -1018,6 +1018,13 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   View remediation in hub
                 </Link>
               </Button>
+              {hub.diagramCorrespondence != null ? (
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-findings-open-diagram-tab">
+                  <Link href={buildHubDiagramTabHref(cloudResourceId, resolvedSnapshotId, runId)}>
+                    View diagram correspondence in hub
+                  </Link>
+                </Button>
+              ) : null}
               {resolvedAuditLineage != null ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-findings-open-audit-tab">
                   <Link
