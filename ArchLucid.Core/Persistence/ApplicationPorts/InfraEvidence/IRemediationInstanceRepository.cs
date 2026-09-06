@@ -21,4 +21,11 @@ public interface IRemediationInstanceRepository
     Task<IReadOnlyList<RemediationInstanceRecord>> ListByTenantAsync(
         Guid tenantId,
         CancellationToken cancellationToken = default);
+
+    Task<(IReadOnlyList<RemediationInstanceRecord> Items, int TotalCount)> ListByCloudResourceIdPagedAsync(
+        Guid tenantId,
+        Guid cloudResourceId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default);
 }

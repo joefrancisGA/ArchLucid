@@ -5121,11 +5121,10 @@ jobs:
           echo "::add-mask::${TOKEN}"
           export LIVE_JWT_TOKEN="${TOKEN}"
           export ARCHLUCID_PROXY_BEARER_TOKEN="${TOKEN}"
-          npx playwright install --with-deps chromium &
-          PLAYWRIGHT_INSTALL_PID=$!
+          npx playwright install --with-deps chromium
           bash "${GITHUB_WORKSPACE}/scripts/ci/warm_private_beta_live_api_paths.sh" "${TOKEN}"
-          wait "${PLAYWRIGHT_INSTALL_PID}"
-          curl -fsS http://127.0.0.1:5128/health/ready
+          ARCHLUCID_API_READY_WAIT_ATTEMPTS=90 \
+            bash "${GITHUB_WORKSPACE}/scripts/ci/wait-for-api-ready.sh" "${RUNNER_TEMP}/live-api-beta-access.log"
           npx playwright test --workers=1 live-api-private-beta-access.spec.ts
 
       - name: Upload live API log (private-beta access-path)

@@ -55,9 +55,11 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<IRemediationPatternService, RemediationPatternService>();
         services.AddScoped<IRemediationPatternMatcherService, RemediationPatternMatcherService>();
         services.AddScoped<IRemediationInstanceService, RemediationInstanceService>();
+        services.AddScoped<IRemediationInstanceQueryService, RemediationInstanceQueryService>();
         services.AddScoped<IRemediationPrioritizationService, RemediationPrioritizationService>();
         services.AddScoped<IRemediationWaveService, RemediationWaveService>();
         services.AddScoped<IRemediationFactoryMetricsService, RemediationFactoryMetricsService>();
+        services.AddScoped<IRemediationFactoryWorkbenchQueryService, RemediationFactoryWorkbenchQueryService>();
         services.AddScoped<IAuditContinuousReadinessService, AuditContinuousReadinessService>();
         services.AddScoped<IAuditEvaluationFindingHandoffService, AuditEvaluationFindingHandoffService>();
         services.AddScoped<IAzureInventorySnapshotPostMaterializeCoordinator, AzureInventorySnapshotPostMaterializeCoordinator>();
@@ -76,6 +78,7 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<IDiagramInfrastructureReconciliationService, DiagramInfrastructureReconciliationService>();
         services.AddScoped<IVisionDiagramIngestService, VisionDiagramIngestService>();
         services.AddScoped<ICloudResourceEvidenceHubService, CloudResourceEvidenceHubService>();
+        services.AddScoped<ICloudResourceExplorerQueryService, CloudResourceExplorerQueryService>();
         services.AddScoped<IInfraEvidenceAskEvidenceCollector, InfraEvidenceAskEvidenceCollector>();
         services.AddScoped<IInfraEvidenceAskGroundingService, InfraEvidenceAskGroundingService>();
         services.AddScoped<IBrandAssetService, BrandAssetService>();

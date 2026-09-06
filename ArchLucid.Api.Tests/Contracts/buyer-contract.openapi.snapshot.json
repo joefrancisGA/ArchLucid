@@ -8350,6 +8350,46 @@
         },
         "type": "object"
       },
+      "CloudResourceSummary": {
+        "properties": {
+          "cloudResourceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "displayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "externalResourceId": {
+            "type": "string"
+          },
+          "lastSeenUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "region": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "resourceGroup": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "resourceType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "CommitRunCommittedArtifactInventoryEntry": {
         "properties": {
           "artifactName": {
@@ -21684,6 +21724,32 @@
         },
         "type": "object"
       },
+      "PagedResponseOfCloudResourceSummary": {
+        "properties": {
+          "hasMore": {
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CloudResourceSummary"
+            },
+            "type": "array"
+          },
+          "page": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "PagedResponseOfConversationThread": {
         "properties": {
           "hasMore": {
@@ -26628,6 +26694,15 @@
         ],
         "type": "string"
       },
+      "RemediationEvidencePhase": {
+        "enum": [
+          "Before",
+          "ExecuteRequest",
+          "ExecuteResult",
+          "Verify"
+        ],
+        "type": "string"
+      },
       "RemediationFactoryMetrics": {
         "properties": {
           "automationPercent": {
@@ -26717,6 +26792,226 @@
           "verificationFailureCount": {
             "format": "int32",
             "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationFactoryWorkbenchSummary": {
+        "properties": {
+          "factoryMetrics": {
+            "$ref": "#/components/schemas/RemediationFactoryMetrics"
+          },
+          "openInstancesByStatus": {
+            "additionalProperties": {
+              "format": "int32",
+              "type": "integer"
+            },
+            "type": "object"
+          },
+          "waves": {
+            "items": {
+              "$ref": "#/components/schemas/RemediationWaveProgressSummary"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationInstanceAssignWaveRequest": {
+        "properties": {
+          "waveId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationInstanceCreateRequest": {
+        "properties": {
+          "findingId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationInstanceDetail": {
+        "properties": {
+          "activeMatch": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RemediationPatternMatchResultRecord"
+              }
+            ]
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/RemediationInstanceEvidenceSummary"
+            },
+            "type": "array"
+          },
+          "finding": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/OperationalSecurityFindingRecord"
+              }
+            ]
+          },
+          "instance": {
+            "$ref": "#/components/schemas/RemediationInstanceSummary"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationInstanceEvidenceSummary": {
+        "properties": {
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "evidenceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "payloadJson": {
+            "type": "string"
+          },
+          "phase": {
+            "$ref": "#/components/schemas/RemediationEvidencePhase"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationInstanceExecuteRequest": {
+        "properties": {
+          "correlationId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "inventorySnapshotId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationInstanceOperationResult": {
+        "properties": {
+          "blockers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "errorMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "instanceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RemediationInstanceStatus"
+              }
+            ]
+          },
+          "succeeded": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationInstancePreflightRequest": {
+        "properties": {
+          "inventorySnapshotId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationInstanceStatus": {
+        "enum": [
+          "Classified",
+          "PreflightPassed",
+          "PreflightBlocked",
+          "Approved",
+          "WaveAssigned",
+          "Executed",
+          "Verified",
+          "VerificationFailed",
+          "Closed"
+        ],
+        "type": "string"
+      },
+      "RemediationInstanceSummary": {
+        "properties": {
+          "automationLevel": {
+            "$ref": "#/components/schemas/RemediationAutomationLevel"
+          },
+          "cloudResourceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "findingId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "instanceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "patternKey": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RemediationInstanceStatus"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "waveId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "RemediationInstanceVerifyRequest": {
+        "properties": {
+          "verificationSnapshotId": {
+            "format": "uuid",
+            "type": "string"
           }
         },
         "type": "object"
@@ -26874,6 +27169,44 @@
         },
         "type": "object"
       },
+      "RemediationPatternMatchConflictRecord": {
+        "properties": {
+          "candidatePatternIdsJson": {
+            "type": "string"
+          },
+          "conflictId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "conflictType": {
+            "$ref": "#/components/schemas/RemediationPatternMatchConflictType"
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "findingId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationPatternMatchConflictType": {
+        "enum": [
+          "DuplicateExactMatch",
+          "ContradictoryStrategy",
+          "VersionSkew"
+        ],
+        "type": "string"
+      },
       "RemediationPatternMatchCriteria": {
         "properties": {
           "controlId": {
@@ -26912,6 +27245,126 @@
           }
         },
         "type": "object"
+      },
+      "RemediationPatternMatchEvaluationResult": {
+        "properties": {
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/RemediationPatternMatchResultRecord"
+            },
+            "type": "array"
+          },
+          "conflict": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RemediationPatternMatchConflictRecord"
+              }
+            ]
+          },
+          "errorMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "findingId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "matchKind": {
+            "$ref": "#/components/schemas/RemediationPatternMatchKind"
+          },
+          "primaryMatch": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RemediationPatternMatchResultRecord"
+              }
+            ]
+          },
+          "rejectionReasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "succeeded": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationPatternMatchKind": {
+        "enum": [
+          "ExactMatch",
+          "ProbableMatch",
+          "PossibleMatch",
+          "NoMatch",
+          "Conflict"
+        ],
+        "type": "string"
+      },
+      "RemediationPatternMatchResultRecord": {
+        "properties": {
+          "explainText": {
+            "type": "string"
+          },
+          "findingId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "matchKind": {
+            "$ref": "#/components/schemas/RemediationPatternMatchKind"
+          },
+          "matchResultId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "matchSource": {
+            "$ref": "#/components/schemas/RemediationPatternMatchSource"
+          },
+          "matchedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "patternId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "patternKey": {
+            "type": "string"
+          },
+          "patternVersion": {
+            "type": "string"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "versionId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationPatternMatchSource": {
+        "enum": [
+          "Deterministic",
+          "AIProposed"
+        ],
+        "type": "string"
       },
       "RemediationPatternOperationResult": {
         "properties": {
@@ -27418,6 +27871,32 @@
               "null",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "RemediationWaveProgressSummary": {
+        "properties": {
+          "memberCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RemediationWaveStatus"
+          },
+          "targetSize": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "waveId": {
+            "format": "uuid",
+            "type": "string"
           }
         },
         "type": "object"
@@ -43810,6 +44289,9 @@
       "name": "InfraEvidenceInventory"
     },
     {
+      "name": "InfraEvidenceOperationalFindingRemediation"
+    },
+    {
       "name": "InfraEvidenceSnapshots"
     },
     {
@@ -43934,6 +44416,12 @@
     },
     {
       "name": "RemediationFactoryMetrics"
+    },
+    {
+      "name": "RemediationFactoryWorkbench"
+    },
+    {
+      "name": "RemediationInstances"
     },
     {
       "name": "RemediationPatterns"

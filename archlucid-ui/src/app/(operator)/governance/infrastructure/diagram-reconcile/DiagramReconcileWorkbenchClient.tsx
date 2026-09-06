@@ -47,7 +47,7 @@ import {
   formatInfraEvidenceApiError,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
-import { GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { governanceInfrastructureResourceHubPath } from "@/lib/governance/governance-infrastructure-route-paths";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { showError, showSuccess } from "@/lib/toast";
@@ -73,9 +73,7 @@ function buildResourceHubHref(cloudResourceId: string | null): string | null {
     return null;
   }
 
-  const params = new URLSearchParams({ cloudResourceId: cloudResourceId.trim() });
-
-  return `${GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}?${params.toString()}`;
+  return governanceInfrastructureResourceHubPath(cloudResourceId.trim());
 }
 
 async function copyTextToClipboard(text: string): Promise<void> {

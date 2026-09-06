@@ -2419,6 +2419,17 @@ export interface components {
             /** Format: int32 */
             totalCount?: number;
         };
+        CloudResourceSummary: {
+            /** Format: uuid */
+            cloudResourceId?: string;
+            displayName?: null | string;
+            externalResourceId?: string;
+            /** Format: date-time */
+            lastSeenUtc?: string;
+            region?: null | string;
+            resourceGroup?: null | string;
+            resourceType?: null | string;
+        };
         CommitRunCommittedArtifactInventoryEntry: {
             artifactName?: string;
             /** Format: date-time */
@@ -6289,6 +6300,16 @@ export interface components {
             /** Format: int32 */
             totalCount?: number;
         };
+        PagedResponseOfCloudResourceSummary: {
+            hasMore?: boolean;
+            items?: components["schemas"]["CloudResourceSummary"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int32 */
+            totalCount?: number;
+        };
         PagedResponseOfConversationThread: {
             hasMore?: boolean;
             items?: components["schemas"]["ConversationThread"][];
@@ -7822,6 +7843,8 @@ export interface components {
         RelationshipType: "Calls" | "ReadsFrom" | "WritesTo" | "PublishesTo" | "SubscribesTo" | "AuthenticatesWith";
         /** @enum {string} */
         RemediationAutomationLevel: "Manual" | "Guided" | "SemiAutomated" | "Automated";
+        /** @enum {string} */
+        RemediationEvidencePhase: "Before" | "ExecuteRequest" | "ExecuteResult" | "Verify";
         RemediationFactoryMetrics: {
             /** Format: double */
             automationPercent?: number | string;
@@ -7855,6 +7878,75 @@ export interface components {
             topPatternKeys?: components["schemas"]["RemediationMetricCount"][];
             /** Format: int32 */
             verificationFailureCount?: number;
+        };
+        RemediationFactoryWorkbenchSummary: {
+            factoryMetrics?: components["schemas"]["RemediationFactoryMetrics"];
+            openInstancesByStatus?: {
+                [key: string]: number;
+            };
+            waves?: components["schemas"]["RemediationWaveProgressSummary"][];
+        };
+        RemediationInstanceAssignWaveRequest: {
+            /** Format: uuid */
+            waveId?: string;
+        };
+        RemediationInstanceCreateRequest: {
+            /** Format: uuid */
+            findingId?: string;
+        };
+        RemediationInstanceDetail: {
+            activeMatch?: null | components["schemas"]["RemediationPatternMatchResultRecord"];
+            evidence?: components["schemas"]["RemediationInstanceEvidenceSummary"][];
+            finding?: null | components["schemas"]["OperationalSecurityFindingRecord"];
+            instance?: components["schemas"]["RemediationInstanceSummary"];
+        };
+        RemediationInstanceEvidenceSummary: {
+            /** Format: date-time */
+            createdUtc?: string;
+            /** Format: uuid */
+            evidenceId?: string;
+            payloadJson?: string;
+            phase?: components["schemas"]["RemediationEvidencePhase"];
+        };
+        RemediationInstanceExecuteRequest: {
+            correlationId?: null | string;
+            /** Format: uuid */
+            inventorySnapshotId?: string;
+        };
+        RemediationInstanceOperationResult: {
+            blockers?: string[];
+            errorMessage?: null | string;
+            /** Format: uuid */
+            instanceId?: null | string;
+            status?: null | components["schemas"]["RemediationInstanceStatus"];
+            succeeded?: boolean;
+        };
+        RemediationInstancePreflightRequest: {
+            /** Format: uuid */
+            inventorySnapshotId?: string;
+        };
+        /** @enum {string} */
+        RemediationInstanceStatus: "Classified" | "PreflightPassed" | "PreflightBlocked" | "Approved" | "WaveAssigned" | "Executed" | "Verified" | "VerificationFailed" | "Closed";
+        RemediationInstanceSummary: {
+            automationLevel?: components["schemas"]["RemediationAutomationLevel"];
+            /** Format: uuid */
+            cloudResourceId?: null | string;
+            /** Format: date-time */
+            createdUtc?: string;
+            /** Format: uuid */
+            findingId?: string;
+            /** Format: uuid */
+            instanceId?: string;
+            patternKey?: string;
+            status?: components["schemas"]["RemediationInstanceStatus"];
+            /** Format: date-time */
+            updatedUtc?: string;
+            /** Format: uuid */
+            waveId?: null | string;
+        };
+        RemediationInstanceVerifyRequest: {
+            /** Format: uuid */
+            verificationSnapshotId?: string;
         };
         RemediationMetricCount: {
             /** Format: int32 */
@@ -7899,6 +7991,21 @@ export interface components {
         RemediationPatternImportYamlRequest: {
             yaml?: string;
         };
+        RemediationPatternMatchConflictRecord: {
+            candidatePatternIdsJson?: string;
+            /** Format: uuid */
+            conflictId?: string;
+            conflictType?: components["schemas"]["RemediationPatternMatchConflictType"];
+            /** Format: date-time */
+            createdUtc?: string;
+            description?: string;
+            /** Format: uuid */
+            findingId?: string;
+            /** Format: uuid */
+            tenantId?: string;
+        };
+        /** @enum {string} */
+        RemediationPatternMatchConflictType: "DuplicateExactMatch" | "ContradictoryStrategy" | "VersionSkew";
         RemediationPatternMatchCriteria: {
             controlId?: null | string;
             propertyEquals?: {
@@ -7908,6 +8015,41 @@ export interface components {
             resourceType?: null | string;
             severityMin?: null | string;
         };
+        RemediationPatternMatchEvaluationResult: {
+            candidates?: components["schemas"]["RemediationPatternMatchResultRecord"][];
+            conflict?: null | components["schemas"]["RemediationPatternMatchConflictRecord"];
+            errorMessage?: null | string;
+            /** Format: uuid */
+            findingId?: null | string;
+            matchKind?: components["schemas"]["RemediationPatternMatchKind"];
+            primaryMatch?: null | components["schemas"]["RemediationPatternMatchResultRecord"];
+            rejectionReasons?: string[];
+            succeeded?: boolean;
+        };
+        /** @enum {string} */
+        RemediationPatternMatchKind: "ExactMatch" | "ProbableMatch" | "PossibleMatch" | "NoMatch" | "Conflict";
+        RemediationPatternMatchResultRecord: {
+            explainText?: string;
+            /** Format: uuid */
+            findingId?: string;
+            isActive?: boolean;
+            matchKind?: components["schemas"]["RemediationPatternMatchKind"];
+            /** Format: uuid */
+            matchResultId?: string;
+            matchSource?: components["schemas"]["RemediationPatternMatchSource"];
+            /** Format: date-time */
+            matchedUtc?: string;
+            /** Format: uuid */
+            patternId?: string;
+            patternKey?: string;
+            patternVersion?: string;
+            /** Format: uuid */
+            tenantId?: string;
+            /** Format: uuid */
+            versionId?: string;
+        };
+        /** @enum {string} */
+        RemediationPatternMatchSource: "Deterministic" | "AIProposed";
         RemediationPatternOperationResult: {
             errorMessage?: null | string;
             /** Format: uuid */
@@ -8045,6 +8187,16 @@ export interface components {
             succeeded?: boolean;
             /** Format: uuid */
             waveId?: null | string;
+        };
+        RemediationWaveProgressSummary: {
+            /** Format: int32 */
+            memberCount?: number;
+            name?: string;
+            status?: components["schemas"]["RemediationWaveStatus"];
+            /** Format: int32 */
+            targetSize?: null | number;
+            /** Format: uuid */
+            waveId?: string;
         };
         RemediationWaveRecord: {
             createdByActorKey?: string;

@@ -21,6 +21,7 @@ _FULL_REGRESSION_NEED = "dotnet-full-regression-core-complete"
 _MIN_TIMEOUT_MINUTES = 45
 _LOCKFILE_GUARD = "check_npm_overrides_lockfile_sync.py"
 _TYPECHECK_COMMAND = "npm run typecheck"
+_WAIT_FOR_API_READY = "wait-for-api-ready.sh"
 
 
 def repo_root() -> Path:
@@ -147,6 +148,27 @@ def _require_private_beta_playwright_timeout_wiring(spec_text: str, client_text:
         )
 
 
+def _require_post_warm_api_ready(rel_path: str, text: str, errors: list[str]) -> None:
+    job_text = text if rel_path == _PUSH_REL else _extract_yaml_job_block(text, _JOB_MARKER)
+
+    if job_text is None:
+        errors.append(f"{rel_path}: missing job marker {_JOB_MARKER}")
+
+        return
+
+    if _WAIT_FOR_API_READY not in job_text:
+        errors.append(
+            f"{rel_path}: {_JOB_NAME} must poll {_WAIT_FOR_API_READY} after shell warm "
+            "(single-shot curl -fsS /health/ready flakes with 503 after long warm)",
+        )
+
+    if "curl -fsS http://127.0.0.1:5128/health/ready" in job_text:
+        errors.append(
+            f"{rel_path}: {_JOB_NAME} must not use single-shot curl for /health/ready after warm; "
+            f"use {_WAIT_FOR_API_READY}",
+        )
+
+
 def _require_private_beta_job_timeout(rel_path: str, text: str, errors: list[str]) -> None:
     job_text = text if rel_path == _PUSH_REL else _extract_yaml_job_block(text, _JOB_MARKER)
 
@@ -199,6 +221,7 @@ def main(argv: list[str] | None = None) -> int:
         _require_jwt_bearer_and_spec(_CI_REL, ci_text, errors)
         _require_private_beta_job_timeout(_CI_REL, ci_text, errors)
         _require_live_e2e_build(_CI_REL, ci_text, errors)
+        _require_post_warm_api_ready(_CI_REL, ci_text, errors)
 
     if not push_path.is_file():
         errors.append(f"missing {_PUSH_REL} (trunk push must run private-beta Playwright before invites)")
@@ -218,10 +241,18 @@ def main(argv: list[str] | None = None) -> int:
         _require_private_beta_job_timeout(_PUSH_REL, text, errors)
         _require_live_e2e_build(_PUSH_REL, text, errors)
         _require_private_beta_install_and_typecheck(_PUSH_REL, text, errors)
+        _require_post_warm_api_ready(_PUSH_REL, text, errors)
 
-        if "cancel-in-progress: false" not in text:
+        if "private-beta-access-on-push-${{ github.ref }}" not in text:
             errors.append(
-                f"{_PUSH_REL}: must set cancel-in-progress: false so trunk merge trains are not evicted mid-smoke",
+                f"{_PUSH_REL}: concurrency group must be private-beta-access-on-push-${{ github.ref }} "
+                "(one smoke per branch; cancel superseded trunk runs)",
+            )
+
+        if "cancel-in-progress: true" not in text:
+            errors.append(
+                f"{_PUSH_REL}: must set cancel-in-progress: true so stale queued private-beta runs "
+                "do not block signal on the latest master SHA",
             )
 
         if _FULL_REGRESSION_NEED in text:
