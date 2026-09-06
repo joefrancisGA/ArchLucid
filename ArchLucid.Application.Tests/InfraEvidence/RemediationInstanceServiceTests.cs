@@ -4,7 +4,9 @@ using ArchLucid.Application.InfraEvidence.RemediationInstances;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -188,7 +190,11 @@ public sealed class RemediationInstanceServiceTests
             exceptionRepository ?? new InMemoryOperationalSecurityExceptionRepository(),
             snapshotRepository ?? new InMemorySnapshotRepository(),
             Mock.Of<IAdvisoryTerraformRepresentationService>(),
-            Mock.Of<IAuditService>());
+            Mock.Of<IAuditService>(),
+            Mock.Of<IOperationalSecurityFindingRepository>(),
+            Mock.Of<IAuditManualEvidenceRepository>(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>());
 
     private static ScopeContext CreateScope() =>
         new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
@@ -347,6 +353,14 @@ public sealed class RemediationInstanceServiceTests
             CancellationToken cancellationToken = default) =>
             Task.FromResult<IReadOnlyList<RemediationInstanceRecord>>(
                 Instances.Where(row => row.TenantId == tenantId).ToList());
+
+        public Task<(IReadOnlyList<RemediationInstanceRecord> Items, int TotalCount)> ListByCloudResourceIdPagedAsync(
+            Guid tenantId,
+            Guid cloudResourceId,
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<(IReadOnlyList<RemediationInstanceRecord> Items, int TotalCount)>(([], 0));
     }
 
     private sealed class InMemoryRemediationPatternMatchRepository : IRemediationPatternMatchRepository
@@ -534,5 +548,13 @@ public sealed class RemediationInstanceServiceTests
             Guid newerSnapshotId,
             CancellationToken cancellationToken = default) =>
             Task.FromResult<Guid?>(null);
+
+        public Task<(IReadOnlyList<AzureInventorySnapshotRecord> Items, int TotalCount)> ListSnapshotsAsync(
+            ScopeContext scope,
+            int page,
+            int pageSize,
+            string? subscriptionId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<(IReadOnlyList<AzureInventorySnapshotRecord>, int)>(([], 0));
     }
 }

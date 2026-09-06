@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { AiUsageBillingVocabularyRail } from "@/components/AiUsageBillingVocabularyRail";
@@ -13,6 +14,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AiUsageSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { AI_USAGE_SETTINGS_CLAIM_DISCIPLINE } from "@/lib/ai-usage-settings-evidence-copy";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
+import {
+  aiUsageDetailedActivityHrefFromSearch,
+  parseAiUsageDetailedActivityOpenFromSearch,
+} from "@/lib/administration/ai-usage-detailed-activity-url";
 import { formatAiUsageEstimatesAsOfLabel } from "@/lib/ai-usage-dashboard-model";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -63,9 +68,38 @@ function PageLoadingSkeleton() {
 }
 
 export function CostReportingSettingsPageView(props: Props) {
+  const router = useRouter();
+  const pathname = usePathname() ?? AI_USAGE_SETTINGS_PATH;
+  const searchParams = useSearchParams();
+  const aiUsageDetailedActivityOpenParam = searchParams.get("aiUsageDetailedActivityOpen");
   const m = props.model;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const aiUsageShell = useAiUsageRouteShellState();
+  const [detailedActivityOpen, setDetailedActivityOpenState] = useState(() =>
+    parseAiUsageDetailedActivityOpenFromSearch(aiUsageDetailedActivityOpenParam),
+  );
+
+  const syncDetailedActivityOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(aiUsageDetailedActivityHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setDetailedActivityOpen = useCallback(
+    (open: boolean) => {
+      setDetailedActivityOpenState(open);
+      syncDetailedActivityOpenToUrl(open);
+    },
+    [syncDetailedActivityOpenToUrl],
+  );
+
+  useEffect(() => {
+    setDetailedActivityOpenState(parseAiUsageDetailedActivityOpenFromSearch(aiUsageDetailedActivityOpenParam));
+  }, [aiUsageDetailedActivityOpenParam]);
+
   const quietEmptyPeriod =
     m.surface === "granted" && isAiUsageQuietEmptyPeriod(m.derived, m.loading);
 
@@ -264,7 +298,14 @@ export function CostReportingSettingsPageView(props: Props) {
               />
 
               {m.showDetailedActivityLink ? (
-                <details className="group" data-testid="ai-usage-detailed-activity-details">
+                <details
+                  className="group"
+                  data-testid="ai-usage-detailed-activity-details"
+                  open={detailedActivityOpen}
+                  onToggle={(event) => {
+                    setDetailedActivityOpen((event.currentTarget as HTMLDetailsElement).open);
+                  }}
+                >
                   <summary className="cursor-pointer list-none">
                     <span className={cn("font-medium text-al-text-secondary underline decoration-dotted underline-offset-2 hover:text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                       View detailed AI activity

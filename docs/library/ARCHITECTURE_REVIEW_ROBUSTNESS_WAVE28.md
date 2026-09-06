@@ -29,4 +29,6 @@ Companion to [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE27.md`](ARCHITECTURE_REVIEW_RO
 
 Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave28ArchitectureTests.cs`.
 
+Wave 29 Tier 1 continuation: [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE29.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE29.md).
+
 **Hasher baseline note:** wave 28 does not bump Hasher A schema version; export gates, compare fingerprints, and finding read/write sync remain on the existing **`v12`** baseline (`tests/manifest-hash/hasher-baseline-v12.json`).

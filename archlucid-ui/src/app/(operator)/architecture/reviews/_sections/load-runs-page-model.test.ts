@@ -13,6 +13,8 @@ vi.mock("@/lib/api/reviews-paged-inventory", async (importOriginal) => {
 
 import { fetchPagedReviewsInventory } from "@/lib/api/reviews-paged-inventory";
 
+import { REVIEWS_HUB_DEFAULT_PAGE_SIZE } from "@/lib/inventory-showing-count";
+
 import { fetchReviewsHubPagedInventory, formatRunsPageProjectTitle } from "./load-runs-page-model";
 
 describe("formatRunsPageProjectTitle", () => {
@@ -30,6 +32,12 @@ describe("reviews hub project list mode", () => {
 
   it("keeps slug filtering when an explicit projectId is requested", () => {
     expect(shouldListReviewsAcrossProjectSlugs("ArchLucid")).toBe(false);
+  });
+});
+
+describe("reviews hub default page size (DA-07)", () => {
+  it("defaults to 50 reviews per page when pageSize is omitted", () => {
+    expect(REVIEWS_HUB_DEFAULT_PAGE_SIZE).toBe(50);
   });
 });
 

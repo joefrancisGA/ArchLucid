@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ArchitectureNarrativeMarkdownView } from "@/components/architecture/ArchitectureNarrativeMarkdownView";
 import { ArchitectureStructuredContentPanel } from "@/components/architecture/ArchitectureStructuredContentPanel";
@@ -11,6 +12,11 @@ import { readArchitectureCreationHandoff } from "@/lib/architecture/architecture
 import type { ArchitectureCreationUserAssertions } from "@/lib/architecture/architecture-structured-content-types";
 import { prepareArchitectureNarrativeForPresentation } from "@/lib/architecture/architecture-narrative-presentation";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import {
+  parseSubmittedArchitectureOpenFromSearch,
+  submittedArchitectureDisclosureHrefFromSearch,
+} from "@/lib/reviews/submitted-architecture-disclosure-url";
 
 const PREVIEW_LINE_COUNT = 4;
 
@@ -63,6 +69,7 @@ export type RunDetailSubmittedArchitectureSectionProps = {
   readonly editHref: string | null;
   readonly useStructuredPresentation?: boolean;
   readonly runId?: string | null;
+  readonly manifestVersion?: string | null;
   readonly userAssertions?: ArchitectureCreationUserAssertions | null;
   readonly sectionTitle?: string;
   readonly helperText?: string;
@@ -72,7 +79,15 @@ export type RunDetailSubmittedArchitectureSectionProps = {
 export function RunDetailSubmittedArchitectureSection(
   props: RunDetailSubmittedArchitectureSectionProps,
 ): React.ReactElement | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const submittedArchitectureOpenParam = searchParams.get("submittedArchitectureOpen");
   const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState<string | null>(null);
+  const [sectionOpen, setSectionOpenState] = useState(() =>
+    parseSubmittedArchitectureOpenFromSearch(submittedArchitectureOpenParam),
+  );
   const text = props.architectureText?.trim() ?? "";
   const sectionTitle = props.sectionTitle ?? "Architecture submitted for review";
   const helperText =
@@ -83,7 +98,40 @@ export function RunDetailSubmittedArchitectureSection(
     [props.runId, props.userAssertions],
   );
 
+  const syncSectionOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(submittedArchitectureDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSectionOpen = useCallback(
+    (open: boolean) => {
+      setSectionOpenState(open);
+      syncSectionOpenToUrl(open);
+    },
+    [syncSectionOpenToUrl],
+  );
+
+  useEffect(() => {
+    setSectionOpenState(parseSubmittedArchitectureOpenFromSearch(submittedArchitectureOpenParam));
+  }, [submittedArchitectureOpenParam]);
+
   const copyText = useCallback(async () => {
+    const blockedReason = runCollateralSealedManifestCopyBlockedReason({
+      runId: props.runId?.trim() ?? "",
+      manifestVersion: props.manifestVersion,
+    });
+
+    if (blockedReason !== null) {
+      setCopyError(blockedReason);
+      return;
+    }
+
+    setCopyError(null);
+
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
@@ -92,15 +140,17 @@ export function RunDetailSubmittedArchitectureSection(
       }, 2000);
     } catch {
       setCopied(false);
+      setCopyError("Clipboard unavailable — select the text above and copy manually.");
     }
-  }, [text]);
+  }, [props.manifestVersion, props.runId, text]);
 
   if (text.length === 0) {
     return (
       <section id="submitted-architecture" className="scroll-mt-24" data-testid="submitted-architecture-empty">
         <CollapsibleSection
           title={sectionTitle}
-          defaultOpen={false}
+          open={sectionOpen}
+          onToggle={setSectionOpen}
           sectionTestId="submitted-architecture-collapsible"
         >
           <ArchitectureNarrativeMarkdownView
@@ -119,7 +169,10 @@ export function RunDetailSubmittedArchitectureSection(
           className="mb-6 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
           data-testid="submitted-architecture-collapsible"
           data-workspace-disclosure
-          open
+          open={sectionOpen}
+          onToggle={(event) => {
+            setSectionOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
         >
           <summary
             className={cn("cursor-pointer select-none font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
@@ -158,6 +211,10 @@ export function RunDetailSubmittedArchitectureSection(
         className="mb-6 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
         data-testid="submitted-architecture-collapsible"
         data-workspace-disclosure
+        open={sectionOpen}
+        onToggle={(event) => {
+          setSectionOpen((event.currentTarget as HTMLDetailsElement).open);
+        }}
       >
         <summary
           className={cn("cursor-pointer select-none font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
@@ -181,7 +238,7 @@ export function RunDetailSubmittedArchitectureSection(
             ) : null}
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Button type="button" variant="outline" size="sm" onClick={copyText}>
+            <Button type="button" variant="outline" size="sm" onClick={() => void copyText()}>
               {copied ? "Copied" : "Copy"}
             </Button>
             {props.canEditSource && props.editHref !== null ? (
@@ -190,6 +247,15 @@ export function RunDetailSubmittedArchitectureSection(
               </Button>
             ) : null}
           </div>
+          {copyError !== null ? (
+            <p
+              role="alert"
+              className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="submitted-architecture-copy-error"
+            >
+              {copyError}
+            </p>
+          ) : null}
           <details className="rounded-md border border-dashed border-neutral-200 p-3 dark:border-neutral-700">
             <summary className={cn("cursor-pointer font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Expand full description

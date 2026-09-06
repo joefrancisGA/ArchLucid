@@ -25,6 +25,8 @@ public static class HostElectionLeaseNames
 
     public const string TrialLifecycleEmailPolling = "hosted:trial-lifecycle-email-polling";
 
+    public const string ComplianceDriftEscalationPolling = "hosted:compliance-drift-escalation-polling";
+
     public const string ExecDigestWeeklyPolling = "hosted:exec-digest-weekly-polling";
 
     public const string SponsorDigestWeeklyPolling = "hosted:sponsor-digest-weekly-polling";

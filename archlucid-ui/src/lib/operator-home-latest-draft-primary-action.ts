@@ -45,9 +45,9 @@ export function resolveOperatorHomeLatestDraftPrimaryAction(
     return null;
   }
 
-  const architectureId = entry.architectureId.trim();
+  const draftId = entry.draftId.trim();
 
-  if (architectureId.length === 0) {
+  if (draftId.length === 0) {
     return null;
   }
 
@@ -63,7 +63,7 @@ export function resolveOperatorHomeLatestDraftPrimaryAction(
 
   if (entry.serverDraftStatus === "Submitted") {
     return {
-      href: architectureDraftPath(architectureId),
+      href: architectureDraftPath(draftId),
       ctaLabel: OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
       kind: "resume-draft",
     };
@@ -71,14 +71,14 @@ export function resolveOperatorHomeLatestDraftPrimaryAction(
 
   if (isArchitectureDraftPastDraftingOnRegistryEntry(entry)) {
     return {
-      href: startReviewFromArchitectureHref(architectureId),
+      href: startReviewFromArchitectureHref(draftId),
       ctaLabel: OPERATOR_HOME_CONTINUE_REVIEW_INTAKE_CTA,
       kind: "continue-intake",
     };
   }
 
   return {
-    href: architectureDraftPath(architectureId),
+    href: architectureDraftPath(draftId),
     ctaLabel: OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
     kind: "resume-draft",
   };

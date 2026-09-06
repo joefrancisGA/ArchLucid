@@ -27,6 +27,12 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => AI_USAGE_SETTINGS_PATH,
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(""),
+}));
+
 function buildQuietEmptyModel(overrides: Partial<CostReportingSettingsPageViewModel> = {}): CostReportingSettingsPageViewModel {
   const derived = buildAiUsageDashboardDerived({
     costReporting: {

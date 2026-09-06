@@ -13,8 +13,14 @@ export const CONTINUE_DRAFT_LABEL = "Continue draft" as const;
 /** Secondary link to the architecture draft inventory. */
 export const VIEW_ALL_DRAFTS_LABEL = "View all drafts" as const;
 
-/** Breadcrumb and inventory label for `/architectures` — matches page title and Architecture nav. */
+/** Guided-mode sidebar label for `/architecture/architectures` draft-inventory teaching list. */
 export const ARCHITECTURE_DRAFTS_LIST_LABEL = "Architectures" as const;
+
+/** Working-mode sidebar label for `/architecture/architectures` identity portfolio (CA-32). */
+export const ARCHITECTURE_IDENTITIES_NAV_LABEL = "Architectures" as const;
+
+/** Secondary nav label when draft inventory remains reachable beside identities (CA-32). */
+export const ARCHITECTURE_DRAFTS_NAV_LABEL = "Drafts" as const;
 
 /** Left-nav and review-intake entry for starting an architecture review. */
 export const START_REVIEW_LABEL = "Start review" as const;

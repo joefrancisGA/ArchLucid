@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ExplainabilityTraceTree } from "@/components/explainability/ExplainabilityTraceTree";
 import { FindingOptionalArtifactUnavailable } from "@/components/findings/FindingOptionalArtifactUnavailable";
@@ -19,6 +20,10 @@ import {
 } from "@/lib/findings/finding-explainability-summary";
 import { resolveFindingOptionalArtifactUnavailableCopy } from "@/lib/findings/finding-optional-artifact-copy";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
+import {
+  findingExplainabilityTraceDisclosureHrefFromSearch,
+  parseFindingExplainabilityOpenFromSearch,
+} from "@/lib/findings/finding-explainability-trace-disclosure-url";
 import type { FindingExplainability } from "@/types/explanation";
 
 export type FindingExplainabilityTracePanelProps = {
@@ -38,9 +43,36 @@ export function FindingExplainabilityTracePanel(props: FindingExplainabilityTrac
   const buyerPolishedShell = props.buyerPolishedShell === true;
   const defaultCollapsed = props.defaultCollapsed !== false;
   const sampleReview = isShowcaseStaticDemoRunId(props.runId.trim());
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const findingExplainabilityOpenParam = searchParams.get("findingExplainabilityOpen");
+  const [open, setOpenState] = useState(() => parseFindingExplainabilityOpenFromSearch(findingExplainabilityOpenParam));
   const [data, setData] = useState<FindingExplainability | null>(null);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const syncOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      router.replace(
+        findingExplainabilityTraceDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (detailsOpen: boolean) => {
+      setOpenState(detailsOpen);
+      syncOpenToUrl(detailsOpen);
+    },
+    [syncOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOpenState(parseFindingExplainabilityOpenFromSearch(findingExplainabilityOpenParam));
+  }, [findingExplainabilityOpenParam]);
 
   const load = useCallback(async () => {
     const findingId = props.findingId.trim();
@@ -140,7 +172,8 @@ export function FindingExplainabilityTracePanel(props: FindingExplainabilityTrac
     return (
       <CollapsibleSection
         title="Explainability"
-        defaultOpen={false}
+        open={open}
+        onToggle={setOpen}
         sectionTestId="finding-explainability-trace-collapsible"
         summaryLine={
           failure !== null

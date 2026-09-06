@@ -4,6 +4,7 @@
 > **Wave 8 (run first):** [`INSTRUMENT_SPINE_COMPOSER_PROMPTS.md`](INSTRUMENT_SPINE_COMPOSER_PROMPTS.md) (**IS-01–15**)
 > **Wave 9 (run second):** [`LIVELIHOOD_SPINE_COMPOSER_PROMPTS.md`](LIVELIHOOD_SPINE_COMPOSER_PROMPTS.md) (**LS-01–12**)
 > **Wave 12:** [`LIVELIHOOD_KERNEL_COMPOSER_PROMPTS.md`](LIVELIHOOD_KERNEL_COMPOSER_PROMPTS.md) (**LK-01–15**) — BFF + ADR 0071–0073; do not implement BFF from CR files
+> **Wave 13:** [`DURABLE_ARCHITECTURE_COMPOSER_PROMPTS.md`](DURABLE_ARCHITECTURE_COMPOSER_PROMPTS.md) (**DA-01–12**) — customer-visible `dbo.Architectures`; do not merge tables
 > **Shipped predecessors:** LI-01–15 (`master` #1397), LD-01–15 (#1421 / #1439), RS-01–15 (#1457), WA-01–24 (#1496), FD-01–13 (#1534 / #1537)
 
 # Career-record Composer prompts (CR-01–CR-12)

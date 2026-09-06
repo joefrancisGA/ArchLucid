@@ -5,28 +5,28 @@ import { getServerResolvedScopeHeaders } from "@/lib/server-operator-scope";
 import type { DraftRequestResponse } from "@/types/draft-intake";
 
 /**
- * Per-request memo so `generateMetadata` and future server loaders share one draft fetch.
+ * Per-request memo so `generateMetadata` and route loaders share one draft fetch.
  * Keep this module server-only (do not import from Client Components).
  */
 export const loadArchitectureDraftForRouteCached = cache(
-  async (architectureId: string): Promise<DraftRequestResponse> => {
+  async (draftId: string): Promise<DraftRequestResponse> => {
     const startedMs = performance.now();
     console.warn(
       JSON.stringify({
         component: "archlucid-ui-draft-metadata",
         event: "metadata_draft_fetch_started",
-        architectureId,
+        draftId,
       }),
     );
 
     try {
       const scopeHeaders = await getServerResolvedScopeHeaders();
-      const draft = await getDraftRequest(architectureId, { scopeHeaders });
+      const draft = await getDraftRequest(draftId, { scopeHeaders });
       console.warn(
         JSON.stringify({
           component: "archlucid-ui-draft-metadata",
           event: "metadata_draft_fetch_completed",
-          architectureId,
+          draftId,
           durationMs: Math.round(performance.now() - startedMs),
         }),
       );
@@ -38,7 +38,7 @@ export const loadArchitectureDraftForRouteCached = cache(
         JSON.stringify({
           component: "archlucid-ui-draft-metadata",
           event: "metadata_draft_fetch_failed",
-          architectureId,
+          draftId,
           durationMs: Math.round(performance.now() - startedMs),
           message,
         }),

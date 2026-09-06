@@ -82,3 +82,58 @@ export function extractArchitectureDraftIdFromPathname(pathname: string): string
 
   return remainder;
 }
+
+const LAST_OPEN_ARCHITECTURE_ID_STORAGE_KEY = "archlucid.lastOpenArchitectureId.v1";
+
+export function readCachedLastOpenArchitectureId(): string | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(LAST_OPEN_ARCHITECTURE_ID_STORAGE_KEY)?.trim() ?? "";
+
+    return raw.length > 0 ? raw : null;
+  } catch {
+    return null;
+  }
+}
+
+export function writeCachedLastOpenArchitectureId(architectureId: string | null): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    const trimmed = architectureId?.trim() ?? "";
+
+    if (trimmed.length === 0) {
+      window.localStorage.removeItem(LAST_OPEN_ARCHITECTURE_ID_STORAGE_KEY);
+      return;
+    }
+
+    window.localStorage.setItem(LAST_OPEN_ARCHITECTURE_ID_STORAGE_KEY, trimmed);
+  } catch {
+    /* private mode */
+  }
+}
+
+/** Identity desk segment when pathname is `/architecture/architectures/{architectureId}` without `?draft=`. */
+export function extractArchitectureIdentityIdFromPathname(
+  pathname: string,
+  search: string,
+): string | null {
+  const segment = extractArchitectureDraftIdFromPathname(pathname);
+
+  if (segment === null) {
+    return null;
+  }
+
+  const draftFromQuery = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search).get("draft")?.trim() ?? "";
+
+  if (draftFromQuery.length > 0) {
+    return null;
+  }
+
+  return segment;
+}

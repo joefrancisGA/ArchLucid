@@ -6,6 +6,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { InventoryHiddenFilterHonestyBand } from "@/components/usability/InventoryHiddenFilterHonestyBand";
+import { InventoryShowingCountBand } from "@/components/usability/InventoryShowingCountBand";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
@@ -13,11 +15,13 @@ import { useArchivedReviewsClientCache } from "@/hooks/use-archived-reviews-clie
 import { useFavoriteReviews } from "@/hooks/use-favorite-reviews";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useShellInFlightOperations } from "@/hooks/use-shell-in-flight-operations";
+import { useRehydrateInFlightFromWorkingContinuity } from "@/hooks/use-rehydrate-in-flight-from-architecture";
 import { collectInFlightReviewRunIds, mapInFlightOperationsToDeskRows } from "@/lib/operations/map-in-flight-desk-rows";
 import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
 import { showcaseSampleReviewPackageHref } from "@/lib/showcase-sample-review-registry";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { deriveInventoryHiddenFilterHonesty } from "@/lib/inventory-hidden-filter-honesty";
 import {
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
   readOperatorScopeFromStorage,
@@ -65,6 +69,9 @@ import type { ReviewsWorkspaceSummary } from "./reviews-workspace-summary";
 type ReviewsHubReviewInventoryProps = {
   readonly runs: readonly RunSummary[];
   readonly summary: ReviewsWorkspaceSummary;
+  readonly totalCount?: number;
+  readonly pageSize?: number;
+  readonly hasMore?: boolean;
 };
 
 function subscribeOperatorScopeRecord(onStoreChange: () => void): () => void {
@@ -114,6 +121,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
   const searchParams = useSearchParams();
   const router = useRouter();
   const { isWorkingMode } = useWorkspaceMode();
+  useRehydrateInFlightFromWorkingContinuity();
   const inFlightOperations = useShellInFlightOperations();
   const inFlightRunIds = useMemo(
     () => collectInFlightReviewRunIds(inFlightOperations),
@@ -191,6 +199,26 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
     );
   }, [activeFilter, mergedRuns, ownerContext, searchQuery, visibilityFilteredRuns]);
 
+  const searchMatchedRuns = useMemo(() => {
+    return visibilityFilteredRuns.filter((run) => matchesSearch(run, searchQuery, ownerContext, mergedRuns));
+  }, [mergedRuns, ownerContext, searchQuery, visibilityFilteredRuns]);
+
+  const activeFilterLabel =
+    activeFilter === "all"
+      ? null
+      : (INVENTORY_FILTER_OPTIONS.find((option) => option.id === activeFilter)?.label ?? null);
+  const hiddenFilterHonesty = useMemo(
+    () =>
+      deriveInventoryHiddenFilterHonesty({
+        visibleCount: filteredRuns.length,
+        filteredPoolCount: searchMatchedRuns.length,
+        unitSingular: "review",
+        unitPlural: "reviews",
+        filterLabel: activeFilterLabel,
+      }),
+    [activeFilterLabel, filteredRuns.length, searchMatchedRuns.length],
+  );
+
   const sortedFilteredRuns = useMemo(
     () =>
       isWorkingMode
@@ -213,6 +241,8 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
     readOperatorScopeFromStorage,
     getServerOperatorScopeRecordSnapshot,
   );
+  const inventoryTotalCount = props.totalCount ?? props.runs.length;
+  const inventoryHasMore = props.hasMore ?? inventoryTotalCount > props.runs.length;
   const showWorkspaceScopeTeaching = shouldShowWorkspaceScopeEmptyTeaching({
     listEmpty: rows.length === 0,
     scopeRecord,
@@ -286,6 +316,19 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
           />
 
           <ReviewsHubSummaryRow summary={props.summary} />
+
+          <InventoryShowingCountBand
+            loaded={props.runs.length}
+            total={inventoryTotalCount}
+            hasMore={inventoryHasMore}
+            testId="reviews-hub-inventory-showing-count"
+          />
+
+          <InventoryHiddenFilterHonestyBand
+            honesty={hiddenFilterHonesty}
+            onShowAll={clearInventoryFilters}
+            testId="reviews-hub-hidden-filter-honesty"
+          />
 
           {isWorkingMode ? <ReviewsHubInFlightAnalysisDesk rows={inFlightDeskRows} /> : null}
 

@@ -5,10 +5,10 @@ import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architec
 import { resolveLinkedDraftForReview } from "./resolve-linked-draft-for-review";
 
 function makeDraft(
-  overrides: Partial<ArchitectureDraftRegistryEntry> & Pick<ArchitectureDraftRegistryEntry, "architectureId">,
+  overrides: Partial<ArchitectureDraftRegistryEntry> & Pick<ArchitectureDraftRegistryEntry, "draftId">,
 ): ArchitectureDraftRegistryEntry {
   return {
-    architectureId: overrides.architectureId,
+    draftId: overrides.draftId,
     displayName: overrides.displayName ?? "Payments draft",
     customerStatus: overrides.customerStatus ?? "drafting",
     ownerLabel: overrides.ownerLabel ?? "You",
@@ -21,11 +21,11 @@ function makeDraft(
 describe("resolveLinkedDraftForReview (LS-06)", () => {
   it("returns the draft linked to the review run id", () => {
     const drafts = [
-      makeDraft({ architectureId: "draft-a", linkedReviewId: "run-other" }),
-      makeDraft({ architectureId: "draft-b", linkedReviewId: "run-base" }),
+      makeDraft({ draftId: "draft-a", linkedReviewId: "run-other" }),
+      makeDraft({ draftId: "draft-b", linkedReviewId: "run-base" }),
     ];
 
-    expect(resolveLinkedDraftForReview("run-base", drafts)?.architectureId).toBe("draft-b");
+    expect(resolveLinkedDraftForReview("run-base", drafts)?.draftId).toBe("draft-b");
   });
 
   it("returns null when no draft is linked", () => {

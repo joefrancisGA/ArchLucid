@@ -208,6 +208,79 @@ public sealed class CachingDraftRequestRepository(
             cancellationToken);
     }
 
+    /// <inheritdoc />
+    public Task<IReadOnlyList<DraftRequestResponse>> ListByArchitectureIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid architectureId,
+        CancellationToken cancellationToken)
+    {
+        return _inner.ListByArchitectureIdAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            architectureId,
+            cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public Task<int> CountByArchitectureIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid architectureId,
+        CancellationToken cancellationToken)
+    {
+        return _inner.CountByArchitectureIdAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            architectureId,
+            cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> SetArchitectureIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid draftId,
+        Guid architectureId,
+        CancellationToken cancellationToken)
+    {
+        bool updated = await _inner.SetArchitectureIdAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            draftId,
+            architectureId,
+            cancellationToken);
+
+        if (updated)
+        {
+            await InvalidateDraftAsync(tenantId, workspaceId, projectId, draftId, cancellationToken);
+        }
+
+        return updated;
+    }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<DraftRequestResponse>> ListWithNullArchitectureIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        int take,
+        CancellationToken cancellationToken)
+    {
+        return _inner.ListWithNullArchitectureIdAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            take,
+            cancellationToken);
+    }
+
     private Task InvalidateDraftAsync(
         Guid tenantId,
         Guid workspaceId,

@@ -51,6 +51,15 @@
       "parity": "unmapped"
     },
     {
+      "nav_href": "/administration/branding",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operator/operator-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
       "nav_href": "/administration/connection-status",
       "nav_required_authority": "AdminAuthority",
       "nav_source_file": "operator/operator-admin-nav-group-builder.ts",
@@ -340,6 +349,69 @@
       "nav_href": "/governance/findings/assigned-to-me",
       "nav_required_authority": "ReadAuthority",
       "nav_source_file": "operate-governance-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/governance/infrastructure",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-infrastructure-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/governance/infrastructure/ask",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-infrastructure-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/governance/infrastructure/diagram-reconcile",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-infrastructure-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/governance/infrastructure/diagrams",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-infrastructure-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/governance/infrastructure/drift",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-infrastructure-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/governance/infrastructure/remediation",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-infrastructure-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/governance/infrastructure/resources",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-infrastructure-nav-group-builder.ts",
       "controller_primary_get_policy_strictest": null,
       "controller_primary_get_policy_loosest": null,
       "controller_files": [],

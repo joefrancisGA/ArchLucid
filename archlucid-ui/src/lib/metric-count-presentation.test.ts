@@ -31,20 +31,22 @@ function sampleRow(
 }
 
 describe("metric-count-presentation", () => {
-  it("formats inline scope labels for workspace open findings", () => {
+  it("formats operator home open findings with workspace and open scope", () => {
     const presentation = workspaceOpenFindingsPresentation(12);
 
-    expect(formatMetricCountScopeLabel(presentation.dimensions)).toBe("this workspace");
-    expect(formatMetricCountHeadline(presentation)).toBe("12 open findings · this workspace");
+    expect(formatMetricCountScopeLabel(presentation.dimensions)).toBe("this workspace · open");
+    expect(formatMetricCountHeadline(presentation)).toBe("12 open findings · this workspace · open");
     expect(presentation.href).toBe("/governance/findings?filter=open");
   });
 
-  it("formats operator home review inventory scope labels", () => {
+  it("formats operator home review inventory counts with reviews-list scope", () => {
     const active = operatorHomeActiveReviewsPresentation(2);
     const finalized = operatorHomeFinalizedPackagesPresentation(3);
 
-    expect(formatMetricCountScopeLabel(active.dimensions)).toBe("this workspace");
-    expect(formatMetricCountScopeLabel(finalized.dimensions)).toBe("this workspace");
+    expect(formatMetricCountScopeLabel(active.dimensions)).toBe("active");
+    expect(formatMetricCountScopeLabel(finalized.dimensions)).toBe("finalized");
+    expect(formatMetricCountHeadline(active)).toBe("2 active reviews · active");
+    expect(formatMetricCountHeadline(finalized)).toBe("3 finalized packages · finalized");
     expect(active.href).toBe("/architecture/reviews?filter=Active");
     expect(finalized.href).toBe("/architecture/reviews?filter=finalized");
   });

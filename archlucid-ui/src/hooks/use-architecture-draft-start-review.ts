@@ -39,7 +39,7 @@ type UseArchitectureDraftStartReviewOptions = {
   readonly hasPersistedDraft: boolean;
   readonly briefFrozen: boolean;
   readonly linkedReviewId: string | null;
-  readonly effectiveArchitectureId: string;
+  readonly effectiveDraftId: string;
   readonly fields: ArchitectureDraftFieldState;
   readonly actorSet: ActorSet;
   readonly draft: DraftRequestResponse | null;
@@ -118,7 +118,7 @@ export function useArchitectureDraftStartReview(options: UseArchitectureDraftSta
       }
 
       try {
-        const patched = await patchDraftRequest(options.effectiveArchitectureId, {
+        const patched = await patchDraftRequest(options.effectiveDraftId, {
           freeTextIntent: mergedIntent,
         });
         options.syncServerUpdatedUtc(patched.updatedUtc);
@@ -129,7 +129,7 @@ export function useArchitectureDraftStartReview(options: UseArchitectureDraftSta
       }
     },
     [
-      options.effectiveArchitectureId,
+      options.effectiveDraftId,
       options.fields.freeTextIntent,
       options.hasPersistedDraft,
       options.isNewDraft,
@@ -218,7 +218,7 @@ export function useArchitectureDraftStartReview(options: UseArchitectureDraftSta
         ).trim();
 
         if (mergedIntent.length >= GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS) {
-          const patched = await patchDraftRequest(options.effectiveArchitectureId, {
+          const patched = await patchDraftRequest(options.effectiveDraftId, {
             freeTextIntent: mergedIntent,
           });
           options.syncServerUpdatedUtc(patched.updatedUtc);
@@ -233,14 +233,14 @@ export function useArchitectureDraftStartReview(options: UseArchitectureDraftSta
         );
       }
 
-      reviewStartProgress.openReview(startReviewFromArchitectureHref(options.effectiveArchitectureId));
+      reviewStartProgress.openReview(startReviewFromArchitectureHref(options.effectiveDraftId));
     } catch {
       reviewStartProgress.reset();
       setStartReviewError("Could not start the architecture review. Try again.");
     }
   }, [
     options.draft,
-    options.effectiveArchitectureId,
+    options.effectiveDraftId,
     options.fields.freeTextIntent,
     options.isNewDraft,
     options.linkedReviewId,

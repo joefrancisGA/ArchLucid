@@ -18,7 +18,7 @@ export type InsightDensityMeasurementDenominatorPresentation = {
 /** One honest denominator line for stamp / print / JSON career exports (ADR 0070 / LK-14). */
 export function formatInsightDensityMeasurementDenominatorLine(): InsightDensityMeasurementDenominatorPresentation {
   const line =
-    `Measured on ${INSIGHT_DENSITY_GOLDEN_CORPUS_HARNESS_ENGINE_COUNT} of ${INSIGHT_DENSITY_BUILT_IN_PRODUCT_ENGINE_COUNT} built-in engines in the career corpus; absent engines are listed in the quality inventory and were not scored on this package.`;
+    `Quality scores use ${INSIGHT_DENSITY_GOLDEN_CORPUS_HARNESS_ENGINE_COUNT} of ${INSIGHT_DENSITY_BUILT_IN_PRODUCT_ENGINE_COUNT} built-in engines. The others were not scored.`;
 
   return {
     line,

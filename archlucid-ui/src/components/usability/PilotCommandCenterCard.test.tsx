@@ -261,7 +261,7 @@ describe("PilotCommandCenterCard", () => {
   it("shows resume-draft callout and lifecycle cards when drafts exist without reviews", () => {
     vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([
       {
-        architectureId: "draft-001",
+        draftId: "draft-001",
         displayName: "Claims intake",
         customerStatus: "draft",
         ownerLabel: "You",
@@ -313,7 +313,7 @@ describe("PilotCommandCenterCard", () => {
   it("shows optional refine guidance when the latest draft is ready for review", () => {
     vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([
       {
-        architectureId: "draft-ready",
+        draftId: "draft-ready",
         displayName: "Claims intake",
         customerStatus: "ready-for-review",
         ownerLabel: "You",
@@ -337,7 +337,7 @@ describe("PilotCommandCenterCard", () => {
   it("shows optional refine guidance when persisted draft fields are review-ready but registry status is still draft", () => {
     vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([
       {
-        architectureId: "draft-ready",
+        draftId: "draft-ready",
         displayName: "Claims intake",
         customerStatus: "draft",
         ownerLabel: "You",
@@ -366,7 +366,7 @@ describe("PilotCommandCenterCard", () => {
   it("hides refine guidance when the latest draft is already in review intake", () => {
     vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([
       {
-        architectureId: "draft-intake",
+        draftId: "draft-intake",
         displayName: "Vertex",
         customerStatus: "ready-for-review",
         ownerLabel: "You",
@@ -388,7 +388,7 @@ describe("PilotCommandCenterCard", () => {
   it("routes submitted drafts back to the architecture draft workspace from home", () => {
     vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([
       {
-        architectureId: "draft-vertex",
+        draftId: "draft-vertex",
         displayName: "Vertex",
         customerStatus: "ready-for-review",
         ownerLabel: "You",

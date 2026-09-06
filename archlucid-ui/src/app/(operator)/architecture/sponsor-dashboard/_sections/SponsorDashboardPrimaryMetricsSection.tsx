@@ -18,7 +18,12 @@ import type { SponsorRoiSummary } from "@/lib/sponsor-report-markdown";
 
 import { SPONSOR_KPI_DRILL_THROUGH } from "@/lib/sponsor-kpi-drill-through-hrefs";
 
-import { formatMetricCountScopeLabel } from "@/lib/metric-count-presentation";
+import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
+import {
+  sponsorDecisionsNeededPresentation,
+  sponsorExpiringWaiversPresentation,
+  sponsorStaleArchitectureRisksPresentation,
+} from "@/lib/sponsor/sponsor-queue-metric-presentations";
 
 import {
 
@@ -187,31 +192,15 @@ export function SponsorDashboardPrimaryMetricsSection(
           </CardHeader>
 
           <CardContent>
-
-            <Link
-
-              href={SPONSOR_KPI_DRILL_THROUGH.decisionsNeeded}
-
-              className="block rounded-sm outline-none transition-shadow hover:ring-2 hover:ring-primary/30 focus-visible:ring-2 focus-visible:ring-primary/40"
-
-            >
-
-              <p className={cn(OPERATOR_TYPOGRAPHY.executiveDashboardMetric, OPERATOR_LINK.nav)}>{decisionsNeeded.display}</p>
-
-            </Link>
-
-            <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-
-              {formatMetricCountScopeLabel([
-
-                { kind: "workspace" },
-
-                { kind: "governance-filter", filter: "all" },
-
-              ])}
-
-            </p>
-
+            {loading || decisionsNeededCount === null ? (
+              <p className={cn(OPERATOR_TYPOGRAPHY.executiveDashboardMetric)}>{decisionsNeeded.display}</p>
+            ) : (
+              <SelfDescribingMetricCount
+                variant="executive"
+                presentation={sponsorDecisionsNeededPresentation(decisionsNeededCount)}
+                testId="sponsor-primary-decisions-needed-count"
+              />
+            )}
           </CardContent>
 
         </Card>
@@ -239,39 +228,28 @@ export function SponsorDashboardPrimaryMetricsSection(
           <CardContent className={cn("space-y-2", OPERATOR_TYPOGRAPHY.body)}>
 
             <div className="flex items-baseline justify-between gap-2">
-
               <span className="text-neutral-600 dark:text-neutral-400">{v.staleArchitectureRisksMetric.title}</span>
-
-              <Link href={SPONSOR_KPI_DRILL_THROUGH.staleArchitectureRisks} className={cn(OPERATOR_LINK.nav, "shrink-0 tabular-nums")}>
-
-                {staleRisks.display}
-
-              </Link>
-
+              {loading || staleRiskCount === null ? (
+                <span className="shrink-0 tabular-nums">{staleRisks.display}</span>
+              ) : (
+                <SelfDescribingMetricCount
+                  variant="inline"
+                  presentation={sponsorStaleArchitectureRisksPresentation(staleRiskCount)}
+                  testId="sponsor-primary-stale-risks-count"
+                />
+              )}
             </div>
-
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-
-              {formatMetricCountScopeLabel([
-
-                { kind: "workspace" },
-
-                { kind: "governance-filter", filter: "stale" },
-
-              ])}
-
-            </p>
-
             <div className="flex items-baseline justify-between gap-2">
-
               <span className="text-neutral-600 dark:text-neutral-400">{v.expiringWaiversMetric.title}</span>
-
-              <Link href={SPONSOR_KPI_DRILL_THROUGH.expiringWaivers} className={cn(OPERATOR_LINK.nav, "shrink-0 tabular-nums")}>
-
-                {expiringWaivers.display}
-
-              </Link>
-
+              {loading || expiringWaiversCount === null ? (
+                <span className="shrink-0 tabular-nums">{expiringWaivers.display}</span>
+              ) : (
+                <SelfDescribingMetricCount
+                  variant="inline"
+                  presentation={sponsorExpiringWaiversPresentation(expiringWaiversCount)}
+                  testId="sponsor-primary-expiring-waivers-count"
+                />
+              )}
             </div>
 
           </CardContent>

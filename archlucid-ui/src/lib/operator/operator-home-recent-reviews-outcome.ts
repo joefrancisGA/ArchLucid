@@ -161,7 +161,6 @@ export function buildOperatorHomeRecentReviewsOutcomeParts(
       parts.push({
         key: "showing-cap",
         text: `showing ${visible} of ${previewTotal}`,
-        hrefKind: "all-reviews",
       });
     } else {
       parts.push({

@@ -11,8 +11,13 @@ export type ArchitectureDraftSaveState = "idle" | "saved" | "saving" | "unsaved"
 
 export const ARCHITECTURE_DRAFT_AUTOSAVE_DEBOUNCE_MS = 1500;
 
-export type UseArchitectureDraftAutosaveArgs = {
+export type ArchitectureDraftCreatedPayload = {
+  readonly draftId: string;
   readonly architectureId: string;
+};
+
+export type UseArchitectureDraftAutosaveArgs = {
+  readonly draftId: string;
   readonly fields: ArchitectureDraftFieldState;
   readonly actorSet: ActorSet;
   readonly enabled?: boolean;
@@ -20,7 +25,7 @@ export type UseArchitectureDraftAutosaveArgs = {
   readonly deferCreateUntilFirstSave?: boolean;
   readonly scopeGateOpen?: boolean;
   readonly scopeBullets?: readonly ScopeUnderstandingBullet[];
-  readonly onDraftCreated?: (draftId: string) => void;
+  readonly onDraftCreated?: (created: ArchitectureDraftCreatedPayload) => void;
   readonly onDraftLoaded?: (draft: DraftRequestResponse) => void;
   /** Called when GET shows a non-drafting status — do not treat as another-session conflict. */
   readonly onImmutableDraftDetected?: (draft: DraftRequestResponse) => void;

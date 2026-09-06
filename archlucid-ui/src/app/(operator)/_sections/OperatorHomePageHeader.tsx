@@ -4,7 +4,10 @@ import type { ReactNode } from "react";
 
 import { OperatorHomeWorkingPrimaryCta } from "@/components/operator-home/OperatorHomeWorkingPrimaryCta";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import {
+  PAGE_HELP_SHORT_TRIGGER_TEXT,
+  PageContextualHelpButton,
+} from "@/components/usability/PageContextualHelpButton";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { OPERATOR_HOME_DATA_CURRENCY_PREFIX } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_HOME_PAGE_TITLE } from "@/lib/operator/operator-home-page-copy";
@@ -14,8 +17,6 @@ import {
   operatorHomeDataCurrencyStaleCue,
   operatorHomeDataCurrencyValue,
 } from "@/lib/operator/operator-last-refreshed-label";
-import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
-import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 
 export type OperatorHomePageHeaderProps = {
   readonly subtitle: string;
@@ -52,7 +53,6 @@ function operatorHomeFreshnessContent(input: {
 /** Shared `/` Overview hero — title, lead, refresh, data-currency timestamp, and resume/start primary. */
 export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): React.JSX.Element {
   const { refreshing, lastRefreshedAt, requestRefresh } = useOperatorHomeRefresh();
-  const { isWorkingMode } = useWorkspaceMode();
   const freshnessContent = operatorHomeFreshnessContent({
     lastRefreshedAt: refreshing ? null : lastRefreshedAt,
     refreshing,
@@ -66,29 +66,24 @@ export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): Reac
       subtitle={props.subtitle}
       subtitleClassName="[&_strong]:font-bold"
       subtitleTestId="operator-home-page-subtitle"
-      metadata={
-        <OperatorPageFreshnessMetadata
-          testId="operator-home-data-currency"
-          lastRefreshedAt={refreshing ? null : lastRefreshedAt}
-        >
-          {freshnessContent}
-        </OperatorPageFreshnessMetadata>
-      }
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="operator-home-header-actions">
-          <PageContextualHelpButton />
-          <RefreshButton
-            data-testid="operator-home-refresh-button"
-            busy={refreshing}
-            onClick={() => void requestRefresh()}
-          />
+          <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+          <div
+            className="flex flex-wrap items-center gap-2"
+            data-testid="operator-home-data-currency"
+          >
+            <span className="text-al-text-secondary">{freshnessContent}</span>
+            <RefreshButton
+              data-testid="operator-home-refresh-button"
+              busy={refreshing}
+              onClick={() => void requestRefresh()}
+            />
+          </div>
         </div>
       }
     >
-      <OperatorHomeWorkingPrimaryCta
-        variant="primary"
-        showNewReviewWhenResuming={isWorkingMode}
-      />
+      <OperatorHomeWorkingPrimaryCta variant="primary" />
     </OperatorPageHeader>
   );
 }

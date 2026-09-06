@@ -5,6 +5,15 @@ import { useEffect, useMemo, useSyncExternalStore } from "react";
 
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { Button } from "@/components/ui/button";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { countUnlinkedArchitectureDraftRegistryEntries } from "@/lib/architecture/architecture-draft-registry";
@@ -38,9 +47,6 @@ export type UnfinishedWorkRailProps = {
   /** Server-rendered reviews for first paint; a refreshed client snapshot supersedes it when present. */
   readonly runs: readonly RunSummary[];
 };
-
-const UNFINISHED_WORK_RAIL_GRID_COLS =
-  "sm:grid-cols-[minmax(0,1.6fr)_minmax(0,0.9fr)_minmax(0,0.8fr)_auto]" as const;
 
 const UNFINISHED_WORK_RAIL_VIEW_ALL_LABEL = "View all unfinished work";
 
@@ -119,110 +125,41 @@ function resolveContinueCtaLabel(item: UnfinishedWorkRailItem): string {
   }
 }
 
-function UnfinishedWorkRailColumnHeaders(): React.JSX.Element {
-  return (
-    <li
-      className={cn(
-        "hidden gap-x-4 border-b border-neutral-200 pb-1.5 dark:border-neutral-800",
-        "sm:col-span-full sm:grid sm:grid-cols-subgrid sm:items-end",
-      )}
-      data-testid="unfinished-work-rail-column-headers"
-    >
-      <span className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        {OPERATOR_HOME_YOUR_WORK_COLUMN_NAME}
-      </span>
-      <span className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        {OPERATOR_HOME_YOUR_WORK_COLUMN_TYPE}
-      </span>
-      <span className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        {OPERATOR_HOME_YOUR_WORK_COLUMN_UPDATED}
-      </span>
-      <span className={cn("min-w-0 text-right text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        {OPERATOR_HOME_YOUR_WORK_COLUMN_STATUS}
-      </span>
-    </li>
-  );
-}
-
-function UnfinishedWorkRailPrimaryCard(props: { readonly item: UnfinishedWorkRailItem }): React.JSX.Element {
+function UnfinishedWorkRailTableRow(props: {
+  readonly item: UnfinishedWorkRailItem;
+}): React.JSX.Element {
   const { item } = props;
   const continueLabel = resolveContinueCtaLabel(item);
+  const statusTag = resolveRailItemStatusTagDisplay(item);
 
   return (
-    <article
-      className={cn(
-        "rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800",
-        "space-y-3",
-      )}
-      data-testid={`unfinished-work-rail-item-${item.kind}`}
-    >
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0 flex-1 space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <Link
-              href={item.href}
-              className={cn("min-w-0 break-words font-semibold", OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.cardTitle)}
-              data-testid={`unfinished-work-rail-link-${item.id}`}
-            >
-              {item.title}
-            </Link>
-            <StatusTag
-              kind={resolveRailItemStatusTagDisplay(item).kind}
-              label={resolveRailItemStatusTagDisplay(item).label}
-            />
-          </div>
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            {item.workTypeLabel}
-            {item.activityLabel !== null ? ` · ${item.activityLabel}` : ""}
-          </p>
-        </div>
-        <Button asChild variant="outline" size="sm" className="h-8 shrink-0 self-start sm:self-center">
-          <Link href={item.href} data-testid={`unfinished-work-rail-continue-${item.id}`}>
-            {continueLabel}
-          </Link>
-        </Button>
-      </div>
-    </article>
-  );
-}
-
-function UnfinishedWorkRailRow(props: { readonly item: UnfinishedWorkRailItem }): React.JSX.Element {
-  const { item } = props;
-  const continueLabel = resolveContinueCtaLabel(item);
-
-  return (
-    <li
-      className={cn(
-        "border-b border-neutral-200 py-2 last:border-b-0 dark:border-neutral-800",
-        "sm:col-span-full sm:grid sm:grid-cols-subgrid sm:items-center",
-      )}
-      data-testid={`unfinished-work-rail-item-${item.kind}`}
-    >
-      <Link
-        href={item.href}
-        className={cn("min-w-0 break-words font-medium", OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.body)}
-        data-testid={`unfinished-work-rail-link-${item.id}`}
-      >
-        {item.title}
-      </Link>
-      <span className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+    <EnterpriseTableRow data-testid={`unfinished-work-rail-item-${item.kind}`}>
+      <EnterpriseTableCell className="min-w-[12rem] max-w-md">
+        <Link
+          href={item.href}
+          className={cn("min-w-0 break-words font-medium", OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.body)}
+          data-testid={`unfinished-work-rail-link-${item.id}`}
+        >
+          {item.title}
+        </Link>
+      </EnterpriseTableCell>
+      <EnterpriseTableCell className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {item.workTypeLabel}
-      </span>
-      <span className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+      </EnterpriseTableCell>
+      <EnterpriseTableCell className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {item.activityLabel ?? "—"}
-      </span>
-      <div className="flex shrink-0 items-center gap-2 sm:justify-end">
-        <StatusTag
-          kind={resolveRailItemStatusTagDisplay(item).kind}
-          label={resolveRailItemStatusTagDisplay(item).label}
-        />
+      </EnterpriseTableCell>
+      <EnterpriseTableCell>
+        <StatusTag kind={statusTag.kind} label={statusTag.label} />
+      </EnterpriseTableCell>
+      <EnterpriseTableCell className="text-right">
         <Button asChild variant="outline" size="sm" className="h-7">
           <Link href={item.href} data-testid={`unfinished-work-rail-continue-${item.id}`}>
             {continueLabel}
           </Link>
         </Button>
-      </div>
-    </li>
+      </EnterpriseTableCell>
+    </EnterpriseTableRow>
   );
 }
 
@@ -230,35 +167,34 @@ function UnfinishedWorkRailList(props: {
   readonly items: readonly UnfinishedWorkRailItem[];
 }): React.JSX.Element {
   if (props.items.length === 0) {
-    return <ul className="m-0 list-none p-0" data-testid="unfinished-work-rail-list" />;
+    return <div data-testid="unfinished-work-rail-list" />;
   }
-
-  if (props.items.length === 1) {
-    return (
-      <ul className="m-0 mt-2 list-none p-0" data-testid="unfinished-work-rail-list">
-        <UnfinishedWorkRailRow item={props.items[0]!} />
-      </ul>
-    );
-  }
-
-  const [primaryItem, ...secondaryItems] = props.items;
 
   return (
-    <div className="mt-2 space-y-3" data-testid="unfinished-work-rail-list">
-      <UnfinishedWorkRailPrimaryCard item={primaryItem} />
-      {secondaryItems.length > 0 ? (
-        <ul
-          className={cn(
-            "m-0 list-none space-y-2 p-0 sm:grid sm:gap-x-4",
-            UNFINISHED_WORK_RAIL_GRID_COLS,
-          )}
-        >
-          <UnfinishedWorkRailColumnHeaders />
-          {secondaryItems.map((item) => (
-            <UnfinishedWorkRailRow key={item.id} item={item} />
+    <div className="mt-2" data-testid="unfinished-work-rail-list">
+      <EnterpriseTable ariaLabel="Unfinished work" data-testid="unfinished-work-rail-table">
+        <colgroup>
+          <col className="w-[38%]" />
+          <col className="w-[14%]" />
+          <col className="w-[18%]" />
+          <col className="w-[14%]" />
+          <col className="w-[16%]" />
+        </colgroup>
+        <EnterpriseTableHead>
+          <EnterpriseTableHeadRow data-testid="unfinished-work-rail-column-headers">
+            <EnterpriseTableHeaderCell>{OPERATOR_HOME_YOUR_WORK_COLUMN_NAME}</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>{OPERATOR_HOME_YOUR_WORK_COLUMN_TYPE}</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>{OPERATOR_HOME_YOUR_WORK_COLUMN_UPDATED}</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>{OPERATOR_HOME_YOUR_WORK_COLUMN_STATUS}</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell className="text-right">Action</EnterpriseTableHeaderCell>
+          </EnterpriseTableHeadRow>
+        </EnterpriseTableHead>
+        <EnterpriseTableBody>
+          {props.items.map((item) => (
+            <UnfinishedWorkRailTableRow key={item.id} item={item} />
           ))}
-        </ul>
-      ) : null}
+        </EnterpriseTableBody>
+      </EnterpriseTable>
     </div>
   );
 }

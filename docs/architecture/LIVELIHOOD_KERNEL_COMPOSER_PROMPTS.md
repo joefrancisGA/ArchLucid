@@ -1,6 +1,8 @@
 > **Scope:** Copy-paste Composer prompts that close **livelihood-kernel wave-12 load-bearing leftovers** after IS-01–15, LS-01–12, SD-01–12, and CR-01–12. Internal engineering only — not buyer-facing copy.
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Founding contract:** [`ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) R4 / R13 · **UI standard:** [`../library/UI_DESIGN_SYSTEM.md`](../library/UI_DESIGN_SYSTEM.md)
 > **Paste-ready files:** [`.cursor/prompts/livelihood-kernel-00-index.md`](../../.cursor/prompts/livelihood-kernel-00-index.md) (**LK-01–15**)
+> **Wave 13:** [`DURABLE_ARCHITECTURE_COMPOSER_PROMPTS.md`](DURABLE_ARCHITECTURE_COMPOSER_PROMPTS.md) (**DA-01–12**) — identity skeleton; do not paste after CA
+> **Wave 14:** [`CUSTOMER_ARCHITECTURE_COMPOSER_PROMPTS.md`](CUSTOMER_ARCHITECTURE_COMPOSER_PROMPTS.md) (**CA-01–50**) — named listable architecture; do not merge tables; do not paste LK-05–07
 > **Wave 8:** [`INSTRUMENT_SPINE_COMPOSER_PROMPTS.md`](INSTRUMENT_SPINE_COMPOSER_PROMPTS.md) (**IS-01–15**)
 > **Wave 9:** [`LIVELIHOOD_SPINE_COMPOSER_PROMPTS.md`](LIVELIHOOD_SPINE_COMPOSER_PROMPTS.md) (**LS-01–12**)
 > **Wave 10:** [`SEALED_DESK_COMPOSER_PROMPTS.md`](SEALED_DESK_COMPOSER_PROMPTS.md) (**SD-01–12**)

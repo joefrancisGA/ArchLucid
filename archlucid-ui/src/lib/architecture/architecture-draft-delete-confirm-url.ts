@@ -4,7 +4,7 @@ export const ARCHITECTURE_DRAFT_DELETE_ID_PARAM = "draftDeleteId";
 export const ARCHITECTURE_DRAFT_DELETE_CONFIRM_PARAM = "draftDeleteConfirm";
 
 export type ArchitectureDraftDeleteConfirmUrlState = {
-  readonly architectureId: string | null;
+  readonly draftId: string | null;
   readonly confirmOpen: boolean;
 };
 
@@ -32,13 +32,13 @@ export function architectureDraftDeleteConfirmHrefFromSearch(
   pathname: string = ARCHITECTURES_LIST_PATH,
 ): string {
   const params = new URLSearchParams(currentSearch);
-  const architectureId = (state.architectureId ?? "").trim();
+  const draftId = (state.draftId ?? "").trim();
 
-  if (!state.confirmOpen || architectureId.length === 0) {
+  if (!state.confirmOpen || draftId.length === 0) {
     params.delete(ARCHITECTURE_DRAFT_DELETE_ID_PARAM);
     params.delete(ARCHITECTURE_DRAFT_DELETE_CONFIRM_PARAM);
   } else {
-    params.set(ARCHITECTURE_DRAFT_DELETE_ID_PARAM, architectureId);
+    params.set(ARCHITECTURE_DRAFT_DELETE_ID_PARAM, draftId);
     params.set(ARCHITECTURE_DRAFT_DELETE_CONFIRM_PARAM, "1");
   }
 

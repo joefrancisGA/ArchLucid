@@ -41,7 +41,7 @@ function auditTrailDescription(runId: string, buyerPolishedArtifactTable: boolea
 
   return (
     <>
-      Recorded events for this review, oldest first. Open the full{" "}
+      Recorded events for this review, newest first. Open the full{" "}
       <Link className={OPERATOR_LINK.nav} href={auditTrailNavHref(runId)}>
         {auditTrailLabel.toLowerCase()}
       </Link>{" "}

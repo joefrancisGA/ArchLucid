@@ -36,6 +36,15 @@ describe("trackReviewPipelineInFlight", () => {
     resetInFlightOperationsForTests();
   });
 
+  it("stores durable architecture identity on fresh pipeline rows (CA-22 / CA-46)", () => {
+    const operationId = trackReviewPipelineInFlight("abc-123", {
+      architectureId: "arch-identity-1",
+    });
+
+    expect(operationId).toBe("run:abc-123");
+    expect(getInFlightOperations()[0]?.architectureId).toBe("arch-identity-1");
+  });
+
   it("registers a created review so leaving the wizard does not lose the running analysis", () => {
     const operationId = trackReviewPipelineInFlight("abc-123");
 

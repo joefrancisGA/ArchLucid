@@ -28,6 +28,7 @@ import {
   filterGovernanceFindingsHideGenericRows,
   sortGovernanceFindingsRowsBySignal,
 } from "@/lib/governance/governance-findings-density-sort";
+import { deriveGovernanceFindingsHiddenFilterHonesty } from "@/lib/governance/governance-findings-hidden-filter-honesty";
 import type { RiskRegisterFilter } from "@/lib/architecture/architecture-risk-register-page";
 import type { FindingsNaturalLanguageFacets } from "@/lib/findings/findings-natural-language-filter";
 import type { FindingJobView } from "@/lib/findings/finding-job-view";
@@ -187,6 +188,10 @@ export function useGovernanceFindingsQueueSynopsis(input: UseGovernanceFindingsQ
       ),
     [registerFilter, jobView, nlFacets, jobViewFilterActive, findingsSearchQuery],
   );
+  const hiddenFilterHonesty = useMemo(
+    () => deriveGovernanceFindingsHiddenFilterHonesty(scopedRows, displayedRows),
+    [displayedRows, scopedRows],
+  );
 
   return {
     scopedRunFilterActive,
@@ -212,5 +217,6 @@ export function useGovernanceFindingsQueueSynopsis(input: UseGovernanceFindingsQ
     sponsorSynopsisCounts,
     sponsorHandoffHref,
     activeFiltersSummary,
+    hiddenFilterHonesty,
   };
 }

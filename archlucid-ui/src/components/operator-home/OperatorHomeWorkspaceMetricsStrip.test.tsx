@@ -92,8 +92,11 @@ describe("OperatorHomeWorkspaceMetricsStrip", () => {
       "href",
       OPERATOR_HOME_FINALIZED_PACKAGES_HREF,
     );
-    expect(screen.getByText(/active reviews — this workspace/i)).toBeInTheDocument();
-    expect(screen.getByText(/finalized package — this workspace/i)).toBeInTheDocument();
+    expect(screen.getByText(/active reviews — active/i)).toBeInTheDocument();
+    expect(screen.getByText(/finalized package — finalized/i)).toBeInTheDocument();
+    expect(screen.getByText("Scope:")).toHaveClass("font-medium");
+    expect(screen.getByText(/Each tile states its partition inline/i)).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-workspace-metrics-stack")).toHaveClass("space-y-4");
   });
 
   it("shows active reviews even when only one in-progress review is surfaced in unfinished work", () => {

@@ -118,7 +118,7 @@ describe("resolveOperatorHomeLifecycleEmphasizedPath", () => {
   it("emphasizes review when the latest draft is already in intake", () => {
     expect(
       resolveOperatorHomeLifecycleEmphasizedPath("eval-with-drafts", {
-        architectureId: "draft-001",
+        draftId: "draft-001",
         displayName: "Vertex",
         customerStatus: "draft",
         ownerLabel: "You",
@@ -182,7 +182,7 @@ describe("resolveOperatorHomePhaseHeroCopy", () => {
       },
       "Vertex",
       {
-        architectureId: "draft-001",
+        draftId: "draft-001",
         displayName: "Vertex",
         customerStatus: "ready-for-review",
         ownerLabel: "You",
@@ -217,7 +217,7 @@ describe("resolveLatestArchitectureDraftHref", () => {
   it("returns the newest draft workspace href", () => {
     const entries: ArchitectureDraftRegistryEntry[] = [
       {
-        architectureId: "draft-001",
+        draftId: "draft-001",
         displayName: "Claims intake",
         customerStatus: "draft",
         ownerLabel: "You",
@@ -233,7 +233,7 @@ describe("resolveLatestArchitectureDraftHref", () => {
   it("routes submitted drafts to the architecture draft workspace", () => {
     const entries: ArchitectureDraftRegistryEntry[] = [
       {
-        architectureId: "draft-001",
+        draftId: "draft-001",
         displayName: "Vertex",
         customerStatus: "ready-for-review",
         ownerLabel: "You",

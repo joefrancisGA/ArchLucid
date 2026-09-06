@@ -31,4 +31,9 @@ public interface IArchitectureVersionRepository
         Guid architectureId,
         int versionNumber,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<ArchitectureVersionRecord>> ListByArchitectureIdAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken cancellationToken = default);
 }

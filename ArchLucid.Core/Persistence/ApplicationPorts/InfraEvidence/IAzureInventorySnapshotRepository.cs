@@ -34,6 +34,13 @@ public interface IAzureInventorySnapshotRepository
         string subscriptionId,
         Guid newerSnapshotId,
         CancellationToken cancellationToken = default);
+
+    Task<(IReadOnlyList<AzureInventorySnapshotRecord> Items, int TotalCount)> ListSnapshotsAsync(
+        ScopeContext scope,
+        int page,
+        int pageSize,
+        string? subscriptionId,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed class AzureInventorySnapshotMaterializeWriteRequest

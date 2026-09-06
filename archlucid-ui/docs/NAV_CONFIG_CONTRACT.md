@@ -1,6 +1,6 @@
 # Operator shell navigation contract (`nav-config`)
 
-Canonical implementation: `src/lib/nav-config.ts`, built by the **seven** **`NavGroupBuilder`** classes in `src/lib/pilot-nav-group-builder.ts`, `operate-analysis-nav-group-builder.ts`, `operate-governance-nav-group-builder.ts`, `operate-policy-nav-group-builder.ts`, `operate-integrations-nav-group-builder.ts`, `operator/operator-admin-nav-group-builder.ts`, and `operator/operator-system-admin-nav-group-builder.ts`.
+Canonical implementation: `src/lib/nav-config.ts`, built by the **eight** **`NavGroupBuilder`** classes in `src/lib/pilot-nav-group-builder.ts`, `operate-analysis-nav-group-builder.ts`, `operate-governance-nav-group-builder.ts`, `operate-infrastructure-nav-group-builder.ts`, `operate-policy-nav-group-builder.ts`, `operate-integrations-nav-group-builder.ts`, `operator/operator-admin-nav-group-builder.ts`, and `operator/operator-system-admin-nav-group-builder.ts`.
 
 This document replaces the historical mega-comment on `nav-config.ts`. **API authorization stays on the server**; this file describes **UI shaping only**.
 
@@ -40,13 +40,14 @@ Removed **workflow-mode presets** (Pilot operator, Full navigator, Governance re
 
 ## Nav groups → buyer layers
 
-**7** groups, **69** configured links (`flattenNavLinks()`). Group `id`s are stable (used as `localStorage` keys); only the label is user-visible.
+**8** groups, **76** configured links (`flattenNavLinks()`). Group `id`s are stable (used as `localStorage` keys); only the label is user-visible.
 
 | Group `id`              | Label          | `surface`         | Layer   | Links | Notes |
 |-------------------------|----------------|-------------------|---------|------:|--------|
 | `pilot`                 | Architecture   | `review-workflow` | Pilot   | 6 | request · run · finalize · review; essentials omit `requiredAuthority` |
 | `operate-analysis`      | Insights       | `review-workflow` | Operate | 11 | analysis slice — compare, graph, Q&A, sponsor value, workspace health KPIs, … |
-| `operate-governance`    | Approval       | `review-workflow` | Operate | 10 | decide/track loop — queue, findings, decisions, audit, alerts, approval setup |
+| `operate-governance`    | Approval       | `review-workflow` | Operate | 14 | decide/track loop — queue, findings, decisions, audit, alerts, approval setup |
+| `operate-infrastructure` | Infrastructure | `review-workflow` | Operate | 7 | inventory snapshots, diagrams, resource hub, Ask, remediation instances |
 | `operate-policy`        | Policy         | `review-workflow` | Operate | 4 | policy packs, standards, alert rules, schedules |
 | `operate-integrations`  | Integrations   | `review-workflow` | Operate | 7 | connector configuration and outbound event surfaces |
 | `operator-admin`        | Administration | `platform-admin`  | Admin   | 14 | system health, tenant cost, settings, support, users |
@@ -64,13 +65,14 @@ When adding or moving a route, follow the **ordered checklist** in **`docs/libra
 
 ### Route namespace policy (TB-404)
 
-Operator sidebar groups imply a URL prefix in the address bar. **69** nav hrefs span **7** groups. The **TB-405–408** route moves have landed, so only **1** registered cross-namespace exception remains.
+Operator sidebar groups imply a URL prefix in the address bar. **76** nav hrefs span **8** groups. The **TB-405–408** route moves have landed, so only **1** registered cross-namespace exception remains.
 
 | Nav group `id` | Canonical prefix(es) | Notes |
 |----------------|----------------------|--------|
 | `pilot` | *(none — heterogeneous top-level review paths)* | Prefix enforcement skipped; review paths live at `/`, `/architecture/*`. |
 | `operate-analysis` | *(none)* | Prefix enforcement skipped: `/insights/ask-review-questions`, `/insights/compare-two-reviews`, `/insights/impact-preview`, … |
 | `operate-governance` | `/governance` | Approval-loop nav hrefs under `/governance/*` (TB-405). |
+| `operate-infrastructure` | `/governance` | Infrastructure evidence workbenches under `/governance/infrastructure/*` (IE-UX-00). |
 | `operate-policy` | `/governance` | Policy/setup nav hrefs under `/governance/*` (TB-405). |
 | `operate-integrations` | `/integrations` | All Integrations nav hrefs under `/integrations/*` (TB-407). |
 | `operator-admin` | `/administration` | All Administration nav hrefs under `/administration/*` (TB-406). |

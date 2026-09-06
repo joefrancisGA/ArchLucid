@@ -19,7 +19,8 @@ public sealed class CloudResourceEvidenceHubService(
     IDiagramInfrastructureReconciliationService diagramReconciliationService,
     IOperationalSecurityFindingRepository operationalFindingRepository,
     IRemediationInstanceRepository remediationInstanceRepository,
-    IAuthorityQueryService authorityQueryService) : ICloudResourceEvidenceHubService
+    IAuthorityQueryService authorityQueryService,
+    ICloudResourceAuditLineageResolver auditLineageResolver) : ICloudResourceEvidenceHubService
 {
     private const int RecentChangeTake = 25;
 
@@ -77,13 +78,15 @@ public sealed class CloudResourceEvidenceHubService(
                 cloudResourceId,
                 cancellationToken);
 
-        IReadOnlyList<OperationalSecurityFindingRecord> operationalFindings =
-            await operationalFindingRepository.ListByTenantAsync(scope.TenantId, status: null, cancellationToken);
-
-        List<OperationalSecurityFindingRecord> operationalForResource = operationalFindings
-            .Where(row => row.CloudResourceId == cloudResourceId)
-            .OrderByDescending(row => row.LastObservedUtc)
-            .ToList();
+        IReadOnlyList<OperationalSecurityFindingRecord> operationalPage;
+        int operationalTotal;
+        (operationalPage, operationalTotal) =
+            await operationalFindingRepository.ListByCloudResourceIdPagedAsync(
+                scope.TenantId,
+                cloudResourceId,
+                page,
+                pageSize,
+                cancellationToken);
 
         List<CloudResourceEvidenceFindingHubItem> architectureItems =
             await ResolveArchitectureFindingsAsync(
@@ -93,13 +96,15 @@ public sealed class CloudResourceEvidenceHubService(
                 diagramCorrespondence,
                 cancellationToken);
 
-        IReadOnlyList<RemediationInstanceRecord> remediationRows =
-            await remediationInstanceRepository.ListByTenantAsync(scope.TenantId, cancellationToken);
-
-        List<RemediationInstanceRecord> remediationForResource = remediationRows
-            .Where(row => row.CloudResourceId == cloudResourceId)
-            .OrderByDescending(row => row.UpdatedUtc)
-            .ToList();
+        IReadOnlyList<RemediationInstanceRecord> remediationPage;
+        int remediationTotal;
+        (remediationPage, remediationTotal) =
+            await remediationInstanceRepository.ListByCloudResourceIdPagedAsync(
+                scope.TenantId,
+                cloudResourceId,
+                page,
+                pageSize,
+                cancellationToken);
 
         List<CloudResourceInventoryChangeSummary> recentChanges =
             await ResolveRecentChangesAsync(
@@ -109,7 +114,11 @@ public sealed class CloudResourceEvidenceHubService(
                 cloudResourceId,
                 cancellationToken);
 
-        CloudResourceAuditLineageLink auditLineageLink = BuildAuditLineageLink(query);
+        CloudResourceAuditLineageLink auditLineageLink = await auditLineageResolver.ResolveAsync(
+            scope,
+            cloudResourceId,
+            query,
+            cancellationToken);
         List<CloudResourceEvidencePointer> evidencePointers = BuildEvidencePointers(
             query,
             recentChanges,
@@ -127,16 +136,18 @@ public sealed class CloudResourceEvidenceHubService(
             OperationalSecurityFindings = BuildFindingStreamPage(
                 CloudResourceEvidenceFindingStreamKinds.OperationalSecurity,
                 CloudResourceEvidenceFindingStreamLabels.OperationalSecurity,
-                operationalForResource.Select(MapOperationalFinding).ToList(),
+                operationalPage.Select(MapOperationalFinding).ToList(),
                 page,
-                pageSize),
+                pageSize,
+                operationalTotal),
             ArchitectureReviewFindings = BuildFindingStreamPage(
                 CloudResourceEvidenceFindingStreamKinds.ArchitectureReview,
                 CloudResourceEvidenceFindingStreamLabels.ArchitectureReview,
                 architectureItems,
                 page,
-                pageSize),
-            RemediationInstances = BuildRemediationPage(remediationForResource, page, pageSize),
+                pageSize,
+                architectureItems.Count),
+            RemediationInstances = BuildRemediationPage(remediationPage, page, pageSize, remediationTotal),
             RbacAssignments = MapRbacAssignments(snapshotDetail, identity.ExternalResourceIdNormalized),
             NetworkRelationships = MapNetworkRelationships(snapshotDetail, identity.ExternalResourceIdNormalized),
             RecentChanges = recentChanges,
@@ -353,30 +364,6 @@ public sealed class CloudResourceEvidenceHubService(
             .ToList();
     }
 
-    private static CloudResourceAuditLineageLink BuildAuditLineageLink(CloudResourceEvidenceHubQuery query)
-    {
-        if (query.AssessmentId.HasValue
-            && query.AuditEvidenceSnapshotId.HasValue
-            && query.ControlId.HasValue
-            && query.AssessmentId.Value != Guid.Empty
-            && query.AuditEvidenceSnapshotId.Value != Guid.Empty
-            && query.ControlId.Value != Guid.Empty)
-        {
-            return new CloudResourceAuditLineageLink
-            {
-                Available = true,
-                RelativePath =
-                    $"/v1/infra-evidence/audit-assessments/{query.AssessmentId.Value:D}/snapshots/{query.AuditEvidenceSnapshotId.Value:D}/controls/{query.ControlId.Value:D}/lineage",
-            };
-        }
-
-        return new CloudResourceAuditLineageLink
-        {
-            Available = false,
-            DegradedReason = "Provide assessmentId, auditEvidenceSnapshotId, and controlId query parameters to link AE-10 audit lineage.",
-        };
-    }
-
     private static List<CloudResourceEvidencePointer> BuildEvidencePointers(
         CloudResourceEvidenceHubQuery query,
         IReadOnlyList<CloudResourceInventoryChangeSummary> recentChanges,
@@ -458,12 +445,12 @@ public sealed class CloudResourceEvidenceHubService(
     private static CloudResourceEvidenceFindingStreamPage BuildFindingStreamPage(
         string streamKind,
         string streamLabel,
-        IReadOnlyList<CloudResourceEvidenceFindingHubItem> allItems,
+        IReadOnlyList<CloudResourceEvidenceFindingHubItem> pageItems,
         int page,
-        int pageSize)
+        int pageSize,
+        int totalCount)
     {
         int skip = PaginationDefaults.ToSkip(page, pageSize);
-        List<CloudResourceEvidenceFindingHubItem> pageItems = allItems.Skip(skip).Take(pageSize).ToList();
 
         return new CloudResourceEvidenceFindingStreamPage
         {
@@ -471,21 +458,20 @@ public sealed class CloudResourceEvidenceHubService(
             StreamLabel = streamLabel,
             Page = page,
             PageSize = pageSize,
-            TotalCount = allItems.Count,
-            HasMore = skip + pageItems.Count < allItems.Count,
-            Items = pageItems,
+            TotalCount = totalCount,
+            HasMore = skip + pageItems.Count < totalCount,
+            Items = pageItems.ToList(),
         };
     }
 
     private static CloudResourceRemediationStreamPage BuildRemediationPage(
-        IReadOnlyList<RemediationInstanceRecord> allItems,
+        IReadOnlyList<RemediationInstanceRecord> pageRows,
         int page,
-        int pageSize)
+        int pageSize,
+        int totalCount)
     {
         int skip = PaginationDefaults.ToSkip(page, pageSize);
-        List<CloudResourceRemediationHubItem> pageItems = allItems
-            .Skip(skip)
-            .Take(pageSize)
+        List<CloudResourceRemediationHubItem> pageItems = pageRows
             .Select(row => new CloudResourceRemediationHubItem
             {
                 InstanceId = row.InstanceId,
@@ -498,8 +484,8 @@ public sealed class CloudResourceEvidenceHubService(
         {
             Page = page,
             PageSize = pageSize,
-            TotalCount = allItems.Count,
-            HasMore = skip + pageItems.Count < allItems.Count,
+            TotalCount = totalCount,
+            HasMore = skip + pageItems.Count < totalCount,
             Items = pageItems,
         };
     }

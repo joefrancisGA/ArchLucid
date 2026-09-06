@@ -106,7 +106,7 @@ export function resolveShellHeaderSearchPlaceholder(pathname: string): string {
   }
 
   if (path === "/" || path === "") {
-    return `Find pages and reviews (${resolveCommandPaletteDisplayShortcut()})…`;
+    return `Find pages, architectures, and reviews (${resolveCommandPaletteDisplayShortcut()})…`;
   }
 
   return GLOBAL_FIND_PAGE_SEARCH.placeholder;

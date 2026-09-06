@@ -27,7 +27,7 @@ vi.mock("@/lib/api/draft-intake-api", () => ({
 
 vi.mock("@/lib/architecture/architecture-draft-registry", () => ({
   buildArchitectureDraftRegistryEntry: (draft: { draftId: string }) => ({
-    architectureId: draft.draftId,
+    draftId: draft.draftId,
   }),
   upsertArchitectureDraftRegistryEntry: vi.fn(),
 }));
@@ -139,7 +139,7 @@ describe("useArchitectureDraftAutosave", () => {
     const { result, rerender } = renderHook(
       (props: { fields: ArchitectureDraftFieldState }) =>
         useArchitectureDraftAutosave({
-          architectureId: "new",
+          draftId: "new",
           fields: props.fields,
           actorSet,
           deferCreateUntilFirstSave: true,
@@ -197,7 +197,7 @@ describe("useArchitectureDraftAutosave", () => {
     const { rerender } = renderHook(
       (props: { fields: ArchitectureDraftFieldState }) =>
         useArchitectureDraftAutosave({
-          architectureId: "draft-001",
+          draftId: "draft-001",
           fields: props.fields,
           actorSet,
         }),
@@ -241,7 +241,7 @@ describe("useArchitectureDraftAutosave", () => {
     const { result, rerender } = renderHook(
       (props: { fields: ArchitectureDraftFieldState }) =>
         useArchitectureDraftAutosave({
-          architectureId: "draft-001",
+          draftId: "draft-001",
           fields: props.fields,
           actorSet,
         }),
@@ -292,7 +292,7 @@ describe("useArchitectureDraftAutosave", () => {
     const { result, rerender } = renderHook(
       (props: { fields: ArchitectureDraftFieldState }) =>
         useArchitectureDraftAutosave({
-          architectureId: "draft-001",
+          draftId: "draft-001",
           fields: props.fields,
           actorSet,
         }),
@@ -358,7 +358,7 @@ describe("useArchitectureDraftAutosave", () => {
 
     const { result } = renderHook(() =>
       useArchitectureDraftAutosave({
-        architectureId: "draft-001",
+        draftId: "draft-001",
         fields,
         actorSet,
       }),
@@ -392,7 +392,7 @@ describe("useArchitectureDraftAutosave", () => {
 
     const { result } = renderHook(() =>
       useArchitectureDraftAutosave({
-        architectureId: "draft-001",
+        draftId: "draft-001",
         fields,
         actorSet,
       }),
@@ -435,7 +435,7 @@ describe("useArchitectureDraftAutosave", () => {
     const { result, rerender } = renderHook(
       (props: { fields: ArchitectureDraftFieldState }) =>
         useArchitectureDraftAutosave({
-          architectureId: "draft-001",
+          draftId: "draft-001",
           fields: props.fields,
           actorSet,
         }),
@@ -507,7 +507,7 @@ describe("useArchitectureDraftAutosave", () => {
     const { result, rerender } = renderHook(
       (props: { actorSet: ActorSet }) =>
         useArchitectureDraftAutosave({
-          architectureId: "draft-001",
+          draftId: "draft-001",
           fields,
           actorSet: props.actorSet,
         }),
@@ -546,7 +546,7 @@ describe("useArchitectureDraftAutosave", () => {
 
     const { result } = renderHook(() =>
       useArchitectureDraftAutosave({
-        architectureId: "draft-001",
+        draftId: "draft-001",
         fields,
         actorSet,
       }),
@@ -583,7 +583,7 @@ describe("useArchitectureDraftAutosave", () => {
 
     const { result } = renderHook(() =>
       useArchitectureDraftAutosave({
-        architectureId: "draft-001",
+        draftId: "draft-001",
         fields,
         actorSet,
         onImmutableDraftDetected,

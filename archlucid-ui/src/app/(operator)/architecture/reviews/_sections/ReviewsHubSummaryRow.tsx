@@ -4,29 +4,25 @@ import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 
+import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { countArchitectureDraftsReadyForReview } from "@/lib/architecture/architecture-draft-ready-for-review";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
+import {
+  reviewsHubAwaitingApprovalPresentation,
+  reviewsHubCommittedPresentation,
+  reviewsHubInProgressPresentation,
+  reviewsHubOpenFindingsPresentation,
+  reviewsHubOpenRisksPresentation,
+} from "@/lib/reviews-hub-summary-presentations";
 
 import {
   REVIEWS_HUB_RESUME_DRAFTS_TITLE,
-  REVIEWS_HUB_SUMMARY_COMMITTED_LABEL,
   REVIEWS_HUB_SUMMARY_DRAFTS_READY_LABEL,
   REVIEWS_HUB_SUMMARY_EMPTY_COUNTS_HINT,
   REVIEWS_HUB_SUMMARY_EMPTY_HINT,
-  REVIEWS_HUB_SUMMARY_FINDINGS_LABEL,
-  REVIEWS_HUB_SUMMARY_IN_PROGRESS_LABEL,
-  REVIEWS_HUB_SUMMARY_OPEN_RISKS_LABEL,
-  REVIEWS_HUB_SUMMARY_READY_FOR_GOVERNANCE_LABEL,
 } from "./reviews-hub-copy";
-import {
-  REVIEWS_HUB_SUMMARY_ACTIVE_HREF,
-  REVIEWS_HUB_SUMMARY_AWAITING_APPROVAL_HREF,
-  REVIEWS_HUB_SUMMARY_FINALIZED_HREF,
-  REVIEWS_HUB_SUMMARY_FINDINGS_HREF,
-  REVIEWS_HUB_SUMMARY_OPEN_RISKS_HREF,
-} from "./reviews-hub-summary-destinations";
 import {
   resolveReviewsHubHeaderPrimary,
   shouldShowReviewsHubResumeDrafts,
@@ -126,54 +122,67 @@ export function ReviewsHubSummaryRow(props: ReviewsHubSummaryRowProps): React.JS
   const attentionMetricsAllZero =
     summary.findings === 0 && summary.openRisks === 0 && summary.readyForGovernance === 0;
 
-  const metrics: SummaryMetricProps[] = [
-    { label: REVIEWS_HUB_SUMMARY_IN_PROGRESS_LABEL, value: summary.inProgress, href: REVIEWS_HUB_SUMMARY_ACTIVE_HREF },
-  ];
+  type SummaryEntry =
+    | { readonly kind: "self-describing"; readonly testId: string; readonly presentation: ReturnType<typeof reviewsHubInProgressPresentation> }
+    | { readonly kind: "drafts"; readonly metric: SummaryMetricProps };
+
+  const metrics: SummaryEntry[] = [];
+
+  if (summary.inProgress > 0) {
+    metrics.push({
+      kind: "self-describing",
+      testId: "reviews-hub-summary-in-progress",
+      presentation: reviewsHubInProgressPresentation(summary.inProgress),
+    });
+  }
 
   if (summary.committed > 0) {
     metrics.push({
-      label: REVIEWS_HUB_SUMMARY_COMMITTED_LABEL,
-      value: summary.committed,
-      href: REVIEWS_HUB_SUMMARY_FINALIZED_HREF,
+      kind: "self-describing",
+      testId: "reviews-hub-summary-committed",
+      presentation: reviewsHubCommittedPresentation(summary.committed),
     });
   }
 
   if (summary.findings > 0) {
     metrics.push({
-      label: REVIEWS_HUB_SUMMARY_FINDINGS_LABEL,
-      value: summary.findings,
-      href: REVIEWS_HUB_SUMMARY_FINDINGS_HREF,
+      kind: "self-describing",
+      testId: "reviews-hub-summary-findings",
+      presentation: reviewsHubOpenFindingsPresentation(summary.findings),
     });
   }
 
   if (summary.openRisks > 0) {
     metrics.push({
-      label: REVIEWS_HUB_SUMMARY_OPEN_RISKS_LABEL,
-      value: summary.openRisks,
-      href: REVIEWS_HUB_SUMMARY_OPEN_RISKS_HREF,
+      kind: "self-describing",
+      testId: "reviews-hub-summary-open-risks",
+      presentation: reviewsHubOpenRisksPresentation(summary.openRisks),
     });
   }
 
   if (summary.readyForGovernance > 0) {
     metrics.push({
-      label: REVIEWS_HUB_SUMMARY_READY_FOR_GOVERNANCE_LABEL,
-      value: summary.readyForGovernance,
-      href: REVIEWS_HUB_SUMMARY_AWAITING_APPROVAL_HREF,
+      kind: "self-describing",
+      testId: "reviews-hub-summary-awaiting-approval",
+      presentation: reviewsHubAwaitingApprovalPresentation(summary.readyForGovernance),
     });
   }
 
   metrics.push({
-    label: REVIEWS_HUB_SUMMARY_DRAFTS_READY_LABEL,
-    value: draftsReady,
-    href:
-      draftsReady === 1 && draftPrimary.continuesSingleDraft
-        ? draftPrimary.href
-        : undefined,
-    onClick:
-      draftsReady > 0 && shouldShowReviewsHubResumeDrafts(draftEntries.length)
-        ? scrollToReadyForReviewSection
-        : undefined,
-    testId: "reviews-hub-summary-ready-for-review",
+    kind: "drafts",
+    metric: {
+      label: REVIEWS_HUB_SUMMARY_DRAFTS_READY_LABEL,
+      value: draftsReady,
+      href:
+        draftsReady === 1 && draftPrimary.continuesSingleDraft
+          ? draftPrimary.href
+          : undefined,
+      onClick:
+        draftsReady > 0 && shouldShowReviewsHubResumeDrafts(draftEntries.length)
+          ? scrollToReadyForReviewSection
+          : undefined,
+      testId: "reviews-hub-summary-ready-for-review",
+    },
   });
 
   const showAttentionHint = attentionMetricsAllZero && summary.inProgress > 0;
@@ -182,10 +191,21 @@ export function ReviewsHubSummaryRow(props: ReviewsHubSummaryRowProps): React.JS
   return (
     <section className="space-y-1" data-testid="reviews-hub-summary-row" aria-label="Workspace review summary">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        {metrics.map((metric, index) => (
-          <div key={metric.label} className="inline-flex items-center gap-3">
+        {metrics.map((entry, index) => (
+          <div
+            key={entry.kind === "drafts" ? entry.metric.label : entry.testId}
+            className="inline-flex items-center gap-3"
+          >
             {renderMetricSeparator(index)}
-            <SummaryMetric {...metric} />
+            {entry.kind === "self-describing" ? (
+              <SelfDescribingMetricCount
+                variant="inline"
+                presentation={entry.presentation}
+                testId={entry.testId}
+              />
+            ) : (
+              <SummaryMetric {...entry.metric} />
+            )}
           </div>
         ))}
       </div>

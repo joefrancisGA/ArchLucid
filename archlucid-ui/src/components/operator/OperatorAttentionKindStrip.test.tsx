@@ -48,6 +48,11 @@ describe("OperatorAttentionKindStrip (TB-2353)", () => {
     for (const kind of Object.keys(OPERATOR_ATTENTION_KIND_LABELS) as Array<
       keyof typeof OPERATOR_ATTENTION_KIND_LABELS
     >) {
+      if (kind === "alerts") {
+        expect(screen.queryByTestId(`operator-attention-kind-chip-${kind}`)).not.toBeInTheDocument();
+        continue;
+      }
+
       const chip = screen.getByTestId(`operator-attention-kind-chip-${kind}`);
       expect(chip).toHaveAttribute("href", OPERATOR_ATTENTION_KIND_DESTINATIONS[kind].href);
       expect(chip.textContent).toContain(OPERATOR_ATTENTION_KIND_LABELS[kind]);
@@ -88,16 +93,30 @@ describe("OperatorAttentionKindStrip (TB-2353)", () => {
     );
   });
 
-  it("marks awaiting-approval chips that need action with a StatusTag treatment", () => {
+  it("hides zero-count attention chips", () => {
     usePathname.mockReturnValue("/");
     useSearchParams.mockReturnValue(new URLSearchParams());
 
     render(<OperatorAttentionKindStrip />);
 
-    const chip = screen.getByTestId("operator-attention-kind-chip-awaiting-approval");
-    expect(chip.className).not.toMatch(/border-dashed/);
-    expect(chip).toHaveTextContent("Awaiting approval");
-    expect(chip).toHaveTextContent("3");
+    expect(screen.queryByTestId("operator-attention-kind-chip-alerts")).not.toBeInTheDocument();
+    expect(screen.getByTestId("operator-attention-kind-chip-awaiting-approval")).toBeInTheDocument();
+  });
+
+  it("keeps needs-action chips the same compact height as idle chips", () => {
+    usePathname.mockReturnValue("/");
+    useSearchParams.mockReturnValue(new URLSearchParams());
+
+    render(<OperatorAttentionKindStrip />);
+
+    const needsActionChip = screen.getByTestId("operator-attention-kind-chip-awaiting-approval");
+    expect(needsActionChip.className).toContain("min-h-8");
+    expect(needsActionChip.className).toContain("py-1");
+    expect(needsActionChip.className).not.toMatch(/py-1\.5/);
+    expect(needsActionChip.className).not.toMatch(/text-lg/);
+    expect(needsActionChip).toHaveTextContent("Awaiting approval");
+    expect(needsActionChip).toHaveTextContent("(3)");
+    expect(screen.queryByLabelText("Status: Awaiting approval")).not.toBeInTheDocument();
   });
 
   it("marks the matching destination chip as selected", () => {

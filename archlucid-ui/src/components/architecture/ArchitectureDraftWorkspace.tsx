@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
+import type { ArchitectureDraftCreatedPayload } from "@/hooks/architecture-draft-autosave-shared";
 import { useArchitectureDraftDocumentUndo } from "@/hooks/use-architecture-draft-document-undo";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import {
@@ -26,7 +27,7 @@ import {
   replaceArchitectureCreationUrlWithoutNavigation,
 } from "@/lib/architecture/architecture-creation-session";
 import { retargetAdvisoryDraftInFlightArchitecture } from "@/lib/operations/advisory-draft-in-flight";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { parseScopeGateOpenFromSearch, scopeGateHrefFromSearch } from "@/lib/architecture/scope-gate-url";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { reopenDraftRequest } from "@/lib/api/draft-intake-api";
@@ -50,16 +51,18 @@ import { ArchitectureDraftWorkspaceBody } from "@/components/architecture/Archit
 import { useArchitectureDraftWorkspaceEffects } from "@/components/architecture/ArchitectureDraftWorkspaceEffects";
 
 type ArchitectureDraftWorkspaceProps = {
-  readonly architectureId: string;
+  readonly draftId: string;
+  readonly parentArchitectureId?: string | null;
+  readonly legacyDraftWithoutIdentity?: boolean;
 };
 
 /** Long-lived architecture draft editor — save and resume without starting a review. */
 export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProps): React.JSX.Element {
   const router = useRouter();
-  const pathname = usePathname() ?? `/architecture/architectures/${encodeURIComponent(props.architectureId)}`;
+  const pathname = usePathname() ?? `/architecture/architectures/${encodeURIComponent(props.draftId)}`;
   const searchParams = useSearchParams();
   const urlScopeGateOpen = parseScopeGateOpenFromSearch(searchParams.get("scopeGate"));
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const draftRegistryEntries = useArchitectureDraftRegistryEntries();
   const acceptServerBaselineRef = useRef<
     (fields: ArchitectureDraftFieldState, serverUpdatedUtc: string, actorSet: ActorSet) => void
@@ -85,7 +88,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     loadDraft,
     applyLoadedDraftToForm,
   } = useArchitectureDraftWorkspace({
-    architectureId: props.architectureId,
+    draftId: props.draftId,
     onDraftHydratedRef,
   });
   const [exitPending, setExitPending] = useState(false);
@@ -134,23 +137,23 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const briefFrozen = isArchitectureDraftBriefFrozen(draft?.status);
   const canUnlockBrief = architectureDraftAllowsBriefUnlock(draft?.status);
   const editorLocked = handoffEditorLocked || briefFrozen || exitPending;
-  const effectiveArchitectureId = resolvedDraftId ?? props.architectureId;
+  const effectiveDraftId = resolvedDraftId ?? props.draftId;
   const nextDraft = useMemo(() => {
     if (isNewDraft) {
       return null;
     }
 
-    return resolveNextArchitectureDraftInList(draftRegistryEntries, effectiveArchitectureId);
-  }, [draftRegistryEntries, effectiveArchitectureId, isNewDraft]);
+    return resolveNextArchitectureDraftInList(draftRegistryEntries, effectiveDraftId);
+  }, [draftRegistryEntries, effectiveDraftId, isNewDraft]);
   const refinementDraftId =
-    draft?.draftId?.trim() || resolvedDraftId || (isNewDraft ? null : props.architectureId.trim() || null);
+    draft?.draftId?.trim() || resolvedDraftId || (isNewDraft ? null : props.draftId.trim() || null);
 
   const handleDraftCreated = useCallback(
-    (draftId: string) => {
-      writeArchitectureCreationDraftId(draftId);
-      setResolvedDraftId(draftId);
-      replaceArchitectureCreationUrlWithoutNavigation(draftId);
-      retargetAdvisoryDraftInFlightArchitecture(ARCHITECTURE_NEW_DRAFT_SEGMENT, draftId);
+    (created: ArchitectureDraftCreatedPayload) => {
+      writeArchitectureCreationDraftId(created.draftId);
+      setResolvedDraftId(created.draftId);
+      replaceArchitectureCreationUrlWithoutNavigation(created);
+      retargetAdvisoryDraftInFlightArchitecture(ARCHITECTURE_NEW_DRAFT_SEGMENT, created.draftId);
     },
     [setResolvedDraftId],
   );
@@ -191,7 +194,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     markDirty,
     keepLocalDraftOnConflict,
   } = useArchitectureDraftAutosave({
-      architectureId: props.architectureId,
+      draftId: props.draftId,
       fields,
       actorSet,
       enabled: !handoffEditorLocked && !briefFrozen,
@@ -266,7 +269,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     hasPersistedDraft,
     briefFrozen,
     linkedReviewId,
-    effectiveArchitectureId,
+    effectiveDraftId,
     fields,
     actorSet,
     draft,
@@ -318,13 +321,13 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   );
 
   useArchitectureDraftWorkspaceEffects({
-    architectureId: props.architectureId,
+    draftId: props.draftId,
     isNewDraft,
     loading,
     draft,
     linkedReviewId,
     saveState,
-    effectiveArchitectureId,
+    effectiveDraftId,
     applyLoadedDraftToForm,
     acceptServerBaselineRef,
   });
@@ -379,7 +382,9 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         onCancelLeave={inAppNavigationGuard.cancelLeave}
       />
       <ArchitectureDraftWorkspaceBody
-      architectureId={props.architectureId}
+      draftId={props.draftId}
+      parentArchitectureId={props.parentArchitectureId}
+      legacyDraftWithoutIdentity={props.legacyDraftWithoutIdentity === true}
       loading={loading}
       loadError={loadError}
       isNewDraft={isNewDraft}
@@ -414,7 +419,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       editorLocked={editorLocked}
       handoffEditorLocked={handoffEditorLocked}
       blocksLlmExecution={blocksLlmExecution}
-      effectiveArchitectureId={effectiveArchitectureId}
+      effectiveDraftId={effectiveDraftId}
       reviewReadiness={reviewReadiness}
       needsPersistedDraftBeforeStart={needsPersistedDraftBeforeStart}
       scopeGateOpen={scopeGateOpen}

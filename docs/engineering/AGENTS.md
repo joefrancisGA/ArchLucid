@@ -69,6 +69,17 @@ Stale `node_modules` can hide duplicate nested resolutions (for example two `@ta
 
 Scoped compile check for agents: `.\scripts\ci\agent-compile-check.ps1` (see `.cursor/rules/shell-hygiene.mdc`).
 
+## Private-beta trunk smoke + Gate 1
+
+| Milestone | Doc / command |
+| --- | --- |
+| Invite-wave JwtBearer Playwright on `master` push | **`docs/runbooks/PRIVATE_BETA_TRUNK_SMOKE.md`** — triage `Operator UI: private-beta access-path (JwtBearer)` |
+| Full regression matrix (Vitest, Playwright, ZAP, …) | **Actions → CI → Run workflow** (`workflow_dispatch` on `master`) after push corset + private-beta are green |
+| Gate 1 — observed staging first review | **`docs/runbooks/GATE_1_SHIP_GATE_EVIDENCE.md`** — `archlucid pilot ship-gate-evidence --run-id <guid>` |
+| JwtBearer local / CI mint | **`docs/library/LIVE_E2E_JWT_SETUP.md`** |
+
+Apply golden-cohort ruleset (owner): `.\scripts\ci\apply-golden-cohort-gate-ruleset.ps1` after green `ui-typecheck-on-push.yml`. Do **not** add private-beta to required checks until first green trunk run (`.github/BRANCH_PROTECTION.md`).
+
 ## Canonical extension map
 
 Contributor decision tree and entry points: **`.cursor/rules/Architecture-Invariants.mdc`**, **`docs/library/V1_SCOPE.md`**, **`docs/library/API_CONTRACTS.md`**.

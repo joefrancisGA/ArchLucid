@@ -25,7 +25,7 @@ describe("DownloadManifestButton", () => {
       return originalCreateElement(tagName, options);
     });
 
-    render(<DownloadManifestButton runId="run-abc-123" />);
+    render(<DownloadManifestButton runId="run-abc-123" manifestVersion="manifest-1" />);
 
     fireEvent.click(screen.getByTestId("download-manifest-json-button"));
 
@@ -46,7 +46,7 @@ describe("DownloadManifestButton", () => {
   it("surfaces API failures", async () => {
     vi.mocked(fetchManifestJsonText).mockRejectedValue(new Error("Review not found"));
 
-    render(<DownloadManifestButton runId="missing-run" />);
+    render(<DownloadManifestButton runId="missing-run" manifestVersion="manifest-missing" />);
 
     fireEvent.click(screen.getByTestId("download-manifest-json-button"));
 

@@ -1,7 +1,9 @@
 using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Application.InfraEvidence.Ask;
 using ArchLucid.Application.InfraEvidence.Branding;
+using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.ArtifactSynthesis.Branding;
+using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Application.InfraEvidence.AuditEvidence;
 using ArchLucid.Application.InfraEvidence.OperationalSecurityFindings;
@@ -31,6 +33,10 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<IAzureInventoryDriftClassificationService, AzureInventoryDriftClassificationService>();
         services.AddScoped<IAzureInventoryDriftApprovalService, AzureInventoryDriftApprovalService>();
         services.AddScoped<IAzureInventoryDiffNarrativeService, AzureInventoryDiffNarrativeService>();
+        services.AddScoped<IInfraEvidenceDriftWorkbenchQueryService, InfraEvidenceDriftWorkbenchQueryService>();
+        services.AddScoped<IAzureInventorySnapshotGraphResolver, AzureInventorySnapshotGraphResolver>();
+        services.AddSingleton(new MermaidDiagramReadabilityThresholds());
+        services.AddScoped<IInfraEvidenceSnapshotMermaidService, InfraEvidenceSnapshotMermaidService>();
         services.AddScoped<IAuditFrameworkImportService, AuditFrameworkImportService>();
         services.AddScoped<IAuditEvidenceSelectionService, AuditEvidenceSelectionService>();
         services.AddScoped<IAuditControlEvaluationService, AuditControlEvaluationService>();
@@ -49,9 +55,11 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<IRemediationPatternService, RemediationPatternService>();
         services.AddScoped<IRemediationPatternMatcherService, RemediationPatternMatcherService>();
         services.AddScoped<IRemediationInstanceService, RemediationInstanceService>();
+        services.AddScoped<IRemediationInstanceQueryService, RemediationInstanceQueryService>();
         services.AddScoped<IRemediationPrioritizationService, RemediationPrioritizationService>();
         services.AddScoped<IRemediationWaveService, RemediationWaveService>();
         services.AddScoped<IRemediationFactoryMetricsService, RemediationFactoryMetricsService>();
+        services.AddScoped<IRemediationFactoryWorkbenchQueryService, RemediationFactoryWorkbenchQueryService>();
         services.AddScoped<IAuditContinuousReadinessService, AuditContinuousReadinessService>();
         services.AddScoped<IAuditEvaluationFindingHandoffService, AuditEvaluationFindingHandoffService>();
         services.AddScoped<IAzureInventorySnapshotPostMaterializeCoordinator, AzureInventorySnapshotPostMaterializeCoordinator>();
@@ -70,6 +78,8 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<IDiagramInfrastructureReconciliationService, DiagramInfrastructureReconciliationService>();
         services.AddScoped<IVisionDiagramIngestService, VisionDiagramIngestService>();
         services.AddScoped<ICloudResourceEvidenceHubService, CloudResourceEvidenceHubService>();
+        services.AddScoped<ICloudResourceAuditLineageResolver, CloudResourceAuditLineageResolver>();
+        services.AddScoped<ICloudResourceExplorerQueryService, CloudResourceExplorerQueryService>();
         services.AddScoped<IInfraEvidenceAskEvidenceCollector, InfraEvidenceAskEvidenceCollector>();
         services.AddScoped<IInfraEvidenceAskGroundingService, InfraEvidenceAskGroundingService>();
         services.AddScoped<IBrandAssetService, BrandAssetService>();
@@ -77,6 +87,7 @@ public static class InfraEvidenceCompositionModule
         services.AddSingleton<ITenantBrandingCacheInvalidator>(static sp =>
             sp.GetRequiredService<TenantBrandingResolvedProfileCache>());
         services.AddScoped<ITenantBrandingService, TenantBrandingService>();
+        services.AddScoped<ITenantBrandingAdminService, TenantBrandingAdminService>();
         services.AddSingleton<IBrandedDiagramExportComposer, BrandedDiagramExportComposer>();
         services.AddScoped<IBrandedDiagramExportService, BrandedDiagramExportService>();
         services.AddScoped<ITenantReportBrandingApplyHelper, TenantReportBrandingApplyHelper>();

@@ -2,13 +2,17 @@ using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -30,6 +34,8 @@ namespace ArchLucid.Api.Controllers.Findings;
 public sealed class FindingRemediationAssignmentController(
     IFindingRecordRemediationAssignmentRepository remediationAssignmentRepository,
     IScopeContextProvider scopeContextProvider,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     IAuditService auditService,
     IFindingRemediationAssignmentEmailDispatcher assignmentEmailDispatcher) : ControllerBase
 {
@@ -38,6 +44,12 @@ public sealed class FindingRemediationAssignmentController(
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 
@@ -78,6 +90,20 @@ public sealed class FindingRemediationAssignmentController(
             assignee = null;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        try
+        {
+            await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                request.RunId,
+                scope,
+                _authorityQueryService,
+                _manifestHashService,
+                ct);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         bool updated = await _remediationAssignmentRepository.TryUpdateAssignmentAsync(
             request.RunId,

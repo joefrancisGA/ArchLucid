@@ -20,6 +20,9 @@ public static class IntegrationEventOutboxManifestHashGuard
         IntegrationEventTypes.AlertFiredV1,
         IntegrationEventTypes.AlertAcknowledgedV1,
         IntegrationEventTypes.AlertResolvedV1,
+        IntegrationEventTypes.AuthorityRunFailedV1,
+        IntegrationEventTypes.AuthorityRunQualityGateRejectedV1,
+        IntegrationEventTypes.ComplianceDriftEscalatedV1,
     };
 
     public static void EnsureRunScopedPayloadIncludesManifestHashOrThrow(string eventType, ReadOnlyMemory<byte> payloadUtf8)
@@ -59,6 +62,19 @@ public static class IntegrationEventOutboxManifestHashGuard
                 return;
             }
 
+            if (string.Equals(canonicalEventType, IntegrationEventTypes.ComplianceDriftEscalatedV1, StringComparison.Ordinal)
+                && !TryReadRunId(root, out Guid driftRunId))
+            {
+                return;
+            }
+
+            if (AllowsOptionalManifestHashWhenAbsent(canonicalEventType)
+                && (!TryReadManifestHash(root, out string? optionalHash)
+                    || string.IsNullOrWhiteSpace(optionalHash)))
+            {
+                return;
+            }
+
             if (!TryReadManifestHash(root, out string? manifestHash)
                 || string.IsNullOrWhiteSpace(manifestHash))
             {
@@ -82,6 +98,10 @@ public static class IntegrationEventOutboxManifestHashGuard
 
         return false;
     }
+
+    private static bool AllowsOptionalManifestHashWhenAbsent(string canonicalEventType) =>
+        string.Equals(canonicalEventType, IntegrationEventTypes.AuthorityRunFailedV1, StringComparison.Ordinal)
+        || string.Equals(canonicalEventType, IntegrationEventTypes.AuthorityRunQualityGateRejectedV1, StringComparison.Ordinal);
 
     private static bool TryReadManifestHash(JsonElement root, out string? manifestHash)
     {

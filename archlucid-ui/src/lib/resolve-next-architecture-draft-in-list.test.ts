@@ -5,7 +5,7 @@ import { resolveNextArchitectureDraftInList } from "@/lib/resolve-next-architect
 
 function entry(overrides: Partial<ArchitectureDraftRegistryEntry> = {}): ArchitectureDraftRegistryEntry {
   return {
-    architectureId: "draft-1",
+    draftId: "draft-1",
     displayName: "Claims intake",
     customerStatus: "draft",
     ownerLabel: "You",
@@ -20,13 +20,13 @@ describe("resolveNextArchitectureDraftInList", () => {
   it("returns the next draft in recency order", () => {
     const next = resolveNextArchitectureDraftInList(
       [
-        entry({ architectureId: "draft-new", lastUpdatedUtc: "2026-02-01T00:00:00Z", displayName: "New draft" }),
-        entry({ architectureId: "draft-old", lastUpdatedUtc: "2025-01-01T00:00:00Z", displayName: "Old draft" }),
+        entry({ draftId: "draft-new", lastUpdatedUtc: "2026-02-01T00:00:00Z", displayName: "New draft" }),
+        entry({ draftId: "draft-old", lastUpdatedUtc: "2025-01-01T00:00:00Z", displayName: "Old draft" }),
       ],
       "draft-new",
     );
 
-    expect(next?.architectureId).toBe("draft-old");
+    expect(next?.draftId).toBe("draft-old");
     expect(next?.href).toBe("/architecture/architectures/draft-old");
   });
 });

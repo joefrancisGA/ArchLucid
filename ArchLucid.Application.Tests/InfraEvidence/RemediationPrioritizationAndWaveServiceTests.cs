@@ -6,7 +6,9 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -194,7 +196,11 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
             new InMemoryOperationalSecurityExceptionRepository(),
             new InMemorySnapshotRepository(),
             new InMemoryAdvisoryTerraformService(),
-            Mock.Of<IAuditService>());
+            Mock.Of<IAuditService>(),
+            Mock.Of<IOperationalSecurityFindingRepository>(),
+            Mock.Of<IAuditManualEvidenceRepository>(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>());
 
         return new RemediationWaveService(
             waveRepository,
@@ -268,6 +274,14 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
 
             return Task.FromResult<IReadOnlyList<OperationalSecurityFindingRecord>>(query.ToList());
         }
+
+        public Task<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)> ListByCloudResourceIdPagedAsync(
+            Guid tenantId,
+            Guid cloudResourceId,
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)>(([], 0));
 
         public Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingAsync(
             Guid tenantId,
@@ -415,6 +429,14 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
             Guid tenantId,
             CancellationToken cancellationToken = default) =>
             Task.FromResult<IReadOnlyList<RemediationInstanceRecord>>(Instances.Where(item => item.TenantId == tenantId).ToList());
+
+        public Task<(IReadOnlyList<RemediationInstanceRecord> Items, int TotalCount)> ListByCloudResourceIdPagedAsync(
+            Guid tenantId,
+            Guid cloudResourceId,
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<(IReadOnlyList<RemediationInstanceRecord> Items, int TotalCount)>(([], 0));
     }
 
     private sealed class InMemoryRemediationPatternMatchRepository : IRemediationPatternMatchRepository
@@ -578,6 +600,14 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
             Guid newerSnapshotId,
             CancellationToken cancellationToken = default) =>
             Task.FromResult<Guid?>(null);
+
+        public Task<(IReadOnlyList<AzureInventorySnapshotRecord> Items, int TotalCount)> ListSnapshotsAsync(
+            ScopeContext scope,
+            int page,
+            int pageSize,
+            string? subscriptionId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<(IReadOnlyList<AzureInventorySnapshotRecord>, int)>(([], 0));
     }
 
     private sealed class InMemoryAdvisoryTerraformService : IAdvisoryTerraformRepresentationService

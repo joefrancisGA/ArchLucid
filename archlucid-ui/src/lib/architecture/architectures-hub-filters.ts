@@ -155,7 +155,7 @@ export function matchesArchitecturesHubSearch(entry: ArchitectureDraftRegistryEn
     return true;
   }
 
-  const haystack = [entry.displayName, entry.ownerLabel, entry.architectureId].join(" ").toLowerCase();
+  const haystack = [entry.displayName, entry.ownerLabel, entry.draftId].join(" ").toLowerCase();
 
   return haystack.includes(normalized);
 }

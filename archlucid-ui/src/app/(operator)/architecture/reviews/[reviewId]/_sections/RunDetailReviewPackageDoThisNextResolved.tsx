@@ -232,6 +232,8 @@ export function RunDetailReviewPackageDoThisNextResolved(
           pipelineSummary: props.pipelineSummary ?? null,
           runCompletedUtc: props.runCompletedUtc ?? props.pipelineSummary?.completedUtc ?? null,
         })}
+        pipelineDiagnosticContext={props.pipelineDiagnosticContext ?? null}
+        pipelineSummary={props.pipelineSummary ?? null}
       />
     </>
   );

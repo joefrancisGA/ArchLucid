@@ -36,7 +36,11 @@ export function FindingDetailActions({ presentation }: Props) {
       ) : null}
 
       {inspectPayload !== null && !buyerPolishedShell ? (
-        <FindingIacStubPanel runId={runId} findingId={decodedFindingId} />
+        <FindingIacStubPanel
+          runId={runId}
+          findingId={decodedFindingId}
+          manifestVersion={inspectPayload.manifestVersion ?? null}
+        />
       ) : null}
 
       {inspectPayload !== null && !buyerPolishedShell ? (

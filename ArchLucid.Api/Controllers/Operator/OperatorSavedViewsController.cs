@@ -58,7 +58,7 @@ public sealed class OperatorSavedViewsController(
         if (surface is not null && normalizedSurface is null)
         {
             return this.BadRequestProblem(
-                "surface must be 'audit' or 'graph' when provided.",
+                $"surface must be {OperatorSavedViewSurfaces.SupportedSurfacesDescription} when provided.",
                 ProblemTypes.ValidationFailed);
         }
 
@@ -94,7 +94,9 @@ public sealed class OperatorSavedViewsController(
 
         if (surface is null)
         {
-            return this.BadRequestProblem("surface must be 'audit' or 'graph'.", ProblemTypes.ValidationFailed);
+            return this.BadRequestProblem(
+                $"surface must be {OperatorSavedViewSurfaces.SupportedSurfacesDescription}.",
+                ProblemTypes.ValidationFailed);
         }
 
         string name = body.Name.Trim();

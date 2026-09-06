@@ -39,7 +39,7 @@ describe("ReviewsHubResumeDrafts", () => {
   it("renders nothing when a single draft is already the header Continue target", () => {
     useArchitectureDraftRegistryEntries.mockReturnValue([
       {
-        architectureId: "draft-001",
+        draftId: "draft-001",
         displayName: "Payments platform draft",
         customerStatus: "draft",
         ownerLabel: "You",
@@ -57,7 +57,7 @@ describe("ReviewsHubResumeDrafts", () => {
   it("renders a supporting multi-draft strip with status, relative time, and actions", () => {
     useArchitectureDraftRegistryEntries.mockReturnValue([
       {
-        architectureId: "draft-001",
+        draftId: "draft-001",
         displayName:
           "# Architecture Review Package — Contoso Claims Intake Platform Modernization (Phase 1)",
         customerStatus: "ready-for-review",
@@ -67,7 +67,7 @@ describe("ReviewsHubResumeDrafts", () => {
         serverUpdatedUtc: "2026-01-15T12:00:00.000Z",
       },
       {
-        architectureId: "draft-002",
+        draftId: "draft-002",
         displayName: "Second draft",
         customerStatus: "draft",
         ownerLabel: "You",
@@ -93,7 +93,7 @@ describe("ReviewsHubResumeDrafts", () => {
   it("excludes archived and review-linked drafts from the ready-for-review count and preview", () => {
     useArchitectureDraftRegistryEntries.mockReturnValue([
       {
-        architectureId: "draft-001",
+        draftId: "draft-001",
         displayName: "Eligible draft",
         customerStatus: "ready-for-review",
         ownerLabel: "You",
@@ -102,7 +102,7 @@ describe("ReviewsHubResumeDrafts", () => {
         serverUpdatedUtc: "2026-01-15T12:00:00.000Z",
       },
       {
-        architectureId: "draft-002",
+        draftId: "draft-002",
         displayName: "Archived draft",
         customerStatus: "archived",
         ownerLabel: "You",
@@ -111,7 +111,7 @@ describe("ReviewsHubResumeDrafts", () => {
         serverUpdatedUtc: "2026-01-16T12:00:00.000Z",
       },
       {
-        architectureId: "draft-003",
+        draftId: "draft-003",
         displayName: "Review-linked draft",
         customerStatus: "review-linked",
         ownerLabel: "You",
@@ -120,7 +120,7 @@ describe("ReviewsHubResumeDrafts", () => {
         serverUpdatedUtc: "2026-01-17T12:00:00.000Z",
       },
       {
-        architectureId: "draft-004",
+        draftId: "draft-004",
         displayName: "Second eligible draft",
         customerStatus: "draft",
         ownerLabel: "You",
@@ -142,7 +142,7 @@ describe("ReviewsHubResumeDrafts", () => {
   it("renders nothing when only archived drafts exist", () => {
     useArchitectureDraftRegistryEntries.mockReturnValue([
       {
-        architectureId: "draft-001",
+        draftId: "draft-001",
         displayName: "Archived one",
         customerStatus: "archived",
         ownerLabel: "You",
@@ -151,7 +151,7 @@ describe("ReviewsHubResumeDrafts", () => {
         serverUpdatedUtc: "2026-01-15T12:00:00.000Z",
       },
       {
-        architectureId: "draft-002",
+        draftId: "draft-002",
         displayName: "Archived two",
         customerStatus: "archived",
         ownerLabel: "You",

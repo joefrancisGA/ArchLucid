@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -60,4 +61,15 @@ public sealed class NoOpCloudResourceIdentityDirectory : ICloudResourceIdentityD
         Guid cloudResourceId,
         CancellationToken cancellationToken = default)
         => Task.CompletedTask;
+
+    public Task<(IReadOnlyList<CloudResourceExplorerListItem> Items, int TotalCount)> ListForExplorerAsync(
+        ScopeContext scope,
+        string? namePrefix,
+        string? resourceType,
+        string? resourceGroup,
+        CloudResourceExplorerWorkQueue workQueue,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<(IReadOnlyList<CloudResourceExplorerListItem> Items, int TotalCount)>(([], 0));
 }

@@ -1,10 +1,23 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/architecture/created/run-abc",
   useSearchParams: () => new URLSearchParams(),
   useRouter: () => ({ replace: vi.fn() }),
+}));
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () => demoEnvMock.buyerPolished,
+  };
+});
+
+const demoEnvMock = vi.hoisted(() => ({
+  buyerPolished: false,
 }));
 
 import { ArchitectureCreatedOverviewPanel } from "@/components/architecture/ArchitectureCreatedOverviewPanel";
@@ -32,6 +45,10 @@ function buildModel(overrides: Parameters<typeof buildArchitectureCreatedHomeMod
 }
 
 describe("ArchitectureCreatedOverviewPanel", () => {
+  beforeEach(() => {
+    demoEnvMock.buyerPolished = false;
+  });
+
   it("links Continue clarifying to run-scoped correction href (TB-1862)", () => {
     const model = buildModel();
 
@@ -224,5 +241,32 @@ alpha|beta|gamma|delta|epsilon|zeta`;
     fireEvent.click(screen.getByRole("button", { name: ARCHITECTURE_STRUCTURED_RETRY_LABEL }));
 
     expect(screen.getByTestId("architecture-structured-parse-failure")).toBeInTheDocument();
+  });
+});
+
+describe("ArchitectureCreatedOverviewPanel buyer-polished shell", () => {
+  beforeEach(() => {
+    demoEnvMock.buyerPolished = true;
+  });
+
+  it("hides provenance legend, uses buyer empty copy, and omits inline Sources strip", () => {
+    render(
+      <ArchitectureCreatedOverviewPanel
+        model={buildModel()}
+        sourceText=""
+        userAssertions={null}
+        correctionHref="/architecture/reviews/new?path=guided-intake&rerun=run-abc"
+        openClarificationGapCount={0}
+        onNavigateTab={vi.fn()}
+        submittedArchitectureSection={<div>Submitted brief body</div>}
+      />,
+    );
+
+    expect(screen.queryByTestId("architecture-overview-provenance-legend")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-overview-empty-state")).toHaveTextContent(
+      /Add more detail in guided questions/i,
+    );
+    expect(screen.queryByTestId("architecture-overview-sources")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /submitted brief/i })).toBeInTheDocument();
   });
 });

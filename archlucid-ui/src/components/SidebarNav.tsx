@@ -4,7 +4,6 @@ import { usePathname } from "next/navigation";
 import { Fragment, useEffect, useLayoutEffect, useState } from "react";
 
 import { SidebarRecentActivityCard } from "@/components/SidebarRecentActivityCard";
-import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { SidebarNavCluster } from "@/components/sidebar-nav/SidebarNavCluster";
 import { RoleNavDensityExpandControl } from "@/components/sidebar-nav/RoleNavDensityExpandControl";
 import { useGovernanceMode } from "@/hooks/use-governance-mode";
@@ -104,14 +103,6 @@ export function SidebarNav() {
 
   return (
     <div className="flex min-h-0 flex-col gap-0 pb-2">
-      <div className="flex items-center justify-end px-2 pt-1">
-        <FieldHelpTooltip
-          label="Sidebar navigation"
-          hint="Groups match the sections in the address bar — Architecture for reviews, Approval for governance, Insights for analysis, and Administration for workspace settings."
-          side="right"
-          className="shrink-0"
-        />
-      </div>
       <SidebarRecentActivityCard />
 
       {allRows.map((row) => {

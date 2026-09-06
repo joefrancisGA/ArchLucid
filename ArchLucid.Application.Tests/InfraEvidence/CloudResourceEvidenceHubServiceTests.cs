@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
@@ -179,6 +180,84 @@ public sealed class CloudResourceEvidenceHubServiceTests
             .Should().Be(CloudResourceEvidenceFindingStreamKinds.ArchitectureReview);
     }
 
+    [Fact]
+    public async Task TryGetHubAsync_uses_paged_operational_findings_by_cloud_resource_id()
+    {
+        Guid cloudResourceId = Guid.NewGuid();
+        Guid otherCloudResourceId = Guid.NewGuid();
+        Guid tenantId = Guid.NewGuid();
+        ScopeContext scope = new() { TenantId = tenantId };
+
+        FakeCloudResourceIdentityDirectory identityDirectory = new();
+        identityDirectory.Records[cloudResourceId] = new CloudResourceIdentityRecord
+        {
+            CloudResourceId = cloudResourceId,
+            TenantId = tenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            Provider = CloudProvider.Azure,
+            ExternalResourceIdNormalized =
+                "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/primary",
+            LastSeenSnapshotId = Guid.NewGuid(),
+        };
+
+        FakeOperationalSecurityFindingRepository operationalRepository = new();
+        operationalRepository.Findings.Add(new OperationalSecurityFindingRecord
+        {
+            FindingId = Guid.NewGuid(),
+            TenantId = tenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            Provider = CloudProvider.Azure,
+            SourceSystem = "defender",
+            SourceFindingId = "finding-target",
+            CloudResourceId = cloudResourceId,
+            Title = "Target resource finding",
+            Severity = "High",
+            Status = OperationalSecurityFindingStatus.Open,
+            FirstObservedUtc = DateTime.UtcNow,
+            LastObservedUtc = DateTime.UtcNow,
+            PayloadHashSha256 = [],
+            CreatedUtc = DateTime.UtcNow,
+            UpdatedUtc = DateTime.UtcNow,
+        });
+        operationalRepository.Findings.Add(new OperationalSecurityFindingRecord
+        {
+            FindingId = Guid.NewGuid(),
+            TenantId = tenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            Provider = CloudProvider.Azure,
+            SourceSystem = "defender",
+            SourceFindingId = "finding-other",
+            CloudResourceId = otherCloudResourceId,
+            Title = "Other resource finding",
+            Severity = "Medium",
+            Status = OperationalSecurityFindingStatus.Open,
+            FirstObservedUtc = DateTime.UtcNow,
+            LastObservedUtc = DateTime.UtcNow,
+            PayloadHashSha256 = [],
+            CreatedUtc = DateTime.UtcNow,
+            UpdatedUtc = DateTime.UtcNow,
+        });
+
+        CloudResourceEvidenceHubService hubService = CreateService(
+            identityDirectory,
+            operationalRepository: operationalRepository);
+
+        CloudResourceEvidenceHubQueryResult result = await hubService.TryGetHubAsync(
+            scope,
+            cloudResourceId,
+            new CloudResourceEvidenceHubQuery(),
+            CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Hub.Should().NotBeNull();
+        result.Hub!.OperationalSecurityFindings.Items.Should().ContainSingle();
+        result.Hub.OperationalSecurityFindings.Items[0].Title.Should().Be("Target resource finding");
+        result.Hub.OperationalSecurityFindings.TotalCount.Should().Be(1);
+    }
+
     private static CloudResourceEvidenceHubService CreateService(
         FakeCloudResourceIdentityDirectory identityDirectory,
         FakeOperationalSecurityFindingRepository? operationalRepository = null,
@@ -192,10 +271,28 @@ public sealed class CloudResourceEvidenceHubServiceTests
         Mock<IDiagramInfrastructureReconciliationService> diagramReconciliation = new();
         Mock<IRemediationInstanceRepository> remediationRepository = new();
         Mock<IAuthorityQueryService> authorityQuery = new();
+        Mock<ICloudResourceAuditLineageResolver> auditLineageResolver = new();
+
+        auditLineageResolver
+            .Setup(resolver => resolver.ResolveAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CloudResourceEvidenceHubQuery>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CloudResourceAuditLineageLink
+            {
+                Available = false,
+                DegradedReason = "No audit evidence snapshot rows reference this cloud resource yet.",
+            });
 
         remediationRepository
-            .Setup(repo => repo.ListByTenantAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+            .Setup(repo => repo.ListByCloudResourceIdPagedAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(([], 0));
 
         operationalRepository.Findings.ForEach(row =>
         {
@@ -218,7 +315,8 @@ public sealed class CloudResourceEvidenceHubServiceTests
             diagramReconciliation.Object,
             operationalRepository,
             remediationRepository.Object,
-            authorityQueryService ?? authorityQuery.Object);
+            authorityQueryService ?? authorityQuery.Object,
+            auditLineageResolver.Object);
     }
 
     private sealed class FakeCloudResourceIdentityDirectory : ICloudResourceIdentityDirectory
@@ -262,6 +360,26 @@ public sealed class CloudResourceEvidenceHubServiceTests
             Guid cloudResourceId,
             CancellationToken cancellationToken = default)
             => Task.CompletedTask;
+
+        public Task<(IReadOnlyList<CloudResourceExplorerListItem> Items, int TotalCount)> ListForExplorerAsync(
+            ScopeContext scope,
+            string? namePrefix,
+            string? resourceType,
+            string? resourceGroup,
+            CloudResourceExplorerWorkQueue workQueue,
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult<(IReadOnlyList<CloudResourceExplorerListItem> Items, int TotalCount)>(
+                (Records.Values
+                    .Where(row => row.TenantId == scope.TenantId)
+                    .Select(row => new CloudResourceExplorerListItem
+                    {
+                        Identity = row,
+                        WorkCounts = new CloudResourceExplorerWorkCounts(),
+                    })
+                    .ToList(),
+                Records.Count));
     }
 
     private sealed class FakeOperationalSecurityFindingRepository : IOperationalSecurityFindingRepository
@@ -290,6 +408,25 @@ public sealed class CloudResourceEvidenceHubServiceTests
             CancellationToken cancellationToken = default)
             => Task.FromResult<IReadOnlyList<OperationalSecurityFindingRecord>>(
                 Findings.Where(row => row.TenantId == tenantId).ToList());
+
+        public Task<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)> ListByCloudResourceIdPagedAsync(
+            Guid tenantId,
+            Guid cloudResourceId,
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken = default)
+        {
+            List<OperationalSecurityFindingRecord> filtered = Findings
+                .Where(row => row.TenantId == tenantId && row.CloudResourceId == cloudResourceId)
+                .OrderByDescending(row => row.LastObservedUtc)
+                .ToList();
+
+            int skip = PaginationDefaults.ToSkip(page, pageSize);
+            List<OperationalSecurityFindingRecord> pageItems = filtered.Skip(skip).Take(pageSize).ToList();
+
+            return Task.FromResult<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)>(
+                (pageItems, filtered.Count));
+        }
 
         public Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingAsync(
             Guid tenantId,

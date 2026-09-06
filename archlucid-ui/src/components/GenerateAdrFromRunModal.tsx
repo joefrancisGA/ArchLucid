@@ -7,7 +7,17 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState, type SetStateAction } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
 import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer/buyer-polish-copy";
+import {
+  CAREER_EXPORT_EVAL_SAMPLE_LABEL,
+  CAREER_EXPORT_EVAL_SAMPLE_MAX_FINDINGS,
+  CAREER_EXPORT_INCOMPLETE_CONFIRM_LABEL,
+  capAdrGeneratorFindingsForExport,
+  formatCareerExportFindingInventoryLine,
+  resolveCareerExportFindingInventory,
+  resolveCareerExportMaxFindings,
+} from "@/lib/career-export-finding-inventory";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +36,8 @@ import {
 
 export type GenerateAdrFromRunModalProps = {
   input: AdrGeneratorRunInput;
+  /** Total findings on the review before any export cap (DA-11). */
+  totalFindingCount?: number;
   /** Buyer-polished review detail: soften ADR jargon into decision-record language. */
   buyerPolished?: boolean;
 };
@@ -33,7 +45,12 @@ export type GenerateAdrFromRunModalProps = {
 /**
  * Run detail action: drafts a MADR-style ADR in-browser from serialized run + explanation payload (no extra HTTP).
  */
-export function GenerateAdrFromRunModal({ input, buyerPolished = false }: GenerateAdrFromRunModalProps) {
+export function GenerateAdrFromRunModal({
+  input,
+  totalFindingCount,
+  buyerPolished = false,
+}: GenerateAdrFromRunModalProps) {
+  const workingDesk = useProductionDeskChrome();
   const router = useRouter();
   const pathname = usePathname() ?? `/architecture/reviews/${input.runId}`;
   const searchParams = useSearchParams();
@@ -41,6 +58,22 @@ export function GenerateAdrFromRunModal({ input, buyerPolished = false }: Genera
   const [open, setOpenState] = useState(() => parseReviewGenerateAdrOpenFromSearch(adrOpenParam));
   const [markdown, setMarkdown] = useState<string>("");
   const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState<string | null>(null);
+  const [incompleteExportConfirmed, setIncompleteExportConfirmed] = useState(false);
+  const evalSampleExport = buyerPolished && !workingDesk;
+  const exportMaxFindings = resolveCareerExportMaxFindings({
+    workingDesk,
+    evalSampleExport,
+  });
+  const totalEligibleFindings = totalFindingCount ?? input.findings.length;
+  const exportInput = capAdrGeneratorFindingsForExport(input, exportMaxFindings);
+  const exportInventory = resolveCareerExportFindingInventory({
+    included: exportInput.findings.length,
+    total: totalEligibleFindings,
+  });
+  const exportInventoryLine = formatCareerExportFindingInventoryLine(exportInventory);
+  const exportBlocked =
+    workingDesk && !exportInventory.isComplete && !incompleteExportConfirmed;
 
   const syncAdrOpenToUrl = useCallback(
     (nextOpen: boolean) => {
@@ -64,8 +97,8 @@ export function GenerateAdrFromRunModal({ input, buyerPolished = false }: Genera
   );
 
   const seedFromInput = useCallback(() => {
-    setMarkdown(buildMadrMarkdownFromRun(input));
-  }, [input]);
+    setMarkdown(buildMadrMarkdownFromRun(exportInput));
+  }, [exportInput]);
 
   const onOpenChange = useCallback(
     (next: boolean) => {
@@ -74,20 +107,29 @@ export function GenerateAdrFromRunModal({ input, buyerPolished = false }: Genera
       if (next) {
         seedFromInput();
         setCopied(false);
+        setCopyError(null);
+        setIncompleteExportConfirmed(false);
       }
     },
     [seedFromInput],
   );
 
   const onCopy = useCallback(async () => {
+    if (exportBlocked) {
+      return;
+    }
+
     const blockedReason = runCollateralSealedManifestCopyBlockedReason({
       runId: input.runId,
       manifestVersion: input.manifestStatusLabel,
     });
 
     if (blockedReason !== null) {
+      setCopyError(blockedReason);
       return;
     }
+
+    setCopyError(null);
 
     try {
       await navigator.clipboard.writeText(markdown);
@@ -96,19 +138,26 @@ export function GenerateAdrFromRunModal({ input, buyerPolished = false }: Genera
         setCopied(false);
       }, 2_000);
     } catch {
-      /* clipboard unavailable */
+      setCopyError("Clipboard unavailable — select the Markdown above and copy manually.");
     }
-  }, [markdown]);
+  }, [exportBlocked, input.manifestStatusLabel, input.runId, markdown]);
 
   const onDownload = useCallback(() => {
+    if (exportBlocked) {
+      return;
+    }
+
     const blockedReason = runCollateralSealedManifestCopyBlockedReason({
       runId: input.runId,
       manifestVersion: input.manifestStatusLabel,
     });
 
     if (blockedReason !== null) {
+      setCopyError(blockedReason);
       return;
     }
+
+    setCopyError(null);
 
     const blob = new Blob([markdown], { type: "text/markdown;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -118,7 +167,7 @@ export function GenerateAdrFromRunModal({ input, buyerPolished = false }: Genera
     a.download = `adr-archlucid-${input.runId}.md`;
     a.click();
     URL.revokeObjectURL(url);
-  }, [input.runId, markdown]);
+  }, [exportBlocked, input.manifestStatusLabel, input.runId, markdown]);
 
   return (
     <>
@@ -130,11 +179,39 @@ export function GenerateAdrFromRunModal({ input, buyerPolished = false }: Genera
           <DialogHeader>
             <DialogTitle>{buyerPolished ? "Decision record draft" : "Architecture Decision Record"}</DialogTitle>
             <DialogDescription>
-              {buyerPolished
-                ? "MADR-style draft you can copy into your enterprise decision-register or CAB packet. Edit the Markdown, then copy or download — nothing is stored server-side."
-                : "MADR-inspired draft from this review's findings and aggregate AI assessment. Edit the Markdown, then copy or download — nothing is stored server-side."}
+              {evalSampleExport
+                ? `${CAREER_EXPORT_EVAL_SAMPLE_LABEL}. MADR-style draft you can copy into your enterprise decision-register or CAB packet.`
+                : buyerPolished
+                  ? "MADR-style draft you can copy into your enterprise decision-register or CAB packet. Edit the Markdown, then copy or download — nothing is stored server-side."
+                  : "MADR-inspired draft from this review's findings and aggregate AI assessment. Edit the Markdown, then copy or download — nothing is stored server-side."}
             </DialogDescription>
           </DialogHeader>
+          {exportInventoryLine !== null ? (
+            <p
+              className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="generate-adr-export-inventory-line"
+              role="status"
+            >
+              {exportInventoryLine}
+            </p>
+          ) : null}
+          {evalSampleExport ? (
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="generate-adr-eval-sample-label">
+              Includes up to {CAREER_EXPORT_EVAL_SAMPLE_MAX_FINDINGS} findings in this sample export.
+            </p>
+          ) : null}
+          {exportBlocked ? (
+            <Button
+              type="button"
+              variant="outline"
+              data-testid="generate-adr-export-incomplete-confirm"
+              onClick={() => {
+                setIncompleteExportConfirmed(true);
+              }}
+            >
+              {CAREER_EXPORT_INCOMPLETE_CONFIRM_LABEL}
+            </Button>
+          ) : null}
           <div className="space-y-2">
             <label className={cn("font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)} htmlFor="adr-markdown-editor">
               Markdown
@@ -158,17 +235,27 @@ export function GenerateAdrFromRunModal({ input, buyerPolished = false }: Genera
               <Button
                 type="button"
                 variant="secondary"
+                disabled={exportBlocked}
                 onClick={() => {
                   void onCopy();
                 }}
               >
                 {copied ? "Copied" : "Copy to clipboard"}
               </Button>
-              <Button type="button" variant="default" onClick={onDownload}>
+              <Button type="button" variant="default" disabled={exportBlocked} onClick={onDownload}>
                 <FileDown className="mr-2 size-4" aria-hidden />
                 Download .md
               </Button>
             </div>
+            {copyError !== null ? (
+              <p
+                role="alert"
+                className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="generate-adr-copy-error"
+              >
+                {copyError}
+              </p>
+            ) : null}
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -16,7 +16,7 @@ describe("ReviewsHubSummaryRow", () => {
     useArchitectureDraftRegistryEntriesMock.mockReturnValue([]);
   });
 
-  it("links posture counts to queues and inventory filters", () => {
+  it("links posture counts to queues and inventory filters with scoped labels", () => {
     render(
       <ReviewsHubSummaryRow
         summary={{
@@ -29,33 +29,36 @@ describe("ReviewsHubSummaryRow", () => {
       />,
     );
 
-    expect(screen.getByRole("link", { name: /2 Active/ })).toHaveAttribute(
+    expect(screen.getByTestId("reviews-hub-summary-in-progress-value")).toHaveAttribute(
       "href",
       "/architecture/reviews?filter=Active",
     );
-    expect(screen.getByRole("link", { name: /1 Finalized/ })).toHaveAttribute(
+    expect(screen.getByTestId("reviews-hub-summary-in-progress-value")).toHaveAttribute(
+      "aria-label",
+      "2 active reviews",
+    );
+    expect(screen.getByTestId("reviews-hub-summary-committed-value")).toHaveAttribute(
       "href",
       "/architecture/reviews?filter=finalized",
     );
-    expect(screen.getByRole("link", { name: /4 Findings/ })).toHaveAttribute("href", "/governance/findings");
-    expect(screen.getByRole("link", { name: /3 Open risks/ })).toHaveAttribute(
+    expect(screen.getByTestId("reviews-hub-summary-findings-value")).toHaveAttribute(
       "href",
       "/governance/findings?filter=open",
     );
-    expect(screen.getByRole("link", { name: /1 Awaiting approval/ })).toHaveAttribute(
+    expect(screen.getByTestId("reviews-hub-summary-open-risks-value")).toHaveAttribute(
+      "href",
+      "/governance/findings?filter=open",
+    );
+    expect(screen.getByTestId("reviews-hub-summary-awaiting-approval-value")).toHaveAttribute(
       "href",
       "/governance/approval-queue",
     );
-
-    const activeLink = screen.getByRole("link", { name: /2 Active/ });
-    expect(activeLink.className).toMatch(/underline/);
-    expect(activeLink.className).not.toMatch(/no-underline/);
   });
 
   it("opens the sole ready draft instead of scrolling when only one draft is ready", () => {
     useArchitectureDraftRegistryEntriesMock.mockReturnValue([
       {
-        architectureId: "draft-001",
+        draftId: "draft-001",
         displayName: "Payments",
         customerStatus: "draft",
         ownerLabel: "You",

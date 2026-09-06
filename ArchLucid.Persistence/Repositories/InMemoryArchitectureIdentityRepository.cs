@@ -7,18 +7,21 @@ using ArchLucid.Core.Scoping;
 namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>In-memory <see cref="IArchitectureIdentityRepository" /> for tests and storage mode <c>InMemory</c>.</summary>
-public sealed class InMemoryArchitectureIdentityRepository : IArchitectureIdentityRepository
+public sealed partial class InMemoryArchitectureIdentityRepository : IArchitectureIdentityRepository
 {
     private readonly ConcurrentDictionary<Guid, ArchitectureIdentityRecord> _byId = new();
 
     public Task<ArchitectureIdentityRecord> CreateAsync(
         ScopeContext scope,
+        string displayName,
         string? currentModelId,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(displayName);
         _ = cancellationToken;
 
+        string normalizedDisplayName = ArchitectureIdentityDisplayNameDefaults.Resolve(displayName);
         Guid architectureId = Guid.NewGuid();
         DateTime nowUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
 
@@ -28,6 +31,7 @@ public sealed class InMemoryArchitectureIdentityRepository : IArchitectureIdenti
             TenantId = scope.TenantId,
             WorkspaceId = scope.WorkspaceId,
             ScopeProjectId = scope.ProjectId,
+            DisplayName = normalizedDisplayName,
             CurrentModelId = currentModelId,
             CreatedUtc = nowUtc,
             UpdatedUtc = nowUtc,
@@ -91,6 +95,78 @@ public sealed class InMemoryArchitectureIdentityRepository : IArchitectureIdenti
         record.UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
 
         return Task.CompletedTask;
+    }
+
+    public Task<bool> TryUpdateDisplayNameWhenUntitledAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        string displayName,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(displayName);
+        _ = cancellationToken;
+
+        if (!_byId.TryGetValue(architectureId, out ArchitectureIdentityRecord? record))
+            return Task.FromResult(false);
+
+        if (record.TenantId != scope.TenantId ||
+            record.WorkspaceId != scope.WorkspaceId ||
+            record.ScopeProjectId != scope.ProjectId)
+            return Task.FromResult(false);
+
+        string normalizedDisplayName = ArchitectureIdentityDisplayNameDefaults.Resolve(displayName);
+
+        if (!string.Equals(
+                record.DisplayName,
+                ArchitectureIdentityDisplayNameDefaults.UntitledArchitecture,
+                StringComparison.Ordinal))
+            return Task.FromResult(false);
+
+        if (string.Equals(record.DisplayName, normalizedDisplayName, StringComparison.Ordinal))
+            return Task.FromResult(false);
+
+        record.DisplayName = normalizedDisplayName;
+        record.UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+
+        return Task.FromResult(true);
+    }
+
+    public Task<bool> TryPatchAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        bool updateDisplayName,
+        string? displayName,
+        bool updateDescription,
+        string? description,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        _ = cancellationToken;
+
+        if (!updateDisplayName && !updateDescription)
+            return Task.FromResult(false);
+
+        if (!_byId.TryGetValue(architectureId, out ArchitectureIdentityRecord? record))
+            return Task.FromResult(false);
+
+        if (record.TenantId != scope.TenantId ||
+            record.WorkspaceId != scope.WorkspaceId ||
+            record.ScopeProjectId != scope.ProjectId)
+            return Task.FromResult(false);
+
+        if (updateDisplayName)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(displayName);
+            record.DisplayName = displayName!;
+        }
+
+        if (updateDescription)
+            record.Description = description;
+
+        record.UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+
+        return Task.FromResult(true);
     }
 
     private ArchitectureIdentityRecord RequireScopedRecord(ScopeContext scope, Guid architectureId)

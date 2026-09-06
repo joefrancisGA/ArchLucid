@@ -1,5 +1,11 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const workspaceModeMock = vi.hoisted(() => ({ isWorkingMode: false }));
+
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => workspaceModeMock,
+}));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
@@ -10,30 +16,39 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
-vi.mock("@/components/architecture/ArchitectureDraftListClient", () => ({
-  ArchitectureDraftListClient: () => <div data-testid="architecture-draft-list" />,
+vi.mock("./_sections/ArchitecturesHubListSection", () => ({
+  ArchitecturesHubListSection: () => <div data-testid="architectures-hub-list-section" />,
 }));
 
-vi.mock("./_sections/ArchitecturesHubHeaderActions", () => ({
-  ArchitecturesHubHeaderActions: () => null,
-}));
-
-vi.mock("./_sections/ArchitecturesHubPageSubtitle", () => ({
-  ArchitecturesHubPageSubtitle: () => <span data-testid="architectures-hub-page-subtitle-mock">subtitle</span>,
+vi.mock("./_sections/ArchitecturesHubBuyerChrome", () => ({
+  ArchitecturesHubBuyerChrome: () => null,
 }));
 
 import ArchitecturesListPage from "./page";
-import { ARCHITECTURES_HUB_PAGE_TITLE } from "@/lib/architectures-hub-copy";
+import { ARCHITECTURE_IDENTITY_LIST_PAGE_SUBTITLE } from "@/lib/architecture/architecture-identity-desk-copy";
+import { ARCHITECTURES_HUB_PAGE_SUBTITLE, ARCHITECTURES_HUB_PAGE_TITLE } from "@/lib/architectures-hub-copy";
 
 describe("ArchitecturesListPage", () => {
-  it("renders a draft-inventory page title and honesty subtitle", () => {
+  beforeEach(() => {
+    workspaceModeMock.isWorkingMode = false;
+  });
+
+  it("renders mode-aware hub chrome and list section", () => {
     render(<ArchitecturesListPage />);
 
     expect(screen.getByTestId("architectures-hub-page-title")).toHaveTextContent(ARCHITECTURES_HUB_PAGE_TITLE);
-    expect(screen.getByTestId("architectures-hub-page-title").textContent?.toLowerCase()).toContain("draft");
-    expect(screen.getByTestId("architectures-hub-page-subtitle-mock")).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { level: 1, name: ARCHITECTURES_HUB_PAGE_TITLE }),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("architectures-hub-list-section")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-object-map-strip")).toBeInTheDocument();
+  });
+
+  it("CA-48: Working hub subtitle teaches identity portfolio, not draft inventory", () => {
+    workspaceModeMock.isWorkingMode = true;
+
+    render(<ArchitecturesListPage />);
+
+    expect(screen.getByTestId("architectures-hub-page-subtitle")).toHaveTextContent(
+      ARCHITECTURE_IDENTITY_LIST_PAGE_SUBTITLE,
+    );
+    expect(screen.queryByText(ARCHITECTURES_HUB_PAGE_SUBTITLE)).not.toBeInTheDocument();
   });
 });

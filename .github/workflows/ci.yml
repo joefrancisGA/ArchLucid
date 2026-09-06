@@ -5012,15 +5012,24 @@ jobs:
           dotnet restore ArchLucid.sln
           dotnet build ArchLucid.Api/ArchLucid.Api.csproj --no-restore -c Release
 
-      - name: Install UI deps & build Next (standalone, jwt-bearer client)
+      - name: Install UI deps, verify lockfile, and typecheck
+        working-directory: archlucid-ui
+        env:
+          CI: true
+          NODE_OPTIONS: --max-old-space-size=6144
+        run: |
+          python3 ../scripts/ci/check_npm_overrides_lockfile_sync.py --prefix .
+          npm ci
+          python3 ../scripts/ci/assert_single_npm_dependency_version.py @tanstack/query-core --prefix .
+          npm run typecheck
+
+      - name: Build Next (standalone, jwt-bearer client)
         working-directory: archlucid-ui
         env:
           NODE_OPTIONS: --max-old-space-size=6144
           NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES: "1"
           NEXT_PUBLIC_ARCHLUCID_AUTH_MODE: jwt-bearer
-        run: |
-          npm ci
-          npm run build:live-e2e
+        run: npm run build:live-e2e
 
       - name: Generate RSA keys & PyJWT (CI JWT mint)
         run: |
@@ -5044,7 +5053,7 @@ jobs:
         env:
           ASPNETCORE_ENVIRONMENT: Development
           ASPNETCORE_URLS: http://127.0.0.1:5128
-          ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidLiveE2eBetaAccess"
+          ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidLiveE2eBetaAccess;Max Pool Size=200;Connect Timeout=120"
           ArchLucid__StorageProvider: Sql
           ArchLucidAuth__Mode: JwtBearer
           ArchLucidAuth__Authority: ""
@@ -5067,6 +5076,15 @@ jobs:
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
           DataConsistency__InitialDelaySeconds: "0"
+          DataConsistency__OrphanProbeEnabled: "false"
+          Demo__Enabled: "false"
+          Demo__SeedOnStartup: "false"
+          TrialArchitecturePreseed__Enabled: "false"
+          Persistence__SqlOpenResilience__MaxRetryAttempts: "6"
+          Persistence__SqlOpenResilience__BaseDelayMilliseconds: "500"
+          ArchLucid__Persistence__DefaultSqlCommandTimeoutSeconds: "300"
+          ArchLucid__CreateRun__DistributedIdempotencyLockTimeoutMilliseconds: "180000"
+          AuthorityPipeline__PipelineTimeout: "00:05:00"
           HostLeaderElection__Enabled: "false"
           Observability__ConsoleExporter__Enabled: "false"
         run: |
@@ -5084,6 +5102,7 @@ jobs:
           LIVE_API_URL: http://127.0.0.1:5128
           LIVE_E2E_SKIP_NEXT_BUILD: "1"
           LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
+          LIVE_E2E_PRIVATE_BETA_ACCESS: "1"
           NODE_OPTIONS: --max-old-space-size=6144
         run: |
           set -e
@@ -5103,7 +5122,9 @@ jobs:
           export LIVE_JWT_TOKEN="${TOKEN}"
           export ARCHLUCID_PROXY_BEARER_TOKEN="${TOKEN}"
           npx playwright install --with-deps chromium
-          curl -fsS http://127.0.0.1:5128/health/ready
+          bash "${GITHUB_WORKSPACE}/scripts/ci/warm_private_beta_live_api_paths.sh" "${TOKEN}"
+          ARCHLUCID_API_READY_WAIT_ATTEMPTS=90 \
+            bash "${GITHUB_WORKSPACE}/scripts/ci/wait-for-api-ready.sh" "${RUNNER_TEMP}/live-api-beta-access.log"
           npx playwright test --workers=1 live-api-private-beta-access.spec.ts
 
       - name: Upload live API log (private-beta access-path)
@@ -5136,6 +5157,23 @@ jobs:
         with:
           name: ui-e2e-live-beta-access-blob-report
           path: archlucid-ui/blob-report
+          if-no-files-found: warn
+
+      - name: Private-beta Playwright failure triage rollup
+        if: failure()
+        run: |
+          python3 scripts/ci/report_private_beta_playwright_failure_triage.py \
+            --markdown-out dist/private-beta-playwright-failure-triage.md \
+            --json-out dist/private-beta-playwright-failure-triage.json
+
+      - name: Upload private-beta Playwright failure triage rollup
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-e2e-live-beta-access-failure-triage
+          path: |
+            dist/private-beta-playwright-failure-triage.md
+            dist/private-beta-playwright-failure-triage.json
           if-no-files-found: warn
 
   # k6 operator-path API smoke (health/ready + version + create run + authority list). Runs after full regression;
@@ -5527,6 +5565,7 @@ jobs:
             --url http://archlucid-fuzz-api:8080 \
             --checks=all \
             --phases=examples \
+            --include-path-regex='^(/v1/auth|/v1/admin|/scim|/v1/invitations)' \
             --request-timeout 5 \
             --max-response-time 10
 

@@ -10,10 +10,10 @@ import { WIZARD_SESSION_IDS } from "@/lib/wizard-session-persistence";
 import type { RunSummary } from "@/types/authority";
 
 function draft(
-  overrides: Partial<ArchitectureDraftRegistryEntry> & Pick<ArchitectureDraftRegistryEntry, "architectureId">,
+  overrides: Partial<ArchitectureDraftRegistryEntry> & Pick<ArchitectureDraftRegistryEntry, "draftId">,
 ): ArchitectureDraftRegistryEntry {
   return {
-    architectureId: overrides.architectureId,
+    draftId: overrides.draftId,
     displayName: overrides.displayName ?? "Payments edge",
     customerStatus: overrides.customerStatus ?? "draft",
     ownerLabel: overrides.ownerLabel ?? "You",
@@ -52,7 +52,7 @@ describe("buildUnfinishedWorkRailItems (TB-2209)", () => {
 
   it("maps architecture drafts with draft status", () => {
     const items = buildUnfinishedWorkRailItems({
-      drafts: [draft({ architectureId: "arch-1", displayName: "Retail API" })],
+      drafts: [draft({ draftId: "arch-1", displayName: "Retail API" })],
       runs: [],
       incompleteWizards: [],
     });
@@ -68,7 +68,7 @@ describe("buildUnfinishedWorkRailItems (TB-2209)", () => {
 
   it("skips archived drafts", () => {
     const items = buildUnfinishedWorkRailItems({
-      drafts: [draft({ architectureId: "arch-archived", customerStatus: "archived" })],
+      drafts: [draft({ draftId: "arch-archived", customerStatus: "archived" })],
       runs: [],
       incompleteWizards: [],
     });
@@ -178,7 +178,7 @@ describe("buildUnfinishedWorkRailItems (TB-2209)", () => {
     const items = buildUnfinishedWorkRailItems({
       drafts: [
         draft({
-          architectureId: "arch-spawned",
+          draftId: "arch-spawned",
           displayName: "Vertex 2",
           linkedReviewId: "run-mid",
           customerStatus: "ready-for-review",
@@ -206,7 +206,7 @@ describe("buildUnfinishedWorkRailItems (TB-2209)", () => {
     const items = buildUnfinishedWorkRailItems({
       drafts: [
         draft({
-          architectureId: "arch-1",
+          draftId: "arch-1",
           displayName: "ArchLucid",
           customerStatus: "ready-for-review",
         }),
@@ -232,8 +232,8 @@ describe("buildUnfinishedWorkRailItems (TB-2209)", () => {
   it("orders by urgency then recency and respects maxItems", () => {
     const items = buildUnfinishedWorkRailItems({
       drafts: [
-        draft({ architectureId: "arch-old", lastUpdatedUtc: "2026-08-01T00:00:00Z", displayName: "Old draft" }),
-        draft({ architectureId: "arch-new", lastUpdatedUtc: "2026-08-10T00:00:00Z", displayName: "New draft" }),
+        draft({ draftId: "arch-old", lastUpdatedUtc: "2026-08-01T00:00:00Z", displayName: "Old draft" }),
+        draft({ draftId: "arch-new", lastUpdatedUtc: "2026-08-10T00:00:00Z", displayName: "New draft" }),
       ],
       runs: [
         run({

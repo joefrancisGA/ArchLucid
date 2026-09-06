@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { ARCHITECTURE_DRAFTS_LIST_LABEL, CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { ARCHITECTURE_IDENTITY_LIST_PAGE_TITLE } from "@/lib/architecture/architecture-identity-desk-copy";
 import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import {
   BUYER_NEW_REVIEW_NAV_LABEL,
@@ -29,6 +30,32 @@ describe("operator-nav-labels", () => {
 
     expect(resolveNavLinkPresentation(source, true).label).toBe(ARCHITECTURE_DRAFTS_LIST_LABEL);
     expect(resolveNavLinkPresentation(source, false).label).toBe(ARCHITECTURE_DRAFTS_LIST_LABEL);
+  });
+
+  it("CA-32: Working sidebar Architectures means identity portfolio", () => {
+    const source = {
+      href: ARCHITECTURES_LIST_PATH,
+      label: "Draft inventory",
+      title: "Draft inventory",
+    };
+
+    const working = resolveNavLinkPresentation(source, false, false, true);
+
+    expect(working.label).toBe(ARCHITECTURE_IDENTITY_LIST_PAGE_TITLE);
+    expect(working.title).toContain("Durable architecture identities");
+  });
+
+  it("CA-36: Guided sidebar keeps draft-inventory teaching tooltip", () => {
+    const source = {
+      href: ARCHITECTURES_LIST_PATH,
+      label: "Draft inventory",
+      title: "Draft inventory",
+    };
+
+    const guided = resolveNavLinkPresentation(source, false, false, false);
+
+    expect(guided.label).toBe(ARCHITECTURE_DRAFTS_LIST_LABEL);
+    expect(guided.title).toContain("saved architecture drafts");
   });
 
   it("overrides /architectures/new presentation when buyer vocabulary pass is active", () => {

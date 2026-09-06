@@ -8,7 +8,7 @@ This matrix complements **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** four-bo
 
 | Signal | Current value |
 | --- | --- |
-| Registry rows | **232** controller route families (`route-tier-policy-nav-registry-count`) |
+| Registry rows | **237** controller route families (`route-tier-policy-nav-registry-count`) |
 | Executable registry | `scripts/ci/data/route_tier_policy_nav_registry.json` |
 | CI command | `python scripts/ci/assert_route_tier_policy_nav.py` |
 | Regenerate intentionally | `python scripts/ci/assert_route_tier_policy_nav.py --sync` |
@@ -68,13 +68,14 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:232 -->
+<!-- route-tier-policy-nav-registry-count:237 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
 | `Admin/AdminAgentModelCatalogController.cs` | `/v1/admin/agent-model-catalog` | none | AdminAuthority |  |  |
 | `Admin/AdminAiUsageDashboardController.cs` | `/v1/admin` | none | ExecuteAuthority |  |  |
 | `Admin/AdminApiKeySettingsController.cs` | `/v1/admin/settings/api-keys` | none | AdminAuthority |  |  |
+| `Admin/AdminArchitectureIdentityBackfillController.cs` | `/v1/admin/tenants` | none | AdminAuthority |  |  |
 | `Admin/AdminAuthDiagnosticsController.cs` | `/v1/admin` | none | AdminAuthority |  | auth_debug_api |
 | `Admin/AdminAzureOpenAiConnectionController.cs` | `/v1/admin/settings/azure-openai-connection` | none | AdminAuthority |  |  |
 | `Admin/AdminController.cs` | `/v1/admin` | none | AdminAuthority |  |  |
@@ -143,6 +144,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Analytics/InternalCrossTenantAnalyticsController.cs` | `/v1/internal/analytics` | none | PlatformCrossTenantReadAuthority |  | internal_cross_tenant_analytics |
 | `Analytics/PatternInsightsController.cs` | `/v1/analytics/patterns` | none | Authorize |  |  |
 | `Analytics/RoiAnalyticsController.cs` | `/v1/analytics` | none | ReadAuthority |  |  |
+| `Architecture/ArchitecturesController.cs` | `/v1/architectures` | standard | AuthenticatedUserOnly |  |  |
 | `Architecture/DraftRequestsController.cs` | `/v1/architecture/draft` | standard | AuthenticatedUserOnly |  |  |
 | `Architecture/WizardIntakeDraftsController.cs` | `/v1/architecture/intake/wizard-draft` | none | AuthenticatedUserOnly |  |  |
 | `Architecture/WorkspaceSystemNameAvailabilityController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
@@ -225,7 +227,10 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `InfraEvidence/BrandAssetController.cs` | `/v1/infra-evidence/branding/assets` | standard | AdminAuthority |  |  |
 | `InfraEvidence/CloudResourceEvidenceHubController.cs` | `/v1/infra-evidence/cloud-resources` | standard | ReadAuthority |  |  |
 | `InfraEvidence/InfraEvidenceAskController.cs` | `/v1/infra-evidence/ask` | standard | ReadAuthority |  |  |
+| `InfraEvidence/InfraEvidenceDiffsController.cs` | `/v1/infra-evidence/diffs` | standard | ReadAuthority |  |  |
 | `InfraEvidence/InfraEvidenceInventoryController.cs` | `/v1/infra-evidence/azure-inventory` | standard | ReadAuthority |  |  |
+| `InfraEvidence/InfraEvidenceSnapshotsController.cs` | `/v1/infra-evidence/snapshots` | standard | ReadAuthority |  |  |
+| `InfraEvidence/TenantBrandingAdminController.cs` | `/v1/infra-evidence/branding/admin` | standard | AdminAuthority |  |  |
 | `InfraEvidence/TenantBrandingController.cs` | `/v1/infra-evidence/branding` | standard | ReadAuthority |  |  |
 | `Integrations/AzureBoardsIntegrationsController.cs` | `/v1/integrations/azure-boards` | standard | Authorize |  |  |
 | `Integrations/ItsmCorrelationController.cs` | `/v1/integrations/itsm/correlations` | none | ReadAuthority |  |  |

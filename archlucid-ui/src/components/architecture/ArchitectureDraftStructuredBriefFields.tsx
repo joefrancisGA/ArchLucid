@@ -24,7 +24,7 @@ type ArchitectureDraftStructuredBriefFieldsProps = {
   readonly markReviewReadinessInvalid?: boolean;
   readonly onStructuredBriefChange: Dispatch<SetStateAction<ArchitectureDraftStructuredBriefState>>;
   readonly onBriefConfirmOrDeny?: () => void;
-  readonly architectureId?: string;
+  readonly draftId?: string;
   readonly suggestFromOverviewNonce?: number;
 };
 
@@ -41,7 +41,7 @@ export function ArchitectureDraftStructuredBriefFields(
     businessOutcome: props.businessOutcome,
     disabled: props.disabled,
     blocksLlmExecution: props.blocksLlmExecution,
-    architectureId: props.architectureId,
+    draftId: props.draftId,
     suggestFromOverviewNonce: props.suggestFromOverviewNonce,
     onStructuredBriefChange: (nextBrief) => {
       props.onStructuredBriefChange(nextBrief);

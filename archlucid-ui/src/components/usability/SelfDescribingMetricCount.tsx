@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 export type SelfDescribingMetricCountProps = {
   readonly presentation: MetricCountPresentation;
   readonly testId?: string;
-  readonly variant?: "inline" | "stacked";
+  readonly variant?: "inline" | "stacked" | "executive";
   readonly showHeadline?: boolean;
 };
 
@@ -43,6 +43,11 @@ export function SelfDescribingMetricCount(props: SelfDescribingMetricCountProps)
     );
   }
 
+  const countClassName =
+    variant === "executive"
+      ? cn(OPERATOR_TYPOGRAPHY.executiveDashboardMetric, OPERATOR_LINK.inline, "inline-block")
+      : cn(OPERATOR_TYPOGRAPHY.kpiValue, OPERATOR_LINK.inline, "inline-block");
+
   return (
     <Link
       href={presentation.href}
@@ -50,10 +55,7 @@ export function SelfDescribingMetricCount(props: SelfDescribingMetricCountProps)
       data-testid={testId}
       aria-label={headline}
     >
-      <span
-        className={cn(OPERATOR_TYPOGRAPHY.kpiValue, OPERATOR_LINK.inline, "inline-block")}
-        data-testid={testId ? `${testId}-value` : undefined}
-      >
+      <span className={countClassName} data-testid={testId ? `${testId}-value` : undefined}>
         {showHeadline ? headline : presentation.count}
       </span>
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>

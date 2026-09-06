@@ -7,6 +7,9 @@ import {
   formatRecurrenceInstantLocalFirst,
   resolveRecurrenceDisplayTimeZoneId,
 } from "@/lib/recurrence-local-time";
+import {
+  filterRecurrenceSchedulesForReviewScope,
+} from "@/lib/governance/recurrence-schedule-architecture-scope";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -36,10 +39,14 @@ export function normalizeRunIdForRecurrenceApi(runId: string): string | null {
 
 type RunDetailRecurrenceScheduleCardProps = {
   readonly runId: string;
+  readonly architectureId?: string | null;
 };
 
 /** TB-062 — schedule automated follow-up reviews from a committed source run. */
-export function RunDetailRecurrenceScheduleCard({ runId }: RunDetailRecurrenceScheduleCardProps) {
+export function RunDetailRecurrenceScheduleCard({
+  runId,
+  architectureId = null,
+}: RunDetailRecurrenceScheduleCardProps) {
   const [schedules, setSchedules] = useState<ArchitectureReviewRecurrenceSchedule[]>([]);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -51,11 +58,13 @@ export function RunDetailRecurrenceScheduleCard({ runId }: RunDetailRecurrenceSc
   const reload = useCallback(async (): Promise<void> => {
     const rows = await listArchitectureReviewRecurrenceSchedules();
     setSchedules(
-      normalizedRunId === null
-        ? []
-        : rows.filter((row) => row.sourceRunId.replace(/-/g, "").toLowerCase() === normalizedRunId.replace(/-/g, "")),
+      filterRecurrenceSchedulesForReviewScope({
+        schedules: rows,
+        sourceRunId: runId,
+        architectureId,
+      }),
     );
-  }, [normalizedRunId]);
+  }, [architectureId, runId]);
 
   useEffect(() => {
     let canceled = false;

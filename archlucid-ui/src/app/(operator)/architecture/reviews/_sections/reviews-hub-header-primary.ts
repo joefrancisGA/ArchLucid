@@ -25,7 +25,7 @@ export function resolveReviewsHubHeaderPrimary(
 
     if (sole !== undefined) {
       return {
-        href: architectureDraftPath(sole.architectureId),
+        href: architectureDraftPath(sole.draftId),
         label: REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_PRIMARY_LABEL,
         continuesSingleDraft: true,
       };

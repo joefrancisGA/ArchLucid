@@ -9,8 +9,8 @@ import {
   OPERATOR_QUERY_STALE_MS,
 } from "@/lib/query/operator-query-stale-time";
 
-export function useArchitectureDraftQuery(architectureId: string, enabled = true) {
-  const trimmed = architectureId.trim();
+export function useArchitectureDraftQuery(draftId: string, enabled = true) {
+  const trimmed = draftId.trim();
 
   return useQuery({
     queryKey: operatorQueryKeys.architectureDraft(trimmed),

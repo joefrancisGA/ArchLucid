@@ -10,12 +10,33 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => true,
+}));
+
+function buildFinding(index: number) {
+  return {
+    findingId: `finding-${index}`,
+    title: `Finding ${index}`,
+    recommendation: "Fix it",
+    severityLabel: "High",
+    aiReasoningExcerpt: "Reason",
+  };
+}
+
+function buildInput(findingCount: number): AdrGeneratorRunInput {
+  return {
+    ...minimalInput,
+    findings: Array.from({ length: findingCount }, (_, index) => buildFinding(index)),
+  };
+}
+
 const minimalInput: AdrGeneratorRunInput = {
   runId: "6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501",
   projectId: "p1",
   reviewTitle: "Test review",
   createdUtc: "2026-05-11T00:00:00.000Z",
-  manifestStatusLabel: null,
+  manifestStatusLabel: "manifest-v1",
   policyPackLabel: null,
   manifestCounts: null,
   explanation: null,
@@ -66,5 +87,23 @@ describe("GenerateAdrFromRunModal", () => {
     const dialog = await screen.findByRole("dialog");
 
     expect(within(dialog).getByRole("heading", { name: /decision record draft/i })).toBeInTheDocument();
+  });
+
+  it("CA-41: Working blocks download until incomplete export is confirmed when only 20 of 25 are included", async () => {
+    render(<GenerateAdrFromRunModal input={buildInput(20)} totalFindingCount={25} />);
+
+    fireEvent.click(screen.getByTestId("generate-adr-button"));
+
+    const dialog = await screen.findByRole("dialog");
+
+    expect(screen.getByTestId("generate-adr-export-inventory-line")).toHaveTextContent(
+      "This export includes 20 of 25 findings",
+    );
+    expect(screen.getByTestId("generate-adr-export-incomplete-confirm")).toBeInTheDocument();
+    expect(within(dialog).getByRole("button", { name: /download \.md/i })).toBeDisabled();
+
+    fireEvent.click(screen.getByTestId("generate-adr-export-incomplete-confirm"));
+
+    expect(within(dialog).getByRole("button", { name: /download \.md/i })).not.toBeDisabled();
   });
 });

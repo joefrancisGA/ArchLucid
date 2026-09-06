@@ -14,6 +14,7 @@ import { usePatternLibraryNavVisible } from "@/hooks/use-pattern-library-nav-vis
 import { useRoleNavDensityExpanded } from "@/hooks/use-role-nav-density-expanded";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isDevEmployeeRoleOverrideActive } from "@/lib/dev-testing-overrides";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
@@ -56,12 +57,15 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
   const ctoDemoNavExpandedEnv = isCtoDemoNavExpandedEnv();
   const { isWorkingMode } = useWorkspaceMode();
   // CTO demo presenter pack expands Graph / Governance without role-density collapse (TB-2139).
-  const effectiveRoleNavDensityShowFullNav = roleNavDensityShowFullNav || ctoDemoNavExpandedEnv || isWorkingMode;
+  const devEmployeeOverride = isDevEmployeeRoleOverrideActive();
+  const effectiveRoleNavDensityShowFullNav =
+    roleNavDensityShowFullNav || ctoDemoNavExpandedEnv || isWorkingMode || devEmployeeOverride;
   const effectiveOperateUnlockPhase: OperateNavUnlockPhase = 0;
   const effectiveHasCommittedArchitectureReview = useEffectiveNavCommittedArchitectureReview();
   const hideGettingStartedFromMainNav = isWorkingMode;
-  const showVendorInternalNav = isArchLucidVendorStaffPrincipal(currentPrincipal);
-  const omitAdminClusters = demoUi && !buyerPolishedShell;
+  const showVendorInternalNav =
+    isArchLucidVendorStaffPrincipal(currentPrincipal) || devEmployeeOverride;
+  const omitAdminClusters = demoUi && !buyerPolishedShell && !devEmployeeOverride;
   const omitDuplicateReportingNav = isWorkingMode;
   const patternLibraryNavVisible = usePatternLibraryNavVisible();
 

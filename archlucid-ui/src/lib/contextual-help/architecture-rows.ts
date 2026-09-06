@@ -7,6 +7,7 @@ import {
   REVIEWS_NEW_PATH,
 } from "@/lib/architecture/architecture-routes";
 import {
+  ARCHITECTURE_IDENTITIES_NAV_LABEL,
   CREATE_ARCHITECTURE_LABEL,
   START_REVIEW_LABEL,
   WORKING_NEW_REVIEW_LABEL,
@@ -16,8 +17,8 @@ import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 const ARCHITECTURE_HOME_WORKING_ENTRY: PageContextualHelpEntry = {
   whatIsThisPage:
-    `${OPERATOR_NAV_LINK_LABELS.home} — resume drafts, open architecture packages, and track recent workspace activity from one command center.`,
-  whatToDoNext: "Resume a draft, open a package, inspect sealed records, or start a new review from the draft editor.",
+    `${OPERATOR_NAV_LINK_LABELS.home} — open architecture identities, resume child drafts, and track recent workspace activity from one command center.`,
+  whatToDoNext: "Open an architecture identity, resume a child draft, inspect an architecture package, or start a new review.",
   whyEmpty: "Recent reviews appear after you create or finalize architecture reviews.",
   whereToConfigurePrerequisite:
     "Switch workspace or project scope from the header switcher when you work across teams.",
@@ -30,22 +31,35 @@ const ARCHITECTURE_HOME_WORKING_ENTRY: PageContextualHelpEntry = {
     href: REVIEWS_LIST_PATH,
   },
   taskSteps: [
-    "Resume a saved architecture draft or open the draft editor for a new review.",
+    "Open an architecture identity from Architectures to resume child drafts or linked reviews.",
     "Open an in-progress or finalized architecture package from Reviews.",
     "Inspect sealed records and exports when you need audit-ready outputs.",
+  ],
+};
+
+const ARCHITECTURE_IDENTITIES_WORKING_ENTRY: PageContextualHelpEntry = {
+  whatIsThisPage:
+    `${ARCHITECTURE_IDENTITIES_NAV_LABEL} hub — browse named architecture identities with child drafts and reviews for the current scope.`,
+  whatToDoNext: "Open an architecture identity desk, resume a child draft, or start a new review from the identity.",
+  whyEmpty: "Identities appear after you create an architecture or save a draft linked to an identity.",
+  whereToConfigurePrerequisite: "Switch workspace or project scope from the header switcher.",
+  taskSteps: [
+    "Open an architecture identity to see child drafts and reviews on one desk.",
+    "Resume a child draft when the brief still needs refinement.",
+    "Start a review from the identity when evidence is ready.",
   ],
 };
 
 const ARCHITECTURE_REVIEWS_WORKING_ENTRY: PageContextualHelpEntry = {
   whatIsThisPage:
     "Architecture packages hub — resume, inspect, and manage active and finalized architecture reviews.",
-  whatToDoNext: "Open a package, resume a draft, or start a new review from the draft editor.",
+  whatToDoNext: "Open a package, open an architecture identity, or start a new review.",
   whyEmpty: "Summary metrics populate after you start or finalize architecture reviews.",
   whereToConfigurePrerequisite: "Switch workspace or project scope from the header switcher.",
   taskSteps: [
     "Open a recent architecture package to continue review work.",
-    "Resume a draft when you still need to shape architecture evidence.",
-    "Start a new review from the draft editor when you are ready to file evidence.",
+    "Open an architecture identity when you need the parent system desk.",
+    "Start a new review when you are ready to file evidence.",
   ],
 };
 
@@ -168,6 +182,10 @@ export function resolveArchitectureContextualHelpEntry(
 
   if (prefix === "/") {
     return ARCHITECTURE_HOME_WORKING_ENTRY;
+  }
+
+  if (prefix === ARCHITECTURES_LIST_PATH) {
+    return ARCHITECTURE_IDENTITIES_WORKING_ENTRY;
   }
 
   if (prefix === "/architecture/reviews") {

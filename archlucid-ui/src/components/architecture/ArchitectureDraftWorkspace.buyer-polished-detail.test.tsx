@@ -4,6 +4,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const getDraftRequest = vi.fn();
 const isArchitectureDraftHandoffAcknowledged = vi.fn();
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: (): boolean => true,
+}));
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
@@ -129,7 +133,7 @@ beforeEach(() => {
 
 describe("ArchitectureDraftWorkspace buyer-polished detail shell", () => {
   it("renders buyer subtitle with drafting scope, sources strip, and hides guidance disclosure", async () => {
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-draft-workspace-title")).toHaveTextContent("Claims intake");

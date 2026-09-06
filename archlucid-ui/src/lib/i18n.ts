@@ -2,7 +2,7 @@
  * Central dictionary for architect-workspace domain terms and reusable UI labels.
  * @see docs/assessments/LATEST.md — simplify abstract nomenclature without hunting literals in components.
  */
-import { ARCHITECTURE_DRAFTS_LIST_LABEL, CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { ARCHITECTURE_IDENTITIES_NAV_LABEL, CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY, BUYER_TERMINOLOGY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { EVIDENCE_TRAIL_SEARCH } from "@/lib/search-surface-disambiguation";
@@ -81,7 +81,7 @@ export const RUNS_DASHBOARD_LABELS = {
   openFullReviewsList: "Open all reviews",
   governanceWarningTitle: "Review warnings",
   governanceWarningHint: "Unresolved review alerts or policy violations need follow-up.",
-  governanceWarningsOnly: "Has approval-check warnings",
+  governanceWarningsOnly: "Has approval warnings",
   showArchived: "Show archived",
   restoreRequest: "Restore",
   restoringRequest: "Restoring…",
@@ -110,6 +110,7 @@ export const OPERATOR_NAV_GROUP_LABELS = {
   policy: "Policy",
   reports: "Reports",
   integrations: "Integrations",
+  infrastructure: "Infrastructure",
   operations: "Operations",
   help: "Help",
 } as const;
@@ -121,8 +122,8 @@ export const OPERATOR_NAV_LINK_LABELS = {
   /** Operator-shell ROI dashboard (`/architecture/sponsor-dashboard`); the standalone sponsor-chrome duplicate was retired (TB-608). */
   portfolioOverview: "Sponsor dashboard",
   SponsorReport: BUYER_SPONSOR_SUMMARY_VOCABULARY.reviewSponsorReportLabel,
-  /** Architecture draft inventory (`/architectures`). */
-  architectures: ARCHITECTURE_DRAFTS_LIST_LABEL,
+  /** Architecture hub (`/architecture/architectures`) — Working: identity portfolio; Guided: draft inventory (CA-32). */
+  architectures: ARCHITECTURE_IDENTITIES_NAV_LABEL,
   /** Unified packages list (`/architecture/reviews`) — reviews plus architecture drafts. */
   packages: "Packages",
   reviewPackage: "Reviews",
@@ -138,6 +139,13 @@ export const OPERATOR_NAV_LINK_LABELS = {
   assignedToMeFindings: "Assigned to me",
   riskExceptions: "Exceptions",
   remediationFactory: "Remediation factory",
+  infrastructureOverview: "Infrastructure overview",
+  infrastructureDrift: "Drift & snapshots",
+  infrastructureDiagrams: "Inventory diagrams",
+  infrastructureDiagramReconcile: "Diagram reconciliation",
+  infrastructureResources: "Resource explorer",
+  infrastructureAsk: "Infrastructure Ask",
+  infrastructureRemediation: "Remediation instances",
   remediationPatterns: "Remediation patterns",
   auditEvidenceLineage: "Audit evidence lineage",
   decisionRegister: "Decision register",

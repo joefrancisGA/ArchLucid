@@ -23,6 +23,7 @@ export * from "./architecture-request-draft-api";
 export * from "./structured-brief-suggestion-explain-api";
 export * from "./architecture-chat-intake-api";
 export * from "./draft-intake-api";
+export * from "./architecture-identity-api";
 export * from "./policy-pack-draft-api";
 export * from "./run-summary-export-api";
 export * from "./finding-ask-api";

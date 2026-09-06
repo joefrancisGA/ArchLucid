@@ -57,7 +57,7 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
   it("hides draft-only continue rail when the hero owns resume", () => {
     mockDraftEntries = [
       {
-        architectureId: "arch-1",
+        draftId: "arch-1",
         displayName: "Payments edge",
         customerStatus: "draft",
         ownerLabel: "You",
@@ -75,7 +75,7 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
   it("still surfaces in-progress reviews when unlinked drafts also exist", () => {
     mockDraftEntries = [
       {
-        architectureId: "arch-1",
+        draftId: "arch-1",
         displayName: "Payments edge",
         customerStatus: "draft",
         ownerLabel: "You",
@@ -109,7 +109,7 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
   it("hides spawned drafts when the linked review is already on the rail", () => {
     mockDraftEntries = [
       {
-        architectureId: "arch-spawned",
+        draftId: "arch-spawned",
         displayName: "Vertex 2",
         customerStatus: "ready-for-review",
         ownerLabel: "You",
@@ -147,10 +147,33 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
+  it("renders column headers for a single unfinished item", () => {
+    mockDraftEntries = [];
+    const runs = [
+      {
+        runId: "run-mid",
+        projectId: "default",
+        createdUtc: "2026-08-10T11:00:00Z",
+        description: "Edge review in flight",
+        hasFindingsSnapshot: false,
+        hasGoldenManifest: false,
+      },
+    ] as RunSummary[];
+
+    render(<UnfinishedWorkRail runs={runs} />);
+
+    expect(screen.getByTestId("unfinished-work-rail-column-headers")).toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_HOME_YOUR_WORK_COLUMN_NAME)).toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_HOME_YOUR_WORK_COLUMN_TYPE)).toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_HOME_YOUR_WORK_COLUMN_UPDATED)).toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_HOME_YOUR_WORK_COLUMN_STATUS)).toBeInTheDocument();
+    expect(screen.getByTestId("unfinished-work-rail-table")).toBeInTheDocument();
+  });
+
   it("renders desktop column headers when multiple unfinished items are listed", () => {
     mockDraftEntries = [
       {
-        architectureId: "arch-1",
+        draftId: "arch-1",
         displayName: "Payments edge",
         customerStatus: "draft",
         ownerLabel: "You",
@@ -183,10 +206,10 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
     expect(screen.getByText(OPERATOR_HOME_YOUR_WORK_COLUMN_STATUS)).toBeInTheDocument();
   });
 
-  it("uses a shared grid so columns align across rows", () => {
+  it("uses an enterprise table so columns stay grouped across rows", () => {
     mockDraftEntries = [
       {
-        architectureId: "arch-long",
+        draftId: "arch-long",
         displayName: "Architecture Review Packet: B2B SaaS Tenant Migration Platform",
         customerStatus: "draft",
         ownerLabel: "You",
@@ -195,7 +218,7 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
         serverUpdatedUtc: "2026-08-10T12:00:00Z",
       },
       {
-        architectureId: "arch-short",
+        draftId: "arch-short",
         displayName: "Vertex",
         customerStatus: "draft",
         ownerLabel: "You",
@@ -221,11 +244,12 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
       </OperatorHomeWorkspaceActivityProvider>,
     );
 
-    const list = screen.getByTestId("unfinished-work-rail-list");
-    const secondaryList = list.querySelector("ul");
+    const table = screen.getByTestId("unfinished-work-rail-table");
+    const colgroup = table.querySelector("colgroup");
 
-    expect(secondaryList?.className).toContain("sm:grid-cols-[minmax(0,1.6fr)_minmax(0,0.9fr)_minmax(0,0.8fr)_auto]");
-    expect(screen.getAllByTestId(/unfinished-work-rail-item-/)[1]?.className).toContain("sm:grid-cols-subgrid");
+    expect(table).toBeInTheDocument();
+    expect(colgroup?.children).toHaveLength(5);
+    expect(screen.getAllByTestId(/unfinished-work-rail-item-/)).toHaveLength(3);
   });
 
   it("renders a primary Continue review button for in-progress reviews", () => {

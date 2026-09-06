@@ -79,10 +79,11 @@ public sealed class AgentLoopPrepareStage(
             : PilotModeGovernanceScope.BeginFromPolicyReferences(request.PolicyReferences, request.CloudProvider);
 
         IReadOnlyList<AgentTask> tasks = await _taskRepository.GetByRunIdAsync(executeScope, runId, cancellationToken);
+
         if (tasks.Count == 0)
         {
             governanceScope.Dispose();
-            throw new InvalidOperationException($"No tasks found for run '{runId}'.");
+            throw new NoScheduledAgentTasksException(runId);
         }
 
         AgentEvidencePackage evidence = await _evidenceBuilder.BuildAsync(runId, request, cancellationToken);

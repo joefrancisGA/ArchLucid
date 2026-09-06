@@ -4,7 +4,6 @@ import { BASELINE_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/baseline-settings-evid
 import {
   BASELINE_SETTINGS_CONSERVATIVE_DEFAULTS_NOTE,
   BASELINE_SETTINGS_PAGE_TITLE,
-  BASELINE_SAVED_CANNOT_BE_REMOVED_HELPER,
   BASELINE_SETTINGS_USED_IN_SURFACES,
 } from "@/lib/baseline-settings-present";
 import {
@@ -28,6 +27,9 @@ export const BASELINE_SETTINGS_HELP_PRIMARY_ACTION = {
 } as const;
 
 export const BASELINE_SETTINGS_HELP_START_HERE_CARD_TITLE = "Start here";
+
+export const BASELINE_SETTINGS_HELP_BUYER_START_HERE_HELPER =
+  "Review how measurement anchors feed scorecard and sponsor-report estimates — workspace admins configure anchors on the baseline settings page.";
 
 export type BaselineSettingsHelpItem = {
   readonly label: string;
@@ -55,7 +57,6 @@ export const BASELINE_SETTINGS_HELP_ANCHOR_ITEMS: readonly BaselineSettingsHelpI
 
 export const BASELINE_SETTINGS_HELP_HOW_TO_READ_STEPS = [
   "Enter anchors that match your pilot charter or procurement discussion — blank fields keep conservative modeled defaults.",
-  BASELINE_SAVED_CANNOT_BE_REMOVED_HELPER,
   "Open ROI summary or architecture scorecard when you need portfolio framing beyond measurement inputs.",
 ] as const;
 

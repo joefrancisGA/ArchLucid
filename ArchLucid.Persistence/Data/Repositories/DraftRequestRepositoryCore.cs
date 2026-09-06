@@ -56,7 +56,8 @@ internal static partial class DraftRequestRepositoryCore
         string? spawnedRunId,
         string createdByUserId,
         DateTime createdUtc,
-        DateTime updatedUtc)
+        DateTime updatedUtc,
+        Guid? architectureId = null)
     {
         ArgumentNullException.ThrowIfNull(document);
         ArgumentException.ThrowIfNullOrWhiteSpace(createdByUserId);
@@ -67,6 +68,7 @@ internal static partial class DraftRequestRepositoryCore
             TenantId = tenantId,
             WorkspaceId = workspaceId,
             ProjectId = projectId,
+            ArchitectureId = architectureId,
             Status = status,
             Document = document,
             RedirectReason = redirectReason,

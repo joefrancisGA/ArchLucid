@@ -11,8 +11,8 @@ export async function invalidateArchitectureDraftListQueries(): Promise<void> {
 }
 
 /** Drops one draft from the cached hub inventory immediately after abandon/delete. */
-export function removeArchitectureDraftFromListCache(architectureId: string): void {
-  const trimmedId = architectureId.trim();
+export function removeArchitectureDraftFromListCache(draftId: string): void {
+  const trimmedId = draftId.trim();
 
   if (trimmedId.length === 0) {
     return;
@@ -26,7 +26,7 @@ export function removeArchitectureDraftFromListCache(architectureId: string): vo
       return current;
     }
 
-    return current.filter((entry) => entry.architectureId !== trimmedId);
+    return current.filter((entry) => entry.draftId !== trimmedId);
   });
 }
 

@@ -55,6 +55,7 @@ export function GraphPageCanvasShell(props: GraphPageCanvasShellProps): React.JS
             onTypeFilterChange={vm.handleTypeFilterChange}
             nodeTypes={vm.nodeTypes}
             runId={vm.runId}
+            manifestVersion={vm.sealedManifestVersionForExport}
             mode={vm.mode}
             onModeChange={vm.setMode}
             loading={vm.loading}

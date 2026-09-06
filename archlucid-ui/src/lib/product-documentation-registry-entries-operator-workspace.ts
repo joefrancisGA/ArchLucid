@@ -153,6 +153,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_WORKSPACE: readonly
     "title": "Specialty review templates",
     "summary": "Start with focused guidance for a specific architecture, approval, or industry scenario.",
     "audience": "operator",
+    "lastReviewed": "2026-05-01",
     "sourcePaths": [
       "docs/library/walkthroughs/README.md",
     ],

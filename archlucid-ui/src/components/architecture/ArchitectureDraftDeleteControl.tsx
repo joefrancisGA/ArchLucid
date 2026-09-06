@@ -34,7 +34,7 @@ import {
 } from "@/lib/architecture/architecture-draft-delete-confirm-url";
 
 export type ArchitectureDraftDeleteControlProps = {
-  readonly architectureId: string;
+  readonly draftId: string;
   readonly displayName: string;
   readonly linkedReviewId: string | null;
   readonly customerStatus?: ArchitectureDraftCustomerStatus;
@@ -58,7 +58,7 @@ export function ArchitectureDraftDeleteControl(props: ArchitectureDraftDeleteCon
   const policyQuery = useWorkOwnershipDeletePolicyQuery();
   const canExecute = !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority;
   const [confirmOpen, setConfirmOpenState] = useState(
-    urlDraftDeleteConfirm && urlDraftDeleteId === props.architectureId,
+    urlDraftDeleteConfirm && urlDraftDeleteId === props.draftId,
   );
   const [busy, setBusy] = useState(false);
 
@@ -68,7 +68,7 @@ export function ArchitectureDraftDeleteControl(props: ArchitectureDraftDeleteCon
         architectureDraftDeleteConfirmHrefFromSearch(
           searchParams.toString(),
           {
-            architectureId: open ? props.architectureId : null,
+            draftId: open ? props.draftId : null,
             confirmOpen: open,
           },
           pathname,
@@ -76,7 +76,7 @@ export function ArchitectureDraftDeleteControl(props: ArchitectureDraftDeleteCon
         { scroll: false },
       );
     },
-    [pathname, props.architectureId, router, searchParams],
+    [pathname, props.draftId, router, searchParams],
   );
 
   const setConfirmOpen = useCallback(
@@ -88,8 +88,8 @@ export function ArchitectureDraftDeleteControl(props: ArchitectureDraftDeleteCon
   );
 
   useEffect(() => {
-    setConfirmOpenState(urlDraftDeleteConfirm && urlDraftDeleteId === props.architectureId);
-  }, [props.architectureId, urlDraftDeleteConfirm, urlDraftDeleteId]);
+    setConfirmOpenState(urlDraftDeleteConfirm && urlDraftDeleteId === props.draftId);
+  }, [props.draftId, urlDraftDeleteConfirm, urlDraftDeleteId]);
 
   const eligible = canDeleteArchitectureDraft({
     linkedReviewId: props.linkedReviewId,
@@ -102,8 +102,8 @@ export function ArchitectureDraftDeleteControl(props: ArchitectureDraftDeleteCon
   });
 
   const finishDelete = useCallback(() => {
-    removeArchitectureDraftRegistryEntry(props.architectureId);
-    removeArchitectureDraftFromListCache(props.architectureId);
+    removeArchitectureDraftRegistryEntry(props.draftId);
+    removeArchitectureDraftFromListCache(props.draftId);
     void invalidateArchitectureDraftListQueries();
     toast.success(ARCHITECTURE_DRAFT_DELETE_SUCCESS_TOAST);
     props.onDeleted?.();
@@ -120,7 +120,7 @@ export function ArchitectureDraftDeleteControl(props: ArchitectureDraftDeleteCon
     setBusy(true);
 
     try {
-      await abandonDraftRequest(props.architectureId);
+      await abandonDraftRequest(props.draftId);
       finishDelete();
     } catch (error) {
       if (isApiRequestError(error) && error.httpStatus === 404) {
@@ -136,7 +136,7 @@ export function ArchitectureDraftDeleteControl(props: ArchitectureDraftDeleteCon
     } finally {
       setBusy(false);
     }
-  }, [finishDelete, props.architectureId]);
+  }, [finishDelete, props.draftId]);
 
   if (!eligible || !canExecute) {
     return null;
@@ -148,7 +148,7 @@ export function ArchitectureDraftDeleteControl(props: ArchitectureDraftDeleteCon
         type="button"
         variant="outline"
         size="sm"
-        data-testid={props.testId ?? `architecture-draft-delete-${props.architectureId}`}
+        data-testid={props.testId ?? `architecture-draft-delete-${props.draftId}`}
         onClick={() => setConfirmOpen(true)}
       >
         {props.buttonLabel ?? "Delete draft"}

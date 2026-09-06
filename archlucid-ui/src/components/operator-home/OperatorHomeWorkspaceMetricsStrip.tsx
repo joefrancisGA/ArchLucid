@@ -45,7 +45,9 @@ const METRIC_CARD_CLASS =
   "min-w-0 flex-1 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-900";
 
 const OPERATOR_HOME_WORKSPACE_METRICS_SECTION_TITLE = "Workspace summary";
-const OPERATOR_HOME_WORKSPACE_METRICS_SCOPE_LINE = "Source: reviews in this workspace.";
+const OPERATOR_HOME_WORKSPACE_METRICS_SCOPE_LABEL = "Scope:";
+const OPERATOR_HOME_WORKSPACE_METRICS_SCOPE_VALUE =
+  "Each tile states its partition inline — reviews inventory, findings queue, or governance approval warnings.";
 
 /** Compact KPI strip for populated workspaces. */
 export function OperatorHomeWorkspaceMetricsStrip(
@@ -102,38 +104,41 @@ export function OperatorHomeWorkspaceMetricsStrip(
       <div className="mb-3 space-y-1">
         <h2 className={OPERATOR_HOME_SECTION_HEADING}>{OPERATOR_HOME_WORKSPACE_METRICS_SECTION_TITLE}</h2>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {OPERATOR_HOME_WORKSPACE_METRICS_SCOPE_LINE}
+          <span className="font-medium text-al-text-primary">{OPERATOR_HOME_WORKSPACE_METRICS_SCOPE_LABEL}</span>{" "}
+          {OPERATOR_HOME_WORKSPACE_METRICS_SCOPE_VALUE}
           <span className="sr-only"> Workspace: {workspaceName}.</span>
         </p>
       </div>
-      <OperatorHomePrimaryAttentionLead />
       <p className="sr-only">{compactLine}</p>
-      <ul className="m-0 grid list-none grid-cols-2 gap-3 p-0 lg:grid-cols-4">
-        <li className={METRIC_CARD_CLASS} data-testid="operator-home-metric-active-reviews">
-          <SelfDescribingMetricCount
-            presentation={operatorHomeActiveReviewsPresentation(activeReviews)}
-            testId="operator-home-metric-active-reviews-count"
-          />
-        </li>
-        <li className={METRIC_CARD_CLASS} data-testid="operator-home-metric-finalized-packages">
-          <SelfDescribingMetricCount
-            presentation={operatorHomeFinalizedPackagesPresentation(finalizedPackages)}
-            testId="operator-home-metric-finalized-packages-count"
-          />
-        </li>
-        <li className={METRIC_CARD_CLASS} data-testid="operator-home-metric-open-findings">
-          <SelfDescribingMetricCount
-            presentation={workspaceOpenFindingsPresentation(findingsCount)}
-            testId="operator-home-metric-open-findings-count"
-          />
-        </li>
-        <li className={METRIC_CARD_CLASS} data-testid="operator-home-governance-warnings-metric">
-          <SelfDescribingMetricCount
-            presentation={warningsPresentation}
-            testId="operator-home-governance-warnings-metric-count"
-          />
-        </li>
-      </ul>
+      <div className="space-y-4" data-testid="operator-home-workspace-metrics-stack">
+        <OperatorHomePrimaryAttentionLead />
+        <ul className="m-0 grid list-none grid-cols-2 gap-3 p-0 lg:grid-cols-4">
+          <li className={METRIC_CARD_CLASS} data-testid="operator-home-metric-active-reviews">
+            <SelfDescribingMetricCount
+              presentation={operatorHomeActiveReviewsPresentation(activeReviews)}
+              testId="operator-home-metric-active-reviews-count"
+            />
+          </li>
+          <li className={METRIC_CARD_CLASS} data-testid="operator-home-metric-finalized-packages">
+            <SelfDescribingMetricCount
+              presentation={operatorHomeFinalizedPackagesPresentation(finalizedPackages)}
+              testId="operator-home-metric-finalized-packages-count"
+            />
+          </li>
+          <li className={METRIC_CARD_CLASS} data-testid="operator-home-metric-open-findings">
+            <SelfDescribingMetricCount
+              presentation={workspaceOpenFindingsPresentation(findingsCount)}
+              testId="operator-home-metric-open-findings-count"
+            />
+          </li>
+          <li className={METRIC_CARD_CLASS} data-testid="operator-home-governance-warnings-metric">
+            <SelfDescribingMetricCount
+              presentation={warningsPresentation}
+              testId="operator-home-governance-warnings-metric-count"
+            />
+          </li>
+        </ul>
+      </div>
       {warningsCount > 0 ? (
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           <InlineGlossaryChip nounId="governance-approval" pulseOnFirstEncounter>

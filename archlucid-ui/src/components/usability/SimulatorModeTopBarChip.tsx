@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactElement } from "react";
+import { ChevronDown } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
   AlertDialog,
@@ -35,6 +37,10 @@ import {
   ANALYSIS_MODE_WORKSPACE_SWITCH_TITLE,
   resolveAnalysisModeTopBarButtonLabel,
 } from "@/lib/simulator-mode-chrome-copy";
+import {
+  parseSimulatorModeConfirmOpenFromSearch,
+  simulatorModeConfirmHrefFromSearch,
+} from "@/lib/operator/simulator-mode-confirm-url";
 import { cn } from "@/lib/utils";
 
 export type SimulatorModeTopBarChipProps = {
@@ -45,11 +51,37 @@ export type SimulatorModeTopBarChipProps = {
  * Dev-only analysis mode control — explicit button + confirmation; never styled as passive status.
  */
 export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): ReactElement | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const simulatorModeConfirmOpenParam = searchParams.get("simulatorModeConfirmOpen");
   const { mode, isSimulator, isLoading } = useAgentExecutionMode();
   const readiness = useSessionAiReadiness();
   const healthQuery = useHealthReadySummaryQuery();
   const [devOverride, setDevOverride] = useState<DevAgentExecutionModeOverride | null>(null);
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmOpen, setConfirmOpenState] = useState(() =>
+    parseSimulatorModeConfirmOpenFromSearch(simulatorModeConfirmOpenParam),
+  );
+
+  const setConfirmOpen = useCallback((open: boolean) => {
+    setConfirmOpenState(open);
+  }, []);
+
+  useEffect(() => {
+    setConfirmOpenState(parseSimulatorModeConfirmOpenFromSearch(simulatorModeConfirmOpenParam));
+  }, [simulatorModeConfirmOpenParam]);
+
+  useEffect(() => {
+    const urlOpen = parseSimulatorModeConfirmOpenFromSearch(simulatorModeConfirmOpenParam);
+
+    if (confirmOpen === urlOpen) {
+      return;
+    }
+
+    router.replace(simulatorModeConfirmHrefFromSearch(searchParams.toString(), confirmOpen, pathname), {
+      scroll: false,
+    });
+  }, [confirmOpen, pathname, router, searchParams, simulatorModeConfirmOpenParam]);
 
   useEffect(() => {
     if (!isDevTestingOverridesEnabled()) {
@@ -83,9 +115,13 @@ export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): Re
     <>
       <Button
         type="button"
-        variant="outline"
+        variant="secondary"
         size="sm"
-        className={cn("h-8 max-w-[min(100%,16rem)] shrink-0 px-2.5", OPERATOR_TYPOGRAPHY.helper, props.className)}
+        className={cn(
+          "h-8 max-w-[min(100%,16rem)] shrink-0 gap-1 border-neutral-400 bg-neutral-100 px-2.5 text-al-text-primary dark:border-neutral-500 dark:bg-neutral-800 dark:text-neutral-100",
+          OPERATOR_TYPOGRAPHY.helper,
+          props.className,
+        )}
         data-testid="simulator-mode-top-bar-chip-toggle"
         aria-haspopup="dialog"
         onClick={() => {
@@ -93,6 +129,7 @@ export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): Re
         }}
       >
         {buttonLabel}
+        <ChevronDown className="size-3.5 shrink-0 opacity-80" aria-hidden />
       </Button>
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent data-testid="analysis-mode-switch-dialog">
@@ -105,6 +142,7 @@ export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): Re
             <AlertDialogAction
               onClick={() => {
                 toggleDevAgentExecutionModeFromChip(mode);
+                setConfirmOpen(false);
               }}
             >
               Switch to {switchTargetLabel}

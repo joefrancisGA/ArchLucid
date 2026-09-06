@@ -193,7 +193,11 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
 
       {!m.buyerPolishedArtifactTable ? (
         <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
-          <RunDetailGenerateAdrFromRunModal input={m.adrGeneratorInput} buyerPolished={false} />
+          <RunDetailGenerateAdrFromRunModal
+            input={m.adrGeneratorInput}
+            totalFindingCount={m.careerExportEligibleFindingCount}
+            buyerPolished={false}
+          />
         </div>
       ) : null}
 

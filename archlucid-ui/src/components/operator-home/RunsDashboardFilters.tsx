@@ -18,6 +18,8 @@ export type RunsDashboardFiltersProps = {
 
 const WARNINGS_FILTER_DISABLED_HINT_ID = "runs-dashboard-governance-warnings-filter-hint";
 
+const FILTER_CHIP_LAYOUT_CLASS = "w-fit shrink-0 whitespace-nowrap";
+
 export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
   if (props.buyerPolishedShell) {
     return null;
@@ -32,39 +34,32 @@ export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
         aria-label="Filter reviews"
         className="flex flex-wrap items-center gap-1.5"
       >
-        <div className="inline-flex flex-col gap-1">
-          <FilterChip
-            data-testid="runs-dashboard-governance-warnings-only"
-            className={buyerFilterChipClass(
+        <FilterChip
+          data-testid="runs-dashboard-governance-warnings-only"
+          className={cn(
+            FILTER_CHIP_LAYOUT_CLASS,
+            buyerFilterChipClass(
               props.governanceWarningsOnly,
               warningsFilterDisabled,
               warningsCount === 0,
-            )}
-            aria-pressed={props.governanceWarningsOnly}
-            aria-describedby={warningsFilterDisabled ? WARNINGS_FILTER_DISABLED_HINT_ID : undefined}
-            disabled={warningsFilterDisabled}
-            onClick={() => {
-              if (warningsFilterDisabled) {
-                return;
-              }
+            ),
+          )}
+          aria-pressed={props.governanceWarningsOnly}
+          aria-describedby={warningsFilterDisabled ? WARNINGS_FILTER_DISABLED_HINT_ID : undefined}
+          disabled={warningsFilterDisabled}
+          onClick={() => {
+            if (warningsFilterDisabled) {
+              return;
+            }
 
-              props.onGovernanceWarningsOnlyChange(!props.governanceWarningsOnly);
-            }}
-          >
-            {formatOperatorHomeGovernanceApprovalWarningFilterLabel()}
-          </FilterChip>
-          {warningsFilterDisabled ? (
-            <p
-              id={WARNINGS_FILTER_DISABLED_HINT_ID}
-              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
-            >
-              No reviews with governance approval warnings in this workspace yet.
-            </p>
-          ) : null}
-        </div>
+            props.onGovernanceWarningsOnlyChange(!props.governanceWarningsOnly);
+          }}
+        >
+          {formatOperatorHomeGovernanceApprovalWarningFilterLabel()}
+        </FilterChip>
         <FilterChip
           data-testid="runs-dashboard-show-archived"
-          className={buyerFilterChipClass(props.showArchived, false, false)}
+          className={cn(FILTER_CHIP_LAYOUT_CLASS, buyerFilterChipClass(props.showArchived, false, false))}
           aria-pressed={props.showArchived}
           onClick={() => {
             props.onShowArchivedChange(!props.showArchived);
@@ -73,6 +68,14 @@ export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
           {RUNS_DASHBOARD_LABELS.showArchived}
         </FilterChip>
       </FilterChipGroup>
+      {warningsFilterDisabled ? (
+        <p
+          id={WARNINGS_FILTER_DISABLED_HINT_ID}
+          className={cn("sr-only", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
+        >
+          No reviews with governance approval warnings in this workspace yet.
+        </p>
+      ) : null}
     </div>
   );
 }

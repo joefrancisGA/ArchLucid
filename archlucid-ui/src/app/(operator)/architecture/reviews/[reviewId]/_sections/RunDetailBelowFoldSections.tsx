@@ -37,6 +37,10 @@ import {
   RunDetailArchitectureGraphSectionDeferred,
   RunDetailPostCommitHabitLoopCardDeferred,
 } from "./run-detail-tabbed-deferred-chunks";
+import {
+  deriveRunDetailWorkspaceStatus,
+  isReviewPipelineIncomplete,
+} from "@/lib/run-detail-workspace-derive";
 import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
 import type { RunDetailDeferredSectionContext, RunDetailPageModel } from "./run-detail-page-model";
 
@@ -101,6 +105,16 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
   const ownedByAnotherTab = props.renderedInsideTabbedWorkspace === true;
   const terminalFailure = isReviewPipelineTerminalFailure(m.pipelineDiagnosticContext);
   const hasSealedRecord = Boolean(m.manifestId);
+  const reviewPipelineComplete = !isReviewPipelineIncomplete(
+    deriveRunDetailWorkspaceStatus({
+      run: m.resolvedDetail.run,
+      manifestId: m.manifestId,
+      manifestStatus: m.manifestSummary?.status ?? null,
+      showProgressTracker: m.showProgressTracker,
+      operatorGovernanceDecision: m.resolvedDetail.run.operatorGovernanceDecision,
+      buyerPolishedArtifactTable: m.buyerPolishedArtifactTable,
+    }),
+  );
 
   return (
     <>
@@ -185,6 +199,8 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
         <>
           <RecurrenceSchedulePostCommitCardDeferred
             runId={m.routeRunId}
+            architectureId={m.resolvedDetail.run.architectureId ?? null}
+            architectureDisplayName={m.headline}
             hasStickinessPrompt={Boolean(m.manifestId)}
             pagePrimaryOwnedElsewhere
           />
@@ -252,7 +268,7 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
         />
       ) : null}
 
-      {!m.buyerPolishedArtifactTable ? (
+      {!m.buyerPolishedArtifactTable && reviewPipelineComplete ? (
         <RunDetailOperatorPipelineToolsCollapsible runId={m.resolvedDetail.run.runId} />
       ) : null}
     </>
