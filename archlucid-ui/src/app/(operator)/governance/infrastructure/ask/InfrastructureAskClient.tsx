@@ -12,7 +12,7 @@ import {
   formatInfraEvidenceAskApiError,
   submitInfraEvidenceAsk,
 } from "@/lib/infra-evidence/infra-evidence-ask-api";
-import { resolveInfraEvidenceAskCitationLink } from "@/lib/infra-evidence/infra-evidence-ask-citations";
+import { buildAuditEvidenceLineageUiPath, resolveInfraEvidenceAskCitationLink } from "@/lib/infra-evidence/infra-evidence-ask-citations";
 import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
 import {
   parseResourceExplorerCloudResourceIdFromSearch,
@@ -186,6 +186,18 @@ export function InfrastructureAskClient() {
     });
   }, [cloudResourceId, findingId, instanceId]);
 
+  const auditLineageBackLinkHref = useMemo(() => {
+    if (
+      assessmentId.length === 0
+      || auditEvidenceSnapshotId.length === 0
+      || controlId.length === 0
+    ) {
+      return null;
+    }
+
+    return buildAuditEvidenceLineageUiPath(assessmentId, auditEvidenceSnapshotId, controlId);
+  }, [assessmentId, auditEvidenceSnapshotId, controlId]);
+
   const ask = useCallback(async (nextQuestion: string) => {
     const trimmed = nextQuestion.trim();
 
@@ -294,6 +306,15 @@ export function InfrastructureAskClient() {
               data-testid="infra-ask-remediation-back-link"
             >
               Open remediation factory
+            </Link>
+          ) : null}
+          {auditLineageBackLinkHref != null ? (
+            <Link
+              className="mt-2 inline-block text-sm text-al-link hover:underline"
+              href={auditLineageBackLinkHref}
+              data-testid="infra-ask-audit-lineage-back-link"
+            >
+              Open audit evidence control
             </Link>
           ) : null}
         </section>
