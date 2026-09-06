@@ -23,4 +23,4 @@ Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave37Arc
 
 **Hasher baseline note:** wave 37 does not bump Hasher A schema version; export gates, compare fingerprints, and finding read/write sync remain on the existing **`v12`** baseline (`tests/manifest-hash/hasher-baseline-v12.json`).
 
-**Deferred:** none.
+**Deferred:** Wave 38 continues in [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE38.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE38.md).
