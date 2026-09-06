@@ -2,20 +2,24 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 
 import type { NextRequest } from "next/server";
 
-/** HttpOnly BFF session cookie (ADR 0059 P1 / LK-05). */
+/** HttpOnly BFF session cookie (ADR 0059 P1 / LK-05; P2 holds refresh + id token server-side — LK-06). */
 export const BFF_SESSION_COOKIE_NAME = "archlucid-bff-session" as const;
 
 const BFF_SESSION_COOKIE_VERSION = 1;
 
-type BffSessionPayload = {
+export type BffSessionPayload = {
   readonly v: number;
   readonly at: string;
   readonly exp: number;
+  readonly rt?: string;
+  readonly it?: string;
 };
 
 export type BffSessionCookieIssueInput = {
   readonly accessToken: string;
   readonly expiresAtMs: number;
+  readonly refreshToken?: string | null;
+  readonly idToken?: string | null;
 };
 
 function readBffSessionSigningSecret(): string {
@@ -73,6 +77,14 @@ function parseSignedCookieValue(cookieValue: string, secret: string): BffSession
       return null;
     }
 
+    if (parsed.rt !== undefined && (typeof parsed.rt !== "string" || parsed.rt.trim().length === 0)) {
+      return null;
+    }
+
+    if (parsed.it !== undefined && (typeof parsed.it !== "string" || parsed.it.trim().length === 0)) {
+      return null;
+    }
+
     return parsed;
   } catch {
     return null;
@@ -97,11 +109,23 @@ export function createBffSessionCookieValue(input: BffSessionCookieIssueInput): 
     return null;
   }
 
-  const encodedPayload = encodePayload({
+  const refreshToken = input.refreshToken?.trim() ?? "";
+  const idToken = input.idToken?.trim() ?? "";
+  const payload: BffSessionPayload = {
     v: BFF_SESSION_COOKIE_VERSION,
     at: accessToken,
     exp: input.expiresAtMs,
-  });
+  };
+
+  if (refreshToken.length > 0) {
+    payload.rt = refreshToken;
+  }
+
+  if (idToken.length > 0) {
+    payload.it = idToken;
+  }
+
+  const encodedPayload = encodePayload(payload);
 
   return `${encodedPayload}.${signPayload(encodedPayload, secret)}`;
 }
@@ -114,6 +138,26 @@ export function parseBffSessionCookieValue(cookieValue: string): BffSessionPaylo
   }
 
   return parseSignedCookieValue(cookieValue.trim(), secret);
+}
+
+export function parseBffSessionPayloadFromRequest(request: NextRequest): BffSessionPayload | null {
+  const cookieValue = request.cookies.get(BFF_SESSION_COOKIE_NAME)?.value ?? null;
+
+  if (cookieValue === null || cookieValue.trim().length === 0) {
+    return null;
+  }
+
+  const payload = parseBffSessionCookieValue(cookieValue);
+
+  if (payload === null) {
+    return null;
+  }
+
+  if (Date.now() >= payload.exp) {
+    return null;
+  }
+
+  return payload;
 }
 
 export function resolveBffSessionBearerFromCookieValue(cookieValue: string | null | undefined): string {

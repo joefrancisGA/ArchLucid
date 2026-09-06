@@ -10,6 +10,8 @@ import {
 type BffSessionPostBody = {
   readonly access_token?: string;
   readonly expires_in?: number;
+  readonly refresh_token?: string;
+  readonly id_token?: string;
 };
 
 function resolveExpiresAtMs(expiresIn: number | undefined): number {
@@ -47,7 +49,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   const expiresAtMs = resolveExpiresAtMs(body.expires_in);
-  const cookieValue = createBffSessionCookieValue({ accessToken, expiresAtMs });
+  const cookieValue = createBffSessionCookieValue({
+    accessToken,
+    expiresAtMs,
+    refreshToken: body.refresh_token ?? null,
+    idToken: body.id_token ?? null,
+  });
 
   if (cookieValue === null) {
     return NextResponse.json({ title: "Failed to issue BFF session cookie" }, { status: 500 });

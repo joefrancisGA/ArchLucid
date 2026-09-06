@@ -6,7 +6,7 @@
 import type { APIRequestContext, Page } from "@playwright/test";
 
 import {
-  OIDC_ACCESS_TOKEN_KEY,
+  OIDC_DISPLAY_NAME_KEY,
   OIDC_EXPIRES_AT_MS_KEY,
 } from "@/lib/oidc/storage-keys";
 
@@ -91,50 +91,69 @@ export async function stubEmptyArchitectureDraftListRoute(page: Page): Promise<v
   });
 }
 
-/** Registers init script so the next navigation starts with a signed-in JWT browser session. */
+/** Registers init script so the next navigation starts with a signed-in BFF session (LK-06 P2). */
 export async function primeJwtBrowserSession(page: Page, accessToken: string): Promise<void> {
   const expiresAtMs = Date.now() + 3_600_000;
 
   await page.addInitScript(
-    ({ tokenKey, expiresKey, token, expiresAt }) => {
-      sessionStorage.setItem(tokenKey, token);
+    ({ expiresKey, expiresAt, displayKey, bffPath, token }) => {
       sessionStorage.setItem(expiresKey, String(expiresAt));
+      sessionStorage.setItem(displayKey, "e2e-user");
+      void fetch(bffPath, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ access_token: token, expires_in: 3600 }),
+      });
     },
     {
-      tokenKey: OIDC_ACCESS_TOKEN_KEY,
       expiresKey: OIDC_EXPIRES_AT_MS_KEY,
+      displayKey: OIDC_DISPLAY_NAME_KEY,
+      bffPath: "/api/auth/bff-session",
       token: accessToken,
       expiresAt: expiresAtMs,
     },
   );
 }
 
-/** Writes JWT session material into the current document (post-navigation recovery). */
+/** Writes session hints and issues the BFF cookie on the current document (post-navigation recovery). */
 export async function writeJwtBrowserSession(page: Page, accessToken: string): Promise<void> {
   const expiresAtMs = Date.now() + 3_600_000;
 
   await page.evaluate(
-    ({ tokenKey, expiresKey, token, expiresAt }) => {
-      sessionStorage.setItem(tokenKey, token);
+    async ({ expiresKey, expiresAt, displayKey, bffPath, token }) => {
       sessionStorage.setItem(expiresKey, String(expiresAt));
+      sessionStorage.setItem(displayKey, "e2e-user");
+      await fetch(bffPath, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ access_token: token, expires_in: 3600 }),
+      });
     },
     {
-      tokenKey: OIDC_ACCESS_TOKEN_KEY,
       expiresKey: OIDC_EXPIRES_AT_MS_KEY,
+      displayKey: OIDC_DISPLAY_NAME_KEY,
+      bffPath: "/api/auth/bff-session",
       token: accessToken,
       expiresAt: expiresAtMs,
     },
   );
 }
 
-/** Clears OIDC sessionStorage keys to simulate expiry / signed-out state. */
+/** Clears OIDC session hints to simulate expiry / signed-out state. */
 export async function clearJwtBrowserSession(page: Page): Promise<void> {
   await page.evaluate(
-    ({ tokenKey, expiresKey }) => {
-      sessionStorage.removeItem(tokenKey);
+    async ({ expiresKey, displayKey, bffPath }) => {
       sessionStorage.removeItem(expiresKey);
+      sessionStorage.removeItem(displayKey);
+      await fetch(bffPath, { method: "DELETE", credentials: "same-origin" });
     },
-    { tokenKey: OIDC_ACCESS_TOKEN_KEY, expiresKey: OIDC_EXPIRES_AT_MS_KEY },
+    {
+      expiresKey: OIDC_EXPIRES_AT_MS_KEY,
+      displayKey: OIDC_DISPLAY_NAME_KEY,
+      bffPath: "/api/auth/bff-session",
+    },
   );
 }
 
@@ -172,26 +191,16 @@ export async function fetchAuthMeViaProxy(
   page: Page,
   accessToken?: string | null,
 ): Promise<LiveAuthMeProxyBody> {
-  const bearer = accessToken?.trim() ?? "";
-
-  const result = await page.evaluate(async ({ token }) => {
-    const headers: Record<string, string> = {
-      Accept: "application/json",
-    };
-
-    if (token.length > 0) {
-      headers.Authorization = `Bearer ${token}`;
-    }
-
+  const result = await page.evaluate(async () => {
     const res = await fetch("/api/proxy/api/auth/me", {
       credentials: "same-origin",
       cache: "no-store",
-      headers,
+      headers: { Accept: "application/json" },
     });
     const text = await res.text();
 
     return { status: res.status, text };
-  }, { token: bearer });
+  });
 
   if (result.status < 200 || result.status >= 300) {
     throw new Error(`GET /api/proxy/api/auth/me failed ${result.status}: ${result.text.slice(0, 400)}`);
