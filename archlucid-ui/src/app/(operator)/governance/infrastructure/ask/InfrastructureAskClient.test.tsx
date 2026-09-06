@@ -107,6 +107,11 @@ describe("InfrastructureAskClient", () => {
 
     expect(screen.getByTestId("infra-ask-context-banner")).toHaveTextContent("diff diff-1");
 
+    expect(screen.getByTestId("infra-ask-drift-back-link")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/drift?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111&diffId=diff-1",
+    );
+
     fireEvent.change(screen.getByTestId("infra-ask-question"), {
       target: { value: "What changed in this diff?" },
     });
@@ -188,6 +193,10 @@ describe("InfrastructureAskClient", () => {
     expect(screen.getByRole("link", { name: "Open resource evidence hub" })).toHaveAttribute(
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=diagram&runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222",
+    );
+    expect(screen.getByTestId("infra-ask-diagram-reconcile-back-link")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/diagram-reconcile?runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222&correspondenceId=corr-1",
     );
   });
 
