@@ -3468,6 +3468,82 @@ describe("wave46 filter url helpers", () => {
   });
 });
 
+describe("wave47 filter url helpers", () => {
+  it("reviews hub, decision register, approval lineage, planning, digests, health, and pilot outcomes params", async () => {
+    const {
+      parseReviewsHubMedianDeltaOpenFromSearch,
+      parseReviewsHubMoreWaysOpenFromSearch,
+      parseReviewsHubReviewCycleDeltaOpenFromSearch,
+      reviewsHubDisclosureHrefFromSearch,
+    } = await import("@/lib/reviews/reviews-hub-disclosure-url");
+    const {
+      decisionRegisterAdvancedFiltersDisclosureHrefFromSearch,
+      parseDecisionRegisterAdvancedFiltersOpenFromSearch,
+    } = await import("@/lib/governance/decision-register-advanced-filters-disclosure-url");
+    const {
+      approvalLineageRecordDigestDisclosureHrefFromSearch,
+      parseApprovalLineageRecordDigestOpenFromSearch,
+    } = await import("@/lib/governance/approval-lineage-record-digest-disclosure-url");
+    const {
+      parsePlanningTechnicalScopeOpenFromSearch,
+      planningTechnicalScopeDisclosureHrefFromSearch,
+    } = await import("@/lib/planning/planning-technical-scope-disclosure-url");
+    const {
+      digestsBrowseDisclosureHrefFromSearch,
+      parseDigestsBrowseIncludesOpenFromSearch,
+      parseDigestsTechnicalDetailsOpenFromSearch,
+    } = await import("@/lib/digests/digests-browse-disclosure-url");
+    const {
+      healthBuildDetailsDisclosureHrefFromSearch,
+      parseHealthBuildDetailsOpenFromSearch,
+    } = await import("@/lib/health-dashboard/health-build-details-disclosure-url");
+    const {
+      parsePilotOutcomesTechnicalDetailsOpenFromSearch,
+      pilotOutcomesTechnicalDetailsDisclosureHrefFromSearch,
+    } = await import("@/lib/insights/pilot-outcomes-technical-details-disclosure-url");
+
+    expect(parseReviewsHubMoreWaysOpenFromSearch("1")).toBe(true);
+    expect(parseReviewsHubMedianDeltaOpenFromSearch("true")).toBe(true);
+    expect(parseReviewsHubReviewCycleDeltaOpenFromSearch("1")).toBe(true);
+    expect(
+      reviewsHubDisclosureHrefFromSearch(
+        "filter=Active",
+        { moreWaysOpen: true, medianDeltaOpen: false, reviewCycleDeltaOpen: true },
+        "/architecture/reviews",
+      ),
+    ).toBe("/architecture/reviews?filter=Active&reviewsHubMoreWaysOpen=1&reviewsHubReviewCycleDeltaOpen=1");
+    expect(parseDecisionRegisterAdvancedFiltersOpenFromSearch("1")).toBe(true);
+    expect(decisionRegisterAdvancedFiltersDisclosureHrefFromSearch("view=table", true)).toBe(
+      "/governance/decision-register?view=table&decisionRegisterAdvancedFiltersOpen=1",
+    );
+    expect(parseApprovalLineageRecordDigestOpenFromSearch("true")).toBe(true);
+    expect(
+      approvalLineageRecordDigestDisclosureHrefFromSearch("", true, "/governance/approval-requests/a1/lineage"),
+    ).toBe("/governance/approval-requests/a1/lineage?approvalLineageRecordDigestOpen=1");
+    expect(parsePlanningTechnicalScopeOpenFromSearch("1")).toBe(true);
+    expect(planningTechnicalScopeDisclosureHrefFromSearch("runId=r1", true)).toBe(
+      "/insights/improvement-planning?runId=r1&planningTechnicalScopeOpen=1",
+    );
+    expect(parseDigestsTechnicalDetailsOpenFromSearch("1")).toBe(true);
+    expect(parseDigestsBrowseIncludesOpenFromSearch("true")).toBe(true);
+    expect(
+      digestsBrowseDisclosureHrefFromSearch(
+        "tab=browse",
+        { technicalDetailsOpen: true, browseIncludesOpen: true },
+        "/governance/digests",
+      ),
+    ).toBe("/governance/digests?tab=browse&digestsTechnicalDetailsOpen=1&digestsBrowseIncludesOpen=1");
+    expect(parseHealthBuildDetailsOpenFromSearch("1")).toBe(true);
+    expect(healthBuildDetailsDisclosureHrefFromSearch("", true, "/internal/health")).toBe(
+      "/internal/health?healthBuildDetailsOpen=1",
+    );
+    expect(parsePilotOutcomesTechnicalDetailsOpenFromSearch("true")).toBe(true);
+    expect(pilotOutcomesTechnicalDetailsDisclosureHrefFromSearch("runId=r1", true, "/insights/sponsor-report")).toBe(
+      "/insights/sponsor-report?runId=r1&pilotOutcomesTechnicalDetailsOpen=1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

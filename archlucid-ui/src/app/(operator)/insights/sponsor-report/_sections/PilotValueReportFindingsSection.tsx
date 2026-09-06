@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
@@ -16,6 +18,10 @@ import {
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatPilotOutcomesAnalysisCoverage } from "@/lib/pilot-outcomes-agent-type-labels";
 import { cn } from "@/lib/utils";
+import {
+  parsePilotOutcomesTechnicalDetailsOpenFromSearch,
+  pilotOutcomesTechnicalDetailsDisclosureHrefFromSearch,
+} from "@/lib/insights/pilot-outcomes-technical-details-disclosure-url";
 import type { PilotValueReportJson } from "@/types/pilot-value-report";
 
 import { SponsorReportNextReviewFooterClient } from "./SponsorReportNextReviewFooterClient";
@@ -42,6 +48,35 @@ type Props = {
 
 export function PilotValueReportFindingsSection(props: Props) {
   const { data, scopedRunFilterActive, scopedRunId } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const pilotOutcomesTechnicalDetailsOpenParam = searchParams.get("pilotOutcomesTechnicalDetailsOpen");
+  const [technicalDetailsOpen, setTechnicalDetailsOpenState] = useState(() =>
+    parsePilotOutcomesTechnicalDetailsOpenFromSearch(pilotOutcomesTechnicalDetailsOpenParam),
+  );
+
+  const syncTechnicalDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(pilotOutcomesTechnicalDetailsDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTechnicalDetailsOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalDetailsOpenState(open);
+      syncTechnicalDetailsOpenToUrl(open);
+    },
+    [syncTechnicalDetailsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalDetailsOpenState(parsePilotOutcomesTechnicalDetailsOpenFromSearch(pilotOutcomesTechnicalDetailsOpenParam));
+  }, [pilotOutcomesTechnicalDetailsOpenParam]);
+
   const timelineRows = data.committedRunsTimeline ?? [];
   const showTimelineCapNote = data.runDetailsTruncated === true && (data.runDetailCap ?? 0) > 0;
 
@@ -168,7 +203,12 @@ export function PilotValueReportFindingsSection(props: Props) {
         </EnterpriseTable>
       </section>
 
-      <CollapsibleSection title="Technical details" defaultOpen={false} sectionTestId="pilot-outcomes-technical-details">
+      <CollapsibleSection
+        title="Technical details"
+        open={technicalDetailsOpen}
+        onToggle={setTechnicalDetailsOpen}
+        sectionTestId="pilot-outcomes-technical-details"
+      >
         <ul className={cn("m-0 list-disc pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           <li>Reporting period end instant is exclusive in UTC (activity at exactly the end time is excluded).</li>
           <li>Recommendations generated are counted from audit events in the selected window.</li>
