@@ -8,7 +8,6 @@ import {
   REVIEW_PIPELINE_DURATION_ESTIMATE_DISCLAIMER,
   REVIEW_PIPELINE_ENABLE_NOTIFICATIONS_LABEL,
   REVIEW_PIPELINE_KEEP_WATCHING_CTA,
-  REVIEW_PIPELINE_NOTIFICATIONS_ENABLED_LABEL,
 } from "@/lib/review-execution-background-safety-copy";
 import { LongOperationQueueStatusLine } from "@/components/operations/LongOperationQueueStatusLine";
 import { useQueueStatusElapsed } from "@/hooks/use-queue-status-elapsed";
@@ -149,15 +148,6 @@ export function RunProgressTracker({
             {REVIEW_PIPELINE_ENABLE_NOTIFICATIONS_LABEL}
           </Button>
         </div>
-      ) : null}
-
-      {tracker.showNotificationEnabled ? (
-        <p
-          className={cn("mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="run-progress-notifications-enabled"
-        >
-          {REVIEW_PIPELINE_NOTIFICATIONS_ENABLED_LABEL}
-        </p>
       ) : null}
 
       {tracker.pollEnabled && tracker.liveTrackingActive ? (

@@ -333,7 +333,6 @@ export function useRunProgressTracker({
 
   const showNotificationOptIn =
     pollEnabled && canPromptForDesktopNotifications() && notificationPermission === "default";
-  const showNotificationEnabled = pollEnabled && notificationPermission === "granted";
 
   const resumeWatching = useCallback(() => {
     setClientPhase("polling");
@@ -383,7 +382,6 @@ export function useRunProgressTracker({
     terminalFailureDiagnosis,
     liveStatus,
     showNotificationOptIn,
-    showNotificationEnabled,
     handleEnableNotifications,
     resumeWatching,
     shouldRender,
