@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import type { ReactElement } from "react";
 
 import {
@@ -9,8 +8,6 @@ import {
 } from "@/components/EnterpriseCompactEmptyState";
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
-import { OPERATOR_LINK } from "@/lib/design-tokens";
-import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { useCorePilotDerivedStepStatus } from "@/lib/use-core-pilot-derived-step-status";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
@@ -21,29 +18,11 @@ export type RunDetailPreFinalizedEmptyStateProps = {
   readonly recoveryStepsAvailable?: boolean;
 };
 
-function focusAuditTrailAfterJump(): void {
-  const target =
-    document.querySelector<HTMLElement>("[data-testid='run-pipeline-timeline-collapsible']")
-    ?? document.getElementById("pipeline-timeline");
-
-  if (target === null) {
-    return;
-  }
-
-  if (!target.hasAttribute("tabindex")) {
-    target.tabIndex = -1;
-  }
-
-  target.focus({ preventScroll: true });
-}
-
 export function RunDetailPreFinalizedEmptyState(props: RunDetailPreFinalizedEmptyStateProps): ReactElement {
   const corePilot = useCorePilotDerivedStepStatus();
   const showFirstReviewGuide = !corePilot.isPending && corePilot.nextStepIndex !== null;
   const terminalFailure = props.terminalFailure === true;
   const recoveryStepsAvailable = props.recoveryStepsAvailable === true;
-  const auditTrailHref = buildReviewDetailTabHref(props.runId, "activity", { hash: "pipeline-timeline" });
-
   const actions: EnterpriseCompactEmptyStateAction[] = [];
 
   if (showFirstReviewGuide) {
@@ -77,19 +56,6 @@ export function RunDetailPreFinalizedEmptyState(props: RunDetailPreFinalizedEmpt
       title={title}
       description={description}
       actions={actions}
-      footer={
-        <Link
-          className={OPERATOR_LINK.nav}
-          href={auditTrailHref}
-          onClick={() => {
-            window.setTimeout(() => {
-              focusAuditTrailAfterJump();
-            }, 0);
-          }}
-        >
-          See audit trail / findings
-        </Link>
-      }
     />
   );
 }
