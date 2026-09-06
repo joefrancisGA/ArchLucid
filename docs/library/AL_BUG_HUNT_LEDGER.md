@@ -33,7 +33,7 @@ New zones start **`unseeded`** with zero hunt-ready rows. Do not template-seed t
 Open rows:
 
 - `[ ] (candidate) â€¦` â€” harm-class or unverified template. Not hunt-ready. No picker tie-break.
-- `[ ] (hunt-ready) â€¦` â€” locus + input + wrong outcome + mechanism filled from **these** files.
+- `[ ] (hunt-ready) …` — locus + input + wrong outcome + mechanism + **reachability** filled from **these** files (cite ARM/config/OpenAPI/UI/trust-boundary origin for the input).
 
 Closed rows (never tick a miss as bare `[x]` â€” that counts as proven):
 
@@ -43,7 +43,7 @@ Closed rows (never tick a miss as bare `[x]` â€” that counts as proven):
 
 Untagged `[ ]` on `unseeded` or `hunts: 0` is treated as **candidate**. Untagged `[ ]` after the zone has been hunted is treated as **hunt-ready**. Untagged `[x]` is treated as **proven**.
 
-A hunt-ready row must name a locus, a concrete input, an observable wrong outcome, and a mechanism. Harm-class-only rows stay `(candidate)` until the files show the prerequisite (join, cache, fail-open catch). After a miss, replacement rows must cite a **different mechanism**.
+A hunt-ready row must name a locus, a concrete input, an observable wrong outcome, a mechanism, and **reachability** (where the input originates). Harm-class-only rows stay `(candidate)` until the files show the prerequisite (join, cache, fail-open catch). Constructed literals without reachability (e.g. fictional property names) stay `(candidate)` or `(invalid)`. After a miss, replacement rows must cite a **different mechanism** and reachability.
 
 ## Scoring (picker)
 
