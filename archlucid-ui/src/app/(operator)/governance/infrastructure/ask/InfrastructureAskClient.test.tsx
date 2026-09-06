@@ -140,6 +140,10 @@ describe("InfrastructureAskClient", () => {
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings&snapshotId=22222222-2222-2222-2222-222222222222",
     );
+    expect(screen.getByTestId("infra-ask-remediation-back-link")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&findingId=finding-1",
+    );
   });
 
   it("shows instance scope in context banner and links hub remediation tab", async () => {
@@ -152,6 +156,10 @@ describe("InfrastructureAskClient", () => {
     expect(screen.getByRole("link", { name: "Open resource evidence hub" })).toHaveAttribute(
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=remediation&snapshotId=22222222-2222-2222-2222-222222222222",
+    );
+    expect(screen.getByTestId("infra-ask-remediation-back-link")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&instanceId=instance-1",
     );
   });
 
