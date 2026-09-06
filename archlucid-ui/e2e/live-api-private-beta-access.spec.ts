@@ -195,6 +195,17 @@ test.describe("live-api-private-beta-access", () => {
       await writeJwtBrowserSession(signedOutPage, accessToken);
       await signedOutPage.goto(reviewPath, { waitUntil: "domcontentloaded" });
       await expectLiveRunDetailPageReady(signedOutPage, 120_000);
+
+      await clearJwtBrowserSession(signedOutPage);
+      await stubEmptyArchitectureDraftListRoute(signedOutPage);
+      await signedOutPage.goto("/architecture/reviews/new", { waitUntil: "domcontentloaded" });
+
+      await expect(signedOutPage).toHaveURL(/\/auth\/signin(\?|$)/, { timeout: 60_000 });
+
+      const startReviewSignInUrl = new URL(signedOutPage.url());
+      const startReviewReturnUrl = startReviewSignInUrl.searchParams.get("returnUrl") ?? "";
+
+      expect(decodeURIComponent(startReviewReturnUrl)).toContain("/architecture/reviews/new");
     } finally {
       await signedOutContext.close();
     }

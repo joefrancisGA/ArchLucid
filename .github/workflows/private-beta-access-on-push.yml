@@ -11,8 +11,9 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: private-beta-access-push-${{ github.sha }}
-  cancel-in-progress: false
+  # One invite-wave smoke per branch — cancel superseded queued/in-flight runs when trunk advances.
+  group: private-beta-access-on-push-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true

@@ -45,15 +45,19 @@
 | `POST /v1/architecture/request` 401 | JwtBearer / proxy token mismatch | `ARCHLUCID_PROXY_BEARER_TOKEN` must equal `LIVE_JWT_TOKEN` in workflow env |
 | create-run retry exhaustion | Cold SQL / Simulator queue | `LIVE_E2E_PRIVATE_BETA_ACCESS=1` caps attempts (see `live-api-client.ts`) |
 | Reviews hub row not visible | Run list poll lag | `waitForArchitectureRunListIncludesRun` + `reviews-hub-row-{runId}` test id |
-| Actions queue backlog | Many trunk merges enqueue parallel corset/private-beta runs | Prefer verifying the **latest** `master` SHA run; stale queued runs may lag by hours |
+| Actions queue backlog | Many trunk merges enqueue parallel corset/private-beta runs | Workflow uses **branch concurrency** (`cancel-in-progress: true`) — verify the **latest** `master` SHA run; ignore cancelled superseded runs |
+| Superseded run `cancelled` mid-Playwright | New trunk push cancelled an older SHA smoke | Expected with branch concurrency; triage only the newest run for the SHA you care about |
 
 ## Artifacts
 
-On failure, download from the workflow run:
+On failure, download from the workflow run (newest non-cancelled run on the target SHA):
 
-- `ui-e2e-live-beta-access-on-push-playwright-report`
-- `ui-e2e-live-beta-access-on-push-test-results`
-- `ui-e2e-live-beta-access-on-push-api-log`
+1. `ui-e2e-live-beta-access-on-push-api-log` — API stderr from `dotnet run` (SQL timeouts, auth, Simulator faults)
+2. `ui-e2e-live-beta-access-on-push-playwright-report` — HTML trace summary
+3. `ui-e2e-live-beta-access-on-push-test-results` — per-test screenshots and traces
+4. `ui-e2e-live-beta-access-on-push-blob-report` — blob report for Playwright merge
+
+**Triage order:** confirm Playwright step started (not stuck in queue) → check post-warm `/health/ready` lines in job log → open API log for exceptions during `createRun` → inspect Playwright trace for proxy/JWT failures.
 
 ## Local reproduction (heavy)
 
@@ -62,6 +66,8 @@ Requires SQL Server, API with JwtBearer PEM, and `archlucid-ui` live-e2e build. 
 ## Full-matrix dispatch (optional)
 
 The same spec also runs in `.github/workflows/ci.yml` job `ui-e2e-live-beta-access` on **`workflow_dispatch`** full CI. Use **Actions → CI → Run workflow** on `master` when you need the private-beta smoke inside the full regression matrix (not only trunk push).
+
+You can also re-run invite-wave smoke alone via **Actions → Private-beta access on push → Run workflow** (`workflow_dispatch` on `.github/workflows/private-beta-access-on-push.yml`).
 
 ```bash
 export LIVE_JWT_TOKEN="<minted>"
