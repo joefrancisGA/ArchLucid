@@ -30,6 +30,7 @@ public sealed class ArchitecturesController(
     IScopeContextProvider scopeProvider,
     IActorContext actorContext,
     IArchitectureIdentityService architectureIdentityService,
+    IArchitectureSealDeltaService architectureSealDeltaService,
     IAuditService auditService) : ControllerBase
 {
     private readonly IActorContext _actorContext =
@@ -40,6 +41,9 @@ public sealed class ArchitecturesController(
 
     private readonly IArchitectureIdentityService _architectureIdentityService =
         architectureIdentityService ?? throw new ArgumentNullException(nameof(architectureIdentityService));
+
+    private readonly IArchitectureSealDeltaService _architectureSealDeltaService =
+        architectureSealDeltaService ?? throw new ArgumentNullException(nameof(architectureSealDeltaService));
 
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
@@ -88,6 +92,32 @@ public sealed class ArchitecturesController(
         }
 
         return Ok(detail);
+    }
+
+    /// <summary>
+    ///     Read-only projection of how the current draft differs from the latest sealed golden manifest (PC-06).
+    /// </summary>
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+    [HttpGet("{architectureId:guid}/seal-delta")]
+    [ProducesResponseType(typeof(ArchitectureSealDeltaResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetSealDelta(Guid architectureId, CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        ArchitectureSealDeltaResponse? delta = await _architectureSealDeltaService.GetSealDeltaAsync(
+            scope,
+            architectureId,
+            cancellationToken);
+
+        if (delta is null)
+        {
+            return this.NotFoundProblem(
+                $"Architecture '{architectureId:D}' was not found.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        return Ok(delta);
     }
 
     /// <summary>Renames or updates metadata for one architecture identity.</summary>

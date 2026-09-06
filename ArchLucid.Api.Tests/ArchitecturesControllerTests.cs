@@ -31,6 +31,7 @@ public sealed class ArchitecturesControllerTests
     private readonly Mock<IActorContext> _actorContext = new();
     private readonly Mock<IAuditService> _auditService = new();
     private readonly Mock<IArchitectureIdentityService> _service = new();
+    private readonly Mock<IArchitectureSealDeltaService> _sealDeltaService = new();
 
     public ArchitecturesControllerTests()
     {
@@ -133,6 +134,41 @@ public sealed class ArchitecturesControllerTests
     }
 
     [Fact]
+    public async Task GetSealDelta_NotFound_Returns404()
+    {
+        Guid architectureId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        _sealDeltaService
+            .Setup(s => s.GetSealDeltaAsync(Scope, architectureId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchitectureSealDeltaResponse?)null);
+
+        ArchitecturesController sut = BuildSut();
+
+        IActionResult result = await sut.GetSealDelta(architectureId, CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task GetSealDelta_ReturnsProjection()
+    {
+        Guid architectureId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        ArchitectureSealDeltaResponse delta = new() { ArchitectureId = architectureId, HasPriorSeal = true };
+
+        _sealDeltaService
+            .Setup(s => s.GetSealDeltaAsync(Scope, architectureId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(delta);
+
+        ArchitecturesController sut = BuildSut();
+
+        IActionResult result = await sut.GetSealDelta(architectureId, CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        ok.Value.Should().BeSameAs(delta);
+    }
+
+    [Fact]
     public void PatchArchitecture_RequiresExecuteAuthority()
     {
         AuthorizeAttribute? attribute = typeof(ArchitecturesController)
@@ -146,7 +182,12 @@ public sealed class ArchitecturesControllerTests
     }
 
     private ArchitecturesController BuildSut() =>
-        new(_scopeProvider.Object, _actorContext.Object, _service.Object, _auditService.Object)
+        new(
+            _scopeProvider.Object,
+            _actorContext.Object,
+            _service.Object,
+            _sealDeltaService.Object,
+            _auditService.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
