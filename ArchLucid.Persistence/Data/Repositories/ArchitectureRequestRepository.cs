@@ -216,4 +216,41 @@ public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectio
             new { RequestId = requestId },
             cancellationToken: cancellationToken));
     }
+
+    /// <inheritdoc />
+    public async Task<bool> ReplaceAsync(ArchitectureRequest request, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (string.IsNullOrWhiteSpace(request.RequestId))
+            throw new ArgumentException("RequestId is required.", nameof(request));
+
+        const string sql = """
+                           UPDATE ArchitectureRequests
+                           SET
+                               SystemName = @SystemName,
+                               Environment = @Environment,
+                               CloudProvider = @CloudProvider,
+                               RequestJson = @RequestJson
+                           WHERE RequestId = @RequestId;
+                           """;
+
+        string json = JsonSerializer.Serialize(request, ContractJson.Default);
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        int rows = await connection.ExecuteAsync(new CommandDefinition(
+            sql,
+            new
+            {
+                request.RequestId,
+                request.SystemName,
+                request.Environment,
+                CloudProvider = request.CloudProvider.ToString(),
+                RequestJson = json,
+            },
+            cancellationToken: cancellationToken));
+
+        return rows > 0;
+    }
 }
