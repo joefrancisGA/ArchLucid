@@ -319,7 +319,17 @@ public static partial class GenericArchitectureAdvicePatterns
             || ContainsAdviceNegationPhrase(before, " cannot need ")
             || ContainsAdviceNegationPhrase(before, " cannot need")
             || ContainsAdviceNegationPhrase(before, " cannot implement ")
-            || ContainsAdviceNegationPhrase(before, " cannot implement");
+            || ContainsAdviceNegationPhrase(before, " cannot implement")
+            || ContainsAdviceNegationPhrase(before, " cannot enable ")
+            || ContainsAdviceNegationPhrase(before, " cannot enable")
+            || ContainsAdviceNegationPhrase(before, " cannot deploy ")
+            || ContainsAdviceNegationPhrase(before, " cannot deploy")
+            || ContainsAdviceNegationPhrase(before, " cannot adopt ")
+            || ContainsAdviceNegationPhrase(before, " cannot adopt")
+            || ContainsAdviceNegationPhrase(before, " cannot use ")
+            || ContainsAdviceNegationPhrase(before, " cannot use")
+            || ContainsAdviceNegationPhrase(before, " cannot have ")
+            || ContainsAdviceNegationPhrase(before, " cannot have");
     }
 
     private static bool ContainsAdviceNegationPhrase(ReadOnlySpan<char> haystack, string phrase)
