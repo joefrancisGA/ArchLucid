@@ -27,6 +27,8 @@ import {
   resolveDigestSubscriptionPauseDialogTitle,
 } from "@/lib/digest-subscription-pause-copy";
 import {
+  DIGEST_SUBSCRIPTIONS_BUYER_START_HERE_HELPER,
+  DIGEST_SUBSCRIPTIONS_PAGE_LEAD,
   DIGEST_SUBSCRIPTIONS_PAGE_SUBTITLE,
   DIGEST_SUBSCRIPTIONS_PAGE_TITLE,
   DIGEST_SUBSCRIPTIONS_SENSITIVE_CONTENT_HELP_HREF,
@@ -86,9 +88,11 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
         <h2 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.pageTitle)}>
           {DIGEST_SUBSCRIPTIONS_PAGE_TITLE}
         </h2>
-        <p className={cn("m-0 mt-1 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          {DIGEST_SUBSCRIPTIONS_PAGE_SUBTITLE}
-        </p>
+        {buyerPolishedShell ? null : (
+          <p className={cn("m-0 mt-1 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+            {DIGEST_SUBSCRIPTIONS_PAGE_SUBTITLE}
+          </p>
+        )}
         {buyerPolishedShell ? null : (
           <p
             className={cn("m-0 mt-1 max-w-3xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
@@ -98,6 +102,26 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
           </p>
         )}
       </div>
+
+      {buyerPolishedShell ? (
+        <div
+          className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+          data-testid="digests-subscriptions-first-viewport"
+        >
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="digests-subscriptions-intro"
+          >
+            {DIGEST_SUBSCRIPTIONS_PAGE_LEAD}
+          </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="digests-subscriptions-buyer-start-here-helper"
+          >
+            {DIGEST_SUBSCRIPTIONS_BUYER_START_HERE_HELPER}
+          </p>
+        </div>
+      ) : null}
 
       {buyerPolishedShell ? null : (
         <p
@@ -141,7 +165,7 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
         </p>
       ) : null}
 
-      {subscriptionWorkflowSteps.length > 0 ? (
+      {subscriptionWorkflowSteps.length > 0 && !buyerPolishedShell ? (
         <IntegrationConnectChecklist
           title="Subscription checklist"
           steps={subscriptionWorkflowSteps}
@@ -160,14 +184,16 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
         </div>
       ) : null}
 
-      <DigestSubscriptionsReadinessPanel
-        healthSnap={props.healthSnap}
-        subscriptions={list.items}
-        onAddDeliveryDestination={create.focusCreateForm}
-      />
+      {buyerPolishedShell ? null : (
+        <DigestSubscriptionsReadinessPanel
+          healthSnap={props.healthSnap}
+          subscriptions={list.items}
+          onAddDeliveryDestination={create.focusCreateForm}
+        />
+      )}
 
       <div ref={formCardRef} className="grid gap-4">
-        {createFormVisible ? (
+        {createFormVisible && !buyerPolishedShell ? (
           <DigestSubscriptionCreateForm
             key={`digest-create-${create.formResetKey}`}
             existingSubscriptions={list.items}
@@ -195,6 +221,7 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
           loading={loading}
           canMutate={toggle.canMutateSubscriptions}
           canRevealDestinations={toggle.canMutateSubscriptions}
+          hideEmptyStateCreateCta={buyerPolishedShell}
           onRefresh={() => void list.subscriptionsQuery.refetch()}
           onToggle={(subscriptionId, isEnabled, subscriptionName) =>
             void toggle.onToggle(subscriptionId, isEnabled, subscriptionName)

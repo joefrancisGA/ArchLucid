@@ -57,6 +57,7 @@ export type DigestSubscriptionListProps = {
   readonly loading: boolean;
   readonly canMutate: boolean;
   readonly canRevealDestinations: boolean;
+  readonly hideEmptyStateCreateCta?: boolean;
   readonly onRefresh: () => void;
   readonly onToggle: (subscriptionId: string, isEnabled: boolean, subscriptionName: string) => void;
   readonly onViewHistory: (subscriptionId: string) => void;
@@ -99,6 +100,7 @@ export function DigestSubscriptionList(props: DigestSubscriptionListProps): Reac
             title="No delivery destinations yet"
             description={emptyDescription}
             footer={
+              props.hideEmptyStateCreateCta ? undefined : (
               <Button
                 type="button"
                 size="sm"
@@ -108,6 +110,7 @@ export function DigestSubscriptionList(props: DigestSubscriptionListProps): Reac
               >
                 Add delivery destination
               </Button>
+              )
             }
           />
         </div>

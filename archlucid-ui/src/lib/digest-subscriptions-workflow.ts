@@ -11,6 +11,11 @@ export const DIGEST_SUBSCRIPTIONS_PAGE_TITLE = "Delivery destinations" as const;
 export const DIGEST_SUBSCRIPTIONS_PAGE_SUBTITLE =
   "Send architecture digests to email or webhook destinations your team already uses." as const;
 
+export const DIGEST_SUBSCRIPTIONS_PAGE_LEAD = DIGEST_SUBSCRIPTIONS_PAGE_SUBTITLE;
+
+export const DIGEST_SUBSCRIPTIONS_BUYER_START_HERE_HELPER =
+  "Review how digest delivery destinations are configured in this workspace — adding or editing destinations requires admin access on the Subscriptions workspace below.";
+
 export const DIGEST_SUBSCRIPTIONS_SENSITIVE_CONTENT_NOTE =
   "Digests include summary text and links back to ArchLucid. They do not attach raw evidence files unless your workspace enables that separately." as const;
 

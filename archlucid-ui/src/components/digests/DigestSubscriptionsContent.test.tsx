@@ -7,6 +7,33 @@ import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
 
 const mutateCapability = vi.hoisted(() => ({ current: true }));
 
+const navigationState = vi.hoisted(() => ({
+  search: "",
+}));
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal, {
+    usePathname: () => "/architecture/digests",
+    useSearchParams: () => new URLSearchParams(navigationState.search),
+    useRouter: () =>
+      ({
+        back: vi.fn(),
+        forward: vi.fn(),
+        prefetch: vi.fn(),
+        push: vi.fn(),
+        refresh: vi.fn(),
+        replace: vi.fn((href: string) => {
+          const queryIndex = href.indexOf("?");
+
+          navigationState.search = queryIndex >= 0 ? href.slice(queryIndex + 1) : "";
+        }),
+        bfcacheId: null,
+      }) as ReturnType<typeof import("next/navigation")["useRouter"]>,
+  });
+});
+
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => mutateCapability.current,
 }));
@@ -50,6 +77,7 @@ describe("DigestSubscriptionsContent", () => {
     demoEnvMock.buyerPolished = false;
     demoEnvMock.fullShell = true;
     mutateCapability.current = true;
+    navigationState.search = "";
     vi.mocked(listDigestSubscriptions).mockReset();
     vi.mocked(createDigestSubscription).mockReset();
     vi.mocked(listSubscriptionDeliveryAttempts).mockReset();
@@ -242,7 +270,9 @@ describe("DigestSubscriptionsContent", () => {
 
     fireEvent.click(await screen.findByTestId("digest-subscription-toggle-s1"));
 
-    expect(screen.getByRole("heading", { name: /Pause digest delivery for Ops mailbox/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", { name: /Pause digest delivery for Ops mailbox/i }),
+    ).toBeInTheDocument();
     expect(toggleDigestSubscription).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole("button", { name: "Pause delivery" }));
@@ -350,7 +380,8 @@ describe("DigestSubscriptionsContent", () => {
       <DigestSubscriptionsContent healthSnap={null} onPickReview={vi.fn()} />,
     );
 
-    expect(await screen.findByTestId("digest-subscription-create-button")).toBeInTheDocument();
+    expect(await screen.findByTestId("digests-subscriptions-first-viewport")).toBeInTheDocument();
+    expect(screen.queryByTestId("digest-subscription-create-button")).not.toBeInTheDocument();
     expect(screen.queryByTestId("digest-subscriptions-pick-review-before-creating-strip")).not.toBeInTheDocument();
     expect(screen.queryByTestId("digest-subscriptions-recipients-clarification")).not.toBeInTheDocument();
     expect(screen.queryByTestId("digest-subscriptions-privacy-note")).not.toBeInTheDocument();
