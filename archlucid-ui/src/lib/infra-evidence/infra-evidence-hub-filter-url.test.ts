@@ -102,6 +102,20 @@ describe("infra-evidence-hub-filter-url", () => {
     );
   });
 
+  it("builds Infrastructure Ask href with diagram neighborhood seed context", () => {
+    const armId = "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway";
+
+    expect(
+      buildInfrastructureAskHref({
+        cloudResourceId: "11111111-1111-1111-1111-111111111111",
+        snapshotId: "22222222-2222-2222-2222-222222222222",
+        seedNodeId: armId,
+      }),
+    ).toBe(
+      `/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&seedNodeId=${encodeURIComponent(armId)}`,
+    );
+  });
+
   it("resolves hub tab from Ask scope params", () => {
     expect(resolveResourceHubTabFromAskScope({ findingId: "finding-1" })).toBe("findings");
     expect(resolveResourceHubTabFromAskScope({ instanceId: "instance-1" })).toBe("remediation");
