@@ -53,6 +53,12 @@ TRIAGE_STEPS: list[dict[str, str]] = [
         "artifact": "ui-e2e-live-beta-access-on-push-blob-report",
         "hint": "Use when comparing shards or re-running merge locally.",
     },
+    {
+        "stepId": "failure-triage-rollup",
+        "title": "Open machine-readable triage rollup",
+        "artifact": "ui-e2e-live-beta-access-on-push-failure-triage or ui-e2e-live-beta-access-failure-triage",
+        "hint": "Push workflow vs full-matrix ci.yml artifact names.",
+    },
 ]
 
 

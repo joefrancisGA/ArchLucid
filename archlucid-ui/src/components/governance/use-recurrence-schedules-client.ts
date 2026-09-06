@@ -29,7 +29,10 @@ import {
   resolveRecurrenceSchedulesWorkflowEmphasizedStepId,
   resolveRecurrenceSchedulesWorkflowSteps,
 } from "@/lib/recurrence-schedules-workflow-checklist";
-import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
+import {
+  filterRecurrenceSchedulesForReviewScope,
+  resolveRecurrenceArchitectureIdForReview,
+} from "@/lib/governance/recurrence-schedule-architecture-scope";
 
 import type { RecurrenceScheduleRowEditorState } from "./RecurrenceSchedulesTable";
 
@@ -379,12 +382,26 @@ export function useRecurrenceSchedulesClient(): UseRecurrenceSchedulesClientResu
   }
 
   const isEmpty = schedules.length === 0;
+  const scopedArchitectureId = useMemo(
+    () =>
+      scopedRunFilterActive
+        ? resolveRecurrenceArchitectureIdForReview({
+            schedules,
+            sourceRunId: scopedRunId,
+          })
+        : null,
+    [scopedRunFilterActive, scopedRunId, schedules],
+  );
   const scopedSchedules = useMemo(
     () =>
       scopedRunFilterActive
-        ? schedules.filter((schedule) => schedule.sourceRunId.trim() === scopedRunId)
+        ? filterRecurrenceSchedulesForReviewScope({
+            schedules,
+            sourceRunId: scopedRunId,
+            architectureId: scopedArchitectureId,
+          })
         : schedules,
-    [scopedRunFilterActive, scopedRunId, schedules],
+    [scopedArchitectureId, scopedRunFilterActive, scopedRunId, schedules],
   );
   const recurrenceWorkflowSteps = resolveRecurrenceSchedulesWorkflowSteps({
     reviewPicked: scopedRunFilterActive,

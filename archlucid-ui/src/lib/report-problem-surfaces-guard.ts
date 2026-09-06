@@ -65,6 +65,10 @@ export const REPORT_PROBLEM_SURFACE_WIRING_RULES: readonly ReportProblemSurfaceW
     surfaceId: "contact-support-help-orientation",
     requiredMarkers: ["OperatorReportProblemAction", "contact-support-help-orientation"],
   },
+  {
+    surfaceId: "session-expired-sign-in-failure",
+    requiredMarkers: ["session-expired-sign-in-failure", "FatalPageReportProblemSupportRow"],
+  },
 ] as const;
 
 const REPORT_PROBLEM_AFFORDANCE_MARKERS = [

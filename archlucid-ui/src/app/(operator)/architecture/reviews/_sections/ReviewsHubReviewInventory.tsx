@@ -15,6 +15,7 @@ import { useArchivedReviewsClientCache } from "@/hooks/use-archived-reviews-clie
 import { useFavoriteReviews } from "@/hooks/use-favorite-reviews";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useShellInFlightOperations } from "@/hooks/use-shell-in-flight-operations";
+import { useRehydrateInFlightFromWorkingContinuity } from "@/hooks/use-rehydrate-in-flight-from-architecture";
 import { collectInFlightReviewRunIds, mapInFlightOperationsToDeskRows } from "@/lib/operations/map-in-flight-desk-rows";
 import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
 import { showcaseSampleReviewPackageHref } from "@/lib/showcase-sample-review-registry";
@@ -120,6 +121,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
   const searchParams = useSearchParams();
   const router = useRouter();
   const { isWorkingMode } = useWorkspaceMode();
+  useRehydrateInFlightFromWorkingContinuity();
   const inFlightOperations = useShellInFlightOperations();
   const inFlightRunIds = useMemo(
     () => collectInFlightReviewRunIds(inFlightOperations),

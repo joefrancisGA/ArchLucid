@@ -63,7 +63,25 @@ class TestCheckLiveApiPrivateBetaAccessCiWiring(unittest.TestCase):
         )
         errors: list[str] = []
 
-        sut._require_private_beta_failure_triage_wiring(sut._PUSH_REL, push_text, errors)
+        sut._require_private_beta_failure_triage_wiring(
+            sut._PUSH_REL,
+            push_text,
+            sut._PUSH_TRIAGE_ARTIFACT,
+            errors,
+        )
+
+        self.assertEqual(errors, [])
+
+    def test_ci_workflow_requires_failure_triage_rollup(self) -> None:
+        ci_text = (REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+        errors: list[str] = []
+
+        sut._require_private_beta_failure_triage_wiring(
+            sut._CI_REL,
+            ci_text,
+            sut._CI_TRIAGE_ARTIFACT,
+            errors,
+        )
 
         self.assertEqual(errors, [])
 

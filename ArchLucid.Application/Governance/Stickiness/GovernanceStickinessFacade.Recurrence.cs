@@ -107,6 +107,7 @@ public sealed partial class GovernanceStickinessFacade
                     schedule.WorkspaceId,
                     schedule.ProjectId,
                     schedule.SourceRunId,
+                    schedule.ArchitectureId,
                     schedule.CronExpression,
                     schedule.IsEnabled,
                 }),

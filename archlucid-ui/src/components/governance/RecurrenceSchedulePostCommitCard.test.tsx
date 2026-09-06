@@ -120,11 +120,53 @@ describe("RecurrenceSchedulePostCommitCard", () => {
   });
 
   it("proposes a concrete cadence with the pre-filled default after commit (TB-2192)", async () => {
-    render(<RecurrenceSchedulePostCommitCard runId={runId} hasStickinessPrompt />);
+    render(
+      <RecurrenceSchedulePostCommitCard
+        runId={runId}
+        architectureId="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
+        architectureDisplayName="Payments platform"
+        hasStickinessPrompt
+      />,
+    );
 
+    expect(await screen.findByTestId("recurrence-architecture-scope-lead")).toHaveTextContent("Payments platform");
     expect(await screen.findByTestId("recurrence-proposal-lead")).toHaveTextContent(RECURRENCE_PROPOSAL_LEAD);
     expect(screen.getByTestId("recurrence-schedule-name")).toHaveValue("Weekly architecture review");
     expect(screen.getByTestId("cron-expression-input")).toHaveValue("0 8 * * 1");
+  });
+
+  it("lists schedules for the same architecture identity, not only the source review (CA-45)", async () => {
+    vi.mocked(governanceApi.listArchitectureReviewRecurrenceSchedules).mockResolvedValue([
+      {
+        scheduleId: "11111111-1111-1111-1111-111111111111",
+        sourceRunId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+        architectureId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        name: "Earlier weekly review",
+        cronExpression: "0 8 * * 1",
+        isEnabled: true,
+        nextRunUtc: "2026-06-09T08:00:00Z",
+      },
+      {
+        scheduleId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        sourceRunId: runId,
+        architectureId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        name: "Weekly architecture review",
+        cronExpression: "0 8 * * 1",
+        isEnabled: true,
+        nextRunUtc: "2026-06-09T08:00:00Z",
+      },
+    ]);
+
+    render(
+      <RecurrenceSchedulePostCommitCard
+        runId={runId}
+        architectureId="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
+        hasStickinessPrompt
+      />,
+    );
+
+    expect(await screen.findByTestId("recurrence-schedule-manage-link")).toBeInTheDocument();
+    expect(screen.getByText("Earlier weekly review — 0 8 * * 1")).toBeInTheDocument();
   });
 
   it("discloses who receives completion email before enabling (TB-2192)", async () => {

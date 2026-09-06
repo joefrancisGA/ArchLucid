@@ -1211,6 +1211,7 @@ export type RunDetailsJson = {
 /**
  * Resolve architecture identity id for identity-desk smoke when run detail omits `architectureId`.
  * Falls back to `GET /v1/architectures` and matches `latestReviewId` to the created run.
+ * Polls until timeout because list projection can lag run detail on cold SQL.
  */
 export async function resolveArchitectureIdentityIdForRun(
   request: APIRequestContext,
@@ -1218,6 +1219,7 @@ export async function resolveArchitectureIdentityIdForRun(
   runDetail: RunDetailsJson,
   tenantScope?: LiveTenantScopeHeaders | null,
   explicitBearerToken?: string | null,
+  pollTimeoutMs = 120_000,
 ): Promise<string | null> {
   const fromRun = runDetail.run?.architectureId?.trim() ?? "";
 
@@ -1225,20 +1227,30 @@ export async function resolveArchitectureIdentityIdForRun(
     return fromRun;
   }
 
-  const identities = await listArchitectureIdentities(request, tenantScope, explicitBearerToken);
   const normalizedRunId = normalizeRunIdForCompare(runId);
-  const match = identities.find((row) => {
-    const latestReviewId = row.latestReviewId?.trim() ?? "";
+  const deadlineMs = Date.now() + pollTimeoutMs;
 
-    if (latestReviewId.length === 0) {
-      return false;
+  while (Date.now() < deadlineMs) {
+    const identities = await listArchitectureIdentities(request, tenantScope, explicitBearerToken);
+    const match = identities.find((row) => {
+      const latestReviewId = row.latestReviewId?.trim() ?? "";
+
+      if (latestReviewId.length === 0) {
+        return false;
+      }
+
+      return normalizeRunIdForCompare(latestReviewId) === normalizedRunId;
+    });
+    const architectureId = match?.architectureId?.trim() ?? "";
+
+    if (architectureId.length > 0) {
+      return architectureId;
     }
 
-    return normalizeRunIdForCompare(latestReviewId) === normalizedRunId;
-  });
-  const architectureId = match?.architectureId?.trim() ?? "";
+    await new Promise((resolve) => setTimeout(resolve, 2_000));
+  }
 
-  return architectureId.length > 0 ? architectureId : null;
+  return null;
 }
 
 /** POST `/v1/governance/approval-requests` — submit promotion approval request. */
