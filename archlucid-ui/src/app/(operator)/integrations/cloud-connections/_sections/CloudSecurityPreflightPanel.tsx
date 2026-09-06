@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -9,6 +11,10 @@ import type {
   CloudSecurityPreflightVerificationState,
 } from "@/lib/cloud-security-preflight-topics";
 import { formatAzureConnectionTimestamp } from "@/lib/azure-connection-present";
+import {
+  cloudSecurityPreflightDisclosureHrefFromSearch,
+  parseCloudSecurityPreflightOpenFromSearch,
+} from "@/lib/integrations/cloud-security-preflight-disclosure-url";
 import { cn } from "@/lib/utils";
 
 export type CloudSecurityPreflightPanelProps = {
@@ -56,6 +62,36 @@ function CloudSecurityPreflightTopicRow(props: {
 /** Read-only security review checklist — not a persisted attestation control. */
 export function CloudSecurityPreflightPanel(props: CloudSecurityPreflightPanelProps): React.ReactElement {
   const { topics, providerLabel, collapsedByDefault = true, verifiedTopics } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/integrations/cloud-connections";
+  const searchParams = useSearchParams();
+  const cloudSecurityPreflightOpenParam = searchParams.get("cloudSecurityPreflightOpen");
+  const [preflightOpen, setPreflightOpenState] = useState(() =>
+    parseCloudSecurityPreflightOpenFromSearch(cloudSecurityPreflightOpenParam),
+  );
+
+  const syncPreflightOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        cloudSecurityPreflightDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPreflightOpen = useCallback(
+    (open: boolean) => {
+      setPreflightOpenState(open);
+      syncPreflightOpenToUrl(open);
+    },
+    [syncPreflightOpenToUrl],
+  );
+
+  useEffect(() => {
+    setPreflightOpenState(parseCloudSecurityPreflightOpenFromSearch(cloudSecurityPreflightOpenParam));
+  }, [cloudSecurityPreflightOpenParam]);
+
   const summaryLine = `${topics.length} access controls reviewed for ${providerLabel} — expand for cited details.`;
 
   const topicList = (
@@ -83,6 +119,10 @@ export function CloudSecurityPreflightPanel(props: CloudSecurityPreflightPanelPr
       {collapsedByDefault ? (
         <details
           className="rounded-md border border-neutral-200 bg-neutral-50/60 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40"
+          open={preflightOpen}
+          onToggle={(event) => {
+            setPreflightOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
         >
           <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
             {summaryLine}
