@@ -9,7 +9,6 @@ import { ARCHITECTURES_LIST_PATH, REVIEWS_LIST_PATH } from "@/lib/architecture/a
 import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
-import { OPERATOR_HOME_START_NEW_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_LINK, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { resolveOperatorHomeLatestDraftPrimaryAction } from "@/lib/operator-home-latest-draft-primary-action";
 import { cn } from "@/lib/utils";
@@ -19,8 +18,6 @@ const WORKING_NEW_REVIEW_BRIDGE_COPY =
 
 export type OperatorHomeWorkingPrimaryCtaProps = {
   readonly variant?: "primary" | "outline";
-  /** When true, show an outline new-review action beside resume. */
-  readonly showNewReviewWhenResuming?: boolean;
 };
 
 /** Working Overview sole primary — resume last draft/review, else new work (ADR 0069 / IS-02). */
@@ -36,20 +33,11 @@ export function OperatorHomeWorkingPrimaryCta(
   if (resume !== null) {
     return (
       <div className="space-y-2" data-testid="operator-home-working-primary-cta">
-        <div className="flex flex-wrap items-center gap-2">
-          <Button asChild variant={variant} size="sm" className="h-8 w-fit">
-            <Link href={resume.href} data-testid="operator-home-working-resume-primary">
-              {resume.ctaLabel}
-            </Link>
-          </Button>
-          {props.showNewReviewWhenResuming === true ? (
-            <Button asChild variant="outline" size="sm" className="h-8 w-fit">
-              <Link href={workingStartHref} data-testid="operator-home-working-new-review-outline">
-                {OPERATOR_HOME_START_NEW_ARCHITECTURE_REVIEW_CTA}
-              </Link>
-            </Button>
-          ) : null}
-        </div>
+        <Button asChild variant={variant} size="sm" className="h-8 w-fit">
+          <Link href={resume.href} data-testid="operator-home-working-resume-primary">
+            {resume.ctaLabel}
+          </Link>
+        </Button>
         <WorkingCapabilityLinks />
       </div>
     );
