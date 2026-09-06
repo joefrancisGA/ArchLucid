@@ -2,6 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import type { Dispatch, SetStateAction } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +25,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  parseSamlSpAdvancedSettingsOpenFromSearch,
+  samlSpAdvancedSettingsDisclosureHrefFromSearch,
+} from "@/lib/administration/saml-sp-advanced-settings-disclosure-url";
 import {
   IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES,
   IDENTITY_PROVIDERS_ROLE_MAPPING_HELPER,
@@ -65,6 +71,34 @@ type SamlSpClaimMappingsFieldsProps = {
 
 export function SamlSpClaimMappingsFields(props: SamlSpClaimMappingsFieldsProps) {
   const { values, setValues, touchedFields, setTouchedFields, fieldErrors, discoveredClaimNames } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/administration/identity-providers";
+  const searchParams = useSearchParams();
+  const samlSpAdvancedSettingsOpenParam = searchParams.get("samlSpAdvancedSettingsOpen");
+  const [advancedSettingsOpen, setAdvancedSettingsOpenState] = useState(() =>
+    parseSamlSpAdvancedSettingsOpenFromSearch(samlSpAdvancedSettingsOpenParam),
+  );
+
+  const syncAdvancedSettingsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(samlSpAdvancedSettingsDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setAdvancedSettingsOpen = useCallback(
+    (open: boolean) => {
+      setAdvancedSettingsOpenState(open);
+      syncAdvancedSettingsOpenToUrl(open);
+    },
+    [syncAdvancedSettingsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setAdvancedSettingsOpenState(parseSamlSpAdvancedSettingsOpenFromSearch(samlSpAdvancedSettingsOpenParam));
+  }, [samlSpAdvancedSettingsOpenParam]);
 
   return (
     <>
@@ -216,6 +250,10 @@ export function SamlSpClaimMappingsFields(props: SamlSpClaimMappingsFieldsProps)
       <details
         className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800"
         data-testid="saml-advanced-settings"
+        open={advancedSettingsOpen}
+        onToggle={(event) => {
+          setAdvancedSettingsOpen((event.currentTarget as HTMLDetailsElement).open);
+        }}
       >
         <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           {IDENTITY_PROVIDERS_SAML_ADVANCED_SETTINGS_TITLE}

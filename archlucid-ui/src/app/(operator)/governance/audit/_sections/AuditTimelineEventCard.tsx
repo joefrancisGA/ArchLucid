@@ -95,6 +95,7 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
   useEffect(() => {
     setDataJsonOpenState(parseAuditTimelineDataJsonEventIdFromSearch(auditTimelineDataJsonEventIdParam) === ev.eventId);
   }, [auditTimelineDataJsonEventIdParam, ev.eventId]);
+
   const runKey = ev.runId?.trim() ?? "";
   const hideBuyerReviewLine =
     buyerPolishedShell &&

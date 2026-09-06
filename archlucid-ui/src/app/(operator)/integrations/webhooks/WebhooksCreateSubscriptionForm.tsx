@@ -2,9 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import { Controller, type Control, type FieldErrors, type UseFormRegister } from "react-hook-form";
-import type { Dispatch, SetStateAction } from "react";
-import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
 
 import { IntegrationConnectChecklist, type IntegrationConnectChecklistStep } from "@/components/integrations/IntegrationConnectChecklist";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
@@ -70,26 +69,8 @@ export type WebhooksCreateSubscriptionFormProps = {
 };
 
 export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscriptionFormProps): React.JSX.Element {
-  const {
-    register,
-    control,
-    errors,
-    canMutate,
-    isSaving,
-    loading,
-    canSubmitForm,
-    formReadinessMessage,
-    showAlertSeverityFilter,
-    secretVisible,
-    setSecretVisible,
-    saveSuccessMessage,
-    setSaveSuccessMessage,
-    webhooksCreateSteps,
-    webhooksCreateEmphasizedStepId,
-  } = props;
-
   const router = useRouter();
-  const pathname = usePathname() ?? "/integrations/webhooks";
+  const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const webhooksDeliveryContractOpenParam = searchParams.get("webhooksDeliveryContractOpen");
   const [deliveryContractOpen, setDeliveryContractOpenState] = useState(() =>
@@ -117,6 +98,24 @@ export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscription
   useEffect(() => {
     setDeliveryContractOpenState(parseWebhooksDeliveryContractOpenFromSearch(webhooksDeliveryContractOpenParam));
   }, [webhooksDeliveryContractOpenParam]);
+
+  const {
+    register,
+    control,
+    errors,
+    canMutate,
+    isSaving,
+    loading,
+    canSubmitForm,
+    formReadinessMessage,
+    showAlertSeverityFilter,
+    secretVisible,
+    setSecretVisible,
+    saveSuccessMessage,
+    setSaveSuccessMessage,
+    webhooksCreateSteps,
+    webhooksCreateEmphasizedStepId,
+  } = props;
 
   return (
     <section
