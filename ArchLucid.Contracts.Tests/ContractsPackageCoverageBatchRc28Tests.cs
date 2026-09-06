@@ -58,6 +58,8 @@ public sealed class ContractsPackageCoverageBatchRc28Tests
     [InlineData("Graph", OperatorSavedViewSurfaces.Graph)]
     [InlineData("findings", OperatorSavedViewSurfaces.Findings)]
     [InlineData("Findings", OperatorSavedViewSurfaces.Findings)]
+    [InlineData("infra-resources", OperatorSavedViewSurfaces.InfraResources)]
+    [InlineData("INFRA-RESOURCES", OperatorSavedViewSurfaces.InfraResources)]
     public void OperatorSavedViewSurfaces_normalizes_supported_surfaces(string surface, string expected)
     {
         OperatorSavedViewSurfaces.IsSupported(surface).Should().BeTrue();
