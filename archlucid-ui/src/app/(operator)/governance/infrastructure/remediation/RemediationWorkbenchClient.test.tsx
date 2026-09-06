@@ -136,4 +136,24 @@ describe("RemediationWorkbenchClient", () => {
       cloudResourceId: "33333333-3333-3333-3333-333333333333",
     });
   });
+
+  it("selects the matching instance when findingId is deep-linked", async () => {
+    searchParams = new URLSearchParams("findingId=22222222-2222-2222-2222-222222222222");
+    render(<RemediationWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-remediation-finding-scope-banner")).toHaveTextContent(
+      "22222222-2222-2222-2222-222222222222",
+    );
+    expect(await screen.findByTestId("infra-remediation-detail")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-remediation-finding-id")).toHaveValue("22222222-2222-2222-2222-222222222222");
+  });
+
+  it("shows create guidance when findingId has no remediation instance yet", async () => {
+    searchParams = new URLSearchParams("findingId=99999999-9999-9999-9999-999999999999");
+    render(<RemediationWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-remediation-finding-scope-banner")).toHaveTextContent(
+      "No remediation instance exists yet",
+    );
+  });
 });

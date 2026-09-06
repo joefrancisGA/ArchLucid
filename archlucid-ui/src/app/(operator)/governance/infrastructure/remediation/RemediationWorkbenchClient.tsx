@@ -53,6 +53,7 @@ import {
   buildResourceHubWorkbenchHref,
   parseInfraEvidenceWorkbenchQueryValue,
   REMEDIATION_WORKBENCH_CLOUD_RESOURCE_ID_PARAM,
+  REMEDIATION_WORKBENCH_FINDING_ID_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -69,7 +70,7 @@ function buildDiagramReconcileHref(correspondenceId: string | null): string | nu
 
 export function RemediationWorkbenchClient() {
   const searchParams = useSearchParams();
-  const urlFindingId = searchParams.get("findingId")?.trim() ?? "";
+  const urlFindingId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(REMEDIATION_WORKBENCH_FINDING_ID_PARAM));
   const urlInstanceId = searchParams.get("instanceId")?.trim() ?? "";
   const urlCorrespondenceId = searchParams.get("correspondenceId")?.trim() ?? "";
   const urlCloudResourceId = parseInfraEvidenceWorkbenchQueryValue(
@@ -96,6 +97,11 @@ export function RemediationWorkbenchClient() {
   const [actionMessage, setActionMessage] = useState<string | null>(null);
 
   const visibleInstances = instances;
+
+  const findingScopedInstance = useMemo(
+    () => visibleInstances.find((instance) => instance.findingId === urlFindingId) ?? null,
+    [urlFindingId, visibleInstances],
+  );
 
   const groupedInstances = useMemo(() => {
     const groups = new Map<RemediationWorkbenchColumn, RemediationInstanceSummary[]>();
@@ -186,15 +192,24 @@ export function RemediationWorkbenchClient() {
   }, [loadWorkbench]);
 
   useEffect(() => {
+    setFindingIdInput(urlFindingId);
+  }, [urlFindingId]);
+
+  useEffect(() => {
     if (urlInstanceId.length > 0) {
       setSelectedInstanceId(urlInstanceId);
+      return;
+    }
+
+    if (findingScopedInstance != null) {
+      setSelectedInstanceId(findingScopedInstance.instanceId);
       return;
     }
 
     if (urlCloudResourceId.length > 0 && visibleInstances.length > 0) {
       setSelectedInstanceId(visibleInstances[0].instanceId);
     }
-  }, [urlCloudResourceId, urlInstanceId, visibleInstances]);
+  }, [findingScopedInstance, urlCloudResourceId, urlInstanceId, visibleInstances]);
 
   useEffect(() => {
     void loadDetail(selectedInstanceId);
@@ -305,6 +320,21 @@ export function RemediationWorkbenchClient() {
           >
             Open resource evidence hub
           </Link>
+        </section>
+      ) : null}
+
+      {urlFindingId.length > 0 ? (
+        <section
+          className="rounded border border-border bg-card p-4"
+          data-testid="infra-remediation-finding-scope-banner"
+          aria-label="Remediation factory finding scope"
+        >
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+            Linked from finding <span className="font-mono text-xs">{urlFindingId}</span>.
+            {findingScopedInstance == null
+              ? " No remediation instance exists yet — use Match + create below."
+              : " Matching remediation instance is selected on the board."}
+          </p>
         </section>
       ) : null}
 
