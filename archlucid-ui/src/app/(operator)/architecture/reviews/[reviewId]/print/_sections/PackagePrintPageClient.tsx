@@ -4,6 +4,7 @@ import { useMemo } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
+import { usePackagePrintMeetingCaptureQuery } from "@/hooks/use-package-print-meeting-capture-query";
 import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
 import { useOidcSessionKeepalive } from "@/hooks/use-oidc-session-keepalive";
 import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
@@ -30,6 +31,9 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
   const { runId, listScopedRunId = null } = props;
   const workingDesk = useProductionDeskChrome();
   const summaryQuery = useRunSummaryQuery(runId);
+  const meetingCaptureQuery = usePackagePrintMeetingCaptureQuery(runId, {
+    enabled: summaryQuery.isSuccess,
+  });
 
   useOidcSessionKeepalive(true);
 
@@ -78,6 +82,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
               workingDesk: true,
             })
           : null,
+        meetingCaptureEntries: meetingCaptureQuery.data?.entries ?? null,
       })}
       listScopedRunId={listScopedRunId}
     />
