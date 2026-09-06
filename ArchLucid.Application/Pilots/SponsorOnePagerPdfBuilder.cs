@@ -1,5 +1,6 @@
 using System.Globalization;
 
+using ArchLucid.Application.Exports;
 using ArchLucid.Application.Rendering;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
@@ -95,14 +96,15 @@ public sealed class SponsorOnePagerPdfBuilder(
 
         PilotRunDeltas deltas = await _deltaComputer.ComputeAsync(detail, cancellationToken);
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        SponsorReviewCoverageHonestyContext coverageHonesty = await SponsorReviewCoverageHonestyMaterialLoader.LoadAsync(
+        CareerExportCoverageHonestyInput careerExportHonesty = await CareerExportCoverageHonestyMaterialLoader.LoadAsync(
             detail,
             _authorityQueryService,
             _graphSnapshotRepository,
             scope,
+            workingDesk: true,
             cancellationToken);
         IReadOnlyList<string> coverageHonestyLines =
-            SponsorReviewCoverageHonestyMarkdownFormatter.RenderPlainTextLines(coverageHonesty);
+            CareerExportCoverageHonestyComposer.RenderPlainTextLines(careerExportHonesty);
         DateTimeOffset end = TimeProvider.System.GetUtcNow();
         DateTimeOffset start = end.AddDays(-30);
         PilotScorecardSummary scorecard = await _scorecardBuilder.BuildAsync(start, end, cancellationToken);
@@ -135,9 +137,9 @@ public sealed class SponsorOnePagerPdfBuilder(
                     column.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
                     if (coverageHonestyLines.Count > 0)
                     {
-                        column.Item().PaddingTop(8).Text("Architecture package honesty").Bold().FontSize(12);
+                        column.Item().PaddingTop(8).Text("Career export honesty").Bold().FontSize(12);
 
-                        foreach (string line in coverageHonestyLines.Skip(1))
+                        foreach (string line in coverageHonestyLines)
                         {
                             column.Item().PaddingTop(2).Text(line).FontSize(9);
                         }

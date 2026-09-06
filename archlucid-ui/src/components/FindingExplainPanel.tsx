@@ -19,7 +19,12 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { resolveFindingOptionalArtifactUnavailableCopy } from "@/lib/findings/finding-optional-artifact-copy";
+import {
+  findingExplainAuditDisclosureHrefFromSearch,
+  parseFindingExplainAuditOpenFromSearch,
+} from "@/lib/findings/finding-explain-audit-disclosure-url";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -56,6 +61,34 @@ export function FindingExplainPanel({
   const [loading, setLoading] = useState(false);
   const [feedbackBusy, setFeedbackBusy] = useState(false);
   const [feedbackNote, setFeedbackNote] = useState<string | null>(null);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const findingExplainAuditOpenParam = searchParams.get("findingExplainAuditOpen");
+  const [auditDetailsOpen, setAuditDetailsOpenState] = useState(() =>
+    parseFindingExplainAuditOpenFromSearch(findingExplainAuditOpenParam),
+  );
+
+  const syncAuditDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(findingExplainAuditDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setAuditDetailsOpen = useCallback(
+    (open: boolean) => {
+      setAuditDetailsOpenState(open);
+      syncAuditDetailsOpenToUrl(open);
+    },
+    [syncAuditDetailsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setAuditDetailsOpenState(parseFindingExplainAuditOpenFromSearch(findingExplainAuditOpenParam));
+  }, [findingExplainAuditOpenParam]);
 
   const load = useCallback(async () => {
     if (findingId.trim().length === 0) {
@@ -209,7 +242,11 @@ export function FindingExplainPanel({
       ) : null}
 
       {!loading && failure === null && audit !== null ? (
-        <Collapsible defaultOpen={false} className="rounded-md border border-neutral-200 dark:border-neutral-600">
+        <Collapsible
+          open={auditDetailsOpen}
+          onOpenChange={setAuditDetailsOpen}
+          className="rounded-md border border-neutral-200 dark:border-neutral-600"
+        >
           <CollapsibleTrigger
             type="button"
             className={cn(

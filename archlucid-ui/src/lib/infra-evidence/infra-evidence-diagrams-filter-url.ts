@@ -1,6 +1,7 @@
 import { GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 
 export const INFRA_DIAGRAMS_SNAPSHOT_ID_PARAM = "snapshotId";
+export const INFRA_DIAGRAMS_CLOUD_RESOURCE_ID_PARAM = "cloudResourceId";
 export const INFRA_DIAGRAMS_MERMAID_MODE_PARAM = "mermaidMode";
 export const INFRA_DIAGRAMS_MERMAID_VIEW_PARAM = "mermaidView";
 export const INFRA_DIAGRAMS_SEED_NODE_ID_PARAM = "seedNodeId";
@@ -19,6 +20,14 @@ export const INFRA_DIAGRAMS_MODE_OPTIONS: readonly { readonly value: string; rea
 const ALLOWED_MODES = new Set(INFRA_DIAGRAMS_MODE_OPTIONS.map((option) => option.value));
 
 export function parseInfraDiagramsSnapshotIdFromSearch(raw: string | null | undefined): string {
+  if (raw === null || raw === undefined) {
+    return "";
+  }
+
+  return raw.trim();
+}
+
+export function parseInfraDiagramsCloudResourceIdFromSearch(raw: string | null | undefined): string {
   if (raw === null || raw === undefined) {
     return "";
   }
@@ -56,10 +65,29 @@ export function parseInfraDiagramsSeedNodeIdFromSearch(raw: string | null | unde
   return raw.trim();
 }
 
+export type InfraDiagramsWorkbenchContext = {
+  readonly snapshotId?: string | null;
+  readonly cloudResourceId?: string | null;
+  readonly mermaidMode?: string | null;
+  readonly mermaidView?: string | null;
+  readonly seedNodeId?: string | null;
+};
+
+export function buildDiagramsWorkbenchHref(context: InfraDiagramsWorkbenchContext = {}): string {
+  return infraDiagramsFilterHrefFromSearch("", {
+    snapshotId: context.snapshotId ?? undefined,
+    cloudResourceId: context.cloudResourceId ?? undefined,
+    mermaidMode: context.mermaidMode ?? undefined,
+    mermaidView: context.mermaidView ?? undefined,
+    seedNodeId: context.seedNodeId ?? undefined,
+  });
+}
+
 export function infraDiagramsFilterHrefFromSearch(
   currentSearch: string,
   patch: {
     readonly snapshotId?: string;
+    readonly cloudResourceId?: string;
     readonly mermaidMode?: string;
     readonly mermaidView?: string;
     readonly seedNodeId?: string;
@@ -75,6 +103,16 @@ export function infraDiagramsFilterHrefFromSearch(
       params.delete(INFRA_DIAGRAMS_SNAPSHOT_ID_PARAM);
     } else {
       params.set(INFRA_DIAGRAMS_SNAPSHOT_ID_PARAM, trimmed);
+    }
+  }
+
+  if (patch.cloudResourceId !== undefined) {
+    const trimmed = patch.cloudResourceId.trim();
+
+    if (trimmed.length === 0) {
+      params.delete(INFRA_DIAGRAMS_CLOUD_RESOURCE_ID_PARAM);
+    } else {
+      params.set(INFRA_DIAGRAMS_CLOUD_RESOURCE_ID_PARAM, trimmed);
     }
   }
 

@@ -1,3 +1,4 @@
+using ArchLucid.Application.Exports;
 using ArchLucid.Core.Diagrams;
 
 using DocumentFormat.OpenXml;
@@ -18,6 +19,7 @@ internal static class ConsultingDocxOpenXmlComposer
         IDiagramImageRenderer diagramImageRenderer,
         IDocumentLogoProvider logoProvider,
         ConsultingDocxExportBranding? branding,
+        CareerExportCoverageHonestyInput? careerExportHonesty,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(report);
@@ -41,6 +43,8 @@ internal static class ConsultingDocxOpenXmlComposer
             await ConsultingDocxCoverPageBuilder.AddAsync(mainPart, body, report, options, logoProvider, branding,
                 cancellationToken);
             ConsultingDocxOpenXmlPrimitives.AddPageBreak(body);
+
+            ConsultingDocxSupplementalSections.AddCareerExportHonesty(body, careerExportHonesty);
 
             if (options.IncludeDocumentControl)
             {

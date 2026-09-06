@@ -17,6 +17,8 @@ import {
   HealthRefreshToolbar,
   HealthSummaryTileGrid,
 } from "@/components/health-dashboard/HealthDashboardSections";
+import { AdminHealthCircuitGateTechnicalDisclosure } from "@/components/health-dashboard/AdminHealthCircuitGateTechnicalDisclosure";
+import { AdminHealthLintRuleTechnicalDisclosure } from "@/components/health-dashboard/AdminHealthLintRuleTechnicalDisclosure";
 import { HealthBuildDetailsDisclosure } from "@/components/health-dashboard/HealthBuildDetailsDisclosure";
 import { TenantCatalogMigrationDiagnosticsSection } from "@/components/tenancy/TenantCatalogMigrationDiagnosticsSection";
 import { AdminHealthEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
@@ -233,9 +235,7 @@ export function AdminHealthPageView(props: Props) {
                                   <span className="font-medium">Recommended action:</span> {finding.recommendedAction}
                                 </p>
                               ) : null}
-                              <CollapsibleSection title="Technical details" defaultOpen={false}>
-                                <p className={cn("m-0 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>{finding.ruleId}</p>
-                              </CollapsibleSection>
+                              <AdminHealthLintRuleTechnicalDisclosure ruleId={finding.ruleId} />
                             </li>
                           ))}
                         </ul>
@@ -256,9 +256,7 @@ export function AdminHealthPageView(props: Props) {
                                   <span className="font-medium">Recommended action:</span> {finding.recommendedAction}
                                 </p>
                               ) : null}
-                              <CollapsibleSection title="Technical details" defaultOpen={false}>
-                                <p className={cn("m-0 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>{finding.ruleId}</p>
-                              </CollapsibleSection>
+                              <AdminHealthLintRuleTechnicalDisclosure ruleId={finding.ruleId} />
                             </li>
                           ))}
                         </ul>
@@ -296,14 +294,10 @@ export function AdminHealthPageView(props: Props) {
                         </p>
                         <HealthStatusChip status={gate.state} className={OPERATOR_TYPOGRAPHY.badge} />
                       </div>
-                      <CollapsibleSection title="Technical details" defaultOpen={false}>
-                        <p className={cn("m-0 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>{gate.name}</p>
-                        {gate.breakDurationSeconds != null ? (
-                          <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                            Open duration: {gate.breakDurationSeconds}s
-                          </p>
-                        ) : null}
-                      </CollapsibleSection>
+                      <AdminHealthCircuitGateTechnicalDisclosure
+                        gateName={gate.name}
+                        breakDurationSeconds={gate.breakDurationSeconds}
+                      />
                     </div>
                   ))}
                 </div>

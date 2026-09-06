@@ -32,6 +32,10 @@ import {
   healthGroupedAllChecksDisclosureHrefFromSearch,
   parseHealthGroupedAllChecksOpenFromSearch,
 } from "@/lib/health-dashboard/health-grouped-all-checks-disclosure-url";
+import {
+  healthCheckTechnicalDisclosureHrefFromSearch,
+  parseHealthCheckTechnicalIdFromSearch,
+} from "@/lib/health-dashboard/health-check-technical-disclosure-url";
 import type { HealthDisplaySeverity } from "@/lib/health-readiness-presentation";
 
 export const HEALTH_DASHBOARD_PAGE_CLASS = cn(OPERATOR_PAGE_CONTAINER.variant.workflow, "max-w-[1120px]");
@@ -250,6 +254,39 @@ function technicalDetailsAriaLabel(label: string, scope: string | undefined): st
 
 export function HealthCheckRow(props: HealthCheckRowProps) {
   const { row } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const healthCheckTechnicalIdParam = searchParams.get("healthCheckTechnicalId");
+  const [technicalOpen, setTechnicalOpenState] = useState(
+    () => parseHealthCheckTechnicalIdFromSearch(healthCheckTechnicalIdParam) === row.checkId,
+  );
+
+  const syncTechnicalOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        healthCheckTechnicalDisclosureHrefFromSearch(
+          searchParams.toString(),
+          open ? row.checkId : null,
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, row.checkId, searchParams],
+  );
+
+  const setTechnicalOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalOpenState(open);
+      syncTechnicalOpenToUrl(open);
+    },
+    [syncTechnicalOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalOpenState(parseHealthCheckTechnicalIdFromSearch(healthCheckTechnicalIdParam) === row.checkId);
+  }, [healthCheckTechnicalIdParam, row.checkId]);
 
   return (
     <div className="rounded-md border border-neutral-200/80 px-3 py-2 dark:border-neutral-800">
@@ -268,7 +305,8 @@ export function HealthCheckRow(props: HealthCheckRowProps) {
       <CollapsibleSection
         title="Technical details"
         summaryAriaLabel={technicalDetailsAriaLabel(row.label, props.disclosureScope)}
-        defaultOpen={false}
+        open={technicalOpen}
+        onToggle={setTechnicalOpen}
         sectionTestId={`health-check-technical-${row.checkId}`}
       >
         <dl className={cn("grid gap-2", OPERATOR_TYPOGRAPHY.helper)}>

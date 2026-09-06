@@ -15,6 +15,7 @@ import { RunDetailOverviewTransparencyTrail } from "@/components/reviews/RunDeta
 import { RunDetailSealDeskCoverageStrip } from "@/components/reviews/RunDetailSealDeskCoverageStrip";
 import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
 import { Suspense } from "react";
+import { RunDetailDetailedOutcomeCardsDisclosure } from "./RunDetailDetailedOutcomeCardsDisclosure";
 import { RunDetailInfeasibleDecisionLead } from "./RunDetailInfeasibleDecisionLead";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
@@ -116,10 +117,9 @@ export function composeRunDetailOverviewTab(
         }
       />
       {showDetailedOutcomeCards ? (
-        <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" open={false}>
-          <summary className="cursor-pointer font-semibold">Detailed outcome cards</summary>
-          <div className="mt-3">{input.outcomeCardsEl}</div>
-        </details>
+        <RunDetailDetailedOutcomeCardsDisclosure>
+          {input.outcomeCardsEl}
+        </RunDetailDetailedOutcomeCardsDisclosure>
       ) : null}
       <Suspense fallback={<RunDetailMidDeferredSkeleton />}>
         <RunDetailMidDeferredSections context={deferredContext} />

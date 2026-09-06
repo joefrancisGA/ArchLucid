@@ -190,6 +190,16 @@ describe("ResourceHubClient", () => {
     );
   });
 
+  it("links diagram tab to scoped inventory diagrams workbench", async () => {
+    searchParams = new URLSearchParams("tab=diagram&snapshotId=22222222-2222-2222-2222-222222222222&runId=run-1");
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-diagrams-workbench")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/diagrams?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111",
+    );
+  });
+
   it("links diagram correspondence to scoped Infrastructure Ask", async () => {
     searchParams = new URLSearchParams("tab=diagram&snapshotId=22222222-2222-2222-2222-222222222222&runId=run-1");
     render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);

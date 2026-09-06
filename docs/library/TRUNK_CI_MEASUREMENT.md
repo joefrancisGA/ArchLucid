@@ -84,6 +84,14 @@ Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord
 | **`push` to `master` / `main`** | **Thin corset only** (`ui-typecheck-on-push.yml`) | Direct trunk pushes get compile + Core/Decisioning fast-core + UI typecheck without paying full SQL/Playwright/k6 on every merge. |
 | **`workflow_dispatch` on `ci.yml`** | **Off** (full matrix) | Release prep and trunk health audits run every lane intentionally. |
 
-**Decision:** Do **not** relax PR path gating or expand default-branch push to the full matrix. Use **`workflow_dispatch`** on `ci.yml` (Actions → CI → Run workflow, branch `master`) before release cuts, and rely on **`trunk-matrix-measurement.yml`** for weekly fast-core slices outside the corset.
+**Decision:** Do **not** relax PR path gating or expand default-branch push to the full matrix. Use **`workflow_dispatch`** on `ci.yml` before release cuts:
 
-**Recorded measurement:** Trigger `Trunk matrix measurement` or `CI` workflow_dispatch after material trunk changes; append results to the table above with date and commit SHA.
+```bash
+bash scripts/ci/dispatch_full_ci_matrix.sh master
+# Optional extended live-a11y matrix:
+bash scripts/ci/dispatch_full_ci_matrix.sh master true
+```
+
+Also rely on **`trunk-matrix-measurement.yml`** for weekly fast-core slices outside the corset.
+
+**Recorded measurement:** Trigger `Trunk matrix measurement` or full `CI` workflow_dispatch after material trunk changes; append results to the table above with date and commit SHA.

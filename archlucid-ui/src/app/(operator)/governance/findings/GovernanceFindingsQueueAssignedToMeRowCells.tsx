@@ -1,7 +1,8 @@
-import Link from "next/link";
-import type { ReactElement } from "react";
+"use client";
 
-import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { useCallback, useEffect, useState, type ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
@@ -17,6 +18,11 @@ import {
   governanceFindingInspectHref,
 } from "@/components/governance/findings/governance-findings-navigation";
 import { governanceQueueDispositionLabel } from "@/lib/architecture/architecture-risk-register-page";
+import { cn } from "@/lib/utils";
+import {
+  governanceFindingDerivationDisclosureHrefFromSearch,
+  parseGovernanceFindingDerivationIdFromSearch,
+} from "@/lib/governance/governance-finding-derivation-disclosure-url";
 
 import {
   GOVERNANCE_FINDINGS_QUEUE_SEVERITY_STICKY_CLASS,
@@ -37,6 +43,41 @@ export type GovernanceFindingsQueueAssignedToMeRowCellsProps = {
 export function GovernanceFindingsQueueAssignedToMeRowCells(props: GovernanceFindingsQueueAssignedToMeRowCellsProps): ReactElement {
   const { row, showNewSinceLastVisit, onOpenRow } = props;
   const findingDerivation = findingDerivationFromGovernanceQueueRow(row);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const governanceFindingDerivationIdParam = searchParams.get("governanceFindingDerivationId");
+  const [derivationOpen, setDerivationOpenState] = useState(
+    () => parseGovernanceFindingDerivationIdFromSearch(governanceFindingDerivationIdParam) === row.findingId,
+  );
+
+  const syncDerivationOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        governanceFindingDerivationDisclosureHrefFromSearch(
+          searchParams.toString(),
+          open ? row.findingId : null,
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, row.findingId, searchParams],
+  );
+
+  const setDerivationOpen = useCallback(
+    (open: boolean) => {
+      setDerivationOpenState(open);
+      syncDerivationOpenToUrl(open);
+    },
+    [syncDerivationOpenToUrl],
+  );
+
+  useEffect(() => {
+    setDerivationOpenState(
+      parseGovernanceFindingDerivationIdFromSearch(governanceFindingDerivationIdParam) === row.findingId,
+    );
+  }, [governanceFindingDerivationIdParam, row.findingId]);
 
   return (
     <>
@@ -59,7 +100,8 @@ export function GovernanceFindingsQueueAssignedToMeRowCells(props: GovernanceFin
         {findingDerivation !== null ? (
           <CollapsibleSection
             title="Derivation"
-            defaultOpen={false}
+            open={derivationOpen}
+            onToggle={setDerivationOpen}
             sectionTestId={`governance-table-derivation-${row.findingId}`}
           >
             <FindingDerivationLine
