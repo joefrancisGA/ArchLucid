@@ -1,13 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { OPERATOR_LINK, OPERATOR_SHELL_STICKY_TOP_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   REVIEW_DETAIL_TAB_PARAM,
   resolveReviewDetailTab,
 } from "@/lib/review-detail-workspace-tabs";
+import {
+  parseRunDetailStickyActionsTechnicalDetailOpenFromSearch,
+  runDetailStickyActionsTechnicalDetailDisclosureHrefFromSearch,
+} from "@/lib/reviews/run-detail-sticky-actions-technical-detail-disclosure-url";
 import { cn } from "@/lib/utils";
 
 import { contextualizeReviewPackagePrimaryActionForActiveTab } from "./contextualize-review-package-primary-action";
@@ -40,7 +45,38 @@ export type RunDetailWorkspaceStickyActionsProps = {
 export function RunDetailWorkspaceStickyActions(
   props: RunDetailWorkspaceStickyActionsProps,
 ): React.JSX.Element | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
+  const runDetailStickyActionsTechnicalDetailOpenParam = searchParams.get("runDetailStickyActionsTechnicalDetailOpen");
+  const [technicalDetailOpen, setTechnicalDetailOpenState] = useState(() =>
+    parseRunDetailStickyActionsTechnicalDetailOpenFromSearch(runDetailStickyActionsTechnicalDetailOpenParam),
+  );
+
+  const syncTechnicalDetailOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        runDetailStickyActionsTechnicalDetailDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTechnicalDetailOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalDetailOpenState(open);
+      syncTechnicalDetailOpenToUrl(open);
+    },
+    [syncTechnicalDetailOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalDetailOpenState(
+      parseRunDetailStickyActionsTechnicalDetailOpenFromSearch(runDetailStickyActionsTechnicalDetailOpenParam),
+    );
+  }, [runDetailStickyActionsTechnicalDetailOpenParam]);
+
   const activeTab = resolveReviewDetailTab(searchParams.get(REVIEW_DETAIL_TAB_PARAM));
   const blockerKind = resolveReviewPackageApprovalBlockerKind({
     ...props.primaryActionContext,
@@ -87,7 +123,13 @@ export function RunDetailWorkspaceStickyActions(
               {blockingHelperText}
             </p>
             {technicalDetail.length > 0 ? (
-              <details className={cn("text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+              <details
+                className={cn("text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
+                open={technicalDetailOpen}
+                onToggle={(event) => {
+                  setTechnicalDetailOpen((event.currentTarget as HTMLDetailsElement).open);
+                }}
+              >
                 <summary className="cursor-pointer font-medium">Technical detail</summary>
                 <p className="m-0 mt-1">{technicalDetail}</p>
               </details>
