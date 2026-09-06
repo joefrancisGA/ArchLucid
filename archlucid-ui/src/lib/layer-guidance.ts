@@ -50,6 +50,7 @@ export type LayerGuidancePageKey =
   | "slack-notifications"
   | "infrastructure-overview"
   | "infrastructure-drift"
+  | "infrastructure-terraform"
   | "infrastructure-diagrams"
   | "infrastructure-diagram-reconcile"
   | "infrastructure-resources"
@@ -307,6 +308,13 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     headline: "Compare inventory snapshots and classify drift.",
     useWhen: "Pick current and baseline snapshots before exporting advisory Terraform.",
     firstPilotNote: "Compare snapshots after cloud inventory capture exists for your scope.",
+    omitReviewPackageScopeHelp: true,
+  },
+  "infrastructure-terraform": {
+    layerBadge: "Advanced operations",
+    headline: "Review advisory Terraform mapping for a scoped resource.",
+    useWhen: "Confirm the reconstructed Terraform address and generation method before exporting from drift.",
+    firstPilotNote: "Advisory mapping is reconstructed from snapshot evidence — not original Terraform.",
     omitReviewPackageScopeHelp: true,
   },
   "infrastructure-diagrams": {

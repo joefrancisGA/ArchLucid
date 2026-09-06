@@ -59,6 +59,7 @@ import {
   parseInfraEvidenceWorkbenchAuditScopeFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
 import { buildResourceHubDiagramsWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-ask-citations";
+import { WorkbenchAuditProvenance } from "@/components/infra-evidence/WorkbenchAuditProvenance";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -101,7 +102,7 @@ function buildDiagramReconcileCorrespondenceAskHref(
     snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
     runId: runId.length > 0 ? runId : undefined,
     correspondenceId: row.correspondenceId,
-    ...mergeInfrastructureAskAuditScope(auditScope),
+    ...mergeInfrastructureAskAuditScope(auditScope ?? null),
   });
 }
 
@@ -487,6 +488,11 @@ export function DiagramReconcileWorkbenchClient() {
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             Scoped to resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
           </p>
+          {auditScope != null ? (
+            <div className="mt-2">
+              <WorkbenchAuditProvenance auditScope={auditScope} testId="infra-diagram-reconcile-audit-provenance" />
+            </div>
+          ) : null}
           <WorkbenchHubScopeLinks
             cloudResourceId={urlCloudResourceId}
             primaryTab="diagram"
@@ -502,7 +508,7 @@ export function DiagramReconcileWorkbenchClient() {
             extraLinks={[
               {
                 testId: "infra-diagram-reconcile-open-diagrams",
-                href: buildResourceHubDiagramsWorkbenchHref(scopedSnapshotId, urlCloudResourceId, undefined, auditScope),
+                href: buildResourceHubDiagramsWorkbenchHref(scopedSnapshotId, urlCloudResourceId, undefined, auditScope ?? undefined),
                 label: "Open inventory diagrams",
               },
             ]}

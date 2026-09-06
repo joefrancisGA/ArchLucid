@@ -143,6 +143,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   remediationFactory: "Remediation factory",
   infrastructureOverview: "Infrastructure overview",
   infrastructureDrift: "Drift & snapshots",
+  infrastructureTerraform: "Terraform mapping",
   infrastructureDiagrams: "Inventory diagrams",
   infrastructureDiagramReconcile: "Diagram reconciliation",
   infrastructureResources: "Resource explorer",
