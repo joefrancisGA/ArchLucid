@@ -99,7 +99,7 @@ public sealed class QualityGateWarnOnlyProductionLikeConfigurationLintTests
     }
 
     [Fact]
-    public void ShouldEmitFinding_production_real_off_synonym_warn_only_emits_rule()
+    public void ShouldEmitFinding_production_real_off_synonym_ignores_boolean_synonym()
     {
         IConfiguration configuration = BuildConfig("Real", "off");
 
@@ -107,7 +107,7 @@ public sealed class QualityGateWarnOnlyProductionLikeConfigurationLintTests
                 configuration,
                 Environments.Production)
             .Should()
-            .BeTrue();
+            .BeFalse();
     }
 
     private static IConfiguration BuildConfig(string agentExecutionMode, string? qualityGateMode)

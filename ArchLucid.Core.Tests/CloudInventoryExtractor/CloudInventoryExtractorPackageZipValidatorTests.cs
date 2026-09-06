@@ -91,7 +91,7 @@ public sealed class CloudInventoryExtractorPackageZipValidatorTests
     }
 
     [Fact]
-    public void Validate_boolean_schemaVersion_succeeds()
+    public void Validate_boolean_schemaVersion_is_schema_rejection()
     {
         byte[] zipBytes = BuildZip(
             includeManifest: true,
@@ -103,7 +103,8 @@ public sealed class CloudInventoryExtractorPackageZipValidatorTests
 
         CloudInventoryExtractorZipValidationResult result = CloudInventoryExtractorPackageZipValidator.Validate(stream);
 
-        result.IsValid.Should().BeTrue();
+        result.IsValid.Should().BeFalse();
+        result.IsSchemaRejection.Should().BeTrue();
     }
 
     [Fact]
