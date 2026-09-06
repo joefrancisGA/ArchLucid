@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Fragment } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +13,10 @@ import {
   MODEL_GOVERNANCE_REGISTRY_EMPTY_COPY,
 } from "@/lib/model-governance-copy";
 import { modelGovernanceAgentTypeLabel } from "@/lib/model-governance-labels";
+import {
+  modelGovernanceProfileMappingDisclosureHrefFromSearch,
+  parseModelGovernanceProfileMappingProfileFromSearch,
+} from "@/lib/administration/model-governance-profile-mapping-disclosure-url";
 
 import { AllowedEngineSetControls } from "./ModelGovernanceAllowedEngineSetControls";
 import { GovernedAliasRegistryTable } from "./ModelGovernanceAliasRegistryTable";
@@ -19,6 +24,37 @@ import { ProfileControls, ProfileTradeoffComparison } from "./ModelGovernancePro
 import { useModelGovernanceSettings } from "./use-model-governance-settings";
 
 export function ModelGovernanceSettingsCard() {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/administration/model-governance";
+  const searchParams = useSearchParams();
+  const modelGovernanceProfileMappingProfileParam = searchParams.get("modelGovernanceProfileMappingProfile");
+  const [openProfileMapping, setOpenProfileMappingState] = useState(
+    () => parseModelGovernanceProfileMappingProfileFromSearch(modelGovernanceProfileMappingProfileParam),
+  );
+
+  const syncProfileMappingOpenToUrl = useCallback(
+    (profile: string | null) => {
+      router.replace(
+        modelGovernanceProfileMappingDisclosureHrefFromSearch(searchParams.toString(), profile, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpenProfileMapping = useCallback(
+    (profile: string, open: boolean) => {
+      const nextProfile = open ? profile : null;
+      setOpenProfileMappingState(nextProfile ?? "");
+      syncProfileMappingOpenToUrl(nextProfile);
+    },
+    [syncProfileMappingOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOpenProfileMappingState(parseModelGovernanceProfileMappingProfileFromSearch(modelGovernanceProfileMappingProfileParam));
+  }, [modelGovernanceProfileMappingProfileParam]);
+
   const {
     state,
     saving,
@@ -119,6 +155,10 @@ export function ModelGovernanceSettingsCard() {
                   <details
                     key={mapping.profile}
                     className="rounded-md border border-neutral-200 p-3 dark:border-neutral-700"
+                    open={openProfileMapping === mapping.profile}
+                    onToggle={(event) => {
+                      setOpenProfileMapping(mapping.profile, (event.currentTarget as HTMLDetailsElement).open);
+                    }}
                   >
                     <summary className="cursor-pointer font-medium text-al-text-primary">
                       {modelExecutionProfileLabel(mapping.profile)}

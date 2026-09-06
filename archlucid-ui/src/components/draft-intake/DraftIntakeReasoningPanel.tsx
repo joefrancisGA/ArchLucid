@@ -20,6 +20,10 @@ import {
   draftIntakeReasoningPanelHrefFromSearch,
   parseDraftIntakeReasonOpenFromSearch,
 } from "@/lib/draft-intake/draft-intake-reasoning-panel-url";
+import {
+  draftIntakeReasonFollowUpDisclosureHrefFromSearch,
+  parseDraftIntakeReasonFollowUpOpenFromSearch,
+} from "@/lib/draft-intake/draft-intake-reason-follow-up-disclosure-url";
 
 const DEFAULT_INTAKE_QUESTION =
   "What gaps or risks do you see in my intent and outcome before I start the architecture review?";
@@ -62,6 +66,7 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const draftIntakeReasonOpenParam = searchParams.get("draftIntakeReasonOpen");
+  const draftIntakeReasonFollowUpOpenParam = searchParams.get("draftIntakeReasonFollowUpOpen");
   const [panelOpen, setPanelOpenState] = useState(() => {
     if (parseDraftIntakeReasonOpenFromSearch(draftIntakeReasonOpenParam)) {
       return true;
@@ -98,6 +103,31 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
     },
     [syncPanelOpenToUrl],
   );
+
+  const [followUpOpen, setFollowUpOpenState] = useState(() =>
+    parseDraftIntakeReasonFollowUpOpenFromSearch(draftIntakeReasonFollowUpOpenParam),
+  );
+
+  const syncFollowUpOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(draftIntakeReasonFollowUpDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setFollowUpOpen = useCallback(
+    (open: boolean) => {
+      setFollowUpOpenState(open);
+      syncFollowUpOpenToUrl(open);
+    },
+    [syncFollowUpOpenToUrl],
+  );
+
+  useEffect(() => {
+    setFollowUpOpenState(parseDraftIntakeReasonFollowUpOpenFromSearch(draftIntakeReasonFollowUpOpenParam));
+  }, [draftIntakeReasonFollowUpOpenParam]);
 
   useEffect(() => {
     if (props.embedded === true) {
@@ -174,7 +204,13 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
         </>
       ) : null}
 
-      <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
+      <details
+        className="rounded-md border border-neutral-200 p-3 dark:border-neutral-700"
+        open={followUpOpen}
+        onToggle={(event) => {
+          setFollowUpOpen((event.currentTarget as HTMLDetailsElement).open);
+        }}
+      >
         <summary
           className={cn("cursor-pointer select-none font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="draft-intake-reason-follow-up-toggle"

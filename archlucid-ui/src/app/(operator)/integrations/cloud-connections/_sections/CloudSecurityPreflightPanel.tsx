@@ -15,6 +15,10 @@ import {
   cloudSecurityPreflightDisclosureHrefFromSearch,
   parseCloudSecurityPreflightOpenFromSearch,
 } from "@/lib/integrations/cloud-security-preflight-disclosure-url";
+import {
+  cloudSecurityPreflightTechnicalDetailsDisclosureHrefFromSearch,
+  parseCloudSecurityPreflightTechnicalDetailsOpenFromSearch,
+} from "@/lib/integrations/cloud-security-preflight-technical-details-disclosure-url";
 import { cn } from "@/lib/utils";
 
 export type CloudSecurityPreflightPanelProps = {
@@ -142,8 +146,46 @@ export type CloudSecurityPreflightTechnicalDetailsProps = {
 
 /** Collapsed implementation notes — provider-specific technical content only. */
 export function CloudSecurityPreflightTechnicalDetails(props: CloudSecurityPreflightTechnicalDetailsProps): React.ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/integrations/cloud-connections";
+  const searchParams = useSearchParams();
+  const cloudSecurityPreflightTechnicalDetailsOpenParam = searchParams.get("cloudSecurityPreflightTechnicalDetailsOpen");
+  const [technicalDetailsOpen, setTechnicalDetailsOpenState] = useState(() =>
+    parseCloudSecurityPreflightTechnicalDetailsOpenFromSearch(cloudSecurityPreflightTechnicalDetailsOpenParam),
+  );
+
+  const syncTechnicalDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        cloudSecurityPreflightTechnicalDetailsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTechnicalDetailsOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalDetailsOpenState(open);
+      syncTechnicalDetailsOpenToUrl(open);
+    },
+    [syncTechnicalDetailsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalDetailsOpenState(
+      parseCloudSecurityPreflightTechnicalDetailsOpenFromSearch(cloudSecurityPreflightTechnicalDetailsOpenParam),
+    );
+  }, [cloudSecurityPreflightTechnicalDetailsOpenParam]);
+
   return (
-    <details className="rounded-md border border-neutral-200 bg-neutral-50/60 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40">
+    <details
+      className="rounded-md border border-neutral-200 bg-neutral-50/60 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40"
+      open={technicalDetailsOpen}
+      onToggle={(event) => {
+        setTechnicalDetailsOpen((event.currentTarget as HTMLDetailsElement).open);
+      }}
+    >
       <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
         Technical details
       </summary>

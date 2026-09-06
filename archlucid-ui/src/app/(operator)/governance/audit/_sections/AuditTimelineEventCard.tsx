@@ -16,6 +16,10 @@ import {
   auditTimelineTechnicalDetailsDisclosureHrefFromSearch,
   parseAuditTimelineTechnicalDetailsEventIdFromSearch,
 } from "@/lib/governance/audit-timeline-technical-details-disclosure-url";
+import {
+  auditTimelineDataJsonDisclosureHrefFromSearch,
+  parseAuditTimelineDataJsonEventIdFromSearch,
+} from "@/lib/governance/audit-timeline-data-json-disclosure-url";
 import { auditBuyerActorRoleLine, formatUtc, tryFormatDataJson } from "./audit-page-helpers";
 
 type AuditTimelineEventCardProps = {
@@ -30,8 +34,12 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
   const pathname = usePathname() ?? "/governance/audit";
   const searchParams = useSearchParams();
   const auditTimelineTechnicalDetailsEventIdParam = searchParams.get("auditTimelineTechnicalDetailsEventId");
+  const auditTimelineDataJsonEventIdParam = searchParams.get("auditTimelineDataJsonEventId");
   const [technicalDetailsOpen, setTechnicalDetailsOpenState] = useState(
     () => parseAuditTimelineTechnicalDetailsEventIdFromSearch(auditTimelineTechnicalDetailsEventIdParam) === ev.eventId,
+  );
+  const [dataJsonOpen, setDataJsonOpenState] = useState(
+    () => parseAuditTimelineDataJsonEventIdFromSearch(auditTimelineDataJsonEventIdParam) === ev.eventId,
   );
 
   const syncTechnicalDetailsOpenToUrl = useCallback(
@@ -56,12 +64,37 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
     [syncTechnicalDetailsOpenToUrl],
   );
 
+  const syncDataJsonOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        auditTimelineDataJsonDisclosureHrefFromSearch(
+          searchParams.toString(),
+          open ? ev.eventId : null,
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [ev.eventId, pathname, router, searchParams],
+  );
+
+  const setDataJsonOpen = useCallback(
+    (open: boolean) => {
+      setDataJsonOpenState(open);
+      syncDataJsonOpenToUrl(open);
+    },
+    [syncDataJsonOpenToUrl],
+  );
+
   useEffect(() => {
     setTechnicalDetailsOpenState(
       parseAuditTimelineTechnicalDetailsEventIdFromSearch(auditTimelineTechnicalDetailsEventIdParam) === ev.eventId,
     );
   }, [auditTimelineTechnicalDetailsEventIdParam, ev.eventId]);
 
+  useEffect(() => {
+    setDataJsonOpenState(parseAuditTimelineDataJsonEventIdFromSearch(auditTimelineDataJsonEventIdParam) === ev.eventId);
+  }, [auditTimelineDataJsonEventIdParam, ev.eventId]);
   const runKey = ev.runId?.trim() ?? "";
   const hideBuyerReviewLine =
     buyerPolishedShell &&
@@ -202,7 +235,13 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
         )
       ) : null}
       {!buyerPolishedShell ? (
-        <details className="mt-2.5">
+        <details
+          className="mt-2.5"
+          open={dataJsonOpen}
+          onToggle={(event) => {
+            setDataJsonOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
+        >
           <summary className={cn("cursor-pointer", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>Data JSON</summary>
           <pre
             className={cn(
