@@ -56,6 +56,8 @@ export const ARCHITECTURE_IDENTITY_LIST_EMPTY_TITLE = "No architectures yet" as 
 export const ARCHITECTURE_IDENTITY_LIST_EMPTY_BODY =
   "Create an architecture draft and save it to establish an identity you can reopen all week." as const;
 
+export const ARCHITECTURE_IDENTITY_LIST_EMPTY_PRIMARY_LABEL = "New architecture" as const;
+
 export const ARCHITECTURE_IDENTITY_LIST_LOADING_LABEL = "Loading architectures…" as const;
 
 export const ARCHITECTURE_IDENTITY_TABLE_NAME_COLUMN = "Architecture" as const;

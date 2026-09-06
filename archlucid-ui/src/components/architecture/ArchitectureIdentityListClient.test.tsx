@@ -44,4 +44,26 @@ describe("ArchitectureIdentityListClient (DA-04 Working list)", () => {
     );
     expect(screen.getByText("2")).toBeInTheDocument();
   });
+
+  it("CA-35: Working empty state offers New architecture without sample hrefs", () => {
+    useArchitectureIdentitiesListQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: {
+        items: [],
+        totalCount: 0,
+        page: 1,
+        pageSize: 50,
+        hasMore: false,
+      },
+    });
+
+    render(<ArchitectureIdentityListClient />);
+
+    const createLink = screen.getByRole("link", { name: "New architecture" });
+
+    expect(createLink).toHaveAttribute("href", "/architecture/architectures/new");
+    expect(screen.queryByRole("link", { name: /sample/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /claims intake/i })).not.toBeInTheDocument();
+  });
 });

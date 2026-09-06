@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 
-import { useArchitectureIdentitiesListQuery } from "@/hooks/use-architecture-identities-list-query";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { useArchitectureIdentitiesListQuery } from "@/hooks/use-architecture-identities-list-query";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -13,9 +13,10 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import { architectureIdentityPath } from "@/lib/architecture/architecture-routes";
+import { architectureIdentityPath, ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import {
   ARCHITECTURE_IDENTITY_LIST_EMPTY_BODY,
+  ARCHITECTURE_IDENTITY_LIST_EMPTY_PRIMARY_LABEL,
   ARCHITECTURE_IDENTITY_LIST_EMPTY_TITLE,
   ARCHITECTURE_IDENTITY_LIST_LOADING_LABEL,
   ARCHITECTURE_IDENTITY_TABLE_DRAFTS_COLUMN,
@@ -52,6 +53,13 @@ export function ArchitectureIdentityListClient(): React.JSX.Element {
       <EnterpriseCompactEmptyState
         title={ARCHITECTURE_IDENTITY_LIST_EMPTY_TITLE}
         description={ARCHITECTURE_IDENTITY_LIST_EMPTY_BODY}
+        actions={[
+          {
+            label: ARCHITECTURE_IDENTITY_LIST_EMPTY_PRIMARY_LABEL,
+            href: ARCHITECTURES_NEW_PATH,
+            variant: "primary",
+          },
+        ]}
         testId="architecture-identity-list-empty"
       />
     );

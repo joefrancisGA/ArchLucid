@@ -2,8 +2,10 @@
 
 import { useMemo, useSyncExternalStore } from "react";
 
+import { OperatorHomeContinueLastArchitectureSection } from "@/components/operator-home/OperatorHomeContinueLastArchitectureSection";
 import { OperatorHomeContinueLastReviewPackageSection } from "@/components/operator-home/OperatorHomeContinueLastReviewPackageSection";
 import { OperatorHomeInFlightReviewsSection } from "@/components/operator-home/OperatorHomeInFlightReviewsSection";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { listIncompleteWizardSignals } from "@/lib/unfinished-work-rail";
 import { resolveOperatorHomeResumeAffordancePlan } from "@/lib/operator/operator-home-resume-affordance";
@@ -38,6 +40,7 @@ function getIncompleteWizardSnapshot(): ReturnType<typeof listIncompleteWizardSi
 
 /** Working-mode in-flight reviews with a single primary resume affordance. */
 export function OperatorHomeInFlightSection(props: OperatorHomeInFlightSectionProps): React.JSX.Element {
+  const { isWorkingMode } = useWorkspaceMode();
   const drafts = useArchitectureDraftRegistryEntries();
   const incompleteWizards = useSyncExternalStore(
     subscribeWizardSessions,
@@ -50,13 +53,17 @@ export function OperatorHomeInFlightSection(props: OperatorHomeInFlightSectionPr
         runs: props.runs,
         drafts,
         incompleteWizards,
+        workingMode: isWorkingMode,
       }),
-    [drafts, incompleteWizards, props.runs],
+    [drafts, incompleteWizards, isWorkingMode, props.runs],
   );
 
   return (
     <div className={OPERATOR_LAYOUT.sectionStack}>
-      {resumePlan.showContinueLast ? (
+      {resumePlan.showContinueLast && resumePlan.continueLastKind === "architecture" ? (
+        <OperatorHomeContinueLastArchitectureSection buttonVariant={resumePlan.continueLastVariant} />
+      ) : null}
+      {resumePlan.showContinueLast && resumePlan.continueLastKind === "review" ? (
         <OperatorHomeContinueLastReviewPackageSection
           runs={props.runs}
           buttonVariant={resumePlan.continueLastVariant}
