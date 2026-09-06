@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
+import { useOperatorAttentionSummary } from "@/hooks/use-operator-attention-summary";
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 
 import { OperatorHomePrimaryAttentionLead } from "@/components/operator-home/OperatorHomePrimaryAttentionLead";
@@ -47,7 +48,10 @@ const METRIC_CARD_CLASS =
 const OPERATOR_HOME_WORKSPACE_METRICS_SECTION_TITLE = "Workspace summary";
 const OPERATOR_HOME_WORKSPACE_METRICS_SCOPE_LABEL = "Scope:";
 const OPERATOR_HOME_WORKSPACE_METRICS_SCOPE_VALUE =
-  "Each tile states its partition inline — reviews inventory, findings queue, or governance approval warnings.";
+  "Each tile states its partition inline · reviews inventory, findings queue, or governance approval warnings.";
+
+const OPERATOR_HOME_AWAITING_APPROVAL_WARNINGS_CLARIFIER =
+  "Awaiting approval counts reviews in the approval queue. Approval warnings count governance checks that need a sign-off before finalization.";
 
 /** Compact KPI strip for populated workspaces. */
 export function OperatorHomeWorkspaceMetricsStrip(
@@ -56,6 +60,9 @@ export function OperatorHomeWorkspaceMetricsStrip(
   const readiness = useFinishSetupReadinessContext();
   const searchParams = useSearchParams();
   const scope = useOperatorScopeRecord();
+  const { summaries } = useOperatorAttentionSummary();
+  const awaitingApprovalCount =
+    summaries.find((summary) => summary.partition === "awaiting-approval")?.totalCount ?? 0;
   const countingSnapshot = deriveOperatorHomeTenantCountingSnapshot({
     displayItems: props.runsDashboard.items,
     previewItems: props.runsDashboard.items,
@@ -117,28 +124,40 @@ export function OperatorHomeWorkspaceMetricsStrip(
             <SelfDescribingMetricCount
               presentation={operatorHomeActiveReviewsPresentation(activeReviews)}
               testId="operator-home-metric-active-reviews-count"
+              valueVariant={activeReviews === 0 ? "quiet" : "default"}
             />
           </li>
           <li className={METRIC_CARD_CLASS} data-testid="operator-home-metric-finalized-packages">
             <SelfDescribingMetricCount
               presentation={operatorHomeFinalizedPackagesPresentation(finalizedPackages)}
               testId="operator-home-metric-finalized-packages-count"
+              valueVariant={finalizedPackages === 0 ? "quiet" : "default"}
             />
           </li>
           <li className={METRIC_CARD_CLASS} data-testid="operator-home-metric-open-findings">
             <SelfDescribingMetricCount
               presentation={workspaceOpenFindingsPresentation(findingsCount)}
               testId="operator-home-metric-open-findings-count"
+              valueVariant={findingsCount === 0 ? "quiet" : "default"}
             />
           </li>
           <li className={METRIC_CARD_CLASS} data-testid="operator-home-governance-warnings-metric">
             <SelfDescribingMetricCount
               presentation={warningsPresentation}
               testId="operator-home-governance-warnings-metric-count"
+              valueVariant={warningsCount === 0 ? "quiet" : "default"}
             />
           </li>
         </ul>
       </div>
+      {warningsCount === 0 && awaitingApprovalCount > 0 ? (
+        <p
+          className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="operator-home-awaiting-approval-warnings-clarifier"
+        >
+          {OPERATOR_HOME_AWAITING_APPROVAL_WARNINGS_CLARIFIER}
+        </p>
+      ) : null}
       {warningsCount > 0 ? (
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           <InlineGlossaryChip nounId="governance-approval" pulseOnFirstEncounter>

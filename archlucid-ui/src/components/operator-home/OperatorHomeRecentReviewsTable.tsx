@@ -34,6 +34,8 @@ import type { RunSummary } from "@/types/authority";
 
 export type OperatorHomeRecentReviewsTableProps = {
   readonly runs: readonly RunSummary[];
+  /** When set, hides the row Continue action for the hero-owned resume target (P1-11). */
+  readonly suppressContinueForRunId?: string;
 };
 
 function isExampleReviewRow(run: RunSummary): boolean {
@@ -83,6 +85,10 @@ export function OperatorHomeRecentReviewsTable(
           const updatedPresentation = formatRunHomeListUpdatedLabel(run);
           const isExampleReview = isExampleReviewRow(run);
           const actionLabel = resolveRecentReviewRowActionLabel(run);
+          const suppressContinueAction =
+            props.suppressContinueForRunId !== undefined &&
+            props.suppressContinueForRunId.trim().length > 0 &&
+            runId === props.suppressContinueForRunId;
 
           return (
             <EnterpriseTableRow key={runId} data-testid={`operator-home-recent-review-row-${runId}`}>
@@ -107,7 +113,7 @@ export function OperatorHomeRecentReviewsTable(
                     <time dateTime={updatedPresentation.isoUtc} className="text-al-text-primary">
                       {updatedPresentation.absoluteLabel}
                     </time>
-                    <span className="text-al-text-secondary sm:before:content-['·_']">
+                    <span className="text-al-text-secondary sm:before:content-['_·_']">
                       {updatedPresentation.relativeLabel}
                     </span>
                   </span>
@@ -116,9 +122,15 @@ export function OperatorHomeRecentReviewsTable(
                 )}
               </EnterpriseTableCell>
               <EnterpriseTableCell className="text-right">
-                <Button asChild variant="outline" size="sm" className="h-7">
-                  <Link href={href}>{actionLabel}</Link>
-                </Button>
+                {suppressContinueAction ? (
+                  <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} aria-hidden="true">
+                    —
+                  </span>
+                ) : (
+                  <Button asChild variant="outline" size="sm" className="h-7">
+                    <Link href={href}>{actionLabel}</Link>
+                  </Button>
+                )}
               </EnterpriseTableCell>
             </EnterpriseTableRow>
           );

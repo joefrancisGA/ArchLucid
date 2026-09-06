@@ -68,7 +68,6 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
     showGraph,
     showTimeline,
     showTables,
-    evidenceGraphHref,
     pathname,
     currentSearch,
   } = useProvenancePageWorkspace(props);
@@ -113,7 +112,6 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
             reviewTitle={reviewTitle}
             graph={graph}
             provenanceTraceId={provenanceTraceId}
-            evidenceGraphHref={evidenceGraphHref}
           />
 
           {hasScopedRun ? (
@@ -160,6 +158,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
                   retryGraphLayout={retryGraphLayout}
                   openTablesView={openTablesView}
                   onSelectEdge={onSelectEdge}
+                  showInspectCoach={provenanceInspectEmphasizedStepId === "inspect"}
                 />
               ) : null}
 

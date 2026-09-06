@@ -71,7 +71,7 @@ export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
       {warningsFilterDisabled ? (
         <p
           id={WARNINGS_FILTER_DISABLED_HINT_ID}
-          className={cn("sr-only", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
+          className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
         >
           No reviews with governance approval warnings in this workspace yet.
         </p>

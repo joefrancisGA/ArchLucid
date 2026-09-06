@@ -5,6 +5,7 @@ import {
   buildInfrastructureAskHref,
   buildResourceHubAuditLineageHref,
   buildResourceHubExplorerHref,
+  buildResourceHubOverviewHref,
   buildResourceHubWorkCountHref,
   resolveResourceHubTabFromAskScope,
   resourceExplorerFilterHrefFromSearch,
@@ -154,6 +155,20 @@ describe("infra-evidence-hub-filter-url", () => {
     );
     expect(buildResourceHubExplorerHref("11111111-1111-1111-1111-111111111111")).toBe(
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111",
+    );
+  });
+
+  it("builds resource hub overview href with optional scope", () => {
+    expect(buildResourceHubOverviewHref("11111111-1111-1111-1111-111111111111")).toBe(
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111",
+    );
+    expect(
+      buildResourceHubOverviewHref("11111111-1111-1111-1111-111111111111", {
+        snapshotId: "22222222-2222-2222-2222-222222222222",
+        runId: "run-1",
+      }),
+    ).toBe(
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222",
     );
   });
 

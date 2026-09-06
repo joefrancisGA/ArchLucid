@@ -36,48 +36,7 @@ export function CompareLastRequestOutcomeDetails(props: CompareLastRequestOutcom
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const compareLastRequestOutcomeOpenParam = searchParams.get("compareLastRequestOutcomeOpen");
-  const [lastRequestOutcomeOpen, setLastRequestOutcomeOpenState] = useState(() =    >
-      <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
-        {buyerPolished ? "Comparison details (technical appendix)" : "Last compare request (technical)"}
-      </summary>
-      <div className="mt-3">
-        <p className={cn("mb-2.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          <span className="font-medium text-al-text-primary">
-            {compareRunHeadingLabel(lastComparedPair.left, leftPickedSummary)}
-          </span>
-          <span className="mx-1.5 text-al-text-secondary">→</span>
-          <span className="font-medium text-al-text-primary">
-            {compareRunHeadingLabel(lastComparedPair.right, rightPickedSummary)}
-          </span>
-          <span className="sr-only">
-            (technical IDs: {lastComparedPair.left} → {lastComparedPair.right})
-          </span>
-        </p>
-        <dl className={cn("m-0 grid grid-cols-[minmax(10rem,14rem)_1fr] gap-x-3 gap-y-1.5", OPERATOR_TYPOGRAPHY.body)}>
-          <dt className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Review comparison</dt>
-          <dd className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-            {outcomeLabel({
-              hasValue: golden !== null,
-              failure: goldenFailure,
-              malformed: goldenMalformed,
-            })}
-          </dd>
-          <dt className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Supplementary review / review diff</dt>
-          <dd className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-            {outcomeLabel({
-              hasValue: result !== null,
-              failure: legacyFailure,
-              malformed: legacyMalformed,
-            })}
-          </dd>
-        </dl>
-        <p className={cn("mb-0 mt-2.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          AI explanation is not included her — se <strong>{summarizeCue}</strong> for that pair.
-        </p>
-      </div>
-    </details>
-  );
-}
+  const [lastRequestOutcomeOpen, setLastRequestOutcomeOpenState] = useState(() =>
     parseCompareLastRequestOutcomeOpenFromSearch(compareLastRequestOutcomeOpenParam),
   );
 
@@ -138,3 +97,44 @@ export function CompareLastRequestOutcomeDetails(props: CompareLastRequestOutcom
         setLastRequestOutcomeOpen((event.currentTarget as HTMLDetailsElement).open);
       }}
     >
+      <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
+        {buyerPolished ? "Comparison details (technical appendix)" : "Last compare request (technical)"}
+      </summary>
+      <div className="mt-3">
+        <p className={cn("mb-2.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          <span className="font-medium text-al-text-primary">
+            {compareRunHeadingLabel(lastComparedPair.left, leftPickedSummary)}
+          </span>
+          <span className="mx-1.5 text-al-text-secondary">→</span>
+          <span className="font-medium text-al-text-primary">
+            {compareRunHeadingLabel(lastComparedPair.right, rightPickedSummary)}
+          </span>
+          <span className="sr-only">
+            (technical IDs: {lastComparedPair.left} → {lastComparedPair.right})
+          </span>
+        </p>
+        <dl className={cn("m-0 grid grid-cols-[minmax(10rem,14rem)_1fr] gap-x-3 gap-y-1.5", OPERATOR_TYPOGRAPHY.body)}>
+          <dt className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Review comparison</dt>
+          <dd className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+            {outcomeLabel({
+              hasValue: golden !== null,
+              failure: goldenFailure,
+              malformed: goldenMalformed,
+            })}
+          </dd>
+          <dt className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Supplementary review / review diff</dt>
+          <dd className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+            {outcomeLabel({
+              hasValue: result !== null,
+              failure: legacyFailure,
+              malformed: legacyMalformed,
+            })}
+          </dd>
+        </dl>
+        <p className={cn("mb-0 mt-2.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          AI explanation is not included her — se <strong>{summarizeCue}</strong> for that pair.
+        </p>
+      </div>
+    </details>
+  );
+}

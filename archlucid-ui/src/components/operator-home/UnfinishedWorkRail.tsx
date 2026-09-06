@@ -38,6 +38,11 @@ import {
   type UnfinishedWorkRailItem,
   type UnfinishedWorkRailItemKind,
 } from "@/lib/unfinished-work-rail";
+import {
+  matchesOperatorHomeHeroResumeTarget,
+  resolveOperatorHomeHeroResumeTarget,
+  resolveRunIdFromHomeReviewHref,
+} from "@/lib/operator/operator-home-hero-resume-target";
 import { resolveOperatorHomeWorkspacePhase } from "@/lib/resolve-operator-home-workspace-phase";
 import { listHomeAttentionPreviewExcludedRunIds } from "@/lib/operator/home-attention-dedup";
 import { cn } from "@/lib/utils";
@@ -80,39 +85,25 @@ function resolveRailItemStatusTag(item: UnfinishedWorkRailItem): {
   readonly kind: EnterpriseStatusKind;
   readonly label?: string;
 } {
+  if (item.statusKind !== undefined) {
+    return { kind: item.statusKind, label: item.statusLabel };
+  }
+
   switch (item.kind) {
     case "architecture-draft":
       return { kind: "draft", label: "Draft" };
     case "review-in-progress":
-      return { kind: "in-progress" };
+      return { kind: "in-progress", label: item.statusLabel };
     case "awaiting-disposition":
-      return { kind: "needs-attention" };
+      return { kind: "needs-attention", label: item.statusLabel };
     case "incomplete-wizard":
-      return { kind: "in-progress" };
+      return { kind: "in-progress", label: item.statusLabel };
     default: {
       const _exhaustive: never = item.kind;
 
       return _exhaustive;
     }
   }
-}
-
-function resolveRailItemStatusTagDisplay(item: UnfinishedWorkRailItem): {
-  readonly kind: EnterpriseStatusKind;
-  readonly label?: string;
-} {
-  const resolved = resolveRailItemStatusTag(item);
-  const statusLabel = item.statusLabel?.trim() ?? "";
-
-  if (item.kind === "architecture-draft") {
-    return { kind: resolved.kind, label: "Draft" };
-  }
-
-  if (statusLabel.length > 0) {
-    return { kind: resolved.kind, label: statusLabel };
-  }
-
-  return resolved;
 }
 
 function resolveContinueCtaLabel(item: UnfinishedWorkRailItem): string {
@@ -125,12 +116,35 @@ function resolveContinueCtaLabel(item: UnfinishedWorkRailItem): string {
   }
 }
 
+function resolveRailItemResumeTarget(item: UnfinishedWorkRailItem): {
+  readonly href: string;
+  readonly draftId?: string;
+  readonly runId?: string;
+} {
+  if (item.kind === "architecture-draft") {
+    const draftId = item.id.replace(/^architecture-draft:/, "").trim();
+
+    return {
+      href: item.href,
+      draftId: draftId.length > 0 ? draftId : undefined,
+    };
+  }
+
+  const runId = resolveRunIdFromHomeReviewHref(item.href);
+
+  return {
+    href: item.href,
+    runId: runId ?? undefined,
+  };
+}
+
 function UnfinishedWorkRailTableRow(props: {
   readonly item: UnfinishedWorkRailItem;
+  readonly suppressContinueAction: boolean;
 }): React.JSX.Element {
   const { item } = props;
   const continueLabel = resolveContinueCtaLabel(item);
-  const statusTag = resolveRailItemStatusTagDisplay(item);
+  const statusTag = resolveRailItemStatusTag(item);
 
   return (
     <EnterpriseTableRow data-testid={`unfinished-work-rail-item-${item.kind}`}>
@@ -153,11 +167,17 @@ function UnfinishedWorkRailTableRow(props: {
         <StatusTag kind={statusTag.kind} label={statusTag.label} />
       </EnterpriseTableCell>
       <EnterpriseTableCell className="text-right">
-        <Button asChild variant="outline" size="sm" className="h-7">
-          <Link href={item.href} data-testid={`unfinished-work-rail-continue-${item.id}`}>
-            {continueLabel}
-          </Link>
-        </Button>
+        {props.suppressContinueAction ? (
+          <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} aria-hidden="true">
+            —
+          </span>
+        ) : (
+          <Button asChild variant="outline" size="sm" className="h-7">
+            <Link href={item.href} data-testid={`unfinished-work-rail-continue-${item.id}`}>
+              {continueLabel}
+            </Link>
+          </Button>
+        )}
       </EnterpriseTableCell>
     </EnterpriseTableRow>
   );
@@ -165,6 +185,7 @@ function UnfinishedWorkRailTableRow(props: {
 
 function UnfinishedWorkRailList(props: {
   readonly items: readonly UnfinishedWorkRailItem[];
+  readonly heroResumeTarget: ReturnType<typeof resolveOperatorHomeHeroResumeTarget>;
 }): React.JSX.Element {
   if (props.items.length === 0) {
     return <div data-testid="unfinished-work-rail-list" />;
@@ -191,7 +212,14 @@ function UnfinishedWorkRailList(props: {
         </EnterpriseTableHead>
         <EnterpriseTableBody>
           {props.items.map((item) => (
-            <UnfinishedWorkRailTableRow key={item.id} item={item} />
+            <UnfinishedWorkRailTableRow
+              key={item.id}
+              item={item}
+              suppressContinueAction={matchesOperatorHomeHeroResumeTarget(
+                props.heroResumeTarget,
+                resolveRailItemResumeTarget(item),
+              )}
+            />
           ))}
         </EnterpriseTableBody>
       </EnterpriseTable>
@@ -239,6 +267,11 @@ export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.El
     [excludeKinds, railSummary.items],
   );
 
+  const heroResumeTarget = useMemo(
+    () => resolveOperatorHomeHeroResumeTarget({ drafts, preferArchitectureIdentity: true }),
+    [drafts],
+  );
+
   const homeAttentionPreviewExcludedRunIds = useMemo(
     () => listHomeAttentionPreviewExcludedRunIds(items),
     [items],
@@ -266,7 +299,7 @@ export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.El
       <h2 id="operator-home-your-work-heading" className={OPERATOR_HOME_SECTION_HEADING}>
         {OPERATOR_HOME_YOUR_WORK_HEADING}
       </h2>
-      <UnfinishedWorkRailList items={items} />
+      <UnfinishedWorkRailList items={items} heroResumeTarget={heroResumeTarget} />
       {railSummary.truncated ? (
         <p className="m-0">
           <Link

@@ -85,6 +85,7 @@ describe("ResourcesExplorerClient", () => {
       "href",
       "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111",
     );
+    expect(screen.queryByTestId("infra-resource-explorer-overview-11111111-1111-1111-1111-111111111111")).not.toBeInTheDocument();
   });
 
   it("renders work queue chips and applies open-findings filter", async () => {
@@ -109,6 +110,10 @@ describe("ResourcesExplorerClient", () => {
     expect(await screen.findByTestId("infra-resource-explorer-ask-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
       "href",
       "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&workQueue=open-findings",
+    );
+    expect(screen.getByTestId("infra-resource-explorer-overview-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111",
     );
     expect(screen.getByTestId("infra-resource-explorer-hub-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
       "href",
