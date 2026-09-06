@@ -80355,6 +80355,7 @@ export interface paths {
                     namePrefix?: string;
                     resourceType?: string;
                     resourceGroup?: string;
+                    workQueue?: string;
                     page?: number;
                     pageSize?: number;
                 };

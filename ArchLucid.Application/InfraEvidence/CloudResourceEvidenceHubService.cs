@@ -19,7 +19,8 @@ public sealed class CloudResourceEvidenceHubService(
     IDiagramInfrastructureReconciliationService diagramReconciliationService,
     IOperationalSecurityFindingRepository operationalFindingRepository,
     IRemediationInstanceRepository remediationInstanceRepository,
-    IAuthorityQueryService authorityQueryService) : ICloudResourceEvidenceHubService
+    IAuthorityQueryService authorityQueryService,
+    ICloudResourceAuditLineageResolver auditLineageResolver) : ICloudResourceEvidenceHubService
 {
     private const int RecentChangeTake = 25;
 
@@ -113,7 +114,11 @@ public sealed class CloudResourceEvidenceHubService(
                 cloudResourceId,
                 cancellationToken);
 
-        CloudResourceAuditLineageLink auditLineageLink = BuildAuditLineageLink(query);
+        CloudResourceAuditLineageLink auditLineageLink = await auditLineageResolver.ResolveAsync(
+            scope,
+            cloudResourceId,
+            query,
+            cancellationToken);
         List<CloudResourceEvidencePointer> evidencePointers = BuildEvidencePointers(
             query,
             recentChanges,
@@ -357,30 +362,6 @@ public sealed class CloudResourceEvidenceHubService(
                 RiskClassification = change.RiskClassification,
             })
             .ToList();
-    }
-
-    private static CloudResourceAuditLineageLink BuildAuditLineageLink(CloudResourceEvidenceHubQuery query)
-    {
-        if (query.AssessmentId.HasValue
-            && query.AuditEvidenceSnapshotId.HasValue
-            && query.ControlId.HasValue
-            && query.AssessmentId.Value != Guid.Empty
-            && query.AuditEvidenceSnapshotId.Value != Guid.Empty
-            && query.ControlId.Value != Guid.Empty)
-        {
-            return new CloudResourceAuditLineageLink
-            {
-                Available = true,
-                RelativePath =
-                    $"/v1/infra-evidence/audit-assessments/{query.AssessmentId.Value:D}/snapshots/{query.AuditEvidenceSnapshotId.Value:D}/controls/{query.ControlId.Value:D}/lineage",
-            };
-        }
-
-        return new CloudResourceAuditLineageLink
-        {
-            Available = false,
-            DegradedReason = "Provide assessmentId, auditEvidenceSnapshotId, and controlId query parameters to link AE-10 audit lineage.",
-        };
     }
 
     private static List<CloudResourceEvidencePointer> BuildEvidencePointers(

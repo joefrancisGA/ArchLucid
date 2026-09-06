@@ -8048,8 +8048,41 @@
       },
       "CloudResourceAuditLineageLink": {
         "properties": {
+          "assessmentId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "auditEvidenceSnapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "available": {
             "type": "boolean"
+          },
+          "controlId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "controlNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "controlTitle": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "degradedReason": {
             "type": [
@@ -8057,11 +8090,44 @@
               "string"
             ]
           },
+          "matches": {
+            "items": {
+              "$ref": "#/components/schemas/CloudResourceAuditLineageMatch"
+            },
+            "type": "array"
+          },
           "relativePath": {
             "type": [
               "null",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "CloudResourceAuditLineageMatch": {
+        "properties": {
+          "assessmentId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "auditEvidenceSnapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "controlId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "controlNumber": {
+            "type": "string"
+          },
+          "controlTitle": {
+            "type": "string"
+          },
+          "snapshotCreatedUtc": {
+            "format": "date-time",
+            "type": "string"
           }
         },
         "type": "object"
@@ -27009,6 +27075,13 @@
             "format": "date-time",
             "type": "string"
           },
+          "executionSnapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "findingId": {
             "format": "uuid",
             "type": "string"
@@ -27020,12 +27093,26 @@
           "patternKey": {
             "type": "string"
           },
+          "preflightSnapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "status": {
             "$ref": "#/components/schemas/RemediationInstanceStatus"
           },
           "updatedUtc": {
             "format": "date-time",
             "type": "string"
+          },
+          "verificationSnapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "waveId": {
             "format": "uuid",
@@ -141405,6 +141492,13 @@
           {
             "in": "query",
             "name": "resourceGroup",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "workQueue",
             "schema": {
               "type": "string"
             }

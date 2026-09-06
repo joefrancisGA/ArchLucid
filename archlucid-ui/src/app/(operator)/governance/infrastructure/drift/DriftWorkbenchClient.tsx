@@ -27,7 +27,7 @@ import type {
   InfraEvidenceDiffSummary,
   InfraEvidenceSnapshotSummary,
 } from "@/lib/infra-evidence/infra-evidence-drift-types";
-import { GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { TERRAFORM_ADVISORY_EXPORT_DISCLAIMER } from "@/lib/terraform-advisory-disclaimer";
 import { cn } from "@/lib/utils";
@@ -332,9 +332,11 @@ export function DriftWorkbenchClient() {
             <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
               <Link
                 className="text-al-link hover:underline"
-                href={`${GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}/${selectedChange.cloudResourceId}`}
+                href={resourceHubFilterHrefFromSearch(selectedChange.cloudResourceId, "", {
+                  snapshotId: selectedSnapshotId,
+                })}
               >
-                Open resource explorer (stub until IE-UX-04)
+                Open resource evidence hub
               </Link>
             </p>
           ) : null}

@@ -341,6 +341,61 @@ public sealed class SqlAuditEvidenceSnapshotRepository(ISqlConnectionFactory con
         }
     }
 
+    public async Task<IReadOnlyList<AuditEvidenceSnapshotLineageContextRecord>> ListLineageContextsByCloudResourceIdAsync(
+        Guid tenantId,
+        Guid cloudResourceId,
+        int take,
+        CancellationToken cancellationToken = default)
+    {
+        if (cloudResourceId == Guid.Empty)
+            return [];
+
+        int resolvedTake = take <= 0 ? 25 : Math.Min(take, 100);
+
+        const string sql = """
+                           SELECT TOP (@Take)
+                                  s.AssessmentId,
+                                  i.AuditEvidenceSnapshotId,
+                                  r.ControlId,
+                                  c.ControlNumber,
+                                  c.Title AS ControlTitle,
+                                  s.CreatedUtc AS SnapshotCreatedUtc
+                           FROM dbo.AuditEvidenceSnapshotItems i
+                           INNER JOIN dbo.AuditEvidenceSnapshots s
+                               ON s.AuditEvidenceSnapshotId = i.AuditEvidenceSnapshotId
+                              AND s.TenantId = i.TenantId
+                           INNER JOIN dbo.AuditEvidenceRequirements r
+                               ON r.RequirementId = i.RequirementId
+                              AND r.TenantId = i.TenantId
+                           INNER JOIN dbo.AuditControls c
+                               ON c.ControlId = r.ControlId
+                              AND c.TenantId = r.TenantId
+                           WHERE i.TenantId = @TenantId
+                             AND i.CloudResourceId = @CloudResourceId
+                           ORDER BY s.CreatedUtc DESC, c.ControlNumber ASC;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<LineageContextRow> rows = await conn.QueryAsync<LineageContextRow>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, CloudResourceId = cloudResourceId, Take = resolvedTake },
+                cancellationToken: cancellationToken));
+
+        return rows
+            .Select(row => new AuditEvidenceSnapshotLineageContextRecord
+            {
+                AssessmentId = row.AssessmentId,
+                AuditEvidenceSnapshotId = row.AuditEvidenceSnapshotId,
+                ControlId = row.ControlId,
+                ControlNumber = row.ControlNumber,
+                ControlTitle = row.ControlTitle,
+                SnapshotCreatedUtc = row.SnapshotCreatedUtc,
+            })
+            .ToList();
+    }
+
     private static async Task<IReadOnlyList<Guid>> ListInventorySnapshotIdsAsync(
         System.Data.IDbConnection conn,
         Guid tenantId,
@@ -626,6 +681,45 @@ public sealed class SqlAuditEvidenceSnapshotRepository(ISqlConnectionFactory con
         }
 
         public string? ApiQueryId
+        {
+            get;
+            init;
+        }
+    }
+
+    private sealed class LineageContextRow
+    {
+        public Guid AssessmentId
+        {
+            get;
+            init;
+        }
+
+        public Guid AuditEvidenceSnapshotId
+        {
+            get;
+            init;
+        }
+
+        public Guid ControlId
+        {
+            get;
+            init;
+        }
+
+        public string ControlNumber
+        {
+            get;
+            init;
+        } = string.Empty;
+
+        public string ControlTitle
+        {
+            get;
+            init;
+        } = string.Empty;
+
+        public DateTime SnapshotCreatedUtc
         {
             get;
             init;

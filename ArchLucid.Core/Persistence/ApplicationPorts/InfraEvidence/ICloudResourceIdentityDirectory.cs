@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -40,6 +41,7 @@ public interface ICloudResourceIdentityDirectory
         string? namePrefix,
         string? resourceType,
         string? resourceGroup,
+        CloudResourceExplorerWorkQueue workQueue,
         int page,
         int pageSize,
         CancellationToken cancellationToken = default);
