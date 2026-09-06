@@ -52,67 +52,85 @@ def collect_proven_rows(ledger_text: str) -> list[ProvenRow]:
     return rows
 
 
+# Classification keys on the guard *symbol* a row targets rather than on the offending phrase.
+# An earlier revision matched literal phrases ("mightn't", "needn't", ...), which is the same
+# open-ended list anti-pattern ABQ-04 deleted from production: every new phrase variant fell
+# through to "unclear". That under-reported the treadmill share of the ledger roughly four-fold.
+TREADMILL_SIGNALS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    (
+        "negation-treadmill",
+        (
+            "isadvicestylenegation",
+            "containsmidsentencenegation",
+            "issuffixnegatedadvicefragment",
+            "containsadvicenegationphrase",
+            "negation gap",
+            "negation phrase",
+            "negated advice",
+            "suffix gap",
+        ),
+    ),
+    (
+        "redaction-treadmill",
+        (
+            "redactor",
+            "redaction",
+            "sensitiveproperty",
+            "issensitive",
+            "accesskey",
+            "passwordless",
+        ),
+    ),
+    (
+        "coercion-treadmill",
+        (
+            "schemaversion",
+            "tryparsebooleanstring",
+            "boolean synonym",
+        ),
+    ),
+    (
+        "parity-treadmill",
+        (
+            "delimiter variant",
+            "delimiter parity",
+            "sibling parity",
+        ),
+    ),
+)
+
+# Security/correctness classes that describe a reachable defect rather than a phrase-list gap.
+SUBSTANTIVE_SIGNALS: tuple[str, ...] = (
+    "cross-tenant",
+    "zip-slip",
+    "idor",
+    "adminpassword",
+    "connectionstring",
+    "scope gate",
+    "returns 200",
+    "foreign workspace",
+    "privilege",
+    "auth bypass",
+)
+
+TREADMILL_CLASSES: tuple[str, ...] = tuple(name for name, _ in TREADMILL_SIGNALS)
+
+
 def classify_row(text: str) -> str:
     lowered = text.lower()
 
-    if any(
-        token in lowered
-        for token in (
-            "accesskey",
-            "passwordless",
-            "beefaccesskey",
-            "caseaccesskey",
-            "cashaccesskey",
-            "castaccesskey",
-            "izer suffix",
-            "less suffix",
-            "free suffix",
-        )
-    ):
-        return "synthetic-redaction"
+    for class_name, signals in TREADMILL_SIGNALS:
+        if any(signal in lowered for signal in signals):
+            return class_name
 
-    if any(
-        token in lowered
-        for token in (
-            "mightn't",
-            "needn't",
-            "configure to",
-            "mandate to",
-            "apply to",
-            "enforce to",
-            "provision to",
-            "doesn't configure",
-            "doesn't mandate",
-        )
-    ):
-        return "synthetic-negation"
+    if any(signal in lowered for signal in SUBSTANTIVE_SIGNALS):
+        return "substantive"
 
-    if "schemaversion" in lowered and any(
-        token in lowered for token in ("boolean", '"on"', '"off"', "synonym", "true schema")
-    ):
-        return "synthetic-coercion"
+    return "unclassified"
 
-    if "parity" in lowered and any(
-        token in lowered for token in ("sibling", "on synonym", "boolean")
-    ):
-        return "synthetic-parity"
 
-    if any(
-        token in lowered
-        for token in (
-            "cross-tenant",
-            "zip-slip",
-            "idor",
-            "adminpassword",
-            "connectionstring",
-            "scope gate",
-            "returns 200",
-            "foreign workspace",
-        )
-    ):
-        return "realistic"
-
-    return "unclear"
+def is_treadmill(text: str) -> bool:
+    return classify_row(text) in TREADMILL_CLASSES
 
 
 def stratified_sample(rows: list[ProvenRow], seed: int) -> list[ProvenRow]:
@@ -144,51 +162,54 @@ def stratified_sample(rows: list[ProvenRow], seed: int) -> list[ProvenRow]:
     return sample
 
 
-def render_report(sample: list[ProvenRow], seed: int, total_proven: int) -> str:
-    classes = Counter(classify_row(row.text) for row in sample)
-    by_zone = Counter(row.zone_id for row in sample)
-    synthetic = sum(
-        classes.get(key, 0)
-        for key in (
-            "synthetic-redaction",
-            "synthetic-negation",
-            "synthetic-coercion",
-            "synthetic-parity",
-        )
-    )
-    synthetic_fraction = synthetic / len(sample) if sample else 0.0
+def render_report(rows: list[ProvenRow], sample: list[ProvenRow], seed: int) -> str:
+    total = len(rows)
+    classes = Counter(classify_row(row.text) for row in rows)
+    treadmill = sum(classes.get(key, 0) for key in TREADMILL_CLASSES)
+    treadmill_fraction = treadmill / total if total else 0.0
+
+    # Zone totals are reported over every proven row, not the sample, so the table cannot be
+    # read as evidence that one zone is clean simply because the sample missed it.
+    treadmill_by_zone = Counter(row.zone_id for row in rows if is_treadmill(row.text))
 
     lines = [
         "> **Scope:** Contributor-reference — validity audit of `(proven)` hunt hypotheses. Not a buyer or operator document.",
         "",
         "# `/al-bug` proven-row validity audit",
         "",
-        f"**Sample size:** {len(sample)} rows (of {total_proven} tagged proven in ledger)",
-        f"**RNG seed:** {seed}",
+        f"**Population:** all {total} rows tagged proven in the ledger (classified in full, not sampled)",
+        f"**RNG seed (examples only):** {seed}",
         "",
-        "## Class totals (heuristic)",
+        "## Class totals (full population)",
         "",
-        "| Class | Count |",
-        "| --- | ---: |",
+        "| Class | Count | Share |",
+        "| --- | ---: | ---: |",
     ]
 
-    for key in sorted(classes.keys()):
-        lines.append(f"| {key} | {classes[key]} |")
+    for key, count in classes.most_common():
+        lines.append(f"| {key} | {count} | {(count / total if total else 0):.1%} |")
 
     lines.extend(
         [
+            f"| **treadmill total** | **{treadmill}** | **{treadmill_fraction:.1%}** |",
             "",
-            f"**Estimated synthetic fraction (sample):** {synthetic_fraction:.0%}",
+            f"**Treadmill share of proven rows:** {treadmill_fraction:.1%} ({treadmill} of {total}).",
+            "A treadmill row re-proves the same guard against a new surface form, so it inflates",
+            "`bugs-found` without retiring a defect class. Scoring must not read these as yield.",
             "",
-            "## By zone (sample)",
+            "## Treadmill concentration by zone (full population)",
             "",
-            "| Zone | Count |",
-            "| --- | ---: |",
+            "| Zone | Proven rows | Treadmill | Share |",
+            "| --- | ---: | ---: | ---: |",
         ]
     )
 
-    for zone_id, count in by_zone.most_common():
-        lines.append(f"| {zone_id} | {count} |")
+    proven_by_zone = Counter(row.zone_id for row in rows)
+
+    for zone_id, proven_count in proven_by_zone.most_common(15):
+        zone_treadmill = treadmill_by_zone.get(zone_id, 0)
+        share = zone_treadmill / proven_count if proven_count else 0.0
+        lines.append(f"| {zone_id} | {proven_count} | {zone_treadmill} | {share:.1%} |")
 
     lines.extend(
         [
@@ -197,19 +218,25 @@ def render_report(sample: list[ProvenRow], seed: int, total_proven: int) -> str:
             "",
             "ABQ-01/02 redactor probe: fictional keys like `beefAccessKey` were redacted while real ARM keys such as `adminPassword` and `storageAccountAccessKey` were not — synthetic redaction hunts masked a fail-open defect class.",
             "",
-            "## Unclear rows (owner review)",
+            "## Example rows by class (seeded sample)",
             "",
         ]
     )
 
-    unclear = [row for row in sample if classify_row(row.text) == "unclear"][:10]
-    for row in unclear:
-        lines.append(f"- `{row.zone_id}`: {row.text[:200]}{'…' if len(row.text) > 200 else ''}")
+    for class_name in (*TREADMILL_CLASSES, "substantive", "unclassified"):
+        examples = [row for row in sample if classify_row(row.text) == class_name][:4]
 
-    if not unclear:
-        lines.append("- (none in sample)")
+        if not examples:
+            continue
 
-    lines.append("")
+        lines.append(f"### {class_name}")
+        lines.append("")
+
+        for row in examples:
+            lines.append(f"- `{row.zone_id}`: {row.text[:200]}{'…' if len(row.text) > 200 else ''}")
+
+        lines.append("")
+
     return "\n".join(lines)
 
 
@@ -222,7 +249,7 @@ def main() -> int:
     ledger_text = LEDGER_PATH.read_text(encoding="utf-8")
     proven_rows = collect_proven_rows(ledger_text)
     sample = stratified_sample(proven_rows, args.seed)
-    report = render_report(sample, args.seed, len(proven_rows))
+    report = render_report(proven_rows, sample, args.seed)
 
     print(report)
 
