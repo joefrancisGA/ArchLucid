@@ -3294,6 +3294,69 @@ public sealed class GenericArchitectureAdvicePatternsMultiCloudTests
             .BeFalse();
     }
 
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_workloads_neednt_use_encryption_at_rest_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "workloads needn't use encryption at rest")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_workloads_neednt_have_encryption_at_rest_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "workloads needn't have encryption at rest")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_workloads_neednt_implement_encryption_at_rest_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "workloads needn't implement encryption at rest")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_workloads_aint_use_encryption_at_rest_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "workloads ain't use encryption at rest")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_workloads_aint_have_encryption_at_rest_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "workloads ain't have encryption at rest")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_workloads_aint_enable_encryption_at_rest_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "workloads ain't enable encryption at rest")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_workloads_aint_implement_encryption_at_rest_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "workloads ain't implement encryption at rest")
+            .Should()
+            .BeFalse();
+    }
+
     [Theory]
     [InlineData(
         "Enable GuardDuty monitoring for `payments-api` ingress paths.",
