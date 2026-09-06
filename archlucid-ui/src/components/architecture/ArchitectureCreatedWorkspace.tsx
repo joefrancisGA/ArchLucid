@@ -54,7 +54,7 @@ import {
 } from "@/lib/review-detail-workspace-tabs";
 import { ReviewWorkspaceTabStrip } from "@/components/reviews/ReviewWorkspaceTabStrip";
 import { mapArchitectureTabToReviewTab } from "@/lib/unified-review-workspace-tabs";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { resolveReviewWorkspaceVisibleTabs } from "@/lib/resolve-review-workspace-visible-tabs";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
@@ -92,7 +92,7 @@ function resolveUserAssertions(
 
 /** Tabbed post-creation architecture workspace with compact first viewport and lazy tab panels. */
 export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspaceProps): React.JSX.Element {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();

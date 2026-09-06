@@ -38,6 +38,12 @@ vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => mutateCapability.current,
 }));
 
+const evalChromeMock = vi.hoisted(() => ({ enabled: false }));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => evalChromeMock.enabled,
+}));
+
 vi.mock("@/lib/api", () => ({
   listDigestSubscriptions: vi.fn(),
   createDigestSubscription: vi.fn(),
@@ -74,6 +80,7 @@ import { fetchTenantIntegrationsOperations } from "@/lib/api/tenant-customer-suc
 
 describe("DigestSubscriptionsContent", () => {
   beforeEach(() => {
+    evalChromeMock.enabled = false;
     demoEnvMock.buyerPolished = false;
     demoEnvMock.fullShell = true;
     mutateCapability.current = true;
@@ -375,6 +382,7 @@ describe("DigestSubscriptionsContent", () => {
 
   it("shows create form without review pick in buyer-polished shell", async () => {
     demoEnvMock.buyerPolished = true;
+    evalChromeMock.enabled = true;
 
     renderWithOperatorQuery(
       <DigestSubscriptionsContent healthSnap={null} onPickReview={vi.fn()} />,

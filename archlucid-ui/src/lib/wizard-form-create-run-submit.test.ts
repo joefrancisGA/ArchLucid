@@ -9,6 +9,10 @@ import {
 } from "@/lib/review-start-progress-copy";
 import { trackWizardCompleted } from "@/lib/telemetry";
 import {
+  reviewPipelineOperationId,
+  trackReviewPipelineInFlight,
+} from "@/lib/operations/review-pipeline-in-flight";
+import {
   recheckQuickFamilyWizardCreateRun,
   submitQuickFamilyWizardCreateRun,
   submitWizardFormCreateRun,
@@ -27,6 +31,11 @@ vi.mock("@/lib/first-tenant-funnel-telemetry", () => ({
   recordFirstTenantFunnelEvent: vi.fn(),
 }));
 
+vi.mock("@/lib/operations/review-pipeline-in-flight", () => ({
+  reviewPipelineOperationId: vi.fn((runId: string) => `run:${runId}`),
+  trackReviewPipelineInFlight: vi.fn(() => "run:run-42"),
+}));
+
 vi.mock("@/lib/wizard-payload", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/wizard-payload")>();
 
@@ -38,6 +47,8 @@ vi.mock("@/lib/wizard-payload", async (importOriginal) => {
 
 const createArchitectureRunMock = vi.mocked(createArchitectureRun);
 const trackWizardCompletedMock = vi.mocked(trackWizardCompleted);
+const trackReviewPipelineInFlightMock = vi.mocked(trackReviewPipelineInFlight);
+const reviewPipelineOperationIdMock = vi.mocked(reviewPipelineOperationId);
 
 function emptyValues(): WizardFormValues {
   return {
@@ -253,6 +264,9 @@ describe("submitQuickFamilyWizardCreateRun", () => {
     });
 
     expect(progress.begin).toHaveBeenCalledOnce();
+    expect(trackReviewPipelineInFlightMock).toHaveBeenCalledWith("run-42");
+    expect(reviewPipelineOperationIdMock).toHaveBeenCalledWith("run-42");
+    expect(progress.bindOperation).toHaveBeenCalledWith("run:run-42");
     expect(progress.succeed).toHaveBeenCalledOnce();
     expect(progress.fail).not.toHaveBeenCalled();
     expect(onRunCreated).toHaveBeenCalledWith("run-42");

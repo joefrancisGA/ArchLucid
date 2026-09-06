@@ -2,9 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import { Controller, type Control, type FieldErrors, type UseFormRegister } from "react-hook-form";
-import type { Dispatch, SetStateAction } from "react";
-import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
 
 import { IntegrationConnectChecklist, type IntegrationConnectChecklistStep } from "@/components/integrations/IntegrationConnectChecklist";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
@@ -50,6 +49,10 @@ import {
   parseWebhooksDeliveryContractOpenFromSearch,
   webhooksDeliveryContractDisclosureHrefFromSearch,
 } from "@/lib/integrations/webhooks-delivery-contract-disclosure-url";
+import {
+  parseWebhooksTechnicalEventNameEventIdFromSearch,
+  webhooksTechnicalEventNameDisclosureHrefFromSearch,
+} from "@/lib/integrations/webhooks-technical-event-name-disclosure-url";
 
 export type WebhooksCreateSubscriptionFormProps = {
   readonly register: UseFormRegister<WebhookSettingsFormValues>;
@@ -70,28 +73,11 @@ export type WebhooksCreateSubscriptionFormProps = {
 };
 
 export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscriptionFormProps): React.JSX.Element {
-  const {
-    register,
-    control,
-    errors,
-    canMutate,
-    isSaving,
-    loading,
-    canSubmitForm,
-    formReadinessMessage,
-    showAlertSeverityFilter,
-    secretVisible,
-    setSecretVisible,
-    saveSuccessMessage,
-    setSaveSuccessMessage,
-    webhooksCreateSteps,
-    webhooksCreateEmphasizedStepId,
-  } = props;
-
   const router = useRouter();
-  const pathname = usePathname() ?? "/integrations/webhooks";
+  const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const webhooksDeliveryContractOpenParam = searchParams.get("webhooksDeliveryContractOpen");
+  const webhooksTechnicalEventNameEventIdParam = searchParams.get("webhooksTechnicalEventNameEventId");
   const [deliveryContractOpen, setDeliveryContractOpenState] = useState(() =>
     parseWebhooksDeliveryContractOpenFromSearch(webhooksDeliveryContractOpenParam),
   );
@@ -117,6 +103,38 @@ export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscription
   useEffect(() => {
     setDeliveryContractOpenState(parseWebhooksDeliveryContractOpenFromSearch(webhooksDeliveryContractOpenParam));
   }, [webhooksDeliveryContractOpenParam]);
+
+  const syncTechnicalEventNameOpenToUrl = useCallback(
+    (eventId: string | null) => {
+      router.replace(
+        webhooksTechnicalEventNameDisclosureHrefFromSearch(searchParams.toString(), eventId, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const technicalEventNameOpenId = parseWebhooksTechnicalEventNameEventIdFromSearch(
+    webhooksTechnicalEventNameEventIdParam,
+  );
+
+  const {
+    register,
+    control,
+    errors,
+    canMutate,
+    isSaving,
+    loading,
+    canSubmitForm,
+    formReadinessMessage,
+    showAlertSeverityFilter,
+    secretVisible,
+    setSecretVisible,
+    saveSuccessMessage,
+    setSaveSuccessMessage,
+    webhooksCreateSteps,
+    webhooksCreateEmphasizedStepId,
+  } = props;
 
   return (
     <section
@@ -363,7 +381,14 @@ export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscription
                         <span className={cn("block text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                           {option.description}
                         </span>
-                        <details className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                        <details
+                          className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                          open={technicalEventNameOpenId === option.id}
+                          onToggle={(event) => {
+                            const open = (event.currentTarget as HTMLDetailsElement).open;
+                            syncTechnicalEventNameOpenToUrl(open ? option.id : null);
+                          }}
+                        >
                           <summary
                             className={cn(
                               "cursor-pointer select-none outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2",
