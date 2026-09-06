@@ -2734,6 +2734,60 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_redacts_armor_access_key_config_path()
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Azure:Storage:ArmorAccessKey"] = "super-secret"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            "Azure:Storage:ArmorAccessKey",
+            isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_redacts_array_access_key_config_path()
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Azure:Storage:ArrayAccessKey"] = "super-secret"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            "Azure:Storage:ArrayAccessKey",
+            isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_redacts_arrow_access_key_config_path()
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Azure:Storage:ArrowAccessKey"] = "super-secret"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            "Azure:Storage:ArrowAccessKey",
+            isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
     public void Resolve_redacts_token_access_key_config_path()
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
