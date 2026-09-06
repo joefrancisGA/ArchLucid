@@ -13,6 +13,7 @@ import { RunInspectorSnapshotStatus } from "@/components/runs/RunInspectorSnapsh
 import { RunInspectorExploreActions } from "@/components/runs/RunInspectorExploreActions";
 import { Button } from "@/components/ui/button";
 import { BUYER_RUN_INSPECTOR_FINALIZED_LABEL } from "@/lib/buyer/buyer-polish-copy";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import {
   isBuyerPolishedOperatorShellEnv,
   isBuyerSafeDemoMarketingChromeEnv,
@@ -226,7 +227,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
             label="Remaining monitored risk"
             value={`${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} (tracked in finalized review record)`}
           />
-          <InlineMetadataLine label="Evidence trail" value="Ready" />
+          <InlineMetadataLine label={BUYER_SURFACE_VOCABULARY.evidenceGraph} value="Ready" />
           <InlineMetadataLine label="Audit trail" value="Complete" />
           <Button variant="primary" size="sm" className="mt-1 w-full" asChild>
             <Link href={primaryExplore.href}>{primaryExplore.label}</Link>
