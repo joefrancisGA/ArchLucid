@@ -123,8 +123,8 @@ export function TenantFindingEngineControlsCard() {
       </CardHeader>
       <CardContent className={cn("space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         <p className="m-0">
-          Optional finding engines that add Premium LLM judge passes or scan other systems in this workspace. Leave off
-          unless you accept extra model cost and cross-review reads. When deployment runs in Real mode, the
+          Optional finding engines that add Premium LLM judge passes or scan other systems in this workspace. Portfolio
+          recurrence is on unless you disable it here (same tenant catalog only). When deployment runs in Real mode, the
           insight-density judge defaults on unless you override it off here.
         </p>
 
@@ -169,7 +169,7 @@ export function TenantFindingEngineControlsCard() {
             />
             <ToggleRow
               label="Portfolio recurrence scan"
-              description="Reports when the same finding identity appears across multiple systems."
+              description="Reports when the same finding identity appears across multiple systems in this workspace. On by default; disable to skip cross-review reads."
               checked={draft.effectivePortfolioRecurrenceEnabled}
               hostDefault={draft.hostDefaultPortfolioRecurrenceEnabled}
               overridden={draft.portfolioRecurrenceEnabledOverridden}
