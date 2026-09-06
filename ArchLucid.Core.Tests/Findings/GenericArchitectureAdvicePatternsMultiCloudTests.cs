@@ -6733,6 +6733,42 @@ public sealed class GenericArchitectureAdvicePatternsMultiCloudTests
     }
 
     [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_workloads_aint_maintain_to_use_encryption_at_rest_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "workloads ain't maintain to use encryption at rest")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_workloads_aint_ensure_to_use_encryption_at_rest_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "workloads ain't ensure to use encryption at rest")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_workloads_aint_require_to_use_encryption_at_rest_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "workloads ain't require to use encryption at rest")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_workloads_aint_need_to_use_encryption_at_rest_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "workloads ain't need to use encryption at rest")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
     public void IsObviousGenericAdvice_does_not_flag_workloads_couldnt_require_encryption_at_rest_phrasing()
     {
         GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
