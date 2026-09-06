@@ -576,6 +576,101 @@ describe("RunProgressTracker", () => {
     expect(mockGetRunStageTimeline.mock.calls.length).toBeLessThanOrEqual(callsAfterMount + 3);
   });
 
+  it("keeps queue status visible while a re-run is in flight on a committed review", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    const startedAtMs = Date.now() - 125_000;
+    mockUseReviewPipelineInFlightForRun.mockReturnValue({
+      operationId: "run:committed-1",
+      title: "Architecture review analysis",
+      href: "/architecture/reviews/committed-1",
+      startedAtMs,
+      stepLabel: "Findings analysis",
+      state: "Running",
+      heartbeatUtc: "2026-01-01T00:02:05.000Z",
+      runId: "committed-1",
+      architectureId: null,
+      retainUntilConsumed: false,
+      terminalToastShown: false,
+    });
+
+    mockGetRunSummary.mockResolvedValue(committedSummary("committed-1"));
+    mockGetRunStageTimeline.mockResolvedValue([]);
+
+    render(
+      <RunProgressTracker runId="committed-1" initialSummary={committedSummary("committed-1")} />,
+    );
+
+    await act(async () => {
+      await new Promise<void>((resolve) => queueMicrotask(resolve));
+    });
+
+    expect(mockGetRunSummary).toHaveBeenCalled();
+    expect(screen.getByText(/Re-run in progress/i)).toBeInTheDocument();
+    expect(screen.getByTestId("run-progress-queue-status")).toHaveTextContent(
+      "Queue status: Findings analysis",
+    );
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(15_000);
+    });
+
+    expect(screen.getByTestId("run-progress-queue-status")).toHaveTextContent("(2m 20s)");
+  });
+
+  it("keeps queue status visible after the watchdog timeout while a re-run is still in flight", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    const startedAtMs = Date.now() - 30_000;
+    mockUseReviewPipelineInFlightForRun.mockReturnValue({
+      operationId: "run:failed-1",
+      title: "Architecture review analysis",
+      href: "/architecture/reviews/failed-1",
+      startedAtMs,
+      stepLabel: "Queued",
+      state: "Pending",
+      heartbeatUtc: null,
+      runId: "failed-1",
+      architectureId: null,
+      retainUntilConsumed: false,
+      terminalToastShown: false,
+    });
+
+    mockGetRunSummary.mockResolvedValue({
+      ...baseSummary,
+      runId: "failed-1",
+    });
+
+    render(
+      <RunProgressTracker
+        runId="failed-1"
+        initialSummary={{
+          ...baseSummary,
+          runId: "failed-1",
+        }}
+        diagnosticContext={{ legacyRunStatus: "Failed", lastFailureReason: "authority_pipeline_dead_letter" }}
+        deferFailureRecoveryToDoThisNext
+      />,
+    );
+
+    await act(async () => {
+      await new Promise<void>((resolve) => queueMicrotask(resolve));
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(180_000);
+    });
+
+    await act(async () => {
+      await new Promise<void>((resolve) => queueMicrotask(resolve));
+    });
+
+    expect(screen.getByText(/Re-run in progress/i)).toBeInTheDocument();
+    expect(screen.getByTestId("run-progress-queue-status")).toHaveTextContent("Queue status: Queued");
+    expect(screen.queryByRole("button", { name: /keep watching/i })).not.toBeInTheDocument();
+    expect(mockGetRunSummary.mock.calls.length).toBeGreaterThan(1);
+  });
+
   it("shows extended timeout copy when tenant p90 exceeds three minutes", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
 
