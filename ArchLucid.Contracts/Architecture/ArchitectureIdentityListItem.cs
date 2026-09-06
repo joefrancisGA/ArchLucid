@@ -50,4 +50,10 @@ public sealed class ArchitectureIdentityListItem
         get;
         set;
     }
+
+    public DateTime? ArchivedUtc
+    {
+        get;
+        set;
+    }
 }

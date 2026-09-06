@@ -97,6 +97,20 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
     componentPath: "components/help/ContactSupportHelpOrientationStack.tsx",
     description: "Contact support help — Report problem intake from the orientation action row.",
   },
+  {
+    id: "session-expired-sign-in-failure",
+    kind: "auth-session-break",
+    routePattern: "/auth/session-expired",
+    componentPath: "app/(operator)/auth/session-expired/SessionExpiredClient.tsx",
+    description: "Session-expired route when OIDC/JwtBearer sign-in cannot proceed (AuthErrorPanel path).",
+  },
+  {
+    id: "access-denied-wrong-tenant",
+    kind: "auth-session-break",
+    routePattern: "/403",
+    componentPath: "components/operator/OperatorAccessDeniedPageClient.tsx",
+    description: "Authenticated user signed into the wrong tenant or lacks tenant authorization (403 access denied).",
+  },
 ] as const;
 
 /** Static App Router siblings that must not satisfy `[reviewId]`-style dynamic segments. */

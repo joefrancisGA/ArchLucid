@@ -3,6 +3,7 @@ import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { isBrowser } from "@/lib/api/http";
 import { fetchRunDetailCriticalPageBundle } from "@/lib/fetch-run-detail-page-bundle-client";
 import { buildAdrGeneratorRunInput } from "@/lib/adr-from-run";
+import { countCareerExportEligibleFindings } from "@/lib/career-export-finding-inventory";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import { isPinnedDemoWorkspaceRunId } from "@/lib/demo-workspace-scope";
@@ -261,6 +262,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
       : governanceGateLabelRaw;
 
   const quickDecisionFindingsForAdr = resolveQuickDecisionFindingsForRunDetail(resolvedDetail, explanationSummary);
+  const careerExportEligibleFindingCount = countCareerExportEligibleFindings(quickDecisionFindingsForAdr);
 
   const adrGeneratorInput = buildAdrGeneratorRunInput({
     runId: resolvedDetail.run.runId,
@@ -318,6 +320,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     warningCountDisplay,
     showPilotScorecardPackageCta,
     governanceGateLabel,
+    careerExportEligibleFindingCount,
     adrGeneratorInput,
   };
 

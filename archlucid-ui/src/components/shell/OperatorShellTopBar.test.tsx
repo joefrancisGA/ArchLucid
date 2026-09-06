@@ -21,6 +21,12 @@ const navAuthMock = vi.hoisted(() => ({
   isAuthorityLoading: false,
 }));
 
+const navigationTestState = vi.hoisted(() => ({
+  pathname: "/",
+}));
+
+const architectWorkspaceChromeMock = vi.hoisted(() => ({ value: false }));
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
@@ -82,9 +88,13 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", async (importOrigi
 });
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/",
+  usePathname: () => navigationTestState.pathname,
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
   useSearchParams: () => new URLSearchParams(),
+}));
+
+vi.mock("@/hooks/useArchitectWorkspaceChrome", () => ({
+  useArchitectWorkspaceChrome: () => architectWorkspaceChromeMock.value,
 }));
 
 vi.mock("@/lib/auth-config", () => ({
@@ -105,6 +115,8 @@ describe("OperatorShellTopBar", () => {
     resetOperatorQueryClientForTests();
     fullShellMock.value = true;
     authorityThemeEvalMock.value = false;
+    navigationTestState.pathname = "/";
+    architectWorkspaceChromeMock.value = false;
     workspaceModeMock.mode = "guided";
     workspaceModeMock.mounted = true;
     workspaceModeMock.isWorkingMode = false;
@@ -341,5 +353,24 @@ describe("OperatorShellTopBar", () => {
 
     expect(await screen.findByTestId("app-shell-topbar-more-tools")).toBeInTheDocument();
     expect(screen.getByTestId("llm-budget-status-pill")).toBeInTheDocument();
+  });
+
+  it("keeps review search scope and in-input command shortcut on one header row", async () => {
+    navigationTestState.pathname = "/architecture/reviews/run-abc";
+    architectWorkspaceChromeMock.value = true;
+
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
+      </TooltipProvider>,
+    );
+
+    const controlRow = await screen.findByTestId("global-search-control-row");
+    const commandShortcut = screen.getByTestId("global-search-command-palette-shortcut");
+
+    expect(controlRow.contains(commandShortcut)).toBe(true);
+    expect(screen.queryByTestId("operator-shell-command-palette-trigger")).not.toBeInTheDocument();
+    expect(screen.getByTestId("global-search-package-scope-toggle")).toBeInTheDocument();
+    expect(controlRow.className).toContain("flex-nowrap");
   });
 });

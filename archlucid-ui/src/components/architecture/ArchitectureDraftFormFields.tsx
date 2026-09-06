@@ -184,7 +184,7 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
         businessOutcome={props.fields.businessOutcome}
         disabled={props.disabled === true}
         blocksLlmExecution={props.blocksLlmExecution === true}
-        architectureId={props.draftId}
+        draftId={props.draftId}
         markReviewReadinessInvalid={markInvalid}
         onBriefConfirmOrDeny={() => {
           setBriefConfirmOrDenyCount((current) => current + 1);

@@ -3,7 +3,7 @@ import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AgentEvidenceFaithfulnessBadge } from "@/components/AgentEvidenceFaithfulnessBadge";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { RunAgentForensicsCollapsibleShell } from "@/components/runs/RunAgentForensicsCollapsibleShell";
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import {
@@ -203,7 +203,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
 
   return (
     <section id="agent-forensics" className="scroll-mt-24 mb-6" aria-label="Diagnostics — agent traces">
-      <CollapsibleSection title="Advanced — agent traces and structural evaluation (diagnostics)" defaultOpen={false}>
+      <RunAgentForensicsCollapsibleShell>
       <p className={cn("mt-0 max-w-3xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         Prompt/response audit rows plus on-demand structural and semantic scoring of persisted agent JSON. Semantic columns and
         backend histogram <code className={OPERATOR_TYPOGRAPHY.helper}>archlucid_agent_output_semantic_score</code> are{" "}
@@ -377,7 +377,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
           semanticOverallTooltip={semanticOverallTooltip}
         />
       ) : null}
-      </CollapsibleSection>
+      </RunAgentForensicsCollapsibleShell>
     </section>
   );
 }

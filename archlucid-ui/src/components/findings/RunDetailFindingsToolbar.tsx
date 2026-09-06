@@ -1,7 +1,8 @@
 ﻿"use client";
 
 import { cn } from "@/lib/utils";
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +10,10 @@ import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatFindingsVisibilitySummaryLine } from "@/lib/findings/finding-confidence-filter";
+import {
+  parseFindingsFilterPanelOpenFromSearch,
+  runDetailFindingsFilterDisclosureHrefFromSearch,
+} from "@/lib/findings/run-detail-findings-filter-disclosure-url";
 import { FindingJobViewToggleBar } from "@/components/findings/FindingJobViewToggleBar";
 import { FindingsNaturalLanguageFilter } from "@/components/findings/FindingsNaturalLanguageFilter";
 import type { FindingsNaturalLanguageFacets } from "@/lib/findings/findings-natural-language-filter";
@@ -82,6 +87,21 @@ export type RunDetailFindingsToolbarProps = {
 
 export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): React.JSX.Element {
   const layout = props.layout ?? "full";
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const findingsFilterPanelOpenParam = searchParams.get("findingsFilterPanelOpen");
+  const urlFilterPanelOpen = parseFindingsFilterPanelOpenFromSearch(findingsFilterPanelOpenParam);
+  const filterPanelOpen = urlFilterPanelOpen ?? props.findings.length > FILTER_AUTO_EXPAND_THRESHOLD;
+
+  const setFilterPanelOpen = useCallback(
+    (open: boolean) => {
+      router.replace(runDetailFindingsFilterDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
   const severityCounts = useMemo(
     () => deriveFindingsToolbarSeverityCounts(props.findings),
     [props.findings],
@@ -223,7 +243,10 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
         <details
           className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
           data-workspace-disclosure
-          open={props.findings.length > FILTER_AUTO_EXPAND_THRESHOLD}
+          open={filterPanelOpen}
+          onToggle={(event) => {
+            setFilterPanelOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
         >
           <summary className={cn("cursor-pointer font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
             Filter findings
@@ -336,7 +359,10 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
       <details
         className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
         data-workspace-disclosure
-        open={props.findings.length > FILTER_AUTO_EXPAND_THRESHOLD}
+        open={filterPanelOpen}
+        onToggle={(event) => {
+          setFilterPanelOpen((event.currentTarget as HTMLDetailsElement).open);
+        }}
       >
         <summary className={cn("cursor-pointer font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
           Filter findings

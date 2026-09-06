@@ -92,10 +92,10 @@ describe("OperatorHomeWorkspaceMetricsStrip", () => {
       "href",
       OPERATOR_HOME_FINALIZED_PACKAGES_HREF,
     );
-    expect(screen.getByText(/^active reviews$/i)).toBeInTheDocument();
-    expect(screen.getByText(/^finalized package$/i)).toBeInTheDocument();
-    expect(screen.getByText("Source:")).toHaveClass("font-medium");
-    expect(screen.getByText("reviews in this workspace.")).toBeInTheDocument();
+    expect(screen.getByText(/active reviews — active/i)).toBeInTheDocument();
+    expect(screen.getByText(/finalized package — finalized/i)).toBeInTheDocument();
+    expect(screen.getByText("Scope:")).toHaveClass("font-medium");
+    expect(screen.getByText(/Each tile states its partition inline/i)).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-workspace-metrics-stack")).toHaveClass("space-y-4");
   });
 

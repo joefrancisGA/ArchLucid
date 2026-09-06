@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -33,5 +34,15 @@ public interface ICloudResourceIdentityDirectory
         ScopeContext scope,
         Guid resourceRowId,
         Guid cloudResourceId,
+        CancellationToken cancellationToken = default);
+
+    Task<(IReadOnlyList<CloudResourceExplorerListItem> Items, int TotalCount)> ListForExplorerAsync(
+        ScopeContext scope,
+        string? namePrefix,
+        string? resourceType,
+        string? resourceGroup,
+        CloudResourceExplorerWorkQueue workQueue,
+        int page,
+        int pageSize,
         CancellationToken cancellationToken = default);
 }

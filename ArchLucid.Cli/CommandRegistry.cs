@@ -150,6 +150,14 @@ internal sealed partial class CommandRegistry
 
         Register(
             new CommandDescriptor(
+                "architectures",
+                "List or show durable architecture identities (not drafts or reviews).",
+                "architectures list [--page <n>] [--page-size <n>], architectures get <architectureId>"),
+            CliCommandHandlers.HandleArchitectures,
+            "architecture");
+
+        Register(
+            new CommandDescriptor(
                 "cost-estimate",
                 "Estimate infrastructure cost from manifest or zip.",
                 "cost-estimate [--live-pricing] <manifest.json|extractor.zip>"),

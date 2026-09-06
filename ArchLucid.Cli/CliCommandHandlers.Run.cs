@@ -107,4 +107,8 @@ internal static partial class CliCommandHandlers
         ComparisonsCommand.RunAsync(normalized.Skip(1).ToArray());
 
 
+    internal static Task<int> HandleArchitectures(string[] normalized) =>
+        ArchitecturesCommand.RunAsync(normalized.Skip(1).ToArray());
+
+
 }

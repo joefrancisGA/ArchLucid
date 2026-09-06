@@ -1,5 +1,7 @@
 # Architecture / architecture review object-model & IA assessment
 
+> **Supersede note (2026-09-05, ADR 0074):** This July 2026 assessment is **archived for Working product decisions**. Migration 323 introduced **`dbo.Architectures`**, customer list/get APIs, and the Working architecture identity desk. Hypothesis B (review-only customer object) and §4's recommendation **not to add an Architectures nav destination** are **stale for Working** — do not use them to block identity-portfolio work (CA-32+). **Do not rewrite the July body below**; it remains historical evidence of the pre-0074 desk. Guided teaching may still use draft-first inventory per ADR 0067.
+
 **Status:** Assessment only. No product code, content, routes, navigation, tests, fixtures, or demo data were modified while producing this file. All findings are grounded in the current working tree as of 2026-07-13.
 
 **Method:** Read-only repository inspection across `archlucid-ui/` (navigation config, route tree, page components, copy constants, help content, demo/seed data, e2e and unit tests) and the .NET backend (`ArchLucid.Contracts`, `ArchLucid.Core`, `ArchLucid.Application`, `ArchLucid.Persistence`, generated API client, SQL DDL). Every claim below cites a file and, where practical, a line number.

@@ -40,10 +40,11 @@ describe("working primary nav chrome guard (LI-10)", () => {
     expect(violations).toEqual([]);
   });
 
-  it("keeps shortcut registry Alt+N copy draft-editor first (LI-06)", () => {
+  it("keeps shortcut registry Alt+N copy architecture-first on Working (CA-33)", () => {
     const source = readFileSync(join(process.cwd(), "src/lib/shortcut-registry.ts"), "utf8");
 
     expect(source).toContain("WORKING_ALT_N_SHORTCUT_DESCRIPTION");
-    expect(source).not.toMatch(/open the new-review wizard/i);
+    expect(source).toContain("last architecture");
+    expect(source).not.toMatch(/open the draft editor/i);
   });
 });

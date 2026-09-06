@@ -68,7 +68,7 @@ export function ArchitectureDraftDeleteControl(props: ArchitectureDraftDeleteCon
         architectureDraftDeleteConfirmHrefFromSearch(
           searchParams.toString(),
           {
-            architectureId: open ? props.draftId : null,
+            draftId: open ? props.draftId : null,
             confirmOpen: open,
           },
           pathname,

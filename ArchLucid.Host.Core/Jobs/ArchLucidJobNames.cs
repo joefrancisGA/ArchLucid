@@ -18,6 +18,8 @@ public static class ArchLucidJobNames
 
     public const string TrialEmailScan = "trial-email-scan";
 
+    public const string ComplianceDriftEscalation = "compliance-drift-escalation";
+
     public const string ExecDigestWeekly = "exec-digest-weekly";
 
     public const string SponsorDigestWeekly = "sponsor-digest-weekly";

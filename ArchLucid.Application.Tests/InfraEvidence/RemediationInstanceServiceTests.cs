@@ -353,6 +353,14 @@ public sealed class RemediationInstanceServiceTests
             CancellationToken cancellationToken = default) =>
             Task.FromResult<IReadOnlyList<RemediationInstanceRecord>>(
                 Instances.Where(row => row.TenantId == tenantId).ToList());
+
+        public Task<(IReadOnlyList<RemediationInstanceRecord> Items, int TotalCount)> ListByCloudResourceIdPagedAsync(
+            Guid tenantId,
+            Guid cloudResourceId,
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<(IReadOnlyList<RemediationInstanceRecord> Items, int TotalCount)>(([], 0));
     }
 
     private sealed class InMemoryRemediationPatternMatchRepository : IRemediationPatternMatchRepository
@@ -540,5 +548,13 @@ public sealed class RemediationInstanceServiceTests
             Guid newerSnapshotId,
             CancellationToken cancellationToken = default) =>
             Task.FromResult<Guid?>(null);
+
+        public Task<(IReadOnlyList<AzureInventorySnapshotRecord> Items, int TotalCount)> ListSnapshotsAsync(
+            ScopeContext scope,
+            int page,
+            int pageSize,
+            string? subscriptionId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<(IReadOnlyList<AzureInventorySnapshotRecord>, int)>(([], 0));
     }
 }

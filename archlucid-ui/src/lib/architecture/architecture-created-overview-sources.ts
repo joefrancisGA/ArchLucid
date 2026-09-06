@@ -28,5 +28,19 @@ export const ARCHITECTURE_CREATED_OVERVIEW_EMPTY_HEADING = "No structured overvi
 export const ARCHITECTURE_CREATED_OVERVIEW_EMPTY_CAUSE =
   "Your brief was too thin for ArchLucid to extract sponsor report, risks, or constraints." as const;
 
+export const ARCHITECTURE_CREATED_OVERVIEW_BUYER_EMPTY_CAUSE =
+  "Add more detail in guided questions so ArchLucid can structure sponsor report, risks, and constraints." as const;
+
+export const ARCHITECTURE_CREATED_OVERVIEW_SUBMITTED_BRIEF_SUMMARY =
+  "Generated source and submitted brief" as const;
+
+export const ARCHITECTURE_CREATED_OVERVIEW_SUBMITTED_BRIEF_SUMMARY_BUYER = "Submitted brief" as const;
+
 export const ARCHITECTURE_CREATED_OVERVIEW_PROVENANCE_LEGEND =
   "Asserted — taken directly from your brief. Inferred — derived by ArchLucid and may need correction in guided questions." as const;
+
+export const ARCHITECTURE_CREATED_OVERVIEW_PAGE_LEAD =
+  "Structured summary of your submitted architecture brief before finalize.";
+
+export const ARCHITECTURE_CREATED_OVERVIEW_BUYER_START_HERE_HELPER =
+  "Review how ArchLucid structured your brief — guided clarifications and corrections remain available on sibling workspace tabs below.";

@@ -10,7 +10,7 @@ function entry(
   overrides: Partial<ArchitectureDraftRegistryEntry> = {},
 ): ArchitectureDraftRegistryEntry {
   return {
-    architectureId: overrides.architectureId ?? "draft-001",
+    draftId: overrides.draftId ?? "draft-001",
     displayName: overrides.displayName ?? "Vertex",
     customerStatus: overrides.customerStatus ?? "draft",
     ownerLabel: overrides.ownerLabel ?? "You",

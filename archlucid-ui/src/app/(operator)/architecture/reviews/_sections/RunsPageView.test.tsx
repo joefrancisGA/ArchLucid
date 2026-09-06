@@ -73,7 +73,6 @@ vi.mock("@/components/operator/OperatorPageHeader", () => ({
     subtitle,
     metadata,
     actions,
-    navHref,
     claimDiscipline,
   }: {
     title: string;
@@ -83,7 +82,13 @@ vi.mock("@/components/operator/OperatorPageHeader", () => ({
     navHref?: string;
     claimDiscipline?: string;
   }) => (
-      <h1>{title}</h1>
+    <div>
+      <h2>{title}</h2>
+      <span data-testid="page-heading-icon" aria-hidden="true" />
+      {subtitle ? <p data-testid="runs-page-subtitle">{subtitle}</p> : null}
+      {claimDiscipline ? (
+        <p data-testid="reviews-hub-claim-discipline">{claimDiscipline}</p>
+      ) : null}
       {metadata ? <div data-testid="runs-page-metadata">{metadata}</div> : null}
       {actions ? <div data-testid="runs-page-header-actions">{actions}</div> : null}
     </div>
@@ -93,6 +98,22 @@ vi.mock("@/components/operator/OperatorPageHeader", () => ({
 vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
   useArchitectureDraftRegistryEntries: () => [],
   useArchitectureDraftRegistryHydrated: () => true,
+}));
+
+vi.mock("@/hooks/use-operator-attention-summary", () => ({
+  useOperatorAttentionSummary: () => ({
+    summaries: [
+      { partition: "unfinished-work", totalCount: 2 },
+      { partition: "assigned-to-me", totalCount: 1 },
+      { partition: "alerts", totalCount: 0 },
+      { partition: "awaiting-approval", totalCount: 3 },
+    ],
+    surfaceCounts: {},
+  }),
+}));
+
+vi.mock("@/hooks/use-attention-partition-previews", () => ({
+  useAttentionPartitionPreviews: () => ({}),
 }));
 
 vi.mock("@/components/operator/OperatorWelcomeOnboarding", () => ({
@@ -395,5 +416,52 @@ describe("RunsPageView malformed response", () => {
     render(<RunsPageView model={baseModel({ totalCount: 0 })} />);
 
     expect(screen.queryByTestId("report-problem-trigger")).not.toBeInTheDocument();
+  });
+});
+
+describe("RunsPageView hub attention suppress (HCP-02)", () => {
+  it("suppresses unfinished-work chips when in-progress inventory is visible", () => {
+    render(
+      <RunsPageView
+        model={baseModel({
+          totalCount: 1,
+          runs: [
+            {
+              runId: "review-in-flight",
+              projectId: "default",
+              createdUtc: "2026-01-15T12:00:00.000Z",
+              hasFindingsSnapshot: true,
+              findingCount: 2,
+            } as RunsPageModel["runs"][number],
+          ],
+        })}
+      />,
+    );
+
+    expect(screen.queryByTestId("operator-attention-kind-chip-unfinished-work")).not.toBeInTheDocument();
+    expect(screen.getByTestId("operator-attention-kind-chip-assigned-to-me")).toBeInTheDocument();
+  });
+
+  it("suppresses awaiting-approval chips when the summary row links to the approval queue", () => {
+    render(
+      <RunsPageView
+        model={baseModel({
+          totalCount: 1,
+          runs: [
+            {
+              runId: "review-finalized",
+              projectId: "default",
+              createdUtc: "2026-01-15T12:00:00.000Z",
+              hasGoldenManifest: true,
+              hasFindingsSnapshot: true,
+              findingCount: 1,
+            } as RunsPageModel["runs"][number],
+          ],
+        })}
+      />,
+    );
+
+    expect(screen.queryByTestId("operator-attention-kind-chip-awaiting-approval")).not.toBeInTheDocument();
+    expect(screen.getByTestId("operator-attention-kind-chip-unfinished-work")).toBeInTheDocument();
   });
 });

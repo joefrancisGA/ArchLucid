@@ -13,13 +13,13 @@ export const ARCHITECTURE_DRAFTS_HELP_BREADCRUMB_TOPIC_TITLE = "Architecture dra
 
 export const ARCHITECTURE_DRAFTS_HELP_PAGE_EYEBROW = "Help topic" as const;
 
-export const ARCHITECTURE_DRAFTS_HELP_PAGE_TITLE = ARCHITECTURE_DRAFTS_LIST_LABEL;
+export const ARCHITECTURE_DRAFTS_HELP_PAGE_TITLE = "Architecture drafts" as const;
 
 export const ARCHITECTURE_DRAFTS_HELP_PAGE_SUBTITLE =
-  "Browse, resume, and refine saved architecture drafts before filing evidence for an approval review.";
+  "Guided mode: browse, resume, and refine saved architecture drafts before filing evidence for an approval review.";
 
 export const ARCHITECTURE_DRAFTS_HELP_PAGE_SUBTITLE_BUYER =
-  "Saved system briefs you can resume and refine before evidence intake for an approval review." as const;
+  "Guided mode: saved system briefs you can resume and refine before evidence intake for an approval review." as const;
 
 export const ARCHITECTURE_DRAFTS_HELP_PRIMARY_CONTENT_ID = "help-architecture-drafts-primary-content" as const;
 
@@ -34,7 +34,7 @@ export function architectureDraftsHelpPageSubtitle(buyerPolishedShell: boolean):
 export const ARCHITECTURE_DRAFTS_HELP_HOW_TO_SECTION_TITLE = "Step-by-step" as const;
 
 export const ARCHITECTURE_DRAFTS_HELP_OVERVIEW =
-  "Architecture drafts are saved system briefs you can edit before starting evidence intake. Drafting does not start a review — open Start a review when the brief is ready for approval review.";
+  "Architecture drafts are saved child briefs you can edit before starting evidence intake. Drafting does not start a review — open Start a review when the brief is ready for approval review. In Working mode, the Architectures hub lists named architecture identities (each may own child drafts and reviews); this guide focuses on Guided-mode draft inventory and draft editing.";
 
 export const ARCHITECTURE_DRAFTS_HELP_PRIMARY_ACTION = {
   label: "Start a review",
@@ -54,7 +54,7 @@ export type ArchitectureDraftsHelpItem = {
 export const ARCHITECTURE_DRAFTS_HELP_FEATURE_ITEMS: readonly ArchitectureDraftsHelpItem[] = [
   {
     label: "Draft list",
-    detail: "Browse saved drafts for the workspace and project selected in the header switcher.",
+    detail: "In Guided mode, browse saved drafts for the workspace and project selected in the header switcher.",
   },
   {
     label: "Resume editing",

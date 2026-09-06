@@ -69,6 +69,12 @@ public sealed class ArchitectureIdentityDetail
         set;
     }
 
+    public DateTime? ArchivedUtc
+    {
+        get;
+        set;
+    }
+
     public IReadOnlyList<ArchitectureIdentityChildDraftSummary> Drafts
     {
         get;
@@ -76,6 +82,12 @@ public sealed class ArchitectureIdentityDetail
     } = [];
 
     public IReadOnlyList<ArchitectureIdentityChildReviewSummary> Reviews
+    {
+        get;
+        set;
+    } = [];
+
+    public IReadOnlyList<ArchitectureIdentityVersionSummary> Versions
     {
         get;
         set;

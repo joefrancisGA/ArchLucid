@@ -47,7 +47,7 @@ describe("ArchitectureDraftResumeControl", () => {
 
     render(
       <ArchitectureDraftResumeControl
-        architectureId="arch-001"
+        draftId="arch-001"
         label="Continue editing"
         source="architectures-list"
       />,
@@ -67,7 +67,7 @@ describe("ArchitectureDraftResumeControl", () => {
 
     render(
       <ArchitectureDraftResumeControl
-        architectureId="arch-001"
+        draftId="arch-001"
         label="Continue editing"
         source="reviews-hub"
       />,
@@ -88,7 +88,7 @@ describe("ArchitectureDraftResumeControl", () => {
 
     render(
       <ArchitectureDraftResumeControl
-        architectureId="arch-001"
+        draftId="arch-001"
         label="Continue editing"
         source="architectures-new"
         variant="primary"
@@ -123,7 +123,7 @@ describe("ArchitectureDraftResumeControl", () => {
 
     render(
       <ArchitectureDraftResumeControl
-        architectureId="arch-001"
+        draftId="arch-001"
         label="Continue draft"
         source="architectures-new"
         variant="primary"
@@ -161,7 +161,7 @@ describe("ArchitectureDraftResumeControl", () => {
 
     render(
       <ArchitectureDraftResumeControl
-        architectureId="arch-001"
+        draftId="arch-001"
         label="Continue draft"
         source="architectures-new"
         variant="primary"

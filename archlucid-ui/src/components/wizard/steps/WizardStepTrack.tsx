@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
+import { InlineMetadataLine } from "@/components/InlineMetadataLine";
 import { ReviewPipelineStopAnalysisButton } from "@/components/runs/ReviewPipelineStopAnalysisButton";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -118,11 +119,12 @@ export function WizardStepTrack({ runId, pollSummary, onRetryPolling }: WizardSt
       </p>
 
       <div className="mt-4 space-y-2">
-        <div className={cn("flex justify-between text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
-          <span>Review progress</span>
-          <span>{completedStages} / 4 stages</span>
-        </div>
-        <Progress value={progressValue} className="h-2" />
+        <InlineMetadataLine
+          label="Review progress"
+          value={`${completedStages} / 4 stages`}
+          testId="wizard-track-progress-count"
+        />
+        <Progress value={progressValue} className="h-2" aria-label={`Review progress: ${completedStages} / 4 stages`} />
       </div>
 
       <Separator className="my-6" />

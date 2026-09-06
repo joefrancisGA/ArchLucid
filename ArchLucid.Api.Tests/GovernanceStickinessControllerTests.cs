@@ -4172,8 +4172,10 @@ public sealed class GovernanceStickinessControllerTests
             ok.Value.Should().BeOfType<ArchitectureReviewRecurrenceSchedule>().Subject;
         body.SourceRunId.Should().Be(sourceRunId);
         body.Name.Should().Be("weekly review");
+        body.ArchitectureId.Should().Be(Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"));
         captured.Should().NotBeNull();
         captured!.TenantId.Should().Be(Scope.TenantId);
+        captured.ArchitectureId.Should().Be(Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"));
     }
 
     [Fact]

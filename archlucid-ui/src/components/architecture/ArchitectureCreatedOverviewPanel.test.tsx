@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/architecture/created/run-abc",
@@ -7,9 +7,27 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn() }),
 }));
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () => demoEnvMock.buyerPolished,
+  };
+});
+
+const demoEnvMock = vi.hoisted(() => ({
+  buyerPolished: false,
+}));
+
 import { ArchitectureCreatedOverviewPanel } from "@/components/architecture/ArchitectureCreatedOverviewPanel";
 import { buildArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
-import { ARCHITECTURE_CREATED_OVERVIEW_SOURCES } from "@/lib/architecture/architecture-created-overview-sources";
+import {
+  ARCHITECTURE_CREATED_OVERVIEW_BUYER_START_HERE_HELPER,
+  ARCHITECTURE_CREATED_OVERVIEW_PAGE_LEAD,
+  ARCHITECTURE_CREATED_OVERVIEW_SOURCES,
+} from "@/lib/architecture/architecture-created-overview-sources";
+import { ARCHITECTURE_CREATED_OVERVIEW_SKIP_TARGET_ID } from "@/lib/architecture/architecture-created-overview-page-copy";
 import { ARCHITECTURE_STRUCTURED_RETRY_LABEL } from "@/lib/architecture/architecture-structured-content-copy";
 
 function buildModel(overrides: Parameters<typeof buildArchitectureCreatedHomeModel>[0] = {}) {
@@ -32,6 +50,10 @@ function buildModel(overrides: Parameters<typeof buildArchitectureCreatedHomeMod
 }
 
 describe("ArchitectureCreatedOverviewPanel", () => {
+  beforeEach(() => {
+    demoEnvMock.buyerPolished = false;
+  });
+
   it("links Continue clarifying to run-scoped correction href (TB-1862)", () => {
     const model = buildModel();
 
@@ -224,5 +246,61 @@ alpha|beta|gamma|delta|epsilon|zeta`;
     fireEvent.click(screen.getByRole("button", { name: ARCHITECTURE_STRUCTURED_RETRY_LABEL }));
 
     expect(screen.getByTestId("architecture-structured-parse-failure")).toBeInTheDocument();
+  });
+});
+
+describe("ArchitectureCreatedOverviewPanel buyer-polished shell", () => {
+  beforeEach(() => {
+    demoEnvMock.buyerPolished = true;
+  });
+
+  it("hides provenance legend, uses buyer empty copy, first-viewport intro, and omits inline Sources strip", () => {
+    render(
+      <ArchitectureCreatedOverviewPanel
+        model={buildModel()}
+        sourceText=""
+        userAssertions={null}
+        correctionHref="/architecture/reviews/new?path=guided-intake&rerun=run-abc"
+        openClarificationGapCount={0}
+        onNavigateTab={vi.fn()}
+        submittedArchitectureSection={<div>Submitted brief body</div>}
+      />,
+    );
+
+    expect(screen.queryByTestId("architecture-overview-provenance-legend")).not.toBeInTheDocument();
+    expect(screen.getByTestId(ARCHITECTURE_CREATED_OVERVIEW_SKIP_TARGET_ID)).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-overview-intro")).toHaveTextContent(
+      ARCHITECTURE_CREATED_OVERVIEW_PAGE_LEAD,
+    );
+    expect(screen.getByTestId("architecture-overview-buyer-start-here-helper")).toHaveTextContent(
+      ARCHITECTURE_CREATED_OVERVIEW_BUYER_START_HERE_HELPER,
+    );
+    expect(screen.getByTestId("architecture-overview-empty-state")).toHaveTextContent(
+      /Add more detail in guided questions/i,
+    );
+    expect(screen.queryByTestId("architecture-overview-sources")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /continue clarifying/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /open the submitted brief/i })).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-overview-submitted-brief")).toHaveTextContent(/submitted brief/i);
+  });
+
+  it("hides clarification gap row and Open clarifications control in buyer-polished shell", () => {
+    const onNavigateTab = vi.fn();
+    const source = `## Sponsor report
+Governed claims intake platform.`;
+
+    render(
+      <ArchitectureCreatedOverviewPanel
+        model={buildModel()}
+        sourceText={source}
+        userAssertions={null}
+        correctionHref="/architecture/reviews/new?path=guided-intake&rerun=run-abc"
+        openClarificationGapCount={2}
+        onNavigateTab={onNavigateTab}
+        submittedArchitectureSection={<div>Submitted</div>}
+      />,
+    );
+
+    expect(screen.queryByRole("button", { name: /open clarifications/i })).not.toBeInTheDocument();
   });
 });

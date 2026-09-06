@@ -24,8 +24,8 @@ export function ReviewsNewRouteBody(): React.JSX.Element {
       return;
     }
 
-    router.replace(workingStart.href);
-  }, [evalChrome, pathQuery, router, workingStart.href]);
+    router.replace(workingStart);
+  }, [evalChrome, pathQuery, router, workingStart]);
 
   if (!evalChrome && pathQuery.length === 0) {
     return (

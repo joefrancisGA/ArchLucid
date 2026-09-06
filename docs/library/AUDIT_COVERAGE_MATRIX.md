@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:422 -->
+<!-- audit-core-const-count:423 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -343,6 +343,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Tenant auth domain — add recovery admin | `TenantAuthDomainAdminController` (`POST /v1/admin/identity/domains/{normalizedDomain}/recovery-admins`) | `AuthDomainRecoveryAdminAdded` | Tenant from ambient scope | recovery admin email hash only |
 | Tenant auth domain — remove recovery admin | `TenantAuthDomainAdminController` (`DELETE /v1/admin/identity/domains/{normalizedDomain}/recovery-admins/{normalizedRecoveryAdminEmail}`) | `AuthDomainRecoveryAdminRemoved`, `AuthDomainLastRecoveryPathRemoved` | Tenant from ambient scope | `{ normalizedDomain }` |
 | Tenant auth domain — remove domain | `TenantAuthDomainAdminController` (`DELETE /v1/admin/identity/domains/{normalizedDomain}`) | `AuthDomainRemoved` | Tenant from ambient scope | `{ normalizedDomain }` |
+| Platform architecture identity conservative backfill (DA-12) | `AdminArchitectureIdentityBackfillController` (`POST /v1/admin/tenants/{tenantId}/architecture-identity/backfill`) | — (idempotent data repair; `ArchitectureIdentityBackfillReport` is the durable outcome surface) | Tenant + workspace + project from request body | linked counts — no separate audit row |
 | Admin user invitation revoke | `UsersAdminController` (`DELETE /v1/admin/users/invitations/{invitationId}`) | `AdminUserInvitationRevoked` | Tenant from ambient scope | `{ invitationId }` |
 | Platform tenant auth recovery grant | `PlatformIdentityRecoveryController` (`POST /v1/internal/identity/recovery/grants`) | `PlatformTenantAuthRecoveryGranted` | Target tenant | `{ grantId, normalizedDomain, expiresUtc }` |
 | Platform tenant auth recovery revoke | `PlatformIdentityRecoveryController` (`DELETE /v1/internal/identity/recovery/grants/{grantId}`) | `PlatformTenantAuthRecoveryRevoked` | Target tenant when known | `{ grantId }` |
@@ -583,6 +584,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `DraftIntakeBranched` | `DraftIntake.Branched` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/branch`) |
 | `DraftIntakeCreated` | `DraftIntake.Created` | `DraftRequestsController` (`POST /v1/architecture/draft`) |
 | `DraftIntakePatched` | `DraftIntake.Patched` | `DraftRequestsController` (`PATCH /v1/architecture/draft/{draftId}`) |
+| `ArchitectureIdentityPatched` | `ArchitectureIdentity.Patched` | `ArchitecturesController` (`PATCH /v1/architectures/{architectureId}`) |
 | `DraftIntakeQuestionAnswered` | `DraftIntake.QuestionAnswered` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/answer`) |
 | `DraftIntakeQuestionSkipped` | `DraftIntake.QuestionSkipped` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/skip`) |
 | `DraftIntakeReasoned` | `DraftIntake.Reasoned` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/reason`) |

@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { formatHelpTopicApplicabilityMetadata } from "@/lib/help/help-topic-applicability-metadata";
 import {
   BASELINE_SETTINGS_HELP_ANCHOR_ITEMS,
   BASELINE_SETTINGS_HELP_BASELINE_VS_ROI_BODY,
@@ -25,6 +26,7 @@ import {
   BASELINE_SETTINGS_HELP_PAGE_SUBTITLE,
   BASELINE_SETTINGS_HELP_PAGE_TITLE,
   BASELINE_SETTINGS_HELP_PRIMARY_ACTION,
+  BASELINE_SETTINGS_HELP_BUYER_START_HERE_HELPER,
   BASELINE_SETTINGS_HELP_START_HERE_CARD_TITLE,
   BASELINE_SETTINGS_HELP_USED_IN_SURFACES,
 } from "@/lib/baseline-settings-help-guide-content";
@@ -66,7 +68,7 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
   );
 }
 
-function BaselineSettingsStartHerePanel(): React.ReactElement {
+function BaselineSettingsStartHerePanel(props: { readonly buyerPolishedShell: boolean }): React.ReactElement {
   return (
     <section
       className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
@@ -85,9 +87,18 @@ function BaselineSettingsStartHerePanel(): React.ReactElement {
       >
         <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)}>{BASELINE_SAVED_CANNOT_BE_REMOVED_HELPER}</p>
       </aside>
-      <Button asChild size="sm" variant="primary">
-        <Link href={BASELINE_SETTINGS_HELP_PRIMARY_ACTION.href}>{BASELINE_SETTINGS_HELP_PRIMARY_ACTION.label}</Link>
-      </Button>
+      {props.buyerPolishedShell ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="help-baseline-settings-buyer-start-here-helper"
+        >
+          {BASELINE_SETTINGS_HELP_BUYER_START_HERE_HELPER}
+        </p>
+      ) : (
+        <Button asChild size="sm" variant="primary">
+          <Link href={BASELINE_SETTINGS_HELP_PRIMARY_ACTION.href}>{BASELINE_SETTINGS_HELP_PRIMARY_ACTION.label}</Link>
+        </Button>
+      )}
     </section>
   );
 }
@@ -106,6 +117,18 @@ export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideVi
     : guideHeadings;
   const contentGridClass = resolveHelpPageContentGridClass(tocHeadings.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
+  const buyerProvenanceLine = formatHelpTopicApplicabilityMetadata(entry);
+  const buyerHeaderMetadata =
+    buyerProvenanceLine === null
+      ? null
+      : (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)}
+          data-testid="help-baseline-settings-buyer-provenance"
+        >
+          {buyerProvenanceLine}
+        </p>
+      );
 
   return (
     <article
@@ -133,6 +156,7 @@ export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideVi
             headingLevel="h1"
             claimDiscipline={BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE}
             claimDisciplineTestId={BASELINE_SETTINGS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+            metadata={buyerHeaderMetadata}
             actions={<HelpBaselineSettingsHeaderActions />}
           />
         ) : (
@@ -158,7 +182,10 @@ export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideVi
               OPERATOR_LAYOUT.sectionStack,
             )}
           >
-            <BaselineSettingsStartHerePanel />
+            <BaselineSettingsStartHerePanel buyerPolishedShell={buyerPolishedShell} />
+            <p className={readingBodyClass} data-testid="help-baseline-settings-overview">
+              {BASELINE_SETTINGS_HELP_OVERVIEW}
+            </p>
           </div>
         ) : null}
 
@@ -168,11 +195,13 @@ export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideVi
               <BaselineSettingsHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
             ) : null}
 
-            <p className={readingBodyClass} data-testid="help-baseline-settings-overview">
-              {BASELINE_SETTINGS_HELP_OVERVIEW}
-            </p>
+            {!buyerPolishedShell ? (
+              <p className={readingBodyClass} data-testid="help-baseline-settings-overview">
+                {BASELINE_SETTINGS_HELP_OVERVIEW}
+              </p>
+            ) : null}
 
-            {!buyerPolishedShell ? <BaselineSettingsStartHerePanel /> : null}
+            {!buyerPolishedShell ? <BaselineSettingsStartHerePanel buyerPolishedShell={buyerPolishedShell} /> : null}
 
             <section
               aria-labelledby="what-baseline-settings-captures"

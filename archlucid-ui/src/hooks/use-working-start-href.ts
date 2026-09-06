@@ -55,7 +55,7 @@ function resolveDeskContinuityFromPreferences(): DeskContinuityDto {
   return mergeDeskContinuity(defaultDeskContinuityDto(), prefs.deskContinuity);
 }
 
-/** Client hook — resolves Working Start / Alt+N href from desk state (IS-03 / IS-13). */
+/** Client hook — resolves Working Start / Alt+N href from desk state (IS-03 / IS-13 / CA-33). */
 export function useWorkingStartHref(runs: readonly RunSummary[] = []): string {
   const drafts = useArchitectureDraftRegistryEntries();
   const [deskContinuity, setDeskContinuity] = useState<DeskContinuityDto>(() => resolveDeskContinuityFromPreferences());

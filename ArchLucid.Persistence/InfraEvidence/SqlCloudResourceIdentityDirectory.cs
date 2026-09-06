@@ -1,5 +1,7 @@
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Configuration;
 using ArchLucid.Persistence.Connections;
@@ -292,6 +294,179 @@ public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory conn
                 cancellationToken: cancellationToken));
     }
 
+    public async Task<(IReadOnlyList<CloudResourceExplorerListItem> Items, int TotalCount)> ListForExplorerAsync(
+        ScopeContext scope,
+        string? namePrefix,
+        string? resourceType,
+        string? resourceGroup,
+        CloudResourceExplorerWorkQueue workQueue,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        (int safePage, int safePageSize) = PaginationDefaults.Normalize(page, pageSize);
+        int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
+        string? trimmedPrefix = string.IsNullOrWhiteSpace(namePrefix) ? null : namePrefix.Trim();
+        string? trimmedType = string.IsNullOrWhiteSpace(resourceType) ? null : resourceType.Trim();
+        string? trimmedGroup = string.IsNullOrWhiteSpace(resourceGroup) ? null : resourceGroup.Trim();
+        string workQueueFilter = BuildWorkQueueFilter(workQueue);
+
+        string countSql = $"""
+                                SELECT COUNT(1)
+                                FROM dbo.CloudResourceIdentities
+                                WHERE TenantId = @TenantId
+                                  AND WorkspaceId = @WorkspaceId
+                                  AND ProjectId = @ProjectId
+                                  AND (@NamePrefix IS NULL OR DisplayName LIKE @NamePrefix + '%' OR ExternalResourceIdNormalized LIKE '%' + @NamePrefix + '%')
+                                  AND (@ResourceType IS NULL OR ResourceType = @ResourceType)
+                                  AND (@ResourceGroup IS NULL OR ResourceGroupOrProject = @ResourceGroup)
+                                  {workQueueFilter};
+                                """;
+
+        string listSql = $"""
+                               SELECT
+                                   CloudResourceId, TenantId, WorkspaceId, ProjectId, Provider,
+                                   ExternalResourceIdNormalized, ResourceType, SubscriptionOrAccountId,
+                                   ResourceGroupOrProject, Region, DisplayName,
+                                   FirstSeenSnapshotId, LastSeenSnapshotId, FirstSeenUtc, LastSeenUtc,
+                                   {OpenOperationalFindingsCountSql} AS OpenOperationalFindingsCount,
+                                   {OpenRemediationInstancesCountSql} AS OpenRemediationInstancesCount,
+                                   {InventoryDriftChangeCountSql} AS InventoryDriftChangeCount
+                               FROM dbo.CloudResourceIdentities
+                               WHERE TenantId = @TenantId
+                                 AND WorkspaceId = @WorkspaceId
+                                 AND ProjectId = @ProjectId
+                                 AND (@NamePrefix IS NULL OR DisplayName LIKE @NamePrefix + '%' OR ExternalResourceIdNormalized LIKE '%' + @NamePrefix + '%')
+                                 AND (@ResourceType IS NULL OR ResourceType = @ResourceType)
+                                 AND (@ResourceGroup IS NULL OR ResourceGroupOrProject = @ResourceGroup)
+                                 {workQueueFilter}
+                               ORDER BY LastSeenUtc DESC
+                               OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
+                               """;
+
+        object parameters = new
+        {
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            NamePrefix = trimmedPrefix,
+            ResourceType = trimmedType,
+            ResourceGroup = trimmedGroup,
+            Skip = skip,
+            PageSize = safePageSize,
+            FindingStatusOpen = (int)OperationalSecurityFindingStatus.Open,
+            FindingStatusRecurred = (int)OperationalSecurityFindingStatus.Recurred,
+            FindingStatusAwaitingVerification = (int)OperationalSecurityFindingStatus.AwaitingVerification,
+            RemediationStatusClosed = (int)RemediationInstanceStatus.Closed,
+        };
+
+        using System.Data.IDbConnection conn =
+            await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        int totalCount = await conn.ExecuteScalarAsync<int>(
+            new CommandDefinition(countSql, parameters, cancellationToken: cancellationToken));
+
+        IEnumerable<Row> rows = await conn.QueryAsync<Row>(
+            new CommandDefinition(
+                listSql,
+                parameters,
+                commandTimeout: DapperCommandTimeoutSeconds.Report,
+                cancellationToken: cancellationToken));
+
+        IReadOnlyList<CloudResourceExplorerListItem> items = rows.Select(MapExplorerRow).ToList();
+
+        return (items, totalCount);
+    }
+
+    private const string OpenOperationalFindingsCountSql = """
+        (SELECT COUNT(1)
+         FROM dbo.OperationalSecurityFindings f
+         WHERE f.TenantId = dbo.CloudResourceIdentities.TenantId
+           AND f.CloudResourceId = dbo.CloudResourceIdentities.CloudResourceId
+           AND f.Status IN (@FindingStatusOpen, @FindingStatusRecurred, @FindingStatusAwaitingVerification))
+        """;
+
+    private const string OpenRemediationInstancesCountSql = """
+        (SELECT COUNT(1)
+         FROM dbo.RemediationInstances r
+         WHERE r.TenantId = dbo.CloudResourceIdentities.TenantId
+           AND r.CloudResourceId = dbo.CloudResourceIdentities.CloudResourceId
+           AND r.Status <> @RemediationStatusClosed)
+        """;
+
+    private const string InventoryDriftChangeCountSql = """
+        (SELECT COUNT(1)
+         FROM dbo.AzureInventoryChanges c
+         WHERE c.TenantId = dbo.CloudResourceIdentities.TenantId
+           AND c.CloudResourceId = dbo.CloudResourceIdentities.CloudResourceId)
+        """;
+
+    private static string BuildWorkQueueFilter(CloudResourceExplorerWorkQueue workQueue) =>
+        workQueue switch
+        {
+            CloudResourceExplorerWorkQueue.OpenFindings => """
+                AND EXISTS (
+                    SELECT 1
+                    FROM dbo.OperationalSecurityFindings f
+                    WHERE f.TenantId = dbo.CloudResourceIdentities.TenantId
+                      AND f.CloudResourceId = dbo.CloudResourceIdentities.CloudResourceId
+                      AND f.Status IN (@FindingStatusOpen, @FindingStatusRecurred, @FindingStatusAwaitingVerification)
+                )
+                """,
+            CloudResourceExplorerWorkQueue.OpenRemediation => """
+                AND EXISTS (
+                    SELECT 1
+                    FROM dbo.RemediationInstances r
+                    WHERE r.TenantId = dbo.CloudResourceIdentities.TenantId
+                      AND r.CloudResourceId = dbo.CloudResourceIdentities.CloudResourceId
+                      AND r.Status <> @RemediationStatusClosed
+                )
+                """,
+            CloudResourceExplorerWorkQueue.RecentDrift => """
+                AND EXISTS (
+                    SELECT 1
+                    FROM dbo.AzureInventoryChanges c
+                    WHERE c.TenantId = dbo.CloudResourceIdentities.TenantId
+                      AND c.CloudResourceId = dbo.CloudResourceIdentities.CloudResourceId
+                )
+                """,
+            _ => string.Empty,
+        };
+
+    private static CloudResourceExplorerListItem MapExplorerRow(Row row) =>
+        new()
+        {
+            Identity = MapRow(row),
+            WorkCounts = new CloudResourceExplorerWorkCounts
+            {
+                OpenOperationalFindingsCount = row.OpenOperationalFindingsCount,
+                OpenRemediationInstancesCount = row.OpenRemediationInstancesCount,
+                InventoryDriftChangeCount = row.InventoryDriftChangeCount,
+            },
+        };
+
+    private static CloudResourceIdentityRecord MapRow(Row row) =>
+        new()
+        {
+            CloudResourceId = row.CloudResourceId,
+            TenantId = row.TenantId,
+            WorkspaceId = row.WorkspaceId,
+            ProjectId = row.ProjectId,
+            Provider = (CloudProvider)row.Provider,
+            ExternalResourceIdNormalized = row.ExternalResourceIdNormalized,
+            ResourceType = row.ResourceType,
+            SubscriptionOrAccountId = row.SubscriptionOrAccountId,
+            ResourceGroupOrProject = row.ResourceGroupOrProject,
+            Region = row.Region,
+            DisplayName = row.DisplayName,
+            FirstSeenSnapshotId = row.FirstSeenSnapshotId,
+            LastSeenSnapshotId = row.LastSeenSnapshotId,
+            FirstSeenUtc = row.FirstSeenUtc,
+            LastSeenUtc = row.LastSeenUtc,
+        };
+
     private sealed class Row
     {
         public Guid CloudResourceId
@@ -379,6 +554,24 @@ public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory conn
         }
 
         public DateTime LastSeenUtc
+        {
+            get;
+            init;
+        }
+
+        public int OpenOperationalFindingsCount
+        {
+            get;
+            init;
+        }
+
+        public int OpenRemediationInstancesCount
+        {
+            get;
+            init;
+        }
+
+        public int InventoryDriftChangeCount
         {
             get;
             init;

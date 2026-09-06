@@ -50,6 +50,13 @@ function buildProps(
     onNaturalLanguageFilterApply: () => undefined,
     nlFacets: {},
     onClearAllFilters: () => undefined,
+    onShowAllFilteredFindings: () => undefined,
+    hiddenFilterHonesty: {
+      hiddenCount: 0,
+      hiddenDecisionGradeCount: 0,
+      line: null,
+      hasHidden: false,
+    },
     onLoadFindingsSavedView: () => undefined,
     loading: false,
     rows: [],

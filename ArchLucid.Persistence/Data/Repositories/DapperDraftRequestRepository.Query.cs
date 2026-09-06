@@ -44,6 +44,7 @@ public sealed partial class DapperDraftRequestRepository
                                SpawnedArchitectureVersionId,
                                DocumentContentHashSha256,
                                SpawnedDocumentContentHashSha256,
+                               ArchitectureId,
                                CreatedByUserId,
                                CreatedUtc,
                                UpdatedUtc

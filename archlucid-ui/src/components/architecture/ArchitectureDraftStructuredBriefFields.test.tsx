@@ -88,7 +88,7 @@ function mockDraftSuggestResponse(response: {
 function StructuredBriefHarness(props: {
   readonly initialBrief?: ArchitectureDraftStructuredBriefState;
   readonly freeTextIntent: string;
-  readonly architectureId?: string;
+  readonly draftId?: string;
   readonly blocksLlmExecution?: boolean;
   readonly disabled?: boolean;
 }): React.JSX.Element {
@@ -100,7 +100,7 @@ function StructuredBriefHarness(props: {
     <ArchitectureDraftStructuredBriefFields
       structuredBrief={structuredBrief}
       freeTextIntent={props.freeTextIntent}
-      architectureId={props.architectureId}
+      draftId={props.draftId}
       blocksLlmExecution={props.blocksLlmExecution}
       disabled={props.disabled}
       onStructuredBriefChange={setStructuredBrief}
@@ -784,7 +784,7 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
   it("resumes a queued suggest operation when returning to the draft", async () => {
     trackAdvisoryDraftInFlight({
       operationId: succeededDraftSuggestOperation.operationId,
-      architectureId: "arch-001",
+      draftId: "arch-001",
     });
     mockedResumeDraftArchitectureRequestWithPoll.mockResolvedValue({
       response: {
@@ -799,7 +799,7 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
 
     render(
       <StructuredBriefHarness
-        architectureId="arch-001"
+        draftId="arch-001"
         freeTextIntent={"Tenant migration platform with private networking and EU residency goals."}
       />,
     );
@@ -807,7 +807,7 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     expect(await screen.findByText("EU data residency")).toBeInTheDocument();
     expect(mockedResumeDraftArchitectureRequestWithPoll).toHaveBeenCalledWith(
       succeededDraftSuggestOperation.operationId,
-      expect.objectContaining({ architectureId: "arch-001" }),
+      expect.objectContaining({ draftId: "arch-001" }),
     );
   });
 });

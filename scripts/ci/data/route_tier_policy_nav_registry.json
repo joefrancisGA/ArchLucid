@@ -32,6 +32,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Admin/AdminArchitectureIdentityBackfillController.cs",
+      "class_name": "AdminArchitectureIdentityBackfillController",
+      "route_template": "v{version:apiVersion}/admin/tenants",
+      "normalized_prefix": "/v1/admin/tenants",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/AdminAuthDiagnosticsController.cs",
       "class_name": "AdminAuthDiagnosticsController",
       "route_template": "v{version:apiVersion}/admin",
@@ -708,6 +718,16 @@
       "normalized_prefix": "/v1/analytics",
       "commercial_tier": "none",
       "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Architecture/ArchitecturesController.cs",
+      "class_name": "ArchitecturesController",
+      "route_template": "v{version:apiVersion}/architectures",
+      "normalized_prefix": "/v1/architectures",
+      "commercial_tier": "standard",
+      "class_policy": "AuthenticatedUserOnly",
       "exemption": null,
       "nav_operator_href": null
     },
@@ -1532,10 +1552,30 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "InfraEvidence/InfraEvidenceDiffsController.cs",
+      "class_name": "InfraEvidenceDiffsController",
+      "route_template": "v{version:apiVersion}/infra-evidence/diffs",
+      "normalized_prefix": "/v1/infra-evidence/diffs",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "InfraEvidence/InfraEvidenceInventoryController.cs",
       "class_name": "InfraEvidenceInventoryController",
       "route_template": "v{version:apiVersion}/infra-evidence/azure-inventory",
       "normalized_prefix": "/v1/infra-evidence/azure-inventory",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "InfraEvidence/InfraEvidenceSnapshotsController.cs",
+      "class_name": "InfraEvidenceSnapshotsController",
+      "route_template": "v{version:apiVersion}/infra-evidence/snapshots",
+      "normalized_prefix": "/v1/infra-evidence/snapshots",
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,

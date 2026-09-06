@@ -57,7 +57,7 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
   it("hides draft-only continue rail when the hero owns resume", () => {
     mockDraftEntries = [
       {
-        architectureId: "arch-1",
+        draftId: "arch-1",
         displayName: "Payments edge",
         customerStatus: "draft",
         ownerLabel: "You",
@@ -75,7 +75,7 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
   it("still surfaces in-progress reviews when unlinked drafts also exist", () => {
     mockDraftEntries = [
       {
-        architectureId: "arch-1",
+        draftId: "arch-1",
         displayName: "Payments edge",
         customerStatus: "draft",
         ownerLabel: "You",
@@ -109,7 +109,7 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
   it("hides spawned drafts when the linked review is already on the rail", () => {
     mockDraftEntries = [
       {
-        architectureId: "arch-spawned",
+        draftId: "arch-spawned",
         displayName: "Vertex 2",
         customerStatus: "ready-for-review",
         ownerLabel: "You",
@@ -173,7 +173,7 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
   it("renders desktop column headers when multiple unfinished items are listed", () => {
     mockDraftEntries = [
       {
-        architectureId: "arch-1",
+        draftId: "arch-1",
         displayName: "Payments edge",
         customerStatus: "draft",
         ownerLabel: "You",
@@ -209,7 +209,7 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
   it("uses an enterprise table so columns stay grouped across rows", () => {
     mockDraftEntries = [
       {
-        architectureId: "arch-long",
+        draftId: "arch-long",
         displayName: "Architecture Review Packet: B2B SaaS Tenant Migration Platform",
         customerStatus: "draft",
         ownerLabel: "You",
@@ -218,7 +218,7 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
         serverUpdatedUtc: "2026-08-10T12:00:00Z",
       },
       {
-        architectureId: "arch-short",
+        draftId: "arch-short",
         displayName: "Vertex",
         customerStatus: "draft",
         ownerLabel: "You",

@@ -94,6 +94,8 @@ export type RunDetail = Omit<RunDetailDtoBase, "run" | keyof RunDetailSnapshots 
       operatorGovernanceDecisionByUserId?: string | null;
       /** When true, the backing architecture request is archived and hidden from default lists. */
       isArchived?: boolean | null;
+      /** Stable architecture identity when the authority run record includes it (CA-45 recurrence scope). */
+      architectureId?: string | null;
     };
     contextSnapshot?: unknown;
     graphSnapshot?: unknown;

@@ -1,3 +1,9 @@
+/** Default Working architecture identities hub page size (CA-07 / CA-39). */
+export const ARCHITECTURE_IDENTITIES_DEFAULT_PAGE_SIZE = 50;
+
+/** Max page size for architecture identity list queries (CA-07). */
+export const ARCHITECTURE_IDENTITIES_MAX_PAGE_SIZE = 200;
+
 /** Default reviews hub page size for Working livelihood desks (DA-07). */
 export const REVIEWS_HUB_DEFAULT_PAGE_SIZE = 50;
 

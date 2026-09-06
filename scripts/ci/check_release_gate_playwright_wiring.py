@@ -12,6 +12,7 @@ _RC_REL = ".github/workflows/rc-release-gate.yml"
 _REQUIRED_SPECS = (
     "archlucid-ui/e2e/demo-workspace-a.smoke.spec.ts",
     "archlucid-ui/e2e/demo-workspace-b.smoke.spec.ts",
+    "archlucid-ui/e2e/live-api-private-beta-access.spec.ts",
 )
 
 

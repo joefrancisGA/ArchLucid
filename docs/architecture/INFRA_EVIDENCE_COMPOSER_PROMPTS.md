@@ -18,6 +18,7 @@ Canonical design: [`INFRA_EVIDENCE_PLANE.md`](../library/INFRA_EVIDENCE_PLANE.md
 | [`INFRA_EVIDENCE_COMPOSER_PROMPTS_IE16_IE22.md`](INFRA_EVIDENCE_COMPOSER_PROMPTS_IE16_IE22.md) | **IE-16–IE-22** Mermaid, diagrams, resource hub, Ask |
 | [`INFRA_EVIDENCE_COMPOSER_PROMPTS_AE.md`](INFRA_EVIDENCE_COMPOSER_PROMPTS_AE.md) | **AE-01–AE-10** ARC-AMPE audit evidence (**no second collector**) + **CW-01** crosswalk |
 | [`INFRA_EVIDENCE_COMPOSER_PROMPTS_BR.md`](INFRA_EVIDENCE_COMPOSER_PROMPTS_BR.md) | **BR-01–BR-09** tenant white-label branding |
+| [`INFRA_EVIDENCE_COMPOSER_PROMPTS_IEUX.md`](INFRA_EVIDENCE_COMPOSER_PROMPTS_IEUX.md) | **IE-UX-00–IE-UX-05** operator workbenches + Infrastructure nav spine |
 
 ## Why this set exists
 
@@ -84,6 +85,14 @@ Run **IE-01 → IE-04 → IE-02 → IE-03** before audit selectors or Mermaid-fr
 | **BR-05–BR-07** | Graphics, reports, UI tokens | BR-03, IE-16, AE-08 for wrappers |
 | **BR-08** | Admin Settings UI | BR-02, BR-03 |
 | **BR-09** | Isolation/a11y/fallback tests | BR-07, BR-08 |
+| **IE-UX-00** | Infrastructure nav spine + route stubs | IE-01–IE-22, AE-01–AE-10, BR-01–BR-09 |
+| **IE-UX-01** | Terraform advisory + drift workbench | IE-UX-00, IE-05–IE-08 |
+| **IE-UX-02** | Large Mermaid viewer + server PNG export | IE-UX-00, IE-16, IE-17, BR-05 |
+| **IE-UX-03** | Diagram reconciliation workbench | IE-UX-00, IE-18, IE-19 |
+| **IE-UX-04** | Cloud resource hub + Infrastructure Ask | IE-UX-00, IE-21, IE-22, AE-10 |
+| **IE-UX-05** | Remediation factory operator UI | IE-UX-00, IE-09–IE-15, IE-UX-04 |
+
+Run **IE-UX-00 first** after backend batches land; then IE-UX-01–IE-UX-05 in order (or parallel only when stubs from IE-UX-00 already exist). Nav contract: [`INFRA_EVIDENCE_COMPOSER_PROMPTS_IEUX.md`](INFRA_EVIDENCE_COMPOSER_PROMPTS_IEUX.md).
 
 **Run one prompt per chat.** Feature branch per prompt (`cursor/<short-name>-9cc3`). Name the branch in any commit/push request.
 
@@ -114,3 +123,7 @@ Run **IE-01 → IE-04 → IE-02 → IE-03** before audit selectors or Mermaid-fr
 | IE-17, BR-05 | `ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj` |
 | IE-18, IE-20, AE-07 | `ArchLucid.ContextIngestion.Tests/ArchLucid.ContextIngestion.Tests.csproj` |
 | BR-02, BR-03, BR-09 | `ArchLucid.Application.Tests` + `archlucid-ui` Vitest as specified in the prompt |
+| IE-UX-00 | `archlucid-ui` typecheck + nav Vitest guards |
+| IE-UX-01, IE-UX-03, IE-UX-04 | `ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj` |
+| IE-UX-02 | `ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj` |
+| IE-UX-05 | `ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj` |

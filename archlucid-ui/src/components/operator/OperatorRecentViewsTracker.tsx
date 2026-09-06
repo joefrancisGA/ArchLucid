@@ -12,8 +12,8 @@ import {
   writeCachedLastOpenArchitectureId,
 } from "@/lib/desk-continuity-preference";
 import {
-  OPERATOR_RECENT_VIEWS_STORAGE_KEY,
-  parseStoredRecentViews,
+  persistRecentViewsState,
+  readStoredRecentViewsState,
   recentViewKindFromPathname,
   recentViewLabelFromPathname,
   recordRecentView,
@@ -32,22 +32,23 @@ export function OperatorRecentViewsTracker(): null {
   }, [pathname, search]);
 
   useEffect(() => {
-    const label = recentViewLabelFromPathname(pathname);
+    const label = recentViewLabelFromPathname(pathname, search);
 
     if (label === null) {
       return;
     }
 
     try {
-      const raw = window.localStorage.getItem(OPERATOR_RECENT_VIEWS_STORAGE_KEY);
-      const state = parseStoredRecentViews(raw);
+      const state = readStoredRecentViewsState();
+      const architectureId = extractArchitectureIdentityIdFromPathname(pathname, search);
       const next = recordRecentView(state, {
         href,
         label,
-        kind: recentViewKindFromPathname(pathname),
+        kind: recentViewKindFromPathname(pathname, search),
+        ...(architectureId !== null ? { architectureId } : {}),
       });
 
-      window.localStorage.setItem(OPERATOR_RECENT_VIEWS_STORAGE_KEY, JSON.stringify(next));
+      persistRecentViewsState(next);
     }
     catch {
       /* ignore storage failures */
@@ -76,7 +77,7 @@ export function OperatorRecentViewsTracker(): null {
     }).catch(() => {
       /* offline or unauthenticated */
     });
-  }, [href, isWorkingMode, pathname]);
+  }, [href, isWorkingMode, pathname, search]);
 
   return null;
 }

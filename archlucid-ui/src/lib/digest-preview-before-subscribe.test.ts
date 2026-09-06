@@ -14,7 +14,7 @@ import { DIGESTS_BROWSE_INCLUDES_ITEMS } from "@/lib/digests-browse-copy";
 
 describe("digest-preview-before-subscribe (TB-2211)", () => {
   it("exposes stable title and send-to-me CTA labels", () => {
-    expect(DIGEST_PREVIEW_BEFORE_SUBSCRIBE_TITLE).toBe("Preview before you subscribe");
+    expect(DIGEST_PREVIEW_BEFORE_SUBSCRIBE_TITLE).toBe("Delivery preview");
     expect(DIGEST_PREVIEW_SEND_TO_ME_LABEL).toBe("Send preview to me");
     expect(DIGEST_PREVIEW_SEND_TO_ME_UNAVAILABLE_REASON.length).toBeGreaterThan(20);
     expect(isDigestPreviewSendToMeAvailable()).toBe(false);

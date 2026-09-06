@@ -45,7 +45,8 @@ Do **not** collapse desktop review tabs behind **More**. Do **not** auto-switch 
 | **SD-01–12** | Wave 10 residuals | Do not fork docs honesty / ADR 0069–0070 status. **SD-09 honesty is obsolete after LK-05–07.** |
 | **CR-01–12** | Wave 11 chrome/test leftovers | Do not fork. **CR-05 / CR-10** stay honesty and harness *guard*; LK implements BFF and does not re-pin the catalog test |
 | **LK-01–15** | **This set** — wave 12 kernel | Run these |
-| **DA-01–12** | Wave 13 durable identity | [`durable-architecture-00-index.md`](durable-architecture-00-index.md) — do **not** merge tables; do not paste LK-05–07 |
+| **DA-01–12** | Wave 13 durable identity skeleton | [`durable-architecture-00-index.md`](durable-architecture-00-index.md) — do **not** paste after CA |
+| **CA-01–50** | Wave 14 customer object | [`customer-architecture-00-index.md`](customer-architecture-00-index.md) — do **not** merge tables; do not paste LK-05–07 |
 
 If an LK row lists an IS/LS/SD/CR owner, **do not re-implement that file**. Implement only the leftover in *What to build*, unless this file **supersedes execution** (IS-15, SD-09, CR-05 honesty after BFF).
 

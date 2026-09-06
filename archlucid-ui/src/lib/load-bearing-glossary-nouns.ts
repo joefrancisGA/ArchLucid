@@ -8,6 +8,7 @@ import {
  * Golden-path subset remains in `golden-path-glossary-nouns.ts` (TB-2134).
  */
 export const LOAD_BEARING_GLOSSARY_NOUN_IDS = [
+  "architecture",
   "review-package",
   "evidence-trail",
   "governance-approval",

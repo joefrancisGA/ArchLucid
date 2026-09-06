@@ -1178,6 +1178,102 @@ export interface components {
             /** Format: uuid */
             resolvedRunId?: string;
         };
+        ArchitectureIdentityBackfillReport: {
+            /** Format: int32 */
+            createdRunsLinked?: number;
+            /** Format: int32 */
+            displayNamesRefreshed?: number;
+            /** Format: int32 */
+            orphanDraftsLinked?: number;
+            /** Format: int32 */
+            reviewRunsLinked?: number;
+            /** Format: int32 */
+            spawnedDraftsLinked?: number;
+            /** Format: int32 */
+            totalMutations?: number;
+        };
+        ArchitectureIdentityChildDraftSummary: {
+            /** Format: uuid */
+            draftId?: string;
+            status?: components["schemas"]["DraftRequestStatus"];
+            systemName?: null | string;
+            /** Format: date-time */
+            updatedUtc?: string;
+        };
+        ArchitectureIdentityChildReviewSummary: {
+            /** Format: date-time */
+            createdUtc?: string;
+            description?: null | string;
+            /** Format: uuid */
+            runId?: string;
+        };
+        ArchitectureIdentityDetail: {
+            /** Format: uuid */
+            architectureId?: string;
+            /** Format: date-time */
+            archivedUtc?: null | string;
+            /** Format: date-time */
+            createdUtc?: string;
+            /** Format: uuid */
+            currentDraftId?: null | string;
+            currentModelId?: null | string;
+            description?: null | string;
+            displayName?: string;
+            /** Format: int32 */
+            draftCount?: number;
+            drafts?: components["schemas"]["ArchitectureIdentityChildDraftSummary"][];
+            /** Format: uuid */
+            latestReviewId?: null | string;
+            /** Format: uuid */
+            latestSealedManifestId?: null | string;
+            /** Format: int32 */
+            reviewCount?: number;
+            reviews?: components["schemas"]["ArchitectureIdentityChildReviewSummary"][];
+            /** Format: date-time */
+            updatedUtc?: string;
+            versions?: components["schemas"]["ArchitectureIdentityVersionSummary"][];
+        };
+        ArchitectureIdentityListItem: {
+            /** Format: uuid */
+            architectureId?: string;
+            /** Format: date-time */
+            archivedUtc?: null | string;
+            /** Format: uuid */
+            currentDraftId?: null | string;
+            displayName?: string;
+            /** Format: int32 */
+            draftCount?: number;
+            /** Format: uuid */
+            latestReviewId?: null | string;
+            /** Format: uuid */
+            latestSealedManifestId?: null | string;
+            /** Format: int32 */
+            reviewCount?: number;
+            /** Format: date-time */
+            updatedUtc?: string;
+        };
+        ArchitectureIdentityListPage: {
+            /** Format: int32 */
+            archivedHiddenCount?: number;
+            hasMore?: boolean;
+            items?: components["schemas"]["ArchitectureIdentityListItem"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int32 */
+            totalCount?: number;
+        };
+        ArchitectureIdentityVersionSummary: {
+            /** Format: uuid */
+            architectureVersionId?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            /** Format: uuid */
+            linkedReviewId?: null | string;
+            /** Format: int32 */
+            versionNumber?: number;
+        };
         ArchitectureIntelligencePublishResult: {
             /** Format: uuid */
             findingsSnapshotId?: null | string;
@@ -1797,6 +1893,10 @@ export interface components {
             /** Format: uuid */
             workspaceId?: string;
         };
+        /** @enum {string} */
+        AzureInventoryCaptureMethod: "Unknown" | "CustomerScript" | "HostedReader";
+        /** @enum {string} */
+        AzureInventoryCaptureStatus: "Pending" | "Succeeded" | "Partial" | "Failed";
         AzureInventoryChangeRecord: {
             architectureSignificance?: null | string;
             azureResourceId?: null | string;
@@ -1890,6 +1990,45 @@ export interface components {
             activeBaselines?: components["schemas"]["AzureInventoryBaselineRecord"][];
             changes?: components["schemas"]["AzureInventoryClassifiedChangeRecord"][];
             summary?: components["schemas"]["AzureInventoryDiffSummaryRecord"];
+        };
+        AzureInventorySnapshotRecord: {
+            captureMethod?: components["schemas"]["AzureInventoryCaptureMethod"];
+            captureStatus?: components["schemas"]["AzureInventoryCaptureStatus"];
+            captureVersion?: null | string;
+            /** Format: date-time */
+            capturedUtc?: null | string;
+            collectorVersion?: null | string;
+            /** Format: double */
+            completenessScore?: null | number | string;
+            /** Format: byte */
+            contentHashSha256?: null | string;
+            /** Format: date-time */
+            createdUtc?: string;
+            /** Format: int32 */
+            durationMs?: null | number;
+            /** Format: int32 */
+            errorCount?: number;
+            /** Format: uuid */
+            packageId?: string;
+            /** Format: uuid */
+            projectId?: string;
+            /** Format: int32 */
+            relationshipCount?: number;
+            requestedBy?: null | string;
+            /** Format: int32 */
+            resourceCount?: number;
+            /** Format: uuid */
+            snapshotId?: string;
+            subscriptionId?: null | string;
+            subscriptionName?: null | string;
+            /** Format: uuid */
+            tenantId?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+            /** Format: int32 */
+            warningCount?: number;
+            /** Format: uuid */
+            workspaceId?: string;
         };
         BackgroundJobInfo: {
             /** Format: date-time */
@@ -2206,9 +2345,30 @@ export interface components {
         /** @enum {string} */
         CloudProvider: "None" | "Azure" | "Aws" | "Gcp";
         CloudResourceAuditLineageLink: {
+            /** Format: uuid */
+            assessmentId?: null | string;
+            /** Format: uuid */
+            auditEvidenceSnapshotId?: null | string;
             available?: boolean;
+            /** Format: uuid */
+            controlId?: null | string;
+            controlNumber?: null | string;
+            controlTitle?: null | string;
             degradedReason?: null | string;
+            matches?: components["schemas"]["CloudResourceAuditLineageMatch"][];
             relativePath?: null | string;
+        };
+        CloudResourceAuditLineageMatch: {
+            /** Format: uuid */
+            assessmentId?: string;
+            /** Format: uuid */
+            auditEvidenceSnapshotId?: string;
+            /** Format: uuid */
+            controlId?: string;
+            controlNumber?: string;
+            controlTitle?: string;
+            /** Format: date-time */
+            snapshotCreatedUtc?: string;
         };
         CloudResourceCurrentConfigurationSection: {
             azureResourceId?: string;
@@ -2266,6 +2426,14 @@ export interface components {
             kind?: string;
             relativePath?: string;
         };
+        CloudResourceExplorerWorkCounts: {
+            /** Format: int32 */
+            inventoryDriftChangeCount?: number;
+            /** Format: int32 */
+            openOperationalFindingsCount?: number;
+            /** Format: int32 */
+            openRemediationInstancesCount?: number;
+        };
         CloudResourceInventoryChangeSummary: {
             /** Format: uuid */
             changeId?: string;
@@ -2306,6 +2474,18 @@ export interface components {
             pageSize?: number;
             /** Format: int32 */
             totalCount?: number;
+        };
+        CloudResourceSummary: {
+            /** Format: uuid */
+            cloudResourceId?: string;
+            displayName?: null | string;
+            externalResourceId?: string;
+            /** Format: date-time */
+            lastSeenUtc?: string;
+            region?: null | string;
+            resourceGroup?: null | string;
+            resourceType?: null | string;
+            workCounts?: null | components["schemas"]["CloudResourceExplorerWorkCounts"];
         };
         CommitRunCommittedArtifactInventoryEntry: {
             artifactName?: string;
@@ -3494,6 +3674,8 @@ export interface components {
             workflowIntent?: null | string;
         };
         DraftRequestResponse: {
+            /** Format: uuid */
+            architectureId?: null | string;
             createdByUserId?: string;
             /** Format: date-time */
             createdUtc?: string;
@@ -4990,6 +5172,56 @@ export interface components {
             simulatorLabel?: null | string;
             topicKind?: string;
         };
+        InfraEvidenceMermaidComplexityMetrics: {
+            /** Format: int32 */
+            crossSubgraphEdgeCount?: number;
+            /** Format: int32 */
+            edgeCount?: number;
+            /** Format: int32 */
+            layoutEstimate?: number;
+            /** Format: int32 */
+            maxDegree?: number;
+            /** Format: int32 */
+            nodeCount?: number;
+            /** Format: int32 */
+            subgraphCount?: number;
+            /** Format: int32 */
+            textSizeBytes?: number;
+        };
+        InfraEvidenceMermaidFallbackArtifactSummary: {
+            /** Format: int32 */
+            edgeCount?: number;
+            key?: string;
+            label?: string;
+            /** Format: int32 */
+            nodeCount?: number;
+            status?: string;
+        };
+        InfraEvidenceMermaidModePreview: {
+            /** Format: int32 */
+            edgeCount?: number;
+            fallbackArtifacts?: components["schemas"]["InfraEvidenceMermaidFallbackArtifactSummary"][];
+            mermaid?: null | string;
+            mode?: string;
+            /** Format: int32 */
+            nodeCount?: number;
+            status?: string;
+        };
+        InfraEvidenceMermaidPreviewResponse: {
+            modes?: components["schemas"]["InfraEvidenceMermaidModePreview"][];
+            /** Format: uuid */
+            snapshotId?: string;
+        };
+        InfraEvidenceMermaidRenderResponse: {
+            fallbackArtifacts?: components["schemas"]["InfraEvidenceMermaidFallbackArtifactSummary"][];
+            fallbackKey?: null | string;
+            mermaid?: null | string;
+            metrics?: null | components["schemas"]["InfraEvidenceMermaidComplexityMetrics"];
+            mode?: string;
+            /** Format: uuid */
+            snapshotId?: string;
+            status?: string;
+        };
         InfrastructureDeclarationRequest: {
             content?: string;
             format?: string;
@@ -6095,6 +6327,36 @@ export interface components {
             statusCode?: number;
             transportSucceeded?: boolean;
         };
+        PagedResponseOfAzureInventoryChangeRecord: {
+            hasMore?: boolean;
+            items?: components["schemas"]["AzureInventoryChangeRecord"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int32 */
+            totalCount?: number;
+        };
+        PagedResponseOfAzureInventorySnapshotRecord: {
+            hasMore?: boolean;
+            items?: components["schemas"]["AzureInventorySnapshotRecord"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int32 */
+            totalCount?: number;
+        };
+        PagedResponseOfCloudResourceSummary: {
+            hasMore?: boolean;
+            items?: components["schemas"]["CloudResourceSummary"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int32 */
+            totalCount?: number;
+        };
         PagedResponseOfConversationThread: {
             hasMore?: boolean;
             items?: components["schemas"]["ConversationThread"][];
@@ -6114,6 +6376,15 @@ export interface components {
             pageSize?: number;
             /** Format: int32 */
             totalCount?: number;
+        };
+        PatchArchitectureIdentityRequest: {
+            archived?: null | boolean;
+            description?: null | string;
+            displayName?: null | string;
+            hasAnyPatch?: boolean;
+            hasArchived?: boolean;
+            hasDescription?: boolean;
+            hasDisplayName?: boolean;
         };
         PatchDraftRequest: {
             actorSet?: null | components["schemas"]["ActorSet"];
@@ -7621,6 +7892,8 @@ export interface components {
         RelationshipType: "Calls" | "ReadsFrom" | "WritesTo" | "PublishesTo" | "SubscribesTo" | "AuthenticatesWith";
         /** @enum {string} */
         RemediationAutomationLevel: "Manual" | "Guided" | "SemiAutomated" | "Automated";
+        /** @enum {string} */
+        RemediationEvidencePhase: "Before" | "ExecuteRequest" | "ExecuteResult" | "Verify";
         RemediationFactoryMetrics: {
             /** Format: double */
             automationPercent?: number | string;
@@ -7654,6 +7927,81 @@ export interface components {
             topPatternKeys?: components["schemas"]["RemediationMetricCount"][];
             /** Format: int32 */
             verificationFailureCount?: number;
+        };
+        RemediationFactoryWorkbenchSummary: {
+            factoryMetrics?: components["schemas"]["RemediationFactoryMetrics"];
+            openInstancesByStatus?: {
+                [key: string]: number;
+            };
+            waves?: components["schemas"]["RemediationWaveProgressSummary"][];
+        };
+        RemediationInstanceAssignWaveRequest: {
+            /** Format: uuid */
+            waveId?: string;
+        };
+        RemediationInstanceCreateRequest: {
+            /** Format: uuid */
+            findingId?: string;
+        };
+        RemediationInstanceDetail: {
+            activeMatch?: null | components["schemas"]["RemediationPatternMatchResultRecord"];
+            evidence?: components["schemas"]["RemediationInstanceEvidenceSummary"][];
+            finding?: null | components["schemas"]["OperationalSecurityFindingRecord"];
+            instance?: components["schemas"]["RemediationInstanceSummary"];
+        };
+        RemediationInstanceEvidenceSummary: {
+            /** Format: date-time */
+            createdUtc?: string;
+            /** Format: uuid */
+            evidenceId?: string;
+            payloadJson?: string;
+            phase?: components["schemas"]["RemediationEvidencePhase"];
+        };
+        RemediationInstanceExecuteRequest: {
+            correlationId?: null | string;
+            /** Format: uuid */
+            inventorySnapshotId?: string;
+        };
+        RemediationInstanceOperationResult: {
+            blockers?: string[];
+            errorMessage?: null | string;
+            /** Format: uuid */
+            instanceId?: null | string;
+            status?: null | components["schemas"]["RemediationInstanceStatus"];
+            succeeded?: boolean;
+        };
+        RemediationInstancePreflightRequest: {
+            /** Format: uuid */
+            inventorySnapshotId?: string;
+        };
+        /** @enum {string} */
+        RemediationInstanceStatus: "Classified" | "PreflightPassed" | "PreflightBlocked" | "Approved" | "WaveAssigned" | "Executed" | "Verified" | "VerificationFailed" | "Closed";
+        RemediationInstanceSummary: {
+            automationLevel?: components["schemas"]["RemediationAutomationLevel"];
+            /** Format: uuid */
+            cloudResourceId?: null | string;
+            /** Format: date-time */
+            createdUtc?: string;
+            /** Format: uuid */
+            executionSnapshotId?: null | string;
+            /** Format: uuid */
+            findingId?: string;
+            /** Format: uuid */
+            instanceId?: string;
+            patternKey?: string;
+            /** Format: uuid */
+            preflightSnapshotId?: null | string;
+            status?: components["schemas"]["RemediationInstanceStatus"];
+            /** Format: date-time */
+            updatedUtc?: string;
+            /** Format: uuid */
+            verificationSnapshotId?: null | string;
+            /** Format: uuid */
+            waveId?: null | string;
+        };
+        RemediationInstanceVerifyRequest: {
+            /** Format: uuid */
+            verificationSnapshotId?: string;
         };
         RemediationMetricCount: {
             /** Format: int32 */
@@ -7698,6 +8046,21 @@ export interface components {
         RemediationPatternImportYamlRequest: {
             yaml?: string;
         };
+        RemediationPatternMatchConflictRecord: {
+            candidatePatternIdsJson?: string;
+            /** Format: uuid */
+            conflictId?: string;
+            conflictType?: components["schemas"]["RemediationPatternMatchConflictType"];
+            /** Format: date-time */
+            createdUtc?: string;
+            description?: string;
+            /** Format: uuid */
+            findingId?: string;
+            /** Format: uuid */
+            tenantId?: string;
+        };
+        /** @enum {string} */
+        RemediationPatternMatchConflictType: "DuplicateExactMatch" | "ContradictoryStrategy" | "VersionSkew";
         RemediationPatternMatchCriteria: {
             controlId?: null | string;
             propertyEquals?: {
@@ -7707,6 +8070,41 @@ export interface components {
             resourceType?: null | string;
             severityMin?: null | string;
         };
+        RemediationPatternMatchEvaluationResult: {
+            candidates?: components["schemas"]["RemediationPatternMatchResultRecord"][];
+            conflict?: null | components["schemas"]["RemediationPatternMatchConflictRecord"];
+            errorMessage?: null | string;
+            /** Format: uuid */
+            findingId?: null | string;
+            matchKind?: components["schemas"]["RemediationPatternMatchKind"];
+            primaryMatch?: null | components["schemas"]["RemediationPatternMatchResultRecord"];
+            rejectionReasons?: string[];
+            succeeded?: boolean;
+        };
+        /** @enum {string} */
+        RemediationPatternMatchKind: "ExactMatch" | "ProbableMatch" | "PossibleMatch" | "NoMatch" | "Conflict";
+        RemediationPatternMatchResultRecord: {
+            explainText?: string;
+            /** Format: uuid */
+            findingId?: string;
+            isActive?: boolean;
+            matchKind?: components["schemas"]["RemediationPatternMatchKind"];
+            /** Format: uuid */
+            matchResultId?: string;
+            matchSource?: components["schemas"]["RemediationPatternMatchSource"];
+            /** Format: date-time */
+            matchedUtc?: string;
+            /** Format: uuid */
+            patternId?: string;
+            patternKey?: string;
+            patternVersion?: string;
+            /** Format: uuid */
+            tenantId?: string;
+            /** Format: uuid */
+            versionId?: string;
+        };
+        /** @enum {string} */
+        RemediationPatternMatchSource: "Deterministic" | "AIProposed";
         RemediationPatternOperationResult: {
             errorMessage?: null | string;
             /** Format: uuid */
@@ -7844,6 +8242,16 @@ export interface components {
             succeeded?: boolean;
             /** Format: uuid */
             waveId?: null | string;
+        };
+        RemediationWaveProgressSummary: {
+            /** Format: int32 */
+            memberCount?: number;
+            name?: string;
+            status?: components["schemas"]["RemediationWaveStatus"];
+            /** Format: int32 */
+            targetSize?: null | number;
+            /** Format: uuid */
+            waveId?: string;
         };
         RemediationWaveRecord: {
             createdByActorKey?: string;

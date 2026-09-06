@@ -154,7 +154,7 @@ describe("ReviewsHubReviewInventory", () => {
   it("keeps rich empty CTAs when drafts exist", () => {
     useArchitectureDraftRegistryEntries.mockReturnValue([
       {
-        architectureId: "draft-001",
+        draftId: "draft-001",
         displayName: "Payments platform draft",
         customerStatus: "draft",
         ownerLabel: "You",
@@ -275,6 +275,9 @@ describe("ReviewsHubReviewInventory", () => {
 
     expect(screen.getByTestId("reviews-hub-row-finalized")).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-hub-row-draft")).toBeNull();
+    expect(screen.getByTestId("reviews-hub-hidden-filter-honesty")).toHaveTextContent(
+      "1 review hidden by Finalized filter",
+    );
   });
 
   it("renders a pin toggle on each inventory row (TB-2206)", () => {

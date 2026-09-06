@@ -26,10 +26,10 @@ vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
 }));
 
 function entry(
-  overrides: Partial<ArchitectureDraftRegistryEntry> & Pick<ArchitectureDraftRegistryEntry, "architectureId">,
+  overrides: Partial<ArchitectureDraftRegistryEntry> & Pick<ArchitectureDraftRegistryEntry, "draftId">,
 ): ArchitectureDraftRegistryEntry {
   return {
-    architectureId: overrides.architectureId,
+    draftId: overrides.draftId,
     displayName: overrides.displayName ?? "Healthcare Claims Platform",
     customerStatus: overrides.customerStatus ?? "draft",
     ownerLabel: overrides.ownerLabel ?? "You",
@@ -58,7 +58,7 @@ describe("ArchitectureCreationLocalDraftsPanel (TB-1459)", () => {
 
   it("shows resume drafts with account-sync honesty and view-all link", async () => {
     useArchitectureDraftRegistryEntries.mockReturnValue([
-      entry({ architectureId: "draft-001", displayName: "Claims intake" }),
+      entry({ draftId: "draft-001", displayName: "Claims intake" }),
     ]);
 
     render(<ArchitectureCreationLocalDraftsPanel />);

@@ -38,10 +38,35 @@ public interface IArchitectureIdentityRepository
         string displayName,
         CancellationToken cancellationToken = default);
 
-    Task<PagedResponse<ArchitectureIdentityListItem>> ListAsync(
+    /// <summary>
+    ///     Patches <see cref="ArchitectureIdentityRecord.DisplayName" /> and/or
+    ///     <see cref="ArchitectureIdentityRecord.Description" /> when the identity exists in scope.
+    /// </summary>
+    Task<bool> TryPatchAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        bool updateDisplayName,
+        string? displayName,
+        bool updateDescription,
+        string? description,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>Soft-archives or restores an architecture identity without touching child rows (CA-49).</summary>
+    Task<bool> TrySetArchivedAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        bool archived,
+        CancellationToken cancellationToken = default);
+
+    Task<int> CountArchivedInScopeAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken = default);
+
+    Task<ArchitectureIdentityListPage> ListAsync(
         ScopeContext scope,
         int page,
         int pageSize,
+        bool includeArchived = false,
         CancellationToken cancellationToken = default);
 
     Task<ArchitectureIdentityDetail?> GetDetailAsync(

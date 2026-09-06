@@ -291,7 +291,7 @@ export function resolveRunDetailTabbedWorkspace(
             <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
               <RunDetailGenerateAdrFromRunModal
                 input={m.adrGeneratorInput}
-                totalFindingCount={quickDecisionFindings.length}
+                totalFindingCount={m.careerExportEligibleFindingCount}
                 buyerPolished={false}
               />
             </div>
@@ -303,6 +303,8 @@ export function resolveRunDetailTabbedWorkspace(
           {m.manifestId ? (
             <RecurrenceSchedulePostCommitCardDeferred
               runId={m.routeRunId}
+              architectureId={m.resolvedDetail.run.architectureId ?? null}
+              architectureDisplayName={m.headline}
               hasStickinessPrompt={Boolean(m.manifestId)}
               pagePrimaryOwnedElsewhere
             />

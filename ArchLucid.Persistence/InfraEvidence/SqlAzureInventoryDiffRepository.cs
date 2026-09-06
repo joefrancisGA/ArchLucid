@@ -1,6 +1,7 @@
 using System.Data;
 
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Configuration;
 using ArchLucid.Persistence.Connections;
@@ -294,6 +295,118 @@ public sealed class SqlAzureInventoryDiffRepository(ISqlConnectionFactory connec
                 ProvenanceKind = (ProvenanceKind)r.ProvenanceKind,
             })
             .ToList();
+    }
+
+    public async Task<IReadOnlyList<AzureInventoryDiffSummaryRecord>> ListDiffsBySnapshotIdAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        const string sql = """
+                           SELECT
+                               DiffId, SnapshotAId, SnapshotBId, SubscriptionId, TotalChanges,
+                               ResourceAddedCount, ResourceRemovedCount, ResourceModifiedCount,
+                               NetworkExposureChangeCount, PermissionChangeCount, LoggingRegressionCount,
+                               NewPrivateEndpointCount, RelationshipRemovedCount, CreatedUtc
+                           FROM dbo.AzureInventoryDiffs
+                           WHERE TenantId = @TenantId
+                               AND WorkspaceId = @WorkspaceId
+                               AND ProjectId = @ProjectId
+                               AND (SnapshotAId = @SnapshotId OR SnapshotBId = @SnapshotId)
+                           ORDER BY CreatedUtc DESC;
+                           """;
+
+        using IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<AzureInventoryDiffSummaryRecord> rows = await conn.QueryAsync<AzureInventoryDiffSummaryRecord>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    SnapshotId = snapshotId,
+                },
+                cancellationToken: cancellationToken));
+
+        return rows.ToList();
+    }
+
+    public async Task<(IReadOnlyList<AzureInventoryChangeRecord> Items, int TotalCount)> ListChangesByDiffIdPagedAsync(
+        ScopeContext scope,
+        Guid diffId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        (int safePage, int safePageSize) = PaginationDefaults.Normalize(page, pageSize);
+        int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
+
+        const string countSql = """
+                                SELECT COUNT(1)
+                                FROM dbo.AzureInventoryChanges
+                                WHERE TenantId = @TenantId AND DiffId = @DiffId;
+                                """;
+
+        const string listSql = """
+                               SELECT ChangeId, DiffId, SnapshotAId, SnapshotBId, CloudResourceId, AzureResourceId,
+                                      ChangeType, Property, OldValue, NewValue, RiskClassification,
+                                      ArchitectureSignificance, SecuritySignificance, Confidence, EvidenceReference,
+                                      ProvenanceKind
+                               FROM dbo.AzureInventoryChanges
+                               WHERE TenantId = @TenantId AND DiffId = @DiffId
+                               ORDER BY AzureResourceId, ChangeType, Property
+                               OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
+                               """;
+
+        object parameters = new
+        {
+            scope.TenantId,
+            DiffId = diffId,
+            Skip = skip,
+            PageSize = safePageSize,
+        };
+
+        using IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        int totalCount = await conn.ExecuteScalarAsync<int>(
+            new CommandDefinition(countSql, parameters, cancellationToken: cancellationToken));
+
+        IEnumerable<ChangeRow> rows = await conn.QueryAsync<ChangeRow>(
+            new CommandDefinition(
+                listSql,
+                parameters,
+                commandTimeout: DapperCommandTimeoutSeconds.Report,
+                cancellationToken: cancellationToken));
+
+        IReadOnlyList<AzureInventoryChangeRecord> items = rows
+            .Select(r => new AzureInventoryChangeRecord
+            {
+                ChangeId = r.ChangeId,
+                DiffId = r.DiffId,
+                SnapshotAId = r.SnapshotAId,
+                SnapshotBId = r.SnapshotBId,
+                CloudResourceId = r.CloudResourceId,
+                AzureResourceId = r.AzureResourceId,
+                ChangeType = (AzureInventoryChangeType)r.ChangeType,
+                Property = r.Property,
+                OldValue = r.OldValue,
+                NewValue = r.NewValue,
+                RiskClassification = r.RiskClassification,
+                ArchitectureSignificance = r.ArchitectureSignificance,
+                SecuritySignificance = r.SecuritySignificance,
+                Confidence = r.Confidence,
+                EvidenceReference = r.EvidenceReference,
+                ProvenanceKind = (ProvenanceKind)r.ProvenanceKind,
+            })
+            .ToList();
+
+        return (items, totalCount);
     }
 
     private sealed class ChangeRow

@@ -6,7 +6,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const HELP_WORKING_DESK_QUICK_START_TITLE = "Use ArchLucid as your review desk" as const;
 
 export const HELP_WORKING_DESK_QUICK_START_COPY =
-  "Resume a draft, open an architecture package, inspect sealed records, or start a new review from the draft editor." as const;
+  "Open an architecture identity, resume a child draft, inspect an architecture package, or start a new review." as const;
 
 export const HELP_EVALUATING_ARCHITECTURE_SECTION_TITLE = "If you are evaluating ArchLucid" as const;
 
@@ -21,7 +21,7 @@ export type HelpDeskPrimaryAction = {
 export function resolveHelpWorkingDeskPrimaryActions(): readonly HelpDeskPrimaryAction[] {
   return [
     { href: ARCHITECTURES_NEW_PATH, label: WORKING_NEW_REVIEW_LABEL },
-    { href: ARCHITECTURES_LIST_PATH, label: "Resume drafts" },
+    { href: ARCHITECTURES_LIST_PATH, label: "Open architectures" },
     { href: REVIEWS_LIST_PATH, label: "Open packages" },
     { href: inAppHelpHref("troubleshoot"), label: "Report a problem" },
   ];

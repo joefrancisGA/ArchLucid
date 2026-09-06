@@ -1,4 +1,5 @@
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -159,6 +160,55 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
             new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
 
         return rows.Select(MapInstance).ToList();
+    }
+
+    public async Task<(IReadOnlyList<RemediationInstanceRecord> Items, int TotalCount)> ListByCloudResourceIdPagedAsync(
+        Guid tenantId,
+        Guid cloudResourceId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        (int safePage, int safePageSize) = PaginationDefaults.Normalize(page, pageSize);
+        int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
+
+        const string countSql = """
+                                SELECT COUNT(1)
+                                FROM dbo.RemediationInstances
+                                WHERE TenantId = @TenantId
+                                  AND CloudResourceId = @CloudResourceId;
+                                """;
+
+        const string listSql = """
+                               SELECT InstanceId, TenantId, WorkspaceId, ProjectId, FindingId, PatternId, PatternVersionId,
+                                      PatternKey, FrozenPatternVersion, AutomationLevel, Status, CloudResourceId, AssessmentId,
+                                      ControlId, PreflightSnapshotId, ExecutionSnapshotId, VerificationSnapshotId, WaveId,
+                                      PreflightResultJson, VerificationResultJson, CreatedByActorKey, ApprovedByActorKey,
+                                      CreatedUtc, UpdatedUtc, ApprovedUtc, ExecutedUtc, VerifiedUtc, ClosedUtc
+                               FROM dbo.RemediationInstances
+                               WHERE TenantId = @TenantId
+                                 AND CloudResourceId = @CloudResourceId
+                               ORDER BY UpdatedUtc DESC
+                               OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
+                               """;
+
+        object parameters = new
+        {
+            TenantId = tenantId,
+            CloudResourceId = cloudResourceId,
+            Skip = skip,
+            PageSize = safePageSize,
+        };
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        int totalCount = await conn.ExecuteScalarAsync<int>(
+            new CommandDefinition(countSql, parameters, cancellationToken: cancellationToken));
+
+        IEnumerable<InstanceRow> rows = await conn.QueryAsync<InstanceRow>(
+            new CommandDefinition(listSql, parameters, cancellationToken: cancellationToken));
+
+        return (rows.Select(MapInstance).ToList(), totalCount);
     }
 
     private static object MapInstanceParameters(RemediationInstanceRecord instance) =>

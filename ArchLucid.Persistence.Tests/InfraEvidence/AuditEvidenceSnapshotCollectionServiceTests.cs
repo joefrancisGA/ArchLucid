@@ -323,6 +323,14 @@ public sealed class AuditEvidenceSnapshotCollectionServiceTests
             Guid newerSnapshotId,
             CancellationToken cancellationToken = default)
             => Task.FromResult<Guid?>(null);
+
+        public Task<(IReadOnlyList<AzureInventorySnapshotRecord> Items, int TotalCount)> ListSnapshotsAsync(
+            ScopeContext scope,
+            int page,
+            int pageSize,
+            string? subscriptionId,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult<(IReadOnlyList<AzureInventorySnapshotRecord>, int)>(([], 0));
     }
 
     internal sealed class InMemoryAuditEvidenceRequirementRepository : IAuditEvidenceRequirementRepository
@@ -452,6 +460,13 @@ public sealed class AuditEvidenceSnapshotCollectionServiceTests
 
             return Task.CompletedTask;
         }
+
+        public Task<IReadOnlyList<AuditEvidenceSnapshotLineageContextRecord>> ListLineageContextsByCloudResourceIdAsync(
+            Guid tenantId,
+            Guid cloudResourceId,
+            int take,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult<IReadOnlyList<AuditEvidenceSnapshotLineageContextRecord>>([]);
 
         private static AuditEvidenceSnapshotItemRecord CopyItemWithFreshness(
             AuditEvidenceSnapshotItemRecord source,

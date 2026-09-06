@@ -76,6 +76,7 @@ import {
   applyDevRoleOverrideToPrincipal,
   DEV_TEST_ACTOR_ROLE_HEADER,
   readDevRoleOverrideFromDocument,
+  resolveDevRoleOverrideApiActorRole,
 } from "@/lib/dev-testing-overrides";
 import {
   AUTHORITY_RANK,
@@ -190,7 +191,7 @@ export async function buildAuthMeProxyRequestInit(): Promise<RequestInit> {
   const devRoleOverride = readDevRoleOverrideFromDocument();
 
   if (devRoleOverride !== null) {
-    headers.set(DEV_TEST_ACTOR_ROLE_HEADER, devRoleOverride);
+    headers.set(DEV_TEST_ACTOR_ROLE_HEADER, resolveDevRoleOverrideApiActorRole(devRoleOverride));
   }
 
   return mergeRegistrationScopeForProxy({
@@ -321,10 +322,14 @@ async function fetchCurrentPrincipalFromNetwork(
 
     const body = (await response.json()) as AuthMeResponse;
 
-    return applyDevRoleOverrideToPrincipal(normalizeAuthMeResponse(body));
+    return normalizeAuthMeResponse(body);
   } catch {
     return createSyntheticPrincipal("me-network");
   }
+}
+
+function finalizeCurrentPrincipal(principal: CurrentPrincipal): CurrentPrincipal {
+  return applyDevRoleOverrideToPrincipal(principal);
 }
 
 function rememberAuthMePrincipal(principal: CurrentPrincipal): CurrentPrincipal {
@@ -349,11 +354,11 @@ function rememberAuthMePrincipal(principal: CurrentPrincipal): CurrentPrincipal 
  */
 export async function loadCurrentPrincipal(options?: LoadCurrentPrincipalOptions): Promise<CurrentPrincipal> {
   if (typeof window === "undefined") {
-    return createSyntheticPrincipal("non-browser");
+    return finalizeCurrentPrincipal(createSyntheticPrincipal("non-browser"));
   }
 
   if (isJwtAuthMode() && !isLikelySignedIn()) {
-    return createSyntheticPrincipal("jwt-unsigned");
+    return finalizeCurrentPrincipal(createSyntheticPrincipal("jwt-unsigned"));
   }
 
   const now = Date.now();
@@ -363,11 +368,11 @@ export async function loadCurrentPrincipal(options?: LoadCurrentPrincipalOptions
     && cachedAuthMePrincipal !== null
     && now < cachedAuthMePrincipalExpiresAtMs
   ) {
-    return cachedAuthMePrincipal;
+    return finalizeCurrentPrincipal(cachedAuthMePrincipal);
   }
 
   if (options?.bypassCache !== true && inFlightAuthMePrincipal !== null) {
-    return inFlightAuthMePrincipal;
+    return finalizeCurrentPrincipal(await inFlightAuthMePrincipal);
   }
 
   const fetchPromise = fetchCurrentPrincipalFromNetwork(options).then((principal) =>
@@ -377,7 +382,7 @@ export async function loadCurrentPrincipal(options?: LoadCurrentPrincipalOptions
   inFlightAuthMePrincipal = fetchPromise;
 
   try {
-    return await fetchPromise;
+    return finalizeCurrentPrincipal(await fetchPromise);
   } finally {
     if (inFlightAuthMePrincipal === fetchPromise) {
       inFlightAuthMePrincipal = null;

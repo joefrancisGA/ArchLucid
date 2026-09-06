@@ -71,6 +71,7 @@ describe("HelpEvidenceTrailGuideView buyer-polished shell (EV)", () => {
     expect(screen.queryByTestId("help-topic-print-button")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: EVIDENCE_TRAIL_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("help-evidence-trail-sources")).toBeInTheDocument();
+    expect(screen.getByTestId("help-evidence-trail-mermaid-diagram")).toBeInTheDocument();
 
     const primaryContent = screen.getByTestId(EVIDENCE_TRAIL_HELP_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(EVIDENCE_TRAIL_HELP_FIRST_VIEWPORT_TEST_ID);

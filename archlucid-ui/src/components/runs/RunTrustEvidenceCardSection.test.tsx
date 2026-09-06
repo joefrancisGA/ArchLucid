@@ -28,6 +28,12 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/architecture/reviews/run-1",
+  useRouter: () => ({ refresh: vi.fn(), push: vi.fn(), replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 const buyerPolishedMock = vi.mocked(isBuyerPolishedOperatorShellEnv);

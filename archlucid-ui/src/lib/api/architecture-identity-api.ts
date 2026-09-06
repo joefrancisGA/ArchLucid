@@ -3,13 +3,14 @@ import type {
   ArchitectureIdentityListPage,
 } from "@/types/architecture-identity";
 
-import { apiGet } from "./http";
+import { apiGet, apiPatchJson } from "./http";
 
 const ARCHITECTURES_BASE = "/v1/architectures";
 
 export async function listArchitectureIdentities(params?: {
   readonly page?: number;
   readonly pageSize?: number;
+  readonly includeArchived?: boolean;
   readonly scopeHeaders?: Record<string, string>;
 }): Promise<ArchitectureIdentityListPage> {
   const search = new URLSearchParams();
@@ -20,6 +21,10 @@ export async function listArchitectureIdentities(params?: {
 
   if (params?.pageSize !== undefined) {
     search.set("pageSize", String(params.pageSize));
+  }
+
+  if (params?.includeArchived === true) {
+    search.set("includeArchived", "true");
   }
 
   const query = search.toString();
@@ -37,5 +42,21 @@ export async function getArchitectureIdentity(
   return apiGet<ArchitectureIdentityDetail>(
     `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}`,
     options,
+  );
+}
+
+export type PatchArchitectureIdentityBody = {
+  readonly displayName?: string;
+  readonly description?: string | null;
+  readonly archived?: boolean;
+};
+
+export async function patchArchitectureIdentity(
+  architectureId: string,
+  body: PatchArchitectureIdentityBody,
+): Promise<ArchitectureIdentityDetail> {
+  return apiPatchJson<ArchitectureIdentityDetail>(
+    `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}`,
+    body,
   );
 }

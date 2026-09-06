@@ -129,6 +129,11 @@ export default function GovernanceFindingsQueueClient({
     router.replace(governanceFindingsSearchHrefFromSearch(searchParams.toString(), "", navHref), { scroll: false });
   }, [clearFacetFilters, navHref, router, searchParams, setRegisterFilter]);
 
+  const showAllFilteredFindings = useCallback((): void => {
+    setHideGenericLowDensity(false);
+    clearAllFilters();
+  }, [clearAllFilters, setHideGenericLowDensity]);
+
   const onPickReviewForTriage = useCallback(
     (reviewId: string) => {
       const trimmed = reviewId.trim();
@@ -249,6 +254,8 @@ export default function GovernanceFindingsQueueClient({
         onNaturalLanguageFilterApply={setNlFacets}
         nlFacets={nlFacets}
         onClearAllFilters={clearAllFilters}
+        onShowAllFilteredFindings={showAllFilteredFindings}
+        hiddenFilterHonesty={synopsis.hiddenFilterHonesty}
         onLoadFindingsSavedView={onLoadFindingsSavedView}
         loading={loading}
         rows={rows}
