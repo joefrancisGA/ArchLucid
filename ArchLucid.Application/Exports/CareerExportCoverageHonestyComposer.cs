@@ -19,7 +19,9 @@ public static class CareerExportCoverageHonestyComposer
         InsightDensityMeasurementFloorPresentation measurementFloor =
             InsightDensityMeasurementFloorPresenter.Present(input.EnginesSucceeded);
         string? measurementFloorBlockedReason =
-            InsightDensityMeasurementFloorPresenter.FormatCareerExportBlockedReason(input.EnginesSucceeded);
+            InsightDensityMeasurementFloorPresenter.FormatCareerExportBlockedReason(
+                input.EnginesSucceeded,
+                input.CatalogAdvisoryEngineFailureCount);
 
         StringBuilder sponsorMarkdownBuilder = new();
         SponsorReviewCoverageHonestyMarkdownFormatter.AppendMarkdownSection(sponsorMarkdownBuilder, input.CoverageContext);

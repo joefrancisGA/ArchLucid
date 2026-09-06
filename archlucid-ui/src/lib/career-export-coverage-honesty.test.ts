@@ -37,6 +37,21 @@ describe("career-export-coverage-honesty (PC-13)", () => {
     expect(honesty.measurementFloorBlockedReason).toContain("measurement floor");
   });
 
+  it("blocks Working career export when a catalog advisory engine failed", () => {
+    const honesty = resolveCareerExportCoverageHonesty({
+      runId: "run-1",
+      progressSummary: null,
+      manifestSummary: null,
+      graphSnapshot: null,
+      enginesSucceeded: 16,
+      workingDesk: true,
+      catalogAdvisoryEngineFailureCount: 1,
+    });
+
+    expect(honesty.blockedForWorkingCareerExport).toBe(true);
+    expect(honesty.measurementFloorBlockedReason).toContain("catalog engine failed");
+  });
+
   it("allows Guided sample exports without Working floor enforcement", () => {
     const honesty = resolveCareerExportCoverageHonesty({
       runId: "run-1",

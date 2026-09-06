@@ -77,6 +77,16 @@ public sealed class InsightDensityMeasurementFloorPresenterTests
     }
 
     [Fact]
+    public void FormatCareerExportBlockedReason_returns_advisory_catalog_failure_copy()
+    {
+        string? reason = InsightDensityMeasurementFloorPresenter.FormatCareerExportBlockedReason(
+            measuredEnginesSucceeded: 16,
+            catalogAdvisoryEngineFailureCount: 2);
+
+        reason.Should().Contain("2 catalog engines failed");
+    }
+
+    [Fact]
     public void FormatCareerExportBlockedReason_returns_gate_copy_when_floor_is_unmet()
     {
         string? reason = InsightDensityMeasurementFloorPresenter.FormatCareerExportBlockedReason(10);

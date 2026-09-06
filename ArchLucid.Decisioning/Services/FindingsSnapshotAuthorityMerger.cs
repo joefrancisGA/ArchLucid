@@ -32,5 +32,6 @@ public static class FindingsSnapshotAuthorityMerger
         snapshot.EngineFailures.AddRange(mergeResult.Conflicts.Select(static conflict => conflict.Failure));
         snapshot.WithheldFindings.AddRange(mergeResult.Conflicts.SelectMany(static conflict => conflict.Dropped));
         snapshot.Findings.AddRange(FindingMergeConflictPresenter.PresentAsFindings(mergeResult.Conflicts, clock));
+        FindingsSnapshotWithheldAdvisoryEngineFailuresApplicator.Apply(snapshot);
     }
 }

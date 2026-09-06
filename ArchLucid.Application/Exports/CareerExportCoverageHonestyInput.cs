@@ -7,4 +7,5 @@ public sealed record CareerExportCoverageHonestyInput(
     SponsorReviewCoverageHonestyContext CoverageContext,
     int? EnginesSucceeded,
     bool WorkingDesk,
-    CareerExportClassificationCounts? ClassificationCounts);
+    CareerExportClassificationCounts? ClassificationCounts,
+    int CatalogAdvisoryEngineFailureCount = 0);

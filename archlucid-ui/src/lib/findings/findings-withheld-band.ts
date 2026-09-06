@@ -1,6 +1,9 @@
 import type { RunDetail } from "@/types/authority";
 
-export type WithheldFindingReason = "prose-only-emission" | "merge-conflict-dropped";
+export type WithheldFindingReason =
+  | "prose-only-emission"
+  | "merge-conflict-dropped"
+  | "engine-failure-advisory";
 
 export type WithheldFindingRow = {
   readonly withheldFindingId: string;
@@ -33,7 +36,11 @@ function readString(value: unknown): string | null {
 function parseWithheldReason(value: unknown): WithheldFindingReason | null {
   const raw = readString(value);
 
-  if (raw === "prose-only-emission" || raw === "merge-conflict-dropped") {
+  if (
+    raw === "prose-only-emission" ||
+    raw === "merge-conflict-dropped" ||
+    raw === "engine-failure-advisory"
+  ) {
     return raw;
   }
 
@@ -98,10 +105,22 @@ export function formatWithheldFindingReasonLabel(reason: WithheldFindingReason):
     return "Prose-only emission (no typed evidence)";
   }
 
+  if (reason === "engine-failure-advisory") {
+    return "Engine did not run (advisory failure)";
+  }
+
   return "Merge conflict (alternate payload withheld)";
 }
 
+export function countEngineFailureAdvisoryWithheldRows(rows: readonly WithheldFindingRow[]): number {
+  return rows.filter((row) => row.reason === "engine-failure-advisory").length;
+}
+
 export function buildWithheldFindingDeepLink(runId: string, row: WithheldFindingRow): string {
+  if (row.reason === "engine-failure-advisory") {
+    return `/architecture/reviews/${encodeURIComponent(runId)}?reviewTab=findings`;
+  }
+
   if (row.conflictFindingId !== null) {
     return `/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(row.conflictFindingId)}`;
   }
@@ -119,4 +138,12 @@ export function formatStampWithheldHonestyLine(count: number): string | null {
   }
 
   return `${count} withheld ${count === 1 ? "item" : "items"} did not enter the sealed record — open Needs attention on Findings.`;
+}
+
+export function formatStampCatalogEngineFailureHonestyLine(catalogAdvisoryFailureCount: number): string | null {
+  if (catalogAdvisoryFailureCount <= 0) {
+    return null;
+  }
+
+  return `${catalogAdvisoryFailureCount} catalog ${catalogAdvisoryFailureCount === 1 ? "engine" : "engines"} failed or did not run — open Needs attention on Findings.`;
 }

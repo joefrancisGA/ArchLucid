@@ -3,6 +3,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
@@ -33,6 +34,7 @@ public static class CareerExportCoverageHonestyMaterialLoader
 
         int? enginesSucceeded = null;
         CareerExportClassificationCounts? classificationCounts = null;
+        int catalogAdvisoryEngineFailureCount = 0;
 
         if (Guid.TryParse(detail.Run.RunId.Trim(), out Guid runGuid))
         {
@@ -42,13 +44,16 @@ public static class CareerExportCoverageHonestyMaterialLoader
 
             enginesSucceeded = exportDetail?.FindingCoverageSummary?.EnginesSucceeded;
             classificationCounts = CountClassificationBands(exportDetail?.FindingsSnapshot);
+            catalogAdvisoryEngineFailureCount = FindingsSnapshotWithheldAdvisoryEngineFailuresApplicator
+                .CountCatalogAdvisoryFailures(exportDetail?.FindingsSnapshot?.EngineFailures ?? []);
         }
 
         return new CareerExportCoverageHonestyInput(
             coverageContext,
             enginesSucceeded,
             workingDesk,
-            classificationCounts);
+            classificationCounts,
+            catalogAdvisoryEngineFailureCount);
     }
 
     internal static CareerExportClassificationCounts? CountClassificationBands(FindingsSnapshot? findingsSnapshot)

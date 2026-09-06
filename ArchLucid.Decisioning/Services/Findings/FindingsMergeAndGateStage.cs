@@ -96,6 +96,8 @@ public sealed class FindingsMergeAndGateStage(
 
         snapshot.TotalEstimatedSavings = FindingsSnapshotEstimatedSavingsCalculator.ComputeTotal(snapshot.Findings);
 
+        FindingsSnapshotWithheldAdvisoryEngineFailuresApplicator.Apply(snapshot);
+
         context.Snapshot = snapshot;
         return Task.CompletedTask;
     }

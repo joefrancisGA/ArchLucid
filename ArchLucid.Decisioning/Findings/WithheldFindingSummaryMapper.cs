@@ -49,6 +49,24 @@ public static class WithheldFindingSummaryMapper
         };
     }
 
+    public static WithheldFindingSummary FromAdvisoryEngineFailure(FindingEngineFailure failure)
+    {
+        ArgumentNullException.ThrowIfNull(failure);
+
+        string engineType = failure.EngineType.Trim();
+        string category = failure.Category.Trim();
+        string withheldFindingId = $"engine-failure-{engineType}-{category}".ToLowerInvariant();
+
+        return new WithheldFindingSummary
+        {
+            WithheldFindingId = withheldFindingId,
+            Reason = WithheldFindingReasons.EngineFailureAdvisory,
+            OriginEngineType = engineType,
+            Title = TruncateTitle(
+                $"This engine did not produce findings — the package is incomplete for {category}."),
+        };
+    }
+
     private static string TruncateTitle(string? raw)
     {
         if (string.IsNullOrWhiteSpace(raw))
