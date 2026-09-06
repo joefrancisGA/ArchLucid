@@ -33,6 +33,7 @@ public sealed class ArchLucidAuthorizationPoliciesRegistrationTests
         authorizationOptions.GetPolicy(ArchLucidPolicies.RequireOperator).Should().NotBeNull();
         authorizationOptions.GetPolicy(ArchLucidPolicies.RequireOperatorRole).Should().NotBeNull();
         authorizationOptions.GetPolicy(ArchLucidPolicies.PlatformCrossTenantReadAuthority).Should().NotBeNull();
+        authorizationOptions.GetPolicy(ArchLucidPolicies.PlatformInternalOperationsAuthority).Should().NotBeNull();
         authorizationOptions.GetPolicy(ArchLucidPolicies.PlatformTenantDeletionAuthority).Should().NotBeNull();
         authorizationOptions.GetPolicy(ArchLucidPolicies.RequireAdmin).Should().NotBeNull();
         authorizationOptions.GetPolicy(ArchLucidPolicies.CanCommitRuns).Should().NotBeNull();

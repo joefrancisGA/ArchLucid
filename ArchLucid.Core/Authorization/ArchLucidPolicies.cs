@@ -79,4 +79,11 @@ public static class ArchLucidPolicies
     ///     <see cref="ArchLucidPlatformPermissionClaims.IdentityRecovery" />.
     /// </summary>
     public const string PlatformIdentityRecoveryAuthority = "PlatformIdentityRecoveryAuthority";
+
+    /// <summary>
+    ///     ArchLucid vendor-staff internal operations (fleet diagnostics, cross-tenant inboxes, platform config lint).
+    ///     Requires <see cref="ArchLucidRoles.PlatformOperator" /> or
+    ///     <see cref="ArchLucidPlatformPermissionClaims.CrossTenantRead" /> — not tenant <see cref="ArchLucidRoles.Admin" />.
+    /// </summary>
+    public const string PlatformInternalOperationsAuthority = "PlatformInternalOperationsAuthority";
 }

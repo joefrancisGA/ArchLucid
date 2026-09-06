@@ -25,7 +25,7 @@ namespace ArchLucid.Api.Controllers.Admin;
 
 /// <summary>Operator diagnostics (outbox depth, leader leases, feature flags).</summary>
 [ApiController]
-[Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
+[Authorize(Policy = ArchLucidPolicies.AuthenticatedUserOnly)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/admin")]
 public sealed partial class AdminController(
@@ -58,6 +58,7 @@ public sealed partial class AdminController(
 
     /// <summary>Uploads a tenant-scoped PNG/JPEG cover logo for architecture review board exports.</summary>
     [HttpPost("tenant/logo")]
+    [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [Consumes("multipart/form-data")]
     [RequestSizeLimit(ArchitectureReviewBoardCoverLogoValidator.MaxLogoBytes + 256)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -110,6 +111,7 @@ public sealed partial class AdminController(
     /// </summary>
     /// <remarks>No secrets are returned; findings mirror CLI/advisor rule names.</remarks>
     [HttpGet("config-lint")]
+    [Authorize(Policy = ArchLucidPolicies.PlatformInternalOperationsAuthority)]
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     [ProducesResponseType(typeof(AdminConfigLintResponse), StatusCodes.Status200OK)]
     public ActionResult<AdminConfigLintResponse> GetConfigLint([FromQuery] bool includeAdvisory = true)
@@ -140,6 +142,7 @@ public sealed partial class AdminController(
     ///     (never returns raw secrets).
     /// </summary>
     [HttpGet("config-summary")]
+    [Authorize(Policy = ArchLucidPolicies.PlatformInternalOperationsAuthority)]
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     [ProducesResponseType(typeof(AdminConfigSummaryResponse), StatusCodes.Status200OK)]
     public ActionResult<AdminConfigSummaryResponse> GetConfigSummary([FromQuery] bool includeEffectiveValues = false) =>
@@ -147,6 +150,7 @@ public sealed partial class AdminController(
 
     /// <inheritdoc cref="GetConfigSummary" />
     [HttpGet("configuration/summary")]
+    [Authorize(Policy = ArchLucidPolicies.PlatformInternalOperationsAuthority)]
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     [ProducesResponseType(typeof(AdminConfigSummaryResponse), StatusCodes.Status200OK)]
     public ActionResult<AdminConfigSummaryResponse> GetConfigurationSummary([FromQuery] bool includeEffectiveValues = false)

@@ -12,7 +12,7 @@ namespace ArchLucid.Api.Controllers.Admin;
 
 /// <summary>Internal tenant health scores for customer-success triage (TB-228).</summary>
 [ApiController]
-[Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
+[Authorize(Policy = ArchLucidPolicies.PlatformInternalOperationsAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/admin")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]

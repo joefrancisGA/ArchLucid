@@ -47,13 +47,18 @@
  */
 
 /** Same strings as server `ArchLucidPolicies` — smallest durable contract for nav links. */
-export type RequiredAuthority = "ReadAuthority" | "ExecuteAuthority" | "AdminAuthority";
+export type RequiredAuthority =
+  | "ReadAuthority"
+  | "ExecuteAuthority"
+  | "AdminAuthority"
+  | "PlatformInternalOperationsAuthority";
 
 /** Monotonic rank for comparisons: higher means the caller may access more `requiredAuthority` labels. */
 export const AUTHORITY_RANK: Readonly<Record<RequiredAuthority, number>> = {
   ReadAuthority: 1,
   ExecuteAuthority: 2,
   AdminAuthority: 3,
+  PlatformInternalOperationsAuthority: 4,
 };
 
 export function requiredAuthorityRank(required: RequiredAuthority): number {
@@ -182,6 +187,10 @@ export function collectArchLucidRoleClaimValues(
 
 /** Maps a resolved rank (from {@link maxAuthorityRankFromMeClaims}) back to a policy label. */
 export function requiredAuthorityFromRank(rank: number): RequiredAuthority {
+  if (rank >= AUTHORITY_RANK.PlatformInternalOperationsAuthority) {
+    return "PlatformInternalOperationsAuthority";
+  }
+
   if (rank >= AUTHORITY_RANK.AdminAuthority) {
     return "AdminAuthority";
   }
@@ -202,8 +211,12 @@ function rankForRoleValue(value: string): number {
 
   const lower = normalized.toLowerCase();
 
-  if (lower === ROLE_ADMIN.toLowerCase() || lower === ROLE_WORKSPACE_ADMIN.toLowerCase() || lower === ROLE_PLATFORM_OPERATOR.toLowerCase()) {
+  if (lower === ROLE_ADMIN.toLowerCase() || lower === ROLE_WORKSPACE_ADMIN.toLowerCase()) {
     return AUTHORITY_RANK.AdminAuthority;
+  }
+
+  if (lower === ROLE_PLATFORM_OPERATOR.toLowerCase()) {
+    return AUTHORITY_RANK.PlatformInternalOperationsAuthority;
   }
 
   if (
