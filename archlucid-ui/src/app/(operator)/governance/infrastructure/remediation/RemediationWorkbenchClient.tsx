@@ -243,8 +243,29 @@ export function RemediationWorkbenchClient() {
   };
 
   const selectedStatus = detail?.instance.status ?? null;
+  const executionSnapshotId = detail?.instance.executionSnapshotId ?? null;
   const blockers = detail?.instance.status === "PreflightBlocked" ? ["Preflight blocked"] : [];
   const transitionsBlocked = selectedStatus != null && isRemediationTransitionBlocked(selectedStatus, blockers);
+
+  const snapshotOptions = useMemo(() => {
+    if (selectedStatus !== "Executed" || executionSnapshotId == null || executionSnapshotId.length === 0) {
+      return snapshots;
+    }
+
+    return snapshots.filter((snapshot) => snapshot.snapshotId !== executionSnapshotId);
+  }, [executionSnapshotId, selectedStatus, snapshots]);
+
+  useEffect(() => {
+    if (selectedStatus !== "Executed" || snapshotOptions.length === 0) {
+      return;
+    }
+
+    const currentIsEligible = snapshotOptions.some((snapshot) => snapshot.snapshotId === selectedSnapshotId);
+
+    if (!currentIsEligible) {
+      setSelectedSnapshotId(snapshotOptions[0].snapshotId);
+    }
+  }, [selectedSnapshotId, selectedStatus, snapshotOptions]);
 
   const diagramReconcileHref = buildDiagramReconcileHref(urlCorrespondenceId);
 
@@ -400,13 +421,20 @@ export function RemediationWorkbenchClient() {
                   value={selectedSnapshotId}
                   onChange={(event) => setSelectedSnapshotId(event.target.value)}
                 >
-                  {snapshots.map((snapshot) => (
+                  {snapshotOptions.map((snapshot) => (
                     <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
                       {snapshot.subscriptionName ?? snapshot.subscriptionId ?? "subscription"} · {snapshot.capturedUtc}
                     </option>
                   ))}
                 </select>
               </label>
+
+              {selectedStatus === "Executed" && executionSnapshotId != null ? (
+                <p className={cn("m-0 text-sm", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-remediation-verify-hint">
+                  Verify requires a snapshot captured after execute ({executionSnapshotId.slice(0, 8)}…). Execution
+                  snapshot is excluded from the picker.
+                </p>
+              ) : null}
 
               <div className="flex flex-wrap gap-2">
                 <Button

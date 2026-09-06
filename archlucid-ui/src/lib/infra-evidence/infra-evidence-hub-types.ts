@@ -14,10 +14,25 @@ export type CloudResourceSummary = {
 
 export type CloudResourceExplorerPage = InfraEvidencePagedResponse<CloudResourceSummary>;
 
+export type CloudResourceAuditLineageMatch = {
+  assessmentId: string;
+  auditEvidenceSnapshotId: string;
+  controlId: string;
+  controlNumber: string;
+  controlTitle: string;
+  snapshotCreatedUtc: string;
+};
+
 export type CloudResourceAuditLineageLink = {
   available: boolean;
   degradedReason: string | null;
   relativePath: string | null;
+  assessmentId: string | null;
+  auditEvidenceSnapshotId: string | null;
+  controlId: string | null;
+  controlNumber: string | null;
+  controlTitle: string | null;
+  matches: CloudResourceAuditLineageMatch[];
 };
 
 export type CloudResourceCurrentConfigurationSection = {

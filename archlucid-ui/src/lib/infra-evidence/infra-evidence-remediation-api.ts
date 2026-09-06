@@ -23,6 +23,9 @@ function mapInstanceSummary(raw: Record<string, unknown>): RemediationInstanceSu
     automationLevel: String(raw.automationLevel ?? ""),
     cloudResourceId: raw.cloudResourceId != null ? String(raw.cloudResourceId) : null,
     waveId: raw.waveId != null ? String(raw.waveId) : null,
+    preflightSnapshotId: raw.preflightSnapshotId != null ? String(raw.preflightSnapshotId) : null,
+    executionSnapshotId: raw.executionSnapshotId != null ? String(raw.executionSnapshotId) : null,
+    verificationSnapshotId: raw.verificationSnapshotId != null ? String(raw.verificationSnapshotId) : null,
     createdUtc: String(raw.createdUtc ?? ""),
     updatedUtc: String(raw.updatedUtc ?? ""),
   };

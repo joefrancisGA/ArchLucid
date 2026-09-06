@@ -53,9 +53,24 @@ vi.mock("@/lib/infra-evidence/infra-evidence-hub-api", () => ({
     networkRelationships: [],
     recentChanges: [],
     auditLineageLink: {
-      available: false,
-      degradedReason: "Provide assessmentId, auditEvidenceSnapshotId, and controlId query parameters to link AE-10 audit lineage.",
-      relativePath: null,
+      available: true,
+      degradedReason: null,
+      relativePath: "/v1/infra-evidence/audit-assessments/a/snapshots/s/controls/c/lineage",
+      assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      controlNumber: "AC-2",
+      controlTitle: "Account management",
+      matches: [
+        {
+          assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+          controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+          controlNumber: "AC-2",
+          controlTitle: "Account management",
+          snapshotCreatedUtc: "2026-01-01T00:00:00Z",
+        },
+      ],
     },
     evidencePointers: [],
   })),
@@ -81,6 +96,7 @@ describe("ResourceHubClient", () => {
     expect(await screen.findByTestId("infra-resource-hub-tabs")).toBeInTheDocument();
     expect(screen.getByTestId("infra-resource-hub-tab-overview")).toBeInTheDocument();
     expect(screen.getByTestId("infra-resource-hub-tab-audit")).toBeInTheDocument();
-    expect(await screen.findByTestId("infra-resource-hub-audit-degraded")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-resource-hub-audit-lineage-link")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-resource-hub-audit-degraded")).not.toBeInTheDocument();
   });
 });

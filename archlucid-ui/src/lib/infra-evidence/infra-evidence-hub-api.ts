@@ -241,6 +241,26 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
       available: Boolean(auditRaw?.available),
       degradedReason: auditRaw?.degradedReason != null ? String(auditRaw.degradedReason) : null,
       relativePath: auditRaw?.relativePath != null ? String(auditRaw.relativePath) : null,
+      assessmentId: auditRaw?.assessmentId != null ? String(auditRaw.assessmentId) : null,
+      auditEvidenceSnapshotId:
+        auditRaw?.auditEvidenceSnapshotId != null ? String(auditRaw.auditEvidenceSnapshotId) : null,
+      controlId: auditRaw?.controlId != null ? String(auditRaw.controlId) : null,
+      controlNumber: auditRaw?.controlNumber != null ? String(auditRaw.controlNumber) : null,
+      controlTitle: auditRaw?.controlTitle != null ? String(auditRaw.controlTitle) : null,
+      matches: Array.isArray(auditRaw?.matches)
+        ? auditRaw.matches.map((item) => {
+            const row = item as Record<string, unknown>;
+
+            return {
+              assessmentId: String(row.assessmentId ?? ""),
+              auditEvidenceSnapshotId: String(row.auditEvidenceSnapshotId ?? ""),
+              controlId: String(row.controlId ?? ""),
+              controlNumber: String(row.controlNumber ?? ""),
+              controlTitle: String(row.controlTitle ?? ""),
+              snapshotCreatedUtc: String(row.snapshotCreatedUtc ?? ""),
+            };
+          })
+        : [],
     },
     evidencePointers: Array.isArray(raw.evidencePointers)
       ? raw.evidencePointers.map((item) => {
