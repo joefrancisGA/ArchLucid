@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { RemediationWorkbenchClient } from "@/app/(operator)/governance/infrastructure/remediation/RemediationWorkbenchClient";
+import { fetchRemediationInstances } from "@/lib/infra-evidence/infra-evidence-remediation-api";
 
 let searchParams = new URLSearchParams("");
 
@@ -131,5 +132,8 @@ describe("RemediationWorkbenchClient", () => {
     expect(await screen.findByTestId("infra-remediation-resource-scope-banner")).toHaveTextContent(
       "33333333-3333-3333-3333-333333333333",
     );
+    expect(vi.mocked(fetchRemediationInstances)).toHaveBeenCalledWith({
+      cloudResourceId: "33333333-3333-3333-3333-333333333333",
+    });
   });
 });

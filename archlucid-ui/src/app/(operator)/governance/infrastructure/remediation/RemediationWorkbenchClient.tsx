@@ -95,13 +95,7 @@ export function RemediationWorkbenchClient() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
 
-  const visibleInstances = useMemo(() => {
-    if (urlCloudResourceId.length === 0) {
-      return instances;
-    }
-
-    return instances.filter((instance) => instance.cloudResourceId === urlCloudResourceId);
-  }, [instances, urlCloudResourceId]);
+  const visibleInstances = instances;
 
   const groupedInstances = useMemo(() => {
     const groups = new Map<RemediationWorkbenchColumn, RemediationInstanceSummary[]>();
@@ -124,7 +118,9 @@ export function RemediationWorkbenchClient() {
 
     try {
       const [instanceRows, summary, prioritized, waveRows, snapshotResponse] = await Promise.all([
-        fetchRemediationInstances(),
+        fetchRemediationInstances({
+          cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : null,
+        }),
         fetchRemediationFactorySummary(),
         fetchRemediationPrioritizedFindings(),
         fetchRemediationWaves(),
@@ -164,7 +160,7 @@ export function RemediationWorkbenchClient() {
     } finally {
       setLoading(false);
     }
-  }, [selectedSnapshotId, selectedWaveId]);
+  }, [selectedSnapshotId, selectedWaveId, urlCloudResourceId]);
 
   const loadDetail = useCallback(async (instanceId: string) => {
     if (instanceId.length === 0) {
