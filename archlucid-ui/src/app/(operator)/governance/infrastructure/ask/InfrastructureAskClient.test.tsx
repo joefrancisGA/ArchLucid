@@ -57,6 +57,35 @@ describe("InfrastructureAskClient", () => {
     expect(screen.getByTestId("infra-ask-citation-CloudResourceId-11111111-1111-1111-1111-111111111111")).toBeInTheDocument();
   });
 
+  it("links FindingId citations into the remediation factory", async () => {
+    vi.mocked(submitInfraEvidenceAsk).mockResolvedValueOnce({
+      topicKind: "ResourceOverview",
+      answer: "One operational finding is open for this resource.",
+      insufficientEvidence: false,
+      citations: [
+        {
+          kind: "FindingId",
+          id: "99999999-9999-9999-9999-999999999999",
+          label: "Public endpoint",
+        },
+      ],
+      simulatorLabel: null,
+    });
+    searchParams = new URLSearchParams("cloudResourceId=11111111-1111-1111-1111-111111111111");
+    render(<InfrastructureAskClient />);
+
+    fireEvent.change(screen.getByTestId("infra-ask-question"), {
+      target: { value: "What findings are open?" },
+    });
+    fireEvent.click(screen.getByTestId("infra-ask-submit"));
+
+    const citation = await screen.findByTestId("infra-ask-citation-FindingId-99999999-9999-9999-9999-999999999999");
+    expect(citation.querySelector("a")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&findingId=99999999-9999-9999-9999-999999999999",
+    );
+  });
+
   it("shows context banner and keeps multi-turn history", async () => {
     searchParams = new URLSearchParams(
       "cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222",
@@ -70,7 +99,7 @@ describe("InfrastructureAskClient", () => {
     );
     expect(screen.getByRole("link", { name: "Open resource evidence hub" })).toHaveAttribute(
       "href",
-      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?snapshotId=22222222-2222-2222-2222-222222222222",
     );
 
     fireEvent.change(screen.getByTestId("infra-ask-question"), {

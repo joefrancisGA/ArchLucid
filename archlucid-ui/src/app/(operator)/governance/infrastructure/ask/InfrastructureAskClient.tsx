@@ -13,9 +13,7 @@ import {
   submitInfraEvidenceAsk,
 } from "@/lib/infra-evidence/infra-evidence-ask-api";
 import { resolveInfraEvidenceAskCitationLink } from "@/lib/infra-evidence/infra-evidence-ask-citations";
-import {
-  governanceInfrastructureResourceHubPath,
-} from "@/lib/governance/governance-infrastructure-route-paths";
+import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   parseResourceExplorerCloudResourceIdFromSearch,
   parseResourceHubQueryValueFromSearch,
@@ -56,6 +54,17 @@ export function InfrastructureAskClient() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [history, setHistory] = useState<InfrastructureAskTurn[]>([]);
+
+  const citationContext = useMemo(
+    () => ({
+      cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
+      snapshotId: snapshotId.length > 0 ? snapshotId : null,
+      assessmentId: assessmentId.length > 0 ? assessmentId : null,
+      auditEvidenceSnapshotId: auditEvidenceSnapshotId.length > 0 ? auditEvidenceSnapshotId : null,
+      controlId: controlId.length > 0 ? controlId : null,
+    }),
+    [assessmentId, auditEvidenceSnapshotId, cloudResourceId, controlId, snapshotId],
+  );
 
   const contextSummary = useMemo(() => {
     const parts: string[] = [];
@@ -135,7 +144,9 @@ export function InfrastructureAskClient() {
           {cloudResourceId.length > 0 ? (
             <Link
               className="mt-2 inline-block text-sm text-al-link hover:underline"
-              href={governanceInfrastructureResourceHubPath(cloudResourceId)}
+              href={resourceHubFilterHrefFromSearch(cloudResourceId, "", {
+                snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+              })}
             >
               Open resource evidence hub
             </Link>
@@ -242,7 +253,7 @@ export function InfrastructureAskClient() {
               <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Citations</h2>
               <ul className="m-0 grid gap-2 pl-5">
                 {turn.response.citations.map((citation) => {
-                  const link = resolveInfraEvidenceAskCitationLink(citation);
+                  const link = resolveInfraEvidenceAskCitationLink(citation, citationContext);
                   const key = `${citation.kind}:${citation.id}`;
 
                   return (
