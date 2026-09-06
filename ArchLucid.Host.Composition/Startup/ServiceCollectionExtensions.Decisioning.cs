@@ -64,6 +64,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IFindingEngine, Ds.SecurityCoverageFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.ExternalExposureFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.SegmentationSemanticsFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.InsightGeneratorFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.DeclarationSecurityBaselineFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.DeclarationPremiseConflictFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TrustBoundaryFindingEngine>();
@@ -108,6 +109,7 @@ public static partial class ServiceCollectionExtensions
             ArchLucid.Application.Findings.PortfolioRecurrenceCurrentReviewIdentitySource>();
         services.AddSingleton<IInsightDensityGate, DeterministicInsightDensityGate>();
         services.TryAddSingleton<IInsightDensityLlmJudge, NoOpInsightDensityLlmJudge>();
+        services.TryAddScoped<IInsightFindingGenerator, NoOpInsightFindingGenerator>();
 
         RegisterPluginFindingEngines(services, configuration);
 
@@ -115,6 +117,8 @@ public static partial class ServiceCollectionExtensions
             ArchLucid.Decisioning.Services.Findings.FindingsPolicyStampStage>();
         services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsEngineInvokeStage,
             ArchLucid.Decisioning.Services.Findings.FindingsEngineInvokeStage>();
+        services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsInsightGeneratorStage,
+            ArchLucid.Decisioning.Services.Findings.FindingsInsightGeneratorStage>();
         services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsMergeAndGateStage,
             ArchLucid.Decisioning.Services.Findings.FindingsMergeAndGateStage>();
         services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsSnapshotEmitStage,
