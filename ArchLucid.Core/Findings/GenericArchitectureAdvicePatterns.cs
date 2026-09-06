@@ -181,6 +181,9 @@ public static partial class GenericArchitectureAdvicePatterns
         if (before.Length < 2)
             return false;
 
+        if (ContainsMidSentenceNegationBeforeFragment(before))
+            return true;
+
         return before.EndsWith("do not", StringComparison.Ordinal)
             || before.EndsWith("do-not", StringComparison.Ordinal)
             || before.EndsWith("don't", StringComparison.Ordinal)
@@ -190,6 +193,10 @@ public static partial class GenericArchitectureAdvicePatterns
             || before.EndsWith("won't need to", StringComparison.Ordinal)
             || before.EndsWith("doesn't need to", StringComparison.Ordinal)
             || before.EndsWith("doesn't require", StringComparison.Ordinal)
+            || before.EndsWith("doesn't need", StringComparison.Ordinal)
+            || before.EndsWith("must not require", StringComparison.Ordinal)
+            || before.EndsWith("must not need", StringComparison.Ordinal)
+            || before.EndsWith("must not enforce", StringComparison.Ordinal)
             || before.EndsWith("no requirement to", StringComparison.Ordinal)
             || before.EndsWith("no need to", StringComparison.Ordinal)
             || before.EndsWith("not required to", StringComparison.Ordinal)
@@ -199,6 +206,21 @@ public static partial class GenericArchitectureAdvicePatterns
             || before.EndsWith("avoid", StringComparison.Ordinal)
             || before.EndsWith("not", StringComparison.Ordinal)
             || before.EndsWith("no", StringComparison.Ordinal);
+    }
+
+    private static bool ContainsMidSentenceNegationBeforeFragment(ReadOnlySpan<char> before)
+    {
+        return ContainsAdviceNegationPhrase(before, " should not require ")
+            || ContainsAdviceNegationPhrase(before, " should not require")
+            || ContainsAdviceNegationPhrase(before, " shouldn't require ")
+            || ContainsAdviceNegationPhrase(before, " shouldn't require")
+            || ContainsAdviceNegationPhrase(before, " need not need ")
+            || ContainsAdviceNegationPhrase(before, " need not need");
+    }
+
+    private static bool ContainsAdviceNegationPhrase(ReadOnlySpan<char> haystack, string phrase)
+    {
+        return haystack.IndexOf(phrase.AsSpan(), StringComparison.Ordinal) >= 0;
     }
 
     private static bool IsSuffixNegatedAdviceFragment(string normalized, int fragmentIndex, int fragmentLength)

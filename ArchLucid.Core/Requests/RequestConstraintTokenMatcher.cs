@@ -198,7 +198,8 @@ internal static class RequestConstraintTokenMatcher
             || before.StartsWith("does not provision", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("does not ensure", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("does not maintain", StringComparison.OrdinalIgnoreCase)
-            || before.StartsWith("need not ensure", StringComparison.OrdinalIgnoreCase))
+            || before.StartsWith("need not ensure", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("need not need", StringComparison.OrdinalIgnoreCase))
             return true;
 
         if (ContainsMidSentenceNegation(before))
@@ -210,6 +211,8 @@ internal static class RequestConstraintTokenMatcher
             || before.EndsWith("won't", StringComparison.OrdinalIgnoreCase)
             || before.EndsWith("cannot", StringComparison.OrdinalIgnoreCase)
             || before.EndsWith("cannot require", StringComparison.OrdinalIgnoreCase)
+            || before.EndsWith("doesn't require", StringComparison.OrdinalIgnoreCase)
+            || before.EndsWith("doesn't need", StringComparison.OrdinalIgnoreCase)
             || before.EndsWith("never", StringComparison.OrdinalIgnoreCase)
             || before.EndsWith("avoids", StringComparison.OrdinalIgnoreCase)
             || before.EndsWith("avoid", StringComparison.OrdinalIgnoreCase);
@@ -374,6 +377,8 @@ internal static class RequestConstraintTokenMatcher
             || ContainsPhrase(before, " need not use")
             || ContainsPhrase(before, " need not have ")
             || ContainsPhrase(before, " need not have")
+            || ContainsPhrase(before, " need not need ")
+            || ContainsPhrase(before, " need not need")
             || ContainsPhrase(before, " shouldn't require ")
             || ContainsPhrase(before, " shouldn't require")
             || ContainsPhrase(before, " won't require ")
@@ -541,7 +546,9 @@ internal static class RequestConstraintTokenMatcher
             || ContainsPhrase(before, " must not ")
             || ContainsPhrase(before, " do not ")
             || ContainsPhrase(before, " doesn't require ")
+            || ContainsPhrase(before, " doesn't require")
             || ContainsPhrase(before, " doesn't need ")
+            || ContainsPhrase(before, " doesn't need")
             || ContainsPhrase(before, " cannot require ")
             || ContainsPhrase(before, " cannot need ")
             || ContainsPhrase(before, " cannot need");
