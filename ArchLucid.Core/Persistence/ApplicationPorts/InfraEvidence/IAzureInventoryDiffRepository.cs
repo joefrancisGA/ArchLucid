@@ -24,6 +24,18 @@ public interface IAzureInventoryDiffRepository
         ScopeContext scope,
         Guid diffId,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<AzureInventoryDiffSummaryRecord>> ListDiffsBySnapshotIdAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default);
+
+    Task<(IReadOnlyList<AzureInventoryChangeRecord> Items, int TotalCount)> ListChangesByDiffIdPagedAsync(
+        ScopeContext scope,
+        Guid diffId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed class AzureInventoryDiffPersistRequest
