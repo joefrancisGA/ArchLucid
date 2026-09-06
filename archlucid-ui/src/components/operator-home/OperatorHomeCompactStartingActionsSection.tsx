@@ -65,7 +65,7 @@ export function OperatorHomeCompactStartingActionsSection(
           {sectionHeading}
         </OperatorHomeCardSectionTitle>
         {props.pagePrimaryOwnedByHeader === true ? null : props.workingMode === true ? (
-          <OperatorHomeWorkingPrimaryCta variant={workingCtaVariant} showNewReviewWhenResuming={hasDeskWork} />
+          <OperatorHomeWorkingPrimaryCta variant={workingCtaVariant} />
         ) : (
           <div className="flex flex-wrap items-center gap-2">
             <Button asChild variant="primary" size="sm" className="h-8 w-fit">

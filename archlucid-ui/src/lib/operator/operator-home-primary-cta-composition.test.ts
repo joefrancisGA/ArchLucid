@@ -65,4 +65,19 @@ describe("operator home primary CTA composition (TB-1539)", () => {
     expect(source).toContain("OPERATOR_NAV_LINK_LABELS.reviewPackage");
     expect(source).not.toContain("OPERATOR_NAV_LINK_LABELS.packages");
   });
+
+  it("does not offer a peer start-review CTA beside resume on Working home (ADR 0069)", () => {
+    const source = readFileSync(
+      join(UI_ROOT, "src/components/operator-home/OperatorHomeWorkingPrimaryCta.tsx"),
+      "utf8",
+    );
+    const headerSource = readFileSync(
+      join(UI_ROOT, "src/app/(operator)/_sections/OperatorHomePageHeader.tsx"),
+      "utf8",
+    );
+
+    expect(source).not.toContain("showNewReviewWhenResuming");
+    expect(source).not.toContain("operator-home-working-new-review-outline");
+    expect(headerSource).not.toContain("showNewReviewWhenResuming");
+  });
 });
