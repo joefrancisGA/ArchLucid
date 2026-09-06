@@ -3,6 +3,12 @@
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import {
+  findingsQueueScopeDisclosureHrefFromSearch,
+  parseFindingsQueueScopeOpenFromSearch,
+} from "@/lib/governance/findings-queue-scope-disclosure-url";
 
 export type FindingsQueuePickReviewBeforeTriageStripProps = {
   readonly selectedReviewId: string;
@@ -40,10 +46,44 @@ export type FindingsQueueScopeDisclosureProps = FindingsQueuePickReviewBeforeTri
 export function FindingsQueueScopeDisclosure(
   props: FindingsQueueScopeDisclosureProps,
 ): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/governance/findings";
+  const searchParams = useSearchParams();
+  const findingsQueueScopeOpenParam = searchParams.get("findingsQueueScopeOpen");
+  const [open, setOpenState] = useState(() =>
+    parseFindingsQueueScopeOpenFromSearch(findingsQueueScopeOpenParam),
+  );
+
+  const syncOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      router.replace(
+        findingsQueueScopeDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (detailsOpen: boolean) => {
+      setOpenState(detailsOpen);
+      syncOpenToUrl(detailsOpen);
+    },
+    [syncOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOpenState(parseFindingsQueueScopeOpenFromSearch(findingsQueueScopeOpenParam));
+  }, [findingsQueueScopeOpenParam]);
+
   return (
     <details
       className="rounded-lg border border-neutral-200 bg-al-surface-raised px-4 py-3 dark:border-neutral-800"
       data-testid="findings-queue-scope-disclosure"
+      open={open}
+      onToggle={(event) => {
+        setOpen((event.currentTarget as HTMLDetailsElement).open);
+      }}
     >
       <summary
         className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}

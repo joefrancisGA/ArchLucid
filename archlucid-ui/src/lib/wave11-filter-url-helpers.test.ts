@@ -4014,6 +4014,92 @@ describe("wave52 filter url helpers", () => {
   });
 });
 
+describe("wave53 filter url helpers", () => {
+  it("sso wizard related surfaces, identity providers diagnostics protocol, review package sponsor handoff more exports, operator home buyer proof details, architecture diagram mermaid source, quick decision policy pack impact, findings queue scope, finding insight density, compare how it works, evidence trail guidance params", async () => {
+    const {
+      parseSsoWizardRelatedSurfacesOpenFromSearch,
+      ssoWizardRelatedSurfacesDisclosureHrefFromSearch,
+    } = await import("@/lib/administration/sso-wizard-related-surfaces-disclosure-url");
+    const {
+      identityProvidersDiagnosticsProtocolDisclosureHrefFromSearch,
+      parseIdentityProvidersDiagnosticsProtocolOpenFromSearch,
+    } = await import("@/lib/administration/identity-providers-diagnostics-protocol-disclosure-url");
+    const {
+      parseReviewPackageSponsorHandoffMoreExportsOpenFromSearch,
+      reviewPackageSponsorHandoffMoreExportsDisclosureHrefFromSearch,
+    } = await import("@/lib/reviews/review-package-sponsor-handoff-more-exports-disclosure-url");
+    const {
+      operatorHomeBuyerProofDetailsDisclosureHrefFromSearch,
+      parseOperatorHomeBuyerProofDetailsOpenFromSearch,
+    } = await import("@/lib/operator/operator-home-buyer-proof-details-disclosure-url");
+    const {
+      architectureDiagramMermaidSourceDisclosureHrefFromSearch,
+      parseArchitectureDiagramMermaidSourceOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-diagram-mermaid-source-disclosure-url");
+    const {
+      parseQuickDecisionPolicyPackImpactOpenFromSearch,
+      quickDecisionPolicyPackImpactDisclosureHrefFromSearch,
+    } = await import("@/lib/findings/quick-decision-policy-pack-impact-disclosure-url");
+    const {
+      findingsQueueScopeDisclosureHrefFromSearch,
+      parseFindingsQueueScopeOpenFromSearch,
+    } = await import("@/lib/governance/findings-queue-scope-disclosure-url");
+    const {
+      findingInsightDensityDisclosureHrefFromSearch,
+      parseFindingInsightDensityOpenFromSearch,
+    } = await import("@/lib/findings/finding-insight-density-disclosure-url");
+    const {
+      compareHowItWorksDisclosureHrefFromSearch,
+      parseCompareHowItWorksOpenFromSearch,
+    } = await import("@/lib/insights/compare-how-it-works-disclosure-url");
+    const {
+      evidenceTrailGuidanceDisclosureHrefFromSearch,
+      parseEvidenceTrailGuidanceOpenFromSearch,
+    } = await import("@/lib/insights/evidence-trail-guidance-disclosure-url");
+
+    expect(parseSsoWizardRelatedSurfacesOpenFromSearch("1")).toBe(true);
+    expect(ssoWizardRelatedSurfacesDisclosureHrefFromSearch("", true, "/administration/identity/sso-wizard")).toBe(
+      "/administration/identity/sso-wizard?ssoWizardRelatedSurfacesOpen=1",
+    );
+    expect(parseIdentityProvidersDiagnosticsProtocolOpenFromSearch("true")).toBe(true);
+    expect(identityProvidersDiagnosticsProtocolDisclosureHrefFromSearch("", true, "/administration/identity-providers/diagnostics")).toBe(
+      "/administration/identity-providers/diagnostics?identityProvidersDiagnosticsProtocolOpen=1",
+    );
+    expect(parseReviewPackageSponsorHandoffMoreExportsOpenFromSearch("1")).toBe(true);
+    expect(reviewPackageSponsorHandoffMoreExportsDisclosureHrefFromSearch("tab=review-package", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?tab=review-package&reviewPackageSponsorHandoffMoreExportsOpen=1",
+    );
+    expect(parseOperatorHomeBuyerProofDetailsOpenFromSearch("true")).toBe(true);
+    expect(operatorHomeBuyerProofDetailsDisclosureHrefFromSearch("", true, "/")).toBe(
+      "/?operatorHomeBuyerProofDetailsOpen=1",
+    );
+    expect(parseArchitectureDiagramMermaidSourceOpenFromSearch("1")).toBe(true);
+    expect(architectureDiagramMermaidSourceDisclosureHrefFromSearch("runId=r1", true, "/architecture/reviews/r1/diagram")).toBe(
+      "/architecture/reviews/r1/diagram?runId=r1&architectureDiagramMermaidSourceOpen=1",
+    );
+    expect(parseQuickDecisionPolicyPackImpactOpenFromSearch("true")).toBe(true);
+    expect(quickDecisionPolicyPackImpactDisclosureHrefFromSearch("", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?quickDecisionPolicyPackImpactOpen=1",
+    );
+    expect(parseFindingsQueueScopeOpenFromSearch("1")).toBe(true);
+    expect(findingsQueueScopeDisclosureHrefFromSearch("status=open", true, "/governance/findings")).toBe(
+      "/governance/findings?status=open&findingsQueueScopeOpen=1",
+    );
+    expect(parseFindingInsightDensityOpenFromSearch("true")).toBe(true);
+    expect(findingInsightDensityDisclosureHrefFromSearch("findingId=f1", true, "/architecture/reviews/r1/findings/f1")).toBe(
+      "/architecture/reviews/r1/findings/f1?findingId=f1&findingInsightDensityOpen=1",
+    );
+    expect(parseCompareHowItWorksOpenFromSearch("1")).toBe(true);
+    expect(compareHowItWorksDisclosureHrefFromSearch("", true, "/insights/compare-two-reviews")).toBe(
+      "/insights/compare-two-reviews?compareHowItWorksOpen=1",
+    );
+    expect(parseEvidenceTrailGuidanceOpenFromSearch("true")).toBe(true);
+    expect(evidenceTrailGuidanceDisclosureHrefFromSearch("", true, "/insights/evidence-graph")).toBe(
+      "/insights/evidence-graph?evidenceTrailGuidanceOpen=1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { PACKAGE_PRINT_BUTTON_LABEL, printPackagePage } from "@/lib/package-print-view";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import { whyDisabledPolicy } from "@/lib/why-disabled-cta";
 
 type PackagePrintButtonProps = {
   readonly runId: string;
@@ -31,7 +32,7 @@ export function PackagePrintButton(props: PackagePrintButtonProps): React.ReactE
         >
           {PACKAGE_PRINT_BUTTON_LABEL}
         </Button>
-        <WhyDisabledCtaHint id={hintId} reason={blockedReason} testId={hintId} />
+        <WhyDisabledCtaHint id={hintId} reason={whyDisabledPolicy(blockedReason)} testId={hintId} />
       </div>
     );
   }
