@@ -68,6 +68,32 @@ describe("adr-from-run", () => {
     expect(buildAdrExplanationSlice(null)).toBeNull();
   });
 
+  it("buildAdrGeneratorRunInput includes all findings when maxFindings is null (CA-41 Working)", () => {
+    const findings: QuickDecisionFinding[] = Array.from({ length: 25 }, (_, index) => ({
+      findingId: `finding-${index}`,
+      title: `Finding ${index}`,
+      recommendation: "Fix",
+      severityValue: index,
+      aiReasoning: { reasoningTrace: "trace" },
+    })) as QuickDecisionFinding[];
+
+    const input = buildAdrGeneratorRunInput({
+      runId: "run-1",
+      projectId: "p1",
+      reviewTitle: "Large review",
+      createdUtc: "2026-05-01T12:00:00.000Z",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanationSummary: null,
+      quickDecisionFindings: findings,
+      maxFindings: null,
+      severityLabelForFinding: severityBadgeLabel,
+    });
+
+    expect(input.findings).toHaveLength(25);
+  });
+
   it("buildAdrGeneratorRunInput sorts and caps findings", () => {
     const low: QuickDecisionFinding = {
       findingId: "low",
