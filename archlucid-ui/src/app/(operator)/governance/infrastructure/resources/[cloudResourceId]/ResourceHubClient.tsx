@@ -678,6 +678,13 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   Open terraform mapping
                 </Link>
               </Button>
+              {hub.diagramCorrespondence != null ? (
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-drift-open-diagram-tab">
+                  <Link href={buildHubDiagramTabHref(cloudResourceId, resolvedSnapshotId, runId)}>
+                    View diagram correspondence in hub
+                  </Link>
+                </Button>
+              ) : null}
               {openFindingsCount > 0 ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-drift-open-findings-tab">
                   <Link
