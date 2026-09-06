@@ -41,12 +41,17 @@ public static class DeclarationSecurityPropertyKeyResolver
             [
                 "tf.ssl_enforcement_enabled",
                 "tf.sslenforcementenabled",
+                "sslEnforcementEnabled",
             ],
             [DeclarationSecurityPropertyLogicalNames.IngressBlob] =
             [
                 "tf.ingress",
                 "tf.network_rules",
                 "tf.networkrules",
+                "tf.networkacls",
+                "tf.network_acls",
+                "tf.ipsecurityrestrictions",
+                "tf.ip_security_restrictions",
             ],
         };
 

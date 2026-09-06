@@ -80,14 +80,23 @@ public sealed partial class DocxExportService
         WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText(e.Summary));
         WordDocumentBuilder.AddSpacer(body);
         WordDocumentBuilder.AddHeading(body, "Key Drivers", DocxStyleIds.Heading2);
-        WordDocumentBuilder.AddBulletList(body, e.KeyDrivers.Count > 0 ? e.KeyDrivers : ["(none)"]);
+        WordDocumentBuilder.AddBulletList(
+            body,
+            e.KeyDrivers.Count > 0 ? e.KeyDrivers.Select(SanitizeArtifactText) : ["(none)"]);
         WordDocumentBuilder.AddHeading(body, "Risk Implications", DocxStyleIds.Heading2);
-        WordDocumentBuilder.AddBulletList(body, e.RiskImplications.Count > 0 ? e.RiskImplications : ["(none)"]);
+        WordDocumentBuilder.AddBulletList(
+            body,
+            e.RiskImplications.Count > 0 ? e.RiskImplications.Select(SanitizeArtifactText) : ["(none)"]);
         WordDocumentBuilder.AddHeading(body, "Cost Implications", DocxStyleIds.Heading2);
-        WordDocumentBuilder.AddBulletList(body, e.CostImplications.Count > 0 ? e.CostImplications : ["(none)"]);
+        WordDocumentBuilder.AddBulletList(
+            body,
+            e.CostImplications.Count > 0 ? e.CostImplications.Select(SanitizeArtifactText) : ["(none)"]);
         WordDocumentBuilder.AddHeading(body, "Compliance Implications", DocxStyleIds.Heading2);
-        WordDocumentBuilder.AddBulletList(body,
-            e.ComplianceImplications.Count > 0 ? e.ComplianceImplications : ["(none)"]);
+        WordDocumentBuilder.AddBulletList(
+            body,
+            e.ComplianceImplications.Count > 0
+                ? e.ComplianceImplications.Select(SanitizeArtifactText)
+                : ["(none)"]);
         WordDocumentBuilder.AddHeading(body, "Detailed Explanation", DocxStyleIds.Heading2);
         WordDocumentBuilder.AddMultilineBodyText(body, SanitizeArtifactText(e.DetailedNarrative));
         WordDocumentBuilder.AddSpacer(body, 2);
@@ -99,9 +108,13 @@ public sealed partial class DocxExportService
         WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText(e.HighLevelSummary));
         WordDocumentBuilder.AddSpacer(body);
         WordDocumentBuilder.AddHeading(body, "Major Changes (structured)", DocxStyleIds.Heading2);
-        WordDocumentBuilder.AddBulletList(body, e.MajorChanges.Count > 0 ? e.MajorChanges : ["(none)"]);
+        WordDocumentBuilder.AddBulletList(
+            body,
+            e.MajorChanges.Count > 0 ? e.MajorChanges.Select(SanitizeArtifactText) : ["(none)"]);
         WordDocumentBuilder.AddHeading(body, "Key Tradeoffs (AI)", DocxStyleIds.Heading2);
-        WordDocumentBuilder.AddBulletList(body, e.KeyTradeoffs.Count > 0 ? e.KeyTradeoffs : ["(none)"]);
+        WordDocumentBuilder.AddBulletList(
+            body,
+            e.KeyTradeoffs.Count > 0 ? e.KeyTradeoffs.Select(SanitizeArtifactText) : ["(none)"]);
         WordDocumentBuilder.AddHeading(body, "Detailed Explanation", DocxStyleIds.Heading2);
         WordDocumentBuilder.AddMultilineBodyText(body, SanitizeArtifactText(e.Narrative));
         WordDocumentBuilder.AddSpacer(body, 2);
