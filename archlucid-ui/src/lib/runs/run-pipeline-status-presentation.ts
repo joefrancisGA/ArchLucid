@@ -3,7 +3,6 @@ import { resolveEnterpriseStatusKind } from "@/lib/enterprise-status-kind-resolv
 import { shouldSuppressReadyToFinalizeForQualityGateHonesty } from "@/lib/governance/agent-output-quality-gate-career-honesty";
 import { PIPELINE_STATUS_LABELS, type RunPipelineInternalLabel } from "@/lib/pipeline-status-labels";
 import { resolvePipelineStatusDisplayLabel } from "@/lib/resolve-pipeline-status-display-label";
-import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import type { RunSummary } from "@/types/authority";
 
 export type RunPipelineLabel = RunPipelineInternalLabel;
