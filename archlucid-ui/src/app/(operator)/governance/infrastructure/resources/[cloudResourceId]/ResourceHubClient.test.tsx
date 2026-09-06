@@ -236,6 +236,10 @@ describe("ResourceHubClient", () => {
       "href",
       "/governance/infrastructure/diagram-reconcile?runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111",
     );
+    expect(screen.getByTestId("infra-resource-hub-diagram-open-overview-tab")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222",
+    );
     expect(screen.getByTestId("infra-resource-hub-diagram-open-remediation-tab")).toHaveAttribute(
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=remediation&snapshotId=22222222-2222-2222-2222-222222222222",

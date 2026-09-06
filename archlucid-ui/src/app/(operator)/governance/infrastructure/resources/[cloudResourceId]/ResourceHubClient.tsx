@@ -180,6 +180,18 @@ function buildHubDiagramTabHref(
   });
 }
 
+function buildHubOverviewTabHref(
+  cloudResourceId: string,
+  snapshotId: string,
+  runId: string,
+): string {
+  return resourceHubFilterHrefFromSearch(cloudResourceId, "", {
+    tab: "overview",
+    snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+    runId: runId.length > 0 ? runId : undefined,
+  });
+}
+
 function buildHubDiagramCorrespondenceAskHref(
   cloudResourceId: string,
   snapshotId: string,
@@ -714,6 +726,11 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               Review diagram correspondence and open inventory diagram or reconciliation workbenches.
             </p>
             <div className="flex flex-wrap gap-2">
+              <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-diagram-open-overview-tab">
+                <Link href={buildHubOverviewTabHref(cloudResourceId, resolvedSnapshotId, runId)}>
+                  View overview in hub
+                </Link>
+              </Button>
               <Button asChild variant="outline" size="sm">
                 <Link
                   href={buildResourceHubDiagramsWorkbenchHref(
