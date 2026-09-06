@@ -12,7 +12,7 @@ public static class InsightDensityMeasurementFloorPresenter
         int catalog = InsightDensityEngineDistributionMarkdown.BuiltInProductEngineCount;
         int harness = InsightDensityEngineDistributionMarkdown.GoldenCorpusHarnessEngineCount;
         int? measured = NormalizeMeasuredCount(measuredEnginesSucceeded);
-        bool meetsFloor = measured is null || measured.Value >= CareerExportMeasurementFloorMinEngines;
+        bool meetsFloor = measured is not null && measured.Value >= CareerExportMeasurementFloorMinEngines;
 
         return new InsightDensityMeasurementFloorPresentation
         {
@@ -49,7 +49,13 @@ public static class InsightDensityMeasurementFloorPresenter
             return null;
         }
 
-        int measured = presentation.MeasuredThisRunEngineCount ?? 0;
+        if (presentation.MeasuredThisRunEngineCount is null)
+        {
+            return
+                $"Engine coverage has not been measured on this package — career export requires at least {presentation.HarnessEngineCount} catalog engines to produce findings.";
+        }
+
+        int measured = presentation.MeasuredThisRunEngineCount.Value;
 
         return
             $"Only {measured} of {presentation.CatalogEngineCount} catalog engines produced findings — below the {presentation.HarnessEngineCount}-engine measurement floor for career export.";
