@@ -9325,6 +9325,87 @@ public sealed class GenericArchitectureAdvicePatternsMultiCloudTests
     }
 
     [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_dont_configure_suffix_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "enable encryption don't configure archived blob keys")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_dont_mandate_suffix_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "enable encryption don't mandate archived blob keys")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_dont_apply_suffix_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "enable encryption don't apply archived blob keys")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_dont_enforce_suffix_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "enable encryption don't enforce archived blob keys")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_dont_maintain_suffix_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "enable encryption don't maintain archived blob keys")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_dont_ensure_suffix_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "enable encryption don't ensure archived blob keys")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_dont_provision_suffix_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "enable encryption don't provision archived blob keys")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_dont_require_suffix_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "enable encryption don't require archived blob keys")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_dont_need_suffix_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "enable encryption don't need archived blob keys")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
     public void IsObviousGenericAdvice_does_not_flag_workloads_couldnt_require_encryption_at_rest_phrasing()
     {
         GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
