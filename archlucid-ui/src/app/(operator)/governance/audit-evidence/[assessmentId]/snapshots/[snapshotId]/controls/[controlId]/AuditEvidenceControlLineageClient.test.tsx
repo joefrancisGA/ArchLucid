@@ -51,6 +51,7 @@ describe("AuditEvidenceControlLineageClient", () => {
             evidence: [
               {
                 evidenceRowId: "ev-1",
+                cloudResourceId: "11111111-1111-1111-1111-111111111111",
                 linkComplete: true,
                 itemHashVerified: true,
                 missingLinkKinds: [],
@@ -70,6 +71,10 @@ describe("AuditEvidenceControlLineageClient", () => {
     fireEvent.click(screen.getByTestId("audit-evidence-positive-checkbox"));
 
     expect(screen.getByTestId("audit-evidence-lineage-spine")).toBeInTheDocument();
+    expect(screen.getByTestId("audit-evidence-spine-resource-hub-ev-1")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=audit&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
+    );
   });
 
   it("shows broken links when chain is incomplete", () => {

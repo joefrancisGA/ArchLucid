@@ -1,5 +1,8 @@
 "use client";
 
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+
 import { cn } from "@/lib/utils";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import {
@@ -8,6 +11,10 @@ import {
 } from "@/lib/identity-providers-settings-copy";
 import type { IdentityProvidersFetchNote } from "@/lib/identity-providers-fetch-note";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  identityProvidersOverviewStatusFailureDetailsDisclosureHrefFromSearch,
+  parseIdentityProvidersOverviewStatusFailureDetailsOpenFromSearch,
+} from "@/lib/administration/identity-providers-overview-status-failure-details-disclosure-url";
 
 export type IdentityProvidersOverviewStatusFailureNoticeProps = {
   readonly failure: IdentityProvidersFetchNote;
@@ -18,6 +25,48 @@ export type IdentityProvidersOverviewStatusFailureNoticeProps = {
 export function IdentityProvidersOverviewStatusFailureNotice(
   props: IdentityProvidersOverviewStatusFailureNoticeProps,
 ): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/administration/identity-providers";
+  const searchParams = useSearchParams();
+  const identityProvidersOverviewStatusFailureDetailsOpenParam = searchParams.get(
+    "identityProvidersOverviewStatusFailureDetailsOpen",
+  );
+  const [technicalDetailsOpen, setTechnicalDetailsOpenState] = useState(() =>
+    parseIdentityProvidersOverviewStatusFailureDetailsOpenFromSearch(
+      identityProvidersOverviewStatusFailureDetailsOpenParam,
+    ),
+  );
+
+  const syncTechnicalDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        identityProvidersOverviewStatusFailureDetailsDisclosureHrefFromSearch(
+          searchParams.toString(),
+          open,
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTechnicalDetailsOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalDetailsOpenState(open);
+      syncTechnicalDetailsOpenToUrl(open);
+    },
+    [syncTechnicalDetailsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalDetailsOpenState(
+      parseIdentityProvidersOverviewStatusFailureDetailsOpenFromSearch(
+        identityProvidersOverviewStatusFailureDetailsOpenParam,
+      ),
+    );
+  }, [identityProvidersOverviewStatusFailureDetailsOpenParam]);
+
   return (
     <section
       className={cn("rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-3", OPERATOR_TYPOGRAPHY.body)}
@@ -29,7 +78,13 @@ export function IdentityProvidersOverviewStatusFailureNotice(
       </h2>
       <p className="m-0 mt-2 text-amber-900 dark:text-amber-100">{props.failure.message}</p>
       {props.failure.statusCode !== undefined ? (
-        <details className="mt-2">
+        <details
+          className="mt-2"
+          open={technicalDetailsOpen}
+          onToggle={(event) => {
+            setTechnicalDetailsOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
+        >
           <summary className={cn("cursor-pointer text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             {IDENTITY_PROVIDERS_DIAGNOSTICS_TECHNICAL_TITLE}
           </summary>
