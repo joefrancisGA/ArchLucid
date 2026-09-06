@@ -154,7 +154,7 @@ describe("ResourceHubClient", () => {
 
     expect(await screen.findByTestId("infra-resource-hub-open-ask")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222",
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
     );
     expect(screen.getByTestId("infra-resource-hub-open-remediation-work")).toHaveAttribute(
       "href",
@@ -302,7 +302,7 @@ describe("ResourceHubClient", () => {
     );
     expect(screen.getByTestId("infra-resource-hub-diagram-ask")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&correspondenceId=corr-1&runId=run-1",
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&correspondenceId=corr-1&runId=run-1&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
     );
     expect(screen.getByTestId("infra-resource-hub-diagram-remediation")).toHaveAttribute(
       "href",
@@ -334,7 +334,7 @@ describe("ResourceHubClient", () => {
 
     expect(await screen.findByTestId("infra-resource-hub-drift-ask-change-1")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&diffId=diff-1",
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&diffId=diff-1&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
     );
   });
 
@@ -344,7 +344,7 @@ describe("ResourceHubClient", () => {
 
     expect(await screen.findByTestId("infra-resource-hub-drift-tab-ask-change-1")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&diffId=diff-1",
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&diffId=diff-1&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
     );
     expect(screen.getByTestId("infra-resource-hub-drift-open-overview-tab")).toHaveAttribute(
       "href",
@@ -416,7 +416,7 @@ describe("ResourceHubClient", () => {
     );
     expect(screen.getByTestId("infra-resource-hub-finding-ask-finding-1")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&findingId=finding-1",
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&findingId=finding-1&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
     );
   });
 
@@ -464,7 +464,7 @@ describe("ResourceHubClient", () => {
     );
     expect(screen.getByTestId("infra-resource-hub-remediation-ask-instance-1")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&instanceId=instance-1",
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&instanceId=instance-1&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
     );
   });
 
@@ -474,7 +474,7 @@ describe("ResourceHubClient", () => {
 
     expect(await screen.findByTestId("infra-resource-hub-architecture-finding-ask-arch-finding-1")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&findingId=arch-finding-1",
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&findingId=arch-finding-1&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
     );
   });
 

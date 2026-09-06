@@ -7,6 +7,7 @@ import type { ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-typ
 import type { CloudResourceExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import { resolveResourceHubTabFromExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import type { CloudResourceExplorerWorkCountKind } from "@/lib/infra-evidence/infra-evidence-explorer-work-counts";
+import { formatResourceHubTabViewLabel } from "@/lib/infra-evidence/infra-evidence-hub-tab-labels";
 
 export const RESOURCE_EXPLORER_NAME_PREFIX_PARAM = "namePrefix";
 export const RESOURCE_EXPLORER_RESOURCE_TYPE_PARAM = "resourceType";
@@ -207,20 +208,42 @@ export function formatResourceHubTabViewLabelFromAskScope(
     return null;
   }
 
-  switch (tab) {
-    case "findings":
-      return "View findings in hub";
-    case "remediation":
-      return "View remediation in hub";
-    case "drift":
-      return "View drift in hub";
-    case "diagram":
-      return "View diagram correspondence in hub";
-    case "audit":
-      return "View audit lineage in hub";
-    default:
-      return null;
+  return formatResourceHubTabViewLabel(tab);
+}
+
+export type InfrastructureAskAuditContext = {
+  readonly assessmentId?: string;
+  readonly auditEvidenceSnapshotId?: string;
+  readonly controlId?: string;
+};
+
+export function resolveInfrastructureAskAuditContext(
+  urlContext: {
+    readonly assessmentId: string;
+    readonly auditEvidenceSnapshotId: string;
+    readonly controlId: string;
+  },
+  payloadContext?: InfrastructureAskAuditContext | null,
+): InfrastructureAskAuditContext {
+  const assessmentId = urlContext.assessmentId.length > 0
+    ? urlContext.assessmentId
+    : payloadContext?.assessmentId?.trim() ?? "";
+  const auditEvidenceSnapshotId = urlContext.auditEvidenceSnapshotId.length > 0
+    ? urlContext.auditEvidenceSnapshotId
+    : payloadContext?.auditEvidenceSnapshotId?.trim() ?? "";
+  const controlId = urlContext.controlId.length > 0
+    ? urlContext.controlId
+    : payloadContext?.controlId?.trim() ?? "";
+
+  if (assessmentId.length === 0 || auditEvidenceSnapshotId.length === 0 || controlId.length === 0) {
+    return {};
   }
+
+  return {
+    assessmentId,
+    auditEvidenceSnapshotId,
+    controlId,
+  };
 }
 
 export function resourceExplorerFilterHrefFromSearch(

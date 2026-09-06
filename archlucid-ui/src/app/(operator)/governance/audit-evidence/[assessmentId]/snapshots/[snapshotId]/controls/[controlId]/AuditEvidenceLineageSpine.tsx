@@ -12,6 +12,7 @@ import {
 } from "@/lib/audit-evidence-lineage-presentation";
 import type { AuditEvidenceLineageRecord } from "@/lib/audit-evidence-lineage-types";
 import { buildResourceHubAuditLineageHref } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { formatResourceHubTabViewLabel } from "@/lib/infra-evidence/infra-evidence-hub-tab-labels";
 
 type AuditEvidenceLineageSpineProps = {
   readonly lineage: AuditEvidenceLineageRecord;
@@ -160,7 +161,7 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
                       href={buildResourceHubAuditLineageHref(evidence.cloudResourceId, props.lineageContext)}
                       data-testid={`audit-evidence-spine-resource-hub-${evidence.evidenceRowId}`}
                     >
-                      Open resource evidence hub
+                      {formatResourceHubTabViewLabel("audit")}
                     </Link>
                   ) : null}
                   <p className={cn("m-0 mt-1 font-mono text-xs break-all", OPERATOR_TYPOGRAPHY.helper)}>

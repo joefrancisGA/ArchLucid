@@ -30,7 +30,7 @@ import type {
 } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
-  formatResourceHubWorkbenchPrimaryHubLabel,
+  mergeInfrastructureAskAuditScope,
   mergeWorkbenchHubScopePatch,
   parseInfraEvidenceWorkbenchAuditScopeFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
@@ -39,9 +39,10 @@ import {
   DRIFT_WORKBENCH_CLOUD_RESOURCE_ID_PARAM,
   DRIFT_WORKBENCH_DIFF_ID_PARAM,
   DRIFT_WORKBENCH_SNAPSHOT_ID_PARAM,
-  buildResourceHubWorkbenchHref,
   parseInfraEvidenceWorkbenchQueryValue,
 } from "@/lib/infra-evidence/infra-evidence-workbench-url";
+import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
+import { formatResourceHubTabViewLabel } from "@/lib/infra-evidence/infra-evidence-hub-tab-labels";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { TERRAFORM_ADVISORY_EXPORT_DISCLAIMER } from "@/lib/terraform-advisory-disclaimer";
 import { cn } from "@/lib/utils";
@@ -287,73 +288,19 @@ export function DriftWorkbenchClient() {
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             Scoped to resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
           </p>
-          <Link
-            className="mt-2 inline-block text-sm text-al-link hover:underline"
-            href={resourceHubFilterHrefFromSearch(urlCloudResourceId, "", {
+          <WorkbenchHubScopeLinks
+            cloudResourceId={urlCloudResourceId}
+            primaryTab="drift"
+            primaryHref={resourceHubFilterHrefFromSearch(urlCloudResourceId, "", {
               tab: "drift",
               ...workbenchHubScopePatch,
             })}
-            data-testid="infra-drift-open-primary-hub"
-          >
-            {formatResourceHubWorkbenchPrimaryHubLabel("drift")}
-          </Link>
-          <Link
-            className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
-            href={buildResourceHubWorkbenchHref({
-              cloudResourceId: urlCloudResourceId,
-              tab: "terraform",
-              ...workbenchHubScopePatch,
-            })}
-            data-testid="infra-drift-open-terraform-hub"
-          >
-            Open terraform mapping
-          </Link>
-          <Link
-            className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
-            href={buildResourceHubWorkbenchHref({
-              cloudResourceId: urlCloudResourceId,
-              tab: "findings",
-              ...workbenchHubScopePatch,
-            })}
-            data-testid="infra-drift-open-findings-hub"
-          >
-            Open findings
-          </Link>
-          <Link
-            className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
-            href={buildResourceHubWorkbenchHref({
-              cloudResourceId: urlCloudResourceId,
-              tab: "remediation",
-              ...workbenchHubScopePatch,
-            })}
-            data-testid="infra-drift-open-remediation-hub"
-          >
-            Open remediation
-          </Link>
-          <Link
-            className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
-            href={buildResourceHubWorkbenchHref({
-              cloudResourceId: urlCloudResourceId,
-              tab: "diagram",
-              ...workbenchHubScopePatch,
-            })}
-            data-testid="infra-drift-open-diagram-hub"
-          >
-            Open diagram correspondence
-          </Link>
-          {auditScope != null ? (
-            <Link
-              className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
-              href={buildResourceHubWorkbenchHref({
-                cloudResourceId: urlCloudResourceId,
-                tab: "audit",
-                ...workbenchHubScopePatch,
-              })}
-              data-testid="infra-drift-open-audit-hub"
-            >
-              Open audit lineage
-            </Link>
-          ) : null}
+            primaryTestId="infra-drift-open-primary-hub"
+            siblingTestIdPrefix="infra-drift"
+            scopePatch={workbenchHubScopePatch}
+            siblingTabs={["terraform", "findings", "remediation", "diagram"]}
+            includeAuditTab={auditScope != null}
+          />
         </section>
       ) : null}
 
@@ -435,6 +382,7 @@ export function DriftWorkbenchClient() {
                 cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : undefined,
                 snapshotId: selectedSnapshotId,
                 diffId: selectedDiffId,
+                ...mergeInfrastructureAskAuditScope(auditScope),
               })}
             >
               Ask about this diff
@@ -518,7 +466,7 @@ export function DriftWorkbenchClient() {
                   ...workbenchHubScopePatch,
                 })}
               >
-                {formatResourceHubWorkbenchPrimaryHubLabel("drift")}
+                {formatResourceHubTabViewLabel("drift")}
               </Link>
             </p>
           ) : null}

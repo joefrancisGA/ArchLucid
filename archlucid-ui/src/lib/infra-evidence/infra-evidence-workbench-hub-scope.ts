@@ -1,5 +1,7 @@
 import {
-  formatResourceHubTabViewLabelFromAskScope,
+  formatResourceHubTabViewLabel,
+} from "@/lib/infra-evidence/infra-evidence-hub-tab-labels";
+import {
   RESOURCE_HUB_ASSESSMENT_ID_PARAM,
   RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
   RESOURCE_HUB_CONTROL_ID_PARAM,
@@ -36,7 +38,25 @@ export function parseInfraEvidenceWorkbenchAuditScopeFromSearch(
 }
 
 export function formatResourceHubWorkbenchPrimaryHubLabel(tab: ResourceHubTab): string {
-  return formatResourceHubTabViewLabelFromAskScope(tab) ?? "Open resource evidence hub";
+  return formatResourceHubTabViewLabel(tab);
+}
+
+export function mergeInfrastructureAskAuditScope(
+  auditScope: InfraEvidenceWorkbenchAuditScope | null,
+): {
+  readonly assessmentId?: string;
+  readonly auditEvidenceSnapshotId?: string;
+  readonly controlId?: string;
+} {
+  if (auditScope == null) {
+    return {};
+  }
+
+  return {
+    assessmentId: auditScope.assessmentId,
+    auditEvidenceSnapshotId: auditScope.auditEvidenceSnapshotId,
+    controlId: auditScope.controlId,
+  };
 }
 
 export function mergeWorkbenchHubScopePatch(
