@@ -81081,7 +81081,9 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    cloudResourceId?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
