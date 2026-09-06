@@ -773,6 +773,24 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   </Link>
                 </Button>
               ) : null}
+              {hasTerraformMapping ? (
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  data-testid="infra-resource-hub-diagram-open-terraform-tab"
+                >
+                  <Link
+                    href={buildResourceHubWorkbenchHref({
+                      cloudResourceId,
+                      tab: "terraform",
+                      snapshotId: resolvedSnapshotId,
+                    })}
+                  >
+                    View terraform mapping in hub
+                  </Link>
+                </Button>
+              ) : null}
             </div>
             {hub.diagramCorrespondence != null ? (
               <section className="rounded border border-border bg-card p-4">
