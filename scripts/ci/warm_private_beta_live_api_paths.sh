@@ -92,6 +92,21 @@ warm_path_post() {
   done
 }
 
+warm_path_post_optional() {
+  local label="$1"
+  local url="$2"
+  local body="$3"
+  local max_time="${4:-${CURL_MAX_TIME}}"
+  local max_attempts="${5:-${ATTEMPTS}}"
+
+  if warm_path_post "${label}" "${url}" "${body}" "${max_time}" "${max_attempts}"; then
+    return 0
+  fi
+
+  echo "::warning::Optional warm skipped for ${label}; Playwright createRun will JIT-warm with per-attempt HTTP budget." >&2
+  return 0
+}
+
 echo "Warming private-beta API paths at ${API_URL}..."
 warm_path "auth scope" "${API_URL}/v1/scope"
 warm_path "pending invitations" "${API_URL}/v1/admin/users/invitations"
@@ -105,15 +120,15 @@ if [ "${LIVE_E2E_PRIVATE_BETA_ACCESS:-}" = "1" ]; then
     "${DRAFT_MAX_TIME}" \
     "${DRAFT_ATTEMPTS}"
 
-  # Cold CI SQL + inline Simulator pipeline can exceed Playwright's 300s per-attempt create-run budget.
-  # JIT-warm POST /v1/architecture/request (parity with scripts/ci/start_api_for_k6.sh).
-  CREATE_RUN_MAX_TIME="${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARMUP_MAX_TIME:-900}"
+  # Best-effort: a 15m blocking warm prevents Playwright from starting when cold SQL hangs.
+  # Playwright createRun still JIT-warms with a 300s per-attempt HTTP budget in CI.
+  CREATE_RUN_MAX_TIME="${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARMUP_MAX_TIME:-300}"
   CREATE_RUN_ATTEMPTS="${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARMUP_ATTEMPTS:-1}"
   CREATE_RUN_BODY="$(cat <<EOF
 {"requestId":"private-beta-shell-warm-$(date +%s)","description":"Private beta trunk smoke JIT warm for POST /v1/architecture/request","systemName":"PrivateBetaShellWarm","environment":"prod","cloudProvider":1,"constraints":[],"requiredCapabilities":["SQL"],"assumptions":[],"priorManifestVersion":null}
 EOF
 )"
-  warm_path_post \
+  warm_path_post_optional \
     "create architecture run" \
     "${API_URL}/v1/architecture/request" \
     "${CREATE_RUN_BODY}" \
