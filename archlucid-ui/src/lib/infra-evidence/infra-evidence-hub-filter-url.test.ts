@@ -7,6 +7,7 @@ import {
   buildResourceHubExplorerHref,
   buildResourceHubOverviewHref,
   buildResourceHubWorkCountHref,
+  buildResourceExplorerWorkCountHref,
   resolveResourceHubTabFromAskScope,
   resourceExplorerFilterHrefFromSearch,
   resourceHubFilterHrefFromSearch,
@@ -181,6 +182,36 @@ describe("infra-evidence-hub-filter-url", () => {
     );
     expect(buildResourceHubWorkCountHref("11111111-1111-1111-1111-111111111111", "drift")).toBe(
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=drift",
+    );
+  });
+
+  it("routes matching explorer work count badges to scoped Ask links", () => {
+    expect(
+      buildResourceExplorerWorkCountHref(
+        "11111111-1111-1111-1111-111111111111",
+        "findings",
+        "open-findings",
+      ),
+    ).toBe(
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&workQueue=open-findings",
+    );
+    expect(
+      buildResourceExplorerWorkCountHref(
+        "11111111-1111-1111-1111-111111111111",
+        "remediation",
+        "open-findings",
+      ),
+    ).toBe(
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=remediation",
+    );
+    expect(
+      buildResourceExplorerWorkCountHref(
+        "11111111-1111-1111-1111-111111111111",
+        "drift",
+        "recent-drift",
+      ),
+    ).toBe(
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&workQueue=recent-drift",
     );
   });
 });

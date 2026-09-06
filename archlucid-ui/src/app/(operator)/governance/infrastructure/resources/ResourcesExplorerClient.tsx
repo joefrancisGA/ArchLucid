@@ -25,7 +25,7 @@ import {
   buildInfrastructureAskHref,
   buildResourceHubExplorerHref,
   buildResourceHubOverviewHref,
-  buildResourceHubWorkCountHref,
+  buildResourceExplorerWorkCountHref,
   parseResourceExplorerCloudResourceIdFromSearch,
   parseResourceExplorerNamePrefixFromSearch,
   parseResourceExplorerResourceGroupFromSearch,
@@ -287,7 +287,7 @@ export function ResourcesExplorerClient() {
                         key={badge.kind}
                         className="rounded bg-muted px-2 py-0.5 text-xs text-foreground hover:bg-muted/80"
                         title={badge.label}
-                        href={buildResourceHubWorkCountHref(row.cloudResourceId, badge.kind)}
+                        href={buildResourceExplorerWorkCountHref(row.cloudResourceId, badge.kind, urlWorkQueue)}
                         data-testid={`infra-resource-work-count-${row.cloudResourceId}-${badge.kind}`}
                       >
                         {badge.kind === "findings" ? "F" : badge.kind === "remediation" ? "R" : "D"}:{badge.count}
