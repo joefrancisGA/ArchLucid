@@ -89,7 +89,7 @@ export function deriveArchitectureSystemName(run: RunSummary, headline: string):
 
   // The auto-generated intake brief is boilerplate, not a system name the operator supplied.
   // When the operator names the system ArchLucid (or any non-generic title), displayName may match
-  // the review headline — still prefer that name over the generic "Architecture under review" fallback.
+  // the review headline — still prefer that name over the generic "Architecture review" fallback.
   if (displayName.length > 0 && !isGeneratedIntakeBrief(displayName)) {
     const headlineMatchesDisplayName = displayName === headline;
     const headlineIsGenericPlaceholder =
