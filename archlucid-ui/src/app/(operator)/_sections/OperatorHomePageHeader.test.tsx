@@ -6,7 +6,12 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
-  PageContextualHelpButton: () => null,
+  PAGE_HELP_SHORT_TRIGGER_TEXT: "Help",
+  PageContextualHelpButton: ({ triggerText }: { triggerText?: string }) => (
+    <button type="button" data-testid="page-contextual-help-button">
+      {triggerText ?? "Home"}
+    </button>
+  ),
 }));
 
 vi.mock("@/components/operator-home/OperatorHomeWorkingPrimaryCta", () => ({
@@ -33,7 +38,7 @@ import { OperatorHomePageHeader } from "@/app/(operator)/_sections/OperatorHomeP
 import { operatorHomePageSubtitle } from "@/lib/operator/operator-home-page-copy";
 
 describe("OperatorHomePageHeader", () => {
-  it("renders Home title, resume primary, data-currency metadata, and refresh without duplicate help", () => {
+  it("renders Home title, resume primary, data-currency metadata beside refresh, and Help trigger", () => {
     requestRefresh.mockReset();
 
     render(<OperatorHomePageHeader subtitle={operatorHomePageSubtitle(false)} />);
@@ -42,7 +47,10 @@ describe("OperatorHomePageHeader", () => {
     expect(screen.getByTestId("operator-home-working-primary-cta")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-data-currency")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-refresh-button")).toBeInTheDocument();
-    expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();
+    expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent("Help");
+    expect(screen.getByTestId("operator-home-data-currency")).toContainElement(
+      screen.getByTestId("operator-home-refresh-button"),
+    );
 
     fireEvent.click(screen.getByTestId("operator-home-refresh-button"));
 

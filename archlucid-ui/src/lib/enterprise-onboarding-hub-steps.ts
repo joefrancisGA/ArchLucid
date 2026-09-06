@@ -56,7 +56,7 @@ export const ENTERPRISE_ONBOARDING_HUB_STEPS: readonly EnterpriseOnboardingHubSt
     owner: ENTERPRISE_ONBOARDING_HUB_STEP_OWNERS.architect,
     primaryLink: {
       label: "Your first architecture review",
-      href: inAppHelpHref("first-architecture-review"),
+      href: inAppHelpHref("core-pilot"),
     },
   },
   {

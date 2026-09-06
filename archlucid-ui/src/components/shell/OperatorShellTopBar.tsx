@@ -14,7 +14,6 @@ import {
 import { TenantMastheadWordmark } from "@/components/brand/TenantMastheadWordmark";
 import { AuthPanel } from "@/components/AuthPanel";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
-import { CommandPaletteTopBarTrigger } from "@/components/CommandPaletteTopBarTrigger";
 import { OperatorShellDemoWorkspaceTag } from "@/components/shell/OperatorShellDemoWorkspaceTag";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { GuidedModeTopBarChip } from "@/components/workspace-mode/GuidedModeTopBarChip";
@@ -91,7 +90,6 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
             <div className="min-w-0 flex-1">
               <GlobalSearchBarDeferred />
             </div>
-            <CommandPaletteTopBarTrigger />
           </div>
 
           <div

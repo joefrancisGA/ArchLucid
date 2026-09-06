@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  EVIDENCE_TRAIL_HELP_DIAGRAM_SOURCE,
+  EVIDENCE_TRAIL_HELP_DIAGRAM_SUMMARY,
   EVIDENCE_TRAIL_HELP_FINDING_GRAPH_ACTION,
   EVIDENCE_TRAIL_HELP_FINDING_TRACE_ACTION,
   EVIDENCE_TRAIL_HELP_PRIMARY_ACTIONS,
@@ -15,6 +17,13 @@ import {
 } from "@/lib/graph-finding-deep-links";
 
 describe("evidence-trail-help-guide-content", () => {
+  it("ships a buyer-safe provenance diagram (TB-2127)", () => {
+    expect(EVIDENCE_TRAIL_HELP_DIAGRAM_SUMMARY.length).toBeGreaterThan(40);
+    expect(EVIDENCE_TRAIL_HELP_DIAGRAM_SOURCE).toContain("flowchart LR");
+    expect(EVIDENCE_TRAIL_HELP_DIAGRAM_SOURCE).toContain("Evidence graph");
+    expect(EVIDENCE_TRAIL_HELP_DIAGRAM_SOURCE).not.toContain("ContextSnapshot");
+  });
+
   it("exposes Open graph, Load, and sample CTAs with shipped buyer labels (TB-1364)", () => {
     expect(EVIDENCE_TRAIL_HELP_PRIMARY_ACTIONS.openGraph.href).toBe(EVIDENCE_GRAPH_PATH);
     expect(EVIDENCE_TRAIL_HELP_PRIMARY_ACTIONS.loadGraph.label).toBe(BUYER_EVIDENCE_TRAIL_LOAD_BUTTON);

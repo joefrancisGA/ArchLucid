@@ -127,22 +127,17 @@ function resolveContinueCtaLabel(item: UnfinishedWorkRailItem): string {
 
 function UnfinishedWorkRailTableRow(props: {
   readonly item: UnfinishedWorkRailItem;
-  readonly emphasizePrimaryAction: boolean;
 }): React.JSX.Element {
-  const { item, emphasizePrimaryAction } = props;
+  const { item } = props;
   const continueLabel = resolveContinueCtaLabel(item);
   const statusTag = resolveRailItemStatusTagDisplay(item);
 
   return (
     <EnterpriseTableRow data-testid={`unfinished-work-rail-item-${item.kind}`}>
-      <EnterpriseTableCell className="max-w-0">
+      <EnterpriseTableCell className="min-w-[12rem] max-w-md">
         <Link
           href={item.href}
-          className={cn(
-            "min-w-0 break-words font-medium",
-            OPERATOR_LINK.nav,
-            emphasizePrimaryAction ? OPERATOR_TYPOGRAPHY.cardTitle : OPERATOR_TYPOGRAPHY.body,
-          )}
+          className={cn("min-w-0 break-words font-medium", OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.body)}
           data-testid={`unfinished-work-rail-link-${item.id}`}
         >
           {item.title}
@@ -158,12 +153,7 @@ function UnfinishedWorkRailTableRow(props: {
         <StatusTag kind={statusTag.kind} label={statusTag.label} />
       </EnterpriseTableCell>
       <EnterpriseTableCell className="text-right">
-        <Button
-          asChild
-          variant={emphasizePrimaryAction ? "primary" : "outline"}
-          size="sm"
-          className={emphasizePrimaryAction ? "h-8" : "h-7"}
-        >
+        <Button asChild variant="outline" size="sm" className="h-7">
           <Link href={item.href} data-testid={`unfinished-work-rail-continue-${item.id}`}>
             {continueLabel}
           </Link>
@@ -184,9 +174,9 @@ function UnfinishedWorkRailList(props: {
     <div className="mt-2" data-testid="unfinished-work-rail-list">
       <EnterpriseTable ariaLabel="Unfinished work" data-testid="unfinished-work-rail-table">
         <colgroup>
-          <col className="w-[34%]" />
-          <col className="w-[16%]" />
-          <col className="w-[20%]" />
+          <col className="w-[38%]" />
+          <col className="w-[14%]" />
+          <col className="w-[18%]" />
           <col className="w-[14%]" />
           <col className="w-[16%]" />
         </colgroup>
@@ -200,12 +190,8 @@ function UnfinishedWorkRailList(props: {
           </EnterpriseTableHeadRow>
         </EnterpriseTableHead>
         <EnterpriseTableBody>
-          {props.items.map((item, index) => (
-            <UnfinishedWorkRailTableRow
-              key={item.id}
-              item={item}
-              emphasizePrimaryAction={index === 0}
-            />
+          {props.items.map((item) => (
+            <UnfinishedWorkRailTableRow key={item.id} item={item} />
           ))}
         </EnterpriseTableBody>
       </EnterpriseTable>

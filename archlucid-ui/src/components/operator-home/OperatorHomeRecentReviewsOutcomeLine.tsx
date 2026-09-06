@@ -14,7 +14,7 @@ import {
   type OperatorHomeRecentReviewsOutcomePart,
 } from "@/lib/operator/operator-home-recent-reviews-outcome";
 import type { OperatorHomeWorkspaceMetricsSnapshot } from "@/lib/operator/operator-home-workspace-metrics";
-import { OPERATOR_LINK, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type OperatorHomeRecentReviewsOutcomeLineProps = {
@@ -82,8 +82,13 @@ export function OperatorHomeRecentReviewsOutcomeLine(
         );
 
         if (href === undefined) {
+          const isScopeTail = part.key === "showing-cap" || part.key === "showing";
+
           return (
-            <span key={part.key}>
+            <span
+              key={part.key}
+              className={isScopeTail ? cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary") : undefined}
+            >
               {separator}
               {part.text}
             </span>

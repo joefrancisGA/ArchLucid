@@ -1211,6 +1211,8 @@ export interface components {
             /** Format: uuid */
             architectureId?: string;
             /** Format: date-time */
+            archivedUtc?: null | string;
+            /** Format: date-time */
             createdUtc?: string;
             /** Format: uuid */
             currentDraftId?: null | string;
@@ -1234,6 +1236,8 @@ export interface components {
         ArchitectureIdentityListItem: {
             /** Format: uuid */
             architectureId?: string;
+            /** Format: date-time */
+            archivedUtc?: null | string;
             /** Format: uuid */
             currentDraftId?: null | string;
             displayName?: string;
@@ -1247,6 +1251,18 @@ export interface components {
             reviewCount?: number;
             /** Format: date-time */
             updatedUtc?: string;
+        };
+        ArchitectureIdentityListPage: {
+            /** Format: int32 */
+            archivedHiddenCount?: number;
+            hasMore?: boolean;
+            items?: components["schemas"]["ArchitectureIdentityListItem"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int32 */
+            totalCount?: number;
         };
         ArchitectureIdentityVersionSummary: {
             /** Format: uuid */
@@ -6311,16 +6327,6 @@ export interface components {
             statusCode?: number;
             transportSucceeded?: boolean;
         };
-        PagedResponseOfArchitectureIdentityListItem: {
-            hasMore?: boolean;
-            items?: components["schemas"]["ArchitectureIdentityListItem"][];
-            /** Format: int32 */
-            page?: number;
-            /** Format: int32 */
-            pageSize?: number;
-            /** Format: int32 */
-            totalCount?: number;
-        };
         PagedResponseOfAzureInventoryChangeRecord: {
             hasMore?: boolean;
             items?: components["schemas"]["AzureInventoryChangeRecord"][];
@@ -6372,9 +6378,11 @@ export interface components {
             totalCount?: number;
         };
         PatchArchitectureIdentityRequest: {
+            archived?: null | boolean;
             description?: null | string;
             displayName?: null | string;
             hasAnyPatch?: boolean;
+            hasArchived?: boolean;
             hasDescription?: boolean;
             hasDisplayName?: boolean;
         };

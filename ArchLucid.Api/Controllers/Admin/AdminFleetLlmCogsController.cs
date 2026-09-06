@@ -11,7 +11,7 @@ namespace ArchLucid.Api.Controllers.Admin;
 
 /// <summary>Platform-admin fleet LLM COGS and budget utilization (Batch B item 18).</summary>
 [ApiController]
-[Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
+[Authorize(Policy = ArchLucidPolicies.PlatformInternalOperationsAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/admin/operational")]
 public sealed class AdminFleetLlmCogsController(IAdminFleetLlmCogsService fleetCogsService) : ControllerBase

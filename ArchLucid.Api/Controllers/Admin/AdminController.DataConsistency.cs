@@ -1,7 +1,9 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Services.Admin;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -11,6 +13,7 @@ public sealed partial class AdminController
 {
     /// <summary>Detection-only orphan counts (same SQL as the background data-consistency probe).</summary>
     [HttpGet("diagnostics/data-consistency/orphans")]
+    [Authorize(Policy = ArchLucidPolicies.PlatformInternalOperationsAuthority)]
     [ProducesResponseType(typeof(DataConsistencyOrphanCounts), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetDataConsistencyOrphans(CancellationToken cancellationToken = default)
     {
@@ -22,6 +25,7 @@ public sealed partial class AdminController
 
     /// <summary>Detection-only committed run header FK repoint counts (same SQL as the background probe).</summary>
     [HttpGet("diagnostics/data-consistency/header-repoints")]
+    [Authorize(Policy = ArchLucidPolicies.PlatformInternalOperationsAuthority)]
     [ProducesResponseType(typeof(DataConsistencyHeaderRepointCounts), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetDataConsistencyHeaderRepoints(CancellationToken cancellationToken = default)
     {
@@ -36,6 +40,7 @@ public sealed partial class AdminController
     ///     Use <c>dryRun=true</c> first. Capped at <see cref="PaginationDefaults.MaxListingTake" /> rows per call.
     /// </summary>
     [HttpPost("diagnostics/data-consistency/orphan-comparison-records")]
+    [Authorize(Policy = ArchLucidPolicies.PlatformInternalOperationsAuthority)]
     [EnableRateLimiting("expensive")]
     [ProducesResponseType(typeof(OrphanComparisonRemediationResult), StatusCodes.Status200OK)]
     public async Task<IActionResult> RemediateOrphanComparisonRecords(
@@ -55,6 +60,7 @@ public sealed partial class AdminController
     ///     Use <c>dryRun=true</c> first. Capped at <see cref="PaginationDefaults.MaxListingTake" /> rows per call.
     /// </summary>
     [HttpPost("diagnostics/data-consistency/orphan-golden-manifests")]
+    [Authorize(Policy = ArchLucidPolicies.PlatformInternalOperationsAuthority)]
     [EnableRateLimiting("expensive")]
     [ProducesResponseType(typeof(OrphanGoldenManifestRemediationResult), StatusCodes.Status200OK)]
     public async Task<IActionResult> RemediateOrphanGoldenManifests(
@@ -73,6 +79,7 @@ public sealed partial class AdminController
     ///     Use <c>dryRun=true</c> first. Capped at <see cref="PaginationDefaults.MaxListingTake" /> rows per call.
     /// </summary>
     [HttpPost("diagnostics/data-consistency/orphan-findings-snapshots")]
+    [Authorize(Policy = ArchLucidPolicies.PlatformInternalOperationsAuthority)]
     [EnableRateLimiting("expensive")]
     [ProducesResponseType(typeof(OrphanFindingsSnapshotRemediationResult), StatusCodes.Status200OK)]
     public async Task<IActionResult> RemediateOrphanFindingsSnapshots(
@@ -91,6 +98,7 @@ public sealed partial class AdminController
     ///     Retrying older than 1 hour). Same predicate as reconciliation <c>stale_in_flight_runs</c>.
     /// </summary>
     [HttpGet("diagnostics/data-consistency/stale-in-flight-runs")]
+    [Authorize(Policy = ArchLucidPolicies.PlatformInternalOperationsAuthority)]
     [ProducesResponseType(typeof(DataConsistencyStaleInFlightSnapshot), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetDataConsistencyStaleInFlightRuns(
         [FromQuery] int maxSampleRows = 50,
@@ -108,6 +116,7 @@ public sealed partial class AdminController
     ///     Capped at <see cref="PaginationDefaults.MaxListingTake" /> rows per call.
     /// </summary>
     [HttpPost("diagnostics/data-consistency/stale-in-flight-runs")]
+    [Authorize(Policy = ArchLucidPolicies.PlatformInternalOperationsAuthority)]
     [EnableRateLimiting("expensive")]
     [ProducesResponseType(typeof(StaleInFlightRemediationResult), StatusCodes.Status200OK)]
     public async Task<IActionResult> RemediateStaleInFlightRuns(
@@ -126,6 +135,7 @@ public sealed partial class AdminController
     ///     <c>dbo.ArchitectureRequests</c> (grace-aged; same predicate as auto-remediation).
     /// </summary>
     [HttpGet("diagnostics/data-consistency/missing-architecture-request-runs")]
+    [Authorize(Policy = ArchLucidPolicies.PlatformInternalOperationsAuthority)]
     [ProducesResponseType(typeof(DataConsistencyMissingArchitectureRequestSnapshot), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetDataConsistencyMissingArchitectureRequestRuns(
         [FromQuery] int maxSampleRows = 50,
@@ -144,6 +154,7 @@ public sealed partial class AdminController
     ///     Capped at <see cref="PaginationDefaults.MaxListingTake" /> rows per call.
     /// </summary>
     [HttpPost("diagnostics/data-consistency/missing-architecture-request-runs")]
+    [Authorize(Policy = ArchLucidPolicies.PlatformInternalOperationsAuthority)]
     [EnableRateLimiting("expensive")]
     [ProducesResponseType(typeof(MissingArchitectureRequestRemediationResult), StatusCodes.Status200OK)]
     public async Task<IActionResult> RemediateMissingArchitectureRequestRuns(

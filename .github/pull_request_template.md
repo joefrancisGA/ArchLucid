@@ -17,7 +17,7 @@ See also `.github/BRANCH_PROTECTION.md`.
 
 ## Checklist
 
-- [ ] OpenAPI / client surfaces updated if wire contract changed (see `docs/library/API_CONTRACTS.md` and workspace rules).
+- [ ] OpenAPI / client surfaces updated if wire contract changed (see `docs/library/API_CONTRACTS.md` and workspace rules). Architecture or infrastructure API merges that fail `.NET: OpenAPI v1 contract snapshot (fail-fast)` need `ARCHLUCID_REGENERATE_UI_API_TYPES=1 bash scripts/ci/update_openapi_contract_snapshot.sh` from repo root (see `docs/runbooks/PRIVATE_BETA_TRUNK_SMOKE.md`).
 - [ ] **Proof / sponsor surfaces:** If this PR touches first-pilot proof, sponsor PDF/Markdown, or sponsor exports, read [`docs/library/ARCHITECTURE_INVARIANTS_ONE_PAGE.md`](docs/library/ARCHITECTURE_INVARIANTS_ONE_PAGE.md) and keep evidence → finding → manifest → artifact → audit labeling honest.
 - [ ] Tests or linters run locally for touched areas.
 - [ ] **UI performance cut:** If this PR is a bundle / CWV / First Load JS change, cite field p75 from [`docs/runbooks/FIELD_WEB_VITALS_TRIAGE.md`](docs/runbooks/FIELD_WEB_VITALS_TRIAGE.md) (or note “no field data yet — lab/First Load JS only”) and which cluster it targets (**TB-2021** / **TB-2022** / **TB-2023** / **TB-935** / …).

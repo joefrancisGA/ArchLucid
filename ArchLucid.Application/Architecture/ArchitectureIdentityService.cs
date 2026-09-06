@@ -2,7 +2,6 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Requests;
-using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -41,10 +40,11 @@ public interface IArchitectureIdentityService
         string? knowledgeModelId = null,
         CancellationToken cancellationToken = default);
 
-    Task<PagedResponse<ArchitectureIdentityListItem>> ListIdentitiesAsync(
+    Task<ArchitectureIdentityListPage> ListIdentitiesAsync(
         ScopeContext scope,
         int page,
         int pageSize,
+        bool includeArchived = false,
         CancellationToken cancellationToken = default);
 
     Task<ArchitectureIdentityDetail?> GetIdentityAsync(
@@ -278,15 +278,16 @@ public sealed class ArchitectureIdentityService(
         return ArchitectureReviewSourceRunResolver.TryParseRunGuid(draft.SpawnedRunId);
     }
 
-    public Task<PagedResponse<ArchitectureIdentityListItem>> ListIdentitiesAsync(
+    public Task<ArchitectureIdentityListPage> ListIdentitiesAsync(
         ScopeContext scope,
         int page,
         int pageSize,
+        bool includeArchived = false,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        return _architectureIdentityRepository.ListAsync(scope, page, pageSize, cancellationToken);
+        return _architectureIdentityRepository.ListAsync(scope, page, pageSize, includeArchived, cancellationToken);
     }
 
     public Task<ArchitectureIdentityDetail?> GetIdentityAsync(
@@ -502,16 +503,30 @@ public sealed class ArchitectureIdentityService(
         if (patch.HasDescription)
             normalizedDescription = string.IsNullOrWhiteSpace(patch.Description) ? null : patch.Description.Trim();
 
-        bool updated = await _architectureIdentityRepository
-            .TryPatchAsync(
-                scope,
-                architectureId,
-                patch.HasDisplayName,
-                normalizedDisplayName,
-                patch.HasDescription,
-                normalizedDescription,
-                cancellationToken)
-            .ConfigureAwait(false);
+        bool updated = false;
+
+        if (patch.HasArchived)
+        {
+            updated = await _architectureIdentityRepository
+                .TrySetArchivedAsync(scope, architectureId, patch.Archived!.Value, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        if (patch.HasDisplayName || patch.HasDescription)
+        {
+            bool metadataUpdated = await _architectureIdentityRepository
+                .TryPatchAsync(
+                    scope,
+                    architectureId,
+                    patch.HasDisplayName,
+                    normalizedDisplayName,
+                    patch.HasDescription,
+                    normalizedDescription,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            updated = updated || metadataUpdated;
+        }
 
         if (!updated)
             return null;

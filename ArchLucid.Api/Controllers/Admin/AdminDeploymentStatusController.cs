@@ -16,7 +16,7 @@ namespace ArchLucid.Api.Controllers.Admin;
 
 /// <summary>Internal deployment-status view for authorized operators (AdminAuthority).</summary>
 [ApiController]
-[Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
+[Authorize(Policy = ArchLucidPolicies.PlatformInternalOperationsAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/admin")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]

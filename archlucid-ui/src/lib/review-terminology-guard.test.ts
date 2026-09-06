@@ -38,6 +38,14 @@ import {
 import { scanBuyerFacingTerminology, scanGlobalBuyerSurfaces, scanGoldenPathBuyerCopy } from "@/lib/review-terminology-scanner";
 import { AUDIT_TRAIL_LABEL, SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { resolveFirstPilotOperatingRailStepsForDisplay } from "@/lib/first-pilot-operating-rail-copy";
+import {
+  ARCHITECTURE_IDENTITY_LIST_PAGE_SUBTITLE,
+} from "@/lib/architecture/architecture-identity-desk-copy";
+import {
+  ARCHITECTURE_DRAFTS_LIST_LABEL,
+  ARCHITECTURE_IDENTITIES_NAV_LABEL,
+} from "@/lib/architecture/architecture-workflow-labels";
+import { ARCHITECTURES_HUB_PAGE_SUBTITLE } from "@/lib/architectures-hub-copy";
 
 describe("review terminology guard", () => {
   it("uses architecture review as the primary buyer noun in shared vocabulary", () => {
@@ -137,6 +145,23 @@ describe("review terminology guard", () => {
         expect(source, `${relativePath} should not contain "${pattern}"`).not.toContain(pattern);
       }
     }
+  });
+
+  it("CA-48: Working architectures vocabulary does not teach drafts-as-architectures on the hub", () => {
+    const i18nSource = readFileSync(path.join(process.cwd(), "src/lib/i18n.ts"), "utf8");
+
+    expect(OPERATOR_NAV_LINK_LABELS.architectures).toBe(ARCHITECTURE_IDENTITIES_NAV_LABEL);
+    expect(i18nSource).toContain("architectures: ARCHITECTURE_IDENTITIES_NAV_LABEL");
+    expect(i18nSource).not.toMatch(/architectures:\s*ARCHITECTURE_DRAFTS_LIST_LABEL/);
+
+    const workingHubSubtitle = ARCHITECTURE_IDENTITY_LIST_PAGE_SUBTITLE.toLowerCase();
+
+    expect(workingHubSubtitle).toContain("identit");
+    expect(workingHubSubtitle).not.toContain("saved architecture drafts");
+    expect(workingHubSubtitle).not.toMatch(/\bdraft inventory\b/);
+
+    expect(ARCHITECTURES_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("draft");
+    expect(ARCHITECTURE_DRAFTS_LIST_LABEL).toBe("Architectures");
   });
 
   it("TB-738: reviews hub and nav use review-centered list nouns without package jargon", () => {

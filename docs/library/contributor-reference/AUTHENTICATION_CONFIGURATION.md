@@ -47,6 +47,8 @@ JWT **`roles`** / **`ClaimTypes.Role`** and DevelopmentBypass **`ArchLucidAuth:D
 
 **Cross-tenant analytics (TB-282):** Fleet-wide rollups and internal cross-tenant analytics require **`PlatformCrossTenantReadAuthority`** (`platform:cross-tenant-read` claim on **`PlatformOperator`**). Tenant **Admin**, **WorkspaceAdmin**, and tenant **Operator** principals receive **403**.
 
+**Vendor-staff internal operations:** Cross-tenant diagnostics, fleet inboxes, and Internal Operations UI surfaces require **`PlatformInternalOperationsAuthority`** (`PlatformOperator` role or `platform:cross-tenant-read` claim). Tenant **Admin** does **not** satisfy this policy — use **`AdminAuthority`** for customer Administration (`/administration/*`) only.
+
 Fine-grained **`permission`** claims (for example **`commit:run`**, **`export:consulting-docx`**) are still issued by **`ArchLucidRoleClaimsTransformation`** so existing permission policies remain meaningful for JWT and DevelopmentBypass. **ApiKey** mode maps keys to **Admin** or **Reader** roles only; use JWT with an **Auditor** app role when audit export is required for a principal.
 
 ## HTTP rate limiting (role-aware)

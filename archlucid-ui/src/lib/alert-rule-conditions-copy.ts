@@ -4,6 +4,9 @@
 export const ALERT_RULES_CONDITIONS_PAGE_LEAD =
   "Define when completed architecture reviews should raise an alert in your workspace.";
 
+export const ALERT_RULES_CONDITIONS_BUYER_START_HERE_HELPER =
+  "Review how alert conditions are configured in this workspace — creating or editing rules requires admin access on the Conditions workspace below.";
+
 /** Field help under Condition type — carries findings + notification-delivery honesty formerly in a stacked tab lead (TB-1585). */
 export const ALERT_RULES_RULE_TYPE_HELP =
   "Evaluates findings from completed reviews. Saving a condition does not configure external notification delivery.";

@@ -25,6 +25,7 @@ _WAIT_FOR_API_READY = "wait-for-api-ready.sh"
 _TRIAGE_SCRIPT = "report_private_beta_playwright_failure_triage.py"
 _PUSH_TRIAGE_ARTIFACT = "ui-e2e-live-beta-access-on-push-failure-triage"
 _CI_TRIAGE_ARTIFACT = "ui-e2e-live-beta-access-failure-triage"
+_RETRIGGER_SCRIPT = "scripts/ci/retrigger_private_beta_access_on_push.sh"
 
 
 def repo_root() -> Path:
@@ -295,6 +296,13 @@ def main(argv: list[str] | None = None) -> int:
                 f"{_PUSH_REL}: must not wait on {_FULL_REGRESSION_NEED} "
                 "(invite-wave path must start without full ci.yml regression)",
             )
+
+    retrigger_path = root / _RETRIGGER_SCRIPT
+
+    if not retrigger_path.is_file():
+        errors.append(f"missing private-beta retrigger helper: {_RETRIGGER_SCRIPT}")
+    elif not retrigger_path.stat().st_mode & 0o111:
+        errors.append(f"{_RETRIGGER_SCRIPT}: must be executable")
 
     if errors:
         for error in errors:

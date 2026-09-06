@@ -30,10 +30,11 @@ public sealed partial class InMemoryArchitectureIdentityRepository
         _architectureVersionRepository = architectureVersionRepository;
     }
 
-    public async Task<PagedResponse<ArchitectureIdentityListItem>> ListAsync(
+    public async Task<ArchitectureIdentityListPage> ListAsync(
         ScopeContext scope,
         int page,
         int pageSize,
+        bool includeArchived = false,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
@@ -45,7 +46,8 @@ public sealed partial class InMemoryArchitectureIdentityRepository
             .Where(record =>
                 record.TenantId == scope.TenantId
                 && record.WorkspaceId == scope.WorkspaceId
-                && record.ScopeProjectId == scope.ProjectId)
+                && record.ScopeProjectId == scope.ProjectId
+                && (includeArchived || !record.ArchivedUtc.HasValue))
             .OrderByDescending(record => record.UpdatedUtc)
             .ThenByDescending(record => record.ArchitectureId)
             .ToList();
@@ -60,7 +62,18 @@ public sealed partial class InMemoryArchitectureIdentityRepository
             items.Add(await BuildListItemAsync(scope, record, cancellationToken));
         }
 
-        return PagedResponseBuilder.FromDatabasePage(items, identities.Count, safePage, safePageSize);
+        int archivedHiddenCount = includeArchived
+            ? 0
+            : await CountArchivedInScopeAsync(scope, cancellationToken).ConfigureAwait(false);
+
+        return new ArchitectureIdentityListPage
+        {
+            Items = items,
+            TotalCount = identities.Count,
+            Page = safePage,
+            PageSize = safePageSize,
+            ArchivedHiddenCount = archivedHiddenCount,
+        };
     }
 
     public async Task<ArchitectureIdentityDetail?> GetDetailAsync(
@@ -98,6 +111,7 @@ public sealed partial class InMemoryArchitectureIdentityRepository
             ReviewCount = reviews.Count,
             CreatedUtc = identity.CreatedUtc,
             UpdatedUtc = identity.UpdatedUtc,
+            ArchivedUtc = identity.ArchivedUtc,
             Drafts = drafts,
             Reviews = reviews,
             Versions = versions,
@@ -139,6 +153,7 @@ public sealed partial class InMemoryArchitectureIdentityRepository
             LatestReviewId = reviews.FirstOrDefault()?.RunId,
             DraftCount = drafts.Count,
             ReviewCount = reviews.Count,
+            ArchivedUtc = record.ArchivedUtc,
         };
     }
 
