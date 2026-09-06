@@ -28,7 +28,7 @@ import type {
   InfraEvidenceDiffSummary,
   InfraEvidenceSnapshotSummary,
 } from "@/lib/infra-evidence/infra-evidence-drift-types";
-import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { resourceHubFilterHrefFromSearch, buildInfrastructureAskHref } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   DRIFT_WORKBENCH_CHANGE_ID_PARAM,
   DRIFT_WORKBENCH_CLOUD_RESOURCE_ID_PARAM,
@@ -357,6 +357,19 @@ export function DriftWorkbenchClient() {
             "Export advisory Terraform"
           )}
         </Button>
+        {selectedDiffId.length > 0 ? (
+          <Button asChild variant="outline" size="sm" data-testid="infra-drift-open-ask">
+            <Link
+              href={buildInfrastructureAskHref({
+                cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : undefined,
+                snapshotId: selectedSnapshotId,
+                diffId: selectedDiffId,
+              })}
+            >
+              Ask about this diff
+            </Link>
+          </Button>
+        ) : null}
         <p className={cn("m-0 max-w-2xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           {TERRAFORM_ADVISORY_EXPORT_DISCLAIMER}
         </p>

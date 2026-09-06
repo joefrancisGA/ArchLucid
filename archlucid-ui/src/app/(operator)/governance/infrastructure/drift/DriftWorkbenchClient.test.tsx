@@ -119,6 +119,19 @@ describe("DriftWorkbenchClient", () => {
     expect(screen.getByTestId("infra-drift-change-row-change-1")).toHaveClass("bg-muted/40");
   });
 
+  it("links Ask with diff and resource scope when a diff is selected", async () => {
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=22222222-2222-2222-2222-222222222222&diffId=diff-1",
+    );
+    render(<DriftWorkbenchClient />);
+
+    const askLink = await screen.findByTestId("infra-drift-open-ask");
+    expect(askLink).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/ask?cloudResourceId=22222222-2222-2222-2222-222222222222&snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-1",
+    );
+  });
+
   it("shows missing deep-link copy when changeId is absent from the diff", async () => {
     searchParams = new URLSearchParams(
       "snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-1&changeId=missing-change",
