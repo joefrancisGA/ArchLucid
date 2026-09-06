@@ -54,6 +54,7 @@ import {
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import { buildResourceHubDiagramsWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-ask-citations";
+import { buildResourceHubWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { showError, showSuccess } from "@/lib/toast";
@@ -488,6 +489,17 @@ export function DiagramReconcileWorkbenchClient() {
             data-testid="infra-diagram-reconcile-open-diagrams"
           >
             Open inventory diagrams
+          </Link>
+          <Link
+            className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
+            href={buildResourceHubWorkbenchHref({
+              cloudResourceId: urlCloudResourceId,
+              tab: "terraform",
+              snapshotId: selectedSnapshotId.length > 0 ? selectedSnapshotId : urlSnapshotId,
+            })}
+            data-testid="infra-diagram-reconcile-open-terraform-hub"
+          >
+            Open terraform mapping
           </Link>
         </section>
       ) : null}
