@@ -136,6 +136,10 @@ describe("RemediationWorkbenchClient", () => {
       "href",
       "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=findings",
     );
+    expect(screen.getByTestId("infra-remediation-open-terraform-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=terraform",
+    );
     expect(vi.mocked(fetchRemediationInstances)).toHaveBeenCalledWith({
       cloudResourceId: "33333333-3333-3333-3333-333333333333",
       findingId: null,
@@ -175,6 +179,10 @@ describe("RemediationWorkbenchClient", () => {
       "href",
       "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=findings&snapshotId=11111111-1111-1111-1111-111111111111",
     );
+    expect(screen.getByTestId("infra-remediation-finding-open-terraform-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=terraform&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
   });
 
   it("shows create guidance when findingId has no remediation instance yet", async () => {
@@ -200,6 +208,10 @@ describe("RemediationWorkbenchClient", () => {
     expect(screen.getByTestId("infra-remediation-open-diagram-hub")).toHaveAttribute(
       "href",
       "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=diagram&runId=run-1&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByTestId("infra-remediation-open-terraform-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=terraform&snapshotId=11111111-1111-1111-1111-111111111111",
     );
     await waitFor(() => {
       expect(screen.getByTestId("infra-remediation-open-ask")).toHaveAttribute(
