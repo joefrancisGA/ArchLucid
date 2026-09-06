@@ -85,31 +85,27 @@ import {
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
+import { navTitleWithShortcut } from "@/lib/nav-config.shortcuts";
 
-import { isSystemAdministrationNavGroupVisible } from "@/lib/nav-shell-preset";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 
-/** Whether the Internal nav group should be built for the active operator shell. */
+/** Whether static NAV_GROUPS should include internal links at module load (env + demo mode only). */
 export function isOperatorSystemAdminNavGroupEnabled(): boolean {
-  return isSystemAdministrationNavGroupVisible();
+  if (!isArchLucidInternalOperatorShellEnv()) {
+    return false;
+  }
+
+  if (isNextPublicDemoMode()) {
+    return false;
+  }
+
+  return true;
 }
 
-/** Internal cross-tenant, diagnostic, and employee-only surfaces — gated by `features.showSystemAdministrationNav`. */
-
-export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
-
-  build(): NavGroupConfig {
-
-    if (!isOperatorSystemAdminNavGroupEnabled()) {
-      return {
-        id: "operator-system-admin",
-        label: "Internal",
-        surface: "system-admin",
-        staffInternalOnly: true,
-        links: [],
-      };
-    }
-
-    const links: NavGroupConfig["links"] = [
+/** Internal cross-tenant, diagnostic, and employee-only surfaces — gated at runtime by `listNavGroupsVisibleInOperatorShell`. */
+export function buildOperatorSystemAdminNavLinks(): NavGroupConfig["links"] {
+  return [
 
         {
 
@@ -343,7 +339,7 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
 
           label: OPERATOR_NAV_LINK_LABELS.replayReview,
 
-          title: this.shortcutTitle("Validate review — check stored review output integrity", "alt+p"),
+          title: navTitleWithShortcut("Validate review — check stored review output integrity", "alt+p"),
 
           keyShortcut: "alt+p",
 
@@ -408,22 +404,19 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
         },
 
       ];
+}
+
+export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
+  build(): NavGroupConfig {
+    const links = isOperatorSystemAdminNavGroupEnabled() ? buildOperatorSystemAdminNavLinks() : [];
 
     return {
-
       id: "operator-system-admin",
-
       label: "Internal",
-
       surface: "system-admin",
-
       staffInternalOnly: true,
-
       links,
-
     };
-
   }
-
 }
 
