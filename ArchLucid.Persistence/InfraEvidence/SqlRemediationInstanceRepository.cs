@@ -211,6 +211,34 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
         return (rows.Select(MapInstance).ToList(), totalCount);
     }
 
+    public async Task<IReadOnlyList<RemediationInstanceRecord>> ListByFindingIdAsync(
+        Guid tenantId,
+        Guid findingId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT InstanceId, TenantId, WorkspaceId, ProjectId, FindingId, PatternId, PatternVersionId,
+                                  PatternKey, FrozenPatternVersion, AutomationLevel, Status, CloudResourceId, AssessmentId,
+                                  ControlId, PreflightSnapshotId, ExecutionSnapshotId, VerificationSnapshotId, WaveId,
+                                  PreflightResultJson, VerificationResultJson, CreatedByActorKey, ApprovedByActorKey,
+                                  CreatedUtc, UpdatedUtc, ApprovedUtc, ExecutedUtc, VerifiedUtc, ClosedUtc
+                           FROM dbo.RemediationInstances
+                           WHERE TenantId = @TenantId
+                             AND FindingId = @FindingId
+                           ORDER BY UpdatedUtc DESC;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<InstanceRow> rows = await conn.QueryAsync<InstanceRow>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, FindingId = findingId },
+                cancellationToken: cancellationToken));
+
+        return rows.Select(MapInstance).ToList();
+    }
+
     private static object MapInstanceParameters(RemediationInstanceRecord instance) =>
         new
         {

@@ -139,6 +139,7 @@ public interface IRemediationInstanceQueryService
     Task<IReadOnlyList<RemediationInstanceSummary>> ListInstancesAsync(
         ScopeContext scope,
         Guid? cloudResourceId = null,
+        Guid? findingId = null,
         CancellationToken cancellationToken = default);
 
     Task<RemediationInstanceDetail?> TryGetInstanceAsync(
@@ -155,13 +156,21 @@ public sealed class RemediationInstanceQueryService(
     public async Task<IReadOnlyList<RemediationInstanceSummary>> ListInstancesAsync(
         ScopeContext scope,
         Guid? cloudResourceId = null,
+        Guid? findingId = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
         IReadOnlyList<RemediationInstanceRecord> instances;
 
-        if (cloudResourceId is Guid resourceId && resourceId != Guid.Empty)
+        if (findingId is Guid scopedFindingId && scopedFindingId != Guid.Empty)
+        {
+            instances = await instanceRepository.ListByFindingIdAsync(
+                scope.TenantId,
+                scopedFindingId,
+                cancellationToken);
+        }
+        else if (cloudResourceId is Guid resourceId && resourceId != Guid.Empty)
         {
             (IReadOnlyList<RemediationInstanceRecord> items, _) =
                 await instanceRepository.ListByCloudResourceIdPagedAsync(

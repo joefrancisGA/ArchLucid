@@ -17,4 +17,14 @@ describe("infra-evidence-remediation-api", () => {
       "/api/proxy/v1/infra-evidence/remediation-instances?cloudResourceId=11111111-1111-1111-1111-111111111111",
     );
   });
+
+  it("fetchRemediationInstances appends findingId when scoped", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([]);
+
+    await fetchRemediationInstances({ findingId: "22222222-2222-2222-2222-222222222222" });
+
+    expect(proxyJsonGet).toHaveBeenCalledWith(
+      "/api/proxy/v1/infra-evidence/remediation-instances?findingId=22222222-2222-2222-2222-222222222222",
+    );
+  });
 });

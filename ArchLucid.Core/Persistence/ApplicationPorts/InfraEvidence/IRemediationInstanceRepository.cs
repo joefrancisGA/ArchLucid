@@ -28,4 +28,9 @@ public interface IRemediationInstanceRepository
         int page,
         int pageSize,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<RemediationInstanceRecord>> ListByFindingIdAsync(
+        Guid tenantId,
+        Guid findingId,
+        CancellationToken cancellationToken = default);
 }
