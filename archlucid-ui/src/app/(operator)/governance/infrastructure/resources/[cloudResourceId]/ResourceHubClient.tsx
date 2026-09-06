@@ -1285,6 +1285,32 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       </Link>
                     </Button>
                   ) : null}
+                  {hub.recentChanges.length > 0 ? (
+                    <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-audit-open-drift-tab">
+                      <Link
+                        href={buildResourceHubWorkbenchHref({
+                          cloudResourceId,
+                          tab: "drift",
+                          snapshotId: resolvedSnapshotId,
+                        })}
+                      >
+                        View drift in hub
+                      </Link>
+                    </Button>
+                  ) : null}
+                  {hub.remediationInstances.totalCount > 0 ? (
+                    <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-audit-open-remediation-tab">
+                      <Link
+                        href={buildResourceHubWorkbenchHref({
+                          cloudResourceId,
+                          tab: "remediation",
+                          snapshotId: resolvedSnapshotId,
+                        })}
+                      >
+                        View remediation in hub
+                      </Link>
+                    </Button>
+                  ) : null}
                 </div>
                 {resolvedAuditLineage.matches.length > 1 ? (
                   <section className="rounded border border-border bg-card p-4" aria-label="Additional audit controls">
