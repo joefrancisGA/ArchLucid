@@ -36,7 +36,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { BUYER_MANIFEST_DELIVERABLES_HEADING } from "@/lib/buyer/buyer-polish-copy";
 import { buildCompareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
 import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
-import type { ArtifactDescriptor, ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
+import type { ArtifactDescriptor, ManifestSummary, RunSummary, RunTrustEvidenceCard } from "@/types/authority";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 import { OPERATOR_LINK, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR } from "@/lib/first-week-route-guidance";
@@ -69,6 +69,9 @@ export type RunDetailArtifactsExportsSectionProps = {
   readonly usedStaticDemoRun?: boolean;
   /** When manifest summaries omit a verdict, use this pre-finalize payload verdict (RS-03). */
   readonly feasibilityVerdict?: ManifestFeasibilityVerdict | null;
+  readonly enginesSucceeded?: number | null;
+  readonly progressSummary?: RunSummary | null;
+  readonly graphSnapshot?: unknown;
 };
 
 function resolveFeasibilityVerdict(
@@ -354,6 +357,9 @@ export function RunDetailArtifactsExportsSection(
                   manifestSummary={manifestSummaryForUi ?? manifestSummary}
                   trustEvidenceCard={trustEvidenceCard ?? null}
                   buyerMarkdownAsPrimaryButton
+                  enginesSucceeded={props.enginesSucceeded ?? null}
+                  progressSummary={props.progressSummary ?? null}
+                  graphSnapshot={props.graphSnapshot ?? null}
                 />
               </div>
             ) : (
@@ -364,6 +370,9 @@ export function RunDetailArtifactsExportsSection(
                   goldenManifestJson={goldenManifestJsonForExport}
                   manifestSummary={manifestSummaryForUi ?? manifestSummary}
                   trustEvidenceCard={trustEvidenceCard ?? null}
+                  enginesSucceeded={props.enginesSucceeded ?? null}
+                  progressSummary={props.progressSummary ?? null}
+                  graphSnapshot={props.graphSnapshot ?? null}
                 />
                 <div className="flex max-w-[14rem] flex-col gap-1">
                   {collateralExportBlockedReason !== null ? (

@@ -83,6 +83,7 @@ export type PackagePrintPresentation = {
   readonly sponsorSynopsis: string | null;
   readonly createdUtc: string;
   readonly runId: string;
+  readonly coverageHonestyLine?: string | null;
 };
 
 function finiteCount(value: number | null | undefined): number | null {
@@ -200,7 +201,10 @@ export function buildPackagePrintSponsorSynopsis(summary: RunSummary): string | 
 /** Maps a run summary into the print view presentation model. */
 export function buildPackagePrintPresentation(
   summary: RunSummary,
-  options?: { readonly findingsListedCount?: number | null },
+  options?: {
+    readonly findingsListedCount?: number | null;
+    readonly coverageHonestyLine?: string | null;
+  },
 ): PackagePrintPresentation {
   const statusLabel = resolvePackagePrintStatusLabel(summary);
   const findingsTotalCount = finiteCount(summary.findingCount);
@@ -226,5 +230,6 @@ export function buildPackagePrintPresentation(
     sponsorSynopsis: buildPackagePrintSponsorSynopsis(summary),
     createdUtc: summary.createdUtc,
     runId: summary.runId,
+    coverageHonestyLine: options?.coverageHonestyLine ?? null,
   };
 }
