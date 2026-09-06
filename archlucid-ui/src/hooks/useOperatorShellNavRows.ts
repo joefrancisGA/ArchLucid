@@ -57,13 +57,15 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
   const ctoDemoNavExpandedEnv = isCtoDemoNavExpandedEnv();
   const { isWorkingMode } = useWorkspaceMode();
   // CTO demo presenter pack expands Graph / Governance without role-density collapse (TB-2139).
+  const devEmployeeOverride = isDevEmployeeRoleOverrideActive();
   const effectiveRoleNavDensityShowFullNav =
-    roleNavDensityShowFullNav || ctoDemoNavExpandedEnv || isWorkingMode || isDevEmployeeRoleOverrideActive();
+    roleNavDensityShowFullNav || ctoDemoNavExpandedEnv || isWorkingMode || devEmployeeOverride;
   const effectiveOperateUnlockPhase: OperateNavUnlockPhase = 0;
   const effectiveHasCommittedArchitectureReview = useEffectiveNavCommittedArchitectureReview();
   const hideGettingStartedFromMainNav = isWorkingMode;
-  const showVendorInternalNav = isArchLucidVendorStaffPrincipal(currentPrincipal);
-  const omitAdminClusters = demoUi && !buyerPolishedShell;
+  const showVendorInternalNav =
+    isArchLucidVendorStaffPrincipal(currentPrincipal) || devEmployeeOverride;
+  const omitAdminClusters = demoUi && !buyerPolishedShell && !devEmployeeOverride;
   const omitDuplicateReportingNav = isWorkingMode;
   const patternLibraryNavVisible = usePatternLibraryNavVisible();
 
