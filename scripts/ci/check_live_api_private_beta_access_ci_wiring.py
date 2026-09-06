@@ -22,6 +22,8 @@ _MIN_TIMEOUT_MINUTES = 45
 _LOCKFILE_GUARD = "check_npm_overrides_lockfile_sync.py"
 _TYPECHECK_COMMAND = "npm run typecheck"
 _WAIT_FOR_API_READY = "wait-for-api-ready.sh"
+_TRIAGE_SCRIPT = "report_private_beta_playwright_failure_triage.py"
+_TRIAGE_ARTIFACT = "ui-e2e-live-beta-access-on-push-failure-triage"
 
 
 def repo_root() -> Path:
@@ -169,6 +171,29 @@ def _require_post_warm_api_ready(rel_path: str, text: str, errors: list[str]) ->
         )
 
 
+def _require_private_beta_failure_triage_wiring(rel_path: str, text: str, errors: list[str]) -> None:
+    if rel_path != _PUSH_REL:
+        return
+
+    job_text = text
+
+    if _TRIAGE_SCRIPT not in job_text:
+        errors.append(
+            f"{rel_path}: {_JOB_NAME} must run {_TRIAGE_SCRIPT} on failure "
+            "(machine-readable triage rollup for invite-wave operators)",
+        )
+
+    if _TRIAGE_ARTIFACT not in job_text:
+        errors.append(
+            f"{rel_path}: {_JOB_NAME} must upload {_TRIAGE_ARTIFACT} artifact on failure",
+        )
+
+    if "if: failure()" not in job_text or "Private-beta Playwright failure triage rollup" not in job_text:
+        errors.append(
+            f"{rel_path}: {_JOB_NAME} must include a failure-only Private-beta Playwright failure triage rollup step",
+        )
+
+
 def _require_private_beta_job_timeout(rel_path: str, text: str, errors: list[str]) -> None:
     job_text = text if rel_path == _PUSH_REL else _extract_yaml_job_block(text, _JOB_MARKER)
 
@@ -242,6 +267,7 @@ def main(argv: list[str] | None = None) -> int:
         _require_live_e2e_build(_PUSH_REL, text, errors)
         _require_private_beta_install_and_typecheck(_PUSH_REL, text, errors)
         _require_post_warm_api_ready(_PUSH_REL, text, errors)
+        _require_private_beta_failure_triage_wiring(_PUSH_REL, text, errors)
 
         if "private-beta-access-on-push-${{ github.ref }}" not in text:
             errors.append(

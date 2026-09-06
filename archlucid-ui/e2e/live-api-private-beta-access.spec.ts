@@ -38,6 +38,7 @@ import {
   liveApiBase,
   liveE2eArchitectureDescription,
   liveE2ePrivateBetaAccessPlaywrightTimeoutMs,
+  resolveArchitectureIdentityIdForRun,
   resolveLiveJwtMode,
   toRunGuidPathSegment,
   liveJsonHeaders,
@@ -150,7 +151,7 @@ test.describe("live-api-private-beta-access", () => {
     await waitForArchitectureRunListIncludesRun(request, runId, 120_000, scope);
 
     const runDetail = await getRunDetailsWithTransientRetries(request, runId, scope);
-    const architectureId = runDetail.run?.architectureId?.trim() ?? "";
+    const architectureId = (await resolveArchitectureIdentityIdForRun(request, runId, runDetail, scope)) ?? "";
 
     if (architectureId.length > 0) {
       await page.goto(`/architecture/architectures/${encodeURIComponent(architectureId)}`, {
