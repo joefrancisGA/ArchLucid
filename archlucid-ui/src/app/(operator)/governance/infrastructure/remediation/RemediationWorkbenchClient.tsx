@@ -352,7 +352,7 @@ export function RemediationWorkbenchClient() {
 
     const scopedFindingId = urlFindingId.length > 0
       ? urlFindingId
-      : detail?.finding.findingId?.trim() ?? "";
+      : detail?.finding?.findingId?.trim() ?? "";
     const scopedInstanceId = selectedInstanceId.length > 0 ? selectedInstanceId : urlInstanceId;
 
     return buildInfrastructureAskHref({

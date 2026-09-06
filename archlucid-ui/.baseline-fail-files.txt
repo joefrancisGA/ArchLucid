@@ -1,5 +1,4 @@
-﻿scripts/ux-audit-harness-drift-guard.test.ts
-src/app/(marketing)/why/WhyArchlucidMarketingView.test.tsx
+﻿src/app/(marketing)/why/WhyArchlucidMarketingView.test.tsx
 src/app/(operator)/administration/identity/sso-wizard/page.test.tsx
 src/app/(operator)/administration/tenant/page.test.tsx
 src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageView.progressive-disclosure.test.ts
