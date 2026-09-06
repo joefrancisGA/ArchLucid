@@ -38,6 +38,8 @@ import {
   buildResourceScopedWorkbenchHref,
 } from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import { buildDiagramReconcileRemediationHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
+import { buildTerraformWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-terraform-filter-url";
+import { sanitizeResourceHubQueryForTab } from "@/lib/infra-evidence/infra-evidence-hub-tab-query";
 import {
   fetchCloudResourceEvidenceHub,
   formatInfraEvidenceHubApiError,
@@ -53,6 +55,7 @@ import {
   parseResourceHubTabFromSearch,
   resolveInfrastructureAskAuditContext,
   resourceHubFilterHrefFromSearch,
+  toWorkbenchLinkAuditContext,
   type InfrastructureAskAuditContext,
   RESOURCE_HUB_ASSESSMENT_ID_PARAM,
   RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
@@ -288,7 +291,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   }, [loadHub]);
 
   const setActiveTab = (tab: ResourceHubTab) => {
-    const nextHref = resourceHubFilterHrefFromSearch(cloudResourceId, searchParams.toString(), { tab });
+    const sanitizedSearch = sanitizeResourceHubQueryForTab(searchParams.toString(), tab);
+    const nextHref = resourceHubFilterHrefFromSearch(cloudResourceId, sanitizedSearch, { tab });
     router.replace(nextHref);
   };
 
@@ -340,9 +344,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   const askAuditContext = useMemo((): InfrastructureAskAuditContext => {
     const payloadContext = hub?.auditLineageLink.available === true
       ? {
-          assessmentId: hub.auditLineageLink.assessmentId,
-          auditEvidenceSnapshotId: hub.auditLineageLink.auditEvidenceSnapshotId,
-          controlId: hub.auditLineageLink.controlId,
+          assessmentId: hub.auditLineageLink.assessmentId ?? undefined,
+          auditEvidenceSnapshotId: hub.auditLineageLink.auditEvidenceSnapshotId ?? undefined,
+          controlId: hub.auditLineageLink.controlId ?? undefined,
         }
       : null;
 
@@ -355,6 +359,11 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       payloadContext,
     );
   }, [assessmentId, auditEvidenceSnapshotId, controlId, hub]);
+
+  const workbenchLinkAuditContext = useMemo(
+    () => toWorkbenchLinkAuditContext(askAuditContext),
+    [askAuditContext],
+  );
 
   const hubTabs = useMemo(() => {
     if (hub == null) {
@@ -409,8 +418,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       runId,
       snapshotId: resolvedSnapshotId,
       scopedCloudResourceId: cloudResourceId,
+      ...workbenchLinkAuditContext,
     });
-  }, [cloudResourceId, hub?.diagramCorrespondence, resolvedSnapshotId, runId]);
+  }, [cloudResourceId, hub?.diagramCorrespondence, resolvedSnapshotId, runId, workbenchLinkAuditContext]);
 
   const runMatchRemediationFromFinding = async (findingId: string) => {
     const trimmedFindingId = findingId.trim();
@@ -507,12 +517,18 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-remediation-work">
-                  <Link href={buildResourceScopedWorkbenchHref(cloudResourceId, "remediation", resolvedSnapshotId)}>
+                  <Link href={buildResourceScopedWorkbenchHref(cloudResourceId, "remediation", resolvedSnapshotId, workbenchLinkAuditContext)}>
                     Open remediation factory
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-drift-work">
-                  <Link href={buildResourceScopedWorkbenchHref(cloudResourceId, "drift", resolvedSnapshotId)}>
+                  <Link
+                    href={buildDriftWorkbenchHref({
+                      cloudResourceId,
+                      snapshotId: resolvedSnapshotId,
+                      ...workbenchLinkAuditContext,
+                    })}
+                  >
                     Open drift workbench
                   </Link>
                 </Button>
@@ -522,6 +538,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       resolvedSnapshotId,
                       cloudResourceId,
                       hub.externalResourceId,
+                      workbenchLinkAuditContext,
                     )}
                   >
                     Open inventory diagrams
@@ -534,6 +551,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       runId,
                       undefined,
                       cloudResourceId,
+                      workbenchLinkAuditContext,
                     )}
                   >
                     Open diagram reconciliation
@@ -690,7 +708,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 testId="infra-resource-hub-drift-open-overview-tab"
               />
               <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-drift">
-                <Link href={buildResourceHubDriftWorkbenchHref(resolvedSnapshotId, cloudResourceId)}>
+                <Link href={buildResourceHubDriftWorkbenchHref(resolvedSnapshotId, cloudResourceId, workbenchLinkAuditContext)}>
                   Open drift workbench
                 </Link>
               </Button>
@@ -810,6 +828,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     resolvedSnapshotId,
                     cloudResourceId,
                     hub.externalResourceId,
+                    workbenchLinkAuditContext,
                   )}
                   data-testid="infra-resource-hub-diagrams-workbench"
                 >
@@ -818,7 +837,13 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               </Button>
               <Button asChild variant="outline" size="sm">
                 <Link
-                  href={buildResourceHubDiagramReconcileWorkbenchHref(resolvedSnapshotId, runId, undefined, cloudResourceId)}
+                  href={buildResourceHubDiagramReconcileWorkbenchHref(
+                    resolvedSnapshotId,
+                    runId,
+                    undefined,
+                    cloudResourceId,
+                    workbenchLinkAuditContext,
+                  )}
                   data-testid="infra-resource-hub-diagram-reconcile-workbench"
                 >
                   Open diagram reconciliation
@@ -910,6 +935,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                         runId,
                         hub.diagramCorrespondence.correspondenceId,
                         cloudResourceId,
+                        workbenchLinkAuditContext,
                       )}
                     >
                       Open in reconciliation workbench
@@ -961,8 +987,21 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   runId={runId}
                   testId="infra-resource-hub-terraform-open-overview-tab"
                 />
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-terraform-open-workbench">
+                  <Link
+                    href={buildTerraformWorkbenchHref({
+                      cloudResourceId,
+                      snapshotId: resolvedSnapshotId,
+                      assessmentId: workbenchLinkAuditContext?.assessmentId ?? null,
+                      auditEvidenceSnapshotId: workbenchLinkAuditContext?.auditEvidenceSnapshotId ?? null,
+                      controlId: workbenchLinkAuditContext?.controlId ?? null,
+                    })}
+                  >
+                    Open terraform workbench
+                  </Link>
+                </Button>
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-terraform-drift-export">
-                  <Link href={buildResourceHubDriftWorkbenchHref(resolvedSnapshotId, cloudResourceId)}>
+                  <Link href={buildResourceHubDriftWorkbenchHref(resolvedSnapshotId, cloudResourceId, workbenchLinkAuditContext)}>
                     Export from drift workbench
                   </Link>
                 </Button>
@@ -1136,6 +1175,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                                       cloudResourceId,
                                       findingId: item.id,
                                       snapshotId: resolvedSnapshotId,
+                                      ...workbenchLinkAuditContext,
                                     })}
                                     data-testid={`infra-resource-hub-finding-factory-${item.id}`}
                                   >
@@ -1190,7 +1230,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 testId="infra-resource-hub-remediation-open-overview-tab"
               />
               <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-remediation-factory">
-                <Link href={buildRemediationWorkbenchHref({ cloudResourceId, snapshotId: resolvedSnapshotId })}>
+                <Link href={buildRemediationWorkbenchHref({ cloudResourceId, snapshotId: resolvedSnapshotId, ...workbenchLinkAuditContext })}>
                   Open remediation factory
                 </Link>
               </Button>
@@ -1281,6 +1321,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                                 cloudResourceId,
                                 instanceId: item.instanceId,
                                 snapshotId: resolvedSnapshotId,
+                                ...workbenchLinkAuditContext,
                               })}
                               data-testid={`infra-resource-hub-remediation-factory-${item.instanceId}`}
                             >

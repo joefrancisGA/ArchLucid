@@ -135,8 +135,19 @@ export function resolveInfraEvidenceAskCitationLink(
 export function buildResourceHubDriftWorkbenchHref(
   snapshotId: string | null | undefined,
   cloudResourceId?: string | null,
+  auditContext?: {
+    readonly assessmentId?: string | null;
+    readonly auditEvidenceSnapshotId?: string | null;
+    readonly controlId?: string | null;
+  },
 ): string {
-  return buildDriftWorkbenchHref({ snapshotId, cloudResourceId });
+  return buildDriftWorkbenchHref({
+    snapshotId,
+    cloudResourceId,
+    assessmentId: auditContext?.assessmentId,
+    auditEvidenceSnapshotId: auditContext?.auditEvidenceSnapshotId,
+    controlId: auditContext?.controlId,
+  });
 }
 
 export function buildResourceHubDiagramsWorkbenchHref(

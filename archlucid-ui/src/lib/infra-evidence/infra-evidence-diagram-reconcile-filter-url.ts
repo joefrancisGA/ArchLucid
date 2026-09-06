@@ -126,6 +126,9 @@ export function buildDiagramReconcileRemediationHref(context: {
   readonly snapshotId: string;
   readonly scopedCloudResourceId?: string | null;
   readonly findingId?: string | null;
+  readonly assessmentId?: string | null;
+  readonly auditEvidenceSnapshotId?: string | null;
+  readonly controlId?: string | null;
 }): string | null {
   if (context.row.matchKind !== "Conflict") {
     return null;
@@ -146,6 +149,9 @@ export function buildDiagramReconcileRemediationHref(context: {
     findingId: context.findingId,
     runId: context.runId.length > 0 ? context.runId : null,
     snapshotId: context.snapshotId.length > 0 ? context.snapshotId : null,
+    assessmentId: context.assessmentId,
+    auditEvidenceSnapshotId: context.auditEvidenceSnapshotId,
+    controlId: context.controlId,
   });
 }
 

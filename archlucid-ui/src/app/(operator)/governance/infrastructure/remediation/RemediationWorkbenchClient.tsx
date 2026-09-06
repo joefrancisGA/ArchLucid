@@ -15,6 +15,7 @@ import {
   mergeWorkbenchHubScopePatch,
   parseInfraEvidenceWorkbenchAuditScopeFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
+import { WorkbenchAuditProvenance } from "@/components/infra-evidence/WorkbenchAuditProvenance";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
 import { formatResourceHubTabViewLabel } from "@/lib/infra-evidence/infra-evidence-hub-tab-labels";
 import {
@@ -418,6 +419,11 @@ export function RemediationWorkbenchClient() {
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             Showing remediation instances for resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
           </p>
+          {auditScope != null ? (
+            <div className="mt-2">
+              <WorkbenchAuditProvenance auditScope={auditScope} testId="infra-remediation-audit-provenance" />
+            </div>
+          ) : null}
           <WorkbenchHubScopeLinks
             cloudResourceId={urlCloudResourceId}
             primaryTab="remediation"
