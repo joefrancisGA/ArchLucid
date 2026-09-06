@@ -18,7 +18,7 @@ namespace ArchLucid.Api.Controllers.Admin;
 
 /// <summary>Platform operator curation for the agent model catalog (TB-2103).</summary>
 [ApiController]
-[Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
+[Authorize(Policy = ArchLucidPolicies.PlatformInternalOperationsAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/admin/agent-model-catalog")]
 [EnableRateLimiting("fixed")]

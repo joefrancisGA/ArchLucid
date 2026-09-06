@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Controllers.Admin;
 
 /// <summary>Operator integration maintenance endpoints (outbox recovery, webhook tooling).</summary>
 [ApiController]
-[Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
+[Authorize(Policy = ArchLucidPolicies.PlatformInternalOperationsAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/admin/integrations")]
 [EnableRateLimiting("expensive")]

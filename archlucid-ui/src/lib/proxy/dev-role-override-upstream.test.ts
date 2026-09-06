@@ -1,7 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { DEV_EMPLOYEE_API_ACTOR_ROLE, DEV_ROLE_OVERRIDE_COOKIE } from "@/lib/dev-testing-overrides";
-import { resolveDevRoleOverrideUpstreamHeader } from "@/lib/proxy/dev-role-override-upstream";
+import {
+  DEV_EMPLOYEE_API_ACTOR_ROLE,
+  DEV_ROLE_OVERRIDE_COOKIE,
+  DEV_TEST_ACTOR_ROLE_HEADER,
+} from "@/lib/dev-testing-overrides";
+import {
+  applyDevRoleOverrideUpstreamHeader,
+  resolveDevRoleOverrideUpstreamHeader,
+} from "@/lib/proxy/dev-role-override-upstream";
 
 function createRequest(cookie: string | null): { headers: { get: (name: string) => string | null } } {
   return {
@@ -40,5 +47,16 @@ describe("dev-role-override-upstream", () => {
     const cookie = `${DEV_ROLE_OVERRIDE_COOKIE}=Admin; Path=/`;
 
     expect(resolveDevRoleOverrideUpstreamHeader(createRequest(cookie) as never)).toBe("Admin");
+  });
+
+  it("applies the header to upstream headers", () => {
+    vi.stubEnv("NODE_ENV", "development");
+
+    const cookie = `${DEV_ROLE_OVERRIDE_COOKIE}=Employee; Path=/`;
+    const headers = new Headers();
+
+    applyDevRoleOverrideUpstreamHeader(headers, createRequest(cookie) as never);
+
+    expect(headers.get(DEV_TEST_ACTOR_ROLE_HEADER)).toBe(DEV_EMPLOYEE_API_ACTOR_ROLE);
   });
 });
