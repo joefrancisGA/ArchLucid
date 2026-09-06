@@ -340,9 +340,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   const askAuditContext = useMemo((): InfrastructureAskAuditContext => {
     const payloadContext = hub?.auditLineageLink.available === true
       ? {
-          assessmentId: hub.auditLineageLink.assessmentId,
-          auditEvidenceSnapshotId: hub.auditLineageLink.auditEvidenceSnapshotId,
-          controlId: hub.auditLineageLink.controlId,
+          assessmentId: hub.auditLineageLink.assessmentId ?? undefined,
+          auditEvidenceSnapshotId: hub.auditLineageLink.auditEvidenceSnapshotId ?? undefined,
+          controlId: hub.auditLineageLink.controlId ?? undefined,
         }
       : null;
 

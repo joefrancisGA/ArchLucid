@@ -42,7 +42,7 @@ export function formatResourceHubWorkbenchPrimaryHubLabel(tab: ResourceHubTab): 
 }
 
 export function mergeInfrastructureAskAuditScope(
-  auditScope: InfraEvidenceWorkbenchAuditScope | null,
+  auditScope: InfraEvidenceWorkbenchAuditScope | null | undefined,
 ): {
   readonly assessmentId?: string;
   readonly auditEvidenceSnapshotId?: string;

@@ -101,7 +101,7 @@ function buildDiagramReconcileCorrespondenceAskHref(
     snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
     runId: runId.length > 0 ? runId : undefined,
     correspondenceId: row.correspondenceId,
-    ...mergeInfrastructureAskAuditScope(auditScope),
+    ...mergeInfrastructureAskAuditScope(auditScope ?? null),
   });
 }
 
@@ -502,7 +502,12 @@ export function DiagramReconcileWorkbenchClient() {
             extraLinks={[
               {
                 testId: "infra-diagram-reconcile-open-diagrams",
-                href: buildResourceHubDiagramsWorkbenchHref(scopedSnapshotId, urlCloudResourceId, undefined, auditScope),
+                href: buildResourceHubDiagramsWorkbenchHref(
+                  scopedSnapshotId,
+                  urlCloudResourceId,
+                  undefined,
+                  mergeInfrastructureAskAuditScope(auditScope),
+                ),
                 label: "Open inventory diagrams",
               },
             ]}
