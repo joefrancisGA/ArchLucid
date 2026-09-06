@@ -47,6 +47,7 @@ public sealed class InfraEvidenceDriftWorkbenchQueryService(
         Guid diffId,
         int page,
         int pageSize,
+        Guid? cloudResourceId = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
@@ -61,7 +62,13 @@ public sealed class InfraEvidenceDriftWorkbenchQueryService(
             return null;
 
         (IReadOnlyList<AzureInventoryChangeRecord> items, int totalCount) =
-            await diffRepository.ListChangesByDiffIdPagedAsync(scope, diffId, page, pageSize, cancellationToken);
+            await diffRepository.ListChangesByDiffIdPagedAsync(
+                scope,
+                diffId,
+                page,
+                pageSize,
+                cloudResourceId,
+                cancellationToken);
 
         return PagedResponseBuilder.FromDatabasePage(items, totalCount, page, pageSize);
     }

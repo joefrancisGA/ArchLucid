@@ -141960,6 +141960,14 @@
           },
           {
             "in": "query",
+            "name": "cloudResourceId",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
             "name": "page",
             "schema": {
               "default": 1,

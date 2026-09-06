@@ -340,37 +340,49 @@ public sealed class SqlAzureInventoryDiffRepository(ISqlConnectionFactory connec
         Guid diffId,
         int page,
         int pageSize,
+        Guid? cloudResourceId = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
         (int safePage, int safePageSize) = PaginationDefaults.Normalize(page, pageSize);
         int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
+        bool filterByCloudResource = cloudResourceId is Guid resourceId && resourceId != Guid.Empty;
+        string resourceFilter = filterByCloudResource ? " AND CloudResourceId = @CloudResourceId" : string.Empty;
 
-        const string countSql = """
+        string countSql = $"""
                                 SELECT COUNT(1)
                                 FROM dbo.AzureInventoryChanges
-                                WHERE TenantId = @TenantId AND DiffId = @DiffId;
+                                WHERE TenantId = @TenantId AND DiffId = @DiffId{resourceFilter};
                                 """;
 
-        const string listSql = """
+        string listSql = $"""
                                SELECT ChangeId, DiffId, SnapshotAId, SnapshotBId, CloudResourceId, AzureResourceId,
                                       ChangeType, Property, OldValue, NewValue, RiskClassification,
                                       ArchitectureSignificance, SecuritySignificance, Confidence, EvidenceReference,
                                       ProvenanceKind
                                FROM dbo.AzureInventoryChanges
-                               WHERE TenantId = @TenantId AND DiffId = @DiffId
+                               WHERE TenantId = @TenantId AND DiffId = @DiffId{resourceFilter}
                                ORDER BY AzureResourceId, ChangeType, Property
                                OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
                                """;
 
-        object parameters = new
-        {
-            scope.TenantId,
-            DiffId = diffId,
-            Skip = skip,
-            PageSize = safePageSize,
-        };
+        object parameters = filterByCloudResource
+            ? new
+            {
+                scope.TenantId,
+                DiffId = diffId,
+                CloudResourceId = cloudResourceId,
+                Skip = skip,
+                PageSize = safePageSize,
+            }
+            : new
+            {
+                scope.TenantId,
+                DiffId = diffId,
+                Skip = skip,
+                PageSize = safePageSize,
+            };
 
         using IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 

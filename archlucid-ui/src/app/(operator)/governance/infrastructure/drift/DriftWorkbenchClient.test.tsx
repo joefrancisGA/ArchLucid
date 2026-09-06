@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 
 import { DriftWorkbenchClient } from "@/app/(operator)/governance/infrastructure/drift/DriftWorkbenchClient";
 
@@ -79,6 +79,11 @@ vi.mock("@/lib/use-nav-surface", () => ({
 }));
 
 describe("DriftWorkbenchClient", () => {
+  beforeEach(() => {
+    mockFetchDiffs.mockClear();
+    mockFetchChanges.mockClear();
+  });
+
   it("renders snapshot picker and export button", async () => {
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
     render(<DriftWorkbenchClient />);
@@ -90,13 +95,18 @@ describe("DriftWorkbenchClient", () => {
 
   it("shows resource scope banner when cloudResourceId is in the URL", async () => {
     searchParams = new URLSearchParams(
-      "snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=22222222-2222-2222-2222-222222222222",
+      "snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=22222222-2222-2222-2222-222222222222&diffId=diff-1",
     );
     render(<DriftWorkbenchClient />);
 
     expect(await screen.findByTestId("infra-drift-resource-scope-banner")).toHaveTextContent(
       "22222222-2222-2222-2222-222222222222",
     );
+    await waitFor(() => {
+      expect(mockFetchChanges).toHaveBeenCalledWith("diff-1", 1, 100, {
+        cloudResourceId: "22222222-2222-2222-2222-222222222222",
+      });
+    });
   });
 
   it("opens change detail when changeId is deep-linked", async () => {

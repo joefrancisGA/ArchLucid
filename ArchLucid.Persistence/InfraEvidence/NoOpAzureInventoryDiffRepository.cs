@@ -46,6 +46,7 @@ public sealed class NoOpAzureInventoryDiffRepository : IAzureInventoryDiffReposi
         Guid diffId,
         int page,
         int pageSize,
+        Guid? cloudResourceId = null,
         CancellationToken cancellationToken = default)
         => Task.FromResult<(IReadOnlyList<AzureInventoryChangeRecord>, int)>(([], 0));
 }
