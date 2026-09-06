@@ -48,7 +48,7 @@ const METRIC_CARD_CLASS =
 const OPERATOR_HOME_WORKSPACE_METRICS_SECTION_TITLE = "Workspace summary";
 const OPERATOR_HOME_WORKSPACE_METRICS_SCOPE_LABEL = "Scope:";
 const OPERATOR_HOME_WORKSPACE_METRICS_SCOPE_VALUE =
-  "Each tile states its partition inline · reviews inventory, findings queue, or governance approval warnings.";
+  "Each tile states its partition inline · reviews inventory, findings queue, or approval warnings.";
 
 const OPERATOR_HOME_AWAITING_APPROVAL_WARNINGS_CLARIFIER =
   "Awaiting approval counts reviews in the approval queue. Approval warnings count governance checks that need a sign-off before finalization.";

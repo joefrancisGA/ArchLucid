@@ -74,7 +74,7 @@ describe("formatOperatorHomeRecentReviewsOutcome", () => {
     };
 
     expect(formatOperatorHomeRecentReviewsOutcome(metrics, { visibleCount: 2, recentTotalCount: 3 })).toBe(
-      "3 reviews · 2 finalized · 1 active · 6 open findings · with 1 governance approval warning · showing 2 of 3",
+      "3 reviews · 2 finalized · 1 active · 6 open findings · with 1 approval warning · showing 2 of 3",
     );
   });
 

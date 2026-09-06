@@ -3,7 +3,10 @@ import { cn } from "@/lib/utils";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
-import { formatOperatorHomeGovernanceApprovalWarningFilterLabel } from "@/lib/operator/operator-home-governance-approval-warning-copy";
+import {
+  formatOperatorHomeGovernanceApprovalWarningEmptyFilterHint,
+  formatOperatorHomeGovernanceApprovalWarningFilterLabel,
+} from "@/lib/operator/operator-home-governance-approval-warning-copy";
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -73,7 +76,7 @@ export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
           id={WARNINGS_FILTER_DISABLED_HINT_ID}
           className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
         >
-          No reviews with governance approval warnings in this workspace yet.
+          {formatOperatorHomeGovernanceApprovalWarningEmptyFilterHint()}
         </p>
       ) : null}
     </div>
