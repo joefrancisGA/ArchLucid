@@ -62,7 +62,7 @@ describe("ArchitecturesHubPageHeader (CA-25 / CA-36 / CA-47)", () => {
     );
   });
 
-  it("uses identity portfolio copy in Working mode", () => {
+  it("CA-48: Working hub header rejects draft-inventory subtitle copy", () => {
     workspaceModeMock.isWorkingMode = true;
 
     render(<ArchitecturesHubPageHeader />);
@@ -70,8 +70,12 @@ describe("ArchitecturesHubPageHeader (CA-25 / CA-36 / CA-47)", () => {
     expect(screen.getByTestId("architectures-hub-claim-discipline")).toHaveTextContent(
       ARCHITECTURE_IDENTITY_LIST_CLAIM_DISCIPLINE,
     );
-    expect(screen.getByTestId("architectures-hub-page-subtitle")).toHaveTextContent(
-      "Durable architecture identities",
-    );
+
+    const subtitle = screen.getByTestId("architectures-hub-page-subtitle").textContent?.toLowerCase() ?? "";
+
+    expect(subtitle).toContain("identit");
+    expect(subtitle).not.toContain("saved architecture drafts");
+    expect(subtitle).not.toMatch(/\bdraft inventory\b/);
+    expect(subtitle).not.toContain("sync across browsers");
   });
 });
