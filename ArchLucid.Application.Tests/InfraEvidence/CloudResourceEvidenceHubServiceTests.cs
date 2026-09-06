@@ -366,6 +366,7 @@ public sealed class CloudResourceEvidenceHubServiceTests
             string? namePrefix,
             string? resourceType,
             string? resourceGroup,
+            CloudResourceExplorerWorkQueue workQueue,
             int page,
             int pageSize,
             CancellationToken cancellationToken = default)
