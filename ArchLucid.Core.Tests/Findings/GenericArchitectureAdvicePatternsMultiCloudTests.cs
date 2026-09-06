@@ -48,6 +48,7 @@ public sealed class GenericArchitectureAdvicePatternsMultiCloudTests
     [InlineData("not required to enable mfa for this workload")]
     [InlineData("workload without enable mfa for service accounts")]
     [InlineData("policy avoids enable mfa for batch workloads")]
+    [InlineData("workload won't enable mfa for service accounts")]
     [InlineData("enable mfa not required for batch service accounts")]
     [InlineData("no need to enable mfa for this workload")]
     [InlineData("enable mfa not necessary for batch workloads")]

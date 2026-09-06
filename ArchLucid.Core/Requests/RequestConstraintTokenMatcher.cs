@@ -253,6 +253,8 @@ internal static class RequestConstraintTokenMatcher
             || before.StartsWith("avoid", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("avoids", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("cannot use", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("cannot require", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("cannot", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("can't use", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("cannot require", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("cannot", StringComparison.OrdinalIgnoreCase)
