@@ -204,6 +204,7 @@ public sealed class FirstValueReportPdfBrandingTests
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
+            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 

@@ -570,6 +570,7 @@ public sealed class FirstValueReportBuilderTests
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
+            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 }
