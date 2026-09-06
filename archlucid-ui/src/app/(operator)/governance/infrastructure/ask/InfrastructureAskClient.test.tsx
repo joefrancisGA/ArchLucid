@@ -170,6 +170,19 @@ describe("InfrastructureAskClient", () => {
     );
   });
 
+  it("shows correspondence scope in context banner and links hub diagram tab", async () => {
+    searchParams = new URLSearchParams(
+      "cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&runId=run-1&correspondenceId=corr-1",
+    );
+    render(<InfrastructureAskClient />);
+
+    expect(screen.getByTestId("infra-ask-context-banner")).toHaveTextContent("correspondence corr-1");
+    expect(screen.getByRole("link", { name: "Open resource evidence hub" })).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=diagram&runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222",
+    );
+  });
+
   it("shows context banner and keeps multi-turn history", async () => {
     searchParams = new URLSearchParams(
       "cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222",

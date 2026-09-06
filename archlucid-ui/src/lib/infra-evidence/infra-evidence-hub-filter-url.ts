@@ -21,6 +21,7 @@ export const RESOURCE_HUB_CONTROL_ID_PARAM = "controlId";
 export const RESOURCE_HUB_DIFF_ID_PARAM = "diffId";
 export const RESOURCE_HUB_FINDING_ID_PARAM = "findingId";
 export const RESOURCE_HUB_INSTANCE_ID_PARAM = "instanceId";
+export const RESOURCE_HUB_CORRESPONDENCE_ID_PARAM = "correspondenceId";
 
 const ALLOWED_TABS: ReadonlySet<ResourceHubTab> = new Set([
   "overview",
@@ -92,6 +93,7 @@ export function buildInfrastructureAskHref(context: {
   readonly diffId?: string;
   readonly findingId?: string;
   readonly instanceId?: string;
+  readonly correspondenceId?: string;
   readonly runId?: string;
   readonly assessmentId?: string;
   readonly auditEvidenceSnapshotId?: string;
@@ -117,6 +119,10 @@ export function buildInfrastructureAskHref(context: {
 
   if (context.instanceId != null && context.instanceId.trim().length > 0) {
     params.set(RESOURCE_HUB_INSTANCE_ID_PARAM, context.instanceId.trim());
+  }
+
+  if (context.correspondenceId != null && context.correspondenceId.trim().length > 0) {
+    params.set(RESOURCE_HUB_CORRESPONDENCE_ID_PARAM, context.correspondenceId.trim());
   }
 
   if (context.runId != null && context.runId.trim().length > 0) {
@@ -149,6 +155,7 @@ export function resolveResourceHubTabFromAskScope(context: {
   readonly assessmentId?: string;
   readonly auditEvidenceSnapshotId?: string;
   readonly controlId?: string;
+  readonly correspondenceId?: string;
 }): ResourceHubTab | undefined {
   if (context.findingId != null && context.findingId.trim().length > 0) {
     return "findings";
@@ -167,6 +174,10 @@ export function resolveResourceHubTabFromAskScope(context: {
     && context.controlId.trim().length > 0
   ) {
     return "audit";
+  }
+
+  if (context.correspondenceId != null && context.correspondenceId.trim().length > 0) {
+    return "diagram";
   }
 
   if (context.diffId != null && context.diffId.trim().length > 0) {
