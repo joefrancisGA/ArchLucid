@@ -8,6 +8,12 @@ import {
   type RiskRegisterFilter,
 } from "@/lib/architecture/architecture-risk-register-page";
 
+/** Canonical home-surface noun for committed review records (P2-14). */
+export const OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN = {
+  singular: "sealed review record",
+  plural: "sealed review records",
+} as const;
+
 export type MetricCountScopeKind =
   | "workspace"
   | "this-review"
@@ -188,16 +194,21 @@ export function operatorHomeActiveReviewsPresentation(count: number): MetricCoun
   return {
     count,
     noun: count === 1 ? "active review" : "active reviews",
-    dimensions: [{ kind: "reviews-inventory", reviewsFilter: "Active" }],
+    dimensions: [{ kind: "workspace" }, { kind: "reviews-inventory", reviewsFilter: "Active" }],
     href: reviewsHubInventoryFilterHref("Active"),
   };
 }
 
 export function operatorHomeFinalizedPackagesPresentation(count: number): MetricCountPresentation {
+  const noun =
+    count === 1
+      ? OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN.singular
+      : OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN.plural;
+
   return {
     count,
-    noun: count === 1 ? "finalized package" : "finalized packages",
-    dimensions: [{ kind: "reviews-inventory", reviewsFilter: "finalized" }],
+    noun,
+    dimensions: [{ kind: "workspace" }, { kind: "reviews-inventory", reviewsFilter: "finalized" }],
     href: reviewsHubInventoryFilterHref("finalized"),
   };
 }

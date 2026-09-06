@@ -181,7 +181,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
   }
 
   return (
-    <div key={group.id} data-testid={`sidebar-group-${group.id}`} className="mt-1 first:mt-0">
+    <div key={group.id} data-testid={`sidebar-group-${group.id}`} className={cn("mt-1 first:mt-0", group.id === "operator-system-admin" && "mt-4 border-t border-neutral-200 pt-3 dark:border-neutral-800")}>
       {props.isCollapsible ? (
         <div className={headingClassName}>
           <button

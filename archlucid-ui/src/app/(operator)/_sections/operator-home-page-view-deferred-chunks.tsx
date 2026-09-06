@@ -54,9 +54,3 @@ export const OperatorHomeGateDeferred = createDeferredComponentFromManifest("ope
   loadingClassName: "min-h-[12rem]",
   loadingTestId: "operator-home-gate-deferred-chunk-loading",
 });
-
-/** Local-dev footer rail — always last on home so stickiness/ROI strips stay above it. */
-export const DevTestingQuickSwitchPanelDeferred = createDeferredComponentFromManifest(
-  "operator-home-dev-testing-quick-switch",
-  { suppressLoading: true },
-);

@@ -20,8 +20,23 @@ import {
 } from "@/lib/operator/operator-last-refreshed-label";
 
 export type OperatorHomePageHeaderProps = {
-  readonly subtitle: string;
+  readonly subtitle?: string;
+  readonly workspaceLabel?: string | null;
 };
+
+function operatorHomeWorkspaceSubtitle(workspaceLabel: string | null | undefined): ReactNode {
+  const trimmed = workspaceLabel?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  return (
+    <span className="block text-al-text-secondary">
+      Summarizing <span className="font-medium text-al-text-primary">{trimmed}</span>.
+    </span>
+  );
+}
 
 function operatorHomeFreshnessContent(input: {
   readonly lastRefreshedAt: Date | null | undefined;
@@ -60,12 +75,23 @@ export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): Reac
     refreshing,
   });
 
+  const workspaceSubtitle = operatorHomeWorkspaceSubtitle(props.workspaceLabel);
+  const pageSubtitle =
+    props.subtitle !== undefined && props.subtitle.length > 0
+      ? (
+          <>
+            {props.subtitle}
+            {workspaceSubtitle}
+          </>
+        )
+      : workspaceSubtitle;
+
   return (
     <OperatorPageHeader
       navHref="/"
       title={OPERATOR_HOME_PAGE_TITLE}
       titleTestId="operator-home-page-title"
-      subtitle={props.subtitle}
+      subtitle={pageSubtitle}
       subtitleClassName="[&_strong]:font-bold"
       subtitleTestId="operator-home-page-subtitle"
       actions={

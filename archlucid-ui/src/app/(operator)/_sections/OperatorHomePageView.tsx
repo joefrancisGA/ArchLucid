@@ -37,7 +37,6 @@ import { resolveHighestNonZeroAttentionKind } from "@/lib/operator/operator-atte
 import { OPERATOR_ATTENTION_KIND_IDS } from "@/lib/operator/operator-attention-taxonomy";
 import {
   BuyerPolishedHomeHeroSectionDeferred,
-  DevTestingQuickSwitchPanelDeferred,
   OperatorHomeBelowFoldPanelsDeferred,
   OperatorHomeSponsorRoiStripDeferred,
   OperatorHomeGateDeferred,
@@ -82,9 +81,9 @@ function OperatorHomePageChrome(props: {
             props.buyerPolishedShell,
             props.workingMode,
             props.workspaceMetrics,
-            props.workspaceLabel,
-          ) ?? ""
+          ) ?? undefined
         }
+        workspaceLabel={props.workspaceLabel}
       />
 </>
   );
@@ -283,7 +282,6 @@ function OperatorHomePageBody(props: {
           workingMode: props.workingMode,
         }),
       )}
-      <DevTestingQuickSwitchPanelDeferred />
     </OperatorHomeWorkspaceActivityProvider>
   );
 }
