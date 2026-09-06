@@ -30,12 +30,11 @@ import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 import { assuranceMaturityBadgeLabel } from "@/lib/security-trust-content";
 
 vi.mock("next/navigation", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("next/navigation")>();
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
 
-  return {
-    ...actual,
-    usePathname: () => SETTINGS_SECURITY_TRUST_PATH,
-  };
+  return extendNextNavigationVitestMock(importOriginal, {
+    usePathname: () => "/administration/security-trust",
+  });
 });
 
 vi.mock("@/components/help/HelpTopicPdfDownloadButton", () => ({

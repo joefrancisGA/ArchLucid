@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 
 import Link from "next/link";
@@ -17,7 +19,11 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { OperatorSecurityTrustBuyerChrome } from "@/app/(operator)/administration/security-trust/_sections/OperatorSecurityTrustBuyerChrome";
+import { OperatorSecurityTrustClaimOrientationStrip } from "@/app/(operator)/administration/security-trust/_sections/OperatorSecurityTrustClaimOrientationStrip";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
@@ -57,9 +63,19 @@ import {
 import {
   OPERATOR_SECURITY_TRUST_PAGE_HERO_DESCRIPTION,
   OPERATOR_SECURITY_TRUST_PAGE_NAV_HREF,
+  OPERATOR_SECURITY_TRUST_BUYER_START_HERE_HELPER,
+  OPERATOR_SECURITY_TRUST_FIRST_VIEWPORT_TEST_ID,
+  OPERATOR_SECURITY_TRUST_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  OPERATOR_SECURITY_TRUST_PAGE_LEAD,
+  OPERATOR_SECURITY_TRUST_PRIMARY_CONTENT_ID,
+  OPERATOR_SECURITY_TRUST_SKIP_LINK_LABEL,
+  OPERATOR_SECURITY_TRUST_SKIP_TARGET_ID,
+  OPERATOR_SECURITY_TRUST_START_HERE_CARD_TITLE,
   OPERATOR_SECURITY_TRUST_PRIMARY_TRUST_CENTER_LABEL,
   OPERATOR_SECURITY_TRUST_SECONDARY_MATERIALS_HEADING,
+  operatorSecurityTrustPageSubtitle,
 } from "@/lib/operator/operator-security-trust-page-copy";
+import { SETTINGS_SECURITY_TRUST_CLAIM_DISCIPLINE } from "@/lib/settings-security-trust-evidence-copy";
 import { resolveTrustAssuranceSecurityTrustPeerLinks } from "@/lib/vocabulary/trust-assurance-security-trust-vocabulary";
 import { SECURITY_TRUST_HELP_HUB_HELP_LINK } from "@/lib/vocabulary/security-trust-help-hub-vocabulary";
 
@@ -101,7 +117,7 @@ function SecurityTrustMaturitySectionHeader({
   );
 }
 
-function SecurityTrustMaterialsTable() {
+function SecurityTrustMaterialsTable({ hidePdfDownloads = false }: { readonly hidePdfDownloads?: boolean }) {
   return (
     <EnterpriseTable
       ariaLabel="Procurement materials inventory"
@@ -125,7 +141,7 @@ function SecurityTrustMaterialsTable() {
             <EnterpriseTableRow key={item.label} data-testid={`security-trust-material-row-${item.docSlug ?? item.label}`}>
               <EnterpriseTableCell>
                 <SecurityTrustMaterialLink item={item} />
-                {registryEntry !== null && registryEntry.pdfStatus === "public" ? (
+                {!hidePdfDownloads && registryEntry !== null && registryEntry.pdfStatus === "public" ? (
                   <div className="mt-2">
                     <HelpTopicPdfDownloadButton entry={registryEntry} />
                   </div>
@@ -220,16 +236,69 @@ function SecurityTrustRelatedSurfacesDisclosure() {
 
 /** Procurement-oriented trust center (operator shell). */
 export function OperatorSecurityTrustPageView() {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
   return (
     <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="operator-security-trust-page">
-      <OperatorPageHeader
-        navHref={OPERATOR_SECURITY_TRUST_PAGE_NAV_HREF}
-        title={OPERATOR_NAV_LINK_LABELS.securityTrust}
-        subtitle={OPERATOR_SECURITY_TRUST_PAGE_HERO_DESCRIPTION}
-        headingLevel="h1"
-        titleTestId="operator-security-trust-page-title"
-        actions={<PageContextualHelpButton />}
-      />
+      <a
+        href={`#${OPERATOR_SECURITY_TRUST_SKIP_TARGET_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {OPERATOR_SECURITY_TRUST_SKIP_LINK_LABEL}
+      </a>
+
+      <div
+        id={OPERATOR_SECURITY_TRUST_PRIMARY_CONTENT_ID}
+        data-testid={OPERATOR_SECURITY_TRUST_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+      >
+        <OperatorPageHeader
+          navHref={OPERATOR_SECURITY_TRUST_PAGE_NAV_HREF}
+          title={OPERATOR_NAV_LINK_LABELS.securityTrust}
+          subtitle={operatorSecurityTrustPageSubtitle(buyerPolishedShell)}
+          headingLevel="h1"
+          titleTestId="operator-security-trust-page-title"
+          claimDiscipline={SETTINGS_SECURITY_TRUST_CLAIM_DISCIPLINE}
+          claimDisciplineTestId={OPERATOR_SECURITY_TRUST_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+          actions={buyerPolishedShell ? null : <PageContextualHelpButton />}
+        />
+
+        <div
+          id={OPERATOR_SECURITY_TRUST_SKIP_TARGET_ID}
+          data-testid={OPERATOR_SECURITY_TRUST_FIRST_VIEWPORT_TEST_ID}
+          className={cn(
+            "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            OPERATOR_LAYOUT.sectionStack,
+          )}
+        >
+          {buyerPolishedShell ? (
+            <div className="space-y-4" data-testid="operator-security-trust-buyer-first-viewport-intro">
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                data-testid="operator-security-trust-intro"
+              >
+                {OPERATOR_SECURITY_TRUST_PAGE_LEAD}
+              </p>
+              <section
+                className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+                data-testid="operator-security-trust-start-here-panel"
+                aria-labelledby="operator-security-trust-start-here-heading"
+              >
+                <h2
+                  id="operator-security-trust-start-here-heading"
+                  className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+                >
+                  {OPERATOR_SECURITY_TRUST_START_HERE_CARD_TITLE}
+                </h2>
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="operator-security-trust-buyer-start-here-helper"
+                >
+                  {OPERATOR_SECURITY_TRUST_BUYER_START_HERE_HELPER}
+                </p>
+              </section>
+            </div>
+          ) : null}
 
       <section
         aria-labelledby="security-trust-section-available-now-heading"
@@ -251,7 +320,7 @@ export function OperatorSecurityTrustPageView() {
               <p className={cn("m-0 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
                 {OPERATOR_SECURITY_TRUST_SECONDARY_MATERIALS_HEADING}
               </p>
-              <SecurityTrustMaterialsTable />
+              <SecurityTrustMaterialsTable hidePdfDownloads={buyerPolishedShell} />
             </div>
           </div>
         </div>
@@ -339,13 +408,15 @@ export function OperatorSecurityTrustPageView() {
           <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             {OPERATOR_SECURITY_TRUST_NDA_SHARED_TODAY}
           </p>
-          <p className={cn("m-0 mt-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-            {OPERATOR_SECURITY_TRUST_NDA_APPROVAL_ONLY}{" "}
-            <a className={OPERATOR_LINK.inline} href={OPERATOR_SECURITY_TRUST_NDA_REQUEST_HREF}>
-              {OPERATOR_SECURITY_TRUST_NDA_REQUEST_LABEL}
-            </a>
-            .
-          </p>
+          {!buyerPolishedShell ? (
+            <p className={cn("m-0 mt-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+              {OPERATOR_SECURITY_TRUST_NDA_APPROVAL_ONLY}{" "}
+              <a className={OPERATOR_LINK.inline} href={OPERATOR_SECURITY_TRUST_NDA_REQUEST_HREF}>
+                {OPERATOR_SECURITY_TRUST_NDA_REQUEST_LABEL}
+              </a>
+              .
+            </p>
+          ) : null}
         </div>
       </section>
 
@@ -367,7 +438,17 @@ export function OperatorSecurityTrustPageView() {
         </div>
       </section>
 
-      <SecurityTrustRelatedSurfacesDisclosure />
+      {!buyerPolishedShell ? <SecurityTrustRelatedSurfacesDisclosure /> : null}
+        </div>
+
+        {buyerPolishedShell ? (
+          <OperatorSecurityTrustBuyerChrome />
+        ) : (
+          <div data-testid="operator-security-trust-orientation-bottom">
+            <OperatorSecurityTrustClaimOrientationStrip />
+          </div>
+        )}
+      </div>
     </OperatorPageContainer>
   );
 }
