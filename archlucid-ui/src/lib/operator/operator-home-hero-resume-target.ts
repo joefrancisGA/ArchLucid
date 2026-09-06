@@ -89,7 +89,7 @@ export function resolveOperatorHomeHeroResumeTarget(
 
   return {
     href: recommendedItem.href,
-    draftId: draftId?.trim().length > 0 ? draftId : undefined,
+    draftId: draftId !== undefined && draftId.trim().length > 0 ? draftId : undefined,
     runId: runIdFromReviewHref(recommendedItem.href) ?? undefined,
   };
 }

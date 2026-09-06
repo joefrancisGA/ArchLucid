@@ -1,14 +1,25 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const pushMock = vi.fn();
+const navigationMocks = vi.hoisted(() => ({
+  searchParams: new URLSearchParams(),
+}));
+const replaceMock = vi.fn((href: string) => {
+  const queryIndex = href.indexOf("?");
+
+  navigationMocks.searchParams = new URLSearchParams(
+    queryIndex >= 0 ? href.slice(queryIndex + 1) : "",
+  );
+});
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-    useRouter: () => ({ push: pushMock }),
-    usePathname: () => "/",
+    useRouter: () => ({ push: pushMock, replace: replaceMock }),
+    usePathname: () => "/administration/identity/sso-wizard",
+    useSearchParams: () => navigationMocks.searchParams,
   };
 });
 
@@ -52,6 +63,12 @@ import {
   SSO_WIZARD_TEST_LOGIN_SUCCESS_MESSAGE,
 } from "@/lib/admin-integration-mutation-outcome-copy";
 import { showSuccess } from "@/lib/toast";
+
+beforeEach(() => {
+  pushMock.mockReset();
+  replaceMock.mockReset();
+  navigationMocks.searchParams = new URLSearchParams();
+});
 
 function selectEntraAndContinue(): void {
   fireEvent.click(screen.getByTestId("sso-idp-entra"));
@@ -170,6 +187,9 @@ describe("SsoWizardPage", () => {
     render(<SsoWizardPageClient />);
 
     fireEvent.click(screen.getByTestId("sso-idp-entra"));
+    await waitFor(() => {
+      expect(screen.getByTestId("sso-wizard-continue")).toBeEnabled();
+    });
     fireEvent.click(screen.getByRole("button", { name: /^Cancel$/i }));
 
     expect(await screen.findByText("Leave SSO setup?")).toBeInTheDocument();
