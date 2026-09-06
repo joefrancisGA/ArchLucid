@@ -100,21 +100,23 @@ export function WorkbenchHubScopeLinks(props: WorkbenchHubScopeLinksProps): Reac
         ))}
       </div>
       {siblingTabEntries.length > 0 ? (
-        <p className={cn("m-0 text-sm text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)}>
-          Also in hub:{" "}
-          {siblingTabEntries.map((tab, index) => (
-            <span key={tab}>
-              {index > 0 ? " · " : null}
-              <Link
-                className="text-al-link hover:underline"
-                href={buildSiblingHubHref(cloudResourceId, tab, scopePatch)}
-                data-testid={resolveSiblingTestId(siblingTestIdPrefix, tab)}
-              >
-                {formatResourceHubTabCompactLabel(tab)}
-              </Link>
-            </span>
-          ))}
-        </p>
+        <nav aria-label="Related resource hub sections" data-testid="infra-workbench-hub-sibling-nav">
+          <p className={cn("m-0 text-sm text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)}>
+            Also in hub:{" "}
+            {siblingTabEntries.map((tab, index) => (
+              <span key={tab}>
+                {index > 0 ? " · " : null}
+                <Link
+                  className="text-al-link hover:underline"
+                  href={buildSiblingHubHref(cloudResourceId, tab, scopePatch)}
+                  data-testid={resolveSiblingTestId(siblingTestIdPrefix, tab)}
+                >
+                  {formatResourceHubTabCompactLabel(tab)}
+                </Link>
+              </span>
+            ))}
+          </p>
+        </nav>
       ) : null}
     </div>
   );

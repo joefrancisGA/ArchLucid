@@ -47,7 +47,7 @@ public sealed class InsightDensityGateOptions
     {
         get;
         set;
-    } = 12;
+    } = 40;
 
     /// <summary>
     ///     When true with <see cref="EnableLlmJudge" /> and a Premium deployment, deterministic engine findings may
