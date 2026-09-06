@@ -70,10 +70,18 @@ export async function postArchitectureRequestRaw(
 /** Private-beta smoke sets LIVE_E2E_PRIVATE_BETA_ACCESS=1 — fail faster than the 12×300s create-run loop. */
 function maxArchitectureMutationAttempts(): number {
   if (process.env.LIVE_E2E_PRIVATE_BETA_ACCESS === "1") {
-    return 4;
+    return 5;
   }
 
   return getMaxInfrastructureMutationAttempts();
+}
+
+async function ensurePrivateBetaApiReadyBeforeCreateRun(request: APIRequestContext): Promise<void> {
+  if (process.env.LIVE_E2E_PRIVATE_BETA_ACCESS !== "1") {
+    return;
+  }
+
+  await waitForLiveApiReady(request, { timeoutMs: 120_000 });
 }
 
 /** Per-attempt HTTP timeout — prevents a wedged create from burning the whole Playwright test timeout. */
@@ -147,6 +155,8 @@ export async function createRun(
   tenantScope?: LiveTenantScopeHeaders | null,
   explicitBearerToken?: string | null,
 ): Promise<{ runId: string }> {
+  await ensurePrivateBetaApiReadyBeforeCreateRun(request);
+
   for (let attempt = 0; attempt < maxArchitectureMutationAttempts(); attempt++) {
     let res: APIResponse;
 
@@ -1167,6 +1177,7 @@ export async function postGovernanceApproveRaw(
 
 export type RunDetailsJson = {
   run?: {
+    architectureId?: string | null;
     goldenManifestId?: string | null;
     currentManifestVersion?: string | null;
     /** Numeric enum from API JSON, or string name when serialized as string. */
