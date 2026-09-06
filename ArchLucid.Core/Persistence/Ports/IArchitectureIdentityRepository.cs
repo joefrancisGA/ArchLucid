@@ -38,6 +38,19 @@ public interface IArchitectureIdentityRepository
         string displayName,
         CancellationToken cancellationToken = default);
 
+    /// <summary>
+    ///     Patches <see cref="ArchitectureIdentityRecord.DisplayName" /> and/or
+    ///     <see cref="ArchitectureIdentityRecord.Description" /> when the identity exists in scope.
+    /// </summary>
+    Task<bool> TryPatchAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        bool updateDisplayName,
+        string? displayName,
+        bool updateDescription,
+        string? description,
+        CancellationToken cancellationToken = default);
+
     Task<PagedResponse<ArchitectureIdentityListItem>> ListAsync(
         ScopeContext scope,
         int page,
