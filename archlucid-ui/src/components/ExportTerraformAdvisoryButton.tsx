@@ -20,6 +20,8 @@ import { downloadTerraformAdvisoryExportZip } from "@/lib/api";
 import { recordFirstExportOpenedOnce } from "@/lib/first-tenant-funnel-telemetry";
 import { showError } from "@/lib/toast";
 import { TERRAFORM_ADVISORY_EXPORT_DISCLAIMER } from "@/lib/terraform-advisory-disclaimer";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   parseTerraformAdvisoryExportConfirmOpenFromSearch,
   terraformAdvisoryExportConfirmHrefFromSearch,
@@ -27,11 +29,12 @@ import {
 
 export type ExportTerraformAdvisoryButtonProps = {
   runId: string;
+  readonly manifestVersion?: string | null;
 };
 
 /** Run detail action: downloads advisory Terraform placeholder ZIP via API (disclaimer gate). */
 export function ExportTerraformAdvisoryButton(props: ExportTerraformAdvisoryButtonProps): ReactNode {
-  const { runId } = props;
+  const { runId, manifestVersion = null } = props;
   const router = useRouter();
   const pathname = usePathname() ?? `/architecture/reviews/${runId}`;
   const searchParams = useSearchParams();
@@ -40,6 +43,10 @@ export function ExportTerraformAdvisoryButton(props: ExportTerraformAdvisoryButt
     parseTerraformAdvisoryExportConfirmOpenFromSearch(terraformExportConfirmParam),
   );
   const [busy, setBusy] = useState(false);
+  const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
+    runId,
+    manifestVersion,
+  });
 
   const syncTerraformExportConfirmToUrl = useCallback(
     (confirmOpen: boolean) => {
@@ -64,6 +71,10 @@ export function ExportTerraformAdvisoryButton(props: ExportTerraformAdvisoryButt
   );
 
   const runDownload = useCallback(async () => {
+    if (sealedManifestBlockedReason !== null) {
+      return;
+    }
+
     setBusy(true);
 
     try {
@@ -76,19 +87,31 @@ export function ExportTerraformAdvisoryButton(props: ExportTerraformAdvisoryButt
     } finally {
       setBusy(false);
     }
-  }, [runId]);
+  }, [runId, sealedManifestBlockedReason]);
 
   return (
     <>
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        data-testid="export-terraform-advisory-button"
-        onClick={() => setOpen(true)}
-      >
-        Export to Terraform
-      </Button>
+      <div className="flex flex-col gap-1">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          data-testid="export-terraform-advisory-button"
+          disabled={sealedManifestBlockedReason !== null}
+          onClick={() => setOpen(true)}
+        >
+          Export to Terraform
+        </Button>
+        {sealedManifestBlockedReason !== null ? (
+          <p
+            role="alert"
+            className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="export-terraform-advisory-blocked-reason"
+          >
+            {sealedManifestBlockedReason}
+          </p>
+        ) : null}
+      </div>
       <AlertDialog
         open={open}
         onOpenChange={(next) => {

@@ -22,7 +22,9 @@ public sealed class InMemoryArchitectureProjectRepositoryTests
         active.Should().ContainSingle();
         active[0].Name.Should().Be("Pilot");
 
-        (await sut.TrySoftDeleteAsync(tenantId, workspaceId, projectId, CancellationToken.None)).Should().BeTrue();
+        (await sut.TrySoftDeleteAsync(tenantId, workspaceId, projectId, CancellationToken.None))
+            .Should()
+            .Be(ArchitectureProjectSoftDeleteResult.Deleted);
 
         (await sut.ListActiveByTenantAsync(tenantId, CancellationToken.None)).Should().BeEmpty();
 
@@ -38,6 +40,14 @@ public sealed class InMemoryArchitectureProjectRepositoryTests
 
         (await sut.ListActiveByTenantAsync(tenantId, CancellationToken.None)).Should().ContainSingle();
         (await sut.ListSoftDeletedByTenantAsync(tenantId, CancellationToken.None)).Should().BeEmpty();
+
+        (await sut.TryRestoreAsync(tenantId, workspaceId, projectId, CancellationToken.None))
+            .Should()
+            .Be(ArchitectureProjectRestoreResult.AlreadyActive);
+
+        (await sut.TrySoftDeleteAsync(tenantId, workspaceId, projectId, CancellationToken.None))
+            .Should()
+            .Be(ArchitectureProjectSoftDeleteResult.AlreadyDeleted);
     }
 
     [Fact]
@@ -76,8 +86,9 @@ public sealed class InMemoryArchitectureProjectRepositoryTests
     {
         InMemoryArchitectureProjectRepository sut = new();
 
-        bool deleted = await sut.TrySoftDeleteAsync(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), CancellationToken.None);
+        ArchitectureProjectSoftDeleteResult deleted =
+            await sut.TrySoftDeleteAsync(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), CancellationToken.None);
 
-        deleted.Should().BeFalse();
+        deleted.Should().Be(ArchitectureProjectSoftDeleteResult.NotFound);
     }
 }

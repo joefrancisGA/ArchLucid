@@ -11,6 +11,7 @@ import {
   parseUnverifiedAssumptions,
 } from "./assumption-and-severity";
 import { countSkippedMustQuestions } from "./count-skipped-must-questions";
+import { isTransparencyTrailComplete } from "@/lib/feasibility/transparency-trail-completeness";
 import type { FinalizeQualityScorecardInput } from "./finalize-quality-scorecard";
 
 export type DeriveFinalizeQualityScorecardOptions = {
@@ -110,6 +111,9 @@ export function deriveFinalizeQualityScorecardInput(
     lowExtractionConfidenceCount,
     unresolvedHighSeverityDispositionCount,
     skippedMustCount: countSkippedMustQuestions(options?.transparencyTrail),
+    transparencyTrailIncomplete:
+      options?.transparencyTrail !== undefined &&
+      !isTransparencyTrailComplete(options.transparencyTrail),
   };
 }
 

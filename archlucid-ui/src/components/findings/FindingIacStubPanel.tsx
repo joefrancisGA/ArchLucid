@@ -2,7 +2,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -11,10 +12,16 @@ import { getRunDetail } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { coerceRunDetail } from "@/lib/operator/operator-response-guards";
 import { extractIacStubForFinding } from "@/lib/quick-decision-summary-derive";
+import {
+  findingIacStubDisclosureHrefFromSearch,
+  parseFindingIacStubOpenFromSearch,
+} from "@/lib/findings/finding-iac-stub-disclosure-url";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
 type FindingIacStubPanelProps = {
   readonly runId: string;
   readonly findingId: string;
+  readonly manifestVersion?: string | null;
   readonly initialIacStub?: string | null;
 };
 
@@ -22,6 +29,11 @@ type FindingIacStubPanelProps = {
  * Collapsible Azure Bicep remediation stub for a finding (from run agent results `iacStub`).
  */
 export function FindingIacStubPanel(props: FindingIacStubPanelProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const findingIacStubOpenParam = searchParams.get("findingIacStubOpen");
+  const [open, setOpenState] = useState(() => parseFindingIacStubOpenFromSearch(findingIacStubOpenParam));
   const [iacStub, setIacStub] = useState<string | null>(
     typeof props.initialIacStub === "string" && props.initialIacStub.trim().length > 0
       ? props.initialIacStub.trim()
@@ -34,6 +46,28 @@ export function FindingIacStubPanel(props: FindingIacStubPanelProps) {
   const [error, setError] = useState<{ message: string; correlationId: string | null } | null>(null);
 
   const [hasCopied, setHasCopied] = useState(false);
+  const [copyError, setCopyError] = useState<string | null>(null);
+
+  const syncOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      router.replace(findingIacStubDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (detailsOpen: boolean) => {
+      setOpenState(detailsOpen);
+      syncOpenToUrl(detailsOpen);
+    },
+    [syncOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOpenState(parseFindingIacStubOpenFromSearch(findingIacStubOpenParam));
+  }, [findingIacStubOpenParam]);
 
   async function loadStub(): Promise<void> {
     if (loaded || busy) {
@@ -74,9 +108,11 @@ export function FindingIacStubPanel(props: FindingIacStubPanelProps) {
   return (
     <CollapsibleSection
       title="Bicep stub"
-      defaultOpen={false}
-      onToggle={(open) => {
-        if (open) {
+      open={open}
+      onToggle={(detailsOpen) => {
+        setOpen(detailsOpen);
+
+        if (detailsOpen) {
           void loadStub();
         }
       }}
@@ -110,9 +146,23 @@ export function FindingIacStubPanel(props: FindingIacStubPanelProps) {
             variant="outline"
             size="sm"
             onClick={() => {
+              const blockedReason = runCollateralSealedManifestCopyBlockedReason({
+                runId: props.runId,
+                manifestVersion: props.manifestVersion,
+              });
+
+              if (blockedReason !== null) {
+                setCopyError(blockedReason);
+                return;
+              }
+
+              setCopyError(null);
+
               void navigator.clipboard.writeText(iacStub).then(() => {
                 setHasCopied(true);
                 setTimeout(() => setHasCopied(false), 2000);
+              }).catch(() => {
+                setCopyError("Clipboard unavailable — select the stub above and copy manually.");
               });
             }}
           >
@@ -138,6 +188,15 @@ export function FindingIacStubPanel(props: FindingIacStubPanelProps) {
               "Copy to Clipboard"
             )}
           </Button>
+          {copyError !== null ? (
+            <p
+              role="alert"
+              className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="finding-iac-stub-copy-error"
+            >
+              {copyError}
+            </p>
+          ) : null}
         </div>
       ) : null}
 

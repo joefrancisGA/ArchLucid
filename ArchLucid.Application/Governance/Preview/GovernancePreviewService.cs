@@ -59,7 +59,7 @@ public sealed class GovernancePreviewService(
         // The candidate manifest is the specific version being previewed — it may differ from
         // the run's current committed manifest (e.g. an older committed version is being evaluated).
         GoldenManifest? candidateManifest =
-            runDetail.Manifest is not null && string.Equals(runDetail.Run.CurrentManifestVersion, manifestVersion, StringComparison.Ordinal)
+            runDetail.Manifest is not null && string.Equals(runDetail.Run.CurrentManifestVersion, manifestVersion, StringComparison.OrdinalIgnoreCase)
                 ? runDetail.Manifest
                 : await unifiedGoldenManifestReader.GetByVersionAsync(manifestVersion, cancellationToken);
 

@@ -21,7 +21,7 @@ jobs:
   ui-e2e-live-beta-access:
     name: "Operator UI: private-beta access-path (JwtBearer)"
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
@@ -96,7 +96,7 @@ jobs:
         env:
           ASPNETCORE_ENVIRONMENT: Development
           ASPNETCORE_URLS: http://127.0.0.1:5128
-          ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidLiveE2eBetaAccess"
+          ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidLiveE2eBetaAccess;Max Pool Size=200;Connect Timeout=120"
           ArchLucid__StorageProvider: Sql
           ArchLucidAuth__Mode: JwtBearer
           ArchLucidAuth__Authority: ""
@@ -119,6 +119,15 @@ jobs:
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
           DataConsistency__InitialDelaySeconds: "0"
+          DataConsistency__OrphanProbeEnabled: "false"
+          Demo__Enabled: "false"
+          Demo__SeedOnStartup: "false"
+          TrialArchitecturePreseed__Enabled: "false"
+          Persistence__SqlOpenResilience__MaxRetryAttempts: "6"
+          Persistence__SqlOpenResilience__BaseDelayMilliseconds: "500"
+          ArchLucid__Persistence__DefaultSqlCommandTimeoutSeconds: "300"
+          ArchLucid__CreateRun__DistributedIdempotencyLockTimeoutMilliseconds: "180000"
+          AuthorityPipeline__PipelineTimeout: "00:05:00"
           HostLeaderElection__Enabled: "false"
           Observability__ConsoleExporter__Enabled: "false"
         run: |
@@ -136,6 +145,7 @@ jobs:
           LIVE_API_URL: http://127.0.0.1:5128
           LIVE_E2E_SKIP_NEXT_BUILD: "1"
           LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
+          LIVE_E2E_PRIVATE_BETA_ACCESS: "1"
           NODE_OPTIONS: --max-old-space-size=6144
         run: |
           set -e
@@ -154,6 +164,7 @@ jobs:
           echo "::add-mask::${TOKEN}"
           export LIVE_JWT_TOKEN="${TOKEN}"
           export ARCHLUCID_PROXY_BEARER_TOKEN="${TOKEN}"
+          bash "${GITHUB_WORKSPACE}/scripts/ci/warm_private_beta_live_api_paths.sh" "${TOKEN}"
           npx playwright install --with-deps chromium
           curl -fsS http://127.0.0.1:5128/health/ready
           npx playwright test --workers=1 live-api-private-beta-access.spec.ts

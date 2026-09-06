@@ -36,7 +36,7 @@ describe("RunScopedAuditExportButton", () => {
   it("exports run-scoped audit CSV for Auditor principals", async () => {
     mockPrincipal(["Auditor"], "Auditor");
 
-    render(<RunScopedAuditExportButton runId="run-123" />);
+    render(<RunScopedAuditExportButton runId="run-123" manifestVersion="manifest-123" />);
 
     fireEvent.click(screen.getByTestId("run-scoped-audit-export-button"));
 
@@ -73,12 +73,21 @@ describe("RunScopedAuditExportButton", () => {
       new ApiRequestError("Forbidden", { httpStatus: 403, correlationId: null, problem: null }),
     );
 
-    render(<RunScopedAuditExportButton runId="run-403" />);
+    render(<RunScopedAuditExportButton runId="run-403" manifestVersion="manifest-403" />);
 
     fireEvent.click(screen.getByTestId("run-scoped-audit-export-button"));
 
     await waitFor(() => {
       expect(screen.getByTestId("run-scoped-audit-export-role-hint")).toBeInTheDocument();
     });
+  });
+
+  it("shows sealed-manifest blocked reason when manifest version is missing", () => {
+    mockPrincipal(["Auditor"], "Auditor");
+
+    render(<RunScopedAuditExportButton runId="run-123" />);
+
+    expect(screen.getByTestId("run-scoped-audit-export-button")).toBeDisabled();
+    expect(screen.getByTestId("run-scoped-audit-export-blocked-reason")).toBeInTheDocument();
   });
 });

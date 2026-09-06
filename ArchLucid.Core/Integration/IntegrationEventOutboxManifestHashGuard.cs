@@ -20,13 +20,18 @@ public static class IntegrationEventOutboxManifestHashGuard
         IntegrationEventTypes.AlertFiredV1,
         IntegrationEventTypes.AlertAcknowledgedV1,
         IntegrationEventTypes.AlertResolvedV1,
+        IntegrationEventTypes.AuthorityRunFailedV1,
+        IntegrationEventTypes.AuthorityRunQualityGateRejectedV1,
+        IntegrationEventTypes.ComplianceDriftEscalatedV1,
     };
 
     public static void EnsureRunScopedPayloadIncludesManifestHashOrThrow(string eventType, ReadOnlyMemory<byte> payloadUtf8)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(eventType);
 
-        if (!RunScopedArchitectureEventTypes.Contains(eventType))
+        string canonicalEventType = IntegrationEventTypes.MapToCanonical(eventType);
+
+        if (!RunScopedArchitectureEventTypes.Contains(canonicalEventType))
             return;
 
         if (payloadUtf8.IsEmpty)
@@ -51,8 +56,21 @@ public static class IntegrationEventOutboxManifestHashGuard
         {
             JsonElement root = document.RootElement;
 
-            if (string.Equals(eventType, IntegrationEventTypes.AdvisoryScanCompletedV1, StringComparison.Ordinal)
+            if (string.Equals(canonicalEventType, IntegrationEventTypes.AdvisoryScanCompletedV1, StringComparison.Ordinal)
                 && !TryReadRunId(root, out Guid runId))
+            {
+                return;
+            }
+
+            if (string.Equals(canonicalEventType, IntegrationEventTypes.ComplianceDriftEscalatedV1, StringComparison.Ordinal)
+                && !TryReadRunId(root, out Guid driftRunId))
+            {
+                return;
+            }
+
+            if (AllowsOptionalManifestHashWhenAbsent(canonicalEventType)
+                && (!TryReadManifestHash(root, out string? optionalHash)
+                    || string.IsNullOrWhiteSpace(optionalHash)))
             {
                 return;
             }
@@ -61,7 +79,7 @@ public static class IntegrationEventOutboxManifestHashGuard
                 || string.IsNullOrWhiteSpace(manifestHash))
             {
                 throw new InvalidOperationException(
-                    $"Integration outbox publish blocked for '{eventType}': manifestHash is required on run-scoped architecture payloads.");
+                    $"Integration outbox publish blocked for '{canonicalEventType}': manifestHash is required on run-scoped architecture payloads.");
             }
         }
     }
@@ -80,6 +98,10 @@ public static class IntegrationEventOutboxManifestHashGuard
 
         return false;
     }
+
+    private static bool AllowsOptionalManifestHashWhenAbsent(string canonicalEventType) =>
+        string.Equals(canonicalEventType, IntegrationEventTypes.AuthorityRunFailedV1, StringComparison.Ordinal)
+        || string.Equals(canonicalEventType, IntegrationEventTypes.AuthorityRunQualityGateRejectedV1, StringComparison.Ordinal);
 
     private static bool TryReadManifestHash(JsonElement root, out string? manifestHash)
     {

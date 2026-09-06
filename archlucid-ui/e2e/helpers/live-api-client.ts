@@ -67,8 +67,12 @@ export async function postArchitectureRequestRaw(
   });
 }
 
-/** Mutating architecture POSTs share one API with many live specs — retry transient infra before failing journeys. */
+/** Private-beta smoke sets LIVE_E2E_PRIVATE_BETA_ACCESS=1 — fail faster than the 12×300s create-run loop. */
 function maxArchitectureMutationAttempts(): number {
+  if (process.env.LIVE_E2E_PRIVATE_BETA_ACCESS === "1") {
+    return 4;
+  }
+
   return getMaxInfrastructureMutationAttempts();
 }
 
@@ -515,7 +519,7 @@ export function liveE2eArchitectureRunCyclePlaywrightTimeoutMs(): number {
 
 /**
  * Playwright per-test timeout for private-beta JwtBearer access-path specs (`live-api-private-beta-access.spec.ts`).
- * The GitHub job allows 60 minutes; each test runs invite harness + UI + create-run (inline pipeline, up to
+ * The GitHub job allows 120 minutes; each test runs invite harness + UI + create-run (inline pipeline, up to
  * {@link liveE2eArchitectureRequestAttemptHttpTimeoutMs} per HTTP attempt with infrastructure retries).
  */
 export function liveE2ePrivateBetaAccessPlaywrightTimeoutMs(): number {

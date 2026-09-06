@@ -6,6 +6,7 @@
      Wave 9 leftovers: livelihood-spine-00-index.md (LS-01–12).
      Wave 10 leftovers: sealed-desk-00-index.md (SD-01–12).
      Wave 11 leftovers: career-record-00-index.md (CR-01–12).
+     Wave 12 kernel: livelihood-kernel-00-index.md (LK-01–15) — IS-15 execution superseded.
      Do not implement from this index. -->
 
 # Instrument-spine mitigations — Composer prompt set (IS-01–IS-15)
@@ -54,6 +55,7 @@ Do **not** collapse desktop review tabs behind **More**. Do **not** auto-switch 
 | **LS-01–12** | Wave 9 diagnosis leftovers | [`livelihood-spine-00-index.md`](livelihood-spine-00-index.md) |
 | **SD-01–12** | Wave 10 residuals after IS+LS | [`sealed-desk-00-index.md`](sealed-desk-00-index.md) |
 | **CR-01–12** | Wave 11 residuals after IS+LS+SD | [`career-record-00-index.md`](career-record-00-index.md) |
+| **LK-01–15** | Wave 12 kernel (ADR + BFF) | [`livelihood-kernel-00-index.md`](livelihood-kernel-00-index.md) — **supersedes IS-15 execution** |
 
 If an IS row lists a CD/AD/FD/WA/WD/PT owner, **do not fork** that file. Implement only the leftover in *What to build*.
 
@@ -73,7 +75,7 @@ Insight-density measurement (ID-01–10) is **shipped and advisory**. This set *
 
 **ADR first, then product.** Prefer **01 → 02 → 03** (one object). Then **04 → 05 → 06 → 07** (density control; 06/07 need 05). Then **08 / 14** (identity + IA). Then **09 / 10 / 11** (instrument). Then **12 / 13**. **15** is a dedicated session (BFF); do not mix it with UI-copy PRs.
 
-**01** must not rewrite ADR 0067. **04** must not rewrite `INSIGHT_DENSITY_MISS_CLAUSE.md` until **05** lands the gate. **05** must keep R5 (false-hard worse than noisy checklist). **15** must preserve CLI Bearer.
+**01** must not rewrite ADR 0067. **04** must not rewrite `INSIGHT_DENSITY_MISS_CLAUSE.md` until **05** lands the gate. **05** must keep R5 (false-hard worse than noisy checklist). **15** must preserve CLI Bearer. After wave 12 exists, **do not paste IS-15** — LK-05–07 execute ADR 0059.
 
 | # | Prompt file | Flaw it mitigates | Owner (do not fork) |
 |---|----------------|-------------------|---------------------|
@@ -125,3 +127,4 @@ Summarize: files changed, tests run, residual risk, Working vs Guided behavior, 
 **Wave 9:** [`livelihood-spine-00-index.md`](livelihood-spine-00-index.md) (**LS-01–12**). Do not fork IS-01–15.
 **Wave 10:** [`sealed-desk-00-index.md`](sealed-desk-00-index.md) (**SD-01–12**).
 **Wave 11:** [`career-record-00-index.md`](career-record-00-index.md) (**CR-01–12**). Do not fork IS/LS/SD.
+**Wave 12:** [`livelihood-kernel-00-index.md`](livelihood-kernel-00-index.md) (**LK-01–15**). Do **not** paste this file’s **IS-15**; LK-05–07 execute ADR 0059.

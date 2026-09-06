@@ -33,6 +33,9 @@ public sealed class InMemoryPolicyPackCatalogRepositoryTests
         bool demoted = await sut.TryDemoteAsync(promoted.PolicyPackCatalogEntryId, CancellationToken.None);
         demoted.Should().BeTrue();
 
+        bool demotedAgain = await sut.TryDemoteAsync(promoted.PolicyPackCatalogEntryId, CancellationToken.None);
+        demotedAgain.Should().BeTrue();
+
         IReadOnlyList<PolicyPackCatalogListItem> after = await sut.ListPromotedAsync(CancellationToken.None);
         after.Should().BeEmpty();
     }

@@ -215,6 +215,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
     unrecordedFieldCount,
     metadataContext,
   );
+  const headerActionsDisabledHintId = "review-header-actions-disabled-hint";
 
   return (
     <div data-testid="run-detail-workspace-header">
@@ -227,23 +228,43 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
         subtitle={props.eyebrowLabel}
         metadata={null}
         actions={
-          <>
-            <ReviewHeaderShareMenu
-              runId={props.runId}
-              isCommitted={props.signedReviewRecordId !== null}
-              findingsQueueHref={`/governance/findings?runId=${encodeURIComponent(props.runId)}`}
-              disabled={reviewPipelineIncomplete}
-              disabledReason={headerActionDisabledReason}
-            />
-            <ReviewAskDock
-              runId={props.runId}
-              reviewTitle={h1Title}
-              disabled={reviewPipelineIncomplete}
-              disabledReason={headerActionDisabledReason}
-            />
-            <ReviewPresenterHeaderButton reviewCompleted={!reviewPipelineIncomplete} />
-            <FavoriteReviewToggle runId={props.runId} title={h1Title} size="sm" />
-          </>
+          <div className="flex min-w-0 flex-col items-end gap-2">
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <ReviewHeaderShareMenu
+                runId={props.runId}
+                isCommitted={props.signedReviewRecordId !== null}
+                manifestVersion={props.signedReviewRecordId}
+                findingsQueueHref={`/governance/findings?runId=${encodeURIComponent(props.runId)}`}
+                disabled={reviewPipelineIncomplete}
+                disabledReason={headerActionDisabledReason}
+                disabledDescribedById={
+                  reviewPipelineIncomplete && headerActionDisabledReason !== null
+                    ? headerActionsDisabledHintId
+                    : undefined
+                }
+              />
+              <ReviewAskDock
+                runId={props.runId}
+                reviewTitle={h1Title}
+                disabled={reviewPipelineIncomplete}
+                disabledReason={headerActionDisabledReason}
+                disabledDescribedById={
+                  reviewPipelineIncomplete && headerActionDisabledReason !== null
+                    ? headerActionsDisabledHintId
+                    : undefined
+                }
+              />
+              <ReviewPresenterHeaderButton reviewCompleted={!reviewPipelineIncomplete} />
+              <FavoriteReviewToggle runId={props.runId} title={h1Title} size="sm" />
+            </div>
+            {reviewPipelineIncomplete && headerActionDisabledReason !== null ? (
+              <WhyDisabledCtaHint
+                id={headerActionsDisabledHintId}
+                reason={headerActionDisabledReason}
+                testId="review-header-actions-disabled-hint"
+              />
+            ) : null}
+          </div>
         }
       >
         {!reviewPipelineIncomplete ? <ArchitectureObjectMapStrip focus="review" /> : null}
@@ -282,13 +303,6 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
           ) : null}
         </dl>
       </OperatorPageHeader>
-      {reviewPipelineIncomplete && headerActionDisabledReason !== null ? (
-        <WhyDisabledCtaHint
-          reason={headerActionDisabledReason}
-          className="mt-2"
-          testId="review-header-actions-disabled-hint"
-        />
-      ) : null}
     </div>
   );
 }

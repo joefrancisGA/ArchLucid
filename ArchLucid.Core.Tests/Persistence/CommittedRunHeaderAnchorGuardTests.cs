@@ -47,6 +47,34 @@ public sealed class CommittedRunHeaderAnchorGuardTests
     }
 
     [Fact]
+    public void EnsureAnchorsUnchangedIfCommitted_allows_manifest_version_casing_only_change_on_committed_run()
+    {
+        Guid manifestId = Guid.NewGuid();
+        RunRecord persisted = CreateRun(goldenManifestId: manifestId);
+        persisted.CurrentManifestVersion = "v1.0.0";
+        RunRecord proposed = CreateRun(goldenManifestId: manifestId);
+        proposed.CurrentManifestVersion = "V1.0.0";
+
+        Action act = () => CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, proposed);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void EnsureAnchorsUnchangedIfCommitted_allows_otel_trace_id_casing_only_change_on_committed_run()
+    {
+        Guid manifestId = Guid.NewGuid();
+        RunRecord persisted = CreateRun(goldenManifestId: manifestId);
+        persisted.OtelTraceId = "0123456789abcdef0123456789abcdef";
+        RunRecord proposed = CreateRun(goldenManifestId: manifestId);
+        proposed.OtelTraceId = "0123456789ABCDEF0123456789ABCDEF";
+
+        Action act = () => CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, proposed);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
     public void EnsureAnchorsUnchangedIfCommitted_throws_when_anchor_mutates_on_committed_run()
     {
         Guid manifestId = Guid.NewGuid();
@@ -88,6 +116,132 @@ public sealed class CommittedRunHeaderAnchorGuardTests
 
         act.Should().Throw<RunEvidenceAnchorImmutableException>()
             .Which.RunId.Should().Be(persisted.RunId);
+    }
+
+    [Fact]
+    public void EnsureAnchorsUnchangedIfCommitted_allows_engine_provenance_property_order_only_change_on_committed_run()
+    {
+        Guid manifestId = Guid.NewGuid();
+        RunRecord persisted = CreateRun(goldenManifestId: manifestId);
+        persisted.EngineProvenanceJson = """{"providerKind":"azure-openai","modelId":"gpt-4"}""";
+        RunRecord proposed = CreateRun(goldenManifestId: manifestId);
+        proposed.EngineProvenanceJson = """{"modelId":"gpt-4","providerKind":"azure-openai"}""";
+
+        Action act = () => CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, proposed);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_property_name_casing_only_change_on_committed_run()
+    {
+        Guid manifestId = Guid.NewGuid();
+        RunRecord persisted = CreateRun(goldenManifestId: manifestId);
+        persisted.GovernanceScopeJson = """{"packAssignments":[]}""";
+        RunRecord proposed = CreateRun(goldenManifestId: manifestId);
+        proposed.GovernanceScopeJson = """{"PackAssignments":[]}""";
+
+        Action act = () => CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, proposed);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_numeric_formatting_only_change_on_committed_run()
+    {
+        Guid manifestId = Guid.NewGuid();
+        RunRecord persisted = CreateRun(goldenManifestId: manifestId);
+        persisted.GovernanceScopeJson = """{"schemaVersion":1}""";
+        RunRecord proposed = CreateRun(goldenManifestId: manifestId);
+        proposed.GovernanceScopeJson = """{"schemaVersion":1.0}""";
+
+        Action act = () => CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, proposed);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_string_encoded_boolean_only_change_on_committed_run()
+    {
+        Guid manifestId = Guid.NewGuid();
+        RunRecord persisted = CreateRun(goldenManifestId: manifestId);
+        persisted.GovernanceScopeJson = """{"enabled":true}""";
+        RunRecord proposed = CreateRun(goldenManifestId: manifestId);
+        proposed.GovernanceScopeJson = """{"enabled":"true"}""";
+
+        Action act = () => CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, proposed);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_string_encoded_number_only_change_on_committed_run()
+    {
+        Guid manifestId = Guid.NewGuid();
+        RunRecord persisted = CreateRun(goldenManifestId: manifestId);
+        persisted.GovernanceScopeJson = """{"schemaVersion":1}""";
+        RunRecord proposed = CreateRun(goldenManifestId: manifestId);
+        proposed.GovernanceScopeJson = """{"schemaVersion":"1"}""";
+
+        Action act = () => CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, proposed);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_null_array_equivalent_to_empty_on_committed_run()
+    {
+        Guid manifestId = Guid.NewGuid();
+        RunRecord persisted = CreateRun(goldenManifestId: manifestId);
+        persisted.GovernanceScopeJson = """{"packAssignments":[]}""";
+        RunRecord proposed = CreateRun(goldenManifestId: manifestId);
+        proposed.GovernanceScopeJson = """{"packAssignments":null}""";
+
+        Action act = () => CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, proposed);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_null_string_equivalent_to_empty_on_committed_run()
+    {
+        Guid manifestId = Guid.NewGuid();
+        RunRecord persisted = CreateRun(goldenManifestId: manifestId);
+        persisted.GovernanceScopeJson = """{"packAssignments":[],"label":null}""";
+        RunRecord proposed = CreateRun(goldenManifestId: manifestId);
+        proposed.GovernanceScopeJson = """{"packAssignments":[],"label":""}""";
+
+        Action act = () => CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, proposed);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void EnsureAnchorsUnchangedIfCommitted_allows_governance_scope_null_property_equivalent_to_omitted_on_committed_run()
+    {
+        Guid manifestId = Guid.NewGuid();
+        RunRecord persisted = CreateRun(goldenManifestId: manifestId);
+        persisted.GovernanceScopeJson = """{"packAssignments":[]}""";
+        RunRecord proposed = CreateRun(goldenManifestId: manifestId);
+        proposed.GovernanceScopeJson = """{"packAssignments":[],"optional":null}""";
+
+        Action act = () => CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, proposed);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void EnsureAnchorsUnchangedIfCommitted_allows_engine_provenance_string_whitespace_only_change_on_committed_run()
+    {
+        Guid manifestId = Guid.NewGuid();
+        RunRecord persisted = CreateRun(goldenManifestId: manifestId);
+        persisted.EngineProvenanceJson = """{"providerKind":"azure-openai"}""";
+        RunRecord proposed = CreateRun(goldenManifestId: manifestId);
+        proposed.EngineProvenanceJson = """{"providerKind":"azure-openai "}""";
+
+        Action act = () => CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, proposed);
+
+        act.Should().NotThrow();
     }
 
     private static RunRecord CreateRun(Guid? goldenManifestId)

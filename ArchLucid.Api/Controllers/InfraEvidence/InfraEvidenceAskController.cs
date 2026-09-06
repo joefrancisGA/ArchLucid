@@ -25,6 +25,7 @@ public sealed class InfraEvidenceAskController(
     IInfraEvidenceAskGroundingService askGroundingService,
     IScopeContextProvider scopeProvider) : ControllerBase
 {
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
     [MutatingAuditExcluded("Infra-evidence Ask grounding is read-only over structured evidence rows.")]
     [ProducesResponseType(typeof(InfraEvidenceAskResponse), StatusCodes.Status200OK)]

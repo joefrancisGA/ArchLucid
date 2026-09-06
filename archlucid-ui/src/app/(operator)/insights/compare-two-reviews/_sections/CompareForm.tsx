@@ -16,6 +16,7 @@ import { CompareEmptyResultsPlaceholder } from "@/app/(operator)/insights/compar
 import { CompareHowComparisonWorksSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareHowComparisonWorksSection";
 import { CompareRelatedReviewLinks } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRelatedReviewLinks";
 import { CompareSampleComparisonAction } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareSampleComparisonAction";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { CompareDemoQuickPick } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareDemoQuickPick";
 import { CompareNaturalPairSuggestion } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareNaturalPairSuggestion";
 import { CompareComparisonDimensionsPreview } from "./CompareComparisonDimensionsPreview";
@@ -35,6 +36,7 @@ import { useCompareForm } from "@/app/(operator)/insights/compare-two-reviews/_s
  * Compare form: two review IDs; structured manifest diff and optional legacy diff on Compare; optional AI explanation.
  */
 export function CompareForm() {
+  const evalChrome = useProductionEvalChrome();
   const {
     comparePagePath,
     comparePageSubtitle,
@@ -123,13 +125,13 @@ export function CompareForm() {
           onLoadSampleComparison={loadBuyerSampleComparison}
         />
       ) : null}
-      {isStaticDemoPayloadFallbackEnabled() && !buyerPolished ? (
+      {evalChrome && isStaticDemoPayloadFallbackEnabled() ? (
         <CompareDemoQuickPick onPickClaimsIntake={pickClaimsIntakePair} />
       ) : null}
       {showContinueLastComparisonRow && continueLastPair !== null ? (
         <CompareContinueLastComparisonRow pair={continueLastPair} />
       ) : null}
-      {!isStaticDemoPayloadFallbackEnabled() ? (
+      {!evalChrome || !isStaticDemoPayloadFallbackEnabled() ? (
         <CompareNaturalPairSuggestion
           leftRunId={leftRunId}
           rightRunId={rightRunId}

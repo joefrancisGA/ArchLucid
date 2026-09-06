@@ -51,6 +51,15 @@
       "parity": "unmapped"
     },
     {
+      "nav_href": "/administration/branding",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operator/operator-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
       "nav_href": "/administration/connection-status",
       "nav_required_authority": "AdminAuthority",
       "nav_source_file": "operator/operator-admin-nav-group-builder.ts",
@@ -275,6 +284,15 @@
       "parity": "match"
     },
     {
+      "nav_href": "/governance/audit-evidence",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-governance-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
       "nav_href": "/governance/decision-register",
       "nav_required_authority": "ReadAuthority",
       "nav_source_file": "operate-governance-nav-group-builder.ts",
@@ -365,6 +383,24 @@
       "nav_href": "/governance/recurrence-schedules",
       "nav_required_authority": "ReadAuthority",
       "nav_source_file": "operate-policy-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/governance/remediation-factory",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-governance-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/governance/remediation-patterns",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-governance-nav-group-builder.ts",
       "controller_primary_get_policy_strictest": null,
       "controller_primary_get_policy_loosest": null,
       "controller_files": [],

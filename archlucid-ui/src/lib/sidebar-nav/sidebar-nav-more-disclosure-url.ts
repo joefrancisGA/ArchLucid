@@ -26,3 +26,12 @@ export function sidebarNavMoreDisclosureHrefFromSearch(
 
   return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
 }
+
+/** True when the current location already matches the disclosure href we would navigate to. */
+export function sidebarNavMoreDisclosureHrefMatchesLocation(nextHref: string): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return `${window.location.pathname}${window.location.search}` === nextHref;
+}

@@ -15,7 +15,7 @@ public static class ConfigurationEffectiveValueResolver
         if (string.IsNullOrWhiteSpace(configPath) || !isSet)
             return null;
 
-        if (IsSensitiveConfigPath(configPath))
+        if (ConfigurationSensitiveConfigPathMatcher.IsSensitiveConfigPath(configPath))
             return "***";
 
         string? v = configuration[configPath];
@@ -28,15 +28,6 @@ public static class ConfigurationEffectiveValueResolver
         return v.Length <= maxLength ? v : string.Concat(v.AsSpan(0, maxLength), "…");
     }
 
-    internal static bool IsSensitiveConfigPath(string configPath)
-    {
-        ReadOnlySpan<char> p = configPath.AsSpan();
-
-        return p.Contains("ConnectionString", StringComparison.OrdinalIgnoreCase)
-               || p.Contains("Password", StringComparison.OrdinalIgnoreCase)
-               || p.Contains("Secret", StringComparison.OrdinalIgnoreCase)
-               || p.Contains("Token", StringComparison.OrdinalIgnoreCase)
-               || p.Contains("ApiKey", StringComparison.OrdinalIgnoreCase)
-               || p.EndsWith(":Key", StringComparison.OrdinalIgnoreCase);
-    }
+    internal static bool IsSensitiveConfigPath(string configPath) =>
+        ConfigurationSensitiveConfigPathMatcher.IsSensitiveConfigPath(configPath);
 }

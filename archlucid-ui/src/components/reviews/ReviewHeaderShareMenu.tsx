@@ -18,14 +18,17 @@ import {
   reviewHeaderShareMenuHrefFromSearch,
 } from "@/lib/reviews/review-header-share-menu-url";
 import { cn } from "@/lib/utils";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
 export type ReviewHeaderShareMenuProps = {
   readonly runId: string;
   readonly isCommitted: boolean;
   readonly findingsQueueHref: string;
+  readonly manifestVersion?: string | null;
   readonly canInviteReviewer?: boolean;
   readonly disabled?: boolean;
   readonly disabledReason?: WhyDisabledCtaReason | null;
+  readonly disabledDescribedById?: string;
 };
 
 /** Consolidated share and export affordances on the review detail header. */
@@ -61,6 +64,10 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
     runId: props.runId,
     findingsQueueHref: props.findingsQueueHref,
   });
+  const collateralExportBlockedReason = runCollateralSealedManifestCopyBlockedReason({
+    runId: props.runId,
+    manifestVersion: props.manifestVersion,
+  });
   const disabledReasonMessage = formatWhyDisabledCtaMessage(props.disabledReason);
   const shareMenuDisabled = props.disabled === true;
 
@@ -72,6 +79,7 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
         size="sm"
         className="gap-1.5"
         disabled
+        aria-describedby={props.disabledDescribedById}
         aria-label={disabledReasonMessage ?? "Share and export unavailable until the review completes"}
         data-testid="review-header-share-menu-trigger"
       >
@@ -129,17 +137,29 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
               <li key={step.id}>
                 {step.href !== undefined ? (
                   step.downloadLabel !== undefined ? (
-                    <ExportTrackedAnchor
-                      href={step.href}
-                      className={cn(
-                        buttonVariants({ variant: "outline", size: "sm" }),
-                        "w-full justify-start",
-                      )}
-                      data-testid={`review-header-export-${step.id}`}
-                      onClick={() => setOpen(false)}
-                    >
-                      {step.label}
-                    </ExportTrackedAnchor>
+                    collateralExportBlockedReason !== null ? (
+                      <span
+                        className={cn(
+                          buttonVariants({ variant: "outline", size: "sm" }),
+                          "w-full justify-start opacity-50",
+                        )}
+                        data-testid={`review-header-export-${step.id}-blocked`}
+                      >
+                        {step.label}
+                      </span>
+                    ) : (
+                      <ExportTrackedAnchor
+                        href={step.href}
+                        className={cn(
+                          buttonVariants({ variant: "outline", size: "sm" }),
+                          "w-full justify-start",
+                        )}
+                        data-testid={`review-header-export-${step.id}`}
+                        onClick={() => setOpen(false)}
+                      >
+                        {step.label}
+                      </ExportTrackedAnchor>
+                    )
                   ) : (
                     <Link
                       href={step.href}
@@ -157,6 +177,15 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
               </li>
             ))}
           </ul>
+          {collateralExportBlockedReason !== null ? (
+            <p
+              role="alert"
+              className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="review-header-share-menu-export-blocked-reason"
+            >
+              {collateralExportBlockedReason}
+            </p>
+          ) : null}
         </div>
       </PopoverContent>
     </Popover>

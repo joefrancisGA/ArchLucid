@@ -31,6 +31,8 @@ public sealed class TenantTrialIdentityHandoffStage(
         bool hasIdentityPayload,
         CancellationToken cancellationToken)
     {
+        bool directoryAlreadyBound = tenant.EntraTenantId == body.EntraTenantId;
+
         bool bound = await _tenantRepository
             .UpdateEntraTenantIdAsync(scope.TenantId, body.EntraTenantId, cancellationToken)
             .ConfigureAwait(false);
@@ -45,21 +47,31 @@ public sealed class TenantTrialIdentityHandoffStage(
             };
         }
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.TenantEntraDirectoryBound,
-                ActorUserId = actor,
-                ActorUserName = actor,
-                TenantId = tenant.Id,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                DataJson = JsonSerializer.Serialize(new { entraTenantId = body.EntraTenantId }),
-            },
-            cancellationToken).ConfigureAwait(false);
+        if (!directoryAlreadyBound)
+        {
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.TenantEntraDirectoryBound,
+                    ActorUserId = actor,
+                    ActorUserName = actor,
+                    TenantId = tenant.Id,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    DataJson = JsonSerializer.Serialize(new { entraTenantId = body.EntraTenantId }),
+                },
+                cancellationToken).ConfigureAwait(false);
+        }
 
         if (!hasIdentityPayload || normalizedLocalEmail is null)
             return new TenantTrialLinkEntraResult { Outcome = TenantTrialHttpOutcome.Success };
+
+        TrialIdentityUserRecord? existingIdentity = await _trialIdentityUsers
+            .GetByNormalizedEmailAsync(normalizedLocalEmail, cancellationToken)
+            .ConfigureAwait(false);
+
+        bool identityAlreadyLinked = existingIdentity?.LinkedEntraOid is not null
+            && string.Equals(existingIdentity.LinkedEntraOid, body.EntraOid!.Trim(), StringComparison.OrdinalIgnoreCase);
 
         bool identityLinked = await _trialIdentityUsers.TryLinkLocalIdentityToEntraAsync(
             normalizedLocalEmail,
@@ -76,18 +88,21 @@ public sealed class TenantTrialIdentityHandoffStage(
             };
         }
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.TrialLocalIdentityLinkedToEntra,
-                ActorUserId = actor,
-                ActorUserName = actor,
-                TenantId = tenant.Id,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                DataJson = JsonSerializer.Serialize(new { normalizedEmail = normalizedLocalEmail }),
-            },
-            cancellationToken).ConfigureAwait(false);
+        if (!identityAlreadyLinked)
+        {
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.TrialLocalIdentityLinkedToEntra,
+                    ActorUserId = actor,
+                    ActorUserName = actor,
+                    TenantId = tenant.Id,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    DataJson = JsonSerializer.Serialize(new { normalizedEmail = normalizedLocalEmail }),
+                },
+                cancellationToken).ConfigureAwait(false);
+        }
 
         return new TenantTrialLinkEntraResult { Outcome = TenantTrialHttpOutcome.Success };
     }

@@ -69,6 +69,8 @@ public static class IntegrationEventTypes
     /// </remarks>
     private static readonly FrozenDictionary<string, string> Aliases = CreateLegacyVendorAliases();
 
+    private static readonly FrozenDictionary<string, string> CanonicalTypes = CreateCanonicalTypes();
+
     private const string CanonicalVendorPrefix = "com.archlucid.";
 
     /// <summary>
@@ -82,7 +84,13 @@ public static class IntegrationEventTypes
 
         string trimmed = eventType.Trim();
 
-        return Aliases.GetValueOrDefault(trimmed, trimmed);
+        if (Aliases.TryGetValue(trimmed, out string? fromAlias))
+            return fromAlias;
+
+        if (CanonicalTypes.TryGetValue(trimmed, out string? canonical))
+            return canonical;
+
+        return trimmed;
     }
 
     /// <summary>True when both values map to the same canonical type (trimmed; legacy aliases respected).</summary>
@@ -131,6 +139,39 @@ public static class IntegrationEventTypes
             string suffix = canonical[CanonicalVendorPrefix.Length..];
             map[legacyVendorPrefix + suffix] = canonical;
         }
+
+        return map.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
+    }
+
+    private static FrozenDictionary<string, string> CreateCanonicalTypes()
+    {
+        string[] canonicalTypes =
+        [
+            AuthorityRunCompletedV1,
+            AuthorityRunFailedV1,
+            AuthorityRunQualityGateRejectedV1,
+            FindingsHighSeverityCapturedV1,
+            DataConsistencyCheckCompletedV1,
+            ManifestFinalizedV1,
+            GovernanceApprovalSubmittedV1,
+            GovernanceApprovalApprovedV1,
+            GovernanceApprovalRejectedV1,
+            GovernancePromotionActivatedV1,
+            GovernancePolicyPackPublishedV1,
+            AlertFiredV1,
+            AlertAcknowledgedV1,
+            AlertResolvedV1,
+            AdvisoryScanCompletedV1,
+            ComplianceDriftEscalatedV1,
+            SeatReservationReleasedV1,
+            TrialLifecycleEmailV1,
+            BillingMarketplaceWebhookReceivedV1,
+        ];
+
+        Dictionary<string, string> map = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string canonical in canonicalTypes)
+            map[canonical] = canonical;
 
         return map.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
     }

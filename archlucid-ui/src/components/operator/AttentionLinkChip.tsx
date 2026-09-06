@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactElement, ReactNode } from "react";
 
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
+import { DESIGN_TOKENS } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type AttentionLinkChipProps = {
@@ -19,7 +20,8 @@ export function AttentionLinkChip(props: AttentionLinkChipProps): ReactElement {
     <Link
       href={props.href}
       className={cn(
-        "inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-xs font-medium leading-tight no-underline transition-colors",
+        DESIGN_TOKENS.interactive.chip,
+        "w-fit shrink-0 gap-1 whitespace-nowrap no-underline transition-colors",
         buyerFilterChipClass(false, false),
         props.className,
       )}

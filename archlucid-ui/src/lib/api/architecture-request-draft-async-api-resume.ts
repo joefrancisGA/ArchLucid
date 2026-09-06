@@ -72,7 +72,7 @@ export async function draftArchitectureRequestWithPoll(
   const operationId = await acceptDraftArchitectureRequestAsync(input);
   trackAdvisoryDraftInFlight({
     operationId,
-    architectureId: options?.architectureId,
+    draftId: options?.architectureId,
   });
 
   return resumeDraftArchitectureRequestWithPoll(operationId, options);

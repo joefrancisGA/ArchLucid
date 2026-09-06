@@ -1969,6 +1969,25 @@ export interface components {
             parentDraftId?: string;
             parentSpawnedRunId?: null | string;
         };
+        BrandAssetResponse: {
+            /** Format: uuid */
+            assetId?: string;
+            assetType?: string;
+            checksumSha256Hex?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            /** Format: int32 */
+            height?: null | number;
+            mimeType?: string;
+            originalFileName?: string;
+            status?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+            /** Format: int32 */
+            width?: null | number;
+        };
+        /** @enum {string} */
+        BrandAssetType: "LogoPrimary" | "LogoSecondary" | "LogoSquare" | "LogoFavicon" | "LogoDark" | "LogoLight" | "LogoReportCover" | "LogoMono" | "Other";
         BuildAzureInventoryDiffNarrativeRequest: {
             narrativeKind?: components["schemas"]["AzureInventoryDiffNarrativeKind"];
             useSimulator?: boolean;
@@ -2248,6 +2267,8 @@ export interface components {
             relativePath?: string;
         };
         CloudResourceInventoryChangeSummary: {
+            /** Format: uuid */
+            changeId?: string;
             changeType?: string;
             /** Format: uuid */
             diffId?: string;
@@ -4937,6 +4958,38 @@ export interface components {
             key?: string;
             value?: string;
         };
+        InfraEvidenceAskCitation: {
+            id?: string;
+            kind?: string;
+            label?: null | string;
+        };
+        InfraEvidenceAskRequest: {
+            /** Format: uuid */
+            assessmentId?: null | string;
+            /** Format: uuid */
+            auditEvidenceSnapshotId?: null | string;
+            /** Format: uuid */
+            cloudResourceId?: null | string;
+            /** Format: uuid */
+            controlId?: null | string;
+            /** Format: uuid */
+            diffId?: null | string;
+            question?: string;
+            /** Format: uuid */
+            runId?: null | string;
+            /** Format: date-time */
+            sinceUtc?: null | string;
+            /** Format: uuid */
+            snapshotId?: null | string;
+            useSimulator?: boolean;
+        };
+        InfraEvidenceAskResponse: {
+            answer?: string;
+            citations?: components["schemas"]["InfraEvidenceAskCitation"][];
+            insufficientEvidence?: boolean;
+            simulatorLabel?: null | string;
+            topicKind?: string;
+        };
         InfrastructureDeclarationRequest: {
             content?: string;
             format?: string;
@@ -6065,7 +6118,10 @@ export interface components {
         PatchDraftRequest: {
             actorSet?: null | components["schemas"]["ActorSet"];
             businessOutcome?: null | string;
+            /** Format: date-time */
+            expectedUpdatedUtc?: null | string;
             focusedPilotModeEnabled?: null | boolean;
+            forceOverwrite?: null | boolean;
             freeTextIntent?: null | string;
             structuredBrief?: null | components["schemas"]["ArchitectureDraftStructuredBrief"];
             systemName?: null | string;
@@ -9565,6 +9621,114 @@ export interface components {
             manualPrepHoursPerReview?: null | number | string;
             /** Format: int32 */
             peoplePerReview?: null | number;
+        };
+        TenantBrandColorsResponse: {
+            accent?: null | string;
+            background?: null | string;
+            foreground?: null | string;
+            primary?: null | string;
+            secondary?: null | string;
+        };
+        TenantBrandingActivateResponse: {
+            state?: null | components["schemas"]["TenantBrandingAdminStateResponse"];
+            succeeded?: boolean;
+            validationIssues?: components["schemas"]["TenantBrandingValidationIssueResponse"][];
+        };
+        TenantBrandingActiveSummaryResponse: {
+            isActive?: boolean;
+            /** Format: date-time */
+            updatedUtc?: null | string;
+            /** Format: int32 */
+            version?: null | number;
+        };
+        TenantBrandingAdminStateResponse: {
+            active?: components["schemas"]["TenantBrandingActiveSummaryResponse"];
+            canActivate?: boolean;
+            draft?: components["schemas"]["TenantBrandingDraftResponse"];
+            productDefaults?: components["schemas"]["TenantBrandColorsResponse"];
+            validationIssues?: components["schemas"]["TenantBrandingValidationIssueResponse"][];
+        };
+        TenantBrandingDraftPutRequest: {
+            accentColor?: null | string;
+            backgroundColor?: null | string;
+            coBrandingEnabled?: boolean;
+            companyDisplayName?: null | string;
+            companyLegalName?: null | string;
+            foregroundColor?: null | string;
+            /** Format: uuid */
+            logoDarkAssetId?: null | string;
+            /** Format: uuid */
+            logoFaviconAssetId?: null | string;
+            /** Format: uuid */
+            logoLightAssetId?: null | string;
+            /** Format: uuid */
+            logoMonoAssetId?: null | string;
+            /** Format: uuid */
+            logoPrimaryAssetId?: null | string;
+            /** Format: uuid */
+            logoReportCoverAssetId?: null | string;
+            /** Format: uuid */
+            logoSecondaryAssetId?: null | string;
+            /** Format: uuid */
+            logoSquareAssetId?: null | string;
+            primaryColor?: null | string;
+            secondaryColor?: null | string;
+            shortDisplayName?: null | string;
+            supportUrl?: null | string;
+            tagline?: null | string;
+            websiteUrl?: null | string;
+        };
+        TenantBrandingDraftResponse: {
+            accentColor?: null | string;
+            backgroundColor?: null | string;
+            /** Format: uuid */
+            brandingProfileId?: null | string;
+            coBrandingEnabled?: boolean;
+            companyDisplayName?: null | string;
+            companyLegalName?: null | string;
+            foregroundColor?: null | string;
+            /** Format: uuid */
+            logoDarkAssetId?: null | string;
+            /** Format: uuid */
+            logoFaviconAssetId?: null | string;
+            /** Format: uuid */
+            logoLightAssetId?: null | string;
+            /** Format: uuid */
+            logoMonoAssetId?: null | string;
+            /** Format: uuid */
+            logoPrimaryAssetId?: null | string;
+            /** Format: uuid */
+            logoReportCoverAssetId?: null | string;
+            /** Format: uuid */
+            logoSecondaryAssetId?: null | string;
+            /** Format: uuid */
+            logoSquareAssetId?: null | string;
+            primaryColor?: null | string;
+            secondaryColor?: null | string;
+            shortDisplayName?: null | string;
+            supportUrl?: null | string;
+            tagline?: null | string;
+            /** Format: date-time */
+            updatedUtc?: null | string;
+            websiteUrl?: null | string;
+        };
+        TenantBrandingPresentationResponse: {
+            colors?: components["schemas"]["TenantBrandColorsResponse"];
+            context?: string;
+            isProductBrand?: boolean;
+            /** Format: uuid */
+            logoAssetId?: null | string;
+            logoContentPath?: null | string;
+            logoHttpsUrl?: null | string;
+            mastheadDisplayName?: string;
+            showArchLucidMarkInMasthead?: boolean;
+            showPoweredByArchLucid?: boolean;
+            usesTenantVisualBrand?: boolean;
+        };
+        TenantBrandingValidationIssueResponse: {
+            code?: string;
+            message?: string;
+            severity?: string;
         };
         TenantCatalogMigrationScopeRequest: {
             /** Format: uuid */

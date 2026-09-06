@@ -10,7 +10,6 @@ import { RunAgentQualityWarningsSection } from "@/components/runs/RunAgentQualit
 import { RunDetailAdvancedAnalysisSection } from "./RunDetailAdvancedAnalysisSection";
 import { RunDetailManifestSummaryAlerts } from "./RunDetailManifestSummaryAlerts";
 import { RunDetailOperatorPipelineToolsCollapsible } from "./RunDetailOperatorPipelineToolsCollapsible";
-import { RunDetailOperatorTechnicalFooter } from "./RunDetailOperatorTechnicalFooter";
 import { PackageChangesSinceFinalizePanel } from "@/components/PackageChangesSinceFinalizePanel";
 import { RunDetailPipelineTimelineSection } from "./RunDetailPipelineTimelineSection";
 import { RunDetailPipelineStagesSection } from "./RunDetailPipelineStagesSection";
@@ -168,7 +167,11 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
       ) : null}
 
       {!hasSealedRecord ? (
-        <RunDetailPreFinalizedEmptyState runId={m.routeRunId} terminalFailure={terminalFailure} />
+        <RunDetailPreFinalizedEmptyState
+          runId={m.routeRunId}
+          terminalFailure={terminalFailure}
+          recoveryStepsAvailable={false}
+        />
       ) : null}
 
       {ownedByAnotherTab ? null : (
@@ -246,14 +249,6 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
           operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision ?? null}
           isArchived={m.resolvedDetail.run.isArchived === true}
           pipelineInFlight={m.showProgressTracker && !m.manifestId}
-        />
-      ) : null}
-
-      {!m.buyerPolishedArtifactTable ? (
-        <RunDetailOperatorTechnicalFooter
-          runId={m.resolvedDetail.run.runId}
-          projectId={m.resolvedDetail.run.projectId}
-          createdLabel={m.createdLabel}
         />
       ) : null}
 

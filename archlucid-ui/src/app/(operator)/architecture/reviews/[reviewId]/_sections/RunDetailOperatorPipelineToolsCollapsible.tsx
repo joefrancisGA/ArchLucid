@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import type { ReactElement } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { RunDetailAiRefinePanel } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailAiRefinePanel";
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
@@ -9,6 +11,10 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INTERNAL_REPLAY_PATH } from "@/lib/internal-ops-route-paths";
+import {
+  parseRunRefineWithAiOpenFromSearch,
+  runDetailRefineWithAiDisclosureHrefFromSearch,
+} from "@/lib/runs/run-detail-refine-with-ai-disclosure-url";
 import { cn } from "@/lib/utils";
 
 type RunDetailOperatorPipelineToolsCollapsibleProps = {
@@ -23,9 +29,40 @@ export function RunDetailOperatorPipelineToolsCollapsible(
   props: RunDetailOperatorPipelineToolsCollapsibleProps,
 ): ReactElement {
   const { runId } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const runRefineWithAiOpenParam = searchParams.get("runRefineWithAiOpen");
+  const [open, setOpenState] = useState(() => parseRunRefineWithAiOpenFromSearch(runRefineWithAiOpenParam));
+
+  const syncOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      router.replace(runDetailRefineWithAiDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (detailsOpen: boolean) => {
+      setOpenState(detailsOpen);
+      syncOpenToUrl(detailsOpen);
+    },
+    [syncOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOpenState(parseRunRefineWithAiOpenFromSearch(runRefineWithAiOpenParam));
+  }, [runRefineWithAiOpenParam]);
 
   return (
-    <CollapsibleSection title="Refine with AI" defaultOpen={false} sectionTestId="run-detail-refine-with-ai">
+    <CollapsibleSection
+      title="Refine with AI"
+      open={open}
+      onToggle={setOpen}
+      sectionTestId="run-detail-refine-with-ai"
+    >
       <div className="space-y-3">
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Spend AI budget on this review to deepen findings, challenge assumptions, and publish gated

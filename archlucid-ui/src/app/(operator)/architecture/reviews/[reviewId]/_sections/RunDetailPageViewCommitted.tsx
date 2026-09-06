@@ -182,6 +182,7 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
       {buyerFinalizedPackage ? null : showGovernanceCtaCard ? governanceCtaEl : null}
 
       <RunDetailLastFailureCardDeferred
+        runId={m.resolvedDetail.run.runId}
         summary={resolveRunDetailLastFailureSummary(m.resolvedDetail)}
         legacyRunStatus={(m.resolvedDetail.run as { legacyRunStatus?: string | null }).legacyRunStatus ?? null}
       />
@@ -192,7 +193,11 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
 
       {!m.buyerPolishedArtifactTable ? (
         <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
-          <RunDetailGenerateAdrFromRunModal input={m.adrGeneratorInput} buyerPolished={false} />
+          <RunDetailGenerateAdrFromRunModal
+            input={m.adrGeneratorInput}
+            totalFindingCount={m.adrGeneratorInput.findings.length}
+            buyerPolished={false}
+          />
         </div>
       ) : null}
 

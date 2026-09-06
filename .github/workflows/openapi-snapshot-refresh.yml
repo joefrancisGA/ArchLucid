@@ -63,6 +63,7 @@ concurrency:
 
 permissions:
   contents: write
+  pull-requests: write
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -129,6 +130,7 @@ jobs:
           || github.event_name == 'push'
         env:
           PUSH_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
 
@@ -140,6 +142,7 @@ jobs:
             ArchLucid.Api.Tests/Contracts/buyer-contract.openapi.snapshot.json
             archlucid-ui/src/lib/api-types.generated.ts
             archlucid-ui/src/lib/api-types
+            archlucid-ui/packages/api-types/src/api-types
           )
 
           changed=0
@@ -155,6 +158,26 @@ jobs:
             exit 0
           fi
 
-          git commit -m "chore: refresh OpenAPI v1 contract snapshot"
+          commit_message="chore: refresh OpenAPI v1 contract snapshot"
+          git commit -m "${commit_message}"
+
+          # Default-branch pushes are ruleset-protected; open a PR instead of direct push (#1635).
+          if [ "${{ github.event_name }}" = "push" ] && { [ "${{ github.ref_name }}" = "master" ] || [ "${{ github.ref_name }}" = "main" ]; }; then
+            branch_name="chore/openapi-snapshot-${GITHUB_SHA::12}"
+            git checkout -b "${branch_name}"
+            git push -u origin "HEAD:${branch_name}"
+            pr_url="https://github.com/${GITHUB_REPOSITORY}/compare/${{ github.ref_name }}...${branch_name}?expand=1"
+            if gh pr create \
+              --base "${{ github.ref_name }}" \
+              --head "${branch_name}" \
+              --title "${commit_message}" \
+              --body "Automated OpenAPI v1 + buyer snapshot refresh from \`${GITHUB_SHA}\`. Direct pushes to the default branch are blocked by repository rules; merge this PR after corset is green."; then
+              echo "Opened OpenAPI snapshot PR for ${branch_name}."
+            else
+              echo "::warning::OpenAPI snapshot branch ${branch_name} pushed but gh pr create failed (enable Settings → Actions → Workflow permissions → Allow GitHub Actions to create pull requests). Open manually: ${pr_url}"
+            fi
+            exit 0
+          fi
+
           git pull --rebase origin "${PUSH_REF}"
           git push origin "HEAD:${PUSH_REF}"

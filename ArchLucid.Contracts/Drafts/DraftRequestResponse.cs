@@ -27,6 +27,12 @@ public sealed class DraftRequestResponse
         set;
     }
 
+    public Guid? ArchitectureId
+    {
+        get;
+        set;
+    }
+
     public DraftRequestStatus Status
     {
         get;

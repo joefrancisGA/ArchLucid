@@ -32,6 +32,10 @@ public sealed class ArchitecturesPhysicalTableMigrationSqlIntegrationTests
             AssertRunsIsSynonymForReviews(connection);
             AssertTableExists(connection, "dbo.Reviews");
             AssertTableExists(connection, "dbo.Architectures");
+            AssertColumnExists(connection, "dbo.Architectures", "DisplayName");
+            AssertColumnExists(connection, "dbo.Architectures", "Description");
+            AssertColumnExists(connection, "dbo.DraftRequests", "ArchitectureId");
+            AssertIndexExists(connection, "dbo.DraftRequests", "IX_DraftRequests_Scope_ArchitectureId");
             AssertColumnExists(connection, "dbo.Reviews", "ArchitectureId");
             AssertColumnExists(connection, "dbo.Reviews", "ImproveLoopEvidenceJson");
             AssertColumnExists(connection, "dbo.Reviews", "KnowledgeModelId");

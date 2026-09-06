@@ -45,6 +45,9 @@ public sealed class InMemoryPolicyPackCatalogRepository : IPolicyPackCatalogRepo
         if (!_byCatalogId.TryGetValue(policyPackCatalogEntryId, out InMemoryPolicyPackCatalogEntryState? e))
             return Task.FromResult(false);
 
+        if (!e.IsPromoted)
+            return Task.FromResult(true);
+
         e.IsPromoted = false;
         e.DemotedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
         return Task.FromResult(true);

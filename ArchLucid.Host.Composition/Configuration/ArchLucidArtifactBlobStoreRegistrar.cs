@@ -1,4 +1,5 @@
 using ArchLucid.Application.Exports;
+using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Application.Support;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Support;
@@ -62,6 +63,11 @@ internal static class ArchLucidArtifactBlobStoreRegistrar
                     sp.GetRequiredService<IScopeContextProvider>(),
                     sp.GetRequiredService<ITenantRegionalArtifactBlobClients>(),
                     sp.GetRequiredService<TokenCredential>()));
+            services.AddScoped<ITenantBrandAssetBlobStore>(sp =>
+                new TenantBrandAssetBlobStore(
+                    sp.GetRequiredService<IScopeContextProvider>(),
+                    sp.GetRequiredService<ITenantRegionalArtifactBlobClients>(),
+                    sp.GetRequiredService<TokenCredential>()));
             services.AddScoped<ISupportProblemReportBundleStore>(sp =>
                 new SupportProblemReportBundleStore(
                     sp.GetRequiredService<IScopeContextProvider>(),
@@ -93,6 +99,10 @@ internal static class ArchLucidArtifactBlobStoreRegistrar
                 new Application.Exports.TenantReviewBoardCoverLogoStore(
                     sp.GetRequiredService<IScopeContextProvider>(),
                     resolvedRoot));
+            services.AddScoped<ITenantBrandAssetBlobStore>(sp =>
+                new TenantBrandAssetBlobStore(
+                    sp.GetRequiredService<IScopeContextProvider>(),
+                    resolvedRoot));
             services.AddScoped<ISupportProblemReportBundleStore>(sp =>
                 new SupportProblemReportBundleStore(
                     sp.GetRequiredService<IScopeContextProvider>(),
@@ -106,6 +116,7 @@ internal static class ArchLucidArtifactBlobStoreRegistrar
             services.AddSingleton<IAzureExtractorChunkSessionStore, NullAzureExtractorChunkSessionStore>();
 
             services.AddSingleton<ITenantReviewBoardCoverLogoStore, NullTenantReviewBoardCoverLogoStore>();
+            services.AddSingleton<ITenantBrandAssetBlobStore, NullTenantBrandAssetBlobStore>();
             services.AddSingleton<ISupportProblemReportBundleStore, NullSupportProblemReportBundleStore>();
         }
 

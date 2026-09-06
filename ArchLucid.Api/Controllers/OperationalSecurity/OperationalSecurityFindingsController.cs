@@ -29,6 +29,7 @@ public sealed class OperationalSecurityFindingsController(
     IScopeContextProvider scopeProvider,
     IActorContext actorContext) : ControllerBase
 {
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("ingest")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Audit: OperationalSecurityFindingIngestService logs Ingested/Deduplicated via IAuditService.")]

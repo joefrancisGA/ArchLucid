@@ -11,5 +11,16 @@ public interface ITenantBrandingProfileRepository
 
     Task<TenantBrandingProfileRecord?> TryGetDefaultAsync(Guid tenantId, CancellationToken cancellationToken = default);
 
+    Task<TenantBrandingProfileRecord?> TryGetDraftAsync(Guid tenantId, CancellationToken cancellationToken = default);
+
+    Task ReplaceDraftAsync(TenantBrandingProfileRecord record, CancellationToken cancellationToken = default);
+
+    Task UpdateStatusForTenantAsync(
+        Guid tenantId,
+        BrandingProfileStatus fromStatus,
+        BrandingProfileStatus toStatus,
+        string updatedBy,
+        CancellationToken cancellationToken = default);
+
     Task<int> CountActiveProfilesAsync(Guid tenantId, CancellationToken cancellationToken = default);
 }

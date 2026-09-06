@@ -161,7 +161,7 @@ export const OPERATOR_TYPOGRAPHY = {
   badge: "text-[11px] font-medium leading-none",
   dataValue: `${OPERATOR_TYPE_SCALE.body} font-medium tabular-nums`,
   /** Dashboard / metric tiles only — not page titles. */
-  kpiValue: "font-mono text-4xl font-semibold tabular-nums text-al-text-primary",
+  kpiValue: "font-mono text-4xl font-semibold tabular-nums lining-nums text-al-text-primary [font-variant-numeric:lining-nums]",
   /** Sponsor dashboard numbers (KPI tiles + ROI summary) — one treatment (BDA-139). */
   executiveDashboardMetric: "text-2xl font-semibold tabular-nums text-al-text-primary",
 } as const;

@@ -30,6 +30,18 @@ public sealed class ArchitectureIdentityRecord
         set;
     }
 
+    public string DisplayName
+    {
+        get;
+        set;
+    } = ArchitectureIdentityDisplayNameDefaults.UntitledArchitecture;
+
+    public string? Description
+    {
+        get;
+        set;
+    }
+
     public string? CurrentModelId
     {
         get;

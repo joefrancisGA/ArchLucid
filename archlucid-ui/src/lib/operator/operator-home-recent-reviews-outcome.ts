@@ -1,8 +1,9 @@
+import type { RunsDashboardTabId } from "@/components/operator-home/runs-dashboard-load-phase";
 import {
   deriveRunsDashboardTabCounts,
   type RunsDashboardTabCounts,
 } from "@/components/operator-home/runs-dashboard-helpers";
-import { formatOperatorHomeApprovalCheckWarningCount } from "@/lib/operator/operator-home-approval-check-warning-copy";
+import { formatOperatorHomeGovernanceApprovalWarningCount } from "@/lib/operator/operator-home-governance-approval-warning-copy";
 import { OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME } from "@/lib/buyer/buyer-polish-copy";
 import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
 import { isShowcaseSampleOfAnyKind } from "@/lib/demo-run-canonical";
@@ -47,14 +48,10 @@ export function formatOperatorHomeRecentReviewsOutcome(
     parts.push(`${metrics.reviewPackagesActive} active`);
   }
 
-  if (metrics.openFindings > 0) {
-    parts.push(`${metrics.openFindings} open finding${metrics.openFindings === 1 ? "" : "s"}`);
-  } else {
-    parts.push("no open findings");
-  }
+  parts.push(`${metrics.openFindings} open finding${metrics.openFindings === 1 ? "" : "s"}`);
 
   if (metrics.governanceWarnings > 0) {
-    parts.push(`with ${formatOperatorHomeApprovalCheckWarningCount(metrics.governanceWarnings)}`);
+    parts.push(`with ${formatOperatorHomeGovernanceApprovalWarningCount(metrics.governanceWarnings)}`);
   }
 
   const awaitingApprovalCount = options?.awaitingApprovalCount ?? 0;
@@ -77,6 +74,106 @@ export function formatOperatorHomeRecentReviewsOutcome(
   }
 
   return parts.join(" · ");
+}
+
+export type OperatorHomeRecentReviewsOutcomeHrefKind =
+  | "all-reviews"
+  | "tab"
+  | "governance-warnings-filter"
+  | "awaiting-approval";
+
+export type OperatorHomeRecentReviewsOutcomePart = {
+  readonly key: string;
+  readonly text: string;
+  readonly hrefKind?: OperatorHomeRecentReviewsOutcomeHrefKind;
+  readonly tabId?: RunsDashboardTabId;
+};
+
+/** Structured caption segments — each count is reachable in one click from Home. */
+export function buildOperatorHomeRecentReviewsOutcomeParts(
+  metrics: OperatorHomeWorkspaceMetricsSnapshot,
+  options?: FormatOperatorHomeRecentReviewsOutcomeOptions,
+): readonly OperatorHomeRecentReviewsOutcomePart[] {
+  if (options?.exampleReviewOnly === true) {
+    return [{ key: "example-only", text: OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME }];
+  }
+
+  if (!metrics.hasReviews) {
+    return [{ key: "empty", text: "No reviews in this workspace yet." }];
+  }
+
+  const parts: OperatorHomeRecentReviewsOutcomePart[] = [];
+  const total = metrics.reviewPackagesTotal;
+
+  parts.push({
+    key: "reviews-total",
+    text: `${total} review${total === 1 ? "" : "s"}`,
+    hrefKind: "all-reviews",
+  });
+
+  if (metrics.reviewPackagesCommitted > 0) {
+    parts.push({
+      key: "finalized",
+      text: `${metrics.reviewPackagesCommitted} finalized`,
+      hrefKind: "all-reviews",
+    });
+  }
+
+  if (metrics.reviewPackagesActive > 0) {
+    parts.push({
+      key: "active",
+      text: `${metrics.reviewPackagesActive} active`,
+      hrefKind: "tab",
+      tabId: "all",
+    });
+  }
+
+  parts.push({
+    key: "open-findings",
+    text: `${metrics.openFindings} open finding${metrics.openFindings === 1 ? "" : "s"}`,
+    hrefKind: "tab",
+    tabId: "attention",
+  });
+
+  if (metrics.governanceWarnings > 0) {
+    parts.push({
+      key: "governance-warnings",
+      text: `with ${formatOperatorHomeGovernanceApprovalWarningCount(metrics.governanceWarnings)}`,
+      hrefKind: "governance-warnings-filter",
+    });
+  }
+
+  const awaitingApprovalCount = options?.awaitingApprovalCount ?? 0;
+
+  if (awaitingApprovalCount > 0) {
+    parts.push({
+      key: "awaiting-approval",
+      text: `${awaitingApprovalCount} awaiting approval`,
+      hrefKind: "awaiting-approval",
+    });
+  }
+
+  if (options?.visibleCount !== undefined) {
+    const visible = options.visibleCount;
+    const previewTotal = options.recentTotalCount ?? visible;
+
+    if (previewTotal > visible) {
+      parts.push({
+        key: "showing-cap",
+        text: `showing ${visible} of ${previewTotal}`,
+        hrefKind: "all-reviews",
+      });
+    } else {
+      parts.push({
+        key: "showing",
+        text: `showing ${visible}`,
+        hrefKind: "tab",
+        tabId: "all",
+      });
+    }
+  }
+
+  return parts;
 }
 
 /** True when every list row is a demo/seeded inject or the static showcase sample. */

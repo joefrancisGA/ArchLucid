@@ -6,6 +6,8 @@ using ArchLucid.ContextIngestion.Diagram;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.InfraEvidence;
 
@@ -19,13 +21,19 @@ public sealed class StructuredDiagramIngestService : IStructuredDiagramIngestSer
 
     private readonly StructuredDiagramParseRouter parseRouter;
     private readonly IArchitectureDiagramModelRepository repository;
+    private readonly IAuthorityQueryService authorityQueryService;
+    private readonly IManifestHashService manifestHashService;
 
     public StructuredDiagramIngestService(
         StructuredDiagramParseRouter parseRouter,
-        IArchitectureDiagramModelRepository repository)
+        IArchitectureDiagramModelRepository repository,
+        IAuthorityQueryService authorityQueryService,
+        IManifestHashService manifestHashService)
     {
         this.parseRouter = parseRouter;
         this.repository = repository;
+        this.authorityQueryService = authorityQueryService;
+        this.manifestHashService = manifestHashService;
     }
 
     public async Task<StructuredDiagramIngestResult> IngestAsync(
@@ -36,6 +44,13 @@ public sealed class StructuredDiagramIngestService : IStructuredDiagramIngestSer
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(request);
+
+        await StructuredDiagramIngestSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+            runId,
+            scope,
+            this.authorityQueryService,
+            this.manifestHashService,
+            cancellationToken);
 
         ArchitectureDiagramModelRecord merged = new();
         List<string> warnings = [];

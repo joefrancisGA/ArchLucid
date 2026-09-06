@@ -248,6 +248,42 @@ export function useRunsDashboardTabs({
     statusTabCounts,
   ]);
 
+  const recentReviewsOutcomeMetrics = useMemo(() => {
+    if (phase !== "ready" && phase !== "error") {
+      return null;
+    }
+
+    return deriveOperatorHomeTenantCountingSnapshot({
+      displayItems,
+      previewItems: displayItems,
+    }).metrics;
+  }, [displayItems, phase]);
+
+  const recentReviewsOutcomeOptions = useMemo(() => {
+    if (phase !== "ready" && phase !== "error") {
+      return null;
+    }
+
+    const exampleReviewOnly = hideHeading && !sampleReviewsVisible
+      ? false
+      : isExampleOnlyOverviewRunList(displayItems);
+    const previewCounts = hideHeading ? (statusTabCounts as HomePreviewTabCounts) : undefined;
+
+    return {
+      exampleReviewOnly,
+      visibleCount: previewCounts?.recentVisibleCount,
+      recentTotalCount: previewCounts?.recentTotalCount,
+      awaitingApprovalCount,
+    };
+  }, [
+    awaitingApprovalCount,
+    displayItems,
+    hideHeading,
+    phase,
+    sampleReviewsVisible,
+    statusTabCounts,
+  ]);
+
   const selectDashboardTab = useCallback((
     next: RunsDashboardTabId,
     options?: { readonly preserveShowArchived?: boolean },
@@ -334,6 +370,8 @@ export function useRunsDashboardTabs({
     statusTabIds,
     isRecentListTab,
     recentReviewsOutcomeLine,
+    recentReviewsOutcomeMetrics,
+    recentReviewsOutcomeOptions,
     archivedCount,
     archivedFilterDisabled,
     selectDashboardTab,

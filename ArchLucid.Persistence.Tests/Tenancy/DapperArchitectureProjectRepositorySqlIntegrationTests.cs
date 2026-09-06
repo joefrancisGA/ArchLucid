@@ -42,7 +42,9 @@ public sealed class DapperArchitectureProjectRepositorySqlIntegrationTests(SqlSe
 
         (await projects.ListActiveByTenantAsync(tenantId, CancellationToken.None)).Should().HaveCount(2);
 
-        (await projects.TrySoftDeleteAsync(tenantId, workspaceId, secondProjectId, CancellationToken.None)).Should().BeTrue();
+        (await projects.TrySoftDeleteAsync(tenantId, workspaceId, secondProjectId, CancellationToken.None))
+            .Should()
+            .Be(ArchitectureProjectSoftDeleteResult.Deleted);
 
         IReadOnlyList<ArchitectureProjectRecord> afterDelete =
             await projects.ListActiveByTenantAsync(tenantId, CancellationToken.None);
@@ -83,7 +85,9 @@ public sealed class DapperArchitectureProjectRepositorySqlIntegrationTests(SqlSe
         await projects.InsertAsync(defaultProjectId, tenantId, workspaceId, "default", CancellationToken.None);
         await projects.InsertAsync(secondProjectId, tenantId, workspaceId, "billing-svc", CancellationToken.None);
 
-        (await projects.TrySoftDeleteAsync(tenantId, workspaceId, secondProjectId, CancellationToken.None)).Should().BeTrue();
+        (await projects.TrySoftDeleteAsync(tenantId, workspaceId, secondProjectId, CancellationToken.None))
+            .Should()
+            .Be(ArchitectureProjectSoftDeleteResult.Deleted);
 
         IReadOnlyList<ArchitectureProjectRecord> deleted =
             await projects.ListSoftDeletedByTenantAsync(tenantId, CancellationToken.None);
@@ -137,7 +141,9 @@ public sealed class DapperArchitectureProjectRepositorySqlIntegrationTests(SqlSe
         await projects.InsertAsync(defaultProjectId, tenantId, workspaceId, "default", CancellationToken.None);
         await projects.InsertAsync(originalId, tenantId, workspaceId, "shared-name", CancellationToken.None);
 
-        (await projects.TrySoftDeleteAsync(tenantId, workspaceId, originalId, CancellationToken.None)).Should().BeTrue();
+        (await projects.TrySoftDeleteAsync(tenantId, workspaceId, originalId, CancellationToken.None))
+            .Should()
+            .Be(ArchitectureProjectSoftDeleteResult.Deleted);
 
         await projects.InsertAsync(replacementId, tenantId, workspaceId, "shared-name", CancellationToken.None);
 

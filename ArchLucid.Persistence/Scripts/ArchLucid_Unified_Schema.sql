@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 359_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 365_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -8797,6 +8797,9 @@ BEGIN
         TenantId               UNIQUEIDENTIFIER NOT NULL,
         WorkspaceId            UNIQUEIDENTIFIER NOT NULL,
         ScopeProjectId         UNIQUEIDENTIFIER NOT NULL,
+        DisplayName            NVARCHAR(200)    NOT NULL
+            CONSTRAINT DF_Architectures_DisplayName DEFAULT (N'Untitled architecture'),
+        Description            NVARCHAR(500)    NULL,
         CurrentModelId         NVARCHAR(128)    NULL,
         LatestSealedManifestId UNIQUEIDENTIFIER NULL,
         CreatedUtc             DATETIME2(7)     NOT NULL
@@ -8810,6 +8813,65 @@ BEGIN
         ON dbo.Architectures (TenantId, WorkspaceId, ScopeProjectId, UpdatedUtc DESC);
 END;
 
+GO
+
+/* Migration 366 parity: ADR 0074 display name + draft FK.
+   ADD NOT NULL + named default (not ADD NULL then assign) so SQL Server does not
+   compile a DisplayName reference before the column exists (error 207). */
+IF OBJECT_ID(N'dbo.Architectures', N'U') IS NOT NULL
+BEGIN
+    IF COL_LENGTH(N'dbo.Architectures', N'DisplayName') IS NULL
+    BEGIN
+        ALTER TABLE dbo.Architectures
+            ADD DisplayName NVARCHAR(200) NOT NULL
+                CONSTRAINT DF_Architectures_DisplayName DEFAULT (N'Untitled architecture');
+    END
+
+    IF COL_LENGTH(N'dbo.Architectures', N'Description') IS NULL
+    BEGIN
+        ALTER TABLE dbo.Architectures
+            ADD Description NVARCHAR(500) NULL;
+    END
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DraftRequests', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.DraftRequests', N'ArchitectureId') IS NULL
+BEGIN
+    ALTER TABLE dbo.DraftRequests
+        ADD ArchitectureId UNIQUEIDENTIFIER NULL;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DraftRequests', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.DraftRequests', N'ArchitectureId') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.foreign_keys
+       WHERE name = N'FK_DraftRequests_Architectures'
+         AND parent_object_id = OBJECT_ID(N'dbo.DraftRequests'))
+BEGIN
+    ALTER TABLE dbo.DraftRequests
+        ADD CONSTRAINT FK_DraftRequests_Architectures
+            FOREIGN KEY (ArchitectureId) REFERENCES dbo.Architectures (ArchitectureId);
+END;
+GO
+
+SET QUOTED_IDENTIFIER ON;
+GO
+
+IF OBJECT_ID(N'dbo.DraftRequests', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.DraftRequests', N'ArchitectureId') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.indexes
+       WHERE name = N'IX_DraftRequests_Scope_ArchitectureId'
+         AND object_id = OBJECT_ID(N'dbo.DraftRequests'))
+BEGIN
+    CREATE INDEX IX_DraftRequests_Scope_ArchitectureId
+        ON dbo.DraftRequests (TenantId, WorkspaceId, ProjectId, ArchitectureId)
+        WHERE ArchitectureId IS NOT NULL;
+END;
 GO
 
 DECLARE @architectureRunTable sysname =
@@ -9645,7 +9707,8 @@ BEGIN
         CreatedUtc                DATETIME2         NOT NULL,
         UpdatedUtc                DATETIME2         NOT NULL,
         CreatedBy                 NVARCHAR(256)     NULL,
-        UpdatedBy                 NVARCHAR(256)     NULL
+        UpdatedBy                 NVARCHAR(256)     NULL,
+        CoBrandingEnabled         BIT               NOT NULL CONSTRAINT DF_TenantBrandingProfiles_CoBrandingEnabled DEFAULT (0)
     );
 
     CREATE NONCLUSTERED INDEX IX_TenantBrandingProfiles_Tenant_Status
@@ -10106,4 +10169,46 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_AuditArchitectureEvidenceLinks_Tenant_Control
         ON dbo.AuditArchitectureEvidenceLinks (TenantId, AssessmentId, ControlId);
+END;
+
+GO
+
+/*
+  364: Tenant brand assets (BR-02).
+*/
+
+IF OBJECT_ID(N'dbo.BrandAssets', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.BrandAssets
+    (
+        AssetId            UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_BrandAssets PRIMARY KEY CLUSTERED,
+        TenantId           UNIQUEIDENTIFIER NOT NULL,
+        AssetType          INT               NOT NULL,
+        OriginalFileName   NVARCHAR(512)     NOT NULL,
+        MimeType           NVARCHAR(128)     NOT NULL,
+        Width              INT               NULL,
+        Height             INT               NULL,
+        StorageReference   NVARCHAR(2048)    NOT NULL,
+        ChecksumSha256     VARBINARY(32)     NOT NULL,
+        Status             INT               NOT NULL,
+        CreatedUtc         DATETIME2         NOT NULL,
+        UpdatedUtc         DATETIME2         NOT NULL,
+        CreatedBy          NVARCHAR(256)     NULL
+    );
+
+    CREATE NONCLUSTERED INDEX IX_BrandAssets_Tenant_Status
+        ON dbo.BrandAssets (TenantId, Status);
+END;
+
+GO
+
+/*
+  365: Tenant branding co-branding flag (BR-04).
+*/
+
+IF COL_LENGTH(N'dbo.TenantBrandingProfiles', N'CoBrandingEnabled') IS NULL
+BEGIN
+    ALTER TABLE dbo.TenantBrandingProfiles
+        ADD CoBrandingEnabled BIT NOT NULL
+            CONSTRAINT DF_TenantBrandingProfiles_CoBrandingEnabled DEFAULT (0);
 END;

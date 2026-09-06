@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -26,15 +27,22 @@ public sealed partial class GovernanceStickinessFacade
             _manifestHashService,
             ct);
 
-        bool resolved = await _findingMergeConflictResolutionService.TryResolveAsync(
+        FindingMergeConflictResolveResult outcome = await _findingMergeConflictResolutionService.TryResolveAsync(
             scope,
             runId,
             findingId,
             request.Action,
             ct).ConfigureAwait(false);
 
-        if (!resolved)
+        if (outcome == FindingMergeConflictResolveResult.NotFound)
             return false;
+
+        if (outcome == FindingMergeConflictResolveResult.AlreadyResolved)
+            return true;
+
+        FindingInspectResponse conflictFinding = await RequireFindingInspectInScopeAsync(scope, findingId, ct);
+        EnsureRunMatchesFindingAuthorityRun(runId, conflictFinding);
+        string canonicalFindingId = conflictFinding.FindingId;
 
         await _auditService.LogAsync(
             new AuditEvent
@@ -43,7 +51,7 @@ public sealed partial class GovernanceStickinessFacade
                 RunId = runId,
                 DataJson = JsonSerializer.Serialize(new
                 {
-                    findingId,
+                    findingId = canonicalFindingId,
                     action = request.Action.ToString(),
                 }),
             },

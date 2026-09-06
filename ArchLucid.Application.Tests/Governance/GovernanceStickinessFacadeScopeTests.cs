@@ -1,5 +1,6 @@
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Application.Governance.Stickiness;
@@ -8,8 +9,10 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Persistence.Interfaces;
 
 using FluentAssertions;
@@ -254,6 +257,7 @@ public sealed class GovernanceStickinessFacadeScopeTests
     public async Task TryResolveFindingMergeConflictAsync_returns_false_when_conflict_not_on_run_snapshot()
     {
         Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        const string sealedManifestHash = "sealed-manifest-hash-for-merge-conflict-negative";
 
         Mock<IRunRepository> runs = new();
         runs
@@ -270,12 +274,35 @@ public sealed class GovernanceStickinessFacadeScopeTests
                 "foreign-finding",
                 FindingMergeConflictResolutionAction.AcceptPrimary,
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+            .ReturnsAsync(FindingMergeConflictResolveResult.NotFound);
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(
+                CallerScope,
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new ArchLucid.Persistence.Models.RunRecord { RunId = runId },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    ManifestHash = sealedManifestHash,
+                },
+            });
+
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns(sealedManifestHash);
 
         GovernanceStickinessFacade sut = CreateSut(
             runRepository: runs.Object,
             findingInspect: findings.Object,
-            mergeConflictResolution: merge.Object);
+            mergeConflictResolution: merge.Object,
+            authorityQuery: authority.Object,
+            manifestHashService: manifestHash.Object);
 
         ResolveFindingMergeConflictRequest request = new()
         {
@@ -290,6 +317,169 @@ public sealed class GovernanceStickinessFacadeScopeTests
 
         resolved.Should().BeFalse();
         findings.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task TryResolveFindingMergeConflictAsync_logs_canonical_finding_id_when_route_differs_only_by_casing()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        const string routeFindingId = "conflict-1";
+        const string canonicalFindingId = "CONFLICT-1";
+        const string sealedManifestHash = "sealed-manifest-hash-for-merge-conflict-audit";
+        List<AuditEvent> auditEvents = [];
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(CallerScope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchLucid.Persistence.Models.RunRecord { RunId = runId });
+
+        Mock<IFindingInspectReadRepository> findings = new();
+        findings
+            .Setup(r => r.GetInspectAsync(
+                CallerScope,
+                routeFindingId,
+                It.IsAny<CancellationToken>(),
+                FindingInspectReadOptions.MetadataOnly))
+            .ReturnsAsync(new FindingInspectResponse
+            {
+                FindingId = canonicalFindingId,
+                RunId = runId,
+            });
+
+        Mock<ArchLucid.Application.Findings.IFindingMergeConflictResolutionService> merge = new();
+        merge
+            .Setup(s => s.TryResolveAsync(
+                CallerScope,
+                runId,
+                routeFindingId,
+                FindingMergeConflictResolutionAction.AcceptPrimary,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(FindingMergeConflictResolveResult.Resolved);
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(
+                CallerScope,
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new ArchLucid.Persistence.Models.RunRecord { RunId = runId },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    ManifestHash = sealedManifestHash,
+                },
+            });
+
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns(sealedManifestHash);
+
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((auditEvent, _) => auditEvents.Add(auditEvent))
+            .Returns(Task.CompletedTask);
+
+        GovernanceStickinessFacade sut = CreateSut(
+            runRepository: runs.Object,
+            findingInspect: findings.Object,
+            mergeConflictResolution: merge.Object,
+            auditService: auditService.Object,
+            authorityQuery: authority.Object,
+            manifestHashService: manifestHash.Object);
+
+        ResolveFindingMergeConflictRequest request = new()
+        {
+            Action = FindingMergeConflictResolutionAction.AcceptPrimary,
+        };
+
+        bool resolved = await sut.TryResolveFindingMergeConflictAsync(
+            runId,
+            routeFindingId,
+            request,
+            CancellationToken.None);
+
+        resolved.Should().BeTrue();
+        auditEvents.Should().ContainSingle();
+        auditEvents[0].EventType.Should().Be(AuditEventTypes.FindingMergeConflictResolved);
+        auditEvents[0].DataJson.Should().Contain(canonicalFindingId);
+        auditEvents[0].DataJson.Should().NotContain(routeFindingId);
+    }
+
+    [Fact]
+    public async Task TryResolveFindingMergeConflictAsync_returns_true_without_duplicate_audit_when_already_resolved_retry()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        const string conflictFindingId = "CONFLICT-1";
+        const string sealedManifestHash = "sealed-manifest-hash-for-merge-conflict-idempotent-retry";
+        List<AuditEvent> auditEvents = [];
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(CallerScope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchLucid.Persistence.Models.RunRecord { RunId = runId });
+
+        Mock<IFindingInspectReadRepository> findings = new(MockBehavior.Strict);
+
+        Mock<IFindingMergeConflictResolutionService> merge = new();
+        merge
+            .Setup(s => s.TryResolveAsync(
+                CallerScope,
+                runId,
+                conflictFindingId,
+                FindingMergeConflictResolutionAction.AcceptPrimary,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(FindingMergeConflictResolveResult.AlreadyResolved);
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(
+                CallerScope,
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new ArchLucid.Persistence.Models.RunRecord { RunId = runId },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    ManifestHash = sealedManifestHash,
+                },
+            });
+
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns(sealedManifestHash);
+
+        Mock<IAuditService> auditService = new(MockBehavior.Strict);
+
+        GovernanceStickinessFacade sut = CreateSut(
+            runRepository: runs.Object,
+            findingInspect: findings.Object,
+            mergeConflictResolution: merge.Object,
+            auditService: auditService.Object,
+            authorityQuery: authority.Object,
+            manifestHashService: manifestHash.Object);
+
+        ResolveFindingMergeConflictRequest request = new()
+        {
+            Action = FindingMergeConflictResolutionAction.AcceptPrimary,
+        };
+
+        bool resolved = await sut.TryResolveFindingMergeConflictAsync(
+            runId,
+            conflictFindingId,
+            request,
+            CancellationToken.None);
+
+        resolved.Should().BeTrue();
+        auditEvents.Should().BeEmpty();
+        findings.VerifyNoOtherCalls();
+        auditService.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -903,6 +1093,250 @@ public sealed class GovernanceStickinessFacadeScopeTests
     }
 
     [Fact]
+    public async Task CreateRecurrenceScheduleAsync_returns_existing_schedule_when_identical_operator_retry()
+    {
+        Guid sourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid existingScheduleId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        const string cronExpression = "0 8 * * 1";
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(CallerScope, sourceRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchLucid.Persistence.Models.RunRecord
+            {
+                RunId = sourceRunId,
+                ArchitectureId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            });
+
+        Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new();
+        recurrenceRepo
+            .Setup(r => r.ListByScopeAsync(
+                CallerScope.TenantId,
+                CallerScope.WorkspaceId,
+                CallerScope.ProjectId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new ArchitectureReviewRecurrenceSchedule
+                {
+                    ScheduleId = existingScheduleId,
+                    TenantId = CallerScope.TenantId,
+                    WorkspaceId = CallerScope.WorkspaceId,
+                    ProjectId = CallerScope.ProjectId,
+                    SourceRunId = sourceRunId,
+                    Name = "Recurring architecture review",
+                    CronExpression = cronExpression,
+                    IsEnabled = true,
+                },
+            ]);
+
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IArchitectureReviewRecurrenceNextRunCalculator> calculator = new();
+        calculator
+            .Setup(c => c.IsSupportedCronExpression(cronExpression))
+            .Returns(true);
+        calculator
+            .Setup(c => c.ComputeNextRunUtc(cronExpression, It.IsAny<DateTime>(), true))
+            .Returns(DateTime.UtcNow.AddDays(7));
+
+        GovernanceStickinessFacade sut = CreateSut(
+            runRepository: runs.Object,
+            recurrenceRepository: recurrenceRepo.Object,
+            recurrenceCalculator: calculator.Object,
+            auditService: audit.Object,
+            authorityQuery: PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateAuthorityQueryServiceForAnyRun(CallerScope),
+            manifestHashService: PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService());
+
+        CreateArchitectureReviewRecurrenceScheduleRequest request = new()
+        {
+            SourceRunId = sourceRunId,
+            IsEnabled = true,
+            CronExpression = cronExpression,
+        };
+
+        ArchitectureReviewRecurrenceSchedule first =
+            await sut.CreateRecurrenceScheduleAsync(request, CancellationToken.None);
+        ArchitectureReviewRecurrenceSchedule second =
+            await sut.CreateRecurrenceScheduleAsync(request, CancellationToken.None);
+
+        second.ScheduleId.Should().Be(first.ScheduleId);
+        second.ScheduleId.Should().Be(existingScheduleId);
+        recurrenceRepo.Verify(
+            r => r.CreateAsync(It.IsAny<ArchitectureReviewRecurrenceSchedule>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateRecurrenceScheduleAsync_returns_existing_schedule_when_name_differs_only_by_casing()
+    {
+        Guid sourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid existingScheduleId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        const string cronExpression = "0 8 * * 1";
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(CallerScope, sourceRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchLucid.Persistence.Models.RunRecord
+            {
+                RunId = sourceRunId,
+                ArchitectureId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            });
+
+        Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new();
+        recurrenceRepo
+            .Setup(r => r.ListByScopeAsync(
+                CallerScope.TenantId,
+                CallerScope.WorkspaceId,
+                CallerScope.ProjectId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new ArchitectureReviewRecurrenceSchedule
+                {
+                    ScheduleId = existingScheduleId,
+                    TenantId = CallerScope.TenantId,
+                    WorkspaceId = CallerScope.WorkspaceId,
+                    ProjectId = CallerScope.ProjectId,
+                    SourceRunId = sourceRunId,
+                    Name = "Recurring architecture review",
+                    CronExpression = cronExpression,
+                    IsEnabled = true,
+                },
+            ]);
+
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IArchitectureReviewRecurrenceNextRunCalculator> calculator = new();
+        calculator
+            .Setup(c => c.IsSupportedCronExpression(cronExpression))
+            .Returns(true);
+        calculator
+            .Setup(c => c.ComputeNextRunUtc(cronExpression, It.IsAny<DateTime>(), true))
+            .Returns(DateTime.UtcNow.AddDays(7));
+
+        GovernanceStickinessFacade sut = CreateSut(
+            runRepository: runs.Object,
+            recurrenceRepository: recurrenceRepo.Object,
+            recurrenceCalculator: calculator.Object,
+            auditService: audit.Object,
+            authorityQuery: PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateAuthorityQueryServiceForAnyRun(CallerScope),
+            manifestHashService: PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService());
+
+        CreateArchitectureReviewRecurrenceScheduleRequest request = new()
+        {
+            SourceRunId = sourceRunId,
+            IsEnabled = true,
+            CronExpression = cronExpression,
+            Name = "recurring architecture review",
+        };
+
+        ArchitectureReviewRecurrenceSchedule schedule =
+            await sut.CreateRecurrenceScheduleAsync(request, CancellationToken.None);
+
+        schedule.ScheduleId.Should().Be(existingScheduleId);
+        recurrenceRepo.Verify(
+            r => r.CreateAsync(It.IsAny<ArchitectureReviewRecurrenceSchedule>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateRecurrenceScheduleAsync_returns_existing_schedule_when_cron_differs_only_by_casing()
+    {
+        Guid sourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid existingScheduleId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        const string storedCron = "0 8 * * MON";
+        const string requestCron = "0 8 * * mon";
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(CallerScope, sourceRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchLucid.Persistence.Models.RunRecord
+            {
+                RunId = sourceRunId,
+                ArchitectureId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            });
+
+        Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new();
+        recurrenceRepo
+            .Setup(r => r.ListByScopeAsync(
+                CallerScope.TenantId,
+                CallerScope.WorkspaceId,
+                CallerScope.ProjectId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new ArchitectureReviewRecurrenceSchedule
+                {
+                    ScheduleId = existingScheduleId,
+                    TenantId = CallerScope.TenantId,
+                    WorkspaceId = CallerScope.WorkspaceId,
+                    ProjectId = CallerScope.ProjectId,
+                    SourceRunId = sourceRunId,
+                    Name = "Recurring architecture review",
+                    CronExpression = storedCron,
+                    IsEnabled = true,
+                },
+            ]);
+
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        ArchitectureReviewRecurrenceNextRunCalculator realCalculator = new(new SimpleScanScheduleCalculator());
+        Mock<IArchitectureReviewRecurrenceNextRunCalculator> calculator = new();
+        calculator
+            .Setup(c => c.IsSupportedCronExpression(It.IsAny<string>()))
+            .Returns((string cron) => realCalculator.IsSupportedCronExpression(cron));
+        calculator
+            .Setup(c => c.ComputeNextRunUtc(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<bool>()))
+            .Returns((string cron, DateTime from, bool enabled) => realCalculator.ComputeNextRunUtc(cron, from, enabled));
+
+        GovernanceStickinessFacade sut = CreateSut(
+            runRepository: runs.Object,
+            recurrenceRepository: recurrenceRepo.Object,
+            recurrenceCalculator: calculator.Object,
+            auditService: audit.Object,
+            authorityQuery: PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateAuthorityQueryServiceForAnyRun(CallerScope),
+            manifestHashService: PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService());
+
+        CreateArchitectureReviewRecurrenceScheduleRequest request = new()
+        {
+            SourceRunId = sourceRunId,
+            IsEnabled = true,
+            CronExpression = requestCron,
+            Name = "Recurring architecture review",
+        };
+
+        ArchitectureReviewRecurrenceSchedule schedule =
+            await sut.CreateRecurrenceScheduleAsync(request, CancellationToken.None);
+
+        schedule.ScheduleId.Should().Be(existingScheduleId);
+        recurrenceRepo.Verify(
+            r => r.CreateAsync(It.IsAny<ArchitectureReviewRecurrenceSchedule>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task CreateRecurrenceScheduleAsync_throws_when_name_exceeds_sql_max_length()
     {
         Guid sourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -1230,7 +1664,11 @@ public sealed class GovernanceStickinessFacadeScopeTests
         IRunRepository? runRepository = null,
         ArchLucid.Application.Findings.IFindingMergeConflictResolutionService? mergeConflictResolution = null,
         IActorContext? actor = null,
-        IArchitectureReviewRecurrenceNextRunCalculator? recurrenceCalculator = null)
+        IArchitectureReviewRecurrenceNextRunCalculator? recurrenceCalculator = null,
+        IAuditService? auditService = null,
+        IAuthorityQueryService? authorityQuery = null,
+        IManifestHashService? manifestHashService = null,
+        IArchitectureReviewRecurrenceScheduleRepository? recurrenceRepository = null)
     {
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(CallerScope);
@@ -1242,17 +1680,17 @@ public sealed class GovernanceStickinessFacadeScopeTests
             riskExceptionService ?? Mock.Of<IRiskExceptionService>(),
             riskRegister ?? new Mock<IArchitectureRiskRegisterService>().Object,
             decisionRegister ?? new Mock<IArchitectureDecisionRegisterService>().Object,
-            Mock.Of<IArchitectureReviewRecurrenceScheduleRepository>(),
+            recurrenceRepository ?? Mock.Of<IArchitectureReviewRecurrenceScheduleRepository>(),
             recurrenceCalculator ?? Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>(),
             runRepository ?? Mock.Of<IRunRepository>(),
             mergeConflictResolution ?? Mock.Of<ArchLucid.Application.Findings.IFindingMergeConflictResolutionService>(),
             Mock.Of<IGovernanceDigestDecisionNeededComposer>(),
             Mock.Of<IReviewsAwaitingActionQueryService>(),
             Mock.Of<IRealizedValueAttestationService>(),
-            Mock.Of<IAuditService>(),
+            auditService ?? Mock.Of<IAuditService>(),
             findingInspect ?? Mock.Of<IFindingInspectReadRepository>(),
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>());
+            authorityQuery ?? Mock.Of<IAuthorityQueryService>(),
+            manifestHashService ?? Mock.Of<IManifestHashService>());
     }
 
     private static ArchLucid.Persistence.Data.Repositories.IFindingReviewTrailRepository CreateTrailRepositoryReturningForeignAndInScopeEvents(

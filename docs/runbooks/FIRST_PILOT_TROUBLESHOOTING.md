@@ -32,7 +32,7 @@ Use this when you need a one-screen index. Numbered sections below add escalatio
 | Run not **Ready to finalize** / pipeline stuck | Prior stage incomplete, execute failure, worker down, AOAI circuit | Review detail pipeline timeline; `archlucid status <runId>` | [`CORE_PILOT.md`](../CORE_PILOT.md) (steps 2–3), [`FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md) |
 | Finalize / **commit** blocked (governance) | Policy gate requires fixes or documented override | Capture gate message + findings snapshot id | [`PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md) |
 | No artifacts after finalize | Commit not 2xx, async worker lag, wrong run scope | Re-check finalize response; refresh review; search logs by correlation id | [`CORE_PILOT.md`](../CORE_PILOT.md) (step 4), [`API_CONTRACTS.md`](../library/API_CONTRACTS.md) |
-| Real-mode / **Azure OpenAI** failures | Quota, deployment name, circuit breaker, auth to AOAI | **`GET /health`** → `circuit_breakers`; verify deployment settings (non-secret names only) | [`FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md), [`RESILIENCE_CONFIGURATION.md`](../library/RESILIENCE_CONFIGURATION.md), [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md) |
+| Real-mode / **Azure OpenAI** failures | Quota, deployment name, circuit breaker, auth to AOAI, regional outage | **`GET /health`** → `circuit_breakers`; live probe on review detail | [`AI_PROVIDER_OFFLINE.md`](AI_PROVIDER_OFFLINE.md), [`FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md), [`RESILIENCE_CONFIGURATION.md`](../library/RESILIENCE_CONFIGURATION.md) |
 | Low-confidence / disputed finding | PilotStrict rejection, degraded agent, weak grounding | Finding inspect → confidence source; evidence chain for trace ids | [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md), [`AGENT_TRACE_FORENSICS.md`](../library/AGENT_TRACE_FORENSICS.md) |
 | Support ZIP before external send | Residual secrets or unintended tenant/contact data | Open `README.txt` → `next-steps.json` → `references.json`; manually review before send | [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md) (support bundle) |
 
@@ -130,7 +130,7 @@ Use this when you need a one-screen index. Numbered sections below add escalatio
 | Likely cause | Quota, wrong deployment name, circuit breaker open, auth to AOAI |
 | Escalation artifact | Health circuit excerpt + correlation id (no prompt bodies) |
 
-→ [`FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md) · [`RESILIENCE_CONFIGURATION.md`](../library/RESILIENCE_CONFIGURATION.md) · [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md)
+→ [`AI_PROVIDER_OFFLINE.md`](AI_PROVIDER_OFFLINE.md) · [`FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md) · [`RESILIENCE_CONFIGURATION.md`](../library/RESILIENCE_CONFIGURATION.md) · [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md)
 
 ---
 

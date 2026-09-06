@@ -103,23 +103,70 @@ public sealed class FallbackAgentCompletionClientTests
     [SkippableFact]
     public async Task PrimaryThrowsOperationCanceledException_NoFallback()
     {
+        using CancellationTokenSource cts = new();
+        cts.Cancel();
+
         Mock<IAgentCompletionClient> primary = new();
         Mock<IAgentCompletionClient> secondary = new();
         primary.Setup(p => p.Descriptor).Returns(PrimaryDescriptor);
         primary.Setup(p => p.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new OperationCanceledException("canceled"));
+            .ThrowsAsync(new OperationCanceledException(cts.Token));
 
         FallbackAgentCompletionClient sut = new(
             primary.Object,
             secondary.Object,
             NullLogger<FallbackAgentCompletionClient>.Instance);
 
-        Func<Task> act = async () => await sut.CompleteJsonAsync("s", "u");
+        Func<Task> act = async () => await sut.CompleteJsonAsync("s", "u", cancellationToken: cts.Token);
 
         await act.Should().ThrowAsync<OperationCanceledException>();
         secondary.Verify(
             s => s.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task PrimaryThrowsCircuitBreakerOpen_SecondaryCalled()
+    {
+        Mock<IAgentCompletionClient> primary = new();
+        Mock<IAgentCompletionClient> secondary = new();
+        primary.Setup(p => p.Descriptor).Returns(PrimaryDescriptor);
+        primary.Setup(p => p.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new ArchLucid.Core.Resilience.CircuitBreakerOpenException("primary open"));
+        secondary.Setup(s => s.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("{\"from\":\"secondary\"}");
+
+        FallbackAgentCompletionClient sut = new(
+            primary.Object,
+            secondary.Object,
+            NullLogger<FallbackAgentCompletionClient>.Instance);
+
+        string result = await sut.CompleteJsonAsync("s", "u");
+
+        result.Should().Be("{\"from\":\"secondary\"}");
+        secondary.Verify(s => s.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task PrimaryThrowsTimeout_SecondaryCalled()
+    {
+        Mock<IAgentCompletionClient> primary = new();
+        Mock<IAgentCompletionClient> secondary = new();
+        primary.Setup(p => p.Descriptor).Returns(PrimaryDescriptor);
+        primary.Setup(p => p.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new TaskCanceledException("http timeout"));
+        secondary.Setup(s => s.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("{}");
+
+        FallbackAgentCompletionClient sut = new(
+            primary.Object,
+            secondary.Object,
+            NullLogger<FallbackAgentCompletionClient>.Instance);
+
+        string result = await sut.CompleteJsonAsync("s", "u");
+
+        result.Should().Be("{}");
+        secondary.Verify(s => s.CompleteJsonAsync("s", "u", It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [SkippableFact]

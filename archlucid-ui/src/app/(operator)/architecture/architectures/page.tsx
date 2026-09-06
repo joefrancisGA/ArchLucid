@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { ArchitectureObjectMapStrip } from "@/components/operator/ArchitectureObjectMapStrip";
-import { ArchitectureDraftListClient } from "@/components/architecture/ArchitectureDraftListClient";
+import { ArchitecturesHubListSection } from "./_sections/ArchitecturesHubListSection";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
@@ -33,7 +33,7 @@ export default function ArchitecturesListPage(): React.JSX.Element {
         actions={<ArchitecturesHubHeaderActions />}
       />
       <ArchitectureObjectMapStrip focus="draft" />
-      <ArchitectureDraftListClient />
+      <ArchitecturesHubListSection />
       <ArchitecturesHubBuyerChrome />
     </OperatorPageContainer>
   );

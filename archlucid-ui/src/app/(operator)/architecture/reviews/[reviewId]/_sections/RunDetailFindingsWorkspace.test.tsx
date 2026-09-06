@@ -102,6 +102,37 @@ describe("RunDetailFindingsWorkspace", () => {
     expect(screen.getByRole("button", { name: "High (1)" })).toBeInTheDocument();
   });
 
+  it("shows hidden-filter honesty with Show all when filters hide rows", () => {
+    architectWorkspaceChromeMocks.enabled = true;
+    const findings: QuickDecisionFinding[] = [
+      ...Array.from({ length: 10 }, (_, index) =>
+        finding({
+          findingId: `f-visible-${index}`,
+          severityValue: 1,
+          findingOrder: index,
+          insightDensityScore: 80,
+        }),
+      ),
+      ...Array.from({ length: 3 }, (_, index) =>
+        finding({
+          findingId: `f-hidden-${index}`,
+          severityValue: 1,
+          findingOrder: 10 + index,
+          insightDensityScore: 10,
+          classification: "ChecklistCoverage",
+        }),
+      ),
+    ];
+
+    render(<RunDetailFindingsWorkspace runId="run-1" findings={findings} packageCommitted={true} />);
+
+    expect(screen.getByTestId("findings-hidden-filter-honesty-band")).toHaveTextContent(
+      "3 findings hidden by filters",
+    );
+    fireEvent.click(screen.getByTestId("findings-hidden-filter-show-all"));
+    expect(screen.queryByTestId("findings-hidden-filter-honesty-band")).not.toBeInTheDocument();
+  });
+
   it("names the confidence gate in the visibility summary when rows are hidden", () => {
     const findings: QuickDecisionFinding[] = [
       finding({ findingId: "f-medium-1", severityValue: 1, findingOrder: 0 }),

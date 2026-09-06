@@ -23,6 +23,7 @@ import {
   readArchitectureNewDraftRecovery,
   writeArchitectureNewDraftRecovery,
 } from "@/lib/architecture/architecture-new-draft-recovery";
+import { isApiRequestError } from "@/lib/api-request-error";
 import { createDraftRequest, getDraftRequest, patchDraftRequest } from "@/lib/api/draft-intake-api";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
@@ -39,7 +40,7 @@ import {
 
 type UseArchitectureDraftAutosavePersistArgs = Pick<
   UseArchitectureDraftAutosaveArgs,
-  | "architectureId"
+  | "draftId"
   | "enabled"
   | "deferCreateUntilFirstSave"
   | "scopeGateOpen"
@@ -60,7 +61,7 @@ type UseArchitectureDraftAutosavePersistArgs = Pick<
   readonly actorSetRef: React.MutableRefObject<ActorSet>;
   readonly scopeGateOpenRef: React.MutableRefObject<boolean>;
   readonly scopeBulletsRef: React.MutableRefObject<readonly import("@/lib/architecture/architecture-scope-understanding-check").ScopeUnderstandingBullet[]>;
-  readonly resolvedArchitectureIdRef: React.MutableRefObject<string | null>;
+  readonly resolvedDraftIdRef: React.MutableRefObject<string | null>;
   readonly autosaveBlockedRef: React.MutableRefObject<boolean>;
   readonly markDirty: () => void;
 };
@@ -76,18 +77,20 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
   const trailingSaveNeededRef = useRef(false);
   const persistDraftRef = useRef<() => Promise<boolean>>(async () => false);
 
-  const persistDraft = useCallback(async (): Promise<boolean> => {
+  const persistDraft = useCallback(async (options?: { readonly forceOverwrite?: boolean }): Promise<boolean> => {
+    const forceOverwrite = options?.forceOverwrite === true;
+
     if (!enabled) return true;
     if (!isOnline) {
-      const architectureId = args.resolvedArchitectureIdRef.current ?? args.architectureId;
+      const draftId = args.resolvedDraftIdRef.current ?? args.draftId;
 
       if (
-        architectureId.trim().length > 0 &&
+        draftId.trim().length > 0 &&
         hasArchitectureDraftSaveableContent(args.fieldsRef.current) &&
         validateArchitectureDraftIntegrity(args.fieldsRef.current).isValid
       ) {
         enqueueArchitectureDraftOfflinePatch({
-          architectureId,
+          draftId,
           payloadJson: JSON.stringify(
             buildArchitectureDraftPatchPayload(
               args.fieldsRef.current,
@@ -99,7 +102,7 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
         });
       } else if (
         deferCreateUntilFirstSave &&
-        args.resolvedArchitectureIdRef.current === null &&
+        args.resolvedDraftIdRef.current === null &&
         hasArchitectureDraftSaveableContent(args.fieldsRef.current) &&
         validateArchitectureDraftIntegrity(args.fieldsRef.current).isValid
       ) {
@@ -139,23 +142,23 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
     const savePromise = (async (): Promise<boolean> => {
       let patchFailedNonRetryable = false;
       try {
-        let architectureId = args.resolvedArchitectureIdRef.current ?? args.architectureId;
+        let draftId = args.resolvedDraftIdRef.current ?? args.draftId;
 
-        if (deferCreateUntilFirstSave && args.resolvedArchitectureIdRef.current === null) {
+        if (deferCreateUntilFirstSave && args.resolvedDraftIdRef.current === null) {
           const confirmedScopeBullets = args.scopeGateOpenRef.current ? args.scopeBulletsRef.current : undefined;
           const created = await createDraftRequest(
             createIntentForDeferredDraft(args.fieldsRef.current, confirmedScopeBullets),
             CREATE_ARCHITECTURE_INTENT,
           );
-          args.resolvedArchitectureIdRef.current = created.draftId;
-          architectureId = created.draftId;
+          args.resolvedDraftIdRef.current = created.draftId;
+          draftId = created.draftId;
           args.setHasPersistedDraft(true);
           args.onDraftCreated?.(created.draftId);
           void invalidateArchitectureDraftListQueries();
           clearArchitectureNewDraftRecovery();
         }
 
-        const latestServer = await getDraftRequest(architectureId);
+        const latestServer = await getDraftRequest(draftId);
         if (latestServer.status !== "Drafting") {
           args.onImmutableDraftDetected?.(latestServer);
           args.setConflictMessage(null);
@@ -165,25 +168,32 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
         }
 
         if (
+          !forceOverwrite &&
           args.serverUpdatedUtcRef.current !== null &&
           latestServer.updatedUtc !== args.serverUpdatedUtcRef.current
         ) {
           args.setConflictMessage(
-            "This architecture was updated in another session. Refresh to load the latest version before saving again.",
+            "This architecture was updated in another session. Keep your edits or load the server copy before saving again.",
           );
           args.setSaveState("error");
           patchFailedNonRetryable = true;
           return false;
         }
 
-        const patched = await patchDraftRequest(
-          architectureId,
-          buildArchitectureDraftPatchPayload(
-            args.fieldsRef.current,
-            args.actorSetRef.current,
-            args.scopeGateOpenRef.current ? args.scopeBulletsRef.current : undefined,
-          ),
+        const patchPayload = buildArchitectureDraftPatchPayload(
+          args.fieldsRef.current,
+          args.actorSetRef.current,
+          args.scopeGateOpenRef.current ? args.scopeBulletsRef.current : undefined,
         );
+
+        const patched = await patchDraftRequest(draftId, {
+          ...patchPayload,
+          ...(forceOverwrite
+            ? { forceOverwrite: true }
+            : args.serverUpdatedUtcRef.current !== null
+              ? { expectedUpdatedUtc: args.serverUpdatedUtcRef.current }
+              : {}),
+        });
 
         if (sequence !== saveSequenceRef.current) return false;
 
@@ -195,7 +205,16 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
         args.setSaveState("saved");
         return true;
       } catch (error) {
-        if (sequence === saveSequenceRef.current) args.setSaveState("error");
+        if (sequence === saveSequenceRef.current) {
+          args.setSaveState("error");
+
+          if (isApiRequestError(error) && error.httpStatus === 409) {
+            args.setConflictMessage(
+              "This architecture was updated in another session. Keep your edits or load the server copy before saving again.",
+            );
+          }
+        }
+
         patchFailedNonRetryable = isNonRetryableDraftPatchError(error);
         if (patchFailedNonRetryable) args.autosaveBlockedRef.current = true;
         return false;
@@ -213,7 +232,14 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
     return savePromise;
   }, [args, deferCreateUntilFirstSave, enabled, isOnline]);
 
-  persistDraftRef.current = persistDraft;
+  persistDraftRef.current = () => persistDraft();
+
+  const keepLocalDraftOnConflict = useCallback(async (): Promise<boolean> => {
+    args.autosaveBlockedRef.current = false;
+    args.setConflictMessage(null);
+
+    return persistDraft({ forceOverwrite: true });
+  }, [args, persistDraft]);
 
   useEffect(() => {
     args.autosaveBlockedRef.current = false;
@@ -237,8 +263,8 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
       for (const entry of queued) {
         try {
           const body = JSON.parse(entry.payloadJson) as Parameters<typeof patchDraftRequest>[1];
-          await patchDraftRequest(entry.architectureId, body);
-          dequeueArchitectureDraftOfflinePatch(entry.architectureId);
+          await patchDraftRequest(entry.draftId, body);
+          dequeueArchitectureDraftOfflinePatch(entry.draftId);
         }
         catch {
           break;
@@ -267,5 +293,5 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
     };
   }, [args, args.fields, args.actorSet, args.hasUnsavedChanges, persistDraft]);
 
-  return persistDraft;
+  return { persistDraft, keepLocalDraftOnConflict };
 }

@@ -36,6 +36,12 @@ public sealed class PolicyPackPublishStage(
         (PolicyPackVersion packVersion, string? previousValue) =
             await _versionRepository.UpsertPublishedVersionAsync(policyPackId, version, normalizedJson, ct);
 
+        bool isIdenticalRetry = previousValue is not null
+            && string.Equals(previousValue, normalizedJson, StringComparison.Ordinal);
+
+        if (isIdenticalRetry)
+            return packVersion;
+
         PolicyPack pack = await _packRepository.GetByIdAsync(policyPackId, ct) ?? throw new InvalidOperationException(
             $"Policy pack '{policyPackId}' was not found. Cannot promote version '{version}' on a non-existent pack.");
 

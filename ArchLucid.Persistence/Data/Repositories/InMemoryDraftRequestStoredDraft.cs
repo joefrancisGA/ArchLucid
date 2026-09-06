@@ -34,6 +34,12 @@ internal sealed class InMemoryDraftRequestStoredDraft
         set;
     } = string.Empty;
 
+    public Guid? ArchitectureId
+    {
+        get;
+        set;
+    }
+
     public DraftRequestStatus Status
     {
         get;

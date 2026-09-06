@@ -26,7 +26,7 @@ This set is **wave 11** — residuals a 2026-09-05 livelihood restatement still 
 | Sealed record looks more certain than the engine | **IS-04–07** gate/stamp/bands · **LS-02/03/12** UI/Ask · **SD-01/04/12** docs/CLI |
 | Pipeline wait is still the job | **IS-09** · **LS-09** |
 | Paying desk still asks the architect to pick a product | **IS-01–03** · **LS-04/08** · **SD-10** |
-| XSS-readable Bearer tokens | **IS-15** (implement) · **SD-09** (honesty until BFF) |
+| XSS-readable Bearer tokens | **LK-05–07** (implement; supersedes IS-15) · **SD-09** / **CR-05** (honesty until BFF) |
 | No single selection across the daily instrument | **LS-01** · **LS-07** |
 | Insights empty / R12 copy-only | **LS-05** · **LS-06** |
 | Most engines unmeasured | **SD-03** |
@@ -34,7 +34,7 @@ This set is **wave 11** — residuals a 2026-09-05 livelihood restatement still 
 
 ## What this set does *not* change
 
-Keep: tenant isolation (ADR 0037); sealed-manifest immutability; ADR 0068 two kernels; spawn lock *rule*; desktop review tabs as a full strip; Guided / demo / trial as explicit eval sessions; 300s *immediate* undo window; IS-12 amend model; IS-15 BFF as the session bet.
+Keep: tenant isolation (ADR 0037); sealed-manifest immutability; ADR 0068 two kernels; spawn lock *rule*; desktop review tabs as a full strip; Guided / demo / trial as explicit eval sessions; 300s *immediate* undo window; IS-12 amend model; **LK-05–07** BFF as the session bet (do not implement BFF from CR files).
 
 Do **not** collapse desktop review tabs behind **More**. Do **not** auto-switch stored Guided users. Do **not** add a 40th coverage-shaped engine. Do **not** restore system-wide breadcrumbs (**TB-2090**). Do **not** invent live presence. Do **not** implement IS-15 from these files. Do **not** change `DeterministicInsightDensityGate`. Do **not** rewrite ADR 0069 / 0070 bodies (SD-02 owns Status).
 
@@ -47,6 +47,7 @@ Do **not** collapse desktop review tabs behind **More**. Do **not** auto-switch 
 | **SD-01–12** | Wave 10 residuals | **Run third** — do not fork |
 | **FD / AD / CD / WA / RS / LD / LI / PT / WD** | Overlays and leftovers | Do not re-run / do not fork |
 | **CR-01–12** | **This set** — wave 11 residuals | Run these after IS + LS + SD |
+| **LK-01–15** | Wave 12 kernel | [`livelihood-kernel-00-index.md`](livelihood-kernel-00-index.md) — **do not paste IS-15** |
 
 If a CR row lists an IS/LS/SD/WA/FD owner, **do not fork** that file. Implement only the leftover in *What to build*.
 
@@ -111,3 +112,5 @@ If a CR row lists an IS/LS/SD/WA/FD owner, **do not fork** that file. Implement 
 ## After each prompt
 
 Summarize: files changed, tests run, residual risk, Working vs Guided behavior, whether **IS-01–15** / **LS-01–12** / **SD-01–12** still own the spine, and whether Guided/demo/trial still work without that prompt. Do not mark IS, LS, SD, FD, AD, CD, WA, RS, LD, or LI as undone.
+
+**Wave 12 kernel:** [`livelihood-kernel-00-index.md`](livelihood-kernel-00-index.md) (**LK-01–15**). Do **not** paste IS-15; LK-05–07 execute the BFF.

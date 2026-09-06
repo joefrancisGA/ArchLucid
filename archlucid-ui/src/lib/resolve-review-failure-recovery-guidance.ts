@@ -104,8 +104,8 @@ function recoveryStepsForFailureClass(
       });
     case "circuitBreaker":
       return [
-        "Wait five minutes for the AI circuit breaker to reset, then click Re-run review.",
-        "If the circuit stays open, open a support ticket — sustained failures may need platform investigation.",
+        "Wait about one minute for the AI circuit breaker to reset, then click Re-run review.",
+        "If the circuit stays open, open a support ticket — the AI provider may be offline and needs platform investigation.",
       ];
     case "dependency":
       return canConfigureWorkspaceAi

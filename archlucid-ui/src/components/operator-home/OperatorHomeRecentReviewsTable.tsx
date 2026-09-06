@@ -61,10 +61,10 @@ export function OperatorHomeRecentReviewsTable(
   return (
     <EnterpriseTable ariaLabel="Recent reviews" data-testid="operator-home-recent-reviews-table">
       <colgroup>
-        <col className="w-[46%]" />
-        <col className="w-[18%]" />
-        <col className="w-[20%]" />
+        <col className="w-[52%]" />
         <col className="w-[16%]" />
+        <col className="w-[18%]" />
+        <col className="w-[14%]" />
       </colgroup>
       <EnterpriseTableHead>
         <EnterpriseTableHeadRow>
@@ -87,10 +87,10 @@ export function OperatorHomeRecentReviewsTable(
           return (
             <EnterpriseTableRow key={runId} data-testid={`operator-home-recent-review-row-${runId}`}>
               <EnterpriseTableCell className="max-w-0">
-                <div className="flex min-w-0 items-center gap-2">
+                <div className="flex min-w-0 items-start gap-2">
                   <Link
                     href={href}
-                    className={cn("min-w-0 truncate font-medium", OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.body)}
+                    className={cn("min-w-0 break-words font-medium leading-snug", OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.body)}
                     aria-label={title}
                   >
                     {title}

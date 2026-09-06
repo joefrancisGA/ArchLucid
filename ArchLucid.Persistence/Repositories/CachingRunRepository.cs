@@ -109,6 +109,27 @@ public sealed partial class CachingRunRepository(IRunRepository inner, IHotPathR
         => _inner.GetLatestRunIdForArchitectureAsync(scope, architectureId, ct);
 
     /// <inheritdoc />
+    public Task<IReadOnlyList<RunRecord>> ListByArchitectureIdAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken ct)
+        => _inner.ListByArchitectureIdAsync(scope, architectureId, ct);
+
+    /// <inheritdoc />
+    public Task<int> CountByArchitectureIdAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken ct)
+        => _inner.CountByArchitectureIdAsync(scope, architectureId, ct);
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<RunRecord>> ListWithNullArchitectureIdAsync(
+        ScopeContext scope,
+        int take,
+        CancellationToken ct)
+        => _inner.ListWithNullArchitectureIdAsync(scope, take, ct);
+
+    /// <inheritdoc />
     public Task<Guid?> GetLatestCommittedRunIdByArchitectureVersionIdAsync(
         ScopeContext scope,
         Guid architectureVersionId,

@@ -744,6 +744,30 @@ variable "azure_openai_expected_location" {
   default     = "eastus"
 }
 
+variable "fallback_llm_enabled" {
+  type        = bool
+  description = "When true, wires ArchLucid:FallbackLlm to a same-family Azure OpenAI chat deployment (managed identity). Default false — do not enable without a second resource."
+  default     = false
+}
+
+variable "fallback_llm_endpoint" {
+  type        = string
+  description = "HTTPS endpoint for the FallbackLlm Azure OpenAI resource (ArchLucid__FallbackLlm__Endpoints__0__Endpoint)."
+  default     = ""
+}
+
+variable "fallback_llm_deployment_name" {
+  type        = string
+  description = "Chat deployment name on the fallback Azure OpenAI resource (ArchLucid__FallbackLlm__Endpoints__0__DeploymentName)."
+  default     = ""
+}
+
+variable "fallback_llm_account_resource_id" {
+  type        = string
+  description = "Full ARM id of the fallback Cognitive Services OpenAI account. When set with fallback_llm_enabled, grants Cognitive Services OpenAI User to API and Worker identities."
+  default     = ""
+}
+
 # TB-094 — HotPathCache Redis connection (from terraform-redis output or Key Vault).
 
 variable "hot_path_cache_redis_connection_string" {

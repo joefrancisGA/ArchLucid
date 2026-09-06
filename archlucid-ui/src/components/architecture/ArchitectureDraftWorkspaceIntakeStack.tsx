@@ -8,6 +8,7 @@ import { ArchitectureDraftIntakeModeBanner } from "@/components/architecture/Arc
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { Button } from "@/components/ui/button";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { GuidedIntakeAlreadySubmittedCallout } from "@/app/(operator)/architecture/reviews/new/GuidedIntakeAlreadySubmittedCallout";
 import {
   ARCHITECTURE_DRAFT_START_REVIEW_CHECKLIST_TITLE,
@@ -24,12 +25,13 @@ type ArchitectureDraftWorkspaceIntakeStackProps = Pick<
   | "linkedReviewTitle"
   | "intakeModeActive"
   | "draft"
-  | "effectiveArchitectureId"
+  | "effectiveDraftId"
   | "canUnlockBrief"
   | "unlockBusy"
   | "onUnlockBrief"
   | "conflictMessage"
   | "onReloadDraft"
+  | "onKeepLocalDraft"
   | "draftStartReviewChecklistDescription"
   | "draftStartReviewSteps"
   | "draftStartReviewEmphasizedStepId"
@@ -46,16 +48,18 @@ export function ArchitectureDraftWorkspaceIntakeStack(
     linkedReviewTitle,
     intakeModeActive,
     draft,
-    effectiveArchitectureId,
+    effectiveDraftId,
     canUnlockBrief,
     unlockBusy,
     onUnlockBrief,
     conflictMessage,
     onReloadDraft,
+    onKeepLocalDraft,
     draftStartReviewChecklistDescription,
     draftStartReviewSteps,
     draftStartReviewEmphasizedStepId,
   } = props;
+  const { isWorkingMode } = useWorkspaceMode();
 
   return (
     <>
@@ -67,7 +71,7 @@ export function ArchitectureDraftWorkspaceIntakeStack(
 
       {linkedReviewId !== null ? (
         <ArchitectureDraftHandoffBanner
-          architectureId={effectiveArchitectureId}
+          draftId={effectiveDraftId}
           linkedReviewId={linkedReviewId}
           linkedReviewTitle={linkedReviewTitle}
         />
@@ -76,7 +80,7 @@ export function ArchitectureDraftWorkspaceIntakeStack(
       {intakeModeActive && linkedReviewId === null ? (
         <ArchitectureDraftIntakeModeBanner
           status={draft?.status}
-          continueHref={startReviewFromArchitectureHref(effectiveArchitectureId)}
+          continueHref={startReviewFromArchitectureHref(effectiveDraftId)}
           canUnlock={canUnlockBrief}
           unlockBusy={unlockBusy}
           onUnlock={onUnlockBrief}
@@ -96,20 +100,51 @@ export function ArchitectureDraftWorkspaceIntakeStack(
             recoveryPresentation={{
               whatFailed: "This architecture draft changed in another browser session.",
               whatIsIntact: "Your unsaved edits in this tab are still on screen and were not overwritten.",
-              nextStep: "Refresh the draft to load the latest version, then re-apply any edits you still need.",
+              nextStep: isWorkingMode
+                ? "Keep your edits, load the server copy, or retry save after you choose."
+                : "Refresh the draft to load the latest version, then re-apply any edits you still need.",
             }}
           />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              onReloadDraft();
-            }}
-            data-testid="architecture-draft-conflict-refresh"
-          >
-            Refresh draft
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            {isWorkingMode ? (
+              <>
+                <Button
+                  type="button"
+                  variant="default"
+                  size="sm"
+                  onClick={() => {
+                    void onKeepLocalDraft();
+                  }}
+                  data-testid="architecture-draft-conflict-keep-mine"
+                >
+                  Keep mine
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    onReloadDraft();
+                  }}
+                  data-testid="architecture-draft-conflict-keep-server"
+                >
+                  Keep server copy
+                </Button>
+              </>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  onReloadDraft();
+                }}
+                data-testid="architecture-draft-conflict-refresh"
+              >
+                Refresh draft
+              </Button>
+            )}
+          </div>
         </div>
       ) : null}
 

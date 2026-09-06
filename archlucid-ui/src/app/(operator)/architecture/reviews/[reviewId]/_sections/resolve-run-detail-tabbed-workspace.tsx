@@ -16,6 +16,7 @@ import { RunDetailInfeasibleDecisionLead } from "./RunDetailInfeasibleDecisionLe
 import { composeRunDetailTabbedWorkspaceEvidenceShell } from "./RunDetailTabbedWorkspaceEvidenceShell";
 import { composeRunDetailTabbedWorkspaceGovernanceShell } from "./RunDetailTabbedWorkspaceGovernanceShell";
 import { composeRunDetailTabbedWorkspaceOverviewShell } from "./RunDetailTabbedWorkspaceOverviewShell";
+import { composeRunDetailActivityTab } from "./RunDetailActivityTabComposition";
 import type { RunDetailPresentation } from "./run-detail-page-presentation";
 import type { RunDetailPageModel } from "./run-detail-page-model";
 import {
@@ -122,6 +123,7 @@ export function resolveRunDetailTabbedWorkspace(
       editHref={architectureEditHref}
       useStructuredPresentation
       runId={m.resolvedDetail.run.runId}
+      manifestVersion={m.manifestId}
       helperText="Source material submitted for this review — distinct from ArchLucid analysis in other tabs."
     />
   );
@@ -287,7 +289,11 @@ export function resolveRunDetailTabbedWorkspace(
           {showDemoMarketingChrome ? sampleReviewPackageSummaryEl : null}
           {!m.buyerPolishedArtifactTable ? (
             <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
-              <RunDetailGenerateAdrFromRunModal input={m.adrGeneratorInput} buyerPolished={false} />
+              <RunDetailGenerateAdrFromRunModal
+                input={m.adrGeneratorInput}
+                totalFindingCount={quickDecisionFindings.length}
+                buyerPolished={false}
+              />
             </div>
           ) : null}
           {resolveRunDetailSponsorBriefingSection(m, { pagePrimaryOwnedElsewhere: true })}
@@ -315,60 +321,7 @@ export function resolveRunDetailTabbedWorkspace(
         </div>
       ),
       architecture: architectureTabPanelEl,
-      activity: (
-        <div className="space-y-4">
-          <RunDetailActivityTabSectionNav hasManifestId={Boolean(m.manifestId)} />
-          {!m.manifestId && m.showProgressTracker ? (
-            <div id="pipeline-timeline" className="scroll-mt-24">
-              <RunDetailProgressTrackerDeferred
-                runId={m.routeRunId}
-                initialSummary={m.progressForPipelineUi}
-                diagnosticContext={m.pipelineDiagnosticContext}
-                deferFailureRecoveryToDoThisNext
-              />
-            </div>
-          ) : null}
-          {m.showProgressTracker && m.manifestId ? (
-            <RunDetailProgressTrackerDeferred
-              runId={m.routeRunId}
-              initialSummary={m.progressForPipelineUi}
-              diagnosticContext={m.pipelineDiagnosticContext}
-            />
-          ) : null}
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-            <Link
-              className={OPERATOR_LINK.nav}
-              href={`/architecture/reviews/${encodeURIComponent(m.resolvedDetail.run.runId)}/provenance`}
-              data-testid="run-detail-provenance-link"
-            >
-              Full provenance view
-            </Link>
-          </p>
-          <RunDetailLastFailureCardDeferred
-            summary={resolveRunDetailLastFailureSummary(m.resolvedDetail)}
-            legacyRunStatus={
-              (m.resolvedDetail.run as { legacyRunStatus?: string | null }).legacyRunStatus ?? null
-            }
-          />
-          {!m.buyerPolishedArtifactTable ? (
-            <RunDetailOperatorTechnicalForensicsPanelDeferred
-              agentExecutionLlmCostEstimate={m.resolvedDetail.agentExecutionLlmCostEstimate}
-              results={m.resolvedDetail.results}
-              agentExecutionOutcomes={m.resolvedDetail.agentExecutionOutcomes}
-              retrievalGroundingSummary={m.resolvedDetail.retrievalGroundingSummary}
-              run={m.resolvedDetail.run}
-              runDetailTraceId={m.runDetailTraceId}
-            />
-          ) : null}
-          <Suspense fallback={<RunDetailBelowFoldDeferredSkeleton />}>
-            <RunDetailBelowFoldSectionsDeferred
-              model={m}
-              context={deferredContext}
-              renderedInsideTabbedWorkspace
-            />
-          </Suspense>
-        </div>
-      ),
+      activity: composeRunDetailActivityTab({ model: m, deferredContext }),
     },
   };
 }

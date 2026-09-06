@@ -21,6 +21,7 @@ import {
   parseReviewMeetingPacketOpenFromSearch,
   reviewMeetingPacketPanelsHrefFromSearch,
 } from "@/lib/reviews/review-meeting-packet-panels-url";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
 export type ReviewMeetingPacketStep = {
   readonly id: string;
@@ -35,6 +36,7 @@ export type ReviewMeetingPacketButtonProps = {
   readonly findingsQueueHref: string;
   readonly diagramHref?: string | null;
   readonly sponsorSynopsisHref?: string | null;
+  readonly manifestVersion?: string | null;
   readonly disabled?: boolean;
 };
 
@@ -91,6 +93,10 @@ export function ReviewMeetingPacketButton(props: ReviewMeetingPacketButtonProps)
   const meetingPacketOpenParam = searchParams.get("meetingPacketOpen");
   const [open, setOpenState] = useState(() => parseReviewMeetingPacketOpenFromSearch(meetingPacketOpenParam));
   const steps = buildMeetingPacketSteps(props);
+  const collateralExportBlockedReason = runCollateralSealedManifestCopyBlockedReason({
+    runId: props.runId,
+    manifestVersion: props.manifestVersion,
+  });
 
   const syncMeetingPacketOpenToUrl = useCallback(
     (nextOpen: boolean) => {
@@ -144,12 +150,21 @@ export function ReviewMeetingPacketButton(props: ReviewMeetingPacketButtonProps)
               {step.href !== undefined ? (
                 <p className="m-0">
                   {step.downloadLabel !== undefined ? (
-                    <ExportTrackedAnchor
-                      href={step.href}
-                      className={cn("font-medium underline underline-offset-2", OPERATOR_TYPOGRAPHY.helper)}
-                    >
-                      {step.downloadLabel}
-                    </ExportTrackedAnchor>
+                    collateralExportBlockedReason !== null ? (
+                      <span
+                        className={cn("font-medium text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid={`review-meeting-packet-export-${step.id}-blocked`}
+                      >
+                        {collateralExportBlockedReason}
+                      </span>
+                    ) : (
+                      <ExportTrackedAnchor
+                        href={step.href}
+                        className={cn("font-medium underline underline-offset-2", OPERATOR_TYPOGRAPHY.helper)}
+                      >
+                        {step.downloadLabel}
+                      </ExportTrackedAnchor>
+                    )
                   ) : (
                     <a className={cn("font-medium underline underline-offset-2", OPERATOR_TYPOGRAPHY.helper)} href={step.href}>
                       Open →

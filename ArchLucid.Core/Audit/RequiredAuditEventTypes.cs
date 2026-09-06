@@ -87,7 +87,7 @@ public static class RequiredAuditEventTypes
 
         for (int i = 0; i < All.Count; i++)
         {
-            if (string.Equals(All[i], normalized, StringComparison.Ordinal))
+            if (string.Equals(All[i], normalized, StringComparison.OrdinalIgnoreCase))
                 return true;
         }
 

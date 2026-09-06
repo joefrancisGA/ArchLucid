@@ -31,7 +31,7 @@ dotnet build ArchLucid.Api.Client/ArchLucid.Api.Client.csproj -c Release
 
 if [ "${ARCHLUCID_REGENERATE_UI_API_TYPES:-0}" = "1" ]; then
   echo "Regenerating split api-types from the refreshed snapshot..."
-  (cd "${ROOT}/archlucid-ui" && npm run generate:api-types)
+  (cd "${ROOT}/archlucid-ui" && npm run generate:api-types && npm run build:api-types)
 fi
 
 echo "Verifying snapshots match generated /openapi/v1.json..."

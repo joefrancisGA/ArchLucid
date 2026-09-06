@@ -30,7 +30,7 @@ export const OPERATOR_ATTENTION_KIND_DESTINATIONS: Record<
   },
   "awaiting-approval": {
     href: GOVERNANCE_APPROVAL_QUEUE_PATH,
-    description: "Reviews waiting for governance approval.",
+    description: "Reviews waiting for approval.",
   },
 };
 

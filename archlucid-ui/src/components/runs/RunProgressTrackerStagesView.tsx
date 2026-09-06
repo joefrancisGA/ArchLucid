@@ -30,7 +30,25 @@ type RunProgressTrackerStagesViewProps = Pick<
   | "manifest"
   | "stageTimeline"
   | "activeSummary"
->;
+> & {
+  readonly pipelineTerminalFailure?: boolean;
+  readonly suppressIntakeDescription?: boolean;
+};
+
+function stageStatusTag(
+  complete: boolean,
+  pipelineTerminalFailure: boolean,
+): { readonly kind: "ready" | "draft" | "blocked"; readonly label: string } {
+  if (complete) {
+    return { kind: "ready", label: "Complete" };
+  }
+
+  if (pipelineTerminalFailure) {
+    return { kind: "blocked", label: "Not started" };
+  }
+
+  return { kind: "draft", label: "Pending" };
+}
 
 export function RunProgressTrackerStagesView({
   buyerAssessmentCopy,
@@ -43,14 +61,19 @@ export function RunProgressTrackerStagesView({
   manifest,
   stageTimeline,
   activeSummary,
+  pipelineTerminalFailure = false,
+  suppressIntakeDescription = false,
 }: RunProgressTrackerStagesViewProps) {
-  const progressHeading = pipelineJobLabel.heading;
+  const ctxStatus = stageStatusTag(Boolean(ctx), pipelineTerminalFailure);
+  const graphStatus = stageStatusTag(Boolean(graph), pipelineTerminalFailure);
+  const findingsStatus = stageStatusTag(Boolean(findings), pipelineTerminalFailure);
+  const manifestStatus = stageStatusTag(Boolean(manifest), pipelineTerminalFailure);
 
   return (
     <>
       <div className="mt-4 space-y-2">
         <div className={cn("flex justify-between text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
-          <span>{progressHeading}</span>
+          <span>Progress</span>
           <span>
             {completedStages} / {totalProgressStages} stages
           </span>
@@ -62,28 +85,28 @@ export function RunProgressTrackerStagesView({
       <ul className="m-0 flex flex-col gap-3 p-0 list-none">
         <li className="flex flex-wrap items-center gap-2">
           <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Source context captured</span>
-          <StatusTag kind={ctx ? "ready" : "draft"} label={ctx ? "Complete" : "Pending"} />
+          <StatusTag kind={ctxStatus.kind} label={ctxStatus.label} />
         </li>
         <li className="flex flex-wrap items-center gap-2">
           <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Evidence graph ready</span>
-          <StatusTag kind={graph ? "ready" : "draft"} label={graph ? "Complete" : "Pending"} />
+          <StatusTag kind={graphStatus.kind} label={graphStatus.label} />
         </li>
         <li className="flex flex-wrap items-center gap-2">
           <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Findings complete</span>
-          <StatusTag kind={findings ? "ready" : "draft"} label={findings ? "Complete" : "Pending"} />
+          <StatusTag kind={findingsStatus.kind} label={findingsStatus.label} />
         </li>
         {buyerAssessmentCopy ? (
           <li className="flex flex-wrap items-center gap-2" data-testid="run-progress-signed-record-row">
             <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Finalized review record</span>
             <StatusTag
-              kind={manifest ? "ready" : "draft"}
+              kind={manifest ? "ready" : pipelineTerminalFailure ? "blocked" : "draft"}
               label={manifest ? "Complete" : "Not created yet"}
             />
           </li>
         ) : (
           <li className="flex flex-wrap items-center gap-2">
             <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Finalized review record ready</span>
-            <StatusTag kind={manifest ? "ready" : "draft"} label={manifest ? "Complete" : "Pending"} />
+            <StatusTag kind={manifestStatus.kind} label={manifestStatus.label} />
           </li>
         )}
       </ul>
@@ -114,7 +137,7 @@ export function RunProgressTrackerStagesView({
         </div>
       ) : null}
 
-      {activeSummary?.description ? (
+      {!suppressIntakeDescription && activeSummary?.description ? (
         <p className={cn("mt-4 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{activeSummary.description}</p>
       ) : null}
     </>

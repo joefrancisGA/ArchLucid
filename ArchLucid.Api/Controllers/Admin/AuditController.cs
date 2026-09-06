@@ -1,9 +1,12 @@
 using ArchLucid.Api.Formatters;
 using ArchLucid.Application.Reporting;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Audit;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -30,6 +33,8 @@ namespace ArchLucid.Api.Controllers.Admin;
 public sealed partial class AuditController(
     IAuditRepository repo,
     IScopeContextProvider scopeProvider,
-    ExportFormatterService exportFormatter) : ControllerBase
+    ExportFormatterService exportFormatter,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : ControllerBase
 {
 }

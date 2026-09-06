@@ -18,6 +18,8 @@ import {
 
   LifeBuoy,
 
+  Palette,
+
   Plug,
 
   Settings,
@@ -104,6 +106,22 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
           tier: "extended",
 
           // Tenant-scoped configuration is admin-only; the API enforces the same floor on the writes.
+          requiredAuthority: "AdminAuthority",
+
+        },
+
+        {
+
+          href: "/administration/branding",
+
+          label: "Branding",
+
+          title: "Branding — logos, colors, previews, and activation for tenant white-label",
+
+          icon: Palette,
+
+          tier: "extended",
+
           requiredAuthority: "AdminAuthority",
 
         },

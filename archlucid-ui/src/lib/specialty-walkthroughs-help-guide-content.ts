@@ -8,6 +8,15 @@ export const SPECIALTY_WALKTHROUGHS_HELP_PAGE_TITLE = SPECIALTY_REVIEW_TEMPLATES
 
 export const SPECIALTY_WALKTHROUGHS_HELP_PAGE_SUBTITLE = SPECIALTY_REVIEW_TEMPLATES_PAGE_SUBTITLE;
 
+export const SPECIALTY_WALKTHROUGHS_HELP_PAGE_SUBTITLE_BUYER =
+  "Pick a starter template, then open Start review when you are ready for live intake." as const;
+
+export function specialtyWalkthroughsHelpPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell
+    ? SPECIALTY_WALKTHROUGHS_HELP_PAGE_SUBTITLE_BUYER
+    : SPECIALTY_WALKTHROUGHS_HELP_PAGE_SUBTITLE;
+}
+
 export const SPECIALTY_WALKTHROUGHS_HELP_OVERVIEW = SPECIALTY_REVIEW_TEMPLATES_INTRO;
 
 export const SPECIALTY_WALKTHROUGHS_HELP_START_HERE_CARD_TITLE = "Start here" as const;

@@ -86,11 +86,28 @@ import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
+import { isSystemAdministrationNavGroupVisible } from "@/lib/nav-shell-preset";
+
+/** Whether the Internal nav group should be built for the active operator shell. */
+export function isOperatorSystemAdminNavGroupEnabled(): boolean {
+  return isSystemAdministrationNavGroupVisible();
+}
+
 /** Internal cross-tenant, diagnostic, and employee-only surfaces — gated by `features.showSystemAdministrationNav`. */
 
 export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
 
   build(): NavGroupConfig {
+
+    if (!isOperatorSystemAdminNavGroupEnabled()) {
+      return {
+        id: "operator-system-admin",
+        label: "Internal",
+        surface: "system-admin",
+        staffInternalOnly: true,
+        links: [],
+      };
+    }
 
     const links: NavGroupConfig["links"] = [
 
@@ -146,9 +163,9 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
 
           href: INTERNAL_AGENT_MODEL_CATALOG_PATH,
 
-          label: "Agent model catalog",
+          label: "Runtime alias catalog",
 
-          title: "Agent model catalog — platform alias curation, lifecycle, and evaluation evidence",
+          title: "Runtime alias catalog — platform alias curation, lifecycle, and evaluation evidence",
 
           icon: Boxes,
 

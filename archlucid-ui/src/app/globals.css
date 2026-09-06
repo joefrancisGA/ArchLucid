@@ -74,6 +74,11 @@ body {
   --al-graph-kind-default-bg: #f3f4f6;
   --al-graph-kind-default-border: #a3a3a3;
   --al-graph-kind-default-swatch: #a3a3a3;
+  --brand-primary: #0f766e;
+  --brand-secondary: #115e59;
+  --brand-accent: #5eead4;
+  --brand-background: #fafafa;
+  --brand-foreground: #171717;
 }
 
 html {
@@ -149,6 +154,11 @@ html {
   --al-graph-kind-default-bg: #262626;
   --al-graph-kind-default-border: #737373;
   --al-graph-kind-default-swatch: #737373;
+  --brand-primary: #2dd4bf;
+  --brand-secondary: #115e59;
+  --brand-accent: #5eead4;
+  --brand-background: #0a0a0a;
+  --brand-foreground: #fafafa;
 }
 
 /* A/B evaluation — charcoal authority hierarchy (see ui-authority-theme.ts). Default teal tokens remain in :root. */

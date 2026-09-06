@@ -6,8 +6,10 @@ import { useEffect, useMemo } from "react";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import {
   extractArchitectureDraftIdFromPathname,
+  extractArchitectureIdentityIdFromPathname,
   extractReviewIdFromPathname,
   persistDeskContinuityPatch,
+  writeCachedLastOpenArchitectureId,
 } from "@/lib/desk-continuity-preference";
 import {
   OPERATOR_RECENT_VIEWS_STORAGE_KEY,
@@ -57,6 +59,11 @@ export function OperatorRecentViewsTracker(): null {
 
     const reviewId = extractReviewIdFromPathname(pathname);
     const draftId = extractArchitectureDraftIdFromPathname(pathname);
+    const architectureId = extractArchitectureIdentityIdFromPathname(pathname, search);
+
+    if (architectureId !== null) {
+      writeCachedLastOpenArchitectureId(architectureId);
+    }
 
     if (reviewId === null && draftId === null) {
       return;

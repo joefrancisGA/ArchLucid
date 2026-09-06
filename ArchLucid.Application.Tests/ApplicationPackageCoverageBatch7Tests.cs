@@ -30,14 +30,14 @@ public sealed class ApplicationPackageCoverageBatch7Tests
             OffboardedUtc = now,
             ErasureEligibleUtc = now.AddDays(30),
         };
-        TenantRecord approved = new()
+        TenantRecord withLegalHold = new()
         {
             Id = tenantId,
             OffboardedUtc = now,
             ErasureEligibleUtc = now.AddDays(30),
             TenantErasureApprovedUtc = now,
-            LegalHoldUntilUtc = now.AddDays(2),
-            LegalHoldReason = "litigation",
+            LegalHoldUntilUtc = now.AddDays(3),
+            LegalHoldReason = "hold",
         };
 
         tenants.SetupSequence(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
@@ -45,8 +45,8 @@ public sealed class ApplicationPackageCoverageBatch7Tests
             .ReturnsAsync(active)
             .ReturnsAsync(offboarded)
             .ReturnsAsync(offboarded)
-            .ReturnsAsync(active)
-            .ReturnsAsync(approved)
+            .ReturnsAsync(withLegalHold)
+            .ReturnsAsync(withLegalHold)
             .ReturnsAsync(offboarded);
 
         tenants.Setup(t => t.TryStartTenantErasureOffboardAsync(tenantId, now, now.AddDays(14), It.IsAny<CancellationToken>()))
@@ -116,7 +116,7 @@ public sealed class ApplicationPackageCoverageBatch7Tests
                 "corr",
                 CancellationToken.None))
             .Should()
-            .BeFalse();
+            .BeTrue();
 
         (await sut.TryClearLegalHoldAsync(tenantId, "actor", "Actor", "corr", CancellationToken.None))
             .Should()
@@ -175,7 +175,7 @@ public sealed class ApplicationPackageCoverageBatch7Tests
         (await sut.TryRestoreQuarantineAsync(tenantId, "actor", "Actor", null, CancellationToken.None)).Should().BeFalse();
         (await sut.TrySetLegalHoldAsync(
                 tenantId,
-                now.AddDays(1),
+                now.AddDays(2),
                 null,
                 "actor",
                 "Actor",

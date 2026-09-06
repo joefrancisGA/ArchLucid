@@ -25,6 +25,10 @@ describe("AuthorityPipelineTimeline", () => {
 
     render(<AuthorityPipelineTimeline items={items} />);
 
+    const bodyRows = screen.getAllByRole("row").slice(1);
+    expect(bodyRows[0]).toHaveTextContent("Review completed");
+    expect(bodyRows[1]).toHaveTextContent("Review started");
+
     expect(screen.getByText("Review started")).toBeInTheDocument();
     expect(screen.getByText("Review completed")).toBeInTheDocument();
     expect(screen.getByText("Milestone")).toBeInTheDocument();
@@ -122,6 +126,9 @@ describe("AuthorityPipelineTimeline", () => {
 
     render(<AuthorityPipelineTimeline items={items} maxVisibleItems={5} />);
 
-    expect(screen.getAllByRole("row")).toHaveLength(6);
+    const bodyRows = screen.getAllByRole("row").slice(1);
+    expect(bodyRows).toHaveLength(5);
+    expect(bodyRows[0]).toHaveTextContent("12:00:07");
+    expect(bodyRows[4]).toHaveTextContent("12:00:03");
   });
 });

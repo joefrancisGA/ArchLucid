@@ -45,7 +45,7 @@ describe("runsDashboardTabLabel (TB-667)", () => {
   });
 
   it("renames the attention tab on home preview to avoid clashing with approval chips", () => {
-    expect(runsDashboardTabLabel("attention", false, 0, { homePreviewMode: true })).toBe("Open findings (0)");
+    expect(runsDashboardTabLabel("attention", false, 0, { homePreviewMode: true })).toBe("Findings (0)");
   });
 
   it("uses buyer-polished vocabulary in buyer shell", () => {

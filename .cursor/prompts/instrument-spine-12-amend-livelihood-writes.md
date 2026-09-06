@@ -1,5 +1,7 @@
 # IS-12 — Livelihood writes stay amendable after the five-minute undo
 
+**Wave 12:** unsealed **draft document** undo/redo is ADR 0071 / LK-01–02 — a different primitive. This file still must **not** lengthen silent `MUTATION_UNDO_WINDOW_SECONDS`. Do not implement the draft stack here.
+
 **Do not fork CD-10 or FD-11** for Record correction mounts. Those added append-only correction after 300s. This file changes the **bet**: approve / reject / promote / finding disposition remain **reversible_with_audit** for a working day, not confirm-then-forever. Finalize stays **permanent** (cannot unseal). Do not lengthen silent `MUTATION_UNDO_WINDOW_SECONDS` (keep 300s Undo).
 
 ## Goal

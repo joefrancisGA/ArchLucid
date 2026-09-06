@@ -11,7 +11,7 @@ import {
   ScopeSwitcherDeferred,
   ShellInFlightOperationsAffordanceDeferred,
 } from "@/components/shell/operator-shell-top-bar-deferred-chunks";
-import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
+import { TenantMastheadWordmark } from "@/components/brand/TenantMastheadWordmark";
 import { AuthPanel } from "@/components/AuthPanel";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import { CommandPaletteTopBarTrigger } from "@/components/CommandPaletteTopBarTrigger";
@@ -77,7 +77,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
         >
           <MobileNavDrawerDeferred />
           <h1 className="m-0">
-            <ArchLucidWordmarkLink href="/" aria-label={PERSONA_SHELL_WORDMARK_ARIA_LABEL} variant="operator" />
+            <TenantMastheadWordmark href="/" aria-label={PERSONA_SHELL_WORDMARK_ARIA_LABEL} variant="operator" />
           </h1>
         </div>
 

@@ -1,6 +1,8 @@
 "use client";
 
 import type { JSX } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { AlertsFindingsVocabularyRail } from "@/components/AlertsFindingsVocabularyRail";
 import { DecisionRegisterFindingsVocabularyRail } from "@/components/DecisionRegisterFindingsVocabularyRail";
@@ -10,6 +12,10 @@ import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskException
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
 import type { GovernanceJobId } from "@/lib/governance/governance-job-router";
+import {
+  governanceFindingsRelatedQueuesHrefFromSearch,
+  parseGovernanceFindingsRelatedQueuesOpenFromSearch,
+} from "@/lib/governance/governance-findings-related-queues-url";
 import type { PageCapabilityBoundarySurfaceId } from "@/lib/page-capability-boundary";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +29,36 @@ export type GovernanceFindingsRelatedQueuesDisclosureProps = {
 export function GovernanceFindingsRelatedQueuesDisclosure(
   props: GovernanceFindingsRelatedQueuesDisclosureProps,
 ): JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const governanceFindingsRelatedQueuesOpenParam = searchParams.get("governanceFindingsRelatedQueuesOpen");
+  const [open, setOpenState] = useState(() =>
+    parseGovernanceFindingsRelatedQueuesOpenFromSearch(governanceFindingsRelatedQueuesOpenParam),
+  );
+
+  const syncOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      router.replace(
+        governanceFindingsRelatedQueuesHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (detailsOpen: boolean) => {
+      setOpenState(detailsOpen);
+      syncOpenToUrl(detailsOpen);
+    },
+    [syncOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOpenState(parseGovernanceFindingsRelatedQueuesOpenFromSearch(governanceFindingsRelatedQueuesOpenParam));
+  }, [governanceFindingsRelatedQueuesOpenParam]);
+
   return (
     <details
       className={cn(
@@ -30,6 +66,10 @@ export function GovernanceFindingsRelatedQueuesDisclosure(
         props.className,
       )}
       data-testid="governance-findings-related-queues-disclosure"
+      open={open}
+      onToggle={(event) => {
+        setOpen((event.currentTarget as HTMLDetailsElement).open);
+      }}
     >
       <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
         <span className={OPERATOR_TYPOGRAPHY.helper}>Related queues</span>

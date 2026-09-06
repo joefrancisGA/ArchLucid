@@ -577,6 +577,18 @@ export function getScreenshotMockFallbackGetJson(pathname: string, search: strin
     return { status: "Unknown", entries: [] as unknown[] } as unknown;
   }
 
+  if (pathname === "/v1/diagnostics/workspace-ai-availability") {
+    return {
+      isAvailable: true,
+      validated: true,
+      aiSource: "simulator",
+      summary: "Mock workspace AI availability for buyer-polished screenshots.",
+      asOfUtc: new Date().toISOString(),
+      checks: [],
+      debug: {},
+    } as unknown;
+  }
+
   if (pathname === "/v1/diagnostics/operator-task-success-rates" || pathname.startsWith("/v1/diagnostics/")) {
     if (pathname.includes("sponsor")) {
       return { show: false } as unknown;

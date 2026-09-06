@@ -251,7 +251,7 @@ const BUYER_FILTER_CHIP_EMPTY_CLASS =
   "border-neutral-300 bg-neutral-100 text-neutral-700 hover:border-neutral-400 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400 dark:hover:border-neutral-600";
 
 const BUYER_FILTER_CHIP_NEEDS_ACTION_CLASS =
-  "cursor-pointer border-neutral-500 border-dashed bg-neutral-50 text-neutral-900 hover:border-neutral-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-500 dark:bg-neutral-900 dark:text-neutral-200";
+  "cursor-pointer border-neutral-500 bg-neutral-50 text-neutral-900 hover:border-neutral-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-500 dark:bg-neutral-900 dark:text-neutral-200";
 
 export function buyerFilterChipActiveClass(active: boolean): string {
   return active ? BUYER_FILTER_CHIP_ACTIVE_CLASS : BUYER_FILTER_CHIP_IDLE_CLASS;

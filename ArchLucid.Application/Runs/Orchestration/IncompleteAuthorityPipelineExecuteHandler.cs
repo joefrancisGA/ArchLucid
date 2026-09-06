@@ -1,4 +1,5 @@
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Async;
 using ArchLucid.ContextIngestion.Mapping;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
@@ -22,6 +23,7 @@ public sealed class IncompleteAuthorityPipelineExecuteHandler(
     IScopeContextProvider scopeContextProvider,
     IRunGovernanceScopePinService runGovernanceScopePinService,
     IRunStateTransitionService runStateTransitionService,
+    IFailedRunRetryAdmission failedRunRetryAdmission,
     ILogger<IncompleteAuthorityPipelineExecuteHandler> logger) : IIncompleteAuthorityPipelineExecuteHandler
 {
     private readonly IAuthorityRunOrchestrator _authorityRunOrchestrator =
@@ -41,6 +43,9 @@ public sealed class IncompleteAuthorityPipelineExecuteHandler(
 
     private readonly IRunStateTransitionService _runStateTransitionService =
         runStateTransitionService ?? throw new ArgumentNullException(nameof(runStateTransitionService));
+
+    private readonly IFailedRunRetryAdmission _failedRunRetryAdmission =
+        failedRunRetryAdmission ?? throw new ArgumentNullException(nameof(failedRunRetryAdmission));
 
     private readonly ILogger<IncompleteAuthorityPipelineExecuteHandler> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -82,7 +87,7 @@ public sealed class IncompleteAuthorityPipelineExecuteHandler(
         ingestionRequest.RunId = runGuid;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        await PrepareFailedRunForRetryAsync(scope, runGuid, cancellationToken);
+        await _failedRunRetryAdmission.TryMarkRetryingAsync(scope, runGuid, cancellationToken);
 
         RunRecord? runHeader = await _runRepository
             .GetByIdAsync(scope, runGuid, cancellationToken)
@@ -109,35 +114,6 @@ public sealed class IncompleteAuthorityPipelineExecuteHandler(
         await _authorityRunOrchestrator.CompleteQueuedAuthorityPipelineAsync(ingestionRequest, cancellationToken);
 
         return new ExecuteRunResult { RunId = runId, Results = [] };
-    }
-
-    private async Task PrepareFailedRunForRetryAsync(
-        ScopeContext scope,
-        Guid runGuid,
-        CancellationToken cancellationToken)
-    {
-        RunRecord? header = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
-
-        if (header is null)
-            return;
-
-        if (!string.Equals(
-                header.LegacyRunStatus,
-                nameof(ArchitectureRunStatus.Failed),
-                StringComparison.OrdinalIgnoreCase))
-        {
-            return;
-        }
-
-        ArchitectureRunStatusTransitionTable.AssertLegal(
-            ArchitectureRunStatus.Failed,
-            ArchitectureRunStatusLifecycleEvent.RetryRequested,
-            ArchitectureRunStatus.Retrying);
-
-        header.LegacyRunStatus = nameof(ArchitectureRunStatus.Retrying);
-        header.RetryCount += 1;
-        header.CompletedUtc = null;
-        await _runRepository.UpdateAsync(header, cancellationToken);
     }
 
     private static bool TryParseRunGuid(string runId, out Guid runGuid)

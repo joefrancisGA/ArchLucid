@@ -1,7 +1,10 @@
 ﻿/** Architecture draft list. */
 export const ARCHITECTURES_LIST_PATH = "/architecture/architectures" as const;
 
-/** Bootstrap a new architecture draft (client redirect to `/architecture/architectures/{id}`). */
+/** Query param for opening a draft editor under an architecture identity desk (ADR 0074). */
+export const ARCHITECTURE_DRAFT_QUERY_PARAM = "draft" as const;
+
+/** Bootstrap a new architecture draft (client redirect to `/architecture/architectures/{draftId}`). */
 export const ARCHITECTURES_NEW_PATH = "/architecture/architectures/new" as const;
 
 /** Route segment for the unsaved new-draft workspace — not a server draft id. */
@@ -32,12 +35,26 @@ export const REVIEWS_NEW_GUIDED_INTAKE_HREF = "/architecture/reviews/new?path=gu
 
 export const SOURCE_ARCHITECTURE_QUERY_PARAM = "sourceArchitectureId" as const;
 
-export function architectureDraftPath(architectureId: string): string {
+export function architectureIdentityPath(architectureId: string): string {
   return `${ARCHITECTURES_LIST_PATH}/${encodeURIComponent(architectureId)}`;
 }
 
-export function isArchitectureNewDraftSegment(architectureId: string): boolean {
-  return architectureId.trim() === ARCHITECTURE_NEW_DRAFT_SEGMENT;
+/** Opens the draft editor as a child of the durable architecture identity desk. */
+export function architectureIdentityDraftHref(architectureId: string, draftId: string): string {
+  const params = new URLSearchParams({
+    [ARCHITECTURE_DRAFT_QUERY_PARAM]: draftId.trim(),
+  });
+
+  return `${architectureIdentityPath(architectureId)}?${params.toString()}`;
+}
+
+/** Draft editor path — segment is a {@link DraftRequestResponse.draftId}, not an architecture identity id. */
+export function architectureDraftPath(draftId: string): string {
+  return `${ARCHITECTURES_LIST_PATH}/${encodeURIComponent(draftId)}`;
+}
+
+export function isArchitectureNewDraftSegment(draftId: string): boolean {
+  return draftId.trim() === ARCHITECTURE_NEW_DRAFT_SEGMENT;
 }
 
 export function reviewDetailPath(reviewId: string): string {
@@ -52,10 +69,10 @@ export function isReviewsPath(pathname: string): boolean {
   return pathname === REVIEWS_LIST_PATH || pathname.startsWith(`${REVIEWS_LIST_PATH}/`);
 }
 
-export function startReviewFromArchitectureHref(architectureId: string): string {
+export function startReviewFromArchitectureHref(draftId: string): string {
   const qs = new URLSearchParams({
     path: "guided-intake",
-    [SOURCE_ARCHITECTURE_QUERY_PARAM]: architectureId,
+    [SOURCE_ARCHITECTURE_QUERY_PARAM]: draftId,
   });
 
   return `${REVIEWS_NEW_PATH}?${qs.toString()}`;
@@ -66,17 +83,30 @@ export function isArchitectureDraftPath(pathname: string): boolean {
 }
 
 export function parseArchitectureDraftIdFromPath(pathname: string): string | null {
+  const path = pathname.split("?")[0] ?? "";
   const prefix = `${ARCHITECTURES_LIST_PATH}/`;
 
-  if (!pathname.startsWith(prefix)) {
+  if (!path.startsWith(prefix)) {
     return null;
   }
 
-  const segment = pathname.slice(prefix.length).split("/")[0]?.trim() ?? "";
+  const segment = path.slice(prefix.length).split("/")[0]?.trim() ?? "";
 
   if (segment.length === 0 || segment === ARCHITECTURE_NEW_DRAFT_SEGMENT) {
     return null;
   }
 
   return segment;
+}
+
+/** Reads `?draft=` when the pathname segment is an architecture identity id. */
+export function parseArchitectureDraftIdFromSearch(search: string | null | undefined): string | null {
+  if (search === null || search === undefined || search.trim().length === 0) {
+    return null;
+  }
+
+  const params = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search);
+  const draftId = params.get(ARCHITECTURE_DRAFT_QUERY_PARAM)?.trim() ?? "";
+
+  return draftId.length > 0 ? draftId : null;
 }

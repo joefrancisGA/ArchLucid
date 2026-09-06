@@ -23,6 +23,9 @@ import { cn } from "@/lib/utils";
 export type WorkspaceAiAvailabilityPanelProps = {
   readonly workspaceAiSignal: WorkspaceAiConfigurationSignal;
   readonly availabilityCheck?: WorkspaceAiAvailabilityCheck;
+  /** When the host review is in terminal failure, avoid a green success chip above the failure cause. */
+  readonly reviewTerminalFailure?: boolean;
+  readonly scopingLabel?: string;
 };
 
 const PROBE_DEBUG_HEADER_KEYS = new Set(["probeDeploymentName", "probeModelId"]);
@@ -114,7 +117,13 @@ function resolveProbeProvenanceCopy(aiSource: string): string {
 
 function statusTagKind(
   state: ReturnType<typeof useWorkspaceAiAvailabilityCheck>["state"],
+  reviewTerminalFailure: boolean,
+  probeAvailable: boolean,
 ): "ready" | "needs-attention" | "blocked" | "in-progress" {
+  if (reviewTerminalFailure && probeAvailable) {
+    return "needs-attention";
+  }
+
   if (state.status === "loading") {
     return "in-progress";
   }
@@ -127,7 +136,7 @@ function statusTagKind(
     return "blocked";
   }
 
-  return state.result.isAvailable ? "ready" : "needs-attention";
+  return state.result.isAvailable ? "ready" : "blocked";
 }
 
 function resolveWorkspaceAiDetail(
@@ -250,7 +259,7 @@ function WorkspaceAiProbeDiagnostics(props: {
 
 /** API-validated workspace AI availability with full probe diagnostics for review failure recovery. */
 export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanelProps): React.JSX.Element {
-  const { workspaceAiSignal, availabilityCheck } = props;
+  const { workspaceAiSignal, availabilityCheck, reviewTerminalFailure = false, scopingLabel } = props;
   const internalCheck = useWorkspaceAiAvailabilityCheck({
     enabled: availabilityCheck === undefined,
     autoCheck: false,
@@ -276,6 +285,7 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
 
   const probeLoaded = state.status === "loaded";
   const probeAvailable = probeLoaded && state.result.isAvailable;
+  const neutralProbeOnTerminalFailure = reviewTerminalFailure && probeAvailable;
   const probeValidatedAt =
     probeLoaded ? formatProbeFreshnessLabel(state.result.asOfUtc) : null;
   const probeTriggerLabel =
@@ -285,14 +295,19 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
     <div
       className={cn(
         "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800",
-        probeAvailable ? "p-2.5" : "p-3",
+        probeAvailable && !neutralProbeOnTerminalFailure ? "p-2.5" : "p-3",
       )}
       data-testid="review-package-workspace-ai-availability-panel"
     >
-      {probeAvailable ? (
+      {scopingLabel !== null && scopingLabel !== undefined && scopingLabel.trim().length > 0 ? (
+        <p className={cn("m-0 mb-2 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
+          {scopingLabel}
+        </p>
+      ) : null}
+      {probeAvailable && !neutralProbeOnTerminalFailure ? (
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <StatusTag kind={statusTagKind(state)} label={label} />
+            <StatusTag kind={statusTagKind(state, reviewTerminalFailure, probeAvailable)} label={label} />
             {probeValidatedAt !== null ? (
               <span
                 className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
@@ -317,7 +332,7 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
       ) : (
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0 space-y-1.5">
-            <StatusTag kind={statusTagKind(state)} label={label} />
+            <StatusTag kind={statusTagKind(state, reviewTerminalFailure, probeAvailable)} label={label} />
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="review-package-workspace-ai-detail">
               {detail}
             </p>
@@ -360,13 +375,13 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
       )}
 
       {probeLoaded ? (
-        probeAvailable ? (
+        probeAvailable && !neutralProbeOnTerminalFailure ? (
           <AdvancedOptionsAccordion triggerLabel={probeTriggerLabel} defaultOpen={false} className="mt-2">
             <WorkspaceAiProbeDiagnostics result={state.result} compact />
           </AdvancedOptionsAccordion>
         ) : (
           <div className="mt-2">
-            <WorkspaceAiProbeDiagnostics result={state.result} />
+            <WorkspaceAiProbeDiagnostics result={state.result} compact={neutralProbeOnTerminalFailure} />
           </div>
         )
       ) : null}

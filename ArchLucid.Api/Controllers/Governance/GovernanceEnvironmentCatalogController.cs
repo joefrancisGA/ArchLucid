@@ -96,6 +96,20 @@ public sealed class GovernanceEnvironmentCatalogController(
         if (scopeProblem is not null)
             return scopeProblem;
 
+        GovernanceEnvironmentCatalog existingCatalog = await _catalogService
+            .GetCatalogAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        GovernanceEnvironmentCatalog normalizedRequest = GovernanceEnvironmentCatalogService.NormalizeCatalog(
+            new GovernanceEnvironmentCatalog
+            {
+                Environments = request.Environments,
+                Transitions = request.Transitions,
+            });
+
+        bool isIdenticalRetry = existingCatalog.IsAdministratorConfigured
+            && GovernanceEnvironmentCatalogService.CatalogContentEquals(existingCatalog, normalizedRequest);
+
         try
         {
             await _catalogService.ReplaceCatalogAsync(request, cancellationToken).ConfigureAwait(false);
@@ -109,20 +123,23 @@ public sealed class GovernanceEnvironmentCatalogController(
             .GetCatalogAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.GovernanceEnvironmentCatalogReplaced,
-                DataJson = JsonSerializer.Serialize(new
+        if (!isIdenticalRetry)
+        {
+            await _auditService.LogAsync(
+                new AuditEvent
                 {
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId,
-                    environmentCount = catalog.Environments.Count,
-                    transitionCount = catalog.Transitions.Count,
-                }),
-            },
-            cancellationToken).ConfigureAwait(false);
+                    EventType = AuditEventTypes.GovernanceEnvironmentCatalogReplaced,
+                    DataJson = JsonSerializer.Serialize(new
+                    {
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        scope.ProjectId,
+                        environmentCount = catalog.Environments.Count,
+                        transitionCount = catalog.Transitions.Count,
+                    }),
+                },
+                cancellationToken).ConfigureAwait(false);
+        }
 
         return Ok(catalog);
     }

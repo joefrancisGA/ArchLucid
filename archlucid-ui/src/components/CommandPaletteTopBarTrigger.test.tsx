@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { CommandPaletteTopBarTrigger } from "@/components/CommandPaletteTopBarTrigger";
-import { COMMAND_PALETTE_ARIA_KEYSHORTCUTS, COMMAND_PALETTE_DISPLAY_SHORTCUT } from "@/lib/keyboard-shortcut-display";
+import { COMMAND_PALETTE_ARIA_KEYSHORTCUTS } from "@/lib/keyboard-shortcut-display";
 import { dispatchOpenCommandPalette } from "@/lib/shortcut-registry";
 
 vi.mock("@/lib/shortcut-registry", async (importOriginal) => {
@@ -22,7 +22,7 @@ describe("CommandPaletteTopBarTrigger", () => {
 
     expect(trigger).toHaveAttribute("aria-label", "Open command palette");
     expect(trigger).toHaveAttribute("aria-keyshortcuts", COMMAND_PALETTE_ARIA_KEYSHORTCUTS);
-    expect(trigger).toHaveTextContent(COMMAND_PALETTE_DISPLAY_SHORTCUT);
+    expect(trigger).toHaveTextContent("Command");
   });
 
   it("opens the command palette on click", () => {

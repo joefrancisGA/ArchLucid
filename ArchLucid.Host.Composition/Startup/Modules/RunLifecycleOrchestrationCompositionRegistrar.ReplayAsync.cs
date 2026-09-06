@@ -92,6 +92,7 @@ partial class RunLifecycleOrchestrationCompositionRegistrar
         services.AddSingleton<IArchitectureRunAsyncOperationQueue>(static sp =>
             sp.GetRequiredService<ArchitectureRunAsyncOperationQueue>());
         services.AddSingleton<IArchitectureRunAsyncOperationRegistrar, ArchitectureRunAsyncOperationRegistrar>();
+        services.AddScoped<IFailedRunRetryAdmission, FailedRunRetryAdmission>();
         services.AddScoped<IArchitectureRunAsyncCreateAdmitter, ArchitectureRunAsyncCreateAdmitter>();
         services.AddScoped<IArchitectureRunAsyncOperationAcceptor, ArchitectureRunAsyncOperationAcceptor>();
         services.AddArchitectureRunAsyncOperationWorkers();
