@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 209
-- **bugs-found:** 786
+- **hunts:** 210
+- **bugs-found:** 798
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-06
-- **last-bug:** 2026-09-06 — FederatedAccessKey/FetchAccessKey/FilterAccessKey redaction, workloads does-not-require/need and will-not-implement/enable negation, advice will-not-have and would-not-implement/enable/deploy/adopt suffix
+- **last-bug:** 2026-09-06 — FinalAccessKey/FinanceAccessKey/FirewallAccessKey redaction, workloads will-not-deploy/adopt/use/have negation, advice would-not-use/have and ought-not-implement/enable/deploy suffix
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2836,6 +2836,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `would not enable` suffix gap — **hit 2026-09-06 (#937):** #921 added `do not enable` suffix only; missed `would not enable`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_would_not_enable_suffix_phrasing`).
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `would not deploy` suffix gap — **hit 2026-09-06 (#937):** #921 added `do not deploy` suffix only; missed `would not deploy`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_would_not_deploy_suffix_phrasing`).
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `would not adopt` suffix gap — **hit 2026-09-06 (#937):** #921 added `do not adopt` suffix only; missed `would not adopt`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_would_not_adopt_suffix_phrasing`).
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `FinalAccessKey` not redacted — **hit 2026-09-06 (#938):** compound access-key class after #937; embedded `AccessKey`/`accesskey` fragment guard skipped `FinalAccessKey`/`finalaccesskey`; fixed with explicit credential detection (`Resolve_redacts_final_access_key_config_path`, `IsSensitiveKey_detects_final_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `FinanceAccessKey` not redacted — **hit 2026-09-06 (#938):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_finance_access_key_config_path`, `IsSensitiveKey_detects_finance_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `FirewallAccessKey` not redacted — **hit 2026-09-06 (#938):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_firewall_access_key_config_path`, `IsSensitiveKey_detects_firewall_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `will not deploy` negation gap — **hit 2026-09-06 (#938):** #937 added suffix `will not deploy` only; missed mid-sentence `will not deploy {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_workloads_will_not_deploy_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `will not adopt` negation gap — **hit 2026-09-06 (#938):** #937 added suffix `will not adopt` only; missed mid-sentence `will not adopt {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_workloads_will_not_adopt_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `will not use` negation gap — **hit 2026-09-06 (#938):** #937 added suffix `will not use` only; missed mid-sentence `will not use {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_workloads_will_not_use_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `will not have` negation gap — **hit 2026-09-06 (#938):** #937 added suffix `will not have` only; missed mid-sentence `will not have {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_workloads_will_not_have_encryption_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `would not use` suffix gap — **hit 2026-09-06 (#938):** #922 added `do not use` suffix only; missed `would not use`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_would_not_use_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `would not have` suffix gap — **hit 2026-09-06 (#938):** #937 added `will not have` suffix only; missed `would not have`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_would_not_have_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `ought not implement` suffix gap — **hit 2026-09-06 (#938):** mid-sentence `ought not implement` existed in constraint matcher only; missed imperative-path suffix `ought not implement`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_ought_not_implement_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `ought not enable` suffix gap — **hit 2026-09-06 (#938):** mid-sentence `ought not enable` existed in constraint matcher only; missed imperative-path suffix `ought not enable`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_ought_not_enable_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `ought not deploy` suffix gap — **hit 2026-09-06 (#938):** mid-sentence `ought not deploy` existed in constraint matcher only; missed imperative-path suffix `ought not deploy`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_ought_not_deploy_suffix_phrasing`).
+
+2026-09-06 seed hunt #938 (hit): reseeded after #937 closure; proved twelve hunt-ready rows — FinalAccessKey/FinanceAccessKey/FirewallAccessKey redaction parity, workloads will-not-deploy/adopt/use/have constraint negation, and advice would-not-use/have and ought-not-implement/enable/deploy suffix.
 
 2026-09-06 seed hunt #937 (hit): reseeded after #936 closure; proved twelve hunt-ready rows — FederatedAccessKey/FetchAccessKey/FilterAccessKey redaction parity, workloads does-not-require/need and will-not-implement/enable constraint negation, and advice will-not-have and would-not-implement/enable/deploy/adopt suffix.
 
