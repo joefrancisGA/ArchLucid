@@ -45,6 +45,11 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import {
+  formatResourceHubWorkbenchPrimaryHubLabel,
+  mergeWorkbenchHubScopePatch,
+  parseInfraEvidenceWorkbenchAuditScopeFromSearch,
+} from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
 import { buildResourceHubDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-ask-citations";
 import { buildResourceHubWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import { useTenantBrandingPresentationQuery } from "@/hooks/use-tenant-branding-presentation-query";
@@ -175,6 +180,13 @@ export function DiagramsWorkbenchClient() {
 
     return resolveDefaultFallbackKey(fallbackArtifacts);
   }, [fallbackArtifacts, selectedViewKey, showFallbackCards]);
+
+  const auditScope = useMemo(() => parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams), [searchParams]);
+  const scopedSnapshotId = selectedSnapshotId.length > 0 ? selectedSnapshotId : urlSnapshotId;
+  const workbenchHubScopePatch = useMemo(
+    () => mergeWorkbenchHubScopePatch(scopedSnapshotId, auditScope),
+    [auditScope, scopedSnapshotId],
+  );
 
   const mermaidSource = renderResult?.mermaid ?? "";
   const metrics = renderResult?.metrics ?? null;
@@ -408,15 +420,16 @@ export function DiagramsWorkbenchClient() {
             className="mt-2 inline-block text-sm text-al-link hover:underline"
             href={resourceHubFilterHrefFromSearch(urlCloudResourceId, "", {
               tab: "diagram",
-              snapshotId: selectedSnapshotId,
+              ...workbenchHubScopePatch,
             })}
+            data-testid="infra-diagrams-open-primary-hub"
           >
-            Open resource evidence hub
+            {formatResourceHubWorkbenchPrimaryHubLabel("diagram")}
           </Link>
           <Link
             className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
             href={buildResourceHubDiagramReconcileWorkbenchHref(
-              selectedSnapshotId.length > 0 ? selectedSnapshotId : urlSnapshotId,
+              scopedSnapshotId,
               undefined,
               undefined,
               urlCloudResourceId,
@@ -430,7 +443,7 @@ export function DiagramsWorkbenchClient() {
             href={buildResourceHubWorkbenchHref({
               cloudResourceId: urlCloudResourceId,
               tab: "terraform",
-              snapshotId: selectedSnapshotId.length > 0 ? selectedSnapshotId : urlSnapshotId,
+              ...workbenchHubScopePatch,
             })}
             data-testid="infra-diagrams-open-terraform-hub"
           >
@@ -441,7 +454,7 @@ export function DiagramsWorkbenchClient() {
             href={buildResourceHubWorkbenchHref({
               cloudResourceId: urlCloudResourceId,
               tab: "findings",
-              snapshotId: selectedSnapshotId.length > 0 ? selectedSnapshotId : urlSnapshotId,
+              ...workbenchHubScopePatch,
             })}
             data-testid="infra-diagrams-open-findings-hub"
           >
@@ -452,7 +465,7 @@ export function DiagramsWorkbenchClient() {
             href={buildResourceHubWorkbenchHref({
               cloudResourceId: urlCloudResourceId,
               tab: "remediation",
-              snapshotId: selectedSnapshotId.length > 0 ? selectedSnapshotId : urlSnapshotId,
+              ...workbenchHubScopePatch,
             })}
             data-testid="infra-diagrams-open-remediation-hub"
           >
@@ -463,12 +476,25 @@ export function DiagramsWorkbenchClient() {
             href={buildResourceHubWorkbenchHref({
               cloudResourceId: urlCloudResourceId,
               tab: "drift",
-              snapshotId: selectedSnapshotId.length > 0 ? selectedSnapshotId : urlSnapshotId,
+              ...workbenchHubScopePatch,
             })}
             data-testid="infra-diagrams-open-drift-hub"
           >
             Open drift
           </Link>
+          {auditScope != null ? (
+            <Link
+              className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
+              href={buildResourceHubWorkbenchHref({
+                cloudResourceId: urlCloudResourceId,
+                tab: "audit",
+                ...workbenchHubScopePatch,
+              })}
+              data-testid="infra-diagrams-open-audit-hub"
+            >
+              Open audit lineage
+            </Link>
+          ) : null}
         </section>
       ) : null}
 
