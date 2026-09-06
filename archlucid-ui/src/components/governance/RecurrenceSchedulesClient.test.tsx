@@ -16,6 +16,7 @@ vi.mock("next/navigation", async (importOriginal) => {
 
   return {
     ...actual,
+    usePathname: () => "/governance/recurrence-schedules",
     useRouter: () => ({
       back: vi.fn(),
       forward: vi.fn(),

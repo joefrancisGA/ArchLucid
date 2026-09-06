@@ -3842,6 +3842,92 @@ describe("wave50 filter url helpers", () => {
   });
 });
 
+describe("wave51 filter url helpers", () => {
+  it("jira/servicenow platform notes, roi methodology, advisory scans, seal delta, recurrence how-it-works, signed records seal details, pricing quote sla/support, first pilot standards params", async () => {
+    const {
+      jiraPlatformNotesDisclosureHrefFromSearch,
+      parseJiraPlatformNotesOpenFromSearch,
+    } = await import("@/lib/integrations/jira-platform-notes-disclosure-url");
+    const {
+      parseServicenowPlatformNotesOpenFromSearch,
+      servicenowPlatformNotesDisclosureHrefFromSearch,
+    } = await import("@/lib/integrations/servicenow-platform-notes-disclosure-url");
+    const {
+      parseRoiSummaryMethodologyOpenFromSearch,
+      roiSummaryMethodologyDisclosureHrefFromSearch,
+    } = await import("@/lib/insights/roi-summary-methodology-disclosure-url");
+    const {
+      advisoryScansHowItWorksDisclosureHrefFromSearch,
+      parseAdvisoryScansHowItWorksOpenFromSearch,
+    } = await import("@/lib/advisory/advisory-scans-how-it-works-disclosure-url");
+    const {
+      architectureSealDeltaDisclosureHrefFromSearch,
+      parseArchitectureSealDeltaOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-seal-delta-disclosure-url");
+    const {
+      parseRecurrenceSchedulesHowItWorksOpenFromSearch,
+      recurrenceSchedulesHowItWorksDisclosureHrefFromSearch,
+    } = await import("@/lib/governance/recurrence-schedules-how-it-works-disclosure-url");
+    const {
+      parseSignedRecordsListSealDetailsRunIdFromSearch,
+      signedRecordsListSealDetailsDisclosureHrefFromSearch,
+    } = await import("@/lib/signed-records/signed-records-list-seal-details-disclosure-url");
+    const {
+      parsePricingQuoteSlaSettingsOpenFromSearch,
+      pricingQuoteSlaSettingsDisclosureHrefFromSearch,
+    } = await import("@/lib/internal/pricing-quote-sla-settings-disclosure-url");
+    const {
+      parsePricingQuoteSupportDetailsOpenFromSearch,
+      pricingQuoteSupportDetailsDisclosureHrefFromSearch,
+    } = await import("@/lib/internal/pricing-quote-support-details-disclosure-url");
+    const {
+      firstPilotStandardsSelectionDisclosureHrefFromSearch,
+      parseFirstPilotStandardsSelectionOpenFromSearch,
+    } = await import("@/lib/reviews/first-pilot-standards-selection-disclosure-url");
+
+    expect(parseJiraPlatformNotesOpenFromSearch("1")).toBe(true);
+    expect(jiraPlatformNotesDisclosureHrefFromSearch("", true, "/integrations/jira")).toBe(
+      "/integrations/jira?jiraPlatformNotesOpen=1",
+    );
+    expect(parseServicenowPlatformNotesOpenFromSearch("true")).toBe(true);
+    expect(servicenowPlatformNotesDisclosureHrefFromSearch("", true, "/integrations/servicenow")).toBe(
+      "/integrations/servicenow?servicenowPlatformNotesOpen=1",
+    );
+    expect(parseRoiSummaryMethodologyOpenFromSearch("1")).toBe(true);
+    expect(roiSummaryMethodologyDisclosureHrefFromSearch("runId=r1", true, "/insights/roi-summary")).toBe(
+      "/insights/roi-summary?runId=r1&roiSummaryMethodologyOpen=1",
+    );
+    expect(parseAdvisoryScansHowItWorksOpenFromSearch("true")).toBe(true);
+    expect(advisoryScansHowItWorksDisclosureHrefFromSearch("", true, "/governance/advisory/scans")).toBe(
+      "/governance/advisory/scans?advisoryScansHowItWorksOpen=1",
+    );
+    expect(parseArchitectureSealDeltaOpenFromSearch("1")).toBe(true);
+    expect(architectureSealDeltaDisclosureHrefFromSearch("tab=overview", true, "/architecture/created/a1")).toBe(
+      "/architecture/created/a1?tab=overview&architectureSealDeltaOpen=1",
+    );
+    expect(parseRecurrenceSchedulesHowItWorksOpenFromSearch("1")).toBe(true);
+    expect(recurrenceSchedulesHowItWorksDisclosureHrefFromSearch("", true, "/governance/recurrence-schedules")).toBe(
+      "/governance/recurrence-schedules?recurrenceSchedulesHowItWorksOpen=1",
+    );
+    expect(parseSignedRecordsListSealDetailsRunIdFromSearch("run-1")).toBe("run-1");
+    expect(signedRecordsListSealDetailsDisclosureHrefFromSearch("", "run-1", "/governance/sealed-records")).toBe(
+      "/governance/sealed-records?signedRecordsListSealDetailsRunId=run-1",
+    );
+    expect(parsePricingQuoteSlaSettingsOpenFromSearch("true")).toBe(true);
+    expect(pricingQuoteSlaSettingsDisclosureHrefFromSearch("", true, "/internal/pricing-quote-aging")).toBe(
+      "/internal/pricing-quote-aging?pricingQuoteSlaSettingsOpen=1",
+    );
+    expect(parsePricingQuoteSupportDetailsOpenFromSearch("1")).toBe(true);
+    expect(pricingQuoteSupportDetailsDisclosureHrefFromSearch("", true, "/internal/pricing-quote-aging")).toBe(
+      "/internal/pricing-quote-aging?pricingQuoteSupportDetailsOpen=1",
+    );
+    expect(parseFirstPilotStandardsSelectionOpenFromSearch("1")).toBe(true);
+    expect(firstPilotStandardsSelectionDisclosureHrefFromSearch("path=first-pilot", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?path=first-pilot&firstPilotStandardsSelectionOpen=1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(
