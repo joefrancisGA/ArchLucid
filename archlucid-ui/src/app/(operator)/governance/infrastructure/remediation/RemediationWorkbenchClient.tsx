@@ -49,6 +49,11 @@ import {
   type RemediationInstanceSummary,
   type RemediationWorkbenchColumn,
 } from "@/lib/infra-evidence/infra-evidence-remediation-types";
+import {
+  buildResourceHubWorkbenchHref,
+  parseInfraEvidenceWorkbenchQueryValue,
+  REMEDIATION_WORKBENCH_CLOUD_RESOURCE_ID_PARAM,
+} from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -67,6 +72,9 @@ export function RemediationWorkbenchClient() {
   const urlFindingId = searchParams.get("findingId")?.trim() ?? "";
   const urlInstanceId = searchParams.get("instanceId")?.trim() ?? "";
   const urlCorrespondenceId = searchParams.get("correspondenceId")?.trim() ?? "";
+  const urlCloudResourceId = parseInfraEvidenceWorkbenchQueryValue(
+    searchParams.get(REMEDIATION_WORKBENCH_CLOUD_RESOURCE_ID_PARAM),
+  );
 
   const [instances, setInstances] = useState<RemediationInstanceSummary[]>([]);
   const [selectedInstanceId, setSelectedInstanceId] = useState(urlInstanceId);
@@ -87,6 +95,8 @@ export function RemediationWorkbenchClient() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
 
+  const visibleInstances = instances;
+
   const groupedInstances = useMemo(() => {
     const groups = new Map<RemediationWorkbenchColumn, RemediationInstanceSummary[]>();
 
@@ -94,13 +104,13 @@ export function RemediationWorkbenchClient() {
       groups.set(column.id, []);
     }
 
-    for (const instance of instances) {
+    for (const instance of visibleInstances) {
       const column = mapRemediationInstanceStatusToColumn(instance.status);
       groups.get(column)?.push(instance);
     }
 
     return groups;
-  }, [instances]);
+  }, [visibleInstances]);
 
   const loadWorkbench = useCallback(async () => {
     setLoading(true);
@@ -108,7 +118,9 @@ export function RemediationWorkbenchClient() {
 
     try {
       const [instanceRows, summary, prioritized, waveRows, snapshotResponse] = await Promise.all([
-        fetchRemediationInstances(),
+        fetchRemediationInstances({
+          cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : null,
+        }),
         fetchRemediationFactorySummary(),
         fetchRemediationPrioritizedFindings(),
         fetchRemediationWaves(),
@@ -148,7 +160,7 @@ export function RemediationWorkbenchClient() {
     } finally {
       setLoading(false);
     }
-  }, [selectedSnapshotId, selectedWaveId]);
+  }, [selectedSnapshotId, selectedWaveId, urlCloudResourceId]);
 
   const loadDetail = useCallback(async (instanceId: string) => {
     if (instanceId.length === 0) {
@@ -176,8 +188,13 @@ export function RemediationWorkbenchClient() {
   useEffect(() => {
     if (urlInstanceId.length > 0) {
       setSelectedInstanceId(urlInstanceId);
+      return;
     }
-  }, [urlInstanceId]);
+
+    if (urlCloudResourceId.length > 0 && visibleInstances.length > 0) {
+      setSelectedInstanceId(visibleInstances[0].instanceId);
+    }
+  }, [urlCloudResourceId, urlInstanceId, visibleInstances]);
 
   useEffect(() => {
     void loadDetail(selectedInstanceId);
@@ -272,6 +289,24 @@ export function RemediationWorkbenchClient() {
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6">
       <LayerHeader pageKey="infrastructure-remediation" />
+
+      {urlCloudResourceId.length > 0 ? (
+        <section
+          className="rounded border border-border bg-card p-4"
+          data-testid="infra-remediation-resource-scope-banner"
+          aria-label="Remediation factory resource scope"
+        >
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+            Showing remediation instances for resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
+          </p>
+          <Link
+            className="mt-2 inline-block text-sm text-al-link hover:underline"
+            href={buildResourceHubWorkbenchHref({ cloudResourceId: urlCloudResourceId, tab: "remediation" })}
+          >
+            Open resource evidence hub
+          </Link>
+        </section>
+      ) : null}
 
       <section className="grid gap-3 md:grid-cols-3" aria-label="Remediation factory metrics">
         <div className="rounded border border-border bg-card p-4">

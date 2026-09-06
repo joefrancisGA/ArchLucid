@@ -1,4 +1,5 @@
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -137,6 +138,7 @@ public interface IRemediationInstanceQueryService
 {
     Task<IReadOnlyList<RemediationInstanceSummary>> ListInstancesAsync(
         ScopeContext scope,
+        Guid? cloudResourceId = null,
         CancellationToken cancellationToken = default);
 
     Task<RemediationInstanceDetail?> TryGetInstanceAsync(
@@ -152,12 +154,29 @@ public sealed class RemediationInstanceQueryService(
 {
     public async Task<IReadOnlyList<RemediationInstanceSummary>> ListInstancesAsync(
         ScopeContext scope,
+        Guid? cloudResourceId = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        IReadOnlyList<RemediationInstanceRecord> instances =
-            await instanceRepository.ListByTenantAsync(scope.TenantId, cancellationToken);
+        IReadOnlyList<RemediationInstanceRecord> instances;
+
+        if (cloudResourceId is Guid resourceId && resourceId != Guid.Empty)
+        {
+            (IReadOnlyList<RemediationInstanceRecord> items, _) =
+                await instanceRepository.ListByCloudResourceIdPagedAsync(
+                    scope.TenantId,
+                    resourceId,
+                    PaginationDefaults.DefaultPage,
+                    PaginationDefaults.MaxPageSize,
+                    cancellationToken);
+
+            instances = items;
+        }
+        else
+        {
+            instances = await instanceRepository.ListByTenantAsync(scope.TenantId, cancellationToken);
+        }
 
         return instances
             .OrderByDescending(item => item.UpdatedUtc)

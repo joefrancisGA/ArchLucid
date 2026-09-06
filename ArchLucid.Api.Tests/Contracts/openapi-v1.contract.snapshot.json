@@ -142453,6 +142453,16 @@
     },
     "/v1/infra-evidence/remediation-instances": {
       "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "cloudResourceId",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {

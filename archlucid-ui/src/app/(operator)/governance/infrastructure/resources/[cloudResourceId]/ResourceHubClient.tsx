@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/enterprise-tabs";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
-  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import {
@@ -32,6 +31,11 @@ import {
   buildResourceHubDiagramsWorkbenchHref,
   buildResourceHubDriftWorkbenchHref,
 } from "@/lib/infra-evidence/infra-evidence-ask-citations";
+import {
+  buildDriftWorkbenchHref,
+  buildRemediationWorkbenchHref,
+  buildResourceScopedWorkbenchHref,
+} from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import {
   fetchCloudResourceEvidenceHub,
   formatInfraEvidenceHubApiError,
@@ -56,6 +60,7 @@ import {
 import type {
   CloudResourceAuditLineageMatch,
   CloudResourceEvidenceHubResponse,
+  CloudResourceInventoryChangeSummary,
   ResourceHubTab,
 } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -75,6 +80,19 @@ const HUB_TABS: readonly { readonly id: ResourceHubTab; readonly label: string }
 type ResourceHubClientProps = {
   readonly cloudResourceId: string;
 };
+
+function buildHubDriftChangeWorkbenchHref(
+  cloudResourceId: string,
+  snapshotId: string,
+  change: CloudResourceInventoryChangeSummary,
+): string {
+  return buildDriftWorkbenchHref({
+    cloudResourceId,
+    snapshotId,
+    changeId: change.changeId,
+    diffId: change.diffId,
+  });
+}
 
 export function ResourceHubClient(props: ResourceHubClientProps) {
   const { cloudResourceId } = props;
@@ -294,6 +312,30 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             </section>
 
             <section className="rounded border border-border bg-card p-4">
+              <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Work quick links</h2>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                Jump to scoped workbenches for this resource without re-filtering manually.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-findings-work">
+                  <Link href={buildResourceScopedWorkbenchHref(cloudResourceId, "findings", resolvedSnapshotId)}>
+                    Open findings
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-remediation-work">
+                  <Link href={buildResourceScopedWorkbenchHref(cloudResourceId, "remediation", resolvedSnapshotId)}>
+                    Open remediation factory
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-drift-work">
+                  <Link href={buildResourceScopedWorkbenchHref(cloudResourceId, "drift", resolvedSnapshotId)}>
+                    Open drift workbench
+                  </Link>
+                </Button>
+              </div>
+            </section>
+
+            <section className="rounded border border-border bg-card p-4">
               <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Current configuration</h2>
               {hub.currentConfiguration == null ? (
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>No snapshot-backed configuration is available.</p>
@@ -329,7 +371,15 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   <EnterpriseTableBody>
                     {hub.recentChanges.map((change) => (
                       <EnterpriseTableRow key={change.changeId}>
-                        <EnterpriseTableCell>{change.property ?? "—"}</EnterpriseTableCell>
+                        <EnterpriseTableCell>
+                          <Link
+                            className="text-al-link hover:underline"
+                            href={buildHubDriftChangeWorkbenchHref(cloudResourceId, resolvedSnapshotId, change)}
+                            data-testid={`infra-resource-hub-drift-change-${change.changeId}`}
+                          >
+                            {change.property ?? change.changeType}
+                          </Link>
+                        </EnterpriseTableCell>
                         <EnterpriseTableCell>{change.changeType}</EnterpriseTableCell>
                         <EnterpriseTableCell>{change.riskClassification ?? "—"}</EnterpriseTableCell>
                       </EnterpriseTableRow>
@@ -345,7 +395,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               Open the drift workbench with this resource&apos;s snapshot context prefilled.
             </p>
             <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-drift">
-              <Link href={buildResourceHubDriftWorkbenchHref(resolvedSnapshotId)}>Open drift workbench</Link>
+              <Link href={buildResourceHubDriftWorkbenchHref(resolvedSnapshotId, cloudResourceId)}>
+                Open drift workbench
+              </Link>
             </Button>
             {hub.recentChanges.length > 0 ? (
               <EnterpriseTable ariaLabel="Drift changes for resource">
@@ -359,7 +411,15 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 <EnterpriseTableBody>
                   {hub.recentChanges.map((change) => (
                     <EnterpriseTableRow key={change.changeId}>
-                      <EnterpriseTableCell>{change.property ?? "—"}</EnterpriseTableCell>
+                      <EnterpriseTableCell>
+                        <Link
+                          className="text-al-link hover:underline"
+                          href={buildHubDriftChangeWorkbenchHref(cloudResourceId, resolvedSnapshotId, change)}
+                          data-testid={`infra-resource-hub-drift-tab-change-${change.changeId}`}
+                        >
+                          {change.property ?? change.changeType}
+                        </Link>
+                      </EnterpriseTableCell>
                       <EnterpriseTableCell className="font-mono text-xs">{change.oldValue ?? "—"}</EnterpriseTableCell>
                       <EnterpriseTableCell className="font-mono text-xs">{change.newValue ?? "—"}</EnterpriseTableCell>
                     </EnterpriseTableRow>
@@ -445,16 +505,29 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                           <EnterpriseTableCell>{item.status ?? "—"}</EnterpriseTableCell>
                           {stream.streamKind === "OperationalSecurity" ? (
                             <EnterpriseTableCell>
-                              <Button
-                                type="button"
-                                size="sm"
-                                variant="outline"
-                                data-testid={`infra-resource-hub-match-${item.id}`}
-                                disabled={findingActionBusyId === item.id}
-                                onClick={() => void runMatchRemediationFromFinding(item.id)}
-                              >
-                                {findingActionBusyId === item.id ? "Matching…" : "Match remediation"}
-                              </Button>
+                              <div className="flex flex-wrap gap-2">
+                                <Button asChild size="sm" variant="outline">
+                                  <Link
+                                    href={buildRemediationWorkbenchHref({
+                                      cloudResourceId,
+                                      findingId: item.id,
+                                    })}
+                                    data-testid={`infra-resource-hub-finding-factory-${item.id}`}
+                                  >
+                                    Open in factory
+                                  </Link>
+                                </Button>
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="outline"
+                                  data-testid={`infra-resource-hub-match-${item.id}`}
+                                  disabled={findingActionBusyId === item.id}
+                                  onClick={() => void runMatchRemediationFromFinding(item.id)}
+                                >
+                                  {findingActionBusyId === item.id ? "Matching…" : "Match remediation"}
+                                </Button>
+                              </div>
                             </EnterpriseTableCell>
                           ) : null}
                         </EnterpriseTableRow>
@@ -467,6 +540,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           </EnterpriseTabsContent>
 
           <EnterpriseTabsContent value="remediation" className="mt-4 space-y-3">
+            <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-remediation-factory">
+              <Link href={buildRemediationWorkbenchHref({ cloudResourceId })}>Open remediation factory</Link>
+            </Button>
             {hub.remediationInstances.items.length === 0 ? (
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>No remediation instances are linked to this resource.</p>
             ) : (
@@ -486,7 +562,11 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       <EnterpriseTableCell>
                         <Button asChild size="sm" variant="outline">
                           <Link
-                            href={`${GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH}?instanceId=${encodeURIComponent(item.instanceId)}`}
+                            href={buildRemediationWorkbenchHref({
+                              cloudResourceId,
+                              instanceId: item.instanceId,
+                            })}
+                            data-testid={`infra-resource-hub-remediation-factory-${item.instanceId}`}
                           >
                             Open in factory
                           </Link>
