@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 230
-- **bugs-found:** 1038
+- **hunts:** 231
+- **bugs-found:** 1050
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-06
-- **last-bug:** 2026-09-06 — MergeAccessKey/MessageAccessKey/MetricAccessKey redaction, sentence-start shall-not-enable/deploy/adopt/use negation, advice workloads need-not-enable/deploy/adopt/use/have prefix
+- **last-bug:** 2026-09-06 — MirrorAccessKey/MobileAccessKey/ModelAccessKey redaction, sentence-start will-not-enable/deploy/adopt/use negation, advice workloads should-not-enable/deploy/adopt/use/have prefix
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3106,6 +3106,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — `need not adopt` prefix gap — **hit 2026-09-06 (#958):** suffix guards only; missed mid-sentence `need not adopt` before `encryption at rest` fragment; fixed with prefix negation guard (`IsObviousGenericAdvice_does_not_flag_workloads_need_not_adopt_encryption_at_rest_phrasing`).
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — `need not use` prefix gap — **hit 2026-09-06 (#958):** suffix guards only; missed mid-sentence `need not use` before `encryption at rest` fragment; fixed with prefix negation guard (`IsObviousGenericAdvice_does_not_flag_workloads_need_not_use_encryption_at_rest_phrasing`).
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — `need not have` prefix gap — **hit 2026-09-06 (#958):** suffix guards only; missed mid-sentence `need not have` before `encryption at rest` fragment; fixed with prefix negation guard (`IsObviousGenericAdvice_does_not_flag_workloads_need_not_have_encryption_at_rest_phrasing`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `MirrorAccessKey` not redacted — **hit 2026-09-06 (#959):** compound access-key class after #958; embedded `AccessKey`/`accesskey` fragment guard skipped `MirrorAccessKey`/`mirroraccesskey`; fixed with explicit credential detection (`Resolve_redacts_mirror_access_key_config_path`, `IsSensitiveKey_detects_mirror_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `MobileAccessKey` not redacted — **hit 2026-09-06 (#959):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_mobile_access_key_config_path`, `IsSensitiveKey_detects_mobile_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ModelAccessKey` not redacted — **hit 2026-09-06 (#959):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_model_access_key_config_path`, `IsSensitiveKey_detects_model_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — `will not enable` prefix gap — **hit 2026-09-06 (#959):** mid-sentence `will not enable` existed only; missed sentence-start `will not enable {token}`; fixed with prefix negation guard (`HasEncryptionConstraint_does_not_false_positive_on_will_not_enable_encryption_at_rest_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — `will not deploy` prefix gap — **hit 2026-09-06 (#959):** mid-sentence `will not deploy` existed only; missed sentence-start `will not deploy {token}`; fixed with prefix negation guard (`HasEncryptionConstraint_does_not_false_positive_on_will_not_deploy_encryption_at_rest_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — `will not adopt` prefix gap — **hit 2026-09-06 (#959):** mid-sentence `will not adopt` existed only; missed sentence-start `will not adopt {token}`; fixed with prefix negation guard (`HasEncryptionConstraint_does_not_false_positive_on_will_not_adopt_encryption_at_rest_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — `will not use` prefix gap — **hit 2026-09-06 (#959):** mid-sentence `will not use` existed only; missed sentence-start `will not use {token}`; fixed with prefix negation guard (`HasEncryptionConstraint_does_not_false_positive_on_will_not_use_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — `should not enable` prefix gap — **hit 2026-09-06 (#959):** suffix guards only; missed mid-sentence `should not enable` before `encryption at rest` fragment; fixed with prefix negation guard (`IsObviousGenericAdvice_does_not_flag_workloads_should_not_enable_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — `should not deploy` prefix gap — **hit 2026-09-06 (#959):** suffix guards only; missed mid-sentence `should not deploy` before `encryption at rest` fragment; fixed with prefix negation guard (`IsObviousGenericAdvice_does_not_flag_workloads_should_not_deploy_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — `should not adopt` prefix gap — **hit 2026-09-06 (#959):** suffix guards only; missed mid-sentence `should not adopt` before `encryption at rest` fragment; fixed with prefix negation guard (`IsObviousGenericAdvice_does_not_flag_workloads_should_not_adopt_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — `should not use` prefix gap — **hit 2026-09-06 (#959):** suffix guards only; missed mid-sentence `should not use` before `encryption at rest` fragment; fixed with prefix negation guard (`IsObviousGenericAdvice_does_not_flag_workloads_should_not_use_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — `should not have` prefix gap — **hit 2026-09-06 (#959):** suffix guards only; missed mid-sentence `should not have` before `encryption at rest` fragment; fixed with prefix negation guard (`IsObviousGenericAdvice_does_not_flag_workloads_should_not_have_encryption_at_rest_phrasing`).
+
+2026-09-06 seed hunt #959 (hit): reseeded after #958 closure; proved twelve hunt-ready rows — MirrorAccessKey/MobileAccessKey/ModelAccessKey redaction parity, sentence-start will-not-enable/deploy/adopt/use constraint negation, and advice workloads should-not-enable/deploy/adopt/use/have prefix.
 
 2026-09-06 seed hunt #958 (hit): reseeded after #957 closure; proved twelve hunt-ready rows — MergeAccessKey/MessageAccessKey/MetricAccessKey redaction parity, sentence-start shall-not-enable/deploy/adopt/use constraint negation, and advice workloads need-not-enable/deploy/adopt/use/have prefix.
 
