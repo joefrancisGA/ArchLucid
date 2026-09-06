@@ -164,6 +164,26 @@ describe("ResourceHubClient", () => {
     );
   });
 
+  it("links drift rows to scoped Infrastructure Ask with diff context", async () => {
+    searchParams = new URLSearchParams("tab=overview&snapshotId=22222222-2222-2222-2222-222222222222");
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-drift-ask-change-1")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&diffId=diff-1",
+    );
+  });
+
+  it("links drift tab rows to scoped Infrastructure Ask", async () => {
+    searchParams = new URLSearchParams("tab=drift&snapshotId=22222222-2222-2222-2222-222222222222");
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-drift-tab-ask-change-1")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&diffId=diff-1",
+    );
+  });
+
   it("links findings rows into the scoped remediation factory", async () => {
     searchParams = new URLSearchParams("tab=findings");
     render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
@@ -171,6 +191,16 @@ describe("ResourceHubClient", () => {
     expect(await screen.findByTestId("infra-resource-hub-finding-factory-finding-1")).toHaveAttribute(
       "href",
       "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&findingId=finding-1",
+    );
+  });
+
+  it("links findings rows to scoped Infrastructure Ask", async () => {
+    searchParams = new URLSearchParams("tab=findings&snapshotId=22222222-2222-2222-2222-222222222222");
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-finding-ask-finding-1")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&findingId=finding-1",
     );
   });
 

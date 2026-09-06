@@ -155,6 +155,20 @@ describe("RemediationWorkbenchClient", () => {
     expect(screen.getByTestId("infra-remediation-finding-id")).toHaveValue("22222222-2222-2222-2222-222222222222");
   });
 
+  it("passes combined cloudResourceId and findingId filters from the URL", async () => {
+    searchParams = new URLSearchParams(
+      "cloudResourceId=33333333-3333-3333-3333-333333333333&findingId=22222222-2222-2222-2222-222222222222",
+    );
+    render(<RemediationWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(fetchRemediationInstances).toHaveBeenCalledWith({
+        cloudResourceId: "33333333-3333-3333-3333-333333333333",
+        findingId: "22222222-2222-2222-2222-222222222222",
+      });
+    });
+  });
+
   it("shows create guidance when findingId has no remediation instance yet", async () => {
     vi.mocked(fetchRemediationInstances).mockResolvedValueOnce([]);
     searchParams = new URLSearchParams("findingId=99999999-9999-9999-9999-999999999999");

@@ -19,6 +19,7 @@ export const RESOURCE_HUB_ASSESSMENT_ID_PARAM = "assessmentId";
 export const RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM = "auditEvidenceSnapshotId";
 export const RESOURCE_HUB_CONTROL_ID_PARAM = "controlId";
 export const RESOURCE_HUB_DIFF_ID_PARAM = "diffId";
+export const RESOURCE_HUB_FINDING_ID_PARAM = "findingId";
 
 const ALLOWED_TABS: ReadonlySet<ResourceHubTab> = new Set([
   "overview",
@@ -88,6 +89,7 @@ export function buildInfrastructureAskHref(context: {
   readonly cloudResourceId?: string;
   readonly snapshotId?: string;
   readonly diffId?: string;
+  readonly findingId?: string;
   readonly runId?: string;
   readonly assessmentId?: string;
   readonly auditEvidenceSnapshotId?: string;
@@ -105,6 +107,10 @@ export function buildInfrastructureAskHref(context: {
 
   if (context.diffId != null && context.diffId.trim().length > 0) {
     params.set(RESOURCE_HUB_DIFF_ID_PARAM, context.diffId.trim());
+  }
+
+  if (context.findingId != null && context.findingId.trim().length > 0) {
+    params.set(RESOURCE_HUB_FINDING_ID_PARAM, context.findingId.trim());
   }
 
   if (context.runId != null && context.runId.trim().length > 0) {

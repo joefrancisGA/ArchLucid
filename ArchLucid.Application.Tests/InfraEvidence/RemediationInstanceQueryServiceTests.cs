@@ -103,6 +103,23 @@ public sealed class RemediationInstanceQueryServiceTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task ListInstancesAsync_with_findingId_and_cloudResourceId_excludes_other_resources()
+    {
+        Guid otherResourceId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        Mock<IRemediationInstanceRepository> repository = new();
+        repository
+            .Setup(repo => repo.ListByFindingIdAsync(Scope.TenantId, FindingId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([CreateInstance(Guid.Parse("33333333-3333-3333-3333-333333333333"), otherResourceId, FindingId)]);
+
+        RemediationInstanceQueryService service = CreateService(repository.Object);
+
+        IReadOnlyList<RemediationInstanceSummary> instances =
+            await service.ListInstancesAsync(Scope, cloudResourceId: CloudResourceId, findingId: FindingId, CancellationToken.None);
+
+        instances.Should().BeEmpty();
+    }
+
     private static RemediationInstanceQueryService CreateService(IRemediationInstanceRepository repository) =>
         new(
             repository,

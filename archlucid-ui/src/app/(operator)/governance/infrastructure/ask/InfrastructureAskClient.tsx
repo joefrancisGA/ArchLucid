@@ -22,6 +22,7 @@ import {
   RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
   RESOURCE_HUB_CONTROL_ID_PARAM,
   RESOURCE_HUB_DIFF_ID_PARAM,
+  RESOURCE_HUB_FINDING_ID_PARAM,
   RESOURCE_HUB_RUN_ID_PARAM,
   RESOURCE_HUB_SNAPSHOT_ID_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
@@ -45,6 +46,7 @@ export function InfrastructureAskClient() {
   const runId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_RUN_ID_PARAM));
   const snapshotId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_SNAPSHOT_ID_PARAM));
   const diffId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_DIFF_ID_PARAM));
+  const findingId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_FINDING_ID_PARAM));
   const assessmentId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_ASSESSMENT_ID_PARAM));
   const auditEvidenceSnapshotId = parseResourceHubQueryValueFromSearch(
     searchParams.get(RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM),
@@ -84,12 +86,16 @@ export function InfrastructureAskClient() {
       parts.push(`diff ${diffId}`);
     }
 
+    if (findingId.length > 0) {
+      parts.push(`finding ${findingId}`);
+    }
+
     if (parts.length === 0) {
       return null;
     }
 
     return parts.join(" · ");
-  }, [cloudResourceId, diffId, snapshotId]);
+  }, [cloudResourceId, diffId, findingId, snapshotId]);
 
   const ask = useCallback(async (nextQuestion: string) => {
     const trimmed = nextQuestion.trim();
@@ -135,7 +141,7 @@ export function InfrastructureAskClient() {
     setQuestion("");
     setHistory([]);
     setSubmitError(null);
-  }, [cloudResourceId, diffId, runId, snapshotId, assessmentId, auditEvidenceSnapshotId, controlId]);
+  }, [cloudResourceId, diffId, findingId, runId, snapshotId, assessmentId, auditEvidenceSnapshotId, controlId]);
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6">
@@ -154,6 +160,7 @@ export function InfrastructureAskClient() {
             <Link
               className="mt-2 inline-block text-sm text-al-link hover:underline"
               href={resourceHubFilterHrefFromSearch(cloudResourceId, "", {
+                tab: findingId.length > 0 ? "findings" : undefined,
                 snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
               })}
             >
