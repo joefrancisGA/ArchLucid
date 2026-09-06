@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
 import { ProvenanceWayfinding } from "@/components/provenance/ProvenanceWayfinding";
@@ -19,6 +21,10 @@ import {
 import type { ProvenanceReviewContext } from "@/components/provenance/provenance-page-workspace-types";
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
 import { cn } from "@/lib/utils";
+import {
+  parseProvenanceReviewIdentifierOpenFromSearch,
+  provenanceReviewIdentifierDisclosureHrefFromSearch,
+} from "@/lib/provenance/provenance-review-identifier-disclosure-url";
 
 export type ProvenancePageWorkspaceHeaderProps = {
   readonly dataOrigin: string;
@@ -43,6 +49,36 @@ export function ProvenancePageWorkspaceHeader({
   provenanceTraceId,
   evidenceGraphHref,
 }: ProvenancePageWorkspaceHeaderProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const provenanceReviewIdentifierOpenParam = searchParams.get("provenanceReviewIdentifierOpen");
+  const [reviewIdentifierOpen, setReviewIdentifierOpenState] = useState(() =>
+    parseProvenanceReviewIdentifierOpenFromSearch(provenanceReviewIdentifierOpenParam),
+  );
+
+  const syncReviewIdentifierOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        provenanceReviewIdentifierDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setReviewIdentifierOpen = useCallback(
+    (open: boolean) => {
+      setReviewIdentifierOpenState(open);
+      syncReviewIdentifierOpenToUrl(open);
+    },
+    [syncReviewIdentifierOpenToUrl],
+  );
+
+  useEffect(() => {
+    setReviewIdentifierOpenState(parseProvenanceReviewIdentifierOpenFromSearch(provenanceReviewIdentifierOpenParam));
+  }, [provenanceReviewIdentifierOpenParam]);
+
   return (
     <>
       {dataOrigin === "sample" ? <OperatorDemoStaticBanner emphasizeSampleData /> : null}
@@ -94,7 +130,13 @@ export function ProvenancePageWorkspaceHeader({
           {graph.edges.length} {PROVENANCE_SECTION_RELATIONSHIPS_LABEL.toLowerCase()},{" "}
           {graph.timeline.length} recorded events.
         </p>
-        <details className="rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-700">
+        <details
+          className="rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-700"
+          open={reviewIdentifierOpen}
+          onToggle={(event) => {
+            setReviewIdentifierOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
+        >
           <summary className={cn("cursor-pointer text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.micro)}>
             Review identifier
           </summary>
