@@ -16,8 +16,9 @@
 1. Build API (Release) + Next standalone (`NEXT_PUBLIC_ARCHLUCID_AUTH_MODE=jwt-bearer`)
 2. **Lockfile guard** → `npm ci` → query-core assert → **`npm run typecheck`** (fail fast before `build:live-e2e`)
 3. Mint RS256 JWT (`scripts/ci/mint_ci_jwt.py`) with Admin role + default tenant scope
-4. Shell warm (`scripts/ci/warm_private_beta_live_api_paths.sh`) — scope + invitations required; draft and create-run **best-effort** (Playwright JIT-warms create-run with 300s per-attempt HTTP budget)
-5. Playwright `--workers=1` on `live-api-private-beta-access.spec.ts` (browser install runs in parallel with shell warm)
+4. Shell warm (`scripts/ci/warm_private_beta_live_api_paths.sh`) — scope + invitations only when `LIVE_E2E_PRIVATE_BETA_ACCESS=1` (draft/create-run skipped; Playwright stubs draft and JIT-warms create-run)
+5. Post-warm `wait-for-api-ready.sh` (90×2s) — recovers transient **503** after warm without a single-shot `curl`
+6. Playwright `--workers=1` on `live-api-private-beta-access.spec.ts` (browser install completes **before** shell warm)
 
 ## Trunk milestones (2026-09-06)
 
@@ -38,6 +39,7 @@
 | `.NET: OpenAPI v1 contract snapshot (fail-fast)` red on push corset | API surface drift (e.g. IE-UX-01/02 infrastructure routes) without snapshot regen | `ARCHLUCID_REGENERATE_UI_API_TYPES=1 bash scripts/ci/update_openapi_contract_snapshot.sh` from repo root; commit `openapi-v1.contract.snapshot.json` + api-types |
 | `Install UI deps, verify lockfile, and typecheck` fails | TypeScript drift on trunk before heavy `build:live-e2e` | Fix `npm run typecheck` locally; private-beta now typechecks before Next standalone build |
 | `Install UI deps & build Next` fails (typecheck in `build:live-e2e`) | `architectureId` → `draftId` migration drift on trunk | **Shipped #1703** — align registry consumers and draft control props; re-run push |
+| `curl: (22) … error: 503` on `/health/ready` immediately before Playwright | 300s create-run shell warm blocked API; single-shot health `curl` | **Shipped** — skip draft/create-run shell warm in invite-wave CI; use `wait-for-api-ready.sh` with retries |
 | Playwright never starts | Shell warm `set -e` on required path | Check scope/invitations warm; API not ready |
 | `GET /api/proxy/v1/architecture/draft` 60s timeout | Draft list hit before route stub | Spec stubs `**/api/proxy/v1/architecture/draft**`; ensure stub runs before `page.goto` |
 | `POST /v1/architecture/request` 401 | JwtBearer / proxy token mismatch | `ARCHLUCID_PROXY_BEARER_TOKEN` must equal `LIVE_JWT_TOKEN` in workflow env |
@@ -56,6 +58,10 @@ On failure, download from the workflow run:
 ## Local reproduction (heavy)
 
 Requires SQL Server, API with JwtBearer PEM, and `archlucid-ui` live-e2e build. See `docs/library/LIVE_E2E_JWT_SETUP.md`.
+
+## Full-matrix dispatch (optional)
+
+The same spec also runs in `.github/workflows/ci.yml` job `ui-e2e-live-beta-access` on **`workflow_dispatch`** full CI. Use **Actions → CI → Run workflow** on `master` when you need the private-beta smoke inside the full regression matrix (not only trunk push).
 
 ```bash
 export LIVE_JWT_TOKEN="<minted>"

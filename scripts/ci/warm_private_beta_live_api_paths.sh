@@ -112,28 +112,10 @@ warm_path "auth scope" "${API_URL}/v1/scope"
 warm_path "pending invitations" "${API_URL}/v1/admin/users/invitations"
 
 if [ "${LIVE_E2E_PRIVATE_BETA_ACCESS:-}" = "1" ]; then
-  DRAFT_ATTEMPTS="${ARCHLUCID_PRIVATE_BETA_DRAFT_WARMUP_ATTEMPTS:-2}"
-  DRAFT_MAX_TIME="${ARCHLUCID_PRIVATE_BETA_DRAFT_WARMUP_MAX_TIME:-30}"
-  warm_path_optional \
-    "draft inventory" \
-    "${API_URL}/v1/architecture/draft?mine=true&page=1&pageSize=1" \
-    "${DRAFT_MAX_TIME}" \
-    "${DRAFT_ATTEMPTS}"
-
-  # Best-effort: a 15m blocking warm prevents Playwright from starting when cold SQL hangs.
-  # Playwright createRun still JIT-warms with a 300s per-attempt HTTP budget in CI.
-  CREATE_RUN_MAX_TIME="${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARMUP_MAX_TIME:-300}"
-  CREATE_RUN_ATTEMPTS="${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARMUP_ATTEMPTS:-1}"
-  CREATE_RUN_BODY="$(cat <<EOF
-{"requestId":"private-beta-shell-warm-$(date +%s)","description":"Private beta trunk smoke JIT warm for POST /v1/architecture/request","systemName":"PrivateBetaShellWarm","environment":"prod","cloudProvider":1,"constraints":[],"requiredCapabilities":["SQL"],"assumptions":[],"priorManifestVersion":null}
-EOF
-)"
-  warm_path_post_optional \
-    "create architecture run" \
-    "${API_URL}/v1/architecture/request" \
-    "${CREATE_RUN_BODY}" \
-    "${CREATE_RUN_MAX_TIME}" \
-    "${CREATE_RUN_ATTEMPTS}"
+  # Invite-wave CI: Playwright stubs draft inventory in-browser and JIT-warms create-run with a
+  # 300s per-attempt HTTP budget. Shell warm for those paths ties up the API for minutes and can
+  # leave /health/ready at 503 before Playwright starts (see run 34003221895).
+  echo "Skipping draft inventory and create-run shell warm (LIVE_E2E_PRIVATE_BETA_ACCESS=1); Playwright handles both."
 else
   warm_path "draft inventory" "${API_URL}/v1/architecture/draft?mine=true&page=1&pageSize=1"
 fi
