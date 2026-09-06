@@ -320,7 +320,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     layerBadge: "Advanced operations",
     headline: "Reconcile diagrams against inventory snapshots.",
     useWhen: "Upload or select a diagram, pick a snapshot, then review correspondence rows.",
-    firstPilotNote: "Shipped in IE-UX-03 — workbench wiring in progress.",
+    firstPilotNote: "Conflict rows show both diagram and inventory sides; create operational findings without leaving the page.",
     omitReviewPackageScopeHelp: true,
   },
   "infrastructure-resources": {
