@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 259
-- **bugs-found:** 1386
+- **hunts:** 260
+- **bugs-found:** 1398
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-06
-- **last-bug:** 2026-09-06 — RemediationAccessKey/RenderAccessKey/RenewalAccessKey redaction, wasn't adopt/deploy constraint negation, advice wasn't adopt prefix and wasn't use/have/adopt suffix
+- **last-bug:** 2026-09-06 — ReportAccessKey/RequestAccessKey/ResourceAccessKey redaction, wasn't require/need/configure/mandate constraint negation, advice wasn't enable/implement/deploy/require/configure suffix
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3463,6 +3463,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasn't use` suffix gap — **hit 2026-09-06 (#987):** no advice-side `wasn't` suffix negation; missed `encryption at rest wasn't use` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasnt_use_suffix_phrasing`).
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasn't have` suffix gap — **hit 2026-09-06 (#987):** no advice-side `wasn't` suffix negation; missed `encryption at rest wasn't have` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasnt_have_suffix_phrasing`).
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasn't adopt` suffix gap — **hit 2026-09-06 (#987):** no advice-side `wasn't` suffix negation; missed `encryption at rest wasn't adopt` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasnt_adopt_suffix_phrasing`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ReportAccessKey` not redacted — **hit 2026-09-06 (#988):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_report_access_key_config_path`, `IsSensitiveKey_detects_report_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `RequestAccessKey` not redacted — **hit 2026-09-06 (#988):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_request_access_key_config_path`, `IsSensitiveKey_detects_request_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ResourceAccessKey` not redacted — **hit 2026-09-06 (#988):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_resource_access_key_config_path`, `IsSensitiveKey_detects_resource_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — mid-sentence `wasn't require` gap — **hit 2026-09-06 (#988):** deploy-only `wasn't` guard; missed mid-sentence `wasn't require {token}`; fixed with mid-sentence guards (`HasEncryptionConstraint_does_not_false_positive_on_teams_wasnt_require_encryption_at_rest_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — mid-sentence `wasn't need` gap — **hit 2026-09-06 (#988):** deploy-only `wasn't` guard; missed mid-sentence `wasn't need {token}`; fixed with mid-sentence guards (`HasEncryptionConstraint_does_not_false_positive_on_teams_wasnt_need_encryption_at_rest_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — mid-sentence `wasn't configure` gap — **hit 2026-09-06 (#988):** deploy-only `wasn't` guard; missed mid-sentence `wasn't configure {token}`; fixed with mid-sentence guards (`HasEncryptionConstraint_does_not_false_positive_on_teams_wasnt_configure_encryption_at_rest_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — mid-sentence `wasn't mandate` gap — **hit 2026-09-06 (#988):** deploy-only `wasn't` guard; missed mid-sentence `wasn't mandate {token}`; fixed with mid-sentence guards (`HasEncryptionConstraint_does_not_false_positive_on_teams_wasnt_mandate_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasn't enable` suffix gap — **hit 2026-09-06 (#988):** use/have/adopt-only advice `wasn't` suffix guard; missed `encryption at rest wasn't enable` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasnt_enable_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasn't implement` suffix gap — **hit 2026-09-06 (#988):** use/have/adopt-only advice `wasn't` suffix guard; missed `encryption at rest wasn't implement` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasnt_implement_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasn't deploy` suffix gap — **hit 2026-09-06 (#988):** use/have/adopt-only advice `wasn't` suffix guard; missed `encryption at rest wasn't deploy` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasnt_deploy_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasn't require` suffix gap — **hit 2026-09-06 (#988):** no advice-side `wasn't require` suffix negation; missed `encryption at rest wasn't require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasnt_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasn't configure` suffix gap — **hit 2026-09-06 (#988):** no advice-side `wasn't configure` suffix negation; missed `encryption at rest wasn't configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasnt_configure_suffix_phrasing`).
+
+2026-09-06 seed hunt #988 (hit): reseeded after #987 closure; proved twelve hunt-ready rows — ReportAccessKey/RequestAccessKey/ResourceAccessKey redaction parity, wasn't require/need/configure/mandate constraint negation, and advice wasn't enable/implement/deploy/require/configure suffix.
 
 2026-09-06 seed hunt #987 (hit): reseeded after #986 closure; proved twelve hunt-ready rows — RemediationAccessKey/RenderAccessKey/RenewalAccessKey redaction parity, wasn't adopt/deploy constraint negation, and advice wasn't adopt prefix plus wasn't use/have/adopt suffix.
 
