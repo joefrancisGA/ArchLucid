@@ -102,6 +102,7 @@ jobs:
           python3 scripts/ci/check_manifest_summary_manifest_version_access.py
           python3 scripts/ci/check_status_tag_kind_warning.py
           python3 scripts/ci/check_npm_overrides_lockfile_sync.py
+          python3 scripts/ci/check_live_e2e_simulator_azure_openai_env.py
 
       - name: Beta-readiness guard unit tests
         run: |
@@ -118,6 +119,7 @@ jobs:
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_manifest_summary_manifest_version_access.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_status_tag_kind_warning.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_npm_overrides_lockfile_sync.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_check_live_e2e_simulator_azure_openai_env.py"
 
   ui-typecheck:
     name: "Operator UI: typecheck (blocking)"
