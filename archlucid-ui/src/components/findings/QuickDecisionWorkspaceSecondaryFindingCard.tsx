@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { FindingListDispositionRowActions } from "@/components/governance/findings/FindingListDispositionRowActions";
+import { FindingDispositionRecordCorrectionControl } from "@/components/governance/findings/FindingDispositionRecordCorrectionControl";
 import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { QuickDecisionFindingRationale } from "@/components/findings/QuickDecisionFindingRationale";
 import { FindingInsightDensityBand } from "@/components/findings/FindingInsightDensityBand";
@@ -13,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { FINDINGS_ROW_METADATA_TAG_SIZE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { quickDecisionFindingHasRecordedDisposition } from "@/lib/findings/finding-recorded-disposition";
 import { getFindingDetailHref, getFindingGovernanceDispositionHref } from "@/lib/findings/finding-evidence-navigation";
 import { quickDecisionRecommendationSnippet } from "@/lib/quick-decision-finding-links";
 import {
@@ -107,6 +109,14 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
           </div>
           {architectWorkspaceChrome ? (
             <FindingListDispositionRowActions findingId={finding.findingId} compact />
+          ) : null}
+          {architectWorkspaceChrome && quickDecisionFindingHasRecordedDisposition(finding) ? (
+            <FindingDispositionRecordCorrectionControl
+              findingId={finding.findingId}
+              runId={runId}
+              hasRecordedDisposition={true}
+              testId={`finding-workspace-record-correction-${finding.findingId}`}
+            />
           ) : null}
           <QuickDecisionWorkspaceFindingSupportingDetails context={props.context} finding={finding} />
         </div>
