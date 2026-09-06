@@ -1,6 +1,9 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import {
+  expectFollowUpLink,
+  whereToGoNextFollowUpLinksForTests,
+} from "@/lib/claim-discipline-test-helpers";
 
 import { ServiceNowIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
@@ -23,7 +26,7 @@ describe("servicenow-integration-evidence-copy", () => {
 
     const sources = screen.getByTestId("servicenow-integration-sources");
 
-    for (const link of SERVICENOW_INTEGRATION_SOURCES) {
+    for (const link of whereToGoNextFollowUpLinksForTests(SERVICENOW_INTEGRATION_SOURCES)) {
       expectFollowUpLink(within(sources), link);
     }
 
