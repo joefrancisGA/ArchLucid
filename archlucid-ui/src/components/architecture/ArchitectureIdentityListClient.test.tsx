@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 const useArchitectureIdentitiesListQueryMock = vi.fn();
@@ -31,6 +31,7 @@ describe("ArchitectureIdentityListClient (DA-04 Working list)", () => {
         page: 1,
         pageSize: 50,
         hasMore: false,
+        archivedHiddenCount: 0,
       },
     });
 
@@ -64,6 +65,7 @@ describe("ArchitectureIdentityListClient (DA-04 Working list)", () => {
         page: 1,
         pageSize: 50,
         hasMore: false,
+        archivedHiddenCount: 0,
       },
     });
 
@@ -91,6 +93,7 @@ describe("ArchitectureIdentityListClient (DA-04 Working list)", () => {
         page: 1,
         pageSize: 50,
         hasMore: false,
+        archivedHiddenCount: 0,
       },
     });
 
@@ -109,6 +112,7 @@ describe("ArchitectureIdentityListClient (DA-04 Working list)", () => {
         page: 1,
         pageSize: 50,
         hasMore: false,
+        archivedHiddenCount: 0,
       },
     });
 
@@ -119,5 +123,41 @@ describe("ArchitectureIdentityListClient (DA-04 Working list)", () => {
     expect(createLink).toHaveAttribute("href", "/architecture/architectures/new");
     expect(screen.queryByRole("link", { name: /sample/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /claims intake/i })).not.toBeInTheDocument();
+  });
+
+  it("CA-49: surfaces archived-hidden honesty and toggles includeArchived query", () => {
+    useArchitectureIdentitiesListQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: {
+        items: [
+          {
+            architectureId: "architecture-identity-active",
+            displayName: "Active platform",
+            updatedUtc: "2026-01-02T00:00:00Z",
+            currentDraftId: null,
+            latestReviewId: null,
+            latestSealedManifestId: null,
+            draftCount: 0,
+            reviewCount: 0,
+          },
+        ],
+        totalCount: 1,
+        page: 1,
+        pageSize: 50,
+        hasMore: false,
+        archivedHiddenCount: 2,
+      },
+    });
+
+    render(<ArchitectureIdentityListClient />);
+
+    expect(screen.getByTestId("architecture-identity-list-hidden-archived-band")).toHaveTextContent(
+      "2 architectures hidden by archived filter",
+    );
+
+    fireEvent.click(screen.getByTestId("inventory-hidden-filter-show-all"));
+
+    expect(useArchitectureIdentitiesListQueryMock).toHaveBeenLastCalledWith(1, undefined, { includeArchived: true });
   });
 });

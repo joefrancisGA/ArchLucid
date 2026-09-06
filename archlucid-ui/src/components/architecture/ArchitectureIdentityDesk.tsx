@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { useArchitectureIdentityQuery } from "@/hooks/use-architecture-identity-query";
 import { useRehydrateInFlightOperationsFromArchitecture } from "@/hooks/use-rehydrate-in-flight-from-architecture";
+import { ArchitectureIdentityArchiveControl } from "@/components/architecture/ArchitectureIdentityArchiveControl";
 import { ArchitectureIdentityDeskCompareAction } from "@/components/architecture/ArchitectureIdentityDeskCompareAction";
 import { ArchitectureIdentityDeskCurrentDraft } from "@/components/architecture/ArchitectureIdentityDeskCurrentDraft";
 import { ArchitectureIdentityDeskReviewsTable } from "@/components/architecture/ArchitectureIdentityDeskReviewsTable";
@@ -80,6 +81,12 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
         >
           {ARCHITECTURE_IDENTITY_DESK_HONESTY_LINE}
         </p>
+        <ArchitectureIdentityArchiveControl
+          architectureId={identity.architectureId}
+          displayName={identity.displayName}
+          archivedUtc={identity.archivedUtc}
+          redirectAfterArchive
+        />
       </header>
 
       <ArchitectureIdentityRenameForm

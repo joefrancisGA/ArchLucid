@@ -48418,6 +48418,7 @@ export interface paths {
                 query?: {
                     page?: number;
                     pageSize?: number;
+                    includeArchived?: boolean;
                 };
                 header?: never;
                 path?: never;
@@ -48431,9 +48432,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["PagedResponseOfArchitectureIdentityListItem"];
-                        "text/json": components["schemas"]["PagedResponseOfArchitectureIdentityListItem"];
-                        "text/plain": components["schemas"]["PagedResponseOfArchitectureIdentityListItem"];
+                        "application/json": components["schemas"]["ArchitectureIdentityListPage"];
+                        "text/json": components["schemas"]["ArchitectureIdentityListPage"];
+                        "text/plain": components["schemas"]["ArchitectureIdentityListPage"];
                     };
                 };
                 /** @description Bad Request (validation or malformed input). */

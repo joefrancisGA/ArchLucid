@@ -33,6 +33,7 @@ import {
   filterRecurrenceSchedulesForReviewScope,
   resolveRecurrenceArchitectureIdForReview,
 } from "@/lib/governance/recurrence-schedule-architecture-scope";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 
 import type { RecurrenceScheduleRowEditorState } from "./RecurrenceSchedulesTable";
 

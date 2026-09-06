@@ -2435,6 +2435,1902 @@ public sealed class RequestConstraintClassifierTests
     }
 
     [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_ought_not_have_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["ought not have encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_ought_not_implement_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["ought not implement encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_ought_not_enable_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["ought not enable encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_ought_not_deploy_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["ought not deploy encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_does_not_have_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["does not have encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_does_not_implement_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["does not implement encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_does_not_enable_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["does not enable encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_does_not_deploy_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["does not deploy encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_shouldnt_curly_apostrophe_have_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["shouldn\u2019t have encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_wont_curly_apostrophe_enable_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["won\u2019t enable encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_doesnt_curly_apostrophe_implement_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["doesn\u2019t implement encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_does_not_adopt_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["does not adopt encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_wont_curly_apostrophe_have_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["won\u2019t have encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_cant_have_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["can't have encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_cant_use_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["can't use encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_cant_adopt_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["can't adopt encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_cant_deploy_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["can't deploy encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_mustnt_have_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["mustn't have encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_mustnt_use_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["mustn't use encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_mustnt_adopt_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["mustn't adopt encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_mustnt_deploy_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["mustn't deploy encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_cant_enable_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads can't enable encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_cant_implement_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads can't implement encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_mustnt_enable_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads mustn't enable encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_mustnt_implement_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads mustn't implement encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_neednt_have_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["needn't have encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_neednt_use_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["needn't use encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_neednt_adopt_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["needn't adopt encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_neednt_deploy_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["needn't deploy encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_couldnt_have_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["couldn't have encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_couldnt_use_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["couldn't use encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_couldnt_adopt_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["couldn't adopt encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_couldnt_deploy_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["couldn't deploy encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_couldnt_enable_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads couldn't enable encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_couldnt_implement_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads couldn't implement encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_neednt_enable_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads needn't enable encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_neednt_implement_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads needn't implement encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_mightnt_have_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["mightn't have encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_mightnt_use_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["mightn't use encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_mightnt_adopt_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["mightn't adopt encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_mightnt_deploy_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["mightn't deploy encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_shant_have_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["shan't have encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_shant_use_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["shan't use encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_shant_adopt_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["shan't adopt encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_shant_deploy_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["shan't deploy encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_mightnt_enable_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads mightn't enable encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_mightnt_implement_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads mightn't implement encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_shant_enable_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads shan't enable encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_shant_implement_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads shan't implement encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_aint_have_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["ain't have encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_aint_use_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["ain't use encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_aint_adopt_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["ain't adopt encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_aint_deploy_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["ain't deploy encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_darent_have_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["daren't have encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_darent_use_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["daren't use encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_aint_enable_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads ain't enable encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_aint_implement_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads ain't implement encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_darent_enable_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams daren't enable encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_darent_implement_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams daren't implement encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_darent_enable_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads daren't enable encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_darent_implement_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads daren't implement encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_maynt_have_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["mayn't have encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_maynt_use_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["mayn't use encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_maynt_enable_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mayn't enable encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_maynt_implement_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mayn't implement encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_maynt_adopt_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mayn't adopt encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_maynt_deploy_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mayn't deploy encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_maynt_adopt_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads mayn't adopt encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_maynt_deploy_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads mayn't deploy encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_oughtnt_have_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["oughtn't have encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_oughtnt_use_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["oughtn't use encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_oughtnt_enable_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams oughtn't enable encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_oughtnt_implement_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams oughtn't implement encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_oughtnt_adopt_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams oughtn't adopt encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_oughtnt_deploy_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams oughtn't deploy encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_oughtnt_adopt_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads oughtn't adopt encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_oughtnt_deploy_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads oughtn't deploy encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_didnt_have_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["didn't have encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_didnt_use_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["didn't use encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_didnt_enable_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams didn't enable encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_didnt_implement_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams didn't implement encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_didnt_adopt_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams didn't adopt encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_didnt_adopt_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads didn't adopt encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_didnt_deploy_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams didn't deploy encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_didnt_deploy_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads didn't deploy encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_didnt_require_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams didn't require encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_didnt_need_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams didn't need encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_didnt_configure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams didn't configure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_didnt_mandate_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams didn't mandate encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_didnt_apply_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams didn't apply encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_didnt_enforce_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams didn't enforce encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_didnt_maintain_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams didn't maintain encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_didnt_ensure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams didn't ensure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_didnt_provision_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams didn't provision encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_wasnt_have_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["wasn't have encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_wasnt_use_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["wasn't use encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_wasnt_enable_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams wasn't enable encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_wasnt_implement_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams wasn't implement encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_wasnt_adopt_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams wasn't adopt encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_wasnt_adopt_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads wasn't adopt encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_wasnt_deploy_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams wasn't deploy encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_wasnt_deploy_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads wasn't deploy encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_wasnt_require_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams wasn't require encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_wasnt_need_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams wasn't need encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_wasnt_configure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams wasn't configure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_wasnt_mandate_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams wasn't mandate encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_wasnt_apply_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams wasn't apply encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_wasnt_enforce_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams wasn't enforce encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_wasnt_maintain_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams wasn't maintain encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_wasnt_ensure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams wasn't ensure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_wasnt_provision_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams wasn't provision encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_cant_require_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams can't require encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_cant_need_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams can't need encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_cant_configure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams can't configure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_cant_mandate_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams can't mandate encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_cant_apply_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams can't apply encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_cant_enforce_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams can't enforce encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_cant_maintain_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams can't maintain encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_cant_ensure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams can't ensure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_cant_provision_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams can't provision encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_aint_require_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams ain't require encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_aint_need_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams ain't need encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_aint_configure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams ain't configure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_aint_mandate_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams ain't mandate encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_aint_apply_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams ain't apply encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_aint_enforce_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams ain't enforce encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_aint_maintain_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams ain't maintain encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_aint_ensure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams ain't ensure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_aint_provision_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams ain't provision encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_darent_require_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams daren't require encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_darent_need_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams daren't need encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_darent_configure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams daren't configure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_darent_mandate_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams daren't mandate encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_darent_apply_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams daren't apply encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_darent_enforce_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams daren't enforce encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_darent_maintain_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams daren't maintain encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_darent_ensure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams daren't ensure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_darent_provision_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams daren't provision encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_maynt_require_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mayn't require encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_maynt_need_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mayn't need encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_maynt_configure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mayn't configure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_maynt_mandate_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mayn't mandate encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_maynt_apply_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mayn't apply encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_maynt_enforce_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mayn't enforce encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_maynt_maintain_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mayn't maintain encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_maynt_ensure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mayn't ensure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_maynt_provision_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mayn't provision encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_oughtnt_require_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams oughtn't require encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_oughtnt_need_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams oughtn't need encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_oughtnt_configure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams oughtn't configure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_oughtnt_mandate_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams oughtn't mandate encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_oughtnt_apply_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams oughtn't apply encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_oughtnt_enforce_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams oughtn't enforce encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_oughtnt_maintain_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams oughtn't maintain encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_oughtnt_ensure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams oughtn't ensure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_oughtnt_provision_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams oughtn't provision encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_mustnt_require_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mustn't require encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_mustnt_need_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mustn't need encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_mustnt_configure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mustn't configure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_mustnt_mandate_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mustn't mandate encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_mustnt_apply_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mustn't apply encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_mustnt_enforce_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mustn't enforce encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_mustnt_maintain_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mustn't maintain encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_mustnt_ensure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mustn't ensure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_mustnt_provision_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mustn't provision encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_shant_require_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams shan't require encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_shant_need_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams shan't need encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_shant_configure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams shan't configure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_shant_mandate_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams shan't mandate encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_shant_apply_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams shan't apply encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_shant_enforce_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams shan't enforce encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_shant_maintain_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams shan't maintain encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_shant_ensure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams shan't ensure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_shant_provision_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams shan't provision encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_neednt_require_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams needn't require encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_neednt_need_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams needn't need encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_neednt_configure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams needn't configure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_neednt_mandate_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams needn't mandate encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_neednt_apply_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams needn't apply encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_neednt_enforce_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams needn't enforce encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_neednt_maintain_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams needn't maintain encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_neednt_ensure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams needn't ensure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_neednt_provision_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams needn't provision encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_mightnt_require_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mightn't require encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_mightnt_need_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mightn't need encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_mightnt_configure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mightn't configure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_mightnt_mandate_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mightn't mandate encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_mightnt_apply_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mightn't apply encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_mightnt_enforce_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mightn't enforce encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_mightnt_maintain_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mightn't maintain encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_mightnt_ensure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mightn't ensure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_mightnt_provision_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams mightn't provision encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_couldnt_require_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams couldn't require encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_couldnt_need_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams couldn't need encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_couldnt_configure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams couldn't configure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_couldnt_mandate_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams couldn't mandate encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_couldnt_apply_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams couldn't apply encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_couldnt_enforce_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams couldn't enforce encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_couldnt_maintain_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams couldn't maintain encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_couldnt_ensure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams couldn't ensure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_couldnt_provision_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams couldn't provision encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_can_not_require_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams can not require encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_can_not_need_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams can not need encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_can_not_configure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams can not configure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_can_not_mandate_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams can not mandate encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_can_not_apply_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams can not apply encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_can_not_enforce_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams can not enforce encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_can_not_maintain_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams can not maintain encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_can_not_ensure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams can not ensure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_can_not_provision_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams can not provision encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_can_not_enable_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams can not enable encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_can_not_implement_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams can not implement encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_can_not_deploy_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams can not deploy encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_can_not_adopt_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams can not adopt encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_can_not_use_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams can not use encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_could_not_enable_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams could not enable encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_could_not_implement_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams could not implement encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_could_not_deploy_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams could not deploy encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_could_not_adopt_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams could not adopt encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_could_not_require_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams could not require encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_could_not_need_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams could not need encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_could_not_configure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams could not configure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_could_not_mandate_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams could not mandate encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_could_not_apply_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams could not apply encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_could_not_enforce_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams could not enforce encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_could_not_maintain_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams could not maintain encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_could_not_ensure_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams could not ensure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_could_not_provision_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams could not provision encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_dont_enable_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams don't enable encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_dont_implement_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams don't implement encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_dont_deploy_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams don't deploy encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_dont_adopt_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams don't adopt encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_dont_use_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams don't use encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_could_not_use_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams could not use encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_can_not_have_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams can not have encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_dont_require_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams don't require encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_dont_need_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams don't need encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
     public void RequiresAiCapability_does_not_false_positive_on_no_ai_capability_phrasing()
     {
         ArchitectureRequest request = CreateRequest(capabilities: ["no-ai inference"]);
