@@ -4518,6 +4518,7 @@ export interface components {
             schemaVersion?: number;
             /** Format: double */
             totalEstimatedSavings?: number | string;
+            withheldFindings?: components["schemas"]["WithheldFindingSummary"][];
         };
         /** @enum {string} */
         FindingsSnapshotGenerationStatus: "Generating" | "Complete" | "PartiallyComplete" | "Failed";
@@ -11057,6 +11058,15 @@ export interface components {
             generatedUtc?: string;
             /** Format: int64 */
             runsCreatedTotal?: number;
+        };
+        WithheldFindingSummary: {
+            conflictFindingId?: null | string;
+            originAgentType?: null | string;
+            originEngineType?: string;
+            reason?: string;
+            title?: string;
+            traceTargetId?: null | string;
+            withheldFindingId?: string;
         };
         WizardIntakeDraftResponse: {
             stateJson?: string;
