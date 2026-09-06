@@ -39,15 +39,16 @@ describe("buildProxyUpstreamHeaders BFF session (LK-05 P1 / LK-06 P2)", () => {
   });
 
   it("prefers the HttpOnly BFF session cookie over browser Authorization (LK-06 P2)", () => {
-    const cookieValue = createBffSessionCookieValue({
+    const issueResult = createBffSessionCookieValue({
       accessToken: "cookie-token",
       expiresAtMs: Date.now() + 3_600_000,
+      workingMode: true,
     });
 
     const headers = buildProxyUpstreamHeaders(
       mockNextRequest({
         authorization: "Bearer header-token",
-        bffSessionCookie: cookieValue,
+        bffSessionCookie: issueResult?.sessionCookieValue ?? null,
       }),
       "v1/authority/reviews/run-1",
     );
@@ -56,13 +57,14 @@ describe("buildProxyUpstreamHeaders BFF session (LK-05 P1 / LK-06 P2)", () => {
   });
 
   it("forwards upstream Bearer from the HttpOnly BFF session cookie when Authorization is absent", () => {
-    const cookieValue = createBffSessionCookieValue({
+    const issueResult = createBffSessionCookieValue({
       accessToken: "cookie-token",
       expiresAtMs: Date.now() + 3_600_000,
+      workingMode: true,
     });
 
     const headers = buildProxyUpstreamHeaders(
-      mockNextRequest({ bffSessionCookie: cookieValue }),
+      mockNextRequest({ bffSessionCookie: issueResult?.sessionCookieValue ?? null }),
       "v1/authority/reviews/run-1",
     );
 

@@ -5,6 +5,7 @@ import { getServerApiBaseUrl } from "@/lib/config";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 import { getScopeHeaders } from "@/lib/scope";
 import { SERVER_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
+import { applyBffCsrfHeader } from "@/lib/proxy/bff-session-csrf-client";
 
 import {
   audienceHeadersForCurrentShell,
@@ -116,11 +117,20 @@ export function serverFetchInit(
   headers: Headers,
   init?: { readonly method?: string; readonly body?: string; readonly signal?: AbortSignal },
 ): RequestInit {
+  const method = init?.method?.toUpperCase() ?? "GET";
   const requestInit: RequestInit = {
     cache: "no-store",
     headers,
     ...init,
   };
+
+  if (isBrowser()) {
+    requestInit.credentials = "same-origin";
+
+    if (method !== "GET" && method !== "HEAD") {
+      applyBffCsrfHeader(headers);
+    }
+  }
 
   if (init?.signal !== undefined) {
     requestInit.signal = init.signal;

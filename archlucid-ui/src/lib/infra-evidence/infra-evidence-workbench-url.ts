@@ -114,7 +114,7 @@ export function buildResourceScopedWorkbenchHref(
     case "findings":
       return buildResourceHubWorkbenchHref({ cloudResourceId, tab: "findings", snapshotId });
     case "remediation":
-      return buildRemediationWorkbenchHref({ cloudResourceId });
+      return buildRemediationWorkbenchHref({ cloudResourceId, snapshotId });
     case "drift":
       return buildDriftWorkbenchHref({ cloudResourceId, snapshotId });
     default:

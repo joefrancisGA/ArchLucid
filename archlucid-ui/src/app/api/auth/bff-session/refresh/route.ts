@@ -3,8 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getOidcAuthority, getOidcClientId } from "@/lib/oidc/config";
 import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
 import { refreshAccessToken } from "@/lib/oidc/token-client";
+import { BFF_CSRF_HEADER } from "@/lib/proxy/bff-session-constants";
 import {
-  buildBffSessionSetCookieHeader,
+  buildBffSessionCookieHeaders,
   createBffSessionCookieValue,
   isBffSessionCookieEnabled,
   parseBffSessionPayloadFromRequest,
@@ -68,6 +69,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ title: "No refreshable BFF session" }, { status: 401 });
   }
 
+  const csrfHeader = request.headers.get(BFF_CSRF_HEADER)?.trim() ?? "";
+
+  if (csrfHeader.length === 0 || csrfHeader !== payload.csrf) {
+    return NextResponse.json({ title: "CSRF validation failed" }, { status: 403 });
+  }
+
   if (authority.length === 0 || clientId.length === 0) {
     return NextResponse.json({ title: "OIDC is not configured on this host" }, { status: 503 });
   }
@@ -80,21 +87,25 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       refreshToken,
     });
     const expiresAtMs = resolveExpiresAtMs(tokens.expires_in);
-    const cookieValue = createBffSessionCookieValue({
+    const issueResult = createBffSessionCookieValue({
       accessToken: tokens.access_token,
       expiresAtMs,
+      lastActivityAtMs: Date.now(),
+      csrfToken: payload.csrf,
+      workingMode: payload.wm === 1,
       refreshToken: tokens.refresh_token ?? refreshToken,
       idToken: tokens.id_token ?? payload.it ?? null,
     });
 
-    if (cookieValue === null) {
+    if (issueResult === null) {
       return NextResponse.json({ title: "Failed to refresh BFF session cookie" }, { status: 500 });
     }
 
-    const maxAgeSeconds = Math.max(0, Math.trunc((expiresAtMs - Date.now()) / 1000));
     const response = NextResponse.json({ ok: true, expires_at_ms: expiresAtMs });
 
-    response.headers.append("Set-Cookie", buildBffSessionSetCookieHeader(cookieValue, maxAgeSeconds));
+    for (const cookieHeader of buildBffSessionCookieHeaders(issueResult, expiresAtMs)) {
+      response.headers.append("Set-Cookie", cookieHeader);
+    }
 
     return response;
   } catch (error: unknown) {

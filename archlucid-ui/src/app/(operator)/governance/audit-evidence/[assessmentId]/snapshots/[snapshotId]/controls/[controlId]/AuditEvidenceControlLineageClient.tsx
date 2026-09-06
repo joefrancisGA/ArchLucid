@@ -111,7 +111,15 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
             <p className={OPERATOR_TYPOGRAPHY.helper}>{checkboxPresentation!.detail}</p>
           </section>
 
-          <AuditEvidenceLineageSpine lineage={lineage} expanded={chainExpanded || !lineage.readyForPositiveCheckbox} />
+          <AuditEvidenceLineageSpine
+            lineage={lineage}
+            expanded={chainExpanded || !lineage.readyForPositiveCheckbox}
+            lineageContext={{
+              assessmentId: props.assessmentId,
+              auditEvidenceSnapshotId: props.snapshotId,
+              controlId: props.controlId,
+            }}
+          />
         </>
       ) : null}
     </div>

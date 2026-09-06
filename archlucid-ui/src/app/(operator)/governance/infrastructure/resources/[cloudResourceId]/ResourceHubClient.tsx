@@ -149,6 +149,24 @@ function buildHubAuditLineageAskHref(
   });
 }
 
+function buildHubAuditLineageTabHref(
+  cloudResourceId: string,
+  snapshotId: string,
+  context: {
+    readonly assessmentId: string;
+    readonly auditEvidenceSnapshotId: string;
+    readonly controlId: string;
+  },
+): string {
+  return resourceHubFilterHrefFromSearch(cloudResourceId, "", {
+    tab: "audit",
+    snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+    assessmentId: context.assessmentId,
+    auditEvidenceSnapshotId: context.auditEvidenceSnapshotId,
+    controlId: context.controlId,
+  });
+}
+
 function buildHubDiagramCorrespondenceAskHref(
   cloudResourceId: string,
   snapshotId: string,
@@ -435,6 +453,19 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     Open terraform mapping
                   </Link>
                 </Button>
+                {resolvedAuditLineage != null ? (
+                  <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-audit-work">
+                    <Link
+                      href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, {
+                        assessmentId: resolvedAuditLineage.assessmentId,
+                        auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
+                        controlId: resolvedAuditLineage.controlId,
+                      })}
+                    >
+                      Open audit lineage
+                    </Link>
+                  </Button>
+                ) : null}
               </div>
             </section>
 
@@ -711,6 +742,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                                     href={buildRemediationWorkbenchHref({
                                       cloudResourceId,
                                       findingId: item.id,
+                                      snapshotId: resolvedSnapshotId,
                                     })}
                                     data-testid={`infra-resource-hub-finding-factory-${item.id}`}
                                   >
@@ -759,7 +791,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           <EnterpriseTabsContent value="remediation" className="mt-4 space-y-3">
             <div className="flex flex-wrap gap-2">
               <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-remediation-factory">
-                <Link href={buildRemediationWorkbenchHref({ cloudResourceId })}>Open remediation factory</Link>
+                <Link href={buildRemediationWorkbenchHref({ cloudResourceId, snapshotId: resolvedSnapshotId })}>
+                  Open remediation factory
+                </Link>
               </Button>
               <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-remediation-open-findings-tab">
                 <Link
@@ -796,6 +830,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                               href={buildRemediationWorkbenchHref({
                                 cloudResourceId,
                                 instanceId: item.instanceId,
+                                snapshotId: resolvedSnapshotId,
                               })}
                               data-testid={`infra-resource-hub-remediation-factory-${item.instanceId}`}
                             >
