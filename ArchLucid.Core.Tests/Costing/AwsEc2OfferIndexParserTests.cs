@@ -119,7 +119,7 @@ public sealed class AwsEc2OfferIndexParserTests
     }
 
     [Fact]
-    public void TryGetLinuxOnDemandHourlyUsd_parses_string_encoded_boolean_usd_price()
+    public void TryGetLinuxOnDemandHourlyUsd_rejects_string_encoded_boolean_usd_price()
     {
         const string sample = """
             {
@@ -152,7 +152,7 @@ public sealed class AwsEc2OfferIndexParserTests
 
         decimal? hourly = AwsEc2OfferIndexParser.TryGetLinuxOnDemandHourlyUsd(sample, "t3.micro");
 
-        hourly.Should().Be(1m);
+        hourly.Should().BeNull();
     }
 
     [Fact]
@@ -304,7 +304,7 @@ public sealed class AwsEc2OfferIndexParserTests
     }
 
     [Fact]
-    public void TryGetLinuxOnDemandHourlyUsd_parses_string_encoded_on_synonym_hourly_unit()
+    public void TryGetLinuxOnDemandHourlyUsd_rejects_string_encoded_on_synonym_hourly_unit()
     {
         const string sample = """
             {
@@ -337,7 +337,7 @@ public sealed class AwsEc2OfferIndexParserTests
 
         decimal? hourly = AwsEc2OfferIndexParser.TryGetLinuxOnDemandHourlyUsd(sample, "t3.micro");
 
-        hourly.Should().Be(0.0104m);
+        hourly.Should().BeNull();
     }
 
     [Fact]
