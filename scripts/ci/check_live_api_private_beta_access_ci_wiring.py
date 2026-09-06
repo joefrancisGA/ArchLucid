@@ -26,6 +26,8 @@ _TRIAGE_SCRIPT = "report_private_beta_playwright_failure_triage.py"
 _PUSH_TRIAGE_ARTIFACT = "ui-e2e-live-beta-access-on-push-failure-triage"
 _CI_TRIAGE_ARTIFACT = "ui-e2e-live-beta-access-failure-triage"
 _RETRIGGER_SCRIPT = "scripts/ci/retrigger_private_beta_access_on_push.sh"
+_DISPATCH_FULL_CI_SCRIPT = "scripts/ci/dispatch_full_ci_matrix.sh"
+_LOADER_SMOKE_REL = "archlucid-ui/e2e/live-api-private-beta-access.loader-smoke.test.ts"
 _SANDBOX_MOCKS_REL = "archlucid-ui/src/lib/sandbox-api-mocks.ts"
 _SANDBOX_JSON_IMPORT_ATTR = 'with { type: "json" }'
 
@@ -322,6 +324,21 @@ def main(argv: list[str] | None = None) -> int:
         errors.append(f"missing private-beta retrigger helper: {_RETRIGGER_SCRIPT}")
     elif not retrigger_path.stat().st_mode & 0o111:
         errors.append(f"{_RETRIGGER_SCRIPT}: must be executable")
+
+    dispatch_path = root / _DISPATCH_FULL_CI_SCRIPT
+
+    if not dispatch_path.is_file():
+        errors.append(f"missing full CI dispatch helper: {_DISPATCH_FULL_CI_SCRIPT}")
+    elif not dispatch_path.stat().st_mode & 0o111:
+        errors.append(f"{_DISPATCH_FULL_CI_SCRIPT}: must be executable")
+
+    loader_smoke_path = root / _LOADER_SMOKE_REL
+
+    if not loader_smoke_path.is_file():
+        errors.append(
+            f"missing private-beta Playwright loader smoke test: {_LOADER_SMOKE_REL} "
+            "(Vitest must catch ESM/JSON import failures before Playwright reports 'No tests found')",
+        )
 
     _require_sandbox_mock_json_import_attribute(errors)
 

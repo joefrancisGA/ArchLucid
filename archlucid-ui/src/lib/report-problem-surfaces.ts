@@ -118,6 +118,20 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
     componentPath: "components/operator/OperatorAccessDeniedPageClient.tsx",
     description: "JwtBearer principal authenticated but lacks a recognized app role or scope mapping (403 access denied).",
   },
+  {
+    id: "auth-signin-cannot-proceed",
+    kind: "auth-session-break",
+    routePattern: "/auth/signin",
+    componentPath: "app/(operator)/auth/signin/SignInFlowPanelShell.tsx",
+    description: "Sign-in fatal error when OIDC/JwtBearer cannot start or no sign-in methods are configured (invite-wave recovery).",
+  },
+  {
+    id: "auth-invitation-accept-validation-failure",
+    kind: "auth-session-break",
+    routePattern: "/auth/invite",
+    componentPath: "app/(operator)/auth/invite/InvitationAcceptPageClient.tsx",
+    description: "Invitation accept validation failed, token missing, or invite expired — invite-wave recovery surface.",
+  },
 ] as const;
 
 /** Static App Router siblings that must not satisfy `[reviewId]`-style dynamic segments. */

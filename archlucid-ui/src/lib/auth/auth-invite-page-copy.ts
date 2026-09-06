@@ -18,3 +18,6 @@ export const AUTH_INVITE_BREADCRUMB_HUB_LABEL = "Welcome" as const;
 export const AUTH_INVITE_BREADCRUMB_HUB_PATH = "/welcome" as const;
 
 export const AUTH_INVITE_BREADCRUMB_TOPIC_TITLE = AUTH_INVITE_PAGE_TITLE;
+
+/** Report Problem title when invitation validation cannot complete on `/auth/invite`. */
+export const AUTH_INVITE_VALIDATION_FAILURE_TITLE = "Invitation could not be validated";

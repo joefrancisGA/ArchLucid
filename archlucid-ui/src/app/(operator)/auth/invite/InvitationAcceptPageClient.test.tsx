@@ -14,9 +14,16 @@ const validateInvitationToken = vi.fn();
 const storeInvitationToken = vi.fn();
 const clearInvitationToken = vi.fn();
 
-vi.mock("next/navigation", () => ({
-  useSearchParams: vi.fn(),
-}));
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    useSearchParams: vi.fn(),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
+    usePathname: () => "/auth/invite",
+  };
+});
 
 vi.mock("@/lib/auth/invitation-validation-api", () => ({
   validateInvitationToken: (...args: unknown[]) => validateInvitationToken(...args),
@@ -62,6 +69,7 @@ describe("InvitationAcceptPageClient (TB-1474)", () => {
     });
 
     expectRecoveryControls();
+    expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
     expect(storeInvitationToken).not.toHaveBeenCalled();
     expect(clearInvitationToken).toHaveBeenCalled();
     expect(screen.getByTestId("invitation-recovery-sign-in")).toHaveAttribute("href", "/auth/signin");
@@ -141,6 +149,7 @@ describe("InvitationAcceptPageClient (TB-1474)", () => {
     });
 
     expectRecoveryControls();
+    expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
     expect(screen.getByTestId("invitation-recovery-retry")).toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("invitation-recovery-retry"));
@@ -296,6 +305,7 @@ describe("InvitationAcceptPageClient (TB-1476)", () => {
       );
     });
 
+    expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
     expect(screen.getByTestId("invitation-secondary-use-different-account")).toBeInTheDocument();
     expect(screen.getByTestId("invitation-secondary-public-exit")).toHaveAttribute("href", "/");
   });

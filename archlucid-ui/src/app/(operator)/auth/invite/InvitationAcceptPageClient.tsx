@@ -12,9 +12,11 @@ import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   AUTH_INVITE_PAGE_LEAD,
   AUTH_INVITE_PAGE_TITLE,
+  AUTH_INVITE_VALIDATION_FAILURE_TITLE,
 } from "@/lib/auth/auth-invite-page-copy";
 import { AUTH_INVITE_CLAIM_DISCIPLINE } from "@/lib/auth-invite-evidence-copy";
 import { PageHeaderClaimDiscipline } from "@/components/operator/page-header-claim-discipline";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { clearInvitationToken, storeInvitationToken } from "@/lib/auth/email-otp-session";
 import {
   mapInvitationStatusToRecoveryContext,
@@ -115,6 +117,12 @@ export function InvitationAcceptPageClient() {
                     }
                   : undefined
               }
+            />
+            <FatalPageReportProblemSupportRow
+              surfaceId="auth-invitation-accept-validation-failure"
+              routePath="/auth/invite"
+              errorTitle={AUTH_INVITE_VALIDATION_FAILURE_TITLE}
+              errorCode={`invitation-${recoveryContext}`}
             />
             <InvitationAuthSecondaryExitActions showSignInAgain={false} />
           </>

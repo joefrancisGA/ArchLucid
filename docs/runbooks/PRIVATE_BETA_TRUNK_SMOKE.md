@@ -35,7 +35,7 @@
 
 | Symptom | Likely cause | Fix |
 | --- | --- | --- |
-| `TypeError: sandbox-mock-data.json needs an import attribute` / Playwright **No tests found** | Bare JSON import in `sandbox-api-mocks.ts` under Node ESM loader | Use `import … with { type: "json" }`; `check_live_api_private_beta_access_ci_wiring.py` guards the pattern |
+| `TypeError: sandbox-mock-data.json needs an import attribute` / Playwright **No tests found** | Bare JSON import in `sandbox-api-mocks.ts` under Node ESM loader | Use `import … with { type: "json" }`; `check_live_api_private_beta_access_ci_wiring.py` guards the pattern; Vitest `e2e/live-api-private-beta-access.loader-smoke.test.ts` imports the helper chain pre-CI |
 | `Operator UI: jwt-bearer production build` fails on `docs pdf render` / `PagedResponseOfArchitectureIdentityListItem` | `ArchLucid.Cli` client drift after `ArchitectureIdentityListPage` API change | Regenerate `ArchLucid.Api.Client` and align `ArchLucidCliApiClient.Architectures.cs`; `build-docs-pdf.ts` preflights `dotnet build` on Cli |
 | `Failed to warm draft inventory` before Playwright | Pre-#1669 required draft warm; cold SQL hang | **Shipped #1669** — draft warm is best-effort in CI |
 | `Failed to warm create architecture run` before Playwright | Cold SQL + inline Simulator pipeline on first POST | **Shipped** — create-run warm is best-effort (300s default); Playwright `createRun` JIT-warms with 300s per-attempt budget |
@@ -92,7 +92,17 @@ Requires SQL Server, API with JwtBearer PEM, and `archlucid-ui` live-e2e build. 
 
 The same spec also runs in `.github/workflows/ci.yml` job `ui-e2e-live-beta-access` on **`workflow_dispatch`** full CI. Use **Actions → CI → Run workflow** on `master` when you need the private-beta smoke inside the full regression matrix (not only trunk push).
 
+```bash
+bash scripts/ci/dispatch_full_ci_matrix.sh master
+# Optional extended live-a11y matrix:
+bash scripts/ci/dispatch_full_ci_matrix.sh master true
+```
+
 You can also re-run invite-wave smoke alone via **Actions → Private-beta access on push → Run workflow** (`workflow_dispatch` on `.github/workflows/private-beta-access-on-push.yml`).
+
+```bash
+bash scripts/ci/retrigger_private_beta_access_on_push.sh master
+```
 
 ```bash
 export LIVE_JWT_TOKEN="<minted>"
