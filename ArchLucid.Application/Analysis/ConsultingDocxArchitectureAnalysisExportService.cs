@@ -5,6 +5,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Configuration;
@@ -23,6 +24,7 @@ public sealed class ConsultingDocxArchitectureAnalysisExportService(
     IScopeContextProvider scopeProvider,
     IAuthorityQueryService authorityQueryService,
     IGraphSnapshotRepository graphSnapshotRepository,
+    IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IConfiguration configuration) : IArchitectureAnalysisConsultingDocxExportService
 {
     private readonly IConsultingDocxTemplateOptionsProvider _optionsProvider = optionsProvider ?? throw new ArgumentNullException(nameof(optionsProvider));
@@ -36,6 +38,8 @@ public sealed class ConsultingDocxArchitectureAnalysisExportService(
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
     private readonly IGraphSnapshotRepository _graphSnapshotRepository =
         graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
+    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
+        agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));
 
@@ -65,6 +69,7 @@ public sealed class ConsultingDocxArchitectureAnalysisExportService(
             detail,
             _authorityQueryService,
             _graphSnapshotRepository,
+            _agentExecutionTraceRepository,
             scope,
             workingDesk: true,
             _configuration,

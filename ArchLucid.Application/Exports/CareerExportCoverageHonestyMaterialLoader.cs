@@ -1,11 +1,14 @@
 using ArchLucid.Application.Pilots;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Configuration;
@@ -19,16 +22,20 @@ public static class CareerExportCoverageHonestyMaterialLoader
         ArchitectureRunDetail detail,
         IAuthorityQueryService authorityQueryService,
         IGraphSnapshotRepository graphSnapshotRepository,
+        IAgentExecutionTraceRepository agentExecutionTraceRepository,
         ScopeContext scope,
         bool workingDesk,
         IConfiguration configuration,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(agentExecutionTraceRepository);
 
         bool preCommitGateEnabled = configuration
             .GetSection(PreCommitGovernanceGateOptions.SectionPath)
             .GetValue<bool>(nameof(PreCommitGovernanceGateOptions.PreCommitGateEnabled));
+        AgentOutputQualityGateMode hostQualityGateMode = CareerExportQualityGateHonestyResolver.ResolveHostMode(configuration);
+        string? hostAgentExecutionMode = CareerExportQualityGateHonestyResolver.ResolveHostAgentExecutionMode(configuration);
 
         ArgumentNullException.ThrowIfNull(detail);
         ArgumentNullException.ThrowIfNull(authorityQueryService);
@@ -45,6 +52,9 @@ public static class CareerExportCoverageHonestyMaterialLoader
         int? enginesSucceeded = null;
         CareerExportClassificationCounts? classificationCounts = null;
         int catalogAdvisoryEngineFailureCount = 0;
+        bool isSampleRun = false;
+        AgentOutputQualityGateMode? recordedQualityGateMode = null;
+        AgentOutputQualityGateOutcome? aggregateQualityGateOutcome = null;
 
         if (Guid.TryParse(detail.Run.RunId.Trim(), out Guid runGuid))
         {
@@ -56,6 +66,13 @@ public static class CareerExportCoverageHonestyMaterialLoader
             classificationCounts = CountClassificationBands(exportDetail?.FindingsSnapshot);
             catalogAdvisoryEngineFailureCount = FindingsSnapshotWithheldAdvisoryEngineFailuresApplicator
                 .CountCatalogAdvisoryFailures(exportDetail?.FindingsSnapshot?.EngineFailures ?? []);
+            isSampleRun = exportDetail?.Run.IsSample ?? false;
+
+            IReadOnlyList<AgentExecutionTrace> traces = await agentExecutionTraceRepository
+                .GetByRunIdAsync(scope, detail.Run.RunId.Trim(), cancellationToken)
+                .ConfigureAwait(false);
+            recordedQualityGateMode = CareerExportQualityGateHonestyResolver.ResolveRecordedGateMode(traces);
+            aggregateQualityGateOutcome = CareerExportQualityGateHonestyResolver.ResolveAggregateOutcome(traces);
         }
 
         return new CareerExportCoverageHonestyInput(
@@ -64,7 +81,13 @@ public static class CareerExportCoverageHonestyMaterialLoader
             workingDesk,
             classificationCounts,
             catalogAdvisoryEngineFailureCount,
-            preCommitGateEnabled);
+            preCommitGateEnabled,
+            detail.Run.StructuralExecutionMode,
+            isSampleRun,
+            hostAgentExecutionMode,
+            hostQualityGateMode,
+            recordedQualityGateMode,
+            aggregateQualityGateOutcome);
     }
 
     internal static CareerExportClassificationCounts? CountClassificationBands(FindingsSnapshot? findingsSnapshot)

@@ -44,8 +44,9 @@ public static class DetailedHealthCheckResponseWriter
     {
         string? agentExecutionMode = TryResolveAgentExecutionMode(report);
         bool? preCommitGateEnabled = TryResolvePreCommitGateEnabled(report);
+        string? agentOutputQualityGateMode = TryResolveAgentOutputQualityGateMode(report);
 
-        if (agentExecutionMode is null && preCommitGateEnabled is null)
+        if (agentExecutionMode is null && preCommitGateEnabled is null && agentOutputQualityGateMode is null)
         {
             var payload = new
             {
@@ -65,6 +66,7 @@ public static class DetailedHealthCheckResponseWriter
             status = report.Status.ToString(),
             agentExecutionMode,
             preCommitGateEnabled,
+            agentOutputQualityGateMode,
             entries = report.Entries.Select(entry => new
             {
                 name = entry.Key,
@@ -101,6 +103,21 @@ public static class DetailedHealthCheckResponseWriter
         return enabledValue switch
         {
             bool enabled => enabled,
+            _ => null,
+        };
+    }
+
+    private static string? TryResolveAgentOutputQualityGateMode(HealthReport report)
+    {
+        if (!report.Entries.TryGetValue(AgentOutputQualityGateModeHealthCheck.RegistrationName, out HealthReportEntry entry))
+            return null;
+
+        if (!entry.Data.TryGetValue(AgentOutputQualityGateModeHealthCheck.ModeDataKey, out object? modeValue))
+            return null;
+
+        return modeValue switch
+        {
+            string mode when !string.IsNullOrWhiteSpace(mode) => mode,
             _ => null,
         };
     }

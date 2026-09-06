@@ -273,6 +273,7 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
             authorityQuery ?? Mock.Of<IAuthorityQueryService>(),
             manifestHashService ?? Mock.Of<IManifestHashService>(),
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
+            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 

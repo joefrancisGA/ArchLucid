@@ -7,6 +7,7 @@ import { RunDetailSealDeskCoverageStrip } from "@/components/reviews/RunDetailSe
 import { RunDetailReviewPackageClassificationSummary } from "./RunDetailReviewPackageClassificationSummary";
 import { RunDetailReviewPackageDecisionReceiptStrip } from "./RunDetailReviewPackageDecisionReceiptStrip";
 import { RunDetailPreFinalizeGateHonestyStrip } from "@/components/reviews/RunDetailPreFinalizeGateHonestyStrip";
+import { RunDetailQualityGateModeStrip } from "@/components/reviews/RunDetailQualityGateModeStrip";
 import { RunDetailInsightDensityMeasurementDenominatorStrip } from "@/components/reviews/RunDetailInsightDensityMeasurementDenominatorStrip";
 import type { ManifestFeasibilityVerdict, TransparencyTrail } from "@/types/feasibility-verdict";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
@@ -24,6 +25,8 @@ export type RunDetailReviewPackageStampViewportProps = {
   readonly quickDecisionFindings?: readonly QuickDecisionFinding[];
   readonly withheldFindingCount?: number;
   readonly catalogAdvisoryEngineFailureCount?: number;
+  readonly structuralExecutionMode?: import("@/lib/structural-execution-mode").StructuralExecutionModeInput;
+  readonly isSample?: boolean | null;
 };
 
 /** Receipt + transparency trail on the review-package stamp band (FD-05 / WA-13). */
@@ -41,6 +44,11 @@ export function RunDetailReviewPackageStampViewport(
     return (
       <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
         <RunDetailPreFinalizeGateHonestyStrip />
+        <RunDetailQualityGateModeStrip
+          runId={props.runId}
+          structuralExecutionMode={props.structuralExecutionMode}
+          isSample={props.isSample}
+        />
         <RunDetailReviewPackageClassificationSummary
           findings={props.quickDecisionFindings ?? []}
           withheldFindingCount={props.withheldFindingCount}
@@ -67,6 +75,11 @@ export function RunDetailReviewPackageStampViewport(
   return (
     <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
       <RunDetailPreFinalizeGateHonestyStrip />
+      <RunDetailQualityGateModeStrip
+        runId={props.runId}
+        structuralExecutionMode={props.structuralExecutionMode}
+        isSample={props.isSample}
+      />
       <RunDetailReviewPackageClassificationSummary
         findings={props.quickDecisionFindings ?? []}
         withheldFindingCount={props.withheldFindingCount}
