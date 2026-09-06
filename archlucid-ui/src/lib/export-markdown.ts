@@ -2,7 +2,7 @@ import type { ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
 
 import { formatManifestDocumentShape } from "./export-markdown-manifest-document";
 import { formatTransparencyTrailMarkdownSection } from "@/lib/feasibility/export-transparency-trail-section";
-import { formatInsightDensityMeasurementDenominatorLine } from "@/lib/quality/insight-density-measurement-denominator";
+import { formatInsightDensityMeasurementFloorPresentation } from "@/lib/quality/insight-density-measurement-floor";
 import { pushPolicyAtCommitMarkdownLines } from "./export-markdown-policy-section";
 import { formatSandboxStyleGoldenManifest } from "./export-markdown-sandbox-manifest";
 import { isRecord } from "./export-markdown-text";
@@ -24,6 +24,8 @@ export type GoldenManifestMarkdownOptions = {
   manifestSummaryFallback?: ManifestSummary | null;
   /** Appended to sponsor-style Markdown exports when the run detail includes this card. */
   trustEvidenceCard?: RunTrustEvidenceCard | null;
+  /** Distinct engines that produced findings on this package snapshot (PC-01). */
+  enginesSucceeded?: number | null;
 };
 
 /**
@@ -47,7 +49,11 @@ export function isUsableGoldenManifestExportJson(data: unknown): boolean {
   return true;
 }
 
-function formatManifestSummaryFallback(summary: ManifestSummary, runId?: string | null): string {
+function formatManifestSummaryFallback(
+  summary: ManifestSummary,
+  runId?: string | null,
+  enginesSucceeded?: number | null,
+): string {
   const lines: string[] = [];
 
   lines.push(`# Architecture review record summary`);
@@ -108,7 +114,7 @@ function formatManifestSummaryFallback(summary: ManifestSummary, runId?: string 
 
   lines.push("## Measurement floor");
   lines.push("");
-  lines.push(formatInsightDensityMeasurementDenominatorLine().line);
+  lines.push(formatInsightDensityMeasurementFloorPresentation(enginesSucceeded ?? null).line);
   lines.push("");
 
   const trail = summary.feasibilityVerdict?.transparencyTrail ?? null;
@@ -146,7 +152,11 @@ export function formatGoldenManifestMarkdown(
       body = formatManifestDocumentShape(m);
     }
   } else if (options?.manifestSummaryFallback) {
-    body = formatManifestSummaryFallback(options.manifestSummaryFallback, options.runId ?? null);
+    body = formatManifestSummaryFallback(
+      options.manifestSummaryFallback,
+      options.runId ?? null,
+      options.enginesSucceeded ?? null,
+    );
   } else {
     body =
       `# Finalized review record export\n\n` +

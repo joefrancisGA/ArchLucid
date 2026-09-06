@@ -15,9 +15,9 @@ describe("insight-density-measurement-denominator (LK-14)", () => {
   it("formats an honest denominator without claiming unmeasured engines ran", () => {
     const { line, helpHref } = formatInsightDensityMeasurementDenominatorLine();
 
-    expect(line).toBe(
-      "Quality scores use 16 of 39 built-in engines. The others were not scored.",
-    );
+    expect(line).toContain("no measured engine coverage");
+    expect(line).toContain("39 built-in engines");
+    expect(line).toContain("16");
     expect(line).not.toContain("career corpus");
     expect(line).not.toMatch(/all engines (were )?scored/i);
     expect(helpHref).toMatch(/^\/help\//);

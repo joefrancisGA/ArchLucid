@@ -78,6 +78,7 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
       intakeDescription={model.resolvedDetail.run.description ?? model.progressForPipelineUi.description ?? null}
       intakeSystemName={model.progressForPipelineUi.displayName ?? null}
       realModeFellBackToSimulator={model.resolvedDetail.run.realModeFellBackToSimulator === true}
+      enginesSucceeded={findingCoverageSummary?.enginesSucceeded ?? null}
     />
   );
 
