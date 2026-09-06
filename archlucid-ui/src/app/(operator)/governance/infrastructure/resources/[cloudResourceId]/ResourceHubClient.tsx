@@ -729,6 +729,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                                     href={buildRemediationWorkbenchHref({
                                       cloudResourceId,
                                       findingId: item.id,
+                                      snapshotId: resolvedSnapshotId,
                                     })}
                                     data-testid={`infra-resource-hub-finding-factory-${item.id}`}
                                   >
@@ -776,7 +777,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
           <EnterpriseTabsContent value="remediation" className="mt-4 space-y-3">
             <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-remediation-factory">
-              <Link href={buildRemediationWorkbenchHref({ cloudResourceId })}>Open remediation factory</Link>
+              <Link href={buildRemediationWorkbenchHref({ cloudResourceId, snapshotId: resolvedSnapshotId })}>
+                Open remediation factory
+              </Link>
             </Button>
             {hub.remediationInstances.items.length === 0 ? (
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>No remediation instances are linked to this resource.</p>
@@ -801,6 +804,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                               href={buildRemediationWorkbenchHref({
                                 cloudResourceId,
                                 instanceId: item.instanceId,
+                                snapshotId: resolvedSnapshotId,
                               })}
                               data-testid={`infra-resource-hub-remediation-factory-${item.instanceId}`}
                             >
