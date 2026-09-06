@@ -76,6 +76,19 @@ describe("infra-evidence-hub-filter-url", () => {
     );
   });
 
+  it("builds Infrastructure Ask href with diagram correspondence context", () => {
+    expect(
+      buildInfrastructureAskHref({
+        cloudResourceId: "11111111-1111-1111-1111-111111111111",
+        snapshotId: "22222222-2222-2222-2222-222222222222",
+        runId: "run-1",
+        correspondenceId: "corr-1",
+      }),
+    ).toBe(
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&correspondenceId=corr-1&runId=run-1",
+    );
+  });
+
   it("resolves hub tab from Ask scope params", () => {
     expect(resolveResourceHubTabFromAskScope({ findingId: "finding-1" })).toBe("findings");
     expect(resolveResourceHubTabFromAskScope({ instanceId: "instance-1" })).toBe("remediation");
@@ -84,6 +97,7 @@ describe("infra-evidence-hub-filter-url", () => {
       auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
       controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
     })).toBe("audit");
+    expect(resolveResourceHubTabFromAskScope({ correspondenceId: "corr-1" })).toBe("diagram");
     expect(resolveResourceHubTabFromAskScope({ diffId: "diff-1" })).toBe("drift");
     expect(resolveResourceHubTabFromAskScope({})).toBeUndefined();
   });

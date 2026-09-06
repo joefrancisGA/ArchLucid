@@ -30,7 +30,22 @@ vi.mock("@/lib/infra-evidence/infra-evidence-hub-api", () => ({
     },
     terraformAddress: "azurerm_public_ip.gateway",
     terraformGenerationMethod: "advisory",
-    diagramCorrespondence: null,
+    diagramCorrespondence: {
+      correspondenceId: "corr-1",
+      diagramNodeId: "node-1",
+      diagramNodeLabel: "Gateway",
+      cloudResourceId: "11111111-1111-1111-1111-111111111111",
+      azureResourceId:
+        "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway",
+      resourceType: "Microsoft.Network/publicIPAddresses",
+      resourceGroup: "rg-net",
+      terraformAddress: "azurerm_public_ip.gateway",
+      matchKind: "Conflict",
+      confidenceBand: "Likely",
+      explainText: "Diagram node conflicts with inventory public IP configuration.",
+      aiRationale: null,
+      securityDiscrepancy: true,
+    },
     operationalSecurityFindings: {
       streamKind: "OperationalSecurity",
       streamLabel: "Operational security",
@@ -162,6 +177,16 @@ describe("ResourceHubClient", () => {
     expect(await screen.findByTestId("infra-resource-hub-audit-ask")).toHaveAttribute(
       "href",
       "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
+    );
+  });
+
+  it("links diagram correspondence to scoped Infrastructure Ask", async () => {
+    searchParams = new URLSearchParams("tab=diagram&snapshotId=22222222-2222-2222-2222-222222222222&runId=run-1");
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-diagram-ask")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&correspondenceId=corr-1&runId=run-1",
     );
   });
 

@@ -22,6 +22,7 @@ import {
   RESOURCE_HUB_ASSESSMENT_ID_PARAM,
   RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
   RESOURCE_HUB_CONTROL_ID_PARAM,
+  RESOURCE_HUB_CORRESPONDENCE_ID_PARAM,
   RESOURCE_HUB_DIFF_ID_PARAM,
   RESOURCE_HUB_FINDING_ID_PARAM,
   RESOURCE_HUB_INSTANCE_ID_PARAM,
@@ -50,6 +51,9 @@ export function InfrastructureAskClient() {
   const diffId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_DIFF_ID_PARAM));
   const findingId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_FINDING_ID_PARAM));
   const instanceId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_INSTANCE_ID_PARAM));
+  const correspondenceId = parseResourceHubQueryValueFromSearch(
+    searchParams.get(RESOURCE_HUB_CORRESPONDENCE_ID_PARAM),
+  );
   const assessmentId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_ASSESSMENT_ID_PARAM));
   const auditEvidenceSnapshotId = parseResourceHubQueryValueFromSearch(
     searchParams.get(RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM),
@@ -105,12 +109,16 @@ export function InfrastructureAskClient() {
       parts.push(`control ${controlId}`);
     }
 
+    if (correspondenceId.length > 0) {
+      parts.push(`correspondence ${correspondenceId}`);
+    }
+
     if (parts.length === 0) {
       return null;
     }
 
     return parts.join(" · ");
-  }, [assessmentId, auditEvidenceSnapshotId, cloudResourceId, controlId, diffId, findingId, instanceId, snapshotId]);
+  }, [assessmentId, auditEvidenceSnapshotId, cloudResourceId, controlId, correspondenceId, diffId, findingId, instanceId, snapshotId]);
 
   const hubBackLinkTab = useMemo(
     () => resolveResourceHubTabFromAskScope({
@@ -120,8 +128,9 @@ export function InfrastructureAskClient() {
       assessmentId,
       auditEvidenceSnapshotId,
       controlId,
+      correspondenceId,
     }),
-    [assessmentId, auditEvidenceSnapshotId, controlId, diffId, findingId, instanceId],
+    [assessmentId, auditEvidenceSnapshotId, controlId, correspondenceId, diffId, findingId, instanceId],
   );
 
   const ask = useCallback(async (nextQuestion: string) => {
@@ -168,7 +177,7 @@ export function InfrastructureAskClient() {
     setQuestion("");
     setHistory([]);
     setSubmitError(null);
-  }, [cloudResourceId, diffId, findingId, instanceId, runId, snapshotId, assessmentId, auditEvidenceSnapshotId, controlId]);
+  }, [cloudResourceId, correspondenceId, diffId, findingId, instanceId, runId, snapshotId, assessmentId, auditEvidenceSnapshotId, controlId]);
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6">
@@ -189,6 +198,7 @@ export function InfrastructureAskClient() {
               href={resourceHubFilterHrefFromSearch(cloudResourceId, "", {
                 tab: hubBackLinkTab,
                 snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+                runId: runId.length > 0 ? runId : undefined,
                 assessmentId: assessmentId.length > 0 ? assessmentId : undefined,
                 auditEvidenceSnapshotId: auditEvidenceSnapshotId.length > 0 ? auditEvidenceSnapshotId : undefined,
                 controlId: controlId.length > 0 ? controlId : undefined,

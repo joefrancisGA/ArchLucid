@@ -148,6 +148,20 @@ function buildHubAuditLineageAskHref(
   });
 }
 
+function buildHubDiagramCorrespondenceAskHref(
+  cloudResourceId: string,
+  snapshotId: string,
+  runId: string,
+  correspondenceId: string,
+): string {
+  return buildInfrastructureAskHref({
+    cloudResourceId,
+    snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+    runId: runId.length > 0 ? runId : undefined,
+    correspondenceId,
+  });
+}
+
 export function ResourceHubClient(props: ResourceHubClientProps) {
   const { cloudResourceId } = props;
   const router = useRouter();
@@ -526,6 +540,18 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   <span className="text-sm text-muted-foreground">{hub.diagramCorrespondence.confidenceBand}</span>
                 </div>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{hub.diagramCorrespondence.explainText}</p>
+                <Button asChild variant="outline" size="sm" className="mt-3" data-testid="infra-resource-hub-diagram-ask">
+                  <Link
+                    href={buildHubDiagramCorrespondenceAskHref(
+                      cloudResourceId,
+                      resolvedSnapshotId,
+                      runId,
+                      hub.diagramCorrespondence.correspondenceId,
+                    )}
+                  >
+                    Ask about this correspondence
+                  </Link>
+                </Button>
               </section>
             ) : (
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>No diagram correspondence row is linked for this resource.</p>
