@@ -25,6 +25,7 @@ Decisioning and Cost engines implement **`IFindingEngine`** (graph-pure). Applic
 | `requirement-gap` | `RequirementGapFindingEngine` | Requirement | Missing requirements. |
 | `requirement-coverage` | `RequirementCoverageFindingEngine` | Requirement | Requirement coverage scoring. |
 | `requirement-cross-run-diff` | `RequirementCrossRunDiffFindingEngine` | Requirement | Name-level delta vs prior context encoded on the current graph. |
+| `dr-rpo-topology` | `DrRpoTopologyFindingEngine` | Requirement | Parsed RPO/RTO on linked requirements without replica, failover group, or geo-redundant properties on the scoped SQL/storage/cluster node. Skips when no objective is parsed or the datastore link is missing. |
 | `topology-coverage` | `TopologyCoverageFindingEngine` | Topology | Component/service coverage vs topology expectations. |
 | `topology-structure` | `TopologyStructureFindingEngine` | Topology | Structural topology properties. |
 | `topology-cross-run-diff` | `TopologyCrossRunDiffFindingEngine` | Topology | Topology delta vs prior snapshot metadata on the graph. |
@@ -37,6 +38,11 @@ Decisioning and Cost engines implement **`IFindingEngine`** (graph-pure). Applic
 | `policy-applicability` | `PolicyApplicabilityFindingEngine` | Policy | Which policies apply to the snapshot. |
 | `policy-coverage` | `PolicyCoverageFindingEngine` | Policy | Policy rule coverage results. |
 | `compliance` | `ComplianceFindingEngine` | Compliance | Rule-pack violations → `ComplianceFinding` payloads. |
+| `external-exposure` | `ExternalExposureFindingEngine` | Security | External or anonymous **`Actor`** nodes without a matching **`TrustBoundary`** (`actorNodeId`). |
+| `segmentation-semantics` | `SegmentationSemanticsFindingEngine` | Security | Parses declared NSG / security group / NetworkPolicy rules for internet-exposed admin inbound ports (22, 3389, 1433, 3306, 5432) when the control is within 3 hops of a datastore or jump box. Does not fire on control presence alone. |
+| `trust-boundary` | `TrustBoundaryFindingEngine` | Security | Mixed internal/external actor origins with no **`TrustBoundary`** nodes on the graph. |
+| `privileged-access` | `PrivilegedAccessFindingEngine` | Security | Internal human **`Actor`** nodes (guided intake or declaration-seeded). |
+| `identity-blast-radius` | `IdentityBlastRadiusFindingEngine` | Security | Machine **`Actor`** paths to regulated datastores through allow-listed write/admin role assignments (Contributor, Owner, Key Vault Secrets Officer, AmazonS3FullAccess, `roles/secretmanager.admin`). Graph-pure; unknown roles skipped. |
 
 ## Cost (graph-pure)
 
@@ -66,7 +72,7 @@ These close over extractors, freshness options, or SQL. They do **not** implemen
 | `advisor-cost-recommendation` | `AdvisorCostRecommendationFindingEngine` | Cloud advisor cost recommendations. |
 | `aws-cost-recommendation` | `AwsCostRecommendationFindingEngine` | AWS cost recommendations from scoped inventory. |
 | `gcp-cost-recommendation` | `GcpCostRecommendationFindingEngine` | GCP cost recommendations from scoped inventory. |
-| `open-commitment` | `OpenCommitmentFindingEngine` | Overdue deferrals, unanswered evidence requests, expiring/expired waivers, and overdue remediations from governance trail. |
+| `open-commitment` | `OpenCommitmentFindingEngine` | Overdue deferrals, unanswered evidence requests, expiring/expired waivers, and overdue remediations from governance trail. Joins source-finding text to current-graph topology nodes (`TopologyMatch`, `MatchedTopologyNodeId`); when a deferred public-network or HTTPS theme is still unsafe on the matched node, sets `StillOpenOnCurrentGraph` with `evidence:graph-node:` trace notes. |
 | `portfolio-recurrence` | `PortfolioRecurrenceFindingEngine` | Cross-system recurrence of the same finding identity (ADR 0063 merge key) across the tenant portfolio. **Default off** — opt-in cross-run I/O per review. |
 
 `TechnologyConsistencyFindingEngine` implements **`ITechnologyConsistencyFindingEngine`**, not `IFindingEngine` or `IEffectfulFindingEngine`. It is not in the findings fold.

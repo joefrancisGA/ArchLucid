@@ -248,6 +248,7 @@ public sealed class FirstValueReportBuilderCostEvidenceFreshnessTests
             authorityQuery,
             manifestHashService,
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
+            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 

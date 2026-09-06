@@ -28,6 +28,32 @@ export type InfraEvidenceAskCitationLink = {
   label: string;
 };
 
+function mergeAskCitationAuditScope(
+  context: InfraEvidenceAskCitationContext,
+): {
+  readonly assessmentId?: string;
+  readonly auditEvidenceSnapshotId?: string;
+  readonly controlId?: string;
+} {
+  const assessmentId = context.assessmentId?.trim() ?? "";
+  const auditEvidenceSnapshotId = context.auditEvidenceSnapshotId?.trim() ?? "";
+  const controlId = context.controlId?.trim() ?? "";
+
+  if (
+    assessmentId.length === 0
+    || auditEvidenceSnapshotId.length === 0
+    || controlId.length === 0
+  ) {
+    return {};
+  }
+
+  return {
+    assessmentId,
+    auditEvidenceSnapshotId,
+    controlId,
+  };
+}
+
 export function resolveInfraEvidenceAskCitationLink(
   citation: InfraEvidenceAskCitation,
   context: InfraEvidenceAskCitationContext = {},
@@ -45,14 +71,14 @@ export function resolveInfraEvidenceAskCitationLink(
   const findingId = context.findingId?.trim() ?? "";
   const correspondenceId = context.correspondenceId?.trim() ?? "";
   const runId = context.runId?.trim() ?? "";
-  const assessmentId = context.assessmentId?.trim() ?? "";
-  const auditEvidenceSnapshotId = context.auditEvidenceSnapshotId?.trim() ?? "";
+  const auditScope = mergeAskCitationAuditScope(context);
 
   switch (citation.kind) {
     case "CloudResourceId":
       return {
         href: resourceHubFilterHrefFromSearch(id, "", {
           snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+          ...auditScope,
         }),
         label,
       };
@@ -63,6 +89,7 @@ export function resolveInfraEvidenceAskCitationLink(
           cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
           snapshotId: snapshotId.length > 0 ? snapshotId : null,
           diffId: diffId.length > 0 ? diffId : null,
+          ...auditScope,
         }),
         label,
       };
@@ -71,6 +98,7 @@ export function resolveInfraEvidenceAskCitationLink(
         href: buildDriftWorkbenchHref({
           snapshotId: id,
           cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
+          ...auditScope,
         }),
         label,
       };
@@ -80,6 +108,7 @@ export function resolveInfraEvidenceAskCitationLink(
           diffId: id,
           snapshotId: snapshotId.length > 0 ? snapshotId : null,
           cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
+          ...auditScope,
         }),
         label,
       };
@@ -91,6 +120,7 @@ export function resolveInfraEvidenceAskCitationLink(
           correspondenceId: correspondenceId.length > 0 ? correspondenceId : null,
           runId: runId.length > 0 ? runId : null,
           snapshotId: snapshotId.length > 0 ? snapshotId : null,
+          ...auditScope,
         }),
         label,
       };
@@ -102,6 +132,7 @@ export function resolveInfraEvidenceAskCitationLink(
           runId: runId.length > 0 ? runId : null,
           cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
           reconcileFilter: "Conflict",
+          ...auditScope,
         }),
         label,
       };
@@ -113,20 +144,31 @@ export function resolveInfraEvidenceAskCitationLink(
           correspondenceId: correspondenceId.length > 0 ? correspondenceId : null,
           runId: runId.length > 0 ? runId : null,
           snapshotId: snapshotId.length > 0 ? snapshotId : null,
+          ...auditScope,
         }),
         label,
       };
     case "PatternKey":
       return { href: `${GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH}?patternKey=${encodeURIComponent(id)}`, label };
-    case "AuditLineageControlId":
-      if (assessmentId.length > 0 && auditEvidenceSnapshotId.length > 0) {
+    case "AuditLineageControlId": {
+      const lineageAuditScope = mergeAskCitationAuditScope({
+        ...context,
+        controlId: context.controlId ?? id,
+      });
+
+      if (lineageAuditScope.assessmentId != null && lineageAuditScope.auditEvidenceSnapshotId != null) {
         return {
-          href: buildAuditEvidenceLineageUiPath(assessmentId, auditEvidenceSnapshotId, id),
+          href: buildAuditEvidenceLineageUiPath(
+            lineageAuditScope.assessmentId,
+            lineageAuditScope.auditEvidenceSnapshotId,
+            lineageAuditScope.controlId ?? id,
+          ),
           label,
         };
       }
 
       return null;
+    }
     default:
       return null;
   }

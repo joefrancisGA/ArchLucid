@@ -52,6 +52,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IFindingEngine, Ds.RequirementExpectationFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.RequirementGapFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.RequirementCrossRunDiffFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.DrRpoTopologyFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TopologyCoverageFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TopologyStructureFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TopologyCrossRunDiffFindingEngine>();
@@ -62,10 +63,12 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IFindingEngine, Ds.SecurityGapFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.SecurityCoverageFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.ExternalExposureFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.SegmentationSemanticsFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.DeclarationSecurityBaselineFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.DeclarationPremiseConflictFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TrustBoundaryFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.PrivilegedAccessFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.IdentityBlastRadiusFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.PolicyApplicabilityFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.PolicyCoverageFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.RequirementCoverageFindingEngine>();

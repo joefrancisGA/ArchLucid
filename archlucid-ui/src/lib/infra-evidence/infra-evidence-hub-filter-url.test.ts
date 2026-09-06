@@ -289,7 +289,7 @@ describe("infra-evidence-hub-filter-url", () => {
         "open-findings",
       ),
     ).toBe(
-      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&workQueue=open-findings",
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&workQueue=open-findings&tab=findings",
     );
     expect(
       buildResourceExplorerWorkCountHref(
@@ -307,7 +307,7 @@ describe("infra-evidence-hub-filter-url", () => {
         "recent-drift",
       ),
     ).toBe(
-      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&workQueue=recent-drift",
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&workQueue=recent-drift&tab=drift",
     );
   });
 });

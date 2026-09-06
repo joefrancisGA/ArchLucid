@@ -30,11 +30,18 @@ public class DefaultGraphBuilder(
         await pipeline.RunAsync(materializationContext, ct).ConfigureAwait(false);
 
         IReadOnlyList<GraphEdge> inferredEdges = edgeInferer.InferEdges(contextSnapshot, nodes);
+        List<GraphEdge> edges = inferredEdges.Count == 0 ? [] : [.. inferredEdges];
+
+        if (materializationContext.Edges.Count > 0)
+        {
+            edges.AddRange(materializationContext.Edges);
+            edges = GraphEdgeInferenceHelpers.Deduplicate(edges);
+        }
 
         GraphBuildResult result = new()
         {
             Nodes = nodes,
-            Edges = inferredEdges.Count == 0 ? [] : [.. inferredEdges]
+            Edges = edges,
         };
 
         return result;
