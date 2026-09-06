@@ -400,6 +400,29 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     Open drift workbench
                   </Link>
                 </Button>
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-diagrams-work">
+                  <Link
+                    href={buildResourceHubDiagramsWorkbenchHref(
+                      resolvedSnapshotId,
+                      cloudResourceId,
+                      hub.externalResourceId,
+                    )}
+                  >
+                    Open inventory diagrams
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-diagram-reconcile-work">
+                  <Link
+                    href={buildResourceHubDiagramReconcileWorkbenchHref(
+                      resolvedSnapshotId,
+                      runId,
+                      undefined,
+                      cloudResourceId,
+                    )}
+                  >
+                    Open diagram reconciliation
+                  </Link>
+                </Button>
               </div>
             </section>
 
