@@ -28,7 +28,6 @@ const PRODUCT_ADVISORY_SCHEDULES_TAB_SURFACES = [
   "archlucid-ui/src/lib/digest-subscriptions-workflow.ts",
   "archlucid-ui/src/lib/digest-setup-gap-actions.ts",
   "archlucid-ui/src/components/digests/WeeklyDigestHealthBanner.tsx",
-  "archlucid-ui/src/components/digests/ExecDigestScheduleContent.tsx",
 ] as const;
 
 const CANONICAL_ADVISORY_SCHEDULES_TAB_HANDOFF_MARKERS = [
