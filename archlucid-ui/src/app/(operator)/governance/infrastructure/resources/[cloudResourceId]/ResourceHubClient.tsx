@@ -34,6 +34,7 @@ import {
 import {
   buildDriftWorkbenchHref,
   buildRemediationWorkbenchHref,
+  buildResourceHubWorkbenchHref,
   buildResourceScopedWorkbenchHref,
 } from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import {
@@ -423,6 +424,17 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     Open diagram reconciliation
                   </Link>
                 </Button>
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-terraform-work">
+                  <Link
+                    href={buildResourceHubWorkbenchHref({
+                      cloudResourceId,
+                      tab: "terraform",
+                      snapshotId: resolvedSnapshotId,
+                    })}
+                  >
+                    Open terraform mapping
+                  </Link>
+                </Button>
               </div>
             </section>
 
@@ -619,8 +631,10 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 </div>
               </dl>
               <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.helper)}>{TERRAFORM_ADVISORY_EXPORT_DISCLAIMER}</p>
-              <Button asChild variant="outline" size="sm" className="mt-3">
-                <Link href={buildResourceHubDriftWorkbenchHref(resolvedSnapshotId)}>Export from drift workbench</Link>
+              <Button asChild variant="outline" size="sm" className="mt-3" data-testid="infra-resource-hub-terraform-drift-export">
+                <Link href={buildResourceHubDriftWorkbenchHref(resolvedSnapshotId, cloudResourceId)}>
+                  Export from drift workbench
+                </Link>
               </Button>
             </section>
           </EnterpriseTabsContent>
