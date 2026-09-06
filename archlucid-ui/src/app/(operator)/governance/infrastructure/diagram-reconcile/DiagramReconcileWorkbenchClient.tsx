@@ -48,6 +48,7 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { governanceInfrastructureResourceHubPath } from "@/lib/governance/governance-infrastructure-route-paths";
+import { buildInfrastructureAskHref } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { showError, showSuccess } from "@/lib/toast";
@@ -74,6 +75,21 @@ function buildResourceHubHref(cloudResourceId: string | null): string | null {
   }
 
   return governanceInfrastructureResourceHubPath(cloudResourceId.trim());
+}
+
+function buildDiagramReconcileCorrespondenceAskHref(
+  row: DiagramInfrastructureCorrespondenceRow,
+  snapshotId: string,
+  runId: string,
+): string {
+  return buildInfrastructureAskHref({
+    cloudResourceId: row.cloudResourceId != null && row.cloudResourceId.trim().length > 0
+      ? row.cloudResourceId
+      : undefined,
+    snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+    runId: runId.length > 0 ? runId : undefined,
+    correspondenceId: row.correspondenceId,
+  });
 }
 
 async function copyTextToClipboard(text: string): Promise<void> {
@@ -517,6 +533,14 @@ export function DiagramReconcileWorkbenchClient() {
                             Open resource hub
                           </Link>
                         ) : null}
+                        <Button asChild variant="outline" size="sm">
+                          <Link
+                            href={buildDiagramReconcileCorrespondenceAskHref(row, selectedSnapshotId, runId)}
+                            data-testid={`infra-diagram-reconcile-ask-${row.correspondenceId}`}
+                          >
+                            Ask
+                          </Link>
+                        </Button>
                         <Button
                           type="button"
                           variant="outline"
