@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useId, useMemo, useState } from "react";
 
 import { HelpSpecialtyWalkthroughClaimOrientationStrip } from "@/app/(operator)/help/_sections/HelpSpecialtyWalkthroughClaimOrientationStrip";
+import { HelpSpecialtyWalkthroughEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/HelpSpecialtyWalkthroughEvidenceOrientationStrip";
 import { HelpSpecialtyWalkthroughHeaderActions } from "@/app/(operator)/help/_sections/HelpSpecialtyWalkthroughHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
@@ -19,6 +20,7 @@ import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStar
 import { Button } from "@/components/ui/button";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useReviewIntakeNavigation } from "@/hooks/use-review-intake-navigation";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_LAYOUT,
@@ -39,6 +41,7 @@ import {
   SPECIALTY_WALKTHROUGHS_HELP_PAGE_TITLE,
   SPECIALTY_WALKTHROUGHS_HELP_PRIMARY_ACTION,
   SPECIALTY_WALKTHROUGHS_HELP_START_HERE_CARD_TITLE,
+  specialtyWalkthroughsHelpPageSubtitle,
 } from "@/lib/specialty-walkthroughs-help-guide-content";
 import {
   SPECIALTY_WALKTHROUGHS_HELP_FIRST_VIEWPORT_TEST_ID,
@@ -55,6 +58,7 @@ import {
   SPECIALTY_REVIEW_TEMPLATES_HELP_CHOOSING_TITLE,
   SPECIALTY_REVIEW_TEMPLATES_INTEGRATIONS_NOTE,
   SPECIALTY_REVIEW_TEMPLATES_OPTIONAL_NOTE,
+  SPECIALTY_REVIEW_TEMPLATES_BUYER_DEMO_USE_HINT,
   SPECIALTY_REVIEW_TEMPLATES_READ_ONLY_USE_HINT,
   SPECIALTY_REVIEW_TEMPLATES_RELATED_LINKS,
   SPECIALTY_REVIEW_TEMPLATES_USE_STANDARD_REVIEW_LABEL,
@@ -87,10 +91,12 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
   props: HelpSpecialtyWalkthroughTemplatesClientProps,
 ): React.ReactElement {
   const { entry } = props;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const capabilityCanExecute = useOperateCapability();
+  const canExecute = buyerPolishedShell ? true : capabilityCanExecute;
   const router = useRouter();
   const pathname = usePathname() ?? SPECIALTY_WALKTHROUGHS_HELP_CANONICAL_PATH;
   const searchParams = useSearchParams();
-  const canExecute = useOperateCapability();
   const navigation = useReviewIntakeNavigation();
   const cloudContextFieldsetId = useId();
   const [selectedTemplateId, setSelectedTemplateIdState] = useState<SpecialtyReviewTemplateId | null>(() =>
@@ -225,6 +231,40 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
 
   const showCloudContextPicker = selectedTemplate?.supportsCloudContext === true;
   const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
+  const pageSubtitle = specialtyWalkthroughsHelpPageSubtitle(buyerPolishedShell);
+
+  const startHerePanel = (
+    <section
+      className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+      data-testid="help-specialty-walkthroughs-action-panel"
+      aria-labelledby="help-specialty-walkthroughs-action-panel-heading"
+    >
+      <h2
+        id="help-specialty-walkthroughs-action-panel-heading"
+        className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+      >
+        {SPECIALTY_WALKTHROUGHS_HELP_START_HERE_CARD_TITLE}
+      </h2>
+      {buyerPolishedShell ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {SPECIALTY_REVIEW_TEMPLATES_BUYER_DEMO_USE_HINT}
+        </p>
+      ) : (
+        <Button asChild size="sm" variant="primary" data-testid={SPECIALTY_WALKTHROUGHS_HELP_PRIMARY_ACTION.testId}>
+          <Link href={SPECIALTY_WALKTHROUGHS_HELP_PRIMARY_ACTION.href}>
+            {SPECIALTY_WALKTHROUGHS_HELP_PRIMARY_ACTION.label}
+          </Link>
+        </Button>
+      )}
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+        <Link href="/architecture/reviews/new" className={cn(OPERATOR_LINK.inline)}>
+          {SPECIALTY_REVIEW_TEMPLATES_USE_STANDARD_REVIEW_LABEL}
+        </Link>
+        {" — "}
+        {SPECIALTY_REVIEW_TEMPLATES_OPTIONAL_NOTE}
+      </p>
+    </section>
+  );
 
   return (
     <article
@@ -232,12 +272,14 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
       data-testid="help-specialty-walkthrough-templates"
       aria-busy={navigation.isNavigating}
     >
-      <a
-        href={`#${SPECIALTY_WALKTHROUGHS_HELP_SKIP_TARGET_ID}`}
-        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
-      >
-        {SPECIALTY_WALKTHROUGHS_HELP_SKIP_LINK_LABEL}
-      </a>
+      {buyerPolishedShell ? (
+        <a
+          href={`#${SPECIALTY_WALKTHROUGHS_HELP_SKIP_TARGET_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {SPECIALTY_WALKTHROUGHS_HELP_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
       <HelpTopicHashScroll />
 
       <div
@@ -245,59 +287,55 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
         data-testid={SPECIALTY_WALKTHROUGHS_HELP_PRIMARY_CONTENT_ID}
         className={cn("scroll-mt-24 space-y-6", OPERATOR_LAYOUT.sectionStack)}
       >
-        <HelpTopicGuidePageHeader
-          title={SPECIALTY_WALKTHROUGHS_HELP_PAGE_TITLE}
-          titleTestId="help-specialty-walkthroughs-page-title"
-          subtitle={SPECIALTY_WALKTHROUGHS_HELP_PAGE_SUBTITLE}
-          navHref={SPECIALTY_WALKTHROUGHS_HELP_CANONICAL_PATH}
-          headingLevel="h1"
-          claimDiscipline={SPECIALTY_WALKTHROUGHS_HELP_CLAIM_DISCIPLINE}
-          claimDisciplineTestId={SPECIALTY_WALKTHROUGHS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID}
-          metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
-          actions={<HelpSpecialtyWalkthroughHeaderActions entry={entry} />}
-        />
+        {buyerPolishedShell ? (
+          <HelpTopicGuidePageHeader
+            title={SPECIALTY_WALKTHROUGHS_HELP_PAGE_TITLE}
+            titleTestId="help-specialty-walkthroughs-page-title"
+            subtitle={pageSubtitle}
+            navHref={SPECIALTY_WALKTHROUGHS_HELP_CANONICAL_PATH}
+            headingLevel="h1"
+            claimDiscipline={SPECIALTY_WALKTHROUGHS_HELP_CLAIM_DISCIPLINE}
+            claimDisciplineTestId={SPECIALTY_WALKTHROUGHS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+            actions={<HelpSpecialtyWalkthroughHeaderActions entry={entry} />}
+          />
+        ) : (
+          <HelpTopicGuidePageHeader
+            title={SPECIALTY_WALKTHROUGHS_HELP_PAGE_TITLE}
+            titleTestId="help-specialty-walkthroughs-page-title"
+            subtitle={pageSubtitle}
+            navHref={SPECIALTY_WALKTHROUGHS_HELP_CANONICAL_PATH}
+            headingLevel="h1"
+            metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
+            actions={<HelpSpecialtyWalkthroughHeaderActions entry={entry} />}
+          />
+        )}
 
-        <div
-          id={SPECIALTY_WALKTHROUGHS_HELP_SKIP_TARGET_ID}
-          data-testid={SPECIALTY_WALKTHROUGHS_HELP_FIRST_VIEWPORT_TEST_ID}
-          className={cn(
-            "scroll-mt-24 space-y-6 border-b border-neutral-200 pb-6 dark:border-neutral-800",
-            OPERATOR_LAYOUT.sectionStack,
-          )}
-        >
-          <p className={readingBodyClass} data-testid="help-specialty-walkthroughs-overview">
-            {SPECIALTY_WALKTHROUGHS_HELP_OVERVIEW}
-          </p>
-
-          <section
-            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
-            data-testid="help-specialty-walkthroughs-action-panel"
-            aria-labelledby="help-specialty-walkthroughs-action-panel-heading"
+        {buyerPolishedShell ? (
+          <div
+            id={SPECIALTY_WALKTHROUGHS_HELP_SKIP_TARGET_ID}
+            data-testid={SPECIALTY_WALKTHROUGHS_HELP_FIRST_VIEWPORT_TEST_ID}
+            className={cn(
+              "scroll-mt-24 space-y-6 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+              OPERATOR_LAYOUT.sectionStack,
+            )}
           >
-            <h2
-              id="help-specialty-walkthroughs-action-panel-heading"
-              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
-            >
-              {SPECIALTY_WALKTHROUGHS_HELP_START_HERE_CARD_TITLE}
-            </h2>
-            <Button asChild size="sm" variant="primary" data-testid={SPECIALTY_WALKTHROUGHS_HELP_PRIMARY_ACTION.testId}>
-              <Link href={SPECIALTY_WALKTHROUGHS_HELP_PRIMARY_ACTION.href}>
-                {SPECIALTY_WALKTHROUGHS_HELP_PRIMARY_ACTION.label}
-              </Link>
-            </Button>
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              {SPECIALTY_REVIEW_TEMPLATES_OPTIONAL_NOTE}
+            <p className={readingBodyClass} data-testid="help-specialty-walkthroughs-overview">
+              {SPECIALTY_WALKTHROUGHS_HELP_OVERVIEW}
             </p>
-          </section>
-        </div>
+            {startHerePanel}
+          </div>
+        ) : (
+          <>
+            <p className={readingBodyClass} data-testid="help-specialty-walkthroughs-overview">
+              {SPECIALTY_WALKTHROUGHS_HELP_OVERVIEW}
+            </p>
+            {startHerePanel}
+            <HelpSpecialtyWalkthroughEvidenceOrientationStrip />
+          </>
+        )}
 
         <div className="space-y-4">
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-            <Link href="/architecture/reviews/new" className={cn(OPERATOR_LINK.inline)}>
-              {SPECIALTY_REVIEW_TEMPLATES_USE_STANDARD_REVIEW_LABEL}
-            </Link>
-          </p>
-          {!canExecute ? (
+          {!canExecute && !buyerPolishedShell ? (
             <p
               id={SPECIALTY_TEMPLATE_READ_ONLY_HINT_ID}
               className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}
@@ -327,9 +365,10 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
 
           <div className="min-w-0 space-y-4">
             <section
-              id="specialty-template-catalog"
+              id={SPECIALTY_WALKTHROUGHS_HELP_SKIP_TARGET_ID}
               aria-labelledby="specialty-template-catalog-heading"
               className="space-y-4"
+              tabIndex={-1}
             >
               <h2 id="specialty-template-catalog-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
                 Available templates
@@ -426,9 +465,11 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
           </div>
         </div>
 
-        <div data-testid="help-specialty-walkthroughs-orientation-bottom">
-          <HelpSpecialtyWalkthroughClaimOrientationStrip />
-        </div>
+        {buyerPolishedShell ? (
+          <div data-testid="help-specialty-walkthroughs-orientation-bottom">
+            <HelpSpecialtyWalkthroughClaimOrientationStrip />
+          </div>
+        ) : null}
       </div>
 
       <SpecialtyTemplatePreviewDialog preview={preview} onClose={() => setPreview(null)} />
