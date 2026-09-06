@@ -18,6 +18,7 @@ export type ClarificationGapRowProps = {
   readonly answerHref: string;
   readonly onNavigateTab: (tab: ArchitectureWorkspaceTabId) => void;
   readonly onDismiss: (itemId: string) => void;
+  readonly hideOperatorActions?: boolean;
 };
 
 function GapActionLink(props: {
@@ -93,7 +94,7 @@ export function ClarificationGapRow(props: ClarificationGapRowProps): React.JSX.
         </p>
       </div>
 
-      {props.item.category === "clarification" ? (
+      {props.hideOperatorActions === true ? null : props.item.category === "clarification" ? (
         <div className="flex shrink-0 flex-wrap gap-2">
           <GapActionLink
             href={props.answerHref}
