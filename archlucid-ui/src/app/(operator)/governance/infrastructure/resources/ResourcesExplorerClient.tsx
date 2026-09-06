@@ -39,6 +39,7 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   CLOUD_RESOURCE_EXPLORER_WORK_QUEUE_OPTIONS,
+  formatResourceHubTabActionLabelFromExplorerWorkQueue,
   parseResourceExplorerWorkQueueFromSearch,
   type CloudResourceExplorerWorkQueue,
 } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
@@ -165,6 +166,8 @@ export function ResourcesExplorerClient() {
       </div>
     );
   }
+
+  const scopedHubTabLabel = formatResourceHubTabActionLabelFromExplorerWorkQueue(urlWorkQueue);
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6">
@@ -311,6 +314,16 @@ export function ResourcesExplorerClient() {
                         data-testid={`infra-resource-explorer-overview-${row.cloudResourceId}`}
                       >
                         Overview
+                      </Link>
+                    </Button>
+                  ) : null}
+                  {scopedHubTabLabel != null ? (
+                    <Button asChild size="sm" variant="outline">
+                      <Link
+                        href={buildResourceHubExplorerHref(row.cloudResourceId, urlWorkQueue)}
+                        data-testid={`infra-resource-explorer-hub-tab-${row.cloudResourceId}`}
+                      >
+                        {scopedHubTabLabel}
                       </Link>
                     </Button>
                   ) : null}

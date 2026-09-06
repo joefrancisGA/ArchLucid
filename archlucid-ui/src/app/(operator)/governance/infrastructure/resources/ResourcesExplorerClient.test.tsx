@@ -115,6 +115,10 @@ describe("ResourcesExplorerClient", () => {
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111",
     );
+    expect(screen.getByTestId("infra-resource-explorer-hub-tab-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings",
+    );
     expect(screen.getByTestId("infra-resource-explorer-hub-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings",
@@ -162,6 +166,10 @@ describe("ResourcesExplorerClient", () => {
       "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&workQueue=recent-drift",
     );
     expect(screen.getByTestId("infra-resource-explorer-hub-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=drift",
+    );
+    expect(screen.getByTestId("infra-resource-explorer-hub-tab-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=drift",
     );
