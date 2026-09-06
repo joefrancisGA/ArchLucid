@@ -77,6 +77,7 @@ type Props = {
    * Count callbacks and load/error paths still run.
    */
   readonly suppressEmptyPresentation?: boolean;
+  readonly readOnly?: boolean;
 };
 
 export function PendingInvitationsPanel({
@@ -84,6 +85,7 @@ export function PendingInvitationsPanel({
   seededInvitations = EMPTY_SEEDED_INVITATIONS,
   onCountChange,
   suppressEmptyPresentation = false,
+  readOnly = false,
 }: Props) {
   const router = useRouter();
   const pathname = usePathname() ?? SETTINGS_USERS_PATH;
@@ -363,7 +365,7 @@ export function PendingInvitationsPanel({
                   </EnterpriseTableCell>
                   <EnterpriseTableCell>
                     <div className="flex flex-wrap gap-2">
-                      {invitation.status === "Pending" ? (
+                      {!readOnly && invitation.status === "Pending" ? (
                         <Button
                           type="button"
                           variant="outline"
@@ -416,7 +418,7 @@ export function PendingInvitationsPanel({
       {visibleRows.length > 0 ? <PendingInvitationsAuditTrailFootnote /> : null}
 
       <ConfirmationDialog
-        open={pendingRevoke !== null}
+        open={!readOnly && pendingRevoke !== null}
         onOpenChange={(open) => {
           if (!open) {
             setPendingRevoke(null);
