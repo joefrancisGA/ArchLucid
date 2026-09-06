@@ -36,6 +36,10 @@ vi.mock("@/lib/api/itsm-outbound-api", () => ({
 import { ServiceNowIntegrationPageClient } from "./ServiceNowIntegrationPageClient";
 import { INTEGRATIONS_READINESS_PATH, INTEGRATIONS_SERVICENOW_PATH } from "@/lib/integrations-nav-paths";
 import { SERVICENOW_INTEGRATION_SOURCES } from "@/lib/servicenow-integration-evidence-copy";
+import {
+  expectFollowUpLink,
+  whereToGoNextFollowUpLinksForTests,
+} from "@/lib/claim-discipline-test-helpers";
 import { ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm/itsm-connectors-admin-scope";
 import { itsmConnectionStatusTagKind } from "@/lib/itsm/itsm-connection-status-tag-kind";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -171,13 +175,16 @@ describe("ServiceNowIntegrationPageClient", () => {
 
     const sources = screen.getByTestId("servicenow-integration-sources");
 
-    for (const link of SERVICENOW_INTEGRATION_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+    for (const link of whereToGoNextFollowUpLinksForTests(SERVICENOW_INTEGRATION_SOURCES)) {
+      expectFollowUpLink(within(sources), link);
     }
 
-    const readinessLinks = within(sources).getAllByRole("link", { name: "Integration readiness" });
-    expect(readinessLinks).toHaveLength(1);
-    expect(readinessLinks[0]).toHaveAttribute("href", INTEGRATIONS_READINESS_PATH);
+    expect(
+      within(sources).queryByRole("link", { name: "Integration readiness" }),
+    ).not.toBeInTheDocument();
+    expect(
+      within(sources).queryByRole("link", { name: `Open Integration readiness` }),
+    ).not.toBeInTheDocument();
   });
 
   it("maps setup incomplete to needs-attention in header and section status tags", async () => {
@@ -192,8 +199,9 @@ describe("ServiceNowIntegrationPageClient", () => {
     render(<ServiceNowIntegrationPageClient />);
 
     await screen.findByTestId("servicenow-connection-status");
-    const refreshButton = screen.getByTestId("servicenow-refresh-button");
-    expect(refreshButton).toBeEnabled();
+    await waitFor(() => {
+      expect(screen.getByTestId("servicenow-refresh-button")).toBeEnabled();
+    });
     expect(screen.getByTestId("servicenow-last-checked")).toBeInTheDocument();
   });
 
@@ -337,6 +345,11 @@ describe("ServiceNowIntegrationPageClient", () => {
 
     const checkbox = screen.getByLabelText(/Create a Configuration Item when no match is found/i);
     fireEvent.click(checkbox);
+
+    await waitFor(() => {
+      expect(checkbox).toBeChecked();
+    });
+
     fireEvent.click(screen.getByRole("button", { name: SERVICENOW_SAVE_SETTINGS_BUTTON }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Save rejected");

@@ -31,4 +31,8 @@
                       ReferenceOutputAssembly="false" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Data\WafTradeoffCatalog.json" />
+  </ItemGroup>
+
 </Project>
