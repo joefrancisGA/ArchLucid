@@ -61,7 +61,7 @@ export function resolveVisibleCommandPaletteHrefActions(
               ...action,
               label: WORKING_NEW_REVIEW_LABEL,
               href: workingStartHref,
-              searchValue: "action new work resume draft editor start",
+              searchValue: "action new work resume architecture identity start",
             }
           : action,
       )
