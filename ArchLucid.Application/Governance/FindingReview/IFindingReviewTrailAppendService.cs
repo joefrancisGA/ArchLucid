@@ -13,4 +13,7 @@ public interface IFindingReviewTrailAppendService
 {
     /// <inheritdoc cref="IFindingReviewTrailRepository.AppendAsync" />
     Task AppendAsync(FindingReviewEventRecord reviewEvent, CancellationToken cancellationToken = default);
+
+    /// <summary>Writes durable audit only — used when the trail row was inserted by disposition concurrency CAS.</summary>
+    Task LogAuditAsync(FindingReviewEventRecord reviewEvent, CancellationToken cancellationToken = default);
 }

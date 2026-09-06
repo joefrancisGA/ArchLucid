@@ -3,6 +3,7 @@ using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
+using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -20,6 +21,7 @@ public sealed partial class GovernanceStickinessController
     [ProducesResponseType(typeof(FindingDispositionEventDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [MutatingAuditExcluded("Audit: IFindingReviewTrailAppendService logs FindingReviewDispositionRecorded via IAuditService.")]
     public async Task<IActionResult> RecordDisposition(
         string findingId,
@@ -85,6 +87,7 @@ public sealed partial class GovernanceStickinessController
             TradeOffAcknowledgment = body.TradeOffAcknowledgment,
             RevisitDueUtc = body.RevisitDueUtc,
             EvidenceRequestText = body.EvidenceRequestText,
+            ExpectedCurrentDispositionRowVersionBase64 = body.ExpectedCurrentDispositionRowVersionBase64,
         };
 
         try
@@ -105,6 +108,16 @@ public sealed partial class GovernanceStickinessController
         catch (ArgumentException ex)
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+        catch (FindingDispositionConflictException ex)
+        {
+            return this.ConflictProblem(
+                ex.Message,
+                ProblemTypes.Conflict,
+                extensions: new Dictionary<string, object?>
+                {
+                    ["currentDisposition"] = ex.CurrentDisposition,
+                });
         }
     }
 
