@@ -15,6 +15,7 @@ import {
   OperatorWarningCallout,
 } from "@/components/operator/OperatorShellMessage";
 import { SponsorLensCompareSummaryPanel } from "@/components/compare/SponsorLensCompareSummaryPanel";
+import { compareRunPairBlockedReason } from "@/lib/compare/compare-run-pair-blocked-reason";
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
 import {
   compareStaleInputsTechnicalIdsDisclosureHrefFromSearch,
@@ -93,6 +94,8 @@ export function CompareResultsPanelVerdictChrome({
     newFindingTrustLanes,
     result,
   } = viewModel;
+  const legacyCompareBlockedReason = compareRunPairBlockedReason(legacyFailure);
+  const goldenCompareBlockedReason = compareRunPairBlockedReason(goldenFailure);
 
   return (
     <>
@@ -194,16 +197,31 @@ export function CompareResultsPanelVerdictChrome({
       {legacyFailure && (
         <>
           <p className={cn("mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            Detailed comparison unavailable.
+            {legacyCompareBlockedReason ?? "Detailed comparison unavailable."}
           </p>
-          <OperatorApiProblem failure={legacyFailure} />
+          {legacyCompareBlockedReason === null ? (
+            <OperatorApiProblem failure={legacyFailure} />
+          ) : (
+            <OperatorWarningCallout>{legacyCompareBlockedReason}</OperatorWarningCallout>
+          )}
           <p className={cn("mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-            The structured summary below may still be available while this detailed diff is retried.
+            {legacyCompareBlockedReason === null
+              ? "The structured summary below may still be available while this detailed diff is retried."
+              : "Commit both reviews and verify sealed manifest integrity before comparing again."}
           </p>
           <OperatorTryNext>
-            Confirm both reviews exist and are in scope (same tenant/project as the shell). Re-pick reviews from{" "}
-            <Link className={OPERATOR_LINK.nav} href="/architecture/reviews">Reviews</Link> or review detail, then click <strong>Compare</strong>{" "}
-            again. Use the correlation ID in API logs if you escalate.
+            {legacyCompareBlockedReason === null ? (
+              <>
+                Confirm both reviews exist and are in scope (same tenant/project as the shell). Re-pick reviews from{" "}
+                <Link className={OPERATOR_LINK.nav} href="/architecture/reviews">Reviews</Link> or review detail, then click <strong>Compare</strong>{" "}
+                again. Use the correlation ID in API logs if you escalate.
+              </>
+            ) : (
+              <>
+                Open each review detail page and confirm authority lifecycle is <strong>Complete</strong> with a verified sealed manifest.
+                Re-run compare after both sides pass export gates.
+              </>
+            )}
           </OperatorTryNext>
         </>
       )}
@@ -224,15 +242,29 @@ export function CompareResultsPanelVerdictChrome({
       {goldenFailure && (
         <>
           <p className={cn("mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            Review comparison request failed.
+            {goldenCompareBlockedReason ?? "Review comparison request failed."}
           </p>
-          <OperatorApiProblem failure={goldenFailure} variant="warning" />
+          {goldenCompareBlockedReason === null ? (
+            <OperatorApiProblem failure={goldenFailure} variant="warning" />
+          ) : (
+            <OperatorWarningCallout>{goldenCompareBlockedReason}</OperatorWarningCallout>
+          )}
           <p className={cn("mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-            The detailed comparison may still have succeeded; check the sections below.
+            {goldenCompareBlockedReason === null
+              ? "The detailed comparison may still have succeeded; check the sections below."
+              : "Structured compare is blocked until both reviews pass lifecycle and sealed-manifest gates."}
           </p>
           <OperatorTryNext>
-            Verify both reviews have finalized sealed review records in scope. If only the detailed diff is needed for
-            now, expand <strong>Review-level diff</strong> after confirming the pair in the summary panel.
+            {goldenCompareBlockedReason === null ? (
+              <>
+                Verify both reviews have finalized sealed review records in scope. If only the detailed diff is needed for
+                now, expand <strong>Review-level diff</strong> after confirming the pair in the summary panel.
+              </>
+            ) : (
+              <>
+                Resolve lifecycle or sealed-manifest gaps on the blocked review(s), then click <strong>Compare</strong> again.
+              </>
+            )}
           </OperatorTryNext>
         </>
       )}

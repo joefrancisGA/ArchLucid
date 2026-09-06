@@ -16,6 +16,7 @@ public sealed partial class ManifestsController
     [HttpGet("manifest/compare")]
     [ProducesResponseType(typeof(ManifestCompareResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CompareManifests(
         [FromQuery] string leftVersion,
         [FromQuery] string rightVersion,
@@ -35,6 +36,7 @@ public sealed partial class ManifestsController
     [HttpGet("manifest/compare/summary")]
     [ProducesResponseType(typeof(ManifestCompareSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CompareManifestsSummary(
         [FromQuery] string leftVersion,
         [FromQuery] string rightVersion,
@@ -60,6 +62,7 @@ public sealed partial class ManifestsController
     [HttpGet("manifest/compare/export")]
     [ProducesResponseType(typeof(ManifestCompareExportResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CompareManifestsExport(
         [FromQuery] string leftVersion,
         [FromQuery] string rightVersion,
@@ -90,6 +93,7 @@ public sealed partial class ManifestsController
     [HttpGet("manifest/compare/export/file")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DownloadCompareManifestsExport(
         [FromQuery] string leftVersion,
         [FromQuery] string rightVersion,
