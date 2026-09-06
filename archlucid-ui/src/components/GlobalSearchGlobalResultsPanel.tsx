@@ -26,8 +26,17 @@ function globalSearchRunLabel(run: {
 export function GlobalSearchGlobalResultsPanel(props: GlobalSearchGlobalResultsPanelProps) {
   const { controller } = props;
   const { inputId, query, searchResults, closePanel, navigateToRun, navigateToFinding } = controller;
-  const { loading, searchError, results, findPageMatches, helpHits, hasResults, fetchResults } =
-    searchResults;
+  const {
+    loading,
+    searchError,
+    results,
+    findPageMatches,
+    helpHits,
+    architectureIdentityHits,
+    architectureDraftHits,
+    hasResults,
+    fetchResults,
+  } = searchResults;
 
   return (
     <div
@@ -52,9 +61,11 @@ export function GlobalSearchGlobalResultsPanel(props: GlobalSearchGlobalResultsP
       ) : null}
       {!loading && !searchError && !hasResults ? (
         <div className="px-3 py-2">
-          <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>No pages, reviews, or findings matched.</p>
+          <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>
+            No pages, architectures, drafts, reviews, or findings matched.
+          </p>
           <p className={cn("m-0 mt-1 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
-            Try a review title or keyword, or{" "}
+            Try an architecture name, review title, or keyword, or{" "}
             <Link href="/help" className="text-al-link underline-offset-2 hover:underline" onClick={() => closePanel()}>
               browse help topics
             </Link>
@@ -76,6 +87,54 @@ export function GlobalSearchGlobalResultsPanel(props: GlobalSearchGlobalResultsP
                   onClick={() => closePanel()}
                 >
                   <span className="font-medium">{entry.label}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+      {!loading && architectureIdentityHits.length > 0 ? (
+        <section className="border-b border-neutral-100 px-3 py-2 dark:border-neutral-800">
+          <h3 className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+            Architectures
+          </h3>
+          <ul className="m-0 list-none p-0">
+            {architectureIdentityHits.map((hit) => (
+              <li key={hit.architectureId}>
+                <Link
+                  href={hit.href}
+                  className={cn("block rounded px-1 py-1.5 hover:bg-neutral-100 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
+                  onClick={() => closePanel()}
+                >
+                  <span className="font-medium">{hit.displayName}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+      {!loading && architectureDraftHits.length > 0 ? (
+        <section className="border-b border-neutral-100 px-3 py-2 dark:border-neutral-800">
+          <h3 className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+            Drafts
+          </h3>
+          <ul className="m-0 list-none p-0">
+            {architectureDraftHits.map((hit) => (
+              <li key={hit.draftId}>
+                <Link
+                  href={hit.href}
+                  className={cn("block rounded px-1 py-1.5 hover:bg-neutral-100 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
+                  onClick={() => closePanel()}
+                >
+                  <span className="font-medium">{hit.displayName}</span>
+                  <span
+                    className={cn(
+                      "ml-2 inline-flex rounded bg-neutral-100 px-1.5 py-0.5 align-middle text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300",
+                      OPERATOR_TYPOGRAPHY.helper,
+                    )}
+                  >
+                    Draft
+                  </span>
                 </Link>
               </li>
             ))}
