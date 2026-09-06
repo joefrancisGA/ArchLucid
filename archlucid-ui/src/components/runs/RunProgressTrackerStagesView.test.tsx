@@ -24,7 +24,9 @@ describe("RunProgressTrackerStagesView (WA-22)", () => {
       />,
     );
 
-    expect(screen.getByText("1 / 3 stages")).toBeInTheDocument();
+    const progressLine = screen.getByTestId("run-progress-stage-count");
+    expect(progressLine).toHaveTextContent("Progress: 1 / 3 stages");
+    expect(progressLine).not.toHaveClass("justify-between");
     expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
   });
 });

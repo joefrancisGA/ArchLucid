@@ -153,6 +153,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
       props.buyerPolishedShell,
       group.surface,
       props.isGovernanceModeEnabled,
+      workingMode,
     );
     const resolvedHref = workingMode
       ? resolveWorkingInsightsNavHref({

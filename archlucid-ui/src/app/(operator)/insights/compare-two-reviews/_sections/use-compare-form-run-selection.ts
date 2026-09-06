@@ -73,6 +73,7 @@ export function useCompareFormRunSelection(options: {
     });
   }, [rightRunId]);
 
+  const evalChrome = useProductionEvalChrome();
   const leftTrim = leftRunId.trim();
   const rightTrim = rightRunId.trim();
   const sameCanonicalRunIdsBlocked = compareRunIdsAreSameAfterDemoCanonicalization(leftTrim, rightTrim);
@@ -83,8 +84,6 @@ export function useCompareFormRunSelection(options: {
     isStaticDemoPayloadFallbackEnabled() &&
     leftTrim === SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID &&
     rightTrim === SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID;
-
-  const evalChrome = useProductionEvalChrome();
   const architectureId = searchParams?.get("architectureId")?.trim() ?? "";
   const { finalizedCount, insufficientForCompare } = useCompareFinalizedRunAvailability({
     architectureId: architectureId.length > 0 ? architectureId : undefined,

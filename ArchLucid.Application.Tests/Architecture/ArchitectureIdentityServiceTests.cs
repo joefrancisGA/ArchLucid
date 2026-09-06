@@ -163,7 +163,7 @@ public sealed class ArchitectureIdentityServiceTests
     }
 
     [Fact]
-    public async Task TryEnsureReviewRunLinkedAsync_uses_spawned_run_from_matching_draft_request_id()
+    public async Task TryEnsureReviewRunLinkedAsync_ensures_draft_identity_instead_of_spawned_run_when_fk_is_null()
     {
         Guid draftId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
         Guid spawnedRunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
@@ -174,14 +174,6 @@ public sealed class ArchitectureIdentityServiceTests
         runRepository
             .Setup(r => r.GetByIdAsync(Scope, reviewRunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunRecord { RunId = reviewRunId });
-        runRepository
-            .Setup(r => r.GetByIdAsync(Scope, spawnedRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunRecord
-            {
-                RunId = spawnedRunId,
-                ArchitectureId = architectureId,
-                PackageOrigin = ArchitecturePackageOrigin.Created,
-            });
         runRepository
             .Setup(r => r.UpdateAsync(
                 It.IsAny<RunRecord>(),
@@ -198,12 +190,29 @@ public sealed class ArchitectureIdentityServiceTests
                 DraftId = draftId,
                 SpawnedRunId = spawnedRunId.ToString("N"),
                 Status = DraftRequestStatus.RunSpawned,
+                Document = new DraftRequestDocument { SystemName = "Platform" },
             });
+        draftRepository
+            .Setup(r => r.SetArchitectureIdAsync(
+                Scope.TenantId,
+                Scope.WorkspaceId,
+                Scope.ProjectId,
+                draftId,
+                architectureId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
         Mock<IArchitectureIdentityRepository> identityRepository = new();
         identityRepository
+            .Setup(r => r.CreateAsync(Scope, "Platform", null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureIdentityRecord
+            {
+                ArchitectureId = architectureId,
+                DisplayName = "Platform",
+            });
+        identityRepository
             .Setup(r => r.GetByIdAsync(Scope, architectureId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ArchitectureIdentityRecord { ArchitectureId = architectureId });
+            .ReturnsAsync(new ArchitectureIdentityRecord { ArchitectureId = architectureId, DisplayName = "Platform" });
 
         ArchitectureIdentityService sut = new(
             identityRepository.Object,
@@ -223,5 +232,8 @@ public sealed class ArchitectureIdentityServiceTests
 
         linked.Should().NotBeNull();
         linked!.ArchitectureId.Should().Be(architectureId);
+        runRepository.Verify(
+            r => r.GetByIdAsync(Scope, spawnedRunId, It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 }

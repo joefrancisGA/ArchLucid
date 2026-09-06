@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 
+import { InlineMetadataLine } from "@/components/InlineMetadataLine";
 import { Separator } from "@/components/ui/separator";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
@@ -71,13 +72,12 @@ export function RunProgressTrackerStagesView({
 
   return (
     <>
-      <div className="mt-4 space-y-2">
-        <div className={cn("flex justify-between text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
-          <span>Progress</span>
-          <span>
-            {completedStages} / {totalProgressStages} stages
-          </span>
-        </div>
+      <div className="mt-4">
+        <InlineMetadataLine
+          label="Progress"
+          value={`${completedStages} / ${totalProgressStages} stages`}
+          testId="run-progress-stage-count"
+        />
       </div>
 
       <Separator className="my-6" />

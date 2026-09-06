@@ -61,7 +61,7 @@ export function AdvancedOptionsAccordion({
         aria-expanded={open}
         aria-controls={panelId}
       >
-        <DisclosureTriangleIndicator />
+        <DisclosureTriangleIndicator className={cn(open ? "rotate-90" : "rotate-0")} />
         <span className="min-w-0 flex-1 font-semibold">{triggerLabel ?? "Advanced Options"}</span>
       </CollapsibleTrigger>
       <CollapsibleContent>

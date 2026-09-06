@@ -1,18 +1,19 @@
 > **Scope:** Copy-paste Composer prompts that close **durable-architecture wave-13** after LK-01–15. Internal engineering only — not buyer-facing copy.
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Founding contract:** [`ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) R4 / R13 · **UI standard:** [`../library/UI_DESIGN_SYSTEM.md`](../library/UI_DESIGN_SYSTEM.md)
-> **Paste-ready files:** [`.cursor/prompts/durable-architecture-00-index.md`](../../.cursor/prompts/durable-architecture-00-index.md) (**DA-01–12**)
+> **Paste-ready files (wave 14):** [`.cursor/prompts/customer-architecture-00-index.md`](../../.cursor/prompts/customer-architecture-00-index.md) (**CA-01–50**)
+> **Wave 13 skeleton (do not paste):** [`.cursor/prompts/durable-architecture-00-index.md`](../../.cursor/prompts/durable-architecture-00-index.md) (**DA-01–12**)
 > **Wave 12:** [`LIVELIHOOD_KERNEL_COMPOSER_PROMPTS.md`](LIVELIHOOD_KERNEL_COMPOSER_PROMPTS.md) (**LK-01–15**)
 > **Shipped predecessors:** LI-01–15 (`master` #1397), LD-01–15 (#1421 / #1439), RS-01–15 (#1457), WA-01–24 (#1496), FD-01–13 (#1534 / #1537)
 
 # Durable-architecture Composer prompts (DA-01–DA-12)
 
-**Created:** 2026-09-05 · **Status:** ready to run **after LK overlays/ADRs exist in the tree** · **Do not re-run LI, LD, RS, WA, CD, AD, FD, IS, LS, SD, CR, or LK** except as named leftovers. **Do not paste LK-05–07 / IS-15.**
+**Created:** 2026-09-05 · **Status:** prompt skeleton on `master` (#1676). **Execution moved to wave 14** [`.cursor/prompts/customer-architecture-00-index.md`](../../.cursor/prompts/customer-architecture-00-index.md) (**CA-01–50**). **Do not paste DA-01–12** after CA exists. **Do not re-run LI, LD, RS, WA, CD, AD, FD, IS, LS, SD, CR, or LK** except as named leftovers. **Do not paste LK-05–07 / IS-15.**
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record. Waves 8–12 closed start-product chrome, density-as-control, undo, canonical **review** URL after spawn, trail-as-gate, and (authorized) BFF session work.
 
 This set is **wave 13**. The owner authorized productizing **`dbo.Architectures` as the customer-visible durable identity** without merging sealed reviews into drafts. Overlay chrome cannot substitute. Persistence already has the table (migration 323) and `ArchitectureIdentityService`; the desk still treats `DraftId` as `architectureId`.
 
-Paste **one** `.cursor/prompts/durable-architecture-NN-*.md` file per Composer session. Do not implement from this document’s tables.
+**Do not paste DA files.** Paste **one** `.cursor/prompts/customer-architecture-NN-*.md` file per Composer session (wave 14). Do not implement from this document’s tables.
 
 ## The problem these prompts solve
 

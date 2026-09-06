@@ -27,6 +27,7 @@ public static class ComplianceDriftIntegrationEventPublishing
         Guid? runId,
         IAuthorityQueryService authorityQueryService,
         IManifestHashService manifestHashService,
+        string? idempotencyKey,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(integrationEventOutbox);
@@ -45,7 +46,7 @@ public static class ComplianceDriftIntegrationEventPublishing
 
         if (runId is Guid resolvedRunId && resolvedRunId != Guid.Empty)
         {
-            manifestHash = await RunIntegrationEventManifestHashResolver.TryResolveVerifiedManifestHashAsync(
+            manifestHash = await RunIntegrationEventManifestHashResolver.TryResolveVerifiedManifestHashOrNullAsync(
                 resolvedRunId,
                 scope,
                 authorityQueryService,
@@ -70,8 +71,12 @@ public static class ComplianceDriftIntegrationEventPublishing
             manifestHash,
         };
 
+        string messageSuffix = string.IsNullOrWhiteSpace(idempotencyKey)
+            ? escalatedUtc.UtcTicks.ToString(System.Globalization.CultureInfo.InvariantCulture)
+            : idempotencyKey.Trim();
+
         string messageId =
-            $"{scope.TenantId:D}:{driftSignalId:D}:{IntegrationEventTypes.ComplianceDriftEscalatedV1}:{escalatedUtc.UtcTicks}";
+            $"{scope.TenantId:D}:{driftSignalId:D}:{IntegrationEventTypes.ComplianceDriftEscalatedV1}:{messageSuffix}";
 
         await OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
             integrationEventOutbox,

@@ -11,7 +11,8 @@ namespace ArchLucid.Application.Drafts.Stages;
 public sealed class DraftRequestMutateStage(
     IDraftRequestRepository draftRepository,
     IQuestionSelectionEngine questionSelectionEngine,
-    IWorkspaceSystemNameCollisionGuard workspaceSystemNameCollisionGuard) : IDraftRequestMutateStage
+    IWorkspaceSystemNameCollisionGuard workspaceSystemNameCollisionGuard,
+    IArchitectureIdentityService architectureIdentityService) : IDraftRequestMutateStage
 {
     private readonly IDraftRequestRepository _draftRepository =
         draftRepository ?? throw new ArgumentNullException(nameof(draftRepository));
@@ -21,6 +22,9 @@ public sealed class DraftRequestMutateStage(
 
     private readonly IWorkspaceSystemNameCollisionGuard _workspaceSystemNameCollisionGuard =
         workspaceSystemNameCollisionGuard ?? throw new ArgumentNullException(nameof(workspaceSystemNameCollisionGuard));
+
+    private readonly IArchitectureIdentityService _architectureIdentityService =
+        architectureIdentityService ?? throw new ArgumentNullException(nameof(architectureIdentityService));
 
     public async Task<DraftRequestResponse?> PatchAsync(
         ScopeContext scope,
@@ -70,7 +74,7 @@ public sealed class DraftRequestMutateStage(
         DraftDocumentMutator.ApplyPatch(existing.Document, patch);
         DraftDocumentMutator.SyncTransparencyFromDocument(existing.Document);
 
-        return await _draftRepository.UpdateAsync(
+        DraftRequestResponse? updated = await _draftRepository.UpdateAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
@@ -80,6 +84,15 @@ public sealed class DraftRequestMutateStage(
             existing.RedirectReason,
             existing.SpawnedRunId,
             cancellationToken);
+
+        if (updated is not null)
+        {
+            await _architectureIdentityService
+                .TryUpgradeUntitledDisplayNameFromDraftAsync(scope, draftId, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        return updated;
     }
 
     public async Task<DraftRequestResponse?> AnswerQuestionAsync(

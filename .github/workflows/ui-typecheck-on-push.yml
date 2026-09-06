@@ -101,6 +101,8 @@ jobs:
           python3 scripts/ci/check_policy_pack_finding_delta_offline_packet.py
           python3 scripts/ci/check_manifest_summary_manifest_version_access.py
           python3 scripts/ci/check_status_tag_kind_warning.py
+          python3 scripts/ci/check_npm_overrides_lockfile_sync.py
+          python3 scripts/ci/check_live_e2e_simulator_azure_openai_env.py
 
       - name: Beta-readiness guard unit tests
         run: |
@@ -116,6 +118,8 @@ jobs:
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_policy_pack_finding_delta_offline_packet.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_manifest_summary_manifest_version_access.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_status_tag_kind_warning.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_check_npm_overrides_lockfile_sync.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_check_live_e2e_simulator_azure_openai_env.py"
 
   ui-typecheck:
     name: "Operator UI: typecheck (blocking)"
@@ -137,6 +141,7 @@ jobs:
           CI: true
           NODE_OPTIONS: --max-old-space-size=6144
         run: |
+          python3 ../scripts/ci/check_npm_overrides_lockfile_sync.py --prefix .
           npm ci
           python3 ../scripts/ci/assert_single_npm_dependency_version.py @tanstack/query-core --prefix .
           npm run typecheck
@@ -163,5 +168,7 @@ jobs:
           NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES: "1"
           NEXT_PUBLIC_ARCHLUCID_AUTH_MODE: jwt-bearer
         run: |
+          python3 ../scripts/ci/check_npm_overrides_lockfile_sync.py --prefix .
           npm ci
+          python3 ../scripts/ci/assert_single_npm_dependency_version.py @tanstack/query-core --prefix .
           npm run build

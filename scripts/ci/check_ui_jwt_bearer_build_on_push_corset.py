@@ -14,6 +14,8 @@ _JWT_BEARER_ENV_MARKERS = (
     "NEXT_PUBLIC_ARCHLUCID_AUTH_MODE=jwt-bearer",
 )
 _E2E_DEMO_MARKER = "NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES"
+_LOCKFILE_GUARD = "check_npm_overrides_lockfile_sync.py"
+_QUERY_CORE_ASSERT = "assert_single_npm_dependency_version.py @tanstack/query-core"
 
 
 def repo_root() -> Path:
@@ -52,6 +54,17 @@ def main(argv: list[str] | None = None) -> int:
 
         if "npm run build" not in text:
             errors.append(f"{_PUSH_REL}: missing npm run build step for jwt-bearer client")
+
+        if _LOCKFILE_GUARD not in text:
+            errors.append(
+                f"{_PUSH_REL}: {_JOB_NAME} must run {_LOCKFILE_GUARD} before npm ci "
+                "(parity with typecheck and private-beta lanes)",
+            )
+
+        if _QUERY_CORE_ASSERT not in text:
+            errors.append(
+                f"{_PUSH_REL}: {_JOB_NAME} must assert a single @tanstack/query-core version after npm ci",
+            )
 
     if errors:
         for error in errors:

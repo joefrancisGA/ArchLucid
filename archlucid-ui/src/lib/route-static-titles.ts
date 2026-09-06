@@ -11,6 +11,15 @@ import {
   GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
+  GOVERNANCE_INFRASTRUCTURE_PATH,
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+} from "@/lib/governance/governance-infrastructure-route-paths";
 import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
@@ -69,6 +78,13 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/governance/recurrence-schedules": OPERATOR_NAV_LINK_LABELS.recurrenceSchedules,
   "/governance/environments": OPERATOR_NAV_LINK_LABELS.governanceEnvironments,
   "/governance/setup": OPERATOR_NAV_LINK_LABELS.governanceSetupGuide,
+  [GOVERNANCE_INFRASTRUCTURE_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureOverview,
+  [GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureDrift,
+  [GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureDiagrams,
+  [GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureDiagramReconcile,
+  [GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
+  [GOVERNANCE_INFRASTRUCTURE_ASK_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureAsk,
+  [GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureRemediation,
   "/internal/validate-route": OPERATOR_NAV_LINK_LABELS.replayReview,
   "/administration/system-health": OPERATOR_NAV_LINK_LABELS.systemHealth,
   [PLANNING_PATH]: OPERATOR_NAV_LINK_LABELS.planning,

@@ -8,12 +8,12 @@
 /** Header GlobalSearchBar / command-palette-style find-a-page surface. */
 export const GLOBAL_FIND_PAGE_SEARCH = {
   /** Placeholder — navigation lookup; use Ctrl+K for workspace-wide command palette search. */
-  placeholder: "Find pages and reviews…",
+  placeholder: "Find pages, architectures, and reviews…",
   /** Accessible name for the header combobox (not evidence-trail search). */
-  ariaLabel: "Find pages and reviews",
+  ariaLabel: "Find pages, architectures, and reviews",
   /** Helper clarifying this is navigation/lookup, not evidence retrieval. */
   helper:
-    "Jump to pages and reviews. Press Ctrl+K for the command palette. To search the evidence trail, use Search review evidence.",
+    "Jump to pages, architecture identities, drafts, and reviews. Press Ctrl+K for the command palette. To search the evidence trail, use Search review evidence.",
 } as const;
 
 /** `/insights/search-review-evidence` — retrieve across the evidence trail. */

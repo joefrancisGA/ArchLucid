@@ -110,6 +110,7 @@ export const OPERATOR_NAV_GROUP_LABELS = {
   policy: "Policy",
   reports: "Reports",
   integrations: "Integrations",
+  infrastructure: "Infrastructure",
   operations: "Operations",
   help: "Help",
 } as const;
@@ -121,7 +122,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   /** Operator-shell ROI dashboard (`/architecture/sponsor-dashboard`); the standalone sponsor-chrome duplicate was retired (TB-608). */
   portfolioOverview: "Sponsor dashboard",
   SponsorReport: BUYER_SPONSOR_SUMMARY_VOCABULARY.reviewSponsorReportLabel,
-  /** Architecture draft inventory (`/architectures`). */
+  /** Architecture hub (`/architecture/architectures`) — Working: identity portfolio; Guided: draft inventory (CA-32). */
   architectures: ARCHITECTURE_DRAFTS_LIST_LABEL,
   /** Unified packages list (`/architecture/reviews`) — reviews plus architecture drafts. */
   packages: "Packages",
@@ -138,6 +139,13 @@ export const OPERATOR_NAV_LINK_LABELS = {
   assignedToMeFindings: "Assigned to me",
   riskExceptions: "Exceptions",
   remediationFactory: "Remediation factory",
+  infrastructureOverview: "Infrastructure overview",
+  infrastructureDrift: "Drift & snapshots",
+  infrastructureDiagrams: "Inventory diagrams",
+  infrastructureDiagramReconcile: "Diagram reconciliation",
+  infrastructureResources: "Resource explorer",
+  infrastructureAsk: "Infrastructure Ask",
+  infrastructureRemediation: "Remediation instances",
   remediationPatterns: "Remediation patterns",
   auditEvidenceLineage: "Audit evidence lineage",
   decisionRegister: "Decision register",

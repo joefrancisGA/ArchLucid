@@ -12,6 +12,9 @@ public static partial class AuditEventTypes
     /// <summary>Operator patched a drafting intake draft (<c>PATCH /v1/architecture/draft/{draftId}</c>).</summary>
     public const string DraftIntakePatched = "DraftIntake.Patched";
 
+    /// <summary>Operator renamed or updated metadata on a customer architecture identity (<c>PATCH /v1/architectures/{architectureId}</c>, ADR 0074).</summary>
+    public const string ArchitectureIdentityPatched = "ArchitectureIdentity.Patched";
+
     /// <summary>Pre-run manifest-free reasoning turn on an intake draft (SAQ-013).</summary>
     public const string DraftIntakeReasoned = "DraftIntake.Reasoned";
 

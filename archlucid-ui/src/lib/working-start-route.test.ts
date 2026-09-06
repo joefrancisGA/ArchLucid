@@ -3,20 +3,20 @@ import { describe, expect, it } from "vitest";
 import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { resolveWorkingStartHref } from "@/lib/working-start-route";
 
-describe("resolveWorkingStartHref (IS-03 / ADR 0069)", () => {
-  it("prefers in-flight review over draft and new", () => {
+describe("resolveWorkingStartHref (IS-03 / ADR 0069 / CA-33)", () => {
+  it("prefers in-flight review over architecture and new", () => {
     const result = resolveWorkingStartHref({
       inFlightReviewId: "run-in-flight",
-      lastOpenDraftId: "draft-1",
+      lastOpenArchitectureId: "arch-identity-1",
     });
 
     expect(result.reason).toBe("in-flight-review");
     expect(result.href).toBe("/architecture/reviews/run-in-flight");
   });
 
-  it("opens spawn-locked review instead of the draft editor", () => {
+  it("opens spawn-locked review instead of resuming a draft editor", () => {
     const result = resolveWorkingStartHref({
-      lastOpenDraftId: "draft-spawned",
+      lastOpenArchitectureId: "arch-identity-1",
       spawnLockedReviewId: "run-linked",
     });
 
@@ -24,29 +24,19 @@ describe("resolveWorkingStartHref (IS-03 / ADR 0069)", () => {
     expect(result.href).toBe("/architecture/reviews/run-linked");
   });
 
-  it("opens last-open architecture before last-open draft", () => {
+  it("opens last-open architecture identity desk when no review is active", () => {
     const result = resolveWorkingStartHref({
       lastOpenArchitectureId: "arch-identity-1",
-      lastOpenDraftId: "draft-42",
     });
 
     expect(result.reason).toBe("last-open-architecture");
     expect(result.href).toBe("/architecture/architectures/arch-identity-1");
   });
 
-  it("resumes last-open draft when no review is active", () => {
-    const result = resolveWorkingStartHref({
-      lastOpenDraftId: "draft-42",
-    });
-
-    expect(result.reason).toBe("last-open-draft");
-    expect(result.href).toBe("/architecture/architectures/draft-42");
-  });
-
-  it("falls back to new draft editor when workspace is empty", () => {
+  it("falls back to new architecture bootstrap when workspace is empty", () => {
     const result = resolveWorkingStartHref({});
 
-    expect(result.reason).toBe("new-draft");
+    expect(result.reason).toBe("new-architecture");
     expect(result.href).toBe(ARCHITECTURES_NEW_PATH);
   });
 });

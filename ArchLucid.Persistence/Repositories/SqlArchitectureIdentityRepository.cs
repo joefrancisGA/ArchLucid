@@ -224,4 +224,55 @@ public sealed partial class SqlArchitectureIdentityRepository(ISqlConnectionFact
 
         return rows > 0;
     }
+
+    public async Task<bool> TryPatchAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        bool updateDisplayName,
+        string? displayName,
+        bool updateDescription,
+        string? description,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (!updateDisplayName && !updateDescription)
+            return false;
+
+        if (updateDisplayName)
+            ArgumentException.ThrowIfNullOrWhiteSpace(displayName);
+
+        const string sql = """
+                           UPDATE dbo.Architectures
+                           SET DisplayName = CASE WHEN @UpdateDisplayName = 1 THEN @DisplayName ELSE DisplayName END,
+                               Description = CASE WHEN @UpdateDescription = 1 THEN @Description ELSE Description END,
+                               UpdatedUtc = @UpdatedUtc
+                           WHERE ArchitectureId = @ArchitectureId
+                             AND TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ScopeProjectId = @ScopeProjectId;
+                           """;
+
+        await using SqlConnection connection =
+            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        int rows = await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    ArchitectureId = architectureId,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    UpdateDisplayName = updateDisplayName ? 1 : 0,
+                    DisplayName = displayName,
+                    UpdateDescription = updateDescription ? 1 : 0,
+                    Description = description,
+                    UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                },
+                cancellationToken: cancellationToken)).ConfigureAwait(false);
+
+        return rows > 0;
+    }
 }

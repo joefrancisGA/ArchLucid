@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type ReactElement, type SetStateAction } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactElement } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
@@ -62,30 +62,25 @@ export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): Re
     parseSimulatorModeConfirmOpenFromSearch(simulatorModeConfirmOpenParam),
   );
 
-  const syncConfirmOpenToUrl = useCallback(
-    (open: boolean) => {
-      router.replace(simulatorModeConfirmHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
-    },
-    [pathname, router, searchParams],
-  );
-
-  const setConfirmOpen = useCallback(
-    (value: SetStateAction<boolean>) => {
-      setConfirmOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncConfirmOpenToUrl(next);
-
-        return next;
-      });
-    },
-    [syncConfirmOpenToUrl],
-  );
+  const setConfirmOpen = useCallback((open: boolean) => {
+    setConfirmOpenState(open);
+  }, []);
 
   useEffect(() => {
     setConfirmOpenState(parseSimulatorModeConfirmOpenFromSearch(simulatorModeConfirmOpenParam));
   }, [simulatorModeConfirmOpenParam]);
+
+  useEffect(() => {
+    const urlOpen = parseSimulatorModeConfirmOpenFromSearch(simulatorModeConfirmOpenParam);
+
+    if (confirmOpen === urlOpen) {
+      return;
+    }
+
+    router.replace(simulatorModeConfirmHrefFromSearch(searchParams.toString(), confirmOpen, pathname), {
+      scroll: false,
+    });
+  }, [confirmOpen, pathname, router, searchParams, simulatorModeConfirmOpenParam]);
 
   useEffect(() => {
     if (!isDevTestingOverridesEnabled()) {

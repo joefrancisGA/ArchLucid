@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
@@ -23,8 +24,40 @@ namespace ArchLucid.Api.Controllers.InfraEvidence;
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class CloudResourceEvidenceHubController(
     ICloudResourceEvidenceHubService hubService,
+    ICloudResourceExplorerQueryService explorerQueryService,
     IScopeContextProvider scopeProvider) : ControllerBase
 {
+    [HttpGet]
+    [ProducesResponseType(typeof(PagedResponse<CloudResourceSummary>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ListCloudResources(
+        [FromQuery] string? namePrefix,
+        [FromQuery] string? resourceType,
+        [FromQuery] string? resourceGroup,
+        [FromQuery] int page = PaginationDefaults.DefaultPage,
+        [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
+        CancellationToken cancellationToken = default)
+    {
+        if (pageSize > PaginationDefaults.MaxPageSize)
+        {
+            return this.PayloadTooLargeProblem(
+                $"pageSize cannot exceed {PaginationDefaults.MaxPageSize}.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        PagedResponse<CloudResourceSummary> response = await explorerQueryService.ListCloudResourcesAsync(
+            scope,
+            namePrefix,
+            resourceType,
+            resourceGroup,
+            page,
+            pageSize,
+            cancellationToken);
+
+        return Ok(response);
+    }
+
     [HttpGet("{cloudResourceId:guid}/hub")]
     [ProducesResponseType(typeof(CloudResourceEvidenceHubResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -9,7 +9,7 @@ export const ARCHITECTURES_HUB_PAGE_SUBTITLE =
   "Saved architecture drafts for your account — sync across browsers where you sign in." as const;
 
 export const ARCHITECTURES_HUB_PAGE_SUBTITLE_BUYER =
-  "Saved architecture drafts for your account — start a review when a draft is ready for evidence intake." as const;
+  "Guided mode: saved architecture drafts for your account — start a review when a draft is ready for evidence intake." as const;
 
 export function architecturesHubPageSubtitle(buyerPolishedShell: boolean): string {
   return buyerPolishedShell ? ARCHITECTURES_HUB_PAGE_SUBTITLE_BUYER : ARCHITECTURES_HUB_PAGE_SUBTITLE;

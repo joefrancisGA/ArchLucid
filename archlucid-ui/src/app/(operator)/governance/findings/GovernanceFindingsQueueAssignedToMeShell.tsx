@@ -6,6 +6,7 @@ import { GovernanceFindingsQueueScopeSection } from "@/app/(operator)/governance
 import { GovernanceFindingsQueueToolbarSection } from "@/app/(operator)/governance/findings/_sections/GovernanceFindingsQueueToolbarSection";
 import type { AssignedToMeOldestFindingTarget, FirstFindingTriageTarget } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
 import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
+import type { FindingsHiddenFilterHonesty } from "@/lib/findings/findings-hidden-filter-honesty";
 import type { GovernanceFindingsFetchFailure } from "@/components/governance/findings/governance-findings-query-fetch";
 import type { GovernanceFindingsFilterPreset } from "@/components/governance/findings/governance-findings-filter-presets";
 import type { IntegrationConnectChecklistStep } from "@/components/integrations/IntegrationConnectChecklist";
@@ -61,6 +62,8 @@ export type GovernanceFindingsQueueAssignedToMeShellProps = {
   readonly onNaturalLanguageFilterApply: (next: FindingsNaturalLanguageFacets) => void;
   readonly nlFacets: FindingsNaturalLanguageFacets;
   readonly onClearAllFilters: () => void;
+  readonly onShowAllFilteredFindings: () => void;
+  readonly hiddenFilterHonesty: FindingsHiddenFilterHonesty;
   readonly onLoadFindingsSavedView: (view: import("@/lib/api/operator-saved-views").OperatorSavedView) => void;
   readonly loading: boolean;
   readonly rows: readonly GovernanceFindingQueueRow[];

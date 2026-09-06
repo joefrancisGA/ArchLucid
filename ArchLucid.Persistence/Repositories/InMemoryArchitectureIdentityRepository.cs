@@ -132,6 +132,43 @@ public sealed partial class InMemoryArchitectureIdentityRepository : IArchitectu
         return Task.FromResult(true);
     }
 
+    public Task<bool> TryPatchAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        bool updateDisplayName,
+        string? displayName,
+        bool updateDescription,
+        string? description,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        _ = cancellationToken;
+
+        if (!updateDisplayName && !updateDescription)
+            return Task.FromResult(false);
+
+        if (!_byId.TryGetValue(architectureId, out ArchitectureIdentityRecord? record))
+            return Task.FromResult(false);
+
+        if (record.TenantId != scope.TenantId ||
+            record.WorkspaceId != scope.WorkspaceId ||
+            record.ScopeProjectId != scope.ProjectId)
+            return Task.FromResult(false);
+
+        if (updateDisplayName)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(displayName);
+            record.DisplayName = displayName!;
+        }
+
+        if (updateDescription)
+            record.Description = description;
+
+        record.UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+
+        return Task.FromResult(true);
+    }
+
     private ArchitectureIdentityRecord RequireScopedRecord(ScopeContext scope, Guid architectureId)
     {
         if (!_byId.TryGetValue(architectureId, out ArchitectureIdentityRecord? record))

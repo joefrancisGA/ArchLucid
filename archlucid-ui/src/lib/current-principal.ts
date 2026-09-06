@@ -76,6 +76,7 @@ import {
   applyDevRoleOverrideToPrincipal,
   DEV_TEST_ACTOR_ROLE_HEADER,
   readDevRoleOverrideFromDocument,
+  resolveDevRoleOverrideApiActorRole,
 } from "@/lib/dev-testing-overrides";
 import {
   AUTHORITY_RANK,
@@ -190,7 +191,7 @@ export async function buildAuthMeProxyRequestInit(): Promise<RequestInit> {
   const devRoleOverride = readDevRoleOverrideFromDocument();
 
   if (devRoleOverride !== null) {
-    headers.set(DEV_TEST_ACTOR_ROLE_HEADER, devRoleOverride);
+    headers.set(DEV_TEST_ACTOR_ROLE_HEADER, resolveDevRoleOverrideApiActorRole(devRoleOverride));
   }
 
   return mergeRegistrationScopeForProxy({

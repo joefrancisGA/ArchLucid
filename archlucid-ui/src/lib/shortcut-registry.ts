@@ -16,7 +16,7 @@ export const WORKING_MODE_NEW_REVIEW_ROUTE = ARCHITECTURES_NEW_PATH;
 /** Shift+? / help overlay — Guided mode may still say wizard; Working uses draft editor (LI-06). */
 export const GUIDED_ALT_N_SHORTCUT_DESCRIPTION = `${OPERATOR_START_REVIEW_QUICK_ACTION_LABEL} — open the guided new-review wizard`;
 
-export const WORKING_ALT_N_SHORTCUT_DESCRIPTION = `${OPERATOR_START_REVIEW_QUICK_ACTION_LABEL} — open the draft editor`;
+export const WORKING_ALT_N_SHORTCUT_DESCRIPTION = `${OPERATOR_START_REVIEW_QUICK_ACTION_LABEL} — resume in-flight review, last architecture, or new architecture`;
 
 export type ShortcutEntry = {
   key: string;

@@ -4,6 +4,7 @@ import { beforeAll, describe, expect, it, vi } from "vitest";
 vi.mock("next/navigation", () => ({
   usePathname: () => "/architecture/reviews/run-1",
   useRouter: () => ({ refresh: vi.fn(), push: vi.fn(), replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 import type { ManifestSummary } from "@/types/authority";

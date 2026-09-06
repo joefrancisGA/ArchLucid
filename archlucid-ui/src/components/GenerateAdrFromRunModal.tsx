@@ -13,8 +13,10 @@ import {
   CAREER_EXPORT_EVAL_SAMPLE_LABEL,
   CAREER_EXPORT_EVAL_SAMPLE_MAX_FINDINGS,
   CAREER_EXPORT_INCOMPLETE_CONFIRM_LABEL,
+  capAdrGeneratorFindingsForExport,
   formatCareerExportFindingInventoryLine,
   resolveCareerExportFindingInventory,
+  resolveCareerExportMaxFindings,
 } from "@/lib/career-export-finding-inventory";
 import {
   Dialog,
@@ -58,14 +60,20 @@ export function GenerateAdrFromRunModal({
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState<string | null>(null);
   const [incompleteExportConfirmed, setIncompleteExportConfirmed] = useState(false);
+  const evalSampleExport = buyerPolished && !workingDesk;
+  const exportMaxFindings = resolveCareerExportMaxFindings({
+    workingDesk,
+    evalSampleExport,
+  });
+  const totalEligibleFindings = totalFindingCount ?? input.findings.length;
+  const exportInput = capAdrGeneratorFindingsForExport(input, exportMaxFindings);
   const exportInventory = resolveCareerExportFindingInventory({
-    included: input.findings.length,
-    total: totalFindingCount ?? input.findings.length,
+    included: exportInput.findings.length,
+    total: totalEligibleFindings,
   });
   const exportInventoryLine = formatCareerExportFindingInventoryLine(exportInventory);
   const exportBlocked =
     workingDesk && !exportInventory.isComplete && !incompleteExportConfirmed;
-  const evalSampleExport = buyerPolished && !workingDesk;
 
   const syncAdrOpenToUrl = useCallback(
     (nextOpen: boolean) => {
@@ -89,8 +97,8 @@ export function GenerateAdrFromRunModal({
   );
 
   const seedFromInput = useCallback(() => {
-    setMarkdown(buildMadrMarkdownFromRun(input));
-  }, [input]);
+    setMarkdown(buildMadrMarkdownFromRun(exportInput));
+  }, [exportInput]);
 
   const onOpenChange = useCallback(
     (next: boolean) => {

@@ -61,6 +61,28 @@ public interface IArchitectureIdentityService
         Guid draftId,
         string displayName,
         CancellationToken cancellationToken = default);
+
+    /// <summary>Renames the customer-visible architecture identity without rewriting draft documents.</summary>
+    Task<ArchitectureIdentityRecord?> RenameAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        string displayName,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>Partially updates display name and/or description for an architecture identity.</summary>
+    Task<ArchitectureIdentityRecord?> PatchAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        PatchArchitectureIdentityRequest patch,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     One-time upgrade from untitled to the draft system title when the identity is still the default.
+    /// </summary>
+    Task TryUpgradeUntitledDisplayNameFromDraftAsync(
+        ScopeContext scope,
+        Guid draftId,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed class ArchitectureIdentityService(
@@ -299,7 +321,18 @@ public sealed class ArchitectureIdentityService(
                 .ConfigureAwait(false);
 
             if (existing is not null)
-                return existing;
+            {
+                await TryUpgradeUntitledDisplayNameFromDraftInternalAsync(
+                    scope,
+                    draft,
+                    existing.ArchitectureId,
+                    cancellationToken).ConfigureAwait(false);
+
+                return await _architectureIdentityRepository
+                    .GetByIdAsync(scope, existing.ArchitectureId, cancellationToken)
+                    .ConfigureAwait(false)
+                    ?? existing;
+            }
         }
 
         Guid? inheritedArchitectureId = await TryResolveInheritedArchitectureIdFromParentDraftAsync(
@@ -322,7 +355,8 @@ public sealed class ArchitectureIdentityService(
             identity = await _architectureIdentityRepository
                 .CreateAsync(
                     scope,
-                    ArchitectureIdentityDisplayNameDefaults.Resolve(displayName),
+                    ArchitectureIdentityDisplayNameDefaults.Resolve(
+                        ArchitectureIdentityDisplayNameResolver.ResolveFromDraft(draft.Document)),
                     currentModelId: null,
                     cancellationToken)
                 .ConfigureAwait(false);
@@ -359,8 +393,25 @@ public sealed class ArchitectureIdentityService(
             .GetAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, draftId.Value, cancellationToken)
             .ConfigureAwait(false);
 
-        if (draft?.ArchitectureId is not Guid architectureId)
+        if (draft is null)
             return null;
+
+        Guid architectureId;
+
+        if (draft.ArchitectureId is not Guid linkedArchitectureId)
+        {
+            ArchitectureIdentityRecord ensured = await EnsureForDraftAsync(
+                scope,
+                draftId.Value,
+                ArchitectureIdentityDisplayNameResolver.ResolveFromDraft(draft.Document),
+                cancellationToken).ConfigureAwait(false);
+
+            architectureId = ensured.ArchitectureId;
+        }
+        else
+        {
+            architectureId = linkedArchitectureId;
+        }
 
         bool linked = await TryLinkRunToArchitectureAsync(scope, reviewRunId, architectureId, cancellationToken)
             .ConfigureAwait(false);
@@ -388,5 +439,122 @@ public sealed class ArchitectureIdentityService(
             .ConfigureAwait(false);
 
         return parentDraft?.ArchitectureId;
+    }
+
+    public async Task<ArchitectureIdentityRecord?> RenameAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        string displayName,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(displayName);
+
+        string trimmedDisplayName = displayName.Trim();
+
+        if (trimmedDisplayName.Length == 0)
+            throw new ArgumentException("Display name cannot be empty.", nameof(displayName));
+
+        bool updated = await _architectureIdentityRepository
+            .TryPatchAsync(
+                scope,
+                architectureId,
+                updateDisplayName: true,
+                ArchitectureIdentityDisplayNameDefaults.Resolve(trimmedDisplayName),
+                updateDescription: false,
+                description: null,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        if (!updated)
+            return null;
+
+        return await _architectureIdentityRepository
+            .GetByIdAsync(scope, architectureId, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    public async Task<ArchitectureIdentityRecord?> PatchAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        PatchArchitectureIdentityRequest patch,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(patch);
+
+        if (!patch.HasAnyPatch)
+            throw new ArgumentException("At least one patch field is required.", nameof(patch));
+
+        string? normalizedDisplayName = null;
+        string? normalizedDescription = null;
+
+        if (patch.HasDisplayName)
+        {
+            string trimmedDisplayName = patch.DisplayName!.Trim();
+
+            if (trimmedDisplayName.Length == 0)
+                throw new ArgumentException("Display name cannot be empty.", nameof(patch));
+
+            normalizedDisplayName = ArchitectureIdentityDisplayNameDefaults.Resolve(trimmedDisplayName);
+        }
+
+        if (patch.HasDescription)
+            normalizedDescription = string.IsNullOrWhiteSpace(patch.Description) ? null : patch.Description.Trim();
+
+        bool updated = await _architectureIdentityRepository
+            .TryPatchAsync(
+                scope,
+                architectureId,
+                patch.HasDisplayName,
+                normalizedDisplayName,
+                patch.HasDescription,
+                normalizedDescription,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        if (!updated)
+            return null;
+
+        return await _architectureIdentityRepository
+            .GetByIdAsync(scope, architectureId, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    public async Task TryUpgradeUntitledDisplayNameFromDraftAsync(
+        ScopeContext scope,
+        Guid draftId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        DraftRequestResponse? draft = await _draftRequestRepository
+            .GetAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, draftId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (draft?.ArchitectureId is not Guid architectureId)
+            return;
+
+        await TryUpgradeUntitledDisplayNameFromDraftInternalAsync(
+            scope,
+            draft,
+            architectureId,
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task TryUpgradeUntitledDisplayNameFromDraftInternalAsync(
+        ScopeContext scope,
+        DraftRequestResponse draft,
+        Guid architectureId,
+        CancellationToken cancellationToken)
+    {
+        string? upgradeCandidate = ArchitectureIdentityDisplayNameResolver.ResolveUntitledUpgradeCandidate(draft.Document);
+
+        if (upgradeCandidate is null)
+            return;
+
+        await _architectureIdentityRepository
+            .TryUpdateDisplayNameWhenUntitledAsync(scope, architectureId, upgradeCandidate, cancellationToken)
+            .ConfigureAwait(false);
     }
 }

@@ -1,6 +1,5 @@
 import {
   ARCHITECTURES_NEW_PATH,
-  architectureDraftPath,
   architectureIdentityPath,
   reviewDetailPath,
 } from "@/lib/architecture/architecture-routes";
@@ -8,12 +7,8 @@ import {
 export type ResolveWorkingStartHrefInput = {
   /** Active in-flight review run id (Pending/Running operation). */
   readonly inFlightReviewId?: string | null;
-  /** Last-open review from server or recent-views cache. */
-  readonly lastOpenReviewId?: string | null;
   /** Last-open durable architecture identity desk. */
   readonly lastOpenArchitectureId?: string | null;
-  /** Last-open draft id (editor surface). */
-  readonly lastOpenDraftId?: string | null;
   /**
    * When set, the draft spawned a review — Start must open the review, not the draft editor (spawn lock).
    */
@@ -25,10 +20,8 @@ export type ResolveWorkingStartHrefResult = {
   readonly reason:
     | "in-flight-review"
     | "spawn-locked-review"
-    | "last-open-review"
     | "last-open-architecture"
-    | "last-open-draft"
-    | "new-draft";
+    | "new-architecture";
 };
 
 function trimmedId(value: string | null | undefined): string | null {
@@ -37,12 +30,10 @@ function trimmedId(value: string | null | undefined): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
-/** ADR 0069 / IS-03 — Working Start and Alt+N land on the current work object, not a chooser. */
+/** ADR 0069 / IS-03 / CA-33 — Working Start and Alt+N land on the current work object, not a draft-as-identity URL. */
 export function resolveWorkingStartHref(input: ResolveWorkingStartHrefInput): ResolveWorkingStartHrefResult {
   const inFlightReviewId = trimmedId(input.inFlightReviewId);
-  const lastOpenReviewId = trimmedId(input.lastOpenReviewId);
   const lastOpenArchitectureId = trimmedId(input.lastOpenArchitectureId);
-  const lastOpenDraftId = trimmedId(input.lastOpenDraftId);
   const spawnLockedReviewId = trimmedId(input.spawnLockedReviewId);
 
   if (inFlightReviewId !== null) {
@@ -59,13 +50,6 @@ export function resolveWorkingStartHref(input: ResolveWorkingStartHrefInput): Re
     };
   }
 
-  if (lastOpenReviewId !== null) {
-    return {
-      href: reviewDetailPath(lastOpenReviewId),
-      reason: "last-open-review",
-    };
-  }
-
   if (lastOpenArchitectureId !== null) {
     return {
       href: architectureIdentityPath(lastOpenArchitectureId),
@@ -73,15 +57,8 @@ export function resolveWorkingStartHref(input: ResolveWorkingStartHrefInput): Re
     };
   }
 
-  if (lastOpenDraftId !== null) {
-    return {
-      href: architectureDraftPath(lastOpenDraftId),
-      reason: "last-open-draft",
-    };
-  }
-
   return {
     href: ARCHITECTURES_NEW_PATH,
-    reason: "new-draft",
+    reason: "new-architecture",
   };
 }

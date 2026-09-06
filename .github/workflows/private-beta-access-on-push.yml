@@ -11,8 +11,9 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: private-beta-access-push-${{ github.sha }}
-  cancel-in-progress: false
+  # One invite-wave smoke per branch — cancel superseded queued/in-flight runs when trunk advances.
+  group: private-beta-access-on-push-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -64,15 +65,24 @@ jobs:
           dotnet restore ArchLucid.sln
           dotnet build ArchLucid.Api/ArchLucid.Api.csproj --no-restore -c Release
 
-      - name: Install UI deps & build Next (standalone, jwt-bearer client)
+      - name: Install UI deps, verify lockfile, and typecheck
+        working-directory: archlucid-ui
+        env:
+          CI: true
+          NODE_OPTIONS: --max-old-space-size=6144
+        run: |
+          python3 ../scripts/ci/check_npm_overrides_lockfile_sync.py --prefix .
+          npm ci
+          python3 ../scripts/ci/assert_single_npm_dependency_version.py @tanstack/query-core --prefix .
+          npm run typecheck
+
+      - name: Build Next (standalone, jwt-bearer client)
         working-directory: archlucid-ui
         env:
           NODE_OPTIONS: --max-old-space-size=6144
           NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES: "1"
           NEXT_PUBLIC_ARCHLUCID_AUTH_MODE: jwt-bearer
-        run: |
-          npm ci
-          npm run build:live-e2e
+        run: npm run build:live-e2e
 
       - name: Generate RSA keys & PyJWT (CI JWT mint)
         run: |
@@ -96,7 +106,7 @@ jobs:
         env:
           ASPNETCORE_ENVIRONMENT: Development
           ASPNETCORE_URLS: http://127.0.0.1:5128
-          ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidLiveE2eBetaAccess"
+          ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidLiveE2eBetaAccess;Max Pool Size=200;Connect Timeout=120"
           ArchLucid__StorageProvider: Sql
           ArchLucidAuth__Mode: JwtBearer
           ArchLucidAuth__Authority: ""
@@ -119,6 +129,15 @@ jobs:
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
           DataConsistency__InitialDelaySeconds: "0"
+          DataConsistency__OrphanProbeEnabled: "false"
+          Demo__Enabled: "false"
+          Demo__SeedOnStartup: "false"
+          TrialArchitecturePreseed__Enabled: "false"
+          Persistence__SqlOpenResilience__MaxRetryAttempts: "6"
+          Persistence__SqlOpenResilience__BaseDelayMilliseconds: "500"
+          ArchLucid__Persistence__DefaultSqlCommandTimeoutSeconds: "300"
+          ArchLucid__CreateRun__DistributedIdempotencyLockTimeoutMilliseconds: "180000"
+          AuthorityPipeline__PipelineTimeout: "00:05:00"
           HostLeaderElection__Enabled: "false"
           Observability__ConsoleExporter__Enabled: "false"
         run: |
@@ -155,9 +174,10 @@ jobs:
           echo "::add-mask::${TOKEN}"
           export LIVE_JWT_TOKEN="${TOKEN}"
           export ARCHLUCID_PROXY_BEARER_TOKEN="${TOKEN}"
-          bash "${GITHUB_WORKSPACE}/scripts/ci/warm_private_beta_live_api_paths.sh" "${TOKEN}"
           npx playwright install --with-deps chromium
-          curl -fsS http://127.0.0.1:5128/health/ready
+          bash "${GITHUB_WORKSPACE}/scripts/ci/warm_private_beta_live_api_paths.sh" "${TOKEN}"
+          ARCHLUCID_API_READY_WAIT_ATTEMPTS=90 \
+            bash "${GITHUB_WORKSPACE}/scripts/ci/wait-for-api-ready.sh" "${RUNNER_TEMP}/live-api-beta-access.log"
           npx playwright test --workers=1 live-api-private-beta-access.spec.ts
 
       - name: Upload live API log (private-beta access-path)

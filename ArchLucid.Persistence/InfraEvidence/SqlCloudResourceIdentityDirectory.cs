@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Configuration;
 using ArchLucid.Persistence.Connections;
@@ -291,6 +292,101 @@ public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory conn
                 commandTimeout: DapperCommandTimeoutSeconds.Report,
                 cancellationToken: cancellationToken));
     }
+
+    public async Task<(IReadOnlyList<CloudResourceIdentityRecord> Items, int TotalCount)> ListForExplorerAsync(
+        ScopeContext scope,
+        string? namePrefix,
+        string? resourceType,
+        string? resourceGroup,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        (int safePage, int safePageSize) = PaginationDefaults.Normalize(page, pageSize);
+        int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
+        string? trimmedPrefix = string.IsNullOrWhiteSpace(namePrefix) ? null : namePrefix.Trim();
+        string? trimmedType = string.IsNullOrWhiteSpace(resourceType) ? null : resourceType.Trim();
+        string? trimmedGroup = string.IsNullOrWhiteSpace(resourceGroup) ? null : resourceGroup.Trim();
+
+        const string countSql = """
+                                SELECT COUNT(1)
+                                FROM dbo.CloudResourceIdentities
+                                WHERE TenantId = @TenantId
+                                  AND WorkspaceId = @WorkspaceId
+                                  AND ProjectId = @ProjectId
+                                  AND (@NamePrefix IS NULL OR DisplayName LIKE @NamePrefix + '%' OR ExternalResourceIdNormalized LIKE '%' + @NamePrefix + '%')
+                                  AND (@ResourceType IS NULL OR ResourceType = @ResourceType)
+                                  AND (@ResourceGroup IS NULL OR ResourceGroupOrProject = @ResourceGroup);
+                                """;
+
+        const string listSql = """
+                               SELECT
+                                   CloudResourceId, TenantId, WorkspaceId, ProjectId, Provider,
+                                   ExternalResourceIdNormalized, ResourceType, SubscriptionOrAccountId,
+                                   ResourceGroupOrProject, Region, DisplayName,
+                                   FirstSeenSnapshotId, LastSeenSnapshotId, FirstSeenUtc, LastSeenUtc
+                               FROM dbo.CloudResourceIdentities
+                               WHERE TenantId = @TenantId
+                                 AND WorkspaceId = @WorkspaceId
+                                 AND ProjectId = @ProjectId
+                                 AND (@NamePrefix IS NULL OR DisplayName LIKE @NamePrefix + '%' OR ExternalResourceIdNormalized LIKE '%' + @NamePrefix + '%')
+                                 AND (@ResourceType IS NULL OR ResourceType = @ResourceType)
+                                 AND (@ResourceGroup IS NULL OR ResourceGroupOrProject = @ResourceGroup)
+                               ORDER BY LastSeenUtc DESC
+                               OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
+                               """;
+
+        object parameters = new
+        {
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            NamePrefix = trimmedPrefix,
+            ResourceType = trimmedType,
+            ResourceGroup = trimmedGroup,
+            Skip = skip,
+            PageSize = safePageSize,
+        };
+
+        using System.Data.IDbConnection conn =
+            await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        int totalCount = await conn.ExecuteScalarAsync<int>(
+            new CommandDefinition(countSql, parameters, cancellationToken: cancellationToken));
+
+        IEnumerable<Row> rows = await conn.QueryAsync<Row>(
+            new CommandDefinition(
+                listSql,
+                parameters,
+                commandTimeout: DapperCommandTimeoutSeconds.Report,
+                cancellationToken: cancellationToken));
+
+        IReadOnlyList<CloudResourceIdentityRecord> items = rows.Select(MapRow).ToList();
+
+        return (items, totalCount);
+    }
+
+    private static CloudResourceIdentityRecord MapRow(Row row) =>
+        new()
+        {
+            CloudResourceId = row.CloudResourceId,
+            TenantId = row.TenantId,
+            WorkspaceId = row.WorkspaceId,
+            ProjectId = row.ProjectId,
+            Provider = (CloudProvider)row.Provider,
+            ExternalResourceIdNormalized = row.ExternalResourceIdNormalized,
+            ResourceType = row.ResourceType,
+            SubscriptionOrAccountId = row.SubscriptionOrAccountId,
+            ResourceGroupOrProject = row.ResourceGroupOrProject,
+            Region = row.Region,
+            DisplayName = row.DisplayName,
+            FirstSeenSnapshotId = row.FirstSeenSnapshotId,
+            LastSeenSnapshotId = row.LastSeenSnapshotId,
+            FirstSeenUtc = row.FirstSeenUtc,
+            LastSeenUtc = row.LastSeenUtc,
+        };
 
     private sealed class Row
     {

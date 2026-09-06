@@ -59,9 +59,11 @@ export function RunProgressTracker({
     deferFailureRecoveryToDoThisNext,
   });
   const queueStatusElapsedMs = useQueueStatusElapsed({
-    active: tracker.pollEnabled && tracker.clientPhase === "polling",
+    active: tracker.liveTrackingActive && !tracker.rerunning,
     stageLabel: tracker.currentStageLabel,
   });
+  const queueStatusActive = tracker.liveTrackingActive;
+  const displayedQueueStatusElapsedMs = tracker.rerunning ? tracker.rerunElapsedMs : queueStatusElapsedMs;
 
   if (!tracker.shouldRender) {
     return null;
@@ -98,11 +100,11 @@ export function RunProgressTracker({
         </p>
       ) : null}
 
-      {tracker.pollEnabled && tracker.clientPhase === "polling" ? (
+      {queueStatusActive ? (
         <div className="mt-3" data-testid="run-progress-queue-status">
           <LongOperationQueueStatusLine
             stageLabel={tracker.currentStageLabel}
-            elapsedMs={queueStatusElapsedMs}
+            elapsedMs={displayedQueueStatusElapsedMs}
           />
           <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {LONG_OPERATION_QUEUE_STATUS_REFRESH_HINT}
@@ -158,7 +160,7 @@ export function RunProgressTracker({
         </p>
       ) : null}
 
-      {tracker.pollEnabled && tracker.clientPhase === "polling" ? (
+      {tracker.pollEnabled && tracker.liveTrackingActive ? (
         <ReviewPipelineStopAnalysisButton runId={runId} className="mt-3" />
       ) : null}
 
