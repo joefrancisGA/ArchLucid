@@ -7,6 +7,8 @@ internal static class RequestConstraintTokenMatcher
 {
     internal static bool ContainsAffirmativePhrase(string? haystack, string phrase)
     {
+        haystack = NormalizeNegationText(haystack);
+
         if (string.IsNullOrWhiteSpace(haystack) || string.IsNullOrWhiteSpace(phrase))
             return false;
 
@@ -31,6 +33,8 @@ internal static class RequestConstraintTokenMatcher
 
     internal static bool ContainsStandaloneWordToken(string? haystack, string token)
     {
+        haystack = NormalizeNegationText(haystack);
+
         if (string.IsNullOrWhiteSpace(haystack) || string.IsNullOrWhiteSpace(token))
             return false;
 
@@ -56,6 +60,8 @@ internal static class RequestConstraintTokenMatcher
 
     internal static bool ContainsAffirmativePrivateWord(string? haystack)
     {
+        haystack = NormalizeNegationText(haystack);
+
         if (string.IsNullOrWhiteSpace(haystack))
             return false;
 
@@ -689,5 +695,21 @@ internal static class RequestConstraintTokenMatcher
             return true;
 
         return ContainsPhrase(after, " need not ");
+    }
+
+    private static string? NormalizeNegationText(string? haystack)
+    {
+        if (string.IsNullOrWhiteSpace(haystack))
+            return haystack;
+
+        if (haystack.IndexOf('\u2019') < 0
+            && haystack.IndexOf('\u2018') < 0
+            && haystack.IndexOf('\u2032') < 0)
+            return haystack;
+
+        return haystack
+            .Replace('\u2019', '\'')
+            .Replace('\u2018', '\'')
+            .Replace('\u2032', '\'');
     }
 }
