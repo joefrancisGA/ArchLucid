@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
@@ -27,6 +28,7 @@ public sealed class InfraEvidenceDiffsController(
     [HttpGet("{diffId:guid}/changes")]
     [ProducesResponseType(typeof(PagedResponse<AzureInventoryChangeRecord>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ListChangesForDiff(
         Guid diffId,
         [FromQuery] Guid? cloudResourceId,
@@ -36,21 +38,28 @@ public sealed class InfraEvidenceDiffsController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        PagedResponse<AzureInventoryChangeRecord>? response = await driftWorkbenchQueryService.ListChangesForDiffAsync(
-            scope,
-            diffId,
-            page,
-            pageSize,
-            cloudResourceId,
-            cancellationToken);
-
-        if (response is null)
+        try
         {
-            return this.NotFoundProblem(
-                $"Diff '{diffId}' was not found.",
-                ProblemTypes.ResourceNotFound);
-        }
+            PagedResponse<AzureInventoryChangeRecord>? response = await driftWorkbenchQueryService.ListChangesForDiffAsync(
+                scope,
+                diffId,
+                page,
+                pageSize,
+                cloudResourceId,
+                cancellationToken);
 
-        return Ok(response);
+            if (response is null)
+            {
+                return this.NotFoundProblem(
+                    $"Diff '{diffId}' was not found.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            return Ok(response);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 }

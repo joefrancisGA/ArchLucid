@@ -254,7 +254,11 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
                     : undefined
                 }
               />
-              <ReviewPresenterHeaderButton reviewCompleted={!reviewPipelineIncomplete} />
+              <ReviewPresenterHeaderButton
+                runId={props.runId}
+                reviewCompleted={!reviewPipelineIncomplete}
+                manifestVersion={props.signedReviewRecordId}
+              />
               <FavoriteReviewToggle runId={props.runId} title={h1Title} size="sm" />
             </div>
             {reviewPipelineIncomplete && headerActionDisabledReason !== null ? (

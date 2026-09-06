@@ -3,6 +3,7 @@ using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Services;
+using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -112,10 +113,21 @@ public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade
         CancellationToken cancellationToken)
     {
         request ??= new ApiReplayExportRequest();
-        ExportReplayQueryResult result = await _runExportQueryFacade.ReplayExportAsync(
-            exportRecordId,
-            new AppReplayExportRequest { ExportRecordId = exportRecordId, RecordReplayExport = request.RecordReplayExport },
-            cancellationToken);
+
+        ExportReplayQueryResult result;
+
+        try
+        {
+            result = await _runExportQueryFacade.ReplayExportAsync(
+                exportRecordId,
+                new AppReplayExportRequest { ExportRecordId = exportRecordId, RecordReplayExport = request.RecordReplayExport },
+                cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+
         if (result.Outcome is ExportRecordLoadOutcome.LineageUnverified)
         {
             return this.ConflictProblem(
@@ -141,10 +153,21 @@ public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade
         CancellationToken cancellationToken)
     {
         request ??= new ApiReplayExportRequest();
-        ExportReplayQueryResult result = await _runExportQueryFacade.ReplayExportAsync(
-            exportRecordId,
-            new AppReplayExportRequest { ExportRecordId = exportRecordId, RecordReplayExport = request.RecordReplayExport },
-            cancellationToken);
+
+        ExportReplayQueryResult result;
+
+        try
+        {
+            result = await _runExportQueryFacade.ReplayExportAsync(
+                exportRecordId,
+                new AppReplayExportRequest { ExportRecordId = exportRecordId, RecordReplayExport = request.RecordReplayExport },
+                cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+
         if (result.Outcome is ExportRecordLoadOutcome.LineageUnverified)
         {
             return this.ConflictProblem(

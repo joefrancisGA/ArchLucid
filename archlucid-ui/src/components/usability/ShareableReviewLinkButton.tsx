@@ -6,6 +6,7 @@ import { useCallback, useState, type SetStateAction } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { ShareLinkPermissionClarityPanel } from "@/components/usability/ShareLinkPermissionClarityPanel";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +25,7 @@ import {
 type ShareableReviewLinkButtonProps = {
   readonly runId: string;
   readonly isCommitted: boolean;
+  readonly manifestVersion?: string | null;
 };
 
 /** Copy a read-only showcase link for sponsors who will not log in. */
@@ -67,6 +69,23 @@ export function ShareableReviewLinkButton(props: ShareableReviewLinkButtonProps)
 
   if (!props.isCommitted) {
     return null;
+  }
+
+  const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
+    runId: props.runId,
+    manifestVersion: props.manifestVersion ?? null,
+  });
+
+  if (sealedManifestBlockedReason !== null) {
+    return (
+      <p
+        role="alert"
+        className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="shareable-review-link-blocked-reason"
+      >
+        {sealedManifestBlockedReason}
+      </p>
+    );
   }
 
   const url = shareUrl();

@@ -60,6 +60,7 @@ public sealed partial class ComparisonsController
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status206PartialContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> ReplayComparison(
         [FromRoute] string comparisonRecordId,
@@ -80,9 +81,18 @@ public sealed partial class ComparisonsController
                 ProblemTypes.ValidationFailed);
         }
 
-        ReplayComparisonResult? result = await _comparisons.TryReplayAsync(
-            ReplayComparisonRequestMapper.ToApplicationForReplayEndpoint(comparisonRecordId, request, format),
-            cancellationToken);
+        ReplayComparisonResult? result;
+
+        try
+        {
+            result = await _comparisons.TryReplayAsync(
+                ReplayComparisonRequestMapper.ToApplicationForReplayEndpoint(comparisonRecordId, request, format),
+                cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         if (result is null)
         {
@@ -108,6 +118,7 @@ public sealed partial class ComparisonsController
     [ProducesResponseType(typeof(ReplayComparisonMetadataResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ReplayComparisonMetadata(
         [FromRoute] string comparisonRecordId,
         [FromBody] ApiReplayComparisonRequest? request,
@@ -131,10 +142,19 @@ public sealed partial class ComparisonsController
                 ProblemTypes.ResourceNotFound);
         }
 
-        ReplayComparisonResult result = await _comparisonReplayApiService.ReplayAsync(
-            ReplayComparisonRequestMapper.ToApplication(comparisonRecordId, request),
-            true,
-            cancellationToken);
+        ReplayComparisonResult result;
+
+        try
+        {
+            result = await _comparisonReplayApiService.ReplayAsync(
+                ReplayComparisonRequestMapper.ToApplication(comparisonRecordId, request),
+                true,
+                cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         ReplayComparisonResultHeaders.ApplyMetadata(Response, result);
 
