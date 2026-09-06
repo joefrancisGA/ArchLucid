@@ -149,6 +149,24 @@ function buildHubAuditLineageAskHref(
   });
 }
 
+function buildHubAuditLineageTabHref(
+  cloudResourceId: string,
+  snapshotId: string,
+  context: {
+    readonly assessmentId: string;
+    readonly auditEvidenceSnapshotId: string;
+    readonly controlId: string;
+  },
+): string {
+  return resourceHubFilterHrefFromSearch(cloudResourceId, "", {
+    tab: "audit",
+    snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+    assessmentId: context.assessmentId,
+    auditEvidenceSnapshotId: context.auditEvidenceSnapshotId,
+    controlId: context.controlId,
+  });
+}
+
 function buildHubDiagramCorrespondenceAskHref(
   cloudResourceId: string,
   snapshotId: string,
@@ -435,6 +453,19 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     Open terraform mapping
                   </Link>
                 </Button>
+                {resolvedAuditLineage != null ? (
+                  <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-audit-work">
+                    <Link
+                      href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, {
+                        assessmentId: resolvedAuditLineage.assessmentId,
+                        auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
+                        controlId: resolvedAuditLineage.controlId,
+                      })}
+                    >
+                      Open audit lineage
+                    </Link>
+                  </Button>
+                ) : null}
               </div>
             </section>
 
