@@ -1,6 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal, {
+    usePathname: () => "/administration/developer",
+  });
+});
+
 import { DeveloperSettingsPageClient } from "./DeveloperSettingsPageClient";
 import {
   INTERNAL_DEVELOPER_TOOLS_ACCESS_NOTE,

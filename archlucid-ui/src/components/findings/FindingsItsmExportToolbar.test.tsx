@@ -1,5 +1,13 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal, {
+    usePathname: () => "/architecture/reviews/r1/findings",
+  });
+});
 
 import { FindingsItsmExportToolbar } from "@/components/findings/FindingsItsmExportToolbar";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";

@@ -3,6 +3,8 @@
 import { cn } from "@/lib/utils";
 
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -78,6 +80,10 @@ import {
 import { SETTINGS_SECURITY_TRUST_CLAIM_DISCIPLINE } from "@/lib/settings-security-trust-evidence-copy";
 import { resolveTrustAssuranceSecurityTrustPeerLinks } from "@/lib/vocabulary/trust-assurance-security-trust-vocabulary";
 import { SECURITY_TRUST_HELP_HUB_HELP_LINK } from "@/lib/vocabulary/security-trust-help-hub-vocabulary";
+import {
+  parseSecurityTrustRelatedSurfacesOpenFromSearch,
+  securityTrustRelatedSurfacesDisclosureHrefFromSearch,
+} from "@/lib/operator/security-trust-related-surfaces-disclosure-url";
 
 function SecurityTrustMaterialLink({
   item,
@@ -169,12 +175,45 @@ function SecurityTrustMaterialsTable({ hidePdfDownloads = false }: { readonly hi
 }
 
 function SecurityTrustRelatedSurfacesDisclosure() {
+  const router = useRouter();
+  const pathname = usePathname() ?? OPERATOR_SECURITY_TRUST_PAGE_NAV_HREF;
+  const searchParams = useSearchParams();
+  const securityTrustRelatedSurfacesOpenParam = searchParams.get("securityTrustRelatedSurfacesOpen");
   const trustAssurancePeers = resolveTrustAssuranceSecurityTrustPeerLinks("security-trust-hub");
+  const [open, setOpenState] = useState(() =>
+    parseSecurityTrustRelatedSurfacesOpenFromSearch(securityTrustRelatedSurfacesOpenParam),
+  );
+
+  const syncOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      router.replace(
+        securityTrustRelatedSurfacesDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (detailsOpen: boolean) => {
+      setOpenState(detailsOpen);
+      syncOpenToUrl(detailsOpen);
+    },
+    [syncOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOpenState(parseSecurityTrustRelatedSurfacesOpenFromSearch(securityTrustRelatedSurfacesOpenParam));
+  }, [securityTrustRelatedSurfacesOpenParam]);
 
   return (
     <details
       className="rounded-lg border border-neutral-200 dark:border-neutral-800"
       data-testid="security-trust-related-surfaces-disclosure"
+      open={open}
+      onToggle={(event) => {
+        setOpen((event.currentTarget as HTMLDetailsElement).open);
+      }}
     >
       <summary className={cn("cursor-pointer px-4 py-2", OPERATOR_TYPOGRAPHY.cardTitle)}>
         Related trust surfaces

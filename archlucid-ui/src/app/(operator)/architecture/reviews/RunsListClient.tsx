@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 import { cn } from "@/lib/utils";
@@ -31,6 +31,10 @@ import {
   parseRunsListSortFromSearch,
   runsListSortHrefFromSearch,
 } from "@/lib/runs/runs-list-sort-url";
+import {
+  parseRunsListFilterOpenFromSearch,
+  runsListFilterDisclosureHrefFromSearch,
+} from "@/lib/runs/runs-list-filter-disclosure-url";
 
 import type { RunsListClientProps } from "./runs-list-types";
 import { useRunsList } from "./use-runs-list";
@@ -46,10 +50,15 @@ export type { RunsListClientProps } from "./runs-list-types";
  * Large viewports show an inline inspector; smaller viewports use a slide-over sheet.
  */
 export function RunsListClient(props: RunsListClientProps) {
+  const router = useRouter();
   const pathname = usePathname() ?? "/architecture/reviews";
   const searchParams = useSearchParams();
+  const runsListFilterOpenParam = searchParams.get("runsListFilterOpen");
   const currentSearch = searchParams.toString();
   const activeSort = parseRunsListSortFromSearch(searchParams.get("sort"));
+  const [runsListFilterOpen, setRunsListFilterOpenState] = useState(() =>
+    parseRunsListFilterOpenFromSearch(runsListFilterOpenParam),
+  );
   const {
     projectId,
     page,
@@ -83,6 +92,27 @@ export function RunsListClient(props: RunsListClientProps) {
     clearCompareSelection,
     filterStatusLine,
   } = useRunsList(props);
+
+  const syncRunsListFilterOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(runsListFilterDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setRunsListFilterOpen = useCallback(
+    (open: boolean) => {
+      setRunsListFilterOpenState(open);
+      syncRunsListFilterOpenToUrl(open);
+    },
+    [syncRunsListFilterOpenToUrl],
+  );
+
+  useEffect(() => {
+    setRunsListFilterOpenState(parseRunsListFilterOpenFromSearch(runsListFilterOpenParam));
+  }, [runsListFilterOpenParam]);
 
   const continueLastViewedRun = useMemo(
     () => resolveContinueLastRunsListRow(props.runs),
@@ -215,7 +245,13 @@ export function RunsListClient(props: RunsListClientProps) {
       ) : null}
       {buyerPolished && totalCount <= 1 ? null : buyerPolished ? (
         buyerCollapseFilters ? (
-          <details className="rounded-lg border border-neutral-200 bg-neutral-50/40 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30">
+          <details
+            className="rounded-lg border border-neutral-200 bg-neutral-50/40 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30"
+            open={runsListFilterOpen}
+            onToggle={(event) => {
+              setRunsListFilterOpen((event.currentTarget as HTMLDetailsElement).open);
+            }}
+          >
             <summary className={cn("cursor-pointer font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
               {buyerPolished ? "Filter reviews" : "Filter reviews"}
             </summary>

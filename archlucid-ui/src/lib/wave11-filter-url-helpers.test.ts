@@ -3928,6 +3928,92 @@ describe("wave51 filter url helpers", () => {
   });
 });
 
+describe("wave52 filter url helpers", () => {
+  it("security trust related surfaces, pilot scorecard methodology, finding ask inline, developer settings access, operator access denied admin details, billing plans section, runs list filter, identity providers related surfaces, findings itsm pre-finalize export, extract upload validate disclosure params", async () => {
+    const {
+      parseSecurityTrustRelatedSurfacesOpenFromSearch,
+      securityTrustRelatedSurfacesDisclosureHrefFromSearch,
+    } = await import("@/lib/operator/security-trust-related-surfaces-disclosure-url");
+    const {
+      parsePilotScorecardMethodologyOpenFromSearch,
+      pilotScorecardMethodologyDisclosureHrefFromSearch,
+    } = await import("@/lib/insights/pilot-scorecard-methodology-disclosure-url");
+    const {
+      findingAskInlineDisclosureHrefFromSearch,
+      parseFindingAskInlineOpenFromSearch,
+    } = await import("@/lib/findings/finding-ask-inline-disclosure-url");
+    const {
+      developerSettingsAccessDisclosureHrefFromSearch,
+      parseDeveloperSettingsAccessOpenFromSearch,
+    } = await import("@/lib/administration/developer-settings-access-disclosure-url");
+    const {
+      operatorAccessDeniedAdminDetailsDisclosureHrefFromSearch,
+      parseOperatorAccessDeniedAdminDetailsOpenFromSearch,
+    } = await import("@/lib/operator/operator-access-denied-admin-details-disclosure-url");
+    const {
+      billingPlansSectionDisclosureHrefFromSearch,
+      parseBillingPlansSectionOpenFromSearch,
+    } = await import("@/lib/administration/billing-plans-section-disclosure-url");
+    const {
+      parseRunsListFilterOpenFromSearch,
+      runsListFilterDisclosureHrefFromSearch,
+    } = await import("@/lib/runs/runs-list-filter-disclosure-url");
+    const {
+      identityProvidersRelatedSurfacesDisclosureHrefFromSearch,
+      parseIdentityProvidersRelatedSurfacesOpenFromSearch,
+    } = await import("@/lib/administration/identity-providers-related-surfaces-disclosure-url");
+    const {
+      findingsItsmPreFinalizeExportDisclosureHrefFromSearch,
+      parseFindingsItsmPreFinalizeExportOpenFromSearch,
+    } = await import("@/lib/findings/findings-itsm-pre-finalize-export-disclosure-url");
+    const {
+      extractUploadValidateDisclosureHrefFromSearch,
+      parseExtractUploadValidateDisclosureOpenFromSearch,
+    } = await import("@/lib/administration/extract-upload-validate-disclosure-url");
+
+    expect(parseSecurityTrustRelatedSurfacesOpenFromSearch("1")).toBe(true);
+    expect(securityTrustRelatedSurfacesDisclosureHrefFromSearch("", true, "/administration/security-trust")).toBe(
+      "/administration/security-trust?securityTrustRelatedSurfacesOpen=1",
+    );
+    expect(parsePilotScorecardMethodologyOpenFromSearch("true")).toBe(true);
+    expect(pilotScorecardMethodologyDisclosureHrefFromSearch("tab=overview", true, "/insights/architecture-scorecard")).toBe(
+      "/insights/architecture-scorecard?tab=overview&pilotScorecardMethodologyOpen=1",
+    );
+    expect(parseFindingAskInlineOpenFromSearch("1")).toBe(true);
+    expect(findingAskInlineDisclosureHrefFromSearch("findingId=f1", true, "/architecture/reviews/r1/findings/f1")).toBe(
+      "/architecture/reviews/r1/findings/f1?findingId=f1&findingAskInlineOpen=1",
+    );
+    expect(parseDeveloperSettingsAccessOpenFromSearch("true")).toBe(true);
+    expect(developerSettingsAccessDisclosureHrefFromSearch("", true, "/administration/developer")).toBe(
+      "/administration/developer?developerSettingsAccessOpen=1",
+    );
+    expect(parseOperatorAccessDeniedAdminDetailsOpenFromSearch("1")).toBe(true);
+    expect(operatorAccessDeniedAdminDetailsDisclosureHrefFromSearch("", true, "/access-denied")).toBe(
+      "/access-denied?operatorAccessDeniedAdminDetailsOpen=1",
+    );
+    expect(parseBillingPlansSectionOpenFromSearch("true")).toBe(true);
+    expect(billingPlansSectionDisclosureHrefFromSearch("tab=usage", true, "/administration/billing")).toBe(
+      "/administration/billing?tab=usage&billingPlansSectionOpen=1",
+    );
+    expect(parseRunsListFilterOpenFromSearch("1")).toBe(true);
+    expect(runsListFilterDisclosureHrefFromSearch("sort=updatedAt", true, "/architecture/reviews")).toBe(
+      "/architecture/reviews?sort=updatedAt&runsListFilterOpen=1",
+    );
+    expect(parseIdentityProvidersRelatedSurfacesOpenFromSearch("true")).toBe(true);
+    expect(identityProvidersRelatedSurfacesDisclosureHrefFromSearch("", true, "/administration/identity-providers")).toBe(
+      "/administration/identity-providers?identityProvidersRelatedSurfacesOpen=1",
+    );
+    expect(parseFindingsItsmPreFinalizeExportOpenFromSearch("1")).toBe(true);
+    expect(findingsItsmPreFinalizeExportDisclosureHrefFromSearch("", true, "/architecture/reviews/r1/findings")).toBe(
+      "/architecture/reviews/r1/findings?findingsItsmPreFinalizeExportOpen=1",
+    );
+    expect(parseExtractUploadValidateDisclosureOpenFromSearch("true")).toBe(true);
+    expect(extractUploadValidateDisclosureHrefFromSearch("", true, "/administration/extract-upload")).toBe(
+      "/administration/extract-upload?extractUploadValidateDisclosureOpen=1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

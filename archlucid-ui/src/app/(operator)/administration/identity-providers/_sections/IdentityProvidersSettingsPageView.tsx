@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 import { AuthDomainsIdentityProvidersVocabularyRail } from "@/components/AuthDomainsIdentityProvidersVocabularyRail";
@@ -20,6 +22,10 @@ import {
 } from "@/lib/identity-providers-settings-copy";
 import type { IdentityProviderCustomerStatus } from "@/lib/identity-providers-settings-types";
 import { identityProviderCustomerStatusPresentation } from "@/lib/identity-provider-probe-status-presentation";
+import {
+  identityProvidersRelatedSurfacesDisclosureHrefFromSearch,
+  parseIdentityProvidersRelatedSurfacesOpenFromSearch,
+} from "@/lib/administration/identity-providers-related-surfaces-disclosure-url";
 
 import { IdentityProvidersOverviewStatusFailureNotice } from "./IdentityProvidersOverviewStatusFailureNotice";
 import { IdentityProvidersOverviewSummaryRow } from "./IdentityProvidersOverviewSummaryRow";
@@ -41,13 +47,42 @@ const SIGN_IN_DOMAINS_DESCRIPTION =
   "Verify email domains and enforce organization SSO routing." as const;
 
 export function IdentityProvidersSettingsPageView(props: IdentityProvidersSettingsPageViewProps): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/administration/identity-providers";
+  const searchParams = useSearchParams();
+  const identityProvidersRelatedSurfacesOpenParam = searchParams.get("identityProvidersRelatedSurfacesOpen");
   const { model } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const [relatedSurfacesOpen, setRelatedSurfacesOpenState] = useState(() =>
+    parseIdentityProvidersRelatedSurfacesOpenFromSearch(identityProvidersRelatedSurfacesOpenParam),
+  );
   const showPrimaryNextStep =
     model.dataLoaded
     && model.overviewStatusFailure === null
     && model.overview.recommendedNextHref !== null
     && model.overview.recommendedNextHref !== IDENTITY_PROVIDERS_SSO_SETUP_CTA_HREF;
+
+  const syncRelatedSurfacesOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        identityProvidersRelatedSurfacesDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setRelatedSurfacesOpen = useCallback(
+    (open: boolean) => {
+      setRelatedSurfacesOpenState(open);
+      syncRelatedSurfacesOpenToUrl(open);
+    },
+    [syncRelatedSurfacesOpenToUrl],
+  );
+
+  useEffect(() => {
+    setRelatedSurfacesOpenState(parseIdentityProvidersRelatedSurfacesOpenFromSearch(identityProvidersRelatedSurfacesOpenParam));
+  }, [identityProvidersRelatedSurfacesOpenParam]);
 
   const primaryNextStep = (
     <div className="space-y-2" data-testid="identity-providers-primary-next-step">
@@ -164,6 +199,10 @@ export function IdentityProvidersSettingsPageView(props: IdentityProvidersSettin
         <details
           className="rounded-lg border border-neutral-200 dark:border-neutral-800"
           data-testid="identity-providers-related-surfaces-disclosure"
+          open={relatedSurfacesOpen}
+          onToggle={(event) => {
+            setRelatedSurfacesOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
         >
           <summary className={cn("cursor-pointer px-4 py-2", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {IDENTITY_PROVIDERS_OVERVIEW_RELATED_SURFACES_TITLE}

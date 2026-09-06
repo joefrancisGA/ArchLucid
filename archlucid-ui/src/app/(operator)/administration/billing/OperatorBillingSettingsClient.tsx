@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
@@ -35,6 +36,10 @@ import {
 } from "@/lib/operator/operator-billing-settings-page-copy";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  billingPlansSectionDisclosureHrefFromSearch,
+  parseBillingPlansSectionOpenFromSearch,
+} from "@/lib/administration/billing-plans-section-disclosure-url";
 
 import { OperatorBillingCurrentPlanSummary } from "./OperatorBillingCurrentPlanSummary";
 import { OperatorBillingPaymentPastDueBanner } from "./OperatorBillingPaymentPastDueBanner";
@@ -44,6 +49,10 @@ import { OperatorBillingUsageSection } from "./OperatorBillingUsageSection";
 import { OperatorBillingWalletPanel } from "./OperatorBillingWalletPanel";
 
 export function OperatorBillingSettingsClient(props: { readonly initialPlanId?: string | null }) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/administration/billing";
+  const searchParams = useSearchParams();
+  const billingPlansSectionOpenParam = searchParams.get("billingPlansSectionOpen");
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const canMutate = useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority;
   const [plansSectionOpenOverride, setPlansSectionOpenOverride] = useState<boolean | null>(null);
@@ -86,7 +95,32 @@ export function OperatorBillingSettingsClient(props: { readonly initialPlanId?: 
   // themselves the section follows the resolved plan state instead of the pending-load value.
   const plansSectionOpen =
     plansSectionOpenOverride ??
-    (subscriptionLoadState !== "pending" && !currentPlanView.hasPaidPlan);
+    (parseBillingPlansSectionOpenFromSearch(billingPlansSectionOpenParam)
+      || (billingPlansSectionOpenParam === null
+        && subscriptionLoadState !== "pending"
+        && !currentPlanView.hasPaidPlan));
+
+  const setPlansSectionOpen = useCallback(
+    (open: boolean) => {
+      setPlansSectionOpenOverride(open);
+      router.replace(billingPlansSectionDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    if (parseBillingPlansSectionOpenFromSearch(billingPlansSectionOpenParam)) {
+      setPlansSectionOpenOverride(true);
+
+      return;
+    }
+
+    if (billingPlansSectionOpenParam !== null) {
+      setPlansSectionOpenOverride(false);
+    }
+  }, [billingPlansSectionOpenParam]);
 
   return (
     <OperatorPageContainer
@@ -136,7 +170,7 @@ export function OperatorBillingSettingsClient(props: { readonly initialPlanId?: 
           title="Available plans"
           headingLevel={2}
           open={plansSectionOpen}
-          onToggle={setPlansSectionOpenOverride}
+          onToggle={setPlansSectionOpen}
           sectionTestId="billing-plans-collapsible"
           summaryLine={
             currentPlanView.hasPaidPlan
