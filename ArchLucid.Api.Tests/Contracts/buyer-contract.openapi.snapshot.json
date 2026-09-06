@@ -21408,6 +21408,32 @@
         },
         "type": "object"
       },
+      "PatchArchitectureIdentityRequest": {
+        "properties": {
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "displayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "hasAnyPatch": {
+            "type": "boolean"
+          },
+          "hasDescription": {
+            "type": "boolean"
+          },
+          "hasDisplayName": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "PatchDraftRequest": {
         "properties": {
           "actorSet": {

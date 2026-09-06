@@ -584,6 +584,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `DraftIntakeBranched` | `DraftIntake.Branched` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/branch`) |
 | `DraftIntakeCreated` | `DraftIntake.Created` | `DraftRequestsController` (`POST /v1/architecture/draft`) |
 | `DraftIntakePatched` | `DraftIntake.Patched` | `DraftRequestsController` (`PATCH /v1/architecture/draft/{draftId}`) |
+| `ArchitectureIdentityPatched` | `ArchitectureIdentity.Patched` | `ArchitecturesController` (`PATCH /v1/architectures/{architectureId}`) |
 | `DraftIntakeQuestionAnswered` | `DraftIntake.QuestionAnswered` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/answer`) |
 | `DraftIntakeQuestionSkipped` | `DraftIntake.QuestionSkipped` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/skip`) |
 | `DraftIntakeReasoned` | `DraftIntake.Reasoned` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/reason`) |
