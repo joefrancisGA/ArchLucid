@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { ArchitectureCreatedClarificationsPanel } from "@/components/architecture/ArchitectureCreatedClarificationsPanel";
+import { ArchitectureCreatedClarificationsBuyerChrome } from "@/components/architecture/ArchitectureCreatedClarificationsBuyerChrome";
 import { useReviewClarificationQuestions } from "@/hooks/use-review-clarification-questions";
 import { ArchitectureCreatedFindingsNextAction } from "@/components/architecture/ArchitectureCreatedFindingsNextAction";
 import { ArchitectureCreatedCompactFirstViewport } from "@/components/architecture/ArchitectureCreatedCompactFirstViewport";
@@ -55,6 +56,11 @@ import {
 import { ReviewWorkspaceTabStrip } from "@/components/reviews/ReviewWorkspaceTabStrip";
 import { mapArchitectureTabToReviewTab } from "@/lib/unified-review-workspace-tabs";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  ARCHITECTURE_CREATED_CLARIFICATIONS_PRIMARY_CONTENT_ID,
+  ARCHITECTURE_CREATED_CLARIFICATIONS_SKIP_LINK_LABEL,
+  ARCHITECTURE_CREATED_CLARIFICATIONS_SKIP_TARGET_ID,
+} from "@/lib/architecture/architecture-created-clarifications-page-copy";
 import {
   ARCHITECTURE_CREATED_OVERVIEW_PRIMARY_CONTENT_ID,
   ARCHITECTURE_CREATED_OVERVIEW_SKIP_LINK_LABEL,
@@ -265,6 +271,14 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
           {ARCHITECTURE_CREATED_OVERVIEW_SKIP_LINK_LABEL}
         </a>
       ) : null}
+      {buyerPolishedShell && activeTab === "clarifications" ? (
+        <a
+          href={`#${ARCHITECTURE_CREATED_CLARIFICATIONS_SKIP_TARGET_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {ARCHITECTURE_CREATED_CLARIFICATIONS_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
 
       <ArchitectureCreatedWorkspaceHeader model={model} activeTab={activeTab} onNavigateTab={navigateTab} />
 
@@ -382,11 +396,17 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
           </div>
       </div>
 
-      <div hidden={activeTab !== "clarifications"} data-testid="architecture-workspace-panel-clarifications">
-          <ClarificationsFindingsVocabularyRail
-            runId={props.baseline.runId}
-            currentSurfaceId="clarifications"
-          />
+      <div
+        hidden={activeTab !== "clarifications"}
+        data-testid="architecture-workspace-panel-clarifications"
+        id={buyerPolishedShell ? ARCHITECTURE_CREATED_CLARIFICATIONS_PRIMARY_CONTENT_ID : undefined}
+      >
+          {buyerPolishedShell ? null : (
+            <ClarificationsFindingsVocabularyRail
+              runId={props.baseline.runId}
+              currentSurfaceId="clarifications"
+            />
+          )}
           <ArchitectureCreatedClarificationsPanel
             model={model}
             sourceText={props.architectureSourceText}
@@ -401,6 +421,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
             clarificationDelta={clarificationQuestionsQuery.data?.deltaFromPriorRun ?? null}
             priorRunId={props.baseline.clarificationPriorRunId ?? props.baseline.runId}
           />
+          {buyerPolishedShell ? <ArchitectureCreatedClarificationsBuyerChrome /> : null}
       </div>
 
       <div hidden={activeTab !== "findings"} data-testid="architecture-workspace-panel-findings">
