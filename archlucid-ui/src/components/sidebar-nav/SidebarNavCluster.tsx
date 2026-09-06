@@ -11,7 +11,7 @@ import { GovernanceReviewsAwaitingNavBadge } from "@/components/governance/Gover
 import { SidebarNavLink } from "@/components/sidebar-nav/SidebarNavLink";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { readCachedDeskContinuity } from "@/lib/desk-continuity-preference";
 import {
   GOVERNANCE_ALERTS_PATH,
@@ -121,13 +121,13 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
   }
 
   const headingClassName = cn(
-    OPERATOR_NAV_GROUP_LABEL,
-    "flex w-full min-w-0 items-center gap-1 rounded-md px-2 py-1.5 text-left",
+    OPERATOR_TYPOGRAPHY.helper,
+    "flex w-full min-w-0 items-center gap-1 rounded-md px-2 py-1.5 text-left font-medium text-al-text-secondary",
   );
 
   const collapsibleToggleClassName = cn(
-    OPERATOR_NAV_GROUP_LABEL,
-    "sidebar-disclosure-trigger inline-flex min-w-0 max-w-full items-center gap-2 rounded-md p-0 text-left hover:bg-neutral-50 dark:hover:bg-neutral-800/80",
+    OPERATOR_TYPOGRAPHY.helper,
+    "sidebar-disclosure-trigger inline-flex min-w-0 max-w-full items-center gap-2 rounded-md p-0 text-left font-medium text-al-text-secondary hover:bg-neutral-50 dark:hover:bg-neutral-800/80",
   );
 
   const collapsibleChevron = props.isExpanded ? (

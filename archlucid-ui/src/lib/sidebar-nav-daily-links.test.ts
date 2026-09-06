@@ -181,15 +181,15 @@ describe("splitSidebarLinksDailyVsMore", () => {
 
 describe("sidebarMoreLinksLabel", () => {
   it("names the destination cluster in the disclosure label", () => {
-    expect(sidebarMoreLinksLabel("operate-governance", 1)).toBe("Show 1 more approval destination");
-    expect(sidebarMoreLinksLabel("operate-governance", 4)).toBe("Show 4 more approval destinations");
+    expect(sidebarMoreLinksLabel("operate-governance", 1)).toBe("Show 1 more Approval destination");
+    expect(sidebarMoreLinksLabel("operate-governance", 4)).toBe("Show 4 more Approval destinations");
     expect(sidebarMoreLinksLabel("operate-analysis", 5)).toBe("Show 5 more Insights destinations");
   });
 });
 
 describe("sidebarMoreLinksCollapseLabel", () => {
   it("names the destination cluster when collapsed", () => {
-    expect(sidebarMoreLinksCollapseLabel("operate-governance")).toBe("Show fewer approval destinations");
+    expect(sidebarMoreLinksCollapseLabel("operate-governance")).toBe("Show fewer Approval destinations");
     expect(sidebarMoreLinksCollapseLabel("operate-analysis")).toBe("Show fewer Insights destinations");
   });
 });

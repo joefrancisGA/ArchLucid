@@ -159,7 +159,7 @@ export function workspaceOpenFindingsPresentation(count: number): MetricCountPre
   return {
     count,
     noun: count === 1 ? "open finding" : "open findings",
-    dimensions: [],
+    dimensions: [{ kind: "workspace" }, { kind: "governance-filter", filter: "open" }],
     href: buildGovernanceFindingsQueueHref({ filter: "open" }),
   };
 }
@@ -168,7 +168,7 @@ export function operatorHomeActiveReviewsPresentation(count: number): MetricCoun
   return {
     count,
     noun: count === 1 ? "active review" : "active reviews",
-    dimensions: [],
+    dimensions: [{ kind: "reviews-inventory", reviewsFilter: "Active" }],
     href: reviewsHubInventoryFilterHref("Active"),
   };
 }
@@ -177,7 +177,7 @@ export function operatorHomeFinalizedPackagesPresentation(count: number): Metric
   return {
     count,
     noun: count === 1 ? "finalized package" : "finalized packages",
-    dimensions: [],
+    dimensions: [{ kind: "reviews-inventory", reviewsFilter: "finalized" }],
     href: reviewsHubInventoryFilterHref("finalized"),
   };
 }
@@ -189,7 +189,7 @@ export function operatorHomeGovernanceWarningsPresentation(
   return {
     count,
     noun,
-    dimensions: [],
+    dimensions: [{ kind: "workspace" }, { kind: "reviews-inventory", reviewsFilter: "Active" }],
     href: OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF,
   };
 }

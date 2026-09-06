@@ -65,11 +65,16 @@ describe("DevTestingQuickSwitchPanel", () => {
     vi.mocked(loadDevTestingQuickJumpSnapshot).mockReset();
   });
 
-  it("renders shell and role override buttons in development", async () => {
+  it("renders shell and role override controls inside a collapsed disclosure in development", async () => {
     render(<DevTestingQuickSwitchPanel />);
 
-    expect(await screen.findByTestId("dev-testing-quick-switch")).toBeInTheDocument();
-    expect(screen.getByTestId("dev-shell-option-buyer-polished")).toBeInTheDocument();
+    const panel = await screen.findByTestId("dev-testing-quick-switch");
+    expect(panel).toBeInTheDocument();
+    expect(panel).not.toHaveAttribute("open");
+
+    fireEvent.click(screen.getByText("Dev testing quick switch"));
+
+    expect(await screen.findByTestId("dev-shell-option-buyer-polished")).toBeInTheDocument();
     expect(screen.getByTestId("dev-role-option-Employee")).toBeInTheDocument();
     expect(screen.getByTestId("dev-role-option-Reader")).toBeInTheDocument();
     expect(screen.getByTestId("dev-agent-execution-option-real")).toBeInTheDocument();
@@ -97,6 +102,8 @@ describe("DevTestingQuickSwitchPanel", () => {
 
   it("renders quick-jump link chips for each entity cluster", async () => {
     render(<DevTestingQuickSwitchPanel runIds={["22222222-aaaa-bbbb-cccc-dddddddddddd"]} />);
+
+    fireEvent.click(screen.getByText("Dev testing quick switch"));
 
     expect(await screen.findByTestId("dev-testing-quick-jump-links")).toBeInTheDocument();
 

@@ -2,7 +2,7 @@
  * Central dictionary for architect-workspace domain terms and reusable UI labels.
  * @see docs/assessments/LATEST.md — simplify abstract nomenclature without hunting literals in components.
  */
-import { ARCHITECTURE_DRAFTS_LIST_LABEL, CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { ARCHITECTURE_IDENTITIES_NAV_LABEL, CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY, BUYER_TERMINOLOGY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { EVIDENCE_TRAIL_SEARCH } from "@/lib/search-surface-disambiguation";
@@ -123,7 +123,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   portfolioOverview: "Sponsor dashboard",
   SponsorReport: BUYER_SPONSOR_SUMMARY_VOCABULARY.reviewSponsorReportLabel,
   /** Architecture hub (`/architecture/architectures`) — Working: identity portfolio; Guided: draft inventory (CA-32). */
-  architectures: ARCHITECTURE_DRAFTS_LIST_LABEL,
+  architectures: ARCHITECTURE_IDENTITIES_NAV_LABEL,
   /** Unified packages list (`/architecture/reviews`) — reviews plus architecture drafts. */
   packages: "Packages",
   reviewPackage: "Reviews",
