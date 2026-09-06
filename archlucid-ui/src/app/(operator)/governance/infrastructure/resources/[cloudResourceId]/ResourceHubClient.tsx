@@ -178,6 +178,31 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     };
   }, [assessmentId, auditEvidenceSnapshotId, controlId, hub]);
 
+  const hubTabs = useMemo(() => {
+    if (hub == null) {
+      return HUB_TABS;
+    }
+
+    const openFindingsCount =
+      hub.operationalSecurityFindings.totalCount + hub.architectureReviewFindings.totalCount;
+
+    return HUB_TABS.map((tab) => {
+      if (tab.id === "findings" && openFindingsCount > 0) {
+        return { ...tab, label: `Findings (${openFindingsCount})` };
+      }
+
+      if (tab.id === "remediation" && hub.remediationInstances.totalCount > 0) {
+        return { ...tab, label: `Remediation (${hub.remediationInstances.totalCount})` };
+      }
+
+      if (tab.id === "drift" && hub.recentChanges.length > 0) {
+        return { ...tab, label: `Drift (${hub.recentChanges.length})` };
+      }
+
+      return tab;
+    });
+  }, [hub]);
+
   const runMatchRemediationFromFinding = async (findingId: string) => {
     const trimmedFindingId = findingId.trim();
 
@@ -239,7 +264,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       {!loading && hub != null ? (
         <EnterpriseTabs value={activeTab} onValueChange={(value) => setActiveTab(value as ResourceHubTab)}>
           <EnterpriseTabsList aria-label="Resource evidence hub sections" data-testid="infra-resource-hub-tabs">
-            {HUB_TABS.map((tab) => (
+            {hubTabs.map((tab) => (
               <EnterpriseTabsTrigger key={tab.id} value={tab.id} data-testid={`infra-resource-hub-tab-${tab.id}`}>
                 {tab.label}
               </EnterpriseTabsTrigger>

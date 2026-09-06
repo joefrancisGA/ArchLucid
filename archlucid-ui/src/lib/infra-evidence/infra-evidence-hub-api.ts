@@ -51,6 +51,11 @@ export async function fetchCloudResourceExplorerPage(
       resourceGroup?: string | null;
       region?: string | null;
       lastSeenUtc?: string;
+      workCounts?: {
+        openOperationalFindingsCount?: number;
+        openRemediationInstancesCount?: number;
+        inventoryDriftChangeCount?: number;
+      } | null;
     }>;
     totalCount?: number;
     page?: number;
@@ -66,6 +71,13 @@ export async function fetchCloudResourceExplorerPage(
     resourceGroup: row.resourceGroup ?? null,
     region: row.region ?? null,
     lastSeenUtc: row.lastSeenUtc ?? "",
+    workCounts: row.workCounts == null
+      ? null
+      : {
+          openOperationalFindingsCount: row.workCounts.openOperationalFindingsCount ?? 0,
+          openRemediationInstancesCount: row.workCounts.openRemediationInstancesCount ?? 0,
+          inventoryDriftChangeCount: row.workCounts.inventoryDriftChangeCount ?? 0,
+        },
   }));
 
   return {

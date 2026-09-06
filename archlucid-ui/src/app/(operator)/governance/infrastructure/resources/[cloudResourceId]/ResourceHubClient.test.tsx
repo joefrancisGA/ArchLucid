@@ -34,8 +34,17 @@ vi.mock("@/lib/infra-evidence/infra-evidence-hub-api", () => ({
     operationalSecurityFindings: {
       streamKind: "OperationalSecurity",
       streamLabel: "Operational security",
-      items: [],
-      totalCount: 0,
+      items: [
+        {
+          id: "finding-1",
+          title: "Public endpoint",
+          severity: "High",
+          status: "Open",
+          streamKind: "OperationalSecurity",
+          streamLabel: "Operational security",
+        },
+      ],
+      totalCount: 1,
       page: 1,
       pageSize: 25,
       hasMore: false,
@@ -52,7 +61,16 @@ vi.mock("@/lib/infra-evidence/infra-evidence-hub-api", () => ({
     remediationInstances: { items: [], totalCount: 0, page: 1, pageSize: 25, hasMore: false },
     rbacAssignments: [],
     networkRelationships: [],
-    recentChanges: [],
+    recentChanges: [
+      {
+        changeId: "change-1",
+        property: "sku",
+        changeType: "Modified",
+        oldValue: "Basic",
+        newValue: "Standard",
+        riskClassification: "Medium",
+      },
+    ],
     auditLineageLink: {
       available: true,
       degradedReason: null,
@@ -107,5 +125,13 @@ describe("ResourceHubClient", () => {
 
     expect(await screen.findByTestId("infra-resource-hub-audit-lineage-link")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-resource-hub-audit-degraded")).not.toBeInTheDocument();
+  });
+
+  it("shows tab count badges for findings and drift", async () => {
+    searchParams = new URLSearchParams("tab=overview");
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-tab-findings")).toHaveTextContent("Findings (1)");
+    expect(screen.getByTestId("infra-resource-hub-tab-drift")).toHaveTextContent("Drift (1)");
   });
 });

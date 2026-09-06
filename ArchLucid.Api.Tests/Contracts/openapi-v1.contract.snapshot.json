@@ -8329,6 +8329,23 @@
         },
         "type": "object"
       },
+      "CloudResourceExplorerWorkCounts": {
+        "properties": {
+          "inventoryDriftChangeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "openOperationalFindingsCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "openRemediationInstancesCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "CloudResourceInventoryChangeSummary": {
         "properties": {
           "changeId": {
@@ -8481,6 +8498,16 @@
             "type": [
               "null",
               "string"
+            ]
+          },
+          "workCounts": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CloudResourceExplorerWorkCounts"
+              }
             ]
           }
         },
