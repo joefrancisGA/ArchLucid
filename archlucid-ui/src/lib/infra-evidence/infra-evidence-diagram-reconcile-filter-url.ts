@@ -1,5 +1,7 @@
 import { GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import type { DiagramInfrastructureCorrespondenceRow } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-types";
 import type { DiagramReconcileMatchKindFilter } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-types";
+import { buildRemediationWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-workbench-url";
 
 export const DIAGRAM_RECONCILE_RUN_ID_PARAM = "runId";
 export const DIAGRAM_RECONCILE_SNAPSHOT_ID_PARAM = "snapshotId";
@@ -96,6 +98,35 @@ export function buildDiagramReconcileWorkbenchHref(context: {
   return query.length === 0
     ? GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH
     : `${GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH}?${query}`;
+}
+
+export function buildDiagramReconcileRemediationHref(context: {
+  readonly row: DiagramInfrastructureCorrespondenceRow;
+  readonly runId: string;
+  readonly snapshotId: string;
+  readonly scopedCloudResourceId?: string | null;
+  readonly findingId?: string | null;
+}): string | null {
+  if (context.row.matchKind !== "Conflict") {
+    return null;
+  }
+
+  const rowCloudResourceId = context.row.cloudResourceId != null && context.row.cloudResourceId.trim().length > 0
+    ? context.row.cloudResourceId
+    : null;
+  const cloudResourceId = rowCloudResourceId ?? (
+    context.scopedCloudResourceId != null && context.scopedCloudResourceId.trim().length > 0
+      ? context.scopedCloudResourceId
+      : null
+  );
+
+  return buildRemediationWorkbenchHref({
+    cloudResourceId,
+    correspondenceId: context.row.correspondenceId,
+    findingId: context.findingId,
+    runId: context.runId.length > 0 ? context.runId : null,
+    snapshotId: context.snapshotId.length > 0 ? context.snapshotId : null,
+  });
 }
 
 export function diagramReconcileFilterHrefFromSearch(
