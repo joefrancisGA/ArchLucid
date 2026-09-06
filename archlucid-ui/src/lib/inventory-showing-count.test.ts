@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   REVIEWS_HUB_DEFAULT_PAGE_SIZE,
+  ARCHITECTURE_IDENTITIES_DEFAULT_PAGE_SIZE,
   formatInventoryShowingLine,
   formatInventoryShowingFirstLine,
   resolveInventoryShowingCount,
@@ -11,6 +12,10 @@ import {
 describe("inventory-showing-count (DA-07)", () => {
   it("uses 50 as the Working reviews hub default page size", () => {
     expect(REVIEWS_HUB_DEFAULT_PAGE_SIZE).toBe(50);
+  });
+
+  it("uses 50 as the Working architecture identities hub default page size (CA-39)", () => {
+    expect(ARCHITECTURE_IDENTITIES_DEFAULT_PAGE_SIZE).toBe(50);
   });
 
   it("does not shout incompleteness when all rows fit one page", () => {

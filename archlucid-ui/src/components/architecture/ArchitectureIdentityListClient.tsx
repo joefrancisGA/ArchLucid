@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { InventoryShowingCountBand } from "@/components/usability/InventoryShowingCountBand";
 import { useArchitectureIdentitiesListQuery } from "@/hooks/use-architecture-identities-list-query";
 import {
   EnterpriseTable,
@@ -65,8 +66,17 @@ export function ArchitectureIdentityListClient(): React.JSX.Element {
     );
   }
 
+  const totalCount = query.data?.totalCount ?? items.length;
+
   return (
-    <EnterpriseTable ariaLabel="Architecture portfolio" data-testid="architecture-identity-list-table">
+    <div className="space-y-2">
+      <InventoryShowingCountBand
+        loaded={items.length}
+        total={totalCount}
+        hasMore={query.data?.hasMore}
+        testId="architecture-identity-list-showing-count"
+      />
+      <EnterpriseTable ariaLabel="Architecture portfolio" data-testid="architecture-identity-list-table">
       <EnterpriseTableHead>
         <EnterpriseTableHeadRow>
           <EnterpriseTableHeaderCell>{ARCHITECTURE_IDENTITY_TABLE_NAME_COLUMN}</EnterpriseTableHeaderCell>
@@ -93,5 +103,6 @@ export function ArchitectureIdentityListClient(): React.JSX.Element {
         ))}
       </EnterpriseTableBody>
     </EnterpriseTable>
+    </div>
   );
 }
