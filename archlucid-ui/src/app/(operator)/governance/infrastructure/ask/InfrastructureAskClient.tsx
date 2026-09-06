@@ -171,8 +171,9 @@ export function InfrastructureAskClient() {
       runId: runId.length > 0 ? runId : null,
       snapshotId: snapshotId.length > 0 ? snapshotId : null,
       correspondenceId,
+      cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
     });
-  }, [correspondenceId, runId, snapshotId]);
+  }, [cloudResourceId, correspondenceId, runId, snapshotId]);
 
   const inventoryDiagramsBackLinkHref = useMemo(() => {
     if (snapshotId.length === 0) {
