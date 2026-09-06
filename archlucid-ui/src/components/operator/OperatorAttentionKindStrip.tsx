@@ -50,6 +50,10 @@ export function OperatorAttentionKindStrip(
   const previewKind = resolveHighestNonZeroAttentionKind(countsByKind, visibleKinds);
   const previewLine = previewKind !== null ? partitionPreviews[previewKind] : null;
 
+  if (visibleKinds.length === 0) {
+    return null;
+  }
+
   return (
     <div
       className={props.className}

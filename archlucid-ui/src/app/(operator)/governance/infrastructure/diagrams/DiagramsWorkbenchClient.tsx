@@ -436,6 +436,39 @@ export function DiagramsWorkbenchClient() {
           >
             Open terraform mapping
           </Link>
+          <Link
+            className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
+            href={buildResourceHubWorkbenchHref({
+              cloudResourceId: urlCloudResourceId,
+              tab: "findings",
+              snapshotId: selectedSnapshotId.length > 0 ? selectedSnapshotId : urlSnapshotId,
+            })}
+            data-testid="infra-diagrams-open-findings-hub"
+          >
+            Open findings
+          </Link>
+          <Link
+            className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
+            href={buildResourceHubWorkbenchHref({
+              cloudResourceId: urlCloudResourceId,
+              tab: "remediation",
+              snapshotId: selectedSnapshotId.length > 0 ? selectedSnapshotId : urlSnapshotId,
+            })}
+            data-testid="infra-diagrams-open-remediation-hub"
+          >
+            Open remediation
+          </Link>
+          <Link
+            className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
+            href={buildResourceHubWorkbenchHref({
+              cloudResourceId: urlCloudResourceId,
+              tab: "drift",
+              snapshotId: selectedSnapshotId.length > 0 ? selectedSnapshotId : urlSnapshotId,
+            })}
+            data-testid="infra-diagrams-open-drift-hub"
+          >
+            Open drift
+          </Link>
         </section>
       ) : null}
 

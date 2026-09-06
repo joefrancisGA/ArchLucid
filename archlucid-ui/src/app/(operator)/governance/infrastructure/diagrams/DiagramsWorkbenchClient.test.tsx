@@ -154,6 +154,18 @@ describe("DiagramsWorkbenchClient", () => {
       "href",
       "/governance/infrastructure/resources/22222222-2222-2222-2222-222222222222?tab=terraform&snapshotId=11111111-1111-1111-1111-111111111111",
     );
+    expect(screen.getByTestId("infra-diagrams-open-findings-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/22222222-2222-2222-2222-222222222222?tab=findings&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByTestId("infra-diagrams-open-remediation-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/22222222-2222-2222-2222-222222222222?tab=remediation&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByTestId("infra-diagrams-open-drift-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/22222222-2222-2222-2222-222222222222?tab=drift&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
     expect(screen.getByTestId("infra-diagrams-open-ask")).toHaveAttribute(
       "href",
       "/governance/infrastructure/ask?cloudResourceId=22222222-2222-2222-2222-222222222222&snapshotId=11111111-1111-1111-1111-111111111111",

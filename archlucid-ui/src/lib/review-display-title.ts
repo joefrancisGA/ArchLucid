@@ -205,7 +205,7 @@ export function clampReviewWorkspaceH1Title(title: string): string {
 }
 
 const SYNTHETIC_SAMPLE_TITLE_SUFFIX_PATTERN =
-  /\s*—\s*born-governed\s+created\s+architecture\s+package\s*\([^)]*\)\s*$/i;
+  /\s*[—–-]\s*born-governed\s+created\s+architecture\s+package(?:\s*\([^)]*)?[\s.…]*$/i;
 
 function stripSyntheticSampleTitleSuffix(text: string): string {
   return text.replace(SYNTHETIC_SAMPLE_TITLE_SUFFIX_PATTERN, "").trim();

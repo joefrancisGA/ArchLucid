@@ -25,8 +25,10 @@ function runHasEvidenceSource(run: RunSummary): boolean {
   );
 }
 
-function isDraftRun(run: RunSummary): boolean {
-  return resolveRunHomeStatusTag(run).kind === "draft";
+function isActiveReviewRun(run: RunSummary): boolean {
+  const kind = resolveRunHomeStatusTag(run).kind;
+
+  return kind === "in-progress" || kind === "needs-attention";
 }
 
 /** Aggregates workspace metrics from operator-home runs dashboard data already on the page. */
@@ -50,7 +52,7 @@ export function deriveOperatorHomeWorkspaceMetrics(
 
     if (run.hasGoldenManifest === true) {
       reviewPackagesCommitted += 1;
-    } else if (!isDraftRun(run)) {
+    } else if (isActiveReviewRun(run)) {
       reviewPackagesActive += 1;
     }
 

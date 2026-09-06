@@ -7,6 +7,14 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn() }),
 }));
 
+const workspaceModeMocks = vi.hoisted(() => ({
+  isWorkingMode: false,
+}));
+
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => ({ isWorkingMode: workspaceModeMocks.isWorkingMode }),
+}));
+
 import { KeyboardShortcutsTabContent, matchesShortcutQuery } from "@/components/KeyboardShortcutsHelpContent";
 import { SHELL_COMMAND_SHORTCUTS } from "@/lib/shortcut-registry";
 
@@ -28,6 +36,22 @@ describe("KeyboardShortcutsTabContent", () => {
 
     expect(captions[0]).toBe("Command palette");
     expect(captions).toContain("Common");
+  });
+
+  it("lists desk work before navigation when Working mode is active (PC-11)", () => {
+    workspaceModeMocks.isWorkingMode = true;
+
+    render(<KeyboardShortcutsTabContent />);
+
+    const captions = screen.getAllByRole("table").map((table) => table.getAttribute("aria-label"));
+    const deskWorkIndex = captions.indexOf("Desk work (Working)");
+    const commonIndex = captions.indexOf("Common");
+
+    expect(deskWorkIndex).toBeGreaterThan(-1);
+    expect(commonIndex).toBeGreaterThan(-1);
+    expect(deskWorkIndex).toBeLessThan(commonIndex);
+
+    workspaceModeMocks.isWorkingMode = false;
   });
 
   it("matches the palette row from a plain-language query", () => {
