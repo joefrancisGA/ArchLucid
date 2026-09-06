@@ -103,7 +103,7 @@ Add `-Hint '<user hint>'` when the message named an area. Add `-Refresh` when th
 
 The picker is **deterministic** (`docs/library/AL_BUG_HUNT_LEDGER.md` + `scripts/agent/al-bug-pick-zone.ps1`). Do **not** LLM-rank zones or fall back to a static “always topology first” walk.
 
-Scoring is **explore/exploit**: hunts are the time unit. Prefer shorter mean hunts-per-bug once data exists; sample untried zones so the catalog can learn. **Hunt-ready** hypothesis count is a small tie-break only — **candidate** (template) rows must not lock the picker. Hypothesis **precision** (`proven / (proven + invalid)`) is a small bonus once at least two classified attempts exist. `valid-no-repro` is healthy exhaustion and does **not** lower precision.
+Scoring is **explore/exploit**: hunts are the time unit. Prefer shorter mean hunts-per-bug once data exists; sample untried zones so the catalog can learn. **Hunt-ready** hypothesis count is a small tie-break only — **candidate** (template) rows must not lock the picker. Hypothesis **precision** (`proven / (proven + invalid)`) is a small bonus once at least two classified attempts exist. `valid-no-repro` is healthy exhaustion and does **not** lower precision. **Speed is capped at 1**; `bugs-found` cannot exceed `hunts` for scoring. High recent hit-rate zones **cool** per ledger § Scoring.
 
 Rules:
 
@@ -245,9 +245,10 @@ Exit code **2** → stop; tell the user which paths are blocked.
 
 2. Implement the **smallest** fix that makes the repro pass.
 3. The fix must close a **class** of inputs, not one instance. Forbidden as the entire fix: appending one string to a keyword/phrase/allowlist so a single new theory case passes. If the mechanism is substring or phrase matching, change the mechanism (see ABQ tokenizer/redaction patterns) or close the row `(valid-no-repro)` — do not ship an instance-list diff.
-4. Keep the regression test in the permanent test file (delete temporary repro-only files).
-5. Run scoped tests again — all relevant tests must pass.
-6. Optional **one** scoped compile check when .NET production code changed:
+4. If picker JSON lists `escalatedFiles` containing the implicated production file, **do not ship** another allowlist/phrase-list patch to that file. Record the hunt as `dry`/`invalid` and cite ABQ-01–04 or a design fix instead.
+5. Keep the regression test in the permanent test file (delete temporary repro-only files).
+6. Run scoped tests again — all relevant tests must pass.
+7. Optional **one** scoped compile check when .NET production code changed:
 
 ```powershell
 .\scripts\ci\agent-compile-check.ps1 -ProjectPath 'ArchLucid.Application/ArchLucid.Application.csproj'
@@ -258,6 +259,8 @@ Exit code **2** → stop; tell the user which paths are blocked.
 ## Phase 3 — Ship to `bugsmash`
 
 Target branch is **`bugsmash`** unless the user named another branch in the same message.
+
+**Sequential / low-severity hold:** when using `al-bug-sequential-run.ps1 -CompleteHunt`, a `hit` with `-Severity low` is recorded as `held-for-triage` and must **not** be pushed automatically. High/medium hits still require ABQ-05 reachability in the commit body before push.
 
 ### 3.1 Prefer the push helper (dirty main tree)
 
