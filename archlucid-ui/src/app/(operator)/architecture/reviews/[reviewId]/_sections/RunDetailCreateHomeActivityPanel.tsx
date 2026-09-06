@@ -7,7 +7,6 @@ import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   RUN_DETAIL_CREATE_HOME_ACTIVITY_ORIENTATION_LEAD,
-  RUN_DETAIL_CREATE_HOME_ACTIVITY_TECHNICAL_DETAIL_SUMMARY,
 } from "@/lib/runs/run-detail-create-home-activity-copy";
 import type { RunSummary } from "@/types/authority";
 import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
@@ -16,6 +15,7 @@ import { cn } from "@/lib/utils";
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import { RunDetailLastFailureCard } from "@/components/runs/RunDetailLastFailureCard";
 
+import { RunDetailCreateHomeActivityTechnicalDisclosures } from "./RunDetailCreateHomeActivityTechnicalDisclosures";
 import { RunDetailProgressTrackerDeferred } from "./run-detail-page-view-deferred-chunks";
 
 export type RunDetailCreateHomeActivityPanelProps = {
@@ -145,23 +145,11 @@ export function RunDetailCreateHomeActivityPanel(props: RunDetailCreateHomeActiv
         </div>
       </div>
 
-      <details
-        className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
-        open={false}
-        data-testid="architecture-activity-technical-detail"
-      >
-        <summary className="cursor-pointer font-semibold">
-          {RUN_DETAIL_CREATE_HOME_ACTIVITY_TECHNICAL_DETAIL_SUMMARY}
-        </summary>
-        <div className="mt-3 space-y-4">
-          <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" open={false}>
-            <summary className="cursor-pointer font-semibold">Outcome metrics and taxonomy</summary>
-            <div className="mt-3">{props.outcomeCards}</div>
-          </details>
-          {props.midDeferred}
-          {props.sourcesPanel}
-        </div>
-      </details>
+      <RunDetailCreateHomeActivityTechnicalDisclosures
+        outcomeCards={props.outcomeCards}
+        midDeferred={props.midDeferred}
+        sourcesPanel={props.sourcesPanel}
+      />
     </div>
   );
 }
