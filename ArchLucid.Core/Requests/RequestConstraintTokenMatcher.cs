@@ -273,6 +273,12 @@ internal static class RequestConstraintTokenMatcher
             || before.StartsWith("does not provision", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("does not ensure", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("does not maintain", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("does not enable", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("does not deploy", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("does not adopt", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("does not use", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("does not have", StringComparison.OrdinalIgnoreCase)
+            || before.StartsWith("does not implement", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("need not ensure", StringComparison.OrdinalIgnoreCase)
             || before.StartsWith("need not need", StringComparison.OrdinalIgnoreCase))
             return true;
