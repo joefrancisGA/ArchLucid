@@ -47,7 +47,6 @@ function DevTestingQuickJumpCluster(props: DevTestingQuickJumpClusterProps): Rea
                 href={item.href}
                 data-testid={`${testIdPrefix}-${item.id}`}
                 className={buttonVariants({ variant: "outline", size: "sm" })}
-                title={item.id}
                 aria-label={buildDevTestingQuickJumpAriaLabel(item.entityLabel, item.id)}
               >
                 {truncateDevTestingEntityId(item.id)}
@@ -71,34 +70,34 @@ export function DevTestingQuickJumpLinks(props: DevTestingQuickJumpLinksProps): 
   const planItems = snapshot.plans.map((plan) => ({
     href: devTestingPlanDetailPath(plan.planId),
     id: plan.planId,
-    entityLabel: "Plan",
+    entityLabel: "Improvement plan",
   }));
   const runItems = snapshot.runs.map((run) => ({
     href: devTestingRunDetailPath(run.runId),
     id: run.runId,
-    entityLabel: "Run",
+    entityLabel: "Architecture review",
   }));
   const approvalItems = snapshot.approvalRequests.map((approval) => ({
     href: devTestingApprovalLineagePath(approval.approvalRequestId),
     id: approval.approvalRequestId,
-    entityLabel: "Approval request",
+    entityLabel: "Governance approval",
   }));
   const manifestItems = snapshot.manifests.map((manifest) => ({
     href: devTestingManifestDetailPath(manifest.manifestId),
     id: manifest.manifestId,
-    entityLabel: "Manifest",
+    entityLabel: "Sealed review record",
   }));
   const artifactItems = snapshot.artifacts.map((artifact) => ({
     href: devTestingManifestArtifactPath(artifact.manifestId, artifact.artifactId),
     id: artifact.artifactId,
-    entityLabel: "Artifact",
+    entityLabel: "Evidence artifact",
   }));
 
   return (
     <div className="flex flex-col gap-3" data-testid="dev-testing-quick-jump-links">
       <div>
         <p className={cn("m-0 font-medium text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
-          Quick-jump entity IDs
+          Quick-jump architecture package IDs
         </p>
         <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Jump directly into current workspace demo data by id.
@@ -106,36 +105,36 @@ export function DevTestingQuickJumpLinks(props: DevTestingQuickJumpLinksProps): 
       </div>
 
       <DevTestingQuickJumpCluster
-        label="Plans"
-        emptyMessage="No demo plans yet"
+        label="Improvement plans"
+        emptyMessage="No improvement plans yet"
         loading={loading}
         items={planItems}
         testIdPrefix="dev-quick-jump-plan"
       />
       <DevTestingQuickJumpCluster
-        label="Runs"
-        emptyMessage="No runs in this workspace yet"
+        label="Architecture reviews"
+        emptyMessage="No architecture reviews in this workspace yet"
         loading={loading}
         items={runItems}
         testIdPrefix="dev-quick-jump-run"
       />
       <DevTestingQuickJumpCluster
-        label="Approval requests"
-        emptyMessage="No approval requests for recent runs"
+        label="Governance approvals"
+        emptyMessage="No governance approvals for recent reviews"
         loading={loading}
         items={approvalItems}
         testIdPrefix="dev-quick-jump-approval"
       />
       <DevTestingQuickJumpCluster
-        label="Manifests"
-        emptyMessage="No manifests linked to recent runs"
+        label="Sealed review records"
+        emptyMessage="No sealed review records linked to recent reviews"
         loading={loading}
         items={manifestItems}
         testIdPrefix="dev-quick-jump-manifest"
       />
       <DevTestingQuickJumpCluster
-        label="Artifacts"
-        emptyMessage="No artifacts for linked manifests"
+        label="Evidence artifacts"
+        emptyMessage="No evidence artifacts for linked sealed review records"
         loading={loading}
         items={artifactItems}
         testIdPrefix="dev-quick-jump-artifact"

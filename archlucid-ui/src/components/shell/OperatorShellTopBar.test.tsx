@@ -355,7 +355,7 @@ describe("OperatorShellTopBar", () => {
     expect(screen.getByTestId("llm-budget-status-pill")).toBeInTheDocument();
   });
 
-  it("keeps review search scope and command trigger on one header row", async () => {
+  it("keeps review search scope and in-input command shortcut on one header row", async () => {
     navigationTestState.pathname = "/architecture/reviews/run-abc";
     architectWorkspaceChromeMock.value = true;
 
@@ -366,11 +366,10 @@ describe("OperatorShellTopBar", () => {
     );
 
     const controlRow = await screen.findByTestId("global-search-control-row");
-    const commandTrigger = screen.getByTestId("operator-shell-command-palette-trigger");
-    const searchCluster = commandTrigger.parentElement;
+    const commandShortcut = screen.getByTestId("global-search-command-palette-shortcut");
 
-    expect(searchCluster).not.toBeNull();
-    expect(searchCluster?.contains(controlRow)).toBe(true);
+    expect(controlRow.contains(commandShortcut)).toBe(true);
+    expect(screen.queryByTestId("operator-shell-command-palette-trigger")).not.toBeInTheDocument();
     expect(screen.getByTestId("global-search-package-scope-toggle")).toBeInTheDocument();
     expect(controlRow.className).toContain("flex-nowrap");
   });
