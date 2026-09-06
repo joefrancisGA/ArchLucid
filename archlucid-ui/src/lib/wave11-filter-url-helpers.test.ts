@@ -4529,6 +4529,92 @@ describe("wave58 filter url helpers", () => {
   });
 });
 
+describe("wave59 filter url helpers", () => {
+  it("identity providers diagnostics customer tools, webhooks technical event name, compare manual review ids, compare technical appendix, compare sponsor narrative, compare last request outcome, identity providers role mapping examples, extract upload advanced command, azure boards connection test collapsed, jira workspace routing collapsed params", async () => {
+    const {
+      identityProvidersDiagnosticsCustomerToolsDisclosureHrefFromSearch,
+      parseIdentityProvidersDiagnosticsCustomerToolsOpenFromSearch,
+    } = await import("@/lib/administration/identity-providers-diagnostics-customer-tools-disclosure-url");
+    const {
+      parseWebhooksTechnicalEventNameEventIdFromSearch,
+      webhooksTechnicalEventNameDisclosureHrefFromSearch,
+    } = await import("@/lib/integrations/webhooks-technical-event-name-disclosure-url");
+    const {
+      compareManualReviewIdsDisclosureHrefFromSearch,
+      parseCompareManualReviewIdsOpenFromSearch,
+    } = await import("@/lib/insights/compare-manual-review-ids-disclosure-url");
+    const {
+      compareTechnicalAppendixDisclosureHrefFromSearch,
+      parseCompareTechnicalAppendixOpenFromSearch,
+    } = await import("@/lib/insights/compare-technical-appendix-disclosure-url");
+    const {
+      compareSponsorNarrativeDisclosureHrefFromSearch,
+      parseCompareSponsorNarrativeOpenFromSearch,
+    } = await import("@/lib/insights/compare-sponsor-narrative-disclosure-url");
+    const {
+      compareLastRequestOutcomeDisclosureHrefFromSearch,
+      parseCompareLastRequestOutcomeOpenFromSearch,
+    } = await import("@/lib/insights/compare-last-request-outcome-disclosure-url");
+    const {
+      identityProvidersRoleMappingExamplesDisclosureHrefFromSearch,
+      parseIdentityProvidersRoleMappingExamplesOpenFromSearch,
+    } = await import("@/lib/administration/identity-providers-role-mapping-examples-disclosure-url");
+    const {
+      extractUploadAdvancedCommandDisclosureHrefFromSearch,
+      parseExtractUploadAdvancedCommandOpenFromSearch,
+    } = await import("@/lib/administration/extract-upload-advanced-command-disclosure-url");
+    const {
+      azureBoardsConnectionTestCollapsedDisclosureHrefFromSearch,
+      parseAzureBoardsConnectionTestCollapsedOpenFromSearch,
+    } = await import("@/lib/integrations/azure-boards-connection-test-collapsed-disclosure-url");
+    const {
+      jiraWorkspaceRoutingCollapsedDisclosureHrefFromSearch,
+      parseJiraWorkspaceRoutingCollapsedOpenFromSearch,
+    } = await import("@/lib/integrations/jira-workspace-routing-collapsed-disclosure-url");
+
+    expect(parseIdentityProvidersDiagnosticsCustomerToolsOpenFromSearch("1")).toBe(true);
+    expect(
+      identityProvidersDiagnosticsCustomerToolsDisclosureHrefFromSearch("", true, "/administration/identity-providers/diagnostics"),
+    ).toBe("/administration/identity-providers/diagnostics?identityProvidersDiagnosticsCustomerToolsOpen=1");
+    expect(parseWebhooksTechnicalEventNameEventIdFromSearch("alert.created")).toBe("alert.created");
+    expect(webhooksTechnicalEventNameDisclosureHrefFromSearch("", "alert.created", "/integrations/webhooks")).toBe(
+      "/integrations/webhooks?webhooksTechnicalEventNameEventId=alert.created",
+    );
+    expect(parseCompareManualReviewIdsOpenFromSearch("true")).toBe(true);
+    expect(compareManualReviewIdsDisclosureHrefFromSearch("left=r1", true, "/insights/compare-two-reviews")).toBe(
+      "/insights/compare-two-reviews?left=r1&compareManualReviewIdsOpen=1",
+    );
+    expect(parseCompareTechnicalAppendixOpenFromSearch("1")).toBe(true);
+    expect(compareTechnicalAppendixDisclosureHrefFromSearch("", true, "/insights/compare-two-reviews")).toBe(
+      "/insights/compare-two-reviews?compareTechnicalAppendixOpen=1",
+    );
+    expect(parseCompareSponsorNarrativeOpenFromSearch("true")).toBe(true);
+    expect(compareSponsorNarrativeDisclosureHrefFromSearch("left=r1", true, "/insights/compare-two-reviews")).toBe(
+      "/insights/compare-two-reviews?left=r1&compareSponsorNarrativeOpen=1",
+    );
+    expect(parseCompareLastRequestOutcomeOpenFromSearch("1")).toBe(true);
+    expect(compareLastRequestOutcomeDisclosureHrefFromSearch("", true, "/insights/compare-two-reviews")).toBe(
+      "/insights/compare-two-reviews?compareLastRequestOutcomeOpen=1",
+    );
+    expect(parseIdentityProvidersRoleMappingExamplesOpenFromSearch("true")).toBe(true);
+    expect(
+      identityProvidersRoleMappingExamplesDisclosureHrefFromSearch("", true, "/administration/identity-providers/role-mapping"),
+    ).toBe("/administration/identity-providers/role-mapping?identityProvidersRoleMappingExamplesOpen=1");
+    expect(parseExtractUploadAdvancedCommandOpenFromSearch("1")).toBe(true);
+    expect(extractUploadAdvancedCommandDisclosureHrefFromSearch("", true, "/administration/extract-upload")).toBe(
+      "/administration/extract-upload?extractUploadAdvancedCommandOpen=1",
+    );
+    expect(parseAzureBoardsConnectionTestCollapsedOpenFromSearch("true")).toBe(true);
+    expect(azureBoardsConnectionTestCollapsedDisclosureHrefFromSearch("", true, "/integrations/azure-boards")).toBe(
+      "/integrations/azure-boards?azureBoardsConnectionTestCollapsedOpen=1",
+    );
+    expect(parseJiraWorkspaceRoutingCollapsedOpenFromSearch("1")).toBe(true);
+    expect(jiraWorkspaceRoutingCollapsedDisclosureHrefFromSearch("", true, "/integrations/jira")).toBe(
+      "/integrations/jira?jiraWorkspaceRoutingCollapsedOpen=1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

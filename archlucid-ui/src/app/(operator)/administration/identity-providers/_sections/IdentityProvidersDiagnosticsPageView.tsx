@@ -53,6 +53,10 @@ import {
   identityProvidersDiagnosticsTechnicalDisclosureHrefFromSearch,
   parseIdentityProvidersDiagnosticsTechnicalOpenFromSearch,
 } from "@/lib/administration/identity-providers-diagnostics-technical-disclosure-url";
+import {
+  identityProvidersDiagnosticsCustomerToolsDisclosureHrefFromSearch,
+  parseIdentityProvidersDiagnosticsCustomerToolsOpenFromSearch,
+} from "@/lib/administration/identity-providers-diagnostics-customer-tools-disclosure-url";
 
 type AdminIdentityProviderDiagnosticsResponse =
   components["schemas"]["AdminIdentityProviderDiagnosticsResponse"];
@@ -89,6 +93,7 @@ export function IdentityProvidersDiagnosticsPageView(
   const searchParams = useSearchParams();
   const identityProvidersDiagnosticsProtocolOpenParam = searchParams.get("identityProvidersDiagnosticsProtocolOpen");
   const identityProvidersDiagnosticsTechnicalOpenParam = searchParams.get("identityProvidersDiagnosticsTechnicalOpen");
+  const identityProvidersDiagnosticsCustomerToolsOpenParam = searchParams.get("identityProvidersDiagnosticsCustomerToolsOpen");
   const showTechnicalDetails = canViewIdentityProviderTechnicalDiagnostics(isArchLucidInternalOperatorShellEnv());
   const bundlePending = diagnosticsBundlePending(props.model);
   const showProtocolDetails =
@@ -99,6 +104,9 @@ export function IdentityProvidersDiagnosticsPageView(
   );
   const [technicalDetailsOpen, setTechnicalDetailsOpenState] = useState(() =>
     parseIdentityProvidersDiagnosticsTechnicalOpenFromSearch(identityProvidersDiagnosticsTechnicalOpenParam),
+  );
+  const [customerToolsOpen, setCustomerToolsOpenState] = useState(() =>
+    parseIdentityProvidersDiagnosticsCustomerToolsOpenFromSearch(identityProvidersDiagnosticsCustomerToolsOpenParam),
   );
   const oidcDeepLinkHandledRef = useRef<boolean>(false);
 
@@ -149,6 +157,30 @@ export function IdentityProvidersDiagnosticsPageView(
       parseIdentityProvidersDiagnosticsTechnicalOpenFromSearch(identityProvidersDiagnosticsTechnicalOpenParam),
     );
   }, [identityProvidersDiagnosticsTechnicalOpenParam]);
+
+  const syncCustomerToolsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        identityProvidersDiagnosticsCustomerToolsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setCustomerToolsOpen = useCallback(
+    (open: boolean) => {
+      setCustomerToolsOpenState(open);
+      syncCustomerToolsOpenToUrl(open);
+    },
+    [syncCustomerToolsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setCustomerToolsOpenState(
+      parseIdentityProvidersDiagnosticsCustomerToolsOpenFromSearch(identityProvidersDiagnosticsCustomerToolsOpenParam),
+    );
+  }, [identityProvidersDiagnosticsCustomerToolsOpenParam]);
 
   // The disclosure this deep link targets only mounts once the protocol payloads settle, so the
   // effect has to wait for that render rather than firing once on mount.
@@ -291,6 +323,10 @@ export function IdentityProvidersDiagnosticsPageView(
         <details
           className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800"
           data-testid="identity-providers-diagnostics-customer-tools"
+          open={customerToolsOpen}
+          onToggle={(event) => {
+            setCustomerToolsOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
         >
           <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {IDENTITY_PROVIDERS_DIAGNOSTICS_CUSTOMER_TOOLS_TITLE}
