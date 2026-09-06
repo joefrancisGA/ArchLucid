@@ -19,6 +19,8 @@ _JOB_MARKER = "ui-e2e-live-beta-access"
 _JOB_NAME = "Operator UI: private-beta access-path (JwtBearer)"
 _FULL_REGRESSION_NEED = "dotnet-full-regression-core-complete"
 _MIN_TIMEOUT_MINUTES = 45
+_LOCKFILE_GUARD = "check_npm_overrides_lockfile_sync.py"
+_TYPECHECK_COMMAND = "npm run typecheck"
 
 
 def repo_root() -> Path:
@@ -55,6 +57,32 @@ def _extract_yaml_job_block(text: str, job_marker: str) -> str | None:
         return text[start:]
 
     return text[start : match.end() + next_job.start()]
+
+
+def _require_private_beta_install_and_typecheck(rel_path: str, text: str, errors: list[str]) -> None:
+    job_text = text if rel_path == _PUSH_REL else _extract_yaml_job_block(text, _JOB_MARKER)
+
+    if job_text is None:
+        errors.append(f"{rel_path}: missing job marker {_JOB_MARKER}")
+
+        return
+
+    if _LOCKFILE_GUARD not in job_text:
+        errors.append(
+            f"{rel_path}: {_JOB_NAME} must run {_LOCKFILE_GUARD} before npm ci "
+            "(catch package.json override drift before build:live-e2e)",
+        )
+
+    if _TYPECHECK_COMMAND not in job_text:
+        errors.append(
+            f"{rel_path}: {_JOB_NAME} must run {_TYPECHECK_COMMAND} before build:live-e2e "
+            "(fail fast on TS drift before heavy Next standalone build)",
+        )
+
+    if "assert_single_npm_dependency_version.py @tanstack/query-core" not in job_text:
+        errors.append(
+            f"{rel_path}: {_JOB_NAME} must assert a single @tanstack/query-core version after npm ci",
+        )
 
 
 def _require_live_e2e_build(rel_path: str, text: str, errors: list[str]) -> None:
@@ -189,6 +217,7 @@ def main(argv: list[str] | None = None) -> int:
         _require_jwt_bearer_and_spec(_PUSH_REL, text, errors)
         _require_private_beta_job_timeout(_PUSH_REL, text, errors)
         _require_live_e2e_build(_PUSH_REL, text, errors)
+        _require_private_beta_install_and_typecheck(_PUSH_REL, text, errors)
 
         if "cancel-in-progress: false" not in text:
             errors.append(

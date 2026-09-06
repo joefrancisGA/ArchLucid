@@ -24,6 +24,8 @@
 | --- | --- | --- |
 | `Failed to warm draft inventory` before Playwright | Pre-#1669 required draft warm; cold SQL hang | **Shipped #1669** — draft warm is best-effort in CI |
 | `Failed to warm create architecture run` before Playwright | Cold SQL + inline Simulator pipeline on first POST | **Shipped** — create-run warm is best-effort (300s default); Playwright `createRun` JIT-warms with 300s per-attempt budget |
+| `npm ci` fails before Playwright (`package.json` / `package-lock.json` out of sync) | Override bumped in `package.json` without `npm install` (e.g. `@tanstack/query-core` **5.102.8**) | Run `npm install` in `archlucid-ui/`, commit lockfile; `check_npm_overrides_lockfile_sync.py` fails in beta-readiness guards pre-merge |
+| `Install UI deps, verify lockfile, and typecheck` fails | TypeScript drift on trunk before heavy `build:live-e2e` | Fix `npm run typecheck` locally; private-beta now typechecks before Next standalone build |
 | `Install UI deps & build Next` fails (typecheck in `build:live-e2e`) | `architectureId` → `draftId` migration drift on trunk | **Shipped #1703** — align registry consumers and draft control props; re-run push |
 | Playwright never starts | Shell warm `set -e` on required path | Check scope/invitations warm; API not ready |
 | `GET /api/proxy/v1/architecture/draft` 60s timeout | Draft list hit before route stub | Spec stubs `**/api/proxy/v1/architecture/draft**`; ensure stub runs before `page.goto` |
