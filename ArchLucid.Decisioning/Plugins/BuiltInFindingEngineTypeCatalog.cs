@@ -57,6 +57,7 @@ public static class BuiltInFindingEngineTypeCatalog
             ["DeclarationPremiseConflictFindingEngine"] = "declaration-premise-conflict",
             ["OpenCommitmentFindingEngine"] = "open-commitment",
             ["PortfolioRecurrenceFindingEngine"] = "portfolio-recurrence",
+            ["SecretsLifecycleFindingEngine"] = "secrets-lifecycle",
         };
 
     /// <summary>Every product <c>EngineType</c> (ordinal ignore-case).</summary>
