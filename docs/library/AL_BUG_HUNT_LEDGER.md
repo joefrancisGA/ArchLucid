@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 322
-- **bugs-found:** 2142
+- **hunts:** 323
+- **bugs-found:** 2154
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-06
-- **last-bug:** 2026-09-06 — VocalAccessKey/VoiceAccessKey/VolumeAccessKey redaction, don't configure/mandate/apply/enforce to constraint negation, advice doesn't configure/mandate/apply/enforce/provision to prefix
+- **last-bug:** 2026-09-06 — VoucherAccessKey/VoyageAccessKey/VoterAccessKey redaction, don't provision/maintain/ensure/require/need to constraint negation, advice doesn't maintain/ensure/require/need to prefix
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
