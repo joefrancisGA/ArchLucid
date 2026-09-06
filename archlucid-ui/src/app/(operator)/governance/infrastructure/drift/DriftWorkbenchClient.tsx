@@ -89,6 +89,24 @@ export function DriftWorkbenchClient() {
     [selectedChangeId, visibleChanges],
   );
 
+  const deepLinkedChangeMissing = useMemo(() => {
+    if (urlChangeId.length === 0 || loadingChanges || selectedDiffId.length === 0) {
+      return false;
+    }
+
+    return !visibleChanges.some((row) => row.changeId === urlChangeId);
+  }, [loadingChanges, selectedDiffId.length, urlChangeId, visibleChanges]);
+
+  useEffect(() => {
+    if (urlChangeId.length === 0 || selectedChangeId !== urlChangeId) {
+      return;
+    }
+
+    document
+      .querySelector(`[data-testid="infra-drift-change-row-${urlChangeId}"]`)
+      ?.scrollIntoView({ block: "nearest" });
+  }, [selectedChangeId, urlChangeId, visibleChanges.length]);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -270,6 +288,17 @@ export function DriftWorkbenchClient() {
             Open resource evidence hub
           </Link>
         </section>
+      ) : null}
+
+      {deepLinkedChangeMissing ? (
+        <p
+          className={cn("m-0 text-sm text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="infra-drift-change-deep-link-missing"
+          role="status"
+        >
+          The linked drift change is not in the selected diff
+          {urlCloudResourceId.length > 0 ? " for this scoped resource" : ""}.
+        </p>
       ) : null}
 
       {loadError != null ? (
