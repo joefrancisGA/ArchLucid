@@ -3,6 +3,8 @@ using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
+using ArchLucid.Decisioning.Interfaces;
+
 using FluentAssertions;
 
 using Moq;
@@ -124,7 +126,10 @@ public sealed class RemediationInstanceQueryServiceTests
         new(
             repository,
             new Mock<IOperationalSecurityFindingRepository>().Object,
-            new Mock<IRemediationPatternMatchRepository>().Object);
+            new Mock<IRemediationPatternMatchRepository>().Object,
+            new Mock<IAuditManualEvidenceRepository>().Object,
+            new Mock<IAuthorityQueryService>().Object,
+            new Mock<IManifestHashService>().Object);
 
     private static RemediationInstanceRecord CreateInstance(Guid instanceId, Guid? cloudResourceId, Guid? findingId = null) =>
         new()

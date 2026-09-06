@@ -11,10 +11,19 @@ vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
 }));
 
-vi.mock("@/lib/demo-ui-env", () => ({
-  isBuyerPolishedOperatorShellEnv: () => true,
-  isOperatorExperienceFullShellEnv: () => false,
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => true,
 }));
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () => true,
+    isOperatorExperienceFullShellEnv: () => false,
+  };
+});
 
 vi.mock("@/lib/api", () => ({
   listAlertRules: vi.fn().mockResolvedValue([]),

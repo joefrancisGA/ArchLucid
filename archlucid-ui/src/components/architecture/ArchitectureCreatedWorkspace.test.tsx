@@ -25,6 +25,15 @@ vi.mock("@/components/architecture/ArchitectureDiagramPanel", () => ({
   ArchitectureDiagramPanel: () => <div data-testid="architecture-diagram-panel-mock" />,
 }));
 
+const demoEnvMock = vi.hoisted(() => ({
+  buyerPolished: false,
+  evalChrome: false,
+}));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => demoEnvMock.evalChrome,
+}));
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
@@ -33,10 +42,6 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
     isBuyerPolishedOperatorShellEnv: () => demoEnvMock.buyerPolished,
   };
 });
-
-const demoEnvMock = vi.hoisted(() => ({
-  buyerPolished: false,
-}));
 
 function finding(overrides: Partial<QuickDecisionFinding>): QuickDecisionFinding {
   return {
@@ -57,6 +62,7 @@ function finding(overrides: Partial<QuickDecisionFinding>): QuickDecisionFinding
 describe("ArchitectureCreatedWorkspace", () => {
   beforeEach(() => {
     demoEnvMock.buyerPolished = false;
+    demoEnvMock.evalChrome = false;
     searchParamsState.value = new URLSearchParams("fromGeneration=1&intent=create-architecture");
   });
 
@@ -103,6 +109,7 @@ describe("ArchitectureCreatedWorkspace", () => {
 
   it("hides overview vocabulary rail and mounts buyer Sources in buyer-polished shell", () => {
     demoEnvMock.buyerPolished = true;
+    demoEnvMock.evalChrome = true;
 
     render(
       <ArchitectureCreatedWorkspace

@@ -32,6 +32,7 @@ export type ProvenancePageWorkspaceGraphSectionProps = {
   readonly retryGraphLayout: () => void;
   readonly openTablesView: () => void;
   readonly onSelectEdge: (edgeId: string) => void;
+  readonly showInspectCoach: boolean;
 };
 
 export function ProvenancePageWorkspaceGraphSection(
@@ -64,6 +65,15 @@ export function ProvenancePageWorkspaceGraphSection(
       <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
         Explore how evidence, findings, decisions, approval records, and artifacts connect across this review.
       </p>
+      {props.showInspectCoach ? (
+        <p
+          className={cn("mt-2 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 text-neutral-700 dark:border-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="provenance-inspect-coach"
+          role="status"
+        >
+          Select a linkage point in the graph or Tables view to inspect relationships.
+        </p>
+      ) : null}
       <div className="mt-3 w-full min-w-0">
         <ProvenanceGraphErrorBoundary
           key={layoutSeed}

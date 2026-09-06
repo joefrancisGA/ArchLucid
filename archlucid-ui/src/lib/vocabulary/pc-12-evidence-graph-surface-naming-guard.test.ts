@@ -8,6 +8,10 @@ import { describe, expect, it } from "vitest";
 
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import {
+  EVIDENCE_GRAPH_OPEN_ACTION_LABEL,
+  EVIDENCE_GRAPH_OPERATOR_SOURCE_LINK,
+} from "@/lib/evidence-graph-operator-source-link";
+import {
   FINDING_EVIDENCE_LINK_GRAPH_LABEL,
   FINDING_EVIDENCE_LINK_VIEW_GRAPH_LABEL,
 } from "@/lib/vocabulary/finding-evidence-link-chip-copy";
@@ -18,12 +22,19 @@ const PC_12_EVIDENCE_GRAPH_SURFACE_FILES = [
   "components/usability/FindingEvidenceLinkChip.tsx",
   "components/ManifestDetailSummaryCountsGrid.tsx",
   "components/runs/RunInspectorPreview.tsx",
+  "lib/sponsor/sponsor-report-evidence-copy.ts",
+  "lib/compare-evidence-copy.ts",
+  "lib/comparison-replay-help-evidence-copy.ts",
+  "lib/pattern-library-detail-evidence-copy.ts",
+  "app/(operator)/insights/search-review-evidence/_sections/retrieval-hit-display.ts",
 ] as const;
 
 describe("PC-12 evidence graph surface naming (TB-2097)", () => {
   it("exposes canonical finding evidence link labels", () => {
     expect(FINDING_EVIDENCE_LINK_GRAPH_LABEL).toBe(BUYER_SURFACE_VOCABULARY.evidenceGraph);
     expect(FINDING_EVIDENCE_LINK_VIEW_GRAPH_LABEL).toBe("View graph");
+    expect(EVIDENCE_GRAPH_OPERATOR_SOURCE_LINK.label).toBe(BUYER_SURFACE_VOCABULARY.evidenceGraph);
+    expect(EVIDENCE_GRAPH_OPEN_ACTION_LABEL).toBe("Open evidence graph");
   });
 
   it("keeps graph navigation surfaces free of Evidence trail link labels", () => {
@@ -40,8 +51,8 @@ describe("PC-12 evidence graph surface naming (TB-2097)", () => {
         offenders.push(`${relativePath}: literal "View trail"`);
       }
 
-      if (source.includes('"Evidence trail anchors"')) {
-        offenders.push(`${relativePath}: literal "Evidence trail anchors"`);
+      if (source.includes('"Open evidence trail"')) {
+        offenders.push(`${relativePath}: literal "Open evidence trail"`);
       }
     }
 

@@ -13,13 +13,15 @@ import { buildTraceViewerUrl } from "@/lib/trace-link";
 export interface RunTraceViewerLinkProps {
   /** 32-char hex trace id from the API `X-Trace-Id` header, or null when the header was not returned. */
   traceId: string | null;
+  /** Inline row (default) or nested inside an open disclosure body. */
+  presentation?: "inline" | "disclosure-body";
 }
 
 /**
  * When a trace id is present, shows an optional **View trace** deep link (if `NEXT_PUBLIC_TRACE_VIEWER_URL_TEMPLATE`
  * is set), a monospace preview of the id, and a copy-to-clipboard control.
  */
-export function RunTraceViewerLink({ traceId }: RunTraceViewerLinkProps) {
+export function RunTraceViewerLink({ traceId, presentation = "inline" }: RunTraceViewerLinkProps) {
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const [copied, setCopied] = useState(false);
   const traceUrl = buildTraceViewerUrl(traceId ?? undefined);
@@ -45,7 +47,12 @@ export function RunTraceViewerLink({ traceId }: RunTraceViewerLinkProps) {
 
   if (!isAdmin) {
     return (
-      <div className={cn("mt-1 flex flex-wrap items-center gap-2", OPERATOR_TYPOGRAPHY.helper)}>
+      <div
+        className={cn(
+          presentation === "disclosure-body" ? "flex flex-wrap items-center gap-2" : "mt-1 flex flex-wrap items-center gap-2",
+          OPERATOR_TYPOGRAPHY.helper,
+        )}
+      >
         <span className="font-mono break-all text-neutral-500 dark:text-neutral-400" aria-label={`Support reference: ${traceId}`}>
           Support ref: {traceId}
         </span>
