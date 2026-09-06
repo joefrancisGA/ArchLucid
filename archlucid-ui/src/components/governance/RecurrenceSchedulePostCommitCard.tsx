@@ -174,7 +174,7 @@ export function RecurrenceSchedulePostCommitCard({
         <p className={cn("m-0 mb-3", OPERATOR_TYPOGRAPHY.body)} data-testid="recurrence-proposal-lead">
           {existing === null && !declined
             ? RECURRENCE_PROPOSAL_LEAD
-            : "Clone this committed review on a schedule so governance does not depend on manual scheduling."}
+            : "Clone this committed review on a schedule so approvals do not depend on manual scheduling."}
         </p>
         {existing ? (
           <div className="space-y-2">

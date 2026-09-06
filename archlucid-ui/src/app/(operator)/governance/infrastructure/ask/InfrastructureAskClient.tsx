@@ -45,6 +45,7 @@ import {
   parseResourceExplorerWorkQueueFromSearch,
   resolveResourceHubTabFromExplorerWorkQueue,
 } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
+import { buildTerraformWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-terraform-filter-url";
 import {
   buildDriftWorkbenchHref,
   buildRemediationWorkbenchHref,
@@ -282,6 +283,20 @@ export function InfrastructureAskClient() {
     });
   }, [cloudResourceId, diffId, snapshotId, workbenchAuditContext]);
 
+  const terraformWorkbenchBackLinkHref = useMemo(() => {
+    if (hubTabOrigin !== "terraform" || cloudResourceId.length === 0) {
+      return null;
+    }
+
+    return buildTerraformWorkbenchHref({
+      cloudResourceId,
+      snapshotId: snapshotId.length > 0 ? snapshotId : null,
+      assessmentId: workbenchAuditContext?.assessmentId ?? null,
+      auditEvidenceSnapshotId: workbenchAuditContext?.auditEvidenceSnapshotId ?? null,
+      controlId: workbenchAuditContext?.controlId ?? null,
+    });
+  }, [cloudResourceId, hubTabOrigin, snapshotId, workbenchAuditContext]);
+
   const diagramReconcileBackLinkHref = useMemo(() => {
     if (correspondenceId.length === 0) {
       return null;
@@ -433,6 +448,9 @@ export function InfrastructureAskClient() {
               href={buildResourceHubOverviewHref(cloudResourceId, {
                 snapshotId: snapshotId.length > 0 ? snapshotId : null,
                 runId: runId.length > 0 ? runId : null,
+                assessmentId: assessmentId.length > 0 ? assessmentId : null,
+                auditEvidenceSnapshotId: auditEvidenceSnapshotId.length > 0 ? auditEvidenceSnapshotId : null,
+                controlId: controlId.length > 0 ? controlId : null,
               })}
               data-testid="infra-ask-open-overview-hub"
             >
@@ -464,6 +482,15 @@ export function InfrastructureAskClient() {
               data-testid="infra-ask-drift-back-link"
             >
               Open drift workbench
+            </Link>
+          ) : null}
+          {terraformWorkbenchBackLinkHref != null ? (
+            <Link
+              className="mt-2 inline-block text-sm text-al-link hover:underline"
+              href={terraformWorkbenchBackLinkHref}
+              data-testid="infra-ask-terraform-back-link"
+            >
+              Open terraform workbench
             </Link>
           ) : null}
           {inventoryDiagramsBackLinkHref != null ? (

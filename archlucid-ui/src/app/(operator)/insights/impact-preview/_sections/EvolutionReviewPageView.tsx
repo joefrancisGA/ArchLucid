@@ -329,7 +329,7 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
               <ImpactPreviewEvidenceBasisSection
                 baselineRunId={m.selectedBaselineId}
                 linkedRunIds={m.planSnapshot?.linkedArchitectureRunIds ?? []}
-                policyRulesLabel="Open governance approval"
+                policyRulesLabel="Open approval"
               />
               {m.selectedId !== null ? <ImpactPreviewResultActions selectedCandidateId={m.selectedId} /> : null}
               {m.selectedBaselineId !== null ? (

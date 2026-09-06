@@ -40,6 +40,7 @@ Decisioning and Cost engines implement **`IFindingEngine`** (graph-pure). Applic
 | `compliance` | `ComplianceFindingEngine` | Compliance | Rule-pack violations → `ComplianceFinding` payloads. |
 | `external-exposure` | `ExternalExposureFindingEngine` | Security | External or anonymous **`Actor`** nodes without a matching **`TrustBoundary`** (`actorNodeId`). |
 | `segmentation-semantics` | `SegmentationSemanticsFindingEngine` | Security | Parses declared NSG / security group / NetworkPolicy rules for internet-exposed admin inbound ports (22, 3389, 1433, 3306, 5432) when the control is within 3 hops of a datastore or jump box. Does not fire on control presence alone. |
+| `insight-generator` | `InsightGeneratorFindingEngine` (+ `PremiumInsightFindingGenerator`) | Security | No-op catalog engine; Real-mode Premium LLM pass proposes up to 8 package-grounded findings after typed engines. Output merged by orchestrator stage, then gated like agent findings. |
 | `trust-boundary` | `TrustBoundaryFindingEngine` | Security | Mixed internal/external actor origins with no **`TrustBoundary`** nodes on the graph. |
 | `privileged-access` | `PrivilegedAccessFindingEngine` | Security | Internal human **`Actor`** nodes (guided intake or declaration-seeded). |
 | `identity-blast-radius` | `IdentityBlastRadiusFindingEngine` | Security | Machine **`Actor`** paths to regulated datastores through allow-listed write/admin role assignments (Contributor, Owner, Key Vault Secrets Officer, AmazonS3FullAccess, `roles/secretmanager.admin`). Graph-pure; unknown roles skipped. |
@@ -63,6 +64,7 @@ These close over extractors, freshness options, or SQL. They do **not** implemen
 | `azure-inventory-reconciliation` | `GraphAzureInventoryReconciliationFindingEngine` | Graph vs Azure inventory. |
 | `aws-inventory-reconciliation` | `GraphAwsInventoryReconciliationFindingEngine` | Graph vs AWS inventory. |
 | `gcp-inventory-reconciliation` | `GraphGcpInventoryReconciliationFindingEngine` | Graph vs GCP inventory. |
+| `declaration-inventory-contradiction` | `DeclarationInventoryContradictionFindingEngine` | One finding per resource where a security-relevant declaration property disagrees with scoped live inventory (requires customer-run extractor package; IaC-only reviews stay silent). |
 | `azure-inventory-security-baseline` | `AzureInventorySecurityBaselineFindingEngine` | Azure inventory vs security baseline. |
 | `declaration-security-baseline` | `DeclarationSecurityBaselineFindingEngine` | Unsafe **`tf.*`**, ARM aliases, and **`k8s.*`** declaration properties on ingested topology rows. Honors tenant **`complianceRuleKeys`** via **`DeclarationSignalPolicyKeyMap`** (CIS Azure/AWS/GCP, SOC 2, GDPR, HIPAA, ISO 27001, PCI-DSS, Zero Trust, sec-base, AKS/EKS/GKE) when mapped keys survive filtering; fail-open for unmapped prefixes (cost-opt, ai-gov, dora, otel, sust-base, …). |
 | `declaration-premise-conflict` | `DeclarationPremiseConflictFindingEngine` | Declaration properties that contradict linked **`SecurityBaseline`** / **`PolicyControl`** intent. Uses the same **`DeclarationSignalPolicyKeyMap`** gate as declaration-security-baseline. |
@@ -73,7 +75,7 @@ These close over extractors, freshness options, or SQL. They do **not** implemen
 | `gcp-cost-recommendation` | `GcpCostRecommendationFindingEngine` | GCP cost recommendations from scoped inventory. |
 | `open-commitment` | `OpenCommitmentFindingEngine` | Overdue deferrals, unanswered evidence requests, expiring/expired waivers, and overdue remediations from governance trail. Joins source-finding text to current-graph topology nodes (`TopologyMatch`, `MatchedTopologyNodeId`); when a deferred public-network or HTTPS theme is still unsafe on the matched node, sets `StillOpenOnCurrentGraph` with `evidence:graph-node:` trace notes. |
 | `secrets-lifecycle` | `SecretsLifecycleFindingEngine` | Security | Stale Key Vault / Secrets Manager inventory rows (90+ days since update or expiry within 14 days) when the graph references that vault or secret by name. Requires scoped extractor package; does not call live vault APIs. |
-| `portfolio-recurrence` | `PortfolioRecurrenceFindingEngine` | Cross-system recurrence of the same finding identity (ADR 0063 merge key) across the tenant portfolio. **Default off** — opt-in cross-run I/O per review. |
+| `portfolio-recurrence` | `PortfolioRecurrenceFindingEngine` | Cross-system recurrence of the same finding identity (ADR 0063 merge key) across the tenant portfolio (same tenant catalog only — ADR 0037). **Default on** — disable per tenant when cross-review reads are undesirable. |
 
 `TechnologyConsistencyFindingEngine` implements **`ITechnologyConsistencyFindingEngine`**, not `IFindingEngine` or `IEffectfulFindingEngine`. It is not in the findings fold.
 

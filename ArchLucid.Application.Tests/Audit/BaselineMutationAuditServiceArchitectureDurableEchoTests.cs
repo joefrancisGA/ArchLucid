@@ -218,6 +218,32 @@ public sealed class BaselineMutationAuditServiceArchitectureDurableEchoTests
     }
 
     [SkippableFact]
+    public async Task RecordAsync_when_RunCompleted_LogAsync_throws_propagates_DurableAuditWriteFailedException()
+    {
+        string runId = Guid.NewGuid().ToString("N");
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("audit down"));
+
+        BaselineMutationAuditService sut = new(
+            NullLogger<BaselineMutationAuditService>.Instance,
+            auditService.Object,
+            scopeProvider.Object);
+
+        Func<Task> act = () => sut.RecordAsync(
+            AuditEventTypes.Baseline.Architecture.RunCompleted,
+            "actor-c",
+            runId,
+            "ManifestVersion=v9; SystemName=CoSys; WarningCount=2; CommitPath=authority",
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<DurableAuditWriteFailedException>();
+    }
+
+    [SkippableFact]
     public async Task RecordAsync_when_LogAsync_throws_completes_without_propagating()
     {
         string runId = Guid.NewGuid().ToString("N");

@@ -24,7 +24,7 @@ export const REVIEW_WORKSPACE_CONTEXTUAL_HELP = {
   taskSteps: [
     "Check Overview for status, blockers, and the recommended next action.",
     "Triage findings and capture any missing evidence.",
-    "Finalize on Activity when findings are ready and governance gates are clear.",
+    "Finalize on Activity when findings are ready and approval gates are clear.",
   ],
 } as const;
 

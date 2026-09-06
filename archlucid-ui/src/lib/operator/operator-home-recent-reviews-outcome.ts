@@ -18,7 +18,7 @@ export type FormatOperatorHomeRecentReviewsOutcomeOptions = {
   readonly visibleCount?: number;
   /** Total tenant rows in the recent preview pool (before featured cap). */
   readonly recentTotalCount?: number;
-  /** Governance approval queue pressure from attention summary. */
+  /** Approval queue pressure from attention summary. */
   readonly awaitingApprovalCount?: number;
   /** Omit awaiting-approval segment when the lead card already surfaces that count (P1-6). */
   readonly suppressAwaitingApprovalCount?: boolean;

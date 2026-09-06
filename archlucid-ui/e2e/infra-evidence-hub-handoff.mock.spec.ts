@@ -142,7 +142,7 @@ test.describe(`infra-evidence-hub-handoff (${releaseGateTag})`, { tag: [releaseG
   test.setTimeout(120_000);
 
   test.beforeEach(async ({ page }) => {
-    await page.route("**/api/proxy/v1/infra-evidence/cloud-resources/**", async (route) => {
+    await page.route("**/api/proxy/v1/infra-evidence/cloud-resources**", async (route) => {
       const url = route.request().url();
 
       if (url.includes("/hub")) {
@@ -288,5 +288,83 @@ test.describe(`infra-evidence-hub-handoff (${releaseGateTag})`, { tag: [releaseG
       "href",
       new RegExp(`snapshotId=${snapshotId}`),
     );
+  });
+
+  test("explorer cloudResourceId redirect preserves work queue and snapshot", async ({ page }) => {
+    const explorerUrl =
+      `/governance/infrastructure/resources?cloudResourceId=${cloudResourceId}&workQueue=open-findings&snapshotId=${snapshotId}`;
+
+    await page.goto(explorerUrl);
+    await expect(page).toHaveURL(
+      new RegExp(
+        `/governance/infrastructure/resources/${cloudResourceId}\\?tab=findings&snapshotId=${snapshotId}`,
+      ),
+      { timeout: 60_000 },
+    );
+  });
+
+  test("hub tab switch preserves audit scope on sibling links", async ({ page }) => {
+    const hubUrl =
+      `/governance/infrastructure/resources/${cloudResourceId}?tab=drift&snapshotId=${snapshotId}&assessmentId=${assessmentId}&auditEvidenceSnapshotId=${auditSnapshotId}&controlId=${controlId}`;
+
+    await page.goto(hubUrl);
+    await expect(page.getByTestId("infra-resource-hub-drift-open-findings-tab")).toBeVisible({ timeout: 60_000 });
+    await page.getByTestId("infra-resource-hub-drift-open-findings-tab").click();
+    await expect(page).toHaveURL(/tab=findings/);
+    await expect(page).toHaveURL(/assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/);
+    await expect(page).toHaveURL(/auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb/);
+    await expect(page).toHaveURL(/controlId=cccccccc-cccc-cccc-cccc-cccccccccccc/);
+  });
+
+  test("terraform hub workbench Ask handoff preserves terraform back link", async ({ page }) => {
+    const hubUrl =
+      `/governance/infrastructure/resources/${cloudResourceId}?tab=terraform&snapshotId=${snapshotId}&assessmentId=${assessmentId}&auditEvidenceSnapshotId=${auditSnapshotId}&controlId=${controlId}`;
+
+    await page.goto(hubUrl);
+    await expect(page.getByTestId("infra-resource-hub-terraform-open-workbench")).toBeVisible({ timeout: 60_000 });
+    await page.getByTestId("infra-resource-hub-terraform-open-workbench").click();
+    await expect(page).toHaveURL(/\/governance\/infrastructure\/terraform\?/);
+    await expect(page).toHaveURL(/controlId=cccccccc-cccc-cccc-cccc-cccccccccccc/);
+
+    await expect(page.getByTestId("infra-terraform-open-ask")).toBeVisible({ timeout: 30_000 });
+    await page.getByTestId("infra-terraform-open-ask").click();
+    await expect(page).toHaveURL(/\/governance\/infrastructure\/ask\?/);
+    await expect(page).toHaveURL(/tab=terraform/);
+    await expect(page.getByTestId("infra-ask-terraform-back-link")).toHaveAttribute(
+      "href",
+      /\/governance\/infrastructure\/terraform\?/,
+    );
+    await expect(page.getByTestId("infra-ask-open-scope-hub-tab")).toHaveAttribute("href", /tab=terraform/);
+  });
+
+  test("remediation workbench Ask handoff preserves remediation hub tab", async ({ page }) => {
+    const hubUrl =
+      `/governance/infrastructure/resources/${cloudResourceId}?tab=remediation&snapshotId=${snapshotId}&assessmentId=${assessmentId}&auditEvidenceSnapshotId=${auditSnapshotId}&controlId=${controlId}`;
+
+    await page.goto(hubUrl);
+    await expect(page.getByTestId("infra-resource-hub-remediation-factory-instance-1")).toBeVisible({
+      timeout: 60_000,
+    });
+    await page.getByTestId("infra-resource-hub-remediation-factory-instance-1").click();
+    await expect(page).toHaveURL(/\/governance\/infrastructure\/remediation\?/);
+    await expect(page.getByTestId("infra-remediation-open-ask")).toBeVisible({ timeout: 30_000 });
+    await page.getByTestId("infra-remediation-open-ask").click();
+    await expect(page).toHaveURL(/\/governance\/infrastructure\/ask\?/);
+    await expect(page).toHaveURL(/tab=remediation/);
+    await expect(page.getByTestId("infra-ask-open-scope-hub-tab")).toHaveAttribute("href", /tab=remediation/);
+  });
+
+  test("diagram reconcile Ask handoff preserves audit scope", async ({ page }) => {
+    const hubUrl =
+      `/governance/infrastructure/resources/${cloudResourceId}?tab=diagram&runId=run-1&snapshotId=${snapshotId}&assessmentId=${assessmentId}&auditEvidenceSnapshotId=${auditSnapshotId}&controlId=${controlId}`;
+
+    await page.goto(hubUrl);
+    await expect(page.getByTestId("infra-resource-hub-diagram-ask")).toBeVisible({ timeout: 60_000 });
+    await page.getByTestId("infra-resource-hub-diagram-ask").click();
+    await expect(page).toHaveURL(/\/governance\/infrastructure\/ask\?/);
+    await expect(page).toHaveURL(/tab=diagram/);
+    await expect(page).toHaveURL(/controlId=cccccccc-cccc-cccc-cccc-cccccccccccc/);
+    await expect(page.getByTestId("infra-ask-open-scope-hub-tab")).toHaveAttribute("href", /tab=diagram/);
+    await expect(page.getByTestId("infra-ask-open-audit-hub-tab")).toHaveAttribute("href", /tab=audit/);
   });
 });

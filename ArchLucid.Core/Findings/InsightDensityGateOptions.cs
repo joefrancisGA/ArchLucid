@@ -58,4 +58,21 @@ public sealed class InsightDensityGateOptions
         get;
         set;
     } = false;
+
+    /// <summary>
+    ///     When true in Real execution mode with a Premium deployment, proposes up to
+    ///     <see cref="MaxGeneratedInsightFindingsPerSnapshot" /> novel findings from bounded package evidence.
+    /// </summary>
+    public bool EnableInsightGenerator
+    {
+        get;
+        set;
+    } = false;
+
+    /// <summary>Hard ceiling on Premium-tier insight-generator completions per findings snapshot.</summary>
+    public int MaxGeneratedInsightFindingsPerSnapshot
+    {
+        get;
+        set;
+    } = 8;
 }

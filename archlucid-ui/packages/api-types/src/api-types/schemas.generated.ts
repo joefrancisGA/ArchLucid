@@ -9290,6 +9290,7 @@ export interface components {
             isDemoWelcomeRun?: boolean;
             isPinned?: boolean;
             isSample?: boolean;
+            legacyRunStatus?: null | string;
             packageOrigin?: null | string;
             projectId: string;
             runDegradedExecution?: boolean;

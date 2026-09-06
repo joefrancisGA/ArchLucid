@@ -5,7 +5,7 @@ import { resolveEnterpriseStatusKind } from "@/lib/enterprise-status-kind-resolv
 import { cn } from "@/lib/utils";
 
 export type GovernanceStatusTagProps = {
-  /** Raw API or buyer-polished governance status display string. */
+  /** Raw API or buyer-polished approval status display string. */
   status: string;
   /** Override visible label while keeping resolver input from `status` when omitted. */
   label?: string;
@@ -13,7 +13,7 @@ export type GovernanceStatusTagProps = {
 } & Omit<HTMLAttributes<HTMLSpanElement>, "children">;
 
 /**
- * Governance workflow / gate metadata chip — {@link StatusTag} + **TB-2285** resolver (**TB-2286**).
+ * Approval workflow / gate metadata chip — {@link StatusTag} + **TB-2285** resolver (**TB-2286**).
  */
 export function GovernanceStatusTag({
   status,

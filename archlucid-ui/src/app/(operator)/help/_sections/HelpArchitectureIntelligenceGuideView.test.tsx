@@ -77,7 +77,7 @@ describe("HelpArchitectureIntelligenceGuideView", () => {
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
 
-    expect(screen.getByRole("link", { name: "Read Model governance help" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Read Model policy help" })).toHaveAttribute(
       "href",
       "/help/model-governance",
     );

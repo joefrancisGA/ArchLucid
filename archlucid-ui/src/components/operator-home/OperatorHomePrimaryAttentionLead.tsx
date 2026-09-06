@@ -14,7 +14,7 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 const AWAITING_APPROVAL_WARNINGS_CLARIFIER =
-  "Awaiting approval counts reviews in the approval queue. Approval warnings count governance checks that need a sign-off before finalization.";
+  "Awaiting approval counts reviews in the approval queue. Approval warnings count approval checks that need a sign-off before finalization.";
 
 /** Prominent lead for the highest non-zero attention partition (P0 — awaiting approval first). */
 export function OperatorHomePrimaryAttentionLead(): React.JSX.Element | null {

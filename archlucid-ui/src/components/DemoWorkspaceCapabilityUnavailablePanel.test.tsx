@@ -12,7 +12,7 @@ describe("DemoWorkspaceCapabilityUnavailablePanel", () => {
     render(
       <DemoWorkspaceCapabilityUnavailablePanel
         capability="Digest delivery"
-        description="In a connected tenant, architects configure scheduled governance digests here."
+        description="In a connected tenant, architects configure scheduled scheduled digests here."
       />,
     );
 
@@ -22,7 +22,7 @@ describe("DemoWorkspaceCapabilityUnavailablePanel", () => {
     );
     expect(screen.getByText(BUYER_DEMO_CAPABILITY_UNAVAILABLE_TITLE)).toBeInTheDocument();
     expect(
-      screen.getByText("In a connected tenant, architects configure scheduled governance digests here."),
+      screen.getByText("In a connected tenant, architects configure scheduled scheduled digests here."),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open reviews" })).toHaveAttribute(
       "href",

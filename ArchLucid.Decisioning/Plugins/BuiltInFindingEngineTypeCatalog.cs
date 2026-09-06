@@ -48,6 +48,7 @@ public static class BuiltInFindingEngineTypeCatalog
             ["GraphAzureInventoryReconciliationFindingEngine"] = "azure-inventory-reconciliation",
             ["GraphAwsInventoryReconciliationFindingEngine"] = "aws-inventory-reconciliation",
             ["GraphGcpInventoryReconciliationFindingEngine"] = "gcp-inventory-reconciliation",
+            ["DeclarationInventoryContradictionFindingEngine"] = "declaration-inventory-contradiction",
             ["OrphanedAwsResourceFindingEngine"] = "orphaned-aws-resource",
             ["OrphanedGcpResourceFindingEngine"] = "orphaned-gcp-resource",
             ["AwsCostRecommendationFindingEngine"] = "aws-cost-recommendation",
@@ -60,6 +61,7 @@ public static class BuiltInFindingEngineTypeCatalog
             ["OpenCommitmentFindingEngine"] = "open-commitment",
             ["PortfolioRecurrenceFindingEngine"] = "portfolio-recurrence",
             ["SecretsLifecycleFindingEngine"] = "secrets-lifecycle",
+            ["InsightGeneratorFindingEngine"] = "insight-generator",
         };
 
     /// <summary>Every product <c>EngineType</c> (ordinal ignore-case).</summary>

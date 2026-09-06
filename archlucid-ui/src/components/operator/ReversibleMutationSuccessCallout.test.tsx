@@ -39,7 +39,7 @@ describe("ReversibleMutationSuccessCallout (TB-2148)", () => {
     expect(screen.queryByRole("button", { name: "Undo" })).not.toBeInTheDocument();
   });
 
-  it("does not show undo for permanent governance mutations", () => {
+  it("does not show undo for permanent approval mutations", () => {
     render(
       <ReversibleMutationSuccessCallout
         message="Approval recorded."
@@ -51,12 +51,12 @@ describe("ReversibleMutationSuccessCallout (TB-2148)", () => {
     expect(screen.queryByRole("button", { name: "Undo" })).not.toBeInTheDocument();
   });
 
-  it("shows record correction for amendable governance mutations", () => {
+  it("shows record correction for amendable approval mutations", () => {
     const onRecordCorrection = vi.fn();
 
     render(
       <ReversibleMutationSuccessCallout
-        message="Governance approval recorded."
+        message="Approval recorded."
         mutationId="governance_quick_approve"
         onRecordCorrection={onRecordCorrection}
       />,

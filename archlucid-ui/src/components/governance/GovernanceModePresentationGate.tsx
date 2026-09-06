@@ -9,7 +9,7 @@ type GovernanceModePresentationGateProps = {
   readonly fallback?: ReactNode;
 };
 
-/** Renders children only when governance view is enabled (client preference). */
+/** Renders children only when approval view is enabled (client preference). */
 export function GovernanceModePresentationGate(props: GovernanceModePresentationGateProps) {
   const { children, fallback = null } = props;
   const { mounted, isGovernanceModeEnabled } = useGovernanceMode();

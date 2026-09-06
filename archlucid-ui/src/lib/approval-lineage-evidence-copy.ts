@@ -12,7 +12,7 @@ export const APPROVAL_LINEAGE_CLAIM_DISCIPLINE =
   "Approval lineage shows how one approval request connects to its review, findings, and finalized review record version. Use it to inspect links — not as a full audit export on its own. Open Audit or the architecture review when you need the fuller trail.";
 
 export const APPROVAL_LINEAGE_SOURCES_INTRO =
-  "Use these follow-ups when lineage needs queue context, findings triage, audit trail, or governance orientation.";
+  "Use these follow-ups when lineage needs queue context, findings triage, audit trail, or approval orientation.";
 
 
 /** Operator Sources — no self-href to the dynamic lineage route pattern. */
@@ -20,6 +20,6 @@ export const APPROVAL_LINEAGE_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Approval queue", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
   { label: "Findings", href: GOVERNANCE_FINDINGS_PATH },
   { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
-  { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
+  { label: "Approval help", href: inAppHelpHref("governance-approval") },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started") },
 ] as const;

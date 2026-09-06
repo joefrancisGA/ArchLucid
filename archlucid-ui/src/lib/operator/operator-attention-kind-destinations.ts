@@ -33,7 +33,7 @@ export const OPERATOR_ATTENTION_KIND_DESTINATIONS: Record<
   "awaiting-approval": {
     href: "/?tab=awaiting-approval",
     description:
-      "Reviews waiting for governance approval before the sealed review record is finalized.",
+      "Reviews waiting for approval before the sealed review record is finalized.",
     ctaLabel: "View awaiting approval",
   },
 };

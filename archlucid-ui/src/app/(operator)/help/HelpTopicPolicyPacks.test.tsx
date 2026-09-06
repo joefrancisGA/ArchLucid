@@ -65,7 +65,7 @@ describe("HelpPolicyPacksGuideView (HEO)", () => {
     expect(loaded?.entry.sourcePaths).toContain("docs/library/customer-facing/POLICY_PACKS_OPERATOR_GUIDE.md");
   });
 
-  it("declares registry provenance metadata for governance orientation", () => {
+  it("declares registry provenance metadata for approval orientation", () => {
     expect(entry?.lastReviewed).toBe("2026-08-09");
     expect(entry?.releaseApplicability).toContain("policy pack assignment and conflict resolution");
   });

@@ -62,7 +62,7 @@ export const NAV_DISCLOSURE = {
   },
   /**
    * Maps to **`showAdvanced`** (localStorage `archlucid_nav_show_advanced`) together with Sidebar layout →
-   * “Show governance, audit & admin controls”.
+   * “Show audit & admin controls”.
    */
   advancedOperationsSidebar: {
     show: "Show policy & audit tools",
