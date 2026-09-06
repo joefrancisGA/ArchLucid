@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 204
-- **bugs-found:** 726
+- **hunts:** 205
+- **bugs-found:** 738
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-06
-- **last-bug:** 2026-09-06 — DrillAccessKey/DriveAccessKey/DynamicAccessKey redaction, workloads doesn't-have and cannot-implement/enable/use negation, advice need-not-configure/require/implement/enable/use suffix
+- **last-bug:** 2026-09-06 — EdgeAccessKey/EmailAccessKey/EmbeddedAccessKey redaction, workloads cannot-deploy/adopt/have and does-not-implement negation, advice need-not-have/deploy/need and does-not-implement/enable suffix
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
