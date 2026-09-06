@@ -18,14 +18,14 @@ import {
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-/** Infrastructure overview hub — lists workbench destinations until IE-UX-01..05 replace stubs. */
+/** Infrastructure overview hub — lists all infrastructure evidence workbench destinations. */
 export function InfrastructureOverviewClient() {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6">
       <LayerHeader pageKey="infrastructure-overview" />
       <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         Azure inventory evidence workbenches for snapshots, diagrams, resource hubs, grounded Ask, and remediation
-        instances.
+        instances. All seven destinations are available from this hub.
       </p>
       <EnterpriseTable ariaLabel="Infrastructure evidence workbenches">
         <EnterpriseTableHead>
