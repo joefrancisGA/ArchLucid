@@ -308,6 +308,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     });
   }, [hub]);
 
+  const openFindingsCount = useMemo(() => {
+    if (hub == null) {
+      return 0;
+    }
+
+    return hub.operationalSecurityFindings.totalCount + hub.architectureReviewFindings.totalCount;
+  }, [hub]);
+
   const runMatchRemediationFromFinding = async (findingId: string) => {
     const trimmedFindingId = findingId.trim();
 
@@ -700,6 +708,21 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             {findingActionMessage != null ? (
               <p className={cn("m-0 text-sm", OPERATOR_TYPOGRAPHY.helper)} role="status">{findingActionMessage}</p>
             ) : null}
+            {resolvedAuditLineage != null ? (
+              <div className="flex flex-wrap gap-2">
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-findings-open-audit-tab">
+                  <Link
+                    href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, {
+                      assessmentId: resolvedAuditLineage.assessmentId,
+                      auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
+                      controlId: resolvedAuditLineage.controlId,
+                    })}
+                  >
+                    View audit lineage in hub
+                  </Link>
+                </Button>
+              </div>
+            ) : null}
             {[hub.operationalSecurityFindings, hub.architectureReviewFindings].map((stream) => (
               <section key={stream.streamKind} className="rounded border border-border bg-card p-4">
                 <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{stream.streamLabel}</h2>
@@ -857,6 +880,19 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       Ask about this control
                     </Link>
                   </Button>
+                  {openFindingsCount > 0 ? (
+                    <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-audit-open-findings-tab">
+                      <Link
+                        href={buildResourceHubWorkbenchHref({
+                          cloudResourceId,
+                          tab: "findings",
+                          snapshotId: resolvedSnapshotId,
+                        })}
+                      >
+                        View findings in hub
+                      </Link>
+                    </Button>
+                  ) : null}
                 </div>
                 {resolvedAuditLineage.matches.length > 1 ? (
                   <section className="rounded border border-border bg-card p-4" aria-label="Additional audit controls">
