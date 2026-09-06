@@ -397,3 +397,20 @@ export function buildResourceHubWorkCountHref(
 ): string {
   return resourceHubFilterHrefFromSearch(cloudResourceId, "", { tab: kind });
 }
+
+export function buildResourceExplorerWorkCountHref(
+  cloudResourceId: string,
+  kind: CloudResourceExplorerWorkCountKind,
+  workQueue: CloudResourceExplorerWorkQueue = "all",
+): string {
+  const queueTab = resolveResourceHubTabFromExplorerWorkQueue(workQueue);
+
+  if (queueTab != null && queueTab === kind) {
+    return buildInfrastructureAskHref({
+      cloudResourceId,
+      workQueue,
+    });
+  }
+
+  return buildResourceHubWorkCountHref(cloudResourceId, kind);
+}
